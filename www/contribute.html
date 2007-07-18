@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/xhtml1-strict.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ascii"/><title xmlns="http://www.w3.org/1999/xhtml">How to contribute</title><link rel="stylesheet" type="text/css" href="../page.css"/>
+<style type="text/css">
+<!--
+.style1 {color: #FF0000}
+-->
+</style>
+</head><body><div id="main">
+<h1 xmlns="http://www.w3.org/1999/xhtml">How to Contribute to the JavaFX Compiler Project</h1>
+<p xmlns="http://www.w3.org/1999/xhtml">This page describes the contribution process for the JavaFX Compiler
+project. This interim process will be used until an open governance
+model for the project is established.</p>
+<p xmlns="http://www.w3.org/1999/xhtml">The design of this process is based loosely upon the
+contribution process of the <a href="https://openjdk.dev.java.net/contribute.html">OpenJDK</a>
+project. </p>
+<h2 xmlns="http://www.w3.org/1999/xhtml">0. Become a contributor</h2>
+<p xmlns="http://www.w3.org/1999/xhtml">Like many other open-source projects, the JavaFX Compiler project
+requires contributors to jointly assign their copyright on
+contributed code. If you haven't yet signed the <a href="http://www.sun.com/software/opensource/sca.pdf">Sun Contributor
+Agreement</a> (SCA) (<span class="style1">verify URL</span>) then please do so and fax it to
+  +1-408-715-2540, or scan it and e-mail the result to
+sun_ca(at)sun.com.</p>
+<p xmlns="http://www.w3.org/1999/xhtml">The SCA gives Sun and the contributor joint copyright interests
+in the code. The contributor retains copyrights while also granting
+those rights to Sun as the project sponsor. You only need to sign
+the SCA once in order to cover all changes that you might
+contribute to any Sun-sponsored open-source project including not
+just the JavaFX Compiler project but also, for example, <a href="http://glassfish.dev.java.net">GlassFish</a>, <a href="http://netbeans.org">NetBeans</a>, and <a href="http://opensolaris.org">OpenSolaris</a>. If you've already signed
+the SCA in order to contribute to some other Sun-sponsored project,
+then you do not need to sign it again in order to contribute to the
+JavaFX Compiler project.</p>
+<h2 xmlns="http://www.w3.org/1999/xhtml">1. Find something interesting to work on</h2>
+<p xmlns="http://www.w3.org/1999/xhtml">The most obvious thing to work on is a bug or enhancement (RFE)
+about which you are passionate. Please check the "javafx-compiler" component of
+the online <a href="#sourcedownloads">bug database</a> to see if
+your idea is already described there, and if so then use that
+bug/RFE's id number when writing about your work.</p>
+<p xmlns="http://www.w3.org/1999/xhtml">If you're interested in a particular area but don't have any
+specific ideas about what to do, then feel free to post a query to
+the appropriate <a href="https://javafx-compiler.dev.java.net/servlets/ProjectMailingListList">development mailing list</a> to ask for suggestions that match
+your skills and knowledge.</p>
+<h2 xmlns="http://www.w3.org/1999/xhtml">2. Submit a test</h2>
+<p xmlns="http://www.w3.org/1999/xhtml">If you have some JavaFX Script source code that does not compile correctly, attempt to trim the file down to the main problem, and attach it to an issue describing the problem. We'll add that file to our test suite. </p>
+<h2 xmlns="http://www.w3.org/1999/xhtml">3. Discuss your intended change</h2>
+<p xmlns="http://www.w3.org/1999/xhtml">Before you invest time working on a change, discuss what you're
+trying to do with other engineers working on the same code. They're
+likely to be able to offer comments and suggestions that will
+result in a higher-quality change and a smoother submission
+process. Announcing that you're working on a particular item can
+also help to avoid wasted effort in case someone else is already
+working on it.</p>
+<p xmlns="http://www.w3.org/1999/xhtml">If you're thinking of working on an existing bug or RFE, then the
+best way to start such a discussion is to post a message to the
+appropriate <a href="https://javafx-compiler.dev.java.net/servlets/ProjectMailingListList">development mailing list</a> with a subject line of the form</p>
+<blockquote xmlns="http://www.w3.org/1999/xhtml"><tt><span class="param">IssueID 210</span>: <span class="param">My favorite bug</span></tt></blockquote>
+<p xmlns="http://www.w3.org/1999/xhtml">where <tt class="param">210</tt> is replaced with the actual
+bug or RFE id number and <tt class="param">My favorite bug</tt> is
+replaced with the bug or RFE's synopsis.</p>
+<h2 xmlns="http://www.w3.org/1999/xhtml">4. Submit a patch</h2>
+<p xmlns="http://www.w3.org/1999/xhtml">When your change is ready, send a message to the appropriate <a href="https://javafx-compiler.dev.java.net/servlets/ProjectMailingListList">
+development mailing lis</a>t with a subject line of the form</p>
+<blockquote xmlns="http://www.w3.org/1999/xhtml"><tt>[PATCH] <span class="param">210</span>:
+<span class="param">My favorite bug</span></tt></blockquote>
+<p xmlns="http://www.w3.org/1999/xhtml">where <tt class="param">210</tt> and <tt class="param">My
+favorite bug</tt> are replaced as above. If no existing bug or RFE
+describes your change then omit the id number and one will be
+created and assigned.</p>
+<p xmlns="http://www.w3.org/1999/xhtml">The message should contain three things, either directly in the
+body or as attachments:</p>
+<ul xmlns="http://www.w3.org/1999/xhtml" class="spread">
+<li>A description of the change, including a rationale for your
+approach and a discussion of any alternative approaches that were
+considered, if relevant. If no existing bug or RFE describes your
+change then also include a description of the problem that it
+solves or the need that it addresses.</li>
+<li>Diffs of the code changes, in <a href="http://www.gnu.org/software/diffutils/manual/html_mono/diff.html#Unified%20Format">
+unified diff</a> format (<tt>-u</tt>). Be sure to identify the
+baseline version for your diffs by mentioning its build number
+(<tt>b02</tt>, <tt>b03</tt>, etc.), which you can find in the name
+of the source bundle you that started with. If you're using a
+working copy of the <a href="https://javafx-compiler.dev.java.net/source/browse/javafx-compiler">Subversion
+repository</a> then you can find the build number in the output of
+the <tt>svn&#160;log</tt> command, and diffs in the required format
+can be generated via the <tt>svn&#160;diff</tt> command.</li>
+</ul>
+<h2 xmlns="http://www.w3.org/1999/xhtml">5. Work with your sponsor</h2>
+<p xmlns="http://www.w3.org/1999/xhtml">A Sun engineer whose knowledge and skills are a good match for
+your proposed change will be assigned as your <i>sponsor</i> and
+will reply to your message.</p>
+<p xmlns="http://www.w3.org/1999/xhtml">You can generally expect a reply within about five working days;
+actual response times will vary due to factors such as impending
+product-release deadlines, contribution volume, and holiday
+schedules. You should also expect a longer response time if you
+haven't already discussed your proposed change on the appropriate
+development list, since it will take more time for your sponsor to
+come up to speed on what you're trying to do.</p>
+<p xmlns="http://www.w3.org/1999/xhtml">Your sponsor will first evaluate your patch for correctness,
+compatibility, stability, performance, coding style, and overall
+appropriateness to the current phase of development. If your change
+passes inspection then your sponsor will work with you to address
+any minor deficiencies and then guide you through the rest of the
+development process, navigating the relevant internal Sun
+engineering processes on your behalf and ultimately, if all goes
+well, integrating your patch into the JDK.</p>
+<h2 xmlns="http://www.w3.org/1999/xhtml">6. Know what to expect</h2>
+<p xmlns="http://www.w3.org/1999/xhtml">Only the best patches submitted will actually make it all the
+way into the JavaFX Compiler source base. Sun's goal is not to accept the
+maximum number of contributions possible, but rather to accept only
+high-quality contributions that improve the JavaFX compiler.</p>
+<p xmlns="http://www.w3.org/1999/xhtml">If you're relatively new to the Java platform and the JavaFX language, then we recommend
+that you gain more experience writing Java and JavaFX applications before you
+attempt to work on the JavaFX Compiler itself. Sun's aim here is to bring
+developers who already have the skills required to work on the JavaFX Compiler
+into the existing OpenJFX development community. The members of that
+community have neither the time nor the patience required to teach
+basic Java programming skills or platform implementation
+techniques. (Sun offers <a href="http://www.sun.com/training/catalog/java/index.xml">formal
+Java language training</a> if that's what you're looking for.) You can learn the current JavaFX Script language implementation by visiting the <a href="https://openjfx.dev.java.net">OpenJFX web site</a>. </p>
+<p xmlns="http://www.w3.org/1999/xhtml">&nbsp;</p>
+</body></html>
