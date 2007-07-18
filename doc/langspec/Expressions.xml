@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<?xml-stylesheet href="docbook.css" type="text/css"?>
+<chapter id="Expressions">
+<title>Expressions</title>
+<productionset>
+<production xml:id="syntax.Expression">
+<lhs>Expression</lhs>
+<rhs><nonterminal def="#syntax.Primary">Primary</nonterminal>
+  | <nonterminal def="#syntax.IfExpression">IfExpression</nonterminal>
+  | <nonterminal def="#syntax.ReturnExpression">ReturnExpression</nonterminal>
+  | <nonterminal def="#syntax.InsertExpression">InsertExpression</nonterminal>
+  | ...
+</rhs>
+</production>
+<production xml:id="syntax.Primary">
+<lhs>Primary</lhs>
+<rhs><nonterminal def="#syntax.StringLiteral">StringLiteral</nonterminal>
+  | <nonterminal def="#syntax.Block">Block</nonterminal>
+  | <nonterminal def="#syntax.Identifier">Identifier</nonterminal>
+  | <nonterminal def="#syntax.FunctionExpression">FunctionExpression</nonterminal>
+  | "(" <nonterminal def="#syntax.Expression">Expression</nonterminal> ")"
+  | ...
+</rhs>
+</production>
+<production xml:id="syntax.Identifier">
+<lhs>Identifier</lhs>
+<rhs>...
+</rhs>
+</production>
+<production xml:id="syntax.InsertExpression">
+<lhs>InsertExpression</lhs>
+<rhs>"insert" ...</rhs>
+</production>
+</productionset>
+<para>
+For now, we list all non-Primary expressions under Expression,
+without regard for parsing precedence.  We'll fix that later.
+</para>
+<para>
+Note that we consider (for example)
+<nonterminal def="#syntax.InsertExpression">InsertExpression</nonterminal>
+to be an Expression, even though its type is always <code>void</code>
+(it never returns a value).
+This is for syntactic convenience, so we can use it as
+the <code>then</code>- or  <code>else</code>-expression
+of an IfExpression without having to enclose it
+in a <nonterminal def="#syntax.Block">Block</nonterminal>.
+(There may be precedence/ambiguity issues we need to figure out.  FIXME.)
+</para>
+
+<section><title>Statements and Blocks</title>
+<productionset>
+<production xml:id="syntax.Block">
+<lhs>Block</lhs>
+<rhs>"{" <nonterminal def="#syntax.Statement">Statement</nonterminal>*
+  [<nonterminal def="#syntax.Expression">Expression</nonterminal> [";"]] "}"</rhs>
+</production>
+<production xml:id="syntax.Statement">
+<lhs>Statement</lhs>
+<rhs><nonterminal def="#syntax.ExprStatement">ExprStatement</nonterminal>
+| <nonterminal def="#syntax.DeclCurly">ExprDeclCurly</nonterminal>
+| <nonterminal def="#syntax.DeclNonCurly">ExprDeclNonCurly</nonterminal> ";"
+| ";"
+| ... </rhs>
+</production>
+<production xml:id="syntax.ExprStatement">
+<lhs>ExprStatement</lhs>
+<rhs><nonterminal def="#syntax.Expression">Expression</nonterminal> ";"</rhs>
+</production>
+<production xml:id="syntax.DeclNonCurly">
+<lhs>DeclNonCurly</lhs>
+<rhs><nonterminal def="#syntax.VarDeclaration">VarDeclaration</nonterminal>
+| ...</rhs>
+</production>
+<production xml:id="syntax.DeclCurly">
+<lhs>DeclCurly</lhs>
+<rhs><nonterminal def="#syntax.FunctionDeclaration">FunctionDeclaration</nonterminal>
+| <nonterminal def="#syntax.ClassDeclaration">ClassDeclaration</nonterminal>
+| ...</rhs>
+</production>
+</productionset>
+<para>JavaFX is an expression language, in the sense that there
+isn't any real difference between expressions and statements
+The grammatical term <nonterminal def="#syntax.Statement">Statement</nonterminal> is only used in the definition of
+<nonterminal def="#syntax.Block">Block</nonterminal>.
+Evaluating the <nonterminal def="#syntax.Block">Block</nonterminal>
+evaluates the <nonterminal def="#syntax.Statement">Statement</nonterminal>s,
+in sequence.  If there is a final
+<nonterminal def="#syntax.Expression">Expression</nonterminal>,
+that is the result (value or location) of the
+<nonterminal def="#syntax.Block">Block</nonterminal>.
+If there is no final
+<nonterminal def="#syntax.Expression">Expression</nonterminal>,
+then the Block has no value and its type is <code>void</code>.</para>
+<para>
+For convenience, we allow a final <code>";"</code>
+after the result <nonterminal def="#syntax.Expression">Expression</nonterminal>.
+That final <code>";"</code> is ignored,
+rather than treating it as part of an
+<nonterminal def="#syntax.ExprStatement">ExprStatement</nonterminal>.
+(The rule as written is otherwise ambiguous.)
+</para>
+<para>
+The type of a Block that has a final Expression
+is the type of that final Expression.
+Otherwise, the type of the Block is <code>void</code>.</para>
+<para>
+If the block has a final Expression, then it is a compile-time error if the
+type of any Statement is <code>unreachable</code>.
+Otherwise, if the block does not have a final Expression,
+then it is a compile-time error if the
+type of any Statement except the last is <code>unreachable</code>.</para>
+</section>
+
+<section><title>Conditional Expressions</title>
+<productionset>
+<production xml:id="syntax.IfExpression">
+<lhs>IfExpression</lhs>
+<rhs>"if" <nonterminal def="#syntax.Expression">Expression</nonterminal>
+  "then" <nonterminal def="#syntax.Expression">Expression</nonterminal>
+  [[";"] "else" <nonterminal def="#syntax.Expression">Expression</nonterminal>] </rhs>
+</production>
+</productionset>
+</section>
+<section><title>Return Expressions</title>
+<productionset>
+<production xml:id="syntax.ReturnExpression">
+<lhs>ReturnExpression</lhs>
+<rhs>"return" [<nonterminal def="#syntax.Expression">Expression</nonterminal>] </rhs>
+</production>
+</productionset>
+<para>
+The <nonterminal def="#syntax.Expression">Expression</nonterminal>
+is required unless the following token
+is one of <code>";"</code>, <code>")"</code>, <code>"}"</code>,
+<code>"]"</code>, <code>"else"</code> or end-of-file.</para>
+<para>
+Evaluates the <nonterminal def="#syntax.Expression">Expression</nonterminal>,
+and returns with that value or location as the result of the lexically nearest
+enclosing function.</para>
+</section>
+</chapter>

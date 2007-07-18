@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project default="spec" name="javafx-docs" basedir="..">
+    <property name="build.dir" value="${basedir}/build"/>
+    <property name="doc.build.dir" value="${build.dir}/doc"/>
+    <property name="doc.src.dir" value="${basedir}/doc/langspec"/>
+    <property name="lib.dir" value="${basedir}/lib"/>
+    <property name="html.style" value="${basedir}/tools/docbook-xsl/html/docbook.xsl"/>
+    <property name="chunk.style" value="${basedir}/tools/docbook-xsl/xhtml/chunk.xsl"/>
+
+    <path id="doc.build.class.path">
+        <fileset dir="${lib.dir}" includes="*.jar"/>
+    </path>
+
+    <target name="langspec"
+     description="Build language specification using make and xsltproc.">
+        <exec dir="doc/langspec" command="make langspec"/>
+    </target>
+
+    <target name="prepare">
+        <mkdir dir="${doc.build.dir}"/>
+        <mkdir dir="${doc.build.dir}/html"/>
+        <mkdir dir="${doc.build.dir}/tmp"/>
+    </target>
+
+    <target name="stringliterals-chapter">
+        <antcall target="chapter-html">
+            <param name="chapter.name" value="StringLiterals"/>
+        </antcall>
+    </target>
+
+    <target name="expressions-chapter">
+        <antcall target="chapter-html">
+            <param name="chapter.name" value="Expressions"/>
+        </antcall>
+    </target>
+
+    <target name="spec"
+     description="Build language specification using Ant">
+        <antcall target="chunk-html">
+            <param name="doc.name" value="JavaFX-Language"/>
+        </antcall>
+    </target>
+
+    <target name="clean" description="Deletes all generated documentation.">
+        <delete dir="${doc.build.dir}"/>
+    </target>
+
+    <!-- Abstract targets -->
+
+    <!-- arg: chapter.name -->
+    <target name="chapter-html" depends="prepare">
+        <java classname="com.icl.saxon.StyleSheet" fork="true">
+            <classpath refid="doc.build.class.path"/>
+            <arg value="-o"/>
+            <arg value="${doc.build.dir}/html/${chapter.name}.html"/>
+            <arg value="${doc.src.dir}/${chapter.name}.xml"/>
+            <arg value="${html.style}"/>
+        </java>
+    </target>
+
+    <!-- arg: doc.name -->
+    <target name="chunk-html" depends="prepare">
+        <java classname="com.elharo.xml.xinclude.SAXXIncluder" fork="true" dir="${doc.build.dir}/html">
+            <classpath refid="doc.build.class.path" />
+            <arg value="${doc.src.dir}/${doc.name}.xml"/>
+            <redirector output="${doc.build.dir}/tmp/${doc.name}-xi-tmp.xml" />
+        </java>
+
+        <java classname="com.icl.saxon.StyleSheet" fork="true" dir="${doc.build.dir}/html">
+            <classpath refid="doc.build.class.path"/>
+            <arg value="-o"/>
+            <arg value="${doc.build.dir}/html/${doc.name}.html"/>
+            <arg value="${doc.build.dir}/tmp/${doc.name}-xi-tmp.xml"/>
+            <arg value="${chunk.style}"/>
+            <arg value="use.id.as.filename=1"/>
+            <arg value="chunk.section.depth=0"/>
+            <arg value="chunk.fast=1"/>
+        </java>
+    </target>
+
+
+</project>

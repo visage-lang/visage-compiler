@@ -1,0 +1,33 @@
+The JavaFX compiler extends the OpenJDK javac compiler.  While this
+helps leverage the years of engineering effort put into javac, it 
+means that debugging and profiling the JavaFX compiler is a little
+difficult because the javac sources are external.
+
+This project adds support so a developer can debug and profile the
+JavaFX compiler using NetBeans.  Here are the steps:
+
+1.  Download the OpenJDK source (or at least its shared classes).
+
+2.  Define a "javac-sources" library in NetBeans, using 
+    Tools->Library Manager.  
+
+3.  Click the Add Jar/Folder button and specify the lib/javac.jar 
+    file from your javafx-compiler source.  Click the Add Jar button.
+
+4.  Click the Sources tab, then click the Add Jar/Folder button.
+    Specify the j2se/src/share/classes directory in your local
+    OpenJDK workspace.  Click the Add Jar button.
+
+5.  Click OK to create the library.
+
+6.  Right-click on the javac project and select Properties.  Click
+    on the Libraries section.
+
+7.  Click the Add Library button and add the javac-sources library.
+
+8.  To debug or profile a JavaFX script, click on the Run section
+    of the project's properties dialog.  In the arguments section,
+    specify the path of the script.
+
+NOTE:  this project does not build the javac compiler.  Refer to 
+the OpenJDK documentation for information on how to build javac.

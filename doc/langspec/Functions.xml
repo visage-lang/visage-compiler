@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<?xml-stylesheet href="docbook.css" type="text/css"?>
+<chapter id="Functions">
+<title>Functions</title>
+<productionset>
+<production xml:id="syntax.FunctionDeclaration">
+<lhs>FunctionDeclaration</lhs>
+<rhs>"<code>function</code>" <nonterminal def="#syntax.Identifier">Identifier</nonterminal>
+<nonterminal def="#syntax.FunctionParameters">FunctionParameters</nonterminal>
+<nonterminal def="#syntax.Block">Block</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax.FunctionExpression">
+<lhs>FunctionExpression</lhs>
+<rhs>"<code>function</code>"
+<nonterminal def="#syntax.FunctionParameters">FunctionParameters</nonterminal>
+<nonterminal def="#syntax.Block">Block</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax.FunctionParameters">
+<lhs>FunctionParameters</lhs>
+<rhs>
+"(" [
+<nonterminal def="#syntax.ParamDecl">ParamDecl</nonterminal>
+( "," <nonterminal def="#syntax.ParamDecl">ParamDecl</nonterminal>) ...) ")"
+</rhs>
+</production>
+<production xml:id="syntax.ParamDecl">
+<lhs>ParamDecl</lhs>
+<rhs><nonterminal def="#syntax.Identifier">Identifier</nonterminal> ...</rhs>
+</production>
+</productionset>
+</chapter>
