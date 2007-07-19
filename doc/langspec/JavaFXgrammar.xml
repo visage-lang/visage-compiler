@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+ "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<?xml-stylesheet href="docbook.css" type="text/css"?>
+<appendix id="Grammar">
+<title>JavaFX Grammar: Version 0.04</title>
+<para><emphasis>
+This grammar matches more-or-less the current compiler,
+rather than the language being defined in this specification.
+Over time, this divergence will be fixed, by updating the compiler,
+and by fleshing out this specification.
+</emphasis></para>
+<productionset>
+<production xml:id="syntax04.module">
+  <lhs>module</lhs>
+  <rhs><nonterminal def="#syntax04.packageDecl">packageDecl</nonterminal>?  <nonterminal def="#syntax04.moduleItem">moduleItem</nonterminal>* <nonterminal def="#syntax04.EOF">EOF</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.packageDecl">
+  <lhs>packageDecl</lhs>
+  <rhs>"<code>package</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> ( "<code>.</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> )* "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.moduleItem">
+  <lhs>moduleItem</lhs>
+  <rhs><nonterminal def="#syntax04.import">import</nonterminal>
+| <nonterminal def="#syntax04.classDefinition">classDefinition</nonterminal>
+| <nonterminal def="#syntax04.attributeDefinition">attributeDefinition</nonterminal>
+| <nonterminal def="#syntax04.memberOperationDefinition">memberOperationDefinition</nonterminal>
+| <nonterminal def="#syntax04.memberFunctionDefinition">memberFunctionDefinition</nonterminal>
+| <nonterminal def="#syntax04.changeRule">changeRule</nonterminal>
+| <nonterminal def="#syntax04.statement">statement</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.import">
+  <lhs>import</lhs>
+  <rhs>"<code>import</code>" <nonterminal def="#syntax04.typeAlias">typeAlias</nonterminal> ( "<code>,</code>" <nonterminal def="#syntax04.typeAlias">typeAlias</nonterminal> )* [ "<code>from</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> ( "<code>.</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> )* ] "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.typeAlias">
+  <lhs>typeAlias</lhs>
+  <rhs><nonterminal def="#syntax04.identifier">identifier</nonterminal> ( "<code>.</code>" ( <nonterminal def="#syntax04.identifier">identifier</nonterminal> | "<code>*</code>" ) )* ["<code>as</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal>]
+</rhs>
+</production>
+<production xml:id="syntax04.classDefinition">
+  <lhs>classDefinition</lhs>
+  <rhs><nonterminal def="#syntax04.accessModifier">accessModifier</nonterminal>? "<code>class</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> [ "<code>supertype</code>" <nonterminal def="#syntax04.typeName">typeName</nonterminal> ( "<code>,</code>" <nonterminal def="#syntax04.typeName">typeName</nonterminal> )* ] "<code>{</code>" ( <nonterminal def="#syntax04.attributeDecl">attributeDecl</nonterminal> | <nonterminal def="#syntax04.functionDecl">functionDecl</nonterminal> | <nonterminal def="#syntax04.operationDecl">operationDecl</nonterminal> )* "<code>}</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.attributeDecl">
+  <lhs>attributeDecl</lhs>
+  <rhs><nonterminal def="#syntax04.accessModifier">accessModifier</nonterminal>? "<code>readonly</code>"? "<code>attribute</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal> [ "<code>inverse</code>" <nonterminal def="#syntax04.memberSelector">memberSelector</nonterminal> ] [ <nonterminal def="#syntax04.orderBy">orderBy</nonterminal> | <nonterminal def="#syntax04.indexOn">indexOn</nonterminal> ]  "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.functionDecl">
+  <lhs>functionDecl</lhs>
+  <rhs><nonterminal def="#syntax04.accessModifier">accessModifier</nonterminal>? "<code>function</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> <nonterminal def="#syntax04.formalParameters">formalParameters</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>?  "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.operationDecl">
+  <lhs>operationDecl</lhs>
+  <rhs><nonterminal def="#syntax04.accessModifier">accessModifier</nonterminal>? "<code>operation</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> <nonterminal def="#syntax04.formalParameters">formalParameters</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>?  "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.attributeDefinition">
+  <lhs>attributeDefinition</lhs>
+  <rhs>"<code>attribute</code>" <nonterminal def="#syntax04.memberSelector">memberSelector</nonterminal> "<code>=</code>" [ "<code>bind</code>" "<code>lazy</code>"? ] <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.memberOperationDefinition">
+  <lhs>memberOperationDefinition</lhs>
+  <rhs>"<code>operation</code>" <nonterminal def="#syntax04.memberSelector">memberSelector</nonterminal> <nonterminal def="#syntax04.formalParameters">formalParameters</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>? <nonterminal def="#syntax04.block">block</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.memberFunctionDefinition">
+  <lhs>memberFunctionDefinition</lhs>
+  <rhs>"<code>function</code>" <nonterminal def="#syntax04.memberSelector">memberSelector</nonterminal> <nonterminal def="#syntax04.formalParameters">formalParameters</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>? <nonterminal def="#syntax04.functionBody">functionBody</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.functionBody">
+  <lhs>functionBody</lhs>
+  <rhs>"<code>=</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> <nonterminal def="#syntax04.whereVarDecls">whereVarDecls</nonterminal>? "<code>;</code>"
+| "<code>{</code>" ( <nonterminal def="#syntax04.variableDefinition">variableDefinition</nonterminal> | <nonterminal def="#syntax04.localFunctionDefinition">localFunctionDefinition</nonterminal> | <nonterminal def="#syntax04.localOperationDefinition">localOperationDefinition</nonterminal> )* "<code>return</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>;</code>"? "<code>}</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.whereVarDecls">
+  <lhs>whereVarDecls</lhs>
+  <rhs>"<code>where</code>" <nonterminal def="#syntax04.whereVarDecl">whereVarDecl</nonterminal> ( "<code>,</code>" <nonterminal def="#syntax04.whereVarDecl">whereVarDecl</nonterminal> )*
+</rhs>
+</production>
+<production xml:id="syntax04.whereVarDecl">
+  <lhs>whereVarDecl</lhs>
+  <rhs><nonterminal def="#syntax04.localFunctionDefinition">localFunctionDefinition</nonterminal>
+| <nonterminal def="#syntax04.identifier">identifier</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>? "<code>=</code>" <nonterminal def="#syntax04.expression">expression</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.variableDefinition">
+  <lhs>variableDefinition</lhs>
+  <rhs>"<code>var</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>? "<code>=</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.changeRule">
+  <lhs>changeRule</lhs>
+  <rhs>"<code>trigger</code>" "<code>on</code>" <nonterminal def="#syntax04.triggerCondition">triggerCondition</nonterminal> <nonterminal def="#syntax04.block">block</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.triggerCondition">
+  <lhs>triggerCondition</lhs>
+  <rhs>"<code>insert</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>into</code>" <nonterminal def="#syntax04.memberSelector">memberSelector</nonterminal>
+| "<code>delete</code>" ( <nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>from</code>" <nonterminal def="#syntax04.memberSelector">memberSelector</nonterminal> | <nonterminal def="#syntax04.memberSelector">memberSelector</nonterminal> "<code>[</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>]</code>" )
+| "<code>not</code>"? "<code>assert</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal>
+| [ <nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>:</code>" ] <nonterminal def="#syntax04.typeSpec">typeSpec</nonterminal> "<code>(</code>" "<code>)</code>"
+| [ <nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>=</code>" ] "<code>new</code>" <nonterminal def="#syntax04.typeName">typeName</nonterminal>
+| <nonterminal def="#syntax04.memberSelector">memberSelector</nonterminal> [ "<code>[</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>]</code>" ] "<code>=</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal>
+| "<code>(</code>" <nonterminal def="#syntax04.triggerCondition">triggerCondition</nonterminal> "<code>)</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.accessModifier">
+  <lhs>accessModifier</lhs>
+  <rhs>"<code>public</code>" | "<code>private</code>" | "<code>protected</code>" | "<code>abstract</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.memberSelector">
+  <lhs>memberSelector</lhs>
+  <rhs><nonterminal def="#syntax04.typeName">typeName</nonterminal> "<code>.</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.formalParameters">
+  <lhs>formalParameters</lhs>
+  <rhs>"<code>(</code>" [ <nonterminal def="#syntax04.formalParameter">formalParameter</nonterminal> ( "<code>,</code>" <nonterminal def="#syntax04.formalParameter">formalParameter</nonterminal> )* ] "<code>)</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.formalParameter">
+  <lhs>formalParameter</lhs>
+  <rhs><nonterminal def="#syntax04.identifier">identifier</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>?
+</rhs>
+</production>
+<production xml:id="syntax04.block">
+  <lhs>block</lhs>
+  <rhs>"<code>{</code>" <nonterminal def="#syntax04.statement">statement</nonterminal>* "<code>}</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.statement">
+  <lhs>statement</lhs>
+  <rhs><nonterminal def="#syntax04.assertStatement">assertStatement</nonterminal>
+| <nonterminal def="#syntax04.localOperationDefinition">localOperationDefinition</nonterminal>
+| <nonterminal def="#syntax04.localFunctionDefinition">localFunctionDefinition</nonterminal>
+| <nonterminal def="#syntax04.variableDeclaration">variableDeclaration</nonterminal>
+| <nonterminal def="#syntax04.backgroundStatement">backgroundStatement</nonterminal>
+| <nonterminal def="#syntax04.laterStatement">laterStatement</nonterminal>
+| <nonterminal def="#syntax04.whileStatement">whileStatement</nonterminal>
+| <nonterminal def="#syntax04.ifStatement">ifStatement</nonterminal>
+| <nonterminal def="#syntax04.insertStatement">insertStatement</nonterminal>
+| <nonterminal def="#syntax04.deleteStatement">deleteStatement</nonterminal>
+| <nonterminal def="#syntax04.expressionStatement">expressionStatement</nonterminal>
+| <nonterminal def="#syntax04.breakStatement">breakStatement</nonterminal>
+| <nonterminal def="#syntax04.continueStatement">continueStatement</nonterminal>
+| <nonterminal def="#syntax04.throwStatement">throwStatement</nonterminal>
+| <nonterminal def="#syntax04.returnStatement">returnStatement</nonterminal>
+| <nonterminal def="#syntax04.localTriggerStatement">localTriggerStatement</nonterminal>
+| <nonterminal def="#syntax04.forAlphaStatement">forAlphaStatement</nonterminal>
+| <nonterminal def="#syntax04.forJoinStatement">forJoinStatement</nonterminal>
+| <nonterminal def="#syntax04.tryStatement">tryStatement</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.assertStatement">
+  <lhs>assertStatement</lhs>
+  <rhs>"<code>assert</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> [ "<code>:</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ] "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.localOperationDefinition">
+  <lhs>localOperationDefinition</lhs>
+  <rhs>"<code>operation</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> <nonterminal def="#syntax04.formalParameters">formalParameters</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>? <nonterminal def="#syntax04.block">block</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.localFunctionDefinition">
+  <lhs>localFunctionDefinition</lhs>
+  <rhs>"<code>function</code>"? <nonterminal def="#syntax04.identifier">identifier</nonterminal> <nonterminal def="#syntax04.formalParameters">formalParameters</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>? <nonterminal def="#syntax04.functionBody">functionBody</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.variableDeclaration">
+  <lhs>variableDeclaration</lhs>
+  <rhs>"<code>var</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>? [ "<code>=</code>"  [ "<code>bind</code>" "<code>lazy</code>"?] <nonterminal def="#syntax04.expression">expression</nonterminal> ]  "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.backgroundStatement">
+  <lhs>backgroundStatement</lhs>
+  <rhs>"<code>do</code>" <nonterminal def="#syntax04.block">block</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.laterStatement">
+  <lhs>laterStatement</lhs>
+  <rhs>"<code>do</code>" "<code>later</code>" <nonterminal def="#syntax04.block">block</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.whileStatement">
+  <lhs>whileStatement</lhs>
+  <rhs>"<code>while</code>" "<code>(</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>)</code>" <nonterminal def="#syntax04.block">block</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.ifStatement">
+  <lhs>ifStatement</lhs>
+  <rhs>"<code>if</code>" "<code>(</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>)</code>" <nonterminal def="#syntax04.block">block</nonterminal> [ "<code>else</code>" ( <nonterminal def="#syntax04.ifStatement">ifStatement</nonterminal> | <nonterminal def="#syntax04.block">block</nonterminal> ) ]
+</rhs>
+</production>
+<production xml:id="syntax04.insertStatement">
+  <lhs>insertStatement</lhs>
+  <rhs>"<code>insert</code>" ( "<code>distinct</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>into</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> | <nonterminal def="#syntax04.expression">expression</nonterminal> ( ( [ "<code>as</code>" ( "<code>first</code>" | "<code>last</code>" ) ] "<code>into</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ) | "<code>after</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> | "<code>before</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> )  "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.deleteStatement">
+  <lhs>deleteStatement</lhs>
+  <rhs>"<code>delete</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.expressionStatement">
+  <lhs>expressionStatement</lhs>
+  <rhs><nonterminal def="#syntax04.expression">expression</nonterminal> "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.breakStatement">
+  <lhs>breakStatement</lhs>
+  <rhs>"<code>break</code>" "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.continueStatement">
+  <lhs>continueStatement</lhs>
+  <rhs>"<code>continue</code>" "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.throwStatement">
+  <lhs>throwStatement</lhs>
+  <rhs>"<code>throw</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.returnStatement">
+  <lhs>returnStatement</lhs>
+  <rhs>"<code>return</code>" <nonterminal def="#syntax04.expression">expression</nonterminal>? "<code>;</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.localTriggerStatement">
+  <lhs>localTriggerStatement</lhs>
+  <rhs>"<code>trigger</code>" "<code>on</code>"  <nonterminal def="#syntax04.localTriggerCondition">localTriggerCondition</nonterminal> <nonterminal def="#syntax04.block">block</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.localTriggerCondition">
+  <lhs>localTriggerCondition</lhs>
+  <rhs><nonterminal def="#syntax04.identifier">identifier</nonterminal> [ "<code>[</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>]</code>" ] "<code>=</code>" <nonterminal def="#syntax04.expression">expression</nonterminal>
+| "<code>insert</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>into</code>" [ <nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>=</code>"] <nonterminal def="#syntax04.expression">expression</nonterminal>
+| "<code>delete</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>from</code>" [<nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>=</code>"] <nonterminal def="#syntax04.expression">expression</nonterminal>
+| "<code>(</code>" <nonterminal def="#syntax04.localTriggerCondition">localTriggerCondition</nonterminal> "<code>)</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.forAlphaStatement">
+  <lhs>forAlphaStatement</lhs>
+  <rhs>"<code>for</code>" "<code>(</code>" <nonterminal def="#syntax04.alphaExpression">alphaExpression</nonterminal> "<code>)</code>" <nonterminal def="#syntax04.block">block</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.alphaExpression">
+  <lhs>alphaExpression</lhs>
+  <rhs>"<code>unitinterval</code>" "<code>in</code>" "<code>dur</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> [ "<code>fps</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ] [ "<code>while</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ] [ "<code>continue</code>" "<code>if</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ]
+</rhs>
+</production>
+<production xml:id="syntax04.forJoinStatement">
+  <lhs>forJoinStatement</lhs>
+  <rhs>"<code>for</code>" "<code>(</code>" <nonterminal def="#syntax04.joinClause">joinClause</nonterminal> "<code>)</code>" [ "<code>(</code>" <nonterminal def="#syntax04.durClause">durClause</nonterminal> "<code>)</code>" ] <nonterminal def="#syntax04.block">block</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.joinClause">
+  <lhs>joinClause</lhs>
+  <rhs><nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>in</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ( "<code>,</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>in</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> )* [ "<code>where</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ]
+</rhs>
+</production>
+<production xml:id="syntax04.durClause">
+  <lhs>durClause</lhs>
+  <rhs>"<code>dur</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> [ "<code>linear</code>" | "<code>easein</code>" | "<code>easeout</code>" | "<code>easeboth</code>" | "<code>motion</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ] [ "<code>fps</code>" <nonterminal def="#syntax04.expression">expression</nonterminal>] [ "<code>while</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ] [ "<code>continue</code>" "<code>if</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ]
+</rhs>
+</production>
+<production xml:id="syntax04.tryStatement">
+  <lhs>tryStatement</lhs>
+  <rhs>"<code>try</code>" <nonterminal def="#syntax04.block">block</nonterminal> ( "<code>finally</code>" <nonterminal def="#syntax04.block">block</nonterminal> |  <nonterminal def="#syntax04.catchClause">catchClause</nonterminal>+ [ "<code>finally</code>" <nonterminal def="#syntax04.block">block</nonterminal> ] )
+</rhs>
+</production>
+<production xml:id="syntax04.catchClause">
+  <lhs>catchClause</lhs>
+  <rhs>"<code>catch</code>" "<code>(</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>? [ "<code>if</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ] "<code>)</code>" <nonterminal def="#syntax04.block">block</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.expression">
+  <lhs>expression</lhs>
+  <rhs><nonterminal def="#syntax04.foreach">foreach</nonterminal>
+| <nonterminal def="#syntax04.functionExpression">functionExpression</nonterminal>
+| <nonterminal def="#syntax04.operationExpression">operationExpression</nonterminal>
+| <nonterminal def="#syntax04.alphaExpression">alphaExpression</nonterminal>
+| <nonterminal def="#syntax04.ifExpression">ifExpression</nonterminal>
+| <nonterminal def="#syntax04.selectExpression">selectExpression</nonterminal>
+| [ "<code>(</code>" <nonterminal def="#syntax04.typeSpec">typeSpec</nonterminal> "<code>)</code>" ] <nonterminal def="#syntax04.assignmentExpression">assignmentExpression</nonterminal> [ <nonterminal def="#syntax04.indexOn">indexOn</nonterminal> | <nonterminal def="#syntax04.orderBy">orderBy</nonterminal> | <nonterminal def="#syntax04.durClause">durClause</nonterminal> | "<code>++</code>" | "<code>--</code>" ]
+</rhs>
+</production>
+<production xml:id="syntax04.foreach">
+  <lhs>foreach</lhs>
+  <rhs>"<code>foreach</code>" "<code>(</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>in</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ( "<code>,</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>in</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> )* [ "<code>where</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ] "<code>)</code>" <nonterminal def="#syntax04.expression">expression</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.functionExpression">
+  <lhs>functionExpression</lhs>
+  <rhs>"<code>function</code>" <nonterminal def="#syntax04.formalParameters">formalParameters</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>? <nonterminal def="#syntax04.functionBody">functionBody</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.operationExpression">
+  <lhs>operationExpression</lhs>
+  <rhs>"<code>operation</code>" <nonterminal def="#syntax04.formalParameters">formalParameters</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>? <nonterminal def="#syntax04.block">block</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.ifExpression">
+  <lhs>ifExpression</lhs>
+  <rhs>"<code>if</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>then</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>else</code>" <nonterminal def="#syntax04.expression">expression</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.selectExpression">
+  <lhs>selectExpression</lhs>
+  <rhs>"<code>select</code>" "<code>distinct</code>"?  <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>from</code>" <nonterminal def="#syntax04.selectionVar">selectionVar</nonterminal> ( "<code>,</code>" <nonterminal def="#syntax04.selectionVar">selectionVar</nonterminal> )* [ "<code>where</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ]
+</rhs>
+</production>
+<production xml:id="syntax04.selectionVar">
+  <lhs>selectionVar</lhs>
+  <rhs><nonterminal def="#syntax04.identifier">identifier</nonterminal> [ "<code>in</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ]
+</rhs>
+</production>
+<production xml:id="syntax04.assignmentExpression">
+  <lhs>assignmentExpression</lhs>
+  <rhs><nonterminal def="#syntax04.assignmentOpExpression">assignmentOpExpression</nonterminal> [ "<code>=</code>" <nonterminal def="#syntax04.assignmentOpExpression">assignmentOpExpression</nonterminal> ]
+</rhs>
+</production>
+<production xml:id="syntax04.assignmentOpExpression">
+  <lhs>assignmentOpExpression</lhs>
+  <rhs><nonterminal def="#syntax04.andExpression">andExpression</nonterminal> [ <nonterminal def="#syntax04.assignmentOperator">assignmentOperator</nonterminal> <nonterminal def="#syntax04.andExpression">andExpression</nonterminal> ]
+</rhs>
+</production>
+<production xml:id="syntax04.andExpression">
+  <lhs>andExpression</lhs>
+  <rhs><nonterminal def="#syntax04.orExpression">orExpression</nonterminal> ( <nonterminal def="#syntax04.andOperator">andOperator</nonterminal> <nonterminal def="#syntax04.orExpression">orExpression</nonterminal> )*
+</rhs>
+</production>
+<production xml:id="syntax04.orExpression">
+  <lhs>orExpression</lhs>
+  <rhs><nonterminal def="#syntax04.instanceOfExpression">instanceOfExpression</nonterminal> ( <nonterminal def="#syntax04.orOperator">orOperator</nonterminal> <nonterminal def="#syntax04.instanceOfExpression">instanceOfExpression</nonterminal> )*
+</rhs>
+</production>
+<production xml:id="syntax04.instanceOfExpression">
+  <lhs>instanceOfExpression</lhs>
+  <rhs><nonterminal def="#syntax04.relationalExpression">relationalExpression</nonterminal> [ "<code>instanceof</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> ]
+</rhs>
+</production>
+<production xml:id="syntax04.relationalExpression">
+  <lhs>relationalExpression</lhs>
+  <rhs><nonterminal def="#syntax04.additiveExpression">additiveExpression</nonterminal> [ <nonterminal def="#syntax04.relationalOperator">relationalOperator</nonterminal> <nonterminal def="#syntax04.additiveExpression">additiveExpression</nonterminal> ]
+</rhs>
+</production>
+<production xml:id="syntax04.additiveExpression">
+  <lhs>additiveExpression</lhs>
+  <rhs><nonterminal def="#syntax04.multiplicativeExpression">multiplicativeExpression</nonterminal> ( <nonterminal def="#syntax04.addOperator">addOperator</nonterminal> <nonterminal def="#syntax04.multiplicativeExpression">multiplicativeExpression</nonterminal> )*
+</rhs>
+</production>
+<production xml:id="syntax04.multiplicativeExpression">
+  <lhs>multiplicativeExpression</lhs>
+  <rhs><nonterminal def="#syntax04.unaryExpression">unaryExpression</nonterminal> ( <nonterminal def="#syntax04.multiplyOperator">multiplyOperator</nonterminal> <nonterminal def="#syntax04.unaryExpression">unaryExpression</nonterminal> )*
+</rhs>
+</production>
+<production xml:id="syntax04.unaryExpression">
+  <lhs>unaryExpression</lhs>
+  <rhs><nonterminal def="#syntax04.unaryOperator">unaryOperator</nonterminal>? <nonterminal def="#syntax04.postfixExpression">postfixExpression</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.postfixExpression">
+  <lhs>postfixExpression</lhs>
+  <rhs><nonterminal def="#syntax04.primaryExpression">primaryExpression</nonterminal> ( ( <nonterminal def="#syntax04.expressionCall">expressionCall</nonterminal> | "<code>.</code>" ( "<code>class</code>" | <nonterminal def="#syntax04.functionCall">functionCall</nonterminal> | <nonterminal def="#syntax04.identifier">identifier</nonterminal> ) ) | <nonterminal def="#syntax04.selectionClause">selectionClause</nonterminal> )*
+</rhs>
+</production>
+<production xml:id="syntax04.selectionClause">
+  <lhs>selectionClause</lhs>
+  <rhs>"<code>[</code>" [ <nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>|</code>" ] <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>]</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.primaryExpression">
+  <lhs>primaryExpression</lhs>
+  <rhs><nonterminal def="#syntax04.allocationExpression">allocationExpression</nonterminal>
+| <nonterminal def="#syntax04.bracketExpression">bracketExpression</nonterminal>
+| <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>
+| <nonterminal def="#syntax04.ordinalExpression">ordinalExpression</nonterminal>
+| <nonterminal def="#syntax04.contextExpression">contextExpression</nonterminal>
+| <nonterminal def="#syntax04.functionCall">functionCall</nonterminal>
+| <nonterminal def="#syntax04.selfAccess">selfAccess</nonterminal>
+| <nonterminal def="#syntax04.variableAccess">variableAccess</nonterminal>
+| <nonterminal def="#syntax04.stringExpression">stringExpression</nonterminal>
+| <nonterminal def="#syntax04.literal">literal</nonterminal>
+| "<code>(</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>)</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.allocationExpression">
+  <lhs>allocationExpression</lhs>
+  <rhs>"<code>new</code>"    <nonterminal def="#syntax04.typeName">typeName</nonterminal> [ "<code>(</code>" <nonterminal def="#syntax04.expressionList">expressionList</nonterminal>? "<code>)</code>" ]   <nonterminal def="#syntax04.objectLiteral">objectLiteral</nonterminal>?
+| "<code>new</code>"? [ <nonterminal def="#syntax04.typeName">typeName</nonterminal> [ "<code>(</code>" <nonterminal def="#syntax04.expressionList">expressionList</nonterminal>? "<code>)</code>" ] ] <nonterminal def="#syntax04.objectLiteral">objectLiteral</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.objectLiteral">
+  <lhs>objectLiteral</lhs>
+  <rhs>"<code>{</code>" <nonterminal def="#syntax04.objectLiteralPart">objectLiteralPart</nonterminal>* "<code>}</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.objectLiteralPart">
+  <lhs>objectLiteralPart</lhs>
+  <rhs><nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>:</code>" [ "<code>bind</code>" "<code>lazy</code>"?] <nonterminal def="#syntax04.expression">expression</nonterminal> [ "<code>,</code>" | "<code>;</code>" ]
+| "<code>attribute</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>? "<code>=</code>" [ "<code>bind</code>" "<code>lazy</code>"?] <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>;</code>"
+| <nonterminal def="#syntax04.localOperationDefinition">localOperationDefinition</nonterminal>
+| <nonterminal def="#syntax04.localFunctionDefinition">localFunctionDefinition</nonterminal>
+| <nonterminal def="#syntax04.localTriggerStatement">localTriggerStatement</nonterminal>
+| <nonterminal def="#syntax04.variableDefinition">variableDefinition</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.bracketExpression">
+  <lhs>bracketExpression</lhs>
+  <rhs>"<code>[</code>" ( <nonterminal def="#syntax04.generatorClause">generatorClause</nonterminal> | <nonterminal def="#syntax04.dotDotClause">dotDotClause</nonterminal> | <nonterminal def="#syntax04.expressionOptList">expressionOptList</nonterminal> ) "<code>]</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.dotDotClause">
+  <lhs>dotDotClause</lhs>
+  <rhs><nonterminal def="#syntax04.expression">expression</nonterminal> [ "<code>,</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> ] "<code>..</code>" "<code></code>"? <nonterminal def="#syntax04.expression">expression</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.expressionOptList">
+  <lhs>expressionOptList</lhs>
+  <rhs><nonterminal def="#syntax04.expression">expression</nonterminal>? ( "<code>,</code>" <nonterminal def="#syntax04.expression">expression</nonterminal>? )*
+</rhs>
+</production>
+<production xml:id="syntax04.generatorClause">
+  <lhs>generatorClause</lhs>
+  <rhs><nonterminal def="#syntax04.expression">expression</nonterminal> "<code>|</code>" <nonterminal def="#syntax04.generator">generator</nonterminal> (  "<code>,</code>" ( <nonterminal def="#syntax04.generator">generator</nonterminal> | <nonterminal def="#syntax04.expression">expression</nonterminal> )  )*
+</rhs>
+</production>
+<production xml:id="syntax04.generator">
+  <lhs>generator</lhs>
+  <rhs><nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>-</code>" <nonterminal def="#syntax04.expression">expression</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.ordinalExpression">
+  <lhs>ordinalExpression</lhs>
+  <rhs>"<code>indexof</code>" ( <nonterminal def="#syntax04.identifier">identifier</nonterminal> | "<code>.</code>" )
+</rhs>
+</production>
+<production xml:id="syntax04.contextExpression">
+  <lhs>contextExpression</lhs>
+  <rhs>"<code>.</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.functionCall">
+  <lhs>functionCall</lhs>
+  <rhs><nonterminal def="#syntax04.identifier">identifier</nonterminal> "<code>(</code>" <nonterminal def="#syntax04.expressionList">expressionList</nonterminal>? "<code>)</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.selfAccess">
+  <lhs>selfAccess</lhs>
+  <rhs>"<code>this</code>" | "<code>super</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.variableAccess">
+  <lhs>variableAccess</lhs>
+  <rhs><nonterminal def="#syntax04.identifier">identifier</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.stringExpression">
+  <lhs>stringExpression</lhs>
+  <rhs>"<code>"</code>" ( <nonterminal def="#syntax04.STR_STRING">STR_STRING</nonterminal> | "<code>{</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> "<code>}</code>" )* "<code>"</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.expressionList">
+  <lhs>expressionList</lhs>
+  <rhs><nonterminal def="#syntax04.expression">expression</nonterminal> ( "<code>,</code>" <nonterminal def="#syntax04.expression">expression</nonterminal> )*
+</rhs>
+</production>
+<production xml:id="syntax04.orderBy">
+  <lhs>orderBy</lhs>
+  <rhs>"<code>order</code>" "<code>by</code>" <nonterminal def="#syntax04.expression">expression</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.indexOn">
+  <lhs>indexOn</lhs>
+  <rhs>"<code>index</code>" "<code>on</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> ( "<code>,</code>" <nonterminal def="#syntax04.identifier">identifier</nonterminal> )*
+</rhs>
+</production>
+<production xml:id="syntax04.expressionCall">
+  <lhs>expressionCall</lhs>
+  <rhs>"<code>(</code>" [ <nonterminal def="#syntax04.expressionList">expressionList</nonterminal> ] "<code>)</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.andOperator">
+  <lhs>andOperator</lhs>
+  <rhs>"<code>and</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.orOperator">
+  <lhs>orOperator</lhs>
+  <rhs>"<code>or</code>" | "<code>xor</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.relationalOperator">
+  <lhs>relationalOperator</lhs>
+  <rhs>"<code>==</code>" | "<code></code>" | "<code></code>" | "<code>=</code>" | "<code>=</code>" | "<code>in</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.addOperator">
+  <lhs>addOperator</lhs>
+  <rhs>"<code>+</code>" | "<code>-</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.multiplyOperator">
+  <lhs>multiplyOperator</lhs>
+  <rhs>"<code>*</code>" | "<code>/</code>" | "<code>%</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.unaryOperator">
+  <lhs>unaryOperator</lhs>
+  <rhs>"<code>#</code>" | "<code>?</code>" | "<code>-</code>" | "<code>not</code>" | "<code>sizeof</code>" | "<code>typeof</code>" | "<code>reverse</code>" | "<code>++</code>" | "<code>--</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.assignmentOperator">
+  <lhs>assignmentOperator</lhs>
+  <rhs>"<code>+=</code>" | "<code>-=</code>" | "<code>*=</code>" | "<code>/=</code>" | "<code>%=</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.typeReference">
+  <lhs>typeReference</lhs>
+  <rhs>"<code>:</code>" <nonterminal def="#syntax04.typeSpec">typeSpec</nonterminal> <nonterminal def="#syntax04.cardinalityConstraint">cardinalityConstraint</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.typeSpec">
+  <lhs>typeSpec</lhs>
+  <rhs><nonterminal def="#syntax04.functionalType">functionalType</nonterminal> | <nonterminal def="#syntax04.typeName">typeName</nonterminal> | "<code>*</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.functionalType">
+  <lhs>functionalType</lhs>
+  <rhs>[ "<code>function</code>" | "<code>operation</code>" ] <nonterminal def="#syntax04.formalParameters">formalParameters</nonterminal> <nonterminal def="#syntax04.typeReference">typeReference</nonterminal>?
+</rhs>
+</production>
+<production xml:id="syntax04.typeName">
+  <lhs>typeName</lhs>
+  <rhs><nonterminal def="#syntax04.identifier">identifier</nonterminal>
+</rhs>
+</production>
+<production xml:id="syntax04.cardinalityConstraint">
+  <lhs>cardinalityConstraint</lhs>
+  <rhs>[ "<code>[</code>" "<code>]</code>" ]
+</rhs>
+</production>
+<production xml:id="syntax04.literal">
+  <lhs>literal</lhs>
+  <rhs><nonterminal def="#syntax04.STRING">STRING</nonterminal> | <nonterminal def="#syntax04.INTEGER_LITERAL">INTEGER_LITERAL</nonterminal> | <nonterminal def="#syntax04.FLOATING_POINT_LITERAL">FLOATING_POINT_LITERAL</nonterminal> | "<code>true</code>" | "<code>false</code>" | "<code>null</code>"
+</rhs>
+</production>
+<production xml:id="syntax04.identifier">
+  <lhs>identifier</lhs>
+  <rhs><nonterminal def="#syntax04.QUOTED_IDENTIFIER">QUOTED_IDENTIFIER</nonterminal>
+| <nonterminal def="#syntax04.IDENTIFIER">IDENTIFIER</nonterminal>
+| <nonterminal def="#syntax04.NAMESPACED_IDENTIFIER">NAMESPACED_IDENTIFIER</nonterminal>
+</rhs>
+</production>
+</productionset>
+</appendix>

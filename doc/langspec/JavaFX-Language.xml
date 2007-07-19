@@ -9,4 +9,5 @@
 <xi:include href="Declarations.xml"  parse="xml"/> 
 <xi:include href="Functions.xml"  parse="xml"/> 
 <xi:include href="Expressions.xml"  parse="xml"/> 
+<xi:include href="JavaFXgrammar.xml"  parse="xml"/> 
 </book>
