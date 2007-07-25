@@ -1826,6 +1826,7 @@ public class Parser {
             JFXType type = typeOpt();
             JCStatement tree;
             if (S.token() == EQ) {
+                accept(EQ);
                 JavafxBindStatus bindStatus = bindStatusOpt();
                 JCExpression init = expression();
                 tree = toP(F.at(pos).VarInit(name, type, init, bindStatus));
@@ -1961,7 +1962,6 @@ public class Parser {
     
     JavafxBindStatus bindStatusOpt() {
         JavafxBindStatus bindStatus = UNBOUND;
-        S.nextToken();
         if (S.token() == BIND || S.token() == STAYS) {
             S.nextToken();
             if (S.token() == LAZY) {
