@@ -117,6 +117,29 @@ public class JavafxAttr extends Attr {
         return owntype;
     }
 
+    public void visitIdent(JCIdent tree) {
+        // TODO: Fix this when the new named table is available
+        if (tree.name == names.fromString("Integer")) {
+            tree.type = syms.javafx_IntegerType;
+            tree.sym = syms.javafx_IntegerType.tsym;
+        }
+        else if (tree.name == names.fromString("Boolean")) {
+            tree.type = syms.javafx_BooleanType;
+            tree.sym = syms.javafx_BooleanType.tsym;
+        }
+        else if (tree.name == names.fromString("Number")) {
+            tree.type = syms.javafx_NumberType;
+            tree.sym = syms.javafx_NumberType.tsym;
+        }
+        else if (tree.name == names.fromString("String")) {
+            tree.type = syms.javafx_StringType;
+            tree.sym = syms.javafx_StringType.tsym;
+        }
+        else {
+            super.visitIdent(tree);
+        }
+    }
+
     public void visitAssign(JCAssign tree) {
 // Javafx change        Type owntype = attribTree(tree.lhs, env.dup(tree), VAR, Type.noType);
 // Javafx change        Type capturedType = capture(owntype);

@@ -45,6 +45,8 @@ import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import java.util.Iterator;
 
+import static com.sun.tools.javac.tree.JCTree.*;
+
 /** This is the second phase of Enter, in which classes are completed
  *  by entering their members into the class scope using
  *  MemberEnter.complete().  See Enter for an overview.
@@ -118,15 +120,36 @@ public class JavafxMemberEnter extends MemberEnter {
         annotateLater(tree.packageAnnotations, env, tree.packge);
 
         // Import-on-demand the JavaFX types 
-        // TODO: hack these declarations should be in a central place
-        Name stringTypeName = names.fromString("java.lang.String");
-        //importAll(tree.pos, reader.enterPackage(typesPackage), env);
-        importNamed(tree.pos(), syms.stringType.tsym /*reader.enterClass(stringTypeName)*/, env);
+        importNamed(tree.pos(), syms.javafx_StringType.tsym, env);
+        importNamed(tree.pos(), syms.javafx_IntegerType.tsym, env);
+        importNamed(tree.pos(), syms.javafx_BooleanType.tsym, env);
+        importNamed(tree.pos(), syms.javafx_NumberType.tsym, env);
 
         // Process all import clauses.
         memberEnter(tree.defs, env);
     }
 
+    public void visitImport(JCImport tree) {
+        if (!tree.isStatic()) {
+            if (tree.qualid.tag == SELECT) {
+                if (((JCFieldAccess)tree.qualid).name == names.fromString("Integer")) { // TODO: use the constant in the new NameTable when available.
+                    log.error(tree.pos, "javafx.can.not.import.integer.primitive.type");
+                }
+                else if (((JCFieldAccess)tree.qualid).name == names.fromString("Number")) { // TODO: use the constant in the new NameTable when available.
+                    log.error(tree.pos, "javafx.can.not.import.number.primitive.type");
+                }
+                else if (((JCFieldAccess)tree.qualid).name == names.fromString("Boolean")) { // TODO: use the constant in the new NameTable when available.
+                    log.error(tree.pos, "javafx.can.not.import.boolean.primitive.type");
+                }
+                else if (((JCFieldAccess)tree.qualid).name == names.fromString("String")) { // TODO: use the constant in the new NameTable when available.
+                    log.error(tree.pos, "javafx.can.not.import.string.primitive.type");
+                }
+            }
+        }
+        
+        super.visitImport(tree);
+    }
+    
     protected void finishClass(JCClassDecl tree, Env<AttrContext> env) {
         prevMethodsToInferReturnType = methodsToInferReturnType;
         methodsToInferReturnType = List.nil();

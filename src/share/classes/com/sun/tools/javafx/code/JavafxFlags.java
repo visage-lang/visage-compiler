@@ -42,6 +42,7 @@ public class JavafxFlags {
     public static final int LOCAL_OPERATION = FUNCTION + 1;
     public static final int LOCAL_FUNCTION = LOCAL_OPERATION +1;
     public static final int TRIGGERNEW = LOCAL_FUNCTION + 1;
-    public static final int TRIGGER = TRIGGERNEW + 1; // This represents the trigger body.
+    public static final int TRIGGERREPLACE = TRIGGERNEW + 1; // This represents the trigger body.
+    public static final int TRIGGER = TRIGGERREPLACE + 1; // This represents the trigger body.
     // TODO: Do we need local triggers??? I don't think so. But meybe we do.
 }

@@ -43,7 +43,6 @@ import java.util.Map;
 // For pretty print debugging
 import java.io.OutputStreamWriter;
 
-
 public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     protected static final Context.Key<Javafx2JavaTranslator> javafx2JavaTranslatorKey =
             new Context.Key<Javafx2JavaTranslator>();
@@ -394,6 +393,30 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         }
     }
     
+    @Override
+    public void visitTriggerOnReplace(JFXTriggerOnReplace tree) {
+        super.visitTriggerOnReplace(tree);
+        
+        if (declTriggers == null) {
+            declTriggers = List.nil();
+        }
+        
+        if (tree.getBlock() == null) {
+            log.error(tree.pos, "javafx.trigger.with.no.body", tree.getNewValueIdentifier().toString());
+        } else {
+            List<JCVariableDecl> params = List.nil();
+            JavafxJCMethodDecl triggerDecl = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.TRIGGERREPLACE,
+                    getSyntheticName(tree.selector.getClassName().toString()),
+                    make.TypeIdent(TypeTags.VOID), params, tree.getBlock(), null,
+                    null, tree, null);
+            if (declTriggers == null) {
+                declTriggers = List.nil();
+            }
+            declTriggers = declTriggers.append(new JFXTriggerDeclHelper(tree, triggerDecl));
+            result = null;
+        }
+    }
+    
     /**
      * Allow prepending of statements and/or deletin by translation to null
      */
@@ -584,6 +607,52 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                         classHelper.jcDecl.defs = classHelper.jcDecl.defs.append(triggerDecl.javafxDecl);
                     }
                     // TODO: More triggers functionality here...
+                }
+                // ReplaceTrigger
+                else if (triggerDecl.jfxDecl.tag == JavafxTag.TRIGGERONREPLACE) {
+                    if (triggerDecl.javafxDecl.getJavafxMethodType() == JavafxFlags.TRIGGERREPLACE) {
+                        JFXTriggerOnReplace trigger = (JFXTriggerOnReplace)triggerDecl.jfxDecl;
+                        JCTree classIdent = trigger.selector;
+                        while (classIdent != null && classIdent.tag != JavafxTag.MEMBERSELECTOR) {
+                            throw new Error("Unexpected tree type in Trigged On"); // TODO: Remove this when figure out what can be in here
+                        }
+                        
+                        if (classIdent == null || classIdent.tag != JavafxTag.MEMBERSELECTOR) {
+                            throw new Error("Have to have a valid ident in here!"); // TODO: Remove when cleaned out...
+                        }
+                        Name className = ((JFXMemberSelector)classIdent).getClassName();
+                        JFXClassDeclHelper classHelper = declClasses.get(className);
+                        
+                        if (classHelper == null) {
+                            log.error(classIdent.pos, "javafx.trigger.with.no.owner", className.toString());
+                            return;
+                        }
+                        
+                        // TODO: check the attribute... Note this should be done in attr... We need to know the type of the attribute, so we can generate the correct method
+                        JCBlock ctorBodyBlock = null;
+                        if (classHelper.jfxDecl.constructor == null) {
+                            List<JCVariableDecl> params = List.nil();
+                            
+                            List<JCStatement> ctorStats = List.nil();
+                            
+                            ctorBodyBlock = make.Block(0L, ctorStats);
+                            JavafxJCMethodDecl jfxDeclConstructor = make.JavafxMethodDef(make.Modifiers(Flags.PUBLIC), 0,
+                                    names.init,
+                                    make.TypeIdent(TypeTags.VOID), params, ctorBodyBlock, null, null, null, null);
+                            classHelper.jfxDecl.constructor = jfxDeclConstructor; // TODO: Replace constructor with the initializer.
+                            classHelper.jcDecl.defs = classHelper.jcDecl.defs.prepend(jfxDeclConstructor);
+                        } else {
+                            ctorBodyBlock = classHelper.jfxDecl.constructor.body;
+                        }
+                        
+                        assert ctorBodyBlock != null : "ctorBodyBlock must not be null!";
+                        
+                        List<JCExpression> typeArgs = List.nil();
+                        List<JCExpression> args = List.nil();
+                        ctorBodyBlock.stats = ctorBodyBlock.stats.append(make.Exec(
+                                make.Apply(typeArgs, make.Ident(triggerDecl.javafxDecl.name), args))); // Move from here into the initializer.
+                        classHelper.jcDecl.defs = classHelper.jcDecl.defs.append(triggerDecl.javafxDecl);
+                    }
                 }
                 // TODO: More triggers functionality here...
             }
