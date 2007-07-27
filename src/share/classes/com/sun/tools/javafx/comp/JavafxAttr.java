@@ -122,18 +122,22 @@ public class JavafxAttr extends Attr {
         if (tree.name == names.fromString("Integer")) {
             tree.type = syms.javafx_IntegerType;
             tree.sym = syms.javafx_IntegerType.tsym;
+            result = tree.type;
         }
         else if (tree.name == names.fromString("Boolean")) {
             tree.type = syms.javafx_BooleanType;
             tree.sym = syms.javafx_BooleanType.tsym;
+            result = tree.type;
         }
         else if (tree.name == names.fromString("Number")) {
             tree.type = syms.javafx_NumberType;
             tree.sym = syms.javafx_NumberType.tsym;
+            result = tree.type;
         }
         else if (tree.name == names.fromString("String")) {
             tree.type = syms.javafx_StringType;
             tree.sym = syms.javafx_StringType.tsym;
+            result = tree.type;
         }
         else {
             super.visitIdent(tree);
