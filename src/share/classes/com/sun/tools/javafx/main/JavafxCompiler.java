@@ -58,6 +58,7 @@ import java.util.Iterator;
 import static javax.tools.StandardLocation.CLASS_OUTPUT;
 import static com.sun.tools.javac.util.ListBuffer.lb;
 import javax.lang.model.SourceVersion;
+import com.sun.tools.javafx.antlr.*;
 
 /** This class could be the main entry point for GJC when GJC is used as a
  *  component in a larger software system. It provides operations to
@@ -190,6 +191,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
     }
     
+    /** Command line options
+     */
+    protected Options options;
+    
     /** The log to be used for error reporting.
      */
     public Log log;
@@ -302,6 +307,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         com.sun.tools.javafx.code.JavafxSymtab.preRegister(context);
 // Javafx change
         names = Name.Table.instance(context);
+        options = Options.instance(context);
         log = Log.instance(context);
         reader = ClassReader.instance(context);
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
@@ -520,12 +526,26 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 taskListener.started(e);
             }
 	    int initialErrorCount = log.nerrors;
-            Scanner scanner = getScannerFactory().newScanner(content);
-            Parser parser = parserFactory.newParser(scanner, keepComments(), genEndPos);
-            tree = parser.compilationUnit();
-	    parseErrors |= (log.nerrors > initialErrorCount);
-            if (lineDebugInfo) {
-                tree.lineMap = scanner.getLineMap();
+            String parserChoice = options.get("parser");
+            if (parserChoice == null) {
+                parserChoice = "old"; // default
+            }
+            if (parserChoice.equals("old")) {
+                Scanner scanner = getScannerFactory().newScanner(content);
+                Parser parser = parserFactory.newParser(scanner, keepComments(), genEndPos);
+                tree = parser.compilationUnit();
+                parseErrors |= (log.nerrors > initialErrorCount);
+                if (lineDebugInfo) {
+                    tree.lineMap = scanner.getLineMap();
+                }
+            } else {
+                AbstractGeneratedParser gen = new v1Parser(context, content);
+                try {  
+                    tree = gen.module();
+                } catch (Exception exc) {
+                    exc.printStackTrace();
+                }
+                parseErrors |= (log.nerrors > initialErrorCount);
             }
             if (verbose) {
                 printVerbose("parsing.done", Long.toString(elapsed(msec)));
