@@ -544,6 +544,11 @@ public class JavafxMemberEnter extends MemberEnter {
                       localEnv = prevLocalEnv;
                       if (methodReturnType == null) {
                           methodDeclHelper.method.restype = make.TypeIdent(VOID);
+                          methodDeclHelper.method.restype.type = syms.voidType;
+                          if (methodDeclHelper.method.sym != null && methodDeclHelper.method.sym.type != null &&
+                              methodDeclHelper.method.sym.kind == MTH) {
+                              ((MethodType)methodDeclHelper.method.sym.type).restype = syms.voidType;
+                          }
                       }
                       else {
                           methodDeclHelper.method.restype = make.Type(methodReturnType);
