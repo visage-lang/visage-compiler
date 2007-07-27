@@ -34,6 +34,7 @@ import java.util.concurrent.*;
  */
 public class BackgroundExecutor {
     private static ExecutorService instance;
+    private static ScheduledExecutorService timerInstance;
 
     private BackgroundExecutor() {
         // not instantiable        
@@ -56,10 +57,30 @@ public class BackgroundExecutor {
         return instance;
     }
 
+    public static synchronized ScheduledExecutorService getTimer() {
+        if (timerInstance == null) {
+            // @@@ Here's where we load the configuration and such
+            timerInstance = new ScheduledThreadPoolExecutor(1,
+                    new ThreadFactory() {
+                        public Thread newThread(Runnable r) {
+                            Thread t = new Thread(r);
+                            t.setDaemon(true);
+                            return t;
+                        }
+                    });
+        }
+
+        return timerInstance;
+    }
+
     private static synchronized void shutdown() {
-        if (instance == null)
-            return;
-        instance.shutdown();
-        instance = null;
+        if (instance != null) {
+            instance.shutdown();
+            instance = null;
+        }
+        if (timerInstance != null) {
+            timerInstance.shutdown();
+            timerInstance= null;
+        }
     }
 }
