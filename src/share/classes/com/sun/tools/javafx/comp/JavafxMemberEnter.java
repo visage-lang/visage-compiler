@@ -510,10 +510,16 @@ public class JavafxMemberEnter extends MemberEnter {
                 }
             }
 
+            if (params1 != null && params.length() != params1.length()) {
+                throw new AssertionError("Different number of params!");
+            }
+            
             if (params != null) {
                 for (JCVariableDecl param : tree.params) {
-                    param.type = params1.head;
-                    params = params.tail;
+                    param.type = params1 != null && params1.head != null ? params1.head : syms.javafx_AnyType;
+                    if (params1 != null) {
+                        params1 = params1.tail;
+                    }
                 }
             }
         }
