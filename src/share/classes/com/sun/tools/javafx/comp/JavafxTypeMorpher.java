@@ -402,6 +402,8 @@ public class JavafxTypeMorpher extends TreeTranslator {
     }
     
     public void visitClassDef(JCClassDecl tree) {
+        JCClassDecl prev = attrEnv.enclClass;
+        attrEnv.enclClass = tree;
         resetExpressionMapper();
         JCMethodDecl[] previousApplyMethodDefs = applyMethodDefs;
         applyMethodDefs = new JCMethodDecl[ARGS_IN_ARRAY + 1 + 1];
@@ -413,6 +415,9 @@ public class JavafxTypeMorpher extends TreeTranslator {
         fillInApplyMethods(applyMethodDefs, this);
         
         applyMethodDefs = previousApplyMethodDefs;
+        
+        attrEnv.enclClass = prev;
+        
         result = tree;
     }
     
@@ -770,9 +775,8 @@ public class JavafxTypeMorpher extends TreeTranslator {
         ListBuffer<Type> argTypes = ListBuffer.<Type>lb();
         ListBuffer<JCExpression> argValues = ListBuffer.<JCExpression>lb();
         argTypes.append(contextType);
-        JCIdent thisId = make.Ident(names._this);
-        thisId.sym = rs.resolveSelf(tree.pos(), attrEnv, attrEnv.enclClass.sym, names._this);
-        thisId.setType(thisId.sym.type);
+        JCIdent thisId = make.Ident(new VarSymbol(Flags.FINAL, names._this, attrEnv.enclClass.type, attrEnv.enclClass.type.tsym));
+        thisId.setType(thisId.type);
         argValues.append(thisId);
         argTypes.append(syms.intType);
         argValues.append(makeLit(syms.intType, exprNum));
