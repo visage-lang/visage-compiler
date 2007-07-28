@@ -147,6 +147,11 @@ import org.antlr.runtime.*;
            this(new CommonTokenStream(new v1Lexer(new ANTLRStringStream(content.toString()))));
            initialize(context);
     	}
+
+        int pos(Token tok) {
+            //System.out.println("TOKEN: line: " + tok.getLine() + " char: " + tok.getCharPositionInLine() + " pos: " + ((CommonToken)tok).getStartIndex());
+            return ((CommonToken)tok).getStartIndex();
+        }
 }
 
 /*------------------------------------------------------------------
@@ -248,12 +253,12 @@ moduleItem returns [JCTree value]
 importDecl returns [JCTree value]
 @init { JCExpression pid = null; }
         : IMPORT  identifier		{ pid = $identifier.expr; }
-                 ( DOT name		{ pid = F.Select(pid, $name.value); } )* 
-                 ( DOT STAR		{ pid = F.Select(pid, names.asterisk); } )? SEMI 
-          { $value = F.at($IMPORT.index).Import(pid, false); } ;
+                 ( DOT name		{ pid = F.at($name.pos).Select(pid, $name.value); } )* 
+                 ( DOT STAR		{ pid = F.at(pos($STAR)).Select(pid, names.asterisk); } )? SEMI 
+          { $value = F.at(pos($IMPORT)).Import(pid, false); } ;
 classDefinition returns [JFXClassDeclaration value]
 	: modifierFlags  CLASS name supers LBRACE classMembers RBRACE 
-	  { $value = F.ClassDeclaration($modifierFlags.mods, $name.value,
+	  { $value = F.at(pos($CLASS)).ClassDeclaration($modifierFlags.mods, $name.value,
 	                                $supers.names.toList(), $classMembers.mems.toList()); } ;
 supers returns [ListBuffer<Name> names = new ListBuffer<Name>()]
 	: (EXTENDS name1=name       { $names.append($name1.value); }
@@ -266,29 +271,29 @@ classMembers returns [ListBuffer<JFXMemberDeclaration> mems = new ListBuffer<JFX
 	) *   ;
 attributeDecl returns [JFXAttributeDeclaration decl]
 	: modifierFlags ATTRIBUTE name typeReference inverseClause  (orderBy | indexOn)? SEMI 
-		{ $decl = F.AttributeDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
+		{ $decl = F.at(pos($ATTRIBUTE)).AttributeDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
 	                                    $inverseClause.inverse, null/*order/index*/); } ;
 inverseClause returns [JFXMemberSelector inverse = null]
 	: (INVERSE memberSelector { inverse = $memberSelector.value; } )? ;
 functionDecl returns [JFXFunctionMemberDeclaration decl]
 	: modifierFlags FUNCTION name formalParameters typeReference SEMI 
-		{ $decl =  F.FunctionDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
+		{ $decl =  F.at($name.pos).FunctionDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
 	                                            $formalParameters.params.toList()); } ;
 
 operationDecl returns [JFXOperationMemberDeclaration decl]
 	: modifierFlags   OPERATION   name   formalParameters   typeReference    SEMI 
-		{ $decl = F.OperationDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
+		{ $decl = F.at(pos($OPERATION)).OperationDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
 	                                            $formalParameters.params.toList()); } ;
 attributeDefinition  returns [JFXAttributeDefinition def]
 	: ATTRIBUTE   memberSelector   EQ bindOpt  expression   SEMI 
-		{ $def = F.at($ATTRIBUTE.index).AttributeDefinition($memberSelector.value, $expression.expr, $bindOpt.status); } ;
+		{ $def = F.at(pos($ATTRIBUTE)).AttributeDefinition($memberSelector.value, $expression.expr, $bindOpt.status); } ;
 memberOperationDefinition  returns [JFXOperationMemberDefinition def]
 	: OPERATION   memberSelector   formalParameters   typeReference  block 
-		{ $def = F.at($OPERATION.index).OperationDefinition($memberSelector.value, $typeReference.type, 
+		{ $def = F.at(pos($OPERATION)).OperationDefinition($memberSelector.value, $typeReference.type, 
 		              $formalParameters.params.toList(), $block.value); } ;
 memberFunctionDefinition  returns [JFXFunctionMemberDefinition def]
 	: FUNCTION   memberSelector   formalParameters   typeReference  block /*TODO functionBody */
-		{ $def = F.at($FUNCTION.index).FunctionDefinition($memberSelector.value, $typeReference.type, 
+		{ $def = F.at(pos($FUNCTION)).FunctionDefinition($memberSelector.value, $typeReference.type, 
 		              $formalParameters.params.toList(), $block.value); } ;
 functionBody // TODO
 	: EQ   expression   whereVarDecls ?   SEMI    
@@ -299,13 +304,13 @@ whereVarDecl : localFunctionDefinition
 variableDefinition : VAR   name   typeReference  EQ   expression   SEMI ;
 changeRule  returns [JFXAbstractTriggerOn value]
 	: LPAREN   NEW   identifier  RPAREN  block
-	        { $value = F.at($LPAREN.index).TriggerOnNew($identifier.expr, null, $block.value); }
+	        { $value = F.at(pos($LPAREN)).TriggerOnNew($identifier.expr, null, $block.value); }
 	| LPAREN   memberSelector  EQ identifier   RPAREN  block
-	     	{ $value = F.at($LPAREN.index).TriggerOnReplace($memberSelector.value, $identifier.expr, $block.value); }
+	     	{ $value = F.at(pos($LPAREN)).TriggerOnReplace($memberSelector.value, $identifier.expr, $block.value); }
 	| memberSelector  EQ identifier block
-	     	{ $value = F.at($EQ.index).TriggerOnReplace($memberSelector.value, $identifier.expr, $block.value); }
+	     	{ $value = F.at(pos($EQ)).TriggerOnReplace($memberSelector.value, $identifier.expr, $block.value); }
 	| LPAREN   memberSelector   LBRACKET   id1=identifier   RBRACKET   EQ id2=identifier   RPAREN  block
-	     	{ $value = F.at($LPAREN.index).TriggerOnReplaceElement($memberSelector.value, $id1.expr, $id2.expr, $block.value); }
+	     	{ $value = F.at(pos($LPAREN)).TriggerOnReplaceElement($memberSelector.value, $id1.expr, $id2.expr, $block.value); }
 	| LPAREN   INSERT   identifier   INTO   memberSelector   RPAREN block 	
 	| LPAREN   DELETE   identifier   FROM   memberSelector   RPAREN block 	
 	| LPAREN   DELETE  memberSelector   LBRACKET   identifier   RBRACKET   RPAREN block
@@ -326,14 +331,14 @@ otherModifier returns [long flags = 0]
 	: (ABSTRACT        { flags |= Flags.ABSTRACT; }
 	|  READONLY        { flags |= Flags.FINAL; } ) ;
 memberSelector returns [JFXMemberSelector value]
-	: name1=name   DOT   name2=name		{ $value = F.MemberSelector($name1.value, $name2.value); } ;
+	: name1=name   DOT   name2=name		{ $value = F.at($name1.pos).MemberSelector($name1.value, $name2.value); } ;
 formalParameters returns [ListBuffer<JCTree> params = new ListBuffer<JCTree>()]
 	: LPAREN   ( fp0=formalParameter		{ params.append($fp0.var); }
 	           ( COMMA   fpn=formalParameter	{ params.append($fpn.var); } )* )?  RPAREN ;
 formalParameter returns [JFXVar var]
-	: name typeReference			{ $var = F.Var($name.value, $typeReference.type); } ;
+	: name typeReference			{ $var = F.at($name.pos).Var($name.value, $typeReference.type); } ;
 block returns [JCBlock value]
-	: LBRACE   statements   RBRACE		{ $value = F.at($LBRACE.index).Block(0L, $statements.stats.toList()); }
+	: LBRACE   statements   RBRACE		{ $value = F.at(pos($LBRACE)).Block(0L, $statements.stats.toList()); }
 	;
 statements returns [ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>()]
 	: (statement                            { stats.append($statement.value); } )* ;
@@ -342,15 +347,17 @@ statement returns [JCStatement value]
        | localTriggerStatement			{ $value = $localTriggerStatement.value; } ;
 statementExcept  returns [JCStatement value]
 	: variableDeclaration 			{ $value = $variableDeclaration.value; }
+	| localFunctionDefinition		{ $value = $localFunctionDefinition.value; }
+	| localOperationDefinition		{ $value = $localOperationDefinition.value; }
        | backgroundStatement 			//{ $value = $backgroundStatement.value; }
        | laterStatement 			//{ $value = $laterStatement.value; }
-       | WHILE LPAREN expression RPAREN block	{ $value = F.at($WHILE.index).WhileLoop($expression.expr, $block.value); }
+       | WHILE LPAREN expression RPAREN block	{ $value = F.at(pos($WHILE)).WhileLoop($expression.expr, $block.value); }
        | ifStatement 				{ $value = $ifStatement.value; }
        | insertStatement 			{ $value = $insertStatement.value; }
        | deleteStatement 			{ $value = $deleteStatement.value; }
-	| expression   SEMI 			{ $value = F.Exec($expression.expr); }
-	| BREAK   SEMI 				{ $value = F.at($BREAK.index).Break(null); }
-	| CONTINUE   SEMI 			{ $value = F.at($CONTINUE.index).Continue(null); }
+	| expression   SEMI 			{ $value = F.at(pos($SEMI)).Exec($expression.expr); }
+	| BREAK   SEMI 				{ $value = F.at(pos($BREAK)).Break(null); }
+	| CONTINUE   SEMI 			{ $value = F.at(pos($CONTINUE)).Continue(null); }
        | throwStatement 			{ $value = $throwStatement.value; }
        | returnStatement 			{ $value = $returnStatement.value; }
        | forAlphaStatement 			{ $value = $forAlphaStatement.value; }
@@ -360,17 +367,17 @@ assertStatement  returns [JCStatement value = null]
 	: ASSERT   expression   (   COLON   expression   ) ?   SEMI ;
 localOperationDefinition   returns [JCStatement value]
 	: OPERATION   name   formalParameters   typeReference  block 
-		{ $value = F.at($OPERATION.index).OperationLocalDefinition($name.value, $typeReference.type, 
+		{ $value = F.at(pos($OPERATION)).OperationLocalDefinition($name.value, $typeReference.type, 
 									$formalParameters.params.toList(), $block.value); } ;
 localFunctionDefinition   returns [JCStatement value]
 	: FUNCTION ?   name   formalParameters   typeReference  block // TODO? functionBody 
-		{ $value = F.FunctionLocalDefinition($name.value, $typeReference.type, 
+		{ $value = F.at($name.pos).FunctionLocalDefinition($name.value, $typeReference.type, 
 									$formalParameters.params.toList(), $block.value); } ;
 variableDeclaration   returns [JCStatement value]
 	: VAR  name  typeReference  
-	    ( EQ bindOpt  expression SEMI	{ $value = F.at($VAR.index).VarInit($name.value, $typeReference.type, 
+	    ( EQ bindOpt  expression SEMI	{ $value = F.at(pos($VAR)).VarInit($name.value, $typeReference.type, 
 	    							$expression.expr, $bindOpt.status); }
-	    | SEMI				{ $value = F.at($VAR.index).VarStatement($name.value, $typeReference.type); } 
+	    | SEMI				{ $value = F.at(pos($VAR)).VarStatement($name.value, $typeReference.type); } 
 	    )   
 	   ;
 bindOpt   returns [JavafxBindStatus status = UNBOUND]
@@ -387,8 +394,8 @@ laterStatement       // TODO remove?
 	: DO   LATER   block ;
 ifStatement   returns [JCStatement value]
 @init { JCStatement elsepart = null; }
-	: IF   LPAREN   expression   RPAREN   s1=statement (ELSE  s2=statement { elsepart = $s2.value; }) ? 
-						{ $value = F.at($IF.index).If($expression.expr, $s1.value, elsepart); } ;
+	: IF   LPAREN   expression   RPAREN   s1=block (ELSE  s2=block { elsepart = $s2.value; }) ? 
+						{ $value = F.at(pos($IF)).If($expression.expr, $s1.value, elsepart); } ;
 insertStatement   returns [JCStatement value = null]
 	: INSERT   (   DISTINCT   expression   INTO   expression   |   expression   (   (   (   AS   (   FIRST   |   LAST   )   ) ?   INTO   expression   )   |   AFTER   expression   |   BEFORE   expression   )   )     SEMI ;
 deleteStatement   returns [JCStatement value = null]
@@ -398,7 +405,7 @@ throwStatement   returns [JCStatement value = null]
 returnStatement   returns [JCStatement value]
 @init { JCExpression expr = null; }
 	: RETURN (expression { expr = $expression.expr; } )? SEMI 
-						{ $value = F.at($RETURN.index).Return(expr); } 
+						{ $value = F.at(pos($RETURN)).Return(expr); } 
 	;
 localTriggerStatement   returns [JCStatement value = null]
 	: TRIGGER   ON    ( localTriggerCondition | LPAREN   localTriggerCondition   RPAREN)  block ;
@@ -436,41 +443,41 @@ suffixedExpression  returns [JCExpression expr]
 	   (indexOn | orderBy | durClause | PLUSPLUS | SUBSUB) ? ;  //TODO
 assignmentExpression  returns [JCExpression expr] 
 	: e1=assignmentOpExpression				{ $expr = $e1.expr; }
-	   (   EQ   e2=assignmentOpExpression			{ $expr = F.at($EQ.index).Assign($expr, $e2.expr); }   ) ? ;
+	   (   EQ   e2=assignmentOpExpression			{ $expr = F.at(pos($EQ)).Assign($expr, $e2.expr); }   ) ? ;
 assignmentOpExpression  returns [JCExpression expr] 
 	: e1=andExpression					{ $expr = $e1.expr; }
 	   (   assignmentOperator   e2=andExpression		{ $expr = F.Assignop($assignmentOperator.optag,
 	   													$expr, $e2.expr); }   ) ? ;
 andExpression  returns [JCExpression expr] 
 	: e1=orExpression					{ $expr = $e1.expr; }
-	   (   AND   e2=orExpression				{ $expr = F.at($AND.index).Binary(JCTree.AND, $expr, $e2.expr); }   ) * ;
+	   (   AND   e2=orExpression				{ $expr = F.at(pos($AND)).Binary(JCTree.AND, $expr, $e2.expr); }   ) * ;
 orExpression  returns [JCExpression expr] 
 	: e1=instanceOfExpression				{ $expr = $e1.expr; }
-	   (   OR   e2=instanceOfExpression			{ $expr = F.at($OR.index).Binary(JCTree.OR, $expr, $e2.expr); }    ) * ;
+	   (   OR   e2=instanceOfExpression			{ $expr = F.at(pos($OR)).Binary(JCTree.OR, $expr, $e2.expr); }    ) * ;
 instanceOfExpression  returns [JCExpression expr] 
 	: e1=relationalExpression				{ $expr = $e1.expr; }
-	   (   INSTANCEOF identifier				{ $expr = F.at($INSTANCEOF.index).Binary(JCTree.TYPETEST, $expr, 
+	   (   INSTANCEOF identifier				{ $expr = F.at(pos($INSTANCEOF)).Binary(JCTree.TYPETEST, $expr, 
 	   													 $identifier.expr); }   ) ? ;
 relationalExpression  returns [JCExpression expr] 
 	: e1=additiveExpression					{ $expr = $e1.expr; }
-	   (   LTGT   e=additiveExpression			{ $expr = F.at($LTGT.index).Binary(JCTree.NE, $expr, $e.expr); }
-	   |   EQEQ   e=additiveExpression			{ $expr = F.at($EQEQ.index).Binary(JCTree.EQ, $expr, $e.expr); }
-	   |   LTEQ   e=additiveExpression			{ $expr = F.at($LTEQ.index).Binary(JCTree.LE, $expr, $e.expr); }
-	   |   GTEQ   e=additiveExpression			{ $expr = F.at($GTEQ.index).Binary(JCTree.GE, $expr, $e.expr); }
-	   |   LT     e=additiveExpression			{ $expr = F.at($LT.index)  .Binary(JCTree.LT, $expr, $e.expr); }
-	   |   GT     e=additiveExpression			{ $expr = F.at($GT.index)  .Binary(JCTree.GT, $expr, $e.expr); }
-	   |   IN     e=additiveExpression			{ /* $expr = F.at($IN  .index).Binary(JavaFXTag.IN, $expr, $e2.expr); */ }
+	   (   LTGT   e=additiveExpression			{ $expr = F.at(pos($LTGT)).Binary(JCTree.NE, $expr, $e.expr); }
+	   |   EQEQ   e=additiveExpression			{ $expr = F.at(pos($EQEQ)).Binary(JCTree.EQ, $expr, $e.expr); }
+	   |   LTEQ   e=additiveExpression			{ $expr = F.at(pos($LTEQ)).Binary(JCTree.LE, $expr, $e.expr); }
+	   |   GTEQ   e=additiveExpression			{ $expr = F.at(pos($GTEQ)).Binary(JCTree.GE, $expr, $e.expr); }
+	   |   LT     e=additiveExpression			{ $expr = F.at(pos($LT))  .Binary(JCTree.LT, $expr, $e.expr); }
+	   |   GT     e=additiveExpression			{ $expr = F.at(pos($GT))  .Binary(JCTree.GT, $expr, $e.expr); }
+	   |   IN     e=additiveExpression			{ /* $expr = F.at(pos($IN  )).Binary(JavaFXTag.IN, $expr, $e2.expr); */ }
 	   ) * ;
 additiveExpression  returns [JCExpression expr] 
 	: e1=multiplicativeExpression				{ $expr = $e1.expr; }
-	   (   PLUS   e=multiplicativeExpression		{ $expr = F.at($PLUS.index).Binary(JCTree.PLUS , $expr, $e.expr); }
-	   |   SUB    e=multiplicativeExpression		{ $expr = F.at($SUB.index) .Binary(JCTree.MINUS, $expr, $e.expr); }
+	   (   PLUS   e=multiplicativeExpression		{ $expr = F.at(pos($PLUS)).Binary(JCTree.PLUS , $expr, $e.expr); }
+	   |   SUB    e=multiplicativeExpression		{ $expr = F.at(pos($SUB)) .Binary(JCTree.MINUS, $expr, $e.expr); }
 	   ) * ;
 multiplicativeExpression  returns [JCExpression expr] 
 	: e1=unaryExpression					{ $expr = $e1.expr; }
-	   (   STAR    e=unaryExpression			{ $expr = F.at($STAR.index)   .Binary(JCTree.MUL  , $expr, $e.expr); }
-	   |   SLASH   e=unaryExpression			{ $expr = F.at($SLASH.index)  .Binary(JCTree.DIV  , $expr, $e.expr); }
-	   |   PERCENT e=unaryExpression			{ $expr = F.at($PERCENT.index).Binary(JCTree.MOD  , $expr, $e.expr); }   
+	   (   STAR    e=unaryExpression			{ $expr = F.at(pos($STAR))   .Binary(JCTree.MUL  , $expr, $e.expr); }
+	   |   SLASH   e=unaryExpression			{ $expr = F.at(pos($SLASH))  .Binary(JCTree.DIV  , $expr, $e.expr); }
+	   |   PERCENT e=unaryExpression			{ $expr = F.at(pos($PERCENT)).Binary(JCTree.MOD  , $expr, $e.expr); }   
 	   ) * ;
 unaryExpression  returns [JCExpression expr] 
 	: postfixExpression					{ $expr = $postfixExpression.expr; }
@@ -479,37 +486,38 @@ unaryExpression  returns [JCExpression expr]
 postfixExpression  returns [JCExpression expr] 
 	: primaryExpression 					{ $expr = $primaryExpression.expr; }
 	   ( DOT ( CLASS   
-	         | name1=name   				{ $expr = F.at($DOT.index).Select($expr, $name1.value); }
-	            ( LPAREN expressionListOpt RPAREN   	{ $expr = F.at($LPAREN.index).Apply(null, $expr, $expressionListOpt.args.toList()); } ) *
+	         | name1=name   				{ $expr = F.at(pos($DOT)).Select($expr, $name1.value); }
+	            ( LPAREN expressionListOpt RPAREN   	{ $expr = F.at(pos($LPAREN)).Apply(null, $expr, $expressionListOpt.args.toList()); } ) *
 	         )   
 	   | LBRACKET (name BAR)? expression  RBRACKET		//TODO: selectionClause   
 	   ) * ;
 primaryExpression  returns [JCExpression expr] 
 	: newExpression 					{ $expr = $newExpression.expr; }
-	| identifier LBRACE  objectLiteral RBRACE 		{ $expr = F.at($LBRACE.index).PureObjectLiteral($identifier.expr, $objectLiteral.parts.toList()); } 
-       | bracketExpression 
-       //  | typeReference 
-       | ordinalExpression 
+	| identifier LBRACE  objectLiteral RBRACE 		{ $expr = F.at(pos($LBRACE)).PureObjectLiteral($identifier.expr, $objectLiteral.parts.toList()); } 
+	| bracketExpression 
+        //  | typeReference 
+	| ordinalExpression 
        | contextExpression 
-       | THIS							{ $expr = F.at($THIS.index).Identifier(names._this); }
-       | SUPER							{ $expr = F.at($SUPER.index).Identifier(names._super); }
+       | THIS							{ $expr = F.at(pos($THIS)).Identifier(names._this); }
+       | SUPER							{ $expr = F.at(pos($SUPER)).Identifier(names._super); }
        | identifier 						{ $expr = $identifier.expr; }
-       		( LPAREN   expressionListOpt   RPAREN   	{ $expr = F.at($LPAREN.index).Apply(null, $expr, $expressionListOpt.args.toList()); } )*
+       		( LPAREN   expressionListOpt   RPAREN   	{ $expr = F.at(pos($LPAREN)).Apply(null, $expr, $expressionListOpt.args.toList()); } )*
        | stringExpression 					{ $expr = $stringExpression.expr; }
        | literal 						{ $expr = $literal.expr; }
+       | LPAREN expression RPAREN				{ $expr = F.at(pos($LPAREN)).Parens($expression.expr); }
        ;
 newExpression  returns [JCExpression expr] 
 @init { ListBuffer<JCExpression> args = null; }
 	: NEW  identifier  
 		( LPAREN   expressionListOpt   RPAREN 		{ args = $expressionListOpt.args; } )?
-								{ $expr = F.at($NEW.index).NewClass(null, null, $identifier.expr, 
+								{ $expr = F.at(pos($NEW)).NewClass(null, null, $identifier.expr, 
 												(args==null? new ListBuffer<JCExpression>() : args).toList(), null); }
 		   //TODO: need objectLiteral 
 	;
 objectLiteral  returns [ListBuffer<JFXStatement> parts = new ListBuffer<JFXStatement>()]
 	: ( objectLiteralPart  					{ $parts.append($objectLiteralPart.value); } ) * ;
 objectLiteralPart  returns [JFXStatement value]
-	: name COLON  bindOpt expression (COMMA | SEMI)?	{ $value = F.at($COLON.index).ObjectLiteralPart($name.value, $expression.expr, $bindOpt.status); }
+	: name COLON  bindOpt expression (COMMA | SEMI)?	{ $value = F.at(pos($COLON)).ObjectLiteralPart($name.value, $expression.expr, $bindOpt.status); }
        | ATTRIBUTE   name   typeReference   EQ  bindOpt expression   SEMI 
        | localOperationDefinition 
        | localFunctionDefinition 
@@ -556,7 +564,7 @@ typeReference returns [JFXType type]
                        					{ $type = F.TypeFunctional($formalParameters.params.toList(), 
                                                                                        $typeReference.type, $ccf.ary); }
                    | name ccn=cardinalityConstraint		{ $type = F.TypeClass($name.value, $ccn.ary); }
-                   | STAR ccs=cardinalityConstraint		{ $type = F.TypeAny($ccs.ary); } ) )? 
+                   | STAR ccs=cardinalityConstraint		{ $type = F.at(pos($STAR)).TypeAny($ccs.ary); } ) )? 
         ;
 cardinalityConstraint returns [int ary]
 	:  LBRACKET   RBRACKET    	{ ary = JFXType.CARDINALITY_ANY; }
@@ -566,23 +574,23 @@ cardinalityConstraint returns [int ary]
 	|                         	{ ary = JFXType.CARDINALITY_OPTIONAL; } 
 	;
 literal  returns [JCExpression expr]
-	: t=STRING_LITERAL		{ $expr = F.at($t.index).Literal(TypeTags.CLASS, $t.text); }
-	| t=INTEGER_LITERAL		{ $expr = F.at($t.index).Literal(TypeTags.INT, Convert.string2int($t.text, 10)); }
-	| t=FLOATING_POINT_LITERAL 	{ $expr = F.at($t.index).Literal(TypeTags.DOUBLE, Double.valueOf($t.text)); }
-	| t=TRUE   			{ $expr = F.at($t.index).Literal(TypeTags.BOOLEAN, 1); }
-	| t=FALSE   			{ $expr = F.at($t.index).Literal(TypeTags.BOOLEAN, 0); }
-	| t=NULL 			{ $expr = F.at($t.index).Literal(TypeTags.BOT, null); } 
+	: t=STRING_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.CLASS, $t.text); }
+	| t=INTEGER_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 10)); }
+	| t=FLOATING_POINT_LITERAL 	{ $expr = F.at(pos($t)).Literal(TypeTags.DOUBLE, Double.valueOf($t.text)); }
+	| t=TRUE   			{ $expr = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 1); }
+	| t=FALSE   			{ $expr = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 0); }
+	| t=NULL 			{ $expr = F.at(pos($t)).Literal(TypeTags.BOT, null); } 
 	;
 typeName  returns [JCExpression expr]
        : qualident            		{ $expr = $qualident.expr; } 
        ;
 qualident returns [JCExpression expr]
        : identifier            		{ $expr = $identifier.expr; }
-         ( DOT name     		{ $expr = F.Select($expr, $name.value); } 
+         ( DOT name     		{ $expr = F.at($name.pos).Select($expr, $name.value); } 
          ) *  ;
 identifier  returns [JCIdent expr]
-	: name              		{ $expr = F.Ident($name.value); } 
+	: name              		{ $expr = F.at($name.pos).Ident($name.value); } 
 	;
-name returns [Name value]
-	: tokid=( QUOTED_IDENTIFIER | IDENTIFIER ) { $value = Name.fromString(names, $tokid.text); } 
+name returns [Name value, int pos]
+	: tokid=( QUOTED_IDENTIFIER | IDENTIFIER ) { $value = Name.fromString(names, $tokid.text); $pos = pos($tokid); } 
 	;

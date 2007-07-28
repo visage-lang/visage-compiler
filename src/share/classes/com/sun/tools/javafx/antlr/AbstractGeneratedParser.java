@@ -74,6 +74,15 @@ public abstract class AbstractGeneratedParser extends Parser {
     
     public abstract JCCompilationUnit module() throws RecognitionException;
     
+    /** What is the error header, normally line/character position information? */
+    @Override
+    public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
+        int pos = ((CommonToken)(e.token)).getStartIndex();
+        String msg = getErrorMessage(e, tokenNames);
+//        System.err.println("ERROR: " + msg);
+        log.error(pos, "javafx.generalerror", msg);
+    }
+    
     List noJCTrees() {
         return List.<JCTree>nil();
     }

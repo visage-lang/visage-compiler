@@ -1037,7 +1037,7 @@ public class Scanner implements Lexer {
                         token = IDENTIFIER;
                     } else {
                         // not a French quote, back-up and re-scan it as an operator
-                        // TODO: error has been seen here
+                        // TODO: error has been seen here (more than once)
                         sp -= 2;
                         scanChar();
                         scanOperator();
