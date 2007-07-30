@@ -56,7 +56,6 @@ public abstract class JFXTree extends JCTree {
     
     // stuff to ignore
     
-    @Override
     public Kind getKind()  {
         throw new InternalError("not implemented");
     }
