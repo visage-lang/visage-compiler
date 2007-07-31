@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="JavaFX Compiler" default="jar" basedir=".">
+
+    <property name="base.dir" value="${basedir}" />
+    <property name="lib.dir" value="${base.dir}/lib" />
+    <property name="test.dir" value="${base.dir}/test" />
+    <property name="build.dir" value="${base.dir}/build" />
+    <property name="dist.dir" value="${base.dir}/dist" />
+    <property name="build.classes.dir" value="${build.dir}/classes" />
+    <property name="build.milestones.dir" value="${build.dir}/classes" />
+    <property name="src.fx.dir" value="${base.dir}/src/share/classes" />
+    <property name="src.java.dir" value="${base.dir}/src/share/classes" />
+    <property name="jar.file" value="${dist.dir}/javafx.jar" />
+
+    <property name="fx.compiler.class" value="com.sun.tools.javafx.Main" />
+
+    <path id="build.class.path">
+        <pathelement location="${lib.dir}/javac.jar"/>
+        <pathelement location="${lib.dir}/antlr-runtime-3.0.jar"/>
+    </path>
+
+    <path id="run.class.path">
+        <pathelement location="${build.classes.dir}" />
+        <pathelement location="${lib.dir}/javac.jar"/>
+        <pathelement location="${lib.dir}/antlr-runtime-3.0.jar"/>
+    </path>
+
+    <target name="prepare">
+        <mkdir dir="${build.dir}" />
+        <mkdir dir="${build.classes.dir}" />
+        <mkdir dir="${dist.dir}" />
+    </target>
+
+    <target name="clean">
+        <delete dir="${build.dir}" />
+        <delete dir="${dist.dir}" />
+    </target>
+
+    <target name="compile-java" depends="prepare">
+        <javac srcdir="${src.java.dir}" classpathref="build.class.path" includes="**/*.java"
+               destdir="${build.classes.dir}" />
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.fx.dir}" includes="**/*.properties" />
+        </copy>
+    </target>
+
+    <target name="copy-fx" depends="prepare">
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.fx.dir}" includes="**/*.fx" />
+        </copy>
+    </target>
+
+    <target name="build" depends="compile-java,copy-fx" />
+
+    <target name="jar" depends="build">
+        <jar jarfile="${jar.file}" basedir="${build.classes.dir}"/>
+    </target>
+
+    <target name="milestone-M1" depends="build" >
+        <java fork="true" classpathref="run.class.path" dir="${test.dir}/milestones/M1"
+            classname="${fx.compiler.class}" >
+            <arg value="M1.fx" />
+        </java>
+        <javac srcdir="${test.dir}/milestones/M1" classpathref="build.class.path" includes="**/*.java"
+               destdir="${test.dir}/milestones/M1" />
+        <java fork="true" classname="M1">
+            <classpath>
+                <pathelement location="${test.dir}/milestones/M1" />
+                <path refid="run.class.path" />
+            </classpath>
+        </java>
+    </target>
+
+    <!-- abstract target, param=${milestone} -->
+    <target name="abstract-milestone" depends="build">
+    </target>
+
+</project>

@@ -1,0 +1,13 @@
+JavaFX compiler milestone 1
+
+Demonstrated:
+ - module-level variables with explicit Integer and String type declaration
+ - calling System.out.println()
+ - calculating simple arithmetic expressions
+
+Restrictions:
+ - No type inference assumed.  All variables are given an explicit type.
+ - Only types used are Integer and String
+ - Module-level code is moved into an instance run() method, which should be static.
+ - Instance run() method needlessly instantiates another instance.
+
