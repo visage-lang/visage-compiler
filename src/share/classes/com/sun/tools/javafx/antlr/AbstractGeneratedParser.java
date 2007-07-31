@@ -36,7 +36,8 @@ import static com.sun.tools.javac.util.ListBuffer.lb;
 import org.antlr.runtime.*;
 
 /**
- *
+ * Base class for ANTLR generated parsers 
+ * 
  * @author Robert Field
  */
 public abstract class AbstractGeneratedParser extends Parser {
@@ -61,14 +62,14 @@ public abstract class AbstractGeneratedParser extends Parser {
     protected JCErroneous errorTree;
     
     /** initializes a new instance of GeneratedParser */
-    void initialize(Context context) {
+    protected void initialize(Context context) {
         this.F = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         this.log = Log.instance(context);
         this.names = Name.Table.instance(context);
         this.source = Source.instance(context);
     }
     
-    AbstractGeneratedParser(TokenStream input) {
+    protected AbstractGeneratedParser(TokenStream input) {
         super(input);
     }
     
@@ -79,15 +80,20 @@ public abstract class AbstractGeneratedParser extends Parser {
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
         int pos = ((CommonToken)(e.token)).getStartIndex();
         String msg = getErrorMessage(e, tokenNames);
-//        System.err.println("ERROR: " + msg);
+        //        System.err.println("ERROR: " + msg);
         log.error(pos, "javafx.generalerror", msg);
     }
     
-    List noJCTrees() {
+    protected int pos(Token tok) {
+        //System.out.println("TOKEN: line: " + tok.getLine() + " char: " + tok.getCharPositionInLine() + " pos: " + ((CommonToken)tok).getStartIndex());
+        return ((CommonToken)tok).getStartIndex();
+    }
+    
+    protected List noJCTrees() {
         return List.<JCTree>nil();
     }
     
-    List noJCAnnotations() {
+    protected List noJCAnnotations() {
         return List.<JCAnnotation>nil();
     }
 }

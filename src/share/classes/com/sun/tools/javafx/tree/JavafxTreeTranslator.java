@@ -215,7 +215,7 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
     }
     
     public void visitStringExpression(JFXStringExpression that) {
-        that.parts = translate(that.parts);
+        that.parts = that.parts==null? null : translate(that.parts);
         result = that;
     }
     

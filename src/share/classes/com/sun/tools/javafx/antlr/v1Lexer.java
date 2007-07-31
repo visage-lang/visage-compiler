@@ -1,4 +1,4 @@
-// $ANTLR 3.0 C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g 2007-07-27 20:53:06
+// $ANTLR 3.0 \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g 2007-07-30 18:11:05
 
 package com.sun.tools.javafx.antlr;
 
@@ -7,12 +7,13 @@ import org.antlr.runtime.*;
 import java.util.Stack;
 import java.util.List;
 import java.util.ArrayList;
-
+import java.util.Map;
+import java.util.HashMap;
 public class v1Lexer extends Lexer {
     public static final int FUNCTION=70;
     public static final int PACKAGE=34;
-    public static final int LT=97;
-    public static final int STAR=105;
+    public static final int LT=95;
+    public static final int STAR=103;
     public static final int LATER=37;
     public static final int WHILE=55;
     public static final int EASEOUT=28;
@@ -23,52 +24,52 @@ public class v1Lexer extends Lexer {
     public static final int UNITINTERVAL=52;
     public static final int NOT=64;
     public static final int EOF=-1;
-    public static final int GTGT=114;
+    public static final int GTGT=112;
     public static final int RBRACE_QUOTE_STRING_LITERAL=119;
     public static final int BREAK=18;
     public static final int TYPE=73;
-    public static final int LBRACKET=89;
+    public static final int LBRACKET=87;
     public static final int RPAREN=86;
     public static final int LINEAR=57;
     public static final int IMPORT=35;
-    public static final int STRING_LITERAL=117;
+    public static final int STRING_LITERAL=115;
     public static final int INSERT=40;
-    public static final int FLOATING_POINT_LITERAL=125;
-    public static final int SUBSUB=104;
+    public static final int FLOATING_POINT_LITERAL=126;
+    public static final int SUBSUB=102;
     public static final int BIND=16;
-    public static final int STAREQ=110;
+    public static final int STAREQ=108;
     public static final int THIS=47;
     public static final int RETURN=31;
     public static final int VAR=33;
     public static final int SUPER=80;
     public static final int LAST=43;
-    public static final int EQ=95;
-    public static final int COMMENT=130;
+    public static final int EQ=93;
+    public static final int COMMENT=131;
     public static final int SELECT=79;
     public static final int INTO=41;
-    public static final int QUES=116;
-    public static final int EQEQ=94;
+    public static final int QUES=114;
+    public static final int EQEQ=92;
     public static final int MOTION=58;
-    public static final int RBRACE=88;
+    public static final int RBRACE=121;
     public static final int POUND=5;
-    public static final int LINE_COMMENT=131;
+    public static final int LINE_COMMENT=132;
     public static final int PRIVATE=66;
     public static final int NULL=48;
     public static final int ELSE=46;
     public static final int ON=39;
     public static final int DELETE=22;
-    public static final int SLASHEQ=111;
+    public static final int SLASHEQ=109;
     public static final int EASEBOTH=26;
     public static final int ASSERT=13;
     public static final int TRY=59;
     public static final int INVERSE=72;
-    public static final int WS=129;
+    public static final int WS=130;
     public static final int TYPEOF=6;
-    public static final int INTEGER_LITERAL=123;
+    public static final int INTEGER_LITERAL=124;
     public static final int OR=81;
-    public static final int JavaIDDigit=127;
+    public static final int JavaIDDigit=128;
     public static final int SIZEOF=82;
-    public static final int GT=96;
+    public static final int GT=94;
     public static final int FOREACH=62;
     public static final int FROM=36;
     public static final int CATCH=20;
@@ -76,83 +77,145 @@ public class v1Lexer extends Lexer {
     public static final int REVERSE=83;
     public static final int FALSE=50;
     public static final int DISTINCT=23;
-    public static final int Letter=126;
+    public static final int Letter=127;
     public static final int THROW=32;
     public static final int DUR=25;
     public static final int WHERE=63;
     public static final int PROTECTED=67;
     public static final int CLASS=21;
     public static final int ORDER=75;
-    public static final int PLUSPLUS=102;
-    public static final int LBRACE=87;
-    public static final int LTEQ=99;
+    public static final int PLUSPLUS=100;
+    public static final int LBRACE=118;
+    public static final int LTEQ=97;
     public static final int ATTRIBUTE=14;
-    public static final int SUBEQ=109;
+    public static final int SUBEQ=107;
     public static final int BIBIND=17;
-    public static final int Exponent=124;
+    public static final int Exponent=125;
     public static final int LARROW=8;
     public static final int FOR=51;
-    public static final int SUB=103;
+    public static final int SUB=101;
     public static final int DOTDOT=7;
     public static final int ABSTRACT=9;
+    public static final int NextIsPercent=116;
     public static final int AND=11;
-    public static final int PLUSEQ=108;
+    public static final int PLUSEQ=106;
     public static final int LPAREN=85;
     public static final int IF=44;
     public static final int INDEX=76;
     public static final int AS=12;
-    public static final int SLASH=106;
+    public static final int SLASH=104;
     public static final int IN=53;
     public static final int THEN=45;
     public static final int CONTINUE=56;
-    public static final int COMMA=92;
+    public static final int COMMA=90;
     public static final int TIE=29;
-    public static final int IDENTIFIER=128;
-    public static final int QUOTE_LBRACE_STRING_LITERAL=118;
-    public static final int PLUS=101;
-    public static final int RBRACKET=90;
-    public static final int DOT=93;
+    public static final int IDENTIFIER=129;
+    public static final int QUOTE_LBRACE_STRING_LITERAL=117;
+    public static final int PLUS=99;
+    public static final int RBRACKET=88;
+    public static final int DOT=91;
     public static final int RBRACE_LBRACE_STRING_LITERAL=120;
-    public static final int LTLT=113;
+    public static final int LTLT=111;
     public static final int STAYS=30;
     public static final int BY=19;
     public static final int XOR=84;
-    public static final int PERCENT=107;
+    public static final int PERCENT=105;
     public static final int LAZY=61;
-    public static final int LTGT=98;
+    public static final int LTGT=96;
     public static final int BEFORE=15;
     public static final int INSTANCEOF=77;
     public static final int AFTER=10;
-    public static final int GTEQ=100;
-    public static final int Tokens=132;
+    public static final int GTEQ=98;
+    public static final int Tokens=133;
     public static final int READONLY=71;
-    public static final int SEMI=91;
+    public static final int SEMI=89;
     public static final int TRUE=49;
-    public static final int COLON=115;
+    public static final int COLON=113;
     public static final int FINALLY=60;
-    public static final int PERCENTEQ=112;
+    public static final int PERCENTEQ=110;
     public static final int EASEIN=27;
-    public static final int FORMAT_STRING_LITERAL=121;
-    public static final int QUOTED_IDENTIFIER=122;
+    public static final int FORMAT_STRING_LITERAL=122;
+    public static final int QUOTED_IDENTIFIER=123;
     public static final int FPS=54;
     public static final int EXTENDS=74;
     public static final int PUBLIC=68;
     public static final int BAR=4;
     public static final int FIRST=42;
+    
+        /** Track "He{"l{"l"}o"} world" quotes
+         */
+        private static class BraceQuoteTracker {
+            private static BraceQuoteTracker quoteStack = null;
+            private int braceDepth;
+            private char quote;
+            private boolean percentIsFormat;
+            private BraceQuoteTracker next;
+            private BraceQuoteTracker(BraceQuoteTracker prev, char quote, boolean percentIsFormat) {
+                this.quote = quote;
+                this.percentIsFormat = percentIsFormat;
+                this.braceDepth = 1;
+                this.next = prev;
+            }
+            static void enterBrace(int quote, boolean percentIsFormat) {
+                if (quote == 0) {  // exisiting string expression or non string expression
+                    if (quoteStack != null) {
+                        ++quoteStack.braceDepth;
+                        quoteStack.percentIsFormat = percentIsFormat;
+                    }
+                } else {
+                    quoteStack = new BraceQuoteTracker(quoteStack, (char)quote, percentIsFormat); // push
+                }
+            }
+            /** Return quote kind if we are reentering a quote
+             * */
+            static char leaveBrace() {
+                if (quoteStack != null && --quoteStack.braceDepth == 0) {
+                    return quoteStack.quote;
+                }
+                return 0;
+            }
+            static boolean rightBraceLikeQuote(int quote) {
+                return quoteStack != null && quoteStack.braceDepth == 1 && (quote == 0 || quoteStack.quote == (char)quote);
+            }
+            static void leaveQuote() {
+                assert (quoteStack != null && quoteStack.braceDepth == 0);
+                quoteStack = quoteStack.next; // pop
+            }
+            static boolean percentIsFormat() {
+                return quoteStack != null && quoteStack.percentIsFormat;
+            }
+            static void resetPercentIsFormat() {
+                quoteStack.percentIsFormat = false;
+            }
+            static boolean inBraceQuote() {
+                return quoteStack != null;
+            }
+        }
+        
+        void removeQuotes() {
+        	setText(getText().substring(1, getText().length()-1));
+        }
+        
+        // quote context --
+        static final int CUR_QUOTE_CTX	= 0;	// 0 = use current quote context
+        static final int SNG_QUOTE_CTX	= 1;	// 1 = single quote quote context
+        static final int DBL_QUOTE_CTX	= 2;	// 2 = double quote quote context
+     
     public v1Lexer() {;} 
     public v1Lexer(CharStream input) {
         super(input);
-    }
-    public String getGrammarFileName() { return "C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g"; }
+        ruleMemo = new HashMap[131+1];
+     }
+    public String getGrammarFileName() { return "\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g"; }
 
     // $ANTLR start BAR
     public final void mBAR() throws RecognitionException {
         try {
             int _type = BAR;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:6:5: ( '|' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:6:7: '|'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:66:7: ( '|' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:66:7: '|'
             {
-            match('|'); 
+            match('|'); if (failed) return ;
 
             }
 
@@ -167,10 +230,10 @@ public class v1Lexer extends Lexer {
     public final void mPOUND() throws RecognitionException {
         try {
             int _type = POUND;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:7:7: ( '#' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:7:9: '#'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:67:9: ( '#' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:67:9: '#'
             {
-            match('#'); 
+            match('#'); if (failed) return ;
 
             }
 
@@ -185,10 +248,10 @@ public class v1Lexer extends Lexer {
     public final void mTYPEOF() throws RecognitionException {
         try {
             int _type = TYPEOF;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:8:8: ( 'typeof' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:8:10: 'typeof'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:68:10: ( 'typeof' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:68:10: 'typeof'
             {
-            match("typeof"); 
+            match("typeof"); if (failed) return ;
 
 
             }
@@ -204,10 +267,10 @@ public class v1Lexer extends Lexer {
     public final void mDOTDOT() throws RecognitionException {
         try {
             int _type = DOTDOT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:9:8: ( '..' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:9:10: '..'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:69:10: ( '..' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:69:10: '..'
             {
-            match(".."); 
+            match(".."); if (failed) return ;
 
 
             }
@@ -223,10 +286,10 @@ public class v1Lexer extends Lexer {
     public final void mLARROW() throws RecognitionException {
         try {
             int _type = LARROW;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:10:8: ( '<-' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:10:10: '<-'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:70:10: ( '<-' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:70:10: '<-'
             {
-            match("<-"); 
+            match("<-"); if (failed) return ;
 
 
             }
@@ -242,10 +305,10 @@ public class v1Lexer extends Lexer {
     public final void mABSTRACT() throws RecognitionException {
         try {
             int _type = ABSTRACT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:11:10: ( 'abstract' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:11:12: 'abstract'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:71:12: ( 'abstract' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:71:12: 'abstract'
             {
-            match("abstract"); 
+            match("abstract"); if (failed) return ;
 
 
             }
@@ -261,10 +324,10 @@ public class v1Lexer extends Lexer {
     public final void mAFTER() throws RecognitionException {
         try {
             int _type = AFTER;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:12:7: ( 'after' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:12:9: 'after'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:72:9: ( 'after' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:72:9: 'after'
             {
-            match("after"); 
+            match("after"); if (failed) return ;
 
 
             }
@@ -280,10 +343,10 @@ public class v1Lexer extends Lexer {
     public final void mAND() throws RecognitionException {
         try {
             int _type = AND;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:13:5: ( 'and' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:13:7: 'and'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:73:7: ( 'and' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:73:7: 'and'
             {
-            match("and"); 
+            match("and"); if (failed) return ;
 
 
             }
@@ -299,10 +362,10 @@ public class v1Lexer extends Lexer {
     public final void mAS() throws RecognitionException {
         try {
             int _type = AS;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:14:4: ( 'as' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:14:6: 'as'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:74:6: ( 'as' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:74:6: 'as'
             {
-            match("as"); 
+            match("as"); if (failed) return ;
 
 
             }
@@ -318,10 +381,10 @@ public class v1Lexer extends Lexer {
     public final void mASSERT() throws RecognitionException {
         try {
             int _type = ASSERT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:15:8: ( 'assert' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:15:10: 'assert'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:75:10: ( 'assert' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:75:10: 'assert'
             {
-            match("assert"); 
+            match("assert"); if (failed) return ;
 
 
             }
@@ -337,10 +400,10 @@ public class v1Lexer extends Lexer {
     public final void mATTRIBUTE() throws RecognitionException {
         try {
             int _type = ATTRIBUTE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:16:11: ( 'attribute' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:16:13: 'attribute'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:76:13: ( 'attribute' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:76:13: 'attribute'
             {
-            match("attribute"); 
+            match("attribute"); if (failed) return ;
 
 
             }
@@ -356,10 +419,10 @@ public class v1Lexer extends Lexer {
     public final void mBEFORE() throws RecognitionException {
         try {
             int _type = BEFORE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:17:8: ( 'before' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:17:10: 'before'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:77:10: ( 'before' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:77:10: 'before'
             {
-            match("before"); 
+            match("before"); if (failed) return ;
 
 
             }
@@ -375,10 +438,10 @@ public class v1Lexer extends Lexer {
     public final void mBIND() throws RecognitionException {
         try {
             int _type = BIND;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:18:6: ( 'bind' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:18:8: 'bind'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:78:8: ( 'bind' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:78:8: 'bind'
             {
-            match("bind"); 
+            match("bind"); if (failed) return ;
 
 
             }
@@ -394,10 +457,10 @@ public class v1Lexer extends Lexer {
     public final void mBIBIND() throws RecognitionException {
         try {
             int _type = BIBIND;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:19:8: ( 'bibind' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:19:10: 'bibind'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:79:10: ( 'bibind' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:79:10: 'bibind'
             {
-            match("bibind"); 
+            match("bibind"); if (failed) return ;
 
 
             }
@@ -413,10 +476,10 @@ public class v1Lexer extends Lexer {
     public final void mBREAK() throws RecognitionException {
         try {
             int _type = BREAK;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:20:7: ( 'break' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:20:9: 'break'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:80:9: ( 'break' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:80:9: 'break'
             {
-            match("break"); 
+            match("break"); if (failed) return ;
 
 
             }
@@ -432,10 +495,10 @@ public class v1Lexer extends Lexer {
     public final void mBY() throws RecognitionException {
         try {
             int _type = BY;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:21:4: ( 'by' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:21:6: 'by'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:81:6: ( 'by' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:81:6: 'by'
             {
-            match("by"); 
+            match("by"); if (failed) return ;
 
 
             }
@@ -451,10 +514,10 @@ public class v1Lexer extends Lexer {
     public final void mCATCH() throws RecognitionException {
         try {
             int _type = CATCH;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:22:7: ( 'catch' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:22:9: 'catch'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:82:9: ( 'catch' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:82:9: 'catch'
             {
-            match("catch"); 
+            match("catch"); if (failed) return ;
 
 
             }
@@ -470,10 +533,10 @@ public class v1Lexer extends Lexer {
     public final void mCLASS() throws RecognitionException {
         try {
             int _type = CLASS;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:23:7: ( 'class' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:23:9: 'class'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:83:9: ( 'class' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:83:9: 'class'
             {
-            match("class"); 
+            match("class"); if (failed) return ;
 
 
             }
@@ -489,10 +552,10 @@ public class v1Lexer extends Lexer {
     public final void mDELETE() throws RecognitionException {
         try {
             int _type = DELETE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:24:8: ( 'delete' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:24:10: 'delete'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:84:10: ( 'delete' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:84:10: 'delete'
             {
-            match("delete"); 
+            match("delete"); if (failed) return ;
 
 
             }
@@ -508,10 +571,10 @@ public class v1Lexer extends Lexer {
     public final void mDISTINCT() throws RecognitionException {
         try {
             int _type = DISTINCT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:25:10: ( 'distinct' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:25:12: 'distinct'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:85:12: ( 'distinct' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:85:12: 'distinct'
             {
-            match("distinct"); 
+            match("distinct"); if (failed) return ;
 
 
             }
@@ -527,10 +590,10 @@ public class v1Lexer extends Lexer {
     public final void mDO() throws RecognitionException {
         try {
             int _type = DO;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:26:4: ( 'do' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:26:6: 'do'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:86:6: ( 'do' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:86:6: 'do'
             {
-            match("do"); 
+            match("do"); if (failed) return ;
 
 
             }
@@ -546,10 +609,10 @@ public class v1Lexer extends Lexer {
     public final void mDUR() throws RecognitionException {
         try {
             int _type = DUR;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:27:5: ( 'dur' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:27:7: 'dur'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:87:7: ( 'dur' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:87:7: 'dur'
             {
-            match("dur"); 
+            match("dur"); if (failed) return ;
 
 
             }
@@ -565,10 +628,10 @@ public class v1Lexer extends Lexer {
     public final void mEASEBOTH() throws RecognitionException {
         try {
             int _type = EASEBOTH;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:28:10: ( 'easeboth' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:28:12: 'easeboth'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:88:12: ( 'easeboth' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:88:12: 'easeboth'
             {
-            match("easeboth"); 
+            match("easeboth"); if (failed) return ;
 
 
             }
@@ -584,10 +647,10 @@ public class v1Lexer extends Lexer {
     public final void mEASEIN() throws RecognitionException {
         try {
             int _type = EASEIN;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:29:8: ( 'easein' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:29:10: 'easein'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:89:10: ( 'easein' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:89:10: 'easein'
             {
-            match("easein"); 
+            match("easein"); if (failed) return ;
 
 
             }
@@ -603,10 +666,10 @@ public class v1Lexer extends Lexer {
     public final void mEASEOUT() throws RecognitionException {
         try {
             int _type = EASEOUT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:30:9: ( 'easeout' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:30:11: 'easeout'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:90:11: ( 'easeout' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:90:11: 'easeout'
             {
-            match("easeout"); 
+            match("easeout"); if (failed) return ;
 
 
             }
@@ -622,10 +685,10 @@ public class v1Lexer extends Lexer {
     public final void mTIE() throws RecognitionException {
         try {
             int _type = TIE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:31:5: ( 'tie' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:31:7: 'tie'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:91:7: ( 'tie' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:91:7: 'tie'
             {
-            match("tie"); 
+            match("tie"); if (failed) return ;
 
 
             }
@@ -641,10 +704,10 @@ public class v1Lexer extends Lexer {
     public final void mSTAYS() throws RecognitionException {
         try {
             int _type = STAYS;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:32:7: ( 'stays' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:32:9: 'stays'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:92:9: ( 'stays' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:92:9: 'stays'
             {
-            match("stays"); 
+            match("stays"); if (failed) return ;
 
 
             }
@@ -660,10 +723,10 @@ public class v1Lexer extends Lexer {
     public final void mRETURN() throws RecognitionException {
         try {
             int _type = RETURN;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:33:8: ( 'return' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:33:10: 'return'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:93:10: ( 'return' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:93:10: 'return'
             {
-            match("return"); 
+            match("return"); if (failed) return ;
 
 
             }
@@ -679,10 +742,10 @@ public class v1Lexer extends Lexer {
     public final void mTHROW() throws RecognitionException {
         try {
             int _type = THROW;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:34:7: ( 'throw' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:34:9: 'throw'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:94:9: ( 'throw' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:94:9: 'throw'
             {
-            match("throw"); 
+            match("throw"); if (failed) return ;
 
 
             }
@@ -698,10 +761,10 @@ public class v1Lexer extends Lexer {
     public final void mVAR() throws RecognitionException {
         try {
             int _type = VAR;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:35:5: ( 'var' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:35:7: 'var'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:95:7: ( 'var' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:95:7: 'var'
             {
-            match("var"); 
+            match("var"); if (failed) return ;
 
 
             }
@@ -717,10 +780,10 @@ public class v1Lexer extends Lexer {
     public final void mPACKAGE() throws RecognitionException {
         try {
             int _type = PACKAGE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:36:9: ( 'package' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:36:11: 'package'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:96:11: ( 'package' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:96:11: 'package'
             {
-            match("package"); 
+            match("package"); if (failed) return ;
 
 
             }
@@ -736,10 +799,10 @@ public class v1Lexer extends Lexer {
     public final void mIMPORT() throws RecognitionException {
         try {
             int _type = IMPORT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:37:8: ( 'import' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:37:10: 'import'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:97:10: ( 'import' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:97:10: 'import'
             {
-            match("import"); 
+            match("import"); if (failed) return ;
 
 
             }
@@ -755,10 +818,10 @@ public class v1Lexer extends Lexer {
     public final void mFROM() throws RecognitionException {
         try {
             int _type = FROM;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:38:6: ( 'from' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:38:8: 'from'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:98:8: ( 'from' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:98:8: 'from'
             {
-            match("from"); 
+            match("from"); if (failed) return ;
 
 
             }
@@ -774,10 +837,10 @@ public class v1Lexer extends Lexer {
     public final void mLATER() throws RecognitionException {
         try {
             int _type = LATER;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:39:7: ( 'later' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:39:9: 'later'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:99:9: ( 'later' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:99:9: 'later'
             {
-            match("later"); 
+            match("later"); if (failed) return ;
 
 
             }
@@ -793,10 +856,10 @@ public class v1Lexer extends Lexer {
     public final void mTRIGGER() throws RecognitionException {
         try {
             int _type = TRIGGER;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:40:9: ( 'trigger' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:40:11: 'trigger'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:100:11: ( 'trigger' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:100:11: 'trigger'
             {
-            match("trigger"); 
+            match("trigger"); if (failed) return ;
 
 
             }
@@ -812,10 +875,10 @@ public class v1Lexer extends Lexer {
     public final void mON() throws RecognitionException {
         try {
             int _type = ON;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:41:4: ( 'on' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:41:6: 'on'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:101:6: ( 'on' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:101:6: 'on'
             {
-            match("on"); 
+            match("on"); if (failed) return ;
 
 
             }
@@ -831,10 +894,10 @@ public class v1Lexer extends Lexer {
     public final void mINSERT() throws RecognitionException {
         try {
             int _type = INSERT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:42:8: ( 'insert' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:42:10: 'insert'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:102:10: ( 'insert' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:102:10: 'insert'
             {
-            match("insert"); 
+            match("insert"); if (failed) return ;
 
 
             }
@@ -850,10 +913,10 @@ public class v1Lexer extends Lexer {
     public final void mINTO() throws RecognitionException {
         try {
             int _type = INTO;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:43:6: ( 'into' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:43:8: 'into'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:103:8: ( 'into' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:103:8: 'into'
             {
-            match("into"); 
+            match("into"); if (failed) return ;
 
 
             }
@@ -869,10 +932,10 @@ public class v1Lexer extends Lexer {
     public final void mFIRST() throws RecognitionException {
         try {
             int _type = FIRST;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:44:7: ( 'first' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:44:9: 'first'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:104:9: ( 'first' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:104:9: 'first'
             {
-            match("first"); 
+            match("first"); if (failed) return ;
 
 
             }
@@ -888,10 +951,10 @@ public class v1Lexer extends Lexer {
     public final void mLAST() throws RecognitionException {
         try {
             int _type = LAST;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:45:6: ( 'last' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:45:8: 'last'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:105:8: ( 'last' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:105:8: 'last'
             {
-            match("last"); 
+            match("last"); if (failed) return ;
 
 
             }
@@ -907,10 +970,10 @@ public class v1Lexer extends Lexer {
     public final void mIF() throws RecognitionException {
         try {
             int _type = IF;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:46:4: ( 'if' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:46:6: 'if'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:106:6: ( 'if' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:106:6: 'if'
             {
-            match("if"); 
+            match("if"); if (failed) return ;
 
 
             }
@@ -926,10 +989,10 @@ public class v1Lexer extends Lexer {
     public final void mTHEN() throws RecognitionException {
         try {
             int _type = THEN;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:47:6: ( 'then' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:47:8: 'then'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:107:8: ( 'then' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:107:8: 'then'
             {
-            match("then"); 
+            match("then"); if (failed) return ;
 
 
             }
@@ -945,10 +1008,10 @@ public class v1Lexer extends Lexer {
     public final void mELSE() throws RecognitionException {
         try {
             int _type = ELSE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:48:6: ( 'else' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:48:8: 'else'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:108:8: ( 'else' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:108:8: 'else'
             {
-            match("else"); 
+            match("else"); if (failed) return ;
 
 
             }
@@ -964,10 +1027,10 @@ public class v1Lexer extends Lexer {
     public final void mTHIS() throws RecognitionException {
         try {
             int _type = THIS;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:49:6: ( 'this' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:49:8: 'this'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:109:8: ( 'this' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:109:8: 'this'
             {
-            match("this"); 
+            match("this"); if (failed) return ;
 
 
             }
@@ -983,10 +1046,10 @@ public class v1Lexer extends Lexer {
     public final void mNULL() throws RecognitionException {
         try {
             int _type = NULL;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:50:6: ( 'null' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:50:8: 'null'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:110:8: ( 'null' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:110:8: 'null'
             {
-            match("null"); 
+            match("null"); if (failed) return ;
 
 
             }
@@ -1002,10 +1065,10 @@ public class v1Lexer extends Lexer {
     public final void mTRUE() throws RecognitionException {
         try {
             int _type = TRUE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:51:6: ( 'true' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:51:8: 'true'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:111:8: ( 'true' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:111:8: 'true'
             {
-            match("true"); 
+            match("true"); if (failed) return ;
 
 
             }
@@ -1021,10 +1084,10 @@ public class v1Lexer extends Lexer {
     public final void mFALSE() throws RecognitionException {
         try {
             int _type = FALSE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:52:7: ( 'false' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:52:9: 'false'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:112:9: ( 'false' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:112:9: 'false'
             {
-            match("false"); 
+            match("false"); if (failed) return ;
 
 
             }
@@ -1040,10 +1103,10 @@ public class v1Lexer extends Lexer {
     public final void mFOR() throws RecognitionException {
         try {
             int _type = FOR;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:53:5: ( 'for' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:53:7: 'for'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:113:7: ( 'for' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:113:7: 'for'
             {
-            match("for"); 
+            match("for"); if (failed) return ;
 
 
             }
@@ -1059,10 +1122,10 @@ public class v1Lexer extends Lexer {
     public final void mUNITINTERVAL() throws RecognitionException {
         try {
             int _type = UNITINTERVAL;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:54:14: ( 'unitinterval' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:54:16: 'unitinterval'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:114:16: ( 'unitinterval' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:114:16: 'unitinterval'
             {
-            match("unitinterval"); 
+            match("unitinterval"); if (failed) return ;
 
 
             }
@@ -1078,10 +1141,10 @@ public class v1Lexer extends Lexer {
     public final void mIN() throws RecognitionException {
         try {
             int _type = IN;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:55:4: ( 'in' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:55:6: 'in'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:115:6: ( 'in' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:115:6: 'in'
             {
-            match("in"); 
+            match("in"); if (failed) return ;
 
 
             }
@@ -1097,10 +1160,10 @@ public class v1Lexer extends Lexer {
     public final void mFPS() throws RecognitionException {
         try {
             int _type = FPS;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:56:5: ( 'fps' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:56:7: 'fps'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:116:7: ( 'fps' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:116:7: 'fps'
             {
-            match("fps"); 
+            match("fps"); if (failed) return ;
 
 
             }
@@ -1116,10 +1179,10 @@ public class v1Lexer extends Lexer {
     public final void mWHILE() throws RecognitionException {
         try {
             int _type = WHILE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:57:7: ( 'while' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:57:9: 'while'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:117:9: ( 'while' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:117:9: 'while'
             {
-            match("while"); 
+            match("while"); if (failed) return ;
 
 
             }
@@ -1135,10 +1198,10 @@ public class v1Lexer extends Lexer {
     public final void mCONTINUE() throws RecognitionException {
         try {
             int _type = CONTINUE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:58:10: ( 'continue' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:58:12: 'continue'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:118:12: ( 'continue' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:118:12: 'continue'
             {
-            match("continue"); 
+            match("continue"); if (failed) return ;
 
 
             }
@@ -1154,10 +1217,10 @@ public class v1Lexer extends Lexer {
     public final void mLINEAR() throws RecognitionException {
         try {
             int _type = LINEAR;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:59:8: ( 'linear' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:59:10: 'linear'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:119:10: ( 'linear' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:119:10: 'linear'
             {
-            match("linear"); 
+            match("linear"); if (failed) return ;
 
 
             }
@@ -1173,10 +1236,10 @@ public class v1Lexer extends Lexer {
     public final void mMOTION() throws RecognitionException {
         try {
             int _type = MOTION;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:60:8: ( 'motion' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:60:10: 'motion'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:120:10: ( 'motion' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:120:10: 'motion'
             {
-            match("motion"); 
+            match("motion"); if (failed) return ;
 
 
             }
@@ -1192,10 +1255,10 @@ public class v1Lexer extends Lexer {
     public final void mTRY() throws RecognitionException {
         try {
             int _type = TRY;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:61:5: ( 'try' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:61:7: 'try'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:121:7: ( 'try' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:121:7: 'try'
             {
-            match("try"); 
+            match("try"); if (failed) return ;
 
 
             }
@@ -1211,10 +1274,10 @@ public class v1Lexer extends Lexer {
     public final void mFINALLY() throws RecognitionException {
         try {
             int _type = FINALLY;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:62:9: ( 'finally' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:62:11: 'finally'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:122:11: ( 'finally' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:122:11: 'finally'
             {
-            match("finally"); 
+            match("finally"); if (failed) return ;
 
 
             }
@@ -1230,10 +1293,10 @@ public class v1Lexer extends Lexer {
     public final void mLAZY() throws RecognitionException {
         try {
             int _type = LAZY;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:63:6: ( 'lazy' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:63:8: 'lazy'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:123:8: ( 'lazy' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:123:8: 'lazy'
             {
-            match("lazy"); 
+            match("lazy"); if (failed) return ;
 
 
             }
@@ -1249,10 +1312,10 @@ public class v1Lexer extends Lexer {
     public final void mFOREACH() throws RecognitionException {
         try {
             int _type = FOREACH;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:64:9: ( 'foreach' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:64:11: 'foreach'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:124:11: ( 'foreach' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:124:11: 'foreach'
             {
-            match("foreach"); 
+            match("foreach"); if (failed) return ;
 
 
             }
@@ -1268,10 +1331,10 @@ public class v1Lexer extends Lexer {
     public final void mWHERE() throws RecognitionException {
         try {
             int _type = WHERE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:65:7: ( 'where' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:65:9: 'where'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:125:9: ( 'where' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:125:9: 'where'
             {
-            match("where"); 
+            match("where"); if (failed) return ;
 
 
             }
@@ -1287,10 +1350,10 @@ public class v1Lexer extends Lexer {
     public final void mNOT() throws RecognitionException {
         try {
             int _type = NOT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:66:5: ( 'not' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:66:7: 'not'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:126:7: ( 'not' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:126:7: 'not'
             {
-            match("not"); 
+            match("not"); if (failed) return ;
 
 
             }
@@ -1306,10 +1369,10 @@ public class v1Lexer extends Lexer {
     public final void mNEW() throws RecognitionException {
         try {
             int _type = NEW;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:67:5: ( 'new' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:67:7: 'new'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:127:7: ( 'new' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:127:7: 'new'
             {
-            match("new"); 
+            match("new"); if (failed) return ;
 
 
             }
@@ -1325,10 +1388,10 @@ public class v1Lexer extends Lexer {
     public final void mPRIVATE() throws RecognitionException {
         try {
             int _type = PRIVATE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:68:9: ( 'private' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:68:11: 'private'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:128:11: ( 'private' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:128:11: 'private'
             {
-            match("private"); 
+            match("private"); if (failed) return ;
 
 
             }
@@ -1344,10 +1407,10 @@ public class v1Lexer extends Lexer {
     public final void mPROTECTED() throws RecognitionException {
         try {
             int _type = PROTECTED;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:69:11: ( 'protected' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:69:13: 'protected'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:129:13: ( 'protected' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:129:13: 'protected'
             {
-            match("protected"); 
+            match("protected"); if (failed) return ;
 
 
             }
@@ -1363,10 +1426,10 @@ public class v1Lexer extends Lexer {
     public final void mPUBLIC() throws RecognitionException {
         try {
             int _type = PUBLIC;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:70:8: ( 'public' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:70:10: 'public'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:130:10: ( 'public' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:130:10: 'public'
             {
-            match("public"); 
+            match("public"); if (failed) return ;
 
 
             }
@@ -1382,10 +1445,10 @@ public class v1Lexer extends Lexer {
     public final void mOPERATION() throws RecognitionException {
         try {
             int _type = OPERATION;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:71:11: ( 'operation' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:71:13: 'operation'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:131:13: ( 'operation' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:131:13: 'operation'
             {
-            match("operation"); 
+            match("operation"); if (failed) return ;
 
 
             }
@@ -1401,10 +1464,10 @@ public class v1Lexer extends Lexer {
     public final void mFUNCTION() throws RecognitionException {
         try {
             int _type = FUNCTION;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:72:10: ( 'function' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:72:12: 'function'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:132:12: ( 'function' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:132:12: 'function'
             {
-            match("function"); 
+            match("function"); if (failed) return ;
 
 
             }
@@ -1420,10 +1483,10 @@ public class v1Lexer extends Lexer {
     public final void mREADONLY() throws RecognitionException {
         try {
             int _type = READONLY;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:73:10: ( 'readonly' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:73:12: 'readonly'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:133:12: ( 'readonly' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:133:12: 'readonly'
             {
-            match("readonly"); 
+            match("readonly"); if (failed) return ;
 
 
             }
@@ -1439,10 +1502,10 @@ public class v1Lexer extends Lexer {
     public final void mINVERSE() throws RecognitionException {
         try {
             int _type = INVERSE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:74:9: ( 'inverse' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:74:11: 'inverse'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:134:11: ( 'inverse' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:134:11: 'inverse'
             {
-            match("inverse"); 
+            match("inverse"); if (failed) return ;
 
 
             }
@@ -1458,10 +1521,10 @@ public class v1Lexer extends Lexer {
     public final void mTYPE() throws RecognitionException {
         try {
             int _type = TYPE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:75:6: ( 'type' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:75:8: 'type'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:135:8: ( 'type' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:135:8: 'type'
             {
-            match("type"); 
+            match("type"); if (failed) return ;
 
 
             }
@@ -1477,10 +1540,10 @@ public class v1Lexer extends Lexer {
     public final void mEXTENDS() throws RecognitionException {
         try {
             int _type = EXTENDS;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:76:9: ( 'extends' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:76:11: 'extends'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:136:11: ( 'extends' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:136:11: 'extends'
             {
-            match("extends"); 
+            match("extends"); if (failed) return ;
 
 
             }
@@ -1496,10 +1559,10 @@ public class v1Lexer extends Lexer {
     public final void mORDER() throws RecognitionException {
         try {
             int _type = ORDER;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:77:7: ( 'order' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:77:9: 'order'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:137:9: ( 'order' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:137:9: 'order'
             {
-            match("order"); 
+            match("order"); if (failed) return ;
 
 
             }
@@ -1515,10 +1578,10 @@ public class v1Lexer extends Lexer {
     public final void mINDEX() throws RecognitionException {
         try {
             int _type = INDEX;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:78:7: ( 'index' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:78:9: 'index'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:138:9: ( 'index' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:138:9: 'index'
             {
-            match("index"); 
+            match("index"); if (failed) return ;
 
 
             }
@@ -1534,10 +1597,10 @@ public class v1Lexer extends Lexer {
     public final void mINSTANCEOF() throws RecognitionException {
         try {
             int _type = INSTANCEOF;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:79:12: ( 'instanceof' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:79:14: 'instanceof'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:139:14: ( 'instanceof' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:139:14: 'instanceof'
             {
-            match("instanceof"); 
+            match("instanceof"); if (failed) return ;
 
 
             }
@@ -1553,10 +1616,10 @@ public class v1Lexer extends Lexer {
     public final void mINDEXOF() throws RecognitionException {
         try {
             int _type = INDEXOF;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:80:9: ( 'indexof' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:80:11: 'indexof'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:140:11: ( 'indexof' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:140:11: 'indexof'
             {
-            match("indexof"); 
+            match("indexof"); if (failed) return ;
 
 
             }
@@ -1572,10 +1635,10 @@ public class v1Lexer extends Lexer {
     public final void mSELECT() throws RecognitionException {
         try {
             int _type = SELECT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:81:8: ( 'select' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:81:10: 'select'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:141:10: ( 'select' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:141:10: 'select'
             {
-            match("select"); 
+            match("select"); if (failed) return ;
 
 
             }
@@ -1591,10 +1654,10 @@ public class v1Lexer extends Lexer {
     public final void mSUPER() throws RecognitionException {
         try {
             int _type = SUPER;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:82:7: ( 'super' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:82:9: 'super'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:142:9: ( 'super' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:142:9: 'super'
             {
-            match("super"); 
+            match("super"); if (failed) return ;
 
 
             }
@@ -1610,10 +1673,10 @@ public class v1Lexer extends Lexer {
     public final void mOR() throws RecognitionException {
         try {
             int _type = OR;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:83:4: ( 'or' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:83:6: 'or'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:143:6: ( 'or' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:143:6: 'or'
             {
-            match("or"); 
+            match("or"); if (failed) return ;
 
 
             }
@@ -1629,10 +1692,10 @@ public class v1Lexer extends Lexer {
     public final void mSIZEOF() throws RecognitionException {
         try {
             int _type = SIZEOF;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:84:8: ( 'sizeof' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:84:10: 'sizeof'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:144:10: ( 'sizeof' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:144:10: 'sizeof'
             {
-            match("sizeof"); 
+            match("sizeof"); if (failed) return ;
 
 
             }
@@ -1648,10 +1711,10 @@ public class v1Lexer extends Lexer {
     public final void mREVERSE() throws RecognitionException {
         try {
             int _type = REVERSE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:85:9: ( 'reverse' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:85:11: 'reverse'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:145:11: ( 'reverse' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:145:11: 'reverse'
             {
-            match("reverse"); 
+            match("reverse"); if (failed) return ;
 
 
             }
@@ -1667,10 +1730,10 @@ public class v1Lexer extends Lexer {
     public final void mXOR() throws RecognitionException {
         try {
             int _type = XOR;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:86:5: ( 'xor' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:86:7: 'xor'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:146:7: ( 'xor' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:146:7: 'xor'
             {
-            match("xor"); 
+            match("xor"); if (failed) return ;
 
 
             }
@@ -1686,10 +1749,10 @@ public class v1Lexer extends Lexer {
     public final void mLPAREN() throws RecognitionException {
         try {
             int _type = LPAREN;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:87:8: ( '(' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:87:10: '('
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:147:10: ( '(' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:147:10: '('
             {
-            match('('); 
+            match('('); if (failed) return ;
 
             }
 
@@ -1704,10 +1767,10 @@ public class v1Lexer extends Lexer {
     public final void mRPAREN() throws RecognitionException {
         try {
             int _type = RPAREN;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:88:8: ( ')' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:88:10: ')'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:148:10: ( ')' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:148:10: ')'
             {
-            match(')'); 
+            match(')'); if (failed) return ;
 
             }
 
@@ -1718,50 +1781,14 @@ public class v1Lexer extends Lexer {
     }
     // $ANTLR end RPAREN
 
-    // $ANTLR start LBRACE
-    public final void mLBRACE() throws RecognitionException {
-        try {
-            int _type = LBRACE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:89:8: ( '{' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:89:10: '{'
-            {
-            match('{'); 
-
-            }
-
-            this.type = _type;
-        }
-        finally {
-        }
-    }
-    // $ANTLR end LBRACE
-
-    // $ANTLR start RBRACE
-    public final void mRBRACE() throws RecognitionException {
-        try {
-            int _type = RBRACE;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:90:8: ( '}' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:90:10: '}'
-            {
-            match('}'); 
-
-            }
-
-            this.type = _type;
-        }
-        finally {
-        }
-    }
-    // $ANTLR end RBRACE
-
     // $ANTLR start LBRACKET
     public final void mLBRACKET() throws RecognitionException {
         try {
             int _type = LBRACKET;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:91:10: ( '[' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:91:12: '['
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:149:12: ( '[' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:149:12: '['
             {
-            match('['); 
+            match('['); if (failed) return ;
 
             }
 
@@ -1776,10 +1803,10 @@ public class v1Lexer extends Lexer {
     public final void mRBRACKET() throws RecognitionException {
         try {
             int _type = RBRACKET;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:92:10: ( ']' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:92:12: ']'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:150:12: ( ']' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:150:12: ']'
             {
-            match(']'); 
+            match(']'); if (failed) return ;
 
             }
 
@@ -1794,10 +1821,10 @@ public class v1Lexer extends Lexer {
     public final void mSEMI() throws RecognitionException {
         try {
             int _type = SEMI;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:93:6: ( ';' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:93:8: ';'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:151:8: ( ';' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:151:8: ';'
             {
-            match(';'); 
+            match(';'); if (failed) return ;
 
             }
 
@@ -1812,10 +1839,10 @@ public class v1Lexer extends Lexer {
     public final void mCOMMA() throws RecognitionException {
         try {
             int _type = COMMA;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:94:7: ( ',' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:94:9: ','
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:152:9: ( ',' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:152:9: ','
             {
-            match(','); 
+            match(','); if (failed) return ;
 
             }
 
@@ -1830,10 +1857,10 @@ public class v1Lexer extends Lexer {
     public final void mDOT() throws RecognitionException {
         try {
             int _type = DOT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:95:5: ( '.' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:95:7: '.'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:153:7: ( '.' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:153:7: '.'
             {
-            match('.'); 
+            match('.'); if (failed) return ;
 
             }
 
@@ -1848,10 +1875,10 @@ public class v1Lexer extends Lexer {
     public final void mEQEQ() throws RecognitionException {
         try {
             int _type = EQEQ;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:96:6: ( '==' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:96:8: '=='
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:154:8: ( '==' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:154:8: '=='
             {
-            match("=="); 
+            match("=="); if (failed) return ;
 
 
             }
@@ -1867,10 +1894,10 @@ public class v1Lexer extends Lexer {
     public final void mEQ() throws RecognitionException {
         try {
             int _type = EQ;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:97:4: ( '=' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:97:6: '='
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:155:6: ( '=' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:155:6: '='
             {
-            match('='); 
+            match('='); if (failed) return ;
 
             }
 
@@ -1885,10 +1912,10 @@ public class v1Lexer extends Lexer {
     public final void mGT() throws RecognitionException {
         try {
             int _type = GT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:98:4: ( '>' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:98:6: '>'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:156:6: ( '>' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:156:6: '>'
             {
-            match('>'); 
+            match('>'); if (failed) return ;
 
             }
 
@@ -1903,10 +1930,10 @@ public class v1Lexer extends Lexer {
     public final void mLT() throws RecognitionException {
         try {
             int _type = LT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:99:4: ( '<' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:99:6: '<'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:157:6: ( '<' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:157:6: '<'
             {
-            match('<'); 
+            match('<'); if (failed) return ;
 
             }
 
@@ -1921,10 +1948,10 @@ public class v1Lexer extends Lexer {
     public final void mLTGT() throws RecognitionException {
         try {
             int _type = LTGT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:100:6: ( '<>' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:100:8: '<>'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:158:8: ( '<>' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:158:8: '<>'
             {
-            match("<>"); 
+            match("<>"); if (failed) return ;
 
 
             }
@@ -1940,10 +1967,10 @@ public class v1Lexer extends Lexer {
     public final void mLTEQ() throws RecognitionException {
         try {
             int _type = LTEQ;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:101:6: ( '<=' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:101:8: '<='
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:159:8: ( '<=' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:159:8: '<='
             {
-            match("<="); 
+            match("<="); if (failed) return ;
 
 
             }
@@ -1959,10 +1986,10 @@ public class v1Lexer extends Lexer {
     public final void mGTEQ() throws RecognitionException {
         try {
             int _type = GTEQ;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:102:6: ( '>=' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:102:8: '>='
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:160:8: ( '>=' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:160:8: '>='
             {
-            match(">="); 
+            match(">="); if (failed) return ;
 
 
             }
@@ -1978,10 +2005,10 @@ public class v1Lexer extends Lexer {
     public final void mPLUS() throws RecognitionException {
         try {
             int _type = PLUS;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:103:6: ( '+' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:103:8: '+'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:161:8: ( '+' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:161:8: '+'
             {
-            match('+'); 
+            match('+'); if (failed) return ;
 
             }
 
@@ -1996,10 +2023,10 @@ public class v1Lexer extends Lexer {
     public final void mPLUSPLUS() throws RecognitionException {
         try {
             int _type = PLUSPLUS;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:104:10: ( '++' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:104:12: '++'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:162:12: ( '++' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:162:12: '++'
             {
-            match("++"); 
+            match("++"); if (failed) return ;
 
 
             }
@@ -2015,10 +2042,10 @@ public class v1Lexer extends Lexer {
     public final void mSUB() throws RecognitionException {
         try {
             int _type = SUB;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:105:5: ( '-' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:105:7: '-'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:163:7: ( '-' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:163:7: '-'
             {
-            match('-'); 
+            match('-'); if (failed) return ;
 
             }
 
@@ -2033,10 +2060,10 @@ public class v1Lexer extends Lexer {
     public final void mSUBSUB() throws RecognitionException {
         try {
             int _type = SUBSUB;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:106:8: ( '--' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:106:10: '--'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:164:10: ( '--' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:164:10: '--'
             {
-            match("--"); 
+            match("--"); if (failed) return ;
 
 
             }
@@ -2052,10 +2079,10 @@ public class v1Lexer extends Lexer {
     public final void mSTAR() throws RecognitionException {
         try {
             int _type = STAR;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:107:6: ( '*' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:107:8: '*'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:165:8: ( '*' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:165:8: '*'
             {
-            match('*'); 
+            match('*'); if (failed) return ;
 
             }
 
@@ -2070,10 +2097,10 @@ public class v1Lexer extends Lexer {
     public final void mSLASH() throws RecognitionException {
         try {
             int _type = SLASH;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:108:7: ( '/' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:108:9: '/'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:166:9: ( '/' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:166:9: '/'
             {
-            match('/'); 
+            match('/'); if (failed) return ;
 
             }
 
@@ -2088,10 +2115,10 @@ public class v1Lexer extends Lexer {
     public final void mPERCENT() throws RecognitionException {
         try {
             int _type = PERCENT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:109:9: ( '%' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:109:11: '%'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:167:11: ( '%' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:167:11: '%'
             {
-            match('%'); 
+            match('%'); if (failed) return ;
 
             }
 
@@ -2106,10 +2133,10 @@ public class v1Lexer extends Lexer {
     public final void mPLUSEQ() throws RecognitionException {
         try {
             int _type = PLUSEQ;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:110:8: ( '+=' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:110:10: '+='
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:168:10: ( '+=' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:168:10: '+='
             {
-            match("+="); 
+            match("+="); if (failed) return ;
 
 
             }
@@ -2125,10 +2152,10 @@ public class v1Lexer extends Lexer {
     public final void mSUBEQ() throws RecognitionException {
         try {
             int _type = SUBEQ;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:111:7: ( '-=' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:111:9: '-='
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:169:9: ( '-=' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:169:9: '-='
             {
-            match("-="); 
+            match("-="); if (failed) return ;
 
 
             }
@@ -2144,10 +2171,10 @@ public class v1Lexer extends Lexer {
     public final void mSTAREQ() throws RecognitionException {
         try {
             int _type = STAREQ;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:112:8: ( '*=' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:112:10: '*='
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:170:10: ( '*=' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:170:10: '*='
             {
-            match("*="); 
+            match("*="); if (failed) return ;
 
 
             }
@@ -2163,10 +2190,10 @@ public class v1Lexer extends Lexer {
     public final void mSLASHEQ() throws RecognitionException {
         try {
             int _type = SLASHEQ;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:113:9: ( '/=' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:113:11: '/='
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:171:11: ( '/=' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:171:11: '/='
             {
-            match("/="); 
+            match("/="); if (failed) return ;
 
 
             }
@@ -2182,10 +2209,10 @@ public class v1Lexer extends Lexer {
     public final void mPERCENTEQ() throws RecognitionException {
         try {
             int _type = PERCENTEQ;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:114:11: ( '%=' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:114:13: '%='
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:172:13: ( '%=' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:172:13: '%='
             {
-            match("%="); 
+            match("%="); if (failed) return ;
 
 
             }
@@ -2201,10 +2228,10 @@ public class v1Lexer extends Lexer {
     public final void mLTLT() throws RecognitionException {
         try {
             int _type = LTLT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:115:6: ( '<<' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:115:8: '<<'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:173:8: ( '<<' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:173:8: '<<'
             {
-            match("<<"); 
+            match("<<"); if (failed) return ;
 
 
             }
@@ -2220,10 +2247,10 @@ public class v1Lexer extends Lexer {
     public final void mGTGT() throws RecognitionException {
         try {
             int _type = GTGT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:116:6: ( '>>' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:116:8: '>>'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:174:8: ( '>>' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:174:8: '>>'
             {
-            match(">>"); 
+            match(">>"); if (failed) return ;
 
 
             }
@@ -2239,10 +2266,10 @@ public class v1Lexer extends Lexer {
     public final void mCOLON() throws RecognitionException {
         try {
             int _type = COLON;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:117:7: ( ':' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:117:9: ':'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:175:9: ( ':' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:175:9: ':'
             {
-            match(':'); 
+            match(':'); if (failed) return ;
 
             }
 
@@ -2257,10 +2284,10 @@ public class v1Lexer extends Lexer {
     public final void mQUES() throws RecognitionException {
         try {
             int _type = QUES;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:118:6: ( '?' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:118:8: '?'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:176:8: ( '?' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:176:8: '?'
             {
-            match('?'); 
+            match('?'); if (failed) return ;
 
             }
 
@@ -2275,43 +2302,118 @@ public class v1Lexer extends Lexer {
     public final void mSTRING_LITERAL() throws RecognitionException {
         try {
             int _type = STRING_LITERAL;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:161:17: ( '\"' ( . )* '\"' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:161:19: '\"' ( . )* '\"'
-            {
-            match('\"'); 
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:161:23: ( . )*
-            loop1:
-            do {
-                int alt1=2;
-                int LA1_0 = input.LA(1);
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:215:21: ( '\"' (~ ( '{' | '\"' ) )* '\"' | '\\'' (~ ( '{' | '\\'' ) )* '\\'' )
+            int alt3=2;
+            int LA3_0 = input.LA(1);
 
-                if ( (LA1_0=='\"') ) {
-                    alt1=2;
-                }
-                else if ( ((LA1_0>='\u0000' && LA1_0<='!')||(LA1_0>='#' && LA1_0<='\uFFFE')) ) {
-                    alt1=1;
-                }
+            if ( (LA3_0=='\"') ) {
+                alt3=1;
+            }
+            else if ( (LA3_0=='\'') ) {
+                alt3=2;
+            }
+            else {
+                if (backtracking>0) {failed=true; return ;}
+                NoViableAltException nvae =
+                    new NoViableAltException("215:1: STRING_LITERAL : ( '\"' (~ ( '{' | '\"' ) )* '\"' | '\\'' (~ ( '{' | '\\'' ) )* '\\'' );", 3, 0, input);
+
+                throw nvae;
+            }
+            switch (alt3) {
+                case 1 :
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:215:21: '\"' (~ ( '{' | '\"' ) )* '\"'
+                    {
+                    match('\"'); if (failed) return ;
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:215:25: (~ ( '{' | '\"' ) )*
+                    loop1:
+                    do {
+                        int alt1=2;
+                        int LA1_0 = input.LA(1);
+
+                        if ( ((LA1_0>='\u0000' && LA1_0<='!')||(LA1_0>='#' && LA1_0<='z')||(LA1_0>='|' && LA1_0<='\uFFFE')) ) {
+                            alt1=1;
+                        }
 
 
-                switch (alt1) {
-            	case 1 :
-            	    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:161:23: .
-            	    {
-            	    matchAny(); 
+                        switch (alt1) {
+                    	case 1 :
+                    	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:215:26: ~ ( '{' | '\"' )
+                    	    {
+                    	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='!')||(input.LA(1)>='#' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
+                    	        input.consume();
+                    	    failed=false;
+                    	    }
+                    	    else {
+                    	        if (backtracking>0) {failed=true; return ;}
+                    	        MismatchedSetException mse =
+                    	            new MismatchedSetException(null,input);
+                    	        recover(mse);    throw mse;
+                    	    }
 
-            	    }
-            	    break;
 
-            	default :
-            	    break loop1;
-                }
-            } while (true);
+                    	    }
+                    	    break;
 
-            match('\"'); 
-             setText(getText().substring(1, getText().length()-1)); 
+                    	default :
+                    	    break loop1;
+                        }
+                    } while (true);
+
+                    match('\"'); if (failed) return ;
+                    if ( backtracking==0 ) {
+                       removeQuotes(); 
+                    }
+
+                    }
+                    break;
+                case 2 :
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:216:7: '\\'' (~ ( '{' | '\\'' ) )* '\\''
+                    {
+                    match('\''); if (failed) return ;
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:216:12: (~ ( '{' | '\\'' ) )*
+                    loop2:
+                    do {
+                        int alt2=2;
+                        int LA2_0 = input.LA(1);
+
+                        if ( ((LA2_0>='\u0000' && LA2_0<='&')||(LA2_0>='(' && LA2_0<='z')||(LA2_0>='|' && LA2_0<='\uFFFE')) ) {
+                            alt2=1;
+                        }
+
+
+                        switch (alt2) {
+                    	case 1 :
+                    	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:216:13: ~ ( '{' | '\\'' )
+                    	    {
+                    	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='&')||(input.LA(1)>='(' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
+                    	        input.consume();
+                    	    failed=false;
+                    	    }
+                    	    else {
+                    	        if (backtracking>0) {failed=true; return ;}
+                    	        MismatchedSetException mse =
+                    	            new MismatchedSetException(null,input);
+                    	        recover(mse);    throw mse;
+                    	    }
+
+
+                    	    }
+                    	    break;
+
+                    	default :
+                    	    break loop2;
+                        }
+                    } while (true);
+
+                    match('\''); if (failed) return ;
+                    if ( backtracking==0 ) {
+                       removeQuotes(); 
+                    }
+
+                    }
+                    break;
 
             }
-
             this.type = _type;
         }
         finally {
@@ -2323,11 +2425,138 @@ public class v1Lexer extends Lexer {
     public final void mQUOTE_LBRACE_STRING_LITERAL() throws RecognitionException {
         try {
             int _type = QUOTE_LBRACE_STRING_LITERAL;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:164:29: ( '\"{' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:164:31: '\"{'
-            {
-            match("\"{"); 
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:219:32: ( '\"' (~ ( '{' | '\"' ) )* '{' NextIsPercent[DBL_QUOTE_CTX] | '\\'' (~ ( '{' | '\\'' ) )* '{' NextIsPercent[SNG_QUOTE_CTX] )
+            int alt6=2;
+            int LA6_0 = input.LA(1);
 
+            if ( (LA6_0=='\"') ) {
+                alt6=1;
+            }
+            else if ( (LA6_0=='\'') ) {
+                alt6=2;
+            }
+            else {
+                if (backtracking>0) {failed=true; return ;}
+                NoViableAltException nvae =
+                    new NoViableAltException("219:1: QUOTE_LBRACE_STRING_LITERAL : ( '\"' (~ ( '{' | '\"' ) )* '{' NextIsPercent[DBL_QUOTE_CTX] | '\\'' (~ ( '{' | '\\'' ) )* '{' NextIsPercent[SNG_QUOTE_CTX] );", 6, 0, input);
+
+                throw nvae;
+            }
+            switch (alt6) {
+                case 1 :
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:219:32: '\"' (~ ( '{' | '\"' ) )* '{' NextIsPercent[DBL_QUOTE_CTX]
+                    {
+                    match('\"'); if (failed) return ;
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:219:36: (~ ( '{' | '\"' ) )*
+                    loop4:
+                    do {
+                        int alt4=2;
+                        int LA4_0 = input.LA(1);
+
+                        if ( ((LA4_0>='\u0000' && LA4_0<='!')||(LA4_0>='#' && LA4_0<='z')||(LA4_0>='|' && LA4_0<='\uFFFE')) ) {
+                            alt4=1;
+                        }
+
+
+                        switch (alt4) {
+                    	case 1 :
+                    	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:219:37: ~ ( '{' | '\"' )
+                    	    {
+                    	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='!')||(input.LA(1)>='#' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
+                    	        input.consume();
+                    	    failed=false;
+                    	    }
+                    	    else {
+                    	        if (backtracking>0) {failed=true; return ;}
+                    	        MismatchedSetException mse =
+                    	            new MismatchedSetException(null,input);
+                    	        recover(mse);    throw mse;
+                    	    }
+
+
+                    	    }
+                    	    break;
+
+                    	default :
+                    	    break loop4;
+                        }
+                    } while (true);
+
+                    match('{'); if (failed) return ;
+                    if ( backtracking==0 ) {
+                       removeQuotes(); 
+                    }
+                    mNextIsPercent(DBL_QUOTE_CTX); if (failed) return ;
+
+                    }
+                    break;
+                case 2 :
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:221:7: '\\'' (~ ( '{' | '\\'' ) )* '{' NextIsPercent[SNG_QUOTE_CTX]
+                    {
+                    match('\''); if (failed) return ;
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:221:12: (~ ( '{' | '\\'' ) )*
+                    loop5:
+                    do {
+                        int alt5=2;
+                        int LA5_0 = input.LA(1);
+
+                        if ( ((LA5_0>='\u0000' && LA5_0<='&')||(LA5_0>='(' && LA5_0<='z')||(LA5_0>='|' && LA5_0<='\uFFFE')) ) {
+                            alt5=1;
+                        }
+
+
+                        switch (alt5) {
+                    	case 1 :
+                    	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:221:13: ~ ( '{' | '\\'' )
+                    	    {
+                    	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='&')||(input.LA(1)>='(' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
+                    	        input.consume();
+                    	    failed=false;
+                    	    }
+                    	    else {
+                    	        if (backtracking>0) {failed=true; return ;}
+                    	        MismatchedSetException mse =
+                    	            new MismatchedSetException(null,input);
+                    	        recover(mse);    throw mse;
+                    	    }
+
+
+                    	    }
+                    	    break;
+
+                    	default :
+                    	    break loop5;
+                        }
+                    } while (true);
+
+                    match('{'); if (failed) return ;
+                    if ( backtracking==0 ) {
+                       removeQuotes(); 
+                    }
+                    mNextIsPercent(SNG_QUOTE_CTX); if (failed) return ;
+
+                    }
+                    break;
+
+            }
+            this.type = _type;
+        }
+        finally {
+        }
+    }
+    // $ANTLR end QUOTE_LBRACE_STRING_LITERAL
+
+    // $ANTLR start LBRACE
+    public final void mLBRACE() throws RecognitionException {
+        try {
+            int _type = LBRACE;
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:224:13: ( '{' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:224:13: '{'
+            {
+            match('{'); if (failed) return ;
+            if ( backtracking==0 ) {
+               BraceQuoteTracker.enterBrace(0, false); 
+            }
 
             }
 
@@ -2336,20 +2565,122 @@ public class v1Lexer extends Lexer {
         finally {
         }
     }
-    // $ANTLR end QUOTE_LBRACE_STRING_LITERAL
+    // $ANTLR end LBRACE
 
     // $ANTLR start RBRACE_QUOTE_STRING_LITERAL
     public final void mRBRACE_QUOTE_STRING_LITERAL() throws RecognitionException {
         try {
             int _type = RBRACE_QUOTE_STRING_LITERAL;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:165:29: ( '}\"' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:165:31: '}\"'
-            {
-            match("}\""); 
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:226:35: ({...}? => '}' (~ ( '{' | '\"' ) )* '\"' | {...}? => '}' (~ ( '{' | '\\'' ) )* '\\'' )
+            int alt9=2;
+            alt9 = dfa9.predict(input);
+            switch (alt9) {
+                case 1 :
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:226:35: {...}? => '}' (~ ( '{' | '\"' ) )* '\"'
+                    {
+                    if ( !( BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ) ) {
+                        if (backtracking>0) {failed=true; return ;}
+                        throw new FailedPredicateException(input, "RBRACE_QUOTE_STRING_LITERAL", " BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ");
+                    }
+                    match('}'); if (failed) return ;
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:227:11: (~ ( '{' | '\"' ) )*
+                    loop7:
+                    do {
+                        int alt7=2;
+                        int LA7_0 = input.LA(1);
 
+                        if ( ((LA7_0>='\u0000' && LA7_0<='!')||(LA7_0>='#' && LA7_0<='z')||(LA7_0>='|' && LA7_0<='\uFFFE')) ) {
+                            alt7=1;
+                        }
+
+
+                        switch (alt7) {
+                    	case 1 :
+                    	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:227:12: ~ ( '{' | '\"' )
+                    	    {
+                    	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='!')||(input.LA(1)>='#' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
+                    	        input.consume();
+                    	    failed=false;
+                    	    }
+                    	    else {
+                    	        if (backtracking>0) {failed=true; return ;}
+                    	        MismatchedSetException mse =
+                    	            new MismatchedSetException(null,input);
+                    	        recover(mse);    throw mse;
+                    	    }
+
+
+                    	    }
+                    	    break;
+
+                    	default :
+                    	    break loop7;
+                        }
+                    } while (true);
+
+                    match('\"'); if (failed) return ;
+                    if ( backtracking==0 ) {
+                       BraceQuoteTracker.leaveBrace(); 
+                      				         			  BraceQuoteTracker.leaveQuote(); 
+                      				         			  removeQuotes(); 
+                    }
+
+                    }
+                    break;
+                case 2 :
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:230:10: {...}? => '}' (~ ( '{' | '\\'' ) )* '\\''
+                    {
+                    if ( !( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) ) ) {
+                        if (backtracking>0) {failed=true; return ;}
+                        throw new FailedPredicateException(input, "RBRACE_QUOTE_STRING_LITERAL", " BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) ");
+                    }
+                    match('}'); if (failed) return ;
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:231:11: (~ ( '{' | '\\'' ) )*
+                    loop8:
+                    do {
+                        int alt8=2;
+                        int LA8_0 = input.LA(1);
+
+                        if ( ((LA8_0>='\u0000' && LA8_0<='&')||(LA8_0>='(' && LA8_0<='z')||(LA8_0>='|' && LA8_0<='\uFFFE')) ) {
+                            alt8=1;
+                        }
+
+
+                        switch (alt8) {
+                    	case 1 :
+                    	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:231:12: ~ ( '{' | '\\'' )
+                    	    {
+                    	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='&')||(input.LA(1)>='(' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
+                    	        input.consume();
+                    	    failed=false;
+                    	    }
+                    	    else {
+                    	        if (backtracking>0) {failed=true; return ;}
+                    	        MismatchedSetException mse =
+                    	            new MismatchedSetException(null,input);
+                    	        recover(mse);    throw mse;
+                    	    }
+
+
+                    	    }
+                    	    break;
+
+                    	default :
+                    	    break loop8;
+                        }
+                    } while (true);
+
+                    match('\''); if (failed) return ;
+                    if ( backtracking==0 ) {
+                       BraceQuoteTracker.leaveBrace(); 
+                      				         			  BraceQuoteTracker.leaveQuote(); 
+                      				         			  removeQuotes(); 
+                    }
+
+                    }
+                    break;
 
             }
-
             this.type = _type;
         }
         finally {
@@ -2361,11 +2692,138 @@ public class v1Lexer extends Lexer {
     public final void mRBRACE_LBRACE_STRING_LITERAL() throws RecognitionException {
         try {
             int _type = RBRACE_LBRACE_STRING_LITERAL;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:166:30: ( '}{' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:166:32: '}{'
-            {
-            match("}{"); 
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:235:36: ({...}? => '}' (~ ( '{' | '\"' ) )* '{' NextIsPercent[CUR_QUOTE_CTX] | {...}? => '}' (~ ( '{' | '\\'' ) )* '{' NextIsPercent[CUR_QUOTE_CTX] )
+            int alt12=2;
+            alt12 = dfa12.predict(input);
+            switch (alt12) {
+                case 1 :
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:235:36: {...}? => '}' (~ ( '{' | '\"' ) )* '{' NextIsPercent[CUR_QUOTE_CTX]
+                    {
+                    if ( !( BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ) ) {
+                        if (backtracking>0) {failed=true; return ;}
+                        throw new FailedPredicateException(input, "RBRACE_LBRACE_STRING_LITERAL", " BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ");
+                    }
+                    match('}'); if (failed) return ;
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:236:11: (~ ( '{' | '\"' ) )*
+                    loop10:
+                    do {
+                        int alt10=2;
+                        int LA10_0 = input.LA(1);
 
+                        if ( ((LA10_0>='\u0000' && LA10_0<='!')||(LA10_0>='#' && LA10_0<='z')||(LA10_0>='|' && LA10_0<='\uFFFE')) ) {
+                            alt10=1;
+                        }
+
+
+                        switch (alt10) {
+                    	case 1 :
+                    	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:236:12: ~ ( '{' | '\"' )
+                    	    {
+                    	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='!')||(input.LA(1)>='#' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
+                    	        input.consume();
+                    	    failed=false;
+                    	    }
+                    	    else {
+                    	        if (backtracking>0) {failed=true; return ;}
+                    	        MismatchedSetException mse =
+                    	            new MismatchedSetException(null,input);
+                    	        recover(mse);    throw mse;
+                    	    }
+
+
+                    	    }
+                    	    break;
+
+                    	default :
+                    	    break loop10;
+                        }
+                    } while (true);
+
+                    match('{'); if (failed) return ;
+                    if ( backtracking==0 ) {
+                       BraceQuoteTracker.leaveBrace(); 
+                      				         			  removeQuotes(); 
+                    }
+                    mNextIsPercent(CUR_QUOTE_CTX); if (failed) return ;
+
+                    }
+                    break;
+                case 2 :
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:239:10: {...}? => '}' (~ ( '{' | '\\'' ) )* '{' NextIsPercent[CUR_QUOTE_CTX]
+                    {
+                    if ( !( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) ) ) {
+                        if (backtracking>0) {failed=true; return ;}
+                        throw new FailedPredicateException(input, "RBRACE_LBRACE_STRING_LITERAL", " BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) ");
+                    }
+                    match('}'); if (failed) return ;
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:240:11: (~ ( '{' | '\\'' ) )*
+                    loop11:
+                    do {
+                        int alt11=2;
+                        int LA11_0 = input.LA(1);
+
+                        if ( ((LA11_0>='\u0000' && LA11_0<='&')||(LA11_0>='(' && LA11_0<='z')||(LA11_0>='|' && LA11_0<='\uFFFE')) ) {
+                            alt11=1;
+                        }
+
+
+                        switch (alt11) {
+                    	case 1 :
+                    	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:240:12: ~ ( '{' | '\\'' )
+                    	    {
+                    	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='&')||(input.LA(1)>='(' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
+                    	        input.consume();
+                    	    failed=false;
+                    	    }
+                    	    else {
+                    	        if (backtracking>0) {failed=true; return ;}
+                    	        MismatchedSetException mse =
+                    	            new MismatchedSetException(null,input);
+                    	        recover(mse);    throw mse;
+                    	    }
+
+
+                    	    }
+                    	    break;
+
+                    	default :
+                    	    break loop11;
+                        }
+                    } while (true);
+
+                    match('{'); if (failed) return ;
+                    if ( backtracking==0 ) {
+                       BraceQuoteTracker.leaveBrace(); 
+                      				         			  removeQuotes(); 
+                    }
+                    mNextIsPercent(CUR_QUOTE_CTX); if (failed) return ;
+
+                    }
+                    break;
+
+            }
+            this.type = _type;
+        }
+        finally {
+        }
+    }
+    // $ANTLR end RBRACE_LBRACE_STRING_LITERAL
+
+    // $ANTLR start RBRACE
+    public final void mRBRACE() throws RecognitionException {
+        try {
+            int _type = RBRACE;
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:244:16: ({...}? => '}' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:244:16: {...}? => '}'
+            {
+            if ( !( !BraceQuoteTracker.rightBraceLikeQuote(CUR_QUOTE_CTX) ) ) {
+                if (backtracking>0) {failed=true; return ;}
+                throw new FailedPredicateException(input, "RBRACE", " !BraceQuoteTracker.rightBraceLikeQuote(CUR_QUOTE_CTX) ");
+            }
+            match('}'); if (failed) return ;
+            if ( backtracking==0 ) {
+               BraceQuoteTracker.leaveBrace(); 
+            }
 
             }
 
@@ -2374,36 +2832,88 @@ public class v1Lexer extends Lexer {
         finally {
         }
     }
-    // $ANTLR end RBRACE_LBRACE_STRING_LITERAL
+    // $ANTLR end RBRACE
+
+    // $ANTLR start NextIsPercent
+    public final void mNextIsPercent(int quoteContext) throws RecognitionException {
+        try {
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:8: ( ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )* '%' )=> | )
+            int alt13=2;
+            int LA13_0 = input.LA(1);
+
+            if ( (synpred1()) ) {
+                alt13=1;
+            }
+            else if ( (true) ) {
+                alt13=2;
+            }
+            else {
+                if (backtracking>0) {failed=true; return ;}
+                NoViableAltException nvae =
+                    new NoViableAltException("247:1: fragment NextIsPercent[int quoteContext] : ( ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )* '%' )=> | );", 13, 0, input);
+
+                throw nvae;
+            }
+            switch (alt13) {
+                case 1 :
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:8: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )* '%' )=>
+                    {
+                    if ( backtracking==0 ) {
+                       BraceQuoteTracker.enterBrace(quoteContext, true); 
+                    }
+
+                    }
+                    break;
+                case 2 :
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:251:10: 
+                    {
+                    if ( backtracking==0 ) {
+                       BraceQuoteTracker.enterBrace(quoteContext, false); 
+                    }
+
+                    }
+                    break;
+
+            }
+        }
+        finally {
+        }
+    }
+    // $ANTLR end NextIsPercent
 
     // $ANTLR start FORMAT_STRING_LITERAL
     public final void mFORMAT_STRING_LITERAL() throws RecognitionException {
         try {
             int _type = FORMAT_STRING_LITERAL;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:167:23: ( '%' (~ ' ' )* )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:167:25: '%' (~ ' ' )*
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:253:30: ({...}? => '%' (~ ' ' )* )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:253:30: {...}? => '%' (~ ' ' )*
             {
-            match('%'); 
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:167:29: (~ ' ' )*
-            loop2:
+            if ( !( BraceQuoteTracker.percentIsFormat() ) ) {
+                if (backtracking>0) {failed=true; return ;}
+                throw new FailedPredicateException(input, "FORMAT_STRING_LITERAL", " BraceQuoteTracker.percentIsFormat() ");
+            }
+            match('%'); if (failed) return ;
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:254:11: (~ ' ' )*
+            loop14:
             do {
-                int alt2=2;
-                int LA2_0 = input.LA(1);
+                int alt14=2;
+                int LA14_0 = input.LA(1);
 
-                if ( ((LA2_0>='\u0000' && LA2_0<='\u001F')||(LA2_0>='!' && LA2_0<='\uFFFE')) ) {
-                    alt2=1;
+                if ( ((LA14_0>='\u0000' && LA14_0<='\u001F')||(LA14_0>='!' && LA14_0<='\uFFFE')) ) {
+                    alt14=1;
                 }
 
 
-                switch (alt2) {
+                switch (alt14) {
             	case 1 :
-            	    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:167:30: ~ ' '
+            	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:254:12: ~ ' '
             	    {
             	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='\u001F')||(input.LA(1)>='!' && input.LA(1)<='\uFFFE') ) {
             	        input.consume();
-
+            	    failed=false;
             	    }
             	    else {
+            	        if (backtracking>0) {failed=true; return ;}
             	        MismatchedSetException mse =
             	            new MismatchedSetException(null,input);
             	        recover(mse);    throw mse;
@@ -2414,10 +2924,13 @@ public class v1Lexer extends Lexer {
             	    break;
 
             	default :
-            	    break loop2;
+            	    break loop14;
                 }
             } while (true);
 
+            if ( backtracking==0 ) {
+               BraceQuoteTracker.resetPercentIsFormat(); 
+            }
 
             }
 
@@ -2432,51 +2945,40 @@ public class v1Lexer extends Lexer {
     public final void mQUOTED_IDENTIFIER() throws RecognitionException {
         try {
             int _type = QUOTED_IDENTIFIER;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:170:2: ( '<<' ( . )* '>>' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:170:4: '<<' ( . )* '>>'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:4: ( ( '<<' )* '>>' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:4: ( '<<' )* '>>'
             {
-            match("<<"); 
-
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:170:9: ( . )*
-            loop3:
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:4: ( '<<' )*
+            loop15:
             do {
-                int alt3=2;
-                int LA3_0 = input.LA(1);
+                int alt15=2;
+                int LA15_0 = input.LA(1);
 
-                if ( (LA3_0=='>') ) {
-                    int LA3_1 = input.LA(2);
-
-                    if ( (LA3_1=='>') ) {
-                        alt3=2;
-                    }
-                    else if ( ((LA3_1>='\u0000' && LA3_1<='=')||(LA3_1>='?' && LA3_1<='\uFFFE')) ) {
-                        alt3=1;
-                    }
-
-
-                }
-                else if ( ((LA3_0>='\u0000' && LA3_0<='=')||(LA3_0>='?' && LA3_0<='\uFFFE')) ) {
-                    alt3=1;
+                if ( (LA15_0=='<') ) {
+                    alt15=1;
                 }
 
 
-                switch (alt3) {
+                switch (alt15) {
             	case 1 :
-            	    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:170:9: .
+            	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:4: '<<'
             	    {
-            	    matchAny(); 
+            	    match("<<"); if (failed) return ;
+
 
             	    }
             	    break;
 
             	default :
-            	    break loop3;
+            	    break loop15;
                 }
             } while (true);
 
-            match(">>"); 
+            match(">>"); if (failed) return ;
 
-             setText(getText().substring(2, getText().length()-2)); 
+            if ( backtracking==0 ) {
+               setText(getText().substring(2, getText().length()-2)); 
+            }
 
             }
 
@@ -2491,59 +2993,60 @@ public class v1Lexer extends Lexer {
     public final void mINTEGER_LITERAL() throws RecognitionException {
         try {
             int _type = INTEGER_LITERAL;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:172:17: ( ( '0' | '1' .. '9' ( '0' .. '9' )* ) )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:172:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:19: ( ( '0' | '1' .. '9' ( '0' .. '9' )* ) )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
             {
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:172:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
-            int alt5=2;
-            int LA5_0 = input.LA(1);
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
+            int alt17=2;
+            int LA17_0 = input.LA(1);
 
-            if ( (LA5_0=='0') ) {
-                alt5=1;
+            if ( (LA17_0=='0') ) {
+                alt17=1;
             }
-            else if ( ((LA5_0>='1' && LA5_0<='9')) ) {
-                alt5=2;
+            else if ( ((LA17_0>='1' && LA17_0<='9')) ) {
+                alt17=2;
             }
             else {
+                if (backtracking>0) {failed=true; return ;}
                 NoViableAltException nvae =
-                    new NoViableAltException("172:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )", 5, 0, input);
+                    new NoViableAltException("260:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )", 17, 0, input);
 
                 throw nvae;
             }
-            switch (alt5) {
+            switch (alt17) {
                 case 1 :
-                    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:172:20: '0'
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:20: '0'
                     {
-                    match('0'); 
+                    match('0'); if (failed) return ;
 
                     }
                     break;
                 case 2 :
-                    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:172:26: '1' .. '9' ( '0' .. '9' )*
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:26: '1' .. '9' ( '0' .. '9' )*
                     {
-                    matchRange('1','9'); 
-                    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:172:35: ( '0' .. '9' )*
-                    loop4:
+                    matchRange('1','9'); if (failed) return ;
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:35: ( '0' .. '9' )*
+                    loop16:
                     do {
-                        int alt4=2;
-                        int LA4_0 = input.LA(1);
+                        int alt16=2;
+                        int LA16_0 = input.LA(1);
 
-                        if ( ((LA4_0>='0' && LA4_0<='9')) ) {
-                            alt4=1;
+                        if ( ((LA16_0>='0' && LA16_0<='9')) ) {
+                            alt16=1;
                         }
 
 
-                        switch (alt4) {
+                        switch (alt16) {
                     	case 1 :
-                    	    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:172:35: '0' .. '9'
+                    	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:35: '0' .. '9'
                     	    {
-                    	    matchRange('0','9'); 
+                    	    matchRange('0','9'); if (failed) return ;
 
                     	    }
                     	    break;
 
                     	default :
-                    	    break loop4;
+                    	    break loop16;
                         }
                     } while (true);
 
@@ -2567,81 +3070,82 @@ public class v1Lexer extends Lexer {
     public final void mFLOATING_POINT_LITERAL() throws RecognitionException {
         try {
             int _type = FLOATING_POINT_LITERAL;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:175:5: ( ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( Exponent )? | '.' ( '0' .. '9' )+ ( Exponent )? | ( '0' .. '9' )+ Exponent )
-            int alt12=3;
-            alt12 = dfa12.predict(input);
-            switch (alt12) {
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:9: ( ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( Exponent )? | '.' ( '0' .. '9' )+ ( Exponent )? | ( '0' .. '9' )+ Exponent )
+            int alt24=3;
+            alt24 = dfa24.predict(input);
+            switch (alt24) {
                 case 1 :
-                    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:175:9: ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( Exponent )?
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:9: ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( Exponent )?
                     {
-                    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:175:9: ( '0' .. '9' )+
-                    int cnt6=0;
-                    loop6:
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:9: ( '0' .. '9' )+
+                    int cnt18=0;
+                    loop18:
                     do {
-                        int alt6=2;
-                        int LA6_0 = input.LA(1);
+                        int alt18=2;
+                        int LA18_0 = input.LA(1);
 
-                        if ( ((LA6_0>='0' && LA6_0<='9')) ) {
-                            alt6=1;
+                        if ( ((LA18_0>='0' && LA18_0<='9')) ) {
+                            alt18=1;
                         }
 
 
-                        switch (alt6) {
+                        switch (alt18) {
                     	case 1 :
-                    	    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:175:10: '0' .. '9'
+                    	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:10: '0' .. '9'
                     	    {
-                    	    matchRange('0','9'); 
+                    	    matchRange('0','9'); if (failed) return ;
 
                     	    }
                     	    break;
 
                     	default :
-                    	    if ( cnt6 >= 1 ) break loop6;
+                    	    if ( cnt18 >= 1 ) break loop18;
+                    	    if (backtracking>0) {failed=true; return ;}
                                 EarlyExitException eee =
-                                    new EarlyExitException(6, input);
+                                    new EarlyExitException(18, input);
                                 throw eee;
                         }
-                        cnt6++;
+                        cnt18++;
                     } while (true);
 
-                    match('.'); 
-                    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:175:25: ( '0' .. '9' )*
-                    loop7:
+                    match('.'); if (failed) return ;
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:25: ( '0' .. '9' )*
+                    loop19:
                     do {
-                        int alt7=2;
-                        int LA7_0 = input.LA(1);
+                        int alt19=2;
+                        int LA19_0 = input.LA(1);
 
-                        if ( ((LA7_0>='0' && LA7_0<='9')) ) {
-                            alt7=1;
+                        if ( ((LA19_0>='0' && LA19_0<='9')) ) {
+                            alt19=1;
                         }
 
 
-                        switch (alt7) {
+                        switch (alt19) {
                     	case 1 :
-                    	    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:175:26: '0' .. '9'
+                    	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:26: '0' .. '9'
                     	    {
-                    	    matchRange('0','9'); 
+                    	    matchRange('0','9'); if (failed) return ;
 
                     	    }
                     	    break;
 
                     	default :
-                    	    break loop7;
+                    	    break loop19;
                         }
                     } while (true);
 
-                    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:175:37: ( Exponent )?
-                    int alt8=2;
-                    int LA8_0 = input.LA(1);
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:37: ( Exponent )?
+                    int alt20=2;
+                    int LA20_0 = input.LA(1);
 
-                    if ( (LA8_0=='E'||LA8_0=='e') ) {
-                        alt8=1;
+                    if ( (LA20_0=='E'||LA20_0=='e') ) {
+                        alt20=1;
                     }
-                    switch (alt8) {
+                    switch (alt20) {
                         case 1 :
-                            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:175:37: Exponent
+                            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:37: Exponent
                             {
-                            mExponent(); 
+                            mExponent(); if (failed) return ;
 
                             }
                             break;
@@ -2652,51 +3156,52 @@ public class v1Lexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:176:9: '.' ( '0' .. '9' )+ ( Exponent )?
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:9: '.' ( '0' .. '9' )+ ( Exponent )?
                     {
-                    match('.'); 
-                    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:176:13: ( '0' .. '9' )+
-                    int cnt9=0;
-                    loop9:
+                    match('.'); if (failed) return ;
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:13: ( '0' .. '9' )+
+                    int cnt21=0;
+                    loop21:
                     do {
-                        int alt9=2;
-                        int LA9_0 = input.LA(1);
+                        int alt21=2;
+                        int LA21_0 = input.LA(1);
 
-                        if ( ((LA9_0>='0' && LA9_0<='9')) ) {
-                            alt9=1;
+                        if ( ((LA21_0>='0' && LA21_0<='9')) ) {
+                            alt21=1;
                         }
 
 
-                        switch (alt9) {
+                        switch (alt21) {
                     	case 1 :
-                    	    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:176:14: '0' .. '9'
+                    	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:14: '0' .. '9'
                     	    {
-                    	    matchRange('0','9'); 
+                    	    matchRange('0','9'); if (failed) return ;
 
                     	    }
                     	    break;
 
                     	default :
-                    	    if ( cnt9 >= 1 ) break loop9;
+                    	    if ( cnt21 >= 1 ) break loop21;
+                    	    if (backtracking>0) {failed=true; return ;}
                                 EarlyExitException eee =
-                                    new EarlyExitException(9, input);
+                                    new EarlyExitException(21, input);
                                 throw eee;
                         }
-                        cnt9++;
+                        cnt21++;
                     } while (true);
 
-                    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:176:25: ( Exponent )?
-                    int alt10=2;
-                    int LA10_0 = input.LA(1);
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:25: ( Exponent )?
+                    int alt22=2;
+                    int LA22_0 = input.LA(1);
 
-                    if ( (LA10_0=='E'||LA10_0=='e') ) {
-                        alt10=1;
+                    if ( (LA22_0=='E'||LA22_0=='e') ) {
+                        alt22=1;
                     }
-                    switch (alt10) {
+                    switch (alt22) {
                         case 1 :
-                            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:176:25: Exponent
+                            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:25: Exponent
                             {
-                            mExponent(); 
+                            mExponent(); if (failed) return ;
 
                             }
                             break;
@@ -2707,39 +3212,40 @@ public class v1Lexer extends Lexer {
                     }
                     break;
                 case 3 :
-                    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:177:9: ( '0' .. '9' )+ Exponent
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:265:9: ( '0' .. '9' )+ Exponent
                     {
-                    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:177:9: ( '0' .. '9' )+
-                    int cnt11=0;
-                    loop11:
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:265:9: ( '0' .. '9' )+
+                    int cnt23=0;
+                    loop23:
                     do {
-                        int alt11=2;
-                        int LA11_0 = input.LA(1);
+                        int alt23=2;
+                        int LA23_0 = input.LA(1);
 
-                        if ( ((LA11_0>='0' && LA11_0<='9')) ) {
-                            alt11=1;
+                        if ( ((LA23_0>='0' && LA23_0<='9')) ) {
+                            alt23=1;
                         }
 
 
-                        switch (alt11) {
+                        switch (alt23) {
                     	case 1 :
-                    	    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:177:10: '0' .. '9'
+                    	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:265:10: '0' .. '9'
                     	    {
-                    	    matchRange('0','9'); 
+                    	    matchRange('0','9'); if (failed) return ;
 
                     	    }
                     	    break;
 
                     	default :
-                    	    if ( cnt11 >= 1 ) break loop11;
+                    	    if ( cnt23 >= 1 ) break loop23;
+                    	    if (backtracking>0) {failed=true; return ;}
                                 EarlyExitException eee =
-                                    new EarlyExitException(11, input);
+                                    new EarlyExitException(23, input);
                                 throw eee;
                         }
-                        cnt11++;
+                        cnt23++;
                     } while (true);
 
-                    mExponent(); 
+                    mExponent(); if (failed) return ;
 
                     }
                     break;
@@ -2755,35 +3261,37 @@ public class v1Lexer extends Lexer {
     // $ANTLR start Exponent
     public final void mExponent() throws RecognitionException {
         try {
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:181:10: ( ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+ )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:181:12: ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:12: ( ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+ )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:12: ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+
             {
             if ( input.LA(1)=='E'||input.LA(1)=='e' ) {
                 input.consume();
-
+            failed=false;
             }
             else {
+                if (backtracking>0) {failed=true; return ;}
                 MismatchedSetException mse =
                     new MismatchedSetException(null,input);
                 recover(mse);    throw mse;
             }
 
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:181:22: ( '+' | '-' )?
-            int alt13=2;
-            int LA13_0 = input.LA(1);
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:22: ( '+' | '-' )?
+            int alt25=2;
+            int LA25_0 = input.LA(1);
 
-            if ( (LA13_0=='+'||LA13_0=='-') ) {
-                alt13=1;
+            if ( (LA25_0=='+'||LA25_0=='-') ) {
+                alt25=1;
             }
-            switch (alt13) {
+            switch (alt25) {
                 case 1 :
-                    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
                     {
                     if ( input.LA(1)=='+'||input.LA(1)=='-' ) {
                         input.consume();
-
+                    failed=false;
                     }
                     else {
+                        if (backtracking>0) {failed=true; return ;}
                         MismatchedSetException mse =
                             new MismatchedSetException(null,input);
                         recover(mse);    throw mse;
@@ -2795,34 +3303,35 @@ public class v1Lexer extends Lexer {
 
             }
 
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:181:33: ( '0' .. '9' )+
-            int cnt14=0;
-            loop14:
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:33: ( '0' .. '9' )+
+            int cnt26=0;
+            loop26:
             do {
-                int alt14=2;
-                int LA14_0 = input.LA(1);
+                int alt26=2;
+                int LA26_0 = input.LA(1);
 
-                if ( ((LA14_0>='0' && LA14_0<='9')) ) {
-                    alt14=1;
+                if ( ((LA26_0>='0' && LA26_0<='9')) ) {
+                    alt26=1;
                 }
 
 
-                switch (alt14) {
+                switch (alt26) {
             	case 1 :
-            	    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:181:34: '0' .. '9'
+            	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:34: '0' .. '9'
             	    {
-            	    matchRange('0','9'); 
+            	    matchRange('0','9'); if (failed) return ;
 
             	    }
             	    break;
 
             	default :
-            	    if ( cnt14 >= 1 ) break loop14;
+            	    if ( cnt26 >= 1 ) break loop26;
+            	    if (backtracking>0) {failed=true; return ;}
                         EarlyExitException eee =
-                            new EarlyExitException(14, input);
+                            new EarlyExitException(26, input);
                         throw eee;
                 }
-                cnt14++;
+                cnt26++;
             } while (true);
 
 
@@ -2838,30 +3347,31 @@ public class v1Lexer extends Lexer {
     public final void mIDENTIFIER() throws RecognitionException {
         try {
             int _type = IDENTIFIER;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:184:5: ( Letter ( Letter | JavaIDDigit )* )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:184:9: Letter ( Letter | JavaIDDigit )*
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:272:9: ( Letter ( Letter | JavaIDDigit )* )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:272:9: Letter ( Letter | JavaIDDigit )*
             {
-            mLetter(); 
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:184:16: ( Letter | JavaIDDigit )*
-            loop15:
+            mLetter(); if (failed) return ;
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:272:16: ( Letter | JavaIDDigit )*
+            loop27:
             do {
-                int alt15=2;
-                int LA15_0 = input.LA(1);
+                int alt27=2;
+                int LA27_0 = input.LA(1);
 
-                if ( (LA15_0=='$'||(LA15_0>='0' && LA15_0<='9')||(LA15_0>='A' && LA15_0<='Z')||LA15_0=='_'||(LA15_0>='a' && LA15_0<='z')||(LA15_0>='\u00C0' && LA15_0<='\u00D6')||(LA15_0>='\u00D8' && LA15_0<='\u00F6')||(LA15_0>='\u00F8' && LA15_0<='\u1FFF')||(LA15_0>='\u3040' && LA15_0<='\u318F')||(LA15_0>='\u3300' && LA15_0<='\u337F')||(LA15_0>='\u3400' && LA15_0<='\u3D2D')||(LA15_0>='\u4E00' && LA15_0<='\u9FFF')||(LA15_0>='\uF900' && LA15_0<='\uFAFF')) ) {
-                    alt15=1;
+                if ( (LA27_0=='$'||(LA27_0>='0' && LA27_0<='9')||(LA27_0>='A' && LA27_0<='Z')||LA27_0=='_'||(LA27_0>='a' && LA27_0<='z')||(LA27_0>='\u00C0' && LA27_0<='\u00D6')||(LA27_0>='\u00D8' && LA27_0<='\u00F6')||(LA27_0>='\u00F8' && LA27_0<='\u1FFF')||(LA27_0>='\u3040' && LA27_0<='\u318F')||(LA27_0>='\u3300' && LA27_0<='\u337F')||(LA27_0>='\u3400' && LA27_0<='\u3D2D')||(LA27_0>='\u4E00' && LA27_0<='\u9FFF')||(LA27_0>='\uF900' && LA27_0<='\uFAFF')) ) {
+                    alt27=1;
                 }
 
 
-                switch (alt15) {
+                switch (alt27) {
             	case 1 :
-            	    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
+            	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
             	    {
             	    if ( input.LA(1)=='$'||(input.LA(1)>='0' && input.LA(1)<='9')||(input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z')||(input.LA(1)>='\u00C0' && input.LA(1)<='\u00D6')||(input.LA(1)>='\u00D8' && input.LA(1)<='\u00F6')||(input.LA(1)>='\u00F8' && input.LA(1)<='\u1FFF')||(input.LA(1)>='\u3040' && input.LA(1)<='\u318F')||(input.LA(1)>='\u3300' && input.LA(1)<='\u337F')||(input.LA(1)>='\u3400' && input.LA(1)<='\u3D2D')||(input.LA(1)>='\u4E00' && input.LA(1)<='\u9FFF')||(input.LA(1)>='\uF900' && input.LA(1)<='\uFAFF') ) {
             	        input.consume();
-
+            	    failed=false;
             	    }
             	    else {
+            	        if (backtracking>0) {failed=true; return ;}
             	        MismatchedSetException mse =
             	            new MismatchedSetException(null,input);
             	        recover(mse);    throw mse;
@@ -2872,7 +3382,7 @@ public class v1Lexer extends Lexer {
             	    break;
 
             	default :
-            	    break loop15;
+            	    break loop27;
                 }
             } while (true);
 
@@ -2889,14 +3399,15 @@ public class v1Lexer extends Lexer {
     // $ANTLR start Letter
     public final void mLetter() throws RecognitionException {
         try {
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:189:5: ( '\\u0024' | '\\u0041' .. '\\u005a' | '\\u005f' | '\\u0061' .. '\\u007a' | '\\u00c0' .. '\\u00d6' | '\\u00d8' .. '\\u00f6' | '\\u00f8' .. '\\u00ff' | '\\u0100' .. '\\u1fff' | '\\u3040' .. '\\u318f' | '\\u3300' .. '\\u337f' | '\\u3400' .. '\\u3d2d' | '\\u4e00' .. '\\u9fff' | '\\uf900' .. '\\ufaff' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:277:8: ( '\\u0024' | '\\u0041' .. '\\u005a' | '\\u005f' | '\\u0061' .. '\\u007a' | '\\u00c0' .. '\\u00d6' | '\\u00d8' .. '\\u00f6' | '\\u00f8' .. '\\u00ff' | '\\u0100' .. '\\u1fff' | '\\u3040' .. '\\u318f' | '\\u3300' .. '\\u337f' | '\\u3400' .. '\\u3d2d' | '\\u4e00' .. '\\u9fff' | '\\uf900' .. '\\ufaff' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
             {
             if ( input.LA(1)=='$'||(input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z')||(input.LA(1)>='\u00C0' && input.LA(1)<='\u00D6')||(input.LA(1)>='\u00D8' && input.LA(1)<='\u00F6')||(input.LA(1)>='\u00F8' && input.LA(1)<='\u1FFF')||(input.LA(1)>='\u3040' && input.LA(1)<='\u318F')||(input.LA(1)>='\u3300' && input.LA(1)<='\u337F')||(input.LA(1)>='\u3400' && input.LA(1)<='\u3D2D')||(input.LA(1)>='\u4E00' && input.LA(1)<='\u9FFF')||(input.LA(1)>='\uF900' && input.LA(1)<='\uFAFF') ) {
                 input.consume();
-
+            failed=false;
             }
             else {
+                if (backtracking>0) {failed=true; return ;}
                 MismatchedSetException mse =
                     new MismatchedSetException(null,input);
                 recover(mse);    throw mse;
@@ -2914,14 +3425,15 @@ public class v1Lexer extends Lexer {
     // $ANTLR start JavaIDDigit
     public final void mJavaIDDigit() throws RecognitionException {
         try {
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:206:5: ( '\\u0030' .. '\\u0039' | '\\u0660' .. '\\u0669' | '\\u06f0' .. '\\u06f9' | '\\u0966' .. '\\u096f' | '\\u09e6' .. '\\u09ef' | '\\u0a66' .. '\\u0a6f' | '\\u0ae6' .. '\\u0aef' | '\\u0b66' .. '\\u0b6f' | '\\u0be7' .. '\\u0bef' | '\\u0c66' .. '\\u0c6f' | '\\u0ce6' .. '\\u0cef' | '\\u0d66' .. '\\u0d6f' | '\\u0e50' .. '\\u0e59' | '\\u0ed0' .. '\\u0ed9' | '\\u1040' .. '\\u1049' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:294:8: ( '\\u0030' .. '\\u0039' | '\\u0660' .. '\\u0669' | '\\u06f0' .. '\\u06f9' | '\\u0966' .. '\\u096f' | '\\u09e6' .. '\\u09ef' | '\\u0a66' .. '\\u0a6f' | '\\u0ae6' .. '\\u0aef' | '\\u0b66' .. '\\u0b6f' | '\\u0be7' .. '\\u0bef' | '\\u0c66' .. '\\u0c6f' | '\\u0ce6' .. '\\u0cef' | '\\u0d66' .. '\\u0d6f' | '\\u0e50' .. '\\u0e59' | '\\u0ed0' .. '\\u0ed9' | '\\u1040' .. '\\u1049' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
             {
             if ( (input.LA(1)>='0' && input.LA(1)<='9')||(input.LA(1)>='\u0660' && input.LA(1)<='\u0669')||(input.LA(1)>='\u06F0' && input.LA(1)<='\u06F9')||(input.LA(1)>='\u0966' && input.LA(1)<='\u096F')||(input.LA(1)>='\u09E6' && input.LA(1)<='\u09EF')||(input.LA(1)>='\u0A66' && input.LA(1)<='\u0A6F')||(input.LA(1)>='\u0AE6' && input.LA(1)<='\u0AEF')||(input.LA(1)>='\u0B66' && input.LA(1)<='\u0B6F')||(input.LA(1)>='\u0BE7' && input.LA(1)<='\u0BEF')||(input.LA(1)>='\u0C66' && input.LA(1)<='\u0C6F')||(input.LA(1)>='\u0CE6' && input.LA(1)<='\u0CEF')||(input.LA(1)>='\u0D66' && input.LA(1)<='\u0D6F')||(input.LA(1)>='\u0E50' && input.LA(1)<='\u0E59')||(input.LA(1)>='\u0ED0' && input.LA(1)<='\u0ED9')||(input.LA(1)>='\u1040' && input.LA(1)<='\u1049') ) {
                 input.consume();
-
+            failed=false;
             }
             else {
+                if (backtracking>0) {failed=true; return ;}
                 MismatchedSetException mse =
                     new MismatchedSetException(null,input);
                 recover(mse);    throw mse;
@@ -2940,20 +3452,23 @@ public class v1Lexer extends Lexer {
     public final void mWS() throws RecognitionException {
         try {
             int _type = WS;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:223:5: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' ) )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:223:8: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:311:8: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' ) )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:311:8: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )
             {
             if ( (input.LA(1)>='\t' && input.LA(1)<='\n')||(input.LA(1)>='\f' && input.LA(1)<='\r')||input.LA(1)==' ' ) {
                 input.consume();
-
+            failed=false;
             }
             else {
+                if (backtracking>0) {failed=true; return ;}
                 MismatchedSetException mse =
                     new MismatchedSetException(null,input);
                 recover(mse);    throw mse;
             }
 
-            channel=HIDDEN;
+            if ( backtracking==0 ) {
+              channel=HIDDEN;
+            }
 
             }
 
@@ -2968,51 +3483,53 @@ public class v1Lexer extends Lexer {
     public final void mCOMMENT() throws RecognitionException {
         try {
             int _type = COMMENT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:227:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:227:9: '/*' ( options {greedy=false; } : . )* '*/'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:315:9: ( '/*' ( options {greedy=false; } : . )* '*/' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:315:9: '/*' ( options {greedy=false; } : . )* '*/'
             {
-            match("/*"); 
+            match("/*"); if (failed) return ;
 
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:227:14: ( options {greedy=false; } : . )*
-            loop16:
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:315:14: ( options {greedy=false; } : . )*
+            loop28:
             do {
-                int alt16=2;
-                int LA16_0 = input.LA(1);
+                int alt28=2;
+                int LA28_0 = input.LA(1);
 
-                if ( (LA16_0=='*') ) {
-                    int LA16_1 = input.LA(2);
+                if ( (LA28_0=='*') ) {
+                    int LA28_1 = input.LA(2);
 
-                    if ( (LA16_1=='/') ) {
-                        alt16=2;
+                    if ( (LA28_1=='/') ) {
+                        alt28=2;
                     }
-                    else if ( ((LA16_1>='\u0000' && LA16_1<='.')||(LA16_1>='0' && LA16_1<='\uFFFE')) ) {
-                        alt16=1;
+                    else if ( ((LA28_1>='\u0000' && LA28_1<='.')||(LA28_1>='0' && LA28_1<='\uFFFE')) ) {
+                        alt28=1;
                     }
 
 
                 }
-                else if ( ((LA16_0>='\u0000' && LA16_0<=')')||(LA16_0>='+' && LA16_0<='\uFFFE')) ) {
-                    alt16=1;
+                else if ( ((LA28_0>='\u0000' && LA28_0<=')')||(LA28_0>='+' && LA28_0<='\uFFFE')) ) {
+                    alt28=1;
                 }
 
 
-                switch (alt16) {
+                switch (alt28) {
             	case 1 :
-            	    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:227:42: .
+            	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:315:42: .
             	    {
-            	    matchAny(); 
+            	    matchAny(); if (failed) return ;
 
             	    }
             	    break;
 
             	default :
-            	    break loop16;
+            	    break loop28;
                 }
             } while (true);
 
-            match("*/"); 
+            match("*/"); if (failed) return ;
 
-            channel=HIDDEN;
+            if ( backtracking==0 ) {
+              channel=HIDDEN;
+            }
 
             }
 
@@ -3027,31 +3544,32 @@ public class v1Lexer extends Lexer {
     public final void mLINE_COMMENT() throws RecognitionException {
         try {
             int _type = LINE_COMMENT;
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:231:5: ( '//' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n' )
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:231:7: '//' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n'
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:7: ( '//' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n' )
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:7: '//' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n'
             {
-            match("//"); 
+            match("//"); if (failed) return ;
 
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:231:12: (~ ( '\\n' | '\\r' ) )*
-            loop17:
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:12: (~ ( '\\n' | '\\r' ) )*
+            loop29:
             do {
-                int alt17=2;
-                int LA17_0 = input.LA(1);
+                int alt29=2;
+                int LA29_0 = input.LA(1);
 
-                if ( ((LA17_0>='\u0000' && LA17_0<='\t')||(LA17_0>='\u000B' && LA17_0<='\f')||(LA17_0>='\u000E' && LA17_0<='\uFFFE')) ) {
-                    alt17=1;
+                if ( ((LA29_0>='\u0000' && LA29_0<='\t')||(LA29_0>='\u000B' && LA29_0<='\f')||(LA29_0>='\u000E' && LA29_0<='\uFFFE')) ) {
+                    alt29=1;
                 }
 
 
-                switch (alt17) {
+                switch (alt29) {
             	case 1 :
-            	    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:231:12: ~ ( '\\n' | '\\r' )
+            	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:12: ~ ( '\\n' | '\\r' )
             	    {
             	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='\t')||(input.LA(1)>='\u000B' && input.LA(1)<='\f')||(input.LA(1)>='\u000E' && input.LA(1)<='\uFFFE') ) {
             	        input.consume();
-
+            	    failed=false;
             	    }
             	    else {
+            	        if (backtracking>0) {failed=true; return ;}
             	        MismatchedSetException mse =
             	            new MismatchedSetException(null,input);
             	        recover(mse);    throw mse;
@@ -3062,30 +3580,32 @@ public class v1Lexer extends Lexer {
             	    break;
 
             	default :
-            	    break loop17;
+            	    break loop29;
                 }
             } while (true);
 
-            // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:231:26: ( '\\r' )?
-            int alt18=2;
-            int LA18_0 = input.LA(1);
+            // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:26: ( '\\r' )?
+            int alt30=2;
+            int LA30_0 = input.LA(1);
 
-            if ( (LA18_0=='\r') ) {
-                alt18=1;
+            if ( (LA30_0=='\r') ) {
+                alt30=1;
             }
-            switch (alt18) {
+            switch (alt30) {
                 case 1 :
-                    // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:231:26: '\\r'
+                    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:26: '\\r'
                     {
-                    match('\r'); 
+                    match('\r'); if (failed) return ;
 
                     }
                     break;
 
             }
 
-            match('\n'); 
-            channel=HIDDEN;
+            match('\n'); if (failed) return ;
+            if ( backtracking==0 ) {
+              channel=HIDDEN;
+            }
 
             }
 
@@ -3097,882 +3617,882 @@ public class v1Lexer extends Lexer {
     // $ANTLR end LINE_COMMENT
 
     public void mTokens() throws RecognitionException {
-        // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:8: ( BAR | POUND | TYPEOF | DOTDOT | LARROW | ABSTRACT | AFTER | AND | AS | ASSERT | ATTRIBUTE | BEFORE | BIND | BIBIND | BREAK | BY | CATCH | CLASS | DELETE | DISTINCT | DO | DUR | EASEBOTH | EASEIN | EASEOUT | TIE | STAYS | RETURN | THROW | VAR | PACKAGE | IMPORT | FROM | LATER | TRIGGER | ON | INSERT | INTO | FIRST | LAST | IF | THEN | ELSE | THIS | NULL | TRUE | FALSE | FOR | UNITINTERVAL | IN | FPS | WHILE | CONTINUE | LINEAR | MOTION | TRY | FINALLY | LAZY | FOREACH | WHERE | NOT | NEW | PRIVATE | PROTECTED | PUBLIC | OPERATION | FUNCTION | READONLY | INVERSE | TYPE | EXTENDS | ORDER | INDEX | INSTANCEOF | INDEXOF | SELECT | SUPER | OR | SIZEOF | REVERSE | XOR | LPAREN | RPAREN | LBRACE | RBRACE | LBRACKET | RBRACKET | SEMI | COMMA | DOT | EQEQ | EQ | GT | LT | LTGT | LTEQ | GTEQ | PLUS | PLUSPLUS | SUB | SUBSUB | STAR | SLASH | PERCENT | PLUSEQ | SUBEQ | STAREQ | SLASHEQ | PERCENTEQ | LTLT | GTGT | COLON | QUES | STRING_LITERAL | QUOTE_LBRACE_STRING_LITERAL | RBRACE_QUOTE_STRING_LITERAL | RBRACE_LBRACE_STRING_LITERAL | FORMAT_STRING_LITERAL | QUOTED_IDENTIFIER | INTEGER_LITERAL | FLOATING_POINT_LITERAL | IDENTIFIER | WS | COMMENT | LINE_COMMENT )
-        int alt19=125;
-        alt19 = dfa19.predict(input);
-        switch (alt19) {
+        // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:10: ( BAR | POUND | TYPEOF | DOTDOT | LARROW | ABSTRACT | AFTER | AND | AS | ASSERT | ATTRIBUTE | BEFORE | BIND | BIBIND | BREAK | BY | CATCH | CLASS | DELETE | DISTINCT | DO | DUR | EASEBOTH | EASEIN | EASEOUT | TIE | STAYS | RETURN | THROW | VAR | PACKAGE | IMPORT | FROM | LATER | TRIGGER | ON | INSERT | INTO | FIRST | LAST | IF | THEN | ELSE | THIS | NULL | TRUE | FALSE | FOR | UNITINTERVAL | IN | FPS | WHILE | CONTINUE | LINEAR | MOTION | TRY | FINALLY | LAZY | FOREACH | WHERE | NOT | NEW | PRIVATE | PROTECTED | PUBLIC | OPERATION | FUNCTION | READONLY | INVERSE | TYPE | EXTENDS | ORDER | INDEX | INSTANCEOF | INDEXOF | SELECT | SUPER | OR | SIZEOF | REVERSE | XOR | LPAREN | RPAREN | LBRACKET | RBRACKET | SEMI | COMMA | DOT | EQEQ | EQ | GT | LT | LTGT | LTEQ | GTEQ | PLUS | PLUSPLUS | SUB | SUBSUB | STAR | SLASH | PERCENT | PLUSEQ | SUBEQ | STAREQ | SLASHEQ | PERCENTEQ | LTLT | GTGT | COLON | QUES | STRING_LITERAL | QUOTE_LBRACE_STRING_LITERAL | LBRACE | RBRACE_QUOTE_STRING_LITERAL | RBRACE_LBRACE_STRING_LITERAL | RBRACE | FORMAT_STRING_LITERAL | QUOTED_IDENTIFIER | INTEGER_LITERAL | FLOATING_POINT_LITERAL | IDENTIFIER | WS | COMMENT | LINE_COMMENT )
+        int alt31=125;
+        alt31 = dfa31.predict(input);
+        switch (alt31) {
             case 1 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:10: BAR
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:10: BAR
                 {
-                mBAR(); 
+                mBAR(); if (failed) return ;
 
                 }
                 break;
             case 2 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:14: POUND
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:14: POUND
                 {
-                mPOUND(); 
+                mPOUND(); if (failed) return ;
 
                 }
                 break;
             case 3 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:20: TYPEOF
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:20: TYPEOF
                 {
-                mTYPEOF(); 
+                mTYPEOF(); if (failed) return ;
 
                 }
                 break;
             case 4 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:27: DOTDOT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:27: DOTDOT
                 {
-                mDOTDOT(); 
+                mDOTDOT(); if (failed) return ;
 
                 }
                 break;
             case 5 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:34: LARROW
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:34: LARROW
                 {
-                mLARROW(); 
+                mLARROW(); if (failed) return ;
 
                 }
                 break;
             case 6 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:41: ABSTRACT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:41: ABSTRACT
                 {
-                mABSTRACT(); 
+                mABSTRACT(); if (failed) return ;
 
                 }
                 break;
             case 7 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:50: AFTER
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:50: AFTER
                 {
-                mAFTER(); 
+                mAFTER(); if (failed) return ;
 
                 }
                 break;
             case 8 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:56: AND
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:56: AND
                 {
-                mAND(); 
+                mAND(); if (failed) return ;
 
                 }
                 break;
             case 9 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:60: AS
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:60: AS
                 {
-                mAS(); 
+                mAS(); if (failed) return ;
 
                 }
                 break;
             case 10 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:63: ASSERT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:63: ASSERT
                 {
-                mASSERT(); 
+                mASSERT(); if (failed) return ;
 
                 }
                 break;
             case 11 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:70: ATTRIBUTE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:70: ATTRIBUTE
                 {
-                mATTRIBUTE(); 
+                mATTRIBUTE(); if (failed) return ;
 
                 }
                 break;
             case 12 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:80: BEFORE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:80: BEFORE
                 {
-                mBEFORE(); 
+                mBEFORE(); if (failed) return ;
 
                 }
                 break;
             case 13 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:87: BIND
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:87: BIND
                 {
-                mBIND(); 
+                mBIND(); if (failed) return ;
 
                 }
                 break;
             case 14 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:92: BIBIND
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:92: BIBIND
                 {
-                mBIBIND(); 
+                mBIBIND(); if (failed) return ;
 
                 }
                 break;
             case 15 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:99: BREAK
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:99: BREAK
                 {
-                mBREAK(); 
+                mBREAK(); if (failed) return ;
 
                 }
                 break;
             case 16 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:105: BY
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:105: BY
                 {
-                mBY(); 
+                mBY(); if (failed) return ;
 
                 }
                 break;
             case 17 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:108: CATCH
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:108: CATCH
                 {
-                mCATCH(); 
+                mCATCH(); if (failed) return ;
 
                 }
                 break;
             case 18 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:114: CLASS
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:114: CLASS
                 {
-                mCLASS(); 
+                mCLASS(); if (failed) return ;
 
                 }
                 break;
             case 19 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:120: DELETE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:120: DELETE
                 {
-                mDELETE(); 
+                mDELETE(); if (failed) return ;
 
                 }
                 break;
             case 20 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:127: DISTINCT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:127: DISTINCT
                 {
-                mDISTINCT(); 
+                mDISTINCT(); if (failed) return ;
 
                 }
                 break;
             case 21 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:136: DO
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:136: DO
                 {
-                mDO(); 
+                mDO(); if (failed) return ;
 
                 }
                 break;
             case 22 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:139: DUR
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:139: DUR
                 {
-                mDUR(); 
+                mDUR(); if (failed) return ;
 
                 }
                 break;
             case 23 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:143: EASEBOTH
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:143: EASEBOTH
                 {
-                mEASEBOTH(); 
+                mEASEBOTH(); if (failed) return ;
 
                 }
                 break;
             case 24 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:152: EASEIN
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:152: EASEIN
                 {
-                mEASEIN(); 
+                mEASEIN(); if (failed) return ;
 
                 }
                 break;
             case 25 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:159: EASEOUT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:159: EASEOUT
                 {
-                mEASEOUT(); 
+                mEASEOUT(); if (failed) return ;
 
                 }
                 break;
             case 26 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:167: TIE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:167: TIE
                 {
-                mTIE(); 
+                mTIE(); if (failed) return ;
 
                 }
                 break;
             case 27 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:171: STAYS
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:171: STAYS
                 {
-                mSTAYS(); 
+                mSTAYS(); if (failed) return ;
 
                 }
                 break;
             case 28 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:177: RETURN
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:177: RETURN
                 {
-                mRETURN(); 
+                mRETURN(); if (failed) return ;
 
                 }
                 break;
             case 29 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:184: THROW
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:184: THROW
                 {
-                mTHROW(); 
+                mTHROW(); if (failed) return ;
 
                 }
                 break;
             case 30 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:190: VAR
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:190: VAR
                 {
-                mVAR(); 
+                mVAR(); if (failed) return ;
 
                 }
                 break;
             case 31 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:194: PACKAGE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:194: PACKAGE
                 {
-                mPACKAGE(); 
+                mPACKAGE(); if (failed) return ;
 
                 }
                 break;
             case 32 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:202: IMPORT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:202: IMPORT
                 {
-                mIMPORT(); 
+                mIMPORT(); if (failed) return ;
 
                 }
                 break;
             case 33 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:209: FROM
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:209: FROM
                 {
-                mFROM(); 
+                mFROM(); if (failed) return ;
 
                 }
                 break;
             case 34 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:214: LATER
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:214: LATER
                 {
-                mLATER(); 
+                mLATER(); if (failed) return ;
 
                 }
                 break;
             case 35 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:220: TRIGGER
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:220: TRIGGER
                 {
-                mTRIGGER(); 
+                mTRIGGER(); if (failed) return ;
 
                 }
                 break;
             case 36 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:228: ON
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:228: ON
                 {
-                mON(); 
+                mON(); if (failed) return ;
 
                 }
                 break;
             case 37 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:231: INSERT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:231: INSERT
                 {
-                mINSERT(); 
+                mINSERT(); if (failed) return ;
 
                 }
                 break;
             case 38 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:238: INTO
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:238: INTO
                 {
-                mINTO(); 
+                mINTO(); if (failed) return ;
 
                 }
                 break;
             case 39 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:243: FIRST
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:243: FIRST
                 {
-                mFIRST(); 
+                mFIRST(); if (failed) return ;
 
                 }
                 break;
             case 40 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:249: LAST
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:249: LAST
                 {
-                mLAST(); 
+                mLAST(); if (failed) return ;
 
                 }
                 break;
             case 41 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:254: IF
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:254: IF
                 {
-                mIF(); 
+                mIF(); if (failed) return ;
 
                 }
                 break;
             case 42 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:257: THEN
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:257: THEN
                 {
-                mTHEN(); 
+                mTHEN(); if (failed) return ;
 
                 }
                 break;
             case 43 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:262: ELSE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:262: ELSE
                 {
-                mELSE(); 
+                mELSE(); if (failed) return ;
 
                 }
                 break;
             case 44 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:267: THIS
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:267: THIS
                 {
-                mTHIS(); 
+                mTHIS(); if (failed) return ;
 
                 }
                 break;
             case 45 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:272: NULL
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:272: NULL
                 {
-                mNULL(); 
+                mNULL(); if (failed) return ;
 
                 }
                 break;
             case 46 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:277: TRUE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:277: TRUE
                 {
-                mTRUE(); 
+                mTRUE(); if (failed) return ;
 
                 }
                 break;
             case 47 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:282: FALSE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:282: FALSE
                 {
-                mFALSE(); 
+                mFALSE(); if (failed) return ;
 
                 }
                 break;
             case 48 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:288: FOR
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:288: FOR
                 {
-                mFOR(); 
+                mFOR(); if (failed) return ;
 
                 }
                 break;
             case 49 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:292: UNITINTERVAL
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:292: UNITINTERVAL
                 {
-                mUNITINTERVAL(); 
+                mUNITINTERVAL(); if (failed) return ;
 
                 }
                 break;
             case 50 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:305: IN
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:305: IN
                 {
-                mIN(); 
+                mIN(); if (failed) return ;
 
                 }
                 break;
             case 51 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:308: FPS
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:308: FPS
                 {
-                mFPS(); 
+                mFPS(); if (failed) return ;
 
                 }
                 break;
             case 52 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:312: WHILE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:312: WHILE
                 {
-                mWHILE(); 
+                mWHILE(); if (failed) return ;
 
                 }
                 break;
             case 53 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:318: CONTINUE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:318: CONTINUE
                 {
-                mCONTINUE(); 
+                mCONTINUE(); if (failed) return ;
 
                 }
                 break;
             case 54 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:327: LINEAR
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:327: LINEAR
                 {
-                mLINEAR(); 
+                mLINEAR(); if (failed) return ;
 
                 }
                 break;
             case 55 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:334: MOTION
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:334: MOTION
                 {
-                mMOTION(); 
+                mMOTION(); if (failed) return ;
 
                 }
                 break;
             case 56 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:341: TRY
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:341: TRY
                 {
-                mTRY(); 
+                mTRY(); if (failed) return ;
 
                 }
                 break;
             case 57 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:345: FINALLY
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:345: FINALLY
                 {
-                mFINALLY(); 
+                mFINALLY(); if (failed) return ;
 
                 }
                 break;
             case 58 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:353: LAZY
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:353: LAZY
                 {
-                mLAZY(); 
+                mLAZY(); if (failed) return ;
 
                 }
                 break;
             case 59 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:358: FOREACH
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:358: FOREACH
                 {
-                mFOREACH(); 
+                mFOREACH(); if (failed) return ;
 
                 }
                 break;
             case 60 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:366: WHERE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:366: WHERE
                 {
-                mWHERE(); 
+                mWHERE(); if (failed) return ;
 
                 }
                 break;
             case 61 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:372: NOT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:372: NOT
                 {
-                mNOT(); 
+                mNOT(); if (failed) return ;
 
                 }
                 break;
             case 62 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:376: NEW
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:376: NEW
                 {
-                mNEW(); 
+                mNEW(); if (failed) return ;
 
                 }
                 break;
             case 63 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:380: PRIVATE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:380: PRIVATE
                 {
-                mPRIVATE(); 
+                mPRIVATE(); if (failed) return ;
 
                 }
                 break;
             case 64 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:388: PROTECTED
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:388: PROTECTED
                 {
-                mPROTECTED(); 
+                mPROTECTED(); if (failed) return ;
 
                 }
                 break;
             case 65 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:398: PUBLIC
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:398: PUBLIC
                 {
-                mPUBLIC(); 
+                mPUBLIC(); if (failed) return ;
 
                 }
                 break;
             case 66 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:405: OPERATION
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:405: OPERATION
                 {
-                mOPERATION(); 
+                mOPERATION(); if (failed) return ;
 
                 }
                 break;
             case 67 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:415: FUNCTION
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:415: FUNCTION
                 {
-                mFUNCTION(); 
+                mFUNCTION(); if (failed) return ;
 
                 }
                 break;
             case 68 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:424: READONLY
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:424: READONLY
                 {
-                mREADONLY(); 
+                mREADONLY(); if (failed) return ;
 
                 }
                 break;
             case 69 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:433: INVERSE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:433: INVERSE
                 {
-                mINVERSE(); 
+                mINVERSE(); if (failed) return ;
 
                 }
                 break;
             case 70 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:441: TYPE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:441: TYPE
                 {
-                mTYPE(); 
+                mTYPE(); if (failed) return ;
 
                 }
                 break;
             case 71 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:446: EXTENDS
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:446: EXTENDS
                 {
-                mEXTENDS(); 
+                mEXTENDS(); if (failed) return ;
 
                 }
                 break;
             case 72 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:454: ORDER
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:454: ORDER
                 {
-                mORDER(); 
+                mORDER(); if (failed) return ;
 
                 }
                 break;
             case 73 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:460: INDEX
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:460: INDEX
                 {
-                mINDEX(); 
+                mINDEX(); if (failed) return ;
 
                 }
                 break;
             case 74 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:466: INSTANCEOF
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:466: INSTANCEOF
                 {
-                mINSTANCEOF(); 
+                mINSTANCEOF(); if (failed) return ;
 
                 }
                 break;
             case 75 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:477: INDEXOF
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:477: INDEXOF
                 {
-                mINDEXOF(); 
+                mINDEXOF(); if (failed) return ;
 
                 }
                 break;
             case 76 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:485: SELECT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:485: SELECT
                 {
-                mSELECT(); 
+                mSELECT(); if (failed) return ;
 
                 }
                 break;
             case 77 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:492: SUPER
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:492: SUPER
                 {
-                mSUPER(); 
+                mSUPER(); if (failed) return ;
 
                 }
                 break;
             case 78 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:498: OR
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:498: OR
                 {
-                mOR(); 
+                mOR(); if (failed) return ;
 
                 }
                 break;
             case 79 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:501: SIZEOF
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:501: SIZEOF
                 {
-                mSIZEOF(); 
+                mSIZEOF(); if (failed) return ;
 
                 }
                 break;
             case 80 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:508: REVERSE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:508: REVERSE
                 {
-                mREVERSE(); 
+                mREVERSE(); if (failed) return ;
 
                 }
                 break;
             case 81 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:516: XOR
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:516: XOR
                 {
-                mXOR(); 
+                mXOR(); if (failed) return ;
 
                 }
                 break;
             case 82 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:520: LPAREN
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:520: LPAREN
                 {
-                mLPAREN(); 
+                mLPAREN(); if (failed) return ;
 
                 }
                 break;
             case 83 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:527: RPAREN
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:527: RPAREN
                 {
-                mRPAREN(); 
+                mRPAREN(); if (failed) return ;
 
                 }
                 break;
             case 84 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:534: LBRACE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:534: LBRACKET
                 {
-                mLBRACE(); 
+                mLBRACKET(); if (failed) return ;
 
                 }
                 break;
             case 85 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:541: RBRACE
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:543: RBRACKET
                 {
-                mRBRACE(); 
+                mRBRACKET(); if (failed) return ;
 
                 }
                 break;
             case 86 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:548: LBRACKET
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:552: SEMI
                 {
-                mLBRACKET(); 
+                mSEMI(); if (failed) return ;
 
                 }
                 break;
             case 87 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:557: RBRACKET
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:557: COMMA
                 {
-                mRBRACKET(); 
+                mCOMMA(); if (failed) return ;
 
                 }
                 break;
             case 88 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:566: SEMI
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:563: DOT
                 {
-                mSEMI(); 
+                mDOT(); if (failed) return ;
 
                 }
                 break;
             case 89 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:571: COMMA
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:567: EQEQ
                 {
-                mCOMMA(); 
+                mEQEQ(); if (failed) return ;
 
                 }
                 break;
             case 90 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:577: DOT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:572: EQ
                 {
-                mDOT(); 
+                mEQ(); if (failed) return ;
 
                 }
                 break;
             case 91 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:581: EQEQ
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:575: GT
                 {
-                mEQEQ(); 
+                mGT(); if (failed) return ;
 
                 }
                 break;
             case 92 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:586: EQ
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:578: LT
                 {
-                mEQ(); 
+                mLT(); if (failed) return ;
 
                 }
                 break;
             case 93 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:589: GT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:581: LTGT
                 {
-                mGT(); 
+                mLTGT(); if (failed) return ;
 
                 }
                 break;
             case 94 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:592: LT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:586: LTEQ
                 {
-                mLT(); 
+                mLTEQ(); if (failed) return ;
 
                 }
                 break;
             case 95 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:595: LTGT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:591: GTEQ
                 {
-                mLTGT(); 
+                mGTEQ(); if (failed) return ;
 
                 }
                 break;
             case 96 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:600: LTEQ
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:596: PLUS
                 {
-                mLTEQ(); 
+                mPLUS(); if (failed) return ;
 
                 }
                 break;
             case 97 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:605: GTEQ
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:601: PLUSPLUS
                 {
-                mGTEQ(); 
+                mPLUSPLUS(); if (failed) return ;
 
                 }
                 break;
             case 98 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:610: PLUS
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:610: SUB
                 {
-                mPLUS(); 
+                mSUB(); if (failed) return ;
 
                 }
                 break;
             case 99 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:615: PLUSPLUS
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:614: SUBSUB
                 {
-                mPLUSPLUS(); 
+                mSUBSUB(); if (failed) return ;
 
                 }
                 break;
             case 100 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:624: SUB
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:621: STAR
                 {
-                mSUB(); 
+                mSTAR(); if (failed) return ;
 
                 }
                 break;
             case 101 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:628: SUBSUB
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:626: SLASH
                 {
-                mSUBSUB(); 
+                mSLASH(); if (failed) return ;
 
                 }
                 break;
             case 102 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:635: STAR
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:632: PERCENT
                 {
-                mSTAR(); 
+                mPERCENT(); if (failed) return ;
 
                 }
                 break;
             case 103 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:640: SLASH
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:640: PLUSEQ
                 {
-                mSLASH(); 
+                mPLUSEQ(); if (failed) return ;
 
                 }
                 break;
             case 104 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:646: PERCENT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:647: SUBEQ
                 {
-                mPERCENT(); 
+                mSUBEQ(); if (failed) return ;
 
                 }
                 break;
             case 105 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:654: PLUSEQ
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:653: STAREQ
                 {
-                mPLUSEQ(); 
+                mSTAREQ(); if (failed) return ;
 
                 }
                 break;
             case 106 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:661: SUBEQ
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:660: SLASHEQ
                 {
-                mSUBEQ(); 
+                mSLASHEQ(); if (failed) return ;
 
                 }
                 break;
             case 107 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:667: STAREQ
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:668: PERCENTEQ
                 {
-                mSTAREQ(); 
+                mPERCENTEQ(); if (failed) return ;
 
                 }
                 break;
             case 108 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:674: SLASHEQ
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:678: LTLT
                 {
-                mSLASHEQ(); 
+                mLTLT(); if (failed) return ;
 
                 }
                 break;
             case 109 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:682: PERCENTEQ
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:683: GTGT
                 {
-                mPERCENTEQ(); 
+                mGTGT(); if (failed) return ;
 
                 }
                 break;
             case 110 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:692: LTLT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:688: COLON
                 {
-                mLTLT(); 
+                mCOLON(); if (failed) return ;
 
                 }
                 break;
             case 111 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:697: GTGT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:694: QUES
                 {
-                mGTGT(); 
+                mQUES(); if (failed) return ;
 
                 }
                 break;
             case 112 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:702: COLON
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:699: STRING_LITERAL
                 {
-                mCOLON(); 
+                mSTRING_LITERAL(); if (failed) return ;
 
                 }
                 break;
             case 113 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:708: QUES
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:714: QUOTE_LBRACE_STRING_LITERAL
                 {
-                mQUES(); 
+                mQUOTE_LBRACE_STRING_LITERAL(); if (failed) return ;
 
                 }
                 break;
             case 114 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:713: STRING_LITERAL
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:742: LBRACE
                 {
-                mSTRING_LITERAL(); 
+                mLBRACE(); if (failed) return ;
 
                 }
                 break;
             case 115 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:728: QUOTE_LBRACE_STRING_LITERAL
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:749: RBRACE_QUOTE_STRING_LITERAL
                 {
-                mQUOTE_LBRACE_STRING_LITERAL(); 
+                mRBRACE_QUOTE_STRING_LITERAL(); if (failed) return ;
 
                 }
                 break;
             case 116 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:756: RBRACE_QUOTE_STRING_LITERAL
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:777: RBRACE_LBRACE_STRING_LITERAL
                 {
-                mRBRACE_QUOTE_STRING_LITERAL(); 
+                mRBRACE_LBRACE_STRING_LITERAL(); if (failed) return ;
 
                 }
                 break;
             case 117 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:784: RBRACE_LBRACE_STRING_LITERAL
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:806: RBRACE
                 {
-                mRBRACE_LBRACE_STRING_LITERAL(); 
+                mRBRACE(); if (failed) return ;
 
                 }
                 break;
             case 118 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:813: FORMAT_STRING_LITERAL
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:813: FORMAT_STRING_LITERAL
                 {
-                mFORMAT_STRING_LITERAL(); 
+                mFORMAT_STRING_LITERAL(); if (failed) return ;
 
                 }
                 break;
             case 119 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:835: QUOTED_IDENTIFIER
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:835: QUOTED_IDENTIFIER
                 {
-                mQUOTED_IDENTIFIER(); 
+                mQUOTED_IDENTIFIER(); if (failed) return ;
 
                 }
                 break;
             case 120 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:853: INTEGER_LITERAL
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:853: INTEGER_LITERAL
                 {
-                mINTEGER_LITERAL(); 
+                mINTEGER_LITERAL(); if (failed) return ;
 
                 }
                 break;
             case 121 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:869: FLOATING_POINT_LITERAL
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:869: FLOATING_POINT_LITERAL
                 {
-                mFLOATING_POINT_LITERAL(); 
+                mFLOATING_POINT_LITERAL(); if (failed) return ;
 
                 }
                 break;
             case 122 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:892: IDENTIFIER
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:892: IDENTIFIER
                 {
-                mIDENTIFIER(); 
+                mIDENTIFIER(); if (failed) return ;
 
                 }
                 break;
             case 123 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:903: WS
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:903: WS
                 {
-                mWS(); 
+                mWS(); if (failed) return ;
 
                 }
                 break;
             case 124 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:906: COMMENT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:906: COMMENT
                 {
-                mCOMMENT(); 
+                mCOMMENT(); if (failed) return ;
 
                 }
                 break;
             case 125 :
-                // C:\\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:914: LINE_COMMENT
+                // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:914: LINE_COMMENT
                 {
-                mLINE_COMMENT(); 
+                mLINE_COMMENT(); if (failed) return ;
 
                 }
                 break;
@@ -3981,25 +4501,231 @@ public class v1Lexer extends Lexer {
 
     }
 
+    // $ANTLR start synpred1
+    public final void synpred1_fragment() throws RecognitionException {   
+        // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:8: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )* '%' )
+        // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:9: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )* '%'
+        {
+        // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:9: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )*
+        loop32:
+        do {
+            int alt32=2;
+            int LA32_0 = input.LA(1);
 
+            if ( ((LA32_0>='\t' && LA32_0<='\n')||(LA32_0>='\f' && LA32_0<='\r')||LA32_0==' ') ) {
+                alt32=1;
+            }
+
+
+            switch (alt32) {
+        	case 1 :
+        	    // \\JavaFX\\openjfx\\trunk\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
+        	    {
+        	    if ( (input.LA(1)>='\t' && input.LA(1)<='\n')||(input.LA(1)>='\f' && input.LA(1)<='\r')||input.LA(1)==' ' ) {
+        	        input.consume();
+        	    failed=false;
+        	    }
+        	    else {
+        	        if (backtracking>0) {failed=true; return ;}
+        	        MismatchedSetException mse =
+        	            new MismatchedSetException(null,input);
+        	        recover(mse);    throw mse;
+        	    }
+
+
+        	    }
+        	    break;
+
+        	default :
+        	    break loop32;
+            }
+        } while (true);
+
+        match('%'); if (failed) return ;
+
+        }
+    }
+    // $ANTLR end synpred1
+
+    public final boolean synpred1() {
+        backtracking++;
+        int start = input.mark();
+        try {
+            synpred1_fragment(); // can never throw exception
+        } catch (RecognitionException re) {
+            System.err.println("impossible: "+re);
+        }
+        boolean success = !failed;
+        input.rewind(start);
+        backtracking--;
+        failed=false;
+        return success;
+    }
+
+
+    protected DFA9 dfa9 = new DFA9(this);
     protected DFA12 dfa12 = new DFA12(this);
-    protected DFA19 dfa19 = new DFA19(this);
-    static final String DFA12_eotS =
-        "\5\uffff";
-    static final String DFA12_eofS =
-        "\5\uffff";
-    static final String DFA12_minS =
-        "\2\56\3\uffff";
-    static final String DFA12_maxS =
-        "\1\71\1\145\3\uffff";
-    static final String DFA12_acceptS =
-        "\2\uffff\1\2\1\1\1\3";
-    static final String DFA12_specialS =
-        "\5\uffff}>";
-    static final String[] DFA12_transitionS = {
-            "\1\2\1\uffff\12\1",
-            "\1\3\1\uffff\12\1\13\uffff\1\4\37\uffff\1\4",
+    protected DFA24 dfa24 = new DFA24(this);
+    protected DFA31 dfa31 = new DFA31(this);
+    static final String DFA9_eotS =
+        "\3\uffff\1\5\1\6\2\uffff";
+    static final String DFA9_eofS =
+        "\7\uffff";
+    static final String DFA9_minS =
+        "\1\175\4\0\2\uffff";
+    static final String DFA9_maxS =
+        "\1\175\4\ufffe\2\uffff";
+    static final String DFA9_acceptS =
+        "\5\uffff\1\2\1\1";
+    static final String DFA9_specialS =
+        "\1\0\1\2\1\4\1\1\1\3\2\uffff}>";
+    static final String[] DFA9_transitionS = {
+            "\1\1",
+            "\42\2\1\4\4\2\1\3\123\2\1\uffff\uff83\2",
+            "\42\2\1\4\4\2\1\3\123\2\1\uffff\uff83\2",
+            "\173\6\1\uffff\uff83\6",
+            "\173\5\1\uffff\uff83\5",
             "",
+            ""
+    };
+
+    static final short[] DFA9_eot = DFA.unpackEncodedString(DFA9_eotS);
+    static final short[] DFA9_eof = DFA.unpackEncodedString(DFA9_eofS);
+    static final char[] DFA9_min = DFA.unpackEncodedStringToUnsignedChars(DFA9_minS);
+    static final char[] DFA9_max = DFA.unpackEncodedStringToUnsignedChars(DFA9_maxS);
+    static final short[] DFA9_accept = DFA.unpackEncodedString(DFA9_acceptS);
+    static final short[] DFA9_special = DFA.unpackEncodedString(DFA9_specialS);
+    static final short[][] DFA9_transition;
+
+    static {
+        int numStates = DFA9_transitionS.length;
+        DFA9_transition = new short[numStates][];
+        for (int i=0; i<numStates; i++) {
+            DFA9_transition[i] = DFA.unpackEncodedString(DFA9_transitionS[i]);
+        }
+    }
+
+    class DFA9 extends DFA {
+
+        public DFA9(BaseRecognizer recognizer) {
+            this.recognizer = recognizer;
+            this.decisionNumber = 9;
+            this.eot = DFA9_eot;
+            this.eof = DFA9_eof;
+            this.min = DFA9_min;
+            this.max = DFA9_max;
+            this.accept = DFA9_accept;
+            this.special = DFA9_special;
+            this.transition = DFA9_transition;
+        }
+        public String getDescription() {
+            return "226:1: RBRACE_QUOTE_STRING_LITERAL : ({...}? => '}' (~ ( '{' | '\"' ) )* '\"' | {...}? => '}' (~ ( '{' | '\\'' ) )* '\\'' );";
+        }
+        public int specialStateTransition(int s, IntStream input) throws NoViableAltException {
+        	int _s = s;
+            switch ( s ) {
+                    case 0 : 
+                        int LA9_0 = input.LA(1);
+
+                         
+                        int index9_0 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (LA9_0=='}') && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 1;}
+
+                         
+                        input.seek(index9_0);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 1 : 
+                        int LA9_3 = input.LA(1);
+
+                         
+                        int index9_3 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( ((LA9_3>='\u0000' && LA9_3<='z')||(LA9_3>='|' && LA9_3<='\uFFFE')) && ( BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) )) {s = 6;}
+
+                        else s = 5;
+
+                         
+                        input.seek(index9_3);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 2 : 
+                        int LA9_1 = input.LA(1);
+
+                         
+                        int index9_1 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( ((LA9_1>='\u0000' && LA9_1<='!')||(LA9_1>='#' && LA9_1<='&')||(LA9_1>='(' && LA9_1<='z')||(LA9_1>='|' && LA9_1<='\uFFFE')) && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 2;}
+
+                        else if ( (LA9_1=='\'') && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 3;}
+
+                        else if ( (LA9_1=='\"') && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 4;}
+
+                         
+                        input.seek(index9_1);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 3 : 
+                        int LA9_4 = input.LA(1);
+
+                         
+                        int index9_4 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( ((LA9_4>='\u0000' && LA9_4<='z')||(LA9_4>='|' && LA9_4<='\uFFFE')) && ( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) )) {s = 5;}
+
+                        else s = 6;
+
+                         
+                        input.seek(index9_4);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 4 : 
+                        int LA9_2 = input.LA(1);
+
+                         
+                        int index9_2 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (LA9_2=='\'') && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 3;}
+
+                        else if ( (LA9_2=='\"') && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 4;}
+
+                        else if ( ((LA9_2>='\u0000' && LA9_2<='!')||(LA9_2>='#' && LA9_2<='&')||(LA9_2>='(' && LA9_2<='z')||(LA9_2>='|' && LA9_2<='\uFFFE')) && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 2;}
+
+                         
+                        input.seek(index9_2);
+                        if ( s>=0 ) return s;
+                        break;
+            }
+            if (backtracking>0) {failed=true; return -1;}
+            NoViableAltException nvae =
+                new NoViableAltException(getDescription(), 9, _s, input);
+            error(nvae);
+            throw nvae;
+        }
+    }
+    static final String DFA12_eotS =
+        "\6\uffff";
+    static final String DFA12_eofS =
+        "\6\uffff";
+    static final String DFA12_minS =
+        "\1\175\3\0\2\uffff";
+    static final String DFA12_maxS =
+        "\1\175\2\ufffe\1\0\2\uffff";
+    static final String DFA12_acceptS =
+        "\4\uffff\1\2\1\1";
+    static final String DFA12_specialS =
+        "\1\1\1\3\1\0\1\2\2\uffff}>";
+    static final String[] DFA12_transitionS = {
+            "\1\1",
+            "\42\2\1\4\4\2\1\5\123\2\1\3\uff83\2",
+            "\42\2\1\4\4\2\1\5\123\2\1\3\uff83\2",
+            "\1\uffff",
             "",
             ""
     };
@@ -4034,870 +4760,1306 @@ public class v1Lexer extends Lexer {
             this.transition = DFA12_transition;
         }
         public String getDescription() {
-            return "174:1: FLOATING_POINT_LITERAL : ( ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( Exponent )? | '.' ( '0' .. '9' )+ ( Exponent )? | ( '0' .. '9' )+ Exponent );";
+            return "235:1: RBRACE_LBRACE_STRING_LITERAL : ({...}? => '}' (~ ( '{' | '\"' ) )* '{' NextIsPercent[CUR_QUOTE_CTX] | {...}? => '}' (~ ( '{' | '\\'' ) )* '{' NextIsPercent[CUR_QUOTE_CTX] );";
+        }
+        public int specialStateTransition(int s, IntStream input) throws NoViableAltException {
+        	int _s = s;
+            switch ( s ) {
+                    case 0 : 
+                        int LA12_2 = input.LA(1);
+
+                         
+                        int index12_2 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (LA12_2=='{') && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 3;}
+
+                        else if ( ((LA12_2>='\u0000' && LA12_2<='!')||(LA12_2>='#' && LA12_2<='&')||(LA12_2>='(' && LA12_2<='z')||(LA12_2>='|' && LA12_2<='\uFFFE')) && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 2;}
+
+                        else if ( (LA12_2=='\"') && ( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) )) {s = 4;}
+
+                        else if ( (LA12_2=='\'') && ( BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) )) {s = 5;}
+
+                         
+                        input.seek(index12_2);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 1 : 
+                        int LA12_0 = input.LA(1);
+
+                         
+                        int index12_0 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (LA12_0=='}') && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 1;}
+
+                         
+                        input.seek(index12_0);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 2 : 
+                        int LA12_3 = input.LA(1);
+
+                         
+                        int index12_3 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( ( BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ) ) {s = 5;}
+
+                        else if ( ( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) ) ) {s = 4;}
+
+                         
+                        input.seek(index12_3);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 3 : 
+                        int LA12_1 = input.LA(1);
+
+                         
+                        int index12_1 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( ((LA12_1>='\u0000' && LA12_1<='!')||(LA12_1>='#' && LA12_1<='&')||(LA12_1>='(' && LA12_1<='z')||(LA12_1>='|' && LA12_1<='\uFFFE')) && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 2;}
+
+                        else if ( (LA12_1=='{') && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 3;}
+
+                        else if ( (LA12_1=='\"') && ( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) )) {s = 4;}
+
+                        else if ( (LA12_1=='\'') && ( BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) )) {s = 5;}
+
+                         
+                        input.seek(index12_1);
+                        if ( s>=0 ) return s;
+                        break;
+            }
+            if (backtracking>0) {failed=true; return -1;}
+            NoViableAltException nvae =
+                new NoViableAltException(getDescription(), 12, _s, input);
+            error(nvae);
+            throw nvae;
         }
     }
-    static final String DFA19_eotS =
-        "\3\uffff\1\54\1\63\1\71\22\54\3\uffff\1\155\4\uffff\1\157\1\162"+
-        "\1\165\1\170\1\172\1\176\1\u0080\3\uffff\2\u0084\2\uffff\4\54\5"+
-        "\uffff\1\u008f\2\uffff\2\54\1\u0093\4\54\1\u0099\7\54\1\u00a1\14"+
-        "\54\1\u00b5\1\u00b6\11\54\1\u00c4\1\u00c5\10\54\24\uffff\1\u00cf"+
-        "\2\uffff\1\u00d0\2\uffff\1\u0084\4\54\1\u00d5\1\54\1\u00d7\1\54"+
-        "\2\uffff\1\54\1\u00da\1\54\1\uffff\5\54\1\uffff\6\54\1\u00e7\1\uffff"+
-        "\12\54\1\u00f2\10\54\2\uffff\4\54\1\u0100\1\u0102\7\54\2\uffff\2"+
-        "\54\1\u010c\1\u010d\4\54\1\u0112\2\uffff\1\u0114\1\u0115\1\54\1"+
-        "\u0117\1\uffff\1\54\1\uffff\1\u0119\1\54\1\uffff\4\54\1\u011f\7"+
-        "\54\1\uffff\2\54\1\u012b\7\54\1\uffff\4\54\1\u0137\7\54\1\u013f"+
-        "\1\uffff\1\54\1\uffff\2\54\1\u0143\1\u0144\4\54\1\u0149\2\uffff"+
-        "\4\54\1\uffff\1\54\2\uffff\1\u014f\1\uffff\1\54\1\uffff\2\54\1\u0153"+
-        "\1\54\1\u0155\1\uffff\2\54\1\u0158\1\u0159\7\54\1\uffff\1\u0161"+
-        "\2\54\1\u0164\7\54\1\uffff\2\54\1\u016f\3\54\1\u0173\1\uffff\1\54"+
-        "\1\u0175\1\54\2\uffff\1\u0177\1\54\1\u0179\1\54\1\uffff\1\54\1\u017c"+
-        "\1\u017d\1\54\1\u017f\1\uffff\2\54\1\u0182\1\uffff\1\54\1\uffff"+
-        "\1\u0184\1\u0185\2\uffff\1\54\1\u0187\4\54\1\u018c\1\uffff\1\u018d"+
-        "\1\u018e\1\uffff\2\54\1\u0191\1\54\1\u0193\3\54\1\u0197\1\54\1\uffff"+
-        "\1\54\1\u019a\1\54\1\uffff\1\54\1\uffff\1\54\1\uffff\1\u019e\1\uffff"+
-        "\2\54\2\uffff\1\u01a1\1\uffff\1\u01a2\1\54\1\uffff\1\54\2\uffff"+
-        "\1\54\1\uffff\1\54\1\u01a7\1\54\1\u01a9\3\uffff\1\u01aa\1\54\1\uffff"+
-        "\1\u01ac\1\uffff\1\u01ad\2\54\1\uffff\1\u01b0\1\u01b1\1\uffff\1"+
-        "\u01b2\1\u01b3\1\54\1\uffff\2\54\2\uffff\1\u01b7\1\54\1\u01b9\1"+
-        "\u01ba\1\uffff\1\u01bb\2\uffff\1\u01bc\2\uffff\2\54\4\uffff\1\u01bf"+
-        "\2\54\1\uffff\1\u01c2\4\uffff\1\u01c3\1\54\1\uffff\1\u01c5\1\54"+
-        "\2\uffff\1\u01c7\1\uffff\1\54\1\uffff\1\54\1\u01ca\1\uffff";
-    static final String DFA19_eofS =
-        "\u01cb\uffff";
-    static final String DFA19_minS =
+    static final String DFA24_eotS =
+        "\5\uffff";
+    static final String DFA24_eofS =
+        "\5\uffff";
+    static final String DFA24_minS =
+        "\2\56\3\uffff";
+    static final String DFA24_maxS =
+        "\1\71\1\145\3\uffff";
+    static final String DFA24_acceptS =
+        "\2\uffff\1\2\1\3\1\1";
+    static final String DFA24_specialS =
+        "\5\uffff}>";
+    static final String[] DFA24_transitionS = {
+            "\1\2\1\uffff\12\1",
+            "\1\4\1\uffff\12\1\13\uffff\1\3\37\uffff\1\3",
+            "",
+            "",
+            ""
+    };
+
+    static final short[] DFA24_eot = DFA.unpackEncodedString(DFA24_eotS);
+    static final short[] DFA24_eof = DFA.unpackEncodedString(DFA24_eofS);
+    static final char[] DFA24_min = DFA.unpackEncodedStringToUnsignedChars(DFA24_minS);
+    static final char[] DFA24_max = DFA.unpackEncodedStringToUnsignedChars(DFA24_maxS);
+    static final short[] DFA24_accept = DFA.unpackEncodedString(DFA24_acceptS);
+    static final short[] DFA24_special = DFA.unpackEncodedString(DFA24_specialS);
+    static final short[][] DFA24_transition;
+
+    static {
+        int numStates = DFA24_transitionS.length;
+        DFA24_transition = new short[numStates][];
+        for (int i=0; i<numStates; i++) {
+            DFA24_transition[i] = DFA.unpackEncodedString(DFA24_transitionS[i]);
+        }
+    }
+
+    class DFA24 extends DFA {
+
+        public DFA24(BaseRecognizer recognizer) {
+            this.recognizer = recognizer;
+            this.decisionNumber = 24;
+            this.eot = DFA24_eot;
+            this.eof = DFA24_eof;
+            this.min = DFA24_min;
+            this.max = DFA24_max;
+            this.accept = DFA24_accept;
+            this.special = DFA24_special;
+            this.transition = DFA24_transition;
+        }
+        public String getDescription() {
+            return "262:1: FLOATING_POINT_LITERAL : ( ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( Exponent )? | '.' ( '0' .. '9' )+ ( Exponent )? | ( '0' .. '9' )+ Exponent );";
+        }
+    }
+    static final String DFA31_eotS =
+        "\3\uffff\1\55\1\65\1\72\22\55\6\uffff\1\155\1\160\1\163\1\166\1"+
+        "\170\1\174\1\177\5\uffff\1\u0084\2\u0089\2\uffff\4\55\3\uffff\1"+
+        "\u0093\4\uffff\4\55\1\u009a\2\55\1\u009e\6\55\1\u00a5\15\55\1\u00ba"+
+        "\1\55\1\u00bc\10\55\1\u00c9\1\55\1\u00cb\7\55\21\uffff\1\u00d5\11"+
+        "\uffff\1\u00d7\1\u00da\1\uffff\1\u0089\4\55\1\u00e2\2\55\1\u00e5"+
+        "\2\uffff\3\55\1\u00e9\1\55\1\uffff\3\55\1\uffff\6\55\1\uffff\1\u00f4"+
+        "\12\55\1\u00ff\10\55\1\uffff\1\55\1\uffff\1\u010b\4\55\1\u0110\6"+
+        "\55\1\uffff\1\55\1\uffff\1\u0118\1\u0119\5\55\1\u011f\12\uffff\1"+
+        "\u0122\1\u0123\1\u0124\1\55\1\uffff\1\55\1\u0127\1\uffff\3\55\1"+
+        "\uffff\3\55\1\u012e\6\55\1\uffff\2\55\1\u0139\7\55\1\uffff\6\55"+
+        "\1\u0147\4\55\1\uffff\3\55\1\u014f\1\uffff\1\55\1\u0151\1\u0152"+
+        "\4\55\2\uffff\1\u0157\4\55\2\uffff\1\55\3\uffff\1\u015d\1\55\1\uffff"+
+        "\1\55\1\u0160\2\55\1\u0163\1\55\1\uffff\1\55\1\u0166\1\u0167\7\55"+
+        "\1\uffff\1\u016f\2\55\1\u0172\7\55\1\u017b\1\55\1\uffff\5\55\1\u0182"+
+        "\1\55\1\uffff\1\u0184\2\uffff\1\u0185\1\55\1\u0187\1\55\1\uffff"+
+        "\1\55\1\u018a\1\u018b\1\55\1\u018d\1\uffff\2\55\1\uffff\1\55\1\u0191"+
+        "\1\uffff\1\u0192\1\u0193\2\uffff\2\55\1\u0196\3\55\1\u019a\1\uffff"+
+        "\1\u019b\1\u019c\1\uffff\1\55\1\u019e\3\55\1\u01a2\2\55\1\uffff"+
+        "\1\55\1\u01a6\1\55\1\u01a8\2\55\1\uffff\1\55\2\uffff\1\u01ac\1\uffff"+
+        "\2\55\2\uffff\1\u01af\1\uffff\1\u01b0\2\55\3\uffff\2\55\1\uffff"+
+        "\1\u01b5\1\u01b6\1\55\3\uffff\1\u01b8\1\uffff\2\55\1\u01bb\1\uffff"+
+        "\1\u01bc\1\u01bd\1\u01be\1\uffff\1\55\1\uffff\1\u01c0\1\55\1\u01c2"+
+        "\1\uffff\2\55\2\uffff\1\u01c5\1\55\1\u01c7\1\u01c8\2\uffff\1\u01c9"+
+        "\1\uffff\1\u01ca\1\55\4\uffff\1\55\1\uffff\1\u01cd\1\uffff\2\55"+
+        "\1\uffff\1\u01d0\4\uffff\1\u01d1\1\55\1\uffff\1\u01d3\1\55\2\uffff"+
+        "\1\u01d5\1\uffff\1\55\1\uffff\1\55\1\u01d8\1\uffff";
+    static final String DFA31_eofS =
+        "\u01d9\uffff";
+    static final String DFA31_minS =
         "\1\11\2\uffff\1\150\1\56\1\55\1\142\1\145\1\141\1\145\1\141\2\145"+
-        "\2\141\1\146\2\141\1\156\1\145\1\156\1\150\2\157\3\uffff\1\42\4"+
-        "\uffff\2\75\1\53\1\55\1\75\1\52\1\0\2\uffff\1\0\2\56\2\uffff\1\160"+
-        "\2\145\1\151\5\uffff\1\0\2\uffff\1\163\1\144\1\44\2\164\1\145\1"+
-        "\142\1\44\1\146\1\141\1\164\1\156\1\154\1\163\1\162\1\44\1\164\2"+
-        "\163\1\160\1\154\1\172\2\141\1\162\1\143\1\142\1\151\2\44\1\160"+
-        "\1\156\1\157\1\163\1\162\1\154\1\156\1\163\1\156\2\44\1\145\1\154"+
-        "\1\164\1\167\1\151\1\145\1\164\1\162\24\uffff\1\0\2\uffff\1\0\2"+
-        "\uffff\1\56\1\145\1\156\1\157\1\163\1\44\1\147\1\44\1\145\2\uffff"+
-        "\1\164\1\44\1\145\1\uffff\1\145\1\162\1\141\1\144\1\151\1\uffff"+
-        "\1\157\1\163\1\143\1\164\1\145\1\164\1\44\1\uffff\6\145\1\171\1"+
-        "\145\1\144\1\165\1\44\1\153\1\154\1\166\1\164\1\157\3\145\2\uffff"+
-        "\1\157\1\141\1\163\1\155\2\44\1\163\1\143\1\171\1\164\3\145\2\uffff"+
-        "\1\162\1\154\2\44\1\164\1\162\1\154\1\151\1\44\2\uffff\2\44\1\167"+
-        "\1\44\1\uffff\1\147\1\uffff\1\44\1\162\1\uffff\2\162\1\151\1\153"+
-        "\1\44\1\156\1\162\1\163\1\150\1\151\1\164\1\151\1\uffff\1\156\1"+
-        "\142\1\44\1\162\1\143\1\157\1\163\1\162\1\157\1\162\1\uffff\1\141"+
-        "\1\151\1\141\1\145\1\44\1\141\1\162\1\170\2\162\1\154\1\164\1\44"+
-        "\1\uffff\1\141\1\uffff\1\145\1\164\2\44\1\162\1\141\1\162\1\141"+
-        "\1\44\2\uffff\1\151\2\145\1\157\1\uffff\1\146\2\uffff\1\44\1\uffff"+
-        "\1\145\1\uffff\1\141\1\164\1\44\1\142\1\44\1\uffff\1\144\1\145\2"+
-        "\44\1\156\1\145\1\156\1\144\1\157\1\165\1\156\1\uffff\1\44\1\164"+
-        "\1\146\1\44\1\163\2\156\1\147\1\143\1\164\1\143\1\uffff\1\156\1"+
-        "\164\1\44\1\163\1\164\1\154\1\44\1\uffff\1\143\1\44\1\151\2\uffff"+
-        "\1\44\1\162\1\44\1\164\1\uffff\1\156\2\44\1\156\1\44\1\uffff\1\162"+
-        "\1\143\1\44\1\uffff\1\165\1\uffff\2\44\2\uffff\1\165\1\44\1\143"+
-        "\1\163\2\164\1\44\1\uffff\2\44\1\uffff\1\145\1\154\1\44\1\145\1"+
-        "\44\1\145\1\164\1\143\1\44\1\146\1\uffff\1\145\1\44\1\171\1\uffff"+
-        "\1\150\1\uffff\1\157\1\uffff\1\44\1\uffff\1\151\1\164\2\uffff\1"+
-        "\44\1\uffff\1\44\1\164\1\uffff\1\164\2\uffff\1\145\1\uffff\1\164"+
-        "\1\44\1\150\1\44\3\uffff\1\44\1\171\1\uffff\1\44\1\uffff\1\44\2"+
-        "\145\1\uffff\2\44\1\uffff\2\44\1\156\1\uffff\1\157\1\145\2\uffff"+
-        "\1\44\1\145\2\44\1\uffff\1\44\2\uffff\1\44\2\uffff\1\144\1\157\4"+
-        "\uffff\1\44\1\156\1\162\1\uffff\1\44\4\uffff\1\44\1\146\1\uffff"+
-        "\1\44\1\166\2\uffff\1\44\1\uffff\1\141\1\uffff\1\154\1\44\1\uffff";
-    static final String DFA19_maxS =
+        "\2\141\1\146\2\141\1\156\1\145\1\156\1\150\2\157\6\uffff\2\75\1"+
+        "\53\1\55\1\75\1\52\1\0\2\uffff\2\0\1\uffff\1\0\2\56\2\uffff\1\160"+
+        "\2\145\1\151\3\uffff\1\74\4\uffff\1\163\2\164\1\144\1\44\1\145\1"+
+        "\142\1\44\1\146\1\141\1\164\1\156\1\163\1\154\1\44\1\162\1\164\2"+
+        "\163\1\160\1\154\1\172\2\141\1\162\1\151\1\142\1\143\1\44\1\160"+
+        "\1\44\1\162\2\156\1\157\1\163\1\154\1\163\1\156\1\44\1\145\1\44"+
+        "\1\164\1\167\1\154\1\151\1\145\1\164\1\162\21\uffff\1\0\1\uffff"+
+        "\2\0\2\uffff\1\0\1\uffff\1\0\1\uffff\2\0\1\uffff\1\56\1\145\1\156"+
+        "\1\163\1\157\1\44\1\147\1\145\1\44\2\uffff\1\164\1\145\1\162\1\44"+
+        "\1\145\1\uffff\1\141\1\151\1\144\1\uffff\1\157\1\163\1\143\2\164"+
+        "\1\145\1\uffff\1\44\6\145\1\171\1\145\1\165\1\144\1\44\1\164\1\166"+
+        "\1\154\1\153\2\145\1\157\1\145\1\uffff\1\157\1\uffff\1\44\1\143"+
+        "\1\163\1\141\1\155\1\44\1\163\1\171\1\164\3\145\1\uffff\1\162\1"+
+        "\uffff\2\44\1\154\1\164\1\154\1\162\1\151\1\44\1\uffff\1\0\3\uffff"+
+        "\1\0\2\uffff\1\0\1\uffff\3\44\1\167\1\uffff\1\147\1\44\1\uffff\2"+
+        "\162\1\151\1\uffff\1\162\1\153\1\156\1\44\1\162\1\163\1\150\2\151"+
+        "\1\164\1\uffff\1\156\1\142\1\44\1\162\1\143\1\157\1\163\2\162\1"+
+        "\157\1\uffff\1\145\1\141\1\151\1\141\1\170\1\162\1\44\1\162\1\141"+
+        "\1\162\1\141\1\uffff\2\164\1\154\1\44\1\uffff\1\145\2\44\1\162\1"+
+        "\141\1\162\1\141\2\uffff\1\44\1\151\2\145\1\157\2\uffff\1\146\3"+
+        "\uffff\1\44\1\145\1\uffff\1\141\1\44\1\142\1\164\1\44\1\144\1\uffff"+
+        "\1\145\2\44\2\156\1\145\1\144\1\165\1\157\1\156\1\uffff\1\44\1\164"+
+        "\1\146\1\44\1\163\2\156\1\143\1\164\1\143\1\147\1\44\1\163\1\uffff"+
+        "\1\164\1\156\1\164\1\143\1\151\1\44\1\154\1\uffff\1\44\2\uffff\1"+
+        "\44\1\162\1\44\1\164\1\uffff\1\156\2\44\1\156\1\44\1\uffff\1\162"+
+        "\1\143\1\uffff\1\165\1\44\1\uffff\2\44\2\uffff\1\165\1\143\1\44"+
+        "\1\163\2\164\1\44\1\uffff\2\44\1\uffff\1\145\1\44\1\154\1\164\1"+
+        "\145\1\44\1\145\1\146\1\uffff\1\145\1\44\1\143\1\44\1\150\1\157"+
+        "\1\uffff\1\171\2\uffff\1\44\1\uffff\1\151\1\164\2\uffff\1\44\1\uffff"+
+        "\1\44\2\164\3\uffff\1\145\1\164\1\uffff\2\44\1\150\3\uffff\1\44"+
+        "\1\uffff\1\171\1\145\1\44\1\uffff\3\44\1\uffff\1\145\1\uffff\1\44"+
+        "\1\156\1\44\1\uffff\1\157\1\145\2\uffff\1\44\1\145\2\44\2\uffff"+
+        "\1\44\1\uffff\1\44\1\144\4\uffff\1\157\1\uffff\1\44\1\uffff\1\156"+
+        "\1\162\1\uffff\1\44\4\uffff\1\44\1\146\1\uffff\1\44\1\166\2\uffff"+
+        "\1\44\1\uffff\1\141\1\uffff\1\154\1\44\1\uffff";
+    static final String DFA31_maxS =
         "\1\ufaff\2\uffff\1\171\1\71\1\76\1\164\1\171\1\157\1\165\1\170\1"+
         "\165\1\145\1\141\1\165\1\156\1\165\1\151\1\162\1\165\1\156\1\150"+
-        "\2\157\3\uffff\1\173\4\uffff\1\75\1\76\4\75\1\ufffe\2\uffff\1\ufffe"+
-        "\2\145\2\uffff\1\160\1\162\1\145\1\171\5\uffff\1\ufffe\2\uffff\1"+
-        "\163\1\144\1\ufaff\2\164\1\145\1\156\1\ufaff\1\146\1\141\1\164\1"+
-        "\156\1\154\1\163\1\162\1\ufaff\1\164\2\163\1\160\1\154\1\172\1\141"+
-        "\1\166\1\162\1\143\1\142\1\157\2\ufaff\1\160\1\162\1\157\1\163\1"+
-        "\162\1\154\1\156\1\172\1\156\2\ufaff\1\145\1\154\1\164\1\167\2\151"+
-        "\1\164\1\162\24\uffff\1\ufffe\2\uffff\1\ufffe\2\uffff\2\145\1\156"+
-        "\1\157\1\163\1\ufaff\1\147\1\ufaff\1\145\2\uffff\1\164\1\ufaff\1"+
-        "\145\1\uffff\1\145\1\162\1\141\1\144\1\151\1\uffff\1\157\1\163\1"+
-        "\143\1\164\1\145\1\164\1\ufaff\1\uffff\6\145\1\171\1\145\1\144\1"+
-        "\165\1\ufaff\1\153\1\154\1\166\1\164\1\157\1\164\2\145\2\uffff\1"+
-        "\157\1\141\1\163\1\155\2\ufaff\1\163\1\143\1\171\1\164\3\145\2\uffff"+
-        "\1\162\1\154\2\ufaff\1\164\1\162\1\154\1\151\1\ufaff\2\uffff\2\ufaff"+
-        "\1\167\1\ufaff\1\uffff\1\147\1\uffff\1\ufaff\1\162\1\uffff\2\162"+
-        "\1\151\1\153\1\ufaff\1\156\1\162\1\163\1\150\1\151\1\164\1\151\1"+
-        "\uffff\1\156\1\157\1\ufaff\1\162\1\143\1\157\1\163\1\162\1\157\1"+
-        "\162\1\uffff\1\141\1\151\1\141\1\145\1\ufaff\1\141\1\162\1\170\2"+
-        "\162\1\154\1\164\1\ufaff\1\uffff\1\141\1\uffff\1\145\1\164\2\ufaff"+
-        "\1\162\1\141\1\162\1\141\1\ufaff\2\uffff\1\151\2\145\1\157\1\uffff"+
-        "\1\146\2\uffff\1\ufaff\1\uffff\1\145\1\uffff\1\141\1\164\1\ufaff"+
-        "\1\142\1\ufaff\1\uffff\1\144\1\145\2\ufaff\1\156\1\145\1\156\1\144"+
-        "\1\157\1\165\1\156\1\uffff\1\ufaff\1\164\1\146\1\ufaff\1\163\2\156"+
-        "\1\147\1\143\1\164\1\143\1\uffff\1\156\1\164\1\ufaff\1\163\1\164"+
-        "\1\154\1\ufaff\1\uffff\1\143\1\ufaff\1\151\2\uffff\1\ufaff\1\162"+
-        "\1\ufaff\1\164\1\uffff\1\156\2\ufaff\1\156\1\ufaff\1\uffff\1\162"+
-        "\1\143\1\ufaff\1\uffff\1\165\1\uffff\2\ufaff\2\uffff\1\165\1\ufaff"+
-        "\1\143\1\163\2\164\1\ufaff\1\uffff\2\ufaff\1\uffff\1\145\1\154\1"+
-        "\ufaff\1\145\1\ufaff\1\145\1\164\1\143\1\ufaff\1\146\1\uffff\1\145"+
-        "\1\ufaff\1\171\1\uffff\1\150\1\uffff\1\157\1\uffff\1\ufaff\1\uffff"+
-        "\1\151\1\164\2\uffff\1\ufaff\1\uffff\1\ufaff\1\164\1\uffff\1\164"+
-        "\2\uffff\1\145\1\uffff\1\164\1\ufaff\1\150\1\ufaff\3\uffff\1\ufaff"+
-        "\1\171\1\uffff\1\ufaff\1\uffff\1\ufaff\2\145\1\uffff\2\ufaff\1\uffff"+
-        "\2\ufaff\1\156\1\uffff\1\157\1\145\2\uffff\1\ufaff\1\145\2\ufaff"+
-        "\1\uffff\1\ufaff\2\uffff\1\ufaff\2\uffff\1\144\1\157\4\uffff\1\ufaff"+
-        "\1\156\1\162\1\uffff\1\ufaff\4\uffff\1\ufaff\1\146\1\uffff\1\ufaff"+
-        "\1\166\2\uffff\1\ufaff\1\uffff\1\141\1\uffff\1\154\1\ufaff\1\uffff";
-    static final String DFA19_acceptS =
-        "\1\uffff\1\1\1\2\25\uffff\1\122\1\123\1\124\1\uffff\1\126\1\127"+
-        "\1\130\1\131\7\uffff\1\160\1\161\3\uffff\1\172\1\173\4\uffff\1\4"+
-        "\1\132\1\171\1\137\1\140\1\uffff\1\5\1\136\61\uffff\1\164\1\165"+
-        "\1\125\1\133\1\134\1\141\1\157\1\135\1\143\1\151\1\142\1\145\1\152"+
-        "\1\144\1\153\1\146\1\174\1\154\1\175\1\147\1\uffff\1\150\1\166\1"+
-        "\uffff\1\162\1\170\11\uffff\1\167\1\156\3\uffff\1\11\5\uffff\1\20"+
-        "\7\uffff\1\25\23\uffff\1\62\1\51\15\uffff\1\116\1\44\11\uffff\1"+
-        "\155\1\163\4\uffff\1\32\1\uffff\1\70\2\uffff\1\10\14\uffff\1\26"+
-        "\12\uffff\1\36\15\uffff\1\63\1\uffff\1\60\11\uffff\1\75\1\76\4\uffff"+
-        "\1\121\1\uffff\1\106\1\52\1\uffff\1\54\1\uffff\1\56\5\uffff\1\15"+
-        "\13\uffff\1\53\13\uffff\1\46\7\uffff\1\41\3\uffff\1\72\1\50\4\uffff"+
-        "\1\55\5\uffff\1\35\3\uffff\1\7\1\uffff\1\17\2\uffff\1\22\1\21\7"+
-        "\uffff\1\115\2\uffff\1\33\12\uffff\1\111\3\uffff\1\47\1\uffff\1"+
-        "\57\1\uffff\1\42\1\uffff\1\110\2\uffff\1\74\1\64\1\uffff\1\3\2\uffff"+
-        "\1\12\1\uffff\1\16\1\14\1\uffff\1\23\4\uffff\1\30\1\114\1\117\2"+
-        "\uffff\1\34\1\uffff\1\101\3\uffff\1\45\2\uffff\1\40\3\uffff\1\66"+
-        "\2\uffff\1\67\1\43\4\uffff\1\107\1\uffff\1\31\1\120\1\uffff\1\37"+
-        "\1\77\2\uffff\1\113\1\105\1\71\1\73\3\uffff\1\6\1\uffff\1\65\1\24"+
-        "\1\27\1\104\2\uffff\1\103\2\uffff\1\13\1\100\1\uffff\1\102\1\uffff"+
-        "\1\112\2\uffff\1\61";
-    static final String DFA19_specialS =
-        "\u01cb\uffff}>";
-    static final String[] DFA19_transitionS = {
-            "\2\55\1\uffff\2\55\22\uffff\1\55\1\uffff\1\51\1\2\1\54\1\46"+
-            "\2\uffff\1\30\1\31\1\44\1\42\1\37\1\43\1\4\1\45\1\52\11\53\1"+
-            "\47\1\36\1\5\1\40\1\41\1\50\1\uffff\32\54\1\34\1\uffff\1\35"+
-            "\1\uffff\1\54\1\uffff\1\6\1\7\1\10\1\11\1\12\1\20\2\54\1\17"+
-            "\2\54\1\21\1\26\1\23\1\22\1\16\1\54\1\14\1\13\1\3\1\24\1\15"+
-            "\1\25\1\27\2\54\1\32\1\1\1\33\102\uffff\27\54\1\uffff\37\54"+
-            "\1\uffff\u1f08\54\u1040\uffff\u0150\54\u0170\uffff\u0080\54"+
-            "\u0080\uffff\u092e\54\u10d2\uffff\u5200\54\u5900\uffff\u0200"+
-            "\54",
+        "\2\157\6\uffff\1\75\1\76\4\75\1\ufffe\2\uffff\2\ufffe\1\uffff\1"+
+        "\ufffe\2\145\2\uffff\1\160\1\162\1\145\1\171\3\uffff\1\76\4\uffff"+
+        "\1\163\2\164\1\144\1\ufaff\1\145\1\156\1\ufaff\1\146\1\141\1\164"+
+        "\1\156\1\163\1\154\1\ufaff\1\162\1\164\2\163\1\160\1\154\1\172\1"+
+        "\141\1\166\1\162\1\157\1\142\1\143\1\ufaff\1\160\1\ufaff\1\162\1"+
+        "\156\1\162\1\157\1\163\1\154\1\172\1\156\1\ufaff\1\145\1\ufaff\1"+
+        "\164\1\167\1\154\2\151\1\164\1\162\21\uffff\1\ufffe\1\uffff\1\0"+
+        "\1\ufffe\2\uffff\1\ufffe\1\uffff\1\ufffe\1\uffff\2\ufffe\1\uffff"+
+        "\2\145\1\156\1\163\1\157\1\ufaff\1\147\1\145\1\ufaff\2\uffff\1\164"+
+        "\1\145\1\162\1\ufaff\1\145\1\uffff\1\141\1\151\1\144\1\uffff\1\157"+
+        "\1\163\1\143\2\164\1\145\1\uffff\1\ufaff\6\145\1\171\1\145\1\165"+
+        "\1\144\1\ufaff\1\164\1\166\1\154\1\153\2\145\1\157\1\164\1\uffff"+
+        "\1\157\1\uffff\1\ufaff\1\143\1\163\1\141\1\155\1\ufaff\1\163\1\171"+
+        "\1\164\3\145\1\uffff\1\162\1\uffff\2\ufaff\1\154\1\164\1\154\1\162"+
+        "\1\151\1\ufaff\1\uffff\1\0\3\uffff\1\ufffe\2\uffff\1\ufffe\1\uffff"+
+        "\3\ufaff\1\167\1\uffff\1\147\1\ufaff\1\uffff\2\162\1\151\1\uffff"+
+        "\1\162\1\153\1\156\1\ufaff\1\162\1\163\1\150\2\151\1\164\1\uffff"+
+        "\1\156\1\157\1\ufaff\1\162\1\143\1\157\1\163\2\162\1\157\1\uffff"+
+        "\1\145\1\141\1\151\1\141\1\170\1\162\1\ufaff\1\162\1\141\1\162\1"+
+        "\141\1\uffff\2\164\1\154\1\ufaff\1\uffff\1\145\2\ufaff\1\162\1\141"+
+        "\1\162\1\141\2\uffff\1\ufaff\1\151\2\145\1\157\2\uffff\1\146\3\uffff"+
+        "\1\ufaff\1\145\1\uffff\1\141\1\ufaff\1\142\1\164\1\ufaff\1\144\1"+
+        "\uffff\1\145\2\ufaff\2\156\1\145\1\144\1\165\1\157\1\156\1\uffff"+
+        "\1\ufaff\1\164\1\146\1\ufaff\1\163\2\156\1\143\1\164\1\143\1\147"+
+        "\1\ufaff\1\163\1\uffff\1\164\1\156\1\164\1\143\1\151\1\ufaff\1\154"+
+        "\1\uffff\1\ufaff\2\uffff\1\ufaff\1\162\1\ufaff\1\164\1\uffff\1\156"+
+        "\2\ufaff\1\156\1\ufaff\1\uffff\1\162\1\143\1\uffff\1\165\1\ufaff"+
+        "\1\uffff\2\ufaff\2\uffff\1\165\1\143\1\ufaff\1\163\2\164\1\ufaff"+
+        "\1\uffff\2\ufaff\1\uffff\1\145\1\ufaff\1\154\1\164\1\145\1\ufaff"+
+        "\1\145\1\146\1\uffff\1\145\1\ufaff\1\143\1\ufaff\1\150\1\157\1\uffff"+
+        "\1\171\2\uffff\1\ufaff\1\uffff\1\151\1\164\2\uffff\1\ufaff\1\uffff"+
+        "\1\ufaff\2\164\3\uffff\1\145\1\164\1\uffff\2\ufaff\1\150\3\uffff"+
+        "\1\ufaff\1\uffff\1\171\1\145\1\ufaff\1\uffff\3\ufaff\1\uffff\1\145"+
+        "\1\uffff\1\ufaff\1\156\1\ufaff\1\uffff\1\157\1\145\2\uffff\1\ufaff"+
+        "\1\145\2\ufaff\2\uffff\1\ufaff\1\uffff\1\ufaff\1\144\4\uffff\1\157"+
+        "\1\uffff\1\ufaff\1\uffff\1\156\1\162\1\uffff\1\ufaff\4\uffff\1\ufaff"+
+        "\1\146\1\uffff\1\ufaff\1\166\2\uffff\1\ufaff\1\uffff\1\141\1\uffff"+
+        "\1\154\1\ufaff\1\uffff";
+    static final String DFA31_acceptS =
+        "\1\uffff\1\1\1\2\25\uffff\1\122\1\123\1\124\1\125\1\126\1\127\7"+
+        "\uffff\1\156\1\157\2\uffff\1\162\3\uffff\1\172\1\173\4\uffff\1\4"+
+        "\1\171\1\130\1\uffff\1\5\1\135\1\136\1\134\61\uffff\1\131\1\132"+
+        "\1\155\1\137\1\133\1\147\1\141\1\140\1\150\1\143\1\142\1\151\1\144"+
+        "\1\152\1\175\1\174\1\145\1\uffff\1\166\2\uffff\1\160\1\161\1\uffff"+
+        "\1\165\1\uffff\1\164\2\uffff\1\170\11\uffff\1\154\1\167\5\uffff"+
+        "\1\11\3\uffff\1\20\6\uffff\1\25\24\uffff\1\62\1\uffff\1\51\14\uffff"+
+        "\1\116\1\uffff\1\44\10\uffff\1\155\1\uffff\1\146\1\163\1\164\1\uffff"+
+        "\1\163\1\164\1\uffff\1\163\4\uffff\1\32\2\uffff\1\70\3\uffff\1\10"+
+        "\12\uffff\1\26\12\uffff\1\36\13\uffff\1\60\4\uffff\1\63\7\uffff"+
+        "\1\75\1\76\5\uffff\1\121\1\153\1\uffff\1\106\1\52\1\54\2\uffff\1"+
+        "\56\6\uffff\1\15\12\uffff\1\53\15\uffff\1\46\7\uffff\1\41\1\uffff"+
+        "\1\72\1\50\4\uffff\1\55\5\uffff\1\35\2\uffff\1\7\2\uffff\1\17\2"+
+        "\uffff\1\22\1\21\7\uffff\1\115\2\uffff\1\33\10\uffff\1\111\6\uffff"+
+        "\1\47\1\uffff\1\57\1\42\1\uffff\1\110\2\uffff\1\64\1\74\1\uffff"+
+        "\1\3\3\uffff\1\12\1\16\1\14\2\uffff\1\23\3\uffff\1\30\1\114\1\117"+
+        "\1\uffff\1\34\3\uffff\1\101\3\uffff\1\45\1\uffff\1\40\3\uffff\1"+
+        "\66\2\uffff\1\67\1\43\4\uffff\1\107\1\31\1\uffff\1\120\2\uffff\1"+
+        "\77\1\37\1\113\1\105\1\uffff\1\73\1\uffff\1\71\2\uffff\1\6\1\uffff"+
+        "\1\65\1\24\1\27\1\104\2\uffff\1\103\2\uffff\1\13\1\100\1\uffff\1"+
+        "\102\1\uffff\1\112\2\uffff\1\61";
+    static final String DFA31_specialS =
+        "\1\2\43\uffff\1\5\5\uffff\1\1\122\uffff\1\12\1\uffff\1\6\5\uffff"+
+        "\1\10\1\uffff\1\0\1\11\114\uffff\1\7\3\uffff\1\3\2\uffff\1\4\u00fc"+
+        "\uffff}>";
+    static final String[] DFA31_transitionS = {
+            "\2\56\1\uffff\2\56\22\uffff\1\56\1\uffff\1\47\1\2\1\55\1\44"+
+            "\1\uffff\1\50\1\30\1\31\1\42\1\40\1\35\1\41\1\4\1\43\1\53\11"+
+            "\54\1\45\1\34\1\5\1\36\1\37\1\46\1\uffff\32\55\1\32\1\uffff"+
+            "\1\33\1\uffff\1\55\1\uffff\1\6\1\7\1\10\1\11\1\12\1\20\2\55"+
+            "\1\17\2\55\1\21\1\26\1\23\1\22\1\16\1\55\1\14\1\13\1\3\1\24"+
+            "\1\15\1\25\1\27\2\55\1\51\1\1\1\52\102\uffff\27\55\1\uffff\37"+
+            "\55\1\uffff\u1f08\55\u1040\uffff\u0150\55\u0170\uffff\u0080"+
+            "\55\u0080\uffff\u092e\55\u10d2\uffff\u5200\55\u5900\uffff\u0200"+
+            "\55",
             "",
             "",
-            "\1\57\1\60\10\uffff\1\61\6\uffff\1\56",
-            "\1\62\1\uffff\12\64",
-            "\1\70\16\uffff\1\67\1\66\1\65",
-            "\1\72\3\uffff\1\75\7\uffff\1\73\4\uffff\1\74\1\76",
-            "\1\102\3\uffff\1\100\10\uffff\1\77\6\uffff\1\101",
-            "\1\104\12\uffff\1\103\2\uffff\1\105",
-            "\1\106\3\uffff\1\107\5\uffff\1\111\5\uffff\1\110",
-            "\1\113\12\uffff\1\114\13\uffff\1\112",
-            "\1\116\3\uffff\1\117\12\uffff\1\120\1\115",
-            "\1\121",
+            "\1\60\1\61\10\uffff\1\62\6\uffff\1\57",
+            "\1\63\1\uffff\12\64",
+            "\1\67\16\uffff\1\66\1\71\1\70",
+            "\1\73\3\uffff\1\74\7\uffff\1\76\4\uffff\1\77\1\75",
+            "\1\103\3\uffff\1\101\10\uffff\1\100\6\uffff\1\102",
+            "\1\105\12\uffff\1\104\2\uffff\1\106",
+            "\1\110\3\uffff\1\107\5\uffff\1\111\5\uffff\1\112",
+            "\1\114\12\uffff\1\115\13\uffff\1\113",
+            "\1\117\3\uffff\1\120\12\uffff\1\121\1\116",
             "\1\122",
-            "\1\123\20\uffff\1\125\2\uffff\1\124",
-            "\1\127\6\uffff\1\130\1\126",
-            "\1\135\7\uffff\1\131\5\uffff\1\134\1\133\1\uffff\1\132\2\uffff"+
-            "\1\136",
-            "\1\137\7\uffff\1\140",
-            "\1\142\1\uffff\1\143\1\uffff\1\141",
-            "\1\146\11\uffff\1\145\5\uffff\1\144",
-            "\1\147",
+            "\1\123",
+            "\1\126\20\uffff\1\124\2\uffff\1\125",
+            "\1\131\6\uffff\1\130\1\127",
+            "\1\137\7\uffff\1\134\5\uffff\1\132\1\136\1\uffff\1\135\2\uffff"+
+            "\1\133",
+            "\1\140\7\uffff\1\141",
+            "\1\144\1\uffff\1\143\1\uffff\1\142",
+            "\1\146\11\uffff\1\145\5\uffff\1\147",
             "\1\150",
             "\1\151",
             "\1\152",
+            "\1\153",
             "",
             "",
             "",
-            "\1\153\130\uffff\1\154",
             "",
             "",
             "",
+            "\1\154",
+            "\1\157\1\156",
+            "\1\162\21\uffff\1\161",
+            "\1\165\17\uffff\1\164",
+            "\1\167",
+            "\1\173\4\uffff\1\172\15\uffff\1\171",
+            "\40\176\1\uffff\34\176\1\175\uffc1\176",
             "",
-            "\1\156",
-            "\1\160\1\161",
-            "\1\163\21\uffff\1\164",
-            "\1\166\17\uffff\1\167",
-            "\1\171",
-            "\1\173\4\uffff\1\175\15\uffff\1\174",
-            "\40\u0081\1\uffff\34\u0081\1\177\uffc1\u0081",
             "",
+            "\42\u0080\1\u0081\130\u0080\1\u0082\uff83\u0080",
+            "\47\u0083\1\u0081\123\u0083\1\u0082\uff83\u0083",
             "",
-            "\173\u0083\1\u0082\uff83\u0083",
+            "\42\u0085\1\u0088\4\u0085\1\u0087\123\u0085\1\u0086\uff83\u0085",
             "\1\64\1\uffff\12\64\13\uffff\1\64\37\uffff\1\64",
-            "\1\64\1\uffff\12\u0085\13\uffff\1\64\37\uffff\1\64",
+            "\1\64\1\uffff\12\u008a\13\uffff\1\64\37\uffff\1\64",
             "",
             "",
-            "\1\u0086",
-            "\1\u0087\3\uffff\1\u0089\10\uffff\1\u0088",
-            "\1\u008a",
-            "\1\u008b\13\uffff\1\u008d\3\uffff\1\u008c",
-            "",
-            "",
+            "\1\u008b",
+            "\1\u008c\3\uffff\1\u008d\10\uffff\1\u008e",
+            "\1\u008f",
+            "\1\u0090\13\uffff\1\u0091\3\uffff\1\u0092",
             "",
             "",
             "",
-            "\uffff\u008e",
+            "\1\u0094\1\uffff\1\u0094",
             "",
             "",
-            "\1\u0090",
-            "\1\u0091",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\22\54"+
-            "\1\u0092\7\54\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54"+
-            "\u1040\uffff\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e"+
-            "\54\u10d2\uffff\u5200\54\u5900\uffff\u0200\54",
-            "\1\u0094",
+            "",
+            "",
             "\1\u0095",
             "\1\u0096",
-            "\1\u0098\13\uffff\1\u0097",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\u009a",
+            "\1\u0097",
+            "\1\u0098",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\22\55"+
+            "\1\u0099\7\55\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55"+
+            "\u1040\uffff\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e"+
+            "\55\u10d2\uffff\u5200\55\u5900\uffff\u0200\55",
             "\1\u009b",
-            "\1\u009c",
-            "\1\u009d",
-            "\1\u009e",
+            "\1\u009c\13\uffff\1\u009d",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u009f",
             "\1\u00a0",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\u00a1",
             "\1\u00a2",
             "\1\u00a3",
             "\1\u00a4",
-            "\1\u00a5",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u00a6",
             "\1\u00a7",
             "\1\u00a8",
-            "\1\u00aa\22\uffff\1\u00ab\1\uffff\1\u00a9",
+            "\1\u00a9",
+            "\1\u00aa",
+            "\1\u00ab",
             "\1\u00ac",
             "\1\u00ad",
-            "\1\u00ae",
-            "\1\u00af\5\uffff\1\u00b0",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\3\54"+
-            "\1\u00b3\16\54\1\u00b2\1\u00b1\1\54\1\u00b4\4\54\105\uffff\27"+
-            "\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff\u0150\54\u0170"+
-            "\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff\u5200\54\u5900"+
-            "\uffff\u0200\54",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\u00b7",
-            "\1\u00b8\3\uffff\1\u00b9",
-            "\1\u00ba",
+            "\1\u00b0\22\uffff\1\u00af\1\uffff\1\u00ae",
+            "\1\u00b1",
+            "\1\u00b3\5\uffff\1\u00b2",
+            "\1\u00b4",
+            "\1\u00b5",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\3\55"+
+            "\1\u00b6\16\55\1\u00b9\1\u00b8\1\55\1\u00b7\4\55\105\uffff\27"+
+            "\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff\u0150\55\u0170"+
+            "\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff\u5200\55\u5900"+
+            "\uffff\u0200\55",
             "\1\u00bb",
-            "\1\u00bc",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u00bd",
             "\1\u00be",
-            "\1\u00c0\1\u00c1\5\uffff\1\u00bf",
+            "\1\u00c0\3\uffff\1\u00bf",
+            "\1\u00c1",
             "\1\u00c2",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\3\54"+
-            "\1\u00c3\26\54\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54"+
-            "\u1040\uffff\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e"+
-            "\54\u10d2\uffff\u5200\54\u5900\uffff\u0200\54",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\u00c6",
+            "\1\u00c3",
+            "\1\u00c5\1\u00c6\5\uffff\1\u00c4",
             "\1\u00c7",
-            "\1\u00c8",
-            "\1\u00c9",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\3\55"+
+            "\1\u00c8\26\55\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55"+
+            "\u1040\uffff\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e"+
+            "\55\u10d2\uffff\u5200\55\u5900\uffff\u0200\55",
             "\1\u00ca",
-            "\1\u00cb\3\uffff\1\u00cc",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u00cc",
             "\1\u00cd",
             "\1\u00ce",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "\40\u0081\1\uffff\uffde\u0081",
-            "",
-            "",
-            "\uffff\u0083",
-            "",
-            "",
-            "\1\64\1\uffff\12\u0085\13\uffff\1\64\37\uffff\1\64",
-            "\1\u00d1",
+            "\1\u00cf",
+            "\1\u00d1\3\uffff\1\u00d0",
             "\1\u00d2",
             "\1\u00d3",
-            "\1\u00d4",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\u00d6",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\u00d8",
             "",
             "",
-            "\1\u00d9",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\u00db",
             "",
-            "\1\u00dc",
-            "\1\u00dd",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "\40\176\1\uffff\uffde\176",
+            "",
+            "\1\uffff",
+            "\42\u0080\1\u0081\130\u0080\1\u0082\uff83\u0080",
+            "",
+            "",
+            "\47\u0083\1\u0081\123\u0083\1\u0082\uff83\u0083",
+            "",
+            "\42\u0085\1\u0088\4\u0085\1\u0087\123\u0085\1\u0086\uff83\u0085",
+            "",
+            "\42\u00d9\1\u00da\130\u00d9\1\u00d8\uff83\u00d9",
+            "\47\u00dc\1\u00dd\123\u00dc\1\u00db\uff83\u00dc",
+            "",
+            "\1\64\1\uffff\12\u008a\13\uffff\1\64\37\uffff\1\64",
             "\1\u00de",
             "\1\u00df",
             "\1\u00e0",
-            "",
             "\1\u00e1",
-            "\1\u00e2",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u00e3",
             "\1\u00e4",
-            "\1\u00e5",
-            "\1\u00e6",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "",
+            "",
+            "\1\u00e6",
+            "\1\u00e7",
             "\1\u00e8",
-            "\1\u00e9",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u00ea",
+            "",
             "\1\u00eb",
             "\1\u00ec",
             "\1\u00ed",
+            "",
             "\1\u00ee",
             "\1\u00ef",
             "\1\u00f0",
             "\1\u00f1",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\u00f2",
             "\1\u00f3",
-            "\1\u00f4",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u00f5",
             "\1\u00f6",
             "\1\u00f7",
-            "\1\u00f9\16\uffff\1\u00f8",
+            "\1\u00f8",
+            "\1\u00f9",
             "\1\u00fa",
             "\1\u00fb",
-            "",
-            "",
             "\1\u00fc",
             "\1\u00fd",
             "\1\u00fe",
-            "\1\u00ff",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\4\54"+
-            "\1\u0101\25\54\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54"+
-            "\u1040\uffff\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e"+
-            "\54\u10d2\uffff\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u0100",
+            "\1\u0101",
+            "\1\u0102",
             "\1\u0103",
             "\1\u0104",
             "\1\u0105",
             "\1\u0106",
-            "\1\u0107",
-            "\1\u0108",
+            "\1\u0107\16\uffff\1\u0108",
+            "",
             "\1\u0109",
             "",
-            "",
-            "\1\u010a",
-            "\1\u010b",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\4\55"+
+            "\1\u010a\25\55\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55"+
+            "\u1040\uffff\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e"+
+            "\55\u10d2\uffff\u5200\55\u5900\uffff\u0200\55",
+            "\1\u010c",
+            "\1\u010d",
             "\1\u010e",
             "\1\u010f",
-            "\1\u0110",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u0111",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
-            "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\16\54"+
-            "\1\u0113\13\54\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54"+
-            "\u1040\uffff\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e"+
-            "\54\u10d2\uffff\u5200\54\u5900\uffff\u0200\54",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\u0112",
+            "\1\u0113",
+            "\1\u0114",
+            "\1\u0115",
             "\1\u0116",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
             "",
-            "\1\u0118",
+            "\1\u0117",
             "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u011a",
-            "",
             "\1\u011b",
             "\1\u011c",
             "\1\u011d",
             "\1\u011e",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\u0120",
-            "\1\u0121",
-            "\1\u0122",
-            "\1\u0123",
-            "\1\u0124",
-            "\1\u0125",
-            "\1\u0126",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "",
-            "\1\u0127",
-            "\1\u0128\6\uffff\1\u012a\5\uffff\1\u0129",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\uffff",
+            "",
+            "",
+            "",
+            "\42\u00d9\1\u00da\130\u00d9\1\u00d8\uff83\u00d9",
+            "",
+            "",
+            "\47\u00dc\1\u00dd\123\u00dc\1\u00db\uff83\u00dc",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\16\55"+
+            "\1\u0121\13\55\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55"+
+            "\u1040\uffff\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e"+
+            "\55\u10d2\uffff\u5200\55\u5900\uffff\u0200\55",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u0125",
+            "",
+            "\1\u0126",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "",
+            "\1\u0128",
+            "\1\u0129",
+            "\1\u012a",
+            "",
+            "\1\u012b",
             "\1\u012c",
             "\1\u012d",
-            "\1\u012e",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u012f",
             "\1\u0130",
             "\1\u0131",
             "\1\u0132",
-            "",
             "\1\u0133",
             "\1\u0134",
+            "",
             "\1\u0135",
-            "\1\u0136",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\u0138",
-            "\1\u0139",
+            "\1\u0137\6\uffff\1\u0138\5\uffff\1\u0136",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u013a",
             "\1\u013b",
             "\1\u013c",
             "\1\u013d",
             "\1\u013e",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
+            "\1\u013f",
             "\1\u0140",
             "",
             "\1\u0141",
             "\1\u0142",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\u0143",
+            "\1\u0144",
             "\1\u0145",
             "\1\u0146",
-            "\1\u0147",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u0148",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
-            "",
+            "\1\u0149",
             "\1\u014a",
             "\1\u014b",
+            "",
             "\1\u014c",
             "\1\u014d",
-            "",
             "\1\u014e",
-            "",
-            "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "",
             "\1\u0150",
-            "",
-            "\1\u0151",
-            "\1\u0152",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u0153",
             "\1\u0154",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
+            "\1\u0155",
             "\1\u0156",
-            "\1\u0157",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u0158",
+            "\1\u0159",
             "\1\u015a",
             "\1\u015b",
-            "\1\u015c",
-            "\1\u015d",
-            "\1\u015e",
-            "\1\u015f",
-            "\1\u0160",
             "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "",
+            "\1\u015c",
+            "",
+            "",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u015e",
+            "",
+            "\1\u015f",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u0161",
             "\1\u0162",
-            "\1\u0163",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u0164",
+            "",
             "\1\u0165",
-            "\1\u0166",
-            "\1\u0167",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u0168",
             "\1\u0169",
             "\1\u016a",
             "\1\u016b",
-            "",
             "\1\u016c",
             "\1\u016d",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\16\54"+
-            "\1\u016e\13\54\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54"+
-            "\u1040\uffff\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e"+
-            "\54\u10d2\uffff\u5200\54\u5900\uffff\u0200\54",
+            "\1\u016e",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u0170",
             "\1\u0171",
-            "\1\u0172",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u0173",
             "\1\u0174",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\u0175",
             "\1\u0176",
-            "",
-            "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\u0177",
             "\1\u0178",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\u017a",
+            "\1\u0179",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\16\55"+
+            "\1\u017a\13\55\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55"+
+            "\u1040\uffff\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e"+
+            "\55\u10d2\uffff\u5200\55\u5900\uffff\u0200\55",
+            "\1\u017c",
             "",
-            "\1\u017b",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\u017d",
             "\1\u017e",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
+            "\1\u017f",
             "\1\u0180",
             "\1\u0181",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u0183",
             "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "",
             "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u0186",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u0188",
+            "",
             "\1\u0189",
-            "\1\u018a",
-            "\1\u018b",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u018c",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
+            "\1\u018e",
             "\1\u018f",
+            "",
             "\1\u0190",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\u0192",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "",
+            "",
             "\1\u0194",
             "\1\u0195",
-            "\1\u0196",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u0197",
             "\1\u0198",
-            "",
             "\1\u0199",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\u019b",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "",
-            "\1\u019c",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "",
             "\1\u019d",
-            "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u019f",
             "\1\u01a0",
-            "",
-            "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\u01a1",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u01a3",
-            "",
             "\1\u01a4",
             "",
-            "",
             "\1\u01a5",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u01a7",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u01a9",
+            "\1\u01aa",
             "",
-            "\1\u01a6",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\u01a8",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
-            "",
-            "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
             "\1\u01ab",
             "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
             "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "",
+            "\1\u01ad",
             "\1\u01ae",
-            "\1\u01af",
             "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
             "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u01b1",
+            "\1\u01b2",
+            "",
+            "",
+            "",
+            "\1\u01b3",
             "\1\u01b4",
             "",
-            "\1\u01b5",
-            "\1\u01b6",
-            "",
-            "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\u01b8",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
-            "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
-            "",
-            "\1\u01bd",
-            "\1\u01be",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u01b7",
             "",
             "",
             "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "\1\u01c0",
+            "\1\u01b9",
+            "\1\u01ba",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "",
+            "\1\u01bf",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u01c1",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
-            "",
-            "",
-            "",
-            "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\u01c3",
             "\1\u01c4",
             "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "\1\u01c6",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "",
             "",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             "",
-            "\1\u01c8",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u01cb",
             "",
-            "\1\u01c9",
-            "\1\54\13\uffff\12\54\7\uffff\32\54\4\uffff\1\54\1\uffff\32\54"+
-            "\105\uffff\27\54\1\uffff\37\54\1\uffff\u1f08\54\u1040\uffff"+
-            "\u0150\54\u0170\uffff\u0080\54\u0080\uffff\u092e\54\u10d2\uffff"+
-            "\u5200\54\u5900\uffff\u0200\54",
+            "",
+            "",
+            "",
+            "\1\u01cc",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "",
+            "\1\u01ce",
+            "\1\u01cf",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "",
+            "",
+            "",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u01d2",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "\1\u01d4",
+            "",
+            "",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
+            "",
+            "\1\u01d6",
+            "",
+            "\1\u01d7",
+            "\1\55\13\uffff\12\55\7\uffff\32\55\4\uffff\1\55\1\uffff\32\55"+
+            "\105\uffff\27\55\1\uffff\37\55\1\uffff\u1f08\55\u1040\uffff"+
+            "\u0150\55\u0170\uffff\u0080\55\u0080\uffff\u092e\55\u10d2\uffff"+
+            "\u5200\55\u5900\uffff\u0200\55",
             ""
     };
 
-    static final short[] DFA19_eot = DFA.unpackEncodedString(DFA19_eotS);
-    static final short[] DFA19_eof = DFA.unpackEncodedString(DFA19_eofS);
-    static final char[] DFA19_min = DFA.unpackEncodedStringToUnsignedChars(DFA19_minS);
-    static final char[] DFA19_max = DFA.unpackEncodedStringToUnsignedChars(DFA19_maxS);
-    static final short[] DFA19_accept = DFA.unpackEncodedString(DFA19_acceptS);
-    static final short[] DFA19_special = DFA.unpackEncodedString(DFA19_specialS);
-    static final short[][] DFA19_transition;
+    static final short[] DFA31_eot = DFA.unpackEncodedString(DFA31_eotS);
+    static final short[] DFA31_eof = DFA.unpackEncodedString(DFA31_eofS);
+    static final char[] DFA31_min = DFA.unpackEncodedStringToUnsignedChars(DFA31_minS);
+    static final char[] DFA31_max = DFA.unpackEncodedStringToUnsignedChars(DFA31_maxS);
+    static final short[] DFA31_accept = DFA.unpackEncodedString(DFA31_acceptS);
+    static final short[] DFA31_special = DFA.unpackEncodedString(DFA31_specialS);
+    static final short[][] DFA31_transition;
 
     static {
-        int numStates = DFA19_transitionS.length;
-        DFA19_transition = new short[numStates][];
+        int numStates = DFA31_transitionS.length;
+        DFA31_transition = new short[numStates][];
         for (int i=0; i<numStates; i++) {
-            DFA19_transition[i] = DFA.unpackEncodedString(DFA19_transitionS[i]);
+            DFA31_transition[i] = DFA.unpackEncodedString(DFA31_transitionS[i]);
         }
     }
 
-    class DFA19 extends DFA {
+    class DFA31 extends DFA {
 
-        public DFA19(BaseRecognizer recognizer) {
+        public DFA31(BaseRecognizer recognizer) {
             this.recognizer = recognizer;
-            this.decisionNumber = 19;
-            this.eot = DFA19_eot;
-            this.eof = DFA19_eof;
-            this.min = DFA19_min;
-            this.max = DFA19_max;
-            this.accept = DFA19_accept;
-            this.special = DFA19_special;
-            this.transition = DFA19_transition;
+            this.decisionNumber = 31;
+            this.eot = DFA31_eot;
+            this.eof = DFA31_eof;
+            this.min = DFA31_min;
+            this.max = DFA31_max;
+            this.accept = DFA31_accept;
+            this.special = DFA31_special;
+            this.transition = DFA31_transition;
         }
         public String getDescription() {
-            return "1:1: Tokens : ( BAR | POUND | TYPEOF | DOTDOT | LARROW | ABSTRACT | AFTER | AND | AS | ASSERT | ATTRIBUTE | BEFORE | BIND | BIBIND | BREAK | BY | CATCH | CLASS | DELETE | DISTINCT | DO | DUR | EASEBOTH | EASEIN | EASEOUT | TIE | STAYS | RETURN | THROW | VAR | PACKAGE | IMPORT | FROM | LATER | TRIGGER | ON | INSERT | INTO | FIRST | LAST | IF | THEN | ELSE | THIS | NULL | TRUE | FALSE | FOR | UNITINTERVAL | IN | FPS | WHILE | CONTINUE | LINEAR | MOTION | TRY | FINALLY | LAZY | FOREACH | WHERE | NOT | NEW | PRIVATE | PROTECTED | PUBLIC | OPERATION | FUNCTION | READONLY | INVERSE | TYPE | EXTENDS | ORDER | INDEX | INSTANCEOF | INDEXOF | SELECT | SUPER | OR | SIZEOF | REVERSE | XOR | LPAREN | RPAREN | LBRACE | RBRACE | LBRACKET | RBRACKET | SEMI | COMMA | DOT | EQEQ | EQ | GT | LT | LTGT | LTEQ | GTEQ | PLUS | PLUSPLUS | SUB | SUBSUB | STAR | SLASH | PERCENT | PLUSEQ | SUBEQ | STAREQ | SLASHEQ | PERCENTEQ | LTLT | GTGT | COLON | QUES | STRING_LITERAL | QUOTE_LBRACE_STRING_LITERAL | RBRACE_QUOTE_STRING_LITERAL | RBRACE_LBRACE_STRING_LITERAL | FORMAT_STRING_LITERAL | QUOTED_IDENTIFIER | INTEGER_LITERAL | FLOATING_POINT_LITERAL | IDENTIFIER | WS | COMMENT | LINE_COMMENT );";
+            return "1:1: Tokens : ( BAR | POUND | TYPEOF | DOTDOT | LARROW | ABSTRACT | AFTER | AND | AS | ASSERT | ATTRIBUTE | BEFORE | BIND | BIBIND | BREAK | BY | CATCH | CLASS | DELETE | DISTINCT | DO | DUR | EASEBOTH | EASEIN | EASEOUT | TIE | STAYS | RETURN | THROW | VAR | PACKAGE | IMPORT | FROM | LATER | TRIGGER | ON | INSERT | INTO | FIRST | LAST | IF | THEN | ELSE | THIS | NULL | TRUE | FALSE | FOR | UNITINTERVAL | IN | FPS | WHILE | CONTINUE | LINEAR | MOTION | TRY | FINALLY | LAZY | FOREACH | WHERE | NOT | NEW | PRIVATE | PROTECTED | PUBLIC | OPERATION | FUNCTION | READONLY | INVERSE | TYPE | EXTENDS | ORDER | INDEX | INSTANCEOF | INDEXOF | SELECT | SUPER | OR | SIZEOF | REVERSE | XOR | LPAREN | RPAREN | LBRACKET | RBRACKET | SEMI | COMMA | DOT | EQEQ | EQ | GT | LT | LTGT | LTEQ | GTEQ | PLUS | PLUSPLUS | SUB | SUBSUB | STAR | SLASH | PERCENT | PLUSEQ | SUBEQ | STAREQ | SLASHEQ | PERCENTEQ | LTLT | GTGT | COLON | QUES | STRING_LITERAL | QUOTE_LBRACE_STRING_LITERAL | LBRACE | RBRACE_QUOTE_STRING_LITERAL | RBRACE_LBRACE_STRING_LITERAL | RBRACE | FORMAT_STRING_LITERAL | QUOTED_IDENTIFIER | INTEGER_LITERAL | FLOATING_POINT_LITERAL | IDENTIFIER | WS | COMMENT | LINE_COMMENT );";
+        }
+        public int specialStateTransition(int s, IntStream input) throws NoViableAltException {
+        	int _s = s;
+            switch ( s ) {
+                    case 0 : 
+                        int LA31_135 = input.LA(1);
+
+                         
+                        int index31_135 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (LA31_135=='{') && ( BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) )) {s = 216;}
+
+                        else if ( ((LA31_135>='\u0000' && LA31_135<='!')||(LA31_135>='#' && LA31_135<='z')||(LA31_135>='|' && LA31_135<='\uFFFE')) && ( BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) )) {s = 217;}
+
+                        else if ( (LA31_135=='\"') && ( BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) )) {s = 218;}
+
+                        else s = 215;
+
+                         
+                        input.seek(index31_135);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 1 : 
+                        int LA31_42 = input.LA(1);
+
+                         
+                        int index31_42 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( ((LA31_42>='\u0000' && LA31_42<='!')||(LA31_42>='#' && LA31_42<='&')||(LA31_42>='(' && LA31_42<='z')||(LA31_42>='|' && LA31_42<='\uFFFE')) && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 133;}
+
+                        else if ( (LA31_42=='{') && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 134;}
+
+                        else if ( (LA31_42=='\'') && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 135;}
+
+                        else if ( (LA31_42=='\"') && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 136;}
+
+                        else s = 132;
+
+                         
+                        input.seek(index31_42);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 2 : 
+                        int LA31_0 = input.LA(1);
+
+                         
+                        int index31_0 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (LA31_0=='|') ) {s = 1;}
+
+                        else if ( (LA31_0=='#') ) {s = 2;}
+
+                        else if ( (LA31_0=='t') ) {s = 3;}
+
+                        else if ( (LA31_0=='.') ) {s = 4;}
+
+                        else if ( (LA31_0=='<') ) {s = 5;}
+
+                        else if ( (LA31_0=='a') ) {s = 6;}
+
+                        else if ( (LA31_0=='b') ) {s = 7;}
+
+                        else if ( (LA31_0=='c') ) {s = 8;}
+
+                        else if ( (LA31_0=='d') ) {s = 9;}
+
+                        else if ( (LA31_0=='e') ) {s = 10;}
+
+                        else if ( (LA31_0=='s') ) {s = 11;}
+
+                        else if ( (LA31_0=='r') ) {s = 12;}
+
+                        else if ( (LA31_0=='v') ) {s = 13;}
+
+                        else if ( (LA31_0=='p') ) {s = 14;}
+
+                        else if ( (LA31_0=='i') ) {s = 15;}
+
+                        else if ( (LA31_0=='f') ) {s = 16;}
+
+                        else if ( (LA31_0=='l') ) {s = 17;}
+
+                        else if ( (LA31_0=='o') ) {s = 18;}
+
+                        else if ( (LA31_0=='n') ) {s = 19;}
+
+                        else if ( (LA31_0=='u') ) {s = 20;}
+
+                        else if ( (LA31_0=='w') ) {s = 21;}
+
+                        else if ( (LA31_0=='m') ) {s = 22;}
+
+                        else if ( (LA31_0=='x') ) {s = 23;}
+
+                        else if ( (LA31_0=='(') ) {s = 24;}
+
+                        else if ( (LA31_0==')') ) {s = 25;}
+
+                        else if ( (LA31_0=='[') ) {s = 26;}
+
+                        else if ( (LA31_0==']') ) {s = 27;}
+
+                        else if ( (LA31_0==';') ) {s = 28;}
+
+                        else if ( (LA31_0==',') ) {s = 29;}
+
+                        else if ( (LA31_0=='=') ) {s = 30;}
+
+                        else if ( (LA31_0=='>') ) {s = 31;}
+
+                        else if ( (LA31_0=='+') ) {s = 32;}
+
+                        else if ( (LA31_0=='-') ) {s = 33;}
+
+                        else if ( (LA31_0=='*') ) {s = 34;}
+
+                        else if ( (LA31_0=='/') ) {s = 35;}
+
+                        else if ( (LA31_0=='%') ) {s = 36;}
+
+                        else if ( (LA31_0==':') ) {s = 37;}
+
+                        else if ( (LA31_0=='?') ) {s = 38;}
+
+                        else if ( (LA31_0=='\"') ) {s = 39;}
+
+                        else if ( (LA31_0=='\'') ) {s = 40;}
+
+                        else if ( (LA31_0=='{') ) {s = 41;}
+
+                        else if ( (LA31_0=='}') && (( !BraceQuoteTracker.rightBraceLikeQuote(CUR_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 42;}
+
+                        else if ( (LA31_0=='0') ) {s = 43;}
+
+                        else if ( ((LA31_0>='1' && LA31_0<='9')) ) {s = 44;}
+
+                        else if ( (LA31_0=='$'||(LA31_0>='A' && LA31_0<='Z')||LA31_0=='_'||(LA31_0>='g' && LA31_0<='h')||(LA31_0>='j' && LA31_0<='k')||LA31_0=='q'||(LA31_0>='y' && LA31_0<='z')||(LA31_0>='\u00C0' && LA31_0<='\u00D6')||(LA31_0>='\u00D8' && LA31_0<='\u00F6')||(LA31_0>='\u00F8' && LA31_0<='\u1FFF')||(LA31_0>='\u3040' && LA31_0<='\u318F')||(LA31_0>='\u3300' && LA31_0<='\u337F')||(LA31_0>='\u3400' && LA31_0<='\u3D2D')||(LA31_0>='\u4E00' && LA31_0<='\u9FFF')||(LA31_0>='\uF900' && LA31_0<='\uFAFF')) ) {s = 45;}
+
+                        else if ( ((LA31_0>='\t' && LA31_0<='\n')||(LA31_0>='\f' && LA31_0<='\r')||LA31_0==' ') ) {s = 46;}
+
+                         
+                        input.seek(index31_0);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 3 : 
+                        int LA31_217 = input.LA(1);
+
+                         
+                        int index31_217 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (LA31_217=='{') && ( BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) )) {s = 216;}
+
+                        else if ( ((LA31_217>='\u0000' && LA31_217<='!')||(LA31_217>='#' && LA31_217<='z')||(LA31_217>='|' && LA31_217<='\uFFFE')) && ( BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) )) {s = 217;}
+
+                        else if ( (LA31_217=='\"') && ( BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) )) {s = 218;}
+
+                         
+                        input.seek(index31_217);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 4 : 
+                        int LA31_220 = input.LA(1);
+
+                         
+                        int index31_220 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (LA31_220=='{') && ( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) )) {s = 219;}
+
+                        else if ( ((LA31_220>='\u0000' && LA31_220<='&')||(LA31_220>='(' && LA31_220<='z')||(LA31_220>='|' && LA31_220<='\uFFFE')) && ( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) )) {s = 220;}
+
+                        else if ( (LA31_220=='\'') && ( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) )) {s = 221;}
+
+                         
+                        input.seek(index31_220);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 5 : 
+                        int LA31_36 = input.LA(1);
+
+                         
+                        int index31_36 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (LA31_36=='=') ) {s = 125;}
+
+                        else if ( ((LA31_36>='\u0000' && LA31_36<='\u001F')||(LA31_36>='!' && LA31_36<='<')||(LA31_36>='>' && LA31_36<='\uFFFE')) && ( BraceQuoteTracker.percentIsFormat() )) {s = 126;}
+
+                        else s = 127;
+
+                         
+                        input.seek(index31_36);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 6 : 
+                        int LA31_127 = input.LA(1);
+
+                         
+                        int index31_127 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (!( BraceQuoteTracker.percentIsFormat() )) ) {s = 214;}
+
+                        else if ( ( BraceQuoteTracker.percentIsFormat() ) ) {s = 126;}
+
+                         
+                        input.seek(index31_127);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 7 : 
+                        int LA31_213 = input.LA(1);
+
+                         
+                        int index31_213 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (!( BraceQuoteTracker.percentIsFormat() )) ) {s = 288;}
+
+                        else if ( ( BraceQuoteTracker.percentIsFormat() ) ) {s = 126;}
+
+                         
+                        input.seek(index31_213);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 8 : 
+                        int LA31_133 = input.LA(1);
+
+                         
+                        int index31_133 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (LA31_133=='{') && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 134;}
+
+                        else if ( ((LA31_133>='\u0000' && LA31_133<='!')||(LA31_133>='#' && LA31_133<='&')||(LA31_133>='(' && LA31_133<='z')||(LA31_133>='|' && LA31_133<='\uFFFE')) && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 133;}
+
+                        else if ( (LA31_133=='\"') && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 136;}
+
+                        else if ( (LA31_133=='\'') && (( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) || BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ))) {s = 135;}
+
+                         
+                        input.seek(index31_133);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 9 : 
+                        int LA31_136 = input.LA(1);
+
+                         
+                        int index31_136 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (LA31_136=='{') && ( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) )) {s = 219;}
+
+                        else if ( ((LA31_136>='\u0000' && LA31_136<='&')||(LA31_136>='(' && LA31_136<='z')||(LA31_136>='|' && LA31_136<='\uFFFE')) && ( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) )) {s = 220;}
+
+                        else if ( (LA31_136=='\'') && ( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) )) {s = 221;}
+
+                        else s = 218;
+
+                         
+                        input.seek(index31_136);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 10 : 
+                        int LA31_125 = input.LA(1);
+
+                         
+                        int index31_125 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( ((LA31_125>='\u0000' && LA31_125<='\u001F')||(LA31_125>='!' && LA31_125<='\uFFFE')) && ( BraceQuoteTracker.percentIsFormat() )) {s = 126;}
+
+                        else s = 213;
+
+                         
+                        input.seek(index31_125);
+                        if ( s>=0 ) return s;
+                        break;
+            }
+            if (backtracking>0) {failed=true; return -1;}
+            NoViableAltException nvae =
+                new NoViableAltException(getDescription(), 31, _s, input);
+            error(nvae);
+            throw nvae;
         }
     }
  

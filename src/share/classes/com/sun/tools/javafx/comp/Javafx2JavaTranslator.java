@@ -314,21 +314,24 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     
     @Override
     public void visitStringExpression(JFXStringExpression tree) {
-        super.visitStringExpression(tree);
-        StringBuffer sb = new StringBuffer();
+       StringBuffer sb = new StringBuffer();
         List<JCExpression> parts = tree.getParts();
         ListBuffer<JCExpression> values = new ListBuffer<JCExpression>();
-        JCLiteral lit = (JCLiteral)(parts.head);
-        sb.append((String)lit.value);
+        
+        JCLiteral lit = (JCLiteral)(parts.head);            // "...{
+        sb.append((String)lit.value);            
         parts = parts.tail;
+        
         while (parts.nonEmpty()) {
-            // TODO: fix me -- format part missing
-            lit = null; //lit = (JCLiteral)(parts.head);
-                        //parts = parts.tail;
+
+            lit = (JCLiteral)(parts.head);                  // optional format (or null)
             sb.append(lit==null? "%s" : (String)lit.value);
-            values.append(translate(parts.head));
             parts = parts.tail;
-            lit = (JCLiteral)(parts.head);
+            
+            values.append(translate(parts.head));           // expression
+            parts = parts.tail;
+            
+            lit = (JCLiteral)(parts.head);                  // }...{  or  }..."
             sb.append((String)lit.value);
             parts = parts.tail;
         }

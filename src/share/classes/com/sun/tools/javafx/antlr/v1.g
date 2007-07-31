@@ -86,8 +86,6 @@ tokens {
    XOR='xor';
    LPAREN='(';
    RPAREN=')';
-   LBRACE='{';
-   RBRACE='}';
    LBRACKET='[';
    RBRACKET=']';
    SEMI=';';
@@ -147,27 +145,117 @@ import org.antlr.runtime.*;
            this(new CommonTokenStream(new v1Lexer(new ANTLRStringStream(content.toString()))));
            initialize(context);
     	}
-
-        int pos(Token tok) {
-            //System.out.println("TOKEN: line: " + tok.getLine() + " char: " + tok.getCharPositionInLine() + " pos: " + ((CommonToken)tok).getStartIndex());
-            return ((CommonToken)tok).getStartIndex();
-        }
 }
+
+@lexer::members {
+    /** Track "He{"l{"l"}o"} world" quotes
+     */
+    private static class BraceQuoteTracker {
+        private static BraceQuoteTracker quoteStack = null;
+        private int braceDepth;
+        private char quote;
+        private boolean percentIsFormat;
+        private BraceQuoteTracker next;
+        private BraceQuoteTracker(BraceQuoteTracker prev, char quote, boolean percentIsFormat) {
+            this.quote = quote;
+            this.percentIsFormat = percentIsFormat;
+            this.braceDepth = 1;
+            this.next = prev;
+        }
+        static void enterBrace(int quote, boolean percentIsFormat) {
+            if (quote == 0) {  // exisiting string expression or non string expression
+                if (quoteStack != null) {
+                    ++quoteStack.braceDepth;
+                    quoteStack.percentIsFormat = percentIsFormat;
+                }
+            } else {
+                quoteStack = new BraceQuoteTracker(quoteStack, (char)quote, percentIsFormat); // push
+            }
+        }
+        /** Return quote kind if we are reentering a quote
+         * */
+        static char leaveBrace() {
+            if (quoteStack != null && --quoteStack.braceDepth == 0) {
+                return quoteStack.quote;
+            }
+            return 0;
+        }
+        static boolean rightBraceLikeQuote(int quote) {
+            return quoteStack != null && quoteStack.braceDepth == 1 && (quote == 0 || quoteStack.quote == (char)quote);
+        }
+        static void leaveQuote() {
+            assert (quoteStack != null && quoteStack.braceDepth == 0);
+            quoteStack = quoteStack.next; // pop
+        }
+        static boolean percentIsFormat() {
+            return quoteStack != null && quoteStack.percentIsFormat;
+        }
+        static void resetPercentIsFormat() {
+            quoteStack.percentIsFormat = false;
+        }
+        static boolean inBraceQuote() {
+            return quoteStack != null;
+        }
+    }
+    
+    void removeQuotes() {
+    	setText(getText().substring(1, getText().length()-1));
+    }
+    
+    // quote context --
+    static final int CUR_QUOTE_CTX	= 0;	// 0 = use current quote context
+    static final int SNG_QUOTE_CTX	= 1;	// 1 = single quote quote context
+    static final int DBL_QUOTE_CTX	= 2;	// 2 = double quote quote context
+ }
 
 /*------------------------------------------------------------------
  * LEXER RULES
  *------------------------------------------------------------------*/
 
-STRING_LITERAL  :	'"' .* '"'  { setText(getText().substring(1, getText().length()-1)); };
-
-
-QUOTE_LBRACE_STRING_LITERAL : '"{' ;
-RBRACE_QUOTE_STRING_LITERAL : '}"' ;
-RBRACE_LBRACE_STRING_LITERAL : '}{' ;
-FORMAT_STRING_LITERAL : '%' (~' ')* ;
+STRING_LITERAL  		: '"' (~('{' |'"'))* '"'  	{ removeQuotes(); }
+				| '\'' (~('{' |'\''))* '\''  	{ removeQuotes(); }
+				;
+// String Expression token implementation
+QUOTE_LBRACE_STRING_LITERAL 	: '"' (~('{' |'"'))* '{'   	{ removeQuotes(); }
+				  NextIsPercent[DBL_QUOTE_CTX] 
+				| '\'' (~('{' |'\''))* '{'   	{ removeQuotes(); }
+				  NextIsPercent[SNG_QUOTE_CTX] 
+				;
+LBRACE				: '{'				{ BraceQuoteTracker.enterBrace(0, false); } 
+				;
+RBRACE_QUOTE_STRING_LITERAL 	:				{ BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) }?=>
+				  '}' (~('{' |'"'))* '"'	{ BraceQuoteTracker.leaveBrace(); 
+				         			  BraceQuoteTracker.leaveQuote(); 
+				         			  removeQuotes(); }
+				|				{ BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) }?=>
+				  '}' (~('{' |'\''))* '\''	{ BraceQuoteTracker.leaveBrace(); 
+				         			  BraceQuoteTracker.leaveQuote(); 
+				         			  removeQuotes(); }
+				;
+RBRACE_LBRACE_STRING_LITERAL 	:				{ BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) }?=>
+				  '}' (~('{' |'"'))* '{'	{ BraceQuoteTracker.leaveBrace(); 
+				         			  removeQuotes(); }
+				   NextIsPercent[CUR_QUOTE_CTX]	
+				|				{ BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) }?=>
+				  '}' (~('{' |'\''))* '{'	{ BraceQuoteTracker.leaveBrace(); 
+				         			  removeQuotes(); }
+				   NextIsPercent[CUR_QUOTE_CTX]	
+				;
+RBRACE				:				{ !BraceQuoteTracker.rightBraceLikeQuote(CUR_QUOTE_CTX) }?=>
+				  '}'				{ BraceQuoteTracker.leaveBrace(); }
+				;
+fragment
+NextIsPercent[int quoteContext]
+	 			: ((' '|'\r'|'\t'|'\u000C'|'\n')* '%')=>
+	 							{ BraceQuoteTracker.enterBrace(quoteContext, true); }
+				|				{ BraceQuoteTracker.enterBrace(quoteContext, false); }
+				;
+FORMAT_STRING_LITERAL		: 				{ BraceQuoteTracker.percentIsFormat() }?=>
+				  '%' (~' ')* 			{ BraceQuoteTracker.resetPercentIsFormat(); }
+				;
  
 QUOTED_IDENTIFIER 
-	:	'<<' .* '>>'   { setText(getText().substring(2, getText().length()-2)); };
+	:	'<<' * '>>'   { setText(getText().substring(2, getText().length()-2)); };
  
 INTEGER_LITERAL : ('0' | '1'..'9' '0'..'9'*) ;
 
@@ -485,7 +573,7 @@ unaryExpression  returns [JCExpression expr]
 	;
 postfixExpression  returns [JCExpression expr] 
 	: primaryExpression 					{ $expr = $primaryExpression.expr; }
-	   ( DOT ( CLASS   
+	   ( DOT ( CLASS   					//TODO
 	         | name1=name   				{ $expr = F.at(pos($DOT)).Select($expr, $name1.value); }
 	            ( LPAREN expressionListOpt RPAREN   	{ $expr = F.at(pos($LPAREN)).Apply(null, $expr, $expressionListOpt.args.toList()); } ) *
 	         )   
@@ -530,8 +618,21 @@ generator : name   LARROW   expression ;
 ordinalExpression : INDEXOF   (   name   |   DOT   ) ;
 contextExpression : DOT ;
 stringExpression  returns [JCExpression expr] 
-	: QUOTE_LBRACE_STRING_LITERAL   FORMAT_STRING_LITERAL ?   stringExpressionPart *   RBRACE_QUOTE_STRING_LITERAL ;
-stringExpressionPart : FORMAT_STRING_LITERAL   FORMAT_STRING_LITERAL ? ;
+@init { ListBuffer<JCExpression> strexp = new ListBuffer<JCExpression>(); }
+	: ql=QUOTE_LBRACE_STRING_LITERAL	{ strexp.append(F.at(pos($ql)).Literal(TypeTags.CLASS, $ql.text)); }
+	  f1=formatOrNull			{ strexp.append($f1.expr); }
+	  e1=expression 			{ strexp.append($e1.expr); }
+	  (  rl=RBRACE_LBRACE_STRING_LITERAL	{ strexp.append(F.at(pos($rl)).Literal(TypeTags.CLASS, $rl.text)); }
+	     fn=formatOrNull			{ strexp.append($fn.expr); }
+	     en=expression 			{ strexp.append($en.expr); }
+	  )*   
+	  rq=RBRACE_QUOTE_STRING_LITERAL	{ strexp.append(F.at(pos($rq)).Literal(TypeTags.CLASS, $rq.text)); }
+	  					{ $expr = F.at(pos($ql)).StringExpression(strexp.toList()); }
+	;
+formatOrNull  returns [JCExpression expr] 
+	: fs=FORMAT_STRING_LITERAL		{ $expr = F.at(pos($fs)).Literal(TypeTags.CLASS, $fs.text); }
+	| /* no formar */			{ $expr = null; }
+	;
 expressionListOpt  returns [ListBuffer<JCExpression> args = new ListBuffer<JCExpression>()] 
 	: ( e1=expression		{ $args.append($e1.expr); }
 	    (COMMA   e=expression	{ $args.append($e.expr); }  )* )? ;
