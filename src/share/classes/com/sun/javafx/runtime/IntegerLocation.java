@@ -26,22 +26,43 @@
 package com.sun.javafx.runtime;
 
 /**
- *
  * @author Robert Field
  */
 
-public class IntegerLocation extends Location {
-    
-    int value;
-    
-    protected IntegerLocation() { }
-    protected IntegerLocation(int value) { this.value = value; }
-    
-    public static IntegerLocation make() { return new IntegerLocation(); }
-    public static IntegerLocation make(int value) { return new IntegerLocation(value); }
+public class IntegerLocation extends AbstractLocation {
 
-    public int get() { return value; }
-    public int asInt() { return value; }
-    public void set(int newValue) { value = newValue;  notifyChangeListeners(); }
-    public void setInt(int newValue) { value = newValue;  notifyChangeListeners(); }
+    int value;
+
+    protected IntegerLocation() {
+    }
+
+    protected IntegerLocation(int value) {
+        this.value = value;
+    }
+
+    public static IntegerLocation make() {
+        return new IntegerLocation();
+    }
+
+    public static IntegerLocation make(int value) {
+        return new IntegerLocation(value);
+    }
+
+    public int get() {
+        return value;
+    }
+
+    public int asInt() {
+        return value;
+    }
+
+    public void set(int newValue) {
+        value = newValue;
+        notifyChangeListeners();
+    }
+
+    public void setInt(int newValue) {
+        value = newValue;
+        notifyChangeListeners();
+    }
 }

@@ -29,7 +29,7 @@ package com.sun.javafx.runtime;
  * @author Robert Field
  */
 
-public class ObjectLocation<T> extends Location {
+public class ObjectLocation<T> extends AbstractLocation {
     
     private T value;
     

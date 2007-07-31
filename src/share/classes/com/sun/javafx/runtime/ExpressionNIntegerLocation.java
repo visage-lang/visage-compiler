@@ -38,7 +38,7 @@ public class ExpressionNIntegerLocation extends ExpressionIntegerLocation {
         super(value, context, exprNum);
         this.args = args;
     }
-    
+
     public static ExpressionNIntegerLocation make(Context context, int exprNum,
             Location[] args) {
         ExpressionNIntegerLocation loc = new ExpressionNIntegerLocation(0, context, exprNum, args);

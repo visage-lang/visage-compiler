@@ -30,7 +30,7 @@ package com.sun.javafx.runtime;
  * @author Robert Field
  */
 
-public class BooleanLocation extends Location {
+public class BooleanLocation extends AbstractLocation {
     
     boolean value;
     

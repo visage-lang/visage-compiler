@@ -30,7 +30,7 @@ package com.sun.javafx.runtime;
  * @author Robert Field
  */
 
-public class DoubleLocation extends Location {
+public class DoubleLocation extends AbstractLocation {
     
     double value;
     
