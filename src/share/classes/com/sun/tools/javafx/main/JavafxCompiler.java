@@ -528,7 +528,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 	    int initialErrorCount = log.nerrors;
             String parserChoice = options.get("parser");
             if (parserChoice == null) {
-                parserChoice = "old"; // default
+                parserChoice = "vn"; // default
             }
             if (parserChoice.equals("old")) {
                 Scanner scanner = getScannerFactory().newScanner(content);

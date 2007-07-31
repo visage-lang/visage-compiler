@@ -17,8 +17,7 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
                 l.head = tree;
                 prev = l;
                 l = l.tail;
-            }
-            else {
+            } else {
                 T nonNullTree = null;
                 List<T> ls = null;
                 for (ls = l.tail; ls.nonEmpty(); ls = ls.tail) {
@@ -28,31 +27,19 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
                     }
                 }
                 if (nonNullTree != null) {
+                    prev = l;
                     l.head = nonNullTree;
                     l.tail = ls.tail;
+                    l = l.tail;
                 }
                 else {
                     prev.tail = ls;
                     l = ls;
                 }
             }
-
         }
 	return trees;
     }
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
     public void visitClassDeclaration(JFXClassDeclaration that) {
         that.mods = translate(that.mods);

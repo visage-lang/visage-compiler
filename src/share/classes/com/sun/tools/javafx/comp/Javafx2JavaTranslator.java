@@ -147,16 +147,23 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
             // TODO: Need resolved types so I can verify tree one Java class is extended only... Move the rest to interfaces...
             // The supertypes should not be names, but trees.
             List<JCExpression> interfaces = List.<JCExpression>of(make.Identifier(contextInterfaceName));
-            for (Name name : tree.supertypes) {
-                interfaces = interfaces.append(make.Ident(name));
+            JCTree extending = null;
+            if (tree.supertypes.length() > 0) {
+                if (tree.supertypes.length() == 1) {
+                    extending = make.Ident(tree.supertypes.head);
+                } else {
+                    log.error(tree.pos, "compiler.err.javafx.not.yet.implemented",
+                              "multiple inheritance");
+                }
             }
-            
+
             ListBuffer<JCTree> defs = ListBuffer.<JCTree>lb();
             for (JFXMemberDeclaration decl : tree.declarations) {
                 defs.append(translate(decl));
             }
             addEmptyContextMethods(defs);
-            JCClassDecl classDecl = make.ClassDef(tree.mods, tree.name, typeParams, null, interfaces, defs.toList());
+            JCClassDecl classDecl = make.ClassDef(tree.mods, tree.name, typeParams, 
+                                            extending, interfaces, defs.toList());
             if (declClasses == null) {
                 declClasses = new HashMap<Name, JFXClassDeclHelper>();
             }
@@ -165,7 +172,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         } finally {
             currentClass = prevClass;
         }
-        /*****
+        /*******
         OutputStreamWriter osw = new OutputStreamWriter(System.out);
         JavafxPretty pretty = new JavafxPretty(osw, false);
         try {
@@ -174,7 +181,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         }catch(Exception ex) {
             System.err.println("Pretty print got: " + ex);
         }
-        ******/
+        *******/
     }
     
     @Override
