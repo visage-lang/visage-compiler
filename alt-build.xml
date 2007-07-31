@@ -57,23 +57,27 @@
         <jar jarfile="${jar.file}" basedir="${build.classes.dir}"/>
     </target>
 
-    <target name="milestone-M1" depends="build" >
-        <java fork="true" classpathref="run.class.path" dir="${test.dir}/milestones/M1"
-            classname="${fx.compiler.class}" >
-            <arg value="M1.fx" />
-        </java>
-        <javac srcdir="${test.dir}/milestones/M1" classpathref="build.class.path" includes="**/*.java"
-               destdir="${test.dir}/milestones/M1" />
-        <java fork="true" classname="M1">
-            <classpath>
-                <pathelement location="${test.dir}/milestones/M1" />
-                <path refid="run.class.path" />
-            </classpath>
-        </java>
+    <target name="milestone-M1" >
+        <antcall target="abstract-milestone">
+            <param name="milestone" value="M1" />
+        </antcall>
     </target>
 
     <!-- abstract target, param=${milestone} -->
     <target name="abstract-milestone" depends="build">
+        <java fork="true" classpathref="run.class.path" dir="${test.dir}/milestones/${milestone}"
+            classname="${fx.compiler.class}" >
+            <arg value="M1.fx" />
+        </java>
+        <taskdef name="javafxc" classpathref="run.class.path" classname="com.sun.tools.javafx.ant.JavaFxAntTask" />
+        <javafxc srcdir="${test.dir}/milestones/${milestone}" classpathref="build.class.path" includes="**/*.fx"
+               destdir="${test.dir}/milestones/${milestone}" />
+        <java fork="true" classname="${milestone}">
+            <classpath>
+                <pathelement location="${test.dir}/milestones/${milestone}" />
+                <path refid="run.class.path" />
+            </classpath>
+        </java>
     </target>
 
 </project>
