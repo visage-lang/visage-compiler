@@ -8,7 +8,7 @@
     <property name="build.dir" value="${base.dir}/build" />
     <property name="dist.dir" value="${base.dir}/dist" />
     <property name="build.classes.dir" value="${build.dir}/classes" />
-    <property name="build.milestones.dir" value="${build.dir}/classes" />
+    <property name="build.milestones.dir" value="${build.dir}/milestones" />
     <property name="src.fx.dir" value="${base.dir}/src/share/classes" />
     <property name="src.java.dir" value="${base.dir}/src/share/classes" />
     <property name="jar.file" value="${dist.dir}/javafx.jar" />
@@ -25,6 +25,8 @@
         <pathelement location="${lib.dir}/javac.jar"/>
         <pathelement location="${lib.dir}/antlr-runtime-3.0.jar"/>
     </path>
+
+    <taskdef name="javafxc" classpathref="run.class.path" classname="com.sun.tools.javafx.ant.JavaFxAntTask" />
 
     <target name="prepare">
         <mkdir dir="${build.dir}" />
@@ -65,16 +67,14 @@
 
     <!-- abstract target, param=${milestone} -->
     <target name="abstract-milestone" depends="build">
-        <java fork="true" classpathref="run.class.path" dir="${test.dir}/milestones/${milestone}"
-            classname="${fx.compiler.class}" >
-            <arg value="M1.fx" />
-        </java>
-        <taskdef name="javafxc" classpathref="run.class.path" classname="com.sun.tools.javafx.ant.JavaFxAntTask" />
-        <javafxc srcdir="${test.dir}/milestones/${milestone}" classpathref="build.class.path" includes="**/*.fx"
-               destdir="${test.dir}/milestones/${milestone}" />
+        <property name="intermediate.dir" value="${build.milestones.dir}/${milestone}" />
+        <mkdir dir="${intermediate.dir}" />
+        <javafxc srcdir="${test.dir}/milestones/${milestone}" classpathref="run.class.path" includes="**/*.fx"
+               destdir="${intermediate.dir}" />
+        <javac srcdir="${intermediate.dir}" destdir="${intermediate.dir}" classpathref="run.class.path" includes="**/*.java" />
         <java fork="true" classname="${milestone}">
             <classpath>
-                <pathelement location="${test.dir}/milestones/${milestone}" />
+                <pathelement location="${intermediate.dir}" />
                 <path refid="run.class.path" />
             </classpath>
         </java>
