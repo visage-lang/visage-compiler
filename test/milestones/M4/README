@@ -1,0 +1,9 @@
+JavaFX compiler milestone 4
+
+Demonstrated:
+ - Instantiate a JFrame with a JTextField using raw Swing calls
+
+Restrictions:
+ - No interaction (other than exit-on-close)
+ - Does not use FX class library
+

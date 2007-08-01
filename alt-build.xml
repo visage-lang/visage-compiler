@@ -77,6 +77,12 @@
         </antcall>
     </target>
 
+    <target name="milestone-M4" >
+        <antcall target="abstract-milestone">
+            <param name="milestone" value="M4" />
+        </antcall>
+    </target>
+
     <!-- abstract target, param=${milestone} -->
     <target name="abstract-milestone" depends="build">
         <property name="intermediate.dir" value="${build.milestones.dir}/${milestone}" />
