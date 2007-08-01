@@ -74,8 +74,11 @@
     <target name="-pre-init" depends="check-jdk-1.6" unless="has-jdk-1.6">
         <fail>You need JDK 1.6 or higher to build JavaFX.</fail>
     </target>
-   
-    <target name="-pre-compile">
-        <unjar src="${basedir}/lib/javac.jar" dest="${build.classes.dir}"/>
+
+    <target name="spec" description="Build JavaFX Script specification.">
+        <ant antfile="doc/build.xml" target="spec"/>
+        <copy todir="dist/doc">
+            <fileset dir="build/doc/html"/>
+        </copy>
     </target>
 </project>
