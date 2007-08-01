@@ -66,8 +66,6 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     
     private static String syntheticNamePrfix = "$$synth$$";
     
-    private ListBuffer<JCStatement> prependInFrontOfStatement = null;
-    
     public static Javafx2JavaTranslator instance(Context context) {
         Javafx2JavaTranslator instance = context.get(javafx2JavaTranslatorKey);
         if (instance == null)
@@ -355,10 +353,8 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     public void visitPureObjectLiteral(JFXPureObjectLiteral tree) {
         Name tmpName = getSyntheticName("objlit");
         JCExpression clazz = translate(tree.getIdentifier());
-        if (prependInFrontOfStatement == null) {
-            prependInFrontOfStatement = new ListBuffer<JCStatement>();
-        }
-        prependInFrontOfStatement.append(make.VarDef(make.Modifiers(0), tmpName, clazz,
+        ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
+        stats.append(make.VarDef(make.Modifiers(0), tmpName, clazz,
                 make.NewClass(null, null, clazz, com.sun.tools.javac.util.List.<com.sun.tools.javac.tree.JCTree.JCExpression>nil(), null)));
         for (JFXStatement part : tree.getParts()) {
             if (part instanceof JFXObjectLiteralPart) {
@@ -366,7 +362,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                 JCFieldAccess attr = make.Select(
                         make.Ident(tmpName),
                         olpart.getName());
-                prependInFrontOfStatement.append( make.Exec( make.JavafxAssign(
+                stats.append( make.Exec( make.JavafxAssign(
                         attr,
                         translate(olpart.getExpression()),
                         olpart.getBindStatus())));
@@ -376,7 +372,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                         part.getClass().getName() + " in object literal");
             }
         }
-        result = make.Ident(tmpName);
+        result = make.BlockExpression(0, stats.toList(), make.Ident(tmpName));
     }
     
     @Override
@@ -435,31 +431,12 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         if (stats != null)  {
             List<JCStatement> prev = null;
             for (List<JCStatement> l = stats; l.nonEmpty(); l = l.tail) {
-                // translate must occur immediately before prependInFrontOfStatement check
                 JCStatement trans = translate(l.head);
                 if (trans == null) {
                     // This statement has translated to nothing, remove it from the list
                     prev.tail = l.tail;
                     l = prev;
                     continue;
-                }
-                if (prependInFrontOfStatement != null) {
-                    List<JCStatement> pl = prependInFrontOfStatement.toList();
-                    List<JCStatement> last = prependInFrontOfStatement.last;
-                    // attach remainder of list to the prepended statements
-                    for (List<JCStatement> al = pl; ; al = al.tail) {
-                        if (al.tail == last) {
-                            al.tail = l;
-                            break;
-                        }
-                    }
-                    // attach prepended statement to previous part of list
-                    if (prev == null) {
-                        stats = pl;
-                    } else {
-                        prev.tail = pl;
-                    }
-                    prependInFrontOfStatement = null;
                 }
                 l.head = trans;
                 prev = l;

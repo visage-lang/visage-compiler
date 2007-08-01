@@ -424,6 +424,20 @@ public class JavafxAttr extends Attr {
         }
         chk.validate(tree.typeargs);
     }
+    
+    public void visitBlockExpression(JFXBlockExpression tree) {
+        // Create a new local environment with a local scope.
+        Env<AttrContext> localEnv =
+                env.dup(tree,
+                env.info.dup(env.info.scope.dup()));
+        for (List<JCStatement> l = tree.stats; l.nonEmpty(); l = l.tail)
+            attribStat(l.head, localEnv);
+        if (tree.value != null) {
+            Type valtype = attribExpr(tree.value, localEnv);
+             result = check(tree, valtype, VAL, pkind, pt);
+        }
+        localEnv.info.scope.leave();
+    }
 
     public void visitBinary(JCBinary tree) {
         // Attribute arguments.
@@ -481,6 +495,13 @@ public class JavafxAttr extends Attr {
             chk.checkDivZero(tree.rhs.pos(), operator, right);
         }
         result = check(tree, owntype, VAL, pkind, pt);
+    }
+    
+     public void visitTree(JCTree tree) {
+         if (tree instanceof JFXBlockExpression)
+             visitBlockExpression((JFXBlockExpression) tree);
+         else
+             super.visitTree(tree);
     }
 
     /** Clones a type without copiyng constant values

@@ -701,6 +701,11 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
         return shouldVisitSynthetic;
     }
     
+    public void visitBlockExpression(JFXBlockExpression that) {
+        scan(that.stats);
+        scan(that.value);
+    }
+
     public void visitTree(JCTree that) {
         assert false : "Should not be here!!!";
     }

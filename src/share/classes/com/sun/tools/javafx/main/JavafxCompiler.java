@@ -51,9 +51,7 @@ import com.sun.tools.javac.jvm.*;
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.processing.*;
-import com.sun.tools.javafx.comp.JavafxDeclarationDefinitionMapper;
-import com.sun.tools.javafx.comp.JavafxModuleBuilder;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher;
+import com.sun.tools.javafx.comp.*;
 import java.util.Iterator;
 import static javax.tools.StandardLocation.CLASS_OUTPUT;
 import static com.sun.tools.javac.util.ListBuffer.lb;
@@ -339,10 +337,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         source = Source.instance(context);
         attr = Attr.instance(context);
         chk = Check.instance(context);
-        gen = Gen.instance(context);
+        gen = JavafxGen.instance(context);
         flow = Flow.instance(context);
-        transTypes = TransTypes.instance(context);
-        lower = Lower.instance(context);
+        transTypes = JavafxTransTypes.instance(context);
+        lower = JavafxLower.instance(context);
         annotate = Annotate.instance(context);
         types = Types.instance(context);
         taskListener = context.get(TaskListener.class);
@@ -526,9 +524,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 taskListener.started(e);
             }
 	    int initialErrorCount = log.nerrors;
-            String parserChoice = options.get("parser");
+            String parserChoice = options.get("-parser");
             if (parserChoice == null) {
-                parserChoice = "vn"; // default
+                parserChoice = "old"; // default
             }
             if (parserChoice.equals("old")) {
                 Scanner scanner = getScannerFactory().newScanner(content);

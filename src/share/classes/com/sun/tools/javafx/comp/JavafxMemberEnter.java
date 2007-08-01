@@ -94,7 +94,21 @@ public class JavafxMemberEnter extends MemberEnter {
             tree.accept(this);
         }
     }
+ 
+    public void visitBlockExpression(JFXBlockExpression tree) {
+        for (JCStatement stmt : tree.stats) {
+            stmt.accept(this);
+        }
+        tree.value.accept(this);
+    }
     
+    public void visitTree(JCTree tree) {
+        if (tree instanceof JFXBlockExpression)
+            visitBlockExpression((JFXBlockExpression) tree);
+        else
+            super.visitTree(tree);
+    }
+
     public void visitTopLevel(JCCompilationUnit tree) {
         if (tree.starImportScope.elems != null) {
             // we must have already processed this toplevel

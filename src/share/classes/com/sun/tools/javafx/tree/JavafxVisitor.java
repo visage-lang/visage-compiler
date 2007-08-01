@@ -60,4 +60,5 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitVar(JFXVar that);
     public void visitVarStatement(JFXVarStatement that);
     public void visitVarInit(JFXVarInit that);
+    public void visitBlockExpression(JFXBlockExpression that);
 }

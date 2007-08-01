@@ -109,6 +109,12 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
+    public JFXBlockExpression BlockExpression(long flags, List<JCStatement> stats, JCExpression value) {
+        JFXBlockExpression tree = new JFXBlockExpression(flags, stats, value);
+        tree.pos = pos;
+        return tree;
+    }
+    
     public JFXAttributeDeclaration AttributeDeclaration(JCModifiers mods,
             Name name,
             JFXType type,

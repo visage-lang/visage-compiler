@@ -382,6 +382,17 @@ public class Parser {
      */
     protected <T extends JCTree> T to(T t) { return t; }
     
+    JCStatement toStatement(int pos, JCExpression t)
+    {
+        JFXBlockExpression bl;
+        if (t instanceof JFXBlockExpression
+                && (bl = (JFXBlockExpression) t).value == null) {
+            return F.at(pos).Block(bl.flags, bl.stats);
+        }
+        else
+            return F.at(pos).Exec(checkExprStat(t));
+    }
+ 
     /**
      * Store ending position for a tree.  The ending position should
      * be greater of the ending position of the previous token and errorEndPos.
@@ -695,6 +706,24 @@ public class Parser {
         return result;
     }
     
+    JCBlock functionBody() {
+        return functionBody(S.pos(), 0);
+    }
+
+    JCBlock functionBody(int pos, long flags) {
+        accept(LBRACE);
+        ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
+        JCExpression value = blockStatements(stats);
+        if (value != null)
+            stats.append(to(F.at(S.pos()).Return(value)));
+        JCBlock t = F.at(pos).Block(flags, stats.toList());
+        // the Block node has a field "endpos" for first char of last token, which is
+        // usually but not necessarily the last char of the last token.
+        t.endpos = S.pos();
+        accept(RBRACE);
+        return toP(t);
+    }
+
     /**
      * memberFunctionDefinition  :=	'function' memberSelector formalParameters
      *                                               typeReference? ary? functionBody
@@ -718,7 +747,7 @@ public class Parser {
         }
         List<JCTree> params = formalParameters();
         JFXType type = typeOpt();
-        JCBlock body = block();  // TODO: should be functionBody
+        JCBlock body = functionBody();
         JFXStatement result;
         if (className != null) {
             JFXMemberSelector selector = toP(F.at(pos).MemberSelector(className, name));
@@ -749,7 +778,7 @@ public class Parser {
         }
         List<JCTree> params = formalParameters();
         JFXType type = typeOpt();
-        JCBlock body = block();
+        JCBlock body = functionBody();
         JFXStatement result;
         if (className != null) {
             JFXMemberSelector selector = toP(F.at(pos).MemberSelector(className, name));
@@ -1415,7 +1444,7 @@ public class Parser {
             t = creator(pos);
             break;
         case LBRACE:
-            t = pureObjectLiteral(null);
+            t = blockExpression();
             break;
         case IDENTIFIER:
             t = toP(F.at(S.pos()).Identifier(ident()));
@@ -1647,12 +1676,28 @@ public class Parser {
         accept(RBRACE);
         return toP(t);
     }
-    
+
     public JCBlock block() {
         return block(S.pos(), 0);
     }
     
-    /** BlockStatements = { BlockStatement }
+    public JFXBlockExpression blockExpression(int pos, long flags) {
+        accept(LBRACE);
+        ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
+        JCExpression value = blockStatements(stats);
+        JFXBlockExpression t = F.at(pos).BlockExpression(flags, stats.toList(), value);
+        // the Block node has a field "endpos" for first char of last token, which is
+        // usually but not necessarily the last char of the last token.
+        t.endpos = S.pos();
+        accept(RBRACE);
+        return toP(t);
+    }
+    
+     public JFXBlockExpression blockExpression() {
+        return blockExpression(S.pos(), 0);
+     }
+     
+     /** BlockStatements = { BlockStatement }
      *  BlockStatement  = LocalVariableDeclarationStatement
      *                  | ClassOrInterfaceOrEnumDeclaration
      *                  | [Ident ":"] Statement
@@ -1701,13 +1746,71 @@ public class Parser {
                 JCExpression t = expression();
                 
                 // This Exec is an "ExpressionStatement"; it subsumes the terminating semicolon
-                stats.append(to(F.at(pos).Exec(checkExprStat(t))));
+                stats.append(to(toStatement(pos, t)));
                 accept(SEMI);
             }
             
             // error recovery
             if (S.pos() == lastErrPos)
                 return stats.toList();
+            if (S.pos() <= errorEndPos) {
+                skip(false, true, true, true);
+                lastErrPos = S.pos();
+            }
+            
+            // ensure no dangling /** @deprecated */ active
+            S.resetDeprecatedFlag();
+        }
+    }
+    
+    @SuppressWarnings("fallthrough")
+    JCExpression blockStatements(ListBuffer<JCStatement> stats) {
+        //todo: skip to anchor on error(?)
+        int lastErrPos = -1;
+        while (true) {
+            int pos = S.pos();
+            switch (S.token()) {
+                        case RBRACE:
+            case EOF:
+                System.err.println("exit blockStatements");
+                return null;
+            case FOR:
+            case WHILE:
+            case DO:
+            case TRY:
+            case RETURN:
+            case THROW:
+            case BREAK:
+            case CONTINUE:
+            case SEMI:
+            case ELSE:
+            case FINALLY:
+            case CATCH:
+            case VAR:
+            case FUNCTION:
+            case OPERATION:
+            case TRIGGER:
+                stats.append(statement());
+                break;
+            case ASSERT:
+                if (allowAsserts && S.token() == ASSERT) {
+                    stats.append(statement());
+                    break;
+                }
+                /* fall through to default */
+            default:
+                Name name = S.name();
+                JCExpression t = expression();
+                if (S.token() == RBRACE)
+                    return t;
+                // This Exec is an "ExpressionStatement"; it subsumes the terminating semicolon
+                stats.append(to(toStatement(pos, t)));
+                accept(SEMI);
+            }
+            
+            // error recovery
+            if (S.pos() == lastErrPos)
+                return null;
             if (S.pos() <= errorEndPos) {
                 skip(false, true, true, true);
                 lastErrPos = S.pos();
@@ -1749,17 +1852,6 @@ public class Parser {
         }
         case TRIGGER: {
             return triggerOn(true, S.docComment());
-        }
-        case IF: {
-            S.nextToken();
-            JCExpression cond = parExpression();
-            JCStatement thenpart = statement();
-            JCStatement elsepart = null;
-            if (S.token() == ELSE) {
-                S.nextToken();
-                elsepart = statement();
-            }
-            return F.at(pos).If(cond, thenpart, elsepart);
         }
         case WHILE: {
             S.nextToken();
@@ -1857,7 +1949,7 @@ public class Parser {
             JCExpression expr = expression();
             {
                 // This Exec is an "ExpressionStatement"; it subsumes the terminating semicolon
-                JCExpressionStatement stat = to(F.at(pos).Exec(checkExprStat(expr)));
+                JCStatement stat = to(toStatement(pos, expr));
                 accept(SEMI);
                 return stat;
             }
@@ -1882,17 +1974,17 @@ public class Parser {
     
     /** MoreStatementExpressions = { COMMA StatementExpression }
      */
-    <T extends ListBuffer<? super JCExpressionStatement>> T moreStatementExpressions(int pos,
+    <T extends ListBuffer<? super JCStatement>> T moreStatementExpressions(int pos,
             JCExpression first,
             T stats) {
         // This Exec is a "StatementExpression"; it subsumes no terminating token
-        stats.append(toP(F.at(pos).Exec(checkExprStat(first))));
+        stats.append(toP(toStatement(pos, first)));
         while (S.token() == COMMA) {
             S.nextToken();
             pos = S.pos();
             JCExpression t = expression();
             // This Exec is a "StatementExpression"; it subsumes no terminating token
-            stats.append(toP(F.at(pos).Exec(checkExprStat(t))));
+            stats.append(toP(toStatement(pos, t)));
         }
         return stats;
     }
@@ -1916,14 +2008,6 @@ public class Parser {
         }
  */
         return null; // Javafx change TODO:
-    }
-    
-    /** ForUpdate = StatementExpression MoreStatementExpressions
-     */
-    List<JCExpressionStatement> forUpdate() {
-        return moreStatementExpressions(S.pos(),
-                expression(),
-                new ListBuffer<JCExpressionStatement>()).toList();
     }
     
     /** ModifiersOpt = { Modifier }
@@ -2010,6 +2094,8 @@ public class Parser {
         case JCTree.MUL_ASG: case JCTree.DIV_ASG: case JCTree.MOD_ASG:
         case JCTree.APPLY: case JCTree.NEWCLASS:
         case JCTree.ERRONEOUS:
+        case JCTree.CONDEXPR:
+        case JavafxTag.BLOCK_EXPRESSION:
             return t;
         default:
             log.error(t.pos, "not.stmt");

@@ -145,6 +145,12 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
+  public void visitBlockExpression(JFXBlockExpression tree) {
+	tree.value = translate(tree.value);
+        tree.stats = translate(tree.stats);
+	result = tree;
+    }
+  
     public void visitDoLater(JFXDoLater that) {
         that.body = translate(that.body);
         result = that;

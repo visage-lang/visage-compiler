@@ -48,8 +48,7 @@ import com.sun.tools.javac.code.Flags;
 
 import com.sun.tools.javafx.code.*;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
-import com.sun.tools.javafx.tree.JavafxJCVarDecl;
-import com.sun.tools.javafx.tree.JavafxJCAssign;
+import com.sun.tools.javafx.tree.*;
 
 import java.io.OutputStreamWriter;
 import com.sun.tools.javac.tree.Pretty;
@@ -629,7 +628,13 @@ public class JavafxTypeMorpher extends TreeTranslator {
             tree.setType(tree.type.baseType());
         }
     }
-    
+
+    public void visitBlockExpression(JFXBlockExpression tree) {
+        tree.stats = translate(tree.stats);
+        tree.value = translate(tree.value);
+	result = tree;
+    }
+ 
     /**
      * Allow prepending of statements and/or deletin by translation to null
      */
