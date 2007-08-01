@@ -2,8 +2,11 @@ JavaFX compiler milestone 1
 
 Demonstrated:
  - module-level variables with explicit Integer and String type declaration
+ - explicit initializer for variables
+ - reassignment to variables
  - calling System.out.println()
  - calculating simple arithmetic expressions
+ - interpolating arithmetic expressions into string literals
 
 Restrictions:
  - No type inference assumed.  All variables are given an explicit type.

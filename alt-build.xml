@@ -41,7 +41,7 @@
 
     <target name="compile-java" depends="prepare">
         <javac srcdir="${src.java.dir}" classpathref="build.class.path" includes="**/*.java"
-               destdir="${build.classes.dir}" />
+               destdir="${build.classes.dir}" debug="true" />
         <copy todir="${build.classes.dir}">
             <fileset dir="${src.fx.dir}" includes="**/*.properties" />
         </copy>
@@ -65,13 +65,26 @@
         </antcall>
     </target>
 
+    <target name="milestone-M2" >
+        <antcall target="abstract-milestone">
+            <param name="milestone" value="M2" />
+        </antcall>
+    </target>
+
+    <target name="milestone-M3" >
+        <antcall target="abstract-milestone">
+            <param name="milestone" value="M3" />
+        </antcall>
+    </target>
+
     <!-- abstract target, param=${milestone} -->
     <target name="abstract-milestone" depends="build">
         <property name="intermediate.dir" value="${build.milestones.dir}/${milestone}" />
         <mkdir dir="${intermediate.dir}" />
         <javafxc srcdir="${test.dir}/milestones/${milestone}" classpathref="run.class.path" includes="**/*.fx"
                destdir="${intermediate.dir}" />
-        <javac srcdir="${intermediate.dir}" destdir="${intermediate.dir}" classpathref="run.class.path" includes="**/*.java" />
+        <javac srcdir="${intermediate.dir}" destdir="${intermediate.dir}" classpathref="run.class.path"
+               includes="**/*.java" debug="true" />
         <java fork="true" classname="${milestone}">
             <classpath>
                 <pathelement location="${intermediate.dir}" />

@@ -1,0 +1,10 @@
+JavaFX compiler milestone 3
+
+Demonstrated:
+ - FX class with attributes, functions, and operations
+ - Attribute initializers
+ - Binding of attributes to attribute-valued expressions
+
+Restrictions:
+ - bindings do not know about dynamic dependencies within functions, only static dependencies
+ 
