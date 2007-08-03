@@ -10,7 +10,7 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javac.jvm.Gen;
+import com.sun.tools.javac.jvm.*;
 import com.sun.tools.javac.comp.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.tree.*;
@@ -38,6 +38,11 @@ public class JavafxGen extends Gen {
       genStats(tree.stats, localEnv);
       if (tree.value != null) {
           result = genExpr(tree.value, tree.value.type);
+          result= result.load();
+          if (result instanceof Items.LocalItem
+                  /* && we're about to exit result's scope -- FIXME */) {
+              result= result.load();
+          }
       }
       // End the scope of all block-local variables in variable info.
       if (env.tree.tag != JCTree.METHODDEF) {
