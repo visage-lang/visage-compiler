@@ -176,24 +176,28 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitFunctionLocalDefinition(JFXFunctionLocalDefinition tree) {
         printFuncOpLocalDef(tree, "function");
     }
-    
+
     public void visitBlockExpression(JFXBlockExpression tree) {
+        visitBlockExpression(this, tree);
+    }
+
+    public static void visitBlockExpression(Pretty pretty, JFXBlockExpression tree) {
         try {
-            printFlags(tree.flags);
-            print("{");
-            println();
-            indent();
-            printStats(tree.stats);
+            pretty.printFlags(tree.flags);
+            pretty.print("{");
+            pretty.println();
+            pretty.indent();
+            pretty.printStats(tree.stats);
             if (tree.value != null)
-                printExpr(tree.value);
-            undent();
-            align();
-            print("}");
+                pretty.printExpr(tree.value);
+            pretty.undent();
+            pretty.align();
+            pretty.print("}");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
-    
+
     public void visitMemberSelector(JFXMemberSelector tree) {
         try {
             print(tree.getClassName());
