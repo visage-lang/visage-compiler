@@ -37,7 +37,6 @@ public class JFXPseudoSyntheticExpression  extends JFXExpression {
     private JCExpression synthetic;
     
     JFXPseudoSyntheticExpression(JCExpression synthetic) {
-        super(JavafxTag.PSEUDOSYNTHETIC);
         this.synthetic = synthetic;
     }
     
@@ -61,4 +60,9 @@ public class JFXPseudoSyntheticExpression  extends JFXExpression {
     }
     
     public JCExpression getSynthetic()  { return synthetic; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.PSEUDOSYNTHETIC;
+    }
 }

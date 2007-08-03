@@ -2084,7 +2084,7 @@ public class Parser {
     /** Check that given tree is a legal expression statement.
      */
     protected JCExpression checkExprStat(JCExpression t) {
-        switch(t.tag) {
+        switch(t.getTag()) {
         case JCTree.PREINC: case JCTree.PREDEC:
         case JCTree.POSTINC: case JCTree.POSTDEC:
         case JCTree.ASSIGN:

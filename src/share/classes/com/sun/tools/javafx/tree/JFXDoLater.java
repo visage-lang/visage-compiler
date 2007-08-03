@@ -35,10 +35,13 @@ import com.sun.source.tree.TreeVisitor;
 public  class JFXDoLater extends JFXStatement {
     public JCBlock body;
     protected JFXDoLater(JCBlock body) {
-        super(JavafxTag.DOLATER);
         this.body = body;
     }
     public void accept(JavafxVisitor v) { v.visitDoLater(this); }
     public JCBlock getBody() { return body; }
+    @Override
+    public int getTag() {
+        return JavafxTag.DOLATER;
+    }
 }
 

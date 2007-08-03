@@ -42,7 +42,7 @@ public class JFXTriggerOnInsert extends JFXAbstractTriggerOn {
             JFXMemberSelector selector,
             JCExpression identifier,
             JCBlock block) {
-        super(JavafxTag.TRIGGERONINSERT, block);
+        super(block);
         this.selector = selector;
         this.identifier = identifier;
     }
@@ -50,4 +50,9 @@ public class JFXTriggerOnInsert extends JFXAbstractTriggerOn {
     
     public JFXMemberSelector getSelector() { return selector; }
     public JCExpression getIdentifier() { return identifier; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.TRIGGERONINSERT;
+    }
 }

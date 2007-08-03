@@ -38,7 +38,6 @@ public class JFXPseudoReplaceTree  extends JFXTree {
     
     /** Creates a new instance of JFXPseudoReplaceTree */
     JFXPseudoReplaceTree(JCTree removed, JCTree synthetic) {
-        super(JavafxTag.PSEUDOREPLACE);
         this.removed = removed;
         this.synthetic = synthetic;
     }
@@ -68,4 +67,9 @@ public class JFXPseudoReplaceTree  extends JFXTree {
     
     public JCTree getRemoved()    { return removed; }
     public JCTree getSynthetic()  { return synthetic; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.PSEUDOREPLACE;
+    }
 }

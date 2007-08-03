@@ -39,7 +39,6 @@ public class JFXSetAttributeToObjectBeingInitialized extends JFXStatement {
     
     protected JFXSetAttributeToObjectBeingInitialized(Name name,
             VarSymbol sym) {
-        super(JavafxTag.SETATTRIBUTETOOBJECTBEINGINITIALIZED);
         this.name = name;
         this.sym = sym;
     }
@@ -47,4 +46,9 @@ public class JFXSetAttributeToObjectBeingInitialized extends JFXStatement {
     public void accept(JavafxVisitor v) { v.visitSetAttributeToObjectBeingInitialized(this); }
     
     public Name getAttributeName() { return name; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.SETATTRIBUTETOOBJECTBEINGINITIALIZED;
+    }
 }

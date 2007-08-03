@@ -42,7 +42,7 @@ public class JFXTriggerOnNew extends JFXAbstractTriggerOn {
             JCExpression typeIdentifier,
             JCExpression identifier,
             JCBlock block) {
-        super(JavafxTag.TRIGGERONNEW, block);
+        super(block);
         this.typeIdentifier = typeIdentifier;
         this.identifier = identifier;
     }
@@ -54,4 +54,9 @@ public class JFXTriggerOnNew extends JFXAbstractTriggerOn {
      * May be null
      */
     public JCExpression getNewValueIdentifier() { return identifier; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.TRIGGERONNEW;
+    }
 }

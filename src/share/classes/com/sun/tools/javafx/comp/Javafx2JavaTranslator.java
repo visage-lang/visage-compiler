@@ -208,9 +208,9 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         
         List<JCVariableDecl> params = List.nil();
         for (JCTree var : tree.params) {
-            if (var.tag == JavafxTag.VARDECL) {
+            if (var.getTag() == JavafxTag.VARDECL) {
                 params = params.append(jcVarDeclFromJFXVar((JFXVar)var));
-            } else if (var.tag == JCTree.VARDEF) {
+            } else if (var.getTag() == JCTree.VARDEF) {
                 params = params.append((JCVariableDecl)var);
             } else {
                 throw new AssertionError("Unexpected tree in the JFXFunctionMemberDeclaration parameter list.");
@@ -233,9 +233,9 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         
         List<JCVariableDecl> params = List.nil();
         for (JCTree var : tree.params) {
-            if (var.tag == JavafxTag.VARDECL) {
+            if (var.getTag() == JavafxTag.VARDECL) {
                 params = params.append(jcVarDeclFromJFXVar((JFXVar)var));
-            } else if (var.tag == JCTree.VARDEF) {
+            } else if (var.getTag() == JCTree.VARDEF) {
                 params = params.append((JCVariableDecl)var);
             } else {
                 throw new AssertionError("Unexpected tree in the JFXOperationMemberDeclaration parameter list.");
@@ -279,9 +279,9 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         
         List<JCVariableDecl> params = List.nil();
         for (JCTree var : tree.params) {
-            if (var.tag == JavafxTag.VARDECL) {
+            if (var.getTag() == JavafxTag.VARDECL) {
                 params = params.append(jcVarDeclFromJFXVar((JFXVar)var));
-            } else if (var.tag == JCTree.VARDEF) {
+            } else if (var.getTag() == JCTree.VARDEF) {
                 params = params.append((JCVariableDecl)var);
             } else {
                 throw new AssertionError("Unexpected tree in the JFXOperationLocalDefinition parameter list.");
@@ -304,9 +304,9 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         
         List<JCVariableDecl> params = List.nil();
         for (JCTree var : tree.params) {
-            if (var.tag == JavafxTag.VARDECL) {
+            if (var.getTag() == JavafxTag.VARDECL) {
                 params = params.append(jcVarDeclFromJFXVar((JFXVar)var));
-            } else if (var.tag == JCTree.VARDEF) {
+            } else if (var.getTag() == JCTree.VARDEF) {
                 params = params.append((JCVariableDecl)var);
             } else {
                 throw new AssertionError("Unexpected tree in the JFXFunctionLocalDefinition parameter list.");
@@ -546,19 +546,19 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     private void enterTriggers() {
         if (declTriggers != null) {
             for (JFXTriggerDeclHelper triggerDecl : declTriggers) {
-                if (triggerDecl.jfxDecl.tag == JavafxTag.TRIGGERONNEW) {
+                if (triggerDecl.jfxDecl.getTag() == JavafxTag.TRIGGERONNEW) {
                     if (triggerDecl.javafxDecl.getJavafxMethodType() == JavafxFlags.TRIGGERNEW) {
                         JFXTriggerOnNew trigger = (JFXTriggerOnNew)triggerDecl.jfxDecl;
                         JCTree classIdent = trigger.getClassIdentifier();
-                        while (classIdent != null && classIdent.tag != JCTree.IDENT) {
-                            if (classIdent.tag == JCTree.SELECT) {
+                        while (classIdent != null && classIdent.getTag() != JCTree.IDENT) {
+                            if (classIdent.getTag() == JCTree.SELECT) {
                                 classIdent = ((JCFieldAccess)classIdent).selected;
                             } else {
                                 throw new Error("Unexpected tree type in Trigged On"); // TODO: Remove this when figure out what can be in here
                             }
                         }
                         
-                        if (classIdent == null || classIdent.tag != JCTree.IDENT) {
+                        if (classIdent == null || classIdent.getTag() != JCTree.IDENT) {
                             throw new Error("Have to have a valid ident in here!"); // TODO: Remove when cleaned out...
                         }
                         JCIdent classNameIdent = (JCIdent)classIdent;
@@ -596,15 +596,15 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                     // TODO: More triggers functionality here...
                 }
                 // ReplaceTrigger
-                else if (triggerDecl.jfxDecl.tag == JavafxTag.TRIGGERONREPLACE) {
+                else if (triggerDecl.jfxDecl.getTag() == JavafxTag.TRIGGERONREPLACE) {
                     if (triggerDecl.javafxDecl.getJavafxMethodType() == JavafxFlags.TRIGGERREPLACE) {
                         JFXTriggerOnReplace trigger = (JFXTriggerOnReplace)triggerDecl.jfxDecl;
                         JCTree classIdent = trigger.selector;
-                        while (classIdent != null && classIdent.tag != JavafxTag.MEMBERSELECTOR) {
+                        while (classIdent != null && classIdent.getTag() != JavafxTag.MEMBERSELECTOR) {
                             throw new Error("Unexpected tree type in Trigged On"); // TODO: Remove this when figure out what can be in here
                         }
                         
-                        if (classIdent == null || classIdent.tag != JavafxTag.MEMBERSELECTOR) {
+                        if (classIdent == null || classIdent.getTag() != JavafxTag.MEMBERSELECTOR) {
                             throw new Error("Have to have a valid ident in here!"); // TODO: Remove when cleaned out...
                         }
                         Name className = ((JFXMemberSelector)classIdent).getClassName();

@@ -39,8 +39,7 @@ public abstract class JFXExpression extends JCExpression {
     
     /** Initialize tree with given tag.
      */
-    protected JFXExpression(int tag) {
-        super(tag);
+    protected JFXExpression() {
     }
     
     public abstract void accept(JavafxVisitor v);

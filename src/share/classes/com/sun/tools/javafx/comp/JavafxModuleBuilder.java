@@ -162,7 +162,7 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
         stats = stats.append(make.Exec(assign));
         List<JCTree> retDefs = List.nil();
         for (JCTree tree : newDefs) {
-            switch (tree.tag) {
+            switch (tree.getTag()) {
             case IMPORT:
                 retDefs = retDefs.append(tree);
                 break;

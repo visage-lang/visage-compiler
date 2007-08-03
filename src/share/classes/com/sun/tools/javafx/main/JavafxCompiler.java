@@ -524,9 +524,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 taskListener.started(e);
             }
 	    int initialErrorCount = log.nerrors;
-            String parserChoice = options.get("-parser");
+            String parserChoice = options.get("parser");
             if (parserChoice == null) {
-                parserChoice = "old"; // default
+                parserChoice = "antrl"; // default
             }
             if (parserChoice.equals("old")) {
                 Scanner scanner = getScannerFactory().newScanner(content);
@@ -1327,7 +1327,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                     ListBuffer<JCTree> newdefs = lb();
                     for (List<JCTree> it = tree.defs; it.tail != null; it = it.tail) {
                         JCTree t = it.head;
-                        switch (t.tag) {
+                        switch (t.getTag()) {
                         case JCTree.CLASSDEF:
                             if (isInterface ||
                                 (((JCClassDecl) t).mods.flags & (Flags.PROTECTED|Flags.PUBLIC)) != 0 ||

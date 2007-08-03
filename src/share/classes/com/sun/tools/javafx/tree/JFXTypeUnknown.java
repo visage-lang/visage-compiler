@@ -35,7 +35,12 @@ public class JFXTypeUnknown extends JFXType {
      * @param cardinality one of the cardinality constants
      */
     protected JFXTypeUnknown(int cardinality) {
-        super(JavafxTag.TYPEUNKNOWN, cardinality);
+        super(cardinality);
     }
     public void accept(JavafxVisitor v) { v.visitTypeUnknown(this); }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.TYPEUNKNOWN;
+    }
 }

@@ -45,7 +45,7 @@ public class JavafxGen extends Gen {
           }
       }
       // End the scope of all block-local variables in variable info.
-      if (env.tree.tag != JCTree.METHODDEF) {
+      if (env.tree.getTag() != JCTree.METHODDEF) {
           code.statBegin(tree.endpos);
           code.endScopes(limit);
           code.pendingStatPos = Position.NOPOS;

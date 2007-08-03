@@ -43,11 +43,16 @@ public class JFXTypeClass extends JFXType {
     protected JFXTypeClass(Name className,
             int cardinality,
             ClassSymbol sym) {
-        super(JavafxTag.TYPECLASS, cardinality);
+        super(cardinality);
         this.className = className;
         this.sym = sym;
     }
     public void accept(JavafxVisitor v) { v.visitTypeClass(this); }
     
     public Name getClassName() { return className; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.TYPECLASS;
+    }
 }

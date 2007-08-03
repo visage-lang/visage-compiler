@@ -45,7 +45,6 @@ public class JFXPureObjectLiteral extends JFXExpression {
             JCExpression ident,
             List<JFXStatement> parts,
             ClassSymbol sym) {
-        super(JavafxTag.PUREOBJECTLITERAL);
         this.ident = ident;
         this.parts = parts;
         this.sym = sym;
@@ -58,5 +57,10 @@ public class JFXPureObjectLiteral extends JFXExpression {
     public JCExpression getIdentifier() { return ident; }
     public List<JFXStatement> getParts() {
         return parts;
+    }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.PUREOBJECTLITERAL;
     }
 }

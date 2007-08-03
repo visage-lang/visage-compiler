@@ -37,7 +37,6 @@ public class JFXStringExpression extends JFXExpression {
     public List<JCExpression> parts;
 
     JFXStringExpression(List<JCExpression> parts) {
-        super(JavafxTag.STRINGEXPRESSION);
         this.parts = parts;
     }
     
@@ -49,5 +48,10 @@ public class JFXStringExpression extends JFXExpression {
      */
     public List<JCExpression> getParts() {
         return parts;
+    }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.STRINGEXPRESSION;
     }
 }

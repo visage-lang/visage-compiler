@@ -36,7 +36,6 @@ public class JFXPseudoSyntheticTree  extends JFXTree {
     private JCTree synthetic;
     
     JFXPseudoSyntheticTree(JCTree synthetic) {
-        super(JavafxTag.PSEUDOSYNTHETIC);
         this.synthetic = synthetic;
     }
     
@@ -60,4 +59,9 @@ public class JFXPseudoSyntheticTree  extends JFXTree {
     }
     
     public JCTree getSynthetic()  { return synthetic; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.PSEUDOSYNTHETIC;
+    }
 }

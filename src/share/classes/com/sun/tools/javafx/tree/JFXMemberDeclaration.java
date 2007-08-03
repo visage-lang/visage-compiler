@@ -44,11 +44,9 @@ public abstract class JFXMemberDeclaration extends JFXTree {
     * @param modifiers operation modifiers
     * @param name operation name
     */
-    protected JFXMemberDeclaration(int tag,
-            JCModifiers mods,
+    protected JFXMemberDeclaration(JCModifiers mods,
             Name name,
             JFXType type) {
-        super(tag);
         this.mods = mods;
         this.name = name;
         this.type = type;

@@ -37,7 +37,6 @@ public class JFXPseudoRemoveStatement  extends JFXStatement {
     private JCStatement removed;
     
     JFXPseudoRemoveStatement(JCStatement removed) {
-        super(JavafxTag.PSEUDOREMOVE);
         this.removed = removed;
     }
     
@@ -58,4 +57,9 @@ public class JFXPseudoRemoveStatement  extends JFXStatement {
     }
     
     public JCStatement getRemoved()    { return removed; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.PSEUDOREMOVE;
+    }
 }

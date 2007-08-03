@@ -38,23 +38,21 @@ public class JFXVar extends JFXStatement {
     public JFXType type;
     VarSymbol sym;
     
-    protected JFXVar(int tag,
-            Name name,
+    protected JFXVar(Name name,
             JFXType type,
             VarSymbol sym) {
-        super(tag);
         this.name = name;
         this.type = type;
         this.sym = sym;
     }
     
-    protected JFXVar(Name name,
-            JFXType type,
-            VarSymbol sym) {
-        this(JavafxTag.VARDECL, name, type, sym);
-    }
     public void accept(JavafxVisitor v) { v.visitVar(this); }
     
     public Name getName() { return name; }
     public JFXType getType() { return type; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.VARDECL;
+    }
 }

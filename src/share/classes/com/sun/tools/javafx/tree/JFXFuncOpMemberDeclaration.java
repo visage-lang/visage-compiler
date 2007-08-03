@@ -47,13 +47,12 @@ public abstract class JFXFuncOpMemberDeclaration extends JFXMemberDeclaration {
     * @param params value parameters
     * @param sym operation symbol
     */
-    protected JFXFuncOpMemberDeclaration(int tag,
-            JCModifiers mods,
+    protected JFXFuncOpMemberDeclaration(JCModifiers mods,
             Name name,
             JFXType restype,
             List<JCTree> params,
             MethodSymbol sym) {
-        super(tag, mods, name, restype);
+        super(mods, name, restype);
         this.params = params;
         this.sym = sym;
     }

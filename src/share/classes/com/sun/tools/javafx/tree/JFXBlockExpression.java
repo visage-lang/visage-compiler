@@ -44,7 +44,6 @@ public class JFXBlockExpression extends JFXExpression {
     /** Position of closing brace, optional. */
     public int endpos = Position.NOPOS;
     protected JFXBlockExpression(long flags, List<JCStatement> stats, JCExpression value) {
-        super(JavafxTag.BLOCK_EXPRESSION);
         this.stats = stats;
         this.flags = flags;
         this.value = value;
@@ -66,4 +65,10 @@ public class JFXBlockExpression extends JFXExpression {
             super.accept(v);
     }
     public boolean isStatic() { return (flags & Flags.STATIC) != 0; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.BLOCK_EXPRESSION;
+    }
+
 }

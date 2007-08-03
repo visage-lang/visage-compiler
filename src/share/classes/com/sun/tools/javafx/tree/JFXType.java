@@ -41,9 +41,7 @@ public abstract class JFXType extends JFXTree {
     /*
      * @param cardinality one of the cardinality constants
      */
-    protected JFXType(int tag,
-            int cardinality) {
-        super(tag);
+    protected JFXType(int cardinality) {
         this.cardinality = cardinality;
     }
     

@@ -41,7 +41,6 @@ public class JFXMemberSelector extends JFXTree {
     protected JFXMemberSelector(
             Name className,
             Name name) {
-        super(JavafxTag.MEMBERSELECTOR);
         this.className = className;
         this.name = name;
     }
@@ -49,4 +48,9 @@ public class JFXMemberSelector extends JFXTree {
     
     public Name getClassName() { return className; }
     public Name getName() { return name; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.MEMBERSELECTOR;
+    }
 }

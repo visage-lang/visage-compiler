@@ -48,13 +48,12 @@ public abstract class JFXFuncOpMemberDefinition extends JFXMemberDefinition {
     * @param body statements in the operation
     * @param sym method symbol
     */
-    protected JFXFuncOpMemberDefinition(int tag,
-            JFXMemberSelector selector,
+    protected JFXFuncOpMemberDefinition(JFXMemberSelector selector,
             JFXType restype,
             List<JCTree> params,
             JCBlock body,
             MethodSymbol sym) {
-        super(tag, selector, restype);
+        super(selector, restype);
         this.params = params;
         this.body = body;
         this.sym = sym;

@@ -36,8 +36,7 @@ public abstract class JFXAbstractTriggerOn extends JFXStatement {
     /*
     * @param selector member name and class name of member
     */
-    protected JFXAbstractTriggerOn(int tag, JCBlock block) {
-        super(tag);
+    protected JFXAbstractTriggerOn(JCBlock block) {
         this.block = block;
     }
     

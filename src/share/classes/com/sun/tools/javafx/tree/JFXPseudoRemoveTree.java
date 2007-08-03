@@ -36,7 +36,6 @@ public class JFXPseudoRemoveTree  extends JFXTree {
     private JCTree removed;
     
     JFXPseudoRemoveTree(JCTree removed) {
-        super(JavafxTag.PSEUDOREMOVE);
         this.removed = removed;
     }
     
@@ -57,4 +56,9 @@ public class JFXPseudoRemoveTree  extends JFXTree {
     }
     
     public JCTree getRemoved()    { return removed; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.PSEUDOREMOVE;
+    }
 }

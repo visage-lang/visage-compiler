@@ -35,7 +35,12 @@ public class JFXTypeAny extends JFXType {
      * @param cardinality one of the cardinality constants
      */
     protected JFXTypeAny(int cardinality) {
-        super(JavafxTag.TYPEANY, cardinality);
+        super(cardinality);
     }
     public void accept(JavafxVisitor v) { v.visitTypeAny(this); }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.TYPEANY;
+    }
 }

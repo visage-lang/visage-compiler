@@ -51,7 +51,7 @@ public class JFXAttributeDeclaration extends JFXMemberDeclaration {
             JFXMemberSelector inverseOrNull,
             JCExpression orderingOrNull,
             VarSymbol sym) {
-        super(JavafxTag.ATTRIBUTEDECL, mods, name, type);
+        super(mods, name, type);
         this.inverseOrNull = inverseOrNull;
         this.orderingOrNull = orderingOrNull;
         this.sym = sym;
@@ -60,4 +60,9 @@ public class JFXAttributeDeclaration extends JFXMemberDeclaration {
     
     public JFXMemberSelector getInverse() { return inverseOrNull; }
     public JCExpression getOrdering() { return orderingOrNull; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.ATTRIBUTEDECL;
+    }
 }

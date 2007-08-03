@@ -50,13 +50,11 @@ public abstract class JFXFuncOpLocalDefinition extends JFXStatement {
     * @param body statements in the operation
     * @param sym method symbol
     */
-    protected JFXFuncOpLocalDefinition(int tag,
-            Name name,
+    protected JFXFuncOpLocalDefinition(Name name,
             JFXType restype,
             List<JCTree> params,
             JCBlock body,
             MethodSymbol sym) {
-        super(tag);
         this.name = name;
         this.restype = restype;
         this.params = params;

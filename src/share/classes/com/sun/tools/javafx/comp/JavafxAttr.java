@@ -211,7 +211,7 @@ public class JavafxAttr extends Attr {
             chk.checkDeprecatedAnnotation(tree.pos(), v);
 
             if (tree.init != null) {
-                if ((v.flags_field & FINAL) != 0 && tree.init.tag != JCTree.NEWCLASS) {
+                if ((v.flags_field & FINAL) != 0 && tree.init.getTag() != JCTree.NEWCLASS) {
                     // In this case, `v' is final.  Ensure that it's initializer is
                     // evaluated.
                     v.getConstValue(); // ensure initializer is evaluated
@@ -320,7 +320,7 @@ public class JavafxAttr extends Attr {
                     if (site.getEnclosingType().tag == CLASS) {
                         // we are calling a nested class
 
-                        if (tree.meth.tag == JCTree.SELECT) {
+                        if (tree.meth.getTag() == JCTree.SELECT) {
                             JCTree qualifier = ((JCFieldAccess) tree.meth).selected;
 
                             // We are seeing a prefixed call, of the form
@@ -336,7 +336,7 @@ public class JavafxAttr extends Attr {
                             rs.resolveImplicitThis(tree.meth.pos(),
                                                    localEnv, site);
                         }
-                    } else if (tree.meth.tag == JCTree.SELECT) {
+                    } else if (tree.meth.getTag() == JCTree.SELECT) {
                         log.error(tree.meth.pos(), "illegal.qual.not.icls",
                                   site.tsym);
                     }
@@ -389,7 +389,7 @@ public class JavafxAttr extends Attr {
 
             // as a special case, array.clone() has a result that is
             // the same as static type of the array being cloned
-            if (tree.meth.tag == JCTree.SELECT &&
+            if (tree.meth.getTag() == JCTree.SELECT &&
                 allowCovariantReturns &&
                 methName == names.clone &&
                 types.isArray(((JCFieldAccess) tree.meth).selected.type))
@@ -398,7 +398,7 @@ public class JavafxAttr extends Attr {
             // as a special case, x.getClass() has type Class<? extends |X|>
             if (allowGenerics &&
                 methName == names.getClass && tree.args.isEmpty()) {
-                Type qualifier = (tree.meth.tag == JCTree.SELECT)
+                Type qualifier = (tree.meth.getTag() == JCTree.SELECT)
                     ? ((JCFieldAccess) tree.meth).selected.type
                     : env.enclClass.sym.type;
                 restype = new
@@ -453,14 +453,14 @@ public class JavafxAttr extends Attr {
  // Javafx change
         // Find operator.
         Symbol operator = tree.operator =
-            rs.resolveBinaryOperator(tree.pos(), tree.tag, env, left, right);
+            rs.resolveBinaryOperator(tree.pos(), tree.getTag(), env, left, right);
 
         Type owntype = syms.errType;
         if (operator.kind == MTH) {
             owntype = operator.type.getReturnType();
             int opc = chk.checkOperator(tree.lhs.pos(),
                                         (OperatorSymbol)operator,
-                                        tree.tag,
+                                        tree.getTag(),
                                         left,
                                         right);
 

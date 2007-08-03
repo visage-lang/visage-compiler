@@ -43,7 +43,7 @@ public class JFXTypeFunctional extends JFXType {
     protected JFXTypeFunctional(List<JCTree> params,
             JFXType restype,
             int cardinality) {
-        super(JavafxTag.TYPEFUNC, cardinality);
+        super(cardinality);
         this.params = params;
         this.restype = restype;
     }
@@ -52,5 +52,10 @@ public class JFXTypeFunctional extends JFXType {
     public JFXType getReturnType() { return restype; }
     public List<JCTree> getParameters() {
         return params;
+    }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.TYPEFUNC;
     }
 }

@@ -39,7 +39,6 @@ public class JFXPseudoReplaceExpression  extends JFXExpression {
     
     /** Creates a new instance of JFXPseudoReplaceTree */
     JFXPseudoReplaceExpression(JCExpression removed, JCExpression synthetic) {
-        super(JavafxTag.PSEUDOREPLACE);
         this.removed = removed;
         this.synthetic = synthetic;
     }
@@ -69,4 +68,9 @@ public class JFXPseudoReplaceExpression  extends JFXExpression {
     
     public JCExpression getRemoved()    { return removed; }
     public JCExpression getSynthetic()  { return synthetic; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.PSEUDOREPLACE;
+    }
 }

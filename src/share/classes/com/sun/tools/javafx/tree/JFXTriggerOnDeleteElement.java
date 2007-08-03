@@ -42,7 +42,7 @@ public class JFXTriggerOnDeleteElement extends JFXAbstractTriggerOn {
             JFXMemberSelector selector,
             JCExpression identifier,
             JCBlock block) {
-        super(JavafxTag.TRIGGERONDELETEELEMENT, block);
+        super(block);
         this.selector = selector;
         this.identifier = identifier;
     }
@@ -50,4 +50,9 @@ public class JFXTriggerOnDeleteElement extends JFXAbstractTriggerOn {
     
     public JFXMemberSelector getSelector() { return selector; }
     public JCExpression getIdentifier() { return identifier; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.TRIGGERONDELETEELEMENT;
+    }
 }

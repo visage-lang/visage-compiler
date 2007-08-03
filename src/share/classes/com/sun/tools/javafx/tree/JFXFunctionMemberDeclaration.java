@@ -49,7 +49,12 @@ public class JFXFunctionMemberDeclaration extends JFXFuncOpMemberDeclaration {
             JFXType restype,
             List<JCTree> params,
             MethodSymbol sym) {
-        super(JavafxTag.FUNCTIONDECL, mods, name, restype, params, sym);
+        super(mods, name, restype, params, sym);
     }
     public void accept(JavafxVisitor v) { v.visitFunctionDeclaration(this); }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.FUNCTIONDECL;
+    }
 }

@@ -42,7 +42,7 @@ public class JFXTriggerOnReplaceElement extends JFXAbstractTriggerOn {
             JCExpression elementIdentifier,
             JCExpression identifier,
             JCBlock block) {
-        super(JavafxTag.TRIGGERONREPLACEELEMENT, block);
+        super(block);
         this.selector = selector;
         this.elementIdentifier = elementIdentifier;
         this.identifier = identifier;
@@ -52,4 +52,9 @@ public class JFXTriggerOnReplaceElement extends JFXAbstractTriggerOn {
     public JFXMemberSelector getSelector() { return selector; }
     public JCExpression getElementIdentifier() { return elementIdentifier; }
     public JCExpression getNewValueIdentifier() { return identifier; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.TRIGGERONREPLACEELEMENT;
+    }
 }

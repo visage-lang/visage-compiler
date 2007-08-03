@@ -49,7 +49,12 @@ public class JFXOperationMemberDefinition extends JFXFuncOpMemberDefinition {
             List<JCTree> params,
             JCBlock body,
             MethodSymbol sym) {
-        super(JavafxTag.OPERATIONDEF, selector, restype, params, body, sym);
+        super(selector, restype, params, body, sym);
     }
     public void accept(JavafxVisitor v) { v.visitOperationDefinition(this); }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.OPERATIONDEF;
+    }
 }

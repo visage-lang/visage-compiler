@@ -50,7 +50,12 @@ public class JFXFunctionLocalDefinition extends JFXFuncOpLocalDefinition {
             List<JCTree> params,
             JCBlock body,
             MethodSymbol sym) {
-        super(JavafxTag.FUNCTIONLOCALDEF, name, restype, params, body, sym);
+        super(name, restype, params, body, sym);
     }
     public void accept(JavafxVisitor v) { v.visitFunctionLocalDefinition(this); }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.FUNCTIONLOCALDEF;
+    }
 }

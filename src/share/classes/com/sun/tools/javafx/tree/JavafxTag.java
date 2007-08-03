@@ -33,7 +33,6 @@ import com.sun.tools.javac.tree.JCTree;
 public abstract class JavafxTag extends JCTree {
     
     private JavafxTag() {
-        super(0);
     }
 
     /** Pseudo operation: Remove tree

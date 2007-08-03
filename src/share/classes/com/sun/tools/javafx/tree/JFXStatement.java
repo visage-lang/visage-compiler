@@ -39,8 +39,7 @@ public abstract class JFXStatement extends JCStatement {
     
     /** Initialize tree with given tag.
      */
-    protected JFXStatement(int tag) {
-        super(tag);
+    protected JFXStatement() {
     }
     
     public abstract void accept(JavafxVisitor v);

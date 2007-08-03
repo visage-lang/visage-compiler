@@ -39,7 +39,6 @@ public class JFXPseudoReplaceStatement  extends JFXStatement {
     
     /** Creates a new instance of JFXPseudoReplaceTree */
     JFXPseudoReplaceStatement(JCStatement removed, JCStatement synthetic) {
-        super(JavafxTag.PSEUDOREPLACE);
         this.removed = removed;
         this.synthetic = synthetic;
     }
@@ -69,4 +68,9 @@ public class JFXPseudoReplaceStatement  extends JFXStatement {
     
     public JCStatement getRemoved()    { return removed; }
     public JCStatement getSynthetic()  { return synthetic; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.PSEUDOREPLACE;
+    }
 }

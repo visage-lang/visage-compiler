@@ -73,9 +73,9 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
     public void visitTopLevel(JCCompilationUnit cu) {
         super.visitTopLevel(cu);
         for (JCTree definition : definitions.values()) {
-            if ((definition.tag == JavafxTag.ATTRIBUTEDEF && ((JFXAttributeDefinition)definition).declaration == null) ||
-                (definition.tag == JavafxTag.FUNCTIONDEF && ((JFXFunctionMemberDefinition)definition).declaration == null) ||
-                (definition.tag == JavafxTag.OPERATIONDEF && ((JFXOperationMemberDefinition)definition).declaration == null)) {
+            if ((definition.getTag() == JavafxTag.ATTRIBUTEDEF && ((JFXAttributeDefinition)definition).declaration == null) ||
+                (definition.getTag() == JavafxTag.FUNCTIONDEF && ((JFXFunctionMemberDefinition)definition).declaration == null) ||
+                (definition.getTag() == JavafxTag.OPERATIONDEF && ((JFXOperationMemberDefinition)definition).declaration == null)) {
                 log.error(definition.pos, "javafx.member.def.with.no.decl");
             }
         }
@@ -134,7 +134,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
             
             JCTree attrDef = definitions.get(fullName);
             if (attrDef != null) {
-                if (attrDef.tag != JavafxTag.ATTRIBUTEDEF) {
+                if (attrDef.getTag() != JavafxTag.ATTRIBUTEDEF) {
                     log.error(that.pos, "javafx.no.attr.definition", that.name.toString(), currentClass.name.toString());
                 }
                 else {
@@ -177,7 +177,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
             
             JCTree funcDef = definitions.get(fullName);
             if (funcDef != null) {
-                if (funcDef.tag != JavafxTag.FUNCTIONDEF) {
+                if (funcDef.getTag() != JavafxTag.FUNCTIONDEF) {
                     log.error(that.pos, "javafx.no.func.definition", that.name.toString(), currentClass.name.toString());
                 }
                 else {
@@ -220,7 +220,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
             
             JCTree operDef = definitions.get(fullName);
             if (operDef != null) {
-                if (operDef.tag != JavafxTag.OPERATIONDEF) {
+                if (operDef.getTag() != JavafxTag.OPERATIONDEF) {
                     log.error(that.pos, "javafx.no.oper.definition", that.name.toString(), currentClass.name.toString());
                 }
                 else {
@@ -266,7 +266,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
             
             JCTree attrDecl = declarations.get(fullName);
             if (attrDecl != null) {
-                if (attrDecl.tag != JavafxTag.ATTRIBUTEDECL) {
+                if (attrDecl.getTag() != JavafxTag.ATTRIBUTEDECL) {
                     log.error(that.pos, "javafx.no.attr.declaration",
                             that.selector.name.toString(), that.selector.className.toString());
                 }
@@ -314,7 +314,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
             
             JCTree operDecl = declarations.get(fullName);
             if (operDecl != null) {
-                if (operDecl.tag != JavafxTag.OPERATIONDECL) {
+                if (operDecl.getTag() != JavafxTag.OPERATIONDECL) {
                     log.error(that.pos, "javafx.no.oper.declaration",
                             that.selector.name.toString(), that.selector.className.toString());
                 }
@@ -362,7 +362,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
             
             JCTree funcDecl = declarations.get(fullName);
             if (funcDecl != null) {
-                if (funcDecl.tag != JavafxTag.FUNCTIONDECL) {
+                if (funcDecl.getTag() != JavafxTag.FUNCTIONDECL) {
                     log.error(that.pos, "javafx.no.func.declaration",
                             that.selector.name.toString(), that.selector.className.toString());
                 }

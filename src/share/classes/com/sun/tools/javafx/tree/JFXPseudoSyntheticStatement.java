@@ -37,7 +37,6 @@ public class JFXPseudoSyntheticStatement  extends JFXStatement {
     private JCStatement synthetic;
     
     JFXPseudoSyntheticStatement(JCStatement synthetic) {
-        super(JavafxTag.PSEUDOSYNTHETIC);
         this.synthetic = synthetic;
     }
     
@@ -61,4 +60,9 @@ public class JFXPseudoSyntheticStatement  extends JFXStatement {
     }
     
     public JCStatement getSynthetic()  { return synthetic; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.PSEUDOSYNTHETIC;
+    }
 }

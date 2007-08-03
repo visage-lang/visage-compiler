@@ -37,7 +37,6 @@ public class JFXPseudoRemoveExpression  extends JFXExpression {
     private JCExpression removed;
     
     JFXPseudoRemoveExpression(JCExpression removed) {
-        super(JavafxTag.PSEUDOREMOVE);
         this.removed = removed;
     }
     
@@ -58,4 +57,9 @@ public class JFXPseudoRemoveExpression  extends JFXExpression {
     }
     
     public JCExpression getRemoved()    { return removed; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.PSEUDOREMOVE;
+    }
 }

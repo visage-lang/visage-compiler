@@ -44,7 +44,7 @@ public class JFXVarInit extends JFXVarStatement {
             JCExpression initializer,
             JavafxBindStatus bindStatus,
             VarSymbol sym) {
-        super(JavafxTag.VARINIT, name, type, sym);
+        super(name, type, sym);
         this.initializer = initializer;
         this.bindStatus = bindStatus;
     }
@@ -56,4 +56,9 @@ public class JFXVarInit extends JFXVarStatement {
     public boolean isUnidiBind() { return bindStatus.isUnidiBind; }
     public boolean isBidiBind()  { return bindStatus.isBidiBind; }
     public boolean isLazy()      { return bindStatus.isLazy; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.VARINIT;
+    }
 }

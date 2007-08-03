@@ -47,7 +47,7 @@ public class JFXAttributeDefinition extends JFXMemberDefinition {
             JCExpression init,
             JavafxBindStatus bindStatus,
             VarSymbol sym) {
-        super(JavafxTag.ATTRIBUTEDEF, selector, null);
+        super(selector, null);
         this.init = init;
         this.bindStatus = bindStatus;
         this.sym = sym;
@@ -60,4 +60,9 @@ public class JFXAttributeDefinition extends JFXMemberDefinition {
     public boolean isUnidiBind() { return bindStatus.isUnidiBind; }
     public boolean isBidiBind()  { return bindStatus.isBidiBind; }
     public boolean isLazy()      { return bindStatus.isLazy; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.ATTRIBUTEDEF;
+    }
 }

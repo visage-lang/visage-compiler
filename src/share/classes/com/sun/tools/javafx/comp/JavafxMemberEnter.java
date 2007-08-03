@@ -145,7 +145,7 @@ public class JavafxMemberEnter extends MemberEnter {
 
     public void visitImport(JCImport tree) {
         if (!tree.isStatic()) {
-            if (tree.qualid.tag == SELECT) {
+            if (tree.qualid.getTag() == SELECT) {
                 if (((JCFieldAccess)tree.qualid).name == names.fromString("Integer")) { // TODO: use the constant in the new NameTable when available.
                     log.error(tree.pos, "javafx.can.not.import.integer.primitive.type");
                 }
@@ -205,7 +205,7 @@ public class JavafxMemberEnter extends MemberEnter {
         tree.sym = v;
         if (tree.init != null) {
             v.flags_field |= HASINIT;
-            if ((v.flags_field & FINAL) != 0 && tree.init.tag != JCTree.NEWCLASS)
+            if ((v.flags_field & FINAL) != 0 && tree.init.getTag() != JCTree.NEWCLASS)
                 v.setLazyConstValue(initEnv(tree, env), log, attr, tree.init);
 // Javafx change
         if (tree.vartype.type == syms.javafx_AnyType) {
@@ -380,7 +380,7 @@ public class JavafxMemberEnter extends MemberEnter {
             if (methodDef != null &&
                     jfxTree.getJavafxMethodType() >= JavafxFlags.OPERATION && 
                     jfxTree.getJavafxMethodType() <= JavafxFlags.LOCAL_FUNCTION) {
-                switch (methodDef.tag) {
+                switch (methodDef.getTag()) {
                     case JavafxTag.OPERATIONDEF: {
                         JFXOperationMemberDefinition operationMemberDef = (JFXOperationMemberDefinition)methodDef;
                         params = operationMemberDef.params;
@@ -438,7 +438,7 @@ public class JavafxMemberEnter extends MemberEnter {
 
                 // Check that result type is well-formed.
                 chk.validate(restype);
-                restype = restype.tag == JavafxTag.TYPECLASS ? make.Ident(((JFXTypeClass)restype).getClassName()) : restype;
+                restype = restype.getTag() == JavafxTag.TYPECLASS ? make.Ident(((JFXTypeClass)restype).getClassName()) : restype;
                 attr.attribType(restype, localEnv);
 
                 defRestype = restype;
@@ -452,7 +452,7 @@ public class JavafxMemberEnter extends MemberEnter {
             if (methodDecl != null &&
                     jfxTree.getJavafxMethodType() >= JavafxFlags.OPERATION && 
                     jfxTree.getJavafxMethodType() <= JavafxFlags.LOCAL_FUNCTION) {
-                switch (methodDecl.tag) {
+                switch (methodDecl.getTag()) {
                     case JavafxTag.OPERATIONDECL: {
                         JFXOperationMemberDeclaration operationMemberDecl = (JFXOperationMemberDeclaration)methodDecl;
                         params = operationMemberDecl.params;
@@ -496,7 +496,7 @@ public class JavafxMemberEnter extends MemberEnter {
 
                 // Check that result type is well-formed.
                 chk.validate(restype);
-                restype = restype.tag == JavafxTag.TYPECLASS ? make.Ident(((JFXTypeClass)restype).getClassName()) : restype;
+                restype = restype.getTag() == JavafxTag.TYPECLASS ? make.Ident(((JFXTypeClass)restype).getClassName()) : restype;
                 attr.attribType(restype, localEnv);
 
                 declRestype = restype;

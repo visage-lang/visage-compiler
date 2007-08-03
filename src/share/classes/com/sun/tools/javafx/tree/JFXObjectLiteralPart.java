@@ -51,7 +51,6 @@ public class JFXObjectLiteralPart extends JFXStatement {
             JCExpression expr,
             JavafxBindStatus bindStatus,
             VarSymbol sym) {
-        super(JavafxTag.OBJECTLITERALPART);
         this.name = name;
         this.expr = expr;
         this.bindStatus = bindStatus;
@@ -66,4 +65,9 @@ public class JFXObjectLiteralPart extends JFXStatement {
     public boolean isUnidiBind() { return bindStatus.isUnidiBind; }
     public boolean isBidiBind()  { return bindStatus.isBidiBind; }
     public boolean isLazy()      { return bindStatus.isLazy; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.OBJECTLITERALPART;
+    }
 }

@@ -36,16 +36,15 @@ import com.sun.tools.javac.util.Name;
  */
 public class JFXVarStatement extends JFXVar {
     
-    protected JFXVarStatement(int tag,
-            Name name,
-            JFXType type,
-            VarSymbol sym) {
-        super(tag, name, type, sym);
-    }
     protected JFXVarStatement(Name name,
             JFXType type,
             VarSymbol sym) {
-        this(JavafxTag.VARSTATEMENT, name, type, sym);
+        super(name, type, sym);
     }
     public void accept(JavafxVisitor v) { v.visitVarStatement(this); }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.VARSTATEMENT;
+    }
 }

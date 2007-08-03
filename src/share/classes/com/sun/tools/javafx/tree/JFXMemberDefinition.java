@@ -40,9 +40,8 @@ public abstract class JFXMemberDefinition extends JFXStatement {
     /*
     * @param selector member name and class name of member
     */
-    protected JFXMemberDefinition(int tag,JFXMemberSelector selector,
+    protected JFXMemberDefinition(JFXMemberSelector selector,
             JFXType type) {
-        super(tag);
         this.selector = selector;
         this.type = type;
     }

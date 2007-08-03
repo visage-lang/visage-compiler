@@ -39,8 +39,7 @@ public abstract class JFXTree extends JCTree {
     
     /** Initialize tree with given tag.
      */
-    protected JFXTree(int tag) {
-        super(tag);
+    protected JFXTree() {
     }
     
     public abstract void accept(JavafxVisitor v);

@@ -57,7 +57,6 @@ public class JFXClassDeclaration extends JFXTree {
             List<Name> supertypes,
             List<JFXMemberDeclaration> declarations,
             ClassSymbol sym) {
-        super(JavafxTag.CLASSDECL);
         this.mods = mods;
         this.name = name;
         this.supertypes = supertypes;
@@ -69,5 +68,9 @@ public class JFXClassDeclaration extends JFXTree {
     public List<Name> getSupertypes() { return supertypes; }
     public List<JFXMemberDeclaration> getDeclaredMembers() {
         return declarations;
+    }       @Override
+    public int getTag() {
+        return JavafxTag.CLASSDECL;
     }
+
 }
