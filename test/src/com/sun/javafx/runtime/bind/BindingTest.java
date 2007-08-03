@@ -1,16 +1,49 @@
 package com.sun.javafx.runtime.bind;
 
 import junit.framework.TestCase;
-import com.sun.javafx.runtime.bind.BindingClosure;
-import com.sun.javafx.runtime.bind.Container;
-import com.sun.javafx.runtime.bind.LocationKey;
 
 /**
- * BindingTestCase
+ * BindingTest
  *
  * @author Brian Goetz
  */
-public class BindingTestCase extends TestCase {
+public class BindingTest extends TestCase {
+
+    /** FIXME:  added simple test so that this test suite doesn't fail due to no tests. */
+    public void testInstances() throws Exception {
+        Holder h = new Holder();
+        Container container = h.container;
+        LocationKey key = new LocationKey() {
+            @Override public int getSequence() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override public int getInt(Object base) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override public void setInt(Object base, int value) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override public double getDouble(Object base) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override public void setDouble(Object base, double value) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override public Object getReference(Object base) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override public void setReference(Object base, Object value) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override public void update(Object base, BindingClosure closure) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+        };
+        Var v = new IntVar(container, key);
+        v = new DoubleVar(container, key);
+        v = new ReferenceVar<String>(container, key);
+    }
+
     protected class Var {
         protected final Container container;
         protected final LocationKey key;
@@ -90,6 +123,7 @@ public class BindingTestCase extends TestCase {
             container.setReferenceValue(key, value);
         }
 
+        @SuppressWarnings("unchecked")
         public T get() {
             return (T) container.getReferenceValue(key);
         }

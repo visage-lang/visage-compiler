@@ -6,12 +6,12 @@ import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 
 /**
- * TestUnsafe.  This is what is sometimes called an "exploration test"; it validates that our understanding
+ * UnsafeTest.  This is what is sometimes called an "exploration test"; it validates that our understanding
  * of the Unsafe API is correct.
  *
  * @author Brian Goetz
  */
-public class TestUnsafe extends TestCase {
+public class UnsafeTest extends TestCase {
     static Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     private long[] getOffsets(Class clazz, String[] fields) throws NoSuchFieldException {

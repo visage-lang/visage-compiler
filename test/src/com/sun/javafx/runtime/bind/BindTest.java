@@ -5,7 +5,7 @@ package com.sun.javafx.runtime.bind;
  *
  * @author Brian Goetz
  */
-public class TestBind extends BindingTestCase {
+public class BindTest extends BindingTest {
 
     public void testSetValue() {
         Holder h = new Holder();
@@ -37,7 +37,7 @@ public class TestBind extends BindingTestCase {
         a.set(0);
         // bind b = a + 1
         b.bind(new IntBindingClosure() {
-            public int asInt() {
+            @Override public int asInt() {
                 return a.get() + 1;
             }
         }, new IntVar[] { a });
@@ -49,7 +49,7 @@ public class TestBind extends BindingTestCase {
 
         // bind c = b
         c.bind(new IntBindingClosure() {
-            public int asInt() {
+            @Override public int asInt() {
                 return b.get();
             }
         }, new IntVar[] { b });
@@ -77,7 +77,7 @@ public class TestBind extends BindingTestCase {
         a.set(0);
         // bind b = a + 1
         b.bind(new IntBindingClosure() {
-            public int asInt() {
+            @Override public int asInt() {
                 return a.get() + 1;
             }
         }, new IntVar[] { a });
@@ -89,7 +89,7 @@ public class TestBind extends BindingTestCase {
 
         // bind c = b
         c.bind(new IntBindingClosure() {
-            public int asInt() {
+            @Override public int asInt() {
                 return b.get();
             }
         }, new IntVar[] { b });
@@ -112,7 +112,7 @@ public class TestBind extends BindingTestCase {
         a.set(0);
         // bind b = a + 1
         b.bindLazy(new IntBindingClosure() {
-            public int asInt() {
+            @Override public int asInt() {
                 return a.get() + 1;
             }
         }, new IntVar[] { a });
@@ -140,7 +140,7 @@ public class TestBind extends BindingTestCase {
         class BClosure extends IntBindingClosure {
             public int count;
 
-            public int asInt() {
+            @Override public int asInt() {
                 ++count;
                 return a.get() + a.get();
             }
@@ -164,7 +164,7 @@ public class TestBind extends BindingTestCase {
         final DoubleVar d = new DoubleVar(container, Holder.KEY_D);
 
         d.bind(new DoubleBindingClosure() {
-            public double asDouble() {
+            @Override public double asDouble() {
                 return a.get() + 1;
             }
         }, new Var[] { a });
@@ -181,7 +181,7 @@ public class TestBind extends BindingTestCase {
         final ReferenceVar e = new ReferenceVar(container, Holder.KEY_E);
 
         e.bind(new ReferenceBindingClosure() {
-            public String asReference() {
+            @Override public String asReference() {
                 return Integer.toString(a.get() + 1);
             }
         }, new Var[] { a });
