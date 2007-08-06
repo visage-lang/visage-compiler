@@ -529,22 +529,22 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
         }
     }
     
-    public void visitAttributeDefinition(JFXAttributeDefinition that) {
+    public void visitAttributeDefinition(JFXRetroAttributeDefinition that) {
         visitMemberDefinition(that);
         if (that.getInitializer() != null) {
             that.getInitializer().accept(this);
         }
     }
     
-    public void visitFunctionDefinition(JFXFunctionMemberDefinition that) {
+    public void visitFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
         visitFuncOpDefinition(that);
     }
     
-    public void visitOperationDefinition(JFXOperationMemberDefinition that) {
+    public void visitOperationDefinition(JFXRetroOperationMemberDefinition that) {
         visitFuncOpDefinition(that);
     }
     
-    public void visitFuncOpDefinition(JFXFuncOpMemberDefinition that) {
+    public void visitFuncOpDefinition(JFXRetroFuncOpMemberDefinition that) {
         visitMemberDefinition(that);
         
         for (JCTree param : that.getParameters()) {
@@ -553,14 +553,14 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
         that.body.accept(this);
     }
     
-    public void visitMemberDefinition(JFXMemberDefinition that) {
+    public void visitMemberDefinition(JFXRetroMemberDefinition that) {
         that.getSelector().accept((JavafxVisitor)this);
         if (that.getType() != null) {
             that.getType().accept((JavafxVisitor)this);
         }
     }
     
-    public void visitOperationLocalDefinition(JFXOperationLocalDefinition that) {
+    public void visitOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
         if (that.getType() != null) {
             that.getType().accept((JavafxVisitor)this);
         }
@@ -571,7 +571,7 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
         that.getBody().accept(this);
     }
     
-    public void visitFunctionLocalDefinition(JFXFunctionLocalDefinition that) {
+    public void visitFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
         if (that.getType() != null) {
             that.getType().accept((JavafxVisitor)this);
         }

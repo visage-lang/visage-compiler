@@ -49,25 +49,25 @@ public interface JavafxTreeFactory extends JCTree.Factory {
             JFXType restype,
             List<JCTree> params);
     
-    JFXOperationMemberDefinition OperationDefinition(
+    JFXRetroOperationMemberDefinition OperationDefinition(
             JFXMemberSelector selector,
             JFXType restype,
             List<JCTree> params,
             JCBlock body);
     
-    JFXFunctionMemberDefinition FunctionDefinition(
+    JFXRetroFunctionMemberDefinition FunctionDefinition(
             JFXMemberSelector selector,
             JFXType restype,
             List<JCTree> params,
             JCBlock body);
     
-    JFXOperationLocalDefinition OperationLocalDefinition(
+    JFXRetroOperationLocalDefinition OperationLocalDefinition(
             Name name,
             JFXType restype,
             List<JCTree> params,
             JCBlock body);
     
-    JFXFunctionLocalDefinition FunctionLocalDefinition(
+    JFXRetroFunctionLocalDefinition FunctionLocalDefinition(
             Name name,
             JFXType restype,
             List<JCTree> params,

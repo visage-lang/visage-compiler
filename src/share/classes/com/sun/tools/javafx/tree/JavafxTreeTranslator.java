@@ -86,7 +86,7 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
-    public void visitAttributeDefinition(JFXAttributeDefinition that) {
+    public void visitAttributeDefinition(JFXRetroAttributeDefinition that) {
         visitMemberDefinition(that);
         if (that.init != null) {
             that.init = translate(that.init);
@@ -95,17 +95,17 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
-    public void visitFunctionDefinition(JFXFunctionMemberDefinition that) {
+    public void visitFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
         visitFuncOpDefinition(that);
         result = that;
     }
     
-    public void visitOperationDefinition(JFXOperationMemberDefinition that) {
+    public void visitOperationDefinition(JFXRetroOperationMemberDefinition that) {
         visitFuncOpDefinition(that);
         result = that;
     }
     
-    public void visitFuncOpDefinition(JFXFuncOpMemberDefinition that) {
+    public void visitFuncOpDefinition(JFXRetroFuncOpMemberDefinition that) {
         visitMemberDefinition(that);
         
         that.params = translate(that.params);
@@ -113,7 +113,7 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
-    public void visitMemberDefinition(JFXMemberDefinition that) {
+    public void visitMemberDefinition(JFXRetroMemberDefinition that) {
         if (that.selector != null) {
             that.selector = translate(that.selector);
         }
@@ -123,7 +123,7 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
-    public void visitOperationLocalDefinition(JFXOperationLocalDefinition that) {
+    public void visitOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
         if (that.restype != null) {
             that.restype = translate(that.restype);
         }
@@ -134,7 +134,7 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
-    public void visitFunctionLocalDefinition(JFXFunctionLocalDefinition that) {
+    public void visitFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
         if (that.restype != null) {
             that.restype = translate(that.restype);
         }

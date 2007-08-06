@@ -27,6 +27,7 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.tree.JCTree.JCModifiers;
 
 /**
  * Variable declaration.
@@ -36,13 +37,16 @@ import com.sun.tools.javac.util.Name;
 public class JFXVar extends JFXStatement {
     public Name name; // TODO: Make this an Ident because of tools.
     public JFXType type;
+    private JCModifiers mods;
     VarSymbol sym;
     
     protected JFXVar(Name name,
             JFXType type,
+            JCModifiers mods,
             VarSymbol sym) {
         this.name = name;
         this.type = type;
+        this.mods = mods;
         this.sym = sym;
     }
     
@@ -54,5 +58,9 @@ public class JFXVar extends JFXStatement {
     @Override
     public int getTag() {
         return JavafxTag.VARDECL;
+    }
+    
+    public JCModifiers getModifiers() {
+        return mods;
     }
 }

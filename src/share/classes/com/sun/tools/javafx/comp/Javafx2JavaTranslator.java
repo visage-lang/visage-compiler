@@ -187,7 +187,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         super.visitAttributeDeclaration(tree);
         
         JCExpression vartype = jcType(tree.getType());
-        JFXAttributeDefinition definition = (JFXAttributeDefinition)tree.definition;
+        JFXRetroAttributeDefinition definition = (JFXRetroAttributeDefinition)tree.definition;
         if (definition == null) {
             result = make.JavafxVarDef(make.Modifiers(0), tree.getName(), JavafxFlags.ATTRIBUTE, vartype,
                     null, JavafxBindStatus.UNBOUND, definition, tree);
@@ -217,7 +217,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
             }
         }
         
-        JFXFunctionMemberDefinition definition = (JFXFunctionMemberDefinition)tree.definition;
+        JFXRetroFunctionMemberDefinition definition = (JFXRetroFunctionMemberDefinition)tree.definition;
         
         result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.FUNCTION, tree.getName(),
                 restype, params, definition == null ? null : definition.body, null,
@@ -242,7 +242,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
             }
         }
         
-        JFXOperationMemberDefinition definition = (JFXOperationMemberDefinition)tree.definition;
+        JFXRetroOperationMemberDefinition definition = (JFXRetroOperationMemberDefinition)tree.definition;
         
         result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.FUNCTION, tree.getName(),
                 restype, params, definition == null ? null : definition.body, null,
@@ -250,25 +250,25 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     }
     
     @Override
-    public void visitAttributeDefinition(JFXAttributeDefinition tree) {
+    public void visitAttributeDefinition(JFXRetroAttributeDefinition tree) {
         super.visitAttributeDefinition(tree);
         result = null;
     }
     
     @Override
-    public void visitFunctionDefinition(JFXFunctionMemberDefinition tree) {
+    public void visitFunctionDefinition(JFXRetroFunctionMemberDefinition tree) {
         super.visitFunctionDefinition(tree);
         result = null;
     }
     
     @Override
-    public void visitOperationDefinition(JFXOperationMemberDefinition tree) {
+    public void visitOperationDefinition(JFXRetroOperationMemberDefinition tree) {
         super.visitOperationDefinition(tree);
         result = null;
     }
     
     @Override
-    public void visitOperationLocalDefinition(JFXOperationLocalDefinition tree) {
+    public void visitOperationLocalDefinition(JFXRetroOperationLocalDefinition tree) {
         super.visitOperationLocalDefinition(tree);
         
         JCExpression restype = jcType(tree.getType());
@@ -293,7 +293,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     }
     
     @Override
-    public void visitFunctionLocalDefinition(JFXFunctionLocalDefinition tree) {
+    public void visitFunctionLocalDefinition(JFXRetroFunctionLocalDefinition tree) {
         super.visitFunctionLocalDefinition(tree);
         
         JCExpression restype = jcType(tree.getType());
@@ -537,7 +537,11 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     }
     
     private JavafxJCVarDecl jcVarDeclFromJFXVar(JFXVar tree) {
-        return make.JavafxVarDef(make.Modifiers(0),  tree.getName(),
+        JCModifiers mods = tree.getModifiers();
+        if (mods == null) {
+            mods = make.Modifiers(0);
+        }
+        return make.JavafxVarDef(mods, tree.getName(),
                 JavafxFlags.VARIABLE, jcType(tree.getType()),
                 null, JavafxBindStatus.UNBOUND, null, tree);
     }

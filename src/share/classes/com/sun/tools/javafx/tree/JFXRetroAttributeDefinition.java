@@ -25,27 +25,44 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
+
+import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.javafx.code.JavafxBindStatus;
 
 /**
- * Abstract definition of a member
+ * An attribute definition.
  */
-public abstract class JFXMemberDefinition extends JFXStatement {
-    public JFXMemberSelector selector;
-    public JFXType type;
-
-    public JFXMemberDeclaration declaration;
-    public JCTree owner;
-
-    /*
+public class JFXRetroAttributeDefinition extends JFXRetroMemberDefinition {
+    public JCExpression init;
+    private JavafxBindStatus bindStatus;
+    public VarSymbol sym;
+   /*
     * @param selector member name and class name of member
+    * @param init type of attribute
+    * @param sym attribute symbol
     */
-    protected JFXMemberDefinition(JFXMemberSelector selector,
-            JFXType type) {
-        this.selector = selector;
-        this.type = type;
+    protected JFXRetroAttributeDefinition(
+            JFXMemberSelector selector,
+            JCExpression init,
+            JavafxBindStatus bindStatus,
+            VarSymbol sym) {
+        super(selector, null);
+        this.init = init;
+        this.bindStatus = bindStatus;
+        this.sym = sym;
     }
+    public void accept(JavafxVisitor v) { v.visitAttributeDefinition(this); }
     
-    public JFXMemberSelector getSelector() { return selector; }
-    public JFXType getType() { return type; }
+    public JCExpression getInitializer() { return init; }
+    public JavafxBindStatus getBindStatus() { return bindStatus; }
+    public boolean isBound()     { return bindStatus.isBound; }
+    public boolean isUnidiBind() { return bindStatus.isUnidiBind; }
+    public boolean isBidiBind()  { return bindStatus.isBidiBind; }
+    public boolean isLazy()      { return bindStatus.isLazy; }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.ATTRIBUTEDEF;
+    }
 }

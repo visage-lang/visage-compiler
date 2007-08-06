@@ -1,8 +1,5 @@
-package test;
-
 import java.lang.System;
 import java.lang.Double;
-import java.lang.Integer;
 
 class Foo {
  attribute a : Integer ;

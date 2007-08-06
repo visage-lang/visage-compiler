@@ -32,12 +32,12 @@ import com.sun.tools.javac.util.Name;
 /**
  * Abstract declaration of a member
  */
-public abstract class JFXMemberDeclaration extends JFXTree {
+public abstract class JFXMemberDeclaration extends JFXStatement {
     public JCModifiers mods;
     public Name name; // TODO: Make this an Ident, so position info is kept and tools can work with it.
     public JFXType type;
 
-    public JFXMemberDefinition definition;
+    public JFXRetroMemberDefinition definition;
     public JCTree owner;
     
    /*

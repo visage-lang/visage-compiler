@@ -25,42 +25,27 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree.*;
-
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
-
-import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.tree.JCTree;
 
 /**
- * A function or operation definition.
+ * Abstract definition of a member
  */
-public abstract class JFXFuncOpMemberDefinition extends JFXMemberDefinition {
-    public List<JCTree> params;
-    public JCBlock body;
-    public MethodSymbol sym;
-   /*
-    * @param tag the tag for function/operation definition
+public abstract class JFXRetroMemberDefinition extends JFXStatement {
+    public JFXMemberSelector selector;
+    public JFXType type;
+
+    public JFXMemberDeclaration declaration;
+    public JCTree owner;
+
+    /*
     * @param selector member name and class name of member
-    * @param restype type of operation return value
-    * @param params value parameters
-    * @param body statements in the operation
-    * @param sym method symbol
     */
-    protected JFXFuncOpMemberDefinition(JFXMemberSelector selector,
-            JFXType restype,
-            List<JCTree> params,
-            JCBlock body,
-            MethodSymbol sym) {
-        super(selector, restype);
-        this.params = params;
-        this.body = body;
-        this.sym = sym;
+    protected JFXRetroMemberDefinition(JFXMemberSelector selector,
+            JFXType type) {
+        this.selector = selector;
+        this.type = type;
     }
     
-    public List<JCTree> getParameters() {
-        return params;
-    }
-    public JCBlock getBody() { return body; }
+    public JFXMemberSelector getSelector() { return selector; }
+    public JFXType getType() { return type; }
 }

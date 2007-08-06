@@ -34,7 +34,7 @@ import com.sun.tools.javac.tree.JCTree;
 /**
  * A local function or operation definition.
  */
-public abstract class JFXFuncOpLocalDefinition extends JFXStatement {
+public abstract class JFXRetroFuncOpLocalDefinition extends JFXStatement {
     public Name name; // TODO: Make this an Ident, so position info will be stored and tools will be able to operate.
     public JFXType restype;
     public List<JCTree> params;
@@ -50,7 +50,8 @@ public abstract class JFXFuncOpLocalDefinition extends JFXStatement {
     * @param body statements in the operation
     * @param sym method symbol
     */
-    protected JFXFuncOpLocalDefinition(Name name,
+    protected JFXRetroFuncOpLocalDefinition(
+            Name name,
             JFXType restype,
             List<JCTree> params,
             JCBlock body,

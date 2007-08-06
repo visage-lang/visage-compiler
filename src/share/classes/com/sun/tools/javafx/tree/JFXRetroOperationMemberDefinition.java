@@ -35,7 +35,7 @@ import com.sun.tools.javac.code.Symbol.*;
 /**
  * An operation definition.
  */
-public class JFXOperationMemberDefinition extends JFXFuncOpMemberDefinition {
+public class JFXRetroOperationMemberDefinition extends JFXRetroFuncOpMemberDefinition {
    /*
     * @param selector member name and class name of member
     * @param restype type of operation return value
@@ -43,7 +43,7 @@ public class JFXOperationMemberDefinition extends JFXFuncOpMemberDefinition {
     * @param body statements in the operation
     * @param sym method symbol
     */
-    protected JFXOperationMemberDefinition(
+    protected JFXRetroOperationMemberDefinition(
             JFXMemberSelector selector,
             JFXType restype,
             List<JCTree> params,

@@ -34,9 +34,9 @@ import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.code.Symbol.*;
 
 /**
- * A local operation definition.
+ * A local function definition.
  */
-public class JFXOperationLocalDefinition extends JFXFuncOpLocalDefinition {
+public class JFXRetroFunctionLocalDefinition extends JFXRetroFuncOpLocalDefinition {
    /*
     * @param name operation name
     * @param restype type of operation return value
@@ -44,7 +44,7 @@ public class JFXOperationLocalDefinition extends JFXFuncOpLocalDefinition {
     * @param body statements in the operation
     * @param sym method symbol
     */
-    protected JFXOperationLocalDefinition(
+    protected JFXRetroFunctionLocalDefinition(
             Name name,
             JFXType restype,
             List<JCTree> params,
@@ -52,10 +52,10 @@ public class JFXOperationLocalDefinition extends JFXFuncOpLocalDefinition {
             MethodSymbol sym) {
         super(name, restype, params, body, sym);
     }
-    public void accept(JavafxVisitor v) { v.visitOperationLocalDefinition(this); }
+    public void accept(JavafxVisitor v) { v.visitFunctionLocalDefinition(this); }
 
     @Override
     public int getTag() {
-        return JavafxTag.OPERATIONLOCALDEF;
+        return JavafxTag.FUNCTIONLOCALDEF;
     }
 }

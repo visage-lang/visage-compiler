@@ -22,11 +22,12 @@ operation Bar.op() {
 		return;
 	}
 }
-
+/**x
 class Bat extends Bar {
 	attribute rr : Bar;
 }
 attribute Bat.rr = new Bar;  //TODO reinstate: Bar { a : 88 };
+x**/
 
 /*** not implemented yet
 operation snod(h) : String {
@@ -48,5 +49,5 @@ var v4 : Number = bind lazy v1;
 v1 = 6.7;
 v1 += v2;
 
-var bat = Bat { a: 12 };
+//var bat = Bat { a: 12 };
 //bat.rr.f1(2, 3, 4);    //TODO reinstate

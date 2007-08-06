@@ -158,11 +158,11 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     
     
     
-    public JFXAttributeDefinition AttributeDefinition(
+    public JFXRetroAttributeDefinition AttributeDefinition(
             JFXMemberSelector selector,
             JCExpression init,
             JavafxBindStatus bindStatus) {
-        JFXAttributeDefinition tree = new JFXAttributeDefinition(
+        JFXRetroAttributeDefinition tree = new JFXRetroAttributeDefinition(
                 selector,
                 init,
                 bindStatus,
@@ -171,12 +171,12 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXFunctionMemberDefinition FunctionDefinition(
+    public JFXRetroFunctionMemberDefinition FunctionDefinition(
             JFXMemberSelector selector,
             JFXType restype,
             List<JCTree> params,
             JCBlock body) {
-        JFXFunctionMemberDefinition tree = new JFXFunctionMemberDefinition(
+        JFXRetroFunctionMemberDefinition tree = new JFXRetroFunctionMemberDefinition(
                 selector,
                 restype,
                 params,
@@ -186,12 +186,12 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXOperationMemberDefinition OperationDefinition(
+    public JFXRetroOperationMemberDefinition OperationDefinition(
             JFXMemberSelector selector,
             JFXType restype,
             List<JCTree> params,
             JCBlock body) {
-        JFXOperationMemberDefinition tree = new JFXOperationMemberDefinition(
+        JFXRetroOperationMemberDefinition tree = new JFXRetroOperationMemberDefinition(
                 selector,
                 restype,
                 params,
@@ -201,12 +201,12 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXFunctionLocalDefinition FunctionLocalDefinition(
+    public JFXRetroFunctionLocalDefinition FunctionLocalDefinition(
             Name name,
             JFXType restype,
             List<JCTree> params,
             JCBlock body) {
-        JFXFunctionLocalDefinition tree = new JFXFunctionLocalDefinition(
+        JFXRetroFunctionLocalDefinition tree = new JFXRetroFunctionLocalDefinition(
                 name,
                 restype,
                 params,
@@ -216,12 +216,12 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXOperationLocalDefinition OperationLocalDefinition(
+    public JFXRetroOperationLocalDefinition OperationLocalDefinition(
             Name name,
             JFXType restype,
             List<JCTree> params,
             JCBlock body) {
-        JFXOperationLocalDefinition tree = new JFXOperationLocalDefinition(
+        JFXRetroOperationLocalDefinition tree = new JFXRetroOperationLocalDefinition(
                 name,
                 restype,
                 params,
@@ -337,8 +337,14 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     }
     
     public JFXVar  Var(Name name,
-            JFXType type) {
-        JFXVar tree = new JFXVar(name, type, null);
+                        JFXType type) {
+        return Var(name, type, null);
+    }
+    
+    public JFXVar  Var(Name name,
+                        JFXType type,
+                        JCModifiers mods) {
+        JFXVar tree = new JFXVar(name, type, mods, null);
         tree.pos = pos;
         return tree;
     }
@@ -440,7 +446,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
             JavafxMethodSymbol sym,
             List<JFXExpression> capturedOuters,
             JFXStatement definition,
-            JFXTree declaration) {
+            JFXStatement declaration) {
         List<JCTypeParameter> typarams = List.nil();
         List<JCExpression> thrown = List.nil();
         return new JavafxJCMethodDecl(mods, javafxMethodType, name, restype, typarams,

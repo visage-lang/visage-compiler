@@ -15,7 +15,7 @@ public class JavafxJCMethodDecl extends JCMethodDecl {
     private int javafxMethodType = JavafxFlags.SIMPLE_JAVA;
     private List<JFXExpression> capturedOuters = List.nil();
     
-    public JFXTree declaration;
+    public JFXStatement declaration;
     public JFXStatement definition;
     
     /** Creates a new instance of JavafxMethodDecl */
@@ -30,7 +30,7 @@ public class JavafxJCMethodDecl extends JCMethodDecl {
                             JavafxMethodSymbol sym,
                             List<JFXExpression> capturedOuters,
                             JFXStatement definition,
-                            JFXTree declaration) {
+                            JFXStatement declaration) {
         super(mods, name, restype, typarams, params, thrown, body, null, sym);
         this.javafxMethodType = javafxMethodType;
         this.capturedOuters = capturedOuters;

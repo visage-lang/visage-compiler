@@ -117,11 +117,11 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         printFuncOpDecl(tree, "operation");
     }
     
-    public void visitOperationDefinition(JFXOperationMemberDefinition tree) {
+    public void visitOperationDefinition(JFXRetroOperationMemberDefinition tree) {
         printFuncOpDef(tree, "operation");
     }
     
-    public void visitFunctionDefinition(JFXFunctionMemberDefinition tree) {
+    public void visitFunctionDefinition(JFXRetroFunctionMemberDefinition tree) {
         printFuncOpDef(tree, "function");
     }
     
@@ -146,7 +146,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
     
-    public void visitAttributeDefinition(JFXAttributeDefinition tree) {
+    public void visitAttributeDefinition(JFXRetroAttributeDefinition tree) {
         try {
             printDocComment(tree);
             print("attribute ");
@@ -169,11 +169,11 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
     
-    public void visitOperationLocalDefinition(JFXOperationLocalDefinition tree)  {
+    public void visitOperationLocalDefinition(JFXRetroOperationLocalDefinition tree)  {
         printFuncOpLocalDef(tree, "operation");
     }
     
-    public void visitFunctionLocalDefinition(JFXFunctionLocalDefinition tree) {
+    public void visitFunctionLocalDefinition(JFXRetroFunctionLocalDefinition tree) {
         printFuncOpLocalDef(tree, "function");
     }
 
@@ -208,7 +208,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
     
-    public void printFuncOpDef(JFXFuncOpMemberDefinition tree, String which) {
+    public void printFuncOpDef(JFXRetroFuncOpMemberDefinition tree, String which) {
         try {
             println(); align();
             printDocComment(tree);
@@ -233,7 +233,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
     
-    public void printFuncOpLocalDef(JFXFuncOpLocalDefinition tree, String which) {
+    public void printFuncOpLocalDef(JFXRetroFuncOpLocalDefinition tree, String which) {
         try {
             println(); align();
             printDocComment(tree);

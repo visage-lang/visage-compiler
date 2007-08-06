@@ -39,7 +39,7 @@ public class JFXVarStatement extends JFXVar {
     protected JFXVarStatement(Name name,
             JFXType type,
             VarSymbol sym) {
-        super(name, type, sym);
+        super(name, type, null, sym);
     }
     public void accept(JavafxVisitor v) { v.visitVarStatement(this); }
 

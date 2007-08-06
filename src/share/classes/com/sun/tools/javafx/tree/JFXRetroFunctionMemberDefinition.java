@@ -25,44 +25,36 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.*;
+import com.sun.tools.javac.tree.JCTree.*;
+
+import com.sun.tools.javac.util.List;
 
 import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javafx.code.JavafxBindStatus;
 
 /**
- * An attribute definition.
+ * A function definition.
  */
-public class JFXAttributeDefinition extends JFXMemberDefinition {
-    public JCExpression init;
-    private JavafxBindStatus bindStatus;
-    public VarSymbol sym;
+public class JFXRetroFunctionMemberDefinition extends JFXRetroFuncOpMemberDefinition {
    /*
     * @param selector member name and class name of member
-    * @param init type of attribute
-    * @param sym attribute symbol
+    * @param restype type of operation return value
+    * @param params value parameters
+    * @param body statements in the operation
+    * @param sym method symbol
     */
-    protected JFXAttributeDefinition(
+    protected JFXRetroFunctionMemberDefinition(
             JFXMemberSelector selector,
-            JCExpression init,
-            JavafxBindStatus bindStatus,
-            VarSymbol sym) {
-        super(selector, null);
-        this.init = init;
-        this.bindStatus = bindStatus;
-        this.sym = sym;
+            JFXType restype,
+            List<JCTree> params,
+            JCBlock body,
+            MethodSymbol sym) {
+        super(selector, restype, params, body, sym);
     }
-    public void accept(JavafxVisitor v) { v.visitAttributeDefinition(this); }
-    
-    public JCExpression getInitializer() { return init; }
-    public JavafxBindStatus getBindStatus() { return bindStatus; }
-    public boolean isBound()     { return bindStatus.isBound; }
-    public boolean isUnidiBind() { return bindStatus.isUnidiBind; }
-    public boolean isBidiBind()  { return bindStatus.isBidiBind; }
-    public boolean isLazy()      { return bindStatus.isLazy; }
+    public void accept(JavafxVisitor v) { v.visitFunctionDefinition(this); }
 
     @Override
     public int getTag() {
-        return JavafxTag.ATTRIBUTEDEF;
+        return JavafxTag.FUNCTIONDEF;
     }
 }

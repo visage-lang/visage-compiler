@@ -177,7 +177,7 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
                 break;
             case OPERATIONLOCALDEF:
             case FUNCTIONLOCALDEF:
-                checkName(tree.pos, ((JFXFuncOpLocalDefinition)tree).getName());
+                checkName(tree.pos, ((JFXRetroFuncOpLocalDefinition)tree).getName());
                 newBody = newBody.append(tree);
                 break;
             case VARDECL:
@@ -250,23 +250,23 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
         // TODO:
     }
 
-    public void visitAttributeDefinition(JFXAttributeDefinition that) {
+    public void visitAttributeDefinition(JFXRetroAttributeDefinition that) {
         // TODO:
     }
 
-    public void visitOperationDefinition(JFXOperationMemberDefinition that) {
+    public void visitOperationDefinition(JFXRetroOperationMemberDefinition that) {
         // TODO:
     }
 
-    public void visitFunctionDefinition(JFXFunctionMemberDefinition that) {
+    public void visitFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
         // TODO:
     }
 
-    public void visitOperationLocalDefinition(JFXOperationLocalDefinition that) {
+    public void visitOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
         // TODO:
     }
 
-    public void visitFunctionLocalDefinition(JFXFunctionLocalDefinition that) {
+    public void visitFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
         // TODO:
     }
 

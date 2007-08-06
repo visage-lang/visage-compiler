@@ -37,7 +37,7 @@ public class JFXVarIsObjectBeingInitialized extends JFXVar {
     
     protected JFXVarIsObjectBeingInitialized(Name name,
             VarSymbol sym) {
-        super(name, null, sym);
+        super(name, null, null, sym);
     }
     public void accept(JavafxVisitor v) { v.visitVarIsObjectBeingInitialized(this); }
 
