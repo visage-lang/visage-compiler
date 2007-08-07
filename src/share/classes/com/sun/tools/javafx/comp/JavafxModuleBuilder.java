@@ -163,20 +163,20 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
         List<JCTree> retDefs = List.nil();
         for (JCTree tree : newDefs) {
             switch (tree.getTag()) {
-            case IMPORT:
+                                                case IMPORT:
                 retDefs = retDefs.append(tree);
                 break;
             case CLASSDECL:
                 checkName(tree.pos, ((JFXClassDeclaration)tree).name);
                 newBody = newBody.append(tree);
                 break;
-            case OPERATIONDEF:
-            case FUNCTIONDEF:
-            case ATTRIBUTEDEF:
+            case RETROOPERATIONDEF:
+            case RETROFUNCTIONDEF:
+            case RETROATTRIBUTEDEF:
                 newBody = newBody.append(tree);
                 break;
-            case OPERATIONLOCALDEF:
-            case FUNCTIONLOCALDEF:
+            case RETROOPERATIONLOCALDEF:
+            case RETROFUNCTIONLOCALDEF:
                 checkName(tree.pos, ((JFXRetroFuncOpLocalDefinition)tree).getName());
                 newBody = newBody.append(tree);
                 break;
@@ -250,23 +250,23 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
         // TODO:
     }
 
-    public void visitAttributeDefinition(JFXRetroAttributeDefinition that) {
+    public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that) {
         // TODO:
     }
 
-    public void visitOperationDefinition(JFXRetroOperationMemberDefinition that) {
+    public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition that) {
         // TODO:
     }
 
-    public void visitFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
+    public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
         // TODO:
     }
 
-    public void visitOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
+    public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
         // TODO:
     }
 
-    public void visitFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
+    public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
         // TODO:
     }
 

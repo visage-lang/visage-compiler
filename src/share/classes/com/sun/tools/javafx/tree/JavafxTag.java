@@ -51,29 +51,29 @@ public abstract class JavafxTag extends JCTree {
      */
     public static final int CLASSDECL = PSEUDOREPLACE + 1;     
 
-    /** attribute definition
+    /** old style "retro" separate attribute definition
      */
-    public static final int ATTRIBUTEDEF = CLASSDECL + 1;     
+    public static final int RETROATTRIBUTEDEF = CLASSDECL + 1;     
 
-    /** operator definition
+    /** old style "retro" separate operation definition
      */
-    public static final int OPERATIONDEF = ATTRIBUTEDEF + 1;     
+    public static final int RETROOPERATIONDEF = RETROATTRIBUTEDEF + 1;     
 
-    /** function definition
+    /** old style "retro" separate function definition
      */
-    public static final int FUNCTIONDEF = OPERATIONDEF + 1;     
+    public static final int RETROFUNCTIONDEF = RETROOPERATIONDEF + 1;     
 
-    /** operator definition
+    /** old style "retro" separate operation definition
      */
-    public static final int OPERATIONLOCALDEF = FUNCTIONDEF + 1;     
+    public static final int RETROOPERATIONLOCALDEF = RETROFUNCTIONDEF + 1;     
 
-    /** function definition
+    /** old style "retro" separate function definition
      */
-    public static final int FUNCTIONLOCALDEF = OPERATIONLOCALDEF + 1;     
+    public static final int RETROFUNCTIONLOCALDEF = RETROOPERATIONLOCALDEF + 1;     
 
     /** attribute declaration
      */
-    public static final int ATTRIBUTEDECL = FUNCTIONLOCALDEF + 1;     
+    public static final int ATTRIBUTEDECL = RETROFUNCTIONLOCALDEF + 1;     
 
     /** operator declaration
      */

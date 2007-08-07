@@ -381,27 +381,27 @@ public class JavafxMemberEnter extends MemberEnter {
                     jfxTree.getJavafxMethodType() >= JavafxFlags.OPERATION && 
                     jfxTree.getJavafxMethodType() <= JavafxFlags.LOCAL_FUNCTION) {
                 switch (methodDef.getTag()) {
-                                        case JavafxTag.OPERATIONDEF: {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                case JavafxTag.RETROOPERATIONDEF: {
                         JFXRetroOperationMemberDefinition operationMemberDef = (JFXRetroOperationMemberDefinition)methodDef;
                         params = operationMemberDef.params;
                         restype = operationMemberDef.type;
                         break;
                     }
 
-                    case JavafxTag.FUNCTIONDEF: {
+                    case JavafxTag.RETROFUNCTIONDEF: {
                         JFXRetroFunctionMemberDefinition functionMemberDef = (JFXRetroFunctionMemberDefinition)methodDef;
                         params = functionMemberDef.params;
                         restype = functionMemberDef.type;
                         break;
                     }
-                    case JavafxTag.OPERATIONLOCALDEF: {
+                    case JavafxTag.RETROOPERATIONLOCALDEF: {
                         JFXRetroOperationLocalDefinition operationLocalDef = (JFXRetroOperationLocalDefinition)methodDef;
                         params = operationLocalDef.params;
                         restype = operationLocalDef.restype;
                         break;
                     }
 
-                    case JavafxTag.FUNCTIONLOCALDEF: {
+                    case JavafxTag.RETROFUNCTIONLOCALDEF: {
                         JFXRetroFunctionLocalDefinition functionLocalDef = (JFXRetroFunctionLocalDefinition)methodDef;
                         params = functionLocalDef.params;
                         restype = functionLocalDef.restype;

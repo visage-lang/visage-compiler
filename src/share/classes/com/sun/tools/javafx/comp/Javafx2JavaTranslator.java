@@ -250,31 +250,29 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     }
     
     @Override
-    public void visitAttributeDefinition(JFXRetroAttributeDefinition tree) {
-        super.visitAttributeDefinition(tree);
+    public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition tree) {
+        super.visitRetroAttributeDefinition(tree);
         result = null;
     }
     
     @Override
-    public void visitFunctionDefinition(JFXRetroFunctionMemberDefinition tree) {
-        super.visitFunctionDefinition(tree);
+    public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition tree) {
+        super.visitRetroFunctionDefinition(tree);
         result = null;
     }
     
     @Override
-    public void visitOperationDefinition(JFXRetroOperationMemberDefinition tree) {
-        super.visitOperationDefinition(tree);
+    public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition tree) {
+        super.visitRetroOperationDefinition(tree);
         result = null;
     }
     
     @Override
-    public void visitOperationLocalDefinition(JFXRetroOperationLocalDefinition tree) {
-        super.visitOperationLocalDefinition(tree);
+    public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition tree) {
+        super.visitRetroOperationLocalDefinition(tree);
         
         JCExpression restype = jcType(tree.getType());
         
-        List<JFXExpression> boundFrom = List.nil();
-        List<JFXExpression> boundTo = List.nil();
         List<JFXExpression> capturedOuters = List.nil();
         
         List<JCVariableDecl> params = List.nil();
@@ -293,13 +291,11 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     }
     
     @Override
-    public void visitFunctionLocalDefinition(JFXRetroFunctionLocalDefinition tree) {
-        super.visitFunctionLocalDefinition(tree);
+    public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition tree) {
+        super.visitRetroFunctionLocalDefinition(tree);
         
         JCExpression restype = jcType(tree.getType());
         
-        List<JFXExpression> boundFrom = List.nil();
-        List<JFXExpression> boundTo = List.nil();
         List<JFXExpression> capturedOuters = List.nil();
         
         List<JCVariableDecl> params = List.nil();

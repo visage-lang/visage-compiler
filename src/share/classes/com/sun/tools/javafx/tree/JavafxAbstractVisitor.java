@@ -529,18 +529,18 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
         }
     }
     
-    public void visitAttributeDefinition(JFXRetroAttributeDefinition that) {
+    public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that) {
         visitMemberDefinition(that);
         if (that.getInitializer() != null) {
             that.getInitializer().accept(this);
         }
     }
     
-    public void visitFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
+    public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
         visitFuncOpDefinition(that);
     }
     
-    public void visitOperationDefinition(JFXRetroOperationMemberDefinition that) {
+    public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition that) {
         visitFuncOpDefinition(that);
     }
     
@@ -560,7 +560,7 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
         }
     }
     
-    public void visitOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
+    public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
         if (that.getType() != null) {
             that.getType().accept((JavafxVisitor)this);
         }
@@ -571,7 +571,7 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
         that.getBody().accept(this);
     }
     
-    public void visitFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
+    public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
         if (that.getType() != null) {
             that.getType().accept((JavafxVisitor)this);
         }

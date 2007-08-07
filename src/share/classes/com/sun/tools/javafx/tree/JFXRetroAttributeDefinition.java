@@ -52,7 +52,7 @@ public class JFXRetroAttributeDefinition extends JFXRetroMemberDefinition {
         this.bindStatus = bindStatus;
         this.sym = sym;
     }
-    public void accept(JavafxVisitor v) { v.visitAttributeDefinition(this); }
+    public void accept(JavafxVisitor v) { v.visitRetroAttributeDefinition(this); }
     
     public JCExpression getInitializer() { return init; }
     public JavafxBindStatus getBindStatus() { return bindStatus; }
@@ -63,6 +63,6 @@ public class JFXRetroAttributeDefinition extends JFXRetroMemberDefinition {
 
     @Override
     public int getTag() {
-        return JavafxTag.ATTRIBUTEDEF;
+        return JavafxTag.RETROATTRIBUTEDEF;
     }
 }

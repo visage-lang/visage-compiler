@@ -52,10 +52,10 @@ public class JFXRetroOperationLocalDefinition extends JFXRetroFuncOpLocalDefinit
             MethodSymbol sym) {
         super(name, restype, params, body, sym);
     }
-    public void accept(JavafxVisitor v) { v.visitOperationLocalDefinition(this); }
+    public void accept(JavafxVisitor v) { v.visitRetroOperationLocalDefinition(this); }
 
     @Override
     public int getTag() {
-        return JavafxTag.OPERATIONLOCALDEF;
+        return JavafxTag.RETROOPERATIONLOCALDEF;
     }
 }

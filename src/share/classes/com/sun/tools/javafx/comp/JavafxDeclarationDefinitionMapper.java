@@ -73,9 +73,9 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
     public void visitTopLevel(JCCompilationUnit cu) {
         super.visitTopLevel(cu);
         for (JCTree definition : definitions.values()) {
-            if ((definition.getTag() == JavafxTag.ATTRIBUTEDEF && ((JFXRetroAttributeDefinition)definition).declaration == null) ||
-                (definition.getTag() == JavafxTag.FUNCTIONDEF && ((JFXRetroFunctionMemberDefinition)definition).declaration == null) ||
-                (definition.getTag() == JavafxTag.OPERATIONDEF && ((JFXRetroOperationMemberDefinition)definition).declaration == null)) {
+            if ((definition.getTag() == JavafxTag.RETROATTRIBUTEDEF && ((JFXRetroAttributeDefinition)definition).declaration == null) ||
+                (definition.getTag() == JavafxTag.RETROFUNCTIONDEF && ((JFXRetroFunctionMemberDefinition)definition).declaration == null) ||
+                (definition.getTag() == JavafxTag.RETROOPERATIONDEF && ((JFXRetroOperationMemberDefinition)definition).declaration == null)) {
                 log.error(definition.pos, "javafx.member.def.with.no.decl");
             }
         }
@@ -134,7 +134,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
             
             JCTree attrDef = definitions.get(fullName);
             if (attrDef != null) {
-                if (attrDef.getTag() != JavafxTag.ATTRIBUTEDEF) {
+                if (attrDef.getTag() != JavafxTag.RETROATTRIBUTEDEF) {
                     log.error(that.pos, "javafx.no.attr.definition", that.name.toString(), currentClass.name.toString());
                 }
                 else {
@@ -177,7 +177,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
             
             JCTree funcDef = definitions.get(fullName);
             if (funcDef != null) {
-                if (funcDef.getTag() != JavafxTag.FUNCTIONDEF) {
+                if (funcDef.getTag() != JavafxTag.RETROFUNCTIONDEF) {
                     log.error(that.pos, "javafx.no.func.definition", that.name.toString(), currentClass.name.toString());
                 }
                 else {
@@ -220,7 +220,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
             
             JCTree operDef = definitions.get(fullName);
             if (operDef != null) {
-                if (operDef.getTag() != JavafxTag.OPERATIONDEF) {
+                if (operDef.getTag() != JavafxTag.RETROOPERATIONDEF) {
                     log.error(that.pos, "javafx.no.oper.definition", that.name.toString(), currentClass.name.toString());
                 }
                 else {
@@ -243,7 +243,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         }
     }
 
-    public void visitAttributeDefinition(JFXRetroAttributeDefinition that) {
+    public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that) {
         JCTree prev = currentOwner;
         currentOwner = that;
         try {
@@ -284,14 +284,14 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
                 }
             }
 
-            super.visitAttributeDefinition(that);
+            super.visitRetroAttributeDefinition(that);
         }
         finally {
             currentOwner = prev;
         }
     }
 
-    public void visitOperationDefinition(JFXRetroOperationMemberDefinition that) {
+    public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition that) {
         JCTree prev = currentOwner;
         currentOwner = that;
         try {
@@ -332,14 +332,14 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
                 }
             }
 
-            super.visitOperationDefinition(that);
+            super.visitRetroOperationDefinition(that);
         }
         finally {
             currentOwner = prev;
         }
     }
 
-    public void visitFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
+    public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
         JCTree prev = currentOwner;
         currentOwner = that;
         try {
@@ -380,14 +380,14 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
                 }
             }
 
-            super.visitFunctionDefinition(that);
+            super.visitRetroFunctionDefinition(that);
         }
         finally {
             currentOwner = prev;
         }
     }
 
-    public void visitOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
+    public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
         JCTree prev = currentOwner;
         currentOwner = that;
         try {
@@ -402,14 +402,14 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
                 definitions.put(fullName, that);
             }
             
-            super.visitOperationLocalDefinition(that);
+            super.visitRetroOperationLocalDefinition(that);
         }
         finally {
             currentOwner = prev;
         }
     }
 
-    public void visitFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
+    public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
         JCTree prev = currentOwner;
         currentOwner = that;
         try {
@@ -424,7 +424,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
                 definitions.put(fullName, that);
             }
             
-            super.visitFunctionLocalDefinition(that);
+            super.visitRetroFunctionLocalDefinition(that);
         }
         finally {
             currentOwner = prev;

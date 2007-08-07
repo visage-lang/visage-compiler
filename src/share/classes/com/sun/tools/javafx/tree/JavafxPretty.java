@@ -117,11 +117,11 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         printFuncOpDecl(tree, "operation");
     }
     
-    public void visitOperationDefinition(JFXRetroOperationMemberDefinition tree) {
+    public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition tree) {
         printFuncOpDef(tree, "operation");
     }
     
-    public void visitFunctionDefinition(JFXRetroFunctionMemberDefinition tree) {
+    public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition tree) {
         printFuncOpDef(tree, "function");
     }
     
@@ -146,7 +146,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
     
-    public void visitAttributeDefinition(JFXRetroAttributeDefinition tree) {
+    public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition tree) {
         try {
             printDocComment(tree);
             print("attribute ");
@@ -169,11 +169,11 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
     
-    public void visitOperationLocalDefinition(JFXRetroOperationLocalDefinition tree)  {
+    public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition tree)  {
         printFuncOpLocalDef(tree, "operation");
     }
     
-    public void visitFunctionLocalDefinition(JFXRetroFunctionLocalDefinition tree) {
+    public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition tree) {
         printFuncOpLocalDef(tree, "function");
     }
 

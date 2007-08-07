@@ -86,7 +86,7 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
-    public void visitAttributeDefinition(JFXRetroAttributeDefinition that) {
+    public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that) {
         visitMemberDefinition(that);
         if (that.init != null) {
             that.init = translate(that.init);
@@ -95,12 +95,12 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
-    public void visitFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
+    public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
         visitFuncOpDefinition(that);
         result = that;
     }
     
-    public void visitOperationDefinition(JFXRetroOperationMemberDefinition that) {
+    public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition that) {
         visitFuncOpDefinition(that);
         result = that;
     }
@@ -123,7 +123,7 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
-    public void visitOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
+    public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
         if (that.restype != null) {
             that.restype = translate(that.restype);
         }
@@ -134,7 +134,7 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
-    public void visitFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
+    public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
         if (that.restype != null) {
             that.restype = translate(that.restype);
         }

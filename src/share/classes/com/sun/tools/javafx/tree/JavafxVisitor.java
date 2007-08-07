@@ -35,11 +35,11 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitAttributeDeclaration(JFXAttributeDeclaration that);
     public void visitFunctionDeclaration(JFXFunctionMemberDeclaration that);
     public void visitOperationDeclaration(JFXOperationMemberDeclaration that);
-    public void visitAttributeDefinition(JFXRetroAttributeDefinition that);
-    public void visitOperationDefinition(JFXRetroOperationMemberDefinition that);
-    public void visitFunctionDefinition(JFXRetroFunctionMemberDefinition that);
-    public void visitOperationLocalDefinition(JFXRetroOperationLocalDefinition that);
-    public void visitFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that);
+    public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that);
+    public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition that);
+    public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition that);
+    public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition that);
+    public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that);
     public void visitMemberSelector(JFXMemberSelector that);
     public void visitDoLater(JFXDoLater that);
     public void visitTriggerOnInsert(JFXTriggerOnInsert that);

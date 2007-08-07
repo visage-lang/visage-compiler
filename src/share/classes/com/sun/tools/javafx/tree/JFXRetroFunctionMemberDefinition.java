@@ -51,10 +51,10 @@ public class JFXRetroFunctionMemberDefinition extends JFXRetroFuncOpMemberDefini
             MethodSymbol sym) {
         super(selector, restype, params, body, sym);
     }
-    public void accept(JavafxVisitor v) { v.visitFunctionDefinition(this); }
+    public void accept(JavafxVisitor v) { v.visitRetroFunctionDefinition(this); }
 
     @Override
     public int getTag() {
-        return JavafxTag.FUNCTIONDEF;
+        return JavafxTag.RETROFUNCTIONDEF;
     }
 }
