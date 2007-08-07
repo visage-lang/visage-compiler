@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2006 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,52 +26,10 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
-
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.List;
 
 /** An interface for JavaFX tree factories
  */
 public interface JavafxTreeFactory extends JCTree.Factory {
-    JFXClassDeclaration ClassDeclaration(JCModifiers mods,
-            Name name,
-            List<Name> supertypes,
-            List<JFXMemberDeclaration> declarations);
-    
-    JFXOperationMemberDeclaration OperationDeclaration(JCModifiers mods,
-            Name name,
-            JFXType restype,
-            List<JCTree> params);
-    
-    JFXFunctionMemberDeclaration FunctionDeclaration(JCModifiers mods,
-            Name name,
-            JFXType restype,
-            List<JCTree> params);
-    
-    JFXRetroOperationMemberDefinition OperationDefinition(
-            JFXMemberSelector selector,
-            JFXType restype,
-            List<JCTree> params,
-            JCBlock body);
-    
-    JFXRetroFunctionMemberDefinition FunctionDefinition(
-            JFXMemberSelector selector,
-            JFXType restype,
-            List<JCTree> params,
-            JCBlock body);
-    
-    JFXRetroOperationLocalDefinition OperationLocalDefinition(
-            Name name,
-            JFXType restype,
-            List<JCTree> params,
-            JCBlock body);
-    
-    JFXRetroFunctionLocalDefinition FunctionLocalDefinition(
-            Name name,
-            JFXType restype,
-            List<JCTree> params,
-            JCBlock body);
-    
-    JFXDoLater  DoLater(JCBlock body);
+    // Was only slightly implemented, never utilized, and needing complete change
+    //TODO: reimplement or discard
 }

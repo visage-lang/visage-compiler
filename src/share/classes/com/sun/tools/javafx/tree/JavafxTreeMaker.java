@@ -158,7 +158,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     
     
     
-    public JFXRetroAttributeDefinition AttributeDefinition(
+    public JFXRetroAttributeDefinition RetroAttributeDefinition(
             JFXMemberSelector selector,
             JCExpression init,
             JavafxBindStatus bindStatus) {
@@ -171,7 +171,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXRetroFunctionMemberDefinition FunctionDefinition(
+    public JFXRetroFunctionMemberDefinition RetroFunctionDefinition(
             JFXMemberSelector selector,
             JFXType restype,
             List<JCTree> params,
@@ -186,7 +186,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXRetroOperationMemberDefinition OperationDefinition(
+    public JFXRetroOperationMemberDefinition RetroOperationDefinition(
             JFXMemberSelector selector,
             JFXType restype,
             List<JCTree> params,
@@ -201,7 +201,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXRetroFunctionLocalDefinition FunctionLocalDefinition(
+    public JFXRetroFunctionLocalDefinition RetroFunctionLocalDefinition(
             Name name,
             JFXType restype,
             List<JCTree> params,
@@ -216,7 +216,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXRetroOperationLocalDefinition OperationLocalDefinition(
+    public JFXRetroOperationLocalDefinition RetroOperationLocalDefinition(
             Name name,
             JFXType restype,
             List<JCTree> params,

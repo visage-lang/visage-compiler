@@ -701,7 +701,7 @@ public class Parser {
         JavafxBindStatus bindStatus = bindStatusOpt();
         JCExpression init = expression();
         JCStatement result;
-        result = toP(F.at(pos).AttributeDefinition(selector, init, bindStatus));
+        result = toP(F.at(pos).RetroAttributeDefinition(selector, init, bindStatus));
         attach(result, dc);
         return result;
     }
@@ -751,9 +751,9 @@ public class Parser {
         JFXStatement result;
         if (className != null) {
             JFXMemberSelector selector = toP(F.at(pos).MemberSelector(className, name));
-            result = toP(F.at(pos).FunctionDefinition(selector, type, params, body));
+            result = toP(F.at(pos).RetroFunctionDefinition(selector, type, params, body));
         } else {
-            result = toP(F.at(pos).FunctionLocalDefinition(name, type, params, body));
+            result = toP(F.at(pos).RetroFunctionLocalDefinition(name, type, params, body));
         }
         attach(result, dc);
         return result;
@@ -782,9 +782,9 @@ public class Parser {
         JFXStatement result;
         if (className != null) {
             JFXMemberSelector selector = toP(F.at(pos).MemberSelector(className, name));
-            result = toP(F.at(pos).OperationDefinition(selector, type, params, body));
+            result = toP(F.at(pos).RetroOperationDefinition(selector, type, params, body));
         } else {
-            result = toP(F.at(pos).OperationLocalDefinition(name, type, params, body));
+            result = toP(F.at(pos).RetroOperationLocalDefinition(name, type, params, body));
         }
         attach(result, dc);
         return result;

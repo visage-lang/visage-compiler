@@ -374,14 +374,14 @@ operationDecl returns [JFXOperationMemberDeclaration decl]
 	                                            $formalParameters.params.toList()); } ;
 attributeDefinition  returns [JFXRetroAttributeDefinition def]
 	: ATTRIBUTE   memberSelector   EQ bindOpt  expression   SEMI 
-		{ $def = F.at(pos($ATTRIBUTE)).AttributeDefinition($memberSelector.value, $expression.expr, $bindOpt.status); } ;
+		{ $def = F.at(pos($ATTRIBUTE)).RetroAttributeDefinition($memberSelector.value, $expression.expr, $bindOpt.status); } ;
 memberOperationDefinition  returns [JFXRetroOperationMemberDefinition def]
 	: OPERATION   memberSelector   formalParameters   typeReference  block 
-		{ $def = F.at(pos($OPERATION)).OperationDefinition($memberSelector.value, $typeReference.type, 
+		{ $def = F.at(pos($OPERATION)).RetroOperationDefinition($memberSelector.value, $typeReference.type, 
 		              $formalParameters.params.toList(), $block.value); } ;
 memberFunctionDefinition  returns [JFXRetroFunctionMemberDefinition def]
 	: FUNCTION   memberSelector   formalParameters   typeReference  block /*TODO functionBody */
-		{ $def = F.at(pos($FUNCTION)).FunctionDefinition($memberSelector.value, $typeReference.type, 
+		{ $def = F.at(pos($FUNCTION)).RetroFunctionDefinition($memberSelector.value, $typeReference.type, 
 		              $formalParameters.params.toList(), $block.value); } ;
 functionBody // TODO
 	: EQ   expression   whereVarDecls ?   SEMI    
@@ -455,11 +455,11 @@ assertStatement  returns [JCStatement value = null]
 	: ASSERT   expression   (   COLON   expression   ) ?   SEMI ;
 localOperationDefinition   returns [JCStatement value]
 	: OPERATION   name   formalParameters   typeReference  block 
-		{ $value = F.at(pos($OPERATION)).OperationLocalDefinition($name.value, $typeReference.type, 
+		{ $value = F.at(pos($OPERATION)).RetroOperationLocalDefinition($name.value, $typeReference.type, 
 									$formalParameters.params.toList(), $block.value); } ;
 localFunctionDefinition   returns [JCStatement value]
 	: FUNCTION ?   name   formalParameters   typeReference  block // TODO? functionBody 
-		{ $value = F.at($name.pos).FunctionLocalDefinition($name.value, $typeReference.type, 
+		{ $value = F.at($name.pos).RetroFunctionLocalDefinition($name.value, $typeReference.type, 
 									$formalParameters.params.toList(), $block.value); } ;
 variableDeclaration   returns [JCStatement value]
 	: VAR  name  typeReference  
