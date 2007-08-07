@@ -496,7 +496,7 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
         }
     }
     
-    public void visitAttributeDeclaration(JFXAttributeDeclaration that) {
+    public void visitAttributeDeclaration(JFXRetroAttributeDeclaration that) {
         visitMemberDeclaration(that);
         if (that.getInverse() != null) {
             that.getInverse().accept((JavafxVisitor)this);
@@ -507,22 +507,22 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
         }
     }
     
-    public void visitFunctionDeclaration(JFXFunctionMemberDeclaration that) {
+    public void visitFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
         visitFuncOpDeclaration(that);
     }
     
-    public void visitOperationDeclaration(JFXOperationMemberDeclaration that) {
+    public void visitOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
         visitFuncOpDeclaration(that);
     }
     
-    public void visitFuncOpDeclaration(JFXFuncOpMemberDeclaration that) {
+    public void visitFuncOpDeclaration(JFXAbstractFunction that) {
         visitMemberDeclaration(that);
         for (JCTree param : that.getParameters()) {
             param.accept(this);
         }
     }
     
-    public void visitMemberDeclaration(JFXMemberDeclaration that) {
+    public void visitMemberDeclaration(JFXAbstractMember that) {
         that.modifiers.accept(this);
         if (that.getType() != null) {
             that.getType().accept((JavafxVisitor)this);

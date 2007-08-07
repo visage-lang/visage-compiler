@@ -40,7 +40,7 @@ public class JFXClassDeclaration extends JFXTree {
     public JCModifiers mods;
     public Name name; // TODO: Make this an ident, so posituion info is kept for tooling.
     public List<Name> supertypes; // TODO: Same as above...
-    public List<JFXMemberDeclaration> declarations;
+    public List<JFXAbstractMember> declarations;
     public ClassSymbol sym;
     
     public JavafxJCMethodDecl constructor = null;
@@ -55,7 +55,7 @@ public class JFXClassDeclaration extends JFXTree {
     protected JFXClassDeclaration(JCModifiers mods,
             Name name,
             List<Name> supertypes,
-            List<JFXMemberDeclaration> declarations,
+            List<JFXAbstractMember> declarations,
             ClassSymbol sym) {
         this.mods = mods;
         this.name = name;
@@ -66,7 +66,7 @@ public class JFXClassDeclaration extends JFXTree {
     public void accept(JavafxVisitor v) { v.visitClassDeclaration(this); }
     public Name getSimpleName() { return name; }
     public List<Name> getSupertypes() { return supertypes; }
-    public List<JFXMemberDeclaration> getDeclaredMembers() {
+    public List<JFXAbstractMember> getDeclaredMembers() {
         return declarations;
     }       @Override
     public int getTag() {

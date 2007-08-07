@@ -25,44 +25,32 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 
+import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
-
-import com.sun.tools.javac.code.Symbol.*;
 
 /**
  * An operation declaration.
  */
-public class JFXAttributeDeclaration extends JFXMemberDeclaration {
-    public JFXMemberSelector inverseOrNull;
-    public JCExpression orderingOrNull;
-    public VarSymbol sym;
+public class JFXRetroOperationMemberDeclaration extends JFXAbstractFunction {
    /*
     * @param modifiers operation modifiers
     * @param name operation name
-    * @param type type of attribute
+    * @param restype type of operation return value
     * @param params value parameters
-    * @param sym operation symbol
     */
-    protected JFXAttributeDeclaration(JCModifiers mods,
+    protected JFXRetroOperationMemberDeclaration(JCModifiers modifiers,
             Name name,
-            JFXType type,
-            JFXMemberSelector inverseOrNull,
-            JCExpression orderingOrNull,
-            VarSymbol sym) {
-        super(mods, name, type);
-        this.inverseOrNull = inverseOrNull;
-        this.orderingOrNull = orderingOrNull;
-        this.sym = sym;
+            JFXType restype,
+            List<JCTree> params) {
+        super(modifiers, name, restype, params);
     }
-    public void accept(JavafxVisitor v) { v.visitAttributeDeclaration(this); }
-    
-    public JFXMemberSelector getInverse() { return inverseOrNull; }
-    public JCExpression getOrdering() { return orderingOrNull; }
+    public void accept(JavafxVisitor v) { v.visitOperationDeclaration(this); }
 
     @Override
     public int getTag() {
-        return JavafxTag.ATTRIBUTEDECL;
+        return JavafxTag.RETROOPERATIONDECL;
     }
 }

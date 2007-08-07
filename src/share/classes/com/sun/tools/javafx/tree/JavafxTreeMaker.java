@@ -99,7 +99,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     public JFXClassDeclaration ClassDeclaration(JCModifiers mods,
             Name name,
             List<Name> supertypes,
-            List<JFXMemberDeclaration> declarations) {
+            List<JFXAbstractMember> declarations) {
         JFXClassDeclaration tree = new JFXClassDeclaration(mods,
                 name,
                 supertypes,
@@ -115,26 +115,25 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXAttributeDeclaration AttributeDeclaration(JCModifiers mods,
+    public JFXRetroAttributeDeclaration RetroAttributeDeclaration(JCModifiers mods,
             Name name,
             JFXType type,
             JFXMemberSelector inverseOrNull,
             JCExpression orderingOrNull) {
-        JFXAttributeDeclaration tree = new JFXAttributeDeclaration(mods,
+        JFXRetroAttributeDeclaration tree = new JFXRetroAttributeDeclaration(mods,
                 name,
                 type,
                 inverseOrNull,
-                orderingOrNull,
-                null);
+                orderingOrNull);
         tree.pos = pos;
         return tree;
     }
     
-    public JFXFunctionMemberDeclaration FunctionDeclaration(JCModifiers mods,
+    public JFXRetroFunctionMemberDeclaration RetroFunctionDeclaration(JCModifiers mods,
             Name name,
             JFXType restype,
             List<JCTree> params) {
-        JFXFunctionMemberDeclaration tree = new JFXFunctionMemberDeclaration(mods,
+        JFXRetroFunctionMemberDeclaration tree = new JFXRetroFunctionMemberDeclaration(mods,
                 name,
                 restype,
                 params);
@@ -142,11 +141,11 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXOperationMemberDeclaration OperationDeclaration(JCModifiers mods,
+    public JFXRetroOperationMemberDeclaration RetroOperationDeclaration(JCModifiers mods,
             Name name,
             JFXType restype,
             List<JCTree> params) {
-        JFXOperationMemberDeclaration tree = new JFXOperationMemberDeclaration(mods,
+        JFXRetroOperationMemberDeclaration tree = new JFXRetroOperationMemberDeclaration(mods,
                 name,
                 restype,
                 params);

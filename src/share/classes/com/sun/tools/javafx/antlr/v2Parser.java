@@ -844,7 +844,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
         ListBuffer<Name> supers15 = null;
 
-        ListBuffer<JFXMemberDeclaration> classMembers16 = null;
+        ListBuffer<JFXAbstractMember> classMembers16 = null;
 
 
         try {
@@ -972,12 +972,12 @@ public class v2Parser extends AbstractGeneratedParser {
 
     // $ANTLR start classMembers
     // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:344:1: classMembers returns [ListBuffer<JFXMemberDeclaration> mems = new ListBuffer<JFXMemberDeclaration>()] : ( attributeDefinition | functionDefinition )* ;
-    public final ListBuffer<JFXMemberDeclaration> classMembers() throws RecognitionException {
-        ListBuffer<JFXMemberDeclaration> mems =  new ListBuffer<JFXMemberDeclaration>();
+    public final ListBuffer<JFXAbstractMember> classMembers() throws RecognitionException {
+        ListBuffer<JFXAbstractMember> mems =  new ListBuffer<JFXAbstractMember>();
 
-        JFXAttributeDeclaration attributeDefinition17 = null;
+        JFXRetroAttributeDeclaration attributeDefinition17 = null;
 
-        JFXFunctionMemberDeclaration functionDefinition18 = null;
+        JFXRetroFunctionMemberDeclaration functionDefinition18 = null;
 
 
         try {
@@ -1306,8 +1306,8 @@ public class v2Parser extends AbstractGeneratedParser {
 
     // $ANTLR start attributeDefinition
     // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:348:1: attributeDefinition returns [JFXAttributeDeclaration def] : modifierFlags ATTRIBUTE name typeReference ( EQ bindOpt expression | inverseClause )? SEMI ;
-    public final JFXAttributeDeclaration attributeDefinition() throws RecognitionException {
-        JFXAttributeDeclaration def = null;
+    public final JFXRetroAttributeDeclaration attributeDefinition() throws RecognitionException {
+        JFXRetroAttributeDeclaration def = null;
 
         try {
             // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:349:2: ( modifierFlags ATTRIBUTE name typeReference ( EQ bindOpt expression | inverseClause )? SEMI )
@@ -1416,8 +1416,8 @@ public class v2Parser extends AbstractGeneratedParser {
 
     // $ANTLR start functionDefinition
     // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:353:1: functionDefinition returns [JFXFunctionMemberDeclaration def] : modifierFlags FUNCTION name formalParameters typeReference blockExpression ;
-    public final JFXFunctionMemberDeclaration functionDefinition() throws RecognitionException {
-        JFXFunctionMemberDeclaration def = null;
+    public final JFXRetroFunctionMemberDeclaration functionDefinition() throws RecognitionException {
+        JFXRetroFunctionMemberDeclaration def = null;
 
         try {
             // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:354:2: ( modifierFlags FUNCTION name formalParameters typeReference blockExpression )
@@ -2231,7 +2231,7 @@ public class v2Parser extends AbstractGeneratedParser {
         Token THROW31=null;
         JCStatement variableDeclaration24 = null;
 
-        JFXFunctionMemberDeclaration functionDefinition25 = null;
+        JFXRetroFunctionMemberDeclaration functionDefinition25 = null;
 
         JCExpression expression27 = null;
 

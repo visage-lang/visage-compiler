@@ -156,7 +156,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
             }
 
             ListBuffer<JCTree> defs = ListBuffer.<JCTree>lb();
-            for (JFXMemberDeclaration decl : tree.declarations) {
+            for (JFXAbstractMember decl : tree.declarations) {
                 defs.append(translate(decl));
             }
             addEmptyContextMethods(defs);
@@ -183,7 +183,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     }
     
     @Override
-    public void visitAttributeDeclaration(JFXAttributeDeclaration tree) {
+    public void visitAttributeDeclaration(JFXRetroAttributeDeclaration tree) {
         super.visitAttributeDeclaration(tree);
         
         JCExpression vartype = jcType(tree.getType());
@@ -200,7 +200,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     }
     
     @Override
-    public void visitFunctionDeclaration(JFXFunctionMemberDeclaration tree) {
+    public void visitFunctionDeclaration(JFXRetroFunctionMemberDeclaration tree) {
         super.visitFunctionDeclaration(tree);
         
         JCExpression restype = jcType(tree.getType());
@@ -225,7 +225,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     }
     
     @Override
-    public void visitOperationDeclaration(JFXOperationMemberDeclaration tree) {
+    public void visitOperationDeclaration(JFXRetroOperationMemberDeclaration tree) {
         super.visitOperationDeclaration(tree);
         
         JCExpression restype = jcType(tree.getType());

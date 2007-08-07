@@ -36,14 +36,14 @@ import com.sun.tools.javac.tree.JCTree;
 /**
  * A function declaration.
  */
-public class JFXFunctionMemberDeclaration extends JFXFuncOpMemberDeclaration {
+public class JFXRetroFunctionMemberDeclaration extends JFXAbstractFunction {
    /*
     * @param modifiers operation modifiers
     * @param name operation name
     * @param restype type of operation return value
     * @param params value parameters
     */
-    protected JFXFunctionMemberDeclaration(JCModifiers mods,
+    protected JFXRetroFunctionMemberDeclaration(JCModifiers mods,
             Name name,
             JFXType restype,
             List<JCTree> params) {
@@ -53,6 +53,6 @@ public class JFXFunctionMemberDeclaration extends JFXFuncOpMemberDeclaration {
 
     @Override
     public int getTag() {
-        return JavafxTag.FUNCTIONDECL;
+        return JavafxTag.RETROFUNCTIONDECL;
     }
 }

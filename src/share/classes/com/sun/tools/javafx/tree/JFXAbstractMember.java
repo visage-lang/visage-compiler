@@ -25,37 +25,34 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
-
-import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
 
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.tree.JCTree;
-
 /**
- * A function or operation declaration.
+ * Abstract declaration of a member
  */
-public abstract class JFXFuncOpMemberDeclaration extends JFXMemberDeclaration {
-    public List<JCTree> params;
+public abstract class JFXAbstractMember extends JFXStatement {
+    public Name name; 
+    public JCModifiers modifiers;
+    public JFXType memtype;
+
+    public JFXRetroMemberDefinition retroDefinition;
+    public JCTree owner;
     
    /*
-    * @param tag the tag for function/operation declaration
     * @param modifiers operation modifiers
     * @param name operation name
-    * @param restype type of operation return value
-    * @param params value parameters
     */
-    protected JFXFuncOpMemberDeclaration(JCModifiers mods,
+    protected JFXAbstractMember(JCModifiers mods,
             Name name,
-            JFXType restype,
-            List<JCTree> params) {
-        super(mods, name, restype);
-        this.params = params;
-    }
-
-    public List<JCTree> getParameters() {
-        return params;
+            JFXType type) {
+        this.modifiers = mods;
+        this.name = name;
+        this.memtype = type;
     }
     
+    public JFXType getType() {
+        return memtype;
+    }
 }

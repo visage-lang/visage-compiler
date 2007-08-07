@@ -238,15 +238,15 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
         // TODO:
     }
     
-    public void visitAttributeDeclaration(JFXAttributeDeclaration that) {
+    public void visitAttributeDeclaration(JFXRetroAttributeDeclaration that) {
         // TODO:
     }
     
-    public void visitFunctionDeclaration(JFXFunctionMemberDeclaration that) {
+    public void visitFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
         // TODO:
     }
 
-    public void visitOperationDeclaration(JFXOperationMemberDeclaration that) {
+    public void visitOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
         // TODO:
     }
 

@@ -450,14 +450,14 @@ public class JavafxMemberEnter extends MemberEnter {
                     jfxTree.getJavafxMethodType() >= JavafxFlags.OPERATION && 
                     jfxTree.getJavafxMethodType() <= JavafxFlags.LOCAL_FUNCTION) {
                 switch (methodDecl.getTag()) {
-                case JavafxTag.OPERATIONDECL: {
-                        JFXOperationMemberDeclaration operationMemberDecl = (JFXOperationMemberDeclaration)methodDecl;
+                case JavafxTag.RETROOPERATIONDECL: {
+                        JFXRetroOperationMemberDeclaration operationMemberDecl = (JFXRetroOperationMemberDeclaration)methodDecl;
                         params = operationMemberDecl.params;
                         restype = operationMemberDecl.getType();
                         break;
                     }
-                case JavafxTag.FUNCTIONDECL: {
-                        JFXFunctionMemberDeclaration functionMemberDecl = (JFXFunctionMemberDeclaration)methodDecl;
+                case JavafxTag.RETROFUNCTIONDECL: {
+                        JFXRetroFunctionMemberDeclaration functionMemberDecl = (JFXRetroFunctionMemberDeclaration)methodDecl;
                         params = functionMemberDecl.params;
                         restype = functionMemberDecl.getType();
                         break;

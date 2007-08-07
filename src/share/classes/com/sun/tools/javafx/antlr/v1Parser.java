@@ -722,7 +722,7 @@ public class v1Parser extends AbstractGeneratedParser {
 
         ListBuffer<Name> supers19 = null;
 
-        ListBuffer<JFXMemberDeclaration> classMembers20 = null;
+        ListBuffer<JFXAbstractMember> classMembers20 = null;
 
 
         try {
@@ -856,14 +856,14 @@ public class v1Parser extends AbstractGeneratedParser {
 
     // $ANTLR start classMembers
     // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:355:1: classMembers returns [ListBuffer<JFXMemberDeclaration> mems = new ListBuffer<JFXMemberDeclaration>()] : ( attributeDecl | functionDecl | operationDecl )* ;
-    public final ListBuffer<JFXMemberDeclaration> classMembers() throws RecognitionException {
-        ListBuffer<JFXMemberDeclaration> mems =  new ListBuffer<JFXMemberDeclaration>();
+    public final ListBuffer<JFXAbstractMember> classMembers() throws RecognitionException {
+        ListBuffer<JFXAbstractMember> mems =  new ListBuffer<JFXAbstractMember>();
 
-        JFXAttributeDeclaration attributeDecl21 = null;
+        JFXRetroAttributeDeclaration attributeDecl21 = null;
 
-        JFXFunctionMemberDeclaration functionDecl22 = null;
+        JFXRetroFunctionMemberDeclaration functionDecl22 = null;
 
-        JFXOperationMemberDeclaration operationDecl23 = null;
+        JFXRetroOperationMemberDeclaration operationDecl23 = null;
 
 
         try {
@@ -1347,8 +1347,8 @@ public class v1Parser extends AbstractGeneratedParser {
 
     // $ANTLR start attributeDecl
     // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:360:1: attributeDecl returns [JFXAttributeDeclaration decl] : modifierFlags ATTRIBUTE name typeReference inverseClause ( orderBy | indexOn )? SEMI ;
-    public final JFXAttributeDeclaration attributeDecl() throws RecognitionException {
-        JFXAttributeDeclaration decl = null;
+    public final JFXRetroAttributeDeclaration attributeDecl() throws RecognitionException {
+        JFXRetroAttributeDeclaration decl = null;
 
         Token ATTRIBUTE24=null;
         JCModifiers modifierFlags25 = null;
@@ -1418,7 +1418,7 @@ public class v1Parser extends AbstractGeneratedParser {
 
             match(input,SEMI,FOLLOW_SEMI_in_attributeDecl2608); if (failed) return decl;
             if ( backtracking==0 ) {
-               decl = F.at(pos(ATTRIBUTE24)).AttributeDeclaration(modifierFlags25, name26.value, typeReference27,
+               decl = F.at(pos(ATTRIBUTE24)).RetroAttributeDeclaration(modifierFlags25, name26.value, typeReference27,
               	                                    inverseClause28, null/*order/index*/); 
             }
 
@@ -1429,6 +1429,7 @@ public class v1Parser extends AbstractGeneratedParser {
             reportError(re);
             recover(input,re);
         }
+
         finally {
         }
         return decl;
@@ -1490,8 +1491,8 @@ public class v1Parser extends AbstractGeneratedParser {
 
     // $ANTLR start functionDecl
     // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:366:1: functionDecl returns [JFXFunctionMemberDeclaration decl] : modifierFlags FUNCTION name formalParameters typeReference SEMI ;
-    public final JFXFunctionMemberDeclaration functionDecl() throws RecognitionException {
-        JFXFunctionMemberDeclaration decl = null;
+    public final JFXRetroFunctionMemberDeclaration functionDecl() throws RecognitionException {
+        JFXRetroFunctionMemberDeclaration decl = null;
 
         name_return name30 = null;
 
@@ -1525,7 +1526,7 @@ public class v1Parser extends AbstractGeneratedParser {
             if (failed) return decl;
             match(input,SEMI,FOLLOW_SEMI_in_functionDecl2657); if (failed) return decl;
             if ( backtracking==0 ) {
-               decl =  F.at(name30.pos).FunctionDeclaration(modifierFlags31, name30.value, typeReference32,
+               decl =  F.at(name30.pos).RetroFunctionDeclaration(modifierFlags31, name30.value, typeReference32,
               	                                            formalParameters33.toList()); 
             }
 
@@ -1536,6 +1537,7 @@ public class v1Parser extends AbstractGeneratedParser {
             reportError(re);
             recover(input,re);
         }
+
         finally {
         }
         return decl;
@@ -1545,8 +1547,8 @@ public class v1Parser extends AbstractGeneratedParser {
 
     // $ANTLR start operationDecl
     // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:371:1: operationDecl returns [JFXOperationMemberDeclaration decl] : modifierFlags OPERATION name formalParameters typeReference SEMI ;
-    public final JFXOperationMemberDeclaration operationDecl() throws RecognitionException {
-        JFXOperationMemberDeclaration decl = null;
+    public final JFXRetroOperationMemberDeclaration operationDecl() throws RecognitionException {
+        JFXRetroOperationMemberDeclaration decl = null;
 
         Token OPERATION34=null;
         JCModifiers modifierFlags35 = null;
@@ -1582,7 +1584,7 @@ public class v1Parser extends AbstractGeneratedParser {
             if (failed) return decl;
             match(input,SEMI,FOLLOW_SEMI_in_operationDecl2697); if (failed) return decl;
             if ( backtracking==0 ) {
-               decl = F.at(pos(OPERATION34)).OperationDeclaration(modifierFlags35, name36.value, typeReference37,
+               decl = F.at(pos(OPERATION34)).RetroOperationDeclaration(modifierFlags35, name36.value, typeReference37,
               	                                            formalParameters38.toList()); 
             }
 
@@ -1593,6 +1595,7 @@ public class v1Parser extends AbstractGeneratedParser {
             reportError(re);
             recover(input,re);
         }
+
         finally {
         }
         return decl;

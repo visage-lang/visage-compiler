@@ -359,18 +359,18 @@ classMembers returns [ListBuffer<JFXMemberDeclaration> mems = new ListBuffer<JFX
 	) *   ;
 attributeDecl returns [JFXAttributeDeclaration decl]
 	: modifierFlags ATTRIBUTE name typeReference inverseClause  (orderBy | indexOn)? SEMI 
-		{ $decl = F.at(pos($ATTRIBUTE)).AttributeDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
+		{ $decl = F.at(pos($ATTRIBUTE)).RetroAttributeDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
 	                                    $inverseClause.inverse, null/*order/index*/); } ;
 inverseClause returns [JFXMemberSelector inverse = null]
 	: (INVERSE memberSelector { inverse = $memberSelector.value; } )? ;
 functionDecl returns [JFXFunctionMemberDeclaration decl]
 	: modifierFlags FUNCTION name formalParameters typeReference SEMI 
-		{ $decl =  F.at($name.pos).FunctionDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
+		{ $decl =  F.at($name.pos).RetroFunctionDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
 	                                            $formalParameters.params.toList()); } ;
 
 operationDecl returns [JFXOperationMemberDeclaration decl]
 	: modifierFlags   OPERATION   name   formalParameters   typeReference    SEMI 
-		{ $decl = F.at(pos($OPERATION)).OperationDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
+		{ $decl = F.at(pos($OPERATION)).RetroOperationDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
 	                                            $formalParameters.params.toList()); } ;
 attributeDefinition  returns [JFXRetroAttributeDefinition def]
 	: ATTRIBUTE   memberSelector   EQ bindOpt  expression   SEMI 

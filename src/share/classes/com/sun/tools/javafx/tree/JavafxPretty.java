@@ -95,8 +95,8 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             print(" {");
             println();
             indent();
-            List<JFXMemberDeclaration> mems = tree.getDeclaredMembers();
-            for (JFXMemberDeclaration mem : mems) {
+            List<JFXAbstractMember> mems = tree.getDeclaredMembers();
+            for (JFXAbstractMember mem : mems) {
                 align();
                 printExpr(mem);
             }
@@ -109,11 +109,11 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
     
-    public void visitFunctionDeclaration(JFXFunctionMemberDeclaration tree) {
+    public void visitFunctionDeclaration(JFXRetroFunctionMemberDeclaration tree) {
         printFuncOpDecl(tree, "function");
     }
     
-    public void visitOperationDeclaration(JFXOperationMemberDeclaration tree) {
+    public void visitOperationDeclaration(JFXRetroOperationMemberDeclaration tree) {
         printFuncOpDecl(tree, "operation");
     }
     
@@ -125,7 +125,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         printFuncOpDef(tree, "function");
     }
     
-    public void visitAttributeDeclaration(JFXAttributeDeclaration tree)  {
+    public void visitAttributeDeclaration(JFXRetroAttributeDeclaration tree)  {
         try {
             printDocComment(tree);
             printExpr(tree.modifiers);
@@ -258,7 +258,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
     
-    public void printFuncOpDecl(JFXFuncOpMemberDeclaration tree, String which) {
+    public void printFuncOpDecl(JFXAbstractFunction tree, String which) {
         try {
             println(); align();
             printDocComment(tree);

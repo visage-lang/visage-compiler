@@ -47,7 +47,7 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
-    public void visitAttributeDeclaration(JFXAttributeDeclaration that) {
+    public void visitAttributeDeclaration(JFXRetroAttributeDeclaration that) {
         visitMemberDeclaration(that);
         if (that.inverseOrNull != null) {
             that.inverseOrNull = translate(that.inverseOrNull);
@@ -60,24 +60,24 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
-    public void visitFunctionDeclaration(JFXFunctionMemberDeclaration that) {
+    public void visitFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
         visitFuncOpDeclaration(that);
         result = that;
     }
     
-    public void visitOperationDeclaration(JFXOperationMemberDeclaration that) {
+    public void visitOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
         visitFuncOpDeclaration(that);
         result = that;
     }
     
-    public void visitFuncOpDeclaration(JFXFuncOpMemberDeclaration that) {
+    public void visitFuncOpDeclaration(JFXAbstractFunction that) {
         visitMemberDeclaration(that);
         that.params = translate(that.params);
         
         result = that;
     }
     
-    public void visitMemberDeclaration(JFXMemberDeclaration that) {
+    public void visitMemberDeclaration(JFXAbstractMember that) {
         that.modifiers = translate(that.modifiers);
         if (that.memtype != null) {
             that.memtype = translate(that.memtype);

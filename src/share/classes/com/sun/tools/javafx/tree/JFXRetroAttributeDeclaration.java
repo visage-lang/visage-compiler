@@ -25,27 +25,29 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.util.Name;
 
 /**
- * Abstract definition of a member
+ * An attribute declaration.
  */
-public abstract class JFXRetroMemberDefinition extends JFXStatement {
-    public JFXMemberSelector selector;
-    public JFXType memtype;
-
-    public JFXAbstractMember declaration;
-    public JCTree owner;
-
-    /*
-    * @param selector member name and class name of member
+public class JFXRetroAttributeDeclaration extends JFXAbstractAttribute {
+   /*
+    * @param modifiers attribute modifiers
+    * @param name attribute name
+    * @param type type of attribute
     */
-    protected JFXRetroMemberDefinition(JFXMemberSelector selector,
-            JFXType type) {
-        this.selector = selector;
-        this.memtype = type;
+    protected JFXRetroAttributeDeclaration(JCModifiers mods,
+            Name name,
+            JFXType type,
+            JFXMemberSelector inverseOrNull,
+            JCExpression orderingOrNull) {
+        super(mods, name, type, inverseOrNull, orderingOrNull);
     }
-    
-    public JFXMemberSelector getSelector() { return selector; }
-    public JFXType getType() { return memtype; }
+    public void accept(JavafxVisitor v) { v.visitAttributeDeclaration(this); }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.RETROATTRIBUTEDECL;
+    }
 }

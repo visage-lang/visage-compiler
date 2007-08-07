@@ -341,16 +341,16 @@ supers returns [ListBuffer<Name> names = new ListBuffer<Name>()]
 	: (EXTENDS name1=name           	{ $names.append($name1.value); }
            ( COMMA namen=name           	{ $names.append($namen.value); } )* 
 	)?;
-classMembers returns [ListBuffer<JFXMemberDeclaration> mems = new ListBuffer<JFXMemberDeclaration>()]
+classMembers returns [ListBuffer<JFXAbstractMember> mems = new ListBuffer<JFXAbstractMember>()]
 	:( attributeDefinition          	{ $mems.append($attributeDefinition.def); }
 	|  functionDefinition     		{ $mems.append($functionDefinition.def); }
 	) *   ;
-attributeDefinition  returns [JFXAttributeDeclaration def]
+attributeDefinition  returns [JFXAbstractMember def]
 	: modifierFlags ATTRIBUTE name typeReference (EQ bindOpt  expression | inverseClause)?  SEMI        
 	;
 inverseClause returns [JFXMemberSelector inverse = null]
 	: INVERSE memberSelector 		{ $inverse = $memberSelector.value; } ;
-functionDefinition  returns [JFXFunctionMemberDeclaration def]
+functionDefinition  returns [JFXAbstractMember def]
 	: modifierFlags FUNCTION   name formalParameters   typeReference  blockExpression 
 	;
 modifierFlags returns [JCModifiers mods]

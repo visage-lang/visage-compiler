@@ -576,29 +576,26 @@ public class Parser {
         }
         accept(LBRACE);
         
-        ListBuffer<JFXMemberDeclaration> members = new ListBuffer<JFXMemberDeclaration>();
+        ListBuffer<JFXAbstractMember> members = new ListBuffer<JFXAbstractMember>();
         
         int errorCount = 0;
         loop: while (true) {
             int memPos = S.pos();
             JCModifiers memMods = modifiersOpt();
             switch (S.token()) {
-            case ATTRIBUTE: {
-                JFXMemberDeclaration tree = attributeDeclaration(memPos, memMods, S.docComment());
+                        case ATTRIBUTE: {
+                JFXAbstractMember tree = attributeDeclaration(memPos, memMods, S.docComment());
                 members.append(tree);
                 break;
-            }
-            case FUNCTION: {
-                JFXMemberDeclaration tree = functionDeclaration(memPos, memMods, S.docComment());
+            }            case FUNCTION: {
+                JFXAbstractMember tree = functionDeclaration(memPos, memMods, S.docComment());
                 members.append(tree);
                 break;
-            }
-            case OPERATION: {
-                JFXMemberDeclaration tree = operationDeclaration(memPos, memMods, S.docComment());
+            }            case OPERATION: {
+                JFXAbstractMember tree = operationDeclaration(memPos, memMods, S.docComment());
                 members.append(tree);
                 break;
-            }
-            case RBRACE:
+            }            case RBRACE:
                 S.nextToken();
                 if (memMods.flags != 0) illegal();
                 break loop;
@@ -631,7 +628,7 @@ public class Parser {
      *                         [ 'inverse' memberSelector ]
      *                         [ orderBy | indexOn ]  ';'
      */
-    JFXAttributeDeclaration attributeDeclaration(int pos,
+    JFXRetroAttributeDeclaration attributeDeclaration(int pos,
             JCModifiers mods,
             String dc) {
         accept(ATTRIBUTE);
@@ -645,8 +642,8 @@ public class Parser {
         }
         accept(SEMI);
         // TODO: orderBy / indexOn
-        JFXAttributeDeclaration result =
-                toP(F.at(pos).AttributeDeclaration(mods, name, type,
+        JFXRetroAttributeDeclaration result =
+                toP(F.at(pos).RetroAttributeDeclaration(mods, name, type,
                 inverse, ordering));
         attach(result, dc);
         return result;
@@ -656,7 +653,7 @@ public class Parser {
      *	functionDecl := accessModifier? 'function' Identifier
      *                       formalParameters [ ':' typeSpec ary? ]  ';'
      */
-    JFXFunctionMemberDeclaration functionDeclaration(int pos,
+    JFXRetroFunctionMemberDeclaration functionDeclaration(int pos,
             JCModifiers mods,
             String dc) {
         accept(FUNCTION);
@@ -664,8 +661,8 @@ public class Parser {
         List<JCTree> params = formalParameters();
         JFXType type = typeOpt();
         accept(SEMI);
-        JFXFunctionMemberDeclaration result =
-                toP(F.at(pos).FunctionDeclaration(mods, name, type,
+        JFXRetroFunctionMemberDeclaration result =
+                toP(F.at(pos).RetroFunctionDeclaration(mods, name, type,
                 params));
         attach(result, dc);
         return result;
@@ -675,7 +672,7 @@ public class Parser {
      *	operationDecl := accessModifier? 'operation' Identifier
      *                       formalParameters [ ':' typeSpec ary? ]  ';'
      */
-    JFXOperationMemberDeclaration operationDeclaration(int pos,
+    JFXRetroOperationMemberDeclaration operationDeclaration(int pos,
             JCModifiers mods,
             String dc) {
         accept(OPERATION);
@@ -683,8 +680,8 @@ public class Parser {
         List<JCTree> params = formalParameters();
         JFXType type = typeOpt();
         accept(SEMI);
-        JFXOperationMemberDeclaration result =
-                toP(F.at(pos).OperationDeclaration(mods, name, type,
+        JFXRetroOperationMemberDeclaration result =
+                toP(F.at(pos).RetroOperationDeclaration(mods, name, type,
                 params));
         attach(result, dc);
         return result;

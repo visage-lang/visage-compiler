@@ -31,28 +31,28 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
 
-import com.sun.tools.javac.code.Symbol.*;
-
 /**
- * An operation declaration.
+ * A function declaration.
  */
-public class JFXOperationMemberDeclaration extends JFXFuncOpMemberDeclaration {
+public abstract class JFXAbstractFunction extends JFXAbstractMember {
+    public List<JCTree> params;
+    
    /*
-    * @param modifiers operation modifiers
-    * @param name operation name
-    * @param restype type of operation return value
+    * @param modifiers function modifiers
+    * @param name function name
+    * @param restype function return type
     * @param params value parameters
     */
-    protected JFXOperationMemberDeclaration(JCModifiers mods,
+    protected JFXAbstractFunction(JCModifiers modifiers,
             Name name,
             JFXType restype,
             List<JCTree> params) {
-        super(mods, name, restype, params);
+        super(modifiers, name, restype);
+        this.params = params;
     }
-    public void accept(JavafxVisitor v) { v.visitOperationDeclaration(this); }
 
-    @Override
-    public int getTag() {
-        return JavafxTag.OPERATIONDECL;
+    public List<JCTree> getParameters() {
+        return params;
     }
+    
 }

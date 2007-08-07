@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2006 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,34 +25,31 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.Name;
 
 /**
- * Abstract declaration of a member
+ * An attribute declaration.
  */
-public abstract class JFXMemberDeclaration extends JFXStatement {
-    public Name name; 
-    public JCModifiers modifiers;
-    public JFXType memtype;
+public abstract class JFXAbstractAttribute extends JFXAbstractMember {
+    public JFXMemberSelector inverseOrNull;
+    public JCExpression orderingOrNull;
 
-    public JFXRetroMemberDefinition retroDefinition;
-    public JCTree owner;
-    
-   /*
-    * @param modifiers operation modifiers
-    * @param name operation name
+    /*
+    * @param modifiers attribute modifiers
+    * @param name attribute name
+    * @param type of attribute
     */
-    protected JFXMemberDeclaration(JCModifiers mods,
+    protected JFXAbstractAttribute(JCModifiers mods,
             Name name,
-            JFXType type) {
-        this.modifiers = mods;
-        this.name = name;
-        this.memtype = type;
+            JFXType type,
+            JFXMemberSelector inverseOrNull,
+            JCExpression orderingOrNull) {
+        super(mods, name, type);
+        this.inverseOrNull = inverseOrNull;
+        this.orderingOrNull = orderingOrNull;
     }
-    
-    public JFXType getType() {
-        return memtype;
-    }
+
+    public JFXMemberSelector getInverse() { return inverseOrNull; }
+    public JCExpression getOrdering() { return orderingOrNull; }
 }
