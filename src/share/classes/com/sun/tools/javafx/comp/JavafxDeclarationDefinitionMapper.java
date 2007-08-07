@@ -143,10 +143,10 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
                     }
                     
                     ((JFXRetroAttributeDefinition)attrDef).declaration = that;
-                    if (that.definition != null) {
+                    if (that.retroDefinition != null) {
                         log.error(that.pos, "javafx.duplicate.attr.definition", that.name.toString(), currentClass.name.toString());
                     }
-                    that.definition = (JFXRetroAttributeDefinition)attrDef;
+                    that.retroDefinition = (JFXRetroAttributeDefinition)attrDef;
                 }
             }
             
@@ -186,10 +186,10 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
                     }
                     
                     ((JFXRetroFunctionMemberDefinition)funcDef).declaration = that;
-                    if (that.definition != null) {
+                    if (that.retroDefinition != null) {
                         log.error(that.pos, "javafx.duplicate.func.definition", that.name.toString(), currentClass.name.toString());
                     }
-                    that.definition = (JFXRetroFunctionMemberDefinition)funcDef;
+                    that.retroDefinition = (JFXRetroFunctionMemberDefinition)funcDef;
                 }
             }
             
@@ -229,10 +229,10 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
                     }
                     
                     ((JFXRetroOperationMemberDefinition)operDef).declaration = that;
-                    if (that.definition != null) {
+                    if (that.retroDefinition != null) {
                         log.error(that.pos, "javafx.duplicate.oper.definition", that.name.toString(), currentClass.name.toString());
                     }
-                    that.definition = (JFXRetroOperationMemberDefinition)operDef;
+                    that.retroDefinition = (JFXRetroOperationMemberDefinition)operDef;
                 }
             }
 
@@ -271,11 +271,11 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
                             that.selector.name.toString(), that.selector.className.toString());
                 }
                 else {
-                    if (((JFXAttributeDeclaration)attrDecl).definition != null) {
+                    if (((JFXAttributeDeclaration)attrDecl).retroDefinition != null) {
                         log.error(that.pos, "javafx.duplicate.attr.definition", that.selector.name.toString(), that.selector.className.toString());
                     }
                     
-                    ((JFXAttributeDeclaration)attrDecl).definition = that;
+                    ((JFXAttributeDeclaration)attrDecl).retroDefinition = that;
                     if (that.declaration != null) {
                         log.error(that.pos, "javafx.duplicate.attr.declaration",
                                 that.selector.name.toString(), that.selector.className.toString());
@@ -319,11 +319,11 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
                             that.selector.name.toString(), that.selector.className.toString());
                 }
                 else {
-                    if (((JFXOperationMemberDeclaration)operDecl).definition != null) {
+                    if (((JFXOperationMemberDeclaration)operDecl).retroDefinition != null) {
                         log.error(that.pos, "javafx.duplicate.oper.definition", that.selector.name.toString(), that.selector.className.toString());
                     }
                     
-                    ((JFXOperationMemberDeclaration)operDecl).definition = that;
+                    ((JFXOperationMemberDeclaration)operDecl).retroDefinition = that;
                     if (that.declaration != null) {
                         log.error(that.pos, "javafx.duplicate.oper.declaration",
                                 that.selector.name.toString(), that.selector.className.toString());
@@ -367,11 +367,11 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
                             that.selector.name.toString(), that.selector.className.toString());
                 }
                 else {
-                    if (((JFXFunctionMemberDeclaration)funcDecl).definition != null) {
+                    if (((JFXFunctionMemberDeclaration)funcDecl).retroDefinition != null) {
                         log.error(that.pos, "javafx.duplicate.func.definition", that.selector.name.toString(), that.selector.className.toString());
                     }
                     
-                    ((JFXFunctionMemberDeclaration)funcDecl).definition = that;
+                    ((JFXFunctionMemberDeclaration)funcDecl).retroDefinition = that;
                     if (that.declaration != null) {
                         log.error(that.pos, "javafx.duplicate.func.declaration",
                                 that.selector.name.toString(), that.selector.className.toString());

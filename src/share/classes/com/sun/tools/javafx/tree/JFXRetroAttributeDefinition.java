@@ -26,8 +26,6 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.tools.javac.tree.JCTree.JCExpression;
-
-import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javafx.code.JavafxBindStatus;
 
 /**
@@ -36,21 +34,18 @@ import com.sun.tools.javafx.code.JavafxBindStatus;
 public class JFXRetroAttributeDefinition extends JFXRetroMemberDefinition {
     public JCExpression init;
     private JavafxBindStatus bindStatus;
-    public VarSymbol sym;
-   /*
+
+    /*
     * @param selector member name and class name of member
     * @param init type of attribute
-    * @param sym attribute symbol
     */
     protected JFXRetroAttributeDefinition(
             JFXMemberSelector selector,
             JCExpression init,
-            JavafxBindStatus bindStatus,
-            VarSymbol sym) {
+            JavafxBindStatus bindStatus) {
         super(selector, null);
         this.init = init;
         this.bindStatus = bindStatus;
-        this.sym = sym;
     }
     public void accept(JavafxVisitor v) { v.visitRetroAttributeDefinition(this); }
     

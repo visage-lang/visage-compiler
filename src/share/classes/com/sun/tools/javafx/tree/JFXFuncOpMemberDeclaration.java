@@ -38,23 +38,20 @@ import com.sun.tools.javac.tree.JCTree;
  */
 public abstract class JFXFuncOpMemberDeclaration extends JFXMemberDeclaration {
     public List<JCTree> params;
-    public MethodSymbol sym;
+    
    /*
     * @param tag the tag for function/operation declaration
     * @param modifiers operation modifiers
     * @param name operation name
     * @param restype type of operation return value
     * @param params value parameters
-    * @param sym operation symbol
     */
     protected JFXFuncOpMemberDeclaration(JCModifiers mods,
             Name name,
             JFXType restype,
-            List<JCTree> params,
-            MethodSymbol sym) {
+            List<JCTree> params) {
         super(mods, name, restype);
         this.params = params;
-        this.sym = sym;
     }
 
     public List<JCTree> getParameters() {

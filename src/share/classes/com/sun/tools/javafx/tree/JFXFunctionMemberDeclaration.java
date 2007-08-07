@@ -42,14 +42,12 @@ public class JFXFunctionMemberDeclaration extends JFXFuncOpMemberDeclaration {
     * @param name operation name
     * @param restype type of operation return value
     * @param params value parameters
-    * @param sym operation symbol
     */
     protected JFXFunctionMemberDeclaration(JCModifiers mods,
             Name name,
             JFXType restype,
-            List<JCTree> params,
-            MethodSymbol sym) {
-        super(mods, name, restype, params, sym);
+            List<JCTree> params) {
+        super(mods, name, restype, params);
     }
     public void accept(JavafxVisitor v) { v.visitFunctionDeclaration(this); }
 

@@ -187,13 +187,13 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         super.visitAttributeDeclaration(tree);
         
         JCExpression vartype = jcType(tree.getType());
-        JFXRetroAttributeDefinition definition = (JFXRetroAttributeDefinition)tree.definition;
+        JFXRetroAttributeDefinition definition = (JFXRetroAttributeDefinition)tree.retroDefinition;
         if (definition == null) {
-            result = make.JavafxVarDef(make.Modifiers(0), tree.getName(), JavafxFlags.ATTRIBUTE, vartype,
+            result = make.JavafxVarDef(make.Modifiers(0), tree.name, JavafxFlags.ATTRIBUTE, vartype,
                     null, JavafxBindStatus.UNBOUND, definition, tree);
         } else {
             result = make.JavafxVarDef(make.Modifiers(0),
-                    tree.getName(), JavafxFlags.ATTRIBUTE, vartype,
+                    tree.name, JavafxFlags.ATTRIBUTE, vartype,
                     translate(definition.getInitializer()),
                     definition.getBindStatus(), definition, tree);
         }
@@ -217,9 +217,9 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
             }
         }
         
-        JFXRetroFunctionMemberDefinition definition = (JFXRetroFunctionMemberDefinition)tree.definition;
+        JFXRetroFunctionMemberDefinition definition = (JFXRetroFunctionMemberDefinition)tree.retroDefinition;
         
-        result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.FUNCTION, tree.getName(),
+        result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.FUNCTION, tree.name,
                 restype, params, definition == null ? null : definition.body, null,
                 capturedOuters, definition, tree);
     }
@@ -242,9 +242,9 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
             }
         }
         
-        JFXRetroOperationMemberDefinition definition = (JFXRetroOperationMemberDefinition)tree.definition;
+        JFXRetroOperationMemberDefinition definition = (JFXRetroOperationMemberDefinition)tree.retroDefinition;
         
-        result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.FUNCTION, tree.getName(),
+        result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.FUNCTION, tree.name,
                 restype, params, definition == null ? null : definition.body, null,
                 capturedOuters, definition, tree);
     }

@@ -28,19 +28,17 @@ package com.sun.tools.javafx.tree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.tree.JCTree;
 
 /**
  * A local function or operation definition.
  */
 public abstract class JFXRetroFuncOpLocalDefinition extends JFXStatement {
-    public Name name; // TODO: Make this an Ident, so position info will be stored and tools will be able to operate.
+    public Name name;
     public JFXType restype;
     public List<JCTree> params;
     public JCBlock body;
 
-    public MethodSymbol sym;
     public JCTree owner;
    /*
     * @param tag the tag for function/operation definition
@@ -48,19 +46,16 @@ public abstract class JFXRetroFuncOpLocalDefinition extends JFXStatement {
     * @param restype type of operation return value
     * @param params value parameters
     * @param body statements in the operation
-    * @param sym method symbol
     */
     protected JFXRetroFuncOpLocalDefinition(
             Name name,
             JFXType restype,
             List<JCTree> params,
-            JCBlock body,
-            MethodSymbol sym) {
+            JCBlock body) {
         this.name = name;
         this.restype = restype;
         this.params = params;
         this.body = body;
-        this.sym = sym;
     }
     
     public Name getName() { return name; }

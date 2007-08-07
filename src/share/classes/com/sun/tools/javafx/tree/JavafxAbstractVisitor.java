@@ -523,7 +523,7 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
     }
     
     public void visitMemberDeclaration(JFXMemberDeclaration that) {
-        that.getModifiers().accept(this);
+        that.modifiers.accept(this);
         if (that.getType() != null) {
             that.getType().accept((JavafxVisitor)this);
         }

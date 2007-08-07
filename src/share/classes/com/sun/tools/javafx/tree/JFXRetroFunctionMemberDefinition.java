@@ -41,15 +41,13 @@ public class JFXRetroFunctionMemberDefinition extends JFXRetroFuncOpMemberDefini
     * @param restype type of operation return value
     * @param params value parameters
     * @param body statements in the operation
-    * @param sym method symbol
     */
     protected JFXRetroFunctionMemberDefinition(
             JFXMemberSelector selector,
             JFXType restype,
             List<JCTree> params,
-            JCBlock body,
-            MethodSymbol sym) {
-        super(selector, restype, params, body, sym);
+            JCBlock body) {
+        super(selector, restype, params, body);
     }
     public void accept(JavafxVisitor v) { v.visitRetroFunctionDefinition(this); }
 

@@ -137,8 +137,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         JFXFunctionMemberDeclaration tree = new JFXFunctionMemberDeclaration(mods,
                 name,
                 restype,
-                params,
-                null);
+                params);
         tree.pos = pos;
         return tree;
     }
@@ -150,8 +149,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         JFXOperationMemberDeclaration tree = new JFXOperationMemberDeclaration(mods,
                 name,
                 restype,
-                params,
-                null);
+                params);
         tree.pos = pos;
         return tree;
     }
@@ -165,8 +163,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         JFXRetroAttributeDefinition tree = new JFXRetroAttributeDefinition(
                 selector,
                 init,
-                bindStatus,
-                null);
+                bindStatus);
         tree.pos = pos;
         return tree;
     }
@@ -180,8 +177,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                 selector,
                 restype,
                 params,
-                body,
-                null);
+                body);
         tree.pos = pos;
         return tree;
     }
@@ -195,8 +191,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                 selector,
                 restype,
                 params,
-                body,
-                null);
+                body);
         tree.pos = pos;
         return tree;
     }
@@ -210,8 +205,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                 name,
                 restype,
                 params,
-                body,
-                null);
+                body);
         tree.pos = pos;
         return tree;
     }
@@ -225,8 +219,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                 name,
                 restype,
                 params,
-                body,
-                null);
+                body);
         tree.pos = pos;
         return tree;
     }

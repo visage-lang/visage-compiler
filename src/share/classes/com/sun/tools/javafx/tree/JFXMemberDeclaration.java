@@ -33,11 +33,11 @@ import com.sun.tools.javac.util.Name;
  * Abstract declaration of a member
  */
 public abstract class JFXMemberDeclaration extends JFXStatement {
-    public JCModifiers mods;
-    public Name name; // TODO: Make this an Ident, so position info is kept and tools can work with it.
-    public JFXType type;
+    public Name name; 
+    public JCModifiers modifiers;
+    public JFXType memtype;
 
-    public JFXRetroMemberDefinition definition;
+    public JFXRetroMemberDefinition retroDefinition;
     public JCTree owner;
     
    /*
@@ -47,12 +47,12 @@ public abstract class JFXMemberDeclaration extends JFXStatement {
     protected JFXMemberDeclaration(JCModifiers mods,
             Name name,
             JFXType type) {
-        this.mods = mods;
+        this.modifiers = mods;
         this.name = name;
-        this.type = type;
+        this.memtype = type;
     }
     
-    public JCModifiers getModifiers() { return mods; }
-    public Name getName() { return name; }
-    public JFXType getType() { return type; }
+    public JFXType getType() {
+        return memtype;
+    }
 }

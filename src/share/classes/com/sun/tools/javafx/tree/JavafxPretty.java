@@ -128,9 +128,9 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitAttributeDeclaration(JFXAttributeDeclaration tree)  {
         try {
             printDocComment(tree);
-            printExpr(tree.getModifiers());
+            printExpr(tree.modifiers);
             print(" attribute ");
-            print(tree.getName());
+            print(tree.name);
             print(" ");
             if (tree.getType() != null) {
                 printExpr(tree.getType());
@@ -152,8 +152,8 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             print("attribute ");
             printExpr(tree.getSelector());
             print(" = ");
-            if (tree.getType() != null) {
-                printExpr(tree.getType());
+            if (tree.memtype != null) {
+                printExpr(tree.memtype);
             }
             if (tree.isBound()) {
                 print(" bind ");
@@ -218,8 +218,8 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             print("(");
             printExprs(tree.getParameters());
             print(")");
-            if (tree.getType() != null) {
-                printExpr(tree.getType());
+            if (tree.memtype != null) {
+                printExpr(tree.memtype);
             }
             if (tree.getBody() != null) {
                 print(" ");
@@ -243,7 +243,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             print("(");
             printExprs(tree.getParameters());
             print(")");
-            if (tree.getType() != null) {
+            if (tree.type != null) {
                 printExpr(tree.getType());
             }
             if (tree.getBody() != null) {
@@ -262,11 +262,11 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         try {
             println(); align();
             printDocComment(tree);
-            printExpr(tree.mods);
+            printExpr(tree.modifiers);
             print(" ");
             print(which);
             print(" ");
-            print(tree.getName());
+            print(tree.name);
             print("(");
             printExprs(tree.getParameters());
             print(")");
@@ -504,8 +504,8 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitVar(JFXVar tree) {
         try {
             print(tree.getName());
-            if (tree.getType() != null) {
-                printExpr(tree.getType());
+            if (tree.type != null) {
+                printExpr(tree.type);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);

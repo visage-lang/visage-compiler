@@ -30,8 +30,6 @@ import com.sun.tools.javac.tree.JCTree.*;
 
 import com.sun.tools.javac.util.List;
 
-import com.sun.tools.javac.code.Symbol.*;
-
 /**
  * An operation definition.
  */
@@ -41,15 +39,13 @@ public class JFXRetroOperationMemberDefinition extends JFXRetroFuncOpMemberDefin
     * @param restype type of operation return value
     * @param params value parameters
     * @param body statements in the operation
-    * @param sym method symbol
     */
     protected JFXRetroOperationMemberDefinition(
             JFXMemberSelector selector,
             JFXType restype,
             List<JCTree> params,
-            JCBlock body,
-            MethodSymbol sym) {
-        super(selector, restype, params, body, sym);
+            JCBlock body) {
+        super(selector, restype, params, body);
     }
     public void accept(JavafxVisitor v) { v.visitRetroOperationDefinition(this); }
 

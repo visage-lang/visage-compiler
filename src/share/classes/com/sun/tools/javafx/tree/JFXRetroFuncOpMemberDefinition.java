@@ -25,13 +25,9 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree.*;
-
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
-
-import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.util.List;
 
 /**
  * A function or operation definition.
@@ -39,25 +35,22 @@ import com.sun.tools.javac.tree.JCTree;
 public abstract class JFXRetroFuncOpMemberDefinition extends JFXRetroMemberDefinition {
     public List<JCTree> params;
     public JCBlock body;
-    public MethodSymbol sym;
-   /*
+
+    /*
     * @param tag the tag for function/operation definition
     * @param selector member name and class name of member
     * @param restype type of operation return value
     * @param params value parameters
     * @param body statements in the operation
-    * @param sym method symbol
     */
     protected JFXRetroFuncOpMemberDefinition(
             JFXMemberSelector selector,
             JFXType restype,
             List<JCTree> params,
-            JCBlock body,
-            MethodSymbol sym) {
+            JCBlock body) {
         super(selector, restype);
         this.params = params;
         this.body = body;
-        this.sym = sym;
     }
     
     public List<JCTree> getParameters() {

@@ -31,8 +31,6 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
 
-import com.sun.tools.javac.code.Symbol.*;
-
 /**
  * A local function definition.
  */
@@ -42,15 +40,13 @@ public class JFXRetroFunctionLocalDefinition extends JFXRetroFuncOpLocalDefiniti
     * @param restype type of operation return value
     * @param params value parameters
     * @param body statements in the operation
-    * @param sym method symbol
     */
     protected JFXRetroFunctionLocalDefinition(
             Name name,
             JFXType restype,
             List<JCTree> params,
-            JCBlock body,
-            MethodSymbol sym) {
-        super(name, restype, params, body, sym);
+            JCBlock body) {
+        super(name, restype, params, body);
     }
     public void accept(JavafxVisitor v) { v.visitRetroFunctionLocalDefinition(this); }
 

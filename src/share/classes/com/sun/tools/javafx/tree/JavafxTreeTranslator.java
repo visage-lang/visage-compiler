@@ -78,9 +78,9 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
     }
     
     public void visitMemberDeclaration(JFXMemberDeclaration that) {
-        that.mods = translate(that.mods);
-        if (that.type != null) {
-            that.type = translate(that.type);
+        that.modifiers = translate(that.modifiers);
+        if (that.memtype != null) {
+            that.memtype = translate(that.memtype);
         }
         
         result = that;
@@ -117,8 +117,8 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         if (that.selector != null) {
             that.selector = translate(that.selector);
         }
-        if (that.type != null) {
-            that.type = translate(that.type);
+        if (that.memtype != null) {
+            that.memtype = translate(that.memtype);
         }
         result = that;
     }

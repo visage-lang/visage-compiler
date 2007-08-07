@@ -32,7 +32,7 @@ import com.sun.tools.javac.tree.JCTree;
  */
 public abstract class JFXRetroMemberDefinition extends JFXStatement {
     public JFXMemberSelector selector;
-    public JFXType type;
+    public JFXType memtype;
 
     public JFXMemberDeclaration declaration;
     public JCTree owner;
@@ -43,9 +43,9 @@ public abstract class JFXRetroMemberDefinition extends JFXStatement {
     protected JFXRetroMemberDefinition(JFXMemberSelector selector,
             JFXType type) {
         this.selector = selector;
-        this.type = type;
+        this.memtype = type;
     }
     
     public JFXMemberSelector getSelector() { return selector; }
-    public JFXType getType() { return type; }
+    public JFXType getType() { return memtype; }
 }
