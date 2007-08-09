@@ -352,23 +352,23 @@ supers returns [ListBuffer<Name> names = new ListBuffer<Name>()]
 	: (EXTENDS name1=name       { $names.append($name1.value); }
            ( COMMA namen=name       { $names.append($namen.value); } )* 
 	)?;
-classMembers returns [ListBuffer<JFXMemberDeclaration> mems = new ListBuffer<JFXMemberDeclaration>()]
+classMembers returns [ListBuffer<JFXAbstractMember> mems = new ListBuffer<JFXAbstractMember>()]
 	:( attributeDecl                { $mems.append($attributeDecl.decl); }
 	|  functionDecl                 { $mems.append($functionDecl.decl); }
 	|  operationDecl                { $mems.append($operationDecl.decl); }
 	) *   ;
-attributeDecl returns [JFXAttributeDeclaration decl]
+attributeDecl returns [JFXAbstractMember decl]
 	: modifierFlags ATTRIBUTE name typeReference inverseClause  (orderBy | indexOn)? SEMI 
 		{ $decl = F.at(pos($ATTRIBUTE)).RetroAttributeDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
 	                                    $inverseClause.inverse, null/*order/index*/); } ;
 inverseClause returns [JFXMemberSelector inverse = null]
 	: (INVERSE memberSelector { inverse = $memberSelector.value; } )? ;
-functionDecl returns [JFXFunctionMemberDeclaration decl]
+functionDecl returns [JFXAbstractMember decl]
 	: modifierFlags FUNCTION name formalParameters typeReference SEMI 
 		{ $decl =  F.at($name.pos).RetroFunctionDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
 	                                            $formalParameters.params.toList()); } ;
 
-operationDecl returns [JFXOperationMemberDeclaration decl]
+operationDecl returns [JFXAbstractMember decl]
 	: modifierFlags   OPERATION   name   formalParameters   typeReference    SEMI 
 		{ $decl = F.at(pos($OPERATION)).RetroOperationDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
 	                                            $formalParameters.params.toList()); } ;

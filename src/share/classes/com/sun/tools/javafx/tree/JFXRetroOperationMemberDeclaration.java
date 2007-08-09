@@ -35,6 +35,8 @@ import com.sun.tools.javac.util.Name;
  * An operation declaration.
  */
 public class JFXRetroOperationMemberDeclaration extends JFXAbstractFunction {
+    public JFXRetroOperationMemberDefinition retroDefinition;
+    
    /*
     * @param modifiers operation modifiers
     * @param name operation name
@@ -47,7 +49,7 @@ public class JFXRetroOperationMemberDeclaration extends JFXAbstractFunction {
             List<JCTree> params) {
         super(modifiers, name, restype, params);
     }
-    public void accept(JavafxVisitor v) { v.visitOperationDeclaration(this); }
+    public void accept(JavafxVisitor v) { v.visitRetroOperationDeclaration(this); }
 
     @Override
     public int getTag() {

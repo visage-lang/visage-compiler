@@ -489,6 +489,7 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
     }
     
     // Begin JavaFX trees
+    
     public void visitClassDeclaration(JFXClassDeclaration that) {
         that.mods.accept(this);
         for (JCTree members : that.getDeclaredMembers()) {
@@ -496,37 +497,54 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
         }
     }
     
-    public void visitAttributeDeclaration(JFXRetroAttributeDeclaration that) {
-        visitMemberDeclaration(that);
+    public void visitAbstractMember(JFXAbstractMember that) {
+        that.modifiers.accept(this);
+        if (that.getType() != null) {
+            that.getType().accept((JavafxVisitor)this);
+        }
+    }
+    
+    public void visitAbstractAttribute(JFXAbstractAttribute that) {
+        visitAbstractMember(that);
         if (that.getInverse() != null) {
             that.getInverse().accept((JavafxVisitor)this);
         }
-        
         if (that.getOrdering() != null) {
             that.getOrdering().accept(this);
         }
     }
     
-    public void visitFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
-        visitFuncOpDeclaration(that);
-    }
-    
-    public void visitOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
-        visitFuncOpDeclaration(that);
-    }
-    
-    public void visitFuncOpDeclaration(JFXAbstractFunction that) {
-        visitMemberDeclaration(that);
+    public void visitAbstractFunction(JFXAbstractFunction that) {
+        visitAbstractMember(that);
         for (JCTree param : that.getParameters()) {
             param.accept(this);
         }
     }
     
-    public void visitMemberDeclaration(JFXAbstractMember that) {
-        that.modifiers.accept(this);
-        if (that.getType() != null) {
-            that.getType().accept((JavafxVisitor)this);
+    public void visitAttributeDefinition(JFXAttributeDefinition that) {
+        visitAbstractAttribute(that);
+        if (that.getInitializer() != null) {
+            that.getInitializer().accept(this);
         }
+    }
+    
+    public void visitFunctionDefinition(JFXFunctionDefinition that) {
+        visitAbstractFunction(that);
+        that.getBodyExpression().accept((JavafxVisitor)this);
+    }
+
+    // old-style "retro" separate definition/declaration
+    
+    public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration that) {
+        visitAbstractAttribute(that);
+    }
+    
+    public void visitRetroFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
+        visitAbstractFunction(that);
+    }
+    
+    public void visitRetroOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
+        visitAbstractFunction(that);
     }
     
     public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that) {

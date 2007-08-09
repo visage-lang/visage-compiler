@@ -1,4 +1,4 @@
-// $ANTLR 3.0 \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g 2007-08-06 18:23:03
+// $ANTLR 3.0 C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g 2007-08-09 09:33:49
 
 package com.sun.tools.javafx.antlr;
 
@@ -159,7 +159,7 @@ public class v2Parser extends AbstractGeneratedParser {
         
 
     public String[] getTokenNames() { return tokenNames; }
-    public String getGrammarFileName() { return "\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g"; }
+    public String getGrammarFileName() { return "C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g"; }
 
     
             public v2Parser(Context context, CharSequence content) {
@@ -170,7 +170,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start module
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:320:1: module returns [JCCompilationUnit result] : ( packageDecl )? moduleItems EOF ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:320:1: module returns [JCCompilationUnit result] : ( packageDecl )? moduleItems EOF ;
     public final JCCompilationUnit module() throws RecognitionException {
         JCCompilationUnit result = null;
 
@@ -180,10 +180,10 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:321:8: ( ( packageDecl )? moduleItems EOF )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:321:10: ( packageDecl )? moduleItems EOF
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:321:8: ( ( packageDecl )? moduleItems EOF )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:321:10: ( packageDecl )? moduleItems EOF
             {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:321:10: ( packageDecl )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:321:10: ( packageDecl )?
             int alt1=2;
             int LA1_0 = input.LA(1);
 
@@ -192,7 +192,7 @@ public class v2Parser extends AbstractGeneratedParser {
             }
             switch (alt1) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:321:10: packageDecl
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:321:10: packageDecl
                     {
                     pushFollow(FOLLOW_packageDecl_in_module2032);
                     packageDecl1=packageDecl();
@@ -226,7 +226,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start packageDecl
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:322:1: packageDecl returns [JCExpression value] : PACKAGE qualident SEMI ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:322:1: packageDecl returns [JCExpression value] : PACKAGE qualident SEMI ;
     public final JCExpression packageDecl() throws RecognitionException {
         JCExpression value = null;
 
@@ -234,8 +234,8 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:323:8: ( PACKAGE qualident SEMI )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:323:10: PACKAGE qualident SEMI
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:323:8: ( PACKAGE qualident SEMI )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:323:10: PACKAGE qualident SEMI
             {
             match(input,PACKAGE,FOLLOW_PACKAGE_in_packageDecl2059); 
             pushFollow(FOLLOW_qualident_in_packageDecl2061);
@@ -260,7 +260,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start moduleItems
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:324:1: moduleItems returns [ListBuffer<JCTree> items = new ListBuffer<JCTree>()] : ( moduleItem )* ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:324:1: moduleItems returns [ListBuffer<JCTree> items = new ListBuffer<JCTree>()] : ( moduleItem )* ;
     public final ListBuffer<JCTree> moduleItems() throws RecognitionException {
         ListBuffer<JCTree> items =  new ListBuffer<JCTree>();
 
@@ -268,23 +268,23 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:325:9: ( ( moduleItem )* )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:325:11: ( moduleItem )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:325:9: ( ( moduleItem )* )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:325:11: ( moduleItem )*
             {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:325:11: ( moduleItem )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:325:11: ( moduleItem )*
             loop2:
             do {
                 int alt2=2;
                 int LA2_0 = input.LA(1);
 
-                if ( (LA2_0==ABSTRACT||LA2_0==BREAK||LA2_0==CLASS||(LA2_0>=RETURN && LA2_0<=VAR)||LA2_0==IMPORT||(LA2_0>=WHILE && LA2_0<=CONTINUE)||LA2_0==TRY||(LA2_0>=PRIVATE && LA2_0<=READONLY)) ) {
+                if ( ((LA2_0>=POUND && LA2_0<=TYPEOF)||LA2_0==ABSTRACT||LA2_0==BREAK||LA2_0==CLASS||(LA2_0>=RETURN && LA2_0<=VAR)||LA2_0==IMPORT||LA2_0==IF||(LA2_0>=THIS && LA2_0<=FALSE)||(LA2_0>=WHILE && LA2_0<=CONTINUE)||LA2_0==TRY||(LA2_0>=NOT && LA2_0<=READONLY)||LA2_0==SUPER||(LA2_0>=SIZEOF && LA2_0<=LPAREN)||LA2_0==SEMI||(LA2_0>=PLUSPLUS && LA2_0<=SUBSUB)||(LA2_0>=QUES && LA2_0<=STRING_LITERAL)||(LA2_0>=QUOTE_LBRACE_STRING_LITERAL && LA2_0<=LBRACE)||(LA2_0>=QUOTED_IDENTIFIER && LA2_0<=INTEGER_LITERAL)||LA2_0==FLOATING_POINT_LITERAL||LA2_0==IDENTIFIER) ) {
                     alt2=1;
                 }
 
 
                 switch (alt2) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:325:12: moduleItem
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:325:12: moduleItem
             	    {
             	    pushFollow(FOLLOW_moduleItem_in_moduleItems2094);
             	    moduleItem4=moduleItem();
@@ -316,7 +316,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start moduleItem
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );
     public final JCTree moduleItem() throws RecognitionException {
         JCTree value = null;
 
@@ -326,10 +326,12 @@ public class v2Parser extends AbstractGeneratedParser {
 
         JCStatement statement7 = null;
 
+        JCExpression expression8 = null;
+
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:327:8: ( importDecl | classDefinition | statement )
-            int alt3=3;
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:327:8: ( importDecl | classDefinition | statement | expression SEMI )
+            int alt3=4;
             switch ( input.LA(1) ) {
             case IMPORT:
                 {
@@ -341,17 +343,17 @@ public class v2Parser extends AbstractGeneratedParser {
                 switch ( input.LA(2) ) {
                 case PUBLIC:
                     {
-                    int LA3_9 = input.LA(3);
+                    int LA3_10 = input.LA(3);
 
-                    if ( (LA3_9==CLASS) ) {
-                        alt3=2;
-                    }
-                    else if ( (LA3_9==FUNCTION) ) {
+                    if ( (LA3_10==FUNCTION) ) {
                         alt3=3;
+                    }
+                    else if ( (LA3_10==CLASS) ) {
+                        alt3=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 9, input);
+                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 10, input);
 
                         throw nvae;
                     }
@@ -359,17 +361,17 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case PRIVATE:
                     {
-                    int LA3_10 = input.LA(3);
+                    int LA3_11 = input.LA(3);
 
-                    if ( (LA3_10==CLASS) ) {
-                        alt3=2;
-                    }
-                    else if ( (LA3_10==FUNCTION) ) {
+                    if ( (LA3_11==FUNCTION) ) {
                         alt3=3;
+                    }
+                    else if ( (LA3_11==CLASS) ) {
+                        alt3=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 10, input);
+                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 11, input);
 
                         throw nvae;
                     }
@@ -377,25 +379,20 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case PROTECTED:
                     {
-                    int LA3_11 = input.LA(3);
+                    int LA3_12 = input.LA(3);
 
-                    if ( (LA3_11==CLASS) ) {
-                        alt3=2;
-                    }
-                    else if ( (LA3_11==FUNCTION) ) {
+                    if ( (LA3_12==FUNCTION) ) {
                         alt3=3;
+                    }
+                    else if ( (LA3_12==CLASS) ) {
+                        alt3=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 11, input);
+                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 12, input);
 
                         throw nvae;
                     }
-                    }
-                    break;
-                case FUNCTION:
-                    {
-                    alt3=3;
                     }
                     break;
                 case CLASS:
@@ -403,9 +400,14 @@ public class v2Parser extends AbstractGeneratedParser {
                     alt3=2;
                     }
                     break;
+                case FUNCTION:
+                    {
+                    alt3=3;
+                    }
+                    break;
                 default:
                     NoViableAltException nvae =
-                        new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 2, input);
+                        new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 2, input);
 
                     throw nvae;
                 }
@@ -417,17 +419,17 @@ public class v2Parser extends AbstractGeneratedParser {
                 switch ( input.LA(2) ) {
                 case PUBLIC:
                     {
-                    int LA3_9 = input.LA(3);
+                    int LA3_10 = input.LA(3);
 
-                    if ( (LA3_9==CLASS) ) {
-                        alt3=2;
-                    }
-                    else if ( (LA3_9==FUNCTION) ) {
+                    if ( (LA3_10==FUNCTION) ) {
                         alt3=3;
+                    }
+                    else if ( (LA3_10==CLASS) ) {
+                        alt3=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 9, input);
+                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 10, input);
 
                         throw nvae;
                     }
@@ -435,17 +437,17 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case PRIVATE:
                     {
-                    int LA3_10 = input.LA(3);
+                    int LA3_11 = input.LA(3);
 
-                    if ( (LA3_10==CLASS) ) {
-                        alt3=2;
-                    }
-                    else if ( (LA3_10==FUNCTION) ) {
+                    if ( (LA3_11==FUNCTION) ) {
                         alt3=3;
+                    }
+                    else if ( (LA3_11==CLASS) ) {
+                        alt3=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 10, input);
+                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 11, input);
 
                         throw nvae;
                     }
@@ -453,25 +455,20 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case PROTECTED:
                     {
-                    int LA3_11 = input.LA(3);
+                    int LA3_12 = input.LA(3);
 
-                    if ( (LA3_11==CLASS) ) {
-                        alt3=2;
-                    }
-                    else if ( (LA3_11==FUNCTION) ) {
+                    if ( (LA3_12==FUNCTION) ) {
                         alt3=3;
+                    }
+                    else if ( (LA3_12==CLASS) ) {
+                        alt3=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 11, input);
+                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 12, input);
 
                         throw nvae;
                     }
-                    }
-                    break;
-                case FUNCTION:
-                    {
-                    alt3=3;
                     }
                     break;
                 case CLASS:
@@ -479,9 +476,14 @@ public class v2Parser extends AbstractGeneratedParser {
                     alt3=2;
                     }
                     break;
+                case FUNCTION:
+                    {
+                    alt3=3;
+                    }
+                    break;
                 default:
                     NoViableAltException nvae =
-                        new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 3, input);
+                        new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 3, input);
 
                     throw nvae;
                 }
@@ -493,17 +495,17 @@ public class v2Parser extends AbstractGeneratedParser {
                 switch ( input.LA(2) ) {
                 case ABSTRACT:
                     {
-                    int LA3_12 = input.LA(3);
+                    int LA3_13 = input.LA(3);
 
-                    if ( (LA3_12==CLASS) ) {
-                        alt3=2;
-                    }
-                    else if ( (LA3_12==FUNCTION) ) {
+                    if ( (LA3_13==FUNCTION) ) {
                         alt3=3;
+                    }
+                    else if ( (LA3_13==CLASS) ) {
+                        alt3=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 12, input);
+                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 13, input);
 
                         throw nvae;
                     }
@@ -511,17 +513,17 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case READONLY:
                     {
-                    int LA3_13 = input.LA(3);
+                    int LA3_14 = input.LA(3);
 
-                    if ( (LA3_13==CLASS) ) {
+                    if ( (LA3_14==CLASS) ) {
                         alt3=2;
                     }
-                    else if ( (LA3_13==FUNCTION) ) {
+                    else if ( (LA3_14==FUNCTION) ) {
                         alt3=3;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 13, input);
+                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 14, input);
 
                         throw nvae;
                     }
@@ -539,7 +541,7 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 default:
                     NoViableAltException nvae =
-                        new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 4, input);
+                        new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 4, input);
 
                     throw nvae;
                 }
@@ -551,17 +553,17 @@ public class v2Parser extends AbstractGeneratedParser {
                 switch ( input.LA(2) ) {
                 case ABSTRACT:
                     {
-                    int LA3_12 = input.LA(3);
+                    int LA3_13 = input.LA(3);
 
-                    if ( (LA3_12==CLASS) ) {
-                        alt3=2;
-                    }
-                    else if ( (LA3_12==FUNCTION) ) {
+                    if ( (LA3_13==FUNCTION) ) {
                         alt3=3;
+                    }
+                    else if ( (LA3_13==CLASS) ) {
+                        alt3=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 12, input);
+                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 13, input);
 
                         throw nvae;
                     }
@@ -569,17 +571,17 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case READONLY:
                     {
-                    int LA3_13 = input.LA(3);
+                    int LA3_14 = input.LA(3);
 
-                    if ( (LA3_13==CLASS) ) {
+                    if ( (LA3_14==CLASS) ) {
                         alt3=2;
                     }
-                    else if ( (LA3_13==FUNCTION) ) {
+                    else if ( (LA3_14==FUNCTION) ) {
                         alt3=3;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 13, input);
+                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 14, input);
 
                         throw nvae;
                     }
@@ -597,7 +599,7 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 default:
                     NoViableAltException nvae =
-                        new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 5, input);
+                        new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 5, input);
 
                     throw nvae;
                 }
@@ -609,17 +611,17 @@ public class v2Parser extends AbstractGeneratedParser {
                 switch ( input.LA(2) ) {
                 case ABSTRACT:
                     {
-                    int LA3_12 = input.LA(3);
+                    int LA3_13 = input.LA(3);
 
-                    if ( (LA3_12==CLASS) ) {
-                        alt3=2;
-                    }
-                    else if ( (LA3_12==FUNCTION) ) {
+                    if ( (LA3_13==FUNCTION) ) {
                         alt3=3;
+                    }
+                    else if ( (LA3_13==CLASS) ) {
+                        alt3=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 12, input);
+                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 13, input);
 
                         throw nvae;
                     }
@@ -627,25 +629,20 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case READONLY:
                     {
-                    int LA3_13 = input.LA(3);
+                    int LA3_14 = input.LA(3);
 
-                    if ( (LA3_13==CLASS) ) {
+                    if ( (LA3_14==CLASS) ) {
                         alt3=2;
                     }
-                    else if ( (LA3_13==FUNCTION) ) {
+                    else if ( (LA3_14==FUNCTION) ) {
                         alt3=3;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 13, input);
+                            new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 14, input);
 
                         throw nvae;
                     }
-                    }
-                    break;
-                case FUNCTION:
-                    {
-                    alt3=3;
                     }
                     break;
                 case CLASS:
@@ -653,9 +650,14 @@ public class v2Parser extends AbstractGeneratedParser {
                     alt3=2;
                     }
                     break;
+                case FUNCTION:
+                    {
+                    alt3=3;
+                    }
+                    break;
                 default:
                     NoViableAltException nvae =
-                        new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 6, input);
+                        new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 6, input);
 
                     throw nvae;
                 }
@@ -675,20 +677,49 @@ public class v2Parser extends AbstractGeneratedParser {
             case CONTINUE:
             case TRY:
             case FUNCTION:
+            case SEMI:
                 {
                 alt3=3;
                 }
                 break;
+            case POUND:
+            case TYPEOF:
+            case IF:
+            case THIS:
+            case NULL:
+            case TRUE:
+            case FALSE:
+            case NOT:
+            case NEW:
+            case SUPER:
+            case SIZEOF:
+            case REVERSE:
+            case LPAREN:
+            case PLUSPLUS:
+            case SUB:
+            case SUBSUB:
+            case QUES:
+            case STRING_LITERAL:
+            case QUOTE_LBRACE_STRING_LITERAL:
+            case LBRACE:
+            case QUOTED_IDENTIFIER:
+            case INTEGER_LITERAL:
+            case FLOATING_POINT_LITERAL:
+            case IDENTIFIER:
+                {
+                alt3=4;
+                }
+                break;
             default:
                 NoViableAltException nvae =
-                    new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement );", 3, 0, input);
+                    new NoViableAltException("326:1: moduleItem returns [JCTree value] : ( importDecl | classDefinition | statement | expression SEMI );", 3, 0, input);
 
                 throw nvae;
             }
 
             switch (alt3) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:327:10: importDecl
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:327:10: importDecl
                     {
                     pushFollow(FOLLOW_importDecl_in_moduleItem2138);
                     importDecl5=importDecl();
@@ -699,7 +730,7 @@ public class v2Parser extends AbstractGeneratedParser {
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:328:10: classDefinition
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:328:10: classDefinition
                     {
                     pushFollow(FOLLOW_classDefinition_in_moduleItem2154);
                     classDefinition6=classDefinition();
@@ -710,13 +741,25 @@ public class v2Parser extends AbstractGeneratedParser {
                     }
                     break;
                 case 3 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:329:10: statement
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:329:10: statement
                     {
                     pushFollow(FOLLOW_statement_in_moduleItem2170);
                     statement7=statement();
                     _fsp--;
 
                      value = statement7; 
+
+                    }
+                    break;
+                case 4 :
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:330:10: expression SEMI
+                    {
+                    pushFollow(FOLLOW_expression_in_moduleItem2192);
+                    expression8=expression();
+                    _fsp--;
+
+                    match(input,SEMI,FOLLOW_SEMI_in_moduleItem2194); 
+                     value = F.Exec(expression8); 
 
                     }
                     break;
@@ -735,30 +778,30 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start importDecl
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:330:1: importDecl returns [JCTree value] : IMPORT identifier ( DOT name )* ( DOT STAR )? SEMI ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:332:1: importDecl returns [JCTree value] : IMPORT identifier ( DOT name )* ( DOT STAR )? SEMI ;
     public final JCTree importDecl() throws RecognitionException {
         JCTree value = null;
 
-        Token STAR10=null;
-        Token IMPORT11=null;
-        JCIdent identifier8 = null;
+        Token STAR11=null;
+        Token IMPORT12=null;
+        JCIdent identifier9 = null;
 
-        name_return name9 = null;
+        name_return name10 = null;
 
 
          JCExpression pid = null; 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:332:9: ( IMPORT identifier ( DOT name )* ( DOT STAR )? SEMI )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:332:11: IMPORT identifier ( DOT name )* ( DOT STAR )? SEMI
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:334:9: ( IMPORT identifier ( DOT name )* ( DOT STAR )? SEMI )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:334:11: IMPORT identifier ( DOT name )* ( DOT STAR )? SEMI
             {
-            IMPORT11=(Token)input.LT(1);
-            match(input,IMPORT,FOLLOW_IMPORT_in_importDecl2206); 
-            pushFollow(FOLLOW_identifier_in_importDecl2209);
-            identifier8=identifier();
+            IMPORT12=(Token)input.LT(1);
+            match(input,IMPORT,FOLLOW_IMPORT_in_importDecl2231); 
+            pushFollow(FOLLOW_identifier_in_importDecl2234);
+            identifier9=identifier();
             _fsp--;
 
-             pid = identifier8; 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:333:18: ( DOT name )*
+             pid = identifier9; 
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:335:18: ( DOT name )*
             loop4:
             do {
                 int alt4=2;
@@ -777,14 +820,14 @@ public class v2Parser extends AbstractGeneratedParser {
 
                 switch (alt4) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:333:20: DOT name
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:335:20: DOT name
             	    {
-            	    match(input,DOT,FOLLOW_DOT_in_importDecl2234); 
-            	    pushFollow(FOLLOW_name_in_importDecl2236);
-            	    name9=name();
+            	    match(input,DOT,FOLLOW_DOT_in_importDecl2259); 
+            	    pushFollow(FOLLOW_name_in_importDecl2261);
+            	    name10=name();
             	    _fsp--;
 
-            	     pid = F.at(name9.pos).Select(pid, name9.value); 
+            	     pid = F.at(name10.pos).Select(pid, name10.value); 
 
             	    }
             	    break;
@@ -794,7 +837,7 @@ public class v2Parser extends AbstractGeneratedParser {
                 }
             } while (true);
 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:334:18: ( DOT STAR )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:336:18: ( DOT STAR )?
             int alt5=2;
             int LA5_0 = input.LA(1);
 
@@ -803,20 +846,20 @@ public class v2Parser extends AbstractGeneratedParser {
             }
             switch (alt5) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:334:20: DOT STAR
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:336:20: DOT STAR
                     {
-                    match(input,DOT,FOLLOW_DOT_in_importDecl2265); 
-                    STAR10=(Token)input.LT(1);
-                    match(input,STAR,FOLLOW_STAR_in_importDecl2267); 
-                     pid = F.at(pos(STAR10)).Select(pid, names.asterisk); 
+                    match(input,DOT,FOLLOW_DOT_in_importDecl2290); 
+                    STAR11=(Token)input.LT(1);
+                    match(input,STAR,FOLLOW_STAR_in_importDecl2292); 
+                     pid = F.at(pos(STAR11)).Select(pid, names.asterisk); 
 
                     }
                     break;
 
             }
 
-            match(input,SEMI,FOLLOW_SEMI_in_importDecl2276); 
-             value = F.at(pos(IMPORT11)).Import(pid, false); 
+            match(input,SEMI,FOLLOW_SEMI_in_importDecl2301); 
+             value = F.at(pos(IMPORT12)).Import(pid, false); 
 
             }
 
@@ -833,46 +876,46 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start classDefinition
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:336:1: classDefinition returns [JFXClassDeclaration value] : modifierFlags CLASS name supers LBRACE classMembers RBRACE ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:338:1: classDefinition returns [JFXClassDeclaration value] : modifierFlags CLASS name supers LBRACE classMembers RBRACE ;
     public final JFXClassDeclaration classDefinition() throws RecognitionException {
         JFXClassDeclaration value = null;
 
-        Token CLASS12=null;
-        JCModifiers modifierFlags13 = null;
+        Token CLASS13=null;
+        JCModifiers modifierFlags14 = null;
 
-        name_return name14 = null;
+        name_return name15 = null;
 
-        ListBuffer<Name> supers15 = null;
+        ListBuffer<Name> supers16 = null;
 
-        ListBuffer<JFXAbstractMember> classMembers16 = null;
+        ListBuffer<JFXAbstractMember> classMembers17 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:337:2: ( modifierFlags CLASS name supers LBRACE classMembers RBRACE )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:337:4: modifierFlags CLASS name supers LBRACE classMembers RBRACE
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:339:2: ( modifierFlags CLASS name supers LBRACE classMembers RBRACE )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:339:4: modifierFlags CLASS name supers LBRACE classMembers RBRACE
             {
-            pushFollow(FOLLOW_modifierFlags_in_classDefinition2307);
-            modifierFlags13=modifierFlags();
+            pushFollow(FOLLOW_modifierFlags_in_classDefinition2332);
+            modifierFlags14=modifierFlags();
             _fsp--;
 
-            CLASS12=(Token)input.LT(1);
-            match(input,CLASS,FOLLOW_CLASS_in_classDefinition2310); 
-            pushFollow(FOLLOW_name_in_classDefinition2312);
-            name14=name();
+            CLASS13=(Token)input.LT(1);
+            match(input,CLASS,FOLLOW_CLASS_in_classDefinition2335); 
+            pushFollow(FOLLOW_name_in_classDefinition2337);
+            name15=name();
             _fsp--;
 
-            pushFollow(FOLLOW_supers_in_classDefinition2314);
-            supers15=supers();
+            pushFollow(FOLLOW_supers_in_classDefinition2339);
+            supers16=supers();
             _fsp--;
 
-            match(input,LBRACE,FOLLOW_LBRACE_in_classDefinition2316); 
-            pushFollow(FOLLOW_classMembers_in_classDefinition2318);
-            classMembers16=classMembers();
+            match(input,LBRACE,FOLLOW_LBRACE_in_classDefinition2341); 
+            pushFollow(FOLLOW_classMembers_in_classDefinition2343);
+            classMembers17=classMembers();
             _fsp--;
 
-            match(input,RBRACE,FOLLOW_RBRACE_in_classDefinition2320); 
-             value = F.at(pos(CLASS12)).ClassDeclaration(modifierFlags13, name14.value,
-            	                                	                supers15.toList(), classMembers16.toList()); 
+            match(input,RBRACE,FOLLOW_RBRACE_in_classDefinition2345); 
+             value = F.at(pos(CLASS13)).ClassDeclaration(modifierFlags14, name15.value,
+            	                                	                supers16.toList(), classMembers17.toList()); 
 
             }
 
@@ -889,7 +932,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start supers
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:340:1: supers returns [ListBuffer<Name> names = new ListBuffer<Name>()] : ( EXTENDS name1= name ( COMMA namen= name )* )? ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:342:1: supers returns [ListBuffer<Name> names = new ListBuffer<Name>()] : ( EXTENDS name1= name ( COMMA namen= name )* )? ;
     public final ListBuffer<Name> supers() throws RecognitionException {
         ListBuffer<Name> names =  new ListBuffer<Name>();
 
@@ -899,10 +942,10 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:341:2: ( ( EXTENDS name1= name ( COMMA namen= name )* )? )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:341:4: ( EXTENDS name1= name ( COMMA namen= name )* )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:343:2: ( ( EXTENDS name1= name ( COMMA namen= name )* )? )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:343:4: ( EXTENDS name1= name ( COMMA namen= name )* )?
             {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:341:4: ( EXTENDS name1= name ( COMMA namen= name )* )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:343:4: ( EXTENDS name1= name ( COMMA namen= name )* )?
             int alt7=2;
             int LA7_0 = input.LA(1);
 
@@ -911,15 +954,15 @@ public class v2Parser extends AbstractGeneratedParser {
             }
             switch (alt7) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:341:5: EXTENDS name1= name ( COMMA namen= name )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:343:5: EXTENDS name1= name ( COMMA namen= name )*
                     {
-                    match(input,EXTENDS,FOLLOW_EXTENDS_in_supers2345); 
-                    pushFollow(FOLLOW_name_in_supers2349);
+                    match(input,EXTENDS,FOLLOW_EXTENDS_in_supers2370); 
+                    pushFollow(FOLLOW_name_in_supers2374);
                     name1=name();
                     _fsp--;
 
                      names.append(name1.value); 
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:342:12: ( COMMA namen= name )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:344:12: ( COMMA namen= name )*
                     loop6:
                     do {
                         int alt6=2;
@@ -932,10 +975,10 @@ public class v2Parser extends AbstractGeneratedParser {
 
                         switch (alt6) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:342:14: COMMA namen= name
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:344:14: COMMA namen= name
                     	    {
-                    	    match(input,COMMA,FOLLOW_COMMA_in_supers2377); 
-                    	    pushFollow(FOLLOW_name_in_supers2381);
+                    	    match(input,COMMA,FOLLOW_COMMA_in_supers2402); 
+                    	    pushFollow(FOLLOW_name_in_supers2406);
                     	    namen=name();
                     	    _fsp--;
 
@@ -971,20 +1014,20 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start classMembers
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:344:1: classMembers returns [ListBuffer<JFXMemberDeclaration> mems = new ListBuffer<JFXMemberDeclaration>()] : ( attributeDefinition | functionDefinition )* ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:346:1: classMembers returns [ListBuffer<JFXAbstractMember> mems = new ListBuffer<JFXAbstractMember>()] : ( attributeDefinition | functionDefinition )* ;
     public final ListBuffer<JFXAbstractMember> classMembers() throws RecognitionException {
         ListBuffer<JFXAbstractMember> mems =  new ListBuffer<JFXAbstractMember>();
 
-        JFXRetroAttributeDeclaration attributeDefinition17 = null;
+        JFXAttributeDefinition attributeDefinition18 = null;
 
-        JFXRetroFunctionMemberDeclaration functionDefinition18 = null;
+        JFXFunctionDefinition functionDefinition19 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:345:2: ( ( attributeDefinition | functionDefinition )* )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:345:3: ( attributeDefinition | functionDefinition )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:347:2: ( ( attributeDefinition | functionDefinition )* )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:347:3: ( attributeDefinition | functionDefinition )*
             {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:345:3: ( attributeDefinition | functionDefinition )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:347:3: ( attributeDefinition | functionDefinition )*
             loop8:
             do {
                 int alt8=3;
@@ -996,11 +1039,11 @@ public class v2Parser extends AbstractGeneratedParser {
                         {
                         int LA8_9 = input.LA(3);
 
-                        if ( (LA8_9==ATTRIBUTE) ) {
-                            alt8=1;
-                        }
-                        else if ( (LA8_9==FUNCTION) ) {
+                        if ( (LA8_9==FUNCTION) ) {
                             alt8=2;
+                        }
+                        else if ( (LA8_9==ATTRIBUTE) ) {
+                            alt8=1;
                         }
 
 
@@ -1010,11 +1053,11 @@ public class v2Parser extends AbstractGeneratedParser {
                         {
                         int LA8_10 = input.LA(3);
 
-                        if ( (LA8_10==FUNCTION) ) {
-                            alt8=2;
-                        }
-                        else if ( (LA8_10==ATTRIBUTE) ) {
+                        if ( (LA8_10==ATTRIBUTE) ) {
                             alt8=1;
+                        }
+                        else if ( (LA8_10==FUNCTION) ) {
+                            alt8=2;
                         }
 
 
@@ -1056,11 +1099,11 @@ public class v2Parser extends AbstractGeneratedParser {
                         {
                         int LA8_9 = input.LA(3);
 
-                        if ( (LA8_9==ATTRIBUTE) ) {
-                            alt8=1;
-                        }
-                        else if ( (LA8_9==FUNCTION) ) {
+                        if ( (LA8_9==FUNCTION) ) {
                             alt8=2;
+                        }
+                        else if ( (LA8_9==ATTRIBUTE) ) {
+                            alt8=1;
                         }
 
 
@@ -1070,11 +1113,11 @@ public class v2Parser extends AbstractGeneratedParser {
                         {
                         int LA8_10 = input.LA(3);
 
-                        if ( (LA8_10==FUNCTION) ) {
-                            alt8=2;
-                        }
-                        else if ( (LA8_10==ATTRIBUTE) ) {
+                        if ( (LA8_10==ATTRIBUTE) ) {
                             alt8=1;
+                        }
+                        else if ( (LA8_10==FUNCTION) ) {
+                            alt8=2;
                         }
 
 
@@ -1262,24 +1305,24 @@ public class v2Parser extends AbstractGeneratedParser {
 
                 switch (alt8) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:345:5: attributeDefinition
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:347:5: attributeDefinition
             	    {
-            	    pushFollow(FOLLOW_attributeDefinition_in_classMembers2415);
-            	    attributeDefinition17=attributeDefinition();
+            	    pushFollow(FOLLOW_attributeDefinition_in_classMembers2440);
+            	    attributeDefinition18=attributeDefinition();
             	    _fsp--;
 
-            	     mems.append(attributeDefinition17); 
+            	     mems.append(attributeDefinition18); 
 
             	    }
             	    break;
             	case 2 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:346:5: functionDefinition
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:348:5: functionDefinition
             	    {
-            	    pushFollow(FOLLOW_functionDefinition_in_classMembers2433);
-            	    functionDefinition18=functionDefinition();
+            	    pushFollow(FOLLOW_functionDefinition_in_classMembers2458);
+            	    functionDefinition19=functionDefinition();
             	    _fsp--;
 
-            	     mems.append(functionDefinition18); 
+            	     mems.append(functionDefinition19); 
 
             	    }
             	    break;
@@ -1305,28 +1348,43 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start attributeDefinition
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:348:1: attributeDefinition returns [JFXAttributeDeclaration def] : modifierFlags ATTRIBUTE name typeReference ( EQ bindOpt expression | inverseClause )? SEMI ;
-    public final JFXRetroAttributeDeclaration attributeDefinition() throws RecognitionException {
-        JFXRetroAttributeDeclaration def = null;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:350:1: attributeDefinition returns [JFXAttributeDefinition def] : modifierFlags ATTRIBUTE name typeReference ( EQ bindOpt expression | inverseClause )? SEMI ;
+    public final JFXAttributeDefinition attributeDefinition() throws RecognitionException {
+        JFXAttributeDefinition def = null;
+
+        Token ATTRIBUTE20=null;
+        JCModifiers modifierFlags21 = null;
+
+        name_return name22 = null;
+
+        JFXType typeReference23 = null;
+
+        JFXMemberSelector inverseClause24 = null;
+
+        JavafxBindStatus bindOpt25 = null;
+
+        JCExpression expression26 = null;
+
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:349:2: ( modifierFlags ATTRIBUTE name typeReference ( EQ bindOpt expression | inverseClause )? SEMI )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:349:4: modifierFlags ATTRIBUTE name typeReference ( EQ bindOpt expression | inverseClause )? SEMI
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:351:2: ( modifierFlags ATTRIBUTE name typeReference ( EQ bindOpt expression | inverseClause )? SEMI )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:351:4: modifierFlags ATTRIBUTE name typeReference ( EQ bindOpt expression | inverseClause )? SEMI
             {
-            pushFollow(FOLLOW_modifierFlags_in_attributeDefinition2462);
-            modifierFlags();
+            pushFollow(FOLLOW_modifierFlags_in_attributeDefinition2487);
+            modifierFlags21=modifierFlags();
             _fsp--;
 
-            match(input,ATTRIBUTE,FOLLOW_ATTRIBUTE_in_attributeDefinition2464); 
-            pushFollow(FOLLOW_name_in_attributeDefinition2466);
-            name();
+            ATTRIBUTE20=(Token)input.LT(1);
+            match(input,ATTRIBUTE,FOLLOW_ATTRIBUTE_in_attributeDefinition2489); 
+            pushFollow(FOLLOW_name_in_attributeDefinition2491);
+            name22=name();
             _fsp--;
 
-            pushFollow(FOLLOW_typeReference_in_attributeDefinition2468);
-            typeReference();
+            pushFollow(FOLLOW_typeReference_in_attributeDefinition2499);
+            typeReference23=typeReference();
             _fsp--;
 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:349:47: ( EQ bindOpt expression | inverseClause )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:353:5: ( EQ bindOpt expression | inverseClause )?
             int alt9=3;
             int LA9_0 = input.LA(1);
 
@@ -1338,25 +1396,25 @@ public class v2Parser extends AbstractGeneratedParser {
             }
             switch (alt9) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:349:48: EQ bindOpt expression
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:353:6: EQ bindOpt expression
                     {
-                    match(input,EQ,FOLLOW_EQ_in_attributeDefinition2471); 
-                    pushFollow(FOLLOW_bindOpt_in_attributeDefinition2473);
-                    bindOpt();
+                    match(input,EQ,FOLLOW_EQ_in_attributeDefinition2507); 
+                    pushFollow(FOLLOW_bindOpt_in_attributeDefinition2509);
+                    bindOpt25=bindOpt();
                     _fsp--;
 
-                    pushFollow(FOLLOW_expression_in_attributeDefinition2476);
-                    expression();
+                    pushFollow(FOLLOW_expression_in_attributeDefinition2511);
+                    expression26=expression();
                     _fsp--;
 
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:349:73: inverseClause
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:353:30: inverseClause
                     {
-                    pushFollow(FOLLOW_inverseClause_in_attributeDefinition2480);
-                    inverseClause();
+                    pushFollow(FOLLOW_inverseClause_in_attributeDefinition2515);
+                    inverseClause24=inverseClause();
                     _fsp--;
 
 
@@ -1365,7 +1423,10 @@ public class v2Parser extends AbstractGeneratedParser {
 
             }
 
-            match(input,SEMI,FOLLOW_SEMI_in_attributeDefinition2485); 
+            match(input,SEMI,FOLLOW_SEMI_in_attributeDefinition2525); 
+             def = F.at(pos(ATTRIBUTE20)).AttributeDefinition(modifierFlags21,
+            	    						name22.value, typeReference23, inverseClause24, null, 
+            	    						bindOpt25, expression26); 
 
             }
 
@@ -1382,23 +1443,23 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start inverseClause
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:351:1: inverseClause returns [JFXMemberSelector inverse = null] : INVERSE memberSelector ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:358:1: inverseClause returns [JFXMemberSelector inverse = null] : INVERSE memberSelector ;
     public final JFXMemberSelector inverseClause() throws RecognitionException {
         JFXMemberSelector inverse =  null;
 
-        JFXMemberSelector memberSelector19 = null;
+        JFXMemberSelector memberSelector27 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:352:2: ( INVERSE memberSelector )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:352:4: INVERSE memberSelector
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:359:2: ( INVERSE memberSelector )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:359:4: INVERSE memberSelector
             {
-            match(input,INVERSE,FOLLOW_INVERSE_in_inverseClause2507); 
-            pushFollow(FOLLOW_memberSelector_in_inverseClause2509);
-            memberSelector19=memberSelector();
+            match(input,INVERSE,FOLLOW_INVERSE_in_inverseClause2551); 
+            pushFollow(FOLLOW_memberSelector_in_inverseClause2553);
+            memberSelector27=memberSelector();
             _fsp--;
 
-             inverse = memberSelector19; 
+             inverse = memberSelector27; 
 
             }
 
@@ -1415,35 +1476,51 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start functionDefinition
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:353:1: functionDefinition returns [JFXFunctionMemberDeclaration def] : modifierFlags FUNCTION name formalParameters typeReference blockExpression ;
-    public final JFXRetroFunctionMemberDeclaration functionDefinition() throws RecognitionException {
-        JFXRetroFunctionMemberDeclaration def = null;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:360:1: functionDefinition returns [JFXFunctionDefinition def] : modifierFlags FUNCTION name formalParameters typeReference blockExpression ;
+    public final JFXFunctionDefinition functionDefinition() throws RecognitionException {
+        JFXFunctionDefinition def = null;
+
+        Token FUNCTION28=null;
+        JCModifiers modifierFlags29 = null;
+
+        name_return name30 = null;
+
+        JFXType typeReference31 = null;
+
+        ListBuffer<JCTree> formalParameters32 = null;
+
+        JFXBlockExpression blockExpression33 = null;
+
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:354:2: ( modifierFlags FUNCTION name formalParameters typeReference blockExpression )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:354:4: modifierFlags FUNCTION name formalParameters typeReference blockExpression
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:361:2: ( modifierFlags FUNCTION name formalParameters typeReference blockExpression )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:361:4: modifierFlags FUNCTION name formalParameters typeReference blockExpression
             {
-            pushFollow(FOLLOW_modifierFlags_in_functionDefinition2527);
-            modifierFlags();
+            pushFollow(FOLLOW_modifierFlags_in_functionDefinition2571);
+            modifierFlags29=modifierFlags();
             _fsp--;
 
-            match(input,FUNCTION,FOLLOW_FUNCTION_in_functionDefinition2529); 
-            pushFollow(FOLLOW_name_in_functionDefinition2533);
-            name();
+            FUNCTION28=(Token)input.LT(1);
+            match(input,FUNCTION,FOLLOW_FUNCTION_in_functionDefinition2573); 
+            pushFollow(FOLLOW_name_in_functionDefinition2575);
+            name30=name();
             _fsp--;
 
-            pushFollow(FOLLOW_formalParameters_in_functionDefinition2535);
-            formalParameters();
+            pushFollow(FOLLOW_formalParameters_in_functionDefinition2583);
+            formalParameters32=formalParameters();
             _fsp--;
 
-            pushFollow(FOLLOW_typeReference_in_functionDefinition2539);
-            typeReference();
+            pushFollow(FOLLOW_typeReference_in_functionDefinition2586);
+            typeReference31=typeReference();
             _fsp--;
 
-            pushFollow(FOLLOW_blockExpression_in_functionDefinition2542);
-            blockExpression();
+            pushFollow(FOLLOW_blockExpression_in_functionDefinition2595);
+            blockExpression33=blockExpression();
             _fsp--;
 
+             def = F.at(pos(FUNCTION28)).FunctionDefinition(modifierFlags29,
+            	    						name30.value, typeReference31, 
+            	    						formalParameters32.toList(), blockExpression33); 
 
             }
 
@@ -1460,7 +1537,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start modifierFlags
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:356:1: modifierFlags returns [JCModifiers mods] : (om1= otherModifier (am1= accessModifier )? | am2= accessModifier (om2= otherModifier )? )? ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:367:1: modifierFlags returns [JCModifiers mods] : (om1= otherModifier (am1= accessModifier )? | am2= accessModifier (om2= otherModifier )? )? ;
     public final JCModifiers modifierFlags() throws RecognitionException {
         JCModifiers mods = null;
 
@@ -1475,10 +1552,10 @@ public class v2Parser extends AbstractGeneratedParser {
 
          long flags = 0; 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:358:2: ( (om1= otherModifier (am1= accessModifier )? | am2= accessModifier (om2= otherModifier )? )? )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:358:4: (om1= otherModifier (am1= accessModifier )? | am2= accessModifier (om2= otherModifier )? )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:369:2: ( (om1= otherModifier (am1= accessModifier )? | am2= accessModifier (om2= otherModifier )? )? )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:369:4: (om1= otherModifier (am1= accessModifier )? | am2= accessModifier (om2= otherModifier )? )?
             {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:358:4: (om1= otherModifier (am1= accessModifier )? | am2= accessModifier (om2= otherModifier )? )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:369:4: (om1= otherModifier (am1= accessModifier )? | am2= accessModifier (om2= otherModifier )? )?
             int alt12=3;
             int LA12_0 = input.LA(1);
 
@@ -1490,14 +1567,14 @@ public class v2Parser extends AbstractGeneratedParser {
             }
             switch (alt12) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:358:6: om1= otherModifier (am1= accessModifier )?
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:369:6: om1= otherModifier (am1= accessModifier )?
                     {
-                    pushFollow(FOLLOW_otherModifier_in_modifierFlags2566);
+                    pushFollow(FOLLOW_otherModifier_in_modifierFlags2623);
                     om1=otherModifier();
                     _fsp--;
 
                      flags |= om1; 
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:359:3: (am1= accessModifier )?
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:370:3: (am1= accessModifier )?
                     int alt10=2;
                     int LA10_0 = input.LA(1);
 
@@ -1506,9 +1583,9 @@ public class v2Parser extends AbstractGeneratedParser {
                     }
                     switch (alt10) {
                         case 1 :
-                            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:359:5: am1= accessModifier
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:370:5: am1= accessModifier
                             {
-                            pushFollow(FOLLOW_accessModifier_in_modifierFlags2579);
+                            pushFollow(FOLLOW_accessModifier_in_modifierFlags2636);
                             am1=accessModifier();
                             _fsp--;
 
@@ -1523,14 +1600,14 @@ public class v2Parser extends AbstractGeneratedParser {
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:360:6: am2= accessModifier (om2= otherModifier )?
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:371:6: am2= accessModifier (om2= otherModifier )?
                     {
-                    pushFollow(FOLLOW_accessModifier_in_modifierFlags2601);
+                    pushFollow(FOLLOW_accessModifier_in_modifierFlags2658);
                     am2=accessModifier();
                     _fsp--;
 
                      flags |= am2; 
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:361:3: (om2= otherModifier )?
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:372:3: (om2= otherModifier )?
                     int alt11=2;
                     int LA11_0 = input.LA(1);
 
@@ -1539,9 +1616,9 @@ public class v2Parser extends AbstractGeneratedParser {
                     }
                     switch (alt11) {
                         case 1 :
-                            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:361:5: om2= otherModifier
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:372:5: om2= otherModifier
                             {
-                            pushFollow(FOLLOW_otherModifier_in_modifierFlags2614);
+                            pushFollow(FOLLOW_otherModifier_in_modifierFlags2671);
                             om2=otherModifier();
                             _fsp--;
 
@@ -1575,15 +1652,15 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start accessModifier
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:364:1: accessModifier returns [long flags = 0] : ( PUBLIC | PRIVATE | PROTECTED ) ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:375:1: accessModifier returns [long flags = 0] : ( PUBLIC | PRIVATE | PROTECTED ) ;
     public final long accessModifier() throws RecognitionException {
         long flags =  0;
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:365:2: ( ( PUBLIC | PRIVATE | PROTECTED ) )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:365:4: ( PUBLIC | PRIVATE | PROTECTED )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:376:2: ( ( PUBLIC | PRIVATE | PROTECTED ) )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:376:4: ( PUBLIC | PRIVATE | PROTECTED )
             {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:365:4: ( PUBLIC | PRIVATE | PROTECTED )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:376:4: ( PUBLIC | PRIVATE | PROTECTED )
             int alt13=3;
             switch ( input.LA(1) ) {
             case PUBLIC:
@@ -1603,32 +1680,32 @@ public class v2Parser extends AbstractGeneratedParser {
                 break;
             default:
                 NoViableAltException nvae =
-                    new NoViableAltException("365:4: ( PUBLIC | PRIVATE | PROTECTED )", 13, 0, input);
+                    new NoViableAltException("376:4: ( PUBLIC | PRIVATE | PROTECTED )", 13, 0, input);
 
                 throw nvae;
             }
 
             switch (alt13) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:365:5: PUBLIC
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:376:5: PUBLIC
                     {
-                    match(input,PUBLIC,FOLLOW_PUBLIC_in_accessModifier2662); 
+                    match(input,PUBLIC,FOLLOW_PUBLIC_in_accessModifier2719); 
                      flags |= Flags.PUBLIC; 
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:366:5: PRIVATE
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:377:5: PRIVATE
                     {
-                    match(input,PRIVATE,FOLLOW_PRIVATE_in_accessModifier2682); 
+                    match(input,PRIVATE,FOLLOW_PRIVATE_in_accessModifier2739); 
                      flags |= Flags.PUBLIC; 
 
                     }
                     break;
                 case 3 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:367:5: PROTECTED
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:378:5: PROTECTED
                     {
-                    match(input,PROTECTED,FOLLOW_PROTECTED_in_accessModifier2701); 
+                    match(input,PROTECTED,FOLLOW_PROTECTED_in_accessModifier2758); 
                      flags |= Flags.PROTECTED; 
 
                     }
@@ -1652,15 +1729,15 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start otherModifier
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:368:1: otherModifier returns [long flags = 0] : ( ABSTRACT | READONLY ) ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:379:1: otherModifier returns [long flags = 0] : ( ABSTRACT | READONLY ) ;
     public final long otherModifier() throws RecognitionException {
         long flags =  0;
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:369:2: ( ( ABSTRACT | READONLY ) )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:369:4: ( ABSTRACT | READONLY )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:380:2: ( ( ABSTRACT | READONLY ) )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:380:4: ( ABSTRACT | READONLY )
             {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:369:4: ( ABSTRACT | READONLY )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:380:4: ( ABSTRACT | READONLY )
             int alt14=2;
             int LA14_0 = input.LA(1);
 
@@ -1672,23 +1749,23 @@ public class v2Parser extends AbstractGeneratedParser {
             }
             else {
                 NoViableAltException nvae =
-                    new NoViableAltException("369:4: ( ABSTRACT | READONLY )", 14, 0, input);
+                    new NoViableAltException("380:4: ( ABSTRACT | READONLY )", 14, 0, input);
 
                 throw nvae;
             }
             switch (alt14) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:369:5: ABSTRACT
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:380:5: ABSTRACT
                     {
-                    match(input,ABSTRACT,FOLLOW_ABSTRACT_in_otherModifier2728); 
+                    match(input,ABSTRACT,FOLLOW_ABSTRACT_in_otherModifier2785); 
                      flags |= Flags.ABSTRACT; 
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:370:5: READONLY
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:381:5: READONLY
                     {
-                    match(input,READONLY,FOLLOW_READONLY_in_otherModifier2746); 
+                    match(input,READONLY,FOLLOW_READONLY_in_otherModifier2803); 
                      flags |= Flags.FINAL; 
 
                     }
@@ -1712,7 +1789,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start memberSelector
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:371:1: memberSelector returns [JFXMemberSelector value] : name1= name DOT name2= name ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:382:1: memberSelector returns [JFXMemberSelector value] : name1= name DOT name2= name ;
     public final JFXMemberSelector memberSelector() throws RecognitionException {
         JFXMemberSelector value = null;
 
@@ -1722,15 +1799,15 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:372:2: (name1= name DOT name2= name )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:372:4: name1= name DOT name2= name
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:383:2: (name1= name DOT name2= name )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:383:4: name1= name DOT name2= name
             {
-            pushFollow(FOLLOW_name_in_memberSelector2775);
+            pushFollow(FOLLOW_name_in_memberSelector2832);
             name1=name();
             _fsp--;
 
-            match(input,DOT,FOLLOW_DOT_in_memberSelector2779); 
-            pushFollow(FOLLOW_name_in_memberSelector2785);
+            match(input,DOT,FOLLOW_DOT_in_memberSelector2836); 
+            pushFollow(FOLLOW_name_in_memberSelector2842);
             name2=name();
             _fsp--;
 
@@ -1751,7 +1828,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start formalParameters
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:374:1: formalParameters returns [ListBuffer<JCTree> params = new ListBuffer<JCTree>()] : LPAREN (fp0= formalParameter ( COMMA fpn= formalParameter )* )? RPAREN ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:385:1: formalParameters returns [ListBuffer<JCTree> params = new ListBuffer<JCTree>()] : LPAREN (fp0= formalParameter ( COMMA fpn= formalParameter )* )? RPAREN ;
     public final ListBuffer<JCTree> formalParameters() throws RecognitionException {
         ListBuffer<JCTree> params =  new ListBuffer<JCTree>();
 
@@ -1761,11 +1838,11 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:375:2: ( LPAREN (fp0= formalParameter ( COMMA fpn= formalParameter )* )? RPAREN )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:375:4: LPAREN (fp0= formalParameter ( COMMA fpn= formalParameter )* )? RPAREN
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:386:2: ( LPAREN (fp0= formalParameter ( COMMA fpn= formalParameter )* )? RPAREN )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:386:4: LPAREN (fp0= formalParameter ( COMMA fpn= formalParameter )* )? RPAREN
             {
-            match(input,LPAREN,FOLLOW_LPAREN_in_formalParameters2803); 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:375:12: (fp0= formalParameter ( COMMA fpn= formalParameter )* )?
+            match(input,LPAREN,FOLLOW_LPAREN_in_formalParameters2860); 
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:386:12: (fp0= formalParameter ( COMMA fpn= formalParameter )* )?
             int alt16=2;
             int LA16_0 = input.LA(1);
 
@@ -1774,14 +1851,14 @@ public class v2Parser extends AbstractGeneratedParser {
             }
             switch (alt16) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:375:14: fp0= formalParameter ( COMMA fpn= formalParameter )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:386:14: fp0= formalParameter ( COMMA fpn= formalParameter )*
                     {
-                    pushFollow(FOLLOW_formalParameter_in_formalParameters2810);
+                    pushFollow(FOLLOW_formalParameter_in_formalParameters2867);
                     fp0=formalParameter();
                     _fsp--;
 
                      params.append(fp0); 
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:376:12: ( COMMA fpn= formalParameter )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:387:12: ( COMMA fpn= formalParameter )*
                     loop15:
                     do {
                         int alt15=2;
@@ -1794,10 +1871,10 @@ public class v2Parser extends AbstractGeneratedParser {
 
                         switch (alt15) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:376:14: COMMA fpn= formalParameter
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:387:14: COMMA fpn= formalParameter
                     	    {
-                    	    match(input,COMMA,FOLLOW_COMMA_in_formalParameters2828); 
-                    	    pushFollow(FOLLOW_formalParameter_in_formalParameters2834);
+                    	    match(input,COMMA,FOLLOW_COMMA_in_formalParameters2885); 
+                    	    pushFollow(FOLLOW_formalParameter_in_formalParameters2891);
                     	    fpn=formalParameter();
                     	    _fsp--;
 
@@ -1817,7 +1894,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
             }
 
-            match(input,RPAREN,FOLLOW_RPAREN_in_formalParameters2845); 
+            match(input,RPAREN,FOLLOW_RPAREN_in_formalParameters2902); 
 
             }
 
@@ -1834,28 +1911,28 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start formalParameter
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:378:1: formalParameter returns [JFXVar var] : name typeReference ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:389:1: formalParameter returns [JFXVar var] : name typeReference ;
     public final JFXVar formalParameter() throws RecognitionException {
         JFXVar var = null;
 
-        name_return name20 = null;
+        name_return name34 = null;
 
-        JFXType typeReference21 = null;
+        JFXType typeReference35 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:379:2: ( name typeReference )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:379:4: name typeReference
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:390:2: ( name typeReference )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:390:4: name typeReference
             {
-            pushFollow(FOLLOW_name_in_formalParameter2860);
-            name20=name();
+            pushFollow(FOLLOW_name_in_formalParameter2917);
+            name34=name();
             _fsp--;
 
-            pushFollow(FOLLOW_typeReference_in_formalParameter2862);
-            typeReference21=typeReference();
+            pushFollow(FOLLOW_typeReference_in_formalParameter2919);
+            typeReference35=typeReference();
             _fsp--;
 
-             var = F.at(name20.pos).Var(name20.value, typeReference21, F.Modifiers(Flags.PARAMETER)); 
+             var = F.at(name34.pos).Var(name34.value, typeReference35, F.Modifiers(Flags.PARAMETER)); 
 
             }
 
@@ -1872,163 +1949,70 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start block
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:381:1: block returns [JCBlock value] : LBRACE (s1= statement | e1= expression ) ( SEMI (sn= statement | en= expression ) )* ( SEMI )? RBRACE ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:392:1: block returns [JCBlock value] : LBRACE ( statement | expression SEMI )* RBRACE ;
     public final JCBlock block() throws RecognitionException {
         JCBlock value = null;
 
-        Token LBRACE22=null;
-        JCStatement s1 = null;
+        Token LBRACE38=null;
+        JCStatement statement36 = null;
 
-        JCExpression e1 = null;
-
-        JCStatement sn = null;
-
-        JCExpression en = null;
+        JCExpression expression37 = null;
 
 
          ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
         	 	
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:384:2: ( LBRACE (s1= statement | e1= expression ) ( SEMI (sn= statement | en= expression ) )* ( SEMI )? RBRACE )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:384:4: LBRACE (s1= statement | e1= expression ) ( SEMI (sn= statement | en= expression ) )* ( SEMI )? RBRACE
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:395:2: ( LBRACE ( statement | expression SEMI )* RBRACE )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:395:4: LBRACE ( statement | expression SEMI )* RBRACE
             {
-            LBRACE22=(Token)input.LT(1);
-            match(input,LBRACE,FOLLOW_LBRACE_in_block2888); 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:385:4: (s1= statement | e1= expression )
-            int alt17=2;
-            int LA17_0 = input.LA(1);
-
-            if ( (LA17_0==ABSTRACT||LA17_0==BREAK||(LA17_0>=RETURN && LA17_0<=VAR)||(LA17_0>=WHILE && LA17_0<=CONTINUE)||LA17_0==TRY||(LA17_0>=PRIVATE && LA17_0<=READONLY)) ) {
-                alt17=1;
-            }
-            else if ( ((LA17_0>=POUND && LA17_0<=TYPEOF)||LA17_0==IF||(LA17_0>=THIS && LA17_0<=FALSE)||(LA17_0>=NOT && LA17_0<=NEW)||LA17_0==SUPER||(LA17_0>=SIZEOF && LA17_0<=LPAREN)||(LA17_0>=PLUSPLUS && LA17_0<=SUBSUB)||(LA17_0>=QUES && LA17_0<=STRING_LITERAL)||(LA17_0>=QUOTE_LBRACE_STRING_LITERAL && LA17_0<=LBRACE)||(LA17_0>=QUOTED_IDENTIFIER && LA17_0<=INTEGER_LITERAL)||LA17_0==FLOATING_POINT_LITERAL||LA17_0==IDENTIFIER) ) {
-                alt17=2;
-            }
-            else {
-                NoViableAltException nvae =
-                    new NoViableAltException("385:4: (s1= statement | e1= expression )", 17, 0, input);
-
-                throw nvae;
-            }
-            switch (alt17) {
-                case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:385:9: s1= statement
-                    {
-                    pushFollow(FOLLOW_statement_in_block2900);
-                    s1=statement();
-                    _fsp--;
-
-                     stats.append(s1); 
-
-                    }
-                    break;
-                case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:386:9: e1= expression
-                    {
-                    pushFollow(FOLLOW_expression_in_block2917);
-                    e1=expression();
-                    _fsp--;
-
-                     stats.append(F.Exec(e1)); 
-
-                    }
-                    break;
-
-            }
-
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:388:4: ( SEMI (sn= statement | en= expression ) )*
-            loop19:
+            LBRACE38=(Token)input.LT(1);
+            match(input,LBRACE,FOLLOW_LBRACE_in_block2945); 
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:396:4: ( statement | expression SEMI )*
+            loop17:
             do {
-                int alt19=2;
-                int LA19_0 = input.LA(1);
+                int alt17=3;
+                int LA17_0 = input.LA(1);
 
-                if ( (LA19_0==SEMI) ) {
-                    int LA19_1 = input.LA(2);
-
-                    if ( ((LA19_1>=POUND && LA19_1<=TYPEOF)||LA19_1==ABSTRACT||LA19_1==BREAK||(LA19_1>=RETURN && LA19_1<=VAR)||LA19_1==IF||(LA19_1>=THIS && LA19_1<=FALSE)||(LA19_1>=WHILE && LA19_1<=CONTINUE)||LA19_1==TRY||(LA19_1>=NOT && LA19_1<=READONLY)||LA19_1==SUPER||(LA19_1>=SIZEOF && LA19_1<=LPAREN)||(LA19_1>=PLUSPLUS && LA19_1<=SUBSUB)||(LA19_1>=QUES && LA19_1<=STRING_LITERAL)||(LA19_1>=QUOTE_LBRACE_STRING_LITERAL && LA19_1<=LBRACE)||(LA19_1>=QUOTED_IDENTIFIER && LA19_1<=INTEGER_LITERAL)||LA19_1==FLOATING_POINT_LITERAL||LA19_1==IDENTIFIER) ) {
-                        alt19=1;
-                    }
-
-
+                if ( (LA17_0==ABSTRACT||LA17_0==BREAK||(LA17_0>=RETURN && LA17_0<=VAR)||(LA17_0>=WHILE && LA17_0<=CONTINUE)||LA17_0==TRY||(LA17_0>=PRIVATE && LA17_0<=READONLY)||LA17_0==SEMI) ) {
+                    alt17=1;
+                }
+                else if ( ((LA17_0>=POUND && LA17_0<=TYPEOF)||LA17_0==IF||(LA17_0>=THIS && LA17_0<=FALSE)||(LA17_0>=NOT && LA17_0<=NEW)||LA17_0==SUPER||(LA17_0>=SIZEOF && LA17_0<=LPAREN)||(LA17_0>=PLUSPLUS && LA17_0<=SUBSUB)||(LA17_0>=QUES && LA17_0<=STRING_LITERAL)||(LA17_0>=QUOTE_LBRACE_STRING_LITERAL && LA17_0<=LBRACE)||(LA17_0>=QUOTED_IDENTIFIER && LA17_0<=INTEGER_LITERAL)||LA17_0==FLOATING_POINT_LITERAL||LA17_0==IDENTIFIER) ) {
+                    alt17=2;
                 }
 
 
-                switch (alt19) {
+                switch (alt17) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:388:6: SEMI (sn= statement | en= expression )
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:396:9: statement
             	    {
-            	    match(input,SEMI,FOLLOW_SEMI_in_block2934); 
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:389:6: (sn= statement | en= expression )
-            	    int alt18=2;
-            	    int LA18_0 = input.LA(1);
+            	    pushFollow(FOLLOW_statement_in_block2955);
+            	    statement36=statement();
+            	    _fsp--;
 
-            	    if ( (LA18_0==ABSTRACT||LA18_0==BREAK||(LA18_0>=RETURN && LA18_0<=VAR)||(LA18_0>=WHILE && LA18_0<=CONTINUE)||LA18_0==TRY||(LA18_0>=PRIVATE && LA18_0<=READONLY)) ) {
-            	        alt18=1;
-            	    }
-            	    else if ( ((LA18_0>=POUND && LA18_0<=TYPEOF)||LA18_0==IF||(LA18_0>=THIS && LA18_0<=FALSE)||(LA18_0>=NOT && LA18_0<=NEW)||LA18_0==SUPER||(LA18_0>=SIZEOF && LA18_0<=LPAREN)||(LA18_0>=PLUSPLUS && LA18_0<=SUBSUB)||(LA18_0>=QUES && LA18_0<=STRING_LITERAL)||(LA18_0>=QUOTE_LBRACE_STRING_LITERAL && LA18_0<=LBRACE)||(LA18_0>=QUOTED_IDENTIFIER && LA18_0<=INTEGER_LITERAL)||LA18_0==FLOATING_POINT_LITERAL||LA18_0==IDENTIFIER) ) {
-            	        alt18=2;
-            	    }
-            	    else {
-            	        NoViableAltException nvae =
-            	            new NoViableAltException("389:6: (sn= statement | en= expression )", 18, 0, input);
-
-            	        throw nvae;
-            	    }
-            	    switch (alt18) {
-            	        case 1 :
-            	            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:389:9: sn= statement
-            	            {
-            	            pushFollow(FOLLOW_statement_in_block2946);
-            	            sn=statement();
-            	            _fsp--;
-
-            	             stats.append(sn); 
-
-            	            }
-            	            break;
-            	        case 2 :
-            	            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:390:9: en= expression
-            	            {
-            	            pushFollow(FOLLOW_expression_in_block2963);
-            	            en=expression();
-            	            _fsp--;
-
-            	             stats.append(F.Exec(en)); 
-
-            	            }
-            	            break;
+            	     stats.append(statement36); 
 
             	    }
+            	    break;
+            	case 2 :
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:397:9: expression SEMI
+            	    {
+            	    pushFollow(FOLLOW_expression_in_block2970);
+            	    expression37=expression();
+            	    _fsp--;
 
+            	    match(input,SEMI,FOLLOW_SEMI_in_block2972); 
+            	     stats.append(F.Exec(expression37)); 
 
             	    }
             	    break;
 
             	default :
-            	    break loop19;
+            	    break loop17;
                 }
             } while (true);
 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:393:4: ( SEMI )?
-            int alt20=2;
-            int LA20_0 = input.LA(1);
-
-            if ( (LA20_0==SEMI) ) {
-                alt20=1;
-            }
-            switch (alt20) {
-                case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:393:4: SEMI
-                    {
-                    match(input,SEMI,FOLLOW_SEMI_in_block2986); 
-
-                    }
-                    break;
-
-            }
-
-            match(input,RBRACE,FOLLOW_RBRACE_in_block2989); 
-             value = F.at(pos(LBRACE22)).Block(0L, stats.toList()); 
+            match(input,RBRACE,FOLLOW_RBRACE_in_block2988); 
+             value = F.at(pos(LBRACE38)).Block(0L, stats.toList()); 
 
             }
 
@@ -2045,166 +2029,45 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start blockExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:395:1: blockExpression returns [JFXBlockExpression expr] : LBRACE (s1= statement | e1= expression ) ( SEMI (sn= statement | en= expression ) )* ( SEMI )? RBRACE ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:401:1: blockExpression returns [JFXBlockExpression expr = null] : LBRACE ( statements[stats] )? RBRACE ;
     public final JFXBlockExpression blockExpression() throws RecognitionException {
-        JFXBlockExpression expr = null;
+        JFXBlockExpression expr =  null;
 
-        Token LBRACE23=null;
-        JCStatement s1 = null;
-
-        JCExpression e1 = null;
-
-        JCStatement sn = null;
-
-        JCExpression en = null;
+        Token LBRACE39=null;
+        JCExpression statements40 = null;
 
 
-         ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
-        	 	  JCExpression pending = null;
-        	 	
+         ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>(); 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:399:2: ( LBRACE (s1= statement | e1= expression ) ( SEMI (sn= statement | en= expression ) )* ( SEMI )? RBRACE )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:399:4: LBRACE (s1= statement | e1= expression ) ( SEMI (sn= statement | en= expression ) )* ( SEMI )? RBRACE
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:403:2: ( LBRACE ( statements[stats] )? RBRACE )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:403:4: LBRACE ( statements[stats] )? RBRACE
             {
-            LBRACE23=(Token)input.LT(1);
-            match(input,LBRACE,FOLLOW_LBRACE_in_blockExpression3015); 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:400:4: (s1= statement | e1= expression )
-            int alt21=2;
-            int LA21_0 = input.LA(1);
+            LBRACE39=(Token)input.LT(1);
+            match(input,LBRACE,FOLLOW_LBRACE_in_blockExpression3012); 
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:403:11: ( statements[stats] )?
+            int alt18=2;
+            int LA18_0 = input.LA(1);
 
-            if ( (LA21_0==ABSTRACT||LA21_0==BREAK||(LA21_0>=RETURN && LA21_0<=VAR)||(LA21_0>=WHILE && LA21_0<=CONTINUE)||LA21_0==TRY||(LA21_0>=PRIVATE && LA21_0<=READONLY)) ) {
-                alt21=1;
+            if ( ((LA18_0>=POUND && LA18_0<=TYPEOF)||LA18_0==ABSTRACT||LA18_0==BREAK||(LA18_0>=RETURN && LA18_0<=VAR)||LA18_0==IF||(LA18_0>=THIS && LA18_0<=FALSE)||(LA18_0>=WHILE && LA18_0<=CONTINUE)||LA18_0==TRY||(LA18_0>=NOT && LA18_0<=READONLY)||LA18_0==SUPER||(LA18_0>=SIZEOF && LA18_0<=LPAREN)||LA18_0==SEMI||(LA18_0>=PLUSPLUS && LA18_0<=SUBSUB)||(LA18_0>=QUES && LA18_0<=STRING_LITERAL)||(LA18_0>=QUOTE_LBRACE_STRING_LITERAL && LA18_0<=LBRACE)||(LA18_0>=QUOTED_IDENTIFIER && LA18_0<=INTEGER_LITERAL)||LA18_0==FLOATING_POINT_LITERAL||LA18_0==IDENTIFIER) ) {
+                alt18=1;
             }
-            else if ( ((LA21_0>=POUND && LA21_0<=TYPEOF)||LA21_0==IF||(LA21_0>=THIS && LA21_0<=FALSE)||(LA21_0>=NOT && LA21_0<=NEW)||LA21_0==SUPER||(LA21_0>=SIZEOF && LA21_0<=LPAREN)||(LA21_0>=PLUSPLUS && LA21_0<=SUBSUB)||(LA21_0>=QUES && LA21_0<=STRING_LITERAL)||(LA21_0>=QUOTE_LBRACE_STRING_LITERAL && LA21_0<=LBRACE)||(LA21_0>=QUOTED_IDENTIFIER && LA21_0<=INTEGER_LITERAL)||LA21_0==FLOATING_POINT_LITERAL||LA21_0==IDENTIFIER) ) {
-                alt21=2;
-            }
-            else {
-                NoViableAltException nvae =
-                    new NoViableAltException("400:4: (s1= statement | e1= expression )", 21, 0, input);
-
-                throw nvae;
-            }
-            switch (alt21) {
+            switch (alt18) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:400:9: s1= statement
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:403:12: statements[stats]
                     {
-                    pushFollow(FOLLOW_statement_in_blockExpression3027);
-                    s1=statement();
+                    pushFollow(FOLLOW_statements_in_blockExpression3015);
+                    statements40=statements(stats);
                     _fsp--;
 
-                     stats.append(s1); 
-
-                    }
-                    break;
-                case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:401:9: e1= expression
-                    {
-                    pushFollow(FOLLOW_expression_in_blockExpression3044);
-                    e1=expression();
-                    _fsp--;
-
-                     pending = e1; 
 
                     }
                     break;
 
             }
 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:403:4: ( SEMI (sn= statement | en= expression ) )*
-            loop23:
-            do {
-                int alt23=2;
-                int LA23_0 = input.LA(1);
-
-                if ( (LA23_0==SEMI) ) {
-                    int LA23_1 = input.LA(2);
-
-                    if ( ((LA23_1>=POUND && LA23_1<=TYPEOF)||LA23_1==ABSTRACT||LA23_1==BREAK||(LA23_1>=RETURN && LA23_1<=VAR)||LA23_1==IF||(LA23_1>=THIS && LA23_1<=FALSE)||(LA23_1>=WHILE && LA23_1<=CONTINUE)||LA23_1==TRY||(LA23_1>=NOT && LA23_1<=READONLY)||LA23_1==SUPER||(LA23_1>=SIZEOF && LA23_1<=LPAREN)||(LA23_1>=PLUSPLUS && LA23_1<=SUBSUB)||(LA23_1>=QUES && LA23_1<=STRING_LITERAL)||(LA23_1>=QUOTE_LBRACE_STRING_LITERAL && LA23_1<=LBRACE)||(LA23_1>=QUOTED_IDENTIFIER && LA23_1<=INTEGER_LITERAL)||LA23_1==FLOATING_POINT_LITERAL||LA23_1==IDENTIFIER) ) {
-                        alt23=1;
-                    }
-
-
-                }
-
-
-                switch (alt23) {
-            	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:403:6: SEMI (sn= statement | en= expression )
-            	    {
-            	    match(input,SEMI,FOLLOW_SEMI_in_blockExpression3061); 
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:404:6: (sn= statement | en= expression )
-            	    int alt22=2;
-            	    int LA22_0 = input.LA(1);
-
-            	    if ( (LA22_0==ABSTRACT||LA22_0==BREAK||(LA22_0>=RETURN && LA22_0<=VAR)||(LA22_0>=WHILE && LA22_0<=CONTINUE)||LA22_0==TRY||(LA22_0>=PRIVATE && LA22_0<=READONLY)) ) {
-            	        alt22=1;
-            	    }
-            	    else if ( ((LA22_0>=POUND && LA22_0<=TYPEOF)||LA22_0==IF||(LA22_0>=THIS && LA22_0<=FALSE)||(LA22_0>=NOT && LA22_0<=NEW)||LA22_0==SUPER||(LA22_0>=SIZEOF && LA22_0<=LPAREN)||(LA22_0>=PLUSPLUS && LA22_0<=SUBSUB)||(LA22_0>=QUES && LA22_0<=STRING_LITERAL)||(LA22_0>=QUOTE_LBRACE_STRING_LITERAL && LA22_0<=LBRACE)||(LA22_0>=QUOTED_IDENTIFIER && LA22_0<=INTEGER_LITERAL)||LA22_0==FLOATING_POINT_LITERAL||LA22_0==IDENTIFIER) ) {
-            	        alt22=2;
-            	    }
-            	    else {
-            	        NoViableAltException nvae =
-            	            new NoViableAltException("404:6: (sn= statement | en= expression )", 22, 0, input);
-
-            	        throw nvae;
-            	    }
-            	    switch (alt22) {
-            	        case 1 :
-            	            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:404:9: sn= statement
-            	            {
-            	            pushFollow(FOLLOW_statement_in_blockExpression3073);
-            	            sn=statement();
-            	            _fsp--;
-
-            	             if (pending!=null) { stats.append(F.Exec(pending)); pending = null; } 
-            	            						  stats.append(sn); 
-
-            	            }
-            	            break;
-            	        case 2 :
-            	            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:406:9: en= expression
-            	            {
-            	            pushFollow(FOLLOW_expression_in_blockExpression3090);
-            	            en=expression();
-            	            _fsp--;
-
-            	             if (pending!=null) { stats.append(F.Exec(pending)); } 
-            	            						  pending = en; 
-
-            	            }
-            	            break;
-
-            	    }
-
-
-            	    }
-            	    break;
-
-            	default :
-            	    break loop23;
-                }
-            } while (true);
-
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:410:4: ( SEMI )?
-            int alt24=2;
-            int LA24_0 = input.LA(1);
-
-            if ( (LA24_0==SEMI) ) {
-                alt24=1;
-            }
-            switch (alt24) {
-                case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:410:4: SEMI
-                    {
-                    match(input,SEMI,FOLLOW_SEMI_in_blockExpression3113); 
-
-                    }
-                    break;
-
-            }
-
-            match(input,RBRACE,FOLLOW_RBRACE_in_blockExpression3116); 
-             expr = F.at(pos(LBRACE23)).BlockExpression(0L, stats.toList(), pending); 
+            match(input,RBRACE,FOLLOW_RBRACE_in_blockExpression3020); 
+             expr = F.at(pos(LBRACE39)).BlockExpression(0L, stats.toList(), 
+            						 					     statements40); 
 
             }
 
@@ -2220,37 +2083,200 @@ public class v2Parser extends AbstractGeneratedParser {
     // $ANTLR end blockExpression
 
 
-    // $ANTLR start statement
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:412:1: statement returns [JCStatement value] : ( variableDeclaration | functionDefinition | WHILE LPAREN expression RPAREN block | BREAK | CONTINUE | THROW expression | returnStatement | tryStatement );
-    public final JCStatement statement() throws RecognitionException {
-        JCStatement value = null;
+    // $ANTLR start statements
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:406:1: statements[ListBuffer<JCStatement> stats] returns [JCExpression expr = null] : ( statement (sts1= statements[stats] )? | expression ( SEMI (stsn= statements[stats] | ) | ) );
+    public final JCExpression statements(ListBuffer<JCStatement> stats) throws RecognitionException {
+        JCExpression expr =  null;
 
-        Token WHILE26=null;
-        Token BREAK29=null;
-        Token CONTINUE30=null;
-        Token THROW31=null;
-        JCStatement variableDeclaration24 = null;
+        JCExpression sts1 = null;
 
-        JFXRetroFunctionMemberDeclaration functionDefinition25 = null;
+        JCExpression stsn = null;
 
-        JCExpression expression27 = null;
+        JCStatement statement41 = null;
 
-        JCBlock block28 = null;
-
-        JCExpression expression32 = null;
-
-        JCStatement returnStatement33 = null;
-
-        JCStatement tryStatement34 = null;
+        JCExpression expression42 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:413:2: ( variableDeclaration | functionDefinition | WHILE LPAREN expression RPAREN block | BREAK | CONTINUE | THROW expression | returnStatement | tryStatement )
-            int alt25=8;
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:407:2: ( statement (sts1= statements[stats] )? | expression ( SEMI (stsn= statements[stats] | ) | ) )
+            int alt22=2;
+            int LA22_0 = input.LA(1);
+
+            if ( (LA22_0==ABSTRACT||LA22_0==BREAK||(LA22_0>=RETURN && LA22_0<=VAR)||(LA22_0>=WHILE && LA22_0<=CONTINUE)||LA22_0==TRY||(LA22_0>=PRIVATE && LA22_0<=READONLY)||LA22_0==SEMI) ) {
+                alt22=1;
+            }
+            else if ( ((LA22_0>=POUND && LA22_0<=TYPEOF)||LA22_0==IF||(LA22_0>=THIS && LA22_0<=FALSE)||(LA22_0>=NOT && LA22_0<=NEW)||LA22_0==SUPER||(LA22_0>=SIZEOF && LA22_0<=LPAREN)||(LA22_0>=PLUSPLUS && LA22_0<=SUBSUB)||(LA22_0>=QUES && LA22_0<=STRING_LITERAL)||(LA22_0>=QUOTE_LBRACE_STRING_LITERAL && LA22_0<=LBRACE)||(LA22_0>=QUOTED_IDENTIFIER && LA22_0<=INTEGER_LITERAL)||LA22_0==FLOATING_POINT_LITERAL||LA22_0==IDENTIFIER) ) {
+                alt22=2;
+            }
+            else {
+                NoViableAltException nvae =
+                    new NoViableAltException("406:1: statements[ListBuffer<JCStatement> stats] returns [JCExpression expr = null] : ( statement (sts1= statements[stats] )? | expression ( SEMI (stsn= statements[stats] | ) | ) );", 22, 0, input);
+
+                throw nvae;
+            }
+            switch (alt22) {
+                case 1 :
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:407:4: statement (sts1= statements[stats] )?
+                    {
+                    pushFollow(FOLLOW_statement_in_statements3039);
+                    statement41=statement();
+                    _fsp--;
+
+                     stats.append(statement41); 
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:408:3: (sts1= statements[stats] )?
+                    int alt19=2;
+                    int LA19_0 = input.LA(1);
+
+                    if ( ((LA19_0>=POUND && LA19_0<=TYPEOF)||LA19_0==ABSTRACT||LA19_0==BREAK||(LA19_0>=RETURN && LA19_0<=VAR)||LA19_0==IF||(LA19_0>=THIS && LA19_0<=FALSE)||(LA19_0>=WHILE && LA19_0<=CONTINUE)||LA19_0==TRY||(LA19_0>=NOT && LA19_0<=READONLY)||LA19_0==SUPER||(LA19_0>=SIZEOF && LA19_0<=LPAREN)||LA19_0==SEMI||(LA19_0>=PLUSPLUS && LA19_0<=SUBSUB)||(LA19_0>=QUES && LA19_0<=STRING_LITERAL)||(LA19_0>=QUOTE_LBRACE_STRING_LITERAL && LA19_0<=LBRACE)||(LA19_0>=QUOTED_IDENTIFIER && LA19_0<=INTEGER_LITERAL)||LA19_0==FLOATING_POINT_LITERAL||LA19_0==IDENTIFIER) ) {
+                        alt19=1;
+                    }
+                    switch (alt19) {
+                        case 1 :
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:408:4: sts1= statements[stats]
+                            {
+                            pushFollow(FOLLOW_statements_in_statements3051);
+                            sts1=statements(stats);
+                            _fsp--;
+
+                             expr = sts1; 
+
+                            }
+                            break;
+
+                    }
+
+
+                    }
+                    break;
+                case 2 :
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:409:4: expression ( SEMI (stsn= statements[stats] | ) | )
+                    {
+                    pushFollow(FOLLOW_expression_in_statements3063);
+                    expression42=expression();
+                    _fsp--;
+
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:410:10: ( SEMI (stsn= statements[stats] | ) | )
+                    int alt21=2;
+                    int LA21_0 = input.LA(1);
+
+                    if ( (LA21_0==SEMI) ) {
+                        alt21=1;
+                    }
+                    else if ( (LA21_0==RBRACE) ) {
+                        alt21=2;
+                    }
+                    else {
+                        NoViableAltException nvae =
+                            new NoViableAltException("410:10: ( SEMI (stsn= statements[stats] | ) | )", 21, 0, input);
+
+                        throw nvae;
+                    }
+                    switch (alt21) {
+                        case 1 :
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:410:11: SEMI (stsn= statements[stats] | )
+                            {
+                            match(input,SEMI,FOLLOW_SEMI_in_statements3075); 
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:410:17: (stsn= statements[stats] | )
+                            int alt20=2;
+                            int LA20_0 = input.LA(1);
+
+                            if ( ((LA20_0>=POUND && LA20_0<=TYPEOF)||LA20_0==ABSTRACT||LA20_0==BREAK||(LA20_0>=RETURN && LA20_0<=VAR)||LA20_0==IF||(LA20_0>=THIS && LA20_0<=FALSE)||(LA20_0>=WHILE && LA20_0<=CONTINUE)||LA20_0==TRY||(LA20_0>=NOT && LA20_0<=READONLY)||LA20_0==SUPER||(LA20_0>=SIZEOF && LA20_0<=LPAREN)||LA20_0==SEMI||(LA20_0>=PLUSPLUS && LA20_0<=SUBSUB)||(LA20_0>=QUES && LA20_0<=STRING_LITERAL)||(LA20_0>=QUOTE_LBRACE_STRING_LITERAL && LA20_0<=LBRACE)||(LA20_0>=QUOTED_IDENTIFIER && LA20_0<=INTEGER_LITERAL)||LA20_0==FLOATING_POINT_LITERAL||LA20_0==IDENTIFIER) ) {
+                                alt20=1;
+                            }
+                            else if ( (LA20_0==RBRACE) ) {
+                                alt20=2;
+                            }
+                            else {
+                                NoViableAltException nvae =
+                                    new NoViableAltException("410:17: (stsn= statements[stats] | )", 20, 0, input);
+
+                                throw nvae;
+                            }
+                            switch (alt20) {
+                                case 1 :
+                                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:410:21: stsn= statements[stats]
+                                    {
+                                     stats.append(F.Exec(expression42)); 
+                                    pushFollow(FOLLOW_statements_in_statements3098);
+                                    stsn=statements(stats);
+                                    _fsp--;
+
+                                     expr = stsn; 
+
+                                    }
+                                    break;
+                                case 2 :
+                                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:412:30: 
+                                    {
+                                     expr = expression42; 
+
+                                    }
+                                    break;
+
+                            }
+
+
+                            }
+                            break;
+                        case 2 :
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:414:20: 
+                            {
+                             expr = expression42; 
+
+                            }
+                            break;
+
+                    }
+
+
+                    }
+                    break;
+
+            }
+        }
+        catch (RecognitionException re) {
+            reportError(re);
+            recover(input,re);
+        }
+        finally {
+        }
+        return expr;
+    }
+    // $ANTLR end statements
+
+
+    // $ANTLR start statement
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:417:1: statement returns [JCStatement value] : ( variableDeclaration SEMI | functionDefinition | WHILE LPAREN expression RPAREN block | BREAK SEMI | CONTINUE SEMI | THROW expression SEMI | returnStatement SEMI | tryStatement | SEMI );
+    public final JCStatement statement() throws RecognitionException {
+        JCStatement value = null;
+
+        Token WHILE45=null;
+        Token BREAK48=null;
+        Token CONTINUE49=null;
+        Token THROW50=null;
+        Token SEMI54=null;
+        JCStatement variableDeclaration43 = null;
+
+        JFXFunctionDefinition functionDefinition44 = null;
+
+        JCExpression expression46 = null;
+
+        JCBlock block47 = null;
+
+        JCExpression expression51 = null;
+
+        JCStatement returnStatement52 = null;
+
+        JCStatement tryStatement53 = null;
+
+
+        try {
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:418:2: ( variableDeclaration SEMI | functionDefinition | WHILE LPAREN expression RPAREN block | BREAK SEMI | CONTINUE SEMI | THROW expression SEMI | returnStatement SEMI | tryStatement | SEMI )
+            int alt23=9;
             switch ( input.LA(1) ) {
             case VAR:
                 {
-                alt25=1;
+                alt23=1;
                 }
                 break;
             case ABSTRACT:
@@ -2260,138 +2286,157 @@ public class v2Parser extends AbstractGeneratedParser {
             case FUNCTION:
             case READONLY:
                 {
-                alt25=2;
+                alt23=2;
                 }
                 break;
             case WHILE:
                 {
-                alt25=3;
+                alt23=3;
                 }
                 break;
             case BREAK:
                 {
-                alt25=4;
+                alt23=4;
                 }
                 break;
             case CONTINUE:
                 {
-                alt25=5;
+                alt23=5;
                 }
                 break;
             case THROW:
                 {
-                alt25=6;
+                alt23=6;
                 }
                 break;
             case RETURN:
                 {
-                alt25=7;
+                alt23=7;
                 }
                 break;
             case TRY:
                 {
-                alt25=8;
+                alt23=8;
+                }
+                break;
+            case SEMI:
+                {
+                alt23=9;
                 }
                 break;
             default:
                 NoViableAltException nvae =
-                    new NoViableAltException("412:1: statement returns [JCStatement value] : ( variableDeclaration | functionDefinition | WHILE LPAREN expression RPAREN block | BREAK | CONTINUE | THROW expression | returnStatement | tryStatement );", 25, 0, input);
+                    new NoViableAltException("417:1: statement returns [JCStatement value] : ( variableDeclaration SEMI | functionDefinition | WHILE LPAREN expression RPAREN block | BREAK SEMI | CONTINUE SEMI | THROW expression SEMI | returnStatement SEMI | tryStatement | SEMI );", 23, 0, input);
 
                 throw nvae;
             }
 
-            switch (alt25) {
+            switch (alt23) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:413:4: variableDeclaration
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:418:4: variableDeclaration SEMI
                     {
-                    pushFollow(FOLLOW_variableDeclaration_in_statement3135);
-                    variableDeclaration24=variableDeclaration();
+                    pushFollow(FOLLOW_variableDeclaration_in_statement3156);
+                    variableDeclaration43=variableDeclaration();
                     _fsp--;
 
-                     value = variableDeclaration24; 
+                    match(input,SEMI,FOLLOW_SEMI_in_statement3158); 
+                     value = variableDeclaration43; 
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:414:4: functionDefinition
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:419:4: functionDefinition
                     {
-                    pushFollow(FOLLOW_functionDefinition_in_statement3145);
-                    functionDefinition25=functionDefinition();
+                    pushFollow(FOLLOW_functionDefinition_in_statement3166);
+                    functionDefinition44=functionDefinition();
                     _fsp--;
 
-                     value = functionDefinition25; 
+                     value = functionDefinition44; 
 
                     }
                     break;
                 case 3 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:415:11: WHILE LPAREN expression RPAREN block
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:420:11: WHILE LPAREN expression RPAREN block
                     {
-                    WHILE26=(Token)input.LT(1);
-                    match(input,WHILE,FOLLOW_WHILE_in_statement3161); 
-                    match(input,LPAREN,FOLLOW_LPAREN_in_statement3163); 
-                    pushFollow(FOLLOW_expression_in_statement3165);
-                    expression27=expression();
+                    WHILE45=(Token)input.LT(1);
+                    match(input,WHILE,FOLLOW_WHILE_in_statement3182); 
+                    match(input,LPAREN,FOLLOW_LPAREN_in_statement3184); 
+                    pushFollow(FOLLOW_expression_in_statement3186);
+                    expression46=expression();
                     _fsp--;
 
-                    match(input,RPAREN,FOLLOW_RPAREN_in_statement3167); 
-                    pushFollow(FOLLOW_block_in_statement3169);
-                    block28=block();
+                    match(input,RPAREN,FOLLOW_RPAREN_in_statement3188); 
+                    pushFollow(FOLLOW_block_in_statement3190);
+                    block47=block();
                     _fsp--;
 
-                     value = F.at(pos(WHILE26)).WhileLoop(expression27, block28); 
+                     value = F.at(pos(WHILE45)).WhileLoop(expression46, block47); 
 
                     }
                     break;
                 case 4 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:416:4: BREAK
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:421:4: BREAK SEMI
                     {
-                    BREAK29=(Token)input.LT(1);
-                    match(input,BREAK,FOLLOW_BREAK_in_statement3176); 
-                     value = F.at(pos(BREAK29)).Break(null); 
+                    BREAK48=(Token)input.LT(1);
+                    match(input,BREAK,FOLLOW_BREAK_in_statement3197); 
+                    match(input,SEMI,FOLLOW_SEMI_in_statement3199); 
+                     value = F.at(pos(BREAK48)).Break(null); 
 
                     }
                     break;
                 case 5 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:417:4: CONTINUE
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:422:4: CONTINUE SEMI
                     {
-                    CONTINUE30=(Token)input.LT(1);
-                    match(input,CONTINUE,FOLLOW_CONTINUE_in_statement3190); 
-                     value = F.at(pos(CONTINUE30)).Continue(null); 
+                    CONTINUE49=(Token)input.LT(1);
+                    match(input,CONTINUE,FOLLOW_CONTINUE_in_statement3212); 
+                    match(input,SEMI,FOLLOW_SEMI_in_statement3215); 
+                     value = F.at(pos(CONTINUE49)).Continue(null); 
 
                     }
                     break;
                 case 6 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:418:11: THROW expression
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:423:11: THROW expression SEMI
                     {
-                    THROW31=(Token)input.LT(1);
-                    match(input,THROW,FOLLOW_THROW_in_statement3211); 
-                    pushFollow(FOLLOW_expression_in_statement3213);
-                    expression32=expression();
+                    THROW50=(Token)input.LT(1);
+                    match(input,THROW,FOLLOW_THROW_in_statement3233); 
+                    pushFollow(FOLLOW_expression_in_statement3235);
+                    expression51=expression();
                     _fsp--;
 
-                     value = F.at(pos(THROW31)).Throw(expression32); 
+                    match(input,SEMI,FOLLOW_SEMI_in_statement3237); 
+                     value = F.at(pos(THROW50)).Throw(expression51); 
 
                     }
                     break;
                 case 7 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:419:11: returnStatement
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:424:11: returnStatement SEMI
                     {
-                    pushFollow(FOLLOW_returnStatement_in_statement3234);
-                    returnStatement33=returnStatement();
+                    pushFollow(FOLLOW_returnStatement_in_statement3257);
+                    returnStatement52=returnStatement();
                     _fsp--;
 
-                     value = returnStatement33; 
+                    match(input,SEMI,FOLLOW_SEMI_in_statement3259); 
+                     value = returnStatement52; 
 
                     }
                     break;
                 case 8 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:420:11: tryStatement
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:425:11: tryStatement
                     {
-                    pushFollow(FOLLOW_tryStatement_in_statement3251);
-                    tryStatement34=tryStatement();
+                    pushFollow(FOLLOW_tryStatement_in_statement3275);
+                    tryStatement53=tryStatement();
                     _fsp--;
 
-                     value = tryStatement34; 
+                     value = tryStatement53; 
+
+                    }
+                    break;
+                case 9 :
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:426:4: SEMI
+                    {
+                    SEMI54=(Token)input.LT(1);
+                    match(input,SEMI,FOLLOW_SEMI_in_statement3286); 
+                     value = F.at(pos(SEMI54)).Skip(); 
 
                     }
                     break;
@@ -2410,72 +2455,72 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start variableDeclaration
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:422:1: variableDeclaration returns [JCStatement value] : VAR name typeReference ( EQ bindOpt expression | ) ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:428:1: variableDeclaration returns [JCStatement value] : VAR name typeReference ( EQ bindOpt expression | ) ;
     public final JCStatement variableDeclaration() throws RecognitionException {
         JCStatement value = null;
 
-        Token VAR35=null;
-        name_return name36 = null;
+        Token VAR55=null;
+        name_return name56 = null;
 
-        JFXType typeReference37 = null;
+        JFXType typeReference57 = null;
 
-        JCExpression expression38 = null;
+        JCExpression expression58 = null;
 
-        JavafxBindStatus bindOpt39 = null;
+        JavafxBindStatus bindOpt59 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:423:2: ( VAR name typeReference ( EQ bindOpt expression | ) )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:423:4: VAR name typeReference ( EQ bindOpt expression | )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:429:2: ( VAR name typeReference ( EQ bindOpt expression | ) )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:429:4: VAR name typeReference ( EQ bindOpt expression | )
             {
-            VAR35=(Token)input.LT(1);
-            match(input,VAR,FOLLOW_VAR_in_variableDeclaration3280); 
-            pushFollow(FOLLOW_name_in_variableDeclaration3283);
-            name36=name();
+            VAR55=(Token)input.LT(1);
+            match(input,VAR,FOLLOW_VAR_in_variableDeclaration3316); 
+            pushFollow(FOLLOW_name_in_variableDeclaration3319);
+            name56=name();
             _fsp--;
 
-            pushFollow(FOLLOW_typeReference_in_variableDeclaration3286);
-            typeReference37=typeReference();
+            pushFollow(FOLLOW_typeReference_in_variableDeclaration3322);
+            typeReference57=typeReference();
             _fsp--;
 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:424:6: ( EQ bindOpt expression | )
-            int alt26=2;
-            int LA26_0 = input.LA(1);
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:430:6: ( EQ bindOpt expression | )
+            int alt24=2;
+            int LA24_0 = input.LA(1);
 
-            if ( (LA26_0==EQ) ) {
-                alt26=1;
+            if ( (LA24_0==EQ) ) {
+                alt24=1;
             }
-            else if ( (LA26_0==EOF||LA26_0==ABSTRACT||LA26_0==BREAK||LA26_0==CLASS||(LA26_0>=RETURN && LA26_0<=VAR)||LA26_0==IMPORT||(LA26_0>=WHILE && LA26_0<=CONTINUE)||LA26_0==TRY||(LA26_0>=PRIVATE && LA26_0<=READONLY)||LA26_0==SEMI||LA26_0==RBRACE) ) {
-                alt26=2;
+            else if ( (LA24_0==SEMI) ) {
+                alt24=2;
             }
             else {
                 NoViableAltException nvae =
-                    new NoViableAltException("424:6: ( EQ bindOpt expression | )", 26, 0, input);
+                    new NoViableAltException("430:6: ( EQ bindOpt expression | )", 24, 0, input);
 
                 throw nvae;
             }
-            switch (alt26) {
+            switch (alt24) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:424:8: EQ bindOpt expression
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:430:8: EQ bindOpt expression
                     {
-                    match(input,EQ,FOLLOW_EQ_in_variableDeclaration3297); 
-                    pushFollow(FOLLOW_bindOpt_in_variableDeclaration3299);
-                    bindOpt39=bindOpt();
+                    match(input,EQ,FOLLOW_EQ_in_variableDeclaration3333); 
+                    pushFollow(FOLLOW_bindOpt_in_variableDeclaration3335);
+                    bindOpt59=bindOpt();
                     _fsp--;
 
-                    pushFollow(FOLLOW_expression_in_variableDeclaration3302);
-                    expression38=expression();
+                    pushFollow(FOLLOW_expression_in_variableDeclaration3338);
+                    expression58=expression();
                     _fsp--;
 
-                     value = F.at(pos(VAR35)).VarInit(name36.value, typeReference37, 
-                    	    							expression38, bindOpt39); 
+                     value = F.at(pos(VAR55)).VarInit(name56.value, typeReference57, 
+                    	    							expression58, bindOpt59); 
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:426:13: 
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:432:13: 
                     {
-                     value = F.at(pos(VAR35)).VarStatement(name36.value, typeReference37); 
+                     value = F.at(pos(VAR55)).VarStatement(name56.value, typeReference57); 
 
                     }
                     break;
@@ -2498,52 +2543,52 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start bindOpt
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:429:1: bindOpt returns [JavafxBindStatus status = UNBOUND] : ( BIND ( LAZY )? | STAYS ( LAZY )? | TIE ( LAZY )? )? ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:435:1: bindOpt returns [JavafxBindStatus status = UNBOUND] : ( BIND ( LAZY )? | STAYS ( LAZY )? | TIE ( LAZY )? )? ;
     public final JavafxBindStatus bindOpt() throws RecognitionException {
         JavafxBindStatus status =  UNBOUND;
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:430:2: ( ( BIND ( LAZY )? | STAYS ( LAZY )? | TIE ( LAZY )? )? )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:430:4: ( BIND ( LAZY )? | STAYS ( LAZY )? | TIE ( LAZY )? )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:436:2: ( ( BIND ( LAZY )? | STAYS ( LAZY )? | TIE ( LAZY )? )? )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:436:4: ( BIND ( LAZY )? | STAYS ( LAZY )? | TIE ( LAZY )? )?
             {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:430:4: ( BIND ( LAZY )? | STAYS ( LAZY )? | TIE ( LAZY )? )?
-            int alt30=4;
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:436:4: ( BIND ( LAZY )? | STAYS ( LAZY )? | TIE ( LAZY )? )?
+            int alt28=4;
             switch ( input.LA(1) ) {
                 case BIND:
                     {
-                    alt30=1;
+                    alt28=1;
                     }
                     break;
                 case STAYS:
                     {
-                    alt30=2;
+                    alt28=2;
                     }
                     break;
                 case TIE:
                     {
-                    alt30=3;
+                    alt28=3;
                     }
                     break;
             }
 
-            switch (alt30) {
+            switch (alt28) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:430:6: BIND ( LAZY )?
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:436:6: BIND ( LAZY )?
                     {
-                    match(input,BIND,FOLLOW_BIND_in_bindOpt3352); 
+                    match(input,BIND,FOLLOW_BIND_in_bindOpt3388); 
                      status = UNIDIBIND; 
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:431:8: ( LAZY )?
-                    int alt27=2;
-                    int LA27_0 = input.LA(1);
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:437:8: ( LAZY )?
+                    int alt25=2;
+                    int LA25_0 = input.LA(1);
 
-                    if ( (LA27_0==LAZY) ) {
-                        alt27=1;
+                    if ( (LA25_0==LAZY) ) {
+                        alt25=1;
                     }
-                    switch (alt27) {
+                    switch (alt25) {
                         case 1 :
-                            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:431:9: LAZY
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:437:9: LAZY
                             {
-                            match(input,LAZY,FOLLOW_LAZY_in_bindOpt3368); 
+                            match(input,LAZY,FOLLOW_LAZY_in_bindOpt3404); 
                              status = LAZY_UNIDIBIND; 
 
                             }
@@ -2555,22 +2600,22 @@ public class v2Parser extends AbstractGeneratedParser {
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:432:6: STAYS ( LAZY )?
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:438:6: STAYS ( LAZY )?
                     {
-                    match(input,STAYS,FOLLOW_STAYS_in_bindOpt3383); 
+                    match(input,STAYS,FOLLOW_STAYS_in_bindOpt3419); 
                      status = UNIDIBIND; 
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:433:8: ( LAZY )?
-                    int alt28=2;
-                    int LA28_0 = input.LA(1);
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:439:8: ( LAZY )?
+                    int alt26=2;
+                    int LA26_0 = input.LA(1);
 
-                    if ( (LA28_0==LAZY) ) {
-                        alt28=1;
+                    if ( (LA26_0==LAZY) ) {
+                        alt26=1;
                     }
-                    switch (alt28) {
+                    switch (alt26) {
                         case 1 :
-                            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:433:9: LAZY
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:439:9: LAZY
                             {
-                            match(input,LAZY,FOLLOW_LAZY_in_bindOpt3399); 
+                            match(input,LAZY,FOLLOW_LAZY_in_bindOpt3435); 
                              status = LAZY_UNIDIBIND; 
 
                             }
@@ -2582,22 +2627,22 @@ public class v2Parser extends AbstractGeneratedParser {
                     }
                     break;
                 case 3 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:434:6: TIE ( LAZY )?
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:440:6: TIE ( LAZY )?
                     {
-                    match(input,TIE,FOLLOW_TIE_in_bindOpt3414); 
+                    match(input,TIE,FOLLOW_TIE_in_bindOpt3450); 
                      status = BIDIBIND; 
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:435:8: ( LAZY )?
-                    int alt29=2;
-                    int LA29_0 = input.LA(1);
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:441:8: ( LAZY )?
+                    int alt27=2;
+                    int LA27_0 = input.LA(1);
 
-                    if ( (LA29_0==LAZY) ) {
-                        alt29=1;
+                    if ( (LA27_0==LAZY) ) {
+                        alt27=1;
                     }
-                    switch (alt29) {
+                    switch (alt27) {
                         case 1 :
-                            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:435:9: LAZY
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:441:9: LAZY
                             {
-                            match(input,LAZY,FOLLOW_LAZY_in_bindOpt3430); 
+                            match(input,LAZY,FOLLOW_LAZY_in_bindOpt3466); 
                              status = LAZY_BIDIBIND; 
 
                             }
@@ -2627,44 +2672,44 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start returnStatement
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:437:1: returnStatement returns [JCStatement value] : RETURN ( expression )? ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:443:1: returnStatement returns [JCStatement value] : RETURN ( expression )? ;
     public final JCStatement returnStatement() throws RecognitionException {
         JCStatement value = null;
 
-        Token RETURN41=null;
-        JCExpression expression40 = null;
+        Token RETURN61=null;
+        JCExpression expression60 = null;
 
 
          JCExpression expr = null; 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:439:2: ( RETURN ( expression )? )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:439:4: RETURN ( expression )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:445:2: ( RETURN ( expression )? )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:445:4: RETURN ( expression )?
             {
-            RETURN41=(Token)input.LT(1);
-            match(input,RETURN,FOLLOW_RETURN_in_returnStatement3464); 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:439:11: ( expression )?
-            int alt31=2;
-            int LA31_0 = input.LA(1);
+            RETURN61=(Token)input.LT(1);
+            match(input,RETURN,FOLLOW_RETURN_in_returnStatement3500); 
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:445:11: ( expression )?
+            int alt29=2;
+            int LA29_0 = input.LA(1);
 
-            if ( ((LA31_0>=POUND && LA31_0<=TYPEOF)||LA31_0==IF||(LA31_0>=THIS && LA31_0<=FALSE)||(LA31_0>=NOT && LA31_0<=NEW)||LA31_0==SUPER||(LA31_0>=SIZEOF && LA31_0<=LPAREN)||(LA31_0>=PLUSPLUS && LA31_0<=SUBSUB)||(LA31_0>=QUES && LA31_0<=STRING_LITERAL)||(LA31_0>=QUOTE_LBRACE_STRING_LITERAL && LA31_0<=LBRACE)||(LA31_0>=QUOTED_IDENTIFIER && LA31_0<=INTEGER_LITERAL)||LA31_0==FLOATING_POINT_LITERAL||LA31_0==IDENTIFIER) ) {
-                alt31=1;
+            if ( ((LA29_0>=POUND && LA29_0<=TYPEOF)||LA29_0==IF||(LA29_0>=THIS && LA29_0<=FALSE)||(LA29_0>=NOT && LA29_0<=NEW)||LA29_0==SUPER||(LA29_0>=SIZEOF && LA29_0<=LPAREN)||(LA29_0>=PLUSPLUS && LA29_0<=SUBSUB)||(LA29_0>=QUES && LA29_0<=STRING_LITERAL)||(LA29_0>=QUOTE_LBRACE_STRING_LITERAL && LA29_0<=LBRACE)||(LA29_0>=QUOTED_IDENTIFIER && LA29_0<=INTEGER_LITERAL)||LA29_0==FLOATING_POINT_LITERAL||LA29_0==IDENTIFIER) ) {
+                alt29=1;
             }
-            switch (alt31) {
+            switch (alt29) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:439:12: expression
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:445:12: expression
                     {
-                    pushFollow(FOLLOW_expression_in_returnStatement3467);
-                    expression40=expression();
+                    pushFollow(FOLLOW_expression_in_returnStatement3503);
+                    expression60=expression();
                     _fsp--;
 
-                     expr = expression40; 
+                     expr = expression60; 
 
                     }
                     break;
 
             }
 
-             value = F.at(pos(RETURN41)).Return(expr); 
+             value = F.at(pos(RETURN61)).Return(expr); 
 
             }
 
@@ -2681,18 +2726,18 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start tryStatement
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:442:1: tryStatement returns [JCStatement value] : TRY tb= block ( FINALLY fb1= block | ( catchClause )+ ( FINALLY fb2= block )? ) ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:448:1: tryStatement returns [JCStatement value] : TRY tb= block ( FINALLY fb1= block | ( catchClause )+ ( FINALLY fb2= block )? ) ;
     public final JCStatement tryStatement() throws RecognitionException {
         JCStatement value = null;
 
-        Token TRY43=null;
+        Token TRY63=null;
         JCBlock tb = null;
 
         JCBlock fb1 = null;
 
         JCBlock fb2 = null;
 
-        JCCatch catchClause42 = null;
+        JCCatch catchClause62 = null;
 
 
         	JCBlock body;
@@ -2700,38 +2745,38 @@ public class v2Parser extends AbstractGeneratedParser {
         		JCBlock finalBlock = null;
         	
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:447:2: ( TRY tb= block ( FINALLY fb1= block | ( catchClause )+ ( FINALLY fb2= block )? ) )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:447:4: TRY tb= block ( FINALLY fb1= block | ( catchClause )+ ( FINALLY fb2= block )? )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:453:2: ( TRY tb= block ( FINALLY fb1= block | ( catchClause )+ ( FINALLY fb2= block )? ) )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:453:4: TRY tb= block ( FINALLY fb1= block | ( catchClause )+ ( FINALLY fb2= block )? )
             {
-            TRY43=(Token)input.LT(1);
-            match(input,TRY,FOLLOW_TRY_in_tryStatement3510); 
-            pushFollow(FOLLOW_block_in_tryStatement3516);
+            TRY63=(Token)input.LT(1);
+            match(input,TRY,FOLLOW_TRY_in_tryStatement3546); 
+            pushFollow(FOLLOW_block_in_tryStatement3552);
             tb=block();
             _fsp--;
 
              body = tb; 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:448:5: ( FINALLY fb1= block | ( catchClause )+ ( FINALLY fb2= block )? )
-            int alt34=2;
-            int LA34_0 = input.LA(1);
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:454:5: ( FINALLY fb1= block | ( catchClause )+ ( FINALLY fb2= block )? )
+            int alt32=2;
+            int LA32_0 = input.LA(1);
 
-            if ( (LA34_0==FINALLY) ) {
-                alt34=1;
+            if ( (LA32_0==FINALLY) ) {
+                alt32=1;
             }
-            else if ( (LA34_0==CATCH) ) {
-                alt34=2;
+            else if ( (LA32_0==CATCH) ) {
+                alt32=2;
             }
             else {
                 NoViableAltException nvae =
-                    new NoViableAltException("448:5: ( FINALLY fb1= block | ( catchClause )+ ( FINALLY fb2= block )? )", 34, 0, input);
+                    new NoViableAltException("454:5: ( FINALLY fb1= block | ( catchClause )+ ( FINALLY fb2= block )? )", 32, 0, input);
 
                 throw nvae;
             }
-            switch (alt34) {
+            switch (alt32) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:448:7: FINALLY fb1= block
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:454:7: FINALLY fb1= block
                     {
-                    match(input,FINALLY,FOLLOW_FINALLY_in_tryStatement3529); 
-                    pushFollow(FOLLOW_block_in_tryStatement3535);
+                    match(input,FINALLY,FOLLOW_FINALLY_in_tryStatement3565); 
+                    pushFollow(FOLLOW_block_in_tryStatement3571);
                     fb1=block();
                     _fsp--;
 
@@ -2740,55 +2785,55 @@ public class v2Parser extends AbstractGeneratedParser {
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:449:10: ( catchClause )+ ( FINALLY fb2= block )?
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:455:10: ( catchClause )+ ( FINALLY fb2= block )?
                     {
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:449:10: ( catchClause )+
-                    int cnt32=0;
-                    loop32:
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:455:10: ( catchClause )+
+                    int cnt30=0;
+                    loop30:
                     do {
-                        int alt32=2;
-                        int LA32_0 = input.LA(1);
+                        int alt30=2;
+                        int LA30_0 = input.LA(1);
 
-                        if ( (LA32_0==CATCH) ) {
-                            alt32=1;
+                        if ( (LA30_0==CATCH) ) {
+                            alt30=1;
                         }
 
 
-                        switch (alt32) {
+                        switch (alt30) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:449:11: catchClause
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:455:11: catchClause
                     	    {
-                    	    pushFollow(FOLLOW_catchClause_in_tryStatement3551);
-                    	    catchClause42=catchClause();
+                    	    pushFollow(FOLLOW_catchClause_in_tryStatement3587);
+                    	    catchClause62=catchClause();
                     	    _fsp--;
 
-                    	     catchers.append(catchClause42); 
+                    	     catchers.append(catchClause62); 
 
                     	    }
                     	    break;
 
                     	default :
-                    	    if ( cnt32 >= 1 ) break loop32;
+                    	    if ( cnt30 >= 1 ) break loop30;
                                 EarlyExitException eee =
-                                    new EarlyExitException(32, input);
+                                    new EarlyExitException(30, input);
                                 throw eee;
                         }
-                        cnt32++;
+                        cnt30++;
                     } while (true);
 
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:450:10: ( FINALLY fb2= block )?
-                    int alt33=2;
-                    int LA33_0 = input.LA(1);
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:456:10: ( FINALLY fb2= block )?
+                    int alt31=2;
+                    int LA31_0 = input.LA(1);
 
-                    if ( (LA33_0==FINALLY) ) {
-                        alt33=1;
+                    if ( (LA31_0==FINALLY) ) {
+                        alt31=1;
                     }
-                    switch (alt33) {
+                    switch (alt31) {
                         case 1 :
-                            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:450:11: FINALLY fb2= block
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:456:11: FINALLY fb2= block
                             {
-                            match(input,FINALLY,FOLLOW_FINALLY_in_tryStatement3574); 
-                            pushFollow(FOLLOW_block_in_tryStatement3579);
+                            match(input,FINALLY,FOLLOW_FINALLY_in_tryStatement3610); 
+                            pushFollow(FOLLOW_block_in_tryStatement3615);
                             fb2=block();
                             _fsp--;
 
@@ -2805,7 +2850,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
             }
 
-             value = F.at(pos(TRY43)).Try(body, catchers.toList(), finalBlock); 
+             value = F.at(pos(TRY63)).Try(body, catchers.toList(), finalBlock); 
 
             }
 
@@ -2822,43 +2867,43 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start catchClause
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:453:1: catchClause returns [JCCatch value] : CATCH LPAREN name ( COLON identifier )? RPAREN block ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:459:1: catchClause returns [JCCatch value] : CATCH LPAREN name ( COLON identifier )? RPAREN block ;
     public final JCCatch catchClause() throws RecognitionException {
         JCCatch value = null;
 
-        Token CATCH46=null;
-        name_return name44 = null;
+        Token CATCH66=null;
+        name_return name64 = null;
 
-        JCIdent identifier45 = null;
+        JCIdent identifier65 = null;
 
-        JCBlock block47 = null;
+        JCBlock block67 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:454:2: ( CATCH LPAREN name ( COLON identifier )? RPAREN block )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:454:4: CATCH LPAREN name ( COLON identifier )? RPAREN block
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:460:2: ( CATCH LPAREN name ( COLON identifier )? RPAREN block )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:460:4: CATCH LPAREN name ( COLON identifier )? RPAREN block
             {
-            CATCH46=(Token)input.LT(1);
-            match(input,CATCH,FOLLOW_CATCH_in_catchClause3618); 
-            match(input,LPAREN,FOLLOW_LPAREN_in_catchClause3621); 
-            pushFollow(FOLLOW_name_in_catchClause3624);
-            name44=name();
+            CATCH66=(Token)input.LT(1);
+            match(input,CATCH,FOLLOW_CATCH_in_catchClause3654); 
+            match(input,LPAREN,FOLLOW_LPAREN_in_catchClause3657); 
+            pushFollow(FOLLOW_name_in_catchClause3660);
+            name64=name();
             _fsp--;
 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:455:4: ( COLON identifier )?
-            int alt35=2;
-            int LA35_0 = input.LA(1);
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:461:4: ( COLON identifier )?
+            int alt33=2;
+            int LA33_0 = input.LA(1);
 
-            if ( (LA35_0==COLON) ) {
-                alt35=1;
+            if ( (LA33_0==COLON) ) {
+                alt33=1;
             }
-            switch (alt35) {
+            switch (alt33) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:455:5: COLON identifier
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:461:5: COLON identifier
                     {
-                    match(input,COLON,FOLLOW_COLON_in_catchClause3632); 
-                    pushFollow(FOLLOW_identifier_in_catchClause3634);
-                    identifier45=identifier();
+                    match(input,COLON,FOLLOW_COLON_in_catchClause3668); 
+                    pushFollow(FOLLOW_identifier_in_catchClause3670);
+                    identifier65=identifier();
                     _fsp--;
 
 
@@ -2867,14 +2912,14 @@ public class v2Parser extends AbstractGeneratedParser {
 
             }
 
-            match(input,RPAREN,FOLLOW_RPAREN_in_catchClause3643); 
-            pushFollow(FOLLOW_block_in_catchClause3647);
-            block47=block();
+            match(input,RPAREN,FOLLOW_RPAREN_in_catchClause3679); 
+            pushFollow(FOLLOW_block_in_catchClause3683);
+            block67=block();
             _fsp--;
 
-             JCModifiers mods = F.at(name44.pos).Modifiers(Flags.PARAMETER);
-            	  					  JCVariableDecl formal = F.at(name44.pos).VarDef(mods, name44.value, identifier45, null);
-            	  					  value = F.at(pos(CATCH46)).Catch(formal, block47); 
+             JCModifiers mods = F.at(name64.pos).Modifiers(Flags.PARAMETER);
+            	  					  JCVariableDecl formal = F.at(name64.pos).VarDef(mods, name64.value, identifier65, null);
+            	  					  value = F.at(pos(CATCH66)).Catch(formal, block67); 
 
             }
 
@@ -2891,52 +2936,52 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start expression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:460:1: expression returns [JCExpression expr] : ( ifExpression | suffixedExpression );
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:466:1: expression returns [JCExpression expr] : ( ifExpression | suffixedExpression );
     public final JCExpression expression() throws RecognitionException {
         JCExpression expr = null;
 
-        JCExpression ifExpression48 = null;
+        JCExpression ifExpression68 = null;
 
-        JCExpression suffixedExpression49 = null;
+        JCExpression suffixedExpression69 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:461:9: ( ifExpression | suffixedExpression )
-            int alt36=2;
-            int LA36_0 = input.LA(1);
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:467:9: ( ifExpression | suffixedExpression )
+            int alt34=2;
+            int LA34_0 = input.LA(1);
 
-            if ( (LA36_0==IF) ) {
-                alt36=1;
+            if ( (LA34_0==IF) ) {
+                alt34=1;
             }
-            else if ( ((LA36_0>=POUND && LA36_0<=TYPEOF)||(LA36_0>=THIS && LA36_0<=FALSE)||(LA36_0>=NOT && LA36_0<=NEW)||LA36_0==SUPER||(LA36_0>=SIZEOF && LA36_0<=LPAREN)||(LA36_0>=PLUSPLUS && LA36_0<=SUBSUB)||(LA36_0>=QUES && LA36_0<=STRING_LITERAL)||(LA36_0>=QUOTE_LBRACE_STRING_LITERAL && LA36_0<=LBRACE)||(LA36_0>=QUOTED_IDENTIFIER && LA36_0<=INTEGER_LITERAL)||LA36_0==FLOATING_POINT_LITERAL||LA36_0==IDENTIFIER) ) {
-                alt36=2;
+            else if ( ((LA34_0>=POUND && LA34_0<=TYPEOF)||(LA34_0>=THIS && LA34_0<=FALSE)||(LA34_0>=NOT && LA34_0<=NEW)||LA34_0==SUPER||(LA34_0>=SIZEOF && LA34_0<=LPAREN)||(LA34_0>=PLUSPLUS && LA34_0<=SUBSUB)||(LA34_0>=QUES && LA34_0<=STRING_LITERAL)||(LA34_0>=QUOTE_LBRACE_STRING_LITERAL && LA34_0<=LBRACE)||(LA34_0>=QUOTED_IDENTIFIER && LA34_0<=INTEGER_LITERAL)||LA34_0==FLOATING_POINT_LITERAL||LA34_0==IDENTIFIER) ) {
+                alt34=2;
             }
             else {
                 NoViableAltException nvae =
-                    new NoViableAltException("460:1: expression returns [JCExpression expr] : ( ifExpression | suffixedExpression );", 36, 0, input);
+                    new NoViableAltException("466:1: expression returns [JCExpression expr] : ( ifExpression | suffixedExpression );", 34, 0, input);
 
                 throw nvae;
             }
-            switch (alt36) {
+            switch (alt34) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:461:11: ifExpression
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:467:11: ifExpression
                     {
-                    pushFollow(FOLLOW_ifExpression_in_expression3675);
-                    ifExpression48=ifExpression();
+                    pushFollow(FOLLOW_ifExpression_in_expression3711);
+                    ifExpression68=ifExpression();
                     _fsp--;
 
-                     expr = ifExpression48; 
+                     expr = ifExpression68; 
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:462:11: suffixedExpression
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:468:11: suffixedExpression
                     {
-                    pushFollow(FOLLOW_suffixedExpression_in_expression3698);
-                    suffixedExpression49=suffixedExpression();
+                    pushFollow(FOLLOW_suffixedExpression_in_expression3734);
+                    suffixedExpression69=suffixedExpression();
                     _fsp--;
 
-                     expr = suffixedExpression49; 
+                     expr = suffixedExpression69; 
 
                     }
                     break;
@@ -2955,11 +3000,11 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start ifExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:464:1: ifExpression returns [JCExpression expr] : IF econd= expression THEN ethen= expression ELSE eelse= expression ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:471:1: ifExpression returns [JCExpression expr] : IF econd= expression THEN ethen= expression ELSE eelse= expression ;
     public final JCExpression ifExpression() throws RecognitionException {
         JCExpression expr = null;
 
-        Token IF50=null;
+        Token IF70=null;
         JCExpression econd = null;
 
         JCExpression ethen = null;
@@ -2968,26 +3013,26 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:465:2: ( IF econd= expression THEN ethen= expression ELSE eelse= expression )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:465:4: IF econd= expression THEN ethen= expression ELSE eelse= expression
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:472:2: ( IF econd= expression THEN ethen= expression ELSE eelse= expression )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:472:4: IF econd= expression THEN ethen= expression ELSE eelse= expression
             {
-            IF50=(Token)input.LT(1);
-            match(input,IF,FOLLOW_IF_in_ifExpression3729); 
-            pushFollow(FOLLOW_expression_in_ifExpression3733);
+            IF70=(Token)input.LT(1);
+            match(input,IF,FOLLOW_IF_in_ifExpression3765); 
+            pushFollow(FOLLOW_expression_in_ifExpression3769);
             econd=expression();
             _fsp--;
 
-            match(input,THEN,FOLLOW_THEN_in_ifExpression3737); 
-            pushFollow(FOLLOW_expression_in_ifExpression3742);
+            match(input,THEN,FOLLOW_THEN_in_ifExpression3773); 
+            pushFollow(FOLLOW_expression_in_ifExpression3778);
             ethen=expression();
             _fsp--;
 
-            match(input,ELSE,FOLLOW_ELSE_in_ifExpression3750); 
-            pushFollow(FOLLOW_expression_in_ifExpression3755);
+            match(input,ELSE,FOLLOW_ELSE_in_ifExpression3786); 
+            pushFollow(FOLLOW_expression_in_ifExpression3791);
             eelse=expression();
             _fsp--;
 
-             expr = F.at(pos(IF50)).Conditional(econd, ethen, eelse); 
+             expr = F.at(pos(IF70)).Conditional(econd, ethen, eelse); 
 
             }
 
@@ -3004,7 +3049,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start suffixedExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:468:1: suffixedExpression returns [JCExpression expr] : e1= assignmentExpression ( PLUSPLUS | SUBSUB )? ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:475:1: suffixedExpression returns [JCExpression expr] : e1= assignmentExpression ( PLUSPLUS | SUBSUB )? ;
     public final JCExpression suffixedExpression() throws RecognitionException {
         JCExpression expr = null;
 
@@ -3012,24 +3057,24 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:469:2: (e1= assignmentExpression ( PLUSPLUS | SUBSUB )? )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:469:4: e1= assignmentExpression ( PLUSPLUS | SUBSUB )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:476:2: (e1= assignmentExpression ( PLUSPLUS | SUBSUB )? )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:476:4: e1= assignmentExpression ( PLUSPLUS | SUBSUB )?
             {
-            pushFollow(FOLLOW_assignmentExpression_in_suffixedExpression3778);
+            pushFollow(FOLLOW_assignmentExpression_in_suffixedExpression3814);
             e1=assignmentExpression();
             _fsp--;
 
              expr = e1; 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:470:5: ( PLUSPLUS | SUBSUB )?
-            int alt37=2;
-            int LA37_0 = input.LA(1);
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:477:5: ( PLUSPLUS | SUBSUB )?
+            int alt35=2;
+            int LA35_0 = input.LA(1);
 
-            if ( (LA37_0==PLUSPLUS||LA37_0==SUBSUB) ) {
-                alt37=1;
+            if ( (LA35_0==PLUSPLUS||LA35_0==SUBSUB) ) {
+                alt35=1;
             }
-            switch (alt37) {
+            switch (alt35) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:
                     {
                     if ( input.LA(1)==PLUSPLUS||input.LA(1)==SUBSUB ) {
                         input.consume();
@@ -3038,7 +3083,7 @@ public class v2Parser extends AbstractGeneratedParser {
                     else {
                         MismatchedSetException mse =
                             new MismatchedSetException(null,input);
-                        recoverFromMismatchedSet(input,mse,FOLLOW_set_in_suffixedExpression3789);    throw mse;
+                        recoverFromMismatchedSet(input,mse,FOLLOW_set_in_suffixedExpression3825);    throw mse;
                     }
 
 
@@ -3063,43 +3108,43 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start assignmentExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:472:1: assignmentExpression returns [JCExpression expr] : e1= assignmentOpExpression ( EQ e2= assignmentOpExpression )? ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:479:1: assignmentExpression returns [JCExpression expr] : e1= assignmentOpExpression ( EQ e2= assignmentOpExpression )? ;
     public final JCExpression assignmentExpression() throws RecognitionException {
         JCExpression expr = null;
 
-        Token EQ51=null;
+        Token EQ71=null;
         JCExpression e1 = null;
 
         JCExpression e2 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:473:2: (e1= assignmentOpExpression ( EQ e2= assignmentOpExpression )? )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:473:4: e1= assignmentOpExpression ( EQ e2= assignmentOpExpression )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:480:2: (e1= assignmentOpExpression ( EQ e2= assignmentOpExpression )? )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:480:4: e1= assignmentOpExpression ( EQ e2= assignmentOpExpression )?
             {
-            pushFollow(FOLLOW_assignmentOpExpression_in_assignmentExpression3818);
+            pushFollow(FOLLOW_assignmentOpExpression_in_assignmentExpression3854);
             e1=assignmentOpExpression();
             _fsp--;
 
              expr = e1; 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:474:5: ( EQ e2= assignmentOpExpression )?
-            int alt38=2;
-            int LA38_0 = input.LA(1);
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:481:5: ( EQ e2= assignmentOpExpression )?
+            int alt36=2;
+            int LA36_0 = input.LA(1);
 
-            if ( (LA38_0==EQ) ) {
-                alt38=1;
+            if ( (LA36_0==EQ) ) {
+                alt36=1;
             }
-            switch (alt38) {
+            switch (alt36) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:474:9: EQ e2= assignmentOpExpression
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:481:9: EQ e2= assignmentOpExpression
                     {
-                    EQ51=(Token)input.LT(1);
-                    match(input,EQ,FOLLOW_EQ_in_assignmentExpression3833); 
-                    pushFollow(FOLLOW_assignmentOpExpression_in_assignmentExpression3839);
+                    EQ71=(Token)input.LT(1);
+                    match(input,EQ,FOLLOW_EQ_in_assignmentExpression3869); 
+                    pushFollow(FOLLOW_assignmentOpExpression_in_assignmentExpression3875);
                     e2=assignmentOpExpression();
                     _fsp--;
 
-                     expr = F.at(pos(EQ51)).Assign(expr, e2); 
+                     expr = F.at(pos(EQ71)).Assign(expr, e2); 
 
                     }
                     break;
@@ -3122,7 +3167,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start assignmentOpExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:475:1: assignmentOpExpression returns [JCExpression expr] : e1= andExpression ( assignmentOperator e2= andExpression )? ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:482:1: assignmentOpExpression returns [JCExpression expr] : e1= andExpression ( assignmentOperator e2= andExpression )? ;
     public final JCExpression assignmentOpExpression() throws RecognitionException {
         JCExpression expr = null;
 
@@ -3130,38 +3175,38 @@ public class v2Parser extends AbstractGeneratedParser {
 
         JCExpression e2 = null;
 
-        int assignmentOperator52 = 0;
+        int assignmentOperator72 = 0;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:476:2: (e1= andExpression ( assignmentOperator e2= andExpression )? )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:476:4: e1= andExpression ( assignmentOperator e2= andExpression )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:483:2: (e1= andExpression ( assignmentOperator e2= andExpression )? )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:483:4: e1= andExpression ( assignmentOperator e2= andExpression )?
             {
-            pushFollow(FOLLOW_andExpression_in_assignmentOpExpression3866);
+            pushFollow(FOLLOW_andExpression_in_assignmentOpExpression3902);
             e1=andExpression();
             _fsp--;
 
              expr = e1; 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:477:5: ( assignmentOperator e2= andExpression )?
-            int alt39=2;
-            int LA39_0 = input.LA(1);
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:484:5: ( assignmentOperator e2= andExpression )?
+            int alt37=2;
+            int LA37_0 = input.LA(1);
 
-            if ( ((LA39_0>=PLUSEQ && LA39_0<=PERCENTEQ)) ) {
-                alt39=1;
+            if ( ((LA37_0>=PLUSEQ && LA37_0<=PERCENTEQ)) ) {
+                alt37=1;
             }
-            switch (alt39) {
+            switch (alt37) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:477:9: assignmentOperator e2= andExpression
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:484:9: assignmentOperator e2= andExpression
                     {
-                    pushFollow(FOLLOW_assignmentOperator_in_assignmentOpExpression3882);
-                    assignmentOperator52=assignmentOperator();
+                    pushFollow(FOLLOW_assignmentOperator_in_assignmentOpExpression3918);
+                    assignmentOperator72=assignmentOperator();
                     _fsp--;
 
-                    pushFollow(FOLLOW_andExpression_in_assignmentOpExpression3888);
+                    pushFollow(FOLLOW_andExpression_in_assignmentOpExpression3924);
                     e2=andExpression();
                     _fsp--;
 
-                     expr = F.Assignop(assignmentOperator52,
+                     expr = F.Assignop(assignmentOperator72,
                     	   													expr, e2); 
 
                     }
@@ -3185,53 +3230,53 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start andExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:479:1: andExpression returns [JCExpression expr] : e1= orExpression ( AND e2= orExpression )* ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:486:1: andExpression returns [JCExpression expr] : e1= orExpression ( AND e2= orExpression )* ;
     public final JCExpression andExpression() throws RecognitionException {
         JCExpression expr = null;
 
-        Token AND53=null;
+        Token AND73=null;
         JCExpression e1 = null;
 
         JCExpression e2 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:480:2: (e1= orExpression ( AND e2= orExpression )* )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:480:4: e1= orExpression ( AND e2= orExpression )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:487:2: (e1= orExpression ( AND e2= orExpression )* )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:487:4: e1= orExpression ( AND e2= orExpression )*
             {
-            pushFollow(FOLLOW_orExpression_in_andExpression3914);
+            pushFollow(FOLLOW_orExpression_in_andExpression3950);
             e1=orExpression();
             _fsp--;
 
              expr = e1; 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:481:5: ( AND e2= orExpression )*
-            loop40:
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:488:5: ( AND e2= orExpression )*
+            loop38:
             do {
-                int alt40=2;
-                int LA40_0 = input.LA(1);
+                int alt38=2;
+                int LA38_0 = input.LA(1);
 
-                if ( (LA40_0==AND) ) {
-                    alt40=1;
+                if ( (LA38_0==AND) ) {
+                    alt38=1;
                 }
 
 
-                switch (alt40) {
+                switch (alt38) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:481:9: AND e2= orExpression
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:488:9: AND e2= orExpression
             	    {
-            	    AND53=(Token)input.LT(1);
-            	    match(input,AND,FOLLOW_AND_in_andExpression3930); 
-            	    pushFollow(FOLLOW_orExpression_in_andExpression3936);
+            	    AND73=(Token)input.LT(1);
+            	    match(input,AND,FOLLOW_AND_in_andExpression3966); 
+            	    pushFollow(FOLLOW_orExpression_in_andExpression3972);
             	    e2=orExpression();
             	    _fsp--;
 
-            	     expr = F.at(pos(AND53)).Binary(JCTree.AND, expr, e2); 
+            	     expr = F.at(pos(AND73)).Binary(JCTree.AND, expr, e2); 
 
             	    }
             	    break;
 
             	default :
-            	    break loop40;
+            	    break loop38;
                 }
             } while (true);
 
@@ -3251,53 +3296,53 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start orExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:482:1: orExpression returns [JCExpression expr] : e1= instanceOfExpression ( OR e2= instanceOfExpression )* ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:489:1: orExpression returns [JCExpression expr] : e1= instanceOfExpression ( OR e2= instanceOfExpression )* ;
     public final JCExpression orExpression() throws RecognitionException {
         JCExpression expr = null;
 
-        Token OR54=null;
+        Token OR74=null;
         JCExpression e1 = null;
 
         JCExpression e2 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:483:2: (e1= instanceOfExpression ( OR e2= instanceOfExpression )* )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:483:4: e1= instanceOfExpression ( OR e2= instanceOfExpression )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:490:2: (e1= instanceOfExpression ( OR e2= instanceOfExpression )* )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:490:4: e1= instanceOfExpression ( OR e2= instanceOfExpression )*
             {
-            pushFollow(FOLLOW_instanceOfExpression_in_orExpression3964);
+            pushFollow(FOLLOW_instanceOfExpression_in_orExpression4000);
             e1=instanceOfExpression();
             _fsp--;
 
              expr = e1; 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:484:5: ( OR e2= instanceOfExpression )*
-            loop41:
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:491:5: ( OR e2= instanceOfExpression )*
+            loop39:
             do {
-                int alt41=2;
-                int LA41_0 = input.LA(1);
+                int alt39=2;
+                int LA39_0 = input.LA(1);
 
-                if ( (LA41_0==OR) ) {
-                    alt41=1;
+                if ( (LA39_0==OR) ) {
+                    alt39=1;
                 }
 
 
-                switch (alt41) {
+                switch (alt39) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:484:9: OR e2= instanceOfExpression
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:491:9: OR e2= instanceOfExpression
             	    {
-            	    OR54=(Token)input.LT(1);
-            	    match(input,OR,FOLLOW_OR_in_orExpression3979); 
-            	    pushFollow(FOLLOW_instanceOfExpression_in_orExpression3985);
+            	    OR74=(Token)input.LT(1);
+            	    match(input,OR,FOLLOW_OR_in_orExpression4015); 
+            	    pushFollow(FOLLOW_instanceOfExpression_in_orExpression4021);
             	    e2=instanceOfExpression();
             	    _fsp--;
 
-            	     expr = F.at(pos(OR54)).Binary(JCTree.OR, expr, e2); 
+            	     expr = F.at(pos(OR74)).Binary(JCTree.OR, expr, e2); 
 
             	    }
             	    break;
 
             	default :
-            	    break loop41;
+            	    break loop39;
                 }
             } while (true);
 
@@ -3317,44 +3362,44 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start instanceOfExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:485:1: instanceOfExpression returns [JCExpression expr] : e1= relationalExpression ( INSTANCEOF identifier )? ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:492:1: instanceOfExpression returns [JCExpression expr] : e1= relationalExpression ( INSTANCEOF identifier )? ;
     public final JCExpression instanceOfExpression() throws RecognitionException {
         JCExpression expr = null;
 
-        Token INSTANCEOF55=null;
+        Token INSTANCEOF75=null;
         JCExpression e1 = null;
 
-        JCIdent identifier56 = null;
+        JCIdent identifier76 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:486:2: (e1= relationalExpression ( INSTANCEOF identifier )? )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:486:4: e1= relationalExpression ( INSTANCEOF identifier )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:493:2: (e1= relationalExpression ( INSTANCEOF identifier )? )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:493:4: e1= relationalExpression ( INSTANCEOF identifier )?
             {
-            pushFollow(FOLLOW_relationalExpression_in_instanceOfExpression4013);
+            pushFollow(FOLLOW_relationalExpression_in_instanceOfExpression4049);
             e1=relationalExpression();
             _fsp--;
 
              expr = e1; 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:487:5: ( INSTANCEOF identifier )?
-            int alt42=2;
-            int LA42_0 = input.LA(1);
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:494:5: ( INSTANCEOF identifier )?
+            int alt40=2;
+            int LA40_0 = input.LA(1);
 
-            if ( (LA42_0==INSTANCEOF) ) {
-                alt42=1;
+            if ( (LA40_0==INSTANCEOF) ) {
+                alt40=1;
             }
-            switch (alt42) {
+            switch (alt40) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:487:9: INSTANCEOF identifier
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:494:9: INSTANCEOF identifier
                     {
-                    INSTANCEOF55=(Token)input.LT(1);
-                    match(input,INSTANCEOF,FOLLOW_INSTANCEOF_in_instanceOfExpression4028); 
-                    pushFollow(FOLLOW_identifier_in_instanceOfExpression4030);
-                    identifier56=identifier();
+                    INSTANCEOF75=(Token)input.LT(1);
+                    match(input,INSTANCEOF,FOLLOW_INSTANCEOF_in_instanceOfExpression4064); 
+                    pushFollow(FOLLOW_identifier_in_instanceOfExpression4066);
+                    identifier76=identifier();
                     _fsp--;
 
-                     expr = F.at(pos(INSTANCEOF55)).Binary(JCTree.TYPETEST, expr, 
-                    	   													 identifier56); 
+                     expr = F.at(pos(INSTANCEOF75)).Binary(JCTree.TYPETEST, expr, 
+                    	   													 identifier76); 
 
                     }
                     break;
@@ -3377,69 +3422,310 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start relationalExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:489:1: relationalExpression returns [JCExpression expr] : e1= additiveExpression ( LTGT e= additiveExpression | EQEQ e= additiveExpression | LTEQ e= additiveExpression | GTEQ e= additiveExpression | LT e= additiveExpression | GT e= additiveExpression | IN e= additiveExpression )* ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:496:1: relationalExpression returns [JCExpression expr] : e1= additiveExpression ( LTGT e= additiveExpression | EQEQ e= additiveExpression | LTEQ e= additiveExpression | GTEQ e= additiveExpression | LT e= additiveExpression | GT e= additiveExpression | IN e= additiveExpression )* ;
     public final JCExpression relationalExpression() throws RecognitionException {
         JCExpression expr = null;
 
-        Token LTGT57=null;
-        Token EQEQ58=null;
-        Token LTEQ59=null;
-        Token GTEQ60=null;
-        Token LT61=null;
-        Token GT62=null;
-        Token IN63=null;
+        Token LTGT77=null;
+        Token EQEQ78=null;
+        Token LTEQ79=null;
+        Token GTEQ80=null;
+        Token LT81=null;
+        Token GT82=null;
+        Token IN83=null;
         JCExpression e1 = null;
 
         JCExpression e = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:490:2: (e1= additiveExpression ( LTGT e= additiveExpression | EQEQ e= additiveExpression | LTEQ e= additiveExpression | GTEQ e= additiveExpression | LT e= additiveExpression | GT e= additiveExpression | IN e= additiveExpression )* )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:490:4: e1= additiveExpression ( LTGT e= additiveExpression | EQEQ e= additiveExpression | LTEQ e= additiveExpression | GTEQ e= additiveExpression | LT e= additiveExpression | GT e= additiveExpression | IN e= additiveExpression )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:497:2: (e1= additiveExpression ( LTGT e= additiveExpression | EQEQ e= additiveExpression | LTEQ e= additiveExpression | GTEQ e= additiveExpression | LT e= additiveExpression | GT e= additiveExpression | IN e= additiveExpression )* )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:497:4: e1= additiveExpression ( LTGT e= additiveExpression | EQEQ e= additiveExpression | LTEQ e= additiveExpression | GTEQ e= additiveExpression | LT e= additiveExpression | GT e= additiveExpression | IN e= additiveExpression )*
             {
-            pushFollow(FOLLOW_additiveExpression_in_relationalExpression4058);
+            pushFollow(FOLLOW_additiveExpression_in_relationalExpression4094);
             e1=additiveExpression();
             _fsp--;
 
              expr = e1; 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:491:5: ( LTGT e= additiveExpression | EQEQ e= additiveExpression | LTEQ e= additiveExpression | GTEQ e= additiveExpression | LT e= additiveExpression | GT e= additiveExpression | IN e= additiveExpression )*
-            loop43:
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:498:5: ( LTGT e= additiveExpression | EQEQ e= additiveExpression | LTEQ e= additiveExpression | GTEQ e= additiveExpression | LT e= additiveExpression | GT e= additiveExpression | IN e= additiveExpression )*
+            loop41:
             do {
-                int alt43=8;
+                int alt41=8;
                 switch ( input.LA(1) ) {
                 case LTGT:
                     {
-                    alt43=1;
+                    alt41=1;
                     }
                     break;
                 case EQEQ:
                     {
-                    alt43=2;
+                    alt41=2;
                     }
                     break;
                 case LTEQ:
                     {
-                    alt43=3;
+                    alt41=3;
                     }
                     break;
                 case GTEQ:
                     {
-                    alt43=4;
+                    alt41=4;
                     }
                     break;
                 case LT:
                     {
-                    alt43=5;
+                    alt41=5;
                     }
                     break;
                 case GT:
                     {
-                    alt43=6;
+                    alt41=6;
                     }
                     break;
                 case IN:
                     {
-                    alt43=7;
+                    alt41=7;
+                    }
+                    break;
+
+                }
+
+                switch (alt41) {
+            	case 1 :
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:498:9: LTGT e= additiveExpression
+            	    {
+            	    LTGT77=(Token)input.LT(1);
+            	    match(input,LTGT,FOLLOW_LTGT_in_relationalExpression4110); 
+            	    pushFollow(FOLLOW_additiveExpression_in_relationalExpression4116);
+            	    e=additiveExpression();
+            	    _fsp--;
+
+            	     expr = F.at(pos(LTGT77)).Binary(JCTree.NE, expr, e); 
+
+            	    }
+            	    break;
+            	case 2 :
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:499:9: EQEQ e= additiveExpression
+            	    {
+            	    EQEQ78=(Token)input.LT(1);
+            	    match(input,EQEQ,FOLLOW_EQEQ_in_relationalExpression4130); 
+            	    pushFollow(FOLLOW_additiveExpression_in_relationalExpression4136);
+            	    e=additiveExpression();
+            	    _fsp--;
+
+            	     expr = F.at(pos(EQEQ78)).Binary(JCTree.EQ, expr, e); 
+
+            	    }
+            	    break;
+            	case 3 :
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:500:9: LTEQ e= additiveExpression
+            	    {
+            	    LTEQ79=(Token)input.LT(1);
+            	    match(input,LTEQ,FOLLOW_LTEQ_in_relationalExpression4150); 
+            	    pushFollow(FOLLOW_additiveExpression_in_relationalExpression4156);
+            	    e=additiveExpression();
+            	    _fsp--;
+
+            	     expr = F.at(pos(LTEQ79)).Binary(JCTree.LE, expr, e); 
+
+            	    }
+            	    break;
+            	case 4 :
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:501:9: GTEQ e= additiveExpression
+            	    {
+            	    GTEQ80=(Token)input.LT(1);
+            	    match(input,GTEQ,FOLLOW_GTEQ_in_relationalExpression4170); 
+            	    pushFollow(FOLLOW_additiveExpression_in_relationalExpression4176);
+            	    e=additiveExpression();
+            	    _fsp--;
+
+            	     expr = F.at(pos(GTEQ80)).Binary(JCTree.GE, expr, e); 
+
+            	    }
+            	    break;
+            	case 5 :
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:502:9: LT e= additiveExpression
+            	    {
+            	    LT81=(Token)input.LT(1);
+            	    match(input,LT,FOLLOW_LT_in_relationalExpression4190); 
+            	    pushFollow(FOLLOW_additiveExpression_in_relationalExpression4198);
+            	    e=additiveExpression();
+            	    _fsp--;
+
+            	     expr = F.at(pos(LT81))  .Binary(JCTree.LT, expr, e); 
+
+            	    }
+            	    break;
+            	case 6 :
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:503:9: GT e= additiveExpression
+            	    {
+            	    GT82=(Token)input.LT(1);
+            	    match(input,GT,FOLLOW_GT_in_relationalExpression4212); 
+            	    pushFollow(FOLLOW_additiveExpression_in_relationalExpression4220);
+            	    e=additiveExpression();
+            	    _fsp--;
+
+            	     expr = F.at(pos(GT82))  .Binary(JCTree.GT, expr, e); 
+
+            	    }
+            	    break;
+            	case 7 :
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:504:9: IN e= additiveExpression
+            	    {
+            	    IN83=(Token)input.LT(1);
+            	    match(input,IN,FOLLOW_IN_in_relationalExpression4234); 
+            	    pushFollow(FOLLOW_additiveExpression_in_relationalExpression4242);
+            	    e=additiveExpression();
+            	    _fsp--;
+
+            	     /* expr = F.at(pos(IN83  )).Binary(JavaFXTag.IN, expr, $e2.expr); */ 
+
+            	    }
+            	    break;
+
+            	default :
+            	    break loop41;
+                }
+            } while (true);
+
+
+            }
+
+        }
+        catch (RecognitionException re) {
+            reportError(re);
+            recover(input,re);
+        }
+        finally {
+        }
+        return expr;
+    }
+    // $ANTLR end relationalExpression
+
+
+    // $ANTLR start additiveExpression
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:506:1: additiveExpression returns [JCExpression expr] : e1= multiplicativeExpression ( PLUS e= multiplicativeExpression | SUB e= multiplicativeExpression )* ;
+    public final JCExpression additiveExpression() throws RecognitionException {
+        JCExpression expr = null;
+
+        Token PLUS84=null;
+        Token SUB85=null;
+        JCExpression e1 = null;
+
+        JCExpression e = null;
+
+
+        try {
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:507:2: (e1= multiplicativeExpression ( PLUS e= multiplicativeExpression | SUB e= multiplicativeExpression )* )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:507:4: e1= multiplicativeExpression ( PLUS e= multiplicativeExpression | SUB e= multiplicativeExpression )*
+            {
+            pushFollow(FOLLOW_multiplicativeExpression_in_additiveExpression4271);
+            e1=multiplicativeExpression();
+            _fsp--;
+
+             expr = e1; 
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:508:5: ( PLUS e= multiplicativeExpression | SUB e= multiplicativeExpression )*
+            loop42:
+            do {
+                int alt42=3;
+                int LA42_0 = input.LA(1);
+
+                if ( (LA42_0==PLUS) ) {
+                    alt42=1;
+                }
+                else if ( (LA42_0==SUB) ) {
+                    alt42=2;
+                }
+
+
+                switch (alt42) {
+            	case 1 :
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:508:9: PLUS e= multiplicativeExpression
+            	    {
+            	    PLUS84=(Token)input.LT(1);
+            	    match(input,PLUS,FOLLOW_PLUS_in_additiveExpression4286); 
+            	    pushFollow(FOLLOW_multiplicativeExpression_in_additiveExpression4292);
+            	    e=multiplicativeExpression();
+            	    _fsp--;
+
+            	     expr = F.at(pos(PLUS84)).Binary(JCTree.PLUS , expr, e); 
+
+            	    }
+            	    break;
+            	case 2 :
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:509:9: SUB e= multiplicativeExpression
+            	    {
+            	    SUB85=(Token)input.LT(1);
+            	    match(input,SUB,FOLLOW_SUB_in_additiveExpression4305); 
+            	    pushFollow(FOLLOW_multiplicativeExpression_in_additiveExpression4312);
+            	    e=multiplicativeExpression();
+            	    _fsp--;
+
+            	     expr = F.at(pos(SUB85)) .Binary(JCTree.MINUS, expr, e); 
+
+            	    }
+            	    break;
+
+            	default :
+            	    break loop42;
+                }
+            } while (true);
+
+
+            }
+
+        }
+        catch (RecognitionException re) {
+            reportError(re);
+            recover(input,re);
+        }
+        finally {
+        }
+        return expr;
+    }
+    // $ANTLR end additiveExpression
+
+
+    // $ANTLR start multiplicativeExpression
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:511:1: multiplicativeExpression returns [JCExpression expr] : e1= unaryExpression ( STAR e= unaryExpression | SLASH e= unaryExpression | PERCENT e= unaryExpression )* ;
+    public final JCExpression multiplicativeExpression() throws RecognitionException {
+        JCExpression expr = null;
+
+        Token STAR86=null;
+        Token SLASH87=null;
+        Token PERCENT88=null;
+        JCExpression e1 = null;
+
+        JCExpression e = null;
+
+
+        try {
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:512:2: (e1= unaryExpression ( STAR e= unaryExpression | SLASH e= unaryExpression | PERCENT e= unaryExpression )* )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:512:4: e1= unaryExpression ( STAR e= unaryExpression | SLASH e= unaryExpression | PERCENT e= unaryExpression )*
+            {
+            pushFollow(FOLLOW_unaryExpression_in_multiplicativeExpression4340);
+            e1=unaryExpression();
+            _fsp--;
+
+             expr = e1; 
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:513:5: ( STAR e= unaryExpression | SLASH e= unaryExpression | PERCENT e= unaryExpression )*
+            loop43:
+            do {
+                int alt43=4;
+                switch ( input.LA(1) ) {
+                case STAR:
+                    {
+                    alt43=1;
+                    }
+                    break;
+                case SLASH:
+                    {
+                    alt43=2;
+                    }
+                    break;
+                case PERCENT:
+                    {
+                    alt43=3;
                     }
                     break;
 
@@ -3447,93 +3733,41 @@ public class v2Parser extends AbstractGeneratedParser {
 
                 switch (alt43) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:491:9: LTGT e= additiveExpression
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:513:9: STAR e= unaryExpression
             	    {
-            	    LTGT57=(Token)input.LT(1);
-            	    match(input,LTGT,FOLLOW_LTGT_in_relationalExpression4074); 
-            	    pushFollow(FOLLOW_additiveExpression_in_relationalExpression4080);
-            	    e=additiveExpression();
+            	    STAR86=(Token)input.LT(1);
+            	    match(input,STAR,FOLLOW_STAR_in_multiplicativeExpression4356); 
+            	    pushFollow(FOLLOW_unaryExpression_in_multiplicativeExpression4363);
+            	    e=unaryExpression();
             	    _fsp--;
 
-            	     expr = F.at(pos(LTGT57)).Binary(JCTree.NE, expr, e); 
+            	     expr = F.at(pos(STAR86))   .Binary(JCTree.MUL  , expr, e); 
 
             	    }
             	    break;
             	case 2 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:492:9: EQEQ e= additiveExpression
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:514:9: SLASH e= unaryExpression
             	    {
-            	    EQEQ58=(Token)input.LT(1);
-            	    match(input,EQEQ,FOLLOW_EQEQ_in_relationalExpression4094); 
-            	    pushFollow(FOLLOW_additiveExpression_in_relationalExpression4100);
-            	    e=additiveExpression();
+            	    SLASH87=(Token)input.LT(1);
+            	    match(input,SLASH,FOLLOW_SLASH_in_multiplicativeExpression4377); 
+            	    pushFollow(FOLLOW_unaryExpression_in_multiplicativeExpression4383);
+            	    e=unaryExpression();
             	    _fsp--;
 
-            	     expr = F.at(pos(EQEQ58)).Binary(JCTree.EQ, expr, e); 
+            	     expr = F.at(pos(SLASH87))  .Binary(JCTree.DIV  , expr, e); 
 
             	    }
             	    break;
             	case 3 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:493:9: LTEQ e= additiveExpression
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:515:9: PERCENT e= unaryExpression
             	    {
-            	    LTEQ59=(Token)input.LT(1);
-            	    match(input,LTEQ,FOLLOW_LTEQ_in_relationalExpression4114); 
-            	    pushFollow(FOLLOW_additiveExpression_in_relationalExpression4120);
-            	    e=additiveExpression();
+            	    PERCENT88=(Token)input.LT(1);
+            	    match(input,PERCENT,FOLLOW_PERCENT_in_multiplicativeExpression4397); 
+            	    pushFollow(FOLLOW_unaryExpression_in_multiplicativeExpression4401);
+            	    e=unaryExpression();
             	    _fsp--;
 
-            	     expr = F.at(pos(LTEQ59)).Binary(JCTree.LE, expr, e); 
-
-            	    }
-            	    break;
-            	case 4 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:494:9: GTEQ e= additiveExpression
-            	    {
-            	    GTEQ60=(Token)input.LT(1);
-            	    match(input,GTEQ,FOLLOW_GTEQ_in_relationalExpression4134); 
-            	    pushFollow(FOLLOW_additiveExpression_in_relationalExpression4140);
-            	    e=additiveExpression();
-            	    _fsp--;
-
-            	     expr = F.at(pos(GTEQ60)).Binary(JCTree.GE, expr, e); 
-
-            	    }
-            	    break;
-            	case 5 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:495:9: LT e= additiveExpression
-            	    {
-            	    LT61=(Token)input.LT(1);
-            	    match(input,LT,FOLLOW_LT_in_relationalExpression4154); 
-            	    pushFollow(FOLLOW_additiveExpression_in_relationalExpression4162);
-            	    e=additiveExpression();
-            	    _fsp--;
-
-            	     expr = F.at(pos(LT61))  .Binary(JCTree.LT, expr, e); 
-
-            	    }
-            	    break;
-            	case 6 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:496:9: GT e= additiveExpression
-            	    {
-            	    GT62=(Token)input.LT(1);
-            	    match(input,GT,FOLLOW_GT_in_relationalExpression4176); 
-            	    pushFollow(FOLLOW_additiveExpression_in_relationalExpression4184);
-            	    e=additiveExpression();
-            	    _fsp--;
-
-            	     expr = F.at(pos(GT62))  .Binary(JCTree.GT, expr, e); 
-
-            	    }
-            	    break;
-            	case 7 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:497:9: IN e= additiveExpression
-            	    {
-            	    IN63=(Token)input.LT(1);
-            	    match(input,IN,FOLLOW_IN_in_relationalExpression4198); 
-            	    pushFollow(FOLLOW_additiveExpression_in_relationalExpression4206);
-            	    e=additiveExpression();
-            	    _fsp--;
-
-            	     /* expr = F.at(pos(IN63  )).Binary(JavaFXTag.IN, expr, $e2.expr); */ 
+            	     expr = F.at(pos(PERCENT88)).Binary(JCTree.MOD  , expr, e); 
 
             	    }
             	    break;
@@ -3555,251 +3789,62 @@ public class v2Parser extends AbstractGeneratedParser {
         }
         return expr;
     }
-    // $ANTLR end relationalExpression
-
-
-    // $ANTLR start additiveExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:499:1: additiveExpression returns [JCExpression expr] : e1= multiplicativeExpression ( PLUS e= multiplicativeExpression | SUB e= multiplicativeExpression )* ;
-    public final JCExpression additiveExpression() throws RecognitionException {
-        JCExpression expr = null;
-
-        Token PLUS64=null;
-        Token SUB65=null;
-        JCExpression e1 = null;
-
-        JCExpression e = null;
-
-
-        try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:500:2: (e1= multiplicativeExpression ( PLUS e= multiplicativeExpression | SUB e= multiplicativeExpression )* )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:500:4: e1= multiplicativeExpression ( PLUS e= multiplicativeExpression | SUB e= multiplicativeExpression )*
-            {
-            pushFollow(FOLLOW_multiplicativeExpression_in_additiveExpression4235);
-            e1=multiplicativeExpression();
-            _fsp--;
-
-             expr = e1; 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:501:5: ( PLUS e= multiplicativeExpression | SUB e= multiplicativeExpression )*
-            loop44:
-            do {
-                int alt44=3;
-                int LA44_0 = input.LA(1);
-
-                if ( (LA44_0==PLUS) ) {
-                    alt44=1;
-                }
-                else if ( (LA44_0==SUB) ) {
-                    alt44=2;
-                }
-
-
-                switch (alt44) {
-            	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:501:9: PLUS e= multiplicativeExpression
-            	    {
-            	    PLUS64=(Token)input.LT(1);
-            	    match(input,PLUS,FOLLOW_PLUS_in_additiveExpression4250); 
-            	    pushFollow(FOLLOW_multiplicativeExpression_in_additiveExpression4256);
-            	    e=multiplicativeExpression();
-            	    _fsp--;
-
-            	     expr = F.at(pos(PLUS64)).Binary(JCTree.PLUS , expr, e); 
-
-            	    }
-            	    break;
-            	case 2 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:502:9: SUB e= multiplicativeExpression
-            	    {
-            	    SUB65=(Token)input.LT(1);
-            	    match(input,SUB,FOLLOW_SUB_in_additiveExpression4269); 
-            	    pushFollow(FOLLOW_multiplicativeExpression_in_additiveExpression4276);
-            	    e=multiplicativeExpression();
-            	    _fsp--;
-
-            	     expr = F.at(pos(SUB65)) .Binary(JCTree.MINUS, expr, e); 
-
-            	    }
-            	    break;
-
-            	default :
-            	    break loop44;
-                }
-            } while (true);
-
-
-            }
-
-        }
-        catch (RecognitionException re) {
-            reportError(re);
-            recover(input,re);
-        }
-        finally {
-        }
-        return expr;
-    }
-    // $ANTLR end additiveExpression
-
-
-    // $ANTLR start multiplicativeExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:504:1: multiplicativeExpression returns [JCExpression expr] : e1= unaryExpression ( STAR e= unaryExpression | SLASH e= unaryExpression | PERCENT e= unaryExpression )* ;
-    public final JCExpression multiplicativeExpression() throws RecognitionException {
-        JCExpression expr = null;
-
-        Token STAR66=null;
-        Token SLASH67=null;
-        Token PERCENT68=null;
-        JCExpression e1 = null;
-
-        JCExpression e = null;
-
-
-        try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:505:2: (e1= unaryExpression ( STAR e= unaryExpression | SLASH e= unaryExpression | PERCENT e= unaryExpression )* )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:505:4: e1= unaryExpression ( STAR e= unaryExpression | SLASH e= unaryExpression | PERCENT e= unaryExpression )*
-            {
-            pushFollow(FOLLOW_unaryExpression_in_multiplicativeExpression4304);
-            e1=unaryExpression();
-            _fsp--;
-
-             expr = e1; 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:506:5: ( STAR e= unaryExpression | SLASH e= unaryExpression | PERCENT e= unaryExpression )*
-            loop45:
-            do {
-                int alt45=4;
-                switch ( input.LA(1) ) {
-                case STAR:
-                    {
-                    alt45=1;
-                    }
-                    break;
-                case SLASH:
-                    {
-                    alt45=2;
-                    }
-                    break;
-                case PERCENT:
-                    {
-                    alt45=3;
-                    }
-                    break;
-
-                }
-
-                switch (alt45) {
-            	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:506:9: STAR e= unaryExpression
-            	    {
-            	    STAR66=(Token)input.LT(1);
-            	    match(input,STAR,FOLLOW_STAR_in_multiplicativeExpression4320); 
-            	    pushFollow(FOLLOW_unaryExpression_in_multiplicativeExpression4327);
-            	    e=unaryExpression();
-            	    _fsp--;
-
-            	     expr = F.at(pos(STAR66))   .Binary(JCTree.MUL  , expr, e); 
-
-            	    }
-            	    break;
-            	case 2 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:507:9: SLASH e= unaryExpression
-            	    {
-            	    SLASH67=(Token)input.LT(1);
-            	    match(input,SLASH,FOLLOW_SLASH_in_multiplicativeExpression4341); 
-            	    pushFollow(FOLLOW_unaryExpression_in_multiplicativeExpression4347);
-            	    e=unaryExpression();
-            	    _fsp--;
-
-            	     expr = F.at(pos(SLASH67))  .Binary(JCTree.DIV  , expr, e); 
-
-            	    }
-            	    break;
-            	case 3 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:508:9: PERCENT e= unaryExpression
-            	    {
-            	    PERCENT68=(Token)input.LT(1);
-            	    match(input,PERCENT,FOLLOW_PERCENT_in_multiplicativeExpression4361); 
-            	    pushFollow(FOLLOW_unaryExpression_in_multiplicativeExpression4365);
-            	    e=unaryExpression();
-            	    _fsp--;
-
-            	     expr = F.at(pos(PERCENT68)).Binary(JCTree.MOD  , expr, e); 
-
-            	    }
-            	    break;
-
-            	default :
-            	    break loop45;
-                }
-            } while (true);
-
-
-            }
-
-        }
-        catch (RecognitionException re) {
-            reportError(re);
-            recover(input,re);
-        }
-        finally {
-        }
-        return expr;
-    }
     // $ANTLR end multiplicativeExpression
 
 
     // $ANTLR start unaryExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:510:1: unaryExpression returns [JCExpression expr] : ( postfixExpression | unaryOperator postfixExpression );
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:517:1: unaryExpression returns [JCExpression expr] : ( postfixExpression | unaryOperator postfixExpression );
     public final JCExpression unaryExpression() throws RecognitionException {
         JCExpression expr = null;
 
-        JCExpression postfixExpression69 = null;
+        JCExpression postfixExpression89 = null;
 
-        int unaryOperator70 = 0;
+        int unaryOperator90 = 0;
 
-        JCExpression postfixExpression71 = null;
+        JCExpression postfixExpression91 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:511:2: ( postfixExpression | unaryOperator postfixExpression )
-            int alt46=2;
-            int LA46_0 = input.LA(1);
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:518:2: ( postfixExpression | unaryOperator postfixExpression )
+            int alt44=2;
+            int LA44_0 = input.LA(1);
 
-            if ( ((LA46_0>=THIS && LA46_0<=FALSE)||LA46_0==NEW||LA46_0==SUPER||LA46_0==LPAREN||LA46_0==STRING_LITERAL||(LA46_0>=QUOTE_LBRACE_STRING_LITERAL && LA46_0<=LBRACE)||(LA46_0>=QUOTED_IDENTIFIER && LA46_0<=INTEGER_LITERAL)||LA46_0==FLOATING_POINT_LITERAL||LA46_0==IDENTIFIER) ) {
-                alt46=1;
+            if ( ((LA44_0>=THIS && LA44_0<=FALSE)||LA44_0==NEW||LA44_0==SUPER||LA44_0==LPAREN||LA44_0==STRING_LITERAL||(LA44_0>=QUOTE_LBRACE_STRING_LITERAL && LA44_0<=LBRACE)||(LA44_0>=QUOTED_IDENTIFIER && LA44_0<=INTEGER_LITERAL)||LA44_0==FLOATING_POINT_LITERAL||LA44_0==IDENTIFIER) ) {
+                alt44=1;
             }
-            else if ( ((LA46_0>=POUND && LA46_0<=TYPEOF)||LA46_0==NOT||(LA46_0>=SIZEOF && LA46_0<=REVERSE)||(LA46_0>=PLUSPLUS && LA46_0<=SUBSUB)||LA46_0==QUES) ) {
-                alt46=2;
+            else if ( ((LA44_0>=POUND && LA44_0<=TYPEOF)||LA44_0==NOT||(LA44_0>=SIZEOF && LA44_0<=REVERSE)||(LA44_0>=PLUSPLUS && LA44_0<=SUBSUB)||LA44_0==QUES) ) {
+                alt44=2;
             }
             else {
                 NoViableAltException nvae =
-                    new NoViableAltException("510:1: unaryExpression returns [JCExpression expr] : ( postfixExpression | unaryOperator postfixExpression );", 46, 0, input);
+                    new NoViableAltException("517:1: unaryExpression returns [JCExpression expr] : ( postfixExpression | unaryOperator postfixExpression );", 44, 0, input);
 
                 throw nvae;
             }
-            switch (alt46) {
+            switch (alt44) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:511:4: postfixExpression
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:518:4: postfixExpression
                     {
-                    pushFollow(FOLLOW_postfixExpression_in_unaryExpression4395);
-                    postfixExpression69=postfixExpression();
+                    pushFollow(FOLLOW_postfixExpression_in_unaryExpression4431);
+                    postfixExpression89=postfixExpression();
                     _fsp--;
 
-                     expr = postfixExpression69; 
+                     expr = postfixExpression89; 
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:512:4: unaryOperator postfixExpression
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:519:4: unaryOperator postfixExpression
                     {
-                    pushFollow(FOLLOW_unaryOperator_in_unaryExpression4406);
-                    unaryOperator70=unaryOperator();
+                    pushFollow(FOLLOW_unaryOperator_in_unaryExpression4442);
+                    unaryOperator90=unaryOperator();
                     _fsp--;
 
-                    pushFollow(FOLLOW_postfixExpression_in_unaryExpression4410);
-                    postfixExpression71=postfixExpression();
+                    pushFollow(FOLLOW_postfixExpression_in_unaryExpression4446);
+                    postfixExpression91=postfixExpression();
                     _fsp--;
 
-                     expr = F.Unary(unaryOperator70, postfixExpression71); 
+                     expr = F.Unary(unaryOperator90, postfixExpression91); 
 
                     }
                     break;
@@ -3818,109 +3863,109 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start postfixExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:514:1: postfixExpression returns [JCExpression expr] : primaryExpression ( DOT ( CLASS | name1= name ( LPAREN expressionListOpt RPAREN )* ) | LBRACKET ( name BAR )? expression RBRACKET )* ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:521:1: postfixExpression returns [JCExpression expr] : primaryExpression ( DOT ( CLASS | name1= name ( LPAREN expressionListOpt RPAREN )* ) | LBRACKET ( name BAR )? expression RBRACKET )* ;
     public final JCExpression postfixExpression() throws RecognitionException {
         JCExpression expr = null;
 
-        Token DOT73=null;
-        Token LPAREN74=null;
+        Token DOT93=null;
+        Token LPAREN94=null;
         name_return name1 = null;
 
-        JCExpression primaryExpression72 = null;
+        JCExpression primaryExpression92 = null;
 
-        ListBuffer<JCExpression> expressionListOpt75 = null;
+        ListBuffer<JCExpression> expressionListOpt95 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:515:2: ( primaryExpression ( DOT ( CLASS | name1= name ( LPAREN expressionListOpt RPAREN )* ) | LBRACKET ( name BAR )? expression RBRACKET )* )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:515:4: primaryExpression ( DOT ( CLASS | name1= name ( LPAREN expressionListOpt RPAREN )* ) | LBRACKET ( name BAR )? expression RBRACKET )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:522:2: ( primaryExpression ( DOT ( CLASS | name1= name ( LPAREN expressionListOpt RPAREN )* ) | LBRACKET ( name BAR )? expression RBRACKET )* )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:522:4: primaryExpression ( DOT ( CLASS | name1= name ( LPAREN expressionListOpt RPAREN )* ) | LBRACKET ( name BAR )? expression RBRACKET )*
             {
-            pushFollow(FOLLOW_primaryExpression_in_postfixExpression4430);
-            primaryExpression72=primaryExpression();
+            pushFollow(FOLLOW_primaryExpression_in_postfixExpression4466);
+            primaryExpression92=primaryExpression();
             _fsp--;
 
-             expr = primaryExpression72; 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:516:5: ( DOT ( CLASS | name1= name ( LPAREN expressionListOpt RPAREN )* ) | LBRACKET ( name BAR )? expression RBRACKET )*
-            loop50:
+             expr = primaryExpression92; 
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:523:5: ( DOT ( CLASS | name1= name ( LPAREN expressionListOpt RPAREN )* ) | LBRACKET ( name BAR )? expression RBRACKET )*
+            loop48:
             do {
-                int alt50=3;
-                int LA50_0 = input.LA(1);
+                int alt48=3;
+                int LA48_0 = input.LA(1);
 
-                if ( (LA50_0==DOT) ) {
-                    alt50=1;
+                if ( (LA48_0==DOT) ) {
+                    alt48=1;
                 }
-                else if ( (LA50_0==LBRACKET) ) {
-                    alt50=2;
+                else if ( (LA48_0==LBRACKET) ) {
+                    alt48=2;
                 }
 
 
-                switch (alt50) {
+                switch (alt48) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:516:7: DOT ( CLASS | name1= name ( LPAREN expressionListOpt RPAREN )* )
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:523:7: DOT ( CLASS | name1= name ( LPAREN expressionListOpt RPAREN )* )
             	    {
-            	    DOT73=(Token)input.LT(1);
-            	    match(input,DOT,FOLLOW_DOT_in_postfixExpression4445); 
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:516:11: ( CLASS | name1= name ( LPAREN expressionListOpt RPAREN )* )
-            	    int alt48=2;
-            	    int LA48_0 = input.LA(1);
+            	    DOT93=(Token)input.LT(1);
+            	    match(input,DOT,FOLLOW_DOT_in_postfixExpression4481); 
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:523:11: ( CLASS | name1= name ( LPAREN expressionListOpt RPAREN )* )
+            	    int alt46=2;
+            	    int LA46_0 = input.LA(1);
 
-            	    if ( (LA48_0==CLASS) ) {
-            	        alt48=1;
+            	    if ( (LA46_0==CLASS) ) {
+            	        alt46=1;
             	    }
-            	    else if ( (LA48_0==QUOTED_IDENTIFIER||LA48_0==IDENTIFIER) ) {
-            	        alt48=2;
+            	    else if ( (LA46_0==QUOTED_IDENTIFIER||LA46_0==IDENTIFIER) ) {
+            	        alt46=2;
             	    }
             	    else {
             	        NoViableAltException nvae =
-            	            new NoViableAltException("516:11: ( CLASS | name1= name ( LPAREN expressionListOpt RPAREN )* )", 48, 0, input);
+            	            new NoViableAltException("523:11: ( CLASS | name1= name ( LPAREN expressionListOpt RPAREN )* )", 46, 0, input);
 
             	        throw nvae;
             	    }
-            	    switch (alt48) {
+            	    switch (alt46) {
             	        case 1 :
-            	            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:516:13: CLASS
+            	            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:523:13: CLASS
             	            {
-            	            match(input,CLASS,FOLLOW_CLASS_in_postfixExpression4449); 
+            	            match(input,CLASS,FOLLOW_CLASS_in_postfixExpression4485); 
 
             	            }
             	            break;
             	        case 2 :
-            	            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:517:13: name1= name ( LPAREN expressionListOpt RPAREN )*
+            	            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:524:13: name1= name ( LPAREN expressionListOpt RPAREN )*
             	            {
-            	            pushFollow(FOLLOW_name_in_postfixExpression4473);
+            	            pushFollow(FOLLOW_name_in_postfixExpression4509);
             	            name1=name();
             	            _fsp--;
 
-            	             expr = F.at(pos(DOT73)).Select(expr, name1.value); 
-            	            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:518:14: ( LPAREN expressionListOpt RPAREN )*
-            	            loop47:
+            	             expr = F.at(pos(DOT93)).Select(expr, name1.value); 
+            	            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:525:14: ( LPAREN expressionListOpt RPAREN )*
+            	            loop45:
             	            do {
-            	                int alt47=2;
-            	                int LA47_0 = input.LA(1);
+            	                int alt45=2;
+            	                int LA45_0 = input.LA(1);
 
-            	                if ( (LA47_0==LPAREN) ) {
-            	                    alt47=1;
+            	                if ( (LA45_0==LPAREN) ) {
+            	                    alt45=1;
             	                }
 
 
-            	                switch (alt47) {
+            	                switch (alt45) {
             	            	case 1 :
-            	            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:518:16: LPAREN expressionListOpt RPAREN
+            	            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:525:16: LPAREN expressionListOpt RPAREN
             	            	    {
-            	            	    LPAREN74=(Token)input.LT(1);
-            	            	    match(input,LPAREN,FOLLOW_LPAREN_in_postfixExpression4498); 
-            	            	    pushFollow(FOLLOW_expressionListOpt_in_postfixExpression4500);
-            	            	    expressionListOpt75=expressionListOpt();
+            	            	    LPAREN94=(Token)input.LT(1);
+            	            	    match(input,LPAREN,FOLLOW_LPAREN_in_postfixExpression4534); 
+            	            	    pushFollow(FOLLOW_expressionListOpt_in_postfixExpression4536);
+            	            	    expressionListOpt95=expressionListOpt();
             	            	    _fsp--;
 
-            	            	    match(input,RPAREN,FOLLOW_RPAREN_in_postfixExpression4502); 
-            	            	     expr = F.at(pos(LPAREN74)).Apply(null, expr, expressionListOpt75.toList()); 
+            	            	    match(input,RPAREN,FOLLOW_RPAREN_in_postfixExpression4538); 
+            	            	     expr = F.at(pos(LPAREN94)).Apply(null, expr, expressionListOpt95.toList()); 
 
             	            	    }
             	            	    break;
 
             	            	default :
-            	            	    break loop47;
+            	            	    break loop45;
             	                }
             	            } while (true);
 
@@ -3934,46 +3979,46 @@ public class v2Parser extends AbstractGeneratedParser {
             	    }
             	    break;
             	case 2 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:520:7: LBRACKET ( name BAR )? expression RBRACKET
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:527:7: LBRACKET ( name BAR )? expression RBRACKET
             	    {
-            	    match(input,LBRACKET,FOLLOW_LBRACKET_in_postfixExpression4534); 
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:520:16: ( name BAR )?
-            	    int alt49=2;
-            	    int LA49_0 = input.LA(1);
+            	    match(input,LBRACKET,FOLLOW_LBRACKET_in_postfixExpression4570); 
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:527:16: ( name BAR )?
+            	    int alt47=2;
+            	    int LA47_0 = input.LA(1);
 
-            	    if ( (LA49_0==QUOTED_IDENTIFIER||LA49_0==IDENTIFIER) ) {
-            	        int LA49_1 = input.LA(2);
+            	    if ( (LA47_0==QUOTED_IDENTIFIER||LA47_0==IDENTIFIER) ) {
+            	        int LA47_1 = input.LA(2);
 
-            	        if ( (LA49_1==BAR) ) {
-            	            alt49=1;
+            	        if ( (LA47_1==BAR) ) {
+            	            alt47=1;
             	        }
             	    }
-            	    switch (alt49) {
+            	    switch (alt47) {
             	        case 1 :
-            	            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:520:17: name BAR
+            	            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:527:17: name BAR
             	            {
-            	            pushFollow(FOLLOW_name_in_postfixExpression4537);
+            	            pushFollow(FOLLOW_name_in_postfixExpression4573);
             	            name();
             	            _fsp--;
 
-            	            match(input,BAR,FOLLOW_BAR_in_postfixExpression4539); 
+            	            match(input,BAR,FOLLOW_BAR_in_postfixExpression4575); 
 
             	            }
             	            break;
 
             	    }
 
-            	    pushFollow(FOLLOW_expression_in_postfixExpression4543);
+            	    pushFollow(FOLLOW_expression_in_postfixExpression4579);
             	    expression();
             	    _fsp--;
 
-            	    match(input,RBRACKET,FOLLOW_RBRACKET_in_postfixExpression4546); 
+            	    match(input,RBRACKET,FOLLOW_RBRACKET_in_postfixExpression4582); 
 
             	    }
             	    break;
 
             	default :
-            	    break loop50;
+            	    break loop48;
                 }
             } while (true);
 
@@ -3993,57 +4038,57 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start primaryExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:522:1: primaryExpression returns [JCExpression expr] : ( newExpression | identifier LBRACE objectLiteral RBRACE | THIS | SUPER | identifier ( LPAREN expressionListOpt RPAREN )* | stringExpression | literal | blockExpression | LPAREN expression RPAREN );
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:529:1: primaryExpression returns [JCExpression expr] : ( newExpression | identifier LBRACE objectLiteral RBRACE | THIS | SUPER | identifier ( LPAREN expressionListOpt RPAREN )* | stringExpression | literal | blockExpression | LPAREN expression RPAREN );
     public final JCExpression primaryExpression() throws RecognitionException {
         JCExpression expr = null;
 
-        Token LBRACE77=null;
-        Token THIS80=null;
-        Token SUPER81=null;
-        Token LPAREN83=null;
-        Token LPAREN88=null;
-        JCExpression newExpression76 = null;
+        Token LBRACE97=null;
+        Token THIS100=null;
+        Token SUPER101=null;
+        Token LPAREN103=null;
+        Token LPAREN108=null;
+        JCExpression newExpression96 = null;
 
-        JCIdent identifier78 = null;
+        JCIdent identifier98 = null;
 
-        ListBuffer<JFXStatement> objectLiteral79 = null;
+        ListBuffer<JFXStatement> objectLiteral99 = null;
 
-        JCIdent identifier82 = null;
+        JCIdent identifier102 = null;
 
-        ListBuffer<JCExpression> expressionListOpt84 = null;
+        ListBuffer<JCExpression> expressionListOpt104 = null;
 
-        JCExpression stringExpression85 = null;
+        JCExpression stringExpression105 = null;
 
-        JCExpression literal86 = null;
+        JCExpression literal106 = null;
 
-        JFXBlockExpression blockExpression87 = null;
+        JFXBlockExpression blockExpression107 = null;
 
-        JCExpression expression89 = null;
+        JCExpression expression109 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:523:2: ( newExpression | identifier LBRACE objectLiteral RBRACE | THIS | SUPER | identifier ( LPAREN expressionListOpt RPAREN )* | stringExpression | literal | blockExpression | LPAREN expression RPAREN )
-            int alt52=9;
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:530:2: ( newExpression | identifier LBRACE objectLiteral RBRACE | THIS | SUPER | identifier ( LPAREN expressionListOpt RPAREN )* | stringExpression | literal | blockExpression | LPAREN expression RPAREN )
+            int alt50=9;
             switch ( input.LA(1) ) {
             case NEW:
                 {
-                alt52=1;
+                alt50=1;
                 }
                 break;
             case QUOTED_IDENTIFIER:
             case IDENTIFIER:
                 {
-                int LA52_2 = input.LA(2);
+                int LA50_2 = input.LA(2);
 
-                if ( (LA52_2==LBRACE) ) {
-                    alt52=2;
+                if ( (LA50_2==ABSTRACT||LA50_2==AND||LA50_2==ATTRIBUTE||(LA50_2>=THEN && LA50_2<=ELSE)||LA50_2==IN||(LA50_2>=PRIVATE && LA50_2<=READONLY)||LA50_2==INSTANCEOF||LA50_2==OR||(LA50_2>=LPAREN && LA50_2<=PERCENTEQ)||(LA50_2>=RBRACE_QUOTE_STRING_LITERAL && LA50_2<=RBRACE)||LA50_2==QUOTED_IDENTIFIER||LA50_2==IDENTIFIER) ) {
+                    alt50=5;
                 }
-                else if ( (LA52_2==EOF||LA52_2==ABSTRACT||LA52_2==AND||LA52_2==ATTRIBUTE||LA52_2==BREAK||LA52_2==CLASS||(LA52_2>=RETURN && LA52_2<=VAR)||LA52_2==IMPORT||(LA52_2>=THEN && LA52_2<=ELSE)||LA52_2==IN||(LA52_2>=WHILE && LA52_2<=CONTINUE)||LA52_2==TRY||(LA52_2>=PRIVATE && LA52_2<=READONLY)||LA52_2==INSTANCEOF||LA52_2==OR||(LA52_2>=LPAREN && LA52_2<=PERCENTEQ)||(LA52_2>=RBRACE_QUOTE_STRING_LITERAL && LA52_2<=RBRACE)||LA52_2==QUOTED_IDENTIFIER||LA52_2==IDENTIFIER) ) {
-                    alt52=5;
+                else if ( (LA50_2==LBRACE) ) {
+                    alt50=2;
                 }
                 else {
                     NoViableAltException nvae =
-                        new NoViableAltException("522:1: primaryExpression returns [JCExpression expr] : ( newExpression | identifier LBRACE objectLiteral RBRACE | THIS | SUPER | identifier ( LPAREN expressionListOpt RPAREN )* | stringExpression | literal | blockExpression | LPAREN expression RPAREN );", 52, 2, input);
+                        new NoViableAltException("529:1: primaryExpression returns [JCExpression expr] : ( newExpression | identifier LBRACE objectLiteral RBRACE | THIS | SUPER | identifier ( LPAREN expressionListOpt RPAREN )* | stringExpression | literal | blockExpression | LPAREN expression RPAREN );", 50, 2, input);
 
                     throw nvae;
                 }
@@ -4051,17 +4096,17 @@ public class v2Parser extends AbstractGeneratedParser {
                 break;
             case THIS:
                 {
-                alt52=3;
+                alt50=3;
                 }
                 break;
             case SUPER:
                 {
-                alt52=4;
+                alt50=4;
                 }
                 break;
             case QUOTE_LBRACE_STRING_LITERAL:
                 {
-                alt52=6;
+                alt50=6;
                 }
                 break;
             case NULL:
@@ -4071,111 +4116,111 @@ public class v2Parser extends AbstractGeneratedParser {
             case INTEGER_LITERAL:
             case FLOATING_POINT_LITERAL:
                 {
-                alt52=7;
+                alt50=7;
                 }
                 break;
             case LBRACE:
                 {
-                alt52=8;
+                alt50=8;
                 }
                 break;
             case LPAREN:
                 {
-                alt52=9;
+                alt50=9;
                 }
                 break;
             default:
                 NoViableAltException nvae =
-                    new NoViableAltException("522:1: primaryExpression returns [JCExpression expr] : ( newExpression | identifier LBRACE objectLiteral RBRACE | THIS | SUPER | identifier ( LPAREN expressionListOpt RPAREN )* | stringExpression | literal | blockExpression | LPAREN expression RPAREN );", 52, 0, input);
+                    new NoViableAltException("529:1: primaryExpression returns [JCExpression expr] : ( newExpression | identifier LBRACE objectLiteral RBRACE | THIS | SUPER | identifier ( LPAREN expressionListOpt RPAREN )* | stringExpression | literal | blockExpression | LPAREN expression RPAREN );", 50, 0, input);
 
                 throw nvae;
             }
 
-            switch (alt52) {
+            switch (alt50) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:523:4: newExpression
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:530:4: newExpression
                     {
-                    pushFollow(FOLLOW_newExpression_in_primaryExpression4571);
-                    newExpression76=newExpression();
+                    pushFollow(FOLLOW_newExpression_in_primaryExpression4607);
+                    newExpression96=newExpression();
                     _fsp--;
 
-                     expr = newExpression76; 
+                     expr = newExpression96; 
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:524:4: identifier LBRACE objectLiteral RBRACE
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:531:4: identifier LBRACE objectLiteral RBRACE
                     {
-                    pushFollow(FOLLOW_identifier_in_primaryExpression4583);
-                    identifier78=identifier();
+                    pushFollow(FOLLOW_identifier_in_primaryExpression4619);
+                    identifier98=identifier();
                     _fsp--;
 
-                    LBRACE77=(Token)input.LT(1);
-                    match(input,LBRACE,FOLLOW_LBRACE_in_primaryExpression4585); 
-                    pushFollow(FOLLOW_objectLiteral_in_primaryExpression4588);
-                    objectLiteral79=objectLiteral();
+                    LBRACE97=(Token)input.LT(1);
+                    match(input,LBRACE,FOLLOW_LBRACE_in_primaryExpression4621); 
+                    pushFollow(FOLLOW_objectLiteral_in_primaryExpression4624);
+                    objectLiteral99=objectLiteral();
                     _fsp--;
 
-                    match(input,RBRACE,FOLLOW_RBRACE_in_primaryExpression4590); 
-                     expr = F.at(pos(LBRACE77)).PureObjectLiteral(identifier78, objectLiteral79.toList()); 
+                    match(input,RBRACE,FOLLOW_RBRACE_in_primaryExpression4626); 
+                     expr = F.at(pos(LBRACE97)).PureObjectLiteral(identifier98, objectLiteral99.toList()); 
 
                     }
                     break;
                 case 3 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:525:11: THIS
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:532:11: THIS
                     {
-                    THIS80=(Token)input.LT(1);
-                    match(input,THIS,FOLLOW_THIS_in_primaryExpression4607); 
-                     expr = F.at(pos(THIS80)).Identifier(names._this); 
+                    THIS100=(Token)input.LT(1);
+                    match(input,THIS,FOLLOW_THIS_in_primaryExpression4643); 
+                     expr = F.at(pos(THIS100)).Identifier(names._this); 
 
                     }
                     break;
                 case 4 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:526:11: SUPER
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:533:11: SUPER
                     {
-                    SUPER81=(Token)input.LT(1);
-                    match(input,SUPER,FOLLOW_SUPER_in_primaryExpression4627); 
-                     expr = F.at(pos(SUPER81)).Identifier(names._super); 
+                    SUPER101=(Token)input.LT(1);
+                    match(input,SUPER,FOLLOW_SUPER_in_primaryExpression4663); 
+                     expr = F.at(pos(SUPER101)).Identifier(names._super); 
 
                     }
                     break;
                 case 5 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:527:11: identifier ( LPAREN expressionListOpt RPAREN )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:534:11: identifier ( LPAREN expressionListOpt RPAREN )*
                     {
-                    pushFollow(FOLLOW_identifier_in_primaryExpression4647);
-                    identifier82=identifier();
+                    pushFollow(FOLLOW_identifier_in_primaryExpression4683);
+                    identifier102=identifier();
                     _fsp--;
 
-                     expr = identifier82; 
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:528:10: ( LPAREN expressionListOpt RPAREN )*
-                    loop51:
+                     expr = identifier102; 
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:535:10: ( LPAREN expressionListOpt RPAREN )*
+                    loop49:
                     do {
-                        int alt51=2;
-                        int LA51_0 = input.LA(1);
+                        int alt49=2;
+                        int LA49_0 = input.LA(1);
 
-                        if ( (LA51_0==LPAREN) ) {
-                            alt51=1;
+                        if ( (LA49_0==LPAREN) ) {
+                            alt49=1;
                         }
 
 
-                        switch (alt51) {
+                        switch (alt49) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:528:12: LPAREN expressionListOpt RPAREN
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:535:12: LPAREN expressionListOpt RPAREN
                     	    {
-                    	    LPAREN83=(Token)input.LT(1);
-                    	    match(input,LPAREN,FOLLOW_LPAREN_in_primaryExpression4668); 
-                    	    pushFollow(FOLLOW_expressionListOpt_in_primaryExpression4672);
-                    	    expressionListOpt84=expressionListOpt();
+                    	    LPAREN103=(Token)input.LT(1);
+                    	    match(input,LPAREN,FOLLOW_LPAREN_in_primaryExpression4704); 
+                    	    pushFollow(FOLLOW_expressionListOpt_in_primaryExpression4708);
+                    	    expressionListOpt104=expressionListOpt();
                     	    _fsp--;
 
-                    	    match(input,RPAREN,FOLLOW_RPAREN_in_primaryExpression4676); 
-                    	     expr = F.at(pos(LPAREN83)).Apply(null, expr, expressionListOpt84.toList()); 
+                    	    match(input,RPAREN,FOLLOW_RPAREN_in_primaryExpression4712); 
+                    	     expr = F.at(pos(LPAREN103)).Apply(null, expr, expressionListOpt104.toList()); 
 
                     	    }
                     	    break;
 
                     	default :
-                    	    break loop51;
+                    	    break loop49;
                         }
                     } while (true);
 
@@ -4183,49 +4228,49 @@ public class v2Parser extends AbstractGeneratedParser {
                     }
                     break;
                 case 6 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:529:11: stringExpression
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:536:11: stringExpression
                     {
-                    pushFollow(FOLLOW_stringExpression_in_primaryExpression4696);
-                    stringExpression85=stringExpression();
+                    pushFollow(FOLLOW_stringExpression_in_primaryExpression4732);
+                    stringExpression105=stringExpression();
                     _fsp--;
 
-                     expr = stringExpression85; 
+                     expr = stringExpression105; 
 
                     }
                     break;
                 case 7 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:530:11: literal
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:537:11: literal
                     {
-                    pushFollow(FOLLOW_literal_in_primaryExpression4715);
-                    literal86=literal();
+                    pushFollow(FOLLOW_literal_in_primaryExpression4751);
+                    literal106=literal();
                     _fsp--;
 
-                     expr = literal86; 
+                     expr = literal106; 
 
                     }
                     break;
                 case 8 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:531:11: blockExpression
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:538:11: blockExpression
                     {
-                    pushFollow(FOLLOW_blockExpression_in_primaryExpression4735);
-                    blockExpression87=blockExpression();
+                    pushFollow(FOLLOW_blockExpression_in_primaryExpression4771);
+                    blockExpression107=blockExpression();
                     _fsp--;
 
-                     expr = blockExpression87; 
+                     expr = blockExpression107; 
 
                     }
                     break;
                 case 9 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:532:11: LPAREN expression RPAREN
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:539:11: LPAREN expression RPAREN
                     {
-                    LPAREN88=(Token)input.LT(1);
-                    match(input,LPAREN,FOLLOW_LPAREN_in_primaryExpression4753); 
-                    pushFollow(FOLLOW_expression_in_primaryExpression4755);
-                    expression89=expression();
+                    LPAREN108=(Token)input.LT(1);
+                    match(input,LPAREN,FOLLOW_LPAREN_in_primaryExpression4789); 
+                    pushFollow(FOLLOW_expression_in_primaryExpression4791);
+                    expression109=expression();
                     _fsp--;
 
-                    match(input,RPAREN,FOLLOW_RPAREN_in_primaryExpression4757); 
-                     expr = F.at(pos(LPAREN88)).Parens(expression89); 
+                    match(input,RPAREN,FOLLOW_RPAREN_in_primaryExpression4793); 
+                     expr = F.at(pos(LPAREN108)).Parens(expression109); 
 
                     }
                     break;
@@ -4244,52 +4289,52 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start newExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:534:1: newExpression returns [JCExpression expr] : NEW identifier ( LPAREN expressionListOpt RPAREN )? ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:541:1: newExpression returns [JCExpression expr] : NEW identifier ( LPAREN expressionListOpt RPAREN )? ;
     public final JCExpression newExpression() throws RecognitionException {
         JCExpression expr = null;
 
-        Token NEW91=null;
-        ListBuffer<JCExpression> expressionListOpt90 = null;
+        Token NEW111=null;
+        ListBuffer<JCExpression> expressionListOpt110 = null;
 
-        JCIdent identifier92 = null;
+        JCIdent identifier112 = null;
 
 
          ListBuffer<JCExpression> args = null; 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:536:2: ( NEW identifier ( LPAREN expressionListOpt RPAREN )? )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:536:4: NEW identifier ( LPAREN expressionListOpt RPAREN )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:543:2: ( NEW identifier ( LPAREN expressionListOpt RPAREN )? )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:543:4: NEW identifier ( LPAREN expressionListOpt RPAREN )?
             {
-            NEW91=(Token)input.LT(1);
-            match(input,NEW,FOLLOW_NEW_in_newExpression4790); 
-            pushFollow(FOLLOW_identifier_in_newExpression4793);
-            identifier92=identifier();
+            NEW111=(Token)input.LT(1);
+            match(input,NEW,FOLLOW_NEW_in_newExpression4826); 
+            pushFollow(FOLLOW_identifier_in_newExpression4829);
+            identifier112=identifier();
             _fsp--;
 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:537:3: ( LPAREN expressionListOpt RPAREN )?
-            int alt53=2;
-            int LA53_0 = input.LA(1);
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:544:3: ( LPAREN expressionListOpt RPAREN )?
+            int alt51=2;
+            int LA51_0 = input.LA(1);
 
-            if ( (LA53_0==LPAREN) ) {
-                alt53=1;
+            if ( (LA51_0==LPAREN) ) {
+                alt51=1;
             }
-            switch (alt53) {
+            switch (alt51) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:537:5: LPAREN expressionListOpt RPAREN
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:544:5: LPAREN expressionListOpt RPAREN
                     {
-                    match(input,LPAREN,FOLLOW_LPAREN_in_newExpression4801); 
-                    pushFollow(FOLLOW_expressionListOpt_in_newExpression4805);
-                    expressionListOpt90=expressionListOpt();
+                    match(input,LPAREN,FOLLOW_LPAREN_in_newExpression4837); 
+                    pushFollow(FOLLOW_expressionListOpt_in_newExpression4841);
+                    expressionListOpt110=expressionListOpt();
                     _fsp--;
 
-                    match(input,RPAREN,FOLLOW_RPAREN_in_newExpression4809); 
-                     args = expressionListOpt90; 
+                    match(input,RPAREN,FOLLOW_RPAREN_in_newExpression4845); 
+                     args = expressionListOpt110; 
 
                     }
                     break;
 
             }
 
-             expr = F.at(pos(NEW91)).NewClass(null, null, identifier92, 
+             expr = F.at(pos(NEW111)).NewClass(null, null, identifier112, 
             												(args==null? new ListBuffer<JCExpression>() : args).toList(), null); 
 
             }
@@ -4307,43 +4352,43 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start objectLiteral
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:542:1: objectLiteral returns [ListBuffer<JFXStatement> parts = new ListBuffer<JFXStatement>()] : ( objectLiteralPart )* ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:549:1: objectLiteral returns [ListBuffer<JFXStatement> parts = new ListBuffer<JFXStatement>()] : ( objectLiteralPart )* ;
     public final ListBuffer<JFXStatement> objectLiteral() throws RecognitionException {
         ListBuffer<JFXStatement> parts =  new ListBuffer<JFXStatement>();
 
-        JFXStatement objectLiteralPart93 = null;
+        JFXStatement objectLiteralPart113 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:543:2: ( ( objectLiteralPart )* )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:543:4: ( objectLiteralPart )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:550:2: ( ( objectLiteralPart )* )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:550:4: ( objectLiteralPart )*
             {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:543:4: ( objectLiteralPart )*
-            loop54:
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:550:4: ( objectLiteralPart )*
+            loop52:
             do {
-                int alt54=2;
-                int LA54_0 = input.LA(1);
+                int alt52=2;
+                int LA52_0 = input.LA(1);
 
-                if ( (LA54_0==ABSTRACT||LA54_0==ATTRIBUTE||(LA54_0>=PRIVATE && LA54_0<=READONLY)||LA54_0==QUOTED_IDENTIFIER||LA54_0==IDENTIFIER) ) {
-                    alt54=1;
+                if ( (LA52_0==ABSTRACT||LA52_0==ATTRIBUTE||(LA52_0>=PRIVATE && LA52_0<=READONLY)||LA52_0==QUOTED_IDENTIFIER||LA52_0==IDENTIFIER) ) {
+                    alt52=1;
                 }
 
 
-                switch (alt54) {
+                switch (alt52) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:543:6: objectLiteralPart
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:550:6: objectLiteralPart
             	    {
-            	    pushFollow(FOLLOW_objectLiteralPart_in_objectLiteral4849);
-            	    objectLiteralPart93=objectLiteralPart();
+            	    pushFollow(FOLLOW_objectLiteralPart_in_objectLiteral4885);
+            	    objectLiteralPart113=objectLiteralPart();
             	    _fsp--;
 
-            	     parts.append(objectLiteralPart93); 
+            	     parts.append(objectLiteralPart113); 
 
             	    }
             	    break;
 
             	default :
-            	    break loop54;
+            	    break loop52;
                 }
             } while (true);
 
@@ -4363,26 +4408,26 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start objectLiteralPart
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );
     public final JFXStatement objectLiteralPart() throws RecognitionException {
         JFXStatement value = null;
 
-        Token COLON94=null;
-        name_return name95 = null;
+        Token COLON114=null;
+        name_return name115 = null;
 
-        JCExpression expression96 = null;
+        JCExpression expression116 = null;
 
-        JavafxBindStatus bindOpt97 = null;
+        JavafxBindStatus bindOpt117 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:545:2: ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition )
-            int alt56=3;
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:552:2: ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition )
+            int alt54=3;
             switch ( input.LA(1) ) {
             case QUOTED_IDENTIFIER:
             case IDENTIFIER:
                 {
-                alt56=1;
+                alt54=1;
                 }
                 break;
             case ABSTRACT:
@@ -4390,17 +4435,17 @@ public class v2Parser extends AbstractGeneratedParser {
                 switch ( input.LA(2) ) {
                 case PUBLIC:
                     {
-                    int LA56_9 = input.LA(3);
+                    int LA54_9 = input.LA(3);
 
-                    if ( (LA56_9==ATTRIBUTE) ) {
-                        alt56=2;
+                    if ( (LA54_9==FUNCTION) ) {
+                        alt54=3;
                     }
-                    else if ( (LA56_9==FUNCTION) ) {
-                        alt56=3;
+                    else if ( (LA54_9==ATTRIBUTE) ) {
+                        alt54=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 9, input);
+                            new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 9, input);
 
                         throw nvae;
                     }
@@ -4408,17 +4453,17 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case PRIVATE:
                     {
-                    int LA56_10 = input.LA(3);
+                    int LA54_10 = input.LA(3);
 
-                    if ( (LA56_10==FUNCTION) ) {
-                        alt56=3;
+                    if ( (LA54_10==FUNCTION) ) {
+                        alt54=3;
                     }
-                    else if ( (LA56_10==ATTRIBUTE) ) {
-                        alt56=2;
+                    else if ( (LA54_10==ATTRIBUTE) ) {
+                        alt54=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 10, input);
+                            new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 10, input);
 
                         throw nvae;
                     }
@@ -4426,35 +4471,35 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case PROTECTED:
                     {
-                    int LA56_11 = input.LA(3);
+                    int LA54_11 = input.LA(3);
 
-                    if ( (LA56_11==ATTRIBUTE) ) {
-                        alt56=2;
+                    if ( (LA54_11==FUNCTION) ) {
+                        alt54=3;
                     }
-                    else if ( (LA56_11==FUNCTION) ) {
-                        alt56=3;
+                    else if ( (LA54_11==ATTRIBUTE) ) {
+                        alt54=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 11, input);
+                            new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 11, input);
 
                         throw nvae;
                     }
                     }
                     break;
-                case FUNCTION:
-                    {
-                    alt56=3;
-                    }
-                    break;
                 case ATTRIBUTE:
                     {
-                    alt56=2;
+                    alt54=2;
+                    }
+                    break;
+                case FUNCTION:
+                    {
+                    alt54=3;
                     }
                     break;
                 default:
                     NoViableAltException nvae =
-                        new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 2, input);
+                        new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 2, input);
 
                     throw nvae;
                 }
@@ -4466,17 +4511,17 @@ public class v2Parser extends AbstractGeneratedParser {
                 switch ( input.LA(2) ) {
                 case PUBLIC:
                     {
-                    int LA56_9 = input.LA(3);
+                    int LA54_9 = input.LA(3);
 
-                    if ( (LA56_9==ATTRIBUTE) ) {
-                        alt56=2;
+                    if ( (LA54_9==FUNCTION) ) {
+                        alt54=3;
                     }
-                    else if ( (LA56_9==FUNCTION) ) {
-                        alt56=3;
+                    else if ( (LA54_9==ATTRIBUTE) ) {
+                        alt54=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 9, input);
+                            new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 9, input);
 
                         throw nvae;
                     }
@@ -4484,17 +4529,17 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case PRIVATE:
                     {
-                    int LA56_10 = input.LA(3);
+                    int LA54_10 = input.LA(3);
 
-                    if ( (LA56_10==FUNCTION) ) {
-                        alt56=3;
+                    if ( (LA54_10==FUNCTION) ) {
+                        alt54=3;
                     }
-                    else if ( (LA56_10==ATTRIBUTE) ) {
-                        alt56=2;
+                    else if ( (LA54_10==ATTRIBUTE) ) {
+                        alt54=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 10, input);
+                            new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 10, input);
 
                         throw nvae;
                     }
@@ -4502,35 +4547,35 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case PROTECTED:
                     {
-                    int LA56_11 = input.LA(3);
+                    int LA54_11 = input.LA(3);
 
-                    if ( (LA56_11==ATTRIBUTE) ) {
-                        alt56=2;
+                    if ( (LA54_11==FUNCTION) ) {
+                        alt54=3;
                     }
-                    else if ( (LA56_11==FUNCTION) ) {
-                        alt56=3;
+                    else if ( (LA54_11==ATTRIBUTE) ) {
+                        alt54=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 11, input);
+                            new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 11, input);
 
                         throw nvae;
                     }
                     }
                     break;
-                case FUNCTION:
-                    {
-                    alt56=3;
-                    }
-                    break;
                 case ATTRIBUTE:
                     {
-                    alt56=2;
+                    alt54=2;
+                    }
+                    break;
+                case FUNCTION:
+                    {
+                    alt54=3;
                     }
                     break;
                 default:
                     NoViableAltException nvae =
-                        new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 3, input);
+                        new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 3, input);
 
                     throw nvae;
                 }
@@ -4542,17 +4587,17 @@ public class v2Parser extends AbstractGeneratedParser {
                 switch ( input.LA(2) ) {
                 case ABSTRACT:
                     {
-                    int LA56_12 = input.LA(3);
+                    int LA54_12 = input.LA(3);
 
-                    if ( (LA56_12==FUNCTION) ) {
-                        alt56=3;
+                    if ( (LA54_12==FUNCTION) ) {
+                        alt54=3;
                     }
-                    else if ( (LA56_12==ATTRIBUTE) ) {
-                        alt56=2;
+                    else if ( (LA54_12==ATTRIBUTE) ) {
+                        alt54=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 12, input);
+                            new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 12, input);
 
                         throw nvae;
                     }
@@ -4560,17 +4605,17 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case READONLY:
                     {
-                    int LA56_13 = input.LA(3);
+                    int LA54_13 = input.LA(3);
 
-                    if ( (LA56_13==FUNCTION) ) {
-                        alt56=3;
+                    if ( (LA54_13==ATTRIBUTE) ) {
+                        alt54=2;
                     }
-                    else if ( (LA56_13==ATTRIBUTE) ) {
-                        alt56=2;
+                    else if ( (LA54_13==FUNCTION) ) {
+                        alt54=3;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 13, input);
+                            new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 13, input);
 
                         throw nvae;
                     }
@@ -4578,17 +4623,17 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case ATTRIBUTE:
                     {
-                    alt56=2;
+                    alt54=2;
                     }
                     break;
                 case FUNCTION:
                     {
-                    alt56=3;
+                    alt54=3;
                     }
                     break;
                 default:
                     NoViableAltException nvae =
-                        new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 4, input);
+                        new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 4, input);
 
                     throw nvae;
                 }
@@ -4600,17 +4645,17 @@ public class v2Parser extends AbstractGeneratedParser {
                 switch ( input.LA(2) ) {
                 case ABSTRACT:
                     {
-                    int LA56_12 = input.LA(3);
+                    int LA54_12 = input.LA(3);
 
-                    if ( (LA56_12==FUNCTION) ) {
-                        alt56=3;
+                    if ( (LA54_12==FUNCTION) ) {
+                        alt54=3;
                     }
-                    else if ( (LA56_12==ATTRIBUTE) ) {
-                        alt56=2;
+                    else if ( (LA54_12==ATTRIBUTE) ) {
+                        alt54=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 12, input);
+                            new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 12, input);
 
                         throw nvae;
                     }
@@ -4618,35 +4663,35 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case READONLY:
                     {
-                    int LA56_13 = input.LA(3);
+                    int LA54_13 = input.LA(3);
 
-                    if ( (LA56_13==FUNCTION) ) {
-                        alt56=3;
+                    if ( (LA54_13==ATTRIBUTE) ) {
+                        alt54=2;
                     }
-                    else if ( (LA56_13==ATTRIBUTE) ) {
-                        alt56=2;
+                    else if ( (LA54_13==FUNCTION) ) {
+                        alt54=3;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 13, input);
+                            new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 13, input);
 
                         throw nvae;
                     }
                     }
                     break;
-                case FUNCTION:
-                    {
-                    alt56=3;
-                    }
-                    break;
                 case ATTRIBUTE:
                     {
-                    alt56=2;
+                    alt54=2;
+                    }
+                    break;
+                case FUNCTION:
+                    {
+                    alt54=3;
                     }
                     break;
                 default:
                     NoViableAltException nvae =
-                        new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 5, input);
+                        new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 5, input);
 
                     throw nvae;
                 }
@@ -4658,17 +4703,17 @@ public class v2Parser extends AbstractGeneratedParser {
                 switch ( input.LA(2) ) {
                 case ABSTRACT:
                     {
-                    int LA56_12 = input.LA(3);
+                    int LA54_12 = input.LA(3);
 
-                    if ( (LA56_12==FUNCTION) ) {
-                        alt56=3;
+                    if ( (LA54_12==FUNCTION) ) {
+                        alt54=3;
                     }
-                    else if ( (LA56_12==ATTRIBUTE) ) {
-                        alt56=2;
+                    else if ( (LA54_12==ATTRIBUTE) ) {
+                        alt54=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 12, input);
+                            new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 12, input);
 
                         throw nvae;
                     }
@@ -4676,35 +4721,35 @@ public class v2Parser extends AbstractGeneratedParser {
                     break;
                 case READONLY:
                     {
-                    int LA56_13 = input.LA(3);
+                    int LA54_13 = input.LA(3);
 
-                    if ( (LA56_13==FUNCTION) ) {
-                        alt56=3;
+                    if ( (LA54_13==ATTRIBUTE) ) {
+                        alt54=2;
                     }
-                    else if ( (LA56_13==ATTRIBUTE) ) {
-                        alt56=2;
+                    else if ( (LA54_13==FUNCTION) ) {
+                        alt54=3;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 13, input);
+                            new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 13, input);
 
                         throw nvae;
                     }
                     }
                     break;
-                case FUNCTION:
-                    {
-                    alt56=3;
-                    }
-                    break;
                 case ATTRIBUTE:
                     {
-                    alt56=2;
+                    alt54=2;
+                    }
+                    break;
+                case FUNCTION:
+                    {
+                    alt54=3;
                     }
                     break;
                 default:
                     NoViableAltException nvae =
-                        new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 6, input);
+                        new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 6, input);
 
                     throw nvae;
                 }
@@ -4713,49 +4758,49 @@ public class v2Parser extends AbstractGeneratedParser {
                 break;
             case ATTRIBUTE:
                 {
-                alt56=2;
+                alt54=2;
                 }
                 break;
             case FUNCTION:
                 {
-                alt56=3;
+                alt54=3;
                 }
                 break;
             default:
                 NoViableAltException nvae =
-                    new NoViableAltException("544:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 56, 0, input);
+                    new NoViableAltException("551:1: objectLiteralPart returns [JFXStatement value] : ( name COLON bindOpt expression ( COMMA | SEMI )? | attributeDefinition | functionDefinition );", 54, 0, input);
 
                 throw nvae;
             }
 
-            switch (alt56) {
+            switch (alt54) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:545:4: name COLON bindOpt expression ( COMMA | SEMI )?
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:552:4: name COLON bindOpt expression ( COMMA | SEMI )?
                     {
-                    pushFollow(FOLLOW_name_in_objectLiteralPart4875);
-                    name95=name();
+                    pushFollow(FOLLOW_name_in_objectLiteralPart4911);
+                    name115=name();
                     _fsp--;
 
-                    COLON94=(Token)input.LT(1);
-                    match(input,COLON,FOLLOW_COLON_in_objectLiteralPart4877); 
-                    pushFollow(FOLLOW_bindOpt_in_objectLiteralPart4880);
-                    bindOpt97=bindOpt();
+                    COLON114=(Token)input.LT(1);
+                    match(input,COLON,FOLLOW_COLON_in_objectLiteralPart4913); 
+                    pushFollow(FOLLOW_bindOpt_in_objectLiteralPart4916);
+                    bindOpt117=bindOpt();
                     _fsp--;
 
-                    pushFollow(FOLLOW_expression_in_objectLiteralPart4882);
-                    expression96=expression();
+                    pushFollow(FOLLOW_expression_in_objectLiteralPart4918);
+                    expression116=expression();
                     _fsp--;
 
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:545:35: ( COMMA | SEMI )?
-                    int alt55=2;
-                    int LA55_0 = input.LA(1);
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:552:35: ( COMMA | SEMI )?
+                    int alt53=2;
+                    int LA53_0 = input.LA(1);
 
-                    if ( ((LA55_0>=SEMI && LA55_0<=COMMA)) ) {
-                        alt55=1;
+                    if ( ((LA53_0>=SEMI && LA53_0<=COMMA)) ) {
+                        alt53=1;
                     }
-                    switch (alt55) {
+                    switch (alt53) {
                         case 1 :
-                            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:
                             {
                             if ( (input.LA(1)>=SEMI && input.LA(1)<=COMMA) ) {
                                 input.consume();
@@ -4764,7 +4809,7 @@ public class v2Parser extends AbstractGeneratedParser {
                             else {
                                 MismatchedSetException mse =
                                     new MismatchedSetException(null,input);
-                                recoverFromMismatchedSet(input,mse,FOLLOW_set_in_objectLiteralPart4884);    throw mse;
+                                recoverFromMismatchedSet(input,mse,FOLLOW_set_in_objectLiteralPart4920);    throw mse;
                             }
 
 
@@ -4773,14 +4818,14 @@ public class v2Parser extends AbstractGeneratedParser {
 
                     }
 
-                     value = F.at(pos(COLON94)).ObjectLiteralPart(name95.value, expression96, bindOpt97); 
+                     value = F.at(pos(COLON114)).ObjectLiteralPart(name115.value, expression116, bindOpt117); 
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:546:10: attributeDefinition
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:553:10: attributeDefinition
                     {
-                    pushFollow(FOLLOW_attributeDefinition_in_objectLiteralPart4904);
+                    pushFollow(FOLLOW_attributeDefinition_in_objectLiteralPart4940);
                     attributeDefinition();
                     _fsp--;
 
@@ -4788,9 +4833,9 @@ public class v2Parser extends AbstractGeneratedParser {
                     }
                     break;
                 case 3 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:547:10: functionDefinition
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:554:10: functionDefinition
                     {
-                    pushFollow(FOLLOW_functionDefinition_in_objectLiteralPart4915);
+                    pushFollow(FOLLOW_functionDefinition_in_objectLiteralPart4951);
                     functionDefinition();
                     _fsp--;
 
@@ -4812,7 +4857,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start stringExpression
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:548:1: stringExpression returns [JCExpression expr] : ql= QUOTE_LBRACE_STRING_LITERAL f1= formatOrNull e1= expression (rl= RBRACE_LBRACE_STRING_LITERAL fn= formatOrNull en= expression )* rq= RBRACE_QUOTE_STRING_LITERAL ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:555:1: stringExpression returns [JCExpression expr] : ql= QUOTE_LBRACE_STRING_LITERAL f1= formatOrNull e1= expression (rl= RBRACE_LBRACE_STRING_LITERAL fn= formatOrNull en= expression )* rq= RBRACE_QUOTE_STRING_LITERAL ;
     public final JCExpression stringExpression() throws RecognitionException {
         JCExpression expr = null;
 
@@ -4830,46 +4875,46 @@ public class v2Parser extends AbstractGeneratedParser {
 
          ListBuffer<JCExpression> strexp = new ListBuffer<JCExpression>(); 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:550:2: (ql= QUOTE_LBRACE_STRING_LITERAL f1= formatOrNull e1= expression (rl= RBRACE_LBRACE_STRING_LITERAL fn= formatOrNull en= expression )* rq= RBRACE_QUOTE_STRING_LITERAL )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:550:4: ql= QUOTE_LBRACE_STRING_LITERAL f1= formatOrNull e1= expression (rl= RBRACE_LBRACE_STRING_LITERAL fn= formatOrNull en= expression )* rq= RBRACE_QUOTE_STRING_LITERAL
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:557:2: (ql= QUOTE_LBRACE_STRING_LITERAL f1= formatOrNull e1= expression (rl= RBRACE_LBRACE_STRING_LITERAL fn= formatOrNull en= expression )* rq= RBRACE_QUOTE_STRING_LITERAL )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:557:4: ql= QUOTE_LBRACE_STRING_LITERAL f1= formatOrNull e1= expression (rl= RBRACE_LBRACE_STRING_LITERAL fn= formatOrNull en= expression )* rq= RBRACE_QUOTE_STRING_LITERAL
             {
             ql=(Token)input.LT(1);
-            match(input,QUOTE_LBRACE_STRING_LITERAL,FOLLOW_QUOTE_LBRACE_STRING_LITERAL_in_stringExpression4937); 
+            match(input,QUOTE_LBRACE_STRING_LITERAL,FOLLOW_QUOTE_LBRACE_STRING_LITERAL_in_stringExpression4973); 
              strexp.append(F.at(pos(ql)).Literal(TypeTags.CLASS, ql.getText())); 
-            pushFollow(FOLLOW_formatOrNull_in_stringExpression4946);
+            pushFollow(FOLLOW_formatOrNull_in_stringExpression4982);
             f1=formatOrNull();
             _fsp--;
 
              strexp.append(f1); 
-            pushFollow(FOLLOW_expression_in_stringExpression4957);
+            pushFollow(FOLLOW_expression_in_stringExpression4993);
             e1=expression();
             _fsp--;
 
              strexp.append(e1); 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:553:4: (rl= RBRACE_LBRACE_STRING_LITERAL fn= formatOrNull en= expression )*
-            loop57:
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:560:4: (rl= RBRACE_LBRACE_STRING_LITERAL fn= formatOrNull en= expression )*
+            loop55:
             do {
-                int alt57=2;
-                int LA57_0 = input.LA(1);
+                int alt55=2;
+                int LA55_0 = input.LA(1);
 
-                if ( (LA57_0==RBRACE_LBRACE_STRING_LITERAL) ) {
-                    alt57=1;
+                if ( (LA55_0==RBRACE_LBRACE_STRING_LITERAL) ) {
+                    alt55=1;
                 }
 
 
-                switch (alt57) {
+                switch (alt55) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:553:7: rl= RBRACE_LBRACE_STRING_LITERAL fn= formatOrNull en= expression
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:560:7: rl= RBRACE_LBRACE_STRING_LITERAL fn= formatOrNull en= expression
             	    {
             	    rl=(Token)input.LT(1);
-            	    match(input,RBRACE_LBRACE_STRING_LITERAL,FOLLOW_RBRACE_LBRACE_STRING_LITERAL_in_stringExpression4972); 
+            	    match(input,RBRACE_LBRACE_STRING_LITERAL,FOLLOW_RBRACE_LBRACE_STRING_LITERAL_in_stringExpression5008); 
             	     strexp.append(F.at(pos(rl)).Literal(TypeTags.CLASS, rl.getText())); 
-            	    pushFollow(FOLLOW_formatOrNull_in_stringExpression4984);
+            	    pushFollow(FOLLOW_formatOrNull_in_stringExpression5020);
             	    fn=formatOrNull();
             	    _fsp--;
 
             	     strexp.append(fn); 
-            	    pushFollow(FOLLOW_expression_in_stringExpression4998);
+            	    pushFollow(FOLLOW_expression_in_stringExpression5034);
             	    en=expression();
             	    _fsp--;
 
@@ -4879,12 +4924,12 @@ public class v2Parser extends AbstractGeneratedParser {
             	    break;
 
             	default :
-            	    break loop57;
+            	    break loop55;
                 }
             } while (true);
 
             rq=(Token)input.LT(1);
-            match(input,RBRACE_QUOTE_STRING_LITERAL,FOLLOW_RBRACE_QUOTE_STRING_LITERAL_in_stringExpression5019); 
+            match(input,RBRACE_QUOTE_STRING_LITERAL,FOLLOW_RBRACE_QUOTE_STRING_LITERAL_in_stringExpression5055); 
              strexp.append(F.at(pos(rq)).Literal(TypeTags.CLASS, rq.getText())); 
              expr = F.at(pos(ql)).StringExpression(strexp.toList()); 
 
@@ -4903,41 +4948,41 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start formatOrNull
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:560:1: formatOrNull returns [JCExpression expr] : (fs= FORMAT_STRING_LITERAL | );
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:567:1: formatOrNull returns [JCExpression expr] : (fs= FORMAT_STRING_LITERAL | );
     public final JCExpression formatOrNull() throws RecognitionException {
         JCExpression expr = null;
 
         Token fs=null;
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:561:2: (fs= FORMAT_STRING_LITERAL | )
-            int alt58=2;
-            int LA58_0 = input.LA(1);
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:568:2: (fs= FORMAT_STRING_LITERAL | )
+            int alt56=2;
+            int LA56_0 = input.LA(1);
 
-            if ( (LA58_0==FORMAT_STRING_LITERAL) ) {
-                alt58=1;
+            if ( (LA56_0==FORMAT_STRING_LITERAL) ) {
+                alt56=1;
             }
-            else if ( ((LA58_0>=POUND && LA58_0<=TYPEOF)||LA58_0==IF||(LA58_0>=THIS && LA58_0<=FALSE)||(LA58_0>=NOT && LA58_0<=NEW)||LA58_0==SUPER||(LA58_0>=SIZEOF && LA58_0<=LPAREN)||(LA58_0>=PLUSPLUS && LA58_0<=SUBSUB)||(LA58_0>=QUES && LA58_0<=STRING_LITERAL)||(LA58_0>=QUOTE_LBRACE_STRING_LITERAL && LA58_0<=LBRACE)||(LA58_0>=QUOTED_IDENTIFIER && LA58_0<=INTEGER_LITERAL)||LA58_0==FLOATING_POINT_LITERAL||LA58_0==IDENTIFIER) ) {
-                alt58=2;
+            else if ( ((LA56_0>=POUND && LA56_0<=TYPEOF)||LA56_0==IF||(LA56_0>=THIS && LA56_0<=FALSE)||(LA56_0>=NOT && LA56_0<=NEW)||LA56_0==SUPER||(LA56_0>=SIZEOF && LA56_0<=LPAREN)||(LA56_0>=PLUSPLUS && LA56_0<=SUBSUB)||(LA56_0>=QUES && LA56_0<=STRING_LITERAL)||(LA56_0>=QUOTE_LBRACE_STRING_LITERAL && LA56_0<=LBRACE)||(LA56_0>=QUOTED_IDENTIFIER && LA56_0<=INTEGER_LITERAL)||LA56_0==FLOATING_POINT_LITERAL||LA56_0==IDENTIFIER) ) {
+                alt56=2;
             }
             else {
                 NoViableAltException nvae =
-                    new NoViableAltException("560:1: formatOrNull returns [JCExpression expr] : (fs= FORMAT_STRING_LITERAL | );", 58, 0, input);
+                    new NoViableAltException("567:1: formatOrNull returns [JCExpression expr] : (fs= FORMAT_STRING_LITERAL | );", 56, 0, input);
 
                 throw nvae;
             }
-            switch (alt58) {
+            switch (alt56) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:561:4: fs= FORMAT_STRING_LITERAL
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:568:4: fs= FORMAT_STRING_LITERAL
                     {
                     fs=(Token)input.LT(1);
-                    match(input,FORMAT_STRING_LITERAL,FOLLOW_FORMAT_STRING_LITERAL_in_formatOrNull5049); 
+                    match(input,FORMAT_STRING_LITERAL,FOLLOW_FORMAT_STRING_LITERAL_in_formatOrNull5085); 
                      expr = F.at(pos(fs)).Literal(TypeTags.CLASS, fs.getText()); 
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:562:22: 
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:569:22: 
                     {
                      expr = null; 
 
@@ -4958,7 +5003,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start expressionListOpt
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:564:1: expressionListOpt returns [ListBuffer<JCExpression> args = new ListBuffer<JCExpression>()] : (e1= expression ( COMMA e= expression )* )? ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:571:1: expressionListOpt returns [ListBuffer<JCExpression> args = new ListBuffer<JCExpression>()] : (e1= expression ( COMMA e= expression )* )? ;
     public final ListBuffer<JCExpression> expressionListOpt() throws RecognitionException {
         ListBuffer<JCExpression> args =  new ListBuffer<JCExpression>();
 
@@ -4968,42 +5013,42 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:565:2: ( (e1= expression ( COMMA e= expression )* )? )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:565:4: (e1= expression ( COMMA e= expression )* )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:572:2: ( (e1= expression ( COMMA e= expression )* )? )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:572:4: (e1= expression ( COMMA e= expression )* )?
             {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:565:4: (e1= expression ( COMMA e= expression )* )?
-            int alt60=2;
-            int LA60_0 = input.LA(1);
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:572:4: (e1= expression ( COMMA e= expression )* )?
+            int alt58=2;
+            int LA58_0 = input.LA(1);
 
-            if ( ((LA60_0>=POUND && LA60_0<=TYPEOF)||LA60_0==IF||(LA60_0>=THIS && LA60_0<=FALSE)||(LA60_0>=NOT && LA60_0<=NEW)||LA60_0==SUPER||(LA60_0>=SIZEOF && LA60_0<=LPAREN)||(LA60_0>=PLUSPLUS && LA60_0<=SUBSUB)||(LA60_0>=QUES && LA60_0<=STRING_LITERAL)||(LA60_0>=QUOTE_LBRACE_STRING_LITERAL && LA60_0<=LBRACE)||(LA60_0>=QUOTED_IDENTIFIER && LA60_0<=INTEGER_LITERAL)||LA60_0==FLOATING_POINT_LITERAL||LA60_0==IDENTIFIER) ) {
-                alt60=1;
+            if ( ((LA58_0>=POUND && LA58_0<=TYPEOF)||LA58_0==IF||(LA58_0>=THIS && LA58_0<=FALSE)||(LA58_0>=NOT && LA58_0<=NEW)||LA58_0==SUPER||(LA58_0>=SIZEOF && LA58_0<=LPAREN)||(LA58_0>=PLUSPLUS && LA58_0<=SUBSUB)||(LA58_0>=QUES && LA58_0<=STRING_LITERAL)||(LA58_0>=QUOTE_LBRACE_STRING_LITERAL && LA58_0<=LBRACE)||(LA58_0>=QUOTED_IDENTIFIER && LA58_0<=INTEGER_LITERAL)||LA58_0==FLOATING_POINT_LITERAL||LA58_0==IDENTIFIER) ) {
+                alt58=1;
             }
-            switch (alt60) {
+            switch (alt58) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:565:6: e1= expression ( COMMA e= expression )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:572:6: e1= expression ( COMMA e= expression )*
                     {
-                    pushFollow(FOLLOW_expression_in_expressionListOpt5081);
+                    pushFollow(FOLLOW_expression_in_expressionListOpt5117);
                     e1=expression();
                     _fsp--;
 
                      args.append(e1); 
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:566:6: ( COMMA e= expression )*
-                    loop59:
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:573:6: ( COMMA e= expression )*
+                    loop57:
                     do {
-                        int alt59=2;
-                        int LA59_0 = input.LA(1);
+                        int alt57=2;
+                        int LA57_0 = input.LA(1);
 
-                        if ( (LA59_0==COMMA) ) {
-                            alt59=1;
+                        if ( (LA57_0==COMMA) ) {
+                            alt57=1;
                         }
 
 
-                        switch (alt59) {
+                        switch (alt57) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:566:7: COMMA e= expression
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:573:7: COMMA e= expression
                     	    {
-                    	    match(input,COMMA,FOLLOW_COMMA_in_expressionListOpt5092); 
-                    	    pushFollow(FOLLOW_expression_in_expressionListOpt5098);
+                    	    match(input,COMMA,FOLLOW_COMMA_in_expressionListOpt5128); 
+                    	    pushFollow(FOLLOW_expression_in_expressionListOpt5134);
                     	    e=expression();
                     	    _fsp--;
 
@@ -5013,7 +5058,7 @@ public class v2Parser extends AbstractGeneratedParser {
                     	    break;
 
                     	default :
-                    	    break loop59;
+                    	    break loop57;
                         }
                     } while (true);
 
@@ -5039,135 +5084,135 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start unaryOperator
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:567:1: unaryOperator returns [int optag] : ( POUND | QUES | SUB | NOT | SIZEOF | TYPEOF | REVERSE | PLUSPLUS | SUBSUB );
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:574:1: unaryOperator returns [int optag] : ( POUND | QUES | SUB | NOT | SIZEOF | TYPEOF | REVERSE | PLUSPLUS | SUBSUB );
     public final int unaryOperator() throws RecognitionException {
         int optag = 0;
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:568:2: ( POUND | QUES | SUB | NOT | SIZEOF | TYPEOF | REVERSE | PLUSPLUS | SUBSUB )
-            int alt61=9;
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:575:2: ( POUND | QUES | SUB | NOT | SIZEOF | TYPEOF | REVERSE | PLUSPLUS | SUBSUB )
+            int alt59=9;
             switch ( input.LA(1) ) {
             case POUND:
                 {
-                alt61=1;
+                alt59=1;
                 }
                 break;
             case QUES:
                 {
-                alt61=2;
+                alt59=2;
                 }
                 break;
             case SUB:
                 {
-                alt61=3;
+                alt59=3;
                 }
                 break;
             case NOT:
                 {
-                alt61=4;
+                alt59=4;
                 }
                 break;
             case SIZEOF:
                 {
-                alt61=5;
+                alt59=5;
                 }
                 break;
             case TYPEOF:
                 {
-                alt61=6;
+                alt59=6;
                 }
                 break;
             case REVERSE:
                 {
-                alt61=7;
+                alt59=7;
                 }
                 break;
             case PLUSPLUS:
                 {
-                alt61=8;
+                alt59=8;
                 }
                 break;
             case SUBSUB:
                 {
-                alt61=9;
+                alt59=9;
                 }
                 break;
             default:
                 NoViableAltException nvae =
-                    new NoViableAltException("567:1: unaryOperator returns [int optag] : ( POUND | QUES | SUB | NOT | SIZEOF | TYPEOF | REVERSE | PLUSPLUS | SUBSUB );", 61, 0, input);
+                    new NoViableAltException("574:1: unaryOperator returns [int optag] : ( POUND | QUES | SUB | NOT | SIZEOF | TYPEOF | REVERSE | PLUSPLUS | SUBSUB );", 59, 0, input);
 
                 throw nvae;
             }
 
-            switch (alt61) {
+            switch (alt59) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:568:4: POUND
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:575:4: POUND
                     {
-                    match(input,POUND,FOLLOW_POUND_in_unaryOperator5121); 
+                    match(input,POUND,FOLLOW_POUND_in_unaryOperator5157); 
                      optag = 0; 
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:569:4: QUES
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:576:4: QUES
                     {
-                    match(input,QUES,FOLLOW_QUES_in_unaryOperator5132); 
+                    match(input,QUES,FOLLOW_QUES_in_unaryOperator5168); 
                      optag = 0; 
 
                     }
                     break;
                 case 3 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:570:4: SUB
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:577:4: SUB
                     {
-                    match(input,SUB,FOLLOW_SUB_in_unaryOperator5145); 
+                    match(input,SUB,FOLLOW_SUB_in_unaryOperator5181); 
                      optag = JCTree.NEG; 
 
                     }
                     break;
                 case 4 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:571:4: NOT
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:578:4: NOT
                     {
-                    match(input,NOT,FOLLOW_NOT_in_unaryOperator5158); 
+                    match(input,NOT,FOLLOW_NOT_in_unaryOperator5194); 
                      optag = JCTree.NOT; 
 
                     }
                     break;
                 case 5 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:572:4: SIZEOF
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:579:4: SIZEOF
                     {
-                    match(input,SIZEOF,FOLLOW_SIZEOF_in_unaryOperator5171); 
+                    match(input,SIZEOF,FOLLOW_SIZEOF_in_unaryOperator5207); 
                      optag = 0; 
 
                     }
                     break;
                 case 6 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:573:4: TYPEOF
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:580:4: TYPEOF
                     {
-                    match(input,TYPEOF,FOLLOW_TYPEOF_in_unaryOperator5184); 
+                    match(input,TYPEOF,FOLLOW_TYPEOF_in_unaryOperator5220); 
                      optag = 0; 
 
                     }
                     break;
                 case 7 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:574:4: REVERSE
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:581:4: REVERSE
                     {
-                    match(input,REVERSE,FOLLOW_REVERSE_in_unaryOperator5197); 
+                    match(input,REVERSE,FOLLOW_REVERSE_in_unaryOperator5233); 
                      optag = 0; 
 
                     }
                     break;
                 case 8 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:575:4: PLUSPLUS
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:582:4: PLUSPLUS
                     {
-                    match(input,PLUSPLUS,FOLLOW_PLUSPLUS_in_unaryOperator5210); 
+                    match(input,PLUSPLUS,FOLLOW_PLUSPLUS_in_unaryOperator5246); 
                      optag = 0; 
 
                     }
                     break;
                 case 9 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:576:4: SUBSUB
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:583:4: SUBSUB
                     {
-                    match(input,SUBSUB,FOLLOW_SUBSUB_in_unaryOperator5223); 
+                    match(input,SUBSUB,FOLLOW_SUBSUB_in_unaryOperator5259); 
                      optag = 0; 
 
                     }
@@ -5187,83 +5232,83 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start assignmentOperator
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:578:1: assignmentOperator returns [int optag] : ( PLUSEQ | SUBEQ | STAREQ | SLASHEQ | PERCENTEQ );
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:585:1: assignmentOperator returns [int optag] : ( PLUSEQ | SUBEQ | STAREQ | SLASHEQ | PERCENTEQ );
     public final int assignmentOperator() throws RecognitionException {
         int optag = 0;
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:579:2: ( PLUSEQ | SUBEQ | STAREQ | SLASHEQ | PERCENTEQ )
-            int alt62=5;
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:586:2: ( PLUSEQ | SUBEQ | STAREQ | SLASHEQ | PERCENTEQ )
+            int alt60=5;
             switch ( input.LA(1) ) {
             case PLUSEQ:
                 {
-                alt62=1;
+                alt60=1;
                 }
                 break;
             case SUBEQ:
                 {
-                alt62=2;
+                alt60=2;
                 }
                 break;
             case STAREQ:
                 {
-                alt62=3;
+                alt60=3;
                 }
                 break;
             case SLASHEQ:
                 {
-                alt62=4;
+                alt60=4;
                 }
                 break;
             case PERCENTEQ:
                 {
-                alt62=5;
+                alt60=5;
                 }
                 break;
             default:
                 NoViableAltException nvae =
-                    new NoViableAltException("578:1: assignmentOperator returns [int optag] : ( PLUSEQ | SUBEQ | STAREQ | SLASHEQ | PERCENTEQ );", 62, 0, input);
+                    new NoViableAltException("585:1: assignmentOperator returns [int optag] : ( PLUSEQ | SUBEQ | STAREQ | SLASHEQ | PERCENTEQ );", 60, 0, input);
 
                 throw nvae;
             }
 
-            switch (alt62) {
+            switch (alt60) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:579:4: PLUSEQ
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:586:4: PLUSEQ
                     {
-                    match(input,PLUSEQ,FOLLOW_PLUSEQ_in_assignmentOperator5244); 
+                    match(input,PLUSEQ,FOLLOW_PLUSEQ_in_assignmentOperator5280); 
                      optag = JCTree.PLUS_ASG; 
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:580:4: SUBEQ
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:587:4: SUBEQ
                     {
-                    match(input,SUBEQ,FOLLOW_SUBEQ_in_assignmentOperator5257); 
+                    match(input,SUBEQ,FOLLOW_SUBEQ_in_assignmentOperator5293); 
                      optag = JCTree.MINUS_ASG; 
 
                     }
                     break;
                 case 3 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:581:4: STAREQ
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:588:4: STAREQ
                     {
-                    match(input,STAREQ,FOLLOW_STAREQ_in_assignmentOperator5270); 
+                    match(input,STAREQ,FOLLOW_STAREQ_in_assignmentOperator5306); 
                      optag = JCTree.MUL_ASG; 
 
                     }
                     break;
                 case 4 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:582:4: SLASHEQ
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:589:4: SLASHEQ
                     {
-                    match(input,SLASHEQ,FOLLOW_SLASHEQ_in_assignmentOperator5283); 
+                    match(input,SLASHEQ,FOLLOW_SLASHEQ_in_assignmentOperator5319); 
                      optag = JCTree.DIV_ASG; 
 
                     }
                     break;
                 case 5 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:583:4: PERCENTEQ
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:590:4: PERCENTEQ
                     {
-                    match(input,PERCENTEQ,FOLLOW_PERCENTEQ_in_assignmentOperator5296); 
+                    match(input,PERCENTEQ,FOLLOW_PERCENTEQ_in_assignmentOperator5332); 
                      optag = JCTree.MOD_ASG; 
 
                     }
@@ -5283,76 +5328,76 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start typeReference
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:585:1: typeReference returns [JFXType type] : ( COLON ( name ccn= cardinalityConstraint | STAR ccs= cardinalityConstraint ) )? ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:592:1: typeReference returns [JFXType type] : ( COLON ( name ccn= cardinalityConstraint | STAR ccs= cardinalityConstraint ) )? ;
     public final JFXType typeReference() throws RecognitionException {
         JFXType type = null;
 
-        Token STAR99=null;
+        Token STAR119=null;
         int ccn = 0;
 
         int ccs = 0;
 
-        name_return name98 = null;
+        name_return name118 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:586:2: ( ( COLON ( name ccn= cardinalityConstraint | STAR ccs= cardinalityConstraint ) )? )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:586:4: ( COLON ( name ccn= cardinalityConstraint | STAR ccs= cardinalityConstraint ) )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:593:2: ( ( COLON ( name ccn= cardinalityConstraint | STAR ccs= cardinalityConstraint ) )? )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:593:4: ( COLON ( name ccn= cardinalityConstraint | STAR ccs= cardinalityConstraint ) )?
             {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:586:4: ( COLON ( name ccn= cardinalityConstraint | STAR ccs= cardinalityConstraint ) )?
-            int alt64=2;
-            int LA64_0 = input.LA(1);
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:593:4: ( COLON ( name ccn= cardinalityConstraint | STAR ccs= cardinalityConstraint ) )?
+            int alt62=2;
+            int LA62_0 = input.LA(1);
 
-            if ( (LA64_0==COLON) ) {
-                alt64=1;
+            if ( (LA62_0==COLON) ) {
+                alt62=1;
             }
-            switch (alt64) {
+            switch (alt62) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:586:6: COLON ( name ccn= cardinalityConstraint | STAR ccs= cardinalityConstraint )
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:593:6: COLON ( name ccn= cardinalityConstraint | STAR ccs= cardinalityConstraint )
                     {
-                    match(input,COLON,FOLLOW_COLON_in_typeReference5320); 
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:586:13: ( name ccn= cardinalityConstraint | STAR ccs= cardinalityConstraint )
-                    int alt63=2;
-                    int LA63_0 = input.LA(1);
+                    match(input,COLON,FOLLOW_COLON_in_typeReference5356); 
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:593:13: ( name ccn= cardinalityConstraint | STAR ccs= cardinalityConstraint )
+                    int alt61=2;
+                    int LA61_0 = input.LA(1);
 
-                    if ( (LA63_0==QUOTED_IDENTIFIER||LA63_0==IDENTIFIER) ) {
-                        alt63=1;
+                    if ( (LA61_0==QUOTED_IDENTIFIER||LA61_0==IDENTIFIER) ) {
+                        alt61=1;
                     }
-                    else if ( (LA63_0==STAR) ) {
-                        alt63=2;
+                    else if ( (LA61_0==STAR) ) {
+                        alt61=2;
                     }
                     else {
                         NoViableAltException nvae =
-                            new NoViableAltException("586:13: ( name ccn= cardinalityConstraint | STAR ccs= cardinalityConstraint )", 63, 0, input);
+                            new NoViableAltException("593:13: ( name ccn= cardinalityConstraint | STAR ccs= cardinalityConstraint )", 61, 0, input);
 
                         throw nvae;
                     }
-                    switch (alt63) {
+                    switch (alt61) {
                         case 1 :
-                            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:586:15: name ccn= cardinalityConstraint
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:593:15: name ccn= cardinalityConstraint
                             {
-                            pushFollow(FOLLOW_name_in_typeReference5325);
-                            name98=name();
+                            pushFollow(FOLLOW_name_in_typeReference5361);
+                            name118=name();
                             _fsp--;
 
-                            pushFollow(FOLLOW_cardinalityConstraint_in_typeReference5329);
+                            pushFollow(FOLLOW_cardinalityConstraint_in_typeReference5365);
                             ccn=cardinalityConstraint();
                             _fsp--;
 
-                             type = F.TypeClass(name98.value, ccn); 
+                             type = F.TypeClass(name118.value, ccn); 
 
                             }
                             break;
                         case 2 :
-                            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:587:22: STAR ccs= cardinalityConstraint
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:594:22: STAR ccs= cardinalityConstraint
                             {
-                            STAR99=(Token)input.LT(1);
-                            match(input,STAR,FOLLOW_STAR_in_typeReference5355); 
-                            pushFollow(FOLLOW_cardinalityConstraint_in_typeReference5359);
+                            STAR119=(Token)input.LT(1);
+                            match(input,STAR,FOLLOW_STAR_in_typeReference5391); 
+                            pushFollow(FOLLOW_cardinalityConstraint_in_typeReference5395);
                             ccs=cardinalityConstraint();
                             _fsp--;
 
-                             type = F.at(pos(STAR99)).TypeAny(ccs); 
+                             type = F.at(pos(STAR119)).TypeAny(ccs); 
 
                             }
                             break;
@@ -5381,104 +5426,87 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start cardinalityConstraint
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:591:1: cardinalityConstraint returns [int ary] : ( LBRACKET RBRACKET | QUES | PLUS | STAR | );
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:598:1: cardinalityConstraint returns [int ary] : ( LBRACKET RBRACKET | QUES | PLUS | STAR | );
     public final int cardinalityConstraint() throws RecognitionException {
         int ary = 0;
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:592:2: ( LBRACKET RBRACKET | QUES | PLUS | STAR | )
-            int alt65=5;
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:599:2: ( LBRACKET RBRACKET | QUES | PLUS | STAR | )
+            int alt63=5;
             switch ( input.LA(1) ) {
             case LBRACKET:
                 {
-                alt65=1;
+                alt63=1;
                 }
                 break;
             case QUES:
                 {
-                alt65=2;
+                alt63=2;
                 }
                 break;
             case PLUS:
                 {
-                alt65=3;
+                alt63=3;
                 }
                 break;
             case STAR:
                 {
-                alt65=4;
+                alt63=4;
                 }
                 break;
-            case EOF:
-            case ABSTRACT:
-            case BREAK:
-            case CLASS:
-            case RETURN:
-            case THROW:
-            case VAR:
-            case IMPORT:
-            case WHILE:
-            case CONTINUE:
-            case TRY:
-            case PRIVATE:
-            case PROTECTED:
-            case PUBLIC:
-            case FUNCTION:
-            case READONLY:
             case INVERSE:
             case RPAREN:
             case SEMI:
             case COMMA:
             case EQ:
             case LBRACE:
-            case RBRACE:
                 {
-                alt65=5;
+                alt63=5;
                 }
                 break;
             default:
                 NoViableAltException nvae =
-                    new NoViableAltException("591:1: cardinalityConstraint returns [int ary] : ( LBRACKET RBRACKET | QUES | PLUS | STAR | );", 65, 0, input);
+                    new NoViableAltException("598:1: cardinalityConstraint returns [int ary] : ( LBRACKET RBRACKET | QUES | PLUS | STAR | );", 63, 0, input);
 
                 throw nvae;
             }
 
-            switch (alt65) {
+            switch (alt63) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:592:5: LBRACKET RBRACKET
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:599:5: LBRACKET RBRACKET
                     {
-                    match(input,LBRACKET,FOLLOW_LBRACKET_in_cardinalityConstraint5421); 
-                    match(input,RBRACKET,FOLLOW_RBRACKET_in_cardinalityConstraint5425); 
+                    match(input,LBRACKET,FOLLOW_LBRACKET_in_cardinalityConstraint5457); 
+                    match(input,RBRACKET,FOLLOW_RBRACKET_in_cardinalityConstraint5461); 
                      ary = JFXType.CARDINALITY_ANY; 
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:593:5: QUES
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:600:5: QUES
                     {
-                    match(input,QUES,FOLLOW_QUES_in_cardinalityConstraint5437); 
+                    match(input,QUES,FOLLOW_QUES_in_cardinalityConstraint5473); 
                      ary = JFXType.CARDINALITY_OPTIONAL; 
 
                     }
                     break;
                 case 3 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:594:5: PLUS
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:601:5: PLUS
                     {
-                    match(input,PLUS,FOLLOW_PLUS_in_cardinalityConstraint5464); 
+                    match(input,PLUS,FOLLOW_PLUS_in_cardinalityConstraint5500); 
                      ary = JFXType.CARDINALITY_ANY; 
 
                     }
                     break;
                 case 4 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:595:5: STAR
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:602:5: STAR
                     {
-                    match(input,STAR,FOLLOW_STAR_in_cardinalityConstraint5491); 
+                    match(input,STAR,FOLLOW_STAR_in_cardinalityConstraint5527); 
                      ary = JFXType.CARDINALITY_ANY; 
 
                     }
                     break;
                 case 5 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:596:29: 
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:603:29: 
                     {
                      ary = JFXType.CARDINALITY_OPTIONAL; 
 
@@ -5499,104 +5527,104 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start literal
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:598:1: literal returns [JCExpression expr] : (t= STRING_LITERAL | t= INTEGER_LITERAL | t= FLOATING_POINT_LITERAL | t= TRUE | t= FALSE | t= NULL );
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:605:1: literal returns [JCExpression expr] : (t= STRING_LITERAL | t= INTEGER_LITERAL | t= FLOATING_POINT_LITERAL | t= TRUE | t= FALSE | t= NULL );
     public final JCExpression literal() throws RecognitionException {
         JCExpression expr = null;
 
         Token t=null;
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:599:2: (t= STRING_LITERAL | t= INTEGER_LITERAL | t= FLOATING_POINT_LITERAL | t= TRUE | t= FALSE | t= NULL )
-            int alt66=6;
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:606:2: (t= STRING_LITERAL | t= INTEGER_LITERAL | t= FLOATING_POINT_LITERAL | t= TRUE | t= FALSE | t= NULL )
+            int alt64=6;
             switch ( input.LA(1) ) {
             case STRING_LITERAL:
                 {
-                alt66=1;
+                alt64=1;
                 }
                 break;
             case INTEGER_LITERAL:
                 {
-                alt66=2;
+                alt64=2;
                 }
                 break;
             case FLOATING_POINT_LITERAL:
                 {
-                alt66=3;
+                alt64=3;
                 }
                 break;
             case TRUE:
                 {
-                alt66=4;
+                alt64=4;
                 }
                 break;
             case FALSE:
                 {
-                alt66=5;
+                alt64=5;
                 }
                 break;
             case NULL:
                 {
-                alt66=6;
+                alt64=6;
                 }
                 break;
             default:
                 NoViableAltException nvae =
-                    new NoViableAltException("598:1: literal returns [JCExpression expr] : (t= STRING_LITERAL | t= INTEGER_LITERAL | t= FLOATING_POINT_LITERAL | t= TRUE | t= FALSE | t= NULL );", 66, 0, input);
+                    new NoViableAltException("605:1: literal returns [JCExpression expr] : (t= STRING_LITERAL | t= INTEGER_LITERAL | t= FLOATING_POINT_LITERAL | t= TRUE | t= FALSE | t= NULL );", 64, 0, input);
 
                 throw nvae;
             }
 
-            switch (alt66) {
+            switch (alt64) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:599:4: t= STRING_LITERAL
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:606:4: t= STRING_LITERAL
                     {
                     t=(Token)input.LT(1);
-                    match(input,STRING_LITERAL,FOLLOW_STRING_LITERAL_in_literal5560); 
+                    match(input,STRING_LITERAL,FOLLOW_STRING_LITERAL_in_literal5596); 
                      expr = F.at(pos(t)).Literal(TypeTags.CLASS, t.getText()); 
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:600:4: t= INTEGER_LITERAL
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:607:4: t= INTEGER_LITERAL
                     {
                     t=(Token)input.LT(1);
-                    match(input,INTEGER_LITERAL,FOLLOW_INTEGER_LITERAL_in_literal5570); 
+                    match(input,INTEGER_LITERAL,FOLLOW_INTEGER_LITERAL_in_literal5606); 
                      expr = F.at(pos(t)).Literal(TypeTags.INT, Convert.string2int(t.getText(), 10)); 
 
                     }
                     break;
                 case 3 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:601:4: t= FLOATING_POINT_LITERAL
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:608:4: t= FLOATING_POINT_LITERAL
                     {
                     t=(Token)input.LT(1);
-                    match(input,FLOATING_POINT_LITERAL,FOLLOW_FLOATING_POINT_LITERAL_in_literal5580); 
+                    match(input,FLOATING_POINT_LITERAL,FOLLOW_FLOATING_POINT_LITERAL_in_literal5616); 
                      expr = F.at(pos(t)).Literal(TypeTags.DOUBLE, Double.valueOf(t.getText())); 
 
                     }
                     break;
                 case 4 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:602:4: t= TRUE
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:609:4: t= TRUE
                     {
                     t=(Token)input.LT(1);
-                    match(input,TRUE,FOLLOW_TRUE_in_literal5590); 
+                    match(input,TRUE,FOLLOW_TRUE_in_literal5626); 
                      expr = F.at(pos(t)).Literal(TypeTags.BOOLEAN, 1); 
 
                     }
                     break;
                 case 5 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:603:4: t= FALSE
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:610:4: t= FALSE
                     {
                     t=(Token)input.LT(1);
-                    match(input,FALSE,FOLLOW_FALSE_in_literal5604); 
+                    match(input,FALSE,FOLLOW_FALSE_in_literal5640); 
                      expr = F.at(pos(t)).Literal(TypeTags.BOOLEAN, 0); 
 
                     }
                     break;
                 case 6 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:604:4: t= NULL
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:611:4: t= NULL
                     {
                     t=(Token)input.LT(1);
-                    match(input,NULL,FOLLOW_NULL_in_literal5618); 
+                    match(input,NULL,FOLLOW_NULL_in_literal5654); 
                      expr = F.at(pos(t)).Literal(TypeTags.BOT, null); 
 
                     }
@@ -5616,22 +5644,22 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start typeName
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:606:1: typeName returns [JCExpression expr] : qualident ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:613:1: typeName returns [JCExpression expr] : qualident ;
     public final JCExpression typeName() throws RecognitionException {
         JCExpression expr = null;
 
-        JCExpression qualident100 = null;
+        JCExpression qualident120 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:607:8: ( qualident )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:607:10: qualident
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:614:8: ( qualident )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:614:10: qualident
             {
-            pushFollow(FOLLOW_qualident_in_typeName5645);
-            qualident100=qualident();
+            pushFollow(FOLLOW_qualident_in_typeName5681);
+            qualident120=qualident();
             _fsp--;
 
-             expr = qualident100; 
+             expr = qualident120; 
 
             }
 
@@ -5648,51 +5676,51 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start qualident
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:609:1: qualident returns [JCExpression expr] : identifier ( DOT name )* ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:616:1: qualident returns [JCExpression expr] : identifier ( DOT name )* ;
     public final JCExpression qualident() throws RecognitionException {
         JCExpression expr = null;
 
-        JCIdent identifier101 = null;
+        JCIdent identifier121 = null;
 
-        name_return name102 = null;
+        name_return name122 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:610:8: ( identifier ( DOT name )* )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:610:10: identifier ( DOT name )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:617:8: ( identifier ( DOT name )* )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:617:10: identifier ( DOT name )*
             {
-            pushFollow(FOLLOW_identifier_in_qualident5687);
-            identifier101=identifier();
+            pushFollow(FOLLOW_identifier_in_qualident5723);
+            identifier121=identifier();
             _fsp--;
 
-             expr = identifier101; 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:611:10: ( DOT name )*
-            loop67:
+             expr = identifier121; 
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:618:10: ( DOT name )*
+            loop65:
             do {
-                int alt67=2;
-                int LA67_0 = input.LA(1);
+                int alt65=2;
+                int LA65_0 = input.LA(1);
 
-                if ( (LA67_0==DOT) ) {
-                    alt67=1;
+                if ( (LA65_0==DOT) ) {
+                    alt65=1;
                 }
 
 
-                switch (alt67) {
+                switch (alt65) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:611:12: DOT name
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:618:12: DOT name
             	    {
-            	    match(input,DOT,FOLLOW_DOT_in_qualident5715); 
-            	    pushFollow(FOLLOW_name_in_qualident5717);
-            	    name102=name();
+            	    match(input,DOT,FOLLOW_DOT_in_qualident5751); 
+            	    pushFollow(FOLLOW_name_in_qualident5753);
+            	    name122=name();
             	    _fsp--;
 
-            	     expr = F.at(name102.pos).Select(expr, name102.value); 
+            	     expr = F.at(name122.pos).Select(expr, name122.value); 
 
             	    }
             	    break;
 
             	default :
-            	    break loop67;
+            	    break loop65;
                 }
             } while (true);
 
@@ -5712,22 +5740,22 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start identifier
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:613:1: identifier returns [JCIdent expr] : name ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:620:1: identifier returns [JCIdent expr] : name ;
     public final JCIdent identifier() throws RecognitionException {
         JCIdent expr = null;
 
-        name_return name103 = null;
+        name_return name123 = null;
 
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:614:2: ( name )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:614:4: name
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:621:2: ( name )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:621:4: name
             {
-            pushFollow(FOLLOW_name_in_identifier5754);
-            name103=name();
+            pushFollow(FOLLOW_name_in_identifier5790);
+            name123=name();
             _fsp--;
 
-             expr = F.at(name103.pos).Ident(name103.value); 
+             expr = F.at(name123.pos).Ident(name123.value); 
 
             }
 
@@ -5748,7 +5776,7 @@ public class v2Parser extends AbstractGeneratedParser {
     };
 
     // $ANTLR start name
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:616:1: name returns [Name value, int pos] : tokid= ( QUOTED_IDENTIFIER | IDENTIFIER ) ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:623:1: name returns [Name value, int pos] : tokid= ( QUOTED_IDENTIFIER | IDENTIFIER ) ;
     public final name_return name() throws RecognitionException {
         name_return retval = new name_return();
         retval.start = input.LT(1);
@@ -5756,8 +5784,8 @@ public class v2Parser extends AbstractGeneratedParser {
         Token tokid=null;
 
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:617:2: (tokid= ( QUOTED_IDENTIFIER | IDENTIFIER ) )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:617:4: tokid= ( QUOTED_IDENTIFIER | IDENTIFIER )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:624:2: (tokid= ( QUOTED_IDENTIFIER | IDENTIFIER ) )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:624:4: tokid= ( QUOTED_IDENTIFIER | IDENTIFIER )
             {
             tokid=(Token)input.LT(1);
             if ( input.LA(1)==QUOTED_IDENTIFIER||input.LA(1)==IDENTIFIER ) {
@@ -5767,7 +5795,7 @@ public class v2Parser extends AbstractGeneratedParser {
             else {
                 MismatchedSetException mse =
                     new MismatchedSetException(null,input);
-                recoverFromMismatchedSet(input,mse,FOLLOW_set_in_name5788);    throw mse;
+                recoverFromMismatchedSet(input,mse,FOLLOW_set_in_name5824);    throw mse;
             }
 
              retval.value = Name.fromString(names, tokid.getText()); retval.pos = pos(tokid); 
@@ -5790,272 +5818,277 @@ public class v2Parser extends AbstractGeneratedParser {
 
  
 
-    public static final BitSet FOLLOW_packageDecl_in_module2032 = new BitSet(new long[]{0xC1300005C0120200L,0x0000000000000005L});
+    public static final BitSet FOLLOW_packageDecl_in_module2032 = new BitSet(new long[]{0xF130F205C0120260L,0x0961B001C008E805L});
     public static final BitSet FOLLOW_moduleItems_in_module2035 = new BitSet(new long[]{0x0000000000000000L});
     public static final BitSet FOLLOW_EOF_in_module2037 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_PACKAGE_in_packageDecl2059 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
     public static final BitSet FOLLOW_qualident_in_packageDecl2061 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
     public static final BitSet FOLLOW_SEMI_in_packageDecl2063 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_moduleItem_in_moduleItems2094 = new BitSet(new long[]{0xC1300005C0120202L,0x0000000000000005L});
+    public static final BitSet FOLLOW_moduleItem_in_moduleItems2094 = new BitSet(new long[]{0xF130F205C0120262L,0x0961B001C008E805L});
     public static final BitSet FOLLOW_importDecl_in_moduleItem2138 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_classDefinition_in_moduleItem2154 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_statement_in_moduleItem2170 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_IMPORT_in_importDecl2206 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_identifier_in_importDecl2209 = new BitSet(new long[]{0x0000000000000000L,0x0000000000280000L});
-    public static final BitSet FOLLOW_DOT_in_importDecl2234 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_name_in_importDecl2236 = new BitSet(new long[]{0x0000000000000000L,0x0000000000280000L});
-    public static final BitSet FOLLOW_DOT_in_importDecl2265 = new BitSet(new long[]{0x0000000000000000L,0x0000000200000000L});
-    public static final BitSet FOLLOW_STAR_in_importDecl2267 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
-    public static final BitSet FOLLOW_SEMI_in_importDecl2276 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_modifierFlags_in_classDefinition2307 = new BitSet(new long[]{0x0000000000100000L});
-    public static final BitSet FOLLOW_CLASS_in_classDefinition2310 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_name_in_classDefinition2312 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000020L});
-    public static final BitSet FOLLOW_supers_in_classDefinition2314 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
-    public static final BitSet FOLLOW_LBRACE_in_classDefinition2316 = new BitSet(new long[]{0xC000000000004200L,0x0008000000000005L});
-    public static final BitSet FOLLOW_classMembers_in_classDefinition2318 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
-    public static final BitSet FOLLOW_RBRACE_in_classDefinition2320 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_EXTENDS_in_supers2345 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_name_in_supers2349 = new BitSet(new long[]{0x0000000000000002L,0x0000000000100000L});
-    public static final BitSet FOLLOW_COMMA_in_supers2377 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_name_in_supers2381 = new BitSet(new long[]{0x0000000000000002L,0x0000000000100000L});
-    public static final BitSet FOLLOW_attributeDefinition_in_classMembers2415 = new BitSet(new long[]{0xC000000000004202L,0x0000000000000005L});
-    public static final BitSet FOLLOW_functionDefinition_in_classMembers2433 = new BitSet(new long[]{0xC000000000004202L,0x0000000000000005L});
-    public static final BitSet FOLLOW_modifierFlags_in_attributeDefinition2462 = new BitSet(new long[]{0x0000000000004000L});
-    public static final BitSet FOLLOW_ATTRIBUTE_in_attributeDefinition2464 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_name_in_attributeDefinition2466 = new BitSet(new long[]{0x0000000000000000L,0x0000080000880008L});
-    public static final BitSet FOLLOW_typeReference_in_attributeDefinition2468 = new BitSet(new long[]{0x0000000000000000L,0x0000000000880008L});
-    public static final BitSet FOLLOW_EQ_in_attributeDefinition2471 = new BitSet(new long[]{0x3000F20030010060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_bindOpt_in_attributeDefinition2473 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_expression_in_attributeDefinition2476 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
-    public static final BitSet FOLLOW_inverseClause_in_attributeDefinition2480 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
-    public static final BitSet FOLLOW_SEMI_in_attributeDefinition2485 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_INVERSE_in_inverseClause2507 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_memberSelector_in_inverseClause2509 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_modifierFlags_in_functionDefinition2527 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-    public static final BitSet FOLLOW_FUNCTION_in_functionDefinition2529 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_name_in_functionDefinition2533 = new BitSet(new long[]{0x0000000000000000L,0x0000000000008000L});
-    public static final BitSet FOLLOW_formalParameters_in_functionDefinition2535 = new BitSet(new long[]{0x0000000000000000L,0x0001080000000000L});
-    public static final BitSet FOLLOW_typeReference_in_functionDefinition2539 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
-    public static final BitSet FOLLOW_blockExpression_in_functionDefinition2542 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_otherModifier_in_modifierFlags2566 = new BitSet(new long[]{0xC000000000000002L,0x0000000000000001L});
-    public static final BitSet FOLLOW_accessModifier_in_modifierFlags2579 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_accessModifier_in_modifierFlags2601 = new BitSet(new long[]{0x0000000000000202L,0x0000000000000004L});
-    public static final BitSet FOLLOW_otherModifier_in_modifierFlags2614 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_PUBLIC_in_accessModifier2662 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_PRIVATE_in_accessModifier2682 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_PROTECTED_in_accessModifier2701 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ABSTRACT_in_otherModifier2728 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_READONLY_in_otherModifier2746 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_name_in_memberSelector2775 = new BitSet(new long[]{0x0000000000000000L,0x0000000000200000L});
-    public static final BitSet FOLLOW_DOT_in_memberSelector2779 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_name_in_memberSelector2785 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_formalParameters2803 = new BitSet(new long[]{0x0000000000000000L,0x0820000000010000L});
-    public static final BitSet FOLLOW_formalParameter_in_formalParameters2810 = new BitSet(new long[]{0x0000000000000000L,0x0000000000110000L});
-    public static final BitSet FOLLOW_COMMA_in_formalParameters2828 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_formalParameter_in_formalParameters2834 = new BitSet(new long[]{0x0000000000000000L,0x0000000000110000L});
-    public static final BitSet FOLLOW_RPAREN_in_formalParameters2845 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_name_in_formalParameter2860 = new BitSet(new long[]{0x0000000000000002L,0x0000080000000000L});
-    public static final BitSet FOLLOW_typeReference_in_formalParameter2862 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LBRACE_in_block2888 = new BitSet(new long[]{0xF130F201C0020260L,0x0961B001C000E807L});
-    public static final BitSet FOLLOW_statement_in_block2900 = new BitSet(new long[]{0x0000000000000000L,0x0008000000080000L});
-    public static final BitSet FOLLOW_expression_in_block2917 = new BitSet(new long[]{0x0000000000000000L,0x0008000000080000L});
-    public static final BitSet FOLLOW_SEMI_in_block2934 = new BitSet(new long[]{0xF130F201C0020260L,0x0961B001C000E807L});
-    public static final BitSet FOLLOW_statement_in_block2946 = new BitSet(new long[]{0x0000000000000000L,0x0008000000080000L});
-    public static final BitSet FOLLOW_expression_in_block2963 = new BitSet(new long[]{0x0000000000000000L,0x0008000000080000L});
-    public static final BitSet FOLLOW_SEMI_in_block2986 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
-    public static final BitSet FOLLOW_RBRACE_in_block2989 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LBRACE_in_blockExpression3015 = new BitSet(new long[]{0xF130F201C0020260L,0x0961B001C000E807L});
-    public static final BitSet FOLLOW_statement_in_blockExpression3027 = new BitSet(new long[]{0x0000000000000000L,0x0008000000080000L});
-    public static final BitSet FOLLOW_expression_in_blockExpression3044 = new BitSet(new long[]{0x0000000000000000L,0x0008000000080000L});
-    public static final BitSet FOLLOW_SEMI_in_blockExpression3061 = new BitSet(new long[]{0xF130F201C0020260L,0x0961B001C000E807L});
-    public static final BitSet FOLLOW_statement_in_blockExpression3073 = new BitSet(new long[]{0x0000000000000000L,0x0008000000080000L});
-    public static final BitSet FOLLOW_expression_in_blockExpression3090 = new BitSet(new long[]{0x0000000000000000L,0x0008000000080000L});
-    public static final BitSet FOLLOW_SEMI_in_blockExpression3113 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
-    public static final BitSet FOLLOW_RBRACE_in_blockExpression3116 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_variableDeclaration_in_statement3135 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_functionDefinition_in_statement3145 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_WHILE_in_statement3161 = new BitSet(new long[]{0x0000000000000000L,0x0000000000008000L});
-    public static final BitSet FOLLOW_LPAREN_in_statement3163 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_expression_in_statement3165 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
-    public static final BitSet FOLLOW_RPAREN_in_statement3167 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
-    public static final BitSet FOLLOW_block_in_statement3169 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_BREAK_in_statement3176 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_CONTINUE_in_statement3190 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_THROW_in_statement3211 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_expression_in_statement3213 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_returnStatement_in_statement3234 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_tryStatement_in_statement3251 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_VAR_in_variableDeclaration3280 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_name_in_variableDeclaration3283 = new BitSet(new long[]{0x0000000000000002L,0x0000080000800000L});
-    public static final BitSet FOLLOW_typeReference_in_variableDeclaration3286 = new BitSet(new long[]{0x0000000000000002L,0x0000000000800000L});
-    public static final BitSet FOLLOW_EQ_in_variableDeclaration3297 = new BitSet(new long[]{0x3000F20030010060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_bindOpt_in_variableDeclaration3299 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_expression_in_variableDeclaration3302 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_BIND_in_bindOpt3352 = new BitSet(new long[]{0x0400000000000002L});
-    public static final BitSet FOLLOW_LAZY_in_bindOpt3368 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_STAYS_in_bindOpt3383 = new BitSet(new long[]{0x0400000000000002L});
-    public static final BitSet FOLLOW_LAZY_in_bindOpt3399 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_TIE_in_bindOpt3414 = new BitSet(new long[]{0x0400000000000002L});
-    public static final BitSet FOLLOW_LAZY_in_bindOpt3430 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_RETURN_in_returnStatement3464 = new BitSet(new long[]{0x3000F20000000062L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_expression_in_returnStatement3467 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_TRY_in_tryStatement3510 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
-    public static final BitSet FOLLOW_block_in_tryStatement3516 = new BitSet(new long[]{0x0200000000080000L});
-    public static final BitSet FOLLOW_FINALLY_in_tryStatement3529 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
-    public static final BitSet FOLLOW_block_in_tryStatement3535 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_catchClause_in_tryStatement3551 = new BitSet(new long[]{0x0200000000080002L});
-    public static final BitSet FOLLOW_FINALLY_in_tryStatement3574 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
-    public static final BitSet FOLLOW_block_in_tryStatement3579 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_CATCH_in_catchClause3618 = new BitSet(new long[]{0x0000000000000000L,0x0000000000008000L});
-    public static final BitSet FOLLOW_LPAREN_in_catchClause3621 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_name_in_catchClause3624 = new BitSet(new long[]{0x0000000000000000L,0x0000080000010000L});
-    public static final BitSet FOLLOW_COLON_in_catchClause3632 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_identifier_in_catchClause3634 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
-    public static final BitSet FOLLOW_RPAREN_in_catchClause3643 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
-    public static final BitSet FOLLOW_block_in_catchClause3647 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ifExpression_in_expression3675 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_suffixedExpression_in_expression3698 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_IF_in_ifExpression3729 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_expression_in_ifExpression3733 = new BitSet(new long[]{0x0000040000000000L});
-    public static final BitSet FOLLOW_THEN_in_ifExpression3737 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_expression_in_ifExpression3742 = new BitSet(new long[]{0x0000080000000000L});
-    public static final BitSet FOLLOW_ELSE_in_ifExpression3750 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_expression_in_ifExpression3755 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_assignmentExpression_in_suffixedExpression3778 = new BitSet(new long[]{0x0000000000000002L,0x0000000140000000L});
-    public static final BitSet FOLLOW_set_in_suffixedExpression3789 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_assignmentOpExpression_in_assignmentExpression3818 = new BitSet(new long[]{0x0000000000000002L,0x0000000000800000L});
-    public static final BitSet FOLLOW_EQ_in_assignmentExpression3833 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_assignmentOpExpression_in_assignmentExpression3839 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_andExpression_in_assignmentOpExpression3866 = new BitSet(new long[]{0x0000000000000002L,0x000001F000000000L});
-    public static final BitSet FOLLOW_assignmentOperator_in_assignmentOpExpression3882 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_andExpression_in_assignmentOpExpression3888 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_orExpression_in_andExpression3914 = new BitSet(new long[]{0x0000000000000802L});
-    public static final BitSet FOLLOW_AND_in_andExpression3930 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_orExpression_in_andExpression3936 = new BitSet(new long[]{0x0000000000000802L});
-    public static final BitSet FOLLOW_instanceOfExpression_in_orExpression3964 = new BitSet(new long[]{0x0000000000000002L,0x0000000000001000L});
-    public static final BitSet FOLLOW_OR_in_orExpression3979 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_instanceOfExpression_in_orExpression3985 = new BitSet(new long[]{0x0000000000000002L,0x0000000000001000L});
-    public static final BitSet FOLLOW_relationalExpression_in_instanceOfExpression4013 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000100L});
-    public static final BitSet FOLLOW_INSTANCEOF_in_instanceOfExpression4028 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_identifier_in_instanceOfExpression4030 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4058 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
-    public static final BitSet FOLLOW_LTGT_in_relationalExpression4074 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4080 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
-    public static final BitSet FOLLOW_EQEQ_in_relationalExpression4094 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4100 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
-    public static final BitSet FOLLOW_LTEQ_in_relationalExpression4114 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4120 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
-    public static final BitSet FOLLOW_GTEQ_in_relationalExpression4134 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4140 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
-    public static final BitSet FOLLOW_LT_in_relationalExpression4154 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4162 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
-    public static final BitSet FOLLOW_GT_in_relationalExpression4176 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4184 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
-    public static final BitSet FOLLOW_IN_in_relationalExpression4198 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4206 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
-    public static final BitSet FOLLOW_multiplicativeExpression_in_additiveExpression4235 = new BitSet(new long[]{0x0000000000000002L,0x00000000A0000000L});
-    public static final BitSet FOLLOW_PLUS_in_additiveExpression4250 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_multiplicativeExpression_in_additiveExpression4256 = new BitSet(new long[]{0x0000000000000002L,0x00000000A0000000L});
-    public static final BitSet FOLLOW_SUB_in_additiveExpression4269 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_multiplicativeExpression_in_additiveExpression4276 = new BitSet(new long[]{0x0000000000000002L,0x00000000A0000000L});
-    public static final BitSet FOLLOW_unaryExpression_in_multiplicativeExpression4304 = new BitSet(new long[]{0x0000000000000002L,0x0000000E00000000L});
-    public static final BitSet FOLLOW_STAR_in_multiplicativeExpression4320 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_unaryExpression_in_multiplicativeExpression4327 = new BitSet(new long[]{0x0000000000000002L,0x0000000E00000000L});
-    public static final BitSet FOLLOW_SLASH_in_multiplicativeExpression4341 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_unaryExpression_in_multiplicativeExpression4347 = new BitSet(new long[]{0x0000000000000002L,0x0000000E00000000L});
-    public static final BitSet FOLLOW_PERCENT_in_multiplicativeExpression4361 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_unaryExpression_in_multiplicativeExpression4365 = new BitSet(new long[]{0x0000000000000002L,0x0000000E00000000L});
-    public static final BitSet FOLLOW_postfixExpression_in_unaryExpression4395 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_unaryOperator_in_unaryExpression4406 = new BitSet(new long[]{0x2000F00000000000L,0x0961A00000008800L});
-    public static final BitSet FOLLOW_postfixExpression_in_unaryExpression4410 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_primaryExpression_in_postfixExpression4430 = new BitSet(new long[]{0x0000000000000002L,0x0000000000220000L});
-    public static final BitSet FOLLOW_DOT_in_postfixExpression4445 = new BitSet(new long[]{0x0000000000100000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_CLASS_in_postfixExpression4449 = new BitSet(new long[]{0x0000000000000002L,0x0000000000220000L});
-    public static final BitSet FOLLOW_name_in_postfixExpression4473 = new BitSet(new long[]{0x0000000000000002L,0x0000000000228000L});
-    public static final BitSet FOLLOW_LPAREN_in_postfixExpression4498 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C001E800L});
-    public static final BitSet FOLLOW_expressionListOpt_in_postfixExpression4500 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
-    public static final BitSet FOLLOW_RPAREN_in_postfixExpression4502 = new BitSet(new long[]{0x0000000000000002L,0x0000000000228000L});
-    public static final BitSet FOLLOW_LBRACKET_in_postfixExpression4534 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_name_in_postfixExpression4537 = new BitSet(new long[]{0x0000000000000010L});
-    public static final BitSet FOLLOW_BAR_in_postfixExpression4539 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_expression_in_postfixExpression4543 = new BitSet(new long[]{0x0000000000000000L,0x0000000000040000L});
-    public static final BitSet FOLLOW_RBRACKET_in_postfixExpression4546 = new BitSet(new long[]{0x0000000000000002L,0x0000000000220000L});
-    public static final BitSet FOLLOW_newExpression_in_primaryExpression4571 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_identifier_in_primaryExpression4583 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
-    public static final BitSet FOLLOW_LBRACE_in_primaryExpression4585 = new BitSet(new long[]{0xC000000000004200L,0x0828000000000005L});
-    public static final BitSet FOLLOW_objectLiteral_in_primaryExpression4588 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
-    public static final BitSet FOLLOW_RBRACE_in_primaryExpression4590 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_THIS_in_primaryExpression4607 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_SUPER_in_primaryExpression4627 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_identifier_in_primaryExpression4647 = new BitSet(new long[]{0x0000000000000002L,0x0000000000008000L});
-    public static final BitSet FOLLOW_LPAREN_in_primaryExpression4668 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C001E800L});
-    public static final BitSet FOLLOW_expressionListOpt_in_primaryExpression4672 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
-    public static final BitSet FOLLOW_RPAREN_in_primaryExpression4676 = new BitSet(new long[]{0x0000000000000002L,0x0000000000008000L});
-    public static final BitSet FOLLOW_stringExpression_in_primaryExpression4696 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_literal_in_primaryExpression4715 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_blockExpression_in_primaryExpression4735 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_primaryExpression4753 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_expression_in_primaryExpression4755 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
-    public static final BitSet FOLLOW_RPAREN_in_primaryExpression4757 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_NEW_in_newExpression4790 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_identifier_in_newExpression4793 = new BitSet(new long[]{0x0000000000000002L,0x0000000000008000L});
-    public static final BitSet FOLLOW_LPAREN_in_newExpression4801 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C001E800L});
-    public static final BitSet FOLLOW_expressionListOpt_in_newExpression4805 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
-    public static final BitSet FOLLOW_RPAREN_in_newExpression4809 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_objectLiteralPart_in_objectLiteral4849 = new BitSet(new long[]{0xC000000000004202L,0x0820000000000005L});
-    public static final BitSet FOLLOW_name_in_objectLiteralPart4875 = new BitSet(new long[]{0x0000000000000000L,0x0000080000000000L});
-    public static final BitSet FOLLOW_COLON_in_objectLiteralPart4877 = new BitSet(new long[]{0x3000F20030010060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_bindOpt_in_objectLiteralPart4880 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_expression_in_objectLiteralPart4882 = new BitSet(new long[]{0x0000000000000002L,0x0000000000180000L});
-    public static final BitSet FOLLOW_set_in_objectLiteralPart4884 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_attributeDefinition_in_objectLiteralPart4904 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_functionDefinition_in_objectLiteralPart4915 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_QUOTE_LBRACE_STRING_LITERAL_in_stringExpression4937 = new BitSet(new long[]{0x3000F20000000060L,0x0971B001C000E800L});
-    public static final BitSet FOLLOW_formatOrNull_in_stringExpression4946 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_expression_in_stringExpression4957 = new BitSet(new long[]{0x0000000000000000L,0x0006000000000000L});
-    public static final BitSet FOLLOW_RBRACE_LBRACE_STRING_LITERAL_in_stringExpression4972 = new BitSet(new long[]{0x3000F20000000060L,0x0971B001C000E800L});
-    public static final BitSet FOLLOW_formatOrNull_in_stringExpression4984 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_expression_in_stringExpression4998 = new BitSet(new long[]{0x0000000000000000L,0x0006000000000000L});
-    public static final BitSet FOLLOW_RBRACE_QUOTE_STRING_LITERAL_in_stringExpression5019 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_FORMAT_STRING_LITERAL_in_formatOrNull5049 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_expression_in_expressionListOpt5081 = new BitSet(new long[]{0x0000000000000002L,0x0000000000100000L});
-    public static final BitSet FOLLOW_COMMA_in_expressionListOpt5092 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
-    public static final BitSet FOLLOW_expression_in_expressionListOpt5098 = new BitSet(new long[]{0x0000000000000002L,0x0000000000100000L});
-    public static final BitSet FOLLOW_POUND_in_unaryOperator5121 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_QUES_in_unaryOperator5132 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_SUB_in_unaryOperator5145 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_NOT_in_unaryOperator5158 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_SIZEOF_in_unaryOperator5171 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_TYPEOF_in_unaryOperator5184 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_REVERSE_in_unaryOperator5197 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_PLUSPLUS_in_unaryOperator5210 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_SUBSUB_in_unaryOperator5223 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_PLUSEQ_in_assignmentOperator5244 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_SUBEQ_in_assignmentOperator5257 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_STAREQ_in_assignmentOperator5270 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_SLASHEQ_in_assignmentOperator5283 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_PERCENTEQ_in_assignmentOperator5296 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_COLON_in_typeReference5320 = new BitSet(new long[]{0x0000000000000000L,0x0820000200000000L});
-    public static final BitSet FOLLOW_name_in_typeReference5325 = new BitSet(new long[]{0x0000000000000002L,0x0000100220020000L});
-    public static final BitSet FOLLOW_cardinalityConstraint_in_typeReference5329 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_STAR_in_typeReference5355 = new BitSet(new long[]{0x0000000000000002L,0x0000100220020000L});
-    public static final BitSet FOLLOW_cardinalityConstraint_in_typeReference5359 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LBRACKET_in_cardinalityConstraint5421 = new BitSet(new long[]{0x0000000000000000L,0x0000000000040000L});
-    public static final BitSet FOLLOW_RBRACKET_in_cardinalityConstraint5425 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_QUES_in_cardinalityConstraint5437 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_PLUS_in_cardinalityConstraint5464 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_STAR_in_cardinalityConstraint5491 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_STRING_LITERAL_in_literal5560 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_INTEGER_LITERAL_in_literal5570 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_FLOATING_POINT_LITERAL_in_literal5580 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_TRUE_in_literal5590 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_FALSE_in_literal5604 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_NULL_in_literal5618 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_qualident_in_typeName5645 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_identifier_in_qualident5687 = new BitSet(new long[]{0x0000000000000002L,0x0000000000200000L});
-    public static final BitSet FOLLOW_DOT_in_qualident5715 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
-    public static final BitSet FOLLOW_name_in_qualident5717 = new BitSet(new long[]{0x0000000000000002L,0x0000000000200000L});
-    public static final BitSet FOLLOW_name_in_identifier5754 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_set_in_name5788 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_expression_in_moduleItem2192 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
+    public static final BitSet FOLLOW_SEMI_in_moduleItem2194 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IMPORT_in_importDecl2231 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_identifier_in_importDecl2234 = new BitSet(new long[]{0x0000000000000000L,0x0000000000280000L});
+    public static final BitSet FOLLOW_DOT_in_importDecl2259 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_name_in_importDecl2261 = new BitSet(new long[]{0x0000000000000000L,0x0000000000280000L});
+    public static final BitSet FOLLOW_DOT_in_importDecl2290 = new BitSet(new long[]{0x0000000000000000L,0x0000000200000000L});
+    public static final BitSet FOLLOW_STAR_in_importDecl2292 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
+    public static final BitSet FOLLOW_SEMI_in_importDecl2301 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_modifierFlags_in_classDefinition2332 = new BitSet(new long[]{0x0000000000100000L});
+    public static final BitSet FOLLOW_CLASS_in_classDefinition2335 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_name_in_classDefinition2337 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000020L});
+    public static final BitSet FOLLOW_supers_in_classDefinition2339 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
+    public static final BitSet FOLLOW_LBRACE_in_classDefinition2341 = new BitSet(new long[]{0xC000000000004200L,0x0008000000000005L});
+    public static final BitSet FOLLOW_classMembers_in_classDefinition2343 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
+    public static final BitSet FOLLOW_RBRACE_in_classDefinition2345 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_EXTENDS_in_supers2370 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_name_in_supers2374 = new BitSet(new long[]{0x0000000000000002L,0x0000000000100000L});
+    public static final BitSet FOLLOW_COMMA_in_supers2402 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_name_in_supers2406 = new BitSet(new long[]{0x0000000000000002L,0x0000000000100000L});
+    public static final BitSet FOLLOW_attributeDefinition_in_classMembers2440 = new BitSet(new long[]{0xC000000000004202L,0x0000000000000005L});
+    public static final BitSet FOLLOW_functionDefinition_in_classMembers2458 = new BitSet(new long[]{0xC000000000004202L,0x0000000000000005L});
+    public static final BitSet FOLLOW_modifierFlags_in_attributeDefinition2487 = new BitSet(new long[]{0x0000000000004000L});
+    public static final BitSet FOLLOW_ATTRIBUTE_in_attributeDefinition2489 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_name_in_attributeDefinition2491 = new BitSet(new long[]{0x0000000000000000L,0x0000080000880008L});
+    public static final BitSet FOLLOW_typeReference_in_attributeDefinition2499 = new BitSet(new long[]{0x0000000000000000L,0x0000000000880008L});
+    public static final BitSet FOLLOW_EQ_in_attributeDefinition2507 = new BitSet(new long[]{0x3000F20030010060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_bindOpt_in_attributeDefinition2509 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_expression_in_attributeDefinition2511 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
+    public static final BitSet FOLLOW_inverseClause_in_attributeDefinition2515 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
+    public static final BitSet FOLLOW_SEMI_in_attributeDefinition2525 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_INVERSE_in_inverseClause2551 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_memberSelector_in_inverseClause2553 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_modifierFlags_in_functionDefinition2571 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+    public static final BitSet FOLLOW_FUNCTION_in_functionDefinition2573 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_name_in_functionDefinition2575 = new BitSet(new long[]{0x0000000000000000L,0x0000000000008000L});
+    public static final BitSet FOLLOW_formalParameters_in_functionDefinition2583 = new BitSet(new long[]{0x0000000000000000L,0x0001080000000000L});
+    public static final BitSet FOLLOW_typeReference_in_functionDefinition2586 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
+    public static final BitSet FOLLOW_blockExpression_in_functionDefinition2595 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_otherModifier_in_modifierFlags2623 = new BitSet(new long[]{0xC000000000000002L,0x0000000000000001L});
+    public static final BitSet FOLLOW_accessModifier_in_modifierFlags2636 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_accessModifier_in_modifierFlags2658 = new BitSet(new long[]{0x0000000000000202L,0x0000000000000004L});
+    public static final BitSet FOLLOW_otherModifier_in_modifierFlags2671 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_PUBLIC_in_accessModifier2719 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_PRIVATE_in_accessModifier2739 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_PROTECTED_in_accessModifier2758 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ABSTRACT_in_otherModifier2785 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_READONLY_in_otherModifier2803 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_name_in_memberSelector2832 = new BitSet(new long[]{0x0000000000000000L,0x0000000000200000L});
+    public static final BitSet FOLLOW_DOT_in_memberSelector2836 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_name_in_memberSelector2842 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_formalParameters2860 = new BitSet(new long[]{0x0000000000000000L,0x0820000000010000L});
+    public static final BitSet FOLLOW_formalParameter_in_formalParameters2867 = new BitSet(new long[]{0x0000000000000000L,0x0000000000110000L});
+    public static final BitSet FOLLOW_COMMA_in_formalParameters2885 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_formalParameter_in_formalParameters2891 = new BitSet(new long[]{0x0000000000000000L,0x0000000000110000L});
+    public static final BitSet FOLLOW_RPAREN_in_formalParameters2902 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_name_in_formalParameter2917 = new BitSet(new long[]{0x0000000000000002L,0x0000080000000000L});
+    public static final BitSet FOLLOW_typeReference_in_formalParameter2919 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LBRACE_in_block2945 = new BitSet(new long[]{0xF130F201C0020260L,0x0969B001C008E807L});
+    public static final BitSet FOLLOW_statement_in_block2955 = new BitSet(new long[]{0xF130F201C0020260L,0x0969B001C008E807L});
+    public static final BitSet FOLLOW_expression_in_block2970 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
+    public static final BitSet FOLLOW_SEMI_in_block2972 = new BitSet(new long[]{0xF130F201C0020260L,0x0969B001C008E807L});
+    public static final BitSet FOLLOW_RBRACE_in_block2988 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LBRACE_in_blockExpression3012 = new BitSet(new long[]{0xF130F201C0020260L,0x0969B001C008E807L});
+    public static final BitSet FOLLOW_statements_in_blockExpression3015 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
+    public static final BitSet FOLLOW_RBRACE_in_blockExpression3020 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_statement_in_statements3039 = new BitSet(new long[]{0xF130F201C0020262L,0x0961B001C008E807L});
+    public static final BitSet FOLLOW_statements_in_statements3051 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_expression_in_statements3063 = new BitSet(new long[]{0x0000000000000002L,0x0000000000080000L});
+    public static final BitSet FOLLOW_SEMI_in_statements3075 = new BitSet(new long[]{0xF130F201C0020262L,0x0961B001C008E807L});
+    public static final BitSet FOLLOW_statements_in_statements3098 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_variableDeclaration_in_statement3156 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
+    public static final BitSet FOLLOW_SEMI_in_statement3158 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_functionDefinition_in_statement3166 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_WHILE_in_statement3182 = new BitSet(new long[]{0x0000000000000000L,0x0000000000008000L});
+    public static final BitSet FOLLOW_LPAREN_in_statement3184 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_expression_in_statement3186 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
+    public static final BitSet FOLLOW_RPAREN_in_statement3188 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
+    public static final BitSet FOLLOW_block_in_statement3190 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_BREAK_in_statement3197 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
+    public static final BitSet FOLLOW_SEMI_in_statement3199 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_CONTINUE_in_statement3212 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
+    public static final BitSet FOLLOW_SEMI_in_statement3215 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_THROW_in_statement3233 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_expression_in_statement3235 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
+    public static final BitSet FOLLOW_SEMI_in_statement3237 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_returnStatement_in_statement3257 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
+    public static final BitSet FOLLOW_SEMI_in_statement3259 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_tryStatement_in_statement3275 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_SEMI_in_statement3286 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_VAR_in_variableDeclaration3316 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_name_in_variableDeclaration3319 = new BitSet(new long[]{0x0000000000000002L,0x0000080000800000L});
+    public static final BitSet FOLLOW_typeReference_in_variableDeclaration3322 = new BitSet(new long[]{0x0000000000000002L,0x0000000000800000L});
+    public static final BitSet FOLLOW_EQ_in_variableDeclaration3333 = new BitSet(new long[]{0x3000F20030010060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_bindOpt_in_variableDeclaration3335 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_expression_in_variableDeclaration3338 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_BIND_in_bindOpt3388 = new BitSet(new long[]{0x0400000000000002L});
+    public static final BitSet FOLLOW_LAZY_in_bindOpt3404 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_STAYS_in_bindOpt3419 = new BitSet(new long[]{0x0400000000000002L});
+    public static final BitSet FOLLOW_LAZY_in_bindOpt3435 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_TIE_in_bindOpt3450 = new BitSet(new long[]{0x0400000000000002L});
+    public static final BitSet FOLLOW_LAZY_in_bindOpt3466 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_RETURN_in_returnStatement3500 = new BitSet(new long[]{0x3000F20000000062L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_expression_in_returnStatement3503 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_TRY_in_tryStatement3546 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
+    public static final BitSet FOLLOW_block_in_tryStatement3552 = new BitSet(new long[]{0x0200000000080000L});
+    public static final BitSet FOLLOW_FINALLY_in_tryStatement3565 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
+    public static final BitSet FOLLOW_block_in_tryStatement3571 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_catchClause_in_tryStatement3587 = new BitSet(new long[]{0x0200000000080002L});
+    public static final BitSet FOLLOW_FINALLY_in_tryStatement3610 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
+    public static final BitSet FOLLOW_block_in_tryStatement3615 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_CATCH_in_catchClause3654 = new BitSet(new long[]{0x0000000000000000L,0x0000000000008000L});
+    public static final BitSet FOLLOW_LPAREN_in_catchClause3657 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_name_in_catchClause3660 = new BitSet(new long[]{0x0000000000000000L,0x0000080000010000L});
+    public static final BitSet FOLLOW_COLON_in_catchClause3668 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_identifier_in_catchClause3670 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
+    public static final BitSet FOLLOW_RPAREN_in_catchClause3679 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
+    public static final BitSet FOLLOW_block_in_catchClause3683 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ifExpression_in_expression3711 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_suffixedExpression_in_expression3734 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IF_in_ifExpression3765 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_expression_in_ifExpression3769 = new BitSet(new long[]{0x0000040000000000L});
+    public static final BitSet FOLLOW_THEN_in_ifExpression3773 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_expression_in_ifExpression3778 = new BitSet(new long[]{0x0000080000000000L});
+    public static final BitSet FOLLOW_ELSE_in_ifExpression3786 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_expression_in_ifExpression3791 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_assignmentExpression_in_suffixedExpression3814 = new BitSet(new long[]{0x0000000000000002L,0x0000000140000000L});
+    public static final BitSet FOLLOW_set_in_suffixedExpression3825 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_assignmentOpExpression_in_assignmentExpression3854 = new BitSet(new long[]{0x0000000000000002L,0x0000000000800000L});
+    public static final BitSet FOLLOW_EQ_in_assignmentExpression3869 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_assignmentOpExpression_in_assignmentExpression3875 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_andExpression_in_assignmentOpExpression3902 = new BitSet(new long[]{0x0000000000000002L,0x000001F000000000L});
+    public static final BitSet FOLLOW_assignmentOperator_in_assignmentOpExpression3918 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_andExpression_in_assignmentOpExpression3924 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_orExpression_in_andExpression3950 = new BitSet(new long[]{0x0000000000000802L});
+    public static final BitSet FOLLOW_AND_in_andExpression3966 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_orExpression_in_andExpression3972 = new BitSet(new long[]{0x0000000000000802L});
+    public static final BitSet FOLLOW_instanceOfExpression_in_orExpression4000 = new BitSet(new long[]{0x0000000000000002L,0x0000000000001000L});
+    public static final BitSet FOLLOW_OR_in_orExpression4015 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_instanceOfExpression_in_orExpression4021 = new BitSet(new long[]{0x0000000000000002L,0x0000000000001000L});
+    public static final BitSet FOLLOW_relationalExpression_in_instanceOfExpression4049 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000100L});
+    public static final BitSet FOLLOW_INSTANCEOF_in_instanceOfExpression4064 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_identifier_in_instanceOfExpression4066 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4094 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
+    public static final BitSet FOLLOW_LTGT_in_relationalExpression4110 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4116 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
+    public static final BitSet FOLLOW_EQEQ_in_relationalExpression4130 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4136 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
+    public static final BitSet FOLLOW_LTEQ_in_relationalExpression4150 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4156 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
+    public static final BitSet FOLLOW_GTEQ_in_relationalExpression4170 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4176 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
+    public static final BitSet FOLLOW_LT_in_relationalExpression4190 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4198 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
+    public static final BitSet FOLLOW_GT_in_relationalExpression4212 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4220 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
+    public static final BitSet FOLLOW_IN_in_relationalExpression4234 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_additiveExpression_in_relationalExpression4242 = new BitSet(new long[]{0x0004000000000002L,0x000000001F400000L});
+    public static final BitSet FOLLOW_multiplicativeExpression_in_additiveExpression4271 = new BitSet(new long[]{0x0000000000000002L,0x00000000A0000000L});
+    public static final BitSet FOLLOW_PLUS_in_additiveExpression4286 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_multiplicativeExpression_in_additiveExpression4292 = new BitSet(new long[]{0x0000000000000002L,0x00000000A0000000L});
+    public static final BitSet FOLLOW_SUB_in_additiveExpression4305 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_multiplicativeExpression_in_additiveExpression4312 = new BitSet(new long[]{0x0000000000000002L,0x00000000A0000000L});
+    public static final BitSet FOLLOW_unaryExpression_in_multiplicativeExpression4340 = new BitSet(new long[]{0x0000000000000002L,0x0000000E00000000L});
+    public static final BitSet FOLLOW_STAR_in_multiplicativeExpression4356 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_unaryExpression_in_multiplicativeExpression4363 = new BitSet(new long[]{0x0000000000000002L,0x0000000E00000000L});
+    public static final BitSet FOLLOW_SLASH_in_multiplicativeExpression4377 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_unaryExpression_in_multiplicativeExpression4383 = new BitSet(new long[]{0x0000000000000002L,0x0000000E00000000L});
+    public static final BitSet FOLLOW_PERCENT_in_multiplicativeExpression4397 = new BitSet(new long[]{0x3000F00000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_unaryExpression_in_multiplicativeExpression4401 = new BitSet(new long[]{0x0000000000000002L,0x0000000E00000000L});
+    public static final BitSet FOLLOW_postfixExpression_in_unaryExpression4431 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_unaryOperator_in_unaryExpression4442 = new BitSet(new long[]{0x2000F00000000000L,0x0961A00000008800L});
+    public static final BitSet FOLLOW_postfixExpression_in_unaryExpression4446 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_primaryExpression_in_postfixExpression4466 = new BitSet(new long[]{0x0000000000000002L,0x0000000000220000L});
+    public static final BitSet FOLLOW_DOT_in_postfixExpression4481 = new BitSet(new long[]{0x0000000000100000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_CLASS_in_postfixExpression4485 = new BitSet(new long[]{0x0000000000000002L,0x0000000000220000L});
+    public static final BitSet FOLLOW_name_in_postfixExpression4509 = new BitSet(new long[]{0x0000000000000002L,0x0000000000228000L});
+    public static final BitSet FOLLOW_LPAREN_in_postfixExpression4534 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C001E800L});
+    public static final BitSet FOLLOW_expressionListOpt_in_postfixExpression4536 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
+    public static final BitSet FOLLOW_RPAREN_in_postfixExpression4538 = new BitSet(new long[]{0x0000000000000002L,0x0000000000228000L});
+    public static final BitSet FOLLOW_LBRACKET_in_postfixExpression4570 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_name_in_postfixExpression4573 = new BitSet(new long[]{0x0000000000000010L});
+    public static final BitSet FOLLOW_BAR_in_postfixExpression4575 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_expression_in_postfixExpression4579 = new BitSet(new long[]{0x0000000000000000L,0x0000000000040000L});
+    public static final BitSet FOLLOW_RBRACKET_in_postfixExpression4582 = new BitSet(new long[]{0x0000000000000002L,0x0000000000220000L});
+    public static final BitSet FOLLOW_newExpression_in_primaryExpression4607 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_identifier_in_primaryExpression4619 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
+    public static final BitSet FOLLOW_LBRACE_in_primaryExpression4621 = new BitSet(new long[]{0xC000000000004200L,0x0828000000000005L});
+    public static final BitSet FOLLOW_objectLiteral_in_primaryExpression4624 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
+    public static final BitSet FOLLOW_RBRACE_in_primaryExpression4626 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_THIS_in_primaryExpression4643 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_SUPER_in_primaryExpression4663 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_identifier_in_primaryExpression4683 = new BitSet(new long[]{0x0000000000000002L,0x0000000000008000L});
+    public static final BitSet FOLLOW_LPAREN_in_primaryExpression4704 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C001E800L});
+    public static final BitSet FOLLOW_expressionListOpt_in_primaryExpression4708 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
+    public static final BitSet FOLLOW_RPAREN_in_primaryExpression4712 = new BitSet(new long[]{0x0000000000000002L,0x0000000000008000L});
+    public static final BitSet FOLLOW_stringExpression_in_primaryExpression4732 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_literal_in_primaryExpression4751 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_blockExpression_in_primaryExpression4771 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_primaryExpression4789 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_expression_in_primaryExpression4791 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
+    public static final BitSet FOLLOW_RPAREN_in_primaryExpression4793 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_NEW_in_newExpression4826 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_identifier_in_newExpression4829 = new BitSet(new long[]{0x0000000000000002L,0x0000000000008000L});
+    public static final BitSet FOLLOW_LPAREN_in_newExpression4837 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C001E800L});
+    public static final BitSet FOLLOW_expressionListOpt_in_newExpression4841 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
+    public static final BitSet FOLLOW_RPAREN_in_newExpression4845 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_objectLiteralPart_in_objectLiteral4885 = new BitSet(new long[]{0xC000000000004202L,0x0820000000000005L});
+    public static final BitSet FOLLOW_name_in_objectLiteralPart4911 = new BitSet(new long[]{0x0000000000000000L,0x0000080000000000L});
+    public static final BitSet FOLLOW_COLON_in_objectLiteralPart4913 = new BitSet(new long[]{0x3000F20030010060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_bindOpt_in_objectLiteralPart4916 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_expression_in_objectLiteralPart4918 = new BitSet(new long[]{0x0000000000000002L,0x0000000000180000L});
+    public static final BitSet FOLLOW_set_in_objectLiteralPart4920 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_attributeDefinition_in_objectLiteralPart4940 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_functionDefinition_in_objectLiteralPart4951 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_QUOTE_LBRACE_STRING_LITERAL_in_stringExpression4973 = new BitSet(new long[]{0x3000F20000000060L,0x0971B001C000E800L});
+    public static final BitSet FOLLOW_formatOrNull_in_stringExpression4982 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_expression_in_stringExpression4993 = new BitSet(new long[]{0x0000000000000000L,0x0006000000000000L});
+    public static final BitSet FOLLOW_RBRACE_LBRACE_STRING_LITERAL_in_stringExpression5008 = new BitSet(new long[]{0x3000F20000000060L,0x0971B001C000E800L});
+    public static final BitSet FOLLOW_formatOrNull_in_stringExpression5020 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_expression_in_stringExpression5034 = new BitSet(new long[]{0x0000000000000000L,0x0006000000000000L});
+    public static final BitSet FOLLOW_RBRACE_QUOTE_STRING_LITERAL_in_stringExpression5055 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_FORMAT_STRING_LITERAL_in_formatOrNull5085 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_expression_in_expressionListOpt5117 = new BitSet(new long[]{0x0000000000000002L,0x0000000000100000L});
+    public static final BitSet FOLLOW_COMMA_in_expressionListOpt5128 = new BitSet(new long[]{0x3000F20000000060L,0x0961B001C000E800L});
+    public static final BitSet FOLLOW_expression_in_expressionListOpt5134 = new BitSet(new long[]{0x0000000000000002L,0x0000000000100000L});
+    public static final BitSet FOLLOW_POUND_in_unaryOperator5157 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_QUES_in_unaryOperator5168 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_SUB_in_unaryOperator5181 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_NOT_in_unaryOperator5194 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_SIZEOF_in_unaryOperator5207 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_TYPEOF_in_unaryOperator5220 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_REVERSE_in_unaryOperator5233 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_PLUSPLUS_in_unaryOperator5246 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_SUBSUB_in_unaryOperator5259 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_PLUSEQ_in_assignmentOperator5280 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_SUBEQ_in_assignmentOperator5293 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_STAREQ_in_assignmentOperator5306 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_SLASHEQ_in_assignmentOperator5319 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_PERCENTEQ_in_assignmentOperator5332 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_COLON_in_typeReference5356 = new BitSet(new long[]{0x0000000000000000L,0x0820000200000000L});
+    public static final BitSet FOLLOW_name_in_typeReference5361 = new BitSet(new long[]{0x0000000000000002L,0x0000100220020000L});
+    public static final BitSet FOLLOW_cardinalityConstraint_in_typeReference5365 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_STAR_in_typeReference5391 = new BitSet(new long[]{0x0000000000000002L,0x0000100220020000L});
+    public static final BitSet FOLLOW_cardinalityConstraint_in_typeReference5395 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LBRACKET_in_cardinalityConstraint5457 = new BitSet(new long[]{0x0000000000000000L,0x0000000000040000L});
+    public static final BitSet FOLLOW_RBRACKET_in_cardinalityConstraint5461 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_QUES_in_cardinalityConstraint5473 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_PLUS_in_cardinalityConstraint5500 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_STAR_in_cardinalityConstraint5527 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_STRING_LITERAL_in_literal5596 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_INTEGER_LITERAL_in_literal5606 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_FLOATING_POINT_LITERAL_in_literal5616 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_TRUE_in_literal5626 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_FALSE_in_literal5640 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_NULL_in_literal5654 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_qualident_in_typeName5681 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_identifier_in_qualident5723 = new BitSet(new long[]{0x0000000000000002L,0x0000000000200000L});
+    public static final BitSet FOLLOW_DOT_in_qualident5751 = new BitSet(new long[]{0x0000000000000000L,0x0820000000000000L});
+    public static final BitSet FOLLOW_name_in_qualident5753 = new BitSet(new long[]{0x0000000000000002L,0x0000000000200000L});
+    public static final BitSet FOLLOW_name_in_identifier5790 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_set_in_name5824 = new BitSet(new long[]{0x0000000000000002L});
 
 }

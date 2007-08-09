@@ -117,7 +117,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         result = make.JavafxVarDef(make.Modifiers(0),
                 tree.getName(), JavafxFlags.VARIABLE,
                 jcType(tree.getType()), tree.getInitializer(),
-                tree.getBindStatus(), null, tree);
+                tree.getBindStatus());
     }
     
     /**
@@ -183,70 +183,78 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     }
     
     @Override
-    public void visitAttributeDeclaration(JFXRetroAttributeDeclaration tree) {
-        super.visitAttributeDeclaration(tree);
+    public void visitAttributeDefinition(JFXAttributeDefinition tree) {
+        super.visitAttributeDefinition(tree);
         
         JCExpression vartype = jcType(tree.getType());
-        JFXRetroAttributeDefinition definition = (JFXRetroAttributeDefinition)tree.retroDefinition;
+        result = make.JavafxVarDef(make.Modifiers(0), tree.name, JavafxFlags.ATTRIBUTE, vartype,
+                    tree.getInitializer()==null? null : tree.getInitializer(),
+                    tree.getBindStatus()==null? JavafxBindStatus.UNBOUND : tree.getBindStatus());
+    }
+    
+    
+    @Override
+    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+        super.visitFunctionDefinition(tree);
+        
+        JCExpression restype = jcType(tree.getType());
+        List<JCVariableDecl> params = buildParams(tree.params);
+        JFXBlockExpression bodyExpression = tree.getBodyExpression();
+        List<JCStatement> statements = bodyExpression.getStatements();
+        if (bodyExpression.value != null) {
+            // if the block expression has a value, convert it to a return statement
+            ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
+            stats.appendList(statements);
+            stats.append(make.Return(bodyExpression.value));
+            statements = stats.toList();
+        }
+        JCBlock block = make.Block(0L, statements);
+         
+        result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.FUNCTION, tree.name,
+                restype, params, block);
+   }
+    
+    @Override
+    public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration tree) {
+        super.visitRetroAttributeDeclaration(tree);
+        
+        JCExpression vartype = jcType(tree.getType());
+        JFXRetroAttributeDefinition definition = tree.retroDefinition;
         if (definition == null) {
             result = make.JavafxVarDef(make.Modifiers(0), tree.name, JavafxFlags.ATTRIBUTE, vartype,
-                    null, JavafxBindStatus.UNBOUND, definition, tree);
+                    null, JavafxBindStatus.UNBOUND);
         } else {
             result = make.JavafxVarDef(make.Modifiers(0),
                     tree.name, JavafxFlags.ATTRIBUTE, vartype,
-                    translate(definition.getInitializer()),
-                    definition.getBindStatus(), definition, tree);
+                    definition.getInitializer()==null? null : translate(definition.getInitializer()),
+                    definition.getBindStatus()==null? JavafxBindStatus.UNBOUND : definition.getBindStatus());
         }
     }
     
     @Override
-    public void visitFunctionDeclaration(JFXRetroFunctionMemberDeclaration tree) {
-        super.visitFunctionDeclaration(tree);
+    public void visitRetroFunctionDeclaration(JFXRetroFunctionMemberDeclaration tree) {
+        super.visitRetroFunctionDeclaration(tree);
         
         JCExpression restype = jcType(tree.getType());
-        List<JFXExpression> capturedOuters = List.nil();
-        
-        List<JCVariableDecl> params = List.nil();
-        for (JCTree var : tree.params) {
-            if (var.getTag() == JavafxTag.VARDECL) {
-                params = params.append(jcVarDeclFromJFXVar((JFXVar)var));
-            } else if (var.getTag() == JCTree.VARDEF) {
-                params = params.append((JCVariableDecl)var);
-            } else {
-                throw new AssertionError("Unexpected tree in the JFXFunctionMemberDeclaration parameter list.");
-            }
-        }
-        
-        JFXRetroFunctionMemberDefinition definition = (JFXRetroFunctionMemberDefinition)tree.retroDefinition;
+        List<JCVariableDecl> params = buildParams(tree.params);
+        JFXRetroFunctionMemberDefinition definition = tree.retroDefinition;
         
         result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.FUNCTION, tree.name,
-                restype, params, definition == null ? null : definition.body, null,
-                capturedOuters, definition, tree);
+                restype, params, definition == null ? null : definition.body, 
+                definition, tree);
     }
     
     @Override
-    public void visitOperationDeclaration(JFXRetroOperationMemberDeclaration tree) {
-        super.visitOperationDeclaration(tree);
+    public void visitRetroOperationDeclaration(JFXRetroOperationMemberDeclaration tree) {
+        super.visitRetroOperationDeclaration(tree);
         
         JCExpression restype = jcType(tree.getType());
-        List<JFXExpression> capturedOuters = List.nil();
-        
-        List<JCVariableDecl> params = List.nil();
-        for (JCTree var : tree.params) {
-            if (var.getTag() == JavafxTag.VARDECL) {
-                params = params.append(jcVarDeclFromJFXVar((JFXVar)var));
-            } else if (var.getTag() == JCTree.VARDEF) {
-                params = params.append((JCVariableDecl)var);
-            } else {
-                throw new AssertionError("Unexpected tree in the JFXOperationMemberDeclaration parameter list.");
-            }
-        }
-        
-        JFXRetroOperationMemberDefinition definition = (JFXRetroOperationMemberDefinition)tree.retroDefinition;
+        List<JCVariableDecl> params = buildParams(tree.params);
+        JFXRetroOperationMemberDefinition definition = tree.retroDefinition;
         
         result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.FUNCTION, tree.name,
-                restype, params, definition == null ? null : definition.body, null,
-                capturedOuters, definition, tree);
+                restype, params, definition == null ? null : definition.body, 
+                definition, tree);
     }
     
     @Override
@@ -273,21 +281,9 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         
         JCExpression restype = jcType(tree.getType());
         
-        List<JFXExpression> capturedOuters = List.nil();
-        
-        List<JCVariableDecl> params = List.nil();
-        for (JCTree var : tree.params) {
-            if (var.getTag() == JavafxTag.VARDECL) {
-                params = params.append(jcVarDeclFromJFXVar((JFXVar)var));
-            } else if (var.getTag() == JCTree.VARDEF) {
-                params = params.append((JCVariableDecl)var);
-            } else {
-                throw new AssertionError("Unexpected tree in the JFXOperationLocalDefinition parameter list.");
-            }
-        }
-        
+        List<JCVariableDecl> params = buildParams(tree.params);
         result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.FUNCTION, tree.getName(),
-                restype, params, tree.getBody(), null, capturedOuters, tree, null);
+                restype, params, tree.getBody(), tree, null);
     }
     
     @Override
@@ -296,21 +292,9 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         
         JCExpression restype = jcType(tree.getType());
         
-        List<JFXExpression> capturedOuters = List.nil();
-        
-        List<JCVariableDecl> params = List.nil();
-        for (JCTree var : tree.params) {
-            if (var.getTag() == JavafxTag.VARDECL) {
-                params = params.append(jcVarDeclFromJFXVar((JFXVar)var));
-            } else if (var.getTag() == JCTree.VARDEF) {
-                params = params.append((JCVariableDecl)var);
-            } else {
-                throw new AssertionError("Unexpected tree in the JFXFunctionLocalDefinition parameter list.");
-            }
-        }
-        
+        List<JCVariableDecl> params = buildParams(tree.params);
         result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.FUNCTION, tree.getName(),
-                restype, params, tree.getBody(), null, capturedOuters, tree, null);
+                restype, params, tree.getBody(), tree, null);
     }
     
     @Override
@@ -385,8 +369,8 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
             List<JCVariableDecl> params = List.nil();
             JavafxJCMethodDecl triggerDecl = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.TRIGGERNEW,
                     getSyntheticName(tree.getClassIdentifier().toString()),
-                    make.TypeIdent(TypeTags.VOID), params, tree.getBlock(), null,
-                    null, tree, null);
+                    make.TypeIdent(TypeTags.VOID), params, tree.getBlock(),
+                    tree, null);
             if (declTriggers == null) {
                 declTriggers = List.nil();
             }
@@ -409,8 +393,8 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
             List<JCVariableDecl> params = List.nil();
             JavafxJCMethodDecl triggerDecl = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.TRIGGERREPLACE,
                     getSyntheticName(tree.selector.getClassName().toString()),
-                    make.TypeIdent(TypeTags.VOID), params, tree.getBlock(), null,
-                    null, tree, null);
+                    make.TypeIdent(TypeTags.VOID), params, tree.getBlock(),
+                    tree, null);
             if (declTriggers == null) {
                 declTriggers = List.nil();
             }
@@ -440,6 +424,20 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
             tree.stats = stats;
         }
         result = tree;
+    }
+
+    private List<JCVariableDecl> buildParams(List<JCTree> fxparams) {
+        List<JCVariableDecl> params = List.nil();
+        for (JCTree var : fxparams) {
+            if (var.getTag() == JavafxTag.VARDECL) {
+                params = params.append(jcVarDeclFromJFXVar((JFXVar)var));
+            } else if (var.getTag() == JCTree.VARDEF) {
+                params = params.append((JCVariableDecl)var);
+            } else {
+                throw new AssertionError("Unexpected tree in the JFXFunctionMemberDeclaration parameter list.");
+            }
+        }
+        return params;
     }
     
     private void addEmptyContextMethods(ListBuffer<JCTree> defs) {
@@ -539,7 +537,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         }
         return make.JavafxVarDef(mods, tree.getName(),
                 JavafxFlags.VARIABLE, jcType(tree.getType()),
-                null, JavafxBindStatus.UNBOUND, null, tree);
+                null, JavafxBindStatus.UNBOUND);
     }
     
     
@@ -578,7 +576,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                             ctorBodyBlock = make.Block(0L, ctorStats);
                             JavafxJCMethodDecl jfxDeclConstructor = make.JavafxMethodDef(make.Modifiers(Flags.PUBLIC), 0,
                                     names.init,
-                                    make.TypeIdent(TypeTags.VOID), params, ctorBodyBlock, null, null, null, null);
+                                    make.TypeIdent(TypeTags.VOID), params, ctorBodyBlock);
                             classHelper.jfxDecl.constructor = jfxDeclConstructor;
                             classHelper.jcDecl.defs = classHelper.jcDecl.defs.prepend(jfxDeclConstructor);
                         } else {
@@ -625,7 +623,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                             ctorBodyBlock = make.Block(0L, ctorStats);
                             JavafxJCMethodDecl jfxDeclConstructor = make.JavafxMethodDef(make.Modifiers(Flags.PUBLIC), 0,
                                     names.init,
-                                    make.TypeIdent(TypeTags.VOID), params, ctorBodyBlock, null, null, null, null);
+                                    make.TypeIdent(TypeTags.VOID), params, ctorBodyBlock);
                             classHelper.jfxDecl.constructor = jfxDeclConstructor; // TODO: Replace constructor with the initializer.
                             classHelper.jcDecl.defs = classHelper.jcDecl.defs.prepend(jfxDeclConstructor);
                         } else {

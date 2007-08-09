@@ -15,8 +15,6 @@ import com.sun.tools.javafx.code.JavafxBindStatus;
 public class JavafxJCVarDecl extends JCVariableDecl {
     private final int javafxVarType;
     private JavafxBindStatus bindStatus;
-    private final JCTree declaration;
-    private final JCTree definition;
     
     /** Creates a new instance of JavafxVarDecl */
     public JavafxJCVarDecl(
@@ -26,19 +24,10 @@ public class JavafxJCVarDecl extends JCVariableDecl {
             JCExpression vartype,
             JCExpression init,
             JavafxVarSymbol sym,
-            JavafxBindStatus bindStatus,
-            JCTree definition,
-            JCTree declaration) {
+            JavafxBindStatus bindStatus) {
         super(mods, name, vartype, init, sym);
         this.javafxVarType = javafxVarType;
         this.bindStatus = bindStatus;
-        this.definition = definition;
-        this.declaration = declaration;
-        if (definition != null) {
-            pos = definition.pos;
-        } else if (declaration != null) {
-            pos = declaration.pos;
-        }
     }
     
     public int getJavafxVarType() {
@@ -50,12 +39,4 @@ public class JavafxJCVarDecl extends JCVariableDecl {
     public boolean isUnidiBind() { return bindStatus.isUnidiBind; }
     public boolean isBidiBind()  { return bindStatus.isBidiBind; }
     public boolean isLazy()      { return bindStatus.isLazy; }
-    
-    public JCTree getDeclaration() {
-        return declaration;
-    }
-    
-    public JCTree getDefinition() {
-        return definition;
-    }
 }

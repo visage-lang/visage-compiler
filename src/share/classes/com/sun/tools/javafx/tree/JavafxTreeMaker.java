@@ -115,6 +115,42 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
+    public JFXAttributeDefinition AttributeDefinition(
+            JCModifiers modifiers,
+            Name name,
+            JFXType type,
+            JFXMemberSelector inverseOrNull,
+            JCExpression orderingOrNull, 
+            JavafxBindStatus bindStatus, 
+            JCExpression init) {
+        JFXAttributeDefinition tree = new JFXAttributeDefinition(
+                modifiers,
+                name,
+                type,
+                inverseOrNull,
+                orderingOrNull, 
+                bindStatus, 
+                init);
+        tree.pos = pos;
+        return tree;
+    }
+    
+    public JFXFunctionDefinition FunctionDefinition(
+            JCModifiers modifiers,
+            Name name,
+            JFXType restype,
+            List<JCTree> params, 
+            JFXBlockExpression bodyExpression) {
+        JFXFunctionDefinition tree = new JFXFunctionDefinition(
+                modifiers,
+                name,
+                restype,
+                params,
+                bodyExpression);
+        tree.pos = pos;
+        return tree;
+    }
+    
     public JFXRetroAttributeDeclaration RetroAttributeDeclaration(JCModifiers mods,
             Name name,
             JFXType type,
@@ -435,14 +471,24 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
             JCExpression restype,
             List<JCVariableDecl> params,
             JCBlock body,
-            JavafxMethodSymbol sym,
-            List<JFXExpression> capturedOuters,
             JFXStatement definition,
             JFXStatement declaration) {
         List<JCTypeParameter> typarams = List.nil();
         List<JCExpression> thrown = List.nil();
         return new JavafxJCMethodDecl(mods, javafxMethodType, name, restype, typarams,
-                params, thrown, body, sym, capturedOuters, definition, declaration);
+                params, thrown, body, null, definition, declaration);
+    }
+    
+    public JavafxJCMethodDecl JavafxMethodDef(JCModifiers mods,
+            int javafxMethodType,
+            Name name,
+            JCExpression restype,
+            List<JCVariableDecl> params,
+            JCBlock body) {
+        List<JCTypeParameter> typarams = List.nil();
+        List<JCExpression> thrown = List.nil();
+        return new JavafxJCMethodDecl(mods, javafxMethodType, name, restype, typarams,
+                params, thrown, body, null, null, null);
     }
     
     public JavafxJCVarDecl JavafxVarDef(JCModifiers mods,
@@ -450,11 +496,9 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                          int javafxVarType,
 			 JCExpression vartype,
 			 JCExpression init,
-                         JavafxBindStatus bindStatus,
-                         JCTree definition,
-                         JCTree declaration) {
+                         JavafxBindStatus bindStatus) {
         return new JavafxJCVarDecl(mods, name, javafxVarType, vartype, 
-                init, null, bindStatus, definition, declaration);
+                init, null, bindStatus);
     }
     
     public JavafxJCAssign JavafxAssign(JCExpression lhs, 

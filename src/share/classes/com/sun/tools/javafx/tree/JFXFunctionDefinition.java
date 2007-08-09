@@ -25,31 +25,44 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCModifiers;
+import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
 
 /**
- * An attribute declaration.
+ * A function definition.
  */
-public class JFXRetroAttributeDeclaration extends JFXAbstractAttribute {
-    public JFXRetroAttributeDefinition retroDefinition;
-    
-   /*
-    * @param modifiers attribute modifiers
-    * @param name attribute name
-    * @param type type of attribute
-    */
-    protected JFXRetroAttributeDeclaration(JCModifiers mods,
-            Name name,
-            JFXType type,
-            JFXMemberSelector inverseOrNull,
-            JCExpression orderingOrNull) {
-        super(mods, name, type, inverseOrNull, orderingOrNull);
+public class JFXFunctionDefinition extends JFXAbstractFunction {
+    public JFXBlockExpression bodyExpression;
+
+    /*
+     * @param modifiers operation modifiers
+     * @param name operation name
+     * @param restype type of operation return value
+     * @param params value parameters
+     */
+    protected JFXFunctionDefinition(
+            JCModifiers modifiers, 
+            Name name, 
+            JFXType restype, 
+            List<JCTree> params, 
+            JFXBlockExpression bodyExpression) {
+        super(modifiers, name, restype, params);
+        this.bodyExpression = bodyExpression;
     }
-    public void accept(JavafxVisitor v) { v.visitRetroAttributeDeclaration(this); }
+    
+    public JFXBlockExpression getBodyExpression() {
+        return bodyExpression;
+    }
+
+    @Override
+    public void accept(JavafxVisitor v) {
+        v.visitFunctionDefinition(this);
+    }
 
     @Override
     public int getTag() {
-        return JavafxTag.RETROATTRIBUTEDECL;
+        return JavafxTag.FUNCTIONDEF;
     }
 }

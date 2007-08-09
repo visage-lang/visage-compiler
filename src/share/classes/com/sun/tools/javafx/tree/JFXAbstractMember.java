@@ -37,7 +37,6 @@ public abstract class JFXAbstractMember extends JFXStatement {
     public JCModifiers modifiers;
     public JFXType memtype;
 
-    public JFXRetroMemberDefinition retroDefinition;
     public JCTree owner;
     
    /*
@@ -54,5 +53,9 @@ public abstract class JFXAbstractMember extends JFXStatement {
     
     public JFXType getType() {
         return memtype;
+    }
+    
+    public Name getName() {
+        return name;
     }
 }

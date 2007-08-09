@@ -32,9 +32,14 @@ public interface JavafxVisitor extends JCVisitor {
     public boolean shouldVisitSynthetic();
     
     public void visitClassDeclaration(JFXClassDeclaration that);
-    public void visitAttributeDeclaration(JFXRetroAttributeDeclaration that);
-    public void visitFunctionDeclaration(JFXRetroFunctionMemberDeclaration that);
-    public void visitOperationDeclaration(JFXRetroOperationMemberDeclaration that);
+    public void visitAbstractMember(JFXAbstractMember that);
+    public void visitAbstractAttribute(JFXAbstractAttribute that);
+    public void visitAbstractFunction(JFXAbstractFunction that);
+    public void visitAttributeDefinition(JFXAttributeDefinition that);
+    public void visitFunctionDefinition(JFXFunctionDefinition that);
+    public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration that);
+    public void visitRetroFunctionDeclaration(JFXRetroFunctionMemberDeclaration that);
+    public void visitRetroOperationDeclaration(JFXRetroOperationMemberDeclaration that);
     public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that);
     public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition that);
     public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition that);

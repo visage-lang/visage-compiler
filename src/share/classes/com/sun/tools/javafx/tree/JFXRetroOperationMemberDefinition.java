@@ -25,8 +25,8 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.*;
-import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCBlock;
 
 import com.sun.tools.javac.util.List;
 

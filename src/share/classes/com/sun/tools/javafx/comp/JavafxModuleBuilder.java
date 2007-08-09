@@ -137,7 +137,6 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
         
         // Create getModuleInstance method
         List<JCVariableDecl> emptyVarDefList = List.nil();
-        List<JFXExpression> emptyCaptureOuters = List.nil();
         List<JCStatement> stats = List.nil();
         stats = stats.append(make.Return(make.Ident(Name.fromString(nameTable, instModNamed))));
         
@@ -145,7 +144,7 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
         
         newBody = newBody.prepend(make.JavafxMethodDef(make.Modifiers(PUBLIC|STATIC), JavafxFlags.SIMPLE_JAVA, Name.fromString(nameTable,
                 "getModuleInstance"), make.Ident(Name.fromString(nameTable, fileObjName)),
-                emptyVarDefList, body, null, emptyCaptureOuters, null, null));
+                emptyVarDefList, body));
 
         // Create the run method...
         // Create getModuleInstance method
@@ -180,6 +179,10 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
                 checkName(tree.pos, ((JFXRetroFuncOpLocalDefinition)tree).getName());
                 newBody = newBody.append(tree);
                 break;
+            case FUNCTIONDEF:
+                checkName(tree.pos, ((JFXFunctionDefinition)tree).getName());
+                newBody = newBody.append(tree);
+                break;
             case VARDECL:
                 checkName(tree.pos, ((JFXVar)tree).getName());
                 stats = stats.append((JFXVar)tree);
@@ -201,10 +204,9 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
         }
                 
         JCBlock runBody = make.Block(0, stats);
-        emptyCaptureOuters = List.nil();
         newBody = newBody.prepend(make.JavafxMethodDef(make.Modifiers(PUBLIC), JavafxFlags.SIMPLE_JAVA, Name.fromString(nameTable,
                 "run"), make.TypeIdent(VOID),
-                emptyVarDefList, runBody, null, emptyCaptureOuters, null, null));
+                emptyVarDefList, runBody));
 
         // Add main method...
         JCNewClass newClass = make.NewClass(null, emptyExpressionList, make.Ident(Name.fromString(nameTable, fileObjName)),
@@ -224,10 +226,9 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
                             make.TypeArray(make.Ident(Name.fromString(nameTable, "String"))), 
                             null));
         
-        emptyCaptureOuters = List.nil();
         newBody = newBody.prepend(make.JavafxMethodDef(make.Modifiers(PUBLIC|STATIC), JavafxFlags.SIMPLE_JAVA, Name.fromString(nameTable,
                 "main"), make.TypeIdent(VOID),
-                paramList, make.Block(0, stats), null, emptyCaptureOuters, null, null));
+                paramList, make.Block(0, stats)));
 
         memberHolder.resultTopTreeDefs = retDefs;
         memberHolder.topLevelClassBody = newBody;
@@ -238,15 +239,15 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
         // TODO:
     }
     
-    public void visitAttributeDeclaration(JFXRetroAttributeDeclaration that) {
+    public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration that) {
         // TODO:
     }
     
-    public void visitFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
+    public void visitRetroFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
         // TODO:
     }
 
-    public void visitOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
+    public void visitRetroOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
         // TODO:
     }
 

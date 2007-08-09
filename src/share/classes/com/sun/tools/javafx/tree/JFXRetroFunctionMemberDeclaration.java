@@ -37,7 +37,9 @@ import com.sun.tools.javac.tree.JCTree;
  * A function declaration.
  */
 public class JFXRetroFunctionMemberDeclaration extends JFXAbstractFunction {
-   /*
+    public JFXRetroFunctionMemberDefinition retroDefinition;
+
+    /*
     * @param modifiers operation modifiers
     * @param name operation name
     * @param restype type of operation return value
@@ -49,7 +51,7 @@ public class JFXRetroFunctionMemberDeclaration extends JFXAbstractFunction {
             List<JCTree> params) {
         super(mods, name, restype, params);
     }
-    public void accept(JavafxVisitor v) { v.visitFunctionDeclaration(this); }
+    public void accept(JavafxVisitor v) { v.visitRetroFunctionDeclaration(this); }
 
     @Override
     public int getTag() {

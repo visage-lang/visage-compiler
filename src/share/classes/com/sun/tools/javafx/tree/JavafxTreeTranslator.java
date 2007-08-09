@@ -47,47 +47,82 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
-    public void visitAttributeDeclaration(JFXRetroAttributeDeclaration that) {
-        visitMemberDeclaration(that);
-        if (that.inverseOrNull != null) {
-            that.inverseOrNull = translate(that.inverseOrNull);
-        }
-        
-        if (that.orderingOrNull != null) {
-            that.orderingOrNull = translate(that.orderingOrNull);
-        }
-
-        result = that;
-    }
-    
-    public void visitFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
-        visitFuncOpDeclaration(that);
-        result = that;
-    }
-    
-    public void visitOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
-        visitFuncOpDeclaration(that);
-        result = that;
-    }
-    
-    public void visitFuncOpDeclaration(JFXAbstractFunction that) {
-        visitMemberDeclaration(that);
-        that.params = translate(that.params);
-        
-        result = that;
-    }
-    
-    public void visitMemberDeclaration(JFXAbstractMember that) {
+    public void visitAbstractMember(JFXAbstractMember that) {
         that.modifiers = translate(that.modifiers);
         if (that.memtype != null) {
             that.memtype = translate(that.memtype);
+        } 
+        result = that;
+    }
+    
+    public void visitAbstractAttribute(JFXAbstractAttribute that) {
+        visitAbstractMember(that);
+        if (that.inverseOrNull != null) {
+            that.inverseOrNull = translate(that.inverseOrNull);
+        }      
+        if (that.orderingOrNull != null) {
+            that.orderingOrNull = translate(that.orderingOrNull);
         }
+        result = that;
+    }
+    
+    public void visitAbstractFunction(JFXAbstractFunction that) {
+        visitAbstractMember(that);
+        that.params = translate(that.params);
+        result = that;
+    }
+    
+    public void visitAttributeDefinition(JFXAttributeDefinition that) {
+        visitAbstractAttribute(that);
+        if (that.init != null) {
+            that.init = translate(that.init);
+        }
+        result = that;
+    }
+    
+    public void visitFunctionDefinition(JFXFunctionDefinition that) {
+        visitAbstractFunction(that);
+        that.bodyExpression = translate(that.bodyExpression);
+        result = that;
+    }
+
+    // old-style "retro" separate definition/declaration
+    
+    public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration that) {
+        visitAbstractAttribute(that);
+        result = that;
+    }
+    
+    public void visitRetroFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
+        visitAbstractFunction(that);
+        result = that;
+    }
+    
+    public void visitRetroOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
+        visitAbstractFunction(that);
+        result = that;
+    }
+    
+    public void visitRetroMemberDefinition(JFXRetroMemberDefinition that) {
+        if (that.selector != null) {
+            that.selector = translate(that.selector);
+        }
+        if (that.memtype != null) {
+            that.memtype = translate(that.memtype);
+        }
+        result = that;
+    }
+    
+    public void visitRetroFuncOpDefinition(JFXRetroFuncOpMemberDefinition that) {
+        visitRetroMemberDefinition(that);
         
+        that.params = translate(that.params);
+        that.body = translate(that.body);
         result = that;
     }
     
     public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that) {
-        visitMemberDefinition(that);
+        visitRetroMemberDefinition(that);
         if (that.init != null) {
             that.init = translate(that.init);
         }
@@ -96,30 +131,12 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
     }
     
     public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
-        visitFuncOpDefinition(that);
+        visitRetroFuncOpDefinition(that);
         result = that;
     }
     
     public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition that) {
-        visitFuncOpDefinition(that);
-        result = that;
-    }
-    
-    public void visitFuncOpDefinition(JFXRetroFuncOpMemberDefinition that) {
-        visitMemberDefinition(that);
-        
-        that.params = translate(that.params);
-        that.body = translate(that.body);
-        result = that;
-    }
-    
-    public void visitMemberDefinition(JFXRetroMemberDefinition that) {
-        if (that.selector != null) {
-            that.selector = translate(that.selector);
-        }
-        if (that.memtype != null) {
-            that.memtype = translate(that.memtype);
-        }
+        visitRetroFuncOpDefinition(that);
         result = that;
     }
     

@@ -13,7 +13,6 @@ import com.sun.tools.javafx.code.JavafxMethodSymbol;
  */
 public class JavafxJCMethodDecl extends JCMethodDecl {
     private int javafxMethodType = JavafxFlags.SIMPLE_JAVA;
-    private List<JFXExpression> capturedOuters = List.nil();
     
     public JFXStatement declaration;
     public JFXStatement definition;
@@ -28,12 +27,10 @@ public class JavafxJCMethodDecl extends JCMethodDecl {
                             List<JCExpression> thrown,
                             JCBlock body,
                             JavafxMethodSymbol sym,
-                            List<JFXExpression> capturedOuters,
                             JFXStatement definition,
                             JFXStatement declaration) {
         super(mods, name, restype, typarams, params, thrown, body, null, sym);
         this.javafxMethodType = javafxMethodType;
-        this.capturedOuters = capturedOuters;
         this.definition = definition;
         this.declaration = declaration;
         if (definition != null) {

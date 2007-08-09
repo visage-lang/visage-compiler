@@ -1,4 +1,4 @@
-// $ANTLR 3.0 \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g 2007-08-06 18:23:19
+// $ANTLR 3.0 \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g 2007-08-09 09:33:03
 
 package com.sun.tools.javafx.antlr;
 
@@ -855,15 +855,15 @@ public class v1Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start classMembers
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:355:1: classMembers returns [ListBuffer<JFXMemberDeclaration> mems = new ListBuffer<JFXMemberDeclaration>()] : ( attributeDecl | functionDecl | operationDecl )* ;
+    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:355:1: classMembers returns [ListBuffer<JFXAbstractMember> mems = new ListBuffer<JFXAbstractMember>()] : ( attributeDecl | functionDecl | operationDecl )* ;
     public final ListBuffer<JFXAbstractMember> classMembers() throws RecognitionException {
         ListBuffer<JFXAbstractMember> mems =  new ListBuffer<JFXAbstractMember>();
 
-        JFXRetroAttributeDeclaration attributeDecl21 = null;
+        JFXAbstractMember attributeDecl21 = null;
 
-        JFXRetroFunctionMemberDeclaration functionDecl22 = null;
+        JFXAbstractMember functionDecl22 = null;
 
-        JFXRetroOperationMemberDeclaration operationDecl23 = null;
+        JFXAbstractMember operationDecl23 = null;
 
 
         try {
@@ -1346,9 +1346,9 @@ public class v1Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start attributeDecl
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:360:1: attributeDecl returns [JFXAttributeDeclaration decl] : modifierFlags ATTRIBUTE name typeReference inverseClause ( orderBy | indexOn )? SEMI ;
-    public final JFXRetroAttributeDeclaration attributeDecl() throws RecognitionException {
-        JFXRetroAttributeDeclaration decl = null;
+    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:360:1: attributeDecl returns [JFXAbstractMember decl] : modifierFlags ATTRIBUTE name typeReference inverseClause ( orderBy | indexOn )? SEMI ;
+    public final JFXAbstractMember attributeDecl() throws RecognitionException {
+        JFXAbstractMember decl = null;
 
         Token ATTRIBUTE24=null;
         JCModifiers modifierFlags25 = null;
@@ -1429,7 +1429,6 @@ public class v1Parser extends AbstractGeneratedParser {
             reportError(re);
             recover(input,re);
         }
-
         finally {
         }
         return decl;
@@ -1490,9 +1489,9 @@ public class v1Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start functionDecl
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:366:1: functionDecl returns [JFXFunctionMemberDeclaration decl] : modifierFlags FUNCTION name formalParameters typeReference SEMI ;
-    public final JFXRetroFunctionMemberDeclaration functionDecl() throws RecognitionException {
-        JFXRetroFunctionMemberDeclaration decl = null;
+    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:366:1: functionDecl returns [JFXAbstractMember decl] : modifierFlags FUNCTION name formalParameters typeReference SEMI ;
+    public final JFXAbstractMember functionDecl() throws RecognitionException {
+        JFXAbstractMember decl = null;
 
         name_return name30 = null;
 
@@ -1537,7 +1536,6 @@ public class v1Parser extends AbstractGeneratedParser {
             reportError(re);
             recover(input,re);
         }
-
         finally {
         }
         return decl;
@@ -1546,9 +1544,9 @@ public class v1Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start operationDecl
-    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:371:1: operationDecl returns [JFXOperationMemberDeclaration decl] : modifierFlags OPERATION name formalParameters typeReference SEMI ;
-    public final JFXRetroOperationMemberDeclaration operationDecl() throws RecognitionException {
-        JFXRetroOperationMemberDeclaration decl = null;
+    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:371:1: operationDecl returns [JFXAbstractMember decl] : modifierFlags OPERATION name formalParameters typeReference SEMI ;
+    public final JFXAbstractMember operationDecl() throws RecognitionException {
+        JFXAbstractMember decl = null;
 
         Token OPERATION34=null;
         JCModifiers modifierFlags35 = null;
@@ -1595,7 +1593,6 @@ public class v1Parser extends AbstractGeneratedParser {
             reportError(re);
             recover(input,re);
         }
-
         finally {
         }
         return decl;

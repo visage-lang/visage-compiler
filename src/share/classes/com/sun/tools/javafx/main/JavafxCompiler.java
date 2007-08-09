@@ -526,7 +526,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 	    int initialErrorCount = log.nerrors;
             String parserChoice = options.get("parser");
             if (parserChoice == null) {
-                parserChoice = "antrl"; // default
+                parserChoice = "vn"; // default
             }
             if (parserChoice.equals("old")) {
                 Scanner scanner = getScannerFactory().newScanner(content);
@@ -537,9 +537,14 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                     tree.lineMap = scanner.getLineMap();
                 }
             } else {
-                AbstractGeneratedParser gen = new v1Parser(context, content);
+                AbstractGeneratedParser generatedParser;
+                if (parserChoice.equals("v1")) {
+                    generatedParser = new v1Parser(context, content);
+                } else {
+                    generatedParser = new v2Parser(context, content);
+                }
                 try {  
-                    tree = gen.module();
+                    tree = generatedParser.module();
                 } catch (Exception exc) {
                     exc.printStackTrace();
                 }

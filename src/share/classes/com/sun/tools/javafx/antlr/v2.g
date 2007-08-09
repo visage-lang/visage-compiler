@@ -326,7 +326,9 @@ moduleItems returns [ListBuffer<JCTree> items = new ListBuffer<JCTree>()]
 moduleItem returns [JCTree value]
        : importDecl				{ $value = $importDecl.value; }
        | classDefinition 			{ $value = $classDefinition.value; }
-       | statement       			{ $value = $statement.value; } ;
+       | statement      			{ $value = $statement.value; } 
+       | expression SEMI			{ $value = F.Exec($expression.expr); } 
+       ;
 importDecl returns [JCTree value]
 @init { JCExpression pid = null; }
         : IMPORT  identifier			{ pid = $identifier.expr; }
@@ -345,13 +347,22 @@ classMembers returns [ListBuffer<JFXAbstractMember> mems = new ListBuffer<JFXAbs
 	:( attributeDefinition          	{ $mems.append($attributeDefinition.def); }
 	|  functionDefinition     		{ $mems.append($functionDefinition.def); }
 	) *   ;
-attributeDefinition  returns [JFXAbstractMember def]
-	: modifierFlags ATTRIBUTE name typeReference (EQ bindOpt  expression | inverseClause)?  SEMI        
+attributeDefinition  returns [JFXAttributeDefinition def]
+	: modifierFlags ATTRIBUTE name 
+	    typeReference 
+	   (EQ bindOpt expression | inverseClause)? 
+	    SEMI        			{ $def = F.at(pos($ATTRIBUTE)).AttributeDefinition($modifierFlags.mods,
+	    						$name.value, $typeReference.type, $inverseClause.inverse, null, 
+	    						$bindOpt.status, $expression.expr); }
 	;
 inverseClause returns [JFXMemberSelector inverse = null]
 	: INVERSE memberSelector 		{ $inverse = $memberSelector.value; } ;
-functionDefinition  returns [JFXAbstractMember def]
-	: modifierFlags FUNCTION   name formalParameters   typeReference  blockExpression 
+functionDefinition  returns [JFXFunctionDefinition def]
+	: modifierFlags FUNCTION name 
+	    formalParameters  typeReference  
+	    blockExpression 			{ $def = F.at(pos($FUNCTION)).FunctionDefinition($modifierFlags.mods,
+	    						$name.value, $typeReference.type, 
+	    						$formalParameters.params.toList(), $blockExpression.expr); }
 	;
 modifierFlags returns [JCModifiers mods]
 @init { long flags = 0; }
@@ -382,42 +393,37 @@ block returns [JCBlock value]
 @init 		{ ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
 	 	}
 	: LBRACE
-	  (    s1=statement			{ stats.append($s1.value); } 
-	  |    e1=expression			{ stats.append(F.Exec($e1.expr)); } 
-	  )
-	  ( SEMI
-	    (  sn=statement			{ stats.append($sn.value); } 
-	    |  en=expression			{ stats.append(F.Exec($en.expr)); } 
-	    )
+	  (    statement			{ stats.append($statement.value); } 
+	  |    expression SEMI			{ stats.append(F.Exec($expression.expr)); } 
 	  )*
-	  SEMI? RBRACE				{ $value = F.at(pos($LBRACE)).Block(0L, stats.toList()); }
+	  RBRACE				{ $value = F.at(pos($LBRACE)).Block(0L, stats.toList()); }
 	;
-blockExpression returns [JFXBlockExpression expr]
-@init 		{ ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
-	 	  JCExpression pending = null;
-	 	}
-	: LBRACE
-	  (    s1=statement			{ stats.append($s1.value); } 
-	  |    e1=expression			{ pending = $e1.expr; } 
-	  )
-	  ( SEMI
-	    (  sn=statement			{ if (pending!=null) { stats.append(F.Exec(pending)); pending = null; } 
-						  stats.append($sn.value); } 
-	    |  en=expression			{ if (pending!=null) { stats.append(F.Exec(pending)); } 
-						  pending = $en.expr; } 
-	    )
-	  )*
-	  SEMI? RBRACE				{ $expr = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), pending); }
+blockExpression returns [JFXBlockExpression expr = null]
+@init { ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>(); }
+	: LBRACE (statements[stats])? RBRACE	{ $expr = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), 
+						 					     $statements.expr); }
+	;
+statements [ListBuffer<JCStatement> stats]  returns [JCExpression expr = null]
+	: statement				{ stats.append($statement.value); }
+		(sts1=statements[stats]		{ $expr = $sts1.expr; } )?
+	| expression
+	        (SEMI  (			{ stats.append(F.Exec($expression.expr)); }
+	         	 stsn=statements[stats]	{ $expr = $stsn.expr; }
+		       | /*no_statements*/	{ $expr = $expression.expr; }
+		      )
+		 | /*no_semi*/			{ $expr = $expression.expr; }
+		 )
 	;
 statement returns [JCStatement value]
-	: variableDeclaration 			{ $value = $variableDeclaration.value; }
+	: variableDeclaration SEMI		{ $value = $variableDeclaration.value; }
 	| functionDefinition			{ $value = $functionDefinition.def; }
         | WHILE LPAREN expression RPAREN block	{ $value = F.at(pos($WHILE)).WhileLoop($expression.expr, $block.value); }
-	| BREAK    				{ $value = F.at(pos($BREAK)).Break(null); }
-	| CONTINUE   	 			{ $value = F.at(pos($CONTINUE)).Continue(null); }
-       	| THROW expression 	   		{ $value = F.at(pos($THROW)).Throw($expression.expr); } 
-       	| returnStatement 			{ $value = $returnStatement.value; }
+	| BREAK SEMI   				{ $value = F.at(pos($BREAK)).Break(null); }
+	| CONTINUE  SEMI 	 		{ $value = F.at(pos($CONTINUE)).Continue(null); }
+       	| THROW expression SEMI	   		{ $value = F.at(pos($THROW)).Throw($expression.expr); } 
+       	| returnStatement SEMI			{ $value = $returnStatement.value; }
        	| tryStatement				{ $value = $tryStatement.value; } 
+	| SEMI					{ $value = F.at(pos($SEMI)).Skip(); } 
        	;
 variableDeclaration   returns [JCStatement value]
 	: VAR  name  typeReference  
@@ -460,7 +466,8 @@ catchClause    returns [JCCatch value]
 expression returns [JCExpression expr] 
        	: ifExpression   					{ $expr = $ifExpression.expr; }  
        	| suffixedExpression					{ $expr = $suffixedExpression.expr; }  
-       	;
+//     	| LPAREN  typeName  RPAREN   suffixedExpression     //FIXME: CAST
+      	;
 ifExpression  returns [JCExpression expr] 
 	: IF econd=expression   THEN  ethen=expression   
 	  ELSE  eelse=expression				{ $expr = F.at(pos($IF)).Conditional($econd.expr, $ethen.expr, $eelse.expr); }
