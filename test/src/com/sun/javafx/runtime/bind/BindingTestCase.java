@@ -7,42 +7,7 @@ import junit.framework.TestCase;
  *
  * @author Brian Goetz
  */
-public class BindingTest extends TestCase {
-
-    /** FIXME:  added simple test so that this test suite doesn't fail due to no tests. */
-    public void testInstances() throws Exception {
-        Holder h = new Holder();
-        Container container = h.container;
-        LocationKey key = new LocationKey() {
-            @Override public int getSequence() {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-            @Override public int getInt(Object base) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-            @Override public void setInt(Object base, int value) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-            @Override public double getDouble(Object base) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-            @Override public void setDouble(Object base, double value) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-            @Override public Object getReference(Object base) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-            @Override public void setReference(Object base, Object value) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-            @Override public void update(Object base, BindingClosure closure) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-        };
-        Var v = new IntVar(container, key);
-        v = new DoubleVar(container, key);
-        v = new ReferenceVar<String>(container, key);
-    }
+public abstract class BindingTestCase extends TestCase {
 
     protected class Var {
         protected final Container container;
@@ -145,5 +110,72 @@ public class BindingTest extends TestCase {
         }
     }
 
+    protected static class Holder {
+        public final static LocationKey KEY_A;
+        public final static LocationKey KEY_B;
+        public final static LocationKey KEY_C;
+        public final static LocationKey KEY_D;
+        public final static LocationKey KEY_E;
 
+        public int a;
+        public int b;
+        public int c;
+        public double d;
+        public String e;
+
+        static {
+            try {
+                KEY_A = new IntFieldLocationKey(Holder.class.getField("a"), 0);
+                KEY_B = new IntFieldLocationKey(Holder.class.getField("b"), 1);
+                KEY_C = new IntFieldLocationKey(Holder.class.getField("c"), 2);
+                KEY_D = new DoubleFieldLocationKey(Holder.class.getField("d"), 3);
+                KEY_E = new ReferenceFieldLocationKey(Holder.class.getField("e"), 4);
+            } catch (NoSuchFieldException e) {
+                throw new ExceptionInInitializerError(e);
+            }
+        }
+
+        Container container = new InstanceContainer(toString(), this);
+
+        public int getA() {
+            return container.getIntValue(KEY_A);
+        }
+
+        public int getB() {
+            return container.getIntValue(KEY_B);
+        }
+
+        public int getC() {
+            return container.getIntValue(KEY_C);
+        }
+
+        public double getD() {
+            return container.getDoubleValue(KEY_D);
+        }
+
+        public String getE() {
+            return (String) container.getReferenceValue(KEY_E);
+        }
+
+        public void setA(int value) {
+            container.setIntValue(KEY_A, value);
+        }
+
+        public void setB(int value) {
+            container.setIntValue(KEY_B, value);
+        }
+
+        public void setC(int value) {
+            container.setIntValue(KEY_C, value);
+        }
+
+        public void setD(double value) {
+            container.setDoubleValue(KEY_D, value);
+        }
+
+        public void setE(String value) {
+            container.setReferenceValue(KEY_E, value);
+        }
+    }
 }
+

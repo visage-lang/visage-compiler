@@ -5,7 +5,7 @@ package com.sun.javafx.runtime.bind;
  *
  * @author Brian Goetz
  */
-public class BindTest extends BindingTest {
+public class BindTest extends BindingTestCase {
 
     public void testSetValue() {
         Holder h = new Holder();
