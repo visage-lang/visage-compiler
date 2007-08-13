@@ -63,7 +63,7 @@ public class Main {
         System.arraycopy(args, 1, newargs, 3, args.length - 1);
         newargs[0] = "-connect";
         newargs[1] = "com.sun.jdi.CommandLineLaunch:options=-esa -ea:com.sun.tools...";
-        newargs[2] = "com.sun.tools.javac.Main";
+        newargs[2] = "com.sun.tools.javafx.Main";
         method.invoke(null, new Object[] { newargs });
       } else {
         System.exit(compile(args));

@@ -1,5 +1,7 @@
-// M1.fx -- expressions, module-level variable declaration, initialization and reassignment
-//          System.out.println, string literals with interpolation
+/* M1.fx -- expressions, module-level variable declaration, initialization and reassignment
+ *          System.out.println, string literals with interpolation
+ * @test
+ */
 
 import java.lang.*;
 

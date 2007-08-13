@@ -1,7 +1,9 @@
-// M2.fx -- simple variable binding
-// Demonstrates: unidirectional binding of local variables to expressions
-//               expressions are completely reevaluated when dependencies change
-//               dependencies are limited to variables named in the expression
+/* M2.fx -- simple variable binding
+ * Demonstrates: unidirectional binding of local variables to expressions
+ *               expressions are completely reevaluated when dependencies change
+ *               dependencies are limited to variables named in the expression
+ * @test
+ */
 
 import java.lang.*;
 import java.util.Date;
