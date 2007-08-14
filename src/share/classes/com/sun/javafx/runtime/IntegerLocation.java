@@ -52,6 +52,7 @@ public class IntegerLocation extends AbstractLocation {
         return value;
     }
 
+    @Override
     public int asInt() {
         return value;
     }
@@ -61,6 +62,7 @@ public class IntegerLocation extends AbstractLocation {
         notifyChangeListeners();
     }
 
+    @Override
     public void setInt(int newValue) {
         value = newValue;
         notifyChangeListeners();

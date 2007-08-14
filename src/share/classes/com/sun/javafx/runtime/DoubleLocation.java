@@ -41,8 +41,10 @@ public class DoubleLocation extends AbstractLocation {
     public static DoubleLocation make(double value) { return new DoubleLocation(value); }
 
     public double get() { return value; }
+    @Override
     public double asDouble() { return value; }
     public void set(double newValue) { value = newValue;   notifyChangeListeners(); }
+    @Override
     public void setDouble(double newValue) { value = newValue;   notifyChangeListeners(); }
     
 }

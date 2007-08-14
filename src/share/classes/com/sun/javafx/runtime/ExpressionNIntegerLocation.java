@@ -49,6 +49,7 @@ public class ExpressionNIntegerLocation extends ExpressionIntegerLocation {
         return loc;
     }
 
+    @Override
     public void changed(Object key) {
         context.applyN(this, exprNum, args);
     }

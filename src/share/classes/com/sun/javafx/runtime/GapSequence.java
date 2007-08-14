@@ -25,29 +25,27 @@
 
 package com.sun.javafx.runtime;
 
-public class GapSequence extends Sequence
-{
-  Object[] buffer;
-  int gapStart, gapEnd;
-  boolean shared;
+public class GapSequence extends Sequence {
+    Object[] buffer;
+    int gapStart, gapEnd;
+    boolean shared;
 
-  public GapSequence (int size)
-  {
-    buffer = new Object[size];
-    gapStart = 0;
-    gapEnd = size;
-  }
+    public GapSequence(int size) {
+        buffer = new Object[size];
+        gapStart = 0;
+        gapEnd = size;
+    }
 
-  public int size()
-  {
-    return buffer.length - (gapEnd - gapStart);
-  }
+    @Override
+    public int size() {
+        return buffer.length - (gapEnd - gapStart);
+    }
 
-  public Object get(int index)
-  {
-    if (index < gapStart)
-      return index < 0 ? null : buffer[index];
-    index += gapEnd - gapStart;
-    return index >= buffer.length ? null : buffer[index];
-  }
-};
+    @Override
+    public Object get(int index) {
+        if (index < gapStart)
+            return index < 0 ? null : buffer[index];
+        index += gapEnd - gapStart;
+        return index >= buffer.length ? null : buffer[index];
+    }
+}

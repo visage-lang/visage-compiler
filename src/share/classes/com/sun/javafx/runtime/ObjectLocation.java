@@ -40,8 +40,10 @@ public class ObjectLocation<T> extends AbstractLocation {
     public static <T>ObjectLocation make(T value) { return new ObjectLocation<T>(value); }
 
     public T get() { return value; }
+    @Override
     public Object asObject() { return value; }
     public void set(T newValue) { value = newValue;  notifyChangeListeners(); }
+    @Override
     @SuppressWarnings("unchecked")
     public void setObject(Object newValue) { value = (T)newValue;  notifyChangeListeners(); }
     

@@ -182,8 +182,6 @@ public abstract class AbstractSequence<T> implements Sequence<T>, SequenceIntern
     }
 
     public Sequence<T> insertBefore(T value, int position) {
-        // @@@Spec: What about negative offsets?
-        // @@@Spec: What about offsets greater than length?
         if (position <= 0)
             return insertFirst(value);
         else if (position >= size())
@@ -193,8 +191,6 @@ public abstract class AbstractSequence<T> implements Sequence<T>, SequenceIntern
     }
 
     public Sequence<T> insertBefore(Sequence<T> values, int position) {
-        // @@@Spec: What about negative offsets?
-        // @@@Spec: What about offsets greater than length?
         if (position <= 0)
             return insertFirst(values);
         else if (position >= size())

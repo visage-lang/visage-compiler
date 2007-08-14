@@ -78,6 +78,7 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
         };
 
         future = new FutureTask<V>(callable) {
+            @Override
             protected void done() {
                 try {
                     SwingUtilities.invokeLater(completionRunnable);
@@ -151,6 +152,7 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
             super(in);
         }
 
+        @Override
         public synchronized int read() throws IOException {
             if (Thread.currentThread().isInterrupted())
                 throw new InterruptedIOException();
@@ -159,6 +161,7 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
             return ch;
         }
 
+        @Override
         public synchronized int read(byte b[], int off, int len) throws IOException {
             if (Thread.currentThread().isInterrupted())
                 throw new InterruptedIOException();
@@ -167,6 +170,7 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
             return bytes;
         }
 
+        @Override
         public int read(byte b[]) throws IOException {
             if (Thread.currentThread().isInterrupted())
                 throw new InterruptedIOException();

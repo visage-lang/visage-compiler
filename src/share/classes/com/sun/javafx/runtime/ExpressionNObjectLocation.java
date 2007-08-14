@@ -50,6 +50,7 @@ public class ExpressionNObjectLocation<T> extends ExpressionObjectLocation<T> {
         return loc;
     }
 
+    @Override
     public void changed(Object key) {
         context.applyN(this, exprNum, args);
     }

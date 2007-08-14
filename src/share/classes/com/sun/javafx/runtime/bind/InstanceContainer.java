@@ -38,36 +38,43 @@ public class InstanceContainer extends AbstractContainer implements Container {
         this.instance = instance;
     }
 
+    @Override
     protected void doSetInt(LocationKey key, int value) {
         assert key instanceof FieldLocationKey : "Key must be a FieldLocationKey";
         key.setInt(instance, value);
     }
 
+    @Override
     protected void doSetDouble(LocationKey key, double value) {
         assert key instanceof FieldLocationKey : "Key must be a FieldLocationKey";
         key.setDouble(instance, value);
     }
 
+    @Override
     protected void doSetReference(LocationKey key, Object value) {
         assert key instanceof FieldLocationKey : "Key must be a FieldLocationKey";
         key.setReference(instance, value);
     }
 
+    @Override
     protected int doGetInt(LocationKey key) {
         assert key instanceof FieldLocationKey : "Key must be a FieldLocationKey";
         return key.getInt(instance);
     }
 
+    @Override
     protected double doGetDouble(LocationKey key) {
         assert key instanceof FieldLocationKey : "Key must be a FieldLocationKey";
         return key.getDouble(instance);
     }
 
+    @Override
     protected Object doGetReference(LocationKey key) {
         assert key instanceof FieldLocationKey : "Key must be a FieldLocationKey";
         return key.getReference(instance);
     }
 
+    @Override
     protected void doUpdate(LocationKey key, BindingClosure closure) {
         assert key instanceof FieldLocationKey : "Key must be a FieldLocationKey";
         key.update(instance, closure);
