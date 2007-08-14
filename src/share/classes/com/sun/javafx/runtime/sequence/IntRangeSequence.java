@@ -16,13 +16,21 @@ public class IntRangeSequence extends AbstractSequence<Integer> implements Seque
         this.upper = upper;
     }
 
+    @Override
     public int size() {
-        return (upper >= lower) ? upper - lower + 1: 0;
+        return (upper >= lower) ? upper - lower + 1 : 0;
     }
 
+    @Override
     public Integer get(int position) {
-        return (position < 0 || position >= upper-lower+1) 
+        return (position < 0 || position >= upper - lower + 1)
                 ? null
                 : (lower + position);
+    }
+
+    @Override
+    public void toArray(Object[] array, int destOffset) {
+        for (int i = lower; i <= upper; i++)
+            array[destOffset + i] = i;
     }
 }

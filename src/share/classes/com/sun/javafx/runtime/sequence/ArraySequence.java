@@ -33,17 +33,20 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
         }
     }
 
+    @Override
     public int size() {
         return array.length;
     }
 
+    @Override
     public T get(int position) {
         return (position < 0 || position >= array.length) ? null : array[position];
     }
 
 
     // optimized versions
-    protected BitSet getBits(SequenceSelector<T> predicate) {
+    @Override
+    public BitSet getBits(SequencePredicate<T> predicate) {
         BitSet bits = new BitSet(array.length);
         for (int i = 0; i < array.length; i++)
             if (predicate.matches(this, i, array[i]))
@@ -51,7 +54,8 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
         return bits;
     }
 
-    public void toArray(T[] array, int destOffset) {
-        System.arraycopy(array, 0, array, destOffset, array.length);
+    @Override
+    public void toArray(Object[] dest, int destOffset) {
+        System.arraycopy(array, 0, dest, destOffset, array.length);
     }
 }

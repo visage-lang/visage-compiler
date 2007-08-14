@@ -7,22 +7,32 @@ package com.sun.javafx.runtime.sequence;
  */
 public class SubSequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
-    private final Sequence<T> sequence;
-    private final int offset;
-    private final int length;
+    private final SequenceInternal<T> sequence;
+    private final int start;
+    private final int end;
 
-    public SubSequence(Sequence<T> sequence, int offset, int length) {
+    public SubSequence(Sequence<T> sequence, int start, int end) {
         super(sequence.getElementType());
-        this.sequence = sequence;
-        this.offset = offset;
-        this.length = length;
+        this.sequence = (SequenceInternal<T>) sequence;
+        this.start = Math.max(start, 0);
+        this.end = Math.min(end, sequence.size());
     }
 
+    @Override
     public int size() {
-        return length;
+        return (start <= end) ? end - start : 0;
     }
 
+    @Override
+    public int getDepth() {
+        return sequence.getDepth() + 1;
+    }
+
+    @Override
     public T get(int position) {
-        return sequence.get(position+offset);
+        if (position < 0 || position + start >= end)
+            return null;
+        else
+            return sequence.get(position + start);
     }
 }

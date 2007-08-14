@@ -26,10 +26,12 @@ public class EmptySequence<T> extends AbstractSequence<T> implements Sequence<T>
         return (Sequence<T>) e;
     }
 
+    @Override
     public int size() {
         return 0;
     }
 
+    @Override
     public T get(int position) {
         return null;
     }

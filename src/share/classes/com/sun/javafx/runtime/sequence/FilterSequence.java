@@ -9,23 +9,29 @@ import java.util.BitSet;
  */
 public class FilterSequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
-    private final Sequence<T> sequence;
+    private final SequenceInternal<T> sequence;
     private final int[] indices;
 
     public FilterSequence(Sequence<T> sequence, BitSet bits) {
         super(sequence.getElementType());
-        this.sequence = sequence;
+        this.sequence = (SequenceInternal<T>) sequence;
         indices = new int[bits.cardinality()];
-        for (int i=0, next=0; i<sequence.size() && next < indices.length; i++) {
-            if (bits.get(i))
-                indices[next++] = i;
-        }
+        for (int i = bits.nextSetBit(0), next = 0; i >= 0; i = bits.nextSetBit(i + 1))
+            indices[next++] = i;
     }
 
+    @Override
     public int size() {
         return indices.length;
     }
 
+
+    @Override
+    public int getDepth() {
+        return sequence.getDepth() + 1;
+    }
+
+    @Override
     public T get(int position) {
         return (position < 0 || position >= indices.length)
                 ? null

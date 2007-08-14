@@ -8,7 +8,7 @@ import java.util.Iterator;
  *
  * @author Brian Goetz
  */
-public abstract class AbstractSequence<T> implements Sequence<T> {
+public abstract class AbstractSequence<T> implements Sequence<T>, SequenceInternal<T> {
     protected final Class<T> clazz;
 
     protected AbstractSequence(Class<T> clazz) {
@@ -19,7 +19,7 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
 
     public abstract T get(int position);
 
-    protected BitSet getBits(SequenceSelector<T> predicate) {
+    public BitSet getBits(SequencePredicate<T> predicate) {
         int length = size();
         BitSet bits = new BitSet(length);
         for (int i = 0; i < length; i++)
@@ -36,27 +36,25 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
         return (size() == 0);
     }
 
-    public void forEach(SequenceClosure<T> sequenceClosure) {
+    public int getDepth() {
+        return 0;
+    }
+
+    public void foreach(SequenceClosure<T> sequenceClosure) {
         int length = size();
         for (int i = 0; i < length; i++)
             sequenceClosure.call(this, i, get(i));
     }
 
-
-    public void toArray(T[] array, int destOffset) {
-        for (int i=0; i<size(); i++)
-            array[i+destOffset] = get(i);
+    public void toArray(Object[] array, int destOffset) {
+        for (int i = 0; i < size(); i++)
+            array[i + destOffset] = get(i);
     }
 
-    public Sequence<T> get(SequenceSelector<T> predicate) {
-        BitSet bits = getBits(predicate);
-        return new FilterSequence<T>(this, bits);
+    public Sequence<T> get(SequencePredicate<T> predicate) {
+        return Sequences.filter(this, getBits(predicate));
     }
 
-
-    public Sequence<T> get(int position, int length) {
-        return new SubSequence<T>(this, position, length);
-    }
 
     public Iterator<T> iterator() {
         return new Iterator<T>() {
@@ -70,7 +68,7 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
                 if (next >= size())
                     throw new IndexOutOfBoundsException();
                 else
-                    return get(next);
+                    return get(next++);
             }
 
             public void remove() {
@@ -79,6 +77,7 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
         };
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public boolean equals(Object obj) {
         if (!(obj instanceof Sequence))
@@ -87,6 +86,7 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
         return (other.getElementType().isAssignableFrom(getElementType())) && isEqual((Sequence<T>) other);
     }
 
+    @Override
     public int hashCode() {
         int hash = 0;
         for (int i = 0; i < size(); i++) {
@@ -113,6 +113,7 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
     }
 
 
+    @Override
     public String toString() {
         if (isEmpty())
             return "[ ]";
@@ -133,31 +134,35 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
         BitSet bits = new BitSet(size());
         bits.set(0, size());
         bits.clear(position);
-        return new FilterSequence<T>(this, bits);
+        return Sequences.filter(this, bits);
     }
 
-    public Sequence<T> delete(SequenceSelector<T> predicate) {
+    public Sequence<T> delete(SequencePredicate<T> predicate) {
         BitSet bits = getBits(predicate);
         bits.flip(0, size());
-        return new FilterSequence<T>(this, bits);
+        return Sequences.filter(this, bits);
+    }
+
+    public Sequence<T> subsequence(int start, int end) {
+        return Sequences.subsequence(this, start, end);
     }
 
     public Sequence<T> insert(T value) {
         Class<T> elementType = getElementType();
-        return new CompositeSequence<T>(elementType, this, new SingletonSequence<T>(elementType, value));
+        return Sequences.concatenate(elementType, this, Sequences.singleton(elementType, value));
     }
 
-    public Sequence<T> insert(Sequence<? extends T> values) {
-        return new CompositeSequence<T>(getElementType(), this, values);
+    public Sequence<T> insert(Sequence<T> values) {
+        return Sequences.concatenate(getElementType(), this, values);
     }
 
     public Sequence<T> insertFirst(T value) {
         Class<T> elementType = getElementType();
-        return new CompositeSequence<T>(elementType, new SingletonSequence<T>(elementType, value), this);
+        return Sequences.concatenate(elementType, Sequences.singleton(elementType, value), this);
     }
 
-    public Sequence<T> insertFirst(Sequence<? extends T> values) {
-        return new CompositeSequence<T>(getElementType(), values, this);
+    public Sequence<T> insertFirst(Sequence<T> values) {
+        return Sequences.concatenate(getElementType(), values, this);
     }
 
     public Sequence<T> insertBefore(T value, int position) {
@@ -165,42 +170,123 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
         // @@@Spec: What about offsets greater than length?
         if (position <= 0)
             return insertFirst(value);
+        else if (position >= size())
+            return insert(value);
         else
-            return insertBefore(new SingletonSequence<T>(getElementType(), value), position);
+            return insertBefore(Sequences.singleton(getElementType(), value), position);
     }
 
-    public Sequence<T> insertBefore(Sequence<? extends T> values, int position) {
+    public Sequence<T> insertBefore(Sequence<T> values, int position) {
         // @@@Spec: What about negative offsets?
         // @@@Spec: What about offsets greater than length?
         if (position <= 0)
             return insertFirst(values);
-        else {
-            return new CompositeSequence<T>(getElementType(),
-                    get(0, position), values, get(position + 1, size() - (position + 1)));
-        }
-    }
-
-    public Sequence<T> insertBefore(T value, SequenceSelector<T> predicate) {
-        throw new UnsupportedOperationException();
-    }
-
-    public Sequence<T> insertBefore(Sequence<? extends T> values, SequenceSelector<T> predicate) {
-        throw new UnsupportedOperationException();
+        else if (position >= size())
+            return insert(values);
+        else
+            return Sequences.concatenate(getElementType(),
+                    subsequence(0, position), values, subsequence(position, size()));
     }
 
     public Sequence<T> insertAfter(T value, int position) {
-        throw new UnsupportedOperationException();
+        if (position >= size())
+            return insert(value);
+        else if (position < 0)
+            return insertFirst(value);
+        else
+            return insertAfter(Sequences.singleton(getElementType(), value), position);
     }
 
-    public Sequence<T> insertAfter(T value, SequenceSelector<T> predicate) {
-        throw new UnsupportedOperationException();
+    public Sequence<T> insertAfter(Sequence<T> values, int position) {
+        if (position >= size() - 1)
+            return insert(values);
+        else if (position < 0)
+            return insertFirst(values);
+        else {
+            return Sequences.concatenate(getElementType(),
+                    subsequence(0, position + 1), values, subsequence(position + 1, size()));
+        }
     }
 
-    public Sequence<T> insertAfter(Sequence<? extends T> values, SequenceSelector<T> predicate) {
-        throw new UnsupportedOperationException();
+    /*
+     * Precondition: bits.cardinality() > 1 
+     */
+    @SuppressWarnings("unchecked")
+    private Sequence<T> multiInsertBefore(BitSet bits, Sequence<T> values) {
+        assert (bits.cardinality() > 1);
+        int firstBit = bits.nextSetBit(0);
+        int count = 2 * bits.cardinality() + (firstBit > 0 ? 1 : 0);
+        Sequence[] segments = new Sequence[count];
+        int n = 0;
+        if (firstBit > 0)
+            segments[n++] = subsequence(0, firstBit);
+        for (int i = firstBit, j = bits.nextSetBit(i + 1); i >= 0; i = j, j = bits.nextSetBit(j + 1)) {
+            segments[n++] = values;
+            segments[n++] = subsequence(i, (j > 0) ? j : size());
+        }
+        return Sequences.concatenate(getElementType(), segments);
     }
 
-    public Sequence<T> insertAfter(Sequence<? extends T> values, int position) {
-        throw new UnsupportedOperationException();
+    /*
+     * Precondition: bits.cardinality() > 1
+     */
+    @SuppressWarnings("unchecked")
+    private Sequence<T> multiInsertAfter(BitSet bits, Sequence<T> values) {
+        assert (bits.cardinality() > 1);
+        int firstBit = bits.nextSetBit(0);
+        int lastBit = firstBit;
+        for (int i = firstBit; i >= 0; i = bits.nextSetBit(i + 1))
+            lastBit = i;
+        int count = 2 * bits.cardinality() + (lastBit < size()-1 ? 1 : 0);
+        Sequence[] segments = new Sequence[count];
+        int lastWritten = -1, n = 0;
+        for (int j = firstBit; j >= 0; j = bits.nextSetBit(j + 1)) {
+            segments[n++] = subsequence(lastWritten+1, j+1);
+            segments[n++] = values;
+            lastWritten = j;
+        }
+        if (lastBit < size()-1)
+            segments[n++] = subsequence(lastBit+1, size());
+        return Sequences.concatenate(getElementType(), segments);
+    }
+
+    public Sequence<T> insertBefore(T value, SequencePredicate<T> predicate) {
+        BitSet bits = getBits(predicate);
+        if (bits.cardinality() == 0)
+            return this;
+        else if (bits.cardinality() == 1)
+            return insertBefore(value, bits.nextSetBit(0));
+        else
+            return multiInsertBefore(bits, Sequences.singleton(getElementType(), value));
+    }
+
+    public Sequence<T> insertBefore(Sequence<T> values, SequencePredicate<T> predicate) {
+        BitSet bits = getBits(predicate);
+        if (bits.cardinality() == 0)
+            return this;
+        else if (bits.cardinality() == 1)
+            return insertBefore(values, bits.nextSetBit(0));
+        else
+            return multiInsertBefore(bits, values);
+    }
+
+    public Sequence<T> insertAfter(T value, SequencePredicate<T> predicate) {
+        BitSet bits = getBits(predicate);
+        if (bits.cardinality() == 0)
+            return this;
+        else if (bits.cardinality() == 1)
+            return insertAfter(value, bits.nextSetBit(0));
+        else
+            return multiInsertAfter(bits, Sequences.singleton(getElementType(), value));
+    }
+
+    public Sequence<T> insertAfter(Sequence<T> values, SequencePredicate<T> predicate) {
+        BitSet bits = getBits(predicate);
+        if (bits.cardinality() == 0)
+            return this;
+        else if (bits.cardinality() == 1)
+            return insertAfter(values, bits.nextSetBit(0));
+        else
+            return multiInsertAfter(bits, values);
     }
 }

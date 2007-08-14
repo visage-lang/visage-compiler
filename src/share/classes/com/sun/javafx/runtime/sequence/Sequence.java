@@ -14,43 +14,43 @@ public interface Sequence<T> extends Iterable<T> {
     public Class<T> getElementType();
 
     // @@@ May also need a "copy subsequence to array" method
-    public void toArray(T[] array, int destOffset); 
+    public void toArray(Object[] array, int destOffset); 
+
+    public void foreach(SequenceClosure<T> closure);
 
     public T get(int position);
 
-    public Sequence<T> get(int position, int length);
-
-    public Sequence<T> get(SequenceSelector<T> predicate);
-
-    public void forEach(SequenceClosure<T> closure);
+    public Sequence<T> get(SequencePredicate<T> predicate);
 
     public Sequence<T> delete(int position);
 
-    public Sequence<T> delete(SequenceSelector<T> predicate);
+    public Sequence<T> delete(SequencePredicate<T> predicate);
+
+    public Sequence<T> subsequence(int start, int end);
 
     public Sequence<T> insert(T value);
 
-    public Sequence<T> insert(Sequence<? extends T> values);
+    public Sequence<T> insert(Sequence<T> values);
 
     public Sequence<T> insertFirst(T value);
 
-    public Sequence<T> insertFirst(Sequence<? extends T> values);
+    public Sequence<T> insertFirst(Sequence<T> values);
 
     public Sequence<T> insertBefore(T value, int position);
 
-    public Sequence<T> insertBefore(T value, SequenceSelector<T> predicate);
+    public Sequence<T> insertBefore(T value, SequencePredicate<T> predicate);
 
-    public Sequence<T> insertBefore(Sequence<? extends T> values, int position);
+    public Sequence<T> insertBefore(Sequence<T> values, int position);
 
-    public Sequence<T> insertBefore(Sequence<? extends T> values, SequenceSelector<T> predicate);
+    public Sequence<T> insertBefore(Sequence<T> values, SequencePredicate<T> predicate);
 
     public Sequence<T> insertAfter(T value, int position);
 
-    public Sequence<T> insertAfter(T value, SequenceSelector<T> predicate);
+    public Sequence<T> insertAfter(T value, SequencePredicate<T> predicate);
 
-    public Sequence<T> insertAfter(Sequence<? extends T> values, int position);
+    public Sequence<T> insertAfter(Sequence<T> values, int position);
 
-    public Sequence<T> insertAfter(Sequence<? extends T> values, SequenceSelector<T> predicate);
+    public Sequence<T> insertAfter(Sequence<T> values, SequencePredicate<T> predicate);
 
     public boolean isEqual(Sequence<T> other);
 }

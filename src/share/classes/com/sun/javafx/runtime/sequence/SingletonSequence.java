@@ -13,10 +13,12 @@ public class SingletonSequence<T> extends AbstractSequence<T> implements Sequenc
         this.value = value;
     }
 
+    @Override
     public int size() {
         return 1;
     }
 
+    @Override
     public T get(int position) {
         return (position == 0) ? value : null;
     }
