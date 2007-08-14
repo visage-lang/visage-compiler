@@ -489,6 +489,17 @@ public class JavafxTypeMorpher extends TreeTranslator {
                                 tree.init = makeApply;
                             }
                         }
+                    } else {
+                        // no initializing expression, do default
+                        JCFieldAccess makeSelect = make.Select(typeExp, makeMethodName);
+                        makeSelect.sym = rs.resolveInternalMethod(tree.pos(), attrEnv, usedType, makeMethodName, List.<Type>nil(), realType.isPrimitive() ? List.<Type>nil() : List.<Type>of(realType)); // typeargs
+                        makeSelect.setType(makeSelect.sym.type);
+
+                        List<JCExpression> makeArgs = List.<JCExpression>nil();
+                        JCExpression makeApply = make.Apply(null, makeSelect, makeArgs);
+                        makeApply.setType(usedType);
+
+                        tree.init = makeApply;
                     }
                     if (var.isBound()) {
                         var.mods.flags |= Flags.FINAL;

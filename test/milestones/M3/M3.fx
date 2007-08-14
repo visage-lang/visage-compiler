@@ -1,5 +1,5 @@
 // M3.fx
-// Demonstrates compilation of FX class with attributes, functions, and operations to Java class
+// Demonstrates compilation of FX class with attributes and functions to Java class
 //              attributes have explicit type
 //              class-level attribute initializers
 //              unidirectional binding of attributes to expressions involving attributes
@@ -8,21 +8,15 @@ import java.lang.*;
 
 class Foo {
     attribute a : String ;
-    attribute b : String ;
+    attribute b : String = bind a;
     attribute c : String ;
-    function bleep() : String;
-    operation mud() : Integer;
-}
-
-attribute Foo.b = bind a;
-
-function Foo.bleep() {
-    return "roll";
-}
-
-operation Foo.mud() {
-    System.out.println(this.a);
-    return 0;
+    function bleep() : String {
+        return "roll";
+    }
+    function mud() : Integer {
+        System.out.println(this.a);
+        return 0;
+    }
 }
 
 var fo : Foo = new Foo();
