@@ -1,5 +1,9 @@
 // To fix: remove the type declaration on the function params when fixes allow
 
+/*
+ * @test
+ */
+
 import java.util.Date;
 import java.lang.System;
 

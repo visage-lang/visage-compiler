@@ -1,3 +1,6 @@
+/*
+ * @test
+ */
 import java.lang.System;
 
 var golda = "Ten10done";
