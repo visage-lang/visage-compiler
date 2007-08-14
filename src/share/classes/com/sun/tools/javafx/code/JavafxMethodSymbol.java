@@ -45,7 +45,7 @@ public class JavafxMethodSymbol extends MethodSymbol {
                               Name name,
                               Type type,
                               Symbol owner,
-                              List<Symbol> captureOuters) {
+                              List<Symbol> capturedOuters) {
         super(flags, name, type, owner);
         this.javafxMethodType = javafxMethodType;
         this.capturedOuters = capturedOuters;
