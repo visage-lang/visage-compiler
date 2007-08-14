@@ -168,6 +168,21 @@ public class JavafxAttr extends Attr {
             attribExpr(tree.rhs, dupEnv, owntype);
         }
         else {
+            if (tree.lhs.getTag() == JCTree.SELECT) {
+                JCFieldAccess fa = (JCFieldAccess)tree.lhs;
+                fa.type = owntype;
+                if (fa.sym != null) {
+                    fa.sym.type = owntype;
+                }
+            }
+            else if (tree.lhs.getTag() == JCTree.IDENT) {
+                JCIdent id = (JCIdent)tree.lhs;
+                id.type = owntype;
+                if (id.sym != null) {
+                    id.sym.type = owntype;
+                }
+            }
+            
             attribTree(tree.lhs, dupEnv, VAR, owntype);
             Symbol lhsSym = JavafxTreeInfo.symbol(tree.lhs);
             lhsSym.type = owntype;
