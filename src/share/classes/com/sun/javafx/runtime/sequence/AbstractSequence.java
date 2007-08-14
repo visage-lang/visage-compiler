@@ -128,6 +128,22 @@ public abstract class AbstractSequence<T> implements Sequence<T>, SequenceIntern
         return sb.toString();
     }
 
+
+    public Sequence<T> set(int position, T value) {
+        if (position < 0 || position >= size())
+            return this;
+        else {
+            Sequence<T> newElement = Sequences.singleton(getElementType(), value);
+            if (position == 0)
+                return Sequences.concatenate(getElementType(), newElement, subsequence(1, size()));
+            else if (position == size() - 1)
+                return Sequences.concatenate(getElementType(), subsequence(0, size() - 1), newElement);
+            else
+                return Sequences.concatenate(getElementType(),
+                        subsequence(0, position), newElement, subsequence(position + 1, size()));
+        }
+    }
+
     public Sequence<T> delete(int position) {
         if (position < 0 || position >= size())
             return this;
@@ -237,16 +253,16 @@ public abstract class AbstractSequence<T> implements Sequence<T>, SequenceIntern
         int lastBit = firstBit;
         for (int i = firstBit; i >= 0; i = bits.nextSetBit(i + 1))
             lastBit = i;
-        int count = 2 * bits.cardinality() + (lastBit < size()-1 ? 1 : 0);
+        int count = 2 * bits.cardinality() + (lastBit < size() - 1 ? 1 : 0);
         Sequence[] segments = new Sequence[count];
         int lastWritten = -1, n = 0;
         for (int j = firstBit; j >= 0; j = bits.nextSetBit(j + 1)) {
-            segments[n++] = subsequence(lastWritten+1, j+1);
+            segments[n++] = subsequence(lastWritten + 1, j + 1);
             segments[n++] = values;
             lastWritten = j;
         }
-        if (lastBit < size()-1)
-            segments[n++] = subsequence(lastBit+1, size());
+        if (lastBit < size() - 1)
+            segments[n++] = subsequence(lastBit + 1, size());
         return Sequences.concatenate(getElementType(), segments);
     }
 

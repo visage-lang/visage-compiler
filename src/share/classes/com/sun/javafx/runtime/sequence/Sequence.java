@@ -20,6 +20,8 @@ public interface Sequence<T> extends Iterable<T> {
 
     public T get(int position);
 
+    public Sequence<T> set(int position, T value);
+
     public Sequence<T> get(SequencePredicate<T> predicate);
 
     public Sequence<T> delete(int position);

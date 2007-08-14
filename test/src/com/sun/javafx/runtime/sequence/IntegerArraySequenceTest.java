@@ -381,6 +381,29 @@ public class IntegerArraySequenceTest extends TestCase {
         assertEquals(ten.subsequence(1, 9), 1, 2, 3, 4, 5, 6, 7, 8);
     }
 
+    public void testSet() {
+        assertEquals(TWO_SEQUENCE.set(0, C), C, B);
+        assertEquals(TWO_SEQUENCE.set(1, C), A, C);
+        Sequence<Integer> five = Sequences.rangeSequence(0, 5);
+        assertEquals(five.set(-1, C), 0, 1, 2, 3, 4, 5);
+        assertEquals(five.set(0, C), C, 1, 2, 3, 4, 5);
+        assertEquals(five.set(1, C), 0, C, 2, 3, 4, 5);
+        assertEquals(five.set(2, C), 0, 1, C, 3, 4, 5);
+        assertEquals(five.set(3, C), 0, 1, 2, C, 4, 5);
+        assertEquals(five.set(4, C), 0, 1, 2, 3, C, 5);
+        assertEquals(five.set(5, C), 0, 1, 2, 3, 4, C);
+        assertEquals(five.set(6, C), 0, 1, 2, 3, 4, 5);
+    }
+
+    public void testOutOfBounds() {
+        assertEquals(EMPTY_SEQUENCE.get(-1), null);
+        assertEquals(EMPTY_SEQUENCE.set(0, 1), EMPTY_SEQUENCE);
+        assertEquals(TWO_SEQUENCE.get(-1), null);
+        assertEquals(TWO_SEQUENCE.get(200), null);
+        assertEquals(TWO_SEQUENCE.set(-1, 400), TWO_SEQUENCE);
+        assertEquals(TWO_SEQUENCE.set(200, 400), TWO_SEQUENCE);
+    }
+
     /**
      * Tests properties of the SequenceHelper methods, which optimize certain common cases such as concatenating an
      * empty sequence, or extracting the entire sequence (or an empty sequence) using subsequence, or filtering
