@@ -1,8 +1,11 @@
-// M3.fx
-// Demonstrates compilation of FX class with attributes and functions to Java class
-//              attributes have explicit type
-//              class-level attribute initializers
-//              unidirectional binding of attributes to expressions involving attributes
+/*
+ * M3.fx
+ * Demonstrates compilation of FX class with attributes and functions to Java class
+ *              attributes have explicit type
+ *              class-level attribute initializers
+ *              unidirectional binding of attributes to expressions involving attributes
+ * @test
+ */
 
 import java.lang.*;
 
