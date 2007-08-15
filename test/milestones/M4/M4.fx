@@ -1,8 +1,6 @@
 /* M4.fx
  * Demonstrates direct calls to Java Swing classes -- creates a frame with a text field
  * No interaction
- *
- * @test
  */
 
 import javax.swing.*;

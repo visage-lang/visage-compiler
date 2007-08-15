@@ -27,10 +27,15 @@ package framework;
 
 import com.sun.tools.javafx.api.JavafxCompiler;
 import junit.framework.TestCase;
+import org.apache.tools.ant.taskdefs.Execute;
+import org.apache.tools.ant.taskdefs.PumpStreamHandler;
+import org.apache.tools.ant.types.CommandlineJava;
+import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.Project;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.*;
 import java.util.ServiceLoader;
+import java.util.logging.StreamHandler;
 
 /**
  * Compiles a single JavaFX script source file and executes the resulting class.
@@ -71,6 +76,7 @@ public class FXCompilerTestCase extends TestCase {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
         buildDir.mkdirs();
+        System.out.println("Compiling " + test);
         int errors = compiler.run(null, out, err, "-d", buildDir.getPath(), test.getPath());
         if (errors != 0) {
             StringBuilder sb = new StringBuilder();
@@ -84,6 +90,63 @@ public class FXCompilerTestCase extends TestCase {
         }
     }
 
-    private void execute() {
+    private void execute() throws IOException {
+        System.out.println("Running " + test);
+        CommandlineJava commandLine = new CommandlineJava();
+        String className = test.getName();
+        assertTrue(className.endsWith(".fx"));
+        String mainClass = className.substring(0, className.length() - ".fx".length());
+        commandLine.setClassname(mainClass);
+        Project project = new Project();
+        Path p = commandLine.createClasspath(project);
+        Path.PathElement pe = p.createPathElement();
+        pe.setPath(System.getProperty("java.class.path"));
+        Path.PathElement pe2 = p.createPathElement();
+        pe2.setPath(buildDir.getPath());
+
+        String outputFileName = buildDir + File.separator + className + ".OUTPUT";
+        String errorFileName = buildDir + File.separator + className + ".ERROR";
+        PumpStreamHandler sh = new PumpStreamHandler(new FileOutputStream(outputFileName), new FileOutputStream(errorFileName));
+        Execute exe = new Execute(sh);
+        String[] strings = commandLine.getCommandline();
+        exe.setCommandline(strings);
+        try {
+            exe.execute();
+            File errorFileHandle = new File(errorFileName);
+            if (errorFileHandle.length() > 0) {
+                dumpOutput(outputFileName, errorFileName);
+                fail("Output written to standard error");
+            }
+        } catch (IOException e) {
+            fail("Failure running test " + test + ": " + e.getMessage());
+        }
     }
+
+    private void dumpOutput(String outputFileName, String errorFileName) throws IOException {
+        System.out.println("--Test Output for " + test + "--");
+        BufferedReader is = new BufferedReader(new InputStreamReader(new FileInputStream(outputFileName)));
+        try {
+            while (true) {
+                String line = is.readLine();
+                if (line == null)
+                    break;
+                System.out.println(line);
+            }
+        } finally {
+            is.close();
+        }
+        System.out.println("--Test Error" + test + "--");
+        is = new BufferedReader(new InputStreamReader(new FileInputStream(errorFileName)));
+        try {
+            while (true) {
+                String line = is.readLine();
+                if (line == null)
+                    break;
+                System.out.println(line);
+            }
+        } finally {
+            is.close();
+        }
+    }
+
 }
