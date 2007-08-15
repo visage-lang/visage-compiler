@@ -27,14 +27,10 @@ package framework;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import junit.framework.*;
 
 /**
@@ -43,6 +39,7 @@ import junit.framework.*;
  * @author tball
  */
 public class FXCompilerTest extends TestSuite {
+    private static final String TEST_ROOT = "test";
 
     /**
      * Creates a test suite for this directory's .fx source files.  This 
@@ -53,12 +50,18 @@ public class FXCompilerTest extends TestSuite {
      */
     public static Test suite() {
         List<Test> tests = new ArrayList<Test>();
-        File dir = new File("test");
-        findTests(dir, dir, "test", tests);
+        File dir = new File(TEST_ROOT);
+        findTests(dir, tests);
         return new FXCompilerTest(tests);
     }
     
-    private static void findTests(File dir, File root, String prefix, List<Test> tests) {
+    public FXCompilerTest(List<Test> tests) {
+        super();
+        for (Test t : tests)
+            addTest(t);
+    }
+
+    private static void findTests(File dir, List<Test> tests) {
         File[] children = dir.listFiles(new FileFilter() {
             @Override
             public boolean accept(File f) {
@@ -69,18 +72,18 @@ public class FXCompilerTest extends TestSuite {
             }
         });
         for (File f : children) {
-            String name = prefix + File.separatorChar + f.getName();
+            String name = f.getName();
             if (f.isDirectory())
-                findTests(f, root, name, tests);
+                findTests(f, tests);
             else {
                 assert name.lastIndexOf(".fx") > 0 : "not a JavaFX script: " + name;
-                if (runTest(f))
-                    tests.add(new FXTestCase(f, name));
+                if (shouldRunTest(f))
+                    tests.add(new FXCompilerTestCase(f, name));
             }
         }
     }
     
-    private static boolean runTest(File f) {
+    private static boolean shouldRunTest(File f) {
         Scanner scanner = null;
         boolean inComment = false;
         try {
@@ -103,9 +106,4 @@ public class FXCompilerTest extends TestSuite {
         }
     }
     
-    public FXCompilerTest(List<Test> tests) {
-        super();
-        for (Test t : tests)
-            addTest(t);
-    }
 }

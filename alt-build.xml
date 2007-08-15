@@ -4,48 +4,108 @@
 
     <property name="base.dir" value="${basedir}" />
     <property name="lib.dir" value="${base.dir}/lib" />
+    <property name="ant-task.lib.dir" value="${base.dir}/ant-task/dist" />
     <property name="test.dir" value="${base.dir}/test" />
-    <property name="build.dir" value="${base.dir}/build" />
+    <property name="test.src.dir" value="${base.dir}/test/src" />
     <property name="dist.dir" value="${base.dir}/dist" />
+    <property name="build.dir" value="${base.dir}/build" />
     <property name="build.classes.dir" value="${build.dir}/classes" />
+    <property name="test.classes.dir" value="${build.dir}/test-classes" />
+    <property name="build.instrumented.dir" value="${build.dir}/classes-instrumented" />
+    <property name="build.test.dir" value="${build.dir}/test" />
     <property name="build.milestones.dir" value="${build.dir}/milestones" />
+    <property name="test.results.dir" value="${build.dir}/test-results" />
     <property name="src.fx.dir" value="${base.dir}/src/share/classes" />
     <property name="src.java.dir" value="${base.dir}/src/share/classes" />
     <property name="jar.file" value="${dist.dir}/javafx.jar" />
+    <property name="cobertura.file" value="cobertura.ser" />
 
     <property name="fx.compiler.class" value="com.sun.tools.javafx.Main" />
 
+    <taskdef classpath="${lib.dir}/cobertura.jar" resource="tasks.properties"/>
+
     <path id="build.class.path">
-        <pathelement location="${lib.dir}/javac.jar"/>
-        <pathelement location="${lib.dir}/antlr-runtime-3.0.jar"/>
+        <pathelement location="${java.class.path}" />
+        <pathelement location="${build.classes.dir}" />
+        <pathelement location="${ant-task.lib.dir}/javafx-anttask.jar" />
+        <fileset dir="${lib.dir}" includes="**/*.jar" />
     </path>
 
     <path id="run.class.path">
+        <pathelement location="${build.instrumented.dir}" />
         <pathelement location="${build.classes.dir}" />
         <pathelement location="${lib.dir}/javac.jar"/>
         <pathelement location="${lib.dir}/antlr-runtime-3.0.jar"/>
     </path>
 
-    <taskdef name="javafxc" classpathref="run.class.path" classname="com.sun.tools.javafx.ant.JavaFxAntTask" />
+    <path id="test.class.path">
+        <pathelement location="${java.class.path}" />
+        <pathelement location="${test.classes.dir}" />
+        <pathelement location="${build.instrumented.dir}" />
+        <pathelement location="${build.classes.dir}" />
+        <fileset dir="${lib.dir}" includes="**/*.jar" />
+    </path>
+
+    <taskdef name="javafxc" classpathref="build.class.path" classname="com.sun.tools.javafx.ant.JavaFxAntTask" />
 
     <target name="prepare">
         <mkdir dir="${build.dir}" />
         <mkdir dir="${build.classes.dir}" />
+        <mkdir dir="${build.test.dir}" />
+        <mkdir dir="${test.classes.dir}" />
+        <mkdir dir="${test.results.dir}" />
+        <mkdir dir="${build.instrumented.dir}" />
         <mkdir dir="${dist.dir}" />
     </target>
 
     <target name="clean">
         <delete dir="${build.dir}" />
         <delete dir="${dist.dir}" />
+        <delete file="${cobertura.file}" />
     </target>
 
     <target name="compile-java" depends="prepare">
+        <delete dir="${build.instrumented.dir}" />
         <javac srcdir="${src.java.dir}" classpathref="build.class.path" includes="**/*.java"
                destdir="${build.classes.dir}" debug="true" />
         <copy todir="${build.classes.dir}">
             <fileset dir="${src.fx.dir}" includes="**/*.properties" />
+            <fileset dir="${src.java.dir}" includes="META-INF/**" />
         </copy>
     </target>
+
+    <target name="compile-tests" depends="prepare">
+        <javac srcdir="${test.src.dir}" classpathref="build.class.path" includes="**/*.java"
+               destdir="${test.classes.dir}" debug="true" />
+    </target>
+
+    <target name="instrument" depends="compile-java">
+        <cobertura-instrument todir="${build.instrumented.dir}">
+            <fileset dir="${build.classes.dir}" includes="**/*.class" />
+            <classpath refid="build.class.path" />
+        </cobertura-instrument>
+    </target>
+
+    <target name="coverage">
+        <cobertura-report srcdir="${src.java.dir}" destdir="${test.results.dir}" >
+            <classpath refid="build.class.path" />
+        </cobertura-report>
+    </target>
+
+    <target name="junit" depends="compile-java,compile-tests">
+        <junit dir="${basedir}" fork="true" showoutput="true">
+            <batchtest todir="${test.results.dir}">
+                <fileset dir="${test.src.dir}">
+                    <filename name="**/*Test.java"/>
+                </fileset>
+            </batchtest>
+            <classpath refid="test.class.path" />
+            <formatter type="brief" usefile="false"/>
+            <formatter type="xml"/>
+        </junit>
+    </target>
+
+    <target name="junit-coverage" depends="compile-java,compile-tests,instrument,junit,coverage" />
 
     <target name="copy-fx" depends="prepare">
         <copy todir="${build.classes.dir}">

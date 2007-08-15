@@ -26,27 +26,33 @@
 package framework;
 
 import com.sun.tools.javafx.api.JavafxCompiler;
+import junit.framework.TestCase;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ServiceLoader;
-import junit.framework.TestCase;
 
 /**
  * Compiles a single JavaFX script source file and executes the resulting class.
- * 
+ *
  * @author tball
  */
-public class FXTestCase extends TestCase {
-    File test;
+public class FXCompilerTestCase extends TestCase {
+    private final File test;
+    private final File buildDir;
 
-    private static final ServiceLoader<JavafxCompiler> compilerLoader = 
+    private static final ServiceLoader<JavafxCompiler> compilerLoader =
             ServiceLoader.load(JavafxCompiler.class);
-    
-    public static final String TEST_ROOT = "build/test";
 
-    public FXTestCase(File test, String name) {
+    public static final String TEST_ROOT = "test";
+    public static final String BUILD_ROOT = "build/test";
+    public static final String TEST_PREFIX = TEST_ROOT + File.separator;
+
+    public FXCompilerTestCase(File test, String name) {
         super(name);
         this.test = test;
+        assertTrue("path not a relative pathname", test.getPath().startsWith(TEST_PREFIX));
+        this.buildDir = new File(BUILD_ROOT + File.separator + test.getParent().substring(TEST_PREFIX.length()));
     }
 
     @Override
@@ -55,15 +61,17 @@ public class FXTestCase extends TestCase {
         compile();
         execute();
     }
-    
+
     private void compile() {
-        File testRoot = new File(TEST_ROOT);
-        if (!testRoot.exists())
-            fail("no build/test directory in " + new File(".").getAbsolutePath());
+        File buildRoot = new File(BUILD_ROOT);
+        if (!buildRoot.exists())
+            fail("no " + BUILD_ROOT + " directory in " + new File(".").getAbsolutePath());
+
         JavafxCompiler compiler = compilerLoader.iterator().next();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
-        int errors = compiler.run(null, out, err, "-d", TEST_ROOT, test.getPath());
+        buildDir.mkdirs();
+        int errors = compiler.run(null, out, err, "-d", buildDir.getPath(), test.getPath());
         if (errors != 0) {
             StringBuilder sb = new StringBuilder();
             sb.append(errors);
@@ -75,7 +83,7 @@ public class FXTestCase extends TestCase {
             fail(sb.toString());
         }
     }
-    
+
     private void execute() {
     }
 }
