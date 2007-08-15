@@ -95,9 +95,9 @@ public class IntegerArraySequenceTest extends TestCase {
         assertTrue(seq.isEmpty());
         assertEquals(seq, seq);
         assertEquals(0, seq.hashCode());
-        assertEquals(null, seq.get(-1));
-        assertEquals(null, seq.get(0));
-        assertEquals(null, seq.get(1));
+        assertEquals(Sequences.INTEGER_ZERO, seq.get(-1));
+        assertEquals(Sequences.INTEGER_ZERO, seq.get(0));
+        assertEquals(Sequences.INTEGER_ZERO, seq.get(1));
         assertEquals("[ ]", seq.toString());
         assertEquals(seq, EMPTY_SEQUENCE);
         assertEquals(seq, seq.get(nullMatcher));
@@ -116,9 +116,9 @@ public class IntegerArraySequenceTest extends TestCase {
         assertEquals(seq, seq);
         assertEquals(value, seq.hashCode());
         assertEquals("[ " + value + " ]", seq.toString());
-        assertEquals(null, seq.get(-1));
+        assertEquals(Sequences.INTEGER_ZERO, seq.get(-1));
         assertEquals(new Integer(value), seq.get(0));
-        assertEquals(null, seq.get(1));
+        assertEquals(Sequences.INTEGER_ZERO, seq.get(1));
         assertEmpty(seq.get(nullMatcher));
         assertEquals(seq, seq.get(firstMatcher));
         assertEquals(seq, seq.get(lastMatcher));
@@ -135,10 +135,10 @@ public class IntegerArraySequenceTest extends TestCase {
         assertEquals(seq, seq);
         assertEquals(seq, new ArraySequence<Integer>(Integer.class, seq.get(0), seq.get(1)));
         assertEquals("[ " + a + ", " + b + " ]", seq.toString());
-        assertEquals(null, seq.get(-1));
+        assertEquals(Sequences.INTEGER_ZERO, seq.get(-1));
         assertEquals(a, seq.get(0));
         assertEquals(b, seq.get(1));
-        assertEquals(null, seq.get(2));
+        assertEquals(Sequences.INTEGER_ZERO, seq.get(2));
         assertEmpty(seq.get(nullMatcher));
         assertEquals(seq, seq.get(allMatcher));
         assertOneElement(seq.get(firstMatcher), a);
@@ -396,10 +396,10 @@ public class IntegerArraySequenceTest extends TestCase {
     }
 
     public void testOutOfBounds() {
-        assertEquals(EMPTY_SEQUENCE.get(-1), null);
+        assertEquals(EMPTY_SEQUENCE.get(-1), Sequences.INTEGER_ZERO);
         assertEquals(EMPTY_SEQUENCE.set(0, 1), EMPTY_SEQUENCE);
-        assertEquals(TWO_SEQUENCE.get(-1), null);
-        assertEquals(TWO_SEQUENCE.get(200), null);
+        assertEquals(TWO_SEQUENCE.get(-1), Sequences.INTEGER_ZERO);
+        assertEquals(TWO_SEQUENCE.get(200), Sequences.INTEGER_ZERO);
         assertEquals(TWO_SEQUENCE.set(-1, 400), TWO_SEQUENCE);
         assertEquals(TWO_SEQUENCE.set(200, 400), TWO_SEQUENCE);
     }

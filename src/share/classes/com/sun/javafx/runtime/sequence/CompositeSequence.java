@@ -42,7 +42,7 @@ public class CompositeSequence<T> extends AbstractSequence<T> implements Sequenc
     @Override
     public T get(int position) {
         if (position < 0 || position >= size || size == 0)
-            return null;
+            return nullValue;
         // Linear search should be good enough for now
         int chunk = 0;
         while (chunk < sequences.length - 1

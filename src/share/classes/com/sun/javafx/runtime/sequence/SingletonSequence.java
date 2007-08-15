@@ -20,6 +20,6 @@ public class SingletonSequence<T> extends AbstractSequence<T> implements Sequenc
 
     @Override
     public T get(int position) {
-        return (position == 0) ? value : null;
+        return (position == 0) ? value : nullValue;
     }
 }

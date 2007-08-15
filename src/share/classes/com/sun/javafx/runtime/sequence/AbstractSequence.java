@@ -10,9 +10,17 @@ import java.util.Iterator;
  */
 public abstract class AbstractSequence<T> implements Sequence<T>, SequenceInternal<T> {
     protected final Class<T> clazz;
+    protected final T nullValue;
 
+    @SuppressWarnings("unchecked")
     protected AbstractSequence(Class<T> clazz) {
         this.clazz = clazz;
+        if (clazz == Integer.class)
+            nullValue = (T) Sequences.INTEGER_ZERO;
+        else if (clazz == Double.class)
+            nullValue = (T) Sequences.DOUBLE_ZERO;
+        else
+            nullValue = null;
     }
 
     public abstract int size();

@@ -33,6 +33,6 @@ public class EmptySequence<T> extends AbstractSequence<T> implements Sequence<T>
 
     @Override
     public T get(int position) {
-        return null;
+        return nullValue;
     }
 }

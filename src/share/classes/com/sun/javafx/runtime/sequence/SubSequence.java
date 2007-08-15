@@ -31,7 +31,7 @@ public class SubSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     @Override
     public T get(int position) {
         if (position < 0 || position + start >= end)
-            return null;
+            return nullValue;
         else
             return sequence.get(position + start);
     }

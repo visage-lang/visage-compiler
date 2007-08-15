@@ -34,7 +34,7 @@ public class FilterSequence<T> extends AbstractSequence<T> implements Sequence<T
     @Override
     public T get(int position) {
         return (position < 0 || position >= indices.length)
-                ? null
+                ? nullValue
                 : sequence.get(indices[position]);
     }
 }

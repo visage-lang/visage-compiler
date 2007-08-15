@@ -24,7 +24,7 @@ public class IntRangeSequence extends AbstractSequence<Integer> implements Seque
     @Override
     public Integer get(int position) {
         return (position < 0 || position >= upper - lower + 1)
-                ? null
+                ? nullValue
                 : (lower + position);
     }
 

@@ -11,6 +11,9 @@ import java.util.BitSet;
  */
 final class Sequences {
 
+    public static final Integer INTEGER_ZERO = Integer.valueOf(0);
+    public static final Double DOUBLE_ZERO = Double.valueOf(0);
+
     // Inhibit instantiation
     private Sequences() { }
 
