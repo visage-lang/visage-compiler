@@ -15,7 +15,7 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
     @SuppressWarnings("unchecked")
     public ArraySequence(Class<T> clazz, T... values) {
         super(clazz);
-        this.array = (T[]) new Object[values.length];
+        this.array =  (T[]) new Object[values.length];
         System.arraycopy(values, 0, array, 0, values.length);
     }
 

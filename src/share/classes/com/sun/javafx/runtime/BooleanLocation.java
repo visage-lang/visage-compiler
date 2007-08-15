@@ -26,20 +26,44 @@
 package com.sun.javafx.runtime;
 
 /**
- *
  * @author Robert Field
  */
 
 public class BooleanLocation extends AbstractLocation {
-    
-    boolean value;
-    
-    protected BooleanLocation() { }
-    protected BooleanLocation(boolean value) { this.value = value; }
-    
-    public static BooleanLocation make() { return new BooleanLocation(); }
-    public static BooleanLocation make(boolean value) { return new BooleanLocation(value); }
 
-    public boolean get() { return value; }   
-    public void set(boolean newValue) { value = newValue;   notifyChangeListeners(); }
+    boolean value;
+
+    protected BooleanLocation() {
+    }
+
+    protected BooleanLocation(boolean value) {
+        this.value = value;
+    }
+
+    public static BooleanLocation make() {
+        return new BooleanLocation();
+    }
+
+    public static BooleanLocation make(boolean value) {
+        return new BooleanLocation(value);
+    }
+
+    public boolean get() {
+        return value;
+    }
+
+    public void set(boolean newValue) {
+        value = newValue;
+        notifyChangeListeners();
+    }
+
+    @Override
+    public boolean asBoolean() {
+        return value;
+    }
+
+    @Override
+    public void setBoolean(boolean value) {
+        set(value);
+    }
 }

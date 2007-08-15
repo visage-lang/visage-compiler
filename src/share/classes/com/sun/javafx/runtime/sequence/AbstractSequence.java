@@ -19,6 +19,8 @@ public abstract class AbstractSequence<T> implements Sequence<T>, SequenceIntern
             nullValue = (T) Sequences.INTEGER_ZERO;
         else if (clazz == Double.class)
             nullValue = (T) Sequences.DOUBLE_ZERO;
+        else if (clazz == Boolean.class)
+            nullValue = (T) Sequences.BOOLEAN_ZERO;
         else
             nullValue = null;
     }

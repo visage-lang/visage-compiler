@@ -26,25 +26,46 @@
 package com.sun.javafx.runtime;
 
 /**
- *
  * @author Robert Field
  */
 
 public class DoubleLocation extends AbstractLocation {
-    
-    double value;
-    
-    protected DoubleLocation() { }
-    protected DoubleLocation(double value) { this.value = value; }
-    
-    public static DoubleLocation make() { return new DoubleLocation(); }
-    public static DoubleLocation make(double value) { return new DoubleLocation(value); }
 
-    public double get() { return value; }
+    double value;
+
+    protected DoubleLocation() {
+    }
+
+    protected DoubleLocation(double value) {
+        this.value = value;
+    }
+
+    public static DoubleLocation make() {
+        return new DoubleLocation();
+    }
+
+    public static DoubleLocation make(double value) {
+        return new DoubleLocation(value);
+    }
+
+    public double get() {
+        return value;
+    }
+
     @Override
-    public double asDouble() { return value; }
-    public void set(double newValue) { value = newValue;   notifyChangeListeners(); }
+    public double asDouble() {
+        return value;
+    }
+
+    public void set(double newValue) {
+        value = newValue;
+        notifyChangeListeners();
+    }
+
     @Override
-    public void setDouble(double newValue) { value = newValue;   notifyChangeListeners(); }
-    
+    public void setDouble(double newValue) {
+        value = newValue;
+        notifyChangeListeners();
+    }
+
 }
