@@ -100,15 +100,28 @@ public class JavafxTypeMorpher extends TreeTranslator {
     
     private Env<AttrContext> attrEnv;
     
-    private JavafxBindStatus bindContext;
-    private boolean inLHS;
-    private ListBuffer<JCStatement> prependInFrontOfStatement = null;
-    
-    private JCMethodDecl[] applyMethodDefs;  // by group
-    private int[] exprNumNext;
-    private ListBuffer<ExprInfo>[] infoByGroup; // by group
+    private static class PerClassInfo {
+
+        JavafxBindStatus bindContext;
+        boolean inLHS;
+        ListBuffer<JCStatement> prependInFrontOfStatement = null;
+        JCMethodDecl[] applyMethodDefs; // by group
+        int[] exprNumNext;
+        ListBuffer<ExprInfo>[] infoByGroup; // by group
+ 
+        PerClassInfo() {
+            this.bindContext = JavafxBindStatus.UNBOUND;
+            this.inLHS = false;
+            this.prependInFrontOfStatement = null;
+            this.applyMethodDefs = new JCMethodDecl[ARGS_IN_ARRAY + 1 + 1];
+            this.exprNumNext = new int[ARGS_IN_ARRAY + 1];
+            this.infoByGroup = new ListBuffer[ARGS_IN_ARRAY + 1];
+        }
+    }
     
     private Map<JavafxVarSymbol, VarInfo> varMap;
+    
+    private PerClassInfo classInfo;
     
     private static class ExprInfo {
         final int exprNum;
@@ -183,7 +196,6 @@ public class JavafxTypeMorpher extends TreeTranslator {
             String applyName = "apply" + ((i==ARGS_IN_ARRAY)? "N" : i);
             applyMethodNames[i] = Name.fromString(names, applyName);
         }
-        applyMethodDefs = null; // set in visitClassDef
         
         contextName = Name.fromString(names, pkg + "Context");
         contextSym = reader.enterClass(contextName);
@@ -215,16 +227,110 @@ public class JavafxTypeMorpher extends TreeTranslator {
         valueSetName[TYPE_KIND_BOOLEAN] = Name.fromString(names, "setBoolean");
         valueSetName[TYPE_KIND_INT]     = Name.fromString(names, "setInt");
         
-        exprNumNext = new int[ARGS_IN_ARRAY + 1];
-        infoByGroup = new ListBuffer[ARGS_IN_ARRAY + 1];
+        classInfo = null;
     }
+   
+    private TreeScanner unconstifyHack() {
+         return new TreeScanner() {
+
+            private void deconstant(JCTree tree) {
+                if (tree.type.constValue() != null) {
+                    tree.type = tree.type.baseType();
+                }
+            }
+
+            @Override
+            public void visitApply(JCMethodInvocation tree) {
+                super.visitApply(tree);
+                deconstant(tree);
+            }
+
+            @Override
+            public void visitParens(JCParens tree) {
+                super.visitParens(tree);
+                deconstant(tree);
+            }
+
+            @Override
+            public void visitAssign(JCAssign tree) {
+                super.visitAssign(tree);
+                deconstant(tree);
+            }
+
+            @Override
+            public void visitAssignop(JCAssignOp tree) {
+                super.visitAssignop(tree);
+                deconstant(tree);
+            }
+
+            @Override
+            public void visitUnary(JCUnary tree) {
+                super.visitUnary(tree);
+                deconstant(tree);
+            }
+
+            @Override
+            public void visitBinary(JCBinary tree) {
+                super.visitBinary(tree);
+                deconstant(tree);
+            }
+
+            @Override
+            public void visitTypeCast(JCTypeCast tree) {
+                super.visitTypeCast(tree);
+                deconstant(tree);
+            }
+
+            @Override
+            public void visitTypeTest(JCInstanceOf tree) {
+                super.visitTypeTest(tree);
+                deconstant(tree);
+            }
+
+            @Override
+            public void visitIndexed(JCArrayAccess tree) {
+                super.visitIndexed(tree);
+                deconstant(tree);
+            }
+
+            @Override
+            public void visitSelect(JCFieldAccess tree) {
+                super.visitSelect(tree);
+                deconstant(tree);
+            }
+
+            @Override
+            public void visitConditional(JCConditional tree) {
+                super.visitConditional(tree);
+                deconstant(tree);
+            }
+
+            @Override
+            public void visitIdent(JCIdent tree) {
+                super.visitIdent(tree);
+                deconstant(tree);
+                if (tree.sym.type.constValue() != null) {
+                    tree.sym.type = tree.sym.type.baseType();
+                }
+            }
+
+            @Override
+            public void visitVarDef(JCVariableDecl tree) {
+                super.visitVarDef(tree);
+                deconstant(tree);
+                if (tree.sym.type.constValue() != null) {
+                    tree.sym.type = tree.sym.type.baseType();
+                }
+            }
+        };
+    }
+
     
     public void morph(Env<AttrContext> attrEnv) {
         this.attrEnv = attrEnv;
-        this.bindContext = JavafxBindStatus.UNBOUND;
-        this.inLHS = false;
-        this.varMap = null;
-        
+
+        unconstifyHack().scan(attrEnv.tree);   //TODO: shouldn't need this
+
         // Determine variable usage
         JavafxVarUsageAnalysis analyzer = new JavafxVarUsageAnalysis();
         analyzer.scan(attrEnv.tree);
@@ -246,22 +352,22 @@ public class JavafxTypeMorpher extends TreeTranslator {
     }
     
     private  <T extends JCTree> T boundTranslate(T tree, JavafxBindStatus bind) {
-        JavafxBindStatus prevBindContext = bindContext;
-        if (bindContext == JavafxBindStatus.UNBOUND) {
-            bindContext = bind;
+        JavafxBindStatus prevBindContext = classInfo.bindContext;
+        if (classInfo.bindContext == JavafxBindStatus.UNBOUND) {
+            classInfo.bindContext = bind;
         } else { // TODO
-            assert bind == JavafxBindStatus.UNBOUND || bind == bindContext : "how do we handle this?";
+            assert bind == JavafxBindStatus.UNBOUND || bind == classInfo.bindContext : "how do we handle this?";
         }
         T result = translate(tree);
-        bindContext = prevBindContext;
+        classInfo.bindContext = prevBindContext;
         return result;
     }
     
     private  <T extends JCTree> T translateLHS(T tree, boolean isImmediateLHS) {
-        boolean wasInLHS = inLHS;
-        inLHS = isImmediateLHS;
+        boolean wasInLHS = classInfo.inLHS;
+        classInfo.inLHS = isImmediateLHS;
         T result = translate(tree);
-        inLHS = wasInLHS;
+        classInfo.inLHS = wasInLHS;
         return result;
     }
     
@@ -354,10 +460,10 @@ public class JavafxTypeMorpher extends TreeTranslator {
         JCExpression expr;
         
         varRef.setType(vsym.getUsedType());
-        if (bindContext.isBidiBind()) {
+        if (classInfo.bindContext.isBidiBind()) {
             // already in correct form-- leave it
             expr = varRef;
-        } else if (inLHS) {
+        } else if (classInfo.inLHS) {
             // immediate left-hand side -- leave it
             expr = varRef;
         } else {
@@ -401,21 +507,21 @@ public class JavafxTypeMorpher extends TreeTranslator {
     }
     
     public void visitClassDef(JCClassDecl tree) {
-        JCClassDecl prev = attrEnv.enclClass;
+        JCClassDecl prevEnclClass = attrEnv.enclClass;
+        PerClassInfo prevClassInfo = classInfo;
         attrEnv.enclClass = tree;
-        resetExpressionMapper();
-        JCMethodDecl[] previousApplyMethodDefs = applyMethodDefs;
-        applyMethodDefs = new JCMethodDecl[ARGS_IN_ARRAY + 1 + 1];
+        classInfo = new PerClassInfo();
         
+        resetExpressionMapper();
+         
         tree.defs = translate(tree.defs);
         for (int i = 0; i <= ARGS_IN_ARRAY; ++i) {
             assert applyMethodNames[i] != null;
         }
-        fillInApplyMethods(applyMethodDefs, this);
+        fillInApplyMethods(classInfo.applyMethodDefs, this);
         
-        applyMethodDefs = previousApplyMethodDefs;
-        
-        attrEnv.enclClass = prev;
+        attrEnv.enclClass = prevEnclClass;
+        classInfo = prevClassInfo;
         
         result = tree;
     }
@@ -429,8 +535,8 @@ public class JavafxTypeMorpher extends TreeTranslator {
         int argGroup = -1;
         for (int i = 0; i <= ARGS_IN_ARRAY; ++i) {
             if (tree.name == applyMethodNames[i]) {
-                assert applyMethodDefs[i] == null;
-                applyMethodDefs[i] = tree;
+                assert classInfo.applyMethodDefs[i] == null;
+                classInfo.applyMethodDefs[i] = tree;
                 break;
             }
         }
@@ -604,7 +710,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
         if (tree.sym instanceof JavafxVarSymbol) {
             JavafxVarSymbol vsym = (JavafxVarSymbol)tree.sym;
             if (shouldMorph(vsym)) {
-                if (bindContext.isUnidiBind()) {
+                if (classInfo.bindContext.isUnidiBind()) {
                     Type realType = vsym.getRealType();
                     JCExpression locAccess = varMap.get(vsym).replacement;
                     
@@ -662,9 +768,9 @@ public class JavafxTypeMorpher extends TreeTranslator {
                     l = prev;
                     continue;
                 }
-                if (prependInFrontOfStatement != null) {
-                    List<JCStatement> pl = prependInFrontOfStatement.toList();
-                    List<JCStatement> last = prependInFrontOfStatement.last;
+                if (classInfo.prependInFrontOfStatement != null) {
+                    List<JCStatement> pl = classInfo.prependInFrontOfStatement.toList();
+                    List<JCStatement> last = classInfo.prependInFrontOfStatement.last;
                     // attach remainder of list to the prepended statements
                     for (List<JCStatement> al = pl; ; al = al.tail) {
                         if (al.tail == last) {
@@ -678,7 +784,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
                     } else {
                         prev.tail = pl;
                     }
-                    prependInFrontOfStatement = null;
+                    classInfo.prependInFrontOfStatement = null;
                 }
                 l.head = trans;
                 prev = l;
@@ -709,8 +815,8 @@ public class JavafxTypeMorpher extends TreeTranslator {
     
     void resetExpressionMapper() {
         for (int i = 0; i <= ARGS_IN_ARRAY; ++i) {
-            exprNumNext[i]= 0;
-            infoByGroup[i] = ListBuffer.<ExprInfo>lb();
+            classInfo.exprNumNext[i]= 0;
+            classInfo.infoByGroup[i] = ListBuffer.<ExprInfo>lb();
         }
     }
     
@@ -726,16 +832,16 @@ public class JavafxTypeMorpher extends TreeTranslator {
     
     void fillInApplyMethods(JCMethodDecl[] applyMethodDefs, JavafxTypeMorpher morpher) {
         for (int i = 0; i <= ARGS_IN_ARRAY; ++i) {
-            ListBuffer<ExprInfo> infos = infoByGroup[i];
+            ListBuffer<ExprInfo> infos = classInfo.infoByGroup[i];
             if (infos.length() >= 0) {      // TODO --- TEST!!!!!!!!!!!!!!!!!!
-                JCMethodDecl meth = applyMethodDefs[i];
+                JCMethodDecl meth = classInfo.applyMethodDefs[i];
                 List<JCVariableDecl> params = meth.getParameters();
                 //JCVariableDecl boundVar = params.head;
                 JCVariableDecl numVar = params.tail.head;
                 ListBuffer<JCCase> cases = ListBuffer.<JCCase>lb();
                 ListBuffer<JCStatement> stmts;
                 
-                for (ExprInfo info : infoByGroup[i]) {
+                for (ExprInfo info : classInfo.infoByGroup[i]) {
                     stmts = ListBuffer.<JCStatement>lb();
                     stmts.append(buildExpression(info, meth));
                     stmts.append(make.Return(makeLit(syms.booleanType, 1)));
@@ -768,9 +874,9 @@ public class JavafxTypeMorpher extends TreeTranslator {
         if (argsGroup >= ARGS_IN_ARRAY) {
             argsGroup = ARGS_IN_ARRAY;
         }
-        int exprNum = exprNumNext[argsGroup]++;
+        int exprNum = classInfo.exprNumNext[argsGroup]++;
         ExprInfo info = new ExprInfo(varMap, exprNum, vsym, tree, argsGroup);
-        infoByGroup[argsGroup].append(info);
+        classInfo.infoByGroup[argsGroup].append(info);
         
         
         Type realType = vsym.getRealType();
