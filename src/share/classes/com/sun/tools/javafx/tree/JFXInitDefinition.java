@@ -25,44 +25,30 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCModifiers;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.tree.JCTree.JCBlock;
 
 /**
- * A function definition.
+ *
+ * @author Robert Field
  */
-public class JFXFunctionDefinition extends JFXAbstractFunction {
-    public JFXBlockExpression bodyExpression;
+public class JFXInitDefinition extends JFXTree {
+    public JCBlock body;
 
-    /*
-     * @param modifiers operation modifiers
-     * @param name operation name
-     * @param restype type of operation return value
-     * @param params value parameters
-     */
-    protected JFXFunctionDefinition(
-            JCModifiers modifiers, 
-            Name name, 
-            JFXType restype, 
-            List<JCTree> params, 
-            JFXBlockExpression bodyExpression) {
-        super(modifiers, name, restype, params);
-        this.bodyExpression = bodyExpression;
+    protected JFXInitDefinition(JCBlock body) {
+        this.body = body;
     }
     
-    public JFXBlockExpression getBodyExpression() {
-        return bodyExpression;
+    public JCBlock getBody() {
+        return body;
     }
 
     @Override
     public void accept(JavafxVisitor v) {
-        v.visitFunctionDefinition(this);
+        v.visitInitDefinition(this);
     }
 
     @Override
     public int getTag() {
-        return JavafxTag.FUNCTIONDEF;
+        return JavafxTag.INITDEF;
     }
 }

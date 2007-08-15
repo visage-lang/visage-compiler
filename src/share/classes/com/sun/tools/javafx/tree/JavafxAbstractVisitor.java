@@ -533,6 +533,10 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
         that.getBodyExpression().accept((JavafxVisitor)this);
     }
 
+    public void visitInitDefinition(JFXInitDefinition that) {
+        that.getBody().accept(this);
+    }
+
     // old-style "retro" separate definition/declaration
     
     public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration that) {

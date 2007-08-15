@@ -59,9 +59,13 @@ public abstract class JavafxTag extends JCTree {
      */
     public static final int FUNCTIONDEF = ATTRIBUTEDEF + 1;     
 
+    /** init definition
+     */
+    public static final int INITDEF = FUNCTIONDEF + 1;     
+
     /** old style "retro" separate attribute definition
      */
-    public static final int RETROATTRIBUTEDEF = FUNCTIONDEF + 1;     
+    public static final int RETROATTRIBUTEDEF = INITDEF + 1;     
 
     /** old style "retro" separate operation definition
      */

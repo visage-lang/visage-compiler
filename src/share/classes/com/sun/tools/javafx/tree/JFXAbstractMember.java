@@ -25,8 +25,7 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.util.Name;
 
 /**
@@ -37,12 +36,6 @@ public abstract class JFXAbstractMember extends JFXStatement {
     public JCModifiers modifiers;
     public JFXType memtype;
 
-    public JCTree owner;
-    
-   /*
-    * @param modifiers operation modifiers
-    * @param name operation name
-    */
     protected JFXAbstractMember(JCModifiers mods,
             Name name,
             JFXType type) {

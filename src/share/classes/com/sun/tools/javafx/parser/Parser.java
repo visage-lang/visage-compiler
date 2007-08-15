@@ -576,7 +576,7 @@ public class Parser {
         }
         accept(LBRACE);
         
-        ListBuffer<JFXAbstractMember> members = new ListBuffer<JFXAbstractMember>();
+        ListBuffer<JCTree> members = new ListBuffer<JCTree>();
         
         int errorCount = 0;
         loop: while (true) {

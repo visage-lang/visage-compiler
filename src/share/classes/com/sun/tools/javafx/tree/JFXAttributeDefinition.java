@@ -27,6 +27,7 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javafx.code.JavafxBindStatus;
 
 /**
@@ -36,12 +37,8 @@ public class JFXAttributeDefinition extends JFXAbstractAttribute {
 
     public JCExpression init;
     public JavafxBindStatus bindStatus;
+    public JCBlock onChange;
 
-    /*
-     * @param modifiers attribute modifiers
-     * @param name attribute name
-     * @param type type of attribute
-     */
     protected JFXAttributeDefinition(
             JCModifiers modifiers, 
             Name name, 
@@ -49,10 +46,12 @@ public class JFXAttributeDefinition extends JFXAbstractAttribute {
             JFXMemberSelector inverseOrNull, 
             JCExpression orderingOrNull, 
             JavafxBindStatus bindStatus, 
-            JCExpression init) {
+            JCExpression init,
+            JCBlock onChange) {
         super(modifiers, name, type, inverseOrNull, orderingOrNull);
         this.bindStatus = bindStatus;
         this.init = init;
+        this.onChange = onChange;
     }
 
     public void accept(JavafxVisitor v) {
@@ -65,6 +64,10 @@ public class JFXAttributeDefinition extends JFXAbstractAttribute {
 
     public JavafxBindStatus getBindStatus() {
         return bindStatus;
+    }
+
+    public JCBlock getOnChangeBlock() {
+        return onChange;
     }
 
     public boolean isBound() {

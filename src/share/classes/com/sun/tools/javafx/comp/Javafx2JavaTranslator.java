@@ -156,7 +156,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
             }
 
             ListBuffer<JCTree> defs = ListBuffer.<JCTree>lb();
-            for (JFXAbstractMember decl : tree.declarations) {
+            for (JCTree decl : tree.declarations) {
                 defs.append(translate(decl));
             }
             addEmptyContextMethods(defs);
@@ -212,6 +212,17 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
          
         result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.FUNCTION, tree.name,
                 restype, params, block);
+   }
+    
+    @Override
+    public void visitInitDefinition(JFXInitDefinition tree) {
+        super.visitInitDefinition(tree);
+        
+        //TODO: FIX ME
+        List<JCVariableDecl> params = List.nil();
+        result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.TRIGGERREPLACE,
+                    getSyntheticName("init"),
+                    make.TypeIdent(TypeTags.VOID), params, tree.getBody());
    }
     
     @Override

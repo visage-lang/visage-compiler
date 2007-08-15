@@ -352,7 +352,7 @@ supers returns [ListBuffer<Name> names = new ListBuffer<Name>()]
 	: (EXTENDS name1=name       { $names.append($name1.value); }
            ( COMMA namen=name       { $names.append($namen.value); } )* 
 	)?;
-classMembers returns [ListBuffer<JFXAbstractMember> mems = new ListBuffer<JFXAbstractMember>()]
+classMembers returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]
 	:( attributeDecl                { $mems.append($attributeDecl.decl); }
 	|  functionDecl                 { $mems.append($functionDecl.decl); }
 	|  operationDecl                { $mems.append($operationDecl.decl); }

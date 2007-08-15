@@ -99,7 +99,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     public JFXClassDeclaration ClassDeclaration(JCModifiers mods,
             Name name,
             List<Name> supertypes,
-            List<JFXAbstractMember> declarations) {
+            List<JCTree> declarations) {
         JFXClassDeclaration tree = new JFXClassDeclaration(mods,
                 name,
                 supertypes,
@@ -122,7 +122,8 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
             JFXMemberSelector inverseOrNull,
             JCExpression orderingOrNull, 
             JavafxBindStatus bindStatus, 
-            JCExpression init) {
+            JCExpression init,
+            JCBlock onChange) {
         JFXAttributeDefinition tree = new JFXAttributeDefinition(
                 modifiers,
                 name,
@@ -130,7 +131,8 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                 inverseOrNull,
                 orderingOrNull, 
                 bindStatus, 
-                init);
+                init,
+                onChange);
         tree.pos = pos;
         return tree;
     }
@@ -147,6 +149,14 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                 restype,
                 params,
                 bodyExpression);
+        tree.pos = pos;
+        return tree;
+    }
+    
+    public JFXInitDefinition InitDefinition(
+            JCBlock body) {
+        JFXInitDefinition tree = new JFXInitDefinition(
+                body);
         tree.pos = pos;
         return tree;
     }

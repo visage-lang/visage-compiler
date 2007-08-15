@@ -86,6 +86,11 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
 
+    public void visitInitDefinition(JFXInitDefinition that) {
+        that.body = translate(that.body);
+        result = that;
+    }
+
     // old-style "retro" separate definition/declaration
     
     public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration that) {

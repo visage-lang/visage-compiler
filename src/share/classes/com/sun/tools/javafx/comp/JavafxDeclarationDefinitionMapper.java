@@ -118,7 +118,6 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         JCTree prev = currentOwner;
         currentOwner = that;
         try {
-            that.owner = prev;
             super.visitFunctionDefinition(that);
         } finally {
             currentOwner = prev;
@@ -129,7 +128,6 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         JCTree prev = currentOwner;
         currentOwner = that;
         try {
-            that.owner = prev;
             if (prev != currentClass) {
                 log.error(that.pos, "javafx.member.attr.not.in.class", that.name.toString());
             }
@@ -170,7 +168,6 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         JCTree prev = currentOwner;
         currentOwner = that;
         try {
-            that.owner = prev;
             if (prev != currentClass) {
                 log.error(that.pos, "javafx.member.function.not.in.class", that.name.toString());
             }
@@ -211,7 +208,6 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         JCTree prev = currentOwner;
         currentOwner = that;
         try {
-            that.owner = prev;
             if (prev != currentClass) {
                 log.error(that.pos, "javafx.member.operation.not.in.class", that.name.toString());
             }

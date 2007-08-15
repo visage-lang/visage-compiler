@@ -19,9 +19,9 @@ tokens {
    BREAK='break';
    BY='by';
    CATCH='catch';
+   CHANGE='change';
    CLASS='class';
    DELETE='delete';
-   DISTINCT='distinct';
    DO='do';
    DUR='dur';
    EASEBOTH='easeboth';
@@ -48,9 +48,7 @@ tokens {
    TRUE='true';
    FALSE='false';
    FOR='for';
-   UNITINTERVAL='unitinterval';
    IN='in';
-   FPS='fps';
    WHILE='while';
    CONTINUE='continue';
    LINEAR='linear';
@@ -71,6 +69,7 @@ tokens {
    EXTENDS='extends';
    ORDER='order';
    INDEX='index';
+   INIT='init';
    INSTANCEOF='instanceof';
    INDEXOF='indexof';
    SELECT='select';
@@ -104,8 +103,6 @@ tokens {
    STAREQ='*=';
    SLASHEQ='/=';
    PERCENTEQ='%=';
-   LTLT='<<';
-   GTGT='>>';
    COLON=':';
    QUES='?';
 }
@@ -343,17 +340,24 @@ supers returns [ListBuffer<Name> names = new ListBuffer<Name>()]
 	: (EXTENDS name1=name           	{ $names.append($name1.value); }
            ( COMMA namen=name           	{ $names.append($namen.value); } )* 
 	)?;
-classMembers returns [ListBuffer<JFXAbstractMember> mems = new ListBuffer<JFXAbstractMember>()]
-	:( attributeDefinition          	{ $mems.append($attributeDefinition.def); }
-	|  functionDefinition     		{ $mems.append($functionDefinition.def); }
-	) *   ;
+classMembers returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]
+	: ( ad1=attributeDefinition          	{ $mems.append($ad1.def); }
+	  |  fd1=functionDefinition     	{ $mems.append($fd1.def); }
+	  ) *   
+	  (initDefinition	     		{ $mems.append($initDefinition.def); }			
+	    ( ad2=attributeDefinition          	{ $mems.append($ad2.def); }
+	    | fd2=functionDefinition     	{ $mems.append($fd2.def); }
+	    ) *   
+	  )?
+	;
 attributeDefinition  returns [JFXAttributeDefinition def]
 	: modifierFlags ATTRIBUTE name 
 	    typeReference 
 	   (EQ bindOpt expression | inverseClause)? 
+	   (ON CHANGE ocb=block)?
 	    SEMI        			{ $def = F.at(pos($ATTRIBUTE)).AttributeDefinition($modifierFlags.mods,
 	    						$name.value, $typeReference.type, $inverseClause.inverse, null, 
-	    						$bindOpt.status, $expression.expr); }
+	    						$bindOpt.status, $expression.expr, $ocb.value); }
 	;
 inverseClause returns [JFXMemberSelector inverse = null]
 	: INVERSE memberSelector 		{ $inverse = $memberSelector.value; } ;
@@ -363,6 +367,9 @@ functionDefinition  returns [JFXFunctionDefinition def]
 	    blockExpression 			{ $def = F.at(pos($FUNCTION)).FunctionDefinition($modifierFlags.mods,
 	    						$name.value, $typeReference.type, 
 	    						$formalParameters.params.toList(), $blockExpression.expr); }
+	;
+initDefinition  returns [JFXInitDefinition def]
+	: INIT block 				{ $def = F.at(pos($INIT)).InitDefinition($block.value); }
 	;
 modifierFlags returns [JCModifiers mods]
 @init { long flags = 0; }

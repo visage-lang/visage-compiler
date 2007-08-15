@@ -94,8 +94,8 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             print(" {");
             println();
             indent();
-            List<JFXAbstractMember> mems = tree.getDeclaredMembers();
-            for (JFXAbstractMember mem : mems) {
+            List<JCTree> mems = tree.getDeclaredMembers();
+            for (JCTree mem : mems) {
                 align();
                 printExpr(mem);
             }
@@ -167,6 +167,19 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
                 printExpr(tree.getType());
             }
             printExpr(tree.getBodyExpression());
+            println();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitInitDefinition(JFXInitDefinition tree) {
+        try {
+            println();
+            align();
+            printDocComment(tree);
+            print(" init ");
+            print(tree.getBody());
             println();
         } catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -1,4 +1,4 @@
-// $ANTLR 3.0 \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g 2007-08-09 09:33:04
+// $ANTLR 3.0 C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g 2007-08-14 21:39:24
 
 package com.sun.tools.javafx.antlr;
 
@@ -206,14 +206,14 @@ public class v1Lexer extends Lexer {
         super(input);
         ruleMemo = new HashMap[131+1];
      }
-    public String getGrammarFileName() { return "\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g"; }
+    public String getGrammarFileName() { return "C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g"; }
 
     // $ANTLR start BAR
     public final void mBAR() throws RecognitionException {
         try {
             int _type = BAR;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:66:5: ( '|' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:66:7: '|'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:66:5: ( '|' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:66:7: '|'
             {
             match('|'); if (failed) return ;
 
@@ -230,8 +230,8 @@ public class v1Lexer extends Lexer {
     public final void mPOUND() throws RecognitionException {
         try {
             int _type = POUND;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:67:7: ( '#' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:67:9: '#'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:67:7: ( '#' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:67:9: '#'
             {
             match('#'); if (failed) return ;
 
@@ -248,8 +248,8 @@ public class v1Lexer extends Lexer {
     public final void mTYPEOF() throws RecognitionException {
         try {
             int _type = TYPEOF;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:68:8: ( 'typeof' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:68:10: 'typeof'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:68:8: ( 'typeof' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:68:10: 'typeof'
             {
             match("typeof"); if (failed) return ;
 
@@ -267,8 +267,8 @@ public class v1Lexer extends Lexer {
     public final void mDOTDOT() throws RecognitionException {
         try {
             int _type = DOTDOT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:69:8: ( '..' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:69:10: '..'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:69:8: ( '..' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:69:10: '..'
             {
             match(".."); if (failed) return ;
 
@@ -286,8 +286,8 @@ public class v1Lexer extends Lexer {
     public final void mLARROW() throws RecognitionException {
         try {
             int _type = LARROW;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:70:8: ( '<-' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:70:10: '<-'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:70:8: ( '<-' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:70:10: '<-'
             {
             match("<-"); if (failed) return ;
 
@@ -305,8 +305,8 @@ public class v1Lexer extends Lexer {
     public final void mABSTRACT() throws RecognitionException {
         try {
             int _type = ABSTRACT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:71:10: ( 'abstract' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:71:12: 'abstract'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:71:10: ( 'abstract' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:71:12: 'abstract'
             {
             match("abstract"); if (failed) return ;
 
@@ -324,8 +324,8 @@ public class v1Lexer extends Lexer {
     public final void mAFTER() throws RecognitionException {
         try {
             int _type = AFTER;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:72:7: ( 'after' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:72:9: 'after'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:72:7: ( 'after' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:72:9: 'after'
             {
             match("after"); if (failed) return ;
 
@@ -343,8 +343,8 @@ public class v1Lexer extends Lexer {
     public final void mAND() throws RecognitionException {
         try {
             int _type = AND;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:73:5: ( 'and' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:73:7: 'and'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:73:5: ( 'and' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:73:7: 'and'
             {
             match("and"); if (failed) return ;
 
@@ -362,8 +362,8 @@ public class v1Lexer extends Lexer {
     public final void mAS() throws RecognitionException {
         try {
             int _type = AS;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:74:4: ( 'as' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:74:6: 'as'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:74:4: ( 'as' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:74:6: 'as'
             {
             match("as"); if (failed) return ;
 
@@ -381,8 +381,8 @@ public class v1Lexer extends Lexer {
     public final void mASSERT() throws RecognitionException {
         try {
             int _type = ASSERT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:75:8: ( 'assert' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:75:10: 'assert'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:75:8: ( 'assert' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:75:10: 'assert'
             {
             match("assert"); if (failed) return ;
 
@@ -400,8 +400,8 @@ public class v1Lexer extends Lexer {
     public final void mATTRIBUTE() throws RecognitionException {
         try {
             int _type = ATTRIBUTE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:76:11: ( 'attribute' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:76:13: 'attribute'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:76:11: ( 'attribute' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:76:13: 'attribute'
             {
             match("attribute"); if (failed) return ;
 
@@ -419,8 +419,8 @@ public class v1Lexer extends Lexer {
     public final void mBEFORE() throws RecognitionException {
         try {
             int _type = BEFORE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:77:8: ( 'before' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:77:10: 'before'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:77:8: ( 'before' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:77:10: 'before'
             {
             match("before"); if (failed) return ;
 
@@ -438,8 +438,8 @@ public class v1Lexer extends Lexer {
     public final void mBIND() throws RecognitionException {
         try {
             int _type = BIND;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:78:6: ( 'bind' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:78:8: 'bind'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:78:6: ( 'bind' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:78:8: 'bind'
             {
             match("bind"); if (failed) return ;
 
@@ -457,8 +457,8 @@ public class v1Lexer extends Lexer {
     public final void mBIBIND() throws RecognitionException {
         try {
             int _type = BIBIND;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:79:8: ( 'bibind' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:79:10: 'bibind'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:79:8: ( 'bibind' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:79:10: 'bibind'
             {
             match("bibind"); if (failed) return ;
 
@@ -476,8 +476,8 @@ public class v1Lexer extends Lexer {
     public final void mBREAK() throws RecognitionException {
         try {
             int _type = BREAK;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:80:7: ( 'break' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:80:9: 'break'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:80:7: ( 'break' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:80:9: 'break'
             {
             match("break"); if (failed) return ;
 
@@ -495,8 +495,8 @@ public class v1Lexer extends Lexer {
     public final void mBY() throws RecognitionException {
         try {
             int _type = BY;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:81:4: ( 'by' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:81:6: 'by'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:81:4: ( 'by' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:81:6: 'by'
             {
             match("by"); if (failed) return ;
 
@@ -514,8 +514,8 @@ public class v1Lexer extends Lexer {
     public final void mCATCH() throws RecognitionException {
         try {
             int _type = CATCH;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:82:7: ( 'catch' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:82:9: 'catch'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:82:7: ( 'catch' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:82:9: 'catch'
             {
             match("catch"); if (failed) return ;
 
@@ -533,8 +533,8 @@ public class v1Lexer extends Lexer {
     public final void mCLASS() throws RecognitionException {
         try {
             int _type = CLASS;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:83:7: ( 'class' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:83:9: 'class'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:83:7: ( 'class' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:83:9: 'class'
             {
             match("class"); if (failed) return ;
 
@@ -552,8 +552,8 @@ public class v1Lexer extends Lexer {
     public final void mDELETE() throws RecognitionException {
         try {
             int _type = DELETE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:84:8: ( 'delete' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:84:10: 'delete'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:84:8: ( 'delete' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:84:10: 'delete'
             {
             match("delete"); if (failed) return ;
 
@@ -571,8 +571,8 @@ public class v1Lexer extends Lexer {
     public final void mDISTINCT() throws RecognitionException {
         try {
             int _type = DISTINCT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:85:10: ( 'distinct' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:85:12: 'distinct'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:85:10: ( 'distinct' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:85:12: 'distinct'
             {
             match("distinct"); if (failed) return ;
 
@@ -590,8 +590,8 @@ public class v1Lexer extends Lexer {
     public final void mDO() throws RecognitionException {
         try {
             int _type = DO;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:86:4: ( 'do' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:86:6: 'do'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:86:4: ( 'do' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:86:6: 'do'
             {
             match("do"); if (failed) return ;
 
@@ -609,8 +609,8 @@ public class v1Lexer extends Lexer {
     public final void mDUR() throws RecognitionException {
         try {
             int _type = DUR;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:87:5: ( 'dur' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:87:7: 'dur'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:87:5: ( 'dur' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:87:7: 'dur'
             {
             match("dur"); if (failed) return ;
 
@@ -628,8 +628,8 @@ public class v1Lexer extends Lexer {
     public final void mEASEBOTH() throws RecognitionException {
         try {
             int _type = EASEBOTH;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:88:10: ( 'easeboth' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:88:12: 'easeboth'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:88:10: ( 'easeboth' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:88:12: 'easeboth'
             {
             match("easeboth"); if (failed) return ;
 
@@ -647,8 +647,8 @@ public class v1Lexer extends Lexer {
     public final void mEASEIN() throws RecognitionException {
         try {
             int _type = EASEIN;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:89:8: ( 'easein' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:89:10: 'easein'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:89:8: ( 'easein' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:89:10: 'easein'
             {
             match("easein"); if (failed) return ;
 
@@ -666,8 +666,8 @@ public class v1Lexer extends Lexer {
     public final void mEASEOUT() throws RecognitionException {
         try {
             int _type = EASEOUT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:90:9: ( 'easeout' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:90:11: 'easeout'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:90:9: ( 'easeout' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:90:11: 'easeout'
             {
             match("easeout"); if (failed) return ;
 
@@ -685,8 +685,8 @@ public class v1Lexer extends Lexer {
     public final void mTIE() throws RecognitionException {
         try {
             int _type = TIE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:91:5: ( 'tie' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:91:7: 'tie'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:91:5: ( 'tie' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:91:7: 'tie'
             {
             match("tie"); if (failed) return ;
 
@@ -704,8 +704,8 @@ public class v1Lexer extends Lexer {
     public final void mSTAYS() throws RecognitionException {
         try {
             int _type = STAYS;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:92:7: ( 'stays' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:92:9: 'stays'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:92:7: ( 'stays' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:92:9: 'stays'
             {
             match("stays"); if (failed) return ;
 
@@ -723,8 +723,8 @@ public class v1Lexer extends Lexer {
     public final void mRETURN() throws RecognitionException {
         try {
             int _type = RETURN;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:93:8: ( 'return' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:93:10: 'return'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:93:8: ( 'return' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:93:10: 'return'
             {
             match("return"); if (failed) return ;
 
@@ -742,8 +742,8 @@ public class v1Lexer extends Lexer {
     public final void mTHROW() throws RecognitionException {
         try {
             int _type = THROW;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:94:7: ( 'throw' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:94:9: 'throw'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:94:7: ( 'throw' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:94:9: 'throw'
             {
             match("throw"); if (failed) return ;
 
@@ -761,8 +761,8 @@ public class v1Lexer extends Lexer {
     public final void mVAR() throws RecognitionException {
         try {
             int _type = VAR;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:95:5: ( 'var' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:95:7: 'var'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:95:5: ( 'var' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:95:7: 'var'
             {
             match("var"); if (failed) return ;
 
@@ -780,8 +780,8 @@ public class v1Lexer extends Lexer {
     public final void mPACKAGE() throws RecognitionException {
         try {
             int _type = PACKAGE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:96:9: ( 'package' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:96:11: 'package'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:96:9: ( 'package' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:96:11: 'package'
             {
             match("package"); if (failed) return ;
 
@@ -799,8 +799,8 @@ public class v1Lexer extends Lexer {
     public final void mIMPORT() throws RecognitionException {
         try {
             int _type = IMPORT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:97:8: ( 'import' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:97:10: 'import'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:97:8: ( 'import' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:97:10: 'import'
             {
             match("import"); if (failed) return ;
 
@@ -818,8 +818,8 @@ public class v1Lexer extends Lexer {
     public final void mFROM() throws RecognitionException {
         try {
             int _type = FROM;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:98:6: ( 'from' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:98:8: 'from'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:98:6: ( 'from' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:98:8: 'from'
             {
             match("from"); if (failed) return ;
 
@@ -837,8 +837,8 @@ public class v1Lexer extends Lexer {
     public final void mLATER() throws RecognitionException {
         try {
             int _type = LATER;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:99:7: ( 'later' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:99:9: 'later'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:99:7: ( 'later' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:99:9: 'later'
             {
             match("later"); if (failed) return ;
 
@@ -856,8 +856,8 @@ public class v1Lexer extends Lexer {
     public final void mTRIGGER() throws RecognitionException {
         try {
             int _type = TRIGGER;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:100:9: ( 'trigger' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:100:11: 'trigger'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:100:9: ( 'trigger' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:100:11: 'trigger'
             {
             match("trigger"); if (failed) return ;
 
@@ -875,8 +875,8 @@ public class v1Lexer extends Lexer {
     public final void mON() throws RecognitionException {
         try {
             int _type = ON;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:101:4: ( 'on' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:101:6: 'on'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:101:4: ( 'on' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:101:6: 'on'
             {
             match("on"); if (failed) return ;
 
@@ -894,8 +894,8 @@ public class v1Lexer extends Lexer {
     public final void mINSERT() throws RecognitionException {
         try {
             int _type = INSERT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:102:8: ( 'insert' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:102:10: 'insert'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:102:8: ( 'insert' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:102:10: 'insert'
             {
             match("insert"); if (failed) return ;
 
@@ -913,8 +913,8 @@ public class v1Lexer extends Lexer {
     public final void mINTO() throws RecognitionException {
         try {
             int _type = INTO;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:103:6: ( 'into' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:103:8: 'into'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:103:6: ( 'into' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:103:8: 'into'
             {
             match("into"); if (failed) return ;
 
@@ -932,8 +932,8 @@ public class v1Lexer extends Lexer {
     public final void mFIRST() throws RecognitionException {
         try {
             int _type = FIRST;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:104:7: ( 'first' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:104:9: 'first'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:104:7: ( 'first' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:104:9: 'first'
             {
             match("first"); if (failed) return ;
 
@@ -951,8 +951,8 @@ public class v1Lexer extends Lexer {
     public final void mLAST() throws RecognitionException {
         try {
             int _type = LAST;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:105:6: ( 'last' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:105:8: 'last'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:105:6: ( 'last' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:105:8: 'last'
             {
             match("last"); if (failed) return ;
 
@@ -970,8 +970,8 @@ public class v1Lexer extends Lexer {
     public final void mIF() throws RecognitionException {
         try {
             int _type = IF;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:106:4: ( 'if' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:106:6: 'if'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:106:4: ( 'if' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:106:6: 'if'
             {
             match("if"); if (failed) return ;
 
@@ -989,8 +989,8 @@ public class v1Lexer extends Lexer {
     public final void mTHEN() throws RecognitionException {
         try {
             int _type = THEN;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:107:6: ( 'then' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:107:8: 'then'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:107:6: ( 'then' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:107:8: 'then'
             {
             match("then"); if (failed) return ;
 
@@ -1008,8 +1008,8 @@ public class v1Lexer extends Lexer {
     public final void mELSE() throws RecognitionException {
         try {
             int _type = ELSE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:108:6: ( 'else' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:108:8: 'else'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:108:6: ( 'else' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:108:8: 'else'
             {
             match("else"); if (failed) return ;
 
@@ -1027,8 +1027,8 @@ public class v1Lexer extends Lexer {
     public final void mTHIS() throws RecognitionException {
         try {
             int _type = THIS;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:109:6: ( 'this' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:109:8: 'this'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:109:6: ( 'this' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:109:8: 'this'
             {
             match("this"); if (failed) return ;
 
@@ -1046,8 +1046,8 @@ public class v1Lexer extends Lexer {
     public final void mNULL() throws RecognitionException {
         try {
             int _type = NULL;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:110:6: ( 'null' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:110:8: 'null'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:110:6: ( 'null' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:110:8: 'null'
             {
             match("null"); if (failed) return ;
 
@@ -1065,8 +1065,8 @@ public class v1Lexer extends Lexer {
     public final void mTRUE() throws RecognitionException {
         try {
             int _type = TRUE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:111:6: ( 'true' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:111:8: 'true'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:111:6: ( 'true' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:111:8: 'true'
             {
             match("true"); if (failed) return ;
 
@@ -1084,8 +1084,8 @@ public class v1Lexer extends Lexer {
     public final void mFALSE() throws RecognitionException {
         try {
             int _type = FALSE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:112:7: ( 'false' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:112:9: 'false'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:112:7: ( 'false' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:112:9: 'false'
             {
             match("false"); if (failed) return ;
 
@@ -1103,8 +1103,8 @@ public class v1Lexer extends Lexer {
     public final void mFOR() throws RecognitionException {
         try {
             int _type = FOR;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:113:5: ( 'for' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:113:7: 'for'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:113:5: ( 'for' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:113:7: 'for'
             {
             match("for"); if (failed) return ;
 
@@ -1122,8 +1122,8 @@ public class v1Lexer extends Lexer {
     public final void mUNITINTERVAL() throws RecognitionException {
         try {
             int _type = UNITINTERVAL;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:114:14: ( 'unitinterval' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:114:16: 'unitinterval'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:114:14: ( 'unitinterval' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:114:16: 'unitinterval'
             {
             match("unitinterval"); if (failed) return ;
 
@@ -1141,8 +1141,8 @@ public class v1Lexer extends Lexer {
     public final void mIN() throws RecognitionException {
         try {
             int _type = IN;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:115:4: ( 'in' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:115:6: 'in'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:115:4: ( 'in' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:115:6: 'in'
             {
             match("in"); if (failed) return ;
 
@@ -1160,8 +1160,8 @@ public class v1Lexer extends Lexer {
     public final void mFPS() throws RecognitionException {
         try {
             int _type = FPS;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:116:5: ( 'fps' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:116:7: 'fps'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:116:5: ( 'fps' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:116:7: 'fps'
             {
             match("fps"); if (failed) return ;
 
@@ -1179,8 +1179,8 @@ public class v1Lexer extends Lexer {
     public final void mWHILE() throws RecognitionException {
         try {
             int _type = WHILE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:117:7: ( 'while' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:117:9: 'while'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:117:7: ( 'while' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:117:9: 'while'
             {
             match("while"); if (failed) return ;
 
@@ -1198,8 +1198,8 @@ public class v1Lexer extends Lexer {
     public final void mCONTINUE() throws RecognitionException {
         try {
             int _type = CONTINUE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:118:10: ( 'continue' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:118:12: 'continue'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:118:10: ( 'continue' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:118:12: 'continue'
             {
             match("continue"); if (failed) return ;
 
@@ -1217,8 +1217,8 @@ public class v1Lexer extends Lexer {
     public final void mLINEAR() throws RecognitionException {
         try {
             int _type = LINEAR;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:119:8: ( 'linear' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:119:10: 'linear'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:119:8: ( 'linear' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:119:10: 'linear'
             {
             match("linear"); if (failed) return ;
 
@@ -1236,8 +1236,8 @@ public class v1Lexer extends Lexer {
     public final void mMOTION() throws RecognitionException {
         try {
             int _type = MOTION;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:120:8: ( 'motion' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:120:10: 'motion'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:120:8: ( 'motion' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:120:10: 'motion'
             {
             match("motion"); if (failed) return ;
 
@@ -1255,8 +1255,8 @@ public class v1Lexer extends Lexer {
     public final void mTRY() throws RecognitionException {
         try {
             int _type = TRY;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:121:5: ( 'try' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:121:7: 'try'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:121:5: ( 'try' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:121:7: 'try'
             {
             match("try"); if (failed) return ;
 
@@ -1274,8 +1274,8 @@ public class v1Lexer extends Lexer {
     public final void mFINALLY() throws RecognitionException {
         try {
             int _type = FINALLY;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:122:9: ( 'finally' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:122:11: 'finally'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:122:9: ( 'finally' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:122:11: 'finally'
             {
             match("finally"); if (failed) return ;
 
@@ -1293,8 +1293,8 @@ public class v1Lexer extends Lexer {
     public final void mLAZY() throws RecognitionException {
         try {
             int _type = LAZY;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:123:6: ( 'lazy' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:123:8: 'lazy'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:123:6: ( 'lazy' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:123:8: 'lazy'
             {
             match("lazy"); if (failed) return ;
 
@@ -1312,8 +1312,8 @@ public class v1Lexer extends Lexer {
     public final void mFOREACH() throws RecognitionException {
         try {
             int _type = FOREACH;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:124:9: ( 'foreach' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:124:11: 'foreach'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:124:9: ( 'foreach' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:124:11: 'foreach'
             {
             match("foreach"); if (failed) return ;
 
@@ -1331,8 +1331,8 @@ public class v1Lexer extends Lexer {
     public final void mWHERE() throws RecognitionException {
         try {
             int _type = WHERE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:125:7: ( 'where' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:125:9: 'where'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:125:7: ( 'where' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:125:9: 'where'
             {
             match("where"); if (failed) return ;
 
@@ -1350,8 +1350,8 @@ public class v1Lexer extends Lexer {
     public final void mNOT() throws RecognitionException {
         try {
             int _type = NOT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:126:5: ( 'not' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:126:7: 'not'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:126:5: ( 'not' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:126:7: 'not'
             {
             match("not"); if (failed) return ;
 
@@ -1369,8 +1369,8 @@ public class v1Lexer extends Lexer {
     public final void mNEW() throws RecognitionException {
         try {
             int _type = NEW;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:127:5: ( 'new' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:127:7: 'new'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:127:5: ( 'new' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:127:7: 'new'
             {
             match("new"); if (failed) return ;
 
@@ -1388,8 +1388,8 @@ public class v1Lexer extends Lexer {
     public final void mPRIVATE() throws RecognitionException {
         try {
             int _type = PRIVATE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:128:9: ( 'private' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:128:11: 'private'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:128:9: ( 'private' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:128:11: 'private'
             {
             match("private"); if (failed) return ;
 
@@ -1407,8 +1407,8 @@ public class v1Lexer extends Lexer {
     public final void mPROTECTED() throws RecognitionException {
         try {
             int _type = PROTECTED;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:129:11: ( 'protected' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:129:13: 'protected'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:129:11: ( 'protected' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:129:13: 'protected'
             {
             match("protected"); if (failed) return ;
 
@@ -1426,8 +1426,8 @@ public class v1Lexer extends Lexer {
     public final void mPUBLIC() throws RecognitionException {
         try {
             int _type = PUBLIC;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:130:8: ( 'public' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:130:10: 'public'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:130:8: ( 'public' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:130:10: 'public'
             {
             match("public"); if (failed) return ;
 
@@ -1445,8 +1445,8 @@ public class v1Lexer extends Lexer {
     public final void mOPERATION() throws RecognitionException {
         try {
             int _type = OPERATION;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:131:11: ( 'operation' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:131:13: 'operation'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:131:11: ( 'operation' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:131:13: 'operation'
             {
             match("operation"); if (failed) return ;
 
@@ -1464,8 +1464,8 @@ public class v1Lexer extends Lexer {
     public final void mFUNCTION() throws RecognitionException {
         try {
             int _type = FUNCTION;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:132:10: ( 'function' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:132:12: 'function'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:132:10: ( 'function' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:132:12: 'function'
             {
             match("function"); if (failed) return ;
 
@@ -1483,8 +1483,8 @@ public class v1Lexer extends Lexer {
     public final void mREADONLY() throws RecognitionException {
         try {
             int _type = READONLY;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:133:10: ( 'readonly' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:133:12: 'readonly'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:133:10: ( 'readonly' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:133:12: 'readonly'
             {
             match("readonly"); if (failed) return ;
 
@@ -1502,8 +1502,8 @@ public class v1Lexer extends Lexer {
     public final void mINVERSE() throws RecognitionException {
         try {
             int _type = INVERSE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:134:9: ( 'inverse' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:134:11: 'inverse'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:134:9: ( 'inverse' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:134:11: 'inverse'
             {
             match("inverse"); if (failed) return ;
 
@@ -1521,8 +1521,8 @@ public class v1Lexer extends Lexer {
     public final void mTYPE() throws RecognitionException {
         try {
             int _type = TYPE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:135:6: ( 'type' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:135:8: 'type'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:135:6: ( 'type' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:135:8: 'type'
             {
             match("type"); if (failed) return ;
 
@@ -1540,8 +1540,8 @@ public class v1Lexer extends Lexer {
     public final void mEXTENDS() throws RecognitionException {
         try {
             int _type = EXTENDS;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:136:9: ( 'extends' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:136:11: 'extends'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:136:9: ( 'extends' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:136:11: 'extends'
             {
             match("extends"); if (failed) return ;
 
@@ -1559,8 +1559,8 @@ public class v1Lexer extends Lexer {
     public final void mORDER() throws RecognitionException {
         try {
             int _type = ORDER;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:137:7: ( 'order' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:137:9: 'order'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:137:7: ( 'order' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:137:9: 'order'
             {
             match("order"); if (failed) return ;
 
@@ -1578,8 +1578,8 @@ public class v1Lexer extends Lexer {
     public final void mINDEX() throws RecognitionException {
         try {
             int _type = INDEX;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:138:7: ( 'index' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:138:9: 'index'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:138:7: ( 'index' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:138:9: 'index'
             {
             match("index"); if (failed) return ;
 
@@ -1597,8 +1597,8 @@ public class v1Lexer extends Lexer {
     public final void mINSTANCEOF() throws RecognitionException {
         try {
             int _type = INSTANCEOF;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:139:12: ( 'instanceof' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:139:14: 'instanceof'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:139:12: ( 'instanceof' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:139:14: 'instanceof'
             {
             match("instanceof"); if (failed) return ;
 
@@ -1616,8 +1616,8 @@ public class v1Lexer extends Lexer {
     public final void mINDEXOF() throws RecognitionException {
         try {
             int _type = INDEXOF;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:140:9: ( 'indexof' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:140:11: 'indexof'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:140:9: ( 'indexof' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:140:11: 'indexof'
             {
             match("indexof"); if (failed) return ;
 
@@ -1635,8 +1635,8 @@ public class v1Lexer extends Lexer {
     public final void mSELECT() throws RecognitionException {
         try {
             int _type = SELECT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:141:8: ( 'select' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:141:10: 'select'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:141:8: ( 'select' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:141:10: 'select'
             {
             match("select"); if (failed) return ;
 
@@ -1654,8 +1654,8 @@ public class v1Lexer extends Lexer {
     public final void mSUPER() throws RecognitionException {
         try {
             int _type = SUPER;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:142:7: ( 'super' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:142:9: 'super'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:142:7: ( 'super' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:142:9: 'super'
             {
             match("super"); if (failed) return ;
 
@@ -1673,8 +1673,8 @@ public class v1Lexer extends Lexer {
     public final void mOR() throws RecognitionException {
         try {
             int _type = OR;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:143:4: ( 'or' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:143:6: 'or'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:143:4: ( 'or' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:143:6: 'or'
             {
             match("or"); if (failed) return ;
 
@@ -1692,8 +1692,8 @@ public class v1Lexer extends Lexer {
     public final void mSIZEOF() throws RecognitionException {
         try {
             int _type = SIZEOF;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:144:8: ( 'sizeof' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:144:10: 'sizeof'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:144:8: ( 'sizeof' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:144:10: 'sizeof'
             {
             match("sizeof"); if (failed) return ;
 
@@ -1711,8 +1711,8 @@ public class v1Lexer extends Lexer {
     public final void mREVERSE() throws RecognitionException {
         try {
             int _type = REVERSE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:145:9: ( 'reverse' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:145:11: 'reverse'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:145:9: ( 'reverse' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:145:11: 'reverse'
             {
             match("reverse"); if (failed) return ;
 
@@ -1730,8 +1730,8 @@ public class v1Lexer extends Lexer {
     public final void mXOR() throws RecognitionException {
         try {
             int _type = XOR;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:146:5: ( 'xor' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:146:7: 'xor'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:146:5: ( 'xor' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:146:7: 'xor'
             {
             match("xor"); if (failed) return ;
 
@@ -1749,8 +1749,8 @@ public class v1Lexer extends Lexer {
     public final void mLPAREN() throws RecognitionException {
         try {
             int _type = LPAREN;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:147:8: ( '(' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:147:10: '('
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:147:8: ( '(' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:147:10: '('
             {
             match('('); if (failed) return ;
 
@@ -1767,8 +1767,8 @@ public class v1Lexer extends Lexer {
     public final void mRPAREN() throws RecognitionException {
         try {
             int _type = RPAREN;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:148:8: ( ')' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:148:10: ')'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:148:8: ( ')' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:148:10: ')'
             {
             match(')'); if (failed) return ;
 
@@ -1785,8 +1785,8 @@ public class v1Lexer extends Lexer {
     public final void mLBRACKET() throws RecognitionException {
         try {
             int _type = LBRACKET;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:149:10: ( '[' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:149:12: '['
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:149:10: ( '[' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:149:12: '['
             {
             match('['); if (failed) return ;
 
@@ -1803,8 +1803,8 @@ public class v1Lexer extends Lexer {
     public final void mRBRACKET() throws RecognitionException {
         try {
             int _type = RBRACKET;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:150:10: ( ']' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:150:12: ']'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:150:10: ( ']' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:150:12: ']'
             {
             match(']'); if (failed) return ;
 
@@ -1821,8 +1821,8 @@ public class v1Lexer extends Lexer {
     public final void mSEMI() throws RecognitionException {
         try {
             int _type = SEMI;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:151:6: ( ';' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:151:8: ';'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:151:6: ( ';' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:151:8: ';'
             {
             match(';'); if (failed) return ;
 
@@ -1839,8 +1839,8 @@ public class v1Lexer extends Lexer {
     public final void mCOMMA() throws RecognitionException {
         try {
             int _type = COMMA;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:152:7: ( ',' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:152:9: ','
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:152:7: ( ',' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:152:9: ','
             {
             match(','); if (failed) return ;
 
@@ -1857,8 +1857,8 @@ public class v1Lexer extends Lexer {
     public final void mDOT() throws RecognitionException {
         try {
             int _type = DOT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:153:5: ( '.' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:153:7: '.'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:153:5: ( '.' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:153:7: '.'
             {
             match('.'); if (failed) return ;
 
@@ -1875,8 +1875,8 @@ public class v1Lexer extends Lexer {
     public final void mEQEQ() throws RecognitionException {
         try {
             int _type = EQEQ;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:154:6: ( '==' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:154:8: '=='
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:154:6: ( '==' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:154:8: '=='
             {
             match("=="); if (failed) return ;
 
@@ -1894,8 +1894,8 @@ public class v1Lexer extends Lexer {
     public final void mEQ() throws RecognitionException {
         try {
             int _type = EQ;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:155:4: ( '=' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:155:6: '='
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:155:4: ( '=' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:155:6: '='
             {
             match('='); if (failed) return ;
 
@@ -1912,8 +1912,8 @@ public class v1Lexer extends Lexer {
     public final void mGT() throws RecognitionException {
         try {
             int _type = GT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:156:4: ( '>' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:156:6: '>'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:156:4: ( '>' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:156:6: '>'
             {
             match('>'); if (failed) return ;
 
@@ -1930,8 +1930,8 @@ public class v1Lexer extends Lexer {
     public final void mLT() throws RecognitionException {
         try {
             int _type = LT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:157:4: ( '<' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:157:6: '<'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:157:4: ( '<' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:157:6: '<'
             {
             match('<'); if (failed) return ;
 
@@ -1948,8 +1948,8 @@ public class v1Lexer extends Lexer {
     public final void mLTGT() throws RecognitionException {
         try {
             int _type = LTGT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:158:6: ( '<>' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:158:8: '<>'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:158:6: ( '<>' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:158:8: '<>'
             {
             match("<>"); if (failed) return ;
 
@@ -1967,8 +1967,8 @@ public class v1Lexer extends Lexer {
     public final void mLTEQ() throws RecognitionException {
         try {
             int _type = LTEQ;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:159:6: ( '<=' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:159:8: '<='
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:159:6: ( '<=' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:159:8: '<='
             {
             match("<="); if (failed) return ;
 
@@ -1986,8 +1986,8 @@ public class v1Lexer extends Lexer {
     public final void mGTEQ() throws RecognitionException {
         try {
             int _type = GTEQ;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:160:6: ( '>=' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:160:8: '>='
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:160:6: ( '>=' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:160:8: '>='
             {
             match(">="); if (failed) return ;
 
@@ -2005,8 +2005,8 @@ public class v1Lexer extends Lexer {
     public final void mPLUS() throws RecognitionException {
         try {
             int _type = PLUS;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:161:6: ( '+' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:161:8: '+'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:161:6: ( '+' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:161:8: '+'
             {
             match('+'); if (failed) return ;
 
@@ -2023,8 +2023,8 @@ public class v1Lexer extends Lexer {
     public final void mPLUSPLUS() throws RecognitionException {
         try {
             int _type = PLUSPLUS;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:162:10: ( '++' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:162:12: '++'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:162:10: ( '++' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:162:12: '++'
             {
             match("++"); if (failed) return ;
 
@@ -2042,8 +2042,8 @@ public class v1Lexer extends Lexer {
     public final void mSUB() throws RecognitionException {
         try {
             int _type = SUB;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:163:5: ( '-' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:163:7: '-'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:163:5: ( '-' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:163:7: '-'
             {
             match('-'); if (failed) return ;
 
@@ -2060,8 +2060,8 @@ public class v1Lexer extends Lexer {
     public final void mSUBSUB() throws RecognitionException {
         try {
             int _type = SUBSUB;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:164:8: ( '--' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:164:10: '--'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:164:8: ( '--' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:164:10: '--'
             {
             match("--"); if (failed) return ;
 
@@ -2079,8 +2079,8 @@ public class v1Lexer extends Lexer {
     public final void mSTAR() throws RecognitionException {
         try {
             int _type = STAR;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:165:6: ( '*' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:165:8: '*'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:165:6: ( '*' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:165:8: '*'
             {
             match('*'); if (failed) return ;
 
@@ -2097,8 +2097,8 @@ public class v1Lexer extends Lexer {
     public final void mSLASH() throws RecognitionException {
         try {
             int _type = SLASH;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:166:7: ( '/' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:166:9: '/'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:166:7: ( '/' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:166:9: '/'
             {
             match('/'); if (failed) return ;
 
@@ -2115,8 +2115,8 @@ public class v1Lexer extends Lexer {
     public final void mPERCENT() throws RecognitionException {
         try {
             int _type = PERCENT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:167:9: ( '%' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:167:11: '%'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:167:9: ( '%' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:167:11: '%'
             {
             match('%'); if (failed) return ;
 
@@ -2133,8 +2133,8 @@ public class v1Lexer extends Lexer {
     public final void mPLUSEQ() throws RecognitionException {
         try {
             int _type = PLUSEQ;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:168:8: ( '+=' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:168:10: '+='
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:168:8: ( '+=' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:168:10: '+='
             {
             match("+="); if (failed) return ;
 
@@ -2152,8 +2152,8 @@ public class v1Lexer extends Lexer {
     public final void mSUBEQ() throws RecognitionException {
         try {
             int _type = SUBEQ;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:169:7: ( '-=' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:169:9: '-='
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:169:7: ( '-=' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:169:9: '-='
             {
             match("-="); if (failed) return ;
 
@@ -2171,8 +2171,8 @@ public class v1Lexer extends Lexer {
     public final void mSTAREQ() throws RecognitionException {
         try {
             int _type = STAREQ;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:170:8: ( '*=' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:170:10: '*='
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:170:8: ( '*=' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:170:10: '*='
             {
             match("*="); if (failed) return ;
 
@@ -2190,8 +2190,8 @@ public class v1Lexer extends Lexer {
     public final void mSLASHEQ() throws RecognitionException {
         try {
             int _type = SLASHEQ;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:171:9: ( '/=' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:171:11: '/='
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:171:9: ( '/=' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:171:11: '/='
             {
             match("/="); if (failed) return ;
 
@@ -2209,8 +2209,8 @@ public class v1Lexer extends Lexer {
     public final void mPERCENTEQ() throws RecognitionException {
         try {
             int _type = PERCENTEQ;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:172:11: ( '%=' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:172:13: '%='
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:172:11: ( '%=' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:172:13: '%='
             {
             match("%="); if (failed) return ;
 
@@ -2228,8 +2228,8 @@ public class v1Lexer extends Lexer {
     public final void mLTLT() throws RecognitionException {
         try {
             int _type = LTLT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:173:6: ( '<<' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:173:8: '<<'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:173:6: ( '<<' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:173:8: '<<'
             {
             match("<<"); if (failed) return ;
 
@@ -2247,8 +2247,8 @@ public class v1Lexer extends Lexer {
     public final void mGTGT() throws RecognitionException {
         try {
             int _type = GTGT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:174:6: ( '>>' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:174:8: '>>'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:174:6: ( '>>' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:174:8: '>>'
             {
             match(">>"); if (failed) return ;
 
@@ -2266,8 +2266,8 @@ public class v1Lexer extends Lexer {
     public final void mCOLON() throws RecognitionException {
         try {
             int _type = COLON;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:175:7: ( ':' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:175:9: ':'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:175:7: ( ':' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:175:9: ':'
             {
             match(':'); if (failed) return ;
 
@@ -2284,8 +2284,8 @@ public class v1Lexer extends Lexer {
     public final void mQUES() throws RecognitionException {
         try {
             int _type = QUES;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:176:6: ( '?' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:176:8: '?'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:176:6: ( '?' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:176:8: '?'
             {
             match('?'); if (failed) return ;
 
@@ -2302,7 +2302,7 @@ public class v1Lexer extends Lexer {
     public final void mSTRING_LITERAL() throws RecognitionException {
         try {
             int _type = STRING_LITERAL;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:215:19: ( '\"' (~ ( '{' | '\"' ) )* '\"' | '\\'' (~ ( '{' | '\\'' ) )* '\\'' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:215:19: ( '\"' (~ ( '{' | '\"' ) )* '\"' | '\\'' (~ ( '{' | '\\'' ) )* '\\'' )
             int alt3=2;
             int LA3_0 = input.LA(1);
 
@@ -2321,10 +2321,10 @@ public class v1Lexer extends Lexer {
             }
             switch (alt3) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:215:21: '\"' (~ ( '{' | '\"' ) )* '\"'
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:215:21: '\"' (~ ( '{' | '\"' ) )* '\"'
                     {
                     match('\"'); if (failed) return ;
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:215:25: (~ ( '{' | '\"' ) )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:215:25: (~ ( '{' | '\"' ) )*
                     loop1:
                     do {
                         int alt1=2;
@@ -2337,7 +2337,7 @@ public class v1Lexer extends Lexer {
 
                         switch (alt1) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:215:26: ~ ( '{' | '\"' )
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:215:26: ~ ( '{' | '\"' )
                     	    {
                     	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='!')||(input.LA(1)>='#' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
                     	        input.consume();
@@ -2367,10 +2367,10 @@ public class v1Lexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:216:7: '\\'' (~ ( '{' | '\\'' ) )* '\\''
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:216:7: '\\'' (~ ( '{' | '\\'' ) )* '\\''
                     {
                     match('\''); if (failed) return ;
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:216:12: (~ ( '{' | '\\'' ) )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:216:12: (~ ( '{' | '\\'' ) )*
                     loop2:
                     do {
                         int alt2=2;
@@ -2383,7 +2383,7 @@ public class v1Lexer extends Lexer {
 
                         switch (alt2) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:216:13: ~ ( '{' | '\\'' )
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:216:13: ~ ( '{' | '\\'' )
                     	    {
                     	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='&')||(input.LA(1)>='(' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
                     	        input.consume();
@@ -2425,7 +2425,7 @@ public class v1Lexer extends Lexer {
     public final void mQUOTE_LBRACE_STRING_LITERAL() throws RecognitionException {
         try {
             int _type = QUOTE_LBRACE_STRING_LITERAL;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:219:30: ( '\"' (~ ( '{' | '\"' ) )* '{' NextIsPercent[DBL_QUOTE_CTX] | '\\'' (~ ( '{' | '\\'' ) )* '{' NextIsPercent[SNG_QUOTE_CTX] )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:219:30: ( '\"' (~ ( '{' | '\"' ) )* '{' NextIsPercent[DBL_QUOTE_CTX] | '\\'' (~ ( '{' | '\\'' ) )* '{' NextIsPercent[SNG_QUOTE_CTX] )
             int alt6=2;
             int LA6_0 = input.LA(1);
 
@@ -2444,10 +2444,10 @@ public class v1Lexer extends Lexer {
             }
             switch (alt6) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:219:32: '\"' (~ ( '{' | '\"' ) )* '{' NextIsPercent[DBL_QUOTE_CTX]
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:219:32: '\"' (~ ( '{' | '\"' ) )* '{' NextIsPercent[DBL_QUOTE_CTX]
                     {
                     match('\"'); if (failed) return ;
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:219:36: (~ ( '{' | '\"' ) )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:219:36: (~ ( '{' | '\"' ) )*
                     loop4:
                     do {
                         int alt4=2;
@@ -2460,7 +2460,7 @@ public class v1Lexer extends Lexer {
 
                         switch (alt4) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:219:37: ~ ( '{' | '\"' )
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:219:37: ~ ( '{' | '\"' )
                     	    {
                     	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='!')||(input.LA(1)>='#' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
                     	        input.consume();
@@ -2491,10 +2491,10 @@ public class v1Lexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:221:7: '\\'' (~ ( '{' | '\\'' ) )* '{' NextIsPercent[SNG_QUOTE_CTX]
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:221:7: '\\'' (~ ( '{' | '\\'' ) )* '{' NextIsPercent[SNG_QUOTE_CTX]
                     {
                     match('\''); if (failed) return ;
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:221:12: (~ ( '{' | '\\'' ) )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:221:12: (~ ( '{' | '\\'' ) )*
                     loop5:
                     do {
                         int alt5=2;
@@ -2507,7 +2507,7 @@ public class v1Lexer extends Lexer {
 
                         switch (alt5) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:221:13: ~ ( '{' | '\\'' )
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:221:13: ~ ( '{' | '\\'' )
                     	    {
                     	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='&')||(input.LA(1)>='(' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
                     	        input.consume();
@@ -2550,8 +2550,8 @@ public class v1Lexer extends Lexer {
     public final void mLBRACE() throws RecognitionException {
         try {
             int _type = LBRACE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:224:11: ( '{' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:224:13: '{'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:224:11: ( '{' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:224:13: '{'
             {
             match('{'); if (failed) return ;
             if ( backtracking==0 ) {
@@ -2571,19 +2571,19 @@ public class v1Lexer extends Lexer {
     public final void mRBRACE_QUOTE_STRING_LITERAL() throws RecognitionException {
         try {
             int _type = RBRACE_QUOTE_STRING_LITERAL;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:226:30: ({...}? => '}' (~ ( '{' | '\"' ) )* '\"' | {...}? => '}' (~ ( '{' | '\\'' ) )* '\\'' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:226:30: ({...}? => '}' (~ ( '{' | '\"' ) )* '\"' | {...}? => '}' (~ ( '{' | '\\'' ) )* '\\'' )
             int alt9=2;
             alt9 = dfa9.predict(input);
             switch (alt9) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:226:35: {...}? => '}' (~ ( '{' | '\"' ) )* '\"'
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:226:35: {...}? => '}' (~ ( '{' | '\"' ) )* '\"'
                     {
                     if ( !( BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ) ) {
                         if (backtracking>0) {failed=true; return ;}
                         throw new FailedPredicateException(input, "RBRACE_QUOTE_STRING_LITERAL", " BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ");
                     }
                     match('}'); if (failed) return ;
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:227:11: (~ ( '{' | '\"' ) )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:227:11: (~ ( '{' | '\"' ) )*
                     loop7:
                     do {
                         int alt7=2;
@@ -2596,7 +2596,7 @@ public class v1Lexer extends Lexer {
 
                         switch (alt7) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:227:12: ~ ( '{' | '\"' )
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:227:12: ~ ( '{' | '\"' )
                     	    {
                     	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='!')||(input.LA(1)>='#' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
                     	        input.consume();
@@ -2628,14 +2628,14 @@ public class v1Lexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:230:10: {...}? => '}' (~ ( '{' | '\\'' ) )* '\\''
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:230:10: {...}? => '}' (~ ( '{' | '\\'' ) )* '\\''
                     {
                     if ( !( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) ) ) {
                         if (backtracking>0) {failed=true; return ;}
                         throw new FailedPredicateException(input, "RBRACE_QUOTE_STRING_LITERAL", " BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) ");
                     }
                     match('}'); if (failed) return ;
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:231:11: (~ ( '{' | '\\'' ) )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:231:11: (~ ( '{' | '\\'' ) )*
                     loop8:
                     do {
                         int alt8=2;
@@ -2648,7 +2648,7 @@ public class v1Lexer extends Lexer {
 
                         switch (alt8) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:231:12: ~ ( '{' | '\\'' )
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:231:12: ~ ( '{' | '\\'' )
                     	    {
                     	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='&')||(input.LA(1)>='(' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
                     	        input.consume();
@@ -2692,19 +2692,19 @@ public class v1Lexer extends Lexer {
     public final void mRBRACE_LBRACE_STRING_LITERAL() throws RecognitionException {
         try {
             int _type = RBRACE_LBRACE_STRING_LITERAL;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:235:31: ({...}? => '}' (~ ( '{' | '\"' ) )* '{' NextIsPercent[CUR_QUOTE_CTX] | {...}? => '}' (~ ( '{' | '\\'' ) )* '{' NextIsPercent[CUR_QUOTE_CTX] )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:235:31: ({...}? => '}' (~ ( '{' | '\"' ) )* '{' NextIsPercent[CUR_QUOTE_CTX] | {...}? => '}' (~ ( '{' | '\\'' ) )* '{' NextIsPercent[CUR_QUOTE_CTX] )
             int alt12=2;
             alt12 = dfa12.predict(input);
             switch (alt12) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:235:36: {...}? => '}' (~ ( '{' | '\"' ) )* '{' NextIsPercent[CUR_QUOTE_CTX]
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:235:36: {...}? => '}' (~ ( '{' | '\"' ) )* '{' NextIsPercent[CUR_QUOTE_CTX]
                     {
                     if ( !( BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ) ) {
                         if (backtracking>0) {failed=true; return ;}
                         throw new FailedPredicateException(input, "RBRACE_LBRACE_STRING_LITERAL", " BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) ");
                     }
                     match('}'); if (failed) return ;
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:236:11: (~ ( '{' | '\"' ) )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:236:11: (~ ( '{' | '\"' ) )*
                     loop10:
                     do {
                         int alt10=2;
@@ -2717,7 +2717,7 @@ public class v1Lexer extends Lexer {
 
                         switch (alt10) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:236:12: ~ ( '{' | '\"' )
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:236:12: ~ ( '{' | '\"' )
                     	    {
                     	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='!')||(input.LA(1)>='#' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
                     	        input.consume();
@@ -2749,14 +2749,14 @@ public class v1Lexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:239:10: {...}? => '}' (~ ( '{' | '\\'' ) )* '{' NextIsPercent[CUR_QUOTE_CTX]
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:239:10: {...}? => '}' (~ ( '{' | '\\'' ) )* '{' NextIsPercent[CUR_QUOTE_CTX]
                     {
                     if ( !( BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) ) ) {
                         if (backtracking>0) {failed=true; return ;}
                         throw new FailedPredicateException(input, "RBRACE_LBRACE_STRING_LITERAL", " BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) ");
                     }
                     match('}'); if (failed) return ;
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:240:11: (~ ( '{' | '\\'' ) )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:240:11: (~ ( '{' | '\\'' ) )*
                     loop11:
                     do {
                         int alt11=2;
@@ -2769,7 +2769,7 @@ public class v1Lexer extends Lexer {
 
                         switch (alt11) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:240:12: ~ ( '{' | '\\'' )
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:240:12: ~ ( '{' | '\\'' )
                     	    {
                     	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='&')||(input.LA(1)>='(' && input.LA(1)<='z')||(input.LA(1)>='|' && input.LA(1)<='\uFFFE') ) {
                     	        input.consume();
@@ -2813,8 +2813,8 @@ public class v1Lexer extends Lexer {
     public final void mRBRACE() throws RecognitionException {
         try {
             int _type = RBRACE;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:244:11: ({...}? => '}' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:244:16: {...}? => '}'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:244:11: ({...}? => '}' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:244:16: {...}? => '}'
             {
             if ( !( !BraceQuoteTracker.rightBraceLikeQuote(CUR_QUOTE_CTX) ) ) {
                 if (backtracking>0) {failed=true; return ;}
@@ -2837,7 +2837,7 @@ public class v1Lexer extends Lexer {
     // $ANTLR start NextIsPercent
     public final void mNextIsPercent(int quoteContext) throws RecognitionException {
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:6: ( ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )* '%' )=> | )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:6: ( ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )* '%' )=> | )
             int alt13=2;
             int LA13_0 = input.LA(1);
 
@@ -2856,7 +2856,7 @@ public class v1Lexer extends Lexer {
             }
             switch (alt13) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:8: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )* '%' )=>
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:8: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )* '%' )=>
                     {
                     if ( backtracking==0 ) {
                        BraceQuoteTracker.enterBrace(quoteContext, true); 
@@ -2865,7 +2865,7 @@ public class v1Lexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:251:10: 
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:251:10: 
                     {
                     if ( backtracking==0 ) {
                        BraceQuoteTracker.enterBrace(quoteContext, false); 
@@ -2885,15 +2885,15 @@ public class v1Lexer extends Lexer {
     public final void mFORMAT_STRING_LITERAL() throws RecognitionException {
         try {
             int _type = FORMAT_STRING_LITERAL;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:253:24: ({...}? => '%' (~ ' ' )* )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:253:30: {...}? => '%' (~ ' ' )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:253:24: ({...}? => '%' (~ ' ' )* )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:253:30: {...}? => '%' (~ ' ' )*
             {
             if ( !( BraceQuoteTracker.percentIsFormat() ) ) {
                 if (backtracking>0) {failed=true; return ;}
                 throw new FailedPredicateException(input, "FORMAT_STRING_LITERAL", " BraceQuoteTracker.percentIsFormat() ");
             }
             match('%'); if (failed) return ;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:254:11: (~ ' ' )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:254:11: (~ ' ' )*
             loop14:
             do {
                 int alt14=2;
@@ -2906,7 +2906,7 @@ public class v1Lexer extends Lexer {
 
                 switch (alt14) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:254:12: ~ ' '
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:254:12: ~ ' '
             	    {
             	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='\u001F')||(input.LA(1)>='!' && input.LA(1)<='\uFFFE') ) {
             	        input.consume();
@@ -2945,12 +2945,12 @@ public class v1Lexer extends Lexer {
     public final void mQUOTED_IDENTIFIER() throws RecognitionException {
         try {
             int _type = QUOTED_IDENTIFIER;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:2: ( '<<' (~ '>' | '>' ~ '>' )* ( '>' )* '>>' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:4: '<<' (~ '>' | '>' ~ '>' )* ( '>' )* '>>'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:2: ( '<<' (~ '>' | '>' ~ '>' )* ( '>' )* '>>' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:4: '<<' (~ '>' | '>' ~ '>' )* ( '>' )* '>>'
             {
             match("<<"); if (failed) return ;
 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:9: (~ '>' | '>' ~ '>' )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:9: (~ '>' | '>' ~ '>' )*
             loop15:
             do {
                 int alt15=3;
@@ -2972,7 +2972,7 @@ public class v1Lexer extends Lexer {
 
                 switch (alt15) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:10: ~ '>'
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:10: ~ '>'
             	    {
             	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='=')||(input.LA(1)>='?' && input.LA(1)<='\uFFFE') ) {
             	        input.consume();
@@ -2989,7 +2989,7 @@ public class v1Lexer extends Lexer {
             	    }
             	    break;
             	case 2 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:16: '>' ~ '>'
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:16: '>' ~ '>'
             	    {
             	    match('>'); if (failed) return ;
             	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='=')||(input.LA(1)>='?' && input.LA(1)<='\uFFFE') ) {
@@ -3012,7 +3012,7 @@ public class v1Lexer extends Lexer {
                 }
             } while (true);
 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:27: ( '>' )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:27: ( '>' )*
             loop16:
             do {
                 int alt16=2;
@@ -3037,7 +3037,7 @@ public class v1Lexer extends Lexer {
 
                 switch (alt16) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:27: '>'
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:258:27: '>'
             	    {
             	    match('>'); if (failed) return ;
 
@@ -3068,10 +3068,10 @@ public class v1Lexer extends Lexer {
     public final void mINTEGER_LITERAL() throws RecognitionException {
         try {
             int _type = INTEGER_LITERAL;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:17: ( ( '0' | '1' .. '9' ( '0' .. '9' )* ) )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:17: ( ( '0' | '1' .. '9' ( '0' .. '9' )* ) )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
             {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:19: ( '0' | '1' .. '9' ( '0' .. '9' )* )
             int alt18=2;
             int LA18_0 = input.LA(1);
 
@@ -3090,17 +3090,17 @@ public class v1Lexer extends Lexer {
             }
             switch (alt18) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:20: '0'
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:20: '0'
                     {
                     match('0'); if (failed) return ;
 
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:26: '1' .. '9' ( '0' .. '9' )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:26: '1' .. '9' ( '0' .. '9' )*
                     {
                     matchRange('1','9'); if (failed) return ;
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:35: ( '0' .. '9' )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:35: ( '0' .. '9' )*
                     loop17:
                     do {
                         int alt17=2;
@@ -3113,7 +3113,7 @@ public class v1Lexer extends Lexer {
 
                         switch (alt17) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:35: '0' .. '9'
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:260:35: '0' .. '9'
                     	    {
                     	    matchRange('0','9'); if (failed) return ;
 
@@ -3145,14 +3145,14 @@ public class v1Lexer extends Lexer {
     public final void mFLOATING_POINT_LITERAL() throws RecognitionException {
         try {
             int _type = FLOATING_POINT_LITERAL;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:5: ( ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( Exponent )? | '.' ( '0' .. '9' )+ ( Exponent )? | ( '0' .. '9' )+ Exponent )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:5: ( ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( Exponent )? | '.' ( '0' .. '9' )+ ( Exponent )? | ( '0' .. '9' )+ Exponent )
             int alt25=3;
             alt25 = dfa25.predict(input);
             switch (alt25) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:9: ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( Exponent )?
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:9: ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( Exponent )?
                     {
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:9: ( '0' .. '9' )+
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:9: ( '0' .. '9' )+
                     int cnt19=0;
                     loop19:
                     do {
@@ -3166,7 +3166,7 @@ public class v1Lexer extends Lexer {
 
                         switch (alt19) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:10: '0' .. '9'
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:10: '0' .. '9'
                     	    {
                     	    matchRange('0','9'); if (failed) return ;
 
@@ -3184,7 +3184,7 @@ public class v1Lexer extends Lexer {
                     } while (true);
 
                     match('.'); if (failed) return ;
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:25: ( '0' .. '9' )*
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:25: ( '0' .. '9' )*
                     loop20:
                     do {
                         int alt20=2;
@@ -3197,7 +3197,7 @@ public class v1Lexer extends Lexer {
 
                         switch (alt20) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:26: '0' .. '9'
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:26: '0' .. '9'
                     	    {
                     	    matchRange('0','9'); if (failed) return ;
 
@@ -3209,7 +3209,7 @@ public class v1Lexer extends Lexer {
                         }
                     } while (true);
 
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:37: ( Exponent )?
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:37: ( Exponent )?
                     int alt21=2;
                     int LA21_0 = input.LA(1);
 
@@ -3218,7 +3218,7 @@ public class v1Lexer extends Lexer {
                     }
                     switch (alt21) {
                         case 1 :
-                            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:37: Exponent
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:263:37: Exponent
                             {
                             mExponent(); if (failed) return ;
 
@@ -3231,10 +3231,10 @@ public class v1Lexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:9: '.' ( '0' .. '9' )+ ( Exponent )?
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:9: '.' ( '0' .. '9' )+ ( Exponent )?
                     {
                     match('.'); if (failed) return ;
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:13: ( '0' .. '9' )+
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:13: ( '0' .. '9' )+
                     int cnt22=0;
                     loop22:
                     do {
@@ -3248,7 +3248,7 @@ public class v1Lexer extends Lexer {
 
                         switch (alt22) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:14: '0' .. '9'
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:14: '0' .. '9'
                     	    {
                     	    matchRange('0','9'); if (failed) return ;
 
@@ -3265,7 +3265,7 @@ public class v1Lexer extends Lexer {
                         cnt22++;
                     } while (true);
 
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:25: ( Exponent )?
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:25: ( Exponent )?
                     int alt23=2;
                     int LA23_0 = input.LA(1);
 
@@ -3274,7 +3274,7 @@ public class v1Lexer extends Lexer {
                     }
                     switch (alt23) {
                         case 1 :
-                            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:25: Exponent
+                            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:264:25: Exponent
                             {
                             mExponent(); if (failed) return ;
 
@@ -3287,9 +3287,9 @@ public class v1Lexer extends Lexer {
                     }
                     break;
                 case 3 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:265:9: ( '0' .. '9' )+ Exponent
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:265:9: ( '0' .. '9' )+ Exponent
                     {
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:265:9: ( '0' .. '9' )+
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:265:9: ( '0' .. '9' )+
                     int cnt24=0;
                     loop24:
                     do {
@@ -3303,7 +3303,7 @@ public class v1Lexer extends Lexer {
 
                         switch (alt24) {
                     	case 1 :
-                    	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:265:10: '0' .. '9'
+                    	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:265:10: '0' .. '9'
                     	    {
                     	    matchRange('0','9'); if (failed) return ;
 
@@ -3336,8 +3336,8 @@ public class v1Lexer extends Lexer {
     // $ANTLR start Exponent
     public final void mExponent() throws RecognitionException {
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:10: ( ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+ )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:12: ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:10: ( ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+ )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:12: ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+
             {
             if ( input.LA(1)=='E'||input.LA(1)=='e' ) {
                 input.consume();
@@ -3350,7 +3350,7 @@ public class v1Lexer extends Lexer {
                 recover(mse);    throw mse;
             }
 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:22: ( '+' | '-' )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:22: ( '+' | '-' )?
             int alt26=2;
             int LA26_0 = input.LA(1);
 
@@ -3359,7 +3359,7 @@ public class v1Lexer extends Lexer {
             }
             switch (alt26) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
                     {
                     if ( input.LA(1)=='+'||input.LA(1)=='-' ) {
                         input.consume();
@@ -3378,7 +3378,7 @@ public class v1Lexer extends Lexer {
 
             }
 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:33: ( '0' .. '9' )+
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:33: ( '0' .. '9' )+
             int cnt27=0;
             loop27:
             do {
@@ -3392,7 +3392,7 @@ public class v1Lexer extends Lexer {
 
                 switch (alt27) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:34: '0' .. '9'
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:269:34: '0' .. '9'
             	    {
             	    matchRange('0','9'); if (failed) return ;
 
@@ -3422,11 +3422,11 @@ public class v1Lexer extends Lexer {
     public final void mIDENTIFIER() throws RecognitionException {
         try {
             int _type = IDENTIFIER;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:272:5: ( Letter ( Letter | JavaIDDigit )* )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:272:9: Letter ( Letter | JavaIDDigit )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:272:5: ( Letter ( Letter | JavaIDDigit )* )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:272:9: Letter ( Letter | JavaIDDigit )*
             {
             mLetter(); if (failed) return ;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:272:16: ( Letter | JavaIDDigit )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:272:16: ( Letter | JavaIDDigit )*
             loop28:
             do {
                 int alt28=2;
@@ -3439,7 +3439,7 @@ public class v1Lexer extends Lexer {
 
                 switch (alt28) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
             	    {
             	    if ( input.LA(1)=='$'||(input.LA(1)>='0' && input.LA(1)<='9')||(input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z')||(input.LA(1)>='\u00C0' && input.LA(1)<='\u00D6')||(input.LA(1)>='\u00D8' && input.LA(1)<='\u00F6')||(input.LA(1)>='\u00F8' && input.LA(1)<='\u1FFF')||(input.LA(1)>='\u3040' && input.LA(1)<='\u318F')||(input.LA(1)>='\u3300' && input.LA(1)<='\u337F')||(input.LA(1)>='\u3400' && input.LA(1)<='\u3D2D')||(input.LA(1)>='\u4E00' && input.LA(1)<='\u9FFF')||(input.LA(1)>='\uF900' && input.LA(1)<='\uFAFF') ) {
             	        input.consume();
@@ -3474,8 +3474,8 @@ public class v1Lexer extends Lexer {
     // $ANTLR start Letter
     public final void mLetter() throws RecognitionException {
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:277:5: ( '\\u0024' | '\\u0041' .. '\\u005a' | '\\u005f' | '\\u0061' .. '\\u007a' | '\\u00c0' .. '\\u00d6' | '\\u00d8' .. '\\u00f6' | '\\u00f8' .. '\\u00ff' | '\\u0100' .. '\\u1fff' | '\\u3040' .. '\\u318f' | '\\u3300' .. '\\u337f' | '\\u3400' .. '\\u3d2d' | '\\u4e00' .. '\\u9fff' | '\\uf900' .. '\\ufaff' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:277:5: ( '\\u0024' | '\\u0041' .. '\\u005a' | '\\u005f' | '\\u0061' .. '\\u007a' | '\\u00c0' .. '\\u00d6' | '\\u00d8' .. '\\u00f6' | '\\u00f8' .. '\\u00ff' | '\\u0100' .. '\\u1fff' | '\\u3040' .. '\\u318f' | '\\u3300' .. '\\u337f' | '\\u3400' .. '\\u3d2d' | '\\u4e00' .. '\\u9fff' | '\\uf900' .. '\\ufaff' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
             {
             if ( input.LA(1)=='$'||(input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z')||(input.LA(1)>='\u00C0' && input.LA(1)<='\u00D6')||(input.LA(1)>='\u00D8' && input.LA(1)<='\u00F6')||(input.LA(1)>='\u00F8' && input.LA(1)<='\u1FFF')||(input.LA(1)>='\u3040' && input.LA(1)<='\u318F')||(input.LA(1)>='\u3300' && input.LA(1)<='\u337F')||(input.LA(1)>='\u3400' && input.LA(1)<='\u3D2D')||(input.LA(1)>='\u4E00' && input.LA(1)<='\u9FFF')||(input.LA(1)>='\uF900' && input.LA(1)<='\uFAFF') ) {
                 input.consume();
@@ -3500,8 +3500,8 @@ public class v1Lexer extends Lexer {
     // $ANTLR start JavaIDDigit
     public final void mJavaIDDigit() throws RecognitionException {
         try {
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:294:5: ( '\\u0030' .. '\\u0039' | '\\u0660' .. '\\u0669' | '\\u06f0' .. '\\u06f9' | '\\u0966' .. '\\u096f' | '\\u09e6' .. '\\u09ef' | '\\u0a66' .. '\\u0a6f' | '\\u0ae6' .. '\\u0aef' | '\\u0b66' .. '\\u0b6f' | '\\u0be7' .. '\\u0bef' | '\\u0c66' .. '\\u0c6f' | '\\u0ce6' .. '\\u0cef' | '\\u0d66' .. '\\u0d6f' | '\\u0e50' .. '\\u0e59' | '\\u0ed0' .. '\\u0ed9' | '\\u1040' .. '\\u1049' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:294:5: ( '\\u0030' .. '\\u0039' | '\\u0660' .. '\\u0669' | '\\u06f0' .. '\\u06f9' | '\\u0966' .. '\\u096f' | '\\u09e6' .. '\\u09ef' | '\\u0a66' .. '\\u0a6f' | '\\u0ae6' .. '\\u0aef' | '\\u0b66' .. '\\u0b6f' | '\\u0be7' .. '\\u0bef' | '\\u0c66' .. '\\u0c6f' | '\\u0ce6' .. '\\u0cef' | '\\u0d66' .. '\\u0d6f' | '\\u0e50' .. '\\u0e59' | '\\u0ed0' .. '\\u0ed9' | '\\u1040' .. '\\u1049' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
             {
             if ( (input.LA(1)>='0' && input.LA(1)<='9')||(input.LA(1)>='\u0660' && input.LA(1)<='\u0669')||(input.LA(1)>='\u06F0' && input.LA(1)<='\u06F9')||(input.LA(1)>='\u0966' && input.LA(1)<='\u096F')||(input.LA(1)>='\u09E6' && input.LA(1)<='\u09EF')||(input.LA(1)>='\u0A66' && input.LA(1)<='\u0A6F')||(input.LA(1)>='\u0AE6' && input.LA(1)<='\u0AEF')||(input.LA(1)>='\u0B66' && input.LA(1)<='\u0B6F')||(input.LA(1)>='\u0BE7' && input.LA(1)<='\u0BEF')||(input.LA(1)>='\u0C66' && input.LA(1)<='\u0C6F')||(input.LA(1)>='\u0CE6' && input.LA(1)<='\u0CEF')||(input.LA(1)>='\u0D66' && input.LA(1)<='\u0D6F')||(input.LA(1)>='\u0E50' && input.LA(1)<='\u0E59')||(input.LA(1)>='\u0ED0' && input.LA(1)<='\u0ED9')||(input.LA(1)>='\u1040' && input.LA(1)<='\u1049') ) {
                 input.consume();
@@ -3527,8 +3527,8 @@ public class v1Lexer extends Lexer {
     public final void mWS() throws RecognitionException {
         try {
             int _type = WS;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:311:5: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' ) )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:311:8: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:311:5: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' ) )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:311:8: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )
             {
             if ( (input.LA(1)>='\t' && input.LA(1)<='\n')||(input.LA(1)>='\f' && input.LA(1)<='\r')||input.LA(1)==' ' ) {
                 input.consume();
@@ -3558,12 +3558,12 @@ public class v1Lexer extends Lexer {
     public final void mCOMMENT() throws RecognitionException {
         try {
             int _type = COMMENT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:315:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:315:9: '/*' ( options {greedy=false; } : . )* '*/'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:315:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:315:9: '/*' ( options {greedy=false; } : . )* '*/'
             {
             match("/*"); if (failed) return ;
 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:315:14: ( options {greedy=false; } : . )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:315:14: ( options {greedy=false; } : . )*
             loop29:
             do {
                 int alt29=2;
@@ -3588,7 +3588,7 @@ public class v1Lexer extends Lexer {
 
                 switch (alt29) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:315:42: .
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:315:42: .
             	    {
             	    matchAny(); if (failed) return ;
 
@@ -3619,12 +3619,12 @@ public class v1Lexer extends Lexer {
     public final void mLINE_COMMENT() throws RecognitionException {
         try {
             int _type = LINE_COMMENT;
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:5: ( '//' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n' )
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:7: '//' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n'
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:5: ( '//' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n' )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:7: '//' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n'
             {
             match("//"); if (failed) return ;
 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:12: (~ ( '\\n' | '\\r' ) )*
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:12: (~ ( '\\n' | '\\r' ) )*
             loop30:
             do {
                 int alt30=2;
@@ -3637,7 +3637,7 @@ public class v1Lexer extends Lexer {
 
                 switch (alt30) {
             	case 1 :
-            	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:12: ~ ( '\\n' | '\\r' )
+            	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:12: ~ ( '\\n' | '\\r' )
             	    {
             	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='\t')||(input.LA(1)>='\u000B' && input.LA(1)<='\f')||(input.LA(1)>='\u000E' && input.LA(1)<='\uFFFE') ) {
             	        input.consume();
@@ -3659,7 +3659,7 @@ public class v1Lexer extends Lexer {
                 }
             } while (true);
 
-            // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:26: ( '\\r' )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:26: ( '\\r' )?
             int alt31=2;
             int LA31_0 = input.LA(1);
 
@@ -3668,7 +3668,7 @@ public class v1Lexer extends Lexer {
             }
             switch (alt31) {
                 case 1 :
-                    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:26: '\\r'
+                    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:319:26: '\\r'
                     {
                     match('\r'); if (failed) return ;
 
@@ -3692,880 +3692,880 @@ public class v1Lexer extends Lexer {
     // $ANTLR end LINE_COMMENT
 
     public void mTokens() throws RecognitionException {
-        // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:8: ( BAR | POUND | TYPEOF | DOTDOT | LARROW | ABSTRACT | AFTER | AND | AS | ASSERT | ATTRIBUTE | BEFORE | BIND | BIBIND | BREAK | BY | CATCH | CLASS | DELETE | DISTINCT | DO | DUR | EASEBOTH | EASEIN | EASEOUT | TIE | STAYS | RETURN | THROW | VAR | PACKAGE | IMPORT | FROM | LATER | TRIGGER | ON | INSERT | INTO | FIRST | LAST | IF | THEN | ELSE | THIS | NULL | TRUE | FALSE | FOR | UNITINTERVAL | IN | FPS | WHILE | CONTINUE | LINEAR | MOTION | TRY | FINALLY | LAZY | FOREACH | WHERE | NOT | NEW | PRIVATE | PROTECTED | PUBLIC | OPERATION | FUNCTION | READONLY | INVERSE | TYPE | EXTENDS | ORDER | INDEX | INSTANCEOF | INDEXOF | SELECT | SUPER | OR | SIZEOF | REVERSE | XOR | LPAREN | RPAREN | LBRACKET | RBRACKET | SEMI | COMMA | DOT | EQEQ | EQ | GT | LT | LTGT | LTEQ | GTEQ | PLUS | PLUSPLUS | SUB | SUBSUB | STAR | SLASH | PERCENT | PLUSEQ | SUBEQ | STAREQ | SLASHEQ | PERCENTEQ | LTLT | GTGT | COLON | QUES | STRING_LITERAL | QUOTE_LBRACE_STRING_LITERAL | LBRACE | RBRACE_QUOTE_STRING_LITERAL | RBRACE_LBRACE_STRING_LITERAL | RBRACE | FORMAT_STRING_LITERAL | QUOTED_IDENTIFIER | INTEGER_LITERAL | FLOATING_POINT_LITERAL | IDENTIFIER | WS | COMMENT | LINE_COMMENT )
+        // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:8: ( BAR | POUND | TYPEOF | DOTDOT | LARROW | ABSTRACT | AFTER | AND | AS | ASSERT | ATTRIBUTE | BEFORE | BIND | BIBIND | BREAK | BY | CATCH | CLASS | DELETE | DISTINCT | DO | DUR | EASEBOTH | EASEIN | EASEOUT | TIE | STAYS | RETURN | THROW | VAR | PACKAGE | IMPORT | FROM | LATER | TRIGGER | ON | INSERT | INTO | FIRST | LAST | IF | THEN | ELSE | THIS | NULL | TRUE | FALSE | FOR | UNITINTERVAL | IN | FPS | WHILE | CONTINUE | LINEAR | MOTION | TRY | FINALLY | LAZY | FOREACH | WHERE | NOT | NEW | PRIVATE | PROTECTED | PUBLIC | OPERATION | FUNCTION | READONLY | INVERSE | TYPE | EXTENDS | ORDER | INDEX | INSTANCEOF | INDEXOF | SELECT | SUPER | OR | SIZEOF | REVERSE | XOR | LPAREN | RPAREN | LBRACKET | RBRACKET | SEMI | COMMA | DOT | EQEQ | EQ | GT | LT | LTGT | LTEQ | GTEQ | PLUS | PLUSPLUS | SUB | SUBSUB | STAR | SLASH | PERCENT | PLUSEQ | SUBEQ | STAREQ | SLASHEQ | PERCENTEQ | LTLT | GTGT | COLON | QUES | STRING_LITERAL | QUOTE_LBRACE_STRING_LITERAL | LBRACE | RBRACE_QUOTE_STRING_LITERAL | RBRACE_LBRACE_STRING_LITERAL | RBRACE | FORMAT_STRING_LITERAL | QUOTED_IDENTIFIER | INTEGER_LITERAL | FLOATING_POINT_LITERAL | IDENTIFIER | WS | COMMENT | LINE_COMMENT )
         int alt32=125;
         alt32 = dfa32.predict(input);
         switch (alt32) {
             case 1 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:10: BAR
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:10: BAR
                 {
                 mBAR(); if (failed) return ;
 
                 }
                 break;
             case 2 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:14: POUND
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:14: POUND
                 {
                 mPOUND(); if (failed) return ;
 
                 }
                 break;
             case 3 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:20: TYPEOF
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:20: TYPEOF
                 {
                 mTYPEOF(); if (failed) return ;
 
                 }
                 break;
             case 4 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:27: DOTDOT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:27: DOTDOT
                 {
                 mDOTDOT(); if (failed) return ;
 
                 }
                 break;
             case 5 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:34: LARROW
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:34: LARROW
                 {
                 mLARROW(); if (failed) return ;
 
                 }
                 break;
             case 6 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:41: ABSTRACT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:41: ABSTRACT
                 {
                 mABSTRACT(); if (failed) return ;
 
                 }
                 break;
             case 7 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:50: AFTER
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:50: AFTER
                 {
                 mAFTER(); if (failed) return ;
 
                 }
                 break;
             case 8 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:56: AND
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:56: AND
                 {
                 mAND(); if (failed) return ;
 
                 }
                 break;
             case 9 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:60: AS
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:60: AS
                 {
                 mAS(); if (failed) return ;
 
                 }
                 break;
             case 10 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:63: ASSERT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:63: ASSERT
                 {
                 mASSERT(); if (failed) return ;
 
                 }
                 break;
             case 11 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:70: ATTRIBUTE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:70: ATTRIBUTE
                 {
                 mATTRIBUTE(); if (failed) return ;
 
                 }
                 break;
             case 12 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:80: BEFORE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:80: BEFORE
                 {
                 mBEFORE(); if (failed) return ;
 
                 }
                 break;
             case 13 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:87: BIND
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:87: BIND
                 {
                 mBIND(); if (failed) return ;
 
                 }
                 break;
             case 14 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:92: BIBIND
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:92: BIBIND
                 {
                 mBIBIND(); if (failed) return ;
 
                 }
                 break;
             case 15 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:99: BREAK
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:99: BREAK
                 {
                 mBREAK(); if (failed) return ;
 
                 }
                 break;
             case 16 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:105: BY
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:105: BY
                 {
                 mBY(); if (failed) return ;
 
                 }
                 break;
             case 17 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:108: CATCH
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:108: CATCH
                 {
                 mCATCH(); if (failed) return ;
 
                 }
                 break;
             case 18 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:114: CLASS
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:114: CLASS
                 {
                 mCLASS(); if (failed) return ;
 
                 }
                 break;
             case 19 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:120: DELETE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:120: DELETE
                 {
                 mDELETE(); if (failed) return ;
 
                 }
                 break;
             case 20 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:127: DISTINCT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:127: DISTINCT
                 {
                 mDISTINCT(); if (failed) return ;
 
                 }
                 break;
             case 21 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:136: DO
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:136: DO
                 {
                 mDO(); if (failed) return ;
 
                 }
                 break;
             case 22 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:139: DUR
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:139: DUR
                 {
                 mDUR(); if (failed) return ;
 
                 }
                 break;
             case 23 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:143: EASEBOTH
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:143: EASEBOTH
                 {
                 mEASEBOTH(); if (failed) return ;
 
                 }
                 break;
             case 24 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:152: EASEIN
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:152: EASEIN
                 {
                 mEASEIN(); if (failed) return ;
 
                 }
                 break;
             case 25 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:159: EASEOUT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:159: EASEOUT
                 {
                 mEASEOUT(); if (failed) return ;
 
                 }
                 break;
             case 26 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:167: TIE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:167: TIE
                 {
                 mTIE(); if (failed) return ;
 
                 }
                 break;
             case 27 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:171: STAYS
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:171: STAYS
                 {
                 mSTAYS(); if (failed) return ;
 
                 }
                 break;
             case 28 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:177: RETURN
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:177: RETURN
                 {
                 mRETURN(); if (failed) return ;
 
                 }
                 break;
             case 29 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:184: THROW
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:184: THROW
                 {
                 mTHROW(); if (failed) return ;
 
                 }
                 break;
             case 30 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:190: VAR
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:190: VAR
                 {
                 mVAR(); if (failed) return ;
 
                 }
                 break;
             case 31 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:194: PACKAGE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:194: PACKAGE
                 {
                 mPACKAGE(); if (failed) return ;
 
                 }
                 break;
             case 32 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:202: IMPORT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:202: IMPORT
                 {
                 mIMPORT(); if (failed) return ;
 
                 }
                 break;
             case 33 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:209: FROM
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:209: FROM
                 {
                 mFROM(); if (failed) return ;
 
                 }
                 break;
             case 34 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:214: LATER
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:214: LATER
                 {
                 mLATER(); if (failed) return ;
 
                 }
                 break;
             case 35 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:220: TRIGGER
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:220: TRIGGER
                 {
                 mTRIGGER(); if (failed) return ;
 
                 }
                 break;
             case 36 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:228: ON
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:228: ON
                 {
                 mON(); if (failed) return ;
 
                 }
                 break;
             case 37 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:231: INSERT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:231: INSERT
                 {
                 mINSERT(); if (failed) return ;
 
                 }
                 break;
             case 38 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:238: INTO
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:238: INTO
                 {
                 mINTO(); if (failed) return ;
 
                 }
                 break;
             case 39 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:243: FIRST
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:243: FIRST
                 {
                 mFIRST(); if (failed) return ;
 
                 }
                 break;
             case 40 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:249: LAST
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:249: LAST
                 {
                 mLAST(); if (failed) return ;
 
                 }
                 break;
             case 41 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:254: IF
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:254: IF
                 {
                 mIF(); if (failed) return ;
 
                 }
                 break;
             case 42 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:257: THEN
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:257: THEN
                 {
                 mTHEN(); if (failed) return ;
 
                 }
                 break;
             case 43 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:262: ELSE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:262: ELSE
                 {
                 mELSE(); if (failed) return ;
 
                 }
                 break;
             case 44 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:267: THIS
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:267: THIS
                 {
                 mTHIS(); if (failed) return ;
 
                 }
                 break;
             case 45 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:272: NULL
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:272: NULL
                 {
                 mNULL(); if (failed) return ;
 
                 }
                 break;
             case 46 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:277: TRUE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:277: TRUE
                 {
                 mTRUE(); if (failed) return ;
 
                 }
                 break;
             case 47 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:282: FALSE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:282: FALSE
                 {
                 mFALSE(); if (failed) return ;
 
                 }
                 break;
             case 48 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:288: FOR
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:288: FOR
                 {
                 mFOR(); if (failed) return ;
 
                 }
                 break;
             case 49 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:292: UNITINTERVAL
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:292: UNITINTERVAL
                 {
                 mUNITINTERVAL(); if (failed) return ;
 
                 }
                 break;
             case 50 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:305: IN
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:305: IN
                 {
                 mIN(); if (failed) return ;
 
                 }
                 break;
             case 51 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:308: FPS
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:308: FPS
                 {
                 mFPS(); if (failed) return ;
 
                 }
                 break;
             case 52 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:312: WHILE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:312: WHILE
                 {
                 mWHILE(); if (failed) return ;
 
                 }
                 break;
             case 53 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:318: CONTINUE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:318: CONTINUE
                 {
                 mCONTINUE(); if (failed) return ;
 
                 }
                 break;
             case 54 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:327: LINEAR
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:327: LINEAR
                 {
                 mLINEAR(); if (failed) return ;
 
                 }
                 break;
             case 55 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:334: MOTION
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:334: MOTION
                 {
                 mMOTION(); if (failed) return ;
 
                 }
                 break;
             case 56 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:341: TRY
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:341: TRY
                 {
                 mTRY(); if (failed) return ;
 
                 }
                 break;
             case 57 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:345: FINALLY
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:345: FINALLY
                 {
                 mFINALLY(); if (failed) return ;
 
                 }
                 break;
             case 58 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:353: LAZY
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:353: LAZY
                 {
                 mLAZY(); if (failed) return ;
 
                 }
                 break;
             case 59 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:358: FOREACH
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:358: FOREACH
                 {
                 mFOREACH(); if (failed) return ;
 
                 }
                 break;
             case 60 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:366: WHERE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:366: WHERE
                 {
                 mWHERE(); if (failed) return ;
 
                 }
                 break;
             case 61 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:372: NOT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:372: NOT
                 {
                 mNOT(); if (failed) return ;
 
                 }
                 break;
             case 62 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:376: NEW
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:376: NEW
                 {
                 mNEW(); if (failed) return ;
 
                 }
                 break;
             case 63 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:380: PRIVATE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:380: PRIVATE
                 {
                 mPRIVATE(); if (failed) return ;
 
                 }
                 break;
             case 64 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:388: PROTECTED
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:388: PROTECTED
                 {
                 mPROTECTED(); if (failed) return ;
 
                 }
                 break;
             case 65 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:398: PUBLIC
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:398: PUBLIC
                 {
                 mPUBLIC(); if (failed) return ;
 
                 }
                 break;
             case 66 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:405: OPERATION
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:405: OPERATION
                 {
                 mOPERATION(); if (failed) return ;
 
                 }
                 break;
             case 67 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:415: FUNCTION
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:415: FUNCTION
                 {
                 mFUNCTION(); if (failed) return ;
 
                 }
                 break;
             case 68 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:424: READONLY
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:424: READONLY
                 {
                 mREADONLY(); if (failed) return ;
 
                 }
                 break;
             case 69 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:433: INVERSE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:433: INVERSE
                 {
                 mINVERSE(); if (failed) return ;
 
                 }
                 break;
             case 70 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:441: TYPE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:441: TYPE
                 {
                 mTYPE(); if (failed) return ;
 
                 }
                 break;
             case 71 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:446: EXTENDS
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:446: EXTENDS
                 {
                 mEXTENDS(); if (failed) return ;
 
                 }
                 break;
             case 72 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:454: ORDER
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:454: ORDER
                 {
                 mORDER(); if (failed) return ;
 
                 }
                 break;
             case 73 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:460: INDEX
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:460: INDEX
                 {
                 mINDEX(); if (failed) return ;
 
                 }
                 break;
             case 74 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:466: INSTANCEOF
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:466: INSTANCEOF
                 {
                 mINSTANCEOF(); if (failed) return ;
 
                 }
                 break;
             case 75 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:477: INDEXOF
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:477: INDEXOF
                 {
                 mINDEXOF(); if (failed) return ;
 
                 }
                 break;
             case 76 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:485: SELECT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:485: SELECT
                 {
                 mSELECT(); if (failed) return ;
 
                 }
                 break;
             case 77 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:492: SUPER
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:492: SUPER
                 {
                 mSUPER(); if (failed) return ;
 
                 }
                 break;
             case 78 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:498: OR
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:498: OR
                 {
                 mOR(); if (failed) return ;
 
                 }
                 break;
             case 79 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:501: SIZEOF
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:501: SIZEOF
                 {
                 mSIZEOF(); if (failed) return ;
 
                 }
                 break;
             case 80 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:508: REVERSE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:508: REVERSE
                 {
                 mREVERSE(); if (failed) return ;
 
                 }
                 break;
             case 81 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:516: XOR
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:516: XOR
                 {
                 mXOR(); if (failed) return ;
 
                 }
                 break;
             case 82 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:520: LPAREN
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:520: LPAREN
                 {
                 mLPAREN(); if (failed) return ;
 
                 }
                 break;
             case 83 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:527: RPAREN
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:527: RPAREN
                 {
                 mRPAREN(); if (failed) return ;
 
                 }
                 break;
             case 84 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:534: LBRACKET
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:534: LBRACKET
                 {
                 mLBRACKET(); if (failed) return ;
 
                 }
                 break;
             case 85 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:543: RBRACKET
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:543: RBRACKET
                 {
                 mRBRACKET(); if (failed) return ;
 
                 }
                 break;
             case 86 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:552: SEMI
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:552: SEMI
                 {
                 mSEMI(); if (failed) return ;
 
                 }
                 break;
             case 87 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:557: COMMA
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:557: COMMA
                 {
                 mCOMMA(); if (failed) return ;
 
                 }
                 break;
             case 88 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:563: DOT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:563: DOT
                 {
                 mDOT(); if (failed) return ;
 
                 }
                 break;
             case 89 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:567: EQEQ
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:567: EQEQ
                 {
                 mEQEQ(); if (failed) return ;
 
                 }
                 break;
             case 90 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:572: EQ
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:572: EQ
                 {
                 mEQ(); if (failed) return ;
 
                 }
                 break;
             case 91 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:575: GT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:575: GT
                 {
                 mGT(); if (failed) return ;
 
                 }
                 break;
             case 92 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:578: LT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:578: LT
                 {
                 mLT(); if (failed) return ;
 
                 }
                 break;
             case 93 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:581: LTGT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:581: LTGT
                 {
                 mLTGT(); if (failed) return ;
 
                 }
                 break;
             case 94 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:586: LTEQ
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:586: LTEQ
                 {
                 mLTEQ(); if (failed) return ;
 
                 }
                 break;
             case 95 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:591: GTEQ
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:591: GTEQ
                 {
                 mGTEQ(); if (failed) return ;
 
                 }
                 break;
             case 96 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:596: PLUS
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:596: PLUS
                 {
                 mPLUS(); if (failed) return ;
 
                 }
                 break;
             case 97 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:601: PLUSPLUS
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:601: PLUSPLUS
                 {
                 mPLUSPLUS(); if (failed) return ;
 
                 }
                 break;
             case 98 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:610: SUB
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:610: SUB
                 {
                 mSUB(); if (failed) return ;
 
                 }
                 break;
             case 99 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:614: SUBSUB
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:614: SUBSUB
                 {
                 mSUBSUB(); if (failed) return ;
 
                 }
                 break;
             case 100 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:621: STAR
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:621: STAR
                 {
                 mSTAR(); if (failed) return ;
 
                 }
                 break;
             case 101 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:626: SLASH
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:626: SLASH
                 {
                 mSLASH(); if (failed) return ;
 
                 }
                 break;
             case 102 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:632: PERCENT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:632: PERCENT
                 {
                 mPERCENT(); if (failed) return ;
 
                 }
                 break;
             case 103 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:640: PLUSEQ
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:640: PLUSEQ
                 {
                 mPLUSEQ(); if (failed) return ;
 
                 }
                 break;
             case 104 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:647: SUBEQ
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:647: SUBEQ
                 {
                 mSUBEQ(); if (failed) return ;
 
                 }
                 break;
             case 105 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:653: STAREQ
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:653: STAREQ
                 {
                 mSTAREQ(); if (failed) return ;
 
                 }
                 break;
             case 106 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:660: SLASHEQ
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:660: SLASHEQ
                 {
                 mSLASHEQ(); if (failed) return ;
 
                 }
                 break;
             case 107 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:668: PERCENTEQ
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:668: PERCENTEQ
                 {
                 mPERCENTEQ(); if (failed) return ;
 
                 }
                 break;
             case 108 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:678: LTLT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:678: LTLT
                 {
                 mLTLT(); if (failed) return ;
 
                 }
                 break;
             case 109 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:683: GTGT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:683: GTGT
                 {
                 mGTGT(); if (failed) return ;
 
                 }
                 break;
             case 110 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:688: COLON
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:688: COLON
                 {
                 mCOLON(); if (failed) return ;
 
                 }
                 break;
             case 111 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:694: QUES
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:694: QUES
                 {
                 mQUES(); if (failed) return ;
 
                 }
                 break;
             case 112 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:699: STRING_LITERAL
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:699: STRING_LITERAL
                 {
                 mSTRING_LITERAL(); if (failed) return ;
 
                 }
                 break;
             case 113 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:714: QUOTE_LBRACE_STRING_LITERAL
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:714: QUOTE_LBRACE_STRING_LITERAL
                 {
                 mQUOTE_LBRACE_STRING_LITERAL(); if (failed) return ;
 
                 }
                 break;
             case 114 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:742: LBRACE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:742: LBRACE
                 {
                 mLBRACE(); if (failed) return ;
 
                 }
                 break;
             case 115 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:749: RBRACE_QUOTE_STRING_LITERAL
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:749: RBRACE_QUOTE_STRING_LITERAL
                 {
                 mRBRACE_QUOTE_STRING_LITERAL(); if (failed) return ;
 
                 }
                 break;
             case 116 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:777: RBRACE_LBRACE_STRING_LITERAL
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:777: RBRACE_LBRACE_STRING_LITERAL
                 {
                 mRBRACE_LBRACE_STRING_LITERAL(); if (failed) return ;
 
                 }
                 break;
             case 117 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:806: RBRACE
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:806: RBRACE
                 {
                 mRBRACE(); if (failed) return ;
 
                 }
                 break;
             case 118 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:813: FORMAT_STRING_LITERAL
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:813: FORMAT_STRING_LITERAL
                 {
                 mFORMAT_STRING_LITERAL(); if (failed) return ;
 
                 }
                 break;
             case 119 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:835: QUOTED_IDENTIFIER
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:835: QUOTED_IDENTIFIER
                 {
                 mQUOTED_IDENTIFIER(); if (failed) return ;
 
                 }
                 break;
             case 120 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:853: INTEGER_LITERAL
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:853: INTEGER_LITERAL
                 {
                 mINTEGER_LITERAL(); if (failed) return ;
 
                 }
                 break;
             case 121 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:869: FLOATING_POINT_LITERAL
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:869: FLOATING_POINT_LITERAL
                 {
                 mFLOATING_POINT_LITERAL(); if (failed) return ;
 
                 }
                 break;
             case 122 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:892: IDENTIFIER
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:892: IDENTIFIER
                 {
                 mIDENTIFIER(); if (failed) return ;
 
                 }
                 break;
             case 123 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:903: WS
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:903: WS
                 {
                 mWS(); if (failed) return ;
 
                 }
                 break;
             case 124 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:906: COMMENT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:906: COMMENT
                 {
                 mCOMMENT(); if (failed) return ;
 
                 }
                 break;
             case 125 :
-                // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:914: LINE_COMMENT
+                // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:1:914: LINE_COMMENT
                 {
                 mLINE_COMMENT(); if (failed) return ;
 
@@ -4578,10 +4578,10 @@ public class v1Lexer extends Lexer {
 
     // $ANTLR start synpred1
     public final void synpred1_fragment() throws RecognitionException {   
-        // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:8: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )* '%' )
-        // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:9: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )* '%'
+        // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:8: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )* '%' )
+        // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:9: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )* '%'
         {
-        // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:9: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )*
+        // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:249:9: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' )*
         loop33:
         do {
             int alt33=2;
@@ -4594,7 +4594,7 @@ public class v1Lexer extends Lexer {
 
             switch (alt33) {
         	case 1 :
-        	    // \\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
+        	    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v1.g:
         	    {
         	    if ( (input.LA(1)>='\t' && input.LA(1)<='\n')||(input.LA(1)>='\f' && input.LA(1)<='\r')||input.LA(1)==' ' ) {
         	        input.consume();
