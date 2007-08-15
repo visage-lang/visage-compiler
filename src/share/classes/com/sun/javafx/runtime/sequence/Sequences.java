@@ -12,9 +12,9 @@ import java.util.BitSet;
  */
 final class Sequences {
 
-    public static final Integer INTEGER_ZERO = Integer.valueOf(0);
-    public static final Double DOUBLE_ZERO = Double.valueOf(0);
-    public static final Boolean BOOLEAN_ZERO = Boolean.valueOf(false);
+    public static final Integer INTEGER_ZERO = 0;
+    public static final Double DOUBLE_ZERO = 0.0;
+    public static final Boolean BOOLEAN_ZERO = false;
 
     // Inhibit instantiation
     private Sequences() { }

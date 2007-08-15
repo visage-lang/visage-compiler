@@ -56,6 +56,15 @@ public abstract class AbstractSequence<T> implements Sequence<T>, SequenceIntern
             sequenceClosure.call(this, i, get(i));
     }
 
+    @SuppressWarnings("unchecked")
+    public Sequence<T> map(SequenceMapper<T> sequenceMapper) {
+        int length = size();
+        T[] values = (T[]) new Object[length];
+        for (int i = 0; i < length; i++)
+            values[i] = sequenceMapper.map(this, i, get(i));
+        return new ArraySequence<T>(getElementType(), values);
+    }
+
     public void toArray(Object[] array, int destOffset) {
         for (int i = 0; i < size(); i++)
             array[i + destOffset] = get(i);

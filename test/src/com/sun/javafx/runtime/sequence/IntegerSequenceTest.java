@@ -9,7 +9,7 @@ import java.util.BitSet;
  *
  * @author Brian Goetz
  */
-public class IntegerArraySequenceTest extends TestCase {
+public class IntegerSequenceTest extends TestCase {
 
     private static final int A = 3;
     private static final int B = 5;
@@ -381,6 +381,7 @@ public class IntegerArraySequenceTest extends TestCase {
         assertEquals(ten.subsequence(1, 9), 1, 2, 3, 4, 5, 6, 7, 8);
     }
 
+    /** Test setting individual elements */
     public void testSet() {
         assertEquals(TWO_SEQUENCE.set(0, C), C, B);
         assertEquals(TWO_SEQUENCE.set(1, C), A, C);
@@ -395,6 +396,7 @@ public class IntegerArraySequenceTest extends TestCase {
         assertEquals(five.set(6, C), 0, 1, 2, 3, 4, 5);
     }
 
+    /** Test out-of-bounds sets and gets */
     public void testOutOfBounds() {
         assertEquals(EMPTY_SEQUENCE.get(-1), Sequences.INTEGER_ZERO);
         assertEquals(EMPTY_SEQUENCE.set(0, 1), EMPTY_SEQUENCE);
@@ -402,6 +404,17 @@ public class IntegerArraySequenceTest extends TestCase {
         assertEquals(TWO_SEQUENCE.get(200), Sequences.INTEGER_ZERO);
         assertEquals(TWO_SEQUENCE.set(-1, 400), TWO_SEQUENCE);
         assertEquals(TWO_SEQUENCE.set(200, 400), TWO_SEQUENCE);
+    }
+
+    public void testComprehensions() {
+        // Test foreach (i in sequence) { 2*i }
+        Sequence<Integer> five = Sequences.rangeSequence(0, 5);
+        SequenceMapper<Integer> doubler = new SequenceMapper<Integer>() {
+            public Integer map(Sequence<Integer> sequence, int index, Integer value) {
+                return value*2;
+            }
+        };
+        assertEquals(five.map(doubler), 0, 2, 4, 6, 8, 10);
     }
 
     /**
