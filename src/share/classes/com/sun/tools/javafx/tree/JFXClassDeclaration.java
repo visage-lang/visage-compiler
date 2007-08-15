@@ -43,7 +43,7 @@ public class JFXClassDeclaration extends JFXTree {
     public List<JCTree> declarations;
     public ClassSymbol sym;
     
-    public JavafxJCMethodDecl constructor = null;
+    public JavafxJCMethodDecl initializer = null;
     
    /*
     * @param modifiers operation modifiers

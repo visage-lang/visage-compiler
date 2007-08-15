@@ -57,6 +57,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     private final Name booleanTypeName;
     private final Name contextInterfaceName;
     private final Name locationName;
+    private final Name initializerName;
     
     private JFXClassDeclaration currentClass = null;
     
@@ -86,6 +87,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         booleanTypeName = names.fromString("Boolean");
         contextInterfaceName = names.fromString("com.sun.javafx.runtime.Context");
         locationName = names.fromString("com.sun.javafx.runtime.Location");
+        initializerName = names.fromString("initializer$");
     }
     
     @Override
@@ -578,27 +580,27 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                             return;
                         }
                         
-                        JCBlock ctorBodyBlock = null;
-                        if (classHelper.jfxDecl.constructor == null) {
+                        JCBlock initBodyBlock = null;
+                        if (classHelper.jfxDecl.initializer == null) {
                             List<JCVariableDecl> params = List.nil();
                             
-                            List<JCStatement> ctorStats = List.nil();
+                            List<JCStatement> initStats = List.nil();
                             
-                            ctorBodyBlock = make.Block(0L, ctorStats);
-                            JavafxJCMethodDecl jfxDeclConstructor = make.JavafxMethodDef(make.Modifiers(Flags.PUBLIC), 0,
-                                    names.init,
-                                    make.TypeIdent(TypeTags.VOID), params, ctorBodyBlock);
-                            classHelper.jfxDecl.constructor = jfxDeclConstructor;
+                            initBodyBlock = make.Block(0L, initStats);
+                            JavafxJCMethodDecl jfxDeclConstructor = make.JavafxMethodDef(make.Modifiers(Flags.PUBLIC|Flags.SYNTHETIC), 0,
+                                    initializerName,
+                                    make.TypeIdent(TypeTags.VOID), params, initBodyBlock);
+                            classHelper.jfxDecl.initializer = jfxDeclConstructor;
                             classHelper.jcDecl.defs = classHelper.jcDecl.defs.prepend(jfxDeclConstructor);
                         } else {
-                            ctorBodyBlock = classHelper.jfxDecl.constructor.body;
+                            initBodyBlock = classHelper.jfxDecl.initializer.body;
                         }
                         
-                        assert ctorBodyBlock != null : "ctorBodyBlock must not be null!";
+                        assert initBodyBlock != null : "initBodyBlock must not be null!";
                         
                         List<JCExpression> typeArgs = List.nil();
                         List<JCExpression> args = List.nil();
-                        ctorBodyBlock.stats = ctorBodyBlock.stats.append(make.Exec(
+                        initBodyBlock.stats = initBodyBlock.stats.append(make.Exec(
                                 make.Apply(typeArgs, make.Ident(triggerDecl.javafxDecl.name), args)));
                         classHelper.jcDecl.defs = classHelper.jcDecl.defs.append(triggerDecl.javafxDecl);
                     }
@@ -625,27 +627,27 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                         }
                         
                         // TODO: check the attribute... Note this should be done in attr... We need to know the type of the attribute, so we can generate the correct method
-                        JCBlock ctorBodyBlock = null;
-                        if (classHelper.jfxDecl.constructor == null) {
+                        JCBlock initBodyBlock = null;
+                        if (classHelper.jfxDecl.initializer == null) {
                             List<JCVariableDecl> params = List.nil();
                             
                             List<JCStatement> ctorStats = List.nil();
                             
-                            ctorBodyBlock = make.Block(0L, ctorStats);
-                            JavafxJCMethodDecl jfxDeclConstructor = make.JavafxMethodDef(make.Modifiers(Flags.PUBLIC), 0,
-                                    names.init,
-                                    make.TypeIdent(TypeTags.VOID), params, ctorBodyBlock);
-                            classHelper.jfxDecl.constructor = jfxDeclConstructor; // TODO: Replace constructor with the initializer.
+                            initBodyBlock = make.Block(0L, ctorStats);
+                            JavafxJCMethodDecl jfxDeclConstructor = make.JavafxMethodDef(make.Modifiers(Flags.PUBLIC|Flags.SYNTHETIC), 0,
+                                    initializerName,
+                                    make.TypeIdent(TypeTags.VOID), params, initBodyBlock);
+                            classHelper.jfxDecl.initializer = jfxDeclConstructor;
                             classHelper.jcDecl.defs = classHelper.jcDecl.defs.prepend(jfxDeclConstructor);
                         } else {
-                            ctorBodyBlock = classHelper.jfxDecl.constructor.body;
+                            initBodyBlock = classHelper.jfxDecl.initializer.body;
                         }
                         
-                        assert ctorBodyBlock != null : "ctorBodyBlock must not be null!";
+                        assert initBodyBlock != null : "initBodyBlock must not be null!";
                         
                         List<JCExpression> typeArgs = List.nil();
                         List<JCExpression> args = List.nil();
-                        ctorBodyBlock.stats = ctorBodyBlock.stats.append(make.Exec(
+                        initBodyBlock.stats = initBodyBlock.stats.append(make.Exec(
                                 make.Apply(typeArgs, make.Ident(triggerDecl.javafxDecl.name), args))); // Move from here into the initializer.
                         classHelper.jcDecl.defs = classHelper.jcDecl.defs.append(triggerDecl.javafxDecl);
                     }
