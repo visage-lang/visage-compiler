@@ -79,7 +79,7 @@
     </target>
 
     <target name="spec" description="Build JavaFX Script specification.">
-        <ant antfile="doc/build.xml" target="spec"/>
+        <ant antfile="doc/build.xml" target="spec" inheritAll="false"/>
         <copy todir="dist/doc">
             <fileset dir="build/doc/html"/>
         </copy>
