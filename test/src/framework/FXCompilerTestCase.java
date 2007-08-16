@@ -27,15 +27,15 @@ package framework;
 
 import com.sun.tools.javafx.api.JavafxCompiler;
 import junit.framework.TestCase;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.filters.StringInputStream;
 import org.apache.tools.ant.taskdefs.Execute;
 import org.apache.tools.ant.taskdefs.PumpStreamHandler;
 import org.apache.tools.ant.types.CommandlineJava;
 import org.apache.tools.ant.types.Path;
-import org.apache.tools.ant.Project;
 
 import java.io.*;
 import java.util.ServiceLoader;
-import java.util.logging.StreamHandler;
 
 /**
  * Compiles a single JavaFX script source file and executes the resulting class.
@@ -45,6 +45,7 @@ import java.util.logging.StreamHandler;
 public class FXCompilerTestCase extends TestCase {
     private final File test;
     private final File buildDir;
+    private String className;
 
     private static final ServiceLoader<JavafxCompiler> compilerLoader =
             ServiceLoader.load(JavafxCompiler.class);
@@ -63,11 +64,17 @@ public class FXCompilerTestCase extends TestCase {
     @Override
     protected void runTest() throws Throwable {
         assertTrue("compiler not found", compilerLoader.iterator().hasNext());
+        className = test.getName();
+        assertTrue(className.endsWith(".fx"));
+        String outputFileName = buildDir + File.separator + className + ".OUTPUT";
+        String errorFileName = buildDir + File.separator + className + ".ERROR";
+        String expectedFileName = test.getPath() + ".EXPECTED";
         compile();
-        execute();
+        execute(outputFileName, errorFileName);
+        compare(outputFileName, expectedFileName);
     }
 
-    private void compile() {
+    private void compile() throws IOException {
         File buildRoot = new File(BUILD_ROOT);
         if (!buildRoot.exists())
             fail("no " + BUILD_ROOT + " directory in " + new File(".").getAbsolutePath());
@@ -79,22 +86,20 @@ public class FXCompilerTestCase extends TestCase {
         System.out.println("Compiling " + test);
         int errors = compiler.run(null, out, err, "-d", buildDir.getPath(), test.getPath());
         if (errors != 0) {
+            dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output");
+            System.out.println("--");
             StringBuilder sb = new StringBuilder();
-            sb.append(errors);
-            sb.append(" error");
+            sb.append(errors).append(" error");
             if (errors > 1)
                 sb.append('s');
-            sb.append(":\n");
-            sb.append(new String(err.toByteArray()));
+            sb.append(" compiling ").append(test);
             fail(sb.toString());
         }
     }
 
-    private void execute() throws IOException {
+    private void execute(String outputFileName, String errorFileName) throws IOException {
         System.out.println("Running " + test);
         CommandlineJava commandLine = new CommandlineJava();
-        String className = test.getName();
-        assertTrue(className.endsWith(".fx"));
         String mainClass = className.substring(0, className.length() - ".fx".length());
         commandLine.setClassname(mainClass);
         Project project = new Project();
@@ -104,8 +109,6 @@ public class FXCompilerTestCase extends TestCase {
         Path.PathElement pe2 = p.createPathElement();
         pe2.setPath(buildDir.getPath());
 
-        String outputFileName = buildDir + File.separator + className + ".OUTPUT";
-        String errorFileName = buildDir + File.separator + className + ".ERROR";
         PumpStreamHandler sh = new PumpStreamHandler(new FileOutputStream(outputFileName), new FileOutputStream(errorFileName));
         Execute exe = new Execute(sh);
         String[] strings = commandLine.getCommandline();
@@ -114,7 +117,9 @@ public class FXCompilerTestCase extends TestCase {
             exe.execute();
             File errorFileHandle = new File(errorFileName);
             if (errorFileHandle.length() > 0) {
-                dumpOutput(outputFileName, errorFileName);
+                dumpFile(new FileInputStream(outputFileName), "Test Output");
+                dumpFile(new FileInputStream(errorFileName), "Test Error");
+                System.out.println("--");
                 fail("Output written to standard error");
             }
         } catch (IOException e) {
@@ -122,30 +127,41 @@ public class FXCompilerTestCase extends TestCase {
         }
     }
 
-    private void dumpOutput(String outputFileName, String errorFileName) throws IOException {
-        System.out.println("--Test Output for " + test + "--");
-        BufferedReader is = new BufferedReader(new InputStreamReader(new FileInputStream(outputFileName)));
-        try {
+    private void compare(String outputFileName, String expectedFileName) throws IOException {
+        File expectedFile = new File(expectedFileName);
+        if (expectedFile.exists()) {
+            System.out.println("Comparing " + test);
+            BufferedReader expected = new BufferedReader(new InputStreamReader(new FileInputStream(expectedFileName)));
+            BufferedReader actual = new BufferedReader(new InputStreamReader(new FileInputStream(outputFileName)));
+            int lineCount = 0;
             while (true) {
-                String line = is.readLine();
-                if (line == null)
+                String es = expected.readLine();
+                String as = actual.readLine();
+                ++lineCount;
+                if (es == null && as == null)
                     break;
-                System.out.println(line);
+                else if (es == null)
+                    fail("Expected output for " + test + " ends prematurely at line " + lineCount);
+                else if (as == null)
+                    fail("Program output for " + test + " ends prematurely at line " + lineCount);
+                else if (!es.equals(as))
+                    fail("Program output for " + test + " differs from expected at line " + lineCount);
             }
-        } finally {
-            is.close();
         }
-        System.out.println("--Test Error" + test + "--");
-        is = new BufferedReader(new InputStreamReader(new FileInputStream(errorFileName)));
+    }
+
+    private void dumpFile(InputStream file, String header) throws IOException {
+        System.out.println("--" + header + " for " + test + "--");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(file));
         try {
             while (true) {
-                String line = is.readLine();
+                String line = reader.readLine();
                 if (line == null)
                     break;
                 System.out.println(line);
             }
         } finally {
-            is.close();
+            reader.close();
         }
     }
 

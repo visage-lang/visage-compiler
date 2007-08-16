@@ -84,6 +84,7 @@ public class FXCompilerTest extends TestSuite {
     }
     
     private static boolean shouldRunTest(File f) {
+        // TODO: Scan for @run tags, /ref=file qualifiers, etc, to determine run behavior
         Scanner scanner = null;
         boolean inComment = false;
         try {
