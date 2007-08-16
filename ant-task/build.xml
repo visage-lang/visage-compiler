@@ -28,6 +28,9 @@
     <target name="compile-java" depends="prepare">
         <javac srcdir="${src.java.dir}" includes="**/*.java"
                destdir="${build.classes.dir}" />
+        <copy todir="${build.classes.dir}">
+            <fileset dir="resources" includes="**/*" />
+        </copy>
     </target>
 
     <target name="jar" depends="compile-java">
