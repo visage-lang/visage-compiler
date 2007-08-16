@@ -477,7 +477,9 @@ expression returns [JCExpression expr]
       	;
 ifExpression  returns [JCExpression expr] 
 	: IF econd=expression   THEN  ethen=expression   
-	  ELSE  eelse=expression				{ $expr = F.at(pos($IF)).Conditional($econd.expr, $ethen.expr, $eelse.expr); }
+	  (ELSE  eelse=expression)?				{ JCExpression elsepart = $eelse.expr;
+	  							  if (elsepart == null) elsepart = F.at(pos($IF)).Literal(TypeTags.BOT, null);
+	  							  $expr = F.at(pos($IF)).Conditional($econd.expr, $ethen.expr, elsepart); }
 	;
 suffixedExpression  returns [JCExpression expr] 
 	: e1=assignmentExpression				{ $expr = $e1.expr; }
