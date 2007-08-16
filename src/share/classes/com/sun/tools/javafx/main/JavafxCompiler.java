@@ -769,8 +769,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             // These method calls must be chained to avoid memory leaks
             enterTrees(cus);
             
-// Lubo            stopIfError(buildInitializers(cus, sourceFileObjects));
-            
             compile2();
             close();
         } catch (Abort ex) {
