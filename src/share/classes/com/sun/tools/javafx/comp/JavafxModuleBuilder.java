@@ -52,7 +52,6 @@ import com.sun.tools.javafx.code.JavafxVarSymbol;
 import java.util.HashSet;
 import java.util.Set;
 
-@Version("@(#)JavafxEnter.java	1.140 07/05/05")
 public class JavafxModuleBuilder extends JavafxAbstractVisitor {
     protected static final Context.Key<JavafxModuleBuilder> javafxModuleBuilderKey =
         new Context.Key<JavafxModuleBuilder>();

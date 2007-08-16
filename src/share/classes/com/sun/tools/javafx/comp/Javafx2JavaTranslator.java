@@ -162,8 +162,23 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                 defs.append(translate(decl));
             }
             addEmptyContextMethods(defs);
-            JCClassDecl classDecl = make.ClassDef(tree.mods, tree.name, typeParams, 
-                                            extending, interfaces, defs.toList());
+            JavafxJCClassDecl classDecl = make.JavafxJCClassDef(tree.mods, tree.name, 
+                                            extending, interfaces, defs.toList(), tree.initializer);
+            
+            if (tree.initializer == null && classDecl != null) {
+                List<JCVariableDecl> params = List.nil();
+
+                List<JCStatement> initStats = List.nil();
+
+                JCBlock initBodyBlock = make.Block(0L, initStats);
+                JavafxJCMethodDecl jfxDeclInitializer = make.JavafxMethodDef(make.Modifiers(Flags.PUBLIC|Flags.SYNTHETIC), 0,
+                        initializerName,
+                        make.TypeIdent(TypeTags.VOID), params, initBodyBlock);
+                tree.initializer = jfxDeclInitializer;
+                classDecl.defs = classDecl.defs.prepend(jfxDeclInitializer);
+                classDecl.initializer = jfxDeclInitializer;
+            }
+            
             if (declClasses == null) {
                 declClasses = new HashMap<Name, JFXClassDeclHelper>();
             }
@@ -581,20 +596,9 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                         }
                         
                         JCBlock initBodyBlock = null;
-                        if (classHelper.jfxDecl.initializer == null) {
-                            List<JCVariableDecl> params = List.nil();
-                            
-                            List<JCStatement> initStats = List.nil();
-                            
-                            initBodyBlock = make.Block(0L, initStats);
-                            JavafxJCMethodDecl jfxDeclConstructor = make.JavafxMethodDef(make.Modifiers(Flags.PUBLIC|Flags.SYNTHETIC), 0,
-                                    initializerName,
-                                    make.TypeIdent(TypeTags.VOID), params, initBodyBlock);
-                            classHelper.jfxDecl.initializer = jfxDeclConstructor;
-                            classHelper.jcDecl.defs = classHelper.jcDecl.defs.prepend(jfxDeclConstructor);
-                        } else {
-                            initBodyBlock = classHelper.jfxDecl.initializer.body;
-                        }
+                        
+                        assert classHelper.jfxDecl.initializer != null : "initializer1 must be set!";
+                        initBodyBlock = classHelper.jfxDecl.initializer.body;
                         
                         assert initBodyBlock != null : "initBodyBlock must not be null!";
                         
@@ -628,20 +632,8 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                         
                         // TODO: check the attribute... Note this should be done in attr... We need to know the type of the attribute, so we can generate the correct method
                         JCBlock initBodyBlock = null;
-                        if (classHelper.jfxDecl.initializer == null) {
-                            List<JCVariableDecl> params = List.nil();
-                            
-                            List<JCStatement> ctorStats = List.nil();
-                            
-                            initBodyBlock = make.Block(0L, ctorStats);
-                            JavafxJCMethodDecl jfxDeclConstructor = make.JavafxMethodDef(make.Modifiers(Flags.PUBLIC|Flags.SYNTHETIC), 0,
-                                    initializerName,
-                                    make.TypeIdent(TypeTags.VOID), params, initBodyBlock);
-                            classHelper.jfxDecl.initializer = jfxDeclConstructor;
-                            classHelper.jcDecl.defs = classHelper.jcDecl.defs.prepend(jfxDeclConstructor);
-                        } else {
-                            initBodyBlock = classHelper.jfxDecl.initializer.body;
-                        }
+                        assert classHelper.jfxDecl.initializer != null : "initializer1 must be set!";
+                        initBodyBlock = classHelper.jfxDecl.initializer.body;
                         
                         assert initBodyBlock != null : "initBodyBlock must not be null!";
                         

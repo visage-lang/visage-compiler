@@ -278,6 +278,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     protected JavafxModuleBuilder javafxModuleBuilder;
     protected JavafxDeclarationDefinitionMapper declDefMapper;
     protected JavafxTypeMorpher javafxTypeMorpher;
+    protected JavafxInitializationBuilder initializerBuilder;
 // Javafx change
     /**
      * Flag set if any implicit source files read.
@@ -320,6 +321,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         javafx2JavaTransformer = Javafx2JavaTranslator.instance(context);
         javafxModuleBuilder = JavafxModuleBuilder.instance(context);
         declDefMapper = JavafxDeclarationDefinitionMapper.instance(context);
+        initializerBuilder = JavafxInitializationBuilder.instance(context);
         javafxTypeMorpher = JavafxTypeMorpher.instance(context);
         
         // Add the javafx message resource bundle
@@ -766,6 +768,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
             // These method calls must be chained to avoid memory leaks
             enterTrees(cus);
+            
+// Lubo            stopIfError(buildInitializers(cus, sourceFileObjects));
+            
             compile2();
             close();
         } catch (Abort ex) {
@@ -775,6 +780,63 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
 // Javafx change
+    public List<Env<AttrContext>> buildInitializers(List<Env<AttrContext>> envs) {
+        ListBuffer<Env<AttrContext>> results = lb();
+        for (List<Env<AttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
+            buildInitializers(l.head, results);
+        }
+        return stopIfError(results);
+    }
+
+    /**
+     * Perform dataflow checks on an attributed parse tree.
+     */
+    public List<Env<AttrContext>> buildInitializers(Env<AttrContext> env) {
+        ListBuffer<Env<AttrContext>> results = lb();
+        buildInitializers(env, results);
+        return stopIfError(results);
+    }
+    
+    /**
+     * Perform dataflow checks on an attributed parse tree.
+     */
+    protected void buildInitializers(Env<AttrContext> env, ListBuffer<Env<AttrContext>> results) {
+        try {
+            if (errorCount() > 0)
+                return;
+
+            if (relax || deferredSugar.contains(env)) {
+                results.append(env);
+                return;
+            }
+
+            if (verboseCompilePolicy)
+                log.printLines(log.noticeWriter, "[flow " + env.enclClass.sym + "]");
+            JavaFileObject prev = log.useSource(
+                                                env.enclClass.sym.sourcefile != null ?
+                                                env.enclClass.sym.sourcefile :
+                                                env.toplevel.sourcefile);
+            try {
+                make.at(Position.FIRSTPOS);
+                initializerBuilder.visitTopLevel(env.toplevel, env);
+
+                if (errorCount() > 0)
+                    return;
+
+                results.append(env);
+            }
+            finally {
+                log.useSource(prev);
+            }
+        }
+        finally {
+            if (taskListener != null) {
+                TaskEvent e = new TaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
+                taskListener.finished(e);
+            }
+        }
+    }
+
     public List<JCCompilationUnit> transformJavafx2Java(List<JCCompilationUnit> cus, List<JavaFileObject> sourceFileObjects) {
         Iterator<JavaFileObject> fileObjIterator = sourceFileObjects.iterator();
         for (JCCompilationUnit cu : cus) {
@@ -847,21 +909,21 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 break;
 
             case CHECK_ONLY:
-                flow(typeMorph(attribute(todo)));
+                flow(typeMorph(buildInitializers(attribute(todo))));
                 break;
 
             case SIMPLE:
-                generate(desugar(flow(typeMorph(attribute(todo)))));
+                generate(desugar(flow(typeMorph(buildInitializers(attribute(todo))))));
                 break;
 
             case BY_FILE:
-                for (List<Env<AttrContext>> list : groupByFile(flow(typeMorph(attribute(todo)))).values())
+                for (List<Env<AttrContext>> list : groupByFile(flow(typeMorph(buildInitializers(attribute(todo))))).values())
                     generate(desugar(list));
                 break;
 
             case BY_TODO:
                 while (todo.nonEmpty())
-                    generate(desugar(flow(typeMorph(attribute(todo.next())))));
+                    generate(desugar(flow(typeMorph(buildInitializers(attribute(todo.next()))))));
                 break;
 
             default:
