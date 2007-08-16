@@ -84,7 +84,7 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
         try {
             currentClassDef = tree;
             super.visitClassDef(tree);
-            handleInitializerMethod();
+   // TODO: Reenable when transformation error is fixed in TypeMorpher     handleInitializerMethod();
             // TODO: Do the NewClass case. After all the JavafxJCAssign (if there are any) add call to tmp.initialize();
         }
         finally {
@@ -141,7 +141,7 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
                     JCIf jcIf = make.If(cond, defAttrValue, null);
                     jcIf.type = null;
                     
-                    initializerBlock.stats = initializerBlock.stats.prepend(jcIf);
+                    initializerBlock.stats = initializerBlock.stats.append(jcIf);
                     // TODO: Do super.initialize(), init block, new tyriggers, change attr triggers.
                 }
             }
