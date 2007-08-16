@@ -33,7 +33,7 @@
             <obfuscate>
                 <fileset dir="${build.classes.dir}"/>
             </obfuscate>
-        </target>
+    </target>
 
     For list of available properties check the imported 
     nbproject/build-impl.xml file. 
@@ -58,7 +58,7 @@
             <exec dir="bin" executable="launcher.exe">
                 <arg file="${dist.jar}"/>
             </exec>
-        </target>
+    </target>
 
     Notice that the overridden target depends on the jar target and not only on 
     the compile target as the regular run target does. Again, for a list of available 
@@ -84,4 +84,9 @@
             <fileset dir="build/doc/html"/>
         </copy>
     </target>
+    
+    <target depends="init,compile-test,-pre-test-run,-do-test-run" if="have.tests" name="-post-test-run">
+        <!-- Don't explicitly call fail task, so Hudson reports an UNSTABLE build instead of FAILURE -->
+    </target>
+    
 </project>
