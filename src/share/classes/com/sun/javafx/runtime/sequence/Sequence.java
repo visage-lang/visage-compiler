@@ -29,7 +29,7 @@ public interface Sequence<T> extends Iterable<T> {
 
     /** Create a new sequence whose elements are the result of applying a mapping function to the elements
      * of the original sequence. */
-    public Sequence<T> map(SequenceMapper<T> mapper);
+    public<V> Sequence<V> map(Class<V> clazz, SequenceMapper<T, V> mapper);
 
     /** Extract the element at the specified position.  If the position is out of range, the default value for
      * the element type is returned; either null, zero for Integer or Double sequences, or false for Boolean

@@ -57,12 +57,12 @@ public abstract class AbstractSequence<T> implements Sequence<T>, SequenceIntern
     }
 
     @SuppressWarnings("unchecked")
-    public Sequence<T> map(SequenceMapper<T> sequenceMapper) {
+    public<V> Sequence<V> map(Class<V> clazz, SequenceMapper<T, V> sequenceMapper) {
         int length = size();
-        T[] values = (T[]) new Object[length];
+        V[] values = (V[]) new Object[length];
         for (int i = 0; i < length; i++)
             values[i] = sequenceMapper.map(this, i, get(i));
-        return new ArraySequence<T>(getElementType(), values);
+        return new ArraySequence<V>(clazz, values);
     }
 
     public void toArray(Object[] array, int destOffset) {

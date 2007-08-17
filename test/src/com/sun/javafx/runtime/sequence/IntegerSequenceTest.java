@@ -409,12 +409,12 @@ public class IntegerSequenceTest extends TestCase {
     public void testComprehensions() {
         // Test foreach (i in sequence) { 2*i }
         Sequence<Integer> five = Sequences.rangeSequence(0, 5);
-        SequenceMapper<Integer> doubler = new SequenceMapper<Integer>() {
+        SequenceMapper<Integer, Integer> doubler = new SequenceMapper<Integer, Integer>() {
             public Integer map(Sequence<Integer> sequence, int index, Integer value) {
                 return value*2;
             }
         };
-        assertEquals(five.map(doubler), 0, 2, 4, 6, 8, 10);
+        assertEquals(five.map(Integer.class, doubler), 0, 2, 4, 6, 8, 10);
     }
 
     /**
