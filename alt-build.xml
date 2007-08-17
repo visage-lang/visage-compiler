@@ -20,9 +20,8 @@
     <property name="jar.file" value="${dist.dir}/javafx.jar" />
     <property name="cobertura.file" value="cobertura.ser" />
 
-    <property name="fx.compiler.class" value="com.sun.tools.javafx.Main" />
-
     <taskdef classpath="${lib.dir}/cobertura.jar" resource="tasks.properties"/>
+    <taskdef classpath="${ant-task.lib.dir}/javafx-anttask.jar" resource="tasks.properties"/>
 
     <path id="build.class.path">
         <pathelement location="${java.class.path}" />
@@ -45,8 +44,6 @@
         <pathelement location="${build.classes.dir}" />
         <fileset dir="${lib.dir}" includes="**/*.jar" />
     </path>
-
-    <taskdef name="javafxc" classpathref="build.class.path" classname="com.sun.tools.javafx.ant.JavaFxAntTask" />
 
     <target name="prepare">
         <mkdir dir="${build.dir}" />

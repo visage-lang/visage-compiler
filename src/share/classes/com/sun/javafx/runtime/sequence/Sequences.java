@@ -19,6 +19,11 @@ final class Sequences {
     // Inhibit instantiation
     private Sequences() { }
 
+    /** Factory for simple sequence generation */
+    public static<T> Sequence<T> make(Class<T> clazz, T... values) {
+        return new ArraySequence<T>(clazz, values);
+    }
+
     /** Concatenate two sequences into a new sequence.  */
     public static<T> Sequence<T> concatenate(Class<T> clazz, Sequence<T> first, Sequence<T> second) {
         if (first.size() == 0)
