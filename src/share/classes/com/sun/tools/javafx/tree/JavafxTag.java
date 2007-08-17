@@ -187,9 +187,25 @@ public abstract class JavafxTag extends JCTree {
      */
     public static final int DURCLAUSE = FORJOIN + 1;        
 
+    /** block expression { ... }
+     */
+    public static final int BLOCK_EXPRESSION = DURCLAUSE + 1;
+
+    /** explicit sequence [78, 6, 14, 21]
+     */
+    public static final int SEQUENCE_EXPLICIT = BLOCK_EXPRESSION + 1;        
+
+    /** range sequence [1..100]
+     */
+    public static final int SEQUENCE_RANGE = SEQUENCE_EXPLICIT + 1;        
+
+    /** empty sequence []
+     */
+    public static final int SEQUENCE_EMPTY = SEQUENCE_RANGE + 1;        
+
     /** insert statement
      */
-    public static final int INSERT = DURCLAUSE + 1;        
+    public static final int INSERT = SEQUENCE_EMPTY + 1;        
 
     /** delete statement
      */
@@ -243,6 +259,5 @@ public abstract class JavafxTag extends JCTree {
     /** internal lazy bind unary operator
      */
     public static final int LAZYOP = BINDOP + 1;
-    public static final int BLOCK_EXPRESSION = LAZYOP + 1;
-    public static final int JFX_OP_LAST = BLOCK_EXPRESSION;        
+    public static final int JFX_OP_LAST = LAZYOP;        
 }

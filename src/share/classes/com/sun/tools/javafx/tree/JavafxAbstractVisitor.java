@@ -537,120 +537,27 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
         that.getBody().accept(this);
     }
 
-    // old-style "retro" separate definition/declaration
-    
-    public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration that) {
-        visitAbstractAttribute(that);
-    }
-    
-    public void visitRetroFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
-        visitAbstractFunction(that);
-    }
-    
-    public void visitRetroOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
-        visitAbstractFunction(that);
-    }
-    
-    public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that) {
-        visitMemberDefinition(that);
-        if (that.getInitializer() != null) {
-            that.getInitializer().accept(this);
-        }
-    }
-    
-    public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
-        visitFuncOpDefinition(that);
-    }
-    
-    public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition that) {
-        visitFuncOpDefinition(that);
-    }
-    
-    public void visitFuncOpDefinition(JFXRetroFuncOpMemberDefinition that) {
-        visitMemberDefinition(that);
-        
-        for (JCTree param : that.getParameters()) {
-            param.accept(this);
-        }
-        that.body.accept(this);
-    }
-    
-    public void visitMemberDefinition(JFXRetroMemberDefinition that) {
-        that.getSelector().accept((JavafxVisitor)this);
-        if (that.getType() != null) {
-            that.getType().accept((JavafxVisitor)this);
-        }
-    }
-    
-    public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
-        if (that.getType() != null) {
-            that.getType().accept((JavafxVisitor)this);
-        }
-        
-        for (JCTree param : that.getParameters()) {
-            param.accept(this);
-        }
-        that.getBody().accept(this);
-    }
-    
-    public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
-        if (that.getType() != null) {
-            that.getType().accept((JavafxVisitor)this);
-        }
-        
-        for (JCTree param : that.getParameters()) {
-            param.accept(this);
-        }
-        that.getBody().accept(this);
-    }
-    
     public void visitDoLater(JFXDoLater that) {
         that.getBody().accept(this);
     }
 
-    public void visitTriggerOnInsert(JFXTriggerOnInsert that) {
-        that.getSelector().accept((JavafxVisitor)this);
-        that.getIdentifier().accept(this);
-        that.getBlock().accept(this);        
-    }    
-
-    public void visitTriggerOnDelete(JFXTriggerOnDelete that) {
-        that.getSelector().accept((JavafxVisitor)this);
-        that.getIdentifier().accept(this);
-        that.getBlock().accept(this);        
-    }
-    
-    public void visitTriggerOnDeleteElement(JFXTriggerOnDeleteElement that) {
-        that.getSelector().accept((JavafxVisitor)this);
-        that.getIdentifier().accept(this);
-        that.getBlock().accept(this);        
-    }
-    
-    public void visitTriggerOnNew(JFXTriggerOnNew that) {
-        that.getClassIdentifier().accept(this);
-
-        if (that.getNewValueIdentifier() != null) {
-            that.getNewValueIdentifier().accept(this);
-        }
-        that.getBlock().accept(this);        
-    }
-    
-    public void visitTriggerOnReplace(JFXTriggerOnReplace that) {
-        that.getSelector().accept((JavafxVisitor)this);
-        that.getNewValueIdentifier().accept(this);
-        that.getBlock().accept(this);        
-    }
-    
-    public void visitTriggerOnReplaceElement(JFXTriggerOnReplaceElement that) {
-        that.getSelector().accept((JavafxVisitor)this);
-        that.getElementIdentifier().accept(this);
-        that.getNewValueIdentifier().accept(this);
-        that.getBlock().accept(this);        
-    }
-    
     public void visitMemberSelector(JFXMemberSelector that) {
     }
     
+    public void visitSequenceEmpty(JFXSequenceEmpty that) {
+    }
+    
+    public void visitSequenceRange(JFXSequenceRange that) {
+        that.getLower().accept(this);
+        that.getUpper().accept(this);
+    }
+    
+    public void visitSequenceExplicit(JFXSequenceExplicit that) {
+        for (JCExpression expr : that.getItems()) {
+            expr.accept(this);
+        }
+    }
+
     public void visitStringExpression(JFXStringExpression that) {
         List<JCExpression> parts = that.getParts();
         parts = parts.tail;
@@ -731,4 +638,115 @@ public abstract class JavafxAbstractVisitor extends TreeScanner implements Javaf
     public void visitTree(JCTree that) {
         assert false : "Should not be here!!!";
     }
+
+    // Retro support
+    
+
+    // old-style "retro" separate definition/declaration
+    
+    public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration that) {
+        visitAbstractAttribute(that);
+    }
+    
+    public void visitRetroFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
+        visitAbstractFunction(that);
+    }
+    
+    public void visitRetroOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
+        visitAbstractFunction(that);
+    }
+    
+    public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that) {
+        visitMemberDefinition(that);
+        if (that.getInitializer() != null) {
+            that.getInitializer().accept(this);
+        }
+    }
+    
+    public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
+        visitFuncOpDefinition(that);
+    }
+    
+    public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition that) {
+        visitFuncOpDefinition(that);
+    }
+    
+    public void visitFuncOpDefinition(JFXRetroFuncOpMemberDefinition that) {
+        visitMemberDefinition(that);
+        
+        for (JCTree param : that.getParameters()) {
+            param.accept(this);
+        }
+        that.body.accept(this);
+    }
+    
+    public void visitMemberDefinition(JFXRetroMemberDefinition that) {
+        that.getSelector().accept((JavafxVisitor)this);
+        if (that.getType() != null) {
+            that.getType().accept((JavafxVisitor)this);
+        }
+    }
+    
+    public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
+        if (that.getType() != null) {
+            that.getType().accept((JavafxVisitor)this);
+        }
+        
+        for (JCTree param : that.getParameters()) {
+            param.accept(this);
+        }
+        that.getBody().accept(this);
+    }
+    
+    public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
+        if (that.getType() != null) {
+            that.getType().accept((JavafxVisitor)this);
+        }
+        
+        for (JCTree param : that.getParameters()) {
+            param.accept(this);
+        }
+        that.getBody().accept(this);
+    }
+    
+    public void visitTriggerOnInsert(JFXTriggerOnInsert that) {
+        that.getSelector().accept((JavafxVisitor)this);
+        that.getIdentifier().accept(this);
+        that.getBlock().accept(this);        
+    }    
+
+    public void visitTriggerOnDelete(JFXTriggerOnDelete that) {
+        that.getSelector().accept((JavafxVisitor)this);
+        that.getIdentifier().accept(this);
+        that.getBlock().accept(this);        
+    }
+    
+    public void visitTriggerOnDeleteElement(JFXTriggerOnDeleteElement that) {
+        that.getSelector().accept((JavafxVisitor)this);
+        that.getIdentifier().accept(this);
+        that.getBlock().accept(this);        
+    }
+    
+    public void visitTriggerOnNew(JFXTriggerOnNew that) {
+        that.getClassIdentifier().accept(this);
+
+        if (that.getNewValueIdentifier() != null) {
+            that.getNewValueIdentifier().accept(this);
+        }
+        that.getBlock().accept(this);        
+    }
+    
+    public void visitTriggerOnReplace(JFXTriggerOnReplace that) {
+        that.getSelector().accept((JavafxVisitor)this);
+        that.getNewValueIdentifier().accept(this);
+        that.getBlock().accept(this);        
+    }
+    
+    public void visitTriggerOnReplaceElement(JFXTriggerOnReplaceElement that) {
+        that.getSelector().accept((JavafxVisitor)this);
+        that.getElementIdentifier().accept(this);
+        that.getNewValueIdentifier().accept(this);
+        that.getBlock().accept(this);        
+    }
+    
 }

@@ -462,6 +462,43 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
+    public void visitSequenceEmpty(JFXSequenceEmpty that) {
+        try {
+            print("[]");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+    
+    public void visitSequenceRange(JFXSequenceRange that) {
+         try {
+            print("[");
+            printExpr(that.getLower());
+            print("..");
+            printExpr(that.getUpper());
+            print("]");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+    
+    public void visitSequenceExplicit(JFXSequenceExplicit that) {
+        try {
+            boolean first = true;
+            print("[");
+            for (JCExpression expr : that.getItems()) {
+                if (!first) {
+                    print(", ");
+                }
+                first = false;
+                printExpr(expr);
+            }
+            print("]");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public void visitStringExpression(JFXStringExpression tree) {
         try {
             int i;

@@ -7,7 +7,6 @@ tokens {
    POUND='#';
    TYPEOF='typeof';
    DOTDOT='..';
-   LARROW='<-';
    ABSTRACT='abstract';
    AFTER='after';
    AND='and';
@@ -251,7 +250,7 @@ QUOTED_IDENTIFIER
 INTEGER_LITERAL : ('0' | '1'..'9' '0'..'9'*) ;
 
 FLOATING_POINT_LITERAL
-    :   ('0'..'9')+ '.' ('0'..'9')* Exponent? 
+    :   ('0'..'9')+ '.' ('0'..'9')+ Exponent? 
     |   '.' ('0'..'9')+ Exponent? 
     |   ('0'..'9')+ Exponent 
 	;
@@ -543,6 +542,7 @@ primaryExpression  returns [JCExpression expr]
        	| identifier 						{ $expr = $identifier.expr; }
        		( LPAREN   expressionListOpt   RPAREN   	{ $expr = F.at(pos($LPAREN)).Apply(null, $expr, $expressionListOpt.args.toList()); } )*
        	| stringExpression 					{ $expr = $stringExpression.expr; }
+       	| bracketExpression 					{ $expr = $bracketExpression.expr; }
        	| literal 						{ $expr = $literal.expr; }
        	| blockExpression					{ $expr = $blockExpression.expr; }
        	| LPAREN expression RPAREN				{ $expr = F.at(pos($LPAREN)).Parens($expression.expr); }
@@ -556,11 +556,13 @@ newExpression  returns [JCExpression expr]
 		   //TODO: need anonymous subclasses
 	;
 objectLiteral  returns [ListBuffer<JFXStatement> parts = new ListBuffer<JFXStatement>()]
-	: ( objectLiteralPart  					{ $parts.append($objectLiteralPart.value); } ) * ;
+	: ( objectLiteralPart  					{ $parts.append($objectLiteralPart.value); } ) * 
+	;
 objectLiteralPart  returns [JFXStatement value]
 	: name COLON  bindOpt expression (COMMA | SEMI)?	{ $value = F.at(pos($COLON)).ObjectLiteralPart($name.value, $expression.expr, $bindOpt.status); }
-       | attributeDefinition
-       | functionDefinition ;
+       	| attributeDefinition
+       	| functionDefinition 
+       	;
 stringExpression  returns [JCExpression expr] 
 @init { ListBuffer<JCExpression> strexp = new ListBuffer<JCExpression>(); }
 	: ql=QUOTE_LBRACE_STRING_LITERAL	{ strexp.append(F.at(pos($ql)).Literal(TypeTags.CLASS, $ql.text)); }
@@ -576,6 +578,24 @@ stringExpression  returns [JCExpression expr]
 formatOrNull  returns [JCExpression expr] 
 	: fs=FORMAT_STRING_LITERAL		{ $expr = F.at(pos($fs)).Literal(TypeTags.CLASS, $fs.text); }
 	| /* no formar */			{ $expr = null; }
+	;
+bracketExpression   returns [JFXAbstractSequenceCreator expr]
+@init { ListBuffer<JCExpression> exps = new ListBuffer<JCExpression>(); }
+	: LBRACKET   
+	    ( /*nada*/				{ $expr = F.at(pos($LBRACKET)).EmptySequence(); }
+	    | e1=expression 			{ exps.append($e1.expr); }
+	     	(   /*nada*/			{ $expr = F.at(pos($LBRACKET)).ExplicitSequence(exps.toList()); }
+	     	| COMMA e2=expression 		{ exps.append($e2.expr); }
+	     	    (
+//	     	      DOTDOT dds=expression	{  }
+//	     	    | 			
+	     	      (COMMA  en=expression	{ exps.append($en.expr); } )*
+	     	    				{ $expr = F.at(pos($LBRACKET)).ExplicitSequence(exps.toList()); }
+	     	    )
+	     	| DOTDOT   dd=expression	{ $expr = F.at(pos($LBRACKET)).RangeSequence($e1.expr, $dd.expr); }
+	     	)   
+	    )
+	  RBRACKET 
 	;
 expressionListOpt  returns [ListBuffer<JCExpression> args = new ListBuffer<JCExpression>()] 
 	: ( e1=expression		{ $args.append($e1.expr); }
@@ -606,9 +626,6 @@ typeReference returns [JFXType type]
         ;
 cardinalityConstraint returns [int ary]
 	:  LBRACKET   RBRACKET    	{ ary = JFXType.CARDINALITY_ANY; }
-	|  QUES                   	{ ary = JFXType.CARDINALITY_OPTIONAL; }
-	|  PLUS                   	{ ary = JFXType.CARDINALITY_ANY; }
-	|  STAR                   	{ ary = JFXType.CARDINALITY_ANY; }
 	|                         	{ ary = JFXType.CARDINALITY_OPTIONAL; } 
 	;
 literal  returns [JCExpression expr]

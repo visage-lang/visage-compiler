@@ -229,6 +229,21 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
+    public void visitSequenceEmpty(JFXSequenceEmpty that) {
+        result = that;
+    }
+    
+    public void visitSequenceRange(JFXSequenceRange that) {
+        that.lower = translate(that.lower);
+        that.upper = translate(that.upper);
+        result = that;
+    }
+    
+    public void visitSequenceExplicit(JFXSequenceExplicit that) {
+        that.items = translate(that.items);
+        result = that;
+    }
+
     public void visitStringExpression(JFXStringExpression that) {
         that.parts = that.parts==null? null : translate(that.parts);
         result = that;
