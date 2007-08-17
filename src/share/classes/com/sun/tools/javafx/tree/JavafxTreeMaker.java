@@ -98,11 +98,27 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     
     public JFXClassDeclaration ClassDeclaration(JCModifiers mods,
             Name name,
-            List<Name> supertypes,
+            List<JCExpression> supertypes,
             List<JCTree> declarations) {
         JFXClassDeclaration tree = new JFXClassDeclaration(mods,
                 name,
                 supertypes,
+                null,
+                declarations,
+                null);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXClassDeclaration ClassDeclaration(JCModifiers mods,
+            Name name,
+            List<JCExpression> supertypes,
+            List<JCExpression> implementedInterfaces,
+            List<JCTree> declarations) {
+        JFXClassDeclaration tree = new JFXClassDeclaration(mods,
+                name,
+                supertypes,
+                implementedInterfaces,
                 declarations,
                 null);
         tree.pos = pos;

@@ -565,13 +565,13 @@ public class Parser {
         accept(CLASS);
         Name name = ident();
         
-        ListBuffer<Name> superclasses = new ListBuffer<Name>();
+        ListBuffer<JCExpression> superclasses = new ListBuffer<JCExpression>();
         if (S.token() == SUPERTYPE) {
             S.nextToken();
-            superclasses.append(ident());
+            superclasses.append(toP(F.at(S.pos()).Ident(ident())));
             while (S.token() == COMMA) {
                 S.nextToken();
-                superclasses.append(ident());
+                superclasses.append(toP(F.at(S.pos()).Ident(ident())));
             }
         }
         accept(LBRACE);

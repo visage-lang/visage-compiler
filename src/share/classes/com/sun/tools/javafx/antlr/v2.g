@@ -67,6 +67,7 @@ tokens {
    TYPE='type';
    EXTENDS='extends';
    ORDER='order';
+   IMPLEMENTS='implements';
    INDEX='index';
    INIT='init';
    INSTANCEOF='instanceof';
@@ -332,13 +333,20 @@ importDecl returns [JCTree value]
                  ( DOT STAR			{ pid = F.at(pos($STAR)).Select(pid, names.asterisk); } )? SEMI 
           					{ $value = F.at(pos($IMPORT)).Import(pid, false); } ;
 classDefinition returns [JFXClassDeclaration value]
-	: modifierFlags  CLASS name supers LBRACE classMembers RBRACE 
+	: modifierFlags  CLASS name supers interfaces LBRACE classMembers RBRACE 
 	  					{ $value = F.at(pos($CLASS)).ClassDeclaration($modifierFlags.mods, $name.value,
-	                                	                $supers.names.toList(), $classMembers.mems.toList()); } ;
-supers returns [ListBuffer<Name> names = new ListBuffer<Name>()]
-	: (EXTENDS name1=name           	{ $names.append($name1.value); }
-           ( COMMA namen=name           	{ $names.append($namen.value); } )* 
-	)?;
+	                                	                $supers.ids.toList(), $interfaces.ids.toList(), 
+	                                	                $classMembers.mems.toList()); } ;
+supers returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>()]
+	: (EXTENDS id1=qualident           	{ $ids.append($id1.expr); }
+           ( COMMA idn=qualident           	{ $ids.append($idn.expr); } )* 
+	  )?
+	;
+interfaces returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>()]
+	: (IMPLEMENTS id1=qualident           	{ $ids.append($id1.expr); }
+           ( COMMA idn=qualident         	{ $ids.append($idn.expr); } )* 
+	  )?
+	;
 classMembers returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]
 	: ( ad1=attributeDefinition          	{ $mems.append($ad1.def); }
 	  |  fd1=functionDefinition     	{ $mems.append($fd1.def); }

@@ -142,12 +142,12 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         try {
             List<JCTypeParameter> typeParams = List.nil();
             // TODO: Need resolved types so I can verify tree one Java class is extended only... Move the rest to interfaces...
-            // The supertypes should not be names, but trees.
             List<JCExpression> interfaces = List.of(make.Identifier(contextInterfaceName));
+            interfaces.appendList(tree.getImplementedInterfaces());
             JCTree extending = null;
             if (tree.supertypes.length() > 0) {
                 if (tree.supertypes.length() == 1) {
-                    extending = make.Ident(tree.supertypes.head);
+                    extending = tree.supertypes.head;
                 } else {
                     log.error(tree.pos, "compiler.err.javafx.not.yet.implemented",
                               "multiple inheritance");

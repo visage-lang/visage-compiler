@@ -39,33 +39,30 @@ import com.sun.tools.javac.code.Symbol.*;
 public class JFXClassDeclaration extends JFXTree {
     public JCModifiers mods;
     public Name name; // TODO: Make this an ident, so posituion info is kept for tooling.
-    public List<Name> supertypes; // TODO: Same as above...
+    public List<JCExpression> supertypes; 
+    public List<JCExpression> implementedInterfaces;
     public List<JCTree> declarations;
     public ClassSymbol sym;
     
     public JavafxJCMethodDecl initializer = null;
     
-   /*
-    * @param modifiers operation modifiers
-    * @param name operation name
-    * @param restype type of operation return value
-    * @param params value parameters
-    * @param sym operation symbol
-    */
     protected JFXClassDeclaration(JCModifiers mods,
             Name name,
-            List<Name> supertypes,
+            List<JCExpression> supertypes,
+            List<JCExpression> implementedInterfaces,
             List<JCTree> declarations,
             ClassSymbol sym) {
         this.mods = mods;
         this.name = name;
         this.supertypes = supertypes;
+        this.implementedInterfaces = implementedInterfaces;
         this.declarations = declarations;
         this.sym = sym;
     }
     public void accept(JavafxVisitor v) { v.visitClassDeclaration(this); }
     public Name getSimpleName() { return name; }
-    public List<Name> getSupertypes() { return supertypes; }
+    public List<JCExpression> getSupertypes() { return supertypes; }
+    public List<JCExpression> getImplementedInterfaces() { return implementedInterfaces; }
     public List<JCTree> getDeclaredMembers() {
         return declarations;
     }
