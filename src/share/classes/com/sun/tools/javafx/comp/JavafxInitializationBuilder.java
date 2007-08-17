@@ -84,7 +84,7 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
         try {
             currentClassDef = tree;
             super.visitClassDef(tree);
-   // TODO: Reenable when transformation error is fixed in TypeMorpher     handleInitializerMethod();
+            handleInitializerMethod();
             // TODO: Do the NewClass case. After all the JavafxJCAssign (if there are any) add call to tmp.initialize();
         }
         finally {
@@ -142,6 +142,7 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
                     jcIf.type = null;
                     
                     initializerBlock.stats = initializerBlock.stats.append(jcIf);
+// TODO: Enable when the constructors are handled....                    jfxVarDecl.init = null;
                     // TODO: Do super.initialize(), init block, new tyriggers, change attr triggers.
                 }
             }
