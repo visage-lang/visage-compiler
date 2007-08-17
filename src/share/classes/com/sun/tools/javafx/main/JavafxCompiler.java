@@ -907,21 +907,21 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 break;
 
             case CHECK_ONLY:
-                flow(typeMorph(buildInitializers(attribute(todo))));
+                flow(buildInitializers(typeMorph(attribute(todo))));
                 break;
 
             case SIMPLE:
-                generate(desugar(flow(typeMorph(buildInitializers(attribute(todo))))));
+                generate(desugar(flow(buildInitializers(typeMorph(attribute(todo))))));
                 break;
 
             case BY_FILE:
-                for (List<Env<AttrContext>> list : groupByFile(flow(typeMorph(buildInitializers(attribute(todo))))).values())
+                for (List<Env<AttrContext>> list : groupByFile(flow(buildInitializers(typeMorph(attribute(todo))))).values())
                     generate(desugar(list));
                 break;
 
             case BY_TODO:
                 while (todo.nonEmpty())
-                    generate(desugar(flow(typeMorph(buildInitializers(attribute(todo.next()))))));
+                    generate(desugar(flow(buildInitializers(typeMorph(attribute(todo.next()))))));
                 break;
 
             default:
