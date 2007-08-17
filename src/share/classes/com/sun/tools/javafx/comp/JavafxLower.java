@@ -8,38 +8,39 @@
  */
 
 package com.sun.tools.javafx.comp;
-import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javac.comp.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.comp.*;
-import com.sun.tools.javac.tree.*;
+
+import com.sun.tools.javac.comp.Lower;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.util.Context;
+import com.sun.tools.javafx.tree.JFXBlockExpression;
+
 /**
- *
  * @author bothner
  */
 public class JavafxLower extends Lower {
-    
+
     public static JavafxLower instance(Context context) {
         JavafxLower instance = (JavafxLower) context.get(lowerKey);
         if (instance == null)
             instance = new JavafxLower(context);
         return instance;
     }
-     
+
     protected JavafxLower(Context context) {
         super(context);
     }
-    
-   public void visitBlockExpression(JFXBlockExpression tree) {
-         tree.stats = translate(tree.stats);
-         tree.value = translate(tree.value);
-         result = tree;
-     };
-     
-     public void visitTree(JCTree tree) {
-         if (tree instanceof JFXBlockExpression)
-             visitBlockExpression((JFXBlockExpression) tree);
-         else
-             super.visitTree(tree);
+
+    public void visitBlockExpression(JFXBlockExpression tree) {
+        tree.stats = translate(tree.stats);
+        tree.value = translate(tree.value);
+        result = tree;
+    }
+
+    @Override
+    public void visitTree(JCTree tree) {
+        if (tree instanceof JFXBlockExpression)
+            visitBlockExpression((JFXBlockExpression) tree);
+        else
+            super.visitTree(tree);
     }
 }

@@ -25,30 +25,24 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.jvm.*;
-import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javac.tree.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.code.Type.*;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.comp.AttrContext;
-import com.sun.tools.javac.comp.Env;
+import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.javac.code.TypeTags.BOT;
+import static com.sun.tools.javac.code.TypeTags.VOID;
+import com.sun.tools.javac.jvm.Target;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.Log;
+import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Name.Table;
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.tree.*;
+import static com.sun.tools.javafx.tree.JavafxTag.*;
+import static com.sun.tools.javafx.tree.JavafxTag.IMPORT;
+
 import java.io.File;
 import java.net.MalformedURLException;
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.TypeTags.*;
-import static com.sun.tools.javafx.tree.JavafxTag.*;
-import com.sun.tools.javac.comp.Enter;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javafx.code.JavafxFlags;
-import com.sun.tools.javafx.code.JavafxVarSymbol;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -77,6 +71,7 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
         log = Log.instance(context);
     }
 
+   @Override
    public void visitTopLevel(JCCompilationUnit tree) {
         try {
             preProcessJfxTopLevel(tree);
@@ -234,82 +229,102 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
     }
 
 
+    @Override
     public void visitClassDeclaration(JFXClassDeclaration that) {
         // TODO:
     }
     
+    @Override
     public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration that) {
         // TODO:
     }
     
+    @Override
     public void visitRetroFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
         // TODO:
     }
 
+    @Override
     public void visitRetroOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
         // TODO:
     }
 
+    @Override
     public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that) {
         // TODO:
     }
 
+    @Override
     public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition that) {
         // TODO:
     }
 
+    @Override
     public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
         // TODO:
     }
 
+    @Override
     public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
         // TODO:
     }
 
+    @Override
     public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
         // TODO:
     }
 
+    @Override
     public void visitMemberSelector(JFXMemberSelector that) {
         // TODO:
     }
 
+    @Override
     public void visitDoLater(JFXDoLater that) {
         // TODO:
     }
 
+    @Override
     public void visitTypeAny(JFXTypeAny that) {
         // TODO:
     }
 
+    @Override
     public void visitTypeClass(JFXTypeClass that) {
         // TODO:
     }
 
+    @Override
     public void visitTypeFunctional(JFXTypeFunctional that) {
         // TODO:
     }
 
+    @Override
     public void visitTypeUnknown(JFXTypeUnknown that) {
         // TODO:
     }
 
+    @Override
     public void visitVar(JFXVar that) {
         // TODO:
     }
 
+    @Override
     public void visitVarInit(JFXVarInit that) {
         // TODO:
     }
 
+    @Override
     public boolean shouldVisitRemoved() {
         return false;
     }
     
+    @Override
     public boolean shouldVisitSynthetic() {
         return true;
     }
     
+    @Override
     public void visitVarStatement(JFXVarStatement that) {
         // TODO:
     }

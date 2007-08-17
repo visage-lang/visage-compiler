@@ -34,8 +34,9 @@ public class JavafxTransTypes extends TransTypes {
          tree.stats = translate(tree.stats);
          tree.value = translate(tree.value, null);
          result = tree;
-     };
+     }
      
+     @Override
      public void visitTree(JCTree tree) {
          if (tree instanceof JFXBlockExpression)
              visitBlockExpression((JFXBlockExpression) tree);

@@ -26,7 +26,6 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.jvm.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.util.*;
@@ -64,7 +63,6 @@ public class JavafxMemberEnter extends MemberEnter {
     private boolean isVarArgs;
     private JCMethodDecl currentMethodDecl = null;
     private List<MethodInferTypeHelper> methodsToInferReturnType;
-    private List<MethodInferTypeHelper> prevMethodsToInferReturnType;
     private Type methodReturnType;
     private Env<AttrContext> localEnv;
     
@@ -102,6 +100,7 @@ public class JavafxMemberEnter extends MemberEnter {
         tree.value.accept(this);
     }
     
+    @Override
     public void visitTree(JCTree tree) {
         if (tree instanceof JFXBlockExpression)
             visitBlockExpression((JFXBlockExpression) tree);
@@ -109,6 +108,7 @@ public class JavafxMemberEnter extends MemberEnter {
             super.visitTree(tree);
     }
 
+    @Override
     public void visitTopLevel(JCCompilationUnit tree) {
         if (tree.starImportScope.elems != null) {
             // we must have already processed this toplevel
@@ -143,6 +143,7 @@ public class JavafxMemberEnter extends MemberEnter {
         memberEnter(tree.defs, env);
     }
 
+    @Override
     public void visitImport(JCImport tree) {
         if (!tree.isStatic()) {
             if (tree.qualid.getTag() == SELECT) {
@@ -164,7 +165,9 @@ public class JavafxMemberEnter extends MemberEnter {
         super.visitImport(tree);
     }
     
+    @Override
     protected void finishClass(JCClassDecl tree, Env<AttrContext> env) {
+        List<MethodInferTypeHelper> prevMethodsToInferReturnType;
         prevMethodsToInferReturnType = methodsToInferReturnType;
         methodsToInferReturnType = List.nil();
         super.finishClass(tree, env);
@@ -172,6 +175,7 @@ public class JavafxMemberEnter extends MemberEnter {
         methodsToInferReturnType = prevMethodsToInferReturnType;
     }
 
+    @Override
     public void visitVarDef(JCVariableDecl tree) {
         Env<AttrContext> localEnv = env;
         if ((tree.mods.flags & STATIC) != 0 ||
@@ -224,6 +228,7 @@ public class JavafxMemberEnter extends MemberEnter {
         v.pos = tree.pos;
     }
 
+    @Override
     public void visitMethodDef(JCMethodDecl tree) {
         JCMethodDecl prevMethodDecl = currentMethodDecl;
         currentMethodDecl = tree;
@@ -265,12 +270,13 @@ public class JavafxMemberEnter extends MemberEnter {
         }
     }
 
+    @Override
     public void visitReturn(JCReturn tree) {
         super.visitReturn(tree);
         if (localEnv != null) {
             attr.attribStat(tree, localEnv);
             if (tree.expr == null) {
-                methodReturnType = syms.voidType;
+                methodReturnType = Symtab.voidType;
             }
             else {
                 methodReturnType = tree.expr.type;
@@ -560,10 +566,10 @@ public class JavafxMemberEnter extends MemberEnter {
                       localEnv = prevLocalEnv;
                       if (methodReturnType == null) {
                           methodDeclHelper.method.restype = make.TypeIdent(VOID);
-                          methodDeclHelper.method.restype.type = syms.voidType;
+                          methodDeclHelper.method.restype.type = Symtab.voidType;
                           if (methodDeclHelper.method.sym != null && methodDeclHelper.method.sym.type != null &&
                               methodDeclHelper.method.sym.kind == MTH) {
-                              ((MethodType)methodDeclHelper.method.sym.type).restype = syms.voidType;
+                              ((MethodType)methodDeclHelper.method.sym.type).restype = Symtab.voidType;
                           }
                       }
                       else {

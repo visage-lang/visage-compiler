@@ -52,6 +52,7 @@ public class JavafxGen extends Gen {
       }
   }
   
+  @Override
   public void visitTree(JCTree tree) {
          if (tree instanceof JFXBlockExpression)
              visitBlockExpression((JFXBlockExpression) tree);

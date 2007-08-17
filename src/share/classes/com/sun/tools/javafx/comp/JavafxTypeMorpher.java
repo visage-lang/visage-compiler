@@ -25,37 +25,33 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.tree.TreeTranslator;
-import com.sun.tools.javac.tree.TreeScanner;
-import com.sun.tools.javac.tree.TreeMaker;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.code.*;
+import com.sun.tools.javac.code.Symbol.ClassSymbol;
+import com.sun.tools.javac.code.Symbol.TypeSymbol;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type.ArrayType;
+import com.sun.tools.javac.code.Type.ClassType;
+import com.sun.tools.javac.comp.Attr;
+import com.sun.tools.javac.comp.AttrContext;
+import com.sun.tools.javac.comp.Env;
+import com.sun.tools.javac.comp.Resolve;
 import com.sun.tools.javac.jvm.ClassReader;
-
-import com.sun.tools.javac.comp.*;
-
-import com.sun.tools.javac.code.Kinds;
-import com.sun.tools.javac.code.Symtab;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.code.Types;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.Type.*;
-import com.sun.tools.javac.code.TypeTags;
-import com.sun.tools.javac.code.Flags;
-
-import com.sun.tools.javafx.code.*;
+import com.sun.tools.javac.tree.*;
+import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.ListBuffer;
+import com.sun.tools.javac.util.Name;
+import com.sun.tools.javafx.code.JavafxBindStatus;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.javafx.tree.JFXBlockExpression;
+import com.sun.tools.javafx.tree.JavafxJCAssign;
+import com.sun.tools.javafx.tree.JavafxJCVarDecl;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
-import com.sun.tools.javafx.tree.*;
 
 import java.io.OutputStreamWriter;
-import com.sun.tools.javac.tree.Pretty;
-
-import java.util.Map;
 import java.util.HashMap;
-import java.util.ArrayList;
+import java.util.Map;
 
 /**
  *
@@ -207,9 +203,9 @@ public class JavafxTypeMorpher extends TreeTranslator {
         
         realTypeByKind = new Type[TYPE_KIND_COUNT];
         realTypeByKind[TYPE_KIND_OBJECT] = syms.objectType;
-        realTypeByKind[TYPE_KIND_DOUBLE] = syms.doubleType;
-        realTypeByKind[TYPE_KIND_BOOLEAN] = syms.booleanType;
-        realTypeByKind[TYPE_KIND_INT] = syms.intType;
+        realTypeByKind[TYPE_KIND_DOUBLE] = Symtab.doubleType;
+        realTypeByKind[TYPE_KIND_BOOLEAN] = Symtab.booleanType;
+        realTypeByKind[TYPE_KIND_INT] = Symtab.intType;
         
         getMethodName = Name.fromString(names, "get");
         setMethodName = Name.fromString(names, "set");
@@ -408,7 +404,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
     private Type generifyIfNeeded(Type aLocationType, JavafxVarSymbol vsym) {
         Type newType;
         if (vsym.getTypeKind() == TYPE_KIND_OBJECT) {
-            List<Type> actuals = List.<Type>of(vsym.getRealType());
+            List<Type> actuals = List.of(vsym.getRealType());
             List<Type> formals = aLocationType.tsym.type.getTypeArguments();
             actuals.head = actuals.head.withTypeVar(formals.head);
             Type clazzOuter = biDiLocationType(vsym.getTypeKind()).getEnclosingType();
@@ -427,11 +423,11 @@ public class JavafxTypeMorpher extends TreeTranslator {
                 int typeKind;
                 if (realType.isPrimitive()) {
                     Symbol realTsym = realType.tsym;
-                    if (realTsym == syms.doubleType.tsym) {
+                    if (realTsym == Symtab.doubleType.tsym) {
                         typeKind = TYPE_KIND_DOUBLE;
-                    } else if (realTsym == syms.intType.tsym) {
+                    } else if (realTsym == Symtab.intType.tsym) {
                         typeKind = TYPE_KIND_INT;
-                    } else if (realTsym == syms.booleanType.tsym) {
+                    } else if (realTsym == Symtab.booleanType.tsym) {
                         typeKind = TYPE_KIND_BOOLEAN;
                     } else {
                         assert false : "should not reach here";
@@ -477,7 +473,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
                     List.<Type>nil());   // typeargs
             getSelect.setType(getSelect.sym.type);
             
-            List<JCExpression> getArgs = List.<JCExpression>nil();
+            List<JCExpression> getArgs = List.nil();
             expr = make.Apply(null, getSelect, getArgs);
             expr.setType(vsym.getRealType());
         }
@@ -501,11 +497,13 @@ public class JavafxTypeMorpher extends TreeTranslator {
         }
     }
     
+    @Override
     public void visitTopLevel(JCCompilationUnit tree) {
         tree.defs = translate(tree.defs);
         result = tree;
     }
     
+    @Override
     public void visitClassDef(JCClassDecl tree) {
         JCClassDecl prevEnclClass = attrEnv.enclClass;
         PerClassInfo prevClassInfo = classInfo;
@@ -526,6 +524,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
         result = tree;
     }
     
+    @Override
     public void visitMethodDef(JCMethodDecl tree) {
         // At least for now, prevent parameters and return from being translated
         //tree.params = translateVarDefs(tree.params);
@@ -544,6 +543,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
         result = tree;
     }
     
+    @Override
     public void visitVarDef(JCVariableDecl tree) {
         if (tree instanceof JavafxJCVarDecl) {
             JavafxJCVarDecl var = (JavafxJCVarDecl)tree;
@@ -574,7 +574,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
                     // TODO: test will need to handle subtypes
                     if (tree.init != null) {
                         if (var.isUnidiBind()) {
-                            tree.init = registerExpression(vsym, tree.init);;
+                            tree.init = registerExpression(vsym, tree.init);
                         } else {
                             tree.init = boundTranslate(tree.init, var.getBindStatus());
                             
@@ -588,7 +588,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
                                         realType.isPrimitive()? List.<Type>nil() : List.<Type>of(realType));   // typeargs
                                 makeSelect.setType(makeSelect.sym.type);
                                 
-                                List<JCExpression> makeArgs = (tree.init == null)? List.<JCExpression>nil() : List.<JCExpression>of(tree.init);
+                                List<JCExpression> makeArgs = (tree.init == null)? List.<JCExpression>nil() : List.of(tree.init);
                                 JCExpression makeApply = make.Apply(null, makeSelect, makeArgs);
                                 makeApply.setType(usedType);
                                 
@@ -601,7 +601,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
                         makeSelect.sym = rs.resolveInternalMethod(tree.pos(), attrEnv, usedType, makeMethodName, List.<Type>nil(), realType.isPrimitive() ? List.<Type>nil() : List.<Type>of(realType)); // typeargs
                         makeSelect.setType(makeSelect.sym.type);
 
-                        List<JCExpression> makeArgs = List.<JCExpression>nil();
+                        List<JCExpression> makeArgs = List.nil();
                         JCExpression makeApply = make.Apply(null, makeSelect, makeArgs);
                         makeApply.setType(usedType);
 
@@ -622,6 +622,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
         result = tree;
     }
     
+    @Override
     public void visitAssign(JCAssign tree) {
         JCExpression lhs = translateLHS(tree.lhs, true);
         Symbol sym = null;
@@ -665,9 +666,9 @@ public class JavafxTypeMorpher extends TreeTranslator {
                         List.<Type>nil());   // typeargs
                 setSelect.setType(setSelect.sym.type);
                 
-                List<JCExpression> setArgs = List.<JCExpression>of(rhs);
+                List<JCExpression> setArgs = List.of(rhs);
                 result = make.Apply(null, setSelect, setArgs);
-                result.setType(syms.voidType);
+                result.setType(Symtab.voidType);
             }
         } else {
             tree.lhs = lhs;
@@ -676,6 +677,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
         }
     }
     
+    @Override
     public void visitSelect(JCFieldAccess tree) {
         // this may or may not be in a LHS but in either
         // event the selector is a value expression
@@ -706,6 +708,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
      * }
      ***/
     
+    @Override
     public void visitIdent(JCIdent tree)   {
         if (tree.sym instanceof JavafxVarSymbol) {
             JavafxVarSymbol vsym = (JavafxVarSymbol)tree.sym;
@@ -724,7 +727,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
                             List.<Type>nil());   // typeargs
                     getSelect.setType(getSelect.sym.type);
                     
-                    List<JCExpression> getArgs = List.<JCExpression>nil();
+                    List<JCExpression> getArgs = List.nil();
                     JCExpression expr = make.Apply(null, getSelect, getArgs);
                     expr.setType(realType);
                     
@@ -755,6 +758,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
     /**
      * Allow prepending of statements and/or deletin by translation to null
      */
+    @Override
     public void visitBlock(JCBlock tree) {
         List<JCStatement> stats = tree.stats;
         if (stats != null)  {
@@ -794,6 +798,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
         result = tree;
     }
     
+    @Override
     public void visitBinary(JCBinary tree) {
         super.visitBinary(tree);
         if (tree.type.constValue() != null) {
@@ -801,6 +806,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
         }
     }
     
+    @Override
     public void visitUnary(JCUnary tree) {
         super.visitUnary(tree);
         if (tree.type.constValue() != null) {
@@ -838,14 +844,14 @@ public class JavafxTypeMorpher extends TreeTranslator {
                 List<JCVariableDecl> params = meth.getParameters();
                 //JCVariableDecl boundVar = params.head;
                 JCVariableDecl numVar = params.tail.head;
-                ListBuffer<JCCase> cases = ListBuffer.<JCCase>lb();
+                ListBuffer<JCCase> cases = ListBuffer.lb();
                 ListBuffer<JCStatement> stmts;
                 
                 for (ExprInfo info : classInfo.infoByGroup[i]) {
                     stmts = ListBuffer.<JCStatement>lb();
                     stmts.append(buildExpression(info, meth));
-                    stmts.append(make.Return(makeLit(syms.booleanType, 1)));
-                    cases.append(make.Case(makeLit(syms.intType, info.exprNum), stmts.toList()));
+                    stmts.append(make.Return(makeLit(Symtab.booleanType, 1)));
+                    cases.append(make.Case(makeLit(Symtab.intType, info.exprNum), stmts.toList()));
                 }
                 JCExpression selector = make.Ident(numVar.sym);
                 meth.body.stats = meth.body.stats.prepend( make.Switch(selector, cases.toList()) );
@@ -857,6 +863,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
         final HashMap<JavafxVarSymbol,VarInfo> varMap = new HashMap<JavafxVarSymbol,VarInfo>();
         
         TreeScanner ts = new TreeScanner() {
+            @Override
             public void visitIdent(JCIdent tree)   {
                 if (tree.sym instanceof JavafxVarSymbol) {
                     JavafxVarSymbol vsym = (JavafxVarSymbol)tree.sym;
@@ -887,25 +894,25 @@ public class JavafxTypeMorpher extends TreeTranslator {
         
         JCExpression exprLocId = expressionLocationId(tree.pos, typeKind, argsGroup);
         if (typeKind == TYPE_KIND_OBJECT) {
-            ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb();
+            ListBuffer<JCExpression> args = ListBuffer.lb();
             args.append(make.Ident(realType.tsym));
             Type exprLocType = exprLocId.type;
             exprLocId = make.TypeApply(exprLocId, args.toList());
             exprLocId.setType(generifyIfNeeded(exprLocType, vsym));
         }
         
-        ListBuffer<Type> argTypes = ListBuffer.<Type>lb();
-        ListBuffer<JCExpression> argValues = ListBuffer.<JCExpression>lb();
+        ListBuffer<Type> argTypes = ListBuffer.lb();
+        ListBuffer<JCExpression> argValues = ListBuffer.lb();
         argTypes.append(contextType);
         JCIdent thisId = make.Ident(new VarSymbol(Flags.FINAL, names._this, attrEnv.enclClass.type, attrEnv.enclClass.type.tsym));
         thisId.setType(thisId.type);
         argValues.append(thisId);
-        argTypes.append(syms.intType);
-        argValues.append(makeLit(syms.intType, exprNum));
+        argTypes.append(Symtab.intType);
+        argValues.append(makeLit(Symtab.intType, exprNum));
         if (argsGroup == ARGS_IN_ARRAY) {
             Type argArrayType = new ArrayType(baseLocationType, syms.arrayClass);
             argTypes.append(argArrayType);
-            ListBuffer<JCExpression> argContents = ListBuffer.<JCExpression>lb();
+            ListBuffer<JCExpression> argContents = ListBuffer.lb();
             for (VarInfo vi : varMap.values()) {
                 argContents.append(vi.origIdent);
             }
@@ -948,7 +955,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
             JCExpression argsExp = make.at(tree.pos).Ident(args.head.sym);
             if (argsGroup == ARGS_IN_ARRAY) {
                 argsExp.setType(new ArrayType(baseLocationType, syms.arrayClass));
-                argsExp = make.Indexed(argsExp, makeLit(syms.intType, i++));
+                argsExp = make.Indexed(argsExp, makeLit(Symtab.intType, i++));
             } else {
                 args = args.tail;  // advance to next arg if explicit
             }
@@ -987,9 +994,9 @@ public class JavafxTypeMorpher extends TreeTranslator {
                 List.<Type>nil());   // typeargs
         setSelect.setType(setSelect.sym.type);
         
-        List<JCExpression> setArgs = List.<JCExpression>of(updateExpr);
+        List<JCExpression> setArgs = List.of(updateExpr);
         JCExpression updateApply = make.Apply(null, setSelect, setArgs);
-        updateApply.setType(syms.voidType);
+        updateApply.setType(Symtab.voidType);
         return make.Exec(updateApply);
     }
 }

@@ -25,19 +25,14 @@
 
 package com.sun.tools.javafx.comp;
 
-import java.util.*;
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.jvm.*;
-import com.sun.tools.javac.tree.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.code.Type.*;
-import com.sun.tools.javac.code.Symbol.*;
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.TypeTags.*;
+import static com.sun.tools.javac.code.Flags.VARARGS;
+import static com.sun.tools.javac.code.Kinds.MTH;
+import com.sun.tools.javac.code.Scope;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.comp.Check;
+import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.javac.util.Version;
 
 /** Type checking helper class for the attribution phase.
  *
@@ -72,6 +67,7 @@ public class JavafxCheck extends Check {
      *	@param sym	     The symbol.
      *	@param s	     The scope.
      */
+    @Override
     public boolean checkUnique(DiagnosticPosition pos, Symbol sym, Scope s) {
 // Javafx change
 //        if (sym.type.isErroneous())

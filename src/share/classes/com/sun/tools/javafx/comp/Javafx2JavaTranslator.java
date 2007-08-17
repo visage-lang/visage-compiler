@@ -40,9 +40,6 @@ import com.sun.tools.javafx.code.JavafxBindStatus;
 import java.util.HashMap;
 import java.util.Map;
 
-// For pretty print debugging
-import java.io.OutputStreamWriter;
-
 public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     protected static final Context.Key<Javafx2JavaTranslator> javafx2JavaTranslatorKey =
             new Context.Key<Javafx2JavaTranslator>();
@@ -127,9 +124,9 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
      */
     @Override
     public void visitClassDef(JCClassDecl tree) {
-        tree.implementing = List.<JCExpression>of(make.Identifier(contextInterfaceName));
+        tree.implementing = List.of(make.Identifier(contextInterfaceName));
         super.visitClassDef(tree);
-        ListBuffer<JCTree> defs = ListBuffer.<JCTree>lb();
+        ListBuffer<JCTree> defs = ListBuffer.lb();
         for (JCTree def : tree.defs) {
             defs.append(def);
         }
@@ -146,7 +143,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
             List<JCTypeParameter> typeParams = List.nil();
             // TODO: Need resolved types so I can verify tree one Java class is extended only... Move the rest to interfaces...
             // The supertypes should not be names, but trees.
-            List<JCExpression> interfaces = List.<JCExpression>of(make.Identifier(contextInterfaceName));
+            List<JCExpression> interfaces = List.of(make.Identifier(contextInterfaceName));
             JCTree extending = null;
             if (tree.supertypes.length() > 0) {
                 if (tree.supertypes.length() == 1) {
@@ -157,7 +154,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                 }
             }
 
-            ListBuffer<JCTree> defs = ListBuffer.<JCTree>lb();
+            ListBuffer<JCTree> defs = ListBuffer.lb();
             for (JCTree decl : tree.declarations) {
                 defs.append(translate(decl));
             }
@@ -187,16 +184,8 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         } finally {
             currentClass = prevClass;
         }
-        /*******
-        OutputStreamWriter osw = new OutputStreamWriter(System.out);
-        JavafxPretty pretty = new JavafxPretty(osw, false);
-        try {
-            pretty.printExpr(result);
-            osw.flush();
-        }catch(Exception ex) {
-            System.err.println("Pretty print got: " + ex);
-        }
-        *******/
+
+        // prettyPrint(result);
     }
     
     @Override
@@ -434,6 +423,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     /**
      * Allow prepending of statements and/or deletin by translation to null
      */
+    @Override
     public void visitBlock(JCBlock tree) {
         List<JCStatement> stats = tree.stats;
         if (stats != null)  {
@@ -615,7 +605,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                     if (triggerDecl.javafxDecl.getJavafxMethodType() == JavafxFlags.TRIGGERREPLACE) {
                         JFXTriggerOnReplace trigger = (JFXTriggerOnReplace)triggerDecl.jfxDecl;
                         JCTree classIdent = trigger.selector;
-                        while (classIdent != null && classIdent.getTag() != JavafxTag.MEMBERSELECTOR) {
+                        if (classIdent != null && classIdent.getTag() != JavafxTag.MEMBERSELECTOR) {
                             throw new Error("Unexpected tree type in Trigged On"); // TODO: Remove this when figure out what can be in here
                         }
                         

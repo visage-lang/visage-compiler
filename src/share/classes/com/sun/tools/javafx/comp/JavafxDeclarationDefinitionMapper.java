@@ -82,6 +82,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         }
     }
 
+    @Override
     public void visitClassDef(JCClassDecl that) {
         that.mods.accept(this);
         for (JCTypeParameter typaram : that.typarams) {
@@ -101,6 +102,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         }
     }
 
+    @Override
     public void visitClassDeclaration(JFXClassDeclaration that) {
         JCTree prev = currentOwner;
         JFXClassDeclaration prevClass = currentClass;
@@ -114,6 +116,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         }
     }
 
+    @Override
     public void visitFunctionDefinition(JFXFunctionDefinition that) {
         JCTree prev = currentOwner;
         currentOwner = that;
@@ -124,6 +127,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         }
     }
 
+    @Override
     public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration that) {
         JCTree prev = currentOwner;
         currentOwner = that;
@@ -164,6 +168,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         }
     }
 
+    @Override
     public void visitRetroFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
         JCTree prev = currentOwner;
         currentOwner = that;
@@ -204,6 +209,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         }
     }
 
+    @Override
     public void visitRetroOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
         JCTree prev = currentOwner;
         currentOwner = that;
@@ -244,6 +250,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         }
     }
 
+    @Override
     public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that) {
         JCTree prev = currentOwner;
         currentOwner = that;
@@ -289,6 +296,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         }
     }
 
+    @Override
     public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition that) {
         JCTree prev = currentOwner;
         currentOwner = that;
@@ -331,6 +339,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         }
     }
 
+    @Override
     public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
         JCTree prev = currentOwner;
         currentOwner = that;
@@ -378,6 +387,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         }
     }
 
+    @Override
     public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
         JCTree prev = currentOwner;
         currentOwner = that;
@@ -399,6 +409,7 @@ public class JavafxDeclarationDefinitionMapper extends JavafxAbstractVisitor {
         }
     }
 
+    @Override
     public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
         JCTree prev = currentOwner;
         currentOwner = that;

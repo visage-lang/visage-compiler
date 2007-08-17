@@ -26,24 +26,26 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.jvm.*;
-import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javac.tree.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.code.Type.*;
-import com.sun.tools.javac.comp.Resolve;
-import com.sun.tools.javafx.tree.*;
-import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.javac.code.Flags.FINAL;
 import static com.sun.tools.javac.code.Kinds.*;
+import com.sun.tools.javac.code.Symbol.OperatorSymbol;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type.ClassType;
+import com.sun.tools.javac.code.Type.MethodType;
+import com.sun.tools.javac.code.Type.WildcardType;
 import static com.sun.tools.javac.code.TypeTags.*;
+import static com.sun.tools.javac.code.TypeTags.WILDCARD;
 import com.sun.tools.javac.comp.Attr;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.Env;
-import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javac.comp.Resolve;
+import com.sun.tools.javac.jvm.ByteCodes;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.util.*;
 import com.sun.tools.javafx.code.JavafxSymtab;
-import java.util.Iterator;
+import com.sun.tools.javafx.tree.JFXBlockExpression;
+import com.sun.tools.javafx.tree.JavafxTreeInfo;
 
 /** This is the main context-dependent analysis phase in GJC. It
  *  encompasses name resolution, type checking and constant folding as
@@ -98,6 +100,7 @@ public class JavafxAttr extends Attr {
      *  @param pkind    The expected kind (or: protokind) of the tree
      *  @param pt       The expected type (or: prototype) of the tree
      */
+    @Override
     protected
     Type check(JCTree tree, Type owntype, int ownkind, int pkind, Type pt) {
 // Javafx change
@@ -117,6 +120,7 @@ public class JavafxAttr extends Attr {
         return owntype;
     }
 
+    @Override
     public void visitIdent(JCIdent tree) {
         // TODO: Fix this when the new named table is available
         if (tree.name == names.fromString("Integer")) {
@@ -144,6 +148,7 @@ public class JavafxAttr extends Attr {
         }
     }
 
+    @Override
     public void visitAssign(JCAssign tree) {
 // Javafx change        Type owntype = attribTree(tree.lhs, env.dup(tree), VAR, Type.noType);
 // Javafx change        Type capturedType = capture(owntype);
@@ -192,6 +197,7 @@ public class JavafxAttr extends Attr {
     }
 
 
+    @Override
     public void visitVarDef(JCVariableDecl tree) {
         // Local variables have not been entered yet, so we need to do it now:
         if (env.info.scope.owner.kind == MTH) {
@@ -252,6 +258,7 @@ public class JavafxAttr extends Attr {
         }
     }
 
+    @Override
     public void visitMethodDef(JCMethodDecl tree) {
 // Javafx change
         JCMethodDecl prev = currentMethod;
@@ -265,6 +272,7 @@ public class JavafxAttr extends Attr {
 // Javafx change
     }
 
+    @Override
     public void visitReturn(JCReturn tree) {
         // Check that there is an enclosing method which is
         // nested within than the enclosing class.
@@ -290,6 +298,7 @@ public class JavafxAttr extends Attr {
         result = null;
     }
 
+    @Override
     public void visitApply(JCMethodInvocation tree) {
         // The local environment of a method application is
         // a new environment nested in the current one.
@@ -454,6 +463,7 @@ public class JavafxAttr extends Attr {
         localEnv.info.scope.leave();
     }
 
+    @Override
     public void visitBinary(JCBinary tree) {
         // Attribute arguments.
         Type left = chk.checkNonVoid(tree.lhs.pos(), attribExpr(tree.lhs, env));
@@ -512,6 +522,7 @@ public class JavafxAttr extends Attr {
         result = check(tree, owntype, VAL, pkind, pt);
     }
     
+     @Override
      public void visitTree(JCTree tree) {
          if (tree instanceof JFXBlockExpression)
              visitBlockExpression((JFXBlockExpression) tree);
@@ -527,23 +538,23 @@ public class JavafxAttr extends Attr {
         if (t == null) return null;
         switch (t.tag) {
             case BYTE:
-                return syms.byteType;
+                return Symtab.byteType;
             case CHAR:
-                return syms.charType;
+                return Symtab.charType;
             case SHORT:
-                return syms.shortType;
+                return Symtab.shortType;
             case INT:
-                return syms.intType;
+                return Symtab.intType;
             case LONG:
-                return syms.longType;
+                return Symtab.longType;
             case FLOAT:
-                return syms.floatType;
+                return Symtab.floatType;
             case DOUBLE:
-                return syms.doubleType;
+                return Symtab.doubleType;
             case BOOLEAN:
-                return syms.booleanType;
+                return Symtab.booleanType;
             case VOID:
-                return syms.voidType;
+                return Symtab.voidType;
             default:
                 return t;
         }

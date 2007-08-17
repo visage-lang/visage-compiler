@@ -54,6 +54,7 @@ public class JavafxVarUsageAnalysis extends TreeScanner {
         }
     }
     
+    @Override
     public void visitVarDef(JCVariableDecl tree) {
         scan(tree.mods);
         if (tree instanceof JavafxJCVarDecl) {
@@ -67,6 +68,7 @@ public class JavafxVarUsageAnalysis extends TreeScanner {
         }
     }
     
+    @Override
     public void visitAssign(JCAssign tree) {
         inLHS = true;
         scan(tree.lhs);
@@ -81,6 +83,7 @@ public class JavafxVarUsageAnalysis extends TreeScanner {
         inBindContext = wasInBindContext;
     }
     
+    @Override
     public void visitAssignop(JCAssignOp tree) {
         inLHS = true;
         scan(tree.lhs);
@@ -88,12 +91,14 @@ public class JavafxVarUsageAnalysis extends TreeScanner {
         scan(tree.rhs);
     }
     
+    @Override
     public void visitIdent(JCIdent tree) {
         if (tree.sym instanceof JavafxVarSymbol) {
             markVarUse((JavafxVarSymbol)tree.sym);
         }
     }
     
+    @Override
     public void visitSelect(JCFieldAccess tree) {
         // this may or may not be in a LHS but in either
         // event the selector is a value expression
