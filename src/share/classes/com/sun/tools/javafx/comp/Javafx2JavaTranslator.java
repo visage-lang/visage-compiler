@@ -84,7 +84,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         booleanTypeName = names.fromString("Boolean");
         contextInterfaceName = names.fromString("com.sun.javafx.runtime.Context");
         locationName = names.fromString("com.sun.javafx.runtime.Location");
-        initializerName = names.fromString("initializer$");
+        initializerName = names.fromString("init$");
     }
     
     @Override
@@ -168,7 +168,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                 List<JCStatement> initStats = List.nil();
 
                 JCBlock initBodyBlock = make.Block(0L, initStats);
-                JavafxJCMethodDecl jfxDeclInitializer = make.JavafxMethodDef(make.Modifiers(Flags.PUBLIC|Flags.SYNTHETIC), 0,
+                JavafxJCMethodDecl jfxDeclInitializer = make.JavafxMethodDef(make.Modifiers(Flags.PUBLIC), 0,
                         initializerName,
                         make.TypeIdent(TypeTags.VOID), params, initBodyBlock);
                 tree.initializer = jfxDeclInitializer;
@@ -351,24 +351,35 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         Name tmpName = getSyntheticName("objlit");
         JCExpression clazz = translate(tree.getIdentifier());
         ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
-        stats.append(make.VarDef(make.Modifiers(0), tmpName, clazz,
-                make.NewClass(null, null, clazz, com.sun.tools.javac.util.List.<com.sun.tools.javac.tree.JCTree.JCExpression>nil(), null)));
+        JavafxJCNewClassObjectLiteral javafxNewClassObjLit = 
+                make.NewClassObjectLiteral(null, null, clazz, List.<JCExpression>nil(), null);
+        JCVariableDecl tmpVar = make.VarDef(make.Modifiers(0), tmpName, clazz, javafxNewClassObjLit);
+        stats.append(tmpVar);
+        JCStatement lastStatement = null;
         for (JFXStatement part : tree.getParts()) {
             if (part instanceof JFXObjectLiteralPart) {
                 JFXObjectLiteralPart olpart = (JFXObjectLiteralPart)part;
                 JCFieldAccess attr = make.Select(
                         make.Ident(tmpName),
                         olpart.getName());
-                stats.append( make.Exec( make.JavafxAssign(
+                lastStatement = make.Exec( make.JavafxAssign(
                         attr,
                         translate(olpart.getExpression()),
-                        olpart.getBindStatus())));
+                        olpart.getBindStatus()));
+                stats.append(lastStatement);
                 
             } else {
                 log.error(tree.pos, "compiler.err.javafx.not.yet.implemented",
                         part.getClass().getName() + " in object literal");
             }
         }
+        
+        List<JCExpression> typeargs = List.nil();
+        List<JCExpression> args = List.nil();
+        
+        stats.append(make.Exec(make.Apply(typeargs, 
+                make.Select(make.Ident(tmpName), initializerName), args)));
+         
         result = make.BlockExpression(0, stats.toList(), make.Ident(tmpName));
     }
     

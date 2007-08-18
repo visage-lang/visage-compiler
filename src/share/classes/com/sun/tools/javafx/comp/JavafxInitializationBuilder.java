@@ -34,10 +34,14 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.tree.JFXBlockExpression;
 import com.sun.tools.javafx.tree.JavafxAbstractVisitor;
 import com.sun.tools.javafx.tree.JavafxJCClassDecl;
+import com.sun.tools.javafx.tree.JavafxJCNewClassObjectLiteral;
 import com.sun.tools.javafx.tree.JavafxJCVarDecl;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
     protected static final Context.Key<JavafxInitializationBuilder> javafxInitializationBuilderKey =
@@ -47,6 +51,9 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
     private JavafxTreeMaker make;
     private Resolve rs;
     private Env<AttrContext> env;
+    private JCStatement currentStatement;
+    private JCTree currentBlock;
+    private Map<JCNewClass, JavafxNewClassHelper> newsToProcess; 
     
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
@@ -70,15 +77,277 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
     @Override
     public void visitClassDef(JCClassDecl tree) {
         JCClassDecl prevClassDef = currentClassDef;
+        JCStatement prevStatement = currentStatement;
         try {
             currentClassDef = tree;
+            currentStatement = tree;
             super.visitClassDef(tree);
             handleInitializerMethod();
-            // TODO: Do the NewClass case. After all the JavafxJCAssign (if there are any) add call to tmp.initialize();
+            handleNewClasses();
         }
         finally {
             currentClassDef = prevClassDef;
+            currentStatement = prevStatement;
         }
+    }
+    
+    @Override
+    public void visitVarDef(JCVariableDecl tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitVarDef(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitSkip(JCSkip tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitSkip(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitBlock(JCBlock tree) {
+        JCStatement prevStatement = currentStatement;
+        JCTree prevBlock = currentBlock;
+        try {
+            currentStatement = tree;
+            currentBlock = tree;
+            super.visitBlock(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+            currentBlock = prevBlock;
+        }
+    }
+    
+    @Override
+    public void visitBlockExpression(JFXBlockExpression tree) {
+        JCTree prevBlock = currentBlock;
+        try {
+            currentBlock = tree;
+            super.visitBlockExpression(tree);
+        }
+        finally {
+            currentBlock = prevBlock;
+        }        
+    }
+
+    @Override
+    public void visitDoLoop(JCDoWhileLoop tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitDoLoop(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitTry(JCTry tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitTry(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitIf(JCIf tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitIf(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitExec(JCExpressionStatement tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitExec(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitBreak(JCBreak tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitBreak(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitContinue(JCContinue tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitContinue(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitReturn(JCReturn tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitReturn(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitThrow(JCThrow tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitThrow(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitAssert(JCAssert tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitAssert(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitSynchronized(JCSynchronized tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitSynchronized(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitCase(JCCase tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitCase(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitSwitch(JCSwitch tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitSwitch(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitLabelled(JCLabeledStatement tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitLabelled(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitForeachLoop(JCEnhancedForLoop tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitForeachLoop(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitForLoop(JCForLoop tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitForLoop(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitWhileLoop(JCWhileLoop tree) {
+        JCStatement prevStatement = currentStatement;
+        try {
+            currentStatement = tree;
+            super.visitWhileLoop(tree);
+        }
+        finally {
+            currentStatement = prevStatement;
+        }
+    }
+
+    public void visitNewClass(JCNewClass tree) {
+        if (!(tree instanceof JavafxJCNewClassObjectLiteral)) {
+            storeNewClassForProcessing(tree);
+        }
+        
+        super.visitNewClass(tree);
+    }
+    
+    private void storeNewClassForProcessing(JCNewClass newClass) {
+        if (newsToProcess == null) {
+            newsToProcess = new HashMap<JCNewClass, JavafxNewClassHelper>();
+        }
+        
+        newsToProcess.put(newClass, new JavafxNewClassHelper(newClass, currentStatement, currentBlock));
     }
     
     private void handleInitializerMethod() {
@@ -193,5 +462,21 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
         ret =  make.Literal(TypeTags.BOT, null);
         ret.type = type;
         return ret;
+    }
+ 
+    private void handleNewClasses() {
+        // TODO: 
+    }
+    
+    class JavafxNewClassHelper {
+        public JCNewClass newClassTree;
+        public JCStatement ownerStatement;
+        public JCTree ownerBlock;
+        
+        JavafxNewClassHelper(JCNewClass newClassTree, JCStatement ownerStatement, JCTree ownerBlock) {
+            this.newClassTree = newClassTree;
+            this.ownerStatement = ownerStatement;
+            this.ownerBlock = ownerBlock;
+        }
     }
 }

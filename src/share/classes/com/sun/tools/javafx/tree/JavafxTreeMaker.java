@@ -610,4 +610,15 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         } while (inx >= 0);
         return tree;
     }
+
+    public JavafxJCNewClassObjectLiteral NewClassObjectLiteral(JCExpression encl,
+                             List<JCExpression> typeargs,
+                             JCExpression clazz,
+                             List<JCExpression> args,
+                             JCClassDecl def)
+    {
+        JavafxJCNewClassObjectLiteral tree = new JavafxJCNewClassObjectLiteral(encl, typeargs, clazz, args, def);
+        tree.pos = pos;
+        return tree;
+    }
 }
