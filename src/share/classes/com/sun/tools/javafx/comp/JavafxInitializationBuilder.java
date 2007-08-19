@@ -24,6 +24,10 @@
  */
 package com.sun.tools.javafx.comp;
 
+import com.sun.tools.javac.code.Scope;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.TypeSymbol;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.code.Symtab;
@@ -33,6 +37,9 @@ import com.sun.tools.javac.comp.Resolve;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.ListBuffer;
+import com.sun.tools.javac.util.Name;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.tree.JFXBlockExpression;
 import com.sun.tools.javafx.tree.JavafxAbstractVisitor;
@@ -40,7 +47,9 @@ import com.sun.tools.javafx.tree.JavafxJCClassDecl;
 import com.sun.tools.javafx.tree.JavafxJCNewClassObjectLiteral;
 import com.sun.tools.javafx.tree.JavafxJCVarDecl;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
+import com.sun.tools.javafx.tree.JavafxTreeTranslator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
@@ -50,10 +59,16 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
     private JCClassDecl currentClassDef;
     private JavafxTreeMaker make;
     private Resolve rs;
+    private Javafx2JavaTranslator javafx2JavaTranslator;
+    private Name.Table names;
     private Env<AttrContext> env;
     private JCStatement currentStatement;
     private JCTree currentBlock;
+    private Symbol currentOwnerSym;
+    
     private Map<JCNewClass, JavafxNewClassHelper> newsToProcess; 
+    private String newClassSyntheticNamePrefix = "$new$synthetic$";
+    private int newClassSyntheticNameCounter = 0;
     
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
@@ -66,6 +81,8 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
         super(null);
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         rs = Resolve.instance(context);
+        javafx2JavaTranslator = Javafx2JavaTranslator.instance(context);
+        names = Name.Table.instance(context);
     }
     
     public void visitTopLevel(JCCompilationUnit cu, Env<AttrContext> env) {
@@ -88,6 +105,18 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
         finally {
             currentClassDef = prevClassDef;
             currentStatement = prevStatement;
+        }
+    }
+
+    @Override
+    public void visitMethodDef(JCMethodDecl tree) {
+        Symbol prevOwnerSym = currentOwnerSym;
+        try {
+            currentOwnerSym = tree.sym;
+            super.visitMethodDef(tree);
+        }
+        finally {
+            currentOwnerSym = prevOwnerSym;
         }
     }
     
@@ -347,7 +376,7 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
             newsToProcess = new HashMap<JCNewClass, JavafxNewClassHelper>();
         }
         
-        newsToProcess.put(newClass, new JavafxNewClassHelper(newClass, currentStatement, currentBlock));
+        newsToProcess.put(newClass, new JavafxNewClassHelper(newClass, currentStatement, currentBlock, currentOwnerSym));
     }
     
     private void handleInitializerMethod() {
@@ -400,7 +429,7 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
                     jcIf.type = null;
                     
                     initializerBlock.stats = initializerBlock.stats.append(jcIf);
-// TODO: Enable when the constructors are handled....                    jfxVarDecl.init = null;
+// TODO: Remove this...                    jfxVarDecl.init = null;
                     // TODO: Do super.initialize(), init block, new tyriggers, change attr triggers.
                 }
             }
@@ -465,18 +494,164 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
     }
  
     private void handleNewClasses() {
-        // TODO: 
+        while (!newsToProcess.isEmpty()) {
+            Iterator<JCNewClass> newClassIterator = newsToProcess.keySet().iterator();
+            JCNewClass newClass = newClassIterator.hasNext() ? newClassIterator.next() : null;
+            
+            if (newClass == null) {
+                newsToProcess.remove(newClass);
+                continue;
+            }
+            
+            JavafxNewClassHelper newClassHelper = newsToProcess.get(newClass);
+            if (newClassHelper == null) {
+                newsToProcess.remove(newClass);
+                continue;
+            }
+            
+            Symbol initSym = getJavafxInitializerSymbol(newClass);
+            if (initSym == null) {
+                newsToProcess.remove(newClass);
+                continue;
+            }
+            
+            AddInitializerVisitor procVisitor = new AddInitializerVisitor(newsToProcess, newClassHelper, initSym);
+
+            assert procVisitor.newClassReplacement == null : "Sanity chack... newClassReplacement must be null!";
+
+            newClassHelper.ownerBlock.accept(procVisitor);
+            
+            assert procVisitor.newClassReplacement == null : "Sanity chack... newClassReplacement must be cleared in visitNewClass!";
+
+            newsToProcess.remove(newClass);
+        }
+    }
+    
+    private Symbol getJavafxInitializerSymbol(JCNewClass newClass) {
+    Symbol sym = newClass.type.tsym;
+    if (sym == null ||
+            sym.members() == null || 
+            !(sym instanceof TypeSymbol)) {
+        return null;
+    }
+    
+    Scope.Entry entry = ((TypeSymbol)sym).members().lookup(javafx2JavaTranslator.initializerName);
+    if (entry.sym == null) {
+        return null;
+    }
+
+    return entry.sym;
+}
+
+    
+    class AddInitializerVisitor extends JavafxTreeTranslator {
+        private Map<JCNewClass, JavafxNewClassHelper> newsToProcess; 
+        private JavafxNewClassHelper newClassHelper;
+        private Symbol initSymbol;
+        JCIdent newClassReplacement;
+        
+        private boolean skipFirst = true;
+        
+        AddInitializerVisitor(Map<JCNewClass, JavafxNewClassHelper> newsToProcess, JavafxNewClassHelper newClassHelper, Symbol initSymbol) {
+            this.newsToProcess = newsToProcess;
+            this.newClassHelper = newClassHelper;
+            this.initSymbol = initSymbol;
+        }
+    
+        @Override
+        public void visitBlock(JCBlock tree) {
+            ListBuffer<JCStatement> stats = new ListBuffer();
+            for (JCStatement stat : tree.stats) {
+                if (stat == newClassHelper.ownerStatement) {
+                    addJavafxInitializer(stats);
+                }
+                
+                stats.append(stat);
+            }
+            
+            tree.stats = stats.toList();
+            
+            super.visitBlock(tree);
+        }
+
+        @Override
+        public void visitBlockExpression(JFXBlockExpression tree) {
+// TODO:
+//            if ((JCTree)tree == (JCTree)newClassHelper.ownerStatement) {
+//                transformNewClass();
+//            }
+
+            super.visitBlockExpression(tree);
+        }
+        
+        private void addJavafxInitializer(ListBuffer<JCStatement> stats) {
+            Name newName = getNewClassNameReplacement();
+            // Add the temp variable
+            JCNewClass newClass = newClassHelper.newClassTree;
+ 
+            VarSymbol varSym = new VarSymbol(0L, newName, newClass.type, newClassHelper.owner);
+            JCVariableDecl newVar = make.VarDef(make.Modifiers(0L), newName, make.Ident(newClass.type.tsym), newClass);
+            newVar.type = newClass.type;
+            newVar.sym = varSym;
+            stats.append(newVar);
+            
+            // Add the call to the initializer.
+            List<JCExpression> typeargs = List.nil();
+            List<JCExpression> args = List.nil();
+        
+            JCIdent tmpIdent = make.Ident(newName);
+            tmpIdent.type = newVar.type;
+            tmpIdent.sym = newVar.sym;
+            
+            JCFieldAccess tmpSelect = make.Select(tmpIdent, javafx2JavaTranslator.initializerName);
+            tmpSelect.sym = initSymbol;
+            tmpSelect.type = initSymbol.type;
+            
+            JCMethodInvocation tmpApply = make.Apply(typeargs, tmpSelect, args);
+            tmpApply.type = initSymbol.type;
+
+            JCExpressionStatement tmpExec = make.Exec(tmpApply);
+            tmpExec.type = initSymbol.type;
+            stats.append(tmpExec);
+            
+            assert newClassReplacement == null : "Sanity chack... newClassReplacement must be null!";
+            
+            newClassReplacement = make.Ident(newName);
+            newClassReplacement.type = newVar.type;
+            newClassReplacement.sym = newVar.sym;
+        }
+        
+        private Name getNewClassNameReplacement() {
+            return Name.fromString(names, newClassSyntheticNamePrefix + (newClassSyntheticNameCounter++));
+        }
+
+        public void visitNewClass(JCNewClass tree) {
+            if (!skipFirst && tree == newClassHelper.newClassTree) {
+                assert newClassReplacement != null : "Sanity chack... newClassReplacement must not be null!";
+                result = newClassReplacement;
+                newClassReplacement = null;
+                return;
+            }
+            
+            if (tree == newClassHelper.newClassTree) {
+                skipFirst = false;
+            }
+            
+            super.visitNewClass(tree);
+        }
     }
     
     class JavafxNewClassHelper {
         public JCNewClass newClassTree;
         public JCStatement ownerStatement;
         public JCTree ownerBlock;
+        public Symbol owner;
         
-        JavafxNewClassHelper(JCNewClass newClassTree, JCStatement ownerStatement, JCTree ownerBlock) {
+        JavafxNewClassHelper(JCNewClass newClassTree, JCStatement ownerStatement, JCTree ownerBlock, Symbol owner) {
             this.newClassTree = newClassTree;
             this.ownerStatement = ownerStatement;
             this.ownerBlock = ownerBlock;
+            this.owner = owner;
         }
     }
 }

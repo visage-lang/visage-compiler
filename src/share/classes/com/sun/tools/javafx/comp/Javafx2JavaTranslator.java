@@ -54,7 +54,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     private final Name booleanTypeName;
     private final Name contextInterfaceName;
     private final Name locationName;
-    private final Name initializerName;
+    final Name initializerName;
     
     private JFXClassDeclaration currentClass = null;
     
@@ -84,7 +84,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         booleanTypeName = names.fromString("Boolean");
         contextInterfaceName = names.fromString("com.sun.javafx.runtime.Context");
         locationName = names.fromString("com.sun.javafx.runtime.Location");
-        initializerName = names.fromString("init$");
+        initializerName = names.fromString("javafx$init$");
     }
     
     @Override
