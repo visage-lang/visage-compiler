@@ -44,6 +44,7 @@ import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.tree.JFXBlockExpression;
 import com.sun.tools.javafx.tree.JavafxAbstractVisitor;
 import com.sun.tools.javafx.tree.JavafxJCClassDecl;
+import com.sun.tools.javafx.tree.JavafxJCMethodDecl;
 import com.sun.tools.javafx.tree.JavafxJCNewClassObjectLiteral;
 import com.sun.tools.javafx.tree.JavafxJCVarDecl;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
@@ -430,13 +431,48 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
                     
                     initializerBlock.stats = initializerBlock.stats.append(jcIf);
                     jfxVarDecl.init = null;
-                    // TODO: Do super.initialize(), init block, new tyriggers, change attr triggers.
+                    // TODO: DO init block, new tyriggers, change attr triggers.
+                }
+            }
+            
+            // Call the init blocks and postprocess blocks if there are any
+            if (initializerBlock == null && ((((JavafxJCClassDecl)currentClassDef).getInitBlocks() != null && ((JavafxJCClassDecl)currentClassDef).getInitBlocks().length() != 0) ||
+                (((JavafxJCClassDecl)currentClassDef).getPostprocessBlocks() != null && ((JavafxJCClassDecl)currentClassDef).getPostprocessBlocks().length() != 0))) {
+                    initializerBlock = ((JavafxJCClassDecl)currentClassDef).initializer.body;
+            }
+            
+            if (((JavafxJCClassDecl)currentClassDef).getInitBlocks() != null) {
+                for (JavafxJCMethodDecl init : ((JavafxJCClassDecl)currentClassDef).getInitBlocks()) {
+                    List<JCExpression> typeargs = List.nil();
+                    List<JCExpression> args = List.nil();
+                    JCIdent initIdent = make.Ident(init.name);
+                    initIdent.sym = init.sym;
+                    initIdent.type = init.type;
+
+                    JCMethodInvocation tmpApply = make.Apply(typeargs, initIdent, args);
+
+                    JCExpressionStatement initCall = make.Exec(tmpApply);
+                    initializerBlock.stats = initializerBlock.stats.append(initCall);
+                }
+            }
+
+            if (((JavafxJCClassDecl)currentClassDef).getPostprocessBlocks() != null) {
+                for (JavafxJCMethodDecl postprocess : ((JavafxJCClassDecl)currentClassDef).getPostprocessBlocks()) {
+                    List<JCExpression> typeargs = List.nil();
+                    List<JCExpression> args = List.nil();
+                    JCIdent postprocessIdent = make.Ident(postprocess.name);
+                    postprocessIdent.sym = postprocess.sym;
+                    postprocessIdent.type = postprocess.type;
+
+                    JCMethodInvocation tmpApply = make.Apply(typeargs, postprocessIdent, args);
+
+                    JCExpressionStatement postprocessCall = make.Exec(tmpApply);
+                    initializerBlock.stats = initializerBlock.stats.append(postprocessCall);
                 }
             }
         }
     }
     
-    // TODO: FixMe... Figure out what literal to create for the non-set primitives.
     private JCLiteral getEmptyLiteral(Type type) {
         JCLiteral ret = null;
         if (type == null) {
@@ -576,10 +612,16 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
 
         @Override
         public void visitBlockExpression(JFXBlockExpression tree) {
-// TODO:
-//            if ((JCTree)tree == (JCTree)newClassHelper.ownerStatement) {
-//                transformNewClass();
-//            }
+            ListBuffer<JCStatement> stats = new ListBuffer();
+            for (JCStatement stat : tree.stats) {
+                if (stat == newClassHelper.ownerStatement) {
+                    addJavafxInitializer(stats);
+                }
+                
+                stats.append(stat);
+            }
+            
+            tree.stats = stats.toList();
 
             super.visitBlockExpression(tree);
         }

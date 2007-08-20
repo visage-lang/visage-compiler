@@ -37,6 +37,8 @@ import com.sun.tools.javac.util.Name;
 public class JavafxJCClassDecl extends JCClassDecl {
 
     public JavafxJCMethodDecl initializer;
+    private List<JavafxJCMethodDecl> initBlocks;
+    private List<JavafxJCMethodDecl> postprocessBlocks;
     
     public JavafxJCClassDecl( JCModifiers mods,
                               Name name,
@@ -48,4 +50,36 @@ public class JavafxJCClassDecl extends JCClassDecl {
         this.initializer = initializer;
     }
 
+    public void addInitBlock(JavafxJCMethodDecl initBlock) {
+        if (initBlocks == null) {
+            initBlocks = List.nil();
+        }
+        
+        initBlocks = initBlocks.append(initBlock);
+    }
+    
+    public List<JavafxJCMethodDecl> getInitBlocks() {
+        return initBlocks;
+    }
+
+    public void setInitBlocks(List<JavafxJCMethodDecl> initBlocks) {
+        this.initBlocks = initBlocks;
+    }
+    
+    public void addPostprocessBlock(JavafxJCMethodDecl postprocessBlock) {
+        if (postprocessBlocks == null) {
+            postprocessBlocks = List.nil();
+        }
+        
+        postprocessBlocks = postprocessBlocks.append(postprocessBlock);
+    }
+    
+    public List<JavafxJCMethodDecl> getPostprocessBlocks() {
+        return postprocessBlocks;
+    }    
+
+    public void setPostprocessBlocks(List<JavafxJCMethodDecl> postprocessBlocks) {
+        this.postprocessBlocks = postprocessBlocks;
+    }
+    
 }

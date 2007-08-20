@@ -55,11 +55,15 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     private final Name contextInterfaceName;
     private final Name locationName;
     final Name initializerName;
+    final Name initializerBlockName;
     
     private JFXClassDeclaration currentClass = null;
+    private JavafxJCClassDecl currentJCClass = null;
     
     private Map<Name, JFXClassDeclHelper> declClasses = null;
     private List<JFXTriggerDeclHelper> declTriggers = null;
+    private List<JavafxJCMethodDecl> initBlocks = null;
+    private List<JavafxJCMethodDecl> postprocessBlocks = null;
     private int nextNameNumber = 0;
     
     private static String syntheticNamePrfix = "$$synth$$";
@@ -85,6 +89,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         contextInterfaceName = names.fromString("com.sun.javafx.runtime.Context");
         locationName = names.fromString("com.sun.javafx.runtime.Location");
         initializerName = names.fromString("javafx$init$");
+        initializerBlockName = names.fromString("javafx$init$block");
     }
     
     @Override
@@ -139,6 +144,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         JFXClassDeclaration prevClass = currentClass;
         currentClass = tree;
+        JavafxJCClassDecl prevJCClass = currentJCClass;
         try {
             List<JCTypeParameter> typeParams = List.nil();
             // TODO: Need resolved types so I can verify tree one Java class is extended only... Move the rest to interfaces...
@@ -162,6 +168,11 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
             JavafxJCClassDecl classDecl = make.JavafxJCClassDef(tree.mods, tree.name, 
                                             extending, interfaces, defs.toList(), tree.initializer);
             
+            currentJCClass = classDecl;
+            
+            currentJCClass.setInitBlocks(initBlocks);
+            currentJCClass.setPostprocessBlocks(postprocessBlocks);
+            
             if (tree.initializer == null && classDecl != null) {
                 List<JCVariableDecl> params = List.nil();
 
@@ -183,6 +194,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
             result = classDecl;
         } finally {
             currentClass = prevClass;
+            currentJCClass = prevJCClass;
         }
 
         // prettyPrint(result);
@@ -220,16 +232,27 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                 restype, params, block);
    }
     
+    // TODO: In Attr need to enforce not to be able to do apply on this or pass this to apply.
+    // This is according to initialization spec...
     @Override
     public void visitInitDefinition(JFXInitDefinition tree) {
         super.visitInitDefinition(tree);
         
-        //TODO: FIX ME
         List<JCVariableDecl> params = List.nil();
-        result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.TRIGGERREPLACE,
+        JavafxJCMethodDecl res = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.TRIGGERNEW,
                     getSyntheticName("init"),
                     make.TypeIdent(TypeTags.VOID), params, tree.getBody());
+        
+        if (initBlocks == null) {
+            initBlocks = List.nil();
+        }
+        
+        initBlocks = initBlocks.append(res);
+        
+        result = res;
    }
+    
+    // TODO: Parser to create JFXPostprocessDefinition... Processing very similar as above.
     
     @Override
     public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration tree) {
