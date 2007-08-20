@@ -15,6 +15,7 @@ import com.sun.tools.javafx.code.JavafxBindStatus;
 public class JavafxJCVarDecl extends JCVariableDecl {
     private final int javafxVarType;
     private JavafxBindStatus bindStatus;
+    private JCNewClass anonymousChangeListener;
     
     /** Creates a new instance of JavafxVarDecl */
     public JavafxJCVarDecl(
@@ -39,4 +40,12 @@ public class JavafxJCVarDecl extends JCVariableDecl {
     public boolean isUnidiBind() { return bindStatus.isUnidiBind; }
     public boolean isBidiBind()  { return bindStatus.isBidiBind; }
     public boolean isLazy()      { return bindStatus.isLazy; }
+    
+    public void setChangeListener(JCNewClass anonymousChangeListener) {
+       this.anonymousChangeListener = anonymousChangeListener; 
+    }
+
+    public JCNewClass getChangeListener() {
+       return this.anonymousChangeListener;
+    }
 }

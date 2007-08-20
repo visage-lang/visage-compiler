@@ -24,13 +24,17 @@
  */
 package com.sun.tools.javafx.comp;
 
+import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.ClassSymbol;
+import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.code.Symtab;
+import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.comp.Resolve;
@@ -71,6 +75,9 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
     private String newClassSyntheticNamePrefix = "$new$synthetic$";
     private int newClassSyntheticNameCounter = 0;
     
+    private Name addChangeListenerName;
+    private Name addChangeListenerFirstParamName;
+    
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
         if (instance == null)
@@ -84,6 +91,8 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
         rs = Resolve.instance(context);
         javafx2JavaTranslator = Javafx2JavaTranslator.instance(context);
         names = Name.Table.instance(context);
+        addChangeListenerName = names.fromString("addChangeListener");
+        addChangeListenerFirstParamName = names.fromString("com.sun.javafx.runtime.ChangeListenerEntry");
     }
     
     public void visitTopLevel(JCCompilationUnit cu, Env<AttrContext> env) {
@@ -431,7 +440,6 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
                     
                     initializerBlock.stats = initializerBlock.stats.append(jcIf);
                     jfxVarDecl.init = null;
-                    // TODO: DO init block, new tyriggers, change attr triggers.
                 }
             }
             
@@ -468,6 +476,71 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
 
                     JCExpressionStatement postprocessCall = make.Exec(tmpApply);
                     initializerBlock.stats = initializerBlock.stats.append(postprocessCall);
+                }
+            }
+            
+            // Now do the on change blocks of the JavafxJCVarDecl
+            for (JCTree tree : currentClassDef.defs) {
+                if (tree.getTag() == JCTree.VARDEF &&
+                        tree instanceof JavafxJCVarDecl &&
+                        (((JavafxJCVarDecl)tree).getJavafxVarType() == JavafxFlags.ATTRIBUTE || 
+                            (((JavafxJCVarDecl)tree).getJavafxVarType() == JavafxFlags.LOCAL_ATTRIBUTE))) {
+                    JavafxJCVarDecl jfxVarDecl = (JavafxJCVarDecl)tree;
+
+                    JCNewClass anonymousChangeListener = jfxVarDecl.getChangeListener();
+                    
+                    // No change listener, skip it.
+                    if (anonymousChangeListener == null) {
+                        continue;
+                    }
+                    
+                    if (initializerBlock == null) {
+                        initializerBlock = ((JavafxJCClassDecl)currentClassDef).initializer.body;
+                    }
+                    
+                    // Assert that there is an initializerBlock
+                    assert initializerBlock != null : "initializerBlock must not be null!";
+
+                    JCIdent varIdent = make.Ident(jfxVarDecl.name);
+                    varIdent.type = jfxVarDecl.type;
+                    varIdent.sym = jfxVarDecl.sym;
+                    
+                    JCFieldAccess tmpSelect = make.Select(varIdent, addChangeListenerName);
+                    
+                    // Get the symbol for addChangeListener(ChangeListener listener) method.
+                    Scope.Entry entry = null;
+                    TypeSymbol lookIn = varIdent.type.tag == TypeTags.CLASS ? (ClassSymbol)varIdent.type.tsym : null;
+                    while (lookIn != null && (entry == null || entry.sym == null)) {
+                        entry = lookIn.members().lookup(addChangeListenerName);
+                        while (entry != null && entry.sym != null) {
+                            if (entry.sym.kind == Kinds.MTH) {
+                                MethodSymbol msym = (MethodSymbol)entry.sym;
+                                MethodType mtype = (MethodType)msym.type;
+                                if(mtype != null && mtype.argtypes.length() == 1) {
+                                    if (mtype.argtypes.head.tsym.flatName() == addChangeListenerFirstParamName) {
+                                        tmpSelect.sym = msym;
+                                        tmpSelect.type = mtype;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if (entry != null && entry.sym != null) {
+                                entry = entry.sibling;
+                            }
+                        }
+                        
+                        lookIn = ((ClassSymbol)lookIn.type.tsym).getSuperclass().tsym;
+                    }
+
+
+                    List<JCExpression> typeargs = List.nil();
+                    List<JCExpression> args = List.nil();
+                    args = args.append(anonymousChangeListener);
+                    JCMethodInvocation tmpApply = make.Apply(typeargs, tmpSelect, args);
+
+                    JCExpressionStatement addChangeListenerCall = make.Exec(tmpApply);
+                    initializerBlock.stats = initializerBlock.stats.append(addChangeListenerCall);
                 }
             }
         }
@@ -695,5 +768,9 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
             this.ownerBlock = ownerBlock;
             this.owner = owner;
         }
+    }
+    
+    public void clear() {
+        newsToProcess = null;
     }
 }

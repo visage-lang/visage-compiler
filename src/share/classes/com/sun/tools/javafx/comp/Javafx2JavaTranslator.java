@@ -57,6 +57,14 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     final Name initializerName;
     final Name initializerBlockName;
     
+    private final Name strongName;
+    private final Name runtimeName;
+    private final Name javafxName;
+    private final Name sunName;
+    private final Name comName;
+    
+    private final Name changedName;
+    
     private JFXClassDeclaration currentClass = null;
     private JavafxJCClassDecl currentJCClass = null;
     
@@ -90,6 +98,14 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         locationName = names.fromString("com.sun.javafx.runtime.Location");
         initializerName = names.fromString("javafx$init$");
         initializerBlockName = names.fromString("javafx$init$block");
+        
+        strongName = names.fromString("StrongListener");
+        runtimeName = names.fromString("runtime");
+        javafxName = names.fromString("javafx");
+        sunName = names.fromString("sun");
+        comName = names.fromString("com");
+        
+        changedName = names.fromString("changed");
     }
     
     @Override
@@ -205,9 +221,52 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         super.visitAttributeDefinition(tree);
         
         JCExpression vartype = jcType(tree.getType());
-        result = make.JavafxVarDef(make.Modifiers(0), tree.name, JavafxFlags.ATTRIBUTE, vartype,
+        JavafxJCVarDecl res = make.JavafxVarDef(make.Modifiers(0), tree.name, JavafxFlags.ATTRIBUTE, vartype,
                     tree.getInitializer()==null? null : tree.getInitializer(),
                     tree.getBindStatus()==null? JavafxBindStatus.UNBOUND : tree.getBindStatus());
+        
+        // TODO: Do the same for javafx vars...
+        if (tree.onChange != null) {
+            List<JCTypeParameter> typarams = List.nil();
+            List<JCExpression> implementing = List.nil();
+            
+            JCIdent comIdent = make.Ident(comName);
+            JCFieldAccess sunSelect = make.Select(comIdent, sunName);
+            JCFieldAccess javafxSelect = make.Select(sunSelect, javafxName);
+            JCFieldAccess runtimeSelect = make.Select(javafxSelect, runtimeName);
+            JCFieldAccess strongSelect = make.Select(runtimeSelect, strongName);
+            
+            List<JCTree> defs = List.nil();
+            
+            // changed() method
+            defs = defs.append(make.MethodDef(make.Modifiers(Flags.PUBLIC),
+                    changedName,
+                    make.TypeIdent(TypeTags.VOID),
+                    List.<JCTypeParameter>nil(),
+                    List.<JCVariableDecl>nil(),
+                    List.<JCExpression>nil(),
+                    tree.getOnChangeBlock(),
+                    null));
+
+            JCClassDecl anonClass = make.ClassDef(make.Modifiers(0L),
+                    names.empty, typarams, strongSelect, implementing, defs);
+            
+            JCIdent comIdent1 = make.Ident(comName);
+            JCFieldAccess sunSelect1 = make.Select(comIdent1, sunName);
+            JCFieldAccess javafxSelect1 = make.Select(sunSelect1, javafxName);
+            JCFieldAccess runtimeSelect1 = make.Select(javafxSelect1, runtimeName);
+            JCFieldAccess strongSelect1 = make.Select(runtimeSelect1, strongName);
+            
+            JCNewClass jcNC = make.NewClass(null,
+                    List.<JCExpression>nil(),
+                    strongSelect1,
+                    List.<JCExpression>nil(),
+                    anonClass);
+            
+            res.setChangeListener(jcNC);
+        }
+        
+        result = res;
     }
     
     

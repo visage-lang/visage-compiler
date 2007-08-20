@@ -45,6 +45,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.tree.JFXBlockExpression;
+import com.sun.tools.javafx.tree.JavafxJCVarDecl;
 import com.sun.tools.javafx.tree.JavafxTreeInfo;
 
 /** This is the main context-dependent analysis phase in GJC. It
@@ -252,6 +253,15 @@ public class JavafxAttr extends Attr {
             }
             result = tree.type = v.type;
             chk.validateAnnotations(tree.mods.annotations, v);
+
+            // Attribute the anonimous change listener class if there is any.
+            if (tree instanceof JavafxJCVarDecl) {
+                if (((JavafxJCVarDecl)tree).getChangeListener() != null) {
+                    Env<AttrContext> initEnv = memberEnter.initEnv(tree, env);
+                    initEnv.info.lint = lint;
+                    attribExpr(((JavafxJCVarDecl)tree).getChangeListener(), initEnv, Type.noType);
+                }
+            }
         }
         finally {
             chk.setLint(prevLint);
