@@ -30,7 +30,7 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javafx.code.JavafxBindStatus;
 
 /**
- * Associate a bind status with an assign
+ * A definitional assignment, with an associated bind status
  * 
  * @author Robert Field
  */

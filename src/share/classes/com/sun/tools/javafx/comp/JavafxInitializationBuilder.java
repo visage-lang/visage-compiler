@@ -429,7 +429,7 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
                     jcIf.type = null;
                     
                     initializerBlock.stats = initializerBlock.stats.append(jcIf);
-// TODO: Remove this...                    jfxVarDecl.init = null;
+                    jfxVarDecl.init = null;
                     // TODO: Do super.initialize(), init block, new tyriggers, change attr triggers.
                 }
             }

@@ -48,6 +48,8 @@ import com.sun.tools.javafx.tree.JFXBlockExpression;
 import com.sun.tools.javafx.tree.JavafxJCAssign;
 import com.sun.tools.javafx.tree.JavafxJCVarDecl;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
+import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
+
 
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
@@ -497,6 +499,50 @@ public class JavafxTypeMorpher extends TreeTranslator {
         }
     }
     
+    private JCExpression makeUsedTypeExpression(JavafxVarSymbol vsym, int pos) {
+        Type realType = vsym.getRealType();
+        TypeSymbol realTsym = realType.tsym;
+        Type usedType = vsym.getUsedType();
+        TypeSymbol usedTsym = usedType.tsym;
+        JCExpression typeExp;
+
+        if (realType.isPrimitive()) {
+            typeExp = make.at(pos).Ident(usedTsym);
+        } else {
+            JCExpression objLoc = biDiLocationId(pos, TYPE_KIND_OBJECT);
+            ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
+            args.append(make.Ident(realTsym));
+            typeExp = make.at(pos).TypeApply(objLoc, args.toList());
+        }
+        typeExp.setType(usedType);
+        return typeExp;
+    }
+    
+    private JCExpression translateDefinitionalAssignment(JCExpression init, JavafxVarSymbol vsym, 
+                                                        DiagnosticPosition diagPos,
+                                                        JCExpression typeExp, JavafxBindStatus bindStatus) {
+        JCExpression result;
+        if (bindStatus.isUnidiBind()) {
+            result = registerExpression(vsym, init);
+        } else {
+            result = boundTranslate(init, bindStatus);
+
+            if (result.type.tsym != vsym.getUsedType().tsym) {
+                Type realType = vsym.getRealType();
+                JCFieldAccess makeSelect = make.at(diagPos).Select(typeExp, makeMethodName);
+                makeSelect.sym = rs.resolveInternalMethod(diagPos, attrEnv, vsym.getUsedType(), makeMethodName, List.<Type>of(realType), realType.isPrimitive() ? List.<Type>nil() : List.<Type>of(realType)); // typeargs
+                makeSelect.setType(makeSelect.sym.type);
+
+                List<JCExpression> makeArgs = List.of(result);
+                JCExpression makeApply = make.at(diagPos).Apply(null, makeSelect, makeArgs);
+                makeApply.setType(vsym.getUsedType());
+
+                result = makeApply;
+            }
+        }
+        return result;
+    }
+    
     @Override
     public void visitTopLevel(JCCompilationUnit tree) {
         tree.defs = translate(tree.defs);
@@ -551,62 +597,36 @@ public class JavafxTypeMorpher extends TreeTranslator {
             if (var.sym instanceof JavafxVarSymbol) {
                 JavafxVarSymbol vsym = (JavafxVarSymbol)(var.sym);
                 if (shouldMorph(vsym)) {
-                    
-                    Type realType = vsym.getRealType();
-                    TypeSymbol realTsym = realType.tsym;
-                    Type usedType = vsym.getUsedType();
-                    TypeSymbol usedTsym = usedType.tsym;
-                    JCExpression typeExp;
-                    
-                    if (realType.isPrimitive()) {
-                        typeExp = make.at(tree.pos).Ident(usedTsym);
-                    } else {
-                        JCExpression objLoc = biDiLocationId(tree.pos, TYPE_KIND_OBJECT);
-                        ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-                        args.append(make.Ident(realType.tsym));
-                        JCExpression newTypeExp = make.TypeApply(objLoc, args.toList());
-                        typeExp = make.at(tree.pos).Ident(usedTsym);
-                    }
-                    typeExp.setType(usedType);
-                    var.type = usedType;
-                    var.vartype = typeExp;
-                    
-                    // TODO: test will need to handle subtypes
+                    JCExpression typeExp = makeUsedTypeExpression(vsym, tree.pos);
+
                     if (tree.init != null) {
-                        if (var.isUnidiBind()) {
-                            tree.init = registerExpression(vsym, tree.init);
-                        } else {
-                            tree.init = boundTranslate(tree.init, var.getBindStatus());
-                            
-                            if (tree.init.type.tsym != usedTsym) {
-                                JCFieldAccess makeSelect = make.Select(typeExp, makeMethodName);
-                                makeSelect.sym = rs.resolveInternalMethod(tree.pos(),
-                                        attrEnv,
-                                        usedType,
-                                        makeMethodName,
-                                        (tree.init == null)? List.<Type>nil() : List.<Type>of(realType),    // argtypes
-                                        realType.isPrimitive()? List.<Type>nil() : List.<Type>of(realType));   // typeargs
-                                makeSelect.setType(makeSelect.sym.type);
-                                
-                                List<JCExpression> makeArgs = (tree.init == null)? List.<JCExpression>nil() : List.of(tree.init);
-                                JCExpression makeApply = make.Apply(null, makeSelect, makeArgs);
-                                makeApply.setType(usedType);
-                                
-                                tree.init = makeApply;
-                            }
-                        }
+                        tree.init = translateDefinitionalAssignment(tree.init, 
+                                vsym, 
+                                tree.pos(), 
+                                typeExp, 
+                                var.getBindStatus());
                     } else {
                         // no initializing expression, do default
-                        JCFieldAccess makeSelect = make.Select(typeExp, makeMethodName);
-                        makeSelect.sym = rs.resolveInternalMethod(tree.pos(), attrEnv, usedType, makeMethodName, List.<Type>nil(), realType.isPrimitive() ? List.<Type>nil() : List.<Type>of(realType)); // typeargs
+                        Type realType = vsym.getRealType();
+                        JCFieldAccess makeSelect = make.at(tree.pos).Select(typeExp, makeMethodName);
+                        makeSelect.sym = rs.resolveInternalMethod(tree.pos(), 
+                                attrEnv, 
+                                vsym.getUsedType(), 
+                                makeMethodName, 
+                                List.<Type>nil(), 
+                                realType.isPrimitive() ? List.<Type>nil() : List.<Type>of(realType)); // typeargs
                         makeSelect.setType(makeSelect.sym.type);
 
                         List<JCExpression> makeArgs = List.nil();
-                        JCExpression makeApply = make.Apply(null, makeSelect, makeArgs);
-                        makeApply.setType(usedType);
+                        JCExpression makeApply = make.at(tree.pos).Apply(null, makeSelect, makeArgs);
+                        makeApply.setType(vsym.getUsedType());
 
                         tree.init = makeApply;
                     }
+
+                    var.type = typeExp.type;
+                    var.vartype = typeExp;
+
                     if (var.isBound()) {
                         var.mods.flags |= Flags.FINAL;
                     }
@@ -640,32 +660,31 @@ public class JavafxTypeMorpher extends TreeTranslator {
         }
         if (vsym != null && shouldMorph(vsym)) {
             lhs.setType(vsym.getUsedType());
-            JavafxBindStatus bind = JavafxBindStatus.UNBOUND;
             if (tree instanceof JavafxJCAssign) {
+                // This is a definitional assignment 
                 JavafxJCAssign assign = (JavafxJCAssign)tree;
-                bind = assign.getBindStatus();
-            }
-            
-            if (bind.isBidiBind()) {  // TODO: now
-                // It is bound, just do the assign
-                tree.lhs = lhs;
-                tree.rhs = boundTranslate(tree.rhs, bind);
-                tree.rhs.setType(vsym.getUsedType());
+                JCExpression typeExp = makeUsedTypeExpression(vsym, tree.pos);
+                tree.rhs = translateDefinitionalAssignment(tree.rhs, 
+                                vsym, 
+                                tree.pos(), 
+                                typeExp, 
+                                assign.getBindStatus());
                 tree.setType(vsym.getUsedType());
                 result = tree;
             } else {
+                // normal assignment
                 JCExpression rhs = translate(tree.rhs);
                 Type realType = vsym.getRealType();
                 //if (realType.isPrimitive()) {
                 JCFieldAccess setSelect = make.Select(lhs, setMethodName);
-                setSelect.sym = rs.resolveInternalMethod(tree.pos(),
-                        attrEnv,
-                        vsym.getUsedType(),
-                        setMethodName,
-                        List.<Type>of(realType),    // argtypes
-                        List.<Type>nil());   // typeargs
+                setSelect.sym = rs.resolveInternalMethod(tree.pos(), 
+                        attrEnv, 
+                        vsym.getUsedType(), 
+                        setMethodName, 
+                        List.<Type>of(realType), // param type
+                        List.<Type>nil()); // typeargs
                 setSelect.setType(setSelect.sym.type);
-                
+
                 List<JCExpression> setArgs = List.of(rhs);
                 result = make.Apply(null, setSelect, setArgs);
                 result.setType(Symtab.voidType);
