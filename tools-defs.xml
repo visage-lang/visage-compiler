@@ -31,41 +31,33 @@
     <path id="ant.class.path">
         <fileset dir="${ant.dir}" includes="**/*.jar" />
     </path>
-    <property name="ant.class.path" refid="ant.class.path" />
 
     <path id="junit.class.path">
         <fileset dir="${junit.dir}" includes="**/*.jar" />
     </path>
-    <property name="junit.class.path" refid="junit.class.path" />
 
     <path id="findbugs.class.path">
         <fileset dir="${findbugs.dir}" includes="**/*.jar" />
     </path>
-    <property name="findbugs.class.path" refid="findbugs.class.path" />
 
     <path id="saxon.class.path">
         <fileset dir="${saxon.dir}" includes="**/*.jar" />
     </path>
-    <property name="saxon.class.path" refid="saxon.class.path" />
 
     <path id="xincluder.class.path">
         <fileset dir="${xincluder.dir}" includes="**/*.jar" />
     </path>
-    <property name="xincluder.class.path" refid="xincluder.class.path" />
 
     <path id="antlr.class.path">
         <fileset dir="${antlr.dir}" includes="**/antlr-${antlr.ver}.jar" />
     </path>
-    <property name="antlr.class.path" refid="antlr.class.path" />
 
     <path id="antlr-runtime.class.path">
         <fileset dir="${antlr.dir}" includes="**/antlr-runtime-${antlr.ver}.jar" />
     </path>
-    <property name="antlr-runtime.class.path" refid="antlr-runtime.class.path" />
 
     <path id="antlrworks.class.path">
         <fileset dir="${antlrworks.dir}" includes="**/*.jar" />
     </path>
-    <property name="antlrworks.class.path" refid="antlrworks.class.path" />
 
 </project>
