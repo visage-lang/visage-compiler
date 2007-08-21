@@ -221,7 +221,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         super.visitAttributeDefinition(tree);
         
         JCExpression vartype = jcType(tree.getType());
-        JavafxJCVarDecl res = make.JavafxVarDef(make.Modifiers(0), tree.name, JavafxFlags.ATTRIBUTE, vartype,
+        JavafxJCVarDecl res = make.JavafxVarDef(tree.modifiers, tree.name, JavafxFlags.ATTRIBUTE, vartype,
                     tree.getInitializer()==null? null : tree.getInitializer(),
                     tree.getBindStatus()==null? JavafxBindStatus.UNBOUND : tree.getBindStatus());
         
@@ -287,7 +287,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         }
         JCBlock block = make.Block(0L, statements);
          
-        result = make.JavafxMethodDef(make.Modifiers(0), JavafxFlags.FUNCTION, tree.name,
+        result = make.JavafxMethodDef(tree.modifiers, JavafxFlags.FUNCTION, tree.name,
                 restype, params, block);
    }
     
