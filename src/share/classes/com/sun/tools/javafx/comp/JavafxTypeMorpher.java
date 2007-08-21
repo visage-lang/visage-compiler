@@ -111,9 +111,17 @@ public class JavafxTypeMorpher extends TreeTranslator {
             this.bindContext = JavafxBindStatus.UNBOUND;
             this.inLHS = false;
             this.prependInFrontOfStatement = null;
-            this.applyMethodDefs = new JCMethodDecl[ARGS_IN_ARRAY + 1 + 1];
+            this.applyMethodDefs = null;
             this.exprNumNext = new int[ARGS_IN_ARRAY + 1];
             this.infoByGroup = new ListBuffer[ARGS_IN_ARRAY + 1];
+        }
+        
+        void setApplyMethod(JCMethodDecl meth, int i) {
+            if (applyMethodDefs == null) {
+                applyMethodDefs = new JCMethodDecl[ARGS_IN_ARRAY + 1 + 1];
+            }
+            assert applyMethodDefs[i] == null;
+            applyMethodDefs[i] = meth;
         }
     }
     
@@ -318,6 +326,12 @@ public class JavafxTypeMorpher extends TreeTranslator {
                 deconstant(tree);
                 if (tree.sym.type.constValue() != null) {
                     tree.sym.type = tree.sym.type.baseType();
+                }
+                if (tree instanceof JavafxJCVarDecl) {
+                    JCTree listener = ((JavafxJCVarDecl) tree).getChangeListener();
+                    if (listener != null) {
+                        listener.accept(this);
+                    }
                 }
             }
         };
@@ -559,10 +573,10 @@ public class JavafxTypeMorpher extends TreeTranslator {
         resetExpressionMapper();
          
         tree.defs = translate(tree.defs);
-        for (int i = 0; i <= ARGS_IN_ARRAY; ++i) {
-            assert applyMethodNames[i] != null;
+
+        if (classInfo.applyMethodDefs != null) {
+            fillInApplyMethods(classInfo.applyMethodDefs, this);
         }
-        fillInApplyMethods(classInfo.applyMethodDefs, this);
         
         attrEnv.enclClass = prevEnclClass;
         classInfo = prevClassInfo;
@@ -580,8 +594,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
         int argGroup = -1;
         for (int i = 0; i <= ARGS_IN_ARRAY; ++i) {
             if (tree.name == applyMethodNames[i]) {
-                assert classInfo.applyMethodDefs[i] == null;
-                classInfo.applyMethodDefs[i] = tree;
+                classInfo.setApplyMethod(tree, i);
                 break;
             }
         }
@@ -593,6 +606,8 @@ public class JavafxTypeMorpher extends TreeTranslator {
     public void visitVarDef(JCVariableDecl tree) {
         if (tree instanceof JavafxJCVarDecl) {
             JavafxJCVarDecl var = (JavafxJCVarDecl)tree;
+            
+            var.anonymousChangeListener = translate(var.anonymousChangeListener);
             
             if (var.sym instanceof JavafxVarSymbol) {
                 JavafxVarSymbol vsym = (JavafxVarSymbol)(var.sym);
@@ -634,7 +649,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
                     return;
                 }
             }
-        }
+         }
         tree.init = translate(tree.init);
         if (tree.init != null && tree.init.type.constValue() != null) {
             tree.init.type = tree.init.type.baseType();

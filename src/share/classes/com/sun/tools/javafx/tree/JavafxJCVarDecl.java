@@ -15,7 +15,7 @@ import com.sun.tools.javafx.code.JavafxBindStatus;
 public class JavafxJCVarDecl extends JCVariableDecl {
     private final int javafxVarType;
     private JavafxBindStatus bindStatus;
-    private JCNewClass anonymousChangeListener;
+    public JCNewClass anonymousChangeListener;
     
     /** Creates a new instance of JavafxVarDecl */
     public JavafxJCVarDecl(

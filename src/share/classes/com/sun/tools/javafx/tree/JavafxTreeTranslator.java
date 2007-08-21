@@ -77,6 +77,9 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         if (that.init != null) {
             that.init = translate(that.init);
         }
+        if (that.onChange != null) {
+            that.onChange = translate(that.onChange);
+        }
         result = that;
     }
     

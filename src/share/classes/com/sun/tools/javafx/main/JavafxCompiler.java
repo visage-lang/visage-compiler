@@ -551,6 +551,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                     exc.printStackTrace();
                 }
                 parseErrors |= (log.nerrors > initialErrorCount);
+                if (lineDebugInfo) {
+                    String hunk = content.toString();
+                    tree.lineMap = Position.makeLineMap(hunk.toCharArray(), hunk.length(), false);
+                }        
             }
             if (verbose) {
                 printVerbose("parsing.done", Long.toString(elapsed(msec)));
