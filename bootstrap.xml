@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="JavaFX Compiler Bootstrap" default="all" basedir=".">
+
+    <property name="base.dir" value="${basedir}"/>
+    <property name="tools.dir" value="${basedir}/tools"/>
+    <property name="lib.dir" value="${base.dir}/lib"/>
+    <property name="bootstrap.dir" value="${base.dir}/bootstrap"/>
+
+    <import file="tools-defs.xml" />
+
+    <property name="ant.url" value="http://www.apache.org/dist/ant/binaries/apache-ant-${ant.ver}-bin.zip"/>
+    <property name="ant.zipfile" value="${bootstrap.dir}/ant.zip"/>
+
+    <property name="junit.url" value="http://downloads.sourceforge.net/junit/junit-${junit.ver}.jar"/>
+    <property name="junit.jarfile" value="${bootstrap.dir}/junit.jar"/>
+    <property name="junit.file" value="${junit.dir}/junit-${junit.ver}.jar"/>
+
+    <property name="docbook.url" value="http://downloads.sourceforge.net/docbook/docbook-xsl-${docbook.ver}.tar.gz"/>
+    <property name="docbook.tgzfile" value="${bootstrap.dir}/docbook-xsl-${docbook.ver}.tar.gz"/>
+    <property name="docbook.tarfile" value="${bootstrap.dir}/docbook-xsl-${docbook.ver}.tar"/>
+
+    <property name="findbugs.url"
+              value="http://prdownloads.sourceforge.net/findbugs/findbugs-${findbugs.ver}.zip?download"/>
+    <property name="findbugs.zipfile" value="${bootstrap.dir}/findbugs.zip"/>
+
+    <property name="saxon.url" value="http://downloads.sourceforge.net/saxon/saxon6-5-5.zip"/>
+    <property name="saxon.zipfile" value="${bootstrap.dir}/saxon-${saxon.ver}.zip"/>
+
+    <property name="xincluder.url" value="ftp://ftp.ibiblio.org/pub/languages/java/javafaq/xincluder-1.0d11.tar.gz"/>
+    <property name="xincluder.tgzfile" value="${bootstrap.dir}/xincluder-${xincluder.ver}.tgz"/>
+    <property name="xincluder.tarfile" value="${bootstrap.dir}/xincluder-${xincluder.ver}.tar"/>
+
+    <property name="antlr.url" value="http://antlr.org/download/antlr-${antlr.ver}.jar"/>
+    <property name="antlr-runtime.url" value="http://antlr.org/download/antlr-runtime-${antlr.ver}.jar"/>
+    <property name="antlr.file" value="${antlr.dir}/antlr-${antlr.ver}.jar"/>
+    <property name="antlr-runtime.file" value="${antlr.dir}/antlr-runtime-${antlr.ver}.jar"/>
+
+    <property name="antlrworks.url" value="http://antlr.org/download/antlrworks-${antlrworks.ver}.jar"/>
+    <property name="antlrworks.file" value="${antlrworks.dir}/antlrworks-${antlrworks.ver}.jar"/>
+
+
+    <target name="prepare">
+        <mkdir dir="${bootstrap.dir}"/>
+        <mkdir dir="${tools.dir}"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${bootstrap.dir}"/>
+        <delete dir="${ant.dir}"/>
+        <delete dir="${findbugs.dir}"/>
+        <delete dir="${junit.dir}"/>
+        <delete dir="${docbook.dir}"/>
+        <delete dir="${saxon.dir}"/>
+        <delete dir="${xincluder.dir}"/>
+        <delete dir="${antlr.dir}"/>
+        <delete dir="${antlrworks.dir}"/>
+    </target>
+
+    <target name="all" depends="prepare,junit,ant,docbook,findbugs,saxon,xincluder,antlr,antlrworks"/>
+
+    <target name="ant" depends="prepare">
+        <get src="${ant.url}" dest="${ant.zipfile}"/>
+        <unzip src="${ant.zipfile}" dest="${ant.dir}">
+            <patternset includes="**/ant.jar"/>
+            <mapper type="flatten"/>
+        </unzip>
+    </target>
+
+    <target name="junit" depends="prepare">
+        <mkdir dir="${junit.dir}"/>
+        <get src="${junit.url}" dest="${junit.file}"/>
+    </target>
+
+    <target name="docbook" depends="prepare">
+        <get src="${docbook.url}" dest="${docbook.tgzfile}"/>
+        <gunzip src="${docbook.tgzfile}" dest="${docbook.tarfile}"/>
+        <untar src="${docbook.tarfile}" dest="${docbook.dir}">
+            <mapper type="glob" from="docbook-xsl-${docbook.ver}/*" to="*"/>
+        </untar>
+    </target>
+
+    <target name="findbugs" depends="prepare">
+        <get src="${findbugs.url}" dest="${findbugs.zipfile}"/>
+        <unzip src="${findbugs.zipfile}" dest="${findbugs.dir}">
+            <patternset includes="findbugs-${findbugs.ver}/**"/>
+            <mapper type="glob" from="findbugs-${findbugs.ver}/*" to="*"/>
+        </unzip>
+    </target>
+
+    <target name="saxon" depends="prepare">
+        <get src="${saxon.url}" dest="${saxon.zipfile}"/>
+        <unzip src="${saxon.zipfile}" dest="${saxon.dir}">
+            <patternset includes="**/saxon.jar"/>
+            <mapper type="flatten"/>
+        </unzip>
+    </target>
+
+    <target name="xincluder" depends="prepare">
+        <get src="${xincluder.url}" dest="${xincluder.tgzfile}"/>
+        <gunzip src="${xincluder.tgzfile}" dest="${xincluder.tarfile}"/>
+        <untar src="${xincluder.tarfile}" dest="${xincluder.dir}">
+            <patternset includes="**/xincluder.jar"/>
+            <mapper type="flatten"/>
+        </untar>
+    </target>
+
+    <target name="antlr" depends="prepare">
+        <mkdir dir="${antlr.dir}"/>
+        <get src="${antlr.url}" dest="${antlr.file}"/>
+        <get src="${antlr-runtime.url}" dest="${antlr-runtime.file}"/>
+    </target>
+
+    <target name="antlrworks" depends="prepare">
+        <mkdir dir="${antlrworks.dir}"/>
+        <get src="${antlrworks.url}" dest="${antlrworks.file}"/>
+    </target>
+
+
+</project>

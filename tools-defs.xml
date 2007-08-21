@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="JavaFX Compiler Tools Definitions" basedir=".">
+
+    <!-- relies on ${tools.dir} being defined -->
+
+    <property name="ant.ver" value="1.7.0"/>
+    <property name="ant.dir" value="${tools.dir}/ant-${ant.ver}"/>
+
+    <property name="junit.ver" value="4.4"/>
+    <property name="junit.dir" value="${tools.dir}/junit-${junit.ver}"/>
+
+    <property name="docbook.ver" value="1.73.1"/>
+    <property name="docbook.dir" value="${tools.dir}/docbook-xsl-${docbook.ver}"/>
+
+    <property name="findbugs.ver" value="1.2.1"/>
+    <property name="findbugs.dir" value="${tools.dir}/findbugs-${findbugs.ver}"/>
+
+    <property name="saxon.ver" value="6.5.5"/>
+    <property name="saxon.dir" value="${tools.dir}/saxon-${saxon.ver}"/>
+
+    <property name="xincluder.ver" value="1.0d11"/>
+    <property name="xincluder.dir" value="${tools.dir}/xincluder-${xincluder.ver}"/>
+
+    <property name="antlr.ver" value="3.0.1"/>
+    <property name="antlr.dir" value="${tools.dir}/antlr-${antlr.ver}"/>
+
+    <property name="antlrworks.ver" value="1.1.2"/>
+    <property name="antlrworks.dir" value="${tools.dir}/antlrworks-${antlrworks.ver}"/>
+
+    <path id="ant.class.path">
+        <fileset dir="${ant.dir}" includes="**/*.jar" />
+    </path>
+    <property name="ant.class.path" refid="ant.class.path" />
+
+    <path id="junit.class.path">
+        <fileset dir="${junit.dir}" includes="**/*.jar" />
+    </path>
+    <property name="junit.class.path" refid="junit.class.path" />
+
+    <path id="findbugs.class.path">
+        <fileset dir="${findbugs.dir}" includes="**/*.jar" />
+    </path>
+    <property name="findbugs.class.path" refid="findbugs.class.path" />
+
+    <path id="saxon.class.path">
+        <fileset dir="${saxon.dir}" includes="**/*.jar" />
+    </path>
+    <property name="saxon.class.path" refid="saxon.class.path" />
+
+    <path id="xincluder.class.path">
+        <fileset dir="${xincluder.dir}" includes="**/*.jar" />
+    </path>
+    <property name="xincluder.class.path" refid="xincluder.class.path" />
+
+    <path id="antlr.class.path">
+        <fileset dir="${antlr.dir}" includes="**/antlr-${antlr.ver}.jar" />
+    </path>
+    <property name="antlr.class.path" refid="antlr.class.path" />
+
+    <path id="antlr-runtime.class.path">
+        <fileset dir="${antlr.dir}" includes="**/antlr-runtime-${antlr.ver}.jar" />
+    </path>
+    <property name="antlr-runtime.class.path" refid="antlr-runtime.class.path" />
+
+    <path id="antlrworks.class.path">
+        <fileset dir="${antlrworks.dir}" includes="**/*.jar" />
+    </path>
+    <property name="antlrworks.class.path" refid="antlrworks.class.path" />
+
+</project>
