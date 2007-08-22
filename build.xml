@@ -82,7 +82,7 @@
 
     -->
 
-    <target name="all" depends="jar, spec, test"
+    <target name="all" depends="jar, spec, test, findbugs"
      description="Build and test all project artifacts"/>
     
     <target name="check-jdk-1.6">
