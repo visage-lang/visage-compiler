@@ -159,8 +159,11 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         JFXClassDeclaration prevClass = currentClass;
+        List<JavafxJCMethodDecl> prevInitBlocks = initBlocks;
+        
         currentClass = tree;
         JavafxJCClassDecl prevJCClass = currentJCClass;
+        initBlocks = null;
         try {
             List<JCTypeParameter> typeParams = List.nil();
             // TODO: Need resolved types so I can verify tree one Java class is extended only... Move the rest to interfaces...
@@ -211,6 +214,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         } finally {
             currentClass = prevClass;
             currentJCClass = prevJCClass;
+            initBlocks = prevInitBlocks;
         }
 
         // prettyPrint(result);
