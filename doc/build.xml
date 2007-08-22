@@ -2,14 +2,18 @@
 
 <project default="spec" name="javafx-docs" basedir="..">
     <property name="build.dir" value="${basedir}/build"/>
+    <property name="tools.dir" value="${basedir}/tools" />
+
+    <import file="../tools-defs.xml" />
+
     <property name="doc.build.dir" value="${build.dir}/doc"/>
     <property name="doc.src.dir" value="${basedir}/doc/langspec"/>
-    <property name="lib.dir" value="${basedir}/lib"/>
-    <property name="html.style" value="${basedir}/tools/docbook-xsl/html/docbook.xsl"/>
-    <property name="chunk.style" value="${basedir}/tools/docbook-xsl/xhtml/chunk.xsl"/>
+    <property name="html.style" value="${docbook.dir}/html/docbook.xsl"/>
+    <property name="chunk.style" value="${docbook.dir}/xhtml/chunk.xsl"/>
 
     <path id="doc.build.class.path">
-        <fileset dir="${lib.dir}" includes="*.jar"/>
+        <path refid="saxon.class.path" />
+        <path refid="xincluder.class.path" />
     </path>
 
     <target name="langspec"

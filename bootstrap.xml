@@ -43,6 +43,14 @@
     <target name="prepare">
         <mkdir dir="${bootstrap.dir}"/>
         <mkdir dir="${tools.dir}"/>
+        <mkdir dir="${ant.dir}"/>
+        <mkdir dir="${findbugs.dir}"/>
+        <mkdir dir="${junit.dir}"/>
+        <mkdir dir="${docbook.dir}"/>
+        <mkdir dir="${saxon.dir}"/>
+        <mkdir dir="${xincluder.dir}"/>
+        <mkdir dir="${antlr.dir}"/>
+        <mkdir dir="${antlrworks.dir}"/>
     </target>
 
     <target name="clean">
@@ -65,6 +73,7 @@
             <patternset includes="**/ant.jar"/>
             <mapper type="flatten"/>
         </unzip>
+        <delete file="${ant.zipfile}" />
     </target>
 
     <target name="junit" depends="prepare">
@@ -78,6 +87,8 @@
         <untar src="${docbook.tarfile}" dest="${docbook.dir}">
             <mapper type="glob" from="docbook-xsl-${docbook.ver}/*" to="*"/>
         </untar>
+        <delete file="${docbook.tarfile}" />
+        <delete file="${docbook.tgzfile}" />
     </target>
 
     <target name="findbugs" depends="prepare">
@@ -86,6 +97,7 @@
             <patternset includes="findbugs-${findbugs.ver}/**"/>
             <mapper type="glob" from="findbugs-${findbugs.ver}/*" to="*"/>
         </unzip>
+        <delete file="${findbugs.zipfile}" />
     </target>
 
     <target name="saxon" depends="prepare">
@@ -94,6 +106,7 @@
             <patternset includes="**/saxon.jar"/>
             <mapper type="flatten"/>
         </unzip>
+        <delete file="${saxon.zipfile}" />
     </target>
 
     <target name="xincluder" depends="prepare">
@@ -103,6 +116,8 @@
             <patternset includes="**/xincluder.jar"/>
             <mapper type="flatten"/>
         </untar>
+        <delete file="${xincluder.tarfile}" />
+        <delete file="${xincluder.tgzfile}" />
     </target>
 
     <target name="antlr" depends="prepare">

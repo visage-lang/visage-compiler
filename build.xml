@@ -4,7 +4,22 @@
 <!-- (If you delete it and reopen the project it will be recreated.) -->
 <project name="JavaFX Compiler" default="jar" basedir=".">
     <description>Builds, tests, and runs the project JavaFX.</description>
+
+    <property name="tools.dir" value="${basedir}/tools" />
+    <import file="tools-defs.xml"/>
+
+    <!-- Define actual properties for the known paths so they can be used in the properties file -->
+    <property name="ant.class.path" refid="ant.class.path" />
+    <property name="junit.class.path" refid="junit.class.path" />
+    <property name="findbugs.class.path" refid="findbugs.class.path" />
+    <property name="saxon.class.path" refid="saxon.class.path" />
+    <property name="xincluder.class.path" refid="xincluder.class.path" />
+    <property name="antlr.class.path" refid="antlr.class.path" />
+    <property name="antlr-runtime.class.path" refid="antlr-runtime.class.path" />
+    <property name="antlrworks.class.path" refid="antlrworks.class.path" />
+
     <import file="nbproject/build-impl.xml"/>
+
     <!--
 
     There exist several targets which are by default empty and which can be 
@@ -85,6 +100,17 @@
         </copy>
     </target>
     
+    <target name="findbugs" depends="compile">
+        <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
+            <classpath refid="findbugs.class.path" />
+        </taskdef>
+        <findbugs output="xml" outputFile="${build.dir}/findbugs.xml" home="${findbugs.dir}" jvmargs="-Xmx512m">
+            <class location="${build.classes.dir}" />
+            <auxClasspath path="${javac.classpath}" />
+            <sourcePath path="${src.classes.dir}" />
+        </findbugs>
+    </target>
+
     <target depends="init,compile-test,-pre-test-run,-do-test-run" if="have.tests" name="-post-test-run">
         <!-- Don't explicitly call fail task, so Hudson reports an UNSTABLE build instead of FAILURE -->
     </target>

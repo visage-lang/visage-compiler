@@ -3,6 +3,7 @@
 <project name="JavaFX Compiler" default="jar" basedir=".">
 
     <property name="base.dir" value="${basedir}" />
+    <property name="tools.dir" value="${basedir}/tools" />
     <property name="lib.dir" value="${base.dir}/lib" />
     <property name="ant-task.lib.dir" value="${base.dir}/ant-task/dist" />
     <property name="test.dir" value="${base.dir}/test" />
@@ -20,21 +21,26 @@
     <property name="jar.file" value="${dist.dir}/javafx.jar" />
     <property name="cobertura.file" value="cobertura.ser" />
 
-    <taskdef classpath="${lib.dir}/cobertura.jar" resource="tasks.properties"/>
-    <taskdef classpath="${ant-task.lib.dir}/javafx-anttask.jar" resource="tasks.properties"/>
+    <import file="tools-defs.xml" />
+
+    <path id="javac.class.path">
+        <fileset dir="${lib.dir}" includes="javac.jar" />
+    </path>
 
     <path id="build.class.path">
         <pathelement location="${java.class.path}" />
         <pathelement location="${build.classes.dir}" />
         <pathelement location="${ant-task.lib.dir}/javafx-anttask.jar" />
-        <fileset dir="${lib.dir}" includes="**/*.jar" />
+        <path refid="javac.class.path" />
+        <path refid="junit.class.path" />
+        <path refid="antlr-runtime.class.path" />
     </path>
 
     <path id="run.class.path">
         <pathelement location="${build.instrumented.dir}" />
         <pathelement location="${build.classes.dir}" />
-        <pathelement location="${lib.dir}/javac.jar"/>
-        <pathelement location="${lib.dir}/antlr-runtime-3.0.jar"/>
+        <path refid="javac.class.path" />
+        <path refid="antlr-runtime.class.path" />
     </path>
 
     <path id="test.class.path">
@@ -42,8 +48,20 @@
         <pathelement location="${test.classes.dir}" />
         <pathelement location="${build.instrumented.dir}" />
         <pathelement location="${build.classes.dir}" />
-        <fileset dir="${lib.dir}" includes="**/*.jar" />
+        <path refid="javac.class.path" />
+        <path refid="junit.class.path" />
+        <path refid="antlr-runtime.class.path" />
     </path>
+
+    <!--<taskdef resource="tasks.properties">-->
+        <!--<classpath>-->
+            <!--<pathelement location="${lib.dir}/cobertura.jar" />-->
+            <!--<path refid="build.class.path" />-->
+        <!--</classpath>-->
+    <!--</taskdef>-->
+
+    <taskdef classpath="${ant-task.lib.dir}/javafx-anttask.jar" resource="tasks.properties"/>
+
 
     <target name="prepare">
         <mkdir dir="${build.dir}" />
@@ -62,7 +80,6 @@
     </target>
 
     <target name="compile-java" depends="prepare">
-        <delete dir="${build.instrumented.dir}" />
         <javac srcdir="${src.java.dir}" classpathref="build.class.path" includes="**/*.java"
                destdir="${build.classes.dir}" debug="true" />
         <copy todir="${build.classes.dir}">
@@ -76,18 +93,18 @@
                destdir="${test.classes.dir}" debug="true" />
     </target>
 
-    <target name="instrument" depends="compile-java">
-        <cobertura-instrument todir="${build.instrumented.dir}">
-            <fileset dir="${build.classes.dir}" includes="**/*.class" />
-            <classpath refid="build.class.path" />
-        </cobertura-instrument>
-    </target>
+    <!--<target name="instrument">-->
+        <!--<cobertura-instrument todir="${build.instrumented.dir}">-->
+            <!--<fileset dir="${build.classes.dir}" includes="**/*.class" />-->
+            <!--<classpath refid="build.class.path" />-->
+        <!--</cobertura-instrument>-->
+    <!--</target>-->
 
-    <target name="coverage">
-        <cobertura-report srcdir="${src.java.dir}" destdir="${test.results.dir}" >
-            <classpath refid="build.class.path" />
-        </cobertura-report>
-    </target>
+    <!--<target name="coverage">-->
+        <!--<cobertura-report srcdir="${src.java.dir}" destdir="${test.results.dir}" >-->
+            <!--<classpath refid="build.class.path" />-->
+        <!--</cobertura-report>-->
+    <!--</target>-->
 
     <target name="junit" depends="compile-java,compile-tests">
         <junit dir="${basedir}" fork="true" showoutput="true">
@@ -102,7 +119,7 @@
         </junit>
     </target>
 
-    <target name="junit-coverage" depends="compile-java,compile-tests,instrument,junit,coverage" />
+    <!--<target name="junit-coverage" depends="compile-java,compile-tests,instrument,junit,coverage" />-->
 
     <target name="copy-fx" depends="prepare">
         <copy todir="${build.classes.dir}">
@@ -137,6 +154,12 @@
     <target name="milestone-M4" >
         <antcall target="abstract-milestone">
             <param name="milestone" value="M4" />
+        </antcall>
+    </target>
+
+    <target name="milestone-G2" >
+        <antcall target="abstract-milestone">
+            <param name="milestone" value="G2" />
         </antcall>
     </target>
 
