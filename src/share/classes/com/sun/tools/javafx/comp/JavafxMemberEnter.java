@@ -562,7 +562,7 @@ public class JavafxMemberEnter extends MemberEnter {
                       methodDeclHelper.method.restype.type = Type.noType;
                       Env<AttrContext> prevLocalEnv = localEnv;
                       localEnv = methodDeclHelper.lEnv;
-                      visitBlock(methodDeclHelper.method.body);
+                      memberEnter(methodDeclHelper.method.body, localEnv);
                       localEnv = prevLocalEnv;
                       if (methodReturnType == null) {
                           methodDeclHelper.method.restype = make.TypeIdent(VOID);
