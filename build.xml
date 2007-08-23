@@ -5,18 +5,18 @@
 <project name="JavaFX Compiler" default="jar" basedir=".">
     <description>Builds, tests, and runs the project JavaFX.</description>
 
-    <property name="tools.dir" value="${basedir}/tools" />
+    <property name="tools.dir" value="${basedir}/tools"/>
     <import file="tools-defs.xml"/>
 
     <!-- Define actual properties for the known paths so they can be used in the properties file -->
-    <property name="ant.class.path" refid="ant.class.path" />
-    <property name="junit.class.path" refid="junit.class.path" />
-    <property name="findbugs.class.path" refid="findbugs.class.path" />
-    <property name="saxon.class.path" refid="saxon.class.path" />
-    <property name="xincluder.class.path" refid="xincluder.class.path" />
-    <property name="antlr.class.path" refid="antlr.class.path" />
-    <property name="antlr-runtime.class.path" refid="antlr-runtime.class.path" />
-    <property name="antlrworks.class.path" refid="antlrworks.class.path" />
+    <property name="ant.class.path" refid="ant.class.path"/>
+    <property name="junit.class.path" refid="junit.class.path"/>
+    <property name="findbugs.class.path" refid="findbugs.class.path"/>
+    <property name="saxon.class.path" refid="saxon.class.path"/>
+    <property name="xincluder.class.path" refid="xincluder.class.path"/>
+    <property name="antlr.class.path" refid="antlr.class.path"/>
+    <property name="antlr-runtime.class.path" refid="antlr-runtime.class.path"/>
+    <property name="antlrworks.class.path" refid="antlrworks.class.path"/>
 
     <import file="nbproject/build-impl.xml"/>
 
@@ -83,8 +83,8 @@
     -->
 
     <target name="all" depends="jar, spec, test, findbugs"
-     description="Build and test all project artifacts"/>
-    
+            description="Build and test all project artifacts"/>
+
     <target name="check-jdk-1.6">
         <available property="has-jdk-1.6" classname="javax.script.ScriptEngine"/>
     </target>
@@ -99,20 +99,38 @@
             <fileset dir="build/doc/html"/>
         </copy>
     </target>
-    
-    <target name="findbugs" depends="compile">
+
+    <target name="run-findbugs" depends="compile">
         <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
-            <classpath refid="findbugs.class.path" />
+            <classpath refid="findbugs.class.path"/>
         </taskdef>
         <findbugs output="xml" outputFile="${build.dir}/findbugs.xml" home="${findbugs.dir}" jvmargs="-Xmx512m">
-            <class location="${build.classes.dir}" />
-            <auxClasspath path="${javac.classpath}" />
-            <sourcePath path="${src.classes.dir}" />
+            <class location="${build.classes.dir}"/>
+            <auxClasspath path="${javac.classpath}"/>
+            <sourcePath path="${src.classes.dir}"/>
         </findbugs>
     </target>
+
+    <!-- Runs only if export.dir is set, which should only be set from the continuous build.
+         Depends on Hudson environment params JOB_NAME and SVN_REVISION.
+         Pushes result of analysis to export directory, where it can later be combined into
+         a multi-version bug database. -->
+    <target name="post-findbugs" depends="init" if="export.dir" >
+        <property environment="env" />
+        <mkdir dir="${export.dir}/findbugs" />
+        <exec executable="sh"> 
+            <arg value="${findbugs.dir}/bin/setBugDatabaseInfo" />
+            <arg value="-name" />
+            <arg value="${env.JOB_NAME}-${env.SVN_REVISION}" />
+            <arg value="${build.dir}/findbugs.xml" />
+            <redirector output="${export.dir}/findbugs/${env.JOB_NAME}-${env.SVN_REVISION}.xml" />
+        </exec>
+    </target>
+
+    <target name="findbugs" depends="init,run-findbugs,post-findbugs" />
 
     <target depends="init,compile-test,-pre-test-run,-do-test-run" if="have.tests" name="-post-test-run">
         <!-- Don't explicitly call fail task, so Hudson reports an UNSTABLE build instead of FAILURE -->
     </target>
-    
+
 </project>
