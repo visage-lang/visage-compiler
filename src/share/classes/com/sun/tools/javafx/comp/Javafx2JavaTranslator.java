@@ -566,6 +566,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                 make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("bound"), make.Identifier(locationName), null),
                 make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("exprNum"), make.TypeIdent(TypeTags.INT), null)
                 );
+/**** Leave out until needed (if ever)
         defs.append(make.MethodDef(
                 make.Modifiers(Flags.PUBLIC),
                 names.fromString("apply0"),
@@ -604,6 +605,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                 List.<JCExpression>nil(),
                 make.Block(0, List.<JCStatement>of(make.Return(make.Literal(TypeTags.BOOLEAN, 0)))),
                 null));
+*******/
         params = List.of(
                 make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("bound"), make.Identifier(locationName), null),
                 make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("exprNum"), make.TypeIdent(TypeTags.INT), null),

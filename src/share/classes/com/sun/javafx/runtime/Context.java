@@ -30,9 +30,10 @@ package com.sun.javafx.runtime;
  * @author Robert Field
  */
 public interface Context {
-
+/**** Leave out util needed (if ever)
     boolean apply0(Location bound, int exprNum);
     boolean apply1(Location bound, int exprNum, Location arg1);
     boolean apply2(Location bound, int exprNum, Location arg1, Location arg2);
+****/
     boolean applyN(Location bound, int exprNum, Location[] args);
 }

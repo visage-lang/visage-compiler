@@ -29,6 +29,7 @@ import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.*;
+import com.sun.tools.javac.code.Symbol;
 
 /**
  *
@@ -62,6 +63,9 @@ public class JavafxVarUsageAnalysis extends TreeScanner {
             boolean wasInBindContext = inBindContext;
             inBindContext |= var.isBound();
             scan(tree.init);
+            if (inBindContext && tree.sym instanceof JavafxVarSymbol) {
+                ((JavafxVarSymbol)tree.sym).markBoundTo();
+            }
             inBindContext = wasInBindContext;
         } else {
             scan(tree.init);
@@ -78,6 +82,17 @@ public class JavafxVarUsageAnalysis extends TreeScanner {
         if (tree instanceof JavafxJCAssign) {
             JavafxJCAssign assign = (JavafxJCAssign)tree;
             inBindContext = assign.isBound();
+            if (inBindContext) {
+                Symbol vsym = null;
+                if (tree.lhs instanceof JCIdent) {
+                    vsym = ((JCIdent)tree.lhs).sym;
+                } else if (tree.lhs instanceof JCFieldAccess) {
+                    vsym = ((JCFieldAccess)tree.lhs).sym;
+                }
+                if (vsym instanceof JavafxVarSymbol) {
+                    ((JavafxVarSymbol)vsym).markBoundTo();
+                }
+            }
         }
         scan(tree.rhs);
         inBindContext = wasInBindContext;
@@ -110,5 +125,10 @@ public class JavafxVarUsageAnalysis extends TreeScanner {
         if (tree.sym instanceof JavafxVarSymbol) {
             markVarUse((JavafxVarSymbol)tree.sym);
         }
+    }
+    
+    public void visitBlockExpression(JFXBlockExpression tree) {
+        scan(tree.stats);
+        scan(tree.value);
     }
 }

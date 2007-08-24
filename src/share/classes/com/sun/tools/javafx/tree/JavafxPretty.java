@@ -252,9 +252,11 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             pretty.indent();
             pretty.printStats(tree.stats);
             if (tree.value != null) {
+                pretty.align();
                 pretty.printExpr(tree.value);
             }
             pretty.undent();
+            pretty.println();
             pretty.align();
             pretty.print("}");
         } catch (IOException e) {

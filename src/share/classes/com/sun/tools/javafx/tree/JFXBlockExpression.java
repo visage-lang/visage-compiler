@@ -61,6 +61,8 @@ public class JFXBlockExpression extends JFXExpression {
             JavafxPretty.visitBlockExpression((Pretty) v, this);
         else if (v instanceof JavafxTypeMorpher)
             ((JavafxTypeMorpher) v).visitBlockExpression(this);
+        else if (v instanceof JavafxVarUsageAnalysis)
+            ((JavafxVarUsageAnalysis) v).visitBlockExpression(this);
         else
             super.accept(v);
     }
