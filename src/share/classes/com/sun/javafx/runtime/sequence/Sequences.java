@@ -10,7 +10,7 @@ import java.util.BitSet;
  *
  * @author Brian Goetz
  */
-final class Sequences {
+public final class Sequences {
 
     public static final Integer INTEGER_ZERO = 0;
     public static final Double DOUBLE_ZERO = 0.0;
