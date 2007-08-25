@@ -103,7 +103,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         JFXClassDeclaration tree = new JFXClassDeclaration(mods,
                 name,
                 supertypes,
-                null,
+                List.<JCExpression>nil(),
                 declarations,
                 null);
         tree.pos = pos;

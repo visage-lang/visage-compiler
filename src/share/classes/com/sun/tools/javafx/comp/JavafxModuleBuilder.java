@@ -28,11 +28,11 @@ package com.sun.tools.javafx.comp;
 import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.TypeTags.BOT;
 import static com.sun.tools.javac.code.TypeTags.VOID;
-import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Name.Table;
@@ -51,7 +51,6 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
         new Context.Key<JavafxModuleBuilder>();
 
     private Table nameTable;
-    private Target target;
     private JavafxTreeMaker make;
     private Log log;
     private Set<Name> topLevelNamesSet;
@@ -66,7 +65,6 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
     protected JavafxModuleBuilder(Context context) {
         super(null);
         nameTable = Table.instance(context);
-        target = Target.instance(context);
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         log = Log.instance(context);
     }
@@ -75,243 +73,125 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
    public void visitTopLevel(JCCompilationUnit tree) {
         try {
             preProcessJfxTopLevel(tree);
-            super.visitTopLevel(tree);
-        }
-        finally {
+        } finally {
             topLevelNamesSet = null;
         }
     }
 
-    private void preProcessJfxTopLevel(JCCompilationUnit tree) {
-        // TODO:
-        // Maybe something different needs to be done for the importStats
-        JCClassDecl topLevelClass = null;
-        List<JCTree> newBody = List.nil();
+    private void preProcessJfxTopLevel(JCCompilationUnit module) {
+        Name moduleClassName = moduleName(module);
+
+        // Divide module defs between run method body, Java compilation unit, and module class
+        ListBuffer<JCTree> topLevelDefs = new ListBuffer<JCTree>();
+        ListBuffer<JCTree> moduleClassDefs = new ListBuffer<JCTree>();
+        ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();    
+        JFXClassDeclaration moduleClass = null;
+        for (JCTree tree : module.defs) {
+            switch (tree.getTag()) {
+            case IMPORT:
+                topLevelDefs.append(tree);
+                break;
+            case CLASSDECL: {
+                JFXClassDeclaration decl = (JFXClassDeclaration)tree;   
+                Name name = decl.name;
+                checkName(tree.pos, name);
+                if (name == moduleClassName) {
+                    moduleClass = decl;
+                } else {
+                    decl.mods.flags |= STATIC;
+                    moduleClassDefs.append(tree);
+                }
+                break;
+            }
+            case RETROOPERATIONDEF:
+            case RETROFUNCTIONDEF:
+            case RETROATTRIBUTEDEF:
+                moduleClassDefs.append(tree);
+                break;
+            case RETROOPERATIONLOCALDEF:
+            case RETROFUNCTIONLOCALDEF:
+                checkName(tree.pos, ((JFXRetroFuncOpLocalDefinition)tree).getName());
+                moduleClassDefs.append(tree);
+                break;
+            case FUNCTIONDEF: {
+                JFXFunctionDefinition decl = (JFXFunctionDefinition)tree;
+                decl.modifiers.flags |= STATIC;
+                Name name = decl.name;
+                checkName(tree.pos, name);
+                moduleClassDefs.append(tree);
+                break;
+            }
+            case VARDECL:
+            case VARINIT:
+                checkName(tree.pos, ((JFXVar)tree).getName());
+                stats.append((JCStatement)tree);
+                break;
+
+            default:
+                stats.append((JCStatement)tree);
+                break;
+            }
+        }
+                
+        List<JCExpression> emptyExpressionList = List.nil();
+        List<JCVariableDecl> emptyVarDefList = List.nil();
+
+        // Add run() method...
+        moduleClassDefs.prepend(makeModuleMethod("run", emptyVarDefList, false, stats.toList()));
+
+        // Add main method...
+        JCNewClass newClass = make.NewClass(null, emptyExpressionList, make.Ident(moduleClassName),
+                emptyExpressionList, null);
+        JCFieldAccess select = make.Select(newClass, Name.fromString(nameTable, "run"));
+        JCMethodInvocation runCall = make.Apply(emptyExpressionList, select, emptyExpressionList);
+        List<JCStatement> mainStats = List.<JCStatement>of(make.Exec(runCall)); 
+        List<JCVariableDecl> paramList = List.nil();
+        paramList = paramList.append(
+                make.VarDef(make.Modifiers(0), 
+                            Name.fromString(nameTable, "args"), 
+                            make.TypeArray(make.Ident(Name.fromString(nameTable, "String"))), 
+                            null));        
+        moduleClassDefs.prepend(makeModuleMethod("main", paramList, true, mainStats));
+
+        if (moduleClass == null) {
+            moduleClass =  make.ClassDeclaration(
+                make.Modifiers(PUBLIC), 
+                moduleClassName, 
+                List.<JCExpression>nil(),             // no supertypes
+                moduleClassDefs.toList());
+        } else {
+            moduleClass.declarations = moduleClass.declarations.appendList(moduleClassDefs);
+        }
+        topLevelDefs.append(moduleClass);
         
-        // TODO:
+        module.defs = topLevelDefs.toList();
+    }
+    
+    private JCMethodDecl makeModuleMethod(String name, List<JCVariableDecl> paramList, boolean isStatic, List<JCStatement> stats) {
+        JCBlock body = make.Block(0, stats);
+        return make.JavafxMethodDef(
+                make.Modifiers(isStatic? PUBLIC | STATIC : PUBLIC), 
+                JavafxFlags.SIMPLE_JAVA, 
+                Name.fromString(nameTable, name), 
+                make.TypeIdent(VOID),
+                paramList, 
+                body);        
+    }
+    
+    private Name moduleName(JCCompilationUnit tree) {
         String fileObjName = null;
 
         try {
             fileObjName = new File(tree.getSourceFile().toUri().toURL().getFile()).getName();
             int lastDotIdx = fileObjName.lastIndexOf('.');
             if (lastDotIdx != -1) {
-               fileObjName = fileObjName.substring(0, lastDotIdx); 
+                fileObjName = fileObjName.substring(0, lastDotIdx);
             }
-        }
-        catch (MalformedURLException e) {
+        } catch (MalformedURLException e) {
             assert false : "URL Exception!!!";
         }
 
-        Name topLevelClassName = Name.fromString(nameTable, fileObjName);
-        MemberHolder memberHolder = new MemberHolder(tree.defs);
-        
-        prependSyntheticModuleMembers(memberHolder, fileObjName);
-        tree.defs = memberHolder.resultTopTreeDefs;
-        
-        List<JCTypeParameter> emptyTypeParamList = List.nil();
-        List<JCExpression> emptyExpresssionList = List.nil();
-        
-        topLevelClass = make.ClassDef(make.Modifiers(PUBLIC), topLevelClassName, emptyTypeParamList, null, emptyExpresssionList, memberHolder.topLevelClassBody);
-        tree.defs = tree.defs.append(topLevelClass);
-    }
-    
-    private void prependSyntheticModuleMembers(MemberHolder memberHolder, String fileObjName) {
-        char syntheticChar = target.syntheticNameChar();
-        String instModNamed = syntheticChar + "module" + syntheticChar + "instance";
-        
-        List<JCTree> newBody = memberHolder.topLevelClassBody;
-        List<JCTree> newDefs = memberHolder.inTopTreeDefs;
-        
-        // Create Module instance variable
-        newBody = newBody.prepend(
-                make.VarDef(make.Modifiers(PRIVATE|STATIC), 
-                            Name.fromString(nameTable, instModNamed), 
-                            make.Ident(Name.fromString(nameTable, fileObjName)), 
-                            null));
-        
-        // Create getModuleInstance method
-        List<JCVariableDecl> emptyVarDefList = List.nil();
-        List<JCStatement> stats = List.nil();
-        stats = stats.append(make.Return(make.Ident(Name.fromString(nameTable, instModNamed))));
-        
-        JCBlock body = make.Block(0, stats);
-        
-        newBody = newBody.prepend(make.JavafxMethodDef(make.Modifiers(PUBLIC|STATIC), JavafxFlags.SIMPLE_JAVA, Name.fromString(nameTable,
-                "getModuleInstance"), make.Ident(Name.fromString(nameTable, fileObjName)),
-                emptyVarDefList, body));
-
-        // Create the run method...
-        // Create getModuleInstance method
-        emptyVarDefList = List.nil();
-        List<JCExpression> emptyExpressionList = List.nil();
-        
-        stats = List.nil();
-        JCAssign assign = make.Assign(make.Ident(Name.fromString(nameTable, instModNamed)),
-                make.NewClass(null, emptyExpressionList, make.Ident(Name.fromString(nameTable, fileObjName)),
-                emptyExpressionList, null));
-        stats = stats.append(make.If(make.Binary(JCTree.NE, make.Ident(Name.fromString(nameTable, instModNamed)),
-                make.Literal(BOT, null)), make.Return(null), null));
-        
-        stats = stats.append(make.Exec(assign));
-        List<JCTree> retDefs = List.nil();
-        for (JCTree tree : newDefs) {
-            switch (tree.getTag()) {
-                                                case IMPORT:
-                retDefs = retDefs.append(tree);
-                break;
-            case CLASSDECL:
-                checkName(tree.pos, ((JFXClassDeclaration)tree).name);
-                newBody = newBody.append(tree);
-                break;
-            case RETROOPERATIONDEF:
-            case RETROFUNCTIONDEF:
-            case RETROATTRIBUTEDEF:
-                newBody = newBody.append(tree);
-                break;
-            case RETROOPERATIONLOCALDEF:
-            case RETROFUNCTIONLOCALDEF:
-                checkName(tree.pos, ((JFXRetroFuncOpLocalDefinition)tree).getName());
-                newBody = newBody.append(tree);
-                break;
-            case FUNCTIONDEF:
-                checkName(tree.pos, ((JFXFunctionDefinition)tree).getName());
-                newBody = newBody.append(tree);
-                break;
-            case VARDECL:
-                checkName(tree.pos, ((JFXVar)tree).getName());
-                stats = stats.append((JFXVar)tree);
-                break;
-            case VARINIT:
-                checkName(tree.pos, ((JFXVarInit)tree).getName());
-                stats = stats.append((JFXVarInit)tree);
-                break;
-
-// TODO: Deal with all the possible types in here...
-            default:
-// TODO:                if (tree.tag >= SKIP && tree.tag <= ASSERT) {
-                    stats = stats.append((JCStatement)tree);
-// TODO:                } else {
-// TODO: Enable when all trees here...
-//                    log.error(tree.pos, "javafx.unexpected.tree", tree.toString()); // TODO: Need to log the error??? 
-// TODO:                }             
-            }
-        }
-                
-        JCBlock runBody = make.Block(0, stats);
-        newBody = newBody.prepend(make.JavafxMethodDef(make.Modifiers(PUBLIC), JavafxFlags.SIMPLE_JAVA, Name.fromString(nameTable,
-                "run"), make.TypeIdent(VOID),
-                emptyVarDefList, runBody));
-
-        // Add main method...
-        JCNewClass newClass = make.NewClass(null, emptyExpressionList, make.Ident(Name.fromString(nameTable, fileObjName)),
-                emptyExpressionList, null);
-        
-        JCFieldAccess select = make.Select(newClass, Name.fromString(nameTable, "run"));
-        emptyExpressionList = List.nil();
-        JCMethodInvocation runCall = make.Apply(emptyExpressionList, select, emptyExpressionList);
-        stats = List.nil();
-        stats = stats.append(make.Exec(runCall));
-        
-        List<JCVariableDecl> paramList = List.nil();
-
-        paramList = paramList.append(
-                make.VarDef(make.Modifiers(0), 
-                            Name.fromString(nameTable, "args"), 
-                            make.TypeArray(make.Ident(Name.fromString(nameTable, "String"))), 
-                            null));
-        
-        newBody = newBody.prepend(make.JavafxMethodDef(make.Modifiers(PUBLIC|STATIC), JavafxFlags.SIMPLE_JAVA, Name.fromString(nameTable,
-                "main"), make.TypeIdent(VOID),
-                paramList, make.Block(0, stats)));
-
-        memberHolder.resultTopTreeDefs = retDefs;
-        memberHolder.topLevelClassBody = newBody;
-    }
-
-
-    @Override
-    public void visitClassDeclaration(JFXClassDeclaration that) {
-        // TODO:
-    }
-    
-    @Override
-    public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration that) {
-        // TODO:
-    }
-    
-    @Override
-    public void visitRetroFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitRetroOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitMemberSelector(JFXMemberSelector that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitDoLater(JFXDoLater that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitTypeAny(JFXTypeAny that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitTypeClass(JFXTypeClass that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitTypeFunctional(JFXTypeFunctional that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitTypeUnknown(JFXTypeUnknown that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitVar(JFXVar that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitVarInit(JFXVarInit that) {
-        // TODO:
+        return Name.fromString(nameTable, fileObjName);
     }
 
     @Override
@@ -322,11 +202,6 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
     @Override
     public boolean shouldVisitSynthetic() {
         return true;
-    }
-    
-    @Override
-    public void visitVarStatement(JFXVarStatement that) {
-        // TODO:
     }
 
     private void checkName(int pos, Name name) {
@@ -339,17 +214,5 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
         }
         
         topLevelNamesSet.add(name);
-    }
-    
-    class MemberHolder {
-        MemberHolder(List<JCTree> inTopTreeDefs) {
-            this.inTopTreeDefs = inTopTreeDefs;
-            resultTopTreeDefs = List.nil();
-            topLevelClassBody = List.nil();
-        }
-        
-        List<JCTree> inTopTreeDefs;
-        List<JCTree> resultTopTreeDefs;
-        List<JCTree> topLevelClassBody;
     }
 }

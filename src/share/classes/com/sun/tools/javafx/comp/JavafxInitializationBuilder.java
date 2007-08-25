@@ -603,7 +603,7 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
     }
  
     private void handleNewClasses() {
-        while (!newsToProcess.isEmpty()) {
+        while (newsToProcess != null && !newsToProcess.isEmpty()) {
             Iterator<JCNewClass> newClassIterator = newsToProcess.keySet().iterator();
             JCNewClass newClass = newClassIterator.hasNext() ? newClassIterator.next() : null;
             
