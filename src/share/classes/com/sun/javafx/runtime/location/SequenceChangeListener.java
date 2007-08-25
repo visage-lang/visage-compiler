@@ -1,7 +1,7 @@
 package com.sun.javafx.runtime.location;
 
 /**
- * SequenceChangeListener
+ * SequenceChangeListener extends ChangeListener, adding sequence-specific notification methods 
  *
  * @author Brian Goetz
  */

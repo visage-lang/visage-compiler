@@ -1,7 +1,11 @@
 package com.sun.javafx.runtime.location;
 
 /**
- * IntExpressionLocation
+ * IntExpression represents an integer-value bound expression.  Associated with an IntExpression is an expression
+ * that is used to recalculate the value, and a list of dependencies (locations).  If any of the dependencies are
+ * changed, the expression is recomputed.  IntExpressions are created with the make() and makeLazy() factories; the
+ * locations are created in an initially invalid state, so that their evaluation can be deferred until an appropriate
+ * time.
  *
  * @author Brian Goetz
  */
@@ -10,6 +14,7 @@ public class IntExpression extends AbstractLocation implements IntLocation {
     private final IntBindingExpression expression;
     private int value;
 
+    /** Create an IntExpression with the specified expression and dependencies. */
     public static IntLocation make(IntBindingExpression exp, Location... dependencies) {
         IntExpression loc = new IntExpression(false, exp);
         for (Location dep : dependencies)
@@ -17,6 +22,7 @@ public class IntExpression extends AbstractLocation implements IntLocation {
         return loc;
     }
 
+    /** Create a lazy IntExpression with the specified expression and dependencies. */
     public static IntLocation makeLazy(IntBindingExpression exp, Location... dependencies) {
         IntExpression loc = new IntExpression(true, exp);
         for (Location dep : dependencies)
@@ -41,7 +47,9 @@ public class IntExpression extends AbstractLocation implements IntLocation {
 
     @Override
     public void update() {
-        value = expression.get();
-        setValid();
+        if (!isValid()) {
+            value = expression.get();
+            setValid();
+        }
     }
 }

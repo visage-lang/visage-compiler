@@ -8,7 +8,9 @@ import java.util.Iterator;
 import java.util.BitSet;
 
 /**
- * SequenceLocation
+ * SequenceVar represents a sequence-valued variable as a Location.
+ * New SequenceVars are constructed with the make() factory
+ * method.  SequenceVar values are always valid; it is an error to invalidate a SequenceVar.
  *
  * @author Brian Goetz
  */

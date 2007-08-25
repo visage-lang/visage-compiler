@@ -1,7 +1,8 @@
 package com.sun.javafx.runtime.location;
 
 /**
- * ObjectVariableLocation
+ * ObjectVar represents an object-valued variable as a Location.  New ObjectVars are constructed with the make() factory
+ * method.  ObjectVar values are always valid; it is an error to invalidate an ObjectVar.
  *
  * @author Brian Goetz
  */

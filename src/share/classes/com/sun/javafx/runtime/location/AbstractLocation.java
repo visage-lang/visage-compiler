@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.lang.ref.WeakReference;
 
 /**
- * AbstractLocation
+ * AbstractLocation is a base class for Location implementations, handling change listener notification and lazy updates.
  *
  * @author Brian Goetz
  */
@@ -33,9 +33,8 @@ public abstract class AbstractLocation implements Location, ChangeListener {
     }
 
     public void invalidate() {
-        if (isLazy())
-            isValid = false;
-        else
+        isValid = false;
+        if (!isLazy())
             update();
         valueChanged();
     }

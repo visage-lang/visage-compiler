@@ -1,7 +1,8 @@
 package com.sun.javafx.runtime.location;
 
 /**
- * IntLocation
+ * IntVar represents a simple Integer variable as a Location.  New IntVars are constructed with the make() factory
+ * method.  IntVar values are always valid; it is an error to invalidate an IntVar.
  *
  * @author Brian Goetz
  */

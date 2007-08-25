@@ -4,7 +4,9 @@ import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 
 /**
- * SequenceValuedLocation
+ * A sequence-valued Location.  Exposes analogues of the mutative methods from Sequence, which modify the sequence
+ * value and notify the appropriate change listeners.  If the change listeners implement the SequenceChangeListener
+ * interface, the additional methods in SequenceChangeListener for insert, delete, and update will be called.
  *
  * @author Brian Goetz
  */
