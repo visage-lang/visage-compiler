@@ -2,12 +2,14 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeTranslator;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.util.*;
+import com.sun.tools.javac.util.List;
+
+import java.io.OutputStreamWriter;
 
 public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisitor {
     /** Visitor method: translate a list of nodes.
      */
+    @Override
     public <T extends JCTree> List<T> translate(List<T> trees) {
 	if (trees == null) return null;
         List<T> prev = null;
@@ -319,5 +321,16 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
     
     public boolean shouldVisitSynthetic() {
         return true;
+    }
+
+    protected void prettyPrint(JCTree node) {
+        OutputStreamWriter osw = new OutputStreamWriter(System.out);
+        JavafxPretty pretty = new JavafxPretty(osw, false);
+        try {
+            pretty.printExpr(node);
+            osw.flush();
+        } catch (Exception ex) {
+            System.err.println("Error in pretty-printing: " + ex);
+        }
     }
 }
