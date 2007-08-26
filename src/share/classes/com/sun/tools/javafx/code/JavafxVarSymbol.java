@@ -28,7 +28,6 @@ package com.sun.tools.javafx.code;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.util.Name;
 
 /**

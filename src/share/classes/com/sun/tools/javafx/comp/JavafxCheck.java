@@ -33,6 +33,12 @@ import com.sun.tools.javac.comp.Check;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.Version;
+import com.sun.tools.javac.code.*;
+import com.sun.tools.javac.code.Type.ClassType;
+import static com.sun.tools.javac.code.TypeTags.*;
+import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher;
+import static com.sun.tools.javafx.comp.JavafxTypeMorpher.BIDI;
 
 /** Type checking helper class for the attribution phase.
  *
@@ -43,6 +49,8 @@ import com.sun.tools.javac.util.Version;
  */
 @Version("@(#)JavafxCheck.java	1.173 07/05/05")
 public class JavafxCheck extends Check {
+    private JavafxTypeMorpher javafxTypeMorpher;
+    
     public static Check instance0(Context context) {
         Check instance = context.get(checkKey);
         if (instance == null)
@@ -60,6 +68,30 @@ public class JavafxCheck extends Check {
 
     protected JavafxCheck(Context context) {
         super(context);
+        javafxTypeMorpher = JavafxTypeMorpher.instance(context);
+    }
+
+    /** Check that a given type is assignable to a given proto-type.
+     *  If it is, return the type, otherwise return errType.
+     *  @param pos        Position to be used for error reporting.
+     *  @param found      The type that was found.
+     *  @param required   The type that was required.
+     */
+    public
+    Type checkType(DiagnosticPosition pos, Type found, Type required) {
+        Type req = required;
+	if (req.tag == CLASS) {
+            if (req.tsym == javafxTypeMorpher.locationSym[TYPE_KIND_OBJECT][BIDI]) {
+                req = ((ClassType)req).typarams_field.head;
+            } else if (req.tsym == javafxTypeMorpher.locationSym[TYPE_KIND_BOOLEAN][BIDI]) {
+                req = Symtab.booleanType;
+            } else if (req.tsym == javafxTypeMorpher.locationSym[TYPE_KIND_DOUBLE][BIDI]) {
+                req = Symtab.doubleType;
+            } else if (req.tsym == javafxTypeMorpher.locationSym[TYPE_KIND_INT][BIDI]) {
+                req = Symtab.intType;
+            }
+        }
+        return super.checkType(pos, found, req);
     }
 
     /** Check that symbol is unique in given scope.

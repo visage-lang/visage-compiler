@@ -73,9 +73,9 @@ public class JavafxTypeMorpher extends TreeTranslator {
     
     public static final int ARGS_IN_ARRAY = 0; // TODO: increase
     public static final int BIDI = ARGS_IN_ARRAY + 1;
-    private final Name[][] locationName;
-    private final ClassSymbol[][] locationSym;
-    private final Type[][] locationType;
+    public final Name[][] locationName;
+    public final ClassSymbol[][] locationSym;
+    public final Type[][] locationType;
     
     private final Type[] realTypeByKind;
     
