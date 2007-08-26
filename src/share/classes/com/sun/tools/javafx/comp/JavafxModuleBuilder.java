@@ -50,6 +50,7 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
     protected static final Context.Key<JavafxModuleBuilder> javafxModuleBuilderKey =
         new Context.Key<JavafxModuleBuilder>();
 
+    public static final String runMethodName = "javafx$run$";
     private Table nameTable;
     private JavafxTreeMaker make;
     private Log log;
@@ -137,12 +138,12 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
         List<JCVariableDecl> emptyVarDefList = List.nil();
 
         // Add run() method...
-        moduleClassDefs.prepend(makeModuleMethod("run", emptyVarDefList, false, stats.toList()));
+        moduleClassDefs.prepend(makeModuleMethod(runMethodName, emptyVarDefList, false, stats.toList()));
 
         // Add main method...
         JCNewClass newClass = make.NewClass(null, emptyExpressionList, make.Ident(moduleClassName),
                 emptyExpressionList, null);
-        JCFieldAccess select = make.Select(newClass, Name.fromString(nameTable, "run"));
+        JCFieldAccess select = make.Select(newClass, Name.fromString(nameTable, runMethodName));
         JCMethodInvocation runCall = make.Apply(emptyExpressionList, select, emptyExpressionList);
         List<JCStatement> mainStats = List.<JCStatement>of(make.Exec(runCall)); 
         List<JCVariableDecl> paramList = List.nil();

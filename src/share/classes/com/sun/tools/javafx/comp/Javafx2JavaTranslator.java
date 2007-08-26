@@ -52,6 +52,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     private final Name numberTypeName;
     private final Name integerTypeName;
     private final Name booleanTypeName;
+    private final Name voidTypeName;  // possibly temporary
     private final Name contextInterfaceName;
     private final Name locationName;
     final Name initializerName;
@@ -94,6 +95,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         numberTypeName  = names.fromString("Number");
         integerTypeName = names.fromString("Integer");
         booleanTypeName = names.fromString("Boolean");
+        voidTypeName = names.fromString("Void");
         contextInterfaceName = names.fromString("com.sun.javafx.runtime.Context");
         locationName = names.fromString("com.sun.javafx.runtime.Location");
         initializerName = names.fromString("javafx$init$");
@@ -168,7 +170,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
             List<JCTypeParameter> typeParams = List.nil();
             // TODO: Need resolved types so I can verify tree one Java class is extended only... Move the rest to interfaces...
             List<JCExpression> interfaces = List.of(make.Identifier(contextInterfaceName));
-            interfaces.appendList(tree.getImplementedInterfaces());
+            interfaces = interfaces.appendList(tree.getImplementedInterfaces());
             JCTree extending = null;
             if (tree.supertypes.length() > 0) {
                 if (tree.supertypes.length() == 1) {
@@ -637,6 +639,9 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                 } else if (className == booleanTypeName) {
                     type = make.TypeIdent(TypeTags.BOOLEAN);
                     type.type = syms.javafx_BooleanType;
+                } else if (className == voidTypeName) {
+                    type = make.TypeIdent(TypeTags.VOID);
+                    type.type = syms.voidType;
                 } else {
                     type = make.Ident(className);
                 }
