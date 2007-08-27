@@ -373,6 +373,7 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
         }
     }
 
+    @Override
     public void visitNewClass(JCNewClass tree) {
         if (!(tree instanceof JavafxJCNewClassObjectLiteral)) {
             storeNewClassForProcessing(tree);
@@ -559,37 +560,37 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
                 return ret;
             }
             else if (type.tag == TypeTags.BYTE) {
-                ret = make.Literal(TypeTags.BYTE, new Byte((byte)0));
+                ret = make.Literal(TypeTags.BYTE, Byte.valueOf((byte)0));
                 ret.type = Symtab.byteType;
                 return ret;
             }
             else if (type.tag == TypeTags.CHAR) {
-                ret = make.Literal(TypeTags.CHAR, new Character((char)0));
+                ret = make.Literal(TypeTags.CHAR, Character.valueOf((char)0));
                 ret.type = Symtab.charType;
                 return ret;
             }
             else if (type.tag == TypeTags.DOUBLE) {
-                ret = make.Literal(TypeTags.DOUBLE, new Double(0.0));
+                ret = make.Literal(TypeTags.DOUBLE, Double.valueOf(0.0));
                 ret.type = Symtab.doubleType;
                 return ret;
             }
             else if (type.tag == TypeTags.FLOAT) {
-                ret = make.Literal(TypeTags.FLOAT, new Float(0.0));
+                ret = make.Literal(TypeTags.FLOAT, Float.valueOf(0.0f));
                 ret.type = Symtab.floatType;
                 return ret;
             }
             else if (type.tag == TypeTags.INT) {
-                ret = make.Literal(TypeTags.INT, new Integer(0));
+                ret = make.Literal(TypeTags.INT, Integer.valueOf(0));
                 ret.type = Symtab.intType;
                 return ret;
             }
             else if (type.tag == TypeTags.LONG) {
-                ret = make.Literal(TypeTags.LONG, new Long(0L));
+                ret = make.Literal(TypeTags.LONG, Long.valueOf(0L));
                 ret.type = Symtab.longType;
                 return ret;
             }
             else if (type.tag == TypeTags.SHORT) {
-                ret = make.Literal(TypeTags.SHORT, new Short((short)0));
+                ret = make.Literal(TypeTags.SHORT, Short.valueOf((short)0));
                 ret.type = Symtab.shortType;
                 return ret;
             }
@@ -740,6 +741,7 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
             return Name.fromString(names, newClassSyntheticNamePrefix + (newClassSyntheticNameCounter++));
         }
 
+        @Override
         public void visitNewClass(JCNewClass tree) {
             if (!skipFirst && tree == newClassHelper.newClassTree) {
                 assert newClassReplacement != null : "Sanity chack... newClassReplacement must not be null!";
@@ -756,7 +758,7 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
         }
     }
     
-    class JavafxNewClassHelper {
+    static class JavafxNewClassHelper {
         public JCNewClass newClassTree;
         public JCStatement ownerStatement;
         public JCTree ownerBlock;

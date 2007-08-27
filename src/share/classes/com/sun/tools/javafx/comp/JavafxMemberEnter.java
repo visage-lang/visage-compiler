@@ -591,7 +591,7 @@ public class JavafxMemberEnter extends MemberEnter {
         }
     }
 
-    class MethodInferTypeHelper {
+    static class MethodInferTypeHelper {
         JCMethodDecl method;
         Env<AttrContext> lEnv;
         MethodInferTypeHelper(JCMethodDecl method,  Env<AttrContext> lEnv) {

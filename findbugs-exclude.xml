@@ -2,4 +2,8 @@
     <Match>
         <Package name="com.sun.tools.javafx.antlr"/>
     </Match>
+    <Match>
+        <Class name="com.sun.tools.javafx.tree.JavafxTreeMaker" />
+        <Bug  pattern="NM_METHOD_NAMING_CONVENTION" />
+    </Match>
 </FindBugsFilter>
