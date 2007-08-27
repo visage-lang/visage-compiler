@@ -5,7 +5,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface ObjectLocation<T> {
+public interface ObjectLocation<T> extends Location {
     /** Retrieve the current value associated with this Location, recomputing if necessary */
     T get();
 
