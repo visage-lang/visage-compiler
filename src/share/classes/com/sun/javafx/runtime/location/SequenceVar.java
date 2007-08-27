@@ -5,7 +5,6 @@ import com.sun.javafx.runtime.sequence.SequencePredicate;
 
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
-import java.util.BitSet;
 
 /**
  * SequenceVar represents a sequence-valued variable as a Location.
@@ -17,6 +16,7 @@ import java.util.BitSet;
 public class SequenceVar<T> extends AbstractLocation implements SequenceLocation<T> {
 
     private Sequence<T> sequence;
+    private boolean hasSequenceListeners;
 
     public static <T> SequenceVar<T> make(Sequence<T> value) {
         return new SequenceVar<T>(value);
@@ -32,6 +32,14 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
         throw new UnsupportedOperationException();
     }
 
+
+    @Override
+    public void addChangeListener(ChangeListener listener) {
+        if (listener instanceof SequenceChangeListener)
+            hasSequenceListeners = true;
+        super.addChangeListener(listener);
+    }
+
     private void elementChanged(int position, T oldValue, T newValue) {
         if (listeners != null) {
             for (Iterator<WeakReference<ChangeListener>> iterator = listeners.iterator(); iterator.hasNext();) {
@@ -42,7 +50,7 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
                     continue;
                 }
                 listener.onChange();
-                if (listener instanceof SequenceChangeListener) {
+                if (hasSequenceListeners && listener instanceof SequenceChangeListener) {
                     ((SequenceChangeListener<T>) listener).onReplace(position, oldValue, newValue);
                 }
             }
@@ -59,7 +67,7 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
                     continue;
                 }
                 listener.onChange();
-                if (listener instanceof SequenceChangeListener) {
+                if (hasSequenceListeners && listener instanceof SequenceChangeListener) {
                     ((SequenceChangeListener<T>) listener).onDelete(oldValue);
                 }
             }
@@ -76,7 +84,7 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
                     continue;
                 }
                 listener.onChange();
-                if (listener instanceof SequenceChangeListener) {
+                if (hasSequenceListeners && listener instanceof SequenceChangeListener) {
                     ((SequenceChangeListener<T>) listener).onInsert(newValue);
                 }
             }
