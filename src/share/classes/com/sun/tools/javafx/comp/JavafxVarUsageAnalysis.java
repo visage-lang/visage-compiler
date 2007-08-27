@@ -30,27 +30,36 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 
 /**
  *
  * @author Robert Field
  */
 public class JavafxVarUsageAnalysis extends TreeScanner {
+    private final JavafxTypeMorpher typeMorpher;
     private boolean inLHS = false;
     private boolean inBindContext = false;
     
-    JavafxVarUsageAnalysis() { }
+    JavafxVarUsageAnalysis(JavafxTypeMorpher typeMorpher) { 
+        this.typeMorpher = typeMorpher;
+    }
     
-    private void markVarUse(JavafxVarSymbol vsym) {
-        if (inBindContext) {
-            if (inLHS) {
-                // ??? assignment in function / bind expression
+    private void markVarUse(Symbol sym) {
+        if (sym instanceof VarSymbol) {
+            VarSymbol vsym = (VarSymbol)sym;
+            VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+            if (inBindContext) {
+                if (inLHS) {
+                    // ??? assignment in function / bind expression
+                } else {
+                    vmi.markBoundTo();
+                }
             } else {
-                vsym.markBoundTo();
-            }
-        } else {
-            if (inLHS) {
-                vsym.markAssignedTo();
+                if (inLHS) {
+                    vmi.markAssignedTo();
+                }
             }
         }
     }
@@ -63,8 +72,8 @@ public class JavafxVarUsageAnalysis extends TreeScanner {
             boolean wasInBindContext = inBindContext;
             inBindContext |= var.isBound();
             scan(tree.init);
-            if (inBindContext && tree.sym instanceof JavafxVarSymbol) {
-                ((JavafxVarSymbol)tree.sym).markBoundTo();
+            if (inBindContext) {
+                markVarUse(tree.sym);
             }
             inBindContext = wasInBindContext;
         } else {
@@ -89,9 +98,7 @@ public class JavafxVarUsageAnalysis extends TreeScanner {
                 } else if (tree.lhs instanceof JCFieldAccess) {
                     vsym = ((JCFieldAccess)tree.lhs).sym;
                 }
-                if (vsym instanceof JavafxVarSymbol) {
-                    ((JavafxVarSymbol)vsym).markBoundTo();
-                }
+                markVarUse(vsym);
             }
         }
         scan(tree.rhs);
@@ -108,9 +115,7 @@ public class JavafxVarUsageAnalysis extends TreeScanner {
     
     @Override
     public void visitIdent(JCIdent tree) {
-        if (tree.sym instanceof JavafxVarSymbol) {
-            markVarUse((JavafxVarSymbol)tree.sym);
-        }
+        markVarUse(tree.sym);
     }
     
     @Override
@@ -122,9 +127,7 @@ public class JavafxVarUsageAnalysis extends TreeScanner {
         scan(tree.selected);
         inLHS = wasLHS;
         
-        if (tree.sym instanceof JavafxVarSymbol) {
-            markVarUse((JavafxVarSymbol)tree.sym);
-        }
+        markVarUse(tree.sym);
     }
     
     public void visitBlockExpression(JFXBlockExpression tree) {

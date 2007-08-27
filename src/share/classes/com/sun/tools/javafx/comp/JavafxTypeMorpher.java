@@ -50,7 +50,6 @@ import com.sun.tools.javafx.tree.JavafxJCVarDecl;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 
-
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,9 +72,9 @@ public class JavafxTypeMorpher extends TreeTranslator {
     
     public static final int ARGS_IN_ARRAY = 0; // TODO: increase
     public static final int BIDI = ARGS_IN_ARRAY + 1;
-    public final Name[][] locationName;
-    public final ClassSymbol[][] locationSym;
-    public final Type[][] locationType;
+    public static Name[][] locationName;
+    public static ClassSymbol[][] locationSym;
+    public static Type[][] locationType;
     
     private final Type[] realTypeByKind;
     
@@ -107,6 +106,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
         int[] exprNumNext;
         ListBuffer<ExprInfo>[] infoByGroup; // by group
  
+        @SuppressWarnings("unchecked")
         PerClassInfo() {
             this.bindContext = JavafxBindStatus.UNBOUND;
             this.inLHS = false;
@@ -125,23 +125,25 @@ public class JavafxTypeMorpher extends TreeTranslator {
         }
     }
     
-    private Map<JavafxVarSymbol, VarInfo> varMap;
+    private Map<VarSymbol, VarInfo> varMap;
+    
+    private Map<VarSymbol, VarMorphInfo> vmiMap = new HashMap<VarSymbol, VarMorphInfo>();
     
     private PerClassInfo classInfo;
     
     private static class ExprInfo {
         final int exprNum;
         final JCExpression expr;
-        final Map<JavafxVarSymbol,VarInfo> varMap;
-        final JavafxVarSymbol vsym;
+        final Map<VarSymbol,VarInfo> varMap;
+        final VarSymbol vsym;
         final int argsGroup;
         
         JCStatement updateStatement;  // ????
         
         ExprInfo(
-                Map<JavafxVarSymbol,VarInfo> varMap,
+                Map<VarSymbol,VarInfo> varMap,
                 int exprNum,
-                JavafxVarSymbol vsym,
+                VarSymbol vsym,
                 JCExpression expr,
                 int argsGroup) {
             this.varMap = varMap;
@@ -152,12 +154,101 @@ public class JavafxTypeMorpher extends TreeTranslator {
         }
     }
     
-    private static class VarInfo {
-        final JCIdent origIdent;
+    static class VarInfo {
+        JCIdent origIdent;
         JCExpression replacement;
         VarInfo(JCIdent origIdent) {
             this.origIdent = origIdent;
         }
+    }
+    
+    static class VarMorphInfo {
+        VarSymbol varSymbol;
+        Type realType;
+        int typeKind;
+        boolean shouldMorph = false;
+        boolean haveDeterminedMorphability = false;
+        boolean isBoundTo = false;
+        boolean isAssignedTo = false;
+        
+        VarMorphInfo(VarSymbol varSymbol) {
+            this.varSymbol = varSymbol;
+        }
+
+        private boolean shouldMorph() {
+            if (!haveDeterminedMorphability()) {
+                realType = varSymbol.type;
+                TypeSymbol realTsym = realType.tsym;
+                Type locationType = null;
+                if (realTsym == locationSym[TYPE_KIND_OBJECT][BIDI]) {
+                    locationType = ((ClassType) realType).typarams_field.head;
+                    typeKind = TYPE_KIND_OBJECT;
+                } else if (realTsym == locationSym[TYPE_KIND_BOOLEAN][BIDI]) {
+                    locationType = Symtab.booleanType;
+                    typeKind = TYPE_KIND_BOOLEAN;
+                } else if (realTsym == locationSym[TYPE_KIND_DOUBLE][BIDI]) {
+                    locationType = Symtab.doubleType;
+                    typeKind = TYPE_KIND_DOUBLE;
+                } else if (realTsym == locationSym[TYPE_KIND_INT][BIDI]) {
+                    locationType = Symtab.intType;
+                    typeKind = TYPE_KIND_INT;
+                }
+                if (locationType != null) {
+                    // External module with a Location type
+                    setUsedType(realType);
+                    realType = locationType;
+                    markShouldMorph();
+                } else if (isBoundTo() || ((varSymbol instanceof JavafxVarSymbol) && 
+                                        (((JavafxVarSymbol) varSymbol).isBound() || 
+                                          varSymbol.owner.kind != Kinds.MTH))) {
+                    if (realType.isPrimitive()) {
+                        if (realTsym == Symtab.doubleType.tsym) {
+                            typeKind = TYPE_KIND_DOUBLE;
+                        } else if (realTsym == Symtab.intType.tsym) {
+                            typeKind = TYPE_KIND_INT;
+                        } else if (realTsym == Symtab.booleanType.tsym) {
+                            typeKind = TYPE_KIND_BOOLEAN;
+                        } else {
+                            assert false : "should not reach here";
+                            typeKind = TYPE_KIND_OBJECT;
+                        }
+                    } else {
+                        typeKind = TYPE_KIND_OBJECT;
+                    }
+                    if (realType.constValue() != null) {
+                        realType = realType.baseType();
+                    }
+                    // must be called AFTER typeKind and realType are set in vsym
+                    setUsedType(generifyIfNeeded(biDiLocationType(typeKind), this));
+                    markShouldMorph();
+                }
+                markDeterminedMorphability();
+            }
+            return shouldMorph;
+        }
+
+        private void markShouldMorph() { shouldMorph = true; }
+        private void markDeterminedMorphability() { haveDeterminedMorphability = true; }
+        private boolean haveDeterminedMorphability() { return haveDeterminedMorphability; }
+        public Type getRealType() { return realType; }
+        public Type getUsedType() { return varSymbol.type; }
+        private void setUsedType(Type usedType) { varSymbol.type = usedType; }
+    
+        public boolean isBoundTo() { return isBoundTo; }
+        public boolean isAssignedTo() { return isAssignedTo; }
+        public void markBoundTo() { this.isBoundTo = true; }
+        public void markAssignedTo() { this.isAssignedTo = true; }
+
+        public int getTypeKind() { return typeKind; }
+    }
+    
+    VarMorphInfo varMorphInfo(VarSymbol sym) {
+        VarMorphInfo vmi = vmiMap.get(sym);
+        if (vmi == null) {
+            vmi = new VarMorphInfo(sym);
+            vmiMap.put(sym, vmi);
+        }
+        return vmi;
     }
     
     public static JavafxTypeMorpher instance(Context context) {
@@ -344,7 +435,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
         unconstifyHack().scan(attrEnv.tree);   //TODO: shouldn't need this
 
         // Determine variable usage
-        JavafxVarUsageAnalysis analyzer = new JavafxVarUsageAnalysis();
+        JavafxVarUsageAnalysis analyzer = new JavafxVarUsageAnalysis(this);
         analyzer.scan(attrEnv.tree);
         
         // Now translate the tree
@@ -383,7 +474,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
         return result;
     }
     
-    Type biDiLocationType(int typeKind) {
+    static Type biDiLocationType(int typeKind) {
         return locationType[typeKind][BIDI];
     }
     
@@ -417,61 +508,24 @@ public class JavafxTypeMorpher extends TreeTranslator {
         return result;
     }
     
-    private Type generifyIfNeeded(Type aLocationType, JavafxVarSymbol vsym) {
+    private static Type generifyIfNeeded(Type aLocationType, VarMorphInfo vmi) {
         Type newType;
-        if (vsym.getTypeKind() == TYPE_KIND_OBJECT) {
-            List<Type> actuals = List.of(vsym.getRealType());
+        if (vmi.getTypeKind() == TYPE_KIND_OBJECT) {
+            List<Type> actuals = List.of(vmi.getRealType());
             List<Type> formals = aLocationType.tsym.type.getTypeArguments();
             actuals.head = actuals.head.withTypeVar(formals.head);
-            Type clazzOuter = biDiLocationType(vsym.getTypeKind()).getEnclosingType();
+            Type clazzOuter = biDiLocationType(vmi.getTypeKind()).getEnclosingType();
             newType = new ClassType(clazzOuter, actuals, aLocationType.tsym);
         } else {
             newType = aLocationType;
         }
         return newType;
     }
-    
-    private boolean shouldMorph(JavafxVarSymbol vsym) {
-        if (!vsym.haveDeterminedMorphability()) {
-            Type realType = vsym.type;
-            if (vsym.isBound() || vsym.isBoundTo() || vsym.owner.kind != Kinds.MTH) {
-                Type newType;
-                int typeKind;
-                if (realType.isPrimitive()) {
-                    Symbol realTsym = realType.tsym;
-                    if (realTsym == Symtab.doubleType.tsym) {
-                        typeKind = TYPE_KIND_DOUBLE;
-                    } else if (realTsym == Symtab.intType.tsym) {
-                        typeKind = TYPE_KIND_INT;
-                    } else if (realTsym == Symtab.booleanType.tsym) {
-                        typeKind = TYPE_KIND_BOOLEAN;
-                    } else {
-                        assert false : "should not reach here";
-                        typeKind = TYPE_KIND_OBJECT;
-                    }
-                } else {
-                    typeKind = TYPE_KIND_OBJECT;
-                }
-                vsym.setTypeKind(typeKind);
-                if (realType.constValue() != null) {
-                    realType = realType.baseType();
-                }
-                vsym.setRealType(realType);
-                // must be called AFTER typeKind and realType are set in vsym
-                vsym.setUsedType(generifyIfNeeded(biDiLocationType(typeKind), vsym));
-                vsym.markShouldMorph();
-            } else {
-                
-            }
-            vsym.markDeterminedMorphability();
-        }
-        return vsym.shouldMorph();
-    }
-    
-    JCExpression convertVariableReference(JCExpression varRef, JavafxVarSymbol vsym) {
+        
+    JCExpression convertVariableReference(JCExpression varRef, VarMorphInfo vmi) {
         JCExpression expr;
         
-        varRef.setType(vsym.getUsedType());
+        varRef.setType(vmi.getUsedType());
         if (classInfo.bindContext.isBidiBind()) {
             // already in correct form-- leave it
             expr = varRef;
@@ -483,7 +537,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
             JCFieldAccess getSelect = make.Select(varRef, getMethodName);
             getSelect.sym = rs.resolveInternalMethod(varRef.pos(),
                     attrEnv,
-                    vsym.getUsedType(),
+                    vmi.getUsedType(),
                     getMethodName,
                     List.<Type>nil(),    // argtypes
                     List.<Type>nil());   // typeargs
@@ -491,7 +545,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
             
             List<JCExpression> getArgs = List.nil();
             expr = make.Apply(null, getSelect, getArgs);
-            expr.setType(vsym.getRealType());
+            expr.setType(vmi.getRealType());
         }
         return expr;
     }
@@ -513,10 +567,10 @@ public class JavafxTypeMorpher extends TreeTranslator {
         }
     }
     
-    private JCExpression makeUsedTypeExpression(JavafxVarSymbol vsym, int pos) {
-        Type realType = vsym.getRealType();
+    private JCExpression makeUsedTypeExpression(VarMorphInfo vmi, int pos) {
+        Type realType = vmi.getRealType();
         TypeSymbol realTsym = realType.tsym;
-        Type usedType = vsym.getUsedType();
+        Type usedType = vmi.getUsedType();
         TypeSymbol usedTsym = usedType.tsym;
         JCExpression typeExp;
 
@@ -532,24 +586,24 @@ public class JavafxTypeMorpher extends TreeTranslator {
         return typeExp;
     }
     
-    private JCExpression translateDefinitionalAssignment(JCExpression init, JavafxVarSymbol vsym, 
+    private JCExpression translateDefinitionalAssignment(JCExpression init, VarMorphInfo vmi, 
                                                         DiagnosticPosition diagPos,
                                                         JCExpression typeExp, JavafxBindStatus bindStatus) {
         JCExpression result;
         if (bindStatus.isUnidiBind()) {
-            result = registerExpression(vsym, init);
+            result = registerExpression(vmi.varSymbol, init);
         } else {
             result = boundTranslate(init, bindStatus);
 
-            if (result.type.tsym != vsym.getUsedType().tsym) {
-                Type realType = vsym.getRealType();
+            if (result.type.tsym != vmi.getUsedType().tsym) {
+                Type realType = vmi.getRealType();
                 JCFieldAccess makeSelect = make.at(diagPos).Select(typeExp, makeMethodName);
-                makeSelect.sym = rs.resolveInternalMethod(diagPos, attrEnv, vsym.getUsedType(), makeMethodName, List.<Type>of(realType), realType.isPrimitive() ? List.<Type>nil() : List.<Type>of(realType)); // typeargs
+                makeSelect.sym = rs.resolveInternalMethod(diagPos, attrEnv, vmi.getUsedType(), makeMethodName, List.<Type>of(realType), realType.isPrimitive() ? List.<Type>nil() : List.<Type>of(realType)); // typeargs
                 makeSelect.setType(makeSelect.sym.type);
 
                 List<JCExpression> makeArgs = List.of(result);
                 JCExpression makeApply = make.at(diagPos).Apply(null, makeSelect, makeArgs);
-                makeApply.setType(vsym.getUsedType());
+                makeApply.setType(vmi.getUsedType());
 
                 result = makeApply;
             }
@@ -604,52 +658,49 @@ public class JavafxTypeMorpher extends TreeTranslator {
     
     @Override
     public void visitVarDef(JCVariableDecl tree) {
+        JavafxBindStatus bindStatus = JavafxBindStatus.UNBOUND;
+        boolean isBound = false;
         if (tree instanceof JavafxJCVarDecl) {
             JavafxJCVarDecl var = (JavafxJCVarDecl)tree;
             
             var.anonymousChangeListener = translate(var.anonymousChangeListener);
-            
-            if (var.sym instanceof JavafxVarSymbol) {
-                JavafxVarSymbol vsym = (JavafxVarSymbol)(var.sym);
-                if (shouldMorph(vsym)) {
-                    JCExpression typeExp = makeUsedTypeExpression(vsym, tree.pos);
+            bindStatus = var.getBindStatus();
+            isBound = var.isBound();
+        }
+        VarSymbol vsym = tree.sym;
+        VarMorphInfo vmi = varMorphInfo(vsym);
+        if (vmi.shouldMorph()) {
+            JCExpression typeExp = makeUsedTypeExpression(vmi, tree.pos);
 
-                    if (tree.init != null) {
-                        tree.init = translateDefinitionalAssignment(tree.init, 
-                                vsym, 
-                                tree.pos(), 
-                                typeExp, 
-                                var.getBindStatus());
-                    } else {
-                        // no initializing expression, do default
-                        Type realType = vsym.getRealType();
-                        JCFieldAccess makeSelect = make.at(tree.pos).Select(typeExp, makeMethodName);
-                        makeSelect.sym = rs.resolveInternalMethod(tree.pos(), 
-                                attrEnv, 
-                                vsym.getUsedType(), 
-                                makeMethodName, 
-                                List.<Type>nil(), 
-                                realType.isPrimitive() ? List.<Type>nil() : List.<Type>of(realType)); // typeargs
-                        makeSelect.setType(makeSelect.sym.type);
+            if (tree.init != null) {
+                tree.init = translateDefinitionalAssignment(tree.init, vmi, tree.pos(), typeExp, bindStatus);
+            } else {
+                // no initializing expression, do default
+                Type realType = vmi.getRealType();
+                JCFieldAccess makeSelect = make.at(tree.pos).Select(typeExp, makeMethodName);
+                makeSelect.sym = rs.resolveInternalMethod(tree.pos(), 
+                        attrEnv, vmi.getUsedType(), 
+                        makeMethodName, 
+                        List.<Type>nil(), 
+                        realType.isPrimitive() ? List.<Type>nil() : List.<Type>of(realType)); // typeargs
+                makeSelect.setType(makeSelect.sym.type);
 
-                        List<JCExpression> makeArgs = List.nil();
-                        JCExpression makeApply = make.at(tree.pos).Apply(null, makeSelect, makeArgs);
-                        makeApply.setType(vsym.getUsedType());
+                List<JCExpression> makeArgs = List.nil();
+                JCExpression makeApply = make.at(tree.pos).Apply(null, makeSelect, makeArgs);
+                makeApply.setType(vmi.getUsedType());
 
-                        tree.init = makeApply;
-                    }
-
-                    var.type = typeExp.type;
-                    var.vartype = typeExp;
-
-                    if (var.isBound()) {
-                        var.mods.flags |= Flags.FINAL;
-                    }
-                    result = tree;
-                    return;
-                }
+                tree.init = makeApply;
             }
-         }
+
+            tree.type = typeExp.type;
+            tree.vartype = typeExp;
+
+            if (isBound) {
+                tree.mods.flags |= Flags.FINAL;
+            }
+            result = tree;
+            return;
+        }
         tree.init = translate(tree.init);
         if (tree.init != null && tree.init.type.constValue() != null) {
             tree.init.type = tree.init.type.baseType();
@@ -669,45 +720,44 @@ public class JavafxTypeMorpher extends TreeTranslator {
             JCFieldAccess varaccess = (JCFieldAccess)lhs;
             sym = varaccess.sym;
         }
-        JavafxVarSymbol vsym = null;
-        if (sym != null && (sym instanceof JavafxVarSymbol)) {
-            vsym = (JavafxVarSymbol)sym;
+        VarSymbol vsym = null;
+        if (sym != null && (sym instanceof VarSymbol)) {
+            vsym = (VarSymbol)sym;
         }
-        if (vsym != null && shouldMorph(vsym)) {
-            lhs.setType(vsym.getUsedType());
-            if (tree instanceof JavafxJCAssign) {
-                // This is a definitional assignment 
-                JavafxJCAssign assign = (JavafxJCAssign)tree;
-                JCExpression typeExp = makeUsedTypeExpression(vsym, tree.pos);
-                tree.rhs = translateDefinitionalAssignment(tree.rhs, 
-                                vsym, 
+        
+        if (vsym != null) {
+            VarMorphInfo vmi = varMorphInfo(vsym);
+            if (vmi.shouldMorph()) {
+                lhs.setType(vmi.getUsedType());
+                if (tree instanceof JavafxJCAssign) {
+                    // This is a definitional assignment
+                    JavafxJCAssign assign = (JavafxJCAssign)tree;
+                    JCExpression typeExp = makeUsedTypeExpression(vmi, tree.pos);
+                    tree.rhs = translateDefinitionalAssignment(tree.rhs, 
+                                vmi, 
                                 tree.pos(), 
                                 typeExp, 
                                 assign.getBindStatus());
-                tree.setType(vsym.getUsedType());
-                result = tree;
-            } else {
-                // normal assignment
-                JCExpression rhs = translate(tree.rhs);
-                Type realType = vsym.getRealType();
-                //if (realType.isPrimitive()) {
-                JCFieldAccess setSelect = make.Select(lhs, setMethodName);
-                setSelect.sym = rs.resolveInternalMethod(tree.pos(), 
-                        attrEnv, 
-                        vsym.getUsedType(), 
-                        setMethodName, 
-                        List.<Type>of(realType), // param type
-                        List.<Type>nil()); // typeargs
-                setSelect.setType(setSelect.sym.type);
+                    tree.setType(vmi.getUsedType());
+                    result = tree;
+                } else {
+                    // normal assignment
+                    JCExpression rhs = translate(tree.rhs);
+                    Type realType = vmi.getRealType();
+                    //if (realType.isPrimitive()) {
+                    JCFieldAccess setSelect = make.Select(lhs, setMethodName);
+                    setSelect.sym = rs.resolveInternalMethod(tree.pos(), attrEnv, vmi.getUsedType(), setMethodName, List.<Type>of(realType), List.<Type>nil()); // typeargs
+                    setSelect.setType(setSelect.sym.type);
 
-                List<JCExpression> setArgs = List.of(rhs);
-                result = make.Apply(null, setSelect, setArgs);
-                result.setType(Symtab.voidType);
+                    List<JCExpression> setArgs = List.of(rhs);
+                    result = make.Apply(null, setSelect, setArgs);
+                    result.setType(Symtab.voidType);
+                }
+            } else {
+                tree.lhs = lhs;
+                tree.rhs = translate(tree.rhs);
+                result = tree;
             }
-        } else {
-            tree.lhs = lhs;
-            tree.rhs = translate(tree.rhs);
-            result = tree;
         }
     }
     
@@ -717,10 +767,12 @@ public class JavafxTypeMorpher extends TreeTranslator {
         // event the selector is a value expression
         tree.selected = translateLHS(tree.selected, false);
         
-        if (tree.sym instanceof JavafxVarSymbol) {
-            JavafxVarSymbol vsym = (JavafxVarSymbol)tree.sym;
-            if (shouldMorph(vsym)) {
-                result = convertVariableReference(tree, vsym);
+        if (tree.sym instanceof VarSymbol) {
+            VarSymbol vsym = (VarSymbol)tree.sym;
+            
+            VarMorphInfo vmi = varMorphInfo(vsym);
+            if (vmi.shouldMorph()) {
+                result = convertVariableReference(tree, vmi);
                 return;
             }
         }
@@ -744,14 +796,15 @@ public class JavafxTypeMorpher extends TreeTranslator {
     
     @Override
     public void visitIdent(JCIdent tree)   {
-        if (tree.sym instanceof JavafxVarSymbol) {
-            JavafxVarSymbol vsym = (JavafxVarSymbol)tree.sym;
-            if (shouldMorph(vsym)) {
+        if (tree.sym instanceof VarSymbol) {
+            VarSymbol vsym = (VarSymbol)tree.sym;
+            VarMorphInfo vmi = varMorphInfo(vsym);
+            if (vmi.shouldMorph()) {
                 if (classInfo.bindContext.isUnidiBind()) {
-                    Type realType = vsym.getRealType();
+                    Type realType = vmi.getRealType();
                     JCExpression locAccess = varMap.get(vsym).replacement;
                     
-                    Name methName = valueAccessName[vsym.getTypeKind()];
+                    Name methName = valueAccessName[vmi.getTypeKind()];
                     JCFieldAccess getSelect = make.Select(locAccess, methName);
                     getSelect.sym = rs.resolveInternalMethod(locAccess.pos(),
                             attrEnv,
@@ -765,22 +818,19 @@ public class JavafxTypeMorpher extends TreeTranslator {
                     JCExpression expr = make.Apply(null, getSelect, getArgs);
                     expr.setType(realType);
                     
-                    if (vsym.getTypeKind() == TYPE_KIND_OBJECT) {
+                    if (vmi.getTypeKind() == TYPE_KIND_OBJECT) {
                         expr = castToReal(realType, expr);
                     }
                     
                     result = expr;
                     return;
                 } else {
-                    result = convertVariableReference(tree, vsym);
+                    result = convertVariableReference(tree, vmi);
                     return;
                 }
             }
         }
         super.visitIdent(tree);
-        if (tree.type.constValue() != null) {
-            tree.setType(tree.type.baseType());
-        }
     }
 
     public void visitBlockExpression(JFXBlockExpression tree) {
@@ -893,16 +943,17 @@ public class JavafxTypeMorpher extends TreeTranslator {
         }
     }
     
-    public JCExpression registerExpression(JavafxVarSymbol vsym, JCExpression tree) {
-        final HashMap<JavafxVarSymbol,VarInfo> varMap = new HashMap<JavafxVarSymbol,VarInfo>();
+    public JCExpression registerExpression(VarSymbol vsym, JCExpression tree) {
+        final HashMap<VarSymbol,VarInfo> varMap = new HashMap<VarSymbol,VarInfo>();
         
         TreeScanner ts = new TreeScanner() {
             @Override
             public void visitIdent(JCIdent tree)   {
-                if (tree.sym instanceof JavafxVarSymbol) {
-                    JavafxVarSymbol vsym = (JavafxVarSymbol)tree.sym;
-                    if (vsym.shouldMorph()) {
-                        tree.setType(vsym.getUsedType());
+                if (tree.sym instanceof VarSymbol) {
+                    VarSymbol vsym = (VarSymbol)tree.sym;
+                    VarMorphInfo vmi = varMorphInfo(vsym);
+                    if (vmi.shouldMorph()) {
+                        tree.setType(vmi.getUsedType());
                         
                         varMap.put(vsym, new VarInfo(tree));
                     }
@@ -919,12 +970,12 @@ public class JavafxTypeMorpher extends TreeTranslator {
         ExprInfo info = new ExprInfo(varMap, exprNum, vsym, tree, argsGroup);
         classInfo.infoByGroup[argsGroup].append(info);
         
-        
-        Type realType = vsym.getRealType();
+        VarMorphInfo vmi = varMorphInfo(vsym);
+        Type realType = vmi.getRealType();
         TypeSymbol realTsym = realType.tsym;
-        Type usedType = vsym.getUsedType();
+        Type usedType = vmi.getUsedType();
         TypeSymbol usedTsym = usedType.tsym;
-        int typeKind = vsym.getTypeKind();
+        int typeKind = vmi.getTypeKind();
         
         JCExpression exprLocId = expressionLocationId(tree.pos, typeKind, argsGroup);
         if (typeKind == TYPE_KIND_OBJECT) {
@@ -932,7 +983,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
             args.append(make.Ident(realType.tsym));
             Type exprLocType = exprLocId.type;
             exprLocId = make.TypeApply(exprLocId, args.toList());
-            exprLocId.setType(generifyIfNeeded(exprLocType, vsym));
+            exprLocId.setType(generifyIfNeeded(exprLocType, vmi));
         }
         
         ListBuffer<Type> argTypes = ListBuffer.lb();
@@ -974,18 +1025,17 @@ public class JavafxTypeMorpher extends TreeTranslator {
     }
     
     public JCStatement buildExpression(ExprInfo info, JCMethodDecl applyMethod) {
-        JavafxVarSymbol vsym = info.vsym;
+        VarSymbol vsym = info.vsym;
         JCExpression tree = info.expr;
-        int argsGroup = info.argsGroup;
+        int argsGroup = info.argsGroup;   
         varMap = info.varMap;
-        
         
         List<JCVariableDecl> params = applyMethod.getParameters();
         JCVariableDecl boundVar = params.head;
         List<JCVariableDecl> args = params.tail.tail;
         
         int i = 0;
-        for (JavafxVarSymbol orig : info.varMap.keySet()) {
+        for (VarSymbol orig : varMap.keySet()) {
             JCExpression argsExp = make.at(tree.pos).Ident(args.head.sym);
             if (argsGroup == ARGS_IN_ARRAY) {
                 argsExp.setType(new ArrayType(baseLocationType, syms.arrayClass));
@@ -1018,13 +1068,14 @@ public class JavafxTypeMorpher extends TreeTranslator {
         JCExpression updateExpr = boundTranslate(tree, JavafxBindStatus.UNIDIBIND);
         
         JCExpression lhs = make.Ident(boundVar.sym);
-        Name valueSetMethod = valueSetName[vsym.getTypeKind()];
+        VarMorphInfo vmi = varMorphInfo(vsym);
+        Name valueSetMethod = valueSetName[vmi.getTypeKind()];
         JCFieldAccess setSelect = make.Select(lhs, valueSetMethod);
         setSelect.sym = rs.resolveInternalMethod(tree.pos(),
                 attrEnv,
-                vsym.getUsedType(),
+                vmi.getUsedType(),
                 valueSetMethod,
-                List.<Type>of(vsym.getRealType()),    // argtypes
+                List.<Type>of(vmi.getRealType()),    // argtypes
                 List.<Type>nil());   // typeargs
         setSelect.setType(setSelect.sym.type);
         

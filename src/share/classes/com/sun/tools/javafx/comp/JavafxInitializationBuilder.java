@@ -669,7 +669,7 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
     
         @Override
         public void visitBlock(JCBlock tree) {
-            ListBuffer<JCStatement> stats = new ListBuffer();
+            ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
             for (JCStatement stat : tree.stats) {
                 if (stat == newClassHelper.ownerStatement) {
                     addJavafxInitializer(stats);
@@ -685,7 +685,7 @@ public class JavafxInitializationBuilder extends JavafxAbstractVisitor {
 
         @Override
         public void visitBlockExpression(JFXBlockExpression tree) {
-            ListBuffer<JCStatement> stats = new ListBuffer();
+            ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
             for (JCStatement stat : tree.stats) {
                 if (stat == newClassHelper.ownerStatement) {
                     addJavafxInitializer(stats);
