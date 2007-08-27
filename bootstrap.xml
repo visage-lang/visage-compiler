@@ -68,7 +68,7 @@
         <delete dir="${antlrworks.dir}"/>
     </target>
 
-    <target name="all" depends="prepare,junit,ant,docbook,findbugs,saxon,xincluder,antlr,antlrworks"/>
+    <target name="all" depends="prepare,junit,ant,docbook,findbugs,saxon,xincluder,antlr,antlrworks,emma"/>
 
     <target name="ant" depends="prepare">
         <get src="${ant.url}" dest="${ant.zipfile}"/>
