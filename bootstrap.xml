@@ -39,6 +39,9 @@
     <property name="antlrworks.url" value="http://antlr.org/download/antlrworks-${antlrworks.ver}.jar"/>
     <property name="antlrworks.file" value="${antlrworks.dir}/antlrworks-${antlrworks.ver}.jar"/>
 
+    <property name="emma.url" value="http://downloads.sourceforge.net/emma/emma-${emma.ver}-lib.zip"/>
+    <property name="emma.zipfile" value="${bootstrap.dir}/emma-${emma.ver}.zip"/>
+
 
     <target name="prepare">
         <mkdir dir="${bootstrap.dir}"/>
@@ -130,6 +133,16 @@
         <mkdir dir="${antlrworks.dir}"/>
         <get src="${antlrworks.url}" dest="${antlrworks.file}"/>
     </target>
+
+    <target name="emma" depends="prepare">
+        <get src="${emma.url}" dest="${emma.zipfile}"/>
+        <unzip src="${emma.zipfile}" dest="${emma.dir}">
+            <patternset includes="*.jar"/>
+            <mapper type="flatten"/>
+        </unzip>
+        <delete file="${emma.zipfile}" />
+    </target>
+
 
 
 </project>

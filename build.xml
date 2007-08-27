@@ -82,7 +82,7 @@
 
     -->
 
-    <target name="all" depends="jar, spec, test, findbugs"
+    <target name="all" depends="jar, spec, test, findbugs, hudson"
             description="Build and test all project artifacts"/>
 
     <target name="check-jdk-1.6">
@@ -100,11 +100,12 @@
         </copy>
     </target>
 
-    <target name="run-findbugs" depends="compile">
+    <target name="findbugs" depends="compile">
         <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
             <classpath refid="findbugs.class.path"/>
         </taskdef>
-        <findbugs output="xml" outputFile="${build.dir}/findbugs.xml" home="${findbugs.dir}" jvmargs="-Xmx512m">
+        <findbugs output="xml" outputFile="${build.dir}/findbugs.xml" home="${findbugs.dir}" jvmargs="-Xmx512m"
+                excludeFilter="findbugs-exclude.xml">
             <class location="${build.classes.dir}"/>
             <auxClasspath path="${javac.classpath}"/>
             <sourcePath path="${src.classes.dir}"/>
@@ -112,10 +113,11 @@
     </target>
 
     <!-- Runs only if export.dir is set, which should only be set from the continuous build.
+         Publishes build results to ${export.dir}.
          Depends on Hudson environment params JOB_NAME and SVN_REVISION.
-         Pushes result of analysis to export directory, where it can later be combined into
+         Publishes result of findbugs analysis, where it can later be combined into
          a multi-version bug database. -->
-    <target name="post-findbugs" depends="init" if="export.dir" >
+    <target name="hudson" depends="init" if="export.dir" >
         <property environment="env" />
         <mkdir dir="${export.dir}/findbugs" />
         <exec executable="sh"> 
@@ -126,8 +128,6 @@
             <redirector output="${export.dir}/findbugs/${env.JOB_NAME}-${env.SVN_REVISION}.xml" />
         </exec>
     </target>
-
-    <target name="findbugs" depends="init,run-findbugs,post-findbugs" />
 
     <target depends="init,compile-test,-pre-test-run,-do-test-run" if="have.tests" name="-post-test-run">
         <!-- Don't explicitly call fail task, so Hudson reports an UNSTABLE build instead of FAILURE -->
