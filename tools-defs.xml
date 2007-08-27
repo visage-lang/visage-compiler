@@ -28,8 +28,8 @@
     <property name="antlrworks.ver" value="1.1.2"/>
     <property name="antlrworks.dir" value="${tools.dir}/antlrworks-${antlrworks.ver}"/>
 
-    <property name="emma.ver" value="2.0.5312" />
-    <property name="emma.dir" value="${tools.dir}/emma-${emma.ver}" />
+    <property name="cobertura.ver" value="1.9" />
+    <property name="cobertura.dir" value="${tools.dir}/cobertura-${cobertura.ver}" />
 
     <path id="ant.class.path">
         <fileset dir="${ant.dir}" includes="**/*.jar" />
@@ -63,8 +63,8 @@
         <fileset dir="${antlrworks.dir}" includes="**/*.jar" />
     </path>
 
-    <path id="emma.class.path">
-        <fileset dir="${emma.dir}" includes="**/*.jar" />
+    <path id="cobertura.class.path">
+        <fileset dir="${cobertura.dir}" includes="**/*.jar" />
     </path>
 
 </project>

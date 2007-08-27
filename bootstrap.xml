@@ -39,8 +39,8 @@
     <property name="antlrworks.url" value="http://antlr.org/download/antlrworks-${antlrworks.ver}.jar"/>
     <property name="antlrworks.file" value="${antlrworks.dir}/antlrworks-${antlrworks.ver}.jar"/>
 
-    <property name="emma.url" value="http://downloads.sourceforge.net/emma/emma-${emma.ver}-lib.zip"/>
-    <property name="emma.zipfile" value="${bootstrap.dir}/emma-${emma.ver}.zip"/>
+    <property name="cobertura.url" value="http://downloads.sourceforge.net/cobertura/cobertura-${cobertura.ver}-bin.zip"/>
+    <property name="cobertura.zipfile" value="${bootstrap.dir}/cobertura-${cobertura.ver}.zip"/>
 
 
     <target name="prepare">
@@ -54,6 +54,7 @@
         <mkdir dir="${xincluder.dir}"/>
         <mkdir dir="${antlr.dir}"/>
         <mkdir dir="${antlrworks.dir}"/>
+        <mkdir dir="${cobertura.dir}"/>
     </target>
 
     <target name="clean">
@@ -68,7 +69,7 @@
         <delete dir="${antlrworks.dir}"/>
     </target>
 
-    <target name="all" depends="prepare,junit,ant,docbook,findbugs,saxon,xincluder,antlr,antlrworks,emma"/>
+    <target name="all" depends="prepare,junit,ant,docbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura"/>
 
     <target name="ant" depends="prepare">
         <get src="${ant.url}" dest="${ant.zipfile}"/>
@@ -134,13 +135,13 @@
         <get src="${antlrworks.url}" dest="${antlrworks.file}"/>
     </target>
 
-    <target name="emma" depends="prepare">
-        <get src="${emma.url}" dest="${emma.zipfile}"/>
-        <unzip src="${emma.zipfile}" dest="${emma.dir}">
-            <patternset includes="*.jar"/>
+    <target name="cobertura" depends="prepare">
+        <get src="${cobertura.url}" dest="${cobertura.zipfile}"/>
+        <unzip src="${cobertura.zipfile}" dest="${cobertura.dir}">
+            <patternset includes="**/*.jar"/>
             <mapper type="flatten"/>
         </unzip>
-        <delete file="${emma.zipfile}" />
+        <delete file="${cobertura.zipfile}" />
     </target>
 
 
