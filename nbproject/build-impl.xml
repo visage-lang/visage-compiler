@@ -508,13 +508,16 @@ is divided into following sections:
                 JUNIT EXECUTION SECTION
                 =======================
             -->
-    <target depends="init" if="have.tests" name="-pre-test-run">
+    <target name="-pre-test-hook" />
+    <target name="-post-test-hook" />
+    
+    <target depends="init,-pre-test-hook" if="have.tests" name="-pre-test-run">
         <mkdir dir="${build.test.results.dir}"/>
     </target>
     <target depends="init,compile-test,-pre-test-run" if="have.tests" name="-do-test-run">
         <j2seproject3:junit/>
     </target>
-    <target depends="init,compile-test,-pre-test-run,-do-test-run" if="have.tests" name="-post-test-run">
+    <target depends="init,compile-test,-pre-test-run,-do-test-run,-post-test-hook" if="have.tests" name="-post-test-run">
         <fail if="tests.failed">Some tests failed; see details above.</fail>
     </target>
     <target depends="init" if="have.tests" name="test-report"/>

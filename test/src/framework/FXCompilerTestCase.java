@@ -137,6 +137,8 @@ public class FXCompilerTestCase extends TestCase {
             while (true) {
                 String es = expected.readLine();
                 String as = actual.readLine();
+                while (as != null && as.startsWith("Cobertura:"))
+                    as = actual.readLine();
                 ++lineCount;
                 if (es == null && as == null)
                     break;
