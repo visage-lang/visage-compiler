@@ -67,6 +67,7 @@
         <delete dir="${xincluder.dir}"/>
         <delete dir="${antlr.dir}"/>
         <delete dir="${antlrworks.dir}"/>
+        <delete dir="${cobertura.dir}"/>
     </target>
 
     <target name="all" depends="prepare,junit,ant,docbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura"/>
