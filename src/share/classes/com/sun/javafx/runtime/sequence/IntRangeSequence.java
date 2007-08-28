@@ -30,7 +30,7 @@ public class IntRangeSequence extends AbstractSequence<Integer> implements Seque
 
     @Override
     public void toArray(Object[] array, int destOffset) {
-        for (int i = lower; i <= upper; i++)
-            array[destOffset + i] = i;
+        for (int i = lower, index=destOffset; i <= upper; i++, index++)
+            array[index] = i;
     }
 }

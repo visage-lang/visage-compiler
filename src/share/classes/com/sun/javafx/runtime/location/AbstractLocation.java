@@ -65,4 +65,9 @@ public abstract class AbstractLocation implements Location, ChangeListener {
 
     public void update() {
     }
+
+    // For testing 
+    int getListenerCount() {
+        return listeners == null ? 0 : listeners.size();
+    }
 }

@@ -119,7 +119,7 @@
 
     <target name="conditional-coverage-report" if="do.coverage" >
         <mkdir dir="${publish.coverage.dir}" />
-        <cobertura-report srcdir="${src.java.dir}" destdir="${publish.coverage.dir}">
+        <cobertura-report srcdir="${src.classes.dir}" destdir="${publish.coverage.dir}">
             <classpath>
                 <path location="${build.classes.dir}" />
             </classpath>
