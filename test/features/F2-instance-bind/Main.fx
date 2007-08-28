@@ -34,6 +34,6 @@ var epoch = new Date(0);
 var day = epoch.getDay();
 
 var date = bind new Date(epoch.getYear(), epoch.getMonth(), day);
-System.out.println("epoch: {date}");
+System.out.println("epoch: {date.toGMTString()}");
 day = day + 1;
-System.out.println("next day: {date}");
+System.out.println("next day: {date.toGMTString()}");
