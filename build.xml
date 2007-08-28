@@ -89,12 +89,52 @@
     <target name="all-with-coverage" depends="coverage, all"
             description="Build and test all project artifacts with coverage"/>
 
-    <target name="check-jdk-1.6">
+    <available property="ant.jar" value="${ant.home}/lib/ant.jar" file="${ant.home}/lib/ant.jar"/>
+    <!-- if the previous location is not correct than find the ant.jar from the java.class.path value -->
+    <pathconvert property="ant.jar">
+        <mapper type="regexp" from="${path.separator}([^${path.separator}]*ant.jar)${path.separator}" to="\1"/>
+        <path location="${path.separator}${java.class.path}${path.separator}"/>
+    </pathconvert>
+
+    <target name="check-ant">
+        <fail message="Ant version 1.7.0 or later is required to build JavaFX.">
+            <condition>
+                <not>
+                    <antversion atleast="1.7.0"/>
+                </not>
+            </condition>
+        </fail>
+    </target>
+
+    <target name="set-jdk-1.6">
         <available property="has-jdk-1.6" classname="javax.script.ScriptEngine"/>
     </target>
 
-    <target name="-pre-init" depends="check-jdk-1.6" unless="has-jdk-1.6">
+    <target name="check-jdk-1.6" depends="set-jdk-1.6" unless="has-jdk-1.6">
+        <available property="has-jdk-1.6" classname="javax.script.ScriptEngine"/>
+    </target>
+
+    <target name="fx-taskdef">
+        <taskdef resource="javafxc-ant-task.properties">
+            <classpath>
+                <pathelement location="${ant.jar}"/>
+                <pathelement location="${build.classes.dir}"/>
+                <pathelement path="${javac.classpath}"/>
+            </classpath>
+        </taskdef>
+    </target>
+
+    <target name="-pre-init" depends="check-ant,check-jdk-1.6" unless="has-jdk-1.6">
         <fail>You need JDK 1.6 or higher to build JavaFX.</fail>
+    </target>
+
+    <target name="-post-compile" depends="fx-taskdef">
+        <!--<javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"-->
+                 <!--destdir="${build.classes.dir}"-->
+                 <!--encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"-->
+                 <!--includes="**/*.fx" source="${javac.source}" sourcepath=""-->
+                 <!--srcdir="${src.classes.dir}" target="${javac.target}"-->
+                 <!--compilerclasspath="${build.classes.dir}:${javac.classpath}"/>-->
     </target>
 
     <!-- Stuff dealing with adding coverage to JUnit execution -->
@@ -106,7 +146,7 @@
     </target>
 
     <target name="conditional-instrument" if="do.coverage">
-        <mkdir dir="${build.instrumented.dir}" />
+        <mkdir dir="${build.instrumented.dir}"/>
         <cobertura-instrument todir="${build.instrumented.dir}">
             <fileset dir="${build.classes.dir}" includes="**/*.class"/>
             <classpath refid="cobertura.class.path"/>
@@ -114,14 +154,14 @@
     </target>
 
     <target name="conditional-clean-instrument" unless="do.coverage">
-        <delete dir="${build.instrumented.dir}" />
+        <delete dir="${build.instrumented.dir}"/>
     </target>
 
-    <target name="conditional-coverage-report" if="do.coverage" >
-        <mkdir dir="${publish.coverage.dir}" />
+    <target name="conditional-coverage-report" if="do.coverage">
+        <mkdir dir="${publish.coverage.dir}"/>
         <cobertura-report srcdir="${src.classes.dir}" destdir="${publish.coverage.dir}">
             <classpath>
-                <path location="${build.classes.dir}" />
+                <path location="${build.classes.dir}"/>
             </classpath>
         </cobertura-report>
     </target>
@@ -130,7 +170,7 @@
         <mkdir dir="${build.test.results.dir}"/>
     </target>
 
-    <target name="-post-test-hook" depends="conditional-coverage-report" />
+    <target name="-post-test-hook" depends="conditional-coverage-report"/>
 
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
@@ -142,22 +182,23 @@
     </target>
 
     <target name="findbugs" depends="compile">
-        <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="findbugs.class.path">
+        <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
+                 classpathref="findbugs.class.path">
             <classpath refid="findbugs.class.path"/>
         </taskdef>
-        <mkdir dir="${publish.findbugs.dir}" />
+        <mkdir dir="${publish.findbugs.dir}"/>
         <findbugs output="xml" outputFile="${build.dir}/findbugs.xml" home="${findbugs.dir}" jvmargs="-Xmx512m"
-                excludeFilter="findbugs-exclude.xml">
+                  excludeFilter="findbugs-exclude.xml">
             <class location="${build.classes.dir}"/>
             <auxClasspath path="${javac.classpath}"/>
             <sourcePath path="${src.classes.dir}"/>
         </findbugs>
         <exec executable="sh">
-            <arg value="${findbugs.dir}/bin/convertXmlToText" />
-            <arg value="-longBugCodes" />
-            <arg value="-html:${findbugs.dir}/src/xsl/fancy.xsl" />
-            <arg value="${build.dir}/findbugs.xml" />
-            <redirector output="${publish.findbugs.dir}/findbugs.html" />
+            <arg value="${findbugs.dir}/bin/convertXmlToText"/>
+            <arg value="-longBugCodes"/>
+            <arg value="-html:${findbugs.dir}/src/xsl/fancy.xsl"/>
+            <arg value="${build.dir}/findbugs.xml"/>
+            <redirector output="${publish.findbugs.dir}/findbugs.html"/>
         </exec>
     </target>
 
@@ -166,22 +207,23 @@
          Depends on Hudson environment params JOB_NAME and SVN_REVISION.
          Publishes result of findbugs analysis, where it can later be combined into
          a multi-version bug database. -->
-    <target name="hudson" depends="init" if="export.dir" >
-        <property environment="env" />
-        <mkdir dir="${export.dir}/findbugs" />
-        <exec executable="sh"> 
-            <arg value="${findbugs.dir}/bin/setBugDatabaseInfo" />
-            <arg value="-name" />
-            <arg value="${env.JOB_NAME}-${env.SVN_REVISION}" />
-            <arg value="${build.dir}/findbugs.xml" />
-            <redirector output="${export.dir}/findbugs/${env.JOB_NAME}-${env.SVN_REVISION}.xml" />
+    <target name="hudson" depends="init" if="export.dir">
+        <property environment="env"/>
+        <mkdir dir="${export.dir}/findbugs"/>
+        <exec executable="sh">
+            <arg value="${findbugs.dir}/bin/setBugDatabaseInfo"/>
+            <arg value="-name"/>
+            <arg value="${env.JOB_NAME}-${env.SVN_REVISION}"/>
+            <arg value="${build.dir}/findbugs.xml"/>
+            <redirector output="${export.dir}/findbugs/${env.JOB_NAME}-${env.SVN_REVISION}.xml"/>
         </exec>
         <copy todir="${export.dir}/current-build">
-            <fileset dir="${publish.dir}" />
+            <fileset dir="${publish.dir}"/>
         </copy>
     </target>
 
-    <target depends="init,compile-test,-pre-test-run,-do-test-run,-post-test-hook" if="have.tests" name="-post-test-run">
+    <target depends="init,compile-test,-pre-test-run,-do-test-run,-post-test-hook" if="have.tests"
+            name="-post-test-run">
         <!-- Don't explicitly call fail task, so Hudson reports an UNSTABLE build instead of FAILURE -->
     </target>
 
