@@ -1,6 +1,6 @@
 package com.sun.javafx.runtime.sequence;
 
-import junit.framework.TestCase;
+import com.sun.javafx.runtime.JavaFXTestCase;
 
 import java.util.BitSet;
 
@@ -9,7 +9,7 @@ import java.util.BitSet;
  *
  * @author Brian Goetz
  */
-public class IntegerSequenceTest extends TestCase {
+public class IntegerSequenceTest extends JavaFXTestCase {
 
     private static final int A = 3;
     private static final int B = 5;
@@ -48,36 +48,6 @@ public class IntegerSequenceTest extends TestCase {
             return value % 2 == 0;
         }
     };
-
-    /**
-     * Helper method for asserting that a sequence contains a specific set of values; tests via Object.equals(),
-     * equality of toString(), by iterating the elements, and by toArray
-     */
-    private <T> void assertEquals(Sequence<T> sequence, T... values) {
-        Sequence<T> newSeq = new ArraySequence<T>(sequence.getElementType(), values);
-        assertEquals(sequence, newSeq);
-
-        StringBuffer sb = new StringBuffer();
-        sb.append("[ ");
-        for (int i = 0; i < values.length; i++) {
-            if (i != 0)
-                sb.append(", ");
-            sb.append(values[i]);
-        }
-        sb.append(" ]");
-        assertEquals(sb.toString(), sequence.toString());
-
-        int index = 0;
-        for (T t : sequence) {
-            assertEquals(t, values[index++]);
-        }
-
-        T[] array = (T[]) new Object[sequence.size()];
-        sequence.toArray(array, 0);
-        assertEquals(array.length, values.length);
-        for (int i = 0; i < array.length; i++)
-            assertEquals(array[i], values[i]);
-    }
 
     /**
      * Helper method for asserting the depth of a Sequence
@@ -404,17 +374,6 @@ public class IntegerSequenceTest extends TestCase {
         assertEquals(TWO_SEQUENCE.get(200), Sequences.INTEGER_ZERO);
         assertEquals(TWO_SEQUENCE.set(-1, 400), TWO_SEQUENCE);
         assertEquals(TWO_SEQUENCE.set(200, 400), TWO_SEQUENCE);
-    }
-
-    public void testComprehensions() {
-        // Test foreach (i in sequence) { 2*i }
-        Sequence<Integer> five = Sequences.rangeSequence(0, 5);
-        SequenceMapper<Integer, Integer> doubler = new SequenceMapper<Integer, Integer>() {
-            public Integer map(Sequence<Integer> sequence, int index, Integer value) {
-                return value*2;
-            }
-        };
-        assertEquals(five.map(Integer.class, doubler), 0, 2, 4, 6, 8, 10);
     }
 
     /**

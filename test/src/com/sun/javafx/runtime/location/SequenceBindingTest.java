@@ -1,65 +1,16 @@
-package com.sun.javafx.runtime.bind;
+package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.location.*;
-import com.sun.javafx.runtime.sequence.ArraySequence;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 import com.sun.javafx.runtime.sequence.Sequences;
-import junit.framework.TestCase;
+import com.sun.javafx.runtime.JavaFXTestCase;
 
 /**
  * SequenceBindingTest
  *
  * @author Brian Goetz
  */
-public class SequenceBindingTest extends TestCase {
-
-    private static class CountingListener implements SequenceChangeListener<Integer> {
-        int changeCount, insertCount, deleteCount, replaceCount;
-        Sequence<Integer> inserted = Sequences.emptySequence(Integer.class);
-        Sequence<Integer> deleted = Sequences.emptySequence(Integer.class);
-
-        public void onChange() {
-            ++changeCount;
-        }
-
-        public void onInsert(Integer element) {
-            ++insertCount;
-            inserted = inserted.insert(element);
-        }
-
-        public void onDelete(Integer element) {
-            ++deleteCount;
-            deleted = deleted.insert(element);
-        }
-
-        public void onReplace(int position, Integer oldValue, Integer newValue) {
-            ++replaceCount;
-        }
-    }
-
-    private void assertEquals(int value, IntLocation loc) {
-        assertTrue(loc.isValid());
-        assertEquals(value, loc.get());
-    }
-
-    private void assertEqualsLazy(int value, IntLocation loc) {
-        assertFalse(loc.isValid());
-        assertEquals(value, loc.get());
-        assertTrue(loc.isValid());
-    }
-
-    private <T> void assertEquals(Sequence<T> sequence, T value) {
-        assertEquals(sequence, new ArraySequence<T>(sequence.getElementType(), value));
-    }
-
-    private <T> void assertEquals(Sequence<T> sequence, T... values) {
-        assertEquals(sequence, new ArraySequence<T>(sequence.getElementType(), values));
-    }
-
-    private <T> void assertEquals(SequenceLocation<T> sequence, T... values) {
-        assertEquals(sequence.get(), values);
-    }
+public class SequenceBindingTest extends JavaFXTestCase {
 
     private final SequencePredicate<Integer> isOnePredicate = new SequencePredicate<Integer>() {
         public boolean matches(Sequence sequence, int index, Integer value) {
@@ -74,6 +25,7 @@ public class SequenceBindingTest extends TestCase {
         assertEquals(seq, loc.get());
     }
 
+    /** bind first = seq[0] */
     public void testElementBind() {
         final SequenceVar<Integer> seq = SequenceVar.make(Sequences.rangeSequence(1, 3));
         IntLocation firstValue = IntExpression.make(new IntBindingExpression() {
@@ -81,7 +33,7 @@ public class SequenceBindingTest extends TestCase {
                 return seq.get().get(0);
             }
         }, seq);
-        CountingListener cl = new CountingListener();
+        CountingSequenceListener cl = new CountingSequenceListener();
         seq.addChangeListener(cl);
         assertEquals(seq, 1, 2, 3);
 
@@ -95,7 +47,7 @@ public class SequenceBindingTest extends TestCase {
 
     public void testSequenceListener() {
         final SequenceVar<Integer> seq = SequenceVar.make(Sequences.rangeSequence(1, 3));
-        CountingListener cl = new CountingListener();
+        CountingSequenceListener cl = new CountingSequenceListener();
         seq.addChangeListener(cl);
 
         seq.insert(4);
@@ -264,3 +216,4 @@ public class SequenceBindingTest extends TestCase {
         assertEquals(evenN.get(), Sequences.emptySequence(Integer.class));
     }
 }
+

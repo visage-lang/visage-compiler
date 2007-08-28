@@ -1,9 +1,6 @@
-package com.sun.javafx.runtime.bind;
+package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.location.*;
-import junit.framework.TestCase;
-
-import javax.swing.event.ChangeEvent;
+import com.sun.javafx.runtime.JavaFXTestCase;
 
 
 /**
@@ -11,37 +8,28 @@ import javax.swing.event.ChangeEvent;
  *
  * @author Brian Goetz
  */
-public class IntExpressionBindingTest extends TestCase {
+public class IntExpressionBindingTest extends JavaFXTestCase {
 
-    private void assertEquals(int value, IntLocation loc) {
-        assertTrue(loc.isValid());
-        assertEquals(value, loc.get());
-    }
-
-    private void assertEqualsLazy(int value, IntLocation loc) {
-        assertFalse(loc.isValid());
-        assertEquals(value, loc.get());
-        assertTrue(loc.isValid());
-    }
-
-    private static class CountingListener implements ChangeListener {
-        public int count;
-
-        public void onChange() {
-            ++count;
-        }
-    }
-
-    /** Test IntLocation with no binding */
+    /**
+     * Test IntLocation with no binding
+     */
     public void testConstantLocation() {
-        IntLocation loc = IntVar.make(3);
+        final IntLocation loc = IntVar.make(3);
         assertTrue(!loc.isLazy());
         assertEquals(3, loc);
         loc.set(5);
         assertEquals(5, loc);
+        assertThrows(UnsupportedOperationException.class,
+                new VoidCallable() {
+                    public void call() throws Exception {
+                        loc.invalidate();
+                    }
+                });
     }
 
-    /** Test that expression locations are initially invalid */
+    /**
+     * Test that expression locations are initially invalid
+     */
     public void testInitiallyInvalid() {
         final IntLocation a = IntVar.make(0);
         final IntLocation b = IntExpression.make(new IntBindingExpression() {
@@ -56,9 +44,9 @@ public class IntExpressionBindingTest extends TestCase {
 
     /**
      * Bind three variables:
-     *   a = n
-     *   b = bind a + 1
-     *   c = bind b
+     * a = n
+     * b = bind a + 1
+     * c = bind b
      */
 
     public void testSimpleBind() {
@@ -89,7 +77,9 @@ public class IntExpressionBindingTest extends TestCase {
         assertEquals(1, counter.count);
     }
 
-    /** bind lazy b = a + 1 */
+    /**
+     * bind lazy b = a + 1
+     */
     public void testLazyBind() {
         final IntLocation a = IntVar.make(0);
         final IntLocation b = IntExpression.makeLazy(new IntBindingExpression() {
@@ -130,3 +120,4 @@ public class IntExpressionBindingTest extends TestCase {
         assertEquals(7, c);
     }
 }
+
