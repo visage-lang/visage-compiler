@@ -1,8 +1,0 @@
-JavaFX compiler milestone 6
-
-Demonstrated:
- - Binding to individual sequence elements
- - Updating binding in face of index change, insertion and deletion
- - Unidirectional binding only
-
- 
