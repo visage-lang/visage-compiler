@@ -77,34 +77,33 @@ public class FXCompilerTest extends TestSuite {
                 findTests(f, tests);
             else {
                 assert name.lastIndexOf(".fx") > 0 : "not a JavaFX script: " + name;
-                if (shouldRunTest(f))
-                    tests.add(new FXCompilerTestCase(f, name));
+                boolean isTest = false, shouldRun = false;
+
+                Scanner scanner = null;
+                boolean inComment = false;
+                try {
+                    scanner = new Scanner(f);
+                    while (scanner.hasNext()) {
+                        // TODO: Scan for /ref=file qualifiers, etc, to determine run behavior
+                        String token = scanner.next();
+                        if (token.startsWith("/*"))
+                            inComment = true;
+                        else if (token.endsWith(("*/")))
+                            inComment = false;
+                        else if (inComment && token.equals("@test"))
+                            isTest = true;
+                        else if (inComment && token.equals("@run"))
+                            shouldRun = true;
+                    }
+                } catch (Exception ignored) {
+                    continue;
+                } finally {
+                    if (scanner != null)
+                        scanner.close();
+                }
+                if (isTest)
+                    tests.add(new FXCompilerTestCase(f, name, shouldRun));
             }
         }
     }
-    
-    private static boolean shouldRunTest(File f) {
-        // TODO: Scan for @run tags, /ref=file qualifiers, etc, to determine run behavior
-        Scanner scanner = null;
-        boolean inComment = false;
-        try {
-            scanner = new Scanner(f);
-            while (scanner.hasNext()) {
-                String token = scanner.next();
-                if (token.startsWith("/*"))
-                    inComment = true;
-                else if (token.endsWith(("*/")))
-                    inComment = false;
-                else if (inComment && token.equals("@test"))
-                    return true;
-            }
-            return false;
-        } catch (Exception ex) {
-            return false;
-        } finally {
-            if (scanner != null)
-                scanner.close();
-        }
-    }
-    
 }

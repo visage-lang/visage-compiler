@@ -45,6 +45,7 @@ import java.util.ServiceLoader;
 public class FXCompilerTestCase extends TestCase {
     private final File test;
     private final File buildDir;
+    private final boolean shouldRun;
     private String className;
 
     private static final ServiceLoader<JavafxCompiler> compilerLoader =
@@ -54,9 +55,10 @@ public class FXCompilerTestCase extends TestCase {
     public static final String BUILD_ROOT = "build/test";
     public static final String TEST_PREFIX = TEST_ROOT + File.separator;
 
-    public FXCompilerTestCase(File test, String name) {
+    public FXCompilerTestCase(File test, String name, boolean shouldRun) {
         super(name);
         this.test = test;
+        this.shouldRun = shouldRun;
         assertTrue("path not a relative pathname", test.getPath().startsWith(TEST_PREFIX));
         this.buildDir = new File(BUILD_ROOT + File.separator + test.getParent().substring(TEST_PREFIX.length()));
     }
@@ -70,8 +72,10 @@ public class FXCompilerTestCase extends TestCase {
         String errorFileName = buildDir + File.separator + className + ".ERROR";
         String expectedFileName = test.getPath() + ".EXPECTED";
         compile();
-        execute(outputFileName, errorFileName);
-        compare(outputFileName, expectedFileName);
+        if (shouldRun) {
+            execute(outputFileName, errorFileName);
+            compare(outputFileName, expectedFileName);
+        }
     }
 
     private void compile() throws IOException {

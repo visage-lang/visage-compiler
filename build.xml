@@ -20,6 +20,7 @@
     <property name="cobertura.class.path" refid="cobertura.class.path"/>
 
     <import file="nbproject/build-impl.xml"/>
+    <!--<property file="nbproject/project.properties" />-->
 
     <!--
 
@@ -183,15 +184,13 @@
 
     <target name="findbugs" depends="compile">
         <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
-                 classpathref="findbugs.class.path">
-            <classpath refid="findbugs.class.path"/>
-        </taskdef>
+                 classpathref="findbugs.class.path" />
         <mkdir dir="${publish.findbugs.dir}"/>
         <findbugs output="xml" outputFile="${build.dir}/findbugs.xml" home="${findbugs.dir}" jvmargs="-Xmx512m"
                   excludeFilter="findbugs-exclude.xml">
             <class location="${build.classes.dir}"/>
-            <auxClasspath path="${javac.classpath}"/>
-            <sourcePath path="${src.classes.dir}"/>
+            <auxclasspath path="${javac.classpath}"/>
+            <sourcepath path="${src.classes.dir}"/>
         </findbugs>
         <exec executable="sh">
             <arg value="${findbugs.dir}/bin/convertXmlToText"/>
