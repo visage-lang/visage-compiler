@@ -72,7 +72,7 @@ public class FXCompilerTest extends TestSuite {
             }
         });
         for (File f : children) {
-            String name = f.getName();
+            String name = f.getParentFile().getName() + "/" + f.getName();
             if (f.isDirectory())
                 findTests(f, tests);
             else {
