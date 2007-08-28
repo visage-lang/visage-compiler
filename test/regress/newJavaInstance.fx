@@ -1,5 +1,6 @@
 /*
  * @test
+ * @run
  */
 import java.util.Date;
 import java.lang.System;

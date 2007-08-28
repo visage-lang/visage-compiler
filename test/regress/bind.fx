@@ -2,6 +2,7 @@
  * Test bind both in module variables and class attribute.
  * Regression test against them smashing each other.
  * @test
+ * @run
  */
 
 import java.lang.System;

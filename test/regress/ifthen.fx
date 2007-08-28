@@ -1,6 +1,7 @@
 /*
  * Test if-then and if-then-else
  * @test
+ * @run
  */
 
 import java.lang.System;

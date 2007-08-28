@@ -1,5 +1,6 @@
 /*
  * @test
+ * @run
  */
 
 import java.lang.System;

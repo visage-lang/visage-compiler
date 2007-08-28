@@ -2,6 +2,7 @@
 
 /*
  * @test
+ * @run
  */
 
 import java.util.Date;
@@ -9,14 +10,14 @@ import java.lang.System;
 
 class Alpha {
   function myop(x : Integer) {
-    System.out.println("Alpha={this} Value={x}");
+    System.out.println("Alpha: Value={x}");
      if x > 7 then "blither" else "be";
   }
 }
 
 class Beta extends Alpha {
   function myop(x : Integer)  {
-    System.out.println("Beta={this} Value={(x)}");
+    System.out.println("Beta: Value={(x)}");
     System.out.println(super.myop(x));
     if x > 7 then "blather" else {var str="bop"; str}
   }
