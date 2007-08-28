@@ -13,7 +13,7 @@
     <property name="test.classes.dir" value="${build.dir}/test-classes"/>
     <property name="build.instrumented.dir" value="${build.dir}/classes-instrumented"/>
     <property name="build.test.dir" value="${build.dir}/test"/>
-    <property name="build.milestones.dir" value="${build.dir}/milestones"/>
+    <property name="build.milestones.dir" value="${build.dir}/features"/>
     <property name="test.results.dir" value="${build.dir}/test-results"/>
     <property name="publish.dir" value="${dist.dir}/publish"/>
     <property name="publish.coverage.dir" value="${publish.dir}/coverage"/>
@@ -141,57 +141,27 @@
         <jar jarfile="${jar.file}" basedir="${build.classes.dir}"/>
     </target>
 
-    <target name="milestone-M1">
-        <antcall target="abstract-milestone">
-            <param name="milestone" value="M1"/>
-        </antcall>
-    </target>
-
-    <target name="milestone-M2">
-        <antcall target="abstract-milestone">
-            <param name="milestone" value="M2"/>
-        </antcall>
-    </target>
-
-    <target name="milestone-M3">
-        <antcall target="abstract-milestone">
-            <param name="milestone" value="M3"/>
-        </antcall>
-    </target>
-
-    <target name="milestone-M4">
-        <antcall target="abstract-milestone">
-            <param name="milestone" value="M4"/>
-        </antcall>
-    </target>
-
-    <target name="milestone-G2">
-        <antcall target="abstract-milestone">
-            <param name="milestone" value="G2"/>
-        </antcall>
-    </target>
+    <taskdef resource="javafxc-ant-task.properties">
+        <classpath>
+            <path refid="ant.class.path"/>
+            <pathelement location="${build.classes.dir}"/>
+            <path refid="javac.class.path"/>
+            <path refid="antlr-runtime.class.path"/>
+        </classpath>
+    </taskdef>
 
     <!-- abstract target, param=${milestone} -->
-    <target name="abstract-milestone" depends="build">
-
-        <taskdef resource="javafxc-ant-task.properties">
-            <classpath>
-                <path refid="ant.class.path"/>
-                <pathelement location="${build.classes.dir}"/>
-                <path refid="javac.class.path"/>
-                <path refid="antlr-runtime.class.path"/>
-            </classpath>
-        </taskdef>
+    <target name="milestone" depends="build">
 
         <property name="intermediate.dir" value="${build.milestones.dir}/${milestone}"/>
         <property name="javac.class.path" refid="javac.class.path"/>
         <property name="antlr-runtime.class.path" refid="antlr-runtime.class.path"/>
         <mkdir dir="${intermediate.dir}"/>
-        <javafxc srcdir="${test.dir}/milestones/${milestone}" classpathref="run.class.path" includes="**/*.fx"
+        <javafxc srcdir="${test.dir}/features/${milestone}" classpathref="run.class.path" includes="**/*.fx"
                  destdir="${intermediate.dir}" compilerclasspath="${build.classes.dir}:${javac.class.path}:${antlr-runtime.class.path}"/>
         <javac srcdir="${intermediate.dir}" destdir="${intermediate.dir}" classpathref="run.class.path"
                includes="**/*.java" debug="true"/>
-        <java fork="true" classname="${milestone}">
+        <java fork="true" classname="Main">
             <classpath>
                 <pathelement location="${intermediate.dir}"/>
                 <path refid="run.class.path"/>

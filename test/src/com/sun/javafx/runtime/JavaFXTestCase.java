@@ -1,12 +1,12 @@
 package com.sun.javafx.runtime;
 
-import junit.framework.TestCase;
-import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.ArraySequence;
-import com.sun.javafx.runtime.location.SequenceLocation;
+import com.sun.javafx.runtime.location.DoubleLocation;
 import com.sun.javafx.runtime.location.IntLocation;
-
-import java.util.concurrent.Callable;
+import com.sun.javafx.runtime.location.ObjectLocation;
+import com.sun.javafx.runtime.location.SequenceLocation;
+import com.sun.javafx.runtime.sequence.ArraySequence;
+import com.sun.javafx.runtime.sequence.Sequence;
+import junit.framework.TestCase;
 
 /**
  * JavaFXTestCase
@@ -58,6 +58,28 @@ public abstract class JavaFXTestCase extends TestCase {
     }
 
     protected void assertEqualsLazy(int value, IntLocation loc) {
+        assertFalse(loc.isValid());
+        assertEquals(value, loc.get());
+        assertTrue(loc.isValid());
+    }
+
+    protected void assertEquals(double value, DoubleLocation loc) {
+        assertTrue(loc.isValid());
+        assertEquals(value, loc.get());
+    }
+
+    protected void assertEqualsLazy(double value, DoubleLocation loc) {
+        assertFalse(loc.isValid());
+        assertEquals(value, loc.get());
+        assertTrue(loc.isValid());
+    }
+
+    protected<T> void assertEquals(T value, ObjectLocation<T> loc) {
+        assertTrue(loc.isValid());
+        assertEquals(value, loc.get());
+    }
+
+    protected<T> void assertEqualsLazy(T value, ObjectLocation<T> loc) {
         assertFalse(loc.isValid());
         assertEquals(value, loc.get());
         assertTrue(loc.isValid());

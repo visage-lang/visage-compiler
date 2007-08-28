@@ -119,5 +119,36 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         assertEquals(8, d);
         assertEquals(7, c);
     }
-}
 
+    /** bind c = a + b */
+    public void testDouble() {
+        final DoubleLocation a = DoubleVar.make(0);
+        final DoubleLocation b = DoubleVar.make(0);
+        final DoubleLocation c = DoubleExpression.make(new DoubleBindingExpression() {
+            public double get() {
+                return a.get() + b.get();
+            }
+        }, a, b);
+        assertEqualsLazy(0.0, c);
+        a.set(1.2);
+        assertEquals(1.2, c);
+        b.set(4.2);
+        assertEquals(5.4, c);
+    }
+
+    /** bind c = a + b */
+    public void testString() {
+        final ObjectLocation<String> a = ObjectVar.make("foo");
+        final ObjectLocation<String> b = ObjectVar.make(" bar");
+        final ObjectLocation<String> c = ObjectExpression.make(new ObjectBindingExpression<String>() {
+            public String get() {
+                return a.get() + b.get();
+            }
+        }, a, b);
+        assertEqualsLazy("foo bar", c);
+        a.set("yoo ");
+        assertEquals("yoo  bar", c);
+        b.set("hoo");
+        assertEquals("yoo hoo", c);
+    }
+}

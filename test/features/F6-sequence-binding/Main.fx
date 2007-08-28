@@ -1,8 +1,6 @@
 /* Feature test #5 -- sequences
  * Demonstrates binding of sequences
  *
- * @test
- * @run
  */
 
 import java.lang.System;

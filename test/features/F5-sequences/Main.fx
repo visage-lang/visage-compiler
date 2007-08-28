@@ -1,8 +1,6 @@
 /* Feature test #5 -- sequences
  * Demonstrates simple manipulation of sequences -- creation, extraction, insertion, deletion
  *
- * @test
- * @run
  */
 
 import java.lang.System;
