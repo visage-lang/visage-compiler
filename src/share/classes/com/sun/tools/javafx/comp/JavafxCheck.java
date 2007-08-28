@@ -37,8 +37,6 @@ import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Type.ClassType;
 import static com.sun.tools.javac.code.TypeTags.*;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher;
-import static com.sun.tools.javafx.comp.JavafxTypeMorpher.BIDI;
 
 /** Type checking helper class for the attribution phase.
  *
@@ -49,7 +47,7 @@ import static com.sun.tools.javafx.comp.JavafxTypeMorpher.BIDI;
  */
 @Version("@(#)JavafxCheck.java	1.173 07/05/05")
 public class JavafxCheck extends Check {
-    private JavafxTypeMorpher javafxTypeMorpher;
+    private JavafxTypeMorpher typeMorpher;
     
     public static Check instance0(Context context) {
         Check instance = context.get(checkKey);
@@ -68,7 +66,7 @@ public class JavafxCheck extends Check {
 
     protected JavafxCheck(Context context) {
         super(context);
-        javafxTypeMorpher = JavafxTypeMorpher.instance(context);
+        typeMorpher = JavafxTypeMorpher.instance(context);
     }
 
     /** Check that a given type is assignable to a given proto-type.
@@ -81,13 +79,13 @@ public class JavafxCheck extends Check {
     Type checkType(DiagnosticPosition pos, Type found, Type required) {
         Type req = required;
 	if (req.tag == CLASS) {
-            if (req.tsym == javafxTypeMorpher.locationSym[TYPE_KIND_OBJECT][BIDI]) {
+            if (req.tsym == typeMorpher.declLocation[TYPE_KIND_OBJECT].sym) {
                 req = ((ClassType)req).typarams_field.head;
-            } else if (req.tsym == javafxTypeMorpher.locationSym[TYPE_KIND_BOOLEAN][BIDI]) {
+            } else if (req.tsym == typeMorpher.declLocation[TYPE_KIND_BOOLEAN].sym) {
                 req = Symtab.booleanType;
-            } else if (req.tsym == javafxTypeMorpher.locationSym[TYPE_KIND_DOUBLE][BIDI]) {
+            } else if (req.tsym == typeMorpher.declLocation[TYPE_KIND_DOUBLE].sym) {
                 req = Symtab.doubleType;
-            } else if (req.tsym == javafxTypeMorpher.locationSym[TYPE_KIND_INT][BIDI]) {
+            } else if (req.tsym == typeMorpher.declLocation[TYPE_KIND_INT].sym) {
                 req = Symtab.intType;
             }
         }

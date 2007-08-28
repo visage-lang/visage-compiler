@@ -1,4 +1,4 @@
-// $ANTLR 3.0 C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g 2007-08-17 15:01:52
+// $ANTLR 3.0 C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g 2007-08-27 21:10:54
 
 package com.sun.tools.javafx.antlr;
 
@@ -4806,25 +4806,25 @@ public class v2Parser extends AbstractGeneratedParser {
 
 
     // $ANTLR start newExpression
-    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:558:1: newExpression returns [JCExpression expr] : NEW identifier ( LPAREN expressionListOpt RPAREN )? ;
+    // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:558:1: newExpression returns [JCExpression expr] : NEW qualident ( LPAREN expressionListOpt RPAREN )? ;
     public final JCExpression newExpression() throws RecognitionException {
         JCExpression expr = null;
 
         Token NEW114=null;
         ListBuffer<JCExpression> expressionListOpt113 = null;
 
-        JCIdent identifier115 = null;
+        JCExpression qualident115 = null;
 
 
          ListBuffer<JCExpression> args = null; 
         try {
-            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:560:2: ( NEW identifier ( LPAREN expressionListOpt RPAREN )? )
-            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:560:4: NEW identifier ( LPAREN expressionListOpt RPAREN )?
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:560:2: ( NEW qualident ( LPAREN expressionListOpt RPAREN )? )
+            // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:560:4: NEW qualident ( LPAREN expressionListOpt RPAREN )?
             {
             NEW114=(Token)input.LT(1);
             match(input,NEW,FOLLOW_NEW_in_newExpression5027); 
-            pushFollow(FOLLOW_identifier_in_newExpression5030);
-            identifier115=identifier();
+            pushFollow(FOLLOW_qualident_in_newExpression5030);
+            qualident115=qualident();
             _fsp--;
 
             // C:\\JavaFX\\svn\\src\\share\\classes\\com\\sun\\tools\\javafx\\antlr\\v2.g:561:3: ( LPAREN expressionListOpt RPAREN )?
@@ -4851,7 +4851,7 @@ public class v2Parser extends AbstractGeneratedParser {
 
             }
 
-             expr = F.at(pos(NEW114)).NewClass(null, null, identifier115, 
+             expr = F.at(pos(NEW114)).NewClass(null, null, qualident115, 
             												(args==null? new ListBuffer<JCExpression>() : args).toList(), null); 
 
             }
@@ -6343,7 +6343,13 @@ public class v2Parser extends AbstractGeneratedParser {
                 int LA74_0 = input.LA(1);
 
                 if ( (LA74_0==DOT) ) {
-                    alt74=1;
+                    int LA74_2 = input.LA(2);
+
+                    if ( (LA74_2==QUOTED_IDENTIFIER||LA74_2==IDENTIFIER) ) {
+                        alt74=1;
+                    }
+
+
                 }
 
 
@@ -6687,7 +6693,7 @@ public class v2Parser extends AbstractGeneratedParser {
     public static final BitSet FOLLOW_expression_in_primaryExpression4992 = new BitSet(new long[]{0x0000000000000000L,0x0000000000008000L});
     public static final BitSet FOLLOW_RPAREN_in_primaryExpression4994 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_NEW_in_newExpression5027 = new BitSet(new long[]{0x0000000000000000L,0x0104000000000000L});
-    public static final BitSet FOLLOW_identifier_in_newExpression5030 = new BitSet(new long[]{0x0000000000000002L,0x0000000000004000L});
+    public static final BitSet FOLLOW_qualident_in_newExpression5030 = new BitSet(new long[]{0x0000000000000002L,0x0000000000004000L});
     public static final BitSet FOLLOW_LPAREN_in_newExpression5038 = new BitSet(new long[]{0x0600790000000060L,0x012C3600E001F400L});
     public static final BitSet FOLLOW_expressionListOpt_in_newExpression5042 = new BitSet(new long[]{0x0000000000000000L,0x0000000000008000L});
     public static final BitSet FOLLOW_RPAREN_in_newExpression5046 = new BitSet(new long[]{0x0000000000000002L});

@@ -70,23 +70,17 @@ public class JavafxTypeMorpher extends TreeTranslator {
     private final Symtab syms;
     private final Types types;
     
-    public static final int ARGS_IN_ARRAY = 0; // TODO: increase
-    public static final int BIDI = ARGS_IN_ARRAY + 1;
-    public static Name[][] locationName;
-    public static ClassSymbol[][] locationSym;
-    public static Type[][] locationType;
+    private static final String locationPackageName = "com.sun.javafx.runtime.";
+    
+    public LocationNameSymType[] varLocation;
+    public LocationNameSymType[] exprLocation;
+    public LocationNameSymType[] declLocation;
+    public LocationNameSymType   baseLocation;
+    public LocationNameSymType   contextLocation;
     
     private final Type[] realTypeByKind;
     
-    private final Name contextName;
-    private final ClassSymbol contextSym;
-    private final Type contextType;
-    
-    private final Name baseLocationName;
-    private final ClassSymbol baseLocationSym;
-    private final Type baseLocationType;
-    
-    private final Name[] applyMethodNames;   // by group
+    private final Name applyMethodName;
     
     private final Name getMethodName;
     private final Name setMethodName;
@@ -97,31 +91,39 @@ public class JavafxTypeMorpher extends TreeTranslator {
     
     private Env<AttrContext> attrEnv;
     
+    public class LocationNameSymType {
+        public final Name name;
+        public final ClassSymbol sym;
+        public final Type type;
+        LocationNameSymType(String which) {
+            name = Name.fromString(names, locationPackageName + which);
+            sym = reader.enterClass(name);
+            type = sym.type;      
+        }
+    }
+    
     private static class PerClassInfo {
 
         JavafxBindStatus bindContext;
         boolean inLHS;
         ListBuffer<JCStatement> prependInFrontOfStatement = null;
-        JCMethodDecl[] applyMethodDefs; // by group
-        int[] exprNumNext;
-        ListBuffer<ExprInfo>[] infoByGroup; // by group
+        JCMethodDecl applyMethodDef; 
+        int exprNumNext;
+        ListBuffer<ExprInfo> exprInfo; 
  
         @SuppressWarnings("unchecked")
         PerClassInfo() {
             this.bindContext = JavafxBindStatus.UNBOUND;
             this.inLHS = false;
             this.prependInFrontOfStatement = null;
-            this.applyMethodDefs = null;
-            this.exprNumNext = new int[ARGS_IN_ARRAY + 1];
-            this.infoByGroup = new ListBuffer[ARGS_IN_ARRAY + 1];
+            this.applyMethodDef = null;
+            this.exprNumNext = 0;
+            this.exprInfo = null;
         }
         
-        void setApplyMethod(JCMethodDecl meth, int i) {
-            if (applyMethodDefs == null) {
-                applyMethodDefs = new JCMethodDecl[ARGS_IN_ARRAY + 1 + 1];
-            }
-            assert applyMethodDefs[i] == null;
-            applyMethodDefs[i] = meth;
+        void setApplyMethod(JCMethodDecl meth) {
+            assert applyMethodDef == null;
+            applyMethodDef = meth;
         }
     }
     
@@ -136,7 +138,6 @@ public class JavafxTypeMorpher extends TreeTranslator {
         final JCExpression expr;
         final Map<VarSymbol,VarInfo> varMap;
         final VarSymbol vsym;
-        final int argsGroup;
         
         JCStatement updateStatement;  // ????
         
@@ -144,13 +145,11 @@ public class JavafxTypeMorpher extends TreeTranslator {
                 Map<VarSymbol,VarInfo> varMap,
                 int exprNum,
                 VarSymbol vsym,
-                JCExpression expr,
-                int argsGroup) {
+                JCExpression expr) {
             this.varMap = varMap;
             this.exprNum = exprNum;
             this.vsym = vsym;
             this.expr = expr;
-            this.argsGroup = argsGroup;
         }
     }
     
@@ -162,7 +161,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
         }
     }
     
-    static class VarMorphInfo {
+    class VarMorphInfo {
         VarSymbol varSymbol;
         Type realType;
         int typeKind;
@@ -180,16 +179,16 @@ public class JavafxTypeMorpher extends TreeTranslator {
                 realType = varSymbol.type;
                 TypeSymbol realTsym = realType.tsym;
                 Type locationType = null;
-                if (realTsym == locationSym[TYPE_KIND_OBJECT][BIDI]) {
+                if (realTsym == declLocation[TYPE_KIND_OBJECT].sym) {
                     locationType = ((ClassType) realType).typarams_field.head;
                     typeKind = TYPE_KIND_OBJECT;
-                } else if (realTsym == locationSym[TYPE_KIND_BOOLEAN][BIDI]) {
+                } else if (realTsym == declLocation[TYPE_KIND_BOOLEAN].sym) {
                     locationType = Symtab.booleanType;
                     typeKind = TYPE_KIND_BOOLEAN;
-                } else if (realTsym == locationSym[TYPE_KIND_DOUBLE][BIDI]) {
+                } else if (realTsym == declLocation[TYPE_KIND_DOUBLE].sym) {
                     locationType = Symtab.doubleType;
                     typeKind = TYPE_KIND_DOUBLE;
-                } else if (realTsym == locationSym[TYPE_KIND_INT][BIDI]) {
+                } else if (realTsym == declLocation[TYPE_KIND_INT].sym) {
                     locationType = Symtab.intType;
                     typeKind = TYPE_KIND_INT;
                 }
@@ -219,7 +218,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
                         realType = realType.baseType();
                     }
                     // must be called AFTER typeKind and realType are set in vsym
-                    setUsedType(generifyIfNeeded(biDiLocationType(typeKind), this));
+                    setUsedType(generifyIfNeeded(declLocationType(typeKind), this));
                     markShouldMorph();
                 }
                 markDeterminedMorphability();
@@ -268,40 +267,28 @@ public class JavafxTypeMorpher extends TreeTranslator {
         reader = ClassReader.instance(context);
         attr = Attr.instance(context);
         make = TreeMaker.instance(context);
-        
-        locationName = new Name[TYPE_KIND_COUNT][BIDI + 1 + 1];
-        locationSym = new ClassSymbol[TYPE_KIND_COUNT][BIDI + 1 + 1];
-        locationType = new Type[TYPE_KIND_COUNT][BIDI + 1 + 1];
-        
+
         String[] locClass = new String[TYPE_KIND_COUNT];
-        locClass[TYPE_KIND_OBJECT] = "ObjectLocation";
-        locClass[TYPE_KIND_DOUBLE] = "DoubleLocation";
-        locClass[TYPE_KIND_BOOLEAN] = "BooleanLocation";
-        locClass[TYPE_KIND_INT] = "IntegerLocation";
-        String pkg = "com.sun.javafx.runtime.";
-        
+        locClass[TYPE_KIND_OBJECT] = "Object";
+        locClass[TYPE_KIND_DOUBLE] = "Double";
+        locClass[TYPE_KIND_BOOLEAN] = "Boolean";
+        locClass[TYPE_KIND_INT] = "Integer";
+
+        varLocation = new LocationNameSymType[TYPE_KIND_COUNT];
+        exprLocation = new LocationNameSymType[TYPE_KIND_COUNT];
+        declLocation = new LocationNameSymType[TYPE_KIND_COUNT];
+
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
-            for (int i = 0; i <= BIDI; ++i) {
-                String className = pkg + (i==BIDI? "" : "Expression" + ((i==ARGS_IN_ARRAY)? "N" : i)) + locClass[kind];
-                locationName[kind][i] = Name.fromString(names, className);
-                locationSym[kind][i] = reader.enterClass(locationName[kind][i]);
-                locationType[kind][i] = locationSym[kind][i].type;
-            }
-        }
-        applyMethodNames = new Name[ARGS_IN_ARRAY + 1 + 1];
-        for (int i = 0; i <= ARGS_IN_ARRAY; ++i) {
-            String applyName = "apply" + ((i==ARGS_IN_ARRAY)? "N" : i);
-            applyMethodNames[i] = Name.fromString(names, applyName);
+            varLocation[kind]  = new LocationNameSymType(locClass[kind] + "Location");
+            exprLocation[kind] = new LocationNameSymType("ExpressionN" + locClass[kind] + "Location");
+            declLocation[kind] = new LocationNameSymType(locClass[kind] + "Location");
         }
         
-        contextName = Name.fromString(names, pkg + "Context");
-        contextSym = reader.enterClass(contextName);
-        contextType = contextSym.type;
-        
-        baseLocationName = Name.fromString(names, pkg + "Location");
-        baseLocationSym = reader.enterClass(baseLocationName);
-        baseLocationType = baseLocationSym.type;
-        
+        baseLocation = new LocationNameSymType("Location");
+        contextLocation = new LocationNameSymType("Context");
+
+        applyMethodName = Name.fromString(names, "applyN");
+                
         realTypeByKind = new Type[TYPE_KIND_COUNT];
         realTypeByKind[TYPE_KIND_OBJECT] = syms.objectType;
         realTypeByKind[TYPE_KIND_DOUBLE] = Symtab.doubleType;
@@ -474,22 +461,23 @@ public class JavafxTypeMorpher extends TreeTranslator {
         return result;
     }
     
-    static Type biDiLocationType(int typeKind) {
-        return locationType[typeKind][BIDI];
+    Type declLocationType(int typeKind) {
+        return declLocation[typeKind].type;
     }
     
-    JCIdent biDiLocationId(int pos, int typeKind) {
-        return sharedLocationId(pos, typeKind, BIDI);
+    JCIdent declLocationId(int pos, int typeKind) {
+        return sharedLocationId(pos, typeKind, varLocation);
     }
     
-    JCIdent expressionLocationId(int pos, int typeKind, int argCount) {
-        return sharedLocationId(pos, typeKind, argCount > ARGS_IN_ARRAY? ARGS_IN_ARRAY : argCount);
+    JCIdent expressionLocationId(int pos, int typeKind) {
+        return sharedLocationId(pos, typeKind, exprLocation);
     }
     
-    JCIdent sharedLocationId(int pos, int typeKind, int argCount) {
-        JCIdent locationId = make.at(pos).Ident(locationName[typeKind][argCount]);
-        locationId.sym = locationSym[typeKind][argCount];
-        locationId.type = locationType[typeKind][argCount];
+    JCIdent sharedLocationId(int pos, int typeKind, LocationNameSymType[] lnsta) {
+        LocationNameSymType lnst = lnsta[typeKind];
+        JCIdent locationId = make.at(pos).Ident(lnst.name);
+        locationId.sym = lnst.sym;
+        locationId.type = lnst.type;
         return locationId;
     }
     
@@ -508,13 +496,13 @@ public class JavafxTypeMorpher extends TreeTranslator {
         return result;
     }
     
-    private static Type generifyIfNeeded(Type aLocationType, VarMorphInfo vmi) {
+    private Type generifyIfNeeded(Type aLocationType, VarMorphInfo vmi) {
         Type newType;
         if (vmi.getTypeKind() == TYPE_KIND_OBJECT) {
             List<Type> actuals = List.of(vmi.getRealType());
             List<Type> formals = aLocationType.tsym.type.getTypeArguments();
             actuals.head = actuals.head.withTypeVar(formals.head);
-            Type clazzOuter = biDiLocationType(vmi.getTypeKind()).getEnclosingType();
+            Type clazzOuter = declLocationType(vmi.getTypeKind()).getEnclosingType();
             newType = new ClassType(clazzOuter, actuals, aLocationType.tsym);
         } else {
             newType = aLocationType;
@@ -577,7 +565,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
         if (realType.isPrimitive()) {
             typeExp = make.at(pos).Ident(usedTsym);
         } else {
-            JCExpression objLoc = biDiLocationId(pos, TYPE_KIND_OBJECT);
+            JCExpression objLoc = declLocationId(pos, TYPE_KIND_OBJECT);
             ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
             args.append(make.Ident(realTsym));
             typeExp = make.at(pos).TypeApply(objLoc, args.toList());
@@ -628,8 +616,8 @@ public class JavafxTypeMorpher extends TreeTranslator {
          
         tree.defs = translate(tree.defs);
 
-        if (classInfo.applyMethodDefs != null) {
-            fillInApplyMethods(classInfo.applyMethodDefs, this);
+        if (classInfo.applyMethodDef != null) {
+            fillInApplyMethod();
         }
         
         attrEnv.enclClass = prevEnclClass;
@@ -646,11 +634,8 @@ public class JavafxTypeMorpher extends TreeTranslator {
         tree.body = translate(tree.body);
         
         int argGroup = -1;
-        for (int i = 0; i <= ARGS_IN_ARRAY; ++i) {
-            if (tree.name == applyMethodNames[i]) {
-                classInfo.setApplyMethod(tree, i);
-                break;
-            }
+        if (tree.name == applyMethodName) {
+            classInfo.setApplyMethod(tree);
         }
         
         result = tree;
@@ -808,7 +793,7 @@ public class JavafxTypeMorpher extends TreeTranslator {
                     JCFieldAccess getSelect = make.Select(locAccess, methName);
                     getSelect.sym = rs.resolveInternalMethod(locAccess.pos(),
                             attrEnv,
-                            baseLocationType,
+                            baseLocation.type,
                             methName,
                             List.<Type>nil(),    // argtypes
                             List.<Type>nil());   // typeargs
@@ -904,10 +889,8 @@ public class JavafxTypeMorpher extends TreeTranslator {
     //========================================================================================================================
     
     void resetExpressionMapper() {
-        for (int i = 0; i <= ARGS_IN_ARRAY; ++i) {
-            classInfo.exprNumNext[i]= 0;
-            classInfo.infoByGroup[i] = ListBuffer.<ExprInfo>lb();
-        }
+        classInfo.exprNumNext= 0;
+        classInfo.exprInfo = ListBuffer.<ExprInfo>lb();
     }
     
     /** Make an attributed tree representing a literal. This will be an
@@ -920,26 +903,24 @@ public class JavafxTypeMorpher extends TreeTranslator {
         return make.Literal(type.tag, value).setType(type.constType(value));
     }
     
-    void fillInApplyMethods(JCMethodDecl[] applyMethodDefs, JavafxTypeMorpher morpher) {
-        for (int i = 0; i <= ARGS_IN_ARRAY; ++i) {
-            ListBuffer<ExprInfo> infos = classInfo.infoByGroup[i];
-            if (infos.length() >= 0) {      // TODO --- TEST!!!!!!!!!!!!!!!!!!
-                JCMethodDecl meth = classInfo.applyMethodDefs[i];
-                List<JCVariableDecl> params = meth.getParameters();
-                //JCVariableDecl boundVar = params.head;
-                JCVariableDecl numVar = params.tail.head;
-                ListBuffer<JCCase> cases = ListBuffer.lb();
-                ListBuffer<JCStatement> stmts;
-                
-                for (ExprInfo info : classInfo.infoByGroup[i]) {
-                    stmts = ListBuffer.<JCStatement>lb();
-                    stmts.append(buildExpression(info, meth));
-                    stmts.append(make.Return(makeLit(Symtab.booleanType, 1)));
-                    cases.append(make.Case(makeLit(Symtab.intType, info.exprNum), stmts.toList()));
-                }
-                JCExpression selector = make.Ident(numVar.sym);
-                meth.body.stats = meth.body.stats.prepend( make.Switch(selector, cases.toList()) );
+    void fillInApplyMethod() {
+        ListBuffer<ExprInfo> infos = classInfo.exprInfo;
+        if (infos.length() >= 0) {
+            JCMethodDecl meth = classInfo.applyMethodDef;
+            List<JCVariableDecl> params = meth.getParameters();
+            JCVariableDecl numVar = params.tail.head;
+            ListBuffer<JCCase> cases = ListBuffer.lb();
+            ListBuffer<JCStatement> stmts;
+
+            for (ExprInfo info : classInfo.exprInfo) {
+                stmts = ListBuffer.<JCStatement>lb();
+                stmts.append(buildExpression(info, meth));
+                stmts.append(make.Return(makeLit(Symtab.booleanType, 1)));
+                cases.append(make.Case(makeLit(Symtab.intType, info.exprNum), stmts.toList()));
             }
+
+            JCExpression selector = make.Ident(numVar.sym);
+            meth.body.stats = meth.body.stats.prepend( make.Switch(selector, cases.toList()) );
         }
     }
     
@@ -962,22 +943,16 @@ public class JavafxTypeMorpher extends TreeTranslator {
         };
         ts.scan(tree);
         
-        int argsGroup = varMap.size();
-        if (argsGroup >= ARGS_IN_ARRAY) {
-            argsGroup = ARGS_IN_ARRAY;
-        }
-        int exprNum = classInfo.exprNumNext[argsGroup]++;
-        ExprInfo info = new ExprInfo(varMap, exprNum, vsym, tree, argsGroup);
-        classInfo.infoByGroup[argsGroup].append(info);
+        int exprNum = classInfo.exprNumNext++;
+        ExprInfo info = new ExprInfo(varMap, exprNum, vsym, tree);
+        classInfo.exprInfo.append(info);
         
         VarMorphInfo vmi = varMorphInfo(vsym);
         Type realType = vmi.getRealType();
-        TypeSymbol realTsym = realType.tsym;
         Type usedType = vmi.getUsedType();
-        TypeSymbol usedTsym = usedType.tsym;
         int typeKind = vmi.getTypeKind();
         
-        JCExpression exprLocId = expressionLocationId(tree.pos, typeKind, argsGroup);
+        JCExpression exprLocId = expressionLocationId(tree.pos, typeKind);
         if (typeKind == TYPE_KIND_OBJECT) {
             ListBuffer<JCExpression> args = ListBuffer.lb();
             args.append(make.Ident(realType.tsym));
@@ -988,21 +963,21 @@ public class JavafxTypeMorpher extends TreeTranslator {
         
         ListBuffer<Type> argTypes = ListBuffer.lb();
         ListBuffer<JCExpression> argValues = ListBuffer.lb();
-        argTypes.append(contextType);
+        argTypes.append(contextLocation.type);
         JCIdent thisId = make.Ident(new VarSymbol(Flags.FINAL, names._this, attrEnv.enclClass.type, attrEnv.enclClass.type.tsym));
         thisId.setType(thisId.type);
         argValues.append(thisId);
         argTypes.append(Symtab.intType);
         argValues.append(makeLit(Symtab.intType, exprNum));
-        if (argsGroup == ARGS_IN_ARRAY) {
-            Type argArrayType = new ArrayType(baseLocationType, syms.arrayClass);
+        {
+            Type argArrayType = new ArrayType(baseLocation.type, syms.arrayClass);
             argTypes.append(argArrayType);
             ListBuffer<JCExpression> argContents = ListBuffer.lb();
             for (VarInfo vi : varMap.values()) {
                 argContents.append(vi.origIdent);
             }
             JCNewArray argArgValue = make.NewArray(
-                    make.Ident(baseLocationSym),
+                    make.Ident(baseLocation.sym),
                     List.<JCExpression>nil(),
                     argContents.toList());
             argArgValue.setType(argArrayType);
@@ -1027,7 +1002,6 @@ public class JavafxTypeMorpher extends TreeTranslator {
     public JCStatement buildExpression(ExprInfo info, JCMethodDecl applyMethod) {
         VarSymbol vsym = info.vsym;
         JCExpression tree = info.expr;
-        int argsGroup = info.argsGroup;   
         varMap = info.varMap;
         
         List<JCVariableDecl> params = applyMethod.getParameters();
@@ -1037,30 +1011,9 @@ public class JavafxTypeMorpher extends TreeTranslator {
         int i = 0;
         for (VarSymbol orig : varMap.keySet()) {
             JCExpression argsExp = make.at(tree.pos).Ident(args.head.sym);
-            if (argsGroup == ARGS_IN_ARRAY) {
-                argsExp.setType(new ArrayType(baseLocationType, syms.arrayClass));
-                argsExp = make.Indexed(argsExp, makeLit(Symtab.intType, i++));
-            } else {
-                args = args.tail;  // advance to next arg if explicit
-            }
-            argsExp.setType(baseLocationType);
-            
-            /***
-             * // select the asBoolean() etc. method
-             * Name asTypeMethodName = valueAccessName[orig.getTypeKind()];
-             * JCFieldAccess methSelect = make.Select(argsExp, asTypeMethodName);
-             * methSelect.sym = rs.resolveInternalMethod(tree.pos(),
-             * attrEnv,
-             * vsym.getUsedType(),
-             * asTypeMethodName,
-             * List.<Type>nil(),   // argtypes
-             * List.<Type>nil());   // typeargs
-             * methSelect.setType(methSelect.sym.type);
-             * 
-             * // apply the asBoolean() etc. method
-             * JCExpression asTypeApply = make.Apply(null, methSelect, List.<JCExpression>nil());
-             * asTypeApply.setType(realTypeByKind[orig.getTypeKind()]);
-             * ***/
+            argsExp.setType(new ArrayType(baseLocation.type, syms.arrayClass));
+            argsExp = make.Indexed(argsExp, makeLit(Symtab.intType, i++));
+            argsExp.setType(baseLocation.type);
             
             varMap.get(orig).replacement = argsExp;
         }

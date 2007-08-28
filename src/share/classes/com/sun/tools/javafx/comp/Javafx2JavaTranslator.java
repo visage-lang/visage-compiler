@@ -48,6 +48,7 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
     private final JavafxTreeMaker make;
     private final JavafxSymtab syms;
     private final Log log;
+    private final JavafxTypeMorpher typeMorpher;
     
     private final Name numberTypeName;
     private final Name integerTypeName;
@@ -90,14 +91,15 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         names = Name.Table.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         log = Log.instance(context);
-        
+        typeMorpher = JavafxTypeMorpher.instance(context);
+
         // TODO: hack this should be in a central place. Add it to a Javafx subclass of PredefinedNames.
         numberTypeName  = names.fromString("Number");
         integerTypeName = names.fromString("Integer");
         booleanTypeName = names.fromString("Boolean");
         voidTypeName = names.fromString("Void");
-        contextInterfaceName = names.fromString("com.sun.javafx.runtime.Context");
-        locationName = names.fromString("com.sun.javafx.runtime.Location");
+        contextInterfaceName = typeMorpher.contextLocation.name;
+        locationName = typeMorpher.baseLocation.name;
         initializerName = names.fromString("javafx$init$");
         initializerBlockName = names.fromString("javafx$init$block");
         
@@ -568,46 +570,6 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
                 make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("bound"), make.Identifier(locationName), null),
                 make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("exprNum"), make.TypeIdent(TypeTags.INT), null)
                 );
-/**** Leave out until needed (if ever)
-        defs.append(make.MethodDef(
-                make.Modifiers(Flags.PUBLIC),
-                names.fromString("apply0"),
-                make.TypeIdent(TypeTags.BOOLEAN),
-                List.<JCTypeParameter>nil(),
-                params,
-                List.<JCExpression>nil(),
-                make.Block(0, List.<JCStatement>of(make.Return(make.Literal(TypeTags.BOOLEAN, 0)))),
-                null));
-        params = List.of(
-                make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("bound"), make.Identifier(locationName), null),
-                make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("exprNum"), make.TypeIdent(TypeTags.INT), null),
-                make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("arg1"), make.Identifier(locationName), null)
-                );
-        defs.append(make.MethodDef(
-                make.Modifiers(Flags.PUBLIC),
-                names.fromString("apply1"),
-                make.TypeIdent(TypeTags.BOOLEAN),
-                List.<JCTypeParameter>nil(),
-                params,
-                List.<JCExpression>nil(),
-                make.Block(0, List.<JCStatement>of(make.Return(make.Literal(TypeTags.BOOLEAN, 0)))),
-                null));
-        params = List.of(
-                make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("bound"), make.Identifier(locationName), null),
-                make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("exprNum"), make.TypeIdent(TypeTags.INT), null),
-                make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("arg1"), make.Identifier(locationName), null),
-                make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("arg2"), make.Identifier(locationName), null)
-                );
-        defs.append(make.MethodDef(
-                make.Modifiers(Flags.PUBLIC),
-                names.fromString("apply2"),
-                make.TypeIdent(TypeTags.BOOLEAN),
-                List.<JCTypeParameter>nil(),
-                params,
-                List.<JCExpression>nil(),
-                make.Block(0, List.<JCStatement>of(make.Return(make.Literal(TypeTags.BOOLEAN, 0)))),
-                null));
-*******/
         params = List.of(
                 make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("bound"), make.Identifier(locationName), null),
                 make.VarDef(make.Modifiers(Flags.PARAMETER), names.fromString("exprNum"), make.TypeIdent(TypeTags.INT), null),

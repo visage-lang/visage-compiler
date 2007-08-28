@@ -557,9 +557,9 @@ primaryExpression  returns [JCExpression expr]
        	;
 newExpression  returns [JCExpression expr] 
 @init { ListBuffer<JCExpression> args = null; }
-	: NEW  identifier  
+	: NEW  qualident  
 		( LPAREN   expressionListOpt   RPAREN 		{ args = $expressionListOpt.args; } )?
-								{ $expr = F.at(pos($NEW)).NewClass(null, null, $identifier.expr, 
+								{ $expr = F.at(pos($NEW)).NewClass(null, null, $qualident.expr, 
 												(args==null? new ListBuffer<JCExpression>() : args).toList(), null); }
 		   //TODO: need anonymous subclasses
 	;
