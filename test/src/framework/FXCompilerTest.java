@@ -80,6 +80,7 @@ public class FXCompilerTest extends TestSuite {
                 boolean isTest = false, shouldRun = false;
 
                 Scanner scanner = null;
+                List<String> auxFiles = new ArrayList<String>();
                 boolean inComment = false;
                 try {
                     scanner = new Scanner(f);
@@ -94,6 +95,8 @@ public class FXCompilerTest extends TestSuite {
                             isTest = true;
                         else if (inComment && token.equals("@run"))
                             shouldRun = true;
+                        else if (inComment && token.equals("@compile"))
+                            auxFiles.add(scanner.next());
                     }
                 } catch (Exception ignored) {
                     continue;
@@ -102,7 +105,7 @@ public class FXCompilerTest extends TestSuite {
                         scanner.close();
                 }
                 if (isTest)
-                    tests.add(new FXCompilerTestCase(f, name, shouldRun));
+                    tests.add(new FXCompilerTestCase(f, name, shouldRun, auxFiles));
             }
         }
     }

@@ -2,9 +2,10 @@
  * @test
  * @run
  */
-import java.util.Date;
+import java.util.ArrayList;
 import java.lang.System;
 
-var a = new Date;
-var b = new Date(56, 9, 9, 23, 0);
-System.out.println(b);
+var a = new ArrayList;
+a.add("foo");
+a.add("moo");
+System.out.println(a);

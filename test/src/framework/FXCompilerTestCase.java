@@ -35,7 +35,7 @@ import org.apache.tools.ant.types.CommandlineJava;
 import org.apache.tools.ant.types.Path;
 
 import java.io.*;
-import java.util.ServiceLoader;
+import java.util.*;
 
 /**
  * Compiles a single JavaFX script source file and executes the resulting class.
@@ -47,6 +47,7 @@ public class FXCompilerTestCase extends TestCase {
     private final File buildDir;
     private final boolean shouldRun;
     private String className;
+    private final List<String> auxFiles;
 
     private static final ServiceLoader<JavafxCompiler> compilerLoader =
             ServiceLoader.load(JavafxCompiler.class);
@@ -55,12 +56,13 @@ public class FXCompilerTestCase extends TestCase {
     public static final String BUILD_ROOT = "build/test";
     public static final String TEST_PREFIX = TEST_ROOT + File.separator;
 
-    public FXCompilerTestCase(File test, String name, boolean shouldRun) {
+    public FXCompilerTestCase(File test, String name, boolean shouldRun, Collection<String> auxFiles) {
         super(name);
         this.test = test;
         this.shouldRun = shouldRun;
         assertTrue("path not a relative pathname", test.getPath().startsWith(TEST_PREFIX));
         this.buildDir = new File(BUILD_ROOT + File.separator + test.getParent().substring(TEST_PREFIX.length()));
+        this.auxFiles = new LinkedList<String>(auxFiles);
     }
 
     @Override
@@ -87,8 +89,14 @@ public class FXCompilerTestCase extends TestCase {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
         buildDir.mkdirs();
+        List<String> args = new ArrayList<String>();
+        args.add("-d");
+        args.add(buildDir.getPath());
+        args.add(test.getPath());
+        for (String f : auxFiles)
+            args.add(new File(test.getParent(), f).getPath());
         System.out.println("Compiling " + test);
-        int errors = compiler.run(null, out, err, "-d", buildDir.getPath(), test.getPath());
+        int errors = compiler.run(null, out, err, args.toArray(new String[0]));
         if (errors != 0) {
             dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output");
             System.out.println("--");
@@ -108,10 +116,8 @@ public class FXCompilerTestCase extends TestCase {
         commandLine.setClassname(mainClass);
         Project project = new Project();
         Path p = commandLine.createClasspath(project);
-        Path.PathElement pe = p.createPathElement();
-        pe.setPath(System.getProperty("java.class.path"));
-        Path.PathElement pe2 = p.createPathElement();
-        pe2.setPath(buildDir.getPath());
+        p.createPathElement().setPath(System.getProperty("java.class.path"));
+        p.createPathElement().setPath(buildDir.getPath());
 
         PumpStreamHandler sh = new PumpStreamHandler(new FileOutputStream(outputFileName), new FileOutputStream(errorFileName));
         Execute exe = new Execute(sh);
