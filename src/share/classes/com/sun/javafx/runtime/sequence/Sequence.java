@@ -101,4 +101,9 @@ public interface Sequence<T> extends Iterable<T> {
      * equals() method.  Sequences implement an equals() method that uses isEqual().  
      */
     public boolean isEqual(Sequence<T> other);
+
+    /** Many sequences are represented as trees to reduce copying costs; if the current sequence has depth > 0, 
+     * copy the elements into a new sequence of depth == 0.
+     */
+    public Sequence<T> flatten();
 }

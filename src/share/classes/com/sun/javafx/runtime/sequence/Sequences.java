@@ -1,6 +1,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import java.util.BitSet;
+import java.util.List;
 
 /**
  * SequenceHelper -- static helper methods for constructing derived sequences.  Implements heuristics for reducing
@@ -24,6 +25,16 @@ public final class Sequences {
         return new ArraySequence<T>(clazz, values);
     }
 
+    /** Factory for simple sequence generation */
+    public static<T> Sequence<T> make(Class<T> clazz, T[] values, int size) {
+        return new ArraySequence<T>(clazz, values, size);
+    }
+
+    /** Factory for simple sequence generation */
+    public static<T> Sequence<T> make(Class<T> clazz, List<T> values) {
+        return new ArraySequence<T>(clazz, values);
+    }
+
     /** Concatenate two sequences into a new sequence.  */
     public static<T> Sequence<T> concatenate(Class<T> clazz, Sequence<T> first, Sequence<T> second) {
         if (first.size() == 0)
@@ -40,7 +51,7 @@ public final class Sequences {
     }
 
     /** Create an Integer range sequence ranging from lower to upper inclusive. */
-    public static Sequence<Integer> rangeSequence(int lower, int upper) {
+    public static Sequence<Integer> range(int lower, int upper) {
         return new IntRangeSequence(lower, upper);
     }
 
@@ -81,5 +92,11 @@ public final class Sequences {
     /** Reverse an existing sequence */
     public static<T> Sequence<T> reverse(Sequence<T> sequence) {
         return new ReverseSequence<T>(sequence);
+    }
+
+    /** Create a new sequence that is the result of applying a mapping function to each element */
+    public static<T,U> Sequence<U> map(Class<U> clazz, Sequence<T> sequence, SequenceMapper<T, U> mapper) {
+        // TODO OPT: for small sequences, do the mapping eagerly
+        return new MapSequence<T,U>(clazz, sequence, mapper);
     }
 }

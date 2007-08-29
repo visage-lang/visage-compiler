@@ -20,14 +20,14 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
 
     public void testUnbound() {
-        Sequence<Integer> seq = Sequences.rangeSequence(1, 100);
+        Sequence<Integer> seq = Sequences.range(1, 100);
         SequenceVar<Integer> loc = SequenceVar.make(seq);
         assertEquals(seq, loc.get());
     }
 
     /** bind first = seq[0] */
     public void testElementBind() {
-        final SequenceVar<Integer> seq = SequenceVar.make(Sequences.rangeSequence(1, 3));
+        final SequenceVar<Integer> seq = SequenceVar.make(Sequences.range(1, 3));
         IntLocation firstValue = IntExpression.make(new IntBindingExpression() {
             public int get() {
                 return seq.get().get(0);
@@ -46,7 +46,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testSequenceListener() {
-        final SequenceVar<Integer> seq = SequenceVar.make(Sequences.rangeSequence(1, 3));
+        final SequenceVar<Integer> seq = SequenceVar.make(Sequences.range(1, 3));
         CountingSequenceListener cl = new CountingSequenceListener();
         seq.addChangeListener(cl);
 
@@ -56,7 +56,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(cl.inserted, 4);
         assertEquals(cl.changeCount, cl.insertCount);
 
-        seq.insert(Sequences.rangeSequence(1, 3));
+        seq.insert(Sequences.range(1, 3));
         assertEquals(seq, 1, 2, 3, 4, 1, 2, 3);
         assertEquals(4, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3);
@@ -74,13 +74,13 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8);
         assertEquals(cl.changeCount, cl.insertCount);
 
-        seq.insertAfter(Sequences.rangeSequence(1, 3), 9);
+        seq.insertAfter(Sequences.range(1, 3), 9);
         assertEquals(seq, 1, 8, 2, 3, 4, 1, 8, 2, 10, 3, 1, 2, 3);
         assertEquals(10, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3);
         assertEquals(cl.changeCount, cl.insertCount);
 
-        seq.insertAfter(Sequences.rangeSequence(1, 3), isOnePredicate);
+        seq.insertAfter(Sequences.range(1, 3), isOnePredicate);
         assertEquals(seq, 1, 1, 2, 3, 8, 2, 3, 4, 1, 1, 2, 3, 8, 2, 10, 3, 1, 1, 2, 3, 2, 3);
         assertEquals(19, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3);
@@ -98,13 +98,13 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 10, 9, 9, 9, 9, 9, 9);
         assertEquals(cl.changeCount, cl.insertCount);
 
-        seq.insertBefore(Sequences.rangeSequence(1, 3), 10);
+        seq.insertBefore(Sequences.range(1, 3), 10);
         assertEquals(seq, 9, 1, 9, 1, 2, 3, 8, 10, 2, 3, 1, 2, 3, 4, 9, 1, 9, 1, 2, 3, 8, 2, 10, 3, 9, 1, 9, 1, 2, 3, 2, 3);
         assertEquals(29, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 10, 9, 9, 9, 9, 9, 9, 1, 2, 3);
         assertEquals(cl.changeCount, cl.insertCount);
 
-        seq.insertBefore(Sequences.rangeSequence(1, 3), new SequencePredicate<Integer>() {
+        seq.insertBefore(Sequences.range(1, 3), new SequencePredicate<Integer>() {
             public boolean matches(Sequence sequence, int index, Integer value) {
                 return value == 10;
             }
@@ -150,7 +150,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 10, 9, 9, 9, 9, 9, 9, 1, 2, 3, 1, 2, 3, 1, 2, 3, 777);
         assertEquals(cl.changeCount, cl.insertCount + cl.deleteCount);
 
-        seq.insertFirst(Sequences.rangeSequence(33, 34));
+        seq.insertFirst(Sequences.range(33, 34));
         assertEquals(seq, 33, 34, 777, 9, 3, 8, 2, 3, 10, 2, 3, 2, 3, 4, 9, 9, 2, 3, 8, 2, 2, 3, 10, 3, 9, 9, 2, 3, 2, 3);
         assertEquals(38, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 10, 9, 9, 9, 9, 9, 9, 1, 2, 3, 1, 2, 3, 1, 2, 3, 777, 33, 34);
@@ -162,7 +162,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         final IntLocation n = IntVar.make(0);
         final SequenceLocation<Integer> oneToN = SequenceExpression.make(new SequenceBindingExpression<Integer>() {
             public Sequence<Integer> get() {
-                return Sequences.rangeSequence(1, n.get());
+                return Sequences.range(1, n.get());
             }
         }, n);
         assertEquals(oneToN.get(), Sequences.emptySequence(Integer.class));
@@ -174,7 +174,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(oneToN.get(), Sequences.emptySequence(Integer.class));
 
         // oddN = bind select t from v where t % 2 == 1
-        final SequenceLocation<Integer> v = SequenceVar.make(Sequences.rangeSequence(1, 8));
+        final SequenceLocation<Integer> v = SequenceVar.make(Sequences.range(1, 8));
         final SequenceLocation<Integer> oddN = SequenceExpression.make(new SequenceBindingExpression<Integer>() {
             public Sequence<Integer> get() {
                 return v.get().get(new SequencePredicate<Integer>() {
@@ -185,7 +185,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
             }
         }, v);
         assertEquals(oddN.get(), 1, 3, 5, 7);
-        v.set(Sequences.rangeSequence(3, 11));
+        v.set(Sequences.range(3, 11));
         assertEquals(oddN.get(), 3, 5, 7, 9, 11);
     }
 
@@ -195,7 +195,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         final IntLocation n = IntVar.make(0);
         final SequenceLocation<Integer> oneToN = SequenceExpression.make(new SequenceBindingExpression<Integer>() {
             public Sequence<Integer> get() {
-                return Sequences.rangeSequence(1, n.get());
+                return Sequences.range(1, n.get());
             }
         }, n);
         final SequenceLocation<Integer> evenN = SequenceExpression.make(new SequenceBindingExpression<Integer>() {

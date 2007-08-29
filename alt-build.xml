@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="JavaFX Compiler" default="jar" basedir=".">
+<project name="alt" default="jar" basedir=".">
 
     <property name="base.dir" value="${basedir}"/>
     <property name="tools.dir" value="${basedir}/tools"/>

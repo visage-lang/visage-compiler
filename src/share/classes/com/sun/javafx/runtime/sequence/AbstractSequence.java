@@ -56,13 +56,8 @@ public abstract class AbstractSequence<T> implements Sequence<T>, SequenceIntern
             sequenceClosure.call(this, i, get(i));
     }
 
-    @SuppressWarnings("unchecked")
     public<V> Sequence<V> map(Class<V> clazz, SequenceMapper<T, V> sequenceMapper) {
-        int length = size();
-        V[] values = (V[]) new Object[length];
-        for (int i = 0; i < length; i++)
-            values[i] = sequenceMapper.map(this, i, get(i));
-        return new ArraySequence<V>(clazz, values);
+        return Sequences.map(clazz, this, sequenceMapper);
     }
 
     public void toArray(Object[] array, int destOffset) {
@@ -323,5 +318,16 @@ public abstract class AbstractSequence<T> implements Sequence<T>, SequenceIntern
 
     public Sequence<T> reverse() {
         return Sequences.reverse(this);
+    }
+
+    public Sequence<T> flatten() {
+        if (getDepth() == 0)
+            return this;
+        else {
+            SequenceBuilder<T> sb = new SequenceBuilder<T>(getElementType());
+            for (T t : this)
+                sb.add(t);
+            return sb.toSequence();
+        }
     }
 }

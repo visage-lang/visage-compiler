@@ -1,6 +1,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import java.util.BitSet;
+import java.util.List;
 
 /**
  * ArraySequence
@@ -17,6 +18,19 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
         super(clazz);
         this.array =  (T[]) new Object[values.length];
         System.arraycopy(values, 0, array, 0, values.length);
+    }
+
+    @SuppressWarnings("unchecked")
+    public ArraySequence(Class<T> clazz, T[] values, int size) {
+        super(clazz);
+        this.array =  (T[]) new Object[size];
+        System.arraycopy(values, 0, array, 0, size);
+    }
+
+    @SuppressWarnings("unchecked")
+    public ArraySequence(Class<T> clazz, List<T> values) {
+        super(clazz);
+        this.array = (T[]) values.toArray();
     }
 
     @SuppressWarnings("unchecked")

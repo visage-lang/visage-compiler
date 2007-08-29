@@ -141,6 +141,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEmpty(seq.delete(lastMatcher));
 
         assertEmpty(seq.reverse());
+        assertEmpty(seq.flatten());
+        assertEquals(seq.flatten(), seq);
     }
 
     /**
@@ -171,6 +173,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertOneElement(seq.delete(nullMatcher), value);
 
         assertEquals(seq.reverse(), value);
+        assertEquals(seq.flatten(), value);
+        assertDepth(0, seq.flatten());
     }
 
     private void twoElementHelper(Sequence<Integer> seq, Integer a, Integer b) {
@@ -231,6 +235,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(seq.insertBefore(cc, allMatcher), C, C, a, C, C, b);
 
         assertTwoElements(seq.reverse(), b, a);
+        assertEquals(seq.flatten(), a, b);
+        assertDepth(0, seq.flatten());
     }
 
 
@@ -242,7 +248,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         emptyHelper(new ArraySequence<Integer>(Integer.class, new Integer[0]));
 
         emptyHelper(new IntRangeSequence(0, -1));
-        emptyHelper(Sequences.rangeSequence(0, -1));
+        emptyHelper(Sequences.range(0, -1));
 
         emptyHelper(new CompositeSequence<Integer>(Integer.class));
         emptyHelper(new CompositeSequence<Integer>(Integer.class, EMPTY_SEQUENCE));
@@ -266,7 +272,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         oneElementHelper(new SingletonSequence<Integer>(Integer.class, 3), 3);
 
         oneElementHelper(new IntRangeSequence(2, 2), 2);
-        oneElementHelper(Sequences.rangeSequence(2, 2), 2);
+        oneElementHelper(Sequences.range(2, 2), 2);
 
         oneElementHelper(new CompositeSequence<Integer>(Integer.class, EMPTY_SEQUENCE, ONE_SEQUENCE), A);
         oneElementHelper(new CompositeSequence<Integer>(Integer.class, ONE_SEQUENCE, EMPTY_SEQUENCE), A);
@@ -302,7 +308,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(Sequences.concatenate(Integer.class, TWO_SEQUENCE, EMPTY_SEQUENCE, TWO_SEQUENCE), A, B, A, B);
         assertEquals(Sequences.concatenate(Integer.class, TWO_SEQUENCE, TWO_SEQUENCE, TWO_SEQUENCE), A, B, A, B, A, B);
 
-        Sequence<Integer> five = Sequences.rangeSequence(0, 5);
+        Sequence<Integer> five = Sequences.range(0, 5);
         assertEquals(five.insertBefore(C, allMatcher), C, 0, C, 1, C, 2, C, 3, C, 4, C, 5);
         assertEquals(five.insertAfter(C, allMatcher), 0, C, 1, C, 2, C, 3, C, 4, C, 5, C);
 
@@ -320,7 +326,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
      * Test extraction by predicate
      */
     public void testPredicateExtract() {
-        Sequence<Integer> ten = Sequences.rangeSequence(0, 10);
+        Sequence<Integer> ten = Sequences.range(0, 10);
         assertOneElement(ten.get(firstMatcher), 0);
         assertOneElement(ten.get(lastMatcher), 10);
         assertEquals(ten.get(oddMatcher), 1, 3, 5, 7, 9);
@@ -336,7 +342,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
     public void testSubsequence() {
         assertEmpty(EMPTY_SEQUENCE.subsequence(0, 10));
 
-        Sequence<Integer> ten = Sequences.rangeSequence(0, 10);
+        Sequence<Integer> ten = Sequences.range(0, 10);
         assertEmpty(ten.subsequence(-1, 0));
         assertEmpty(ten.subsequence(-1, -1));
         assertEmpty(ten.subsequence(0, 0));
@@ -364,7 +370,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
     public void testSet() {
         assertEquals(TWO_SEQUENCE.set(0, C), C, B);
         assertEquals(TWO_SEQUENCE.set(1, C), A, C);
-        Sequence<Integer> five = Sequences.rangeSequence(0, 5);
+        Sequence<Integer> five = Sequences.range(0, 5);
         assertEquals(five.set(-1, C), 0, 1, 2, 3, 4, 5);
         assertEquals(five.set(0, C), C, 1, 2, 3, 4, 5);
         assertEquals(five.set(1, C), 0, C, 2, 3, 4, 5);
