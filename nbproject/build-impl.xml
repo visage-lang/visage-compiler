@@ -146,7 +146,7 @@ is divided into following sections:
                     <classpath>
                         <path path="@{classpath}"/>
                     </classpath>
-                    <compilerarg line="${javac.compilerargs} @{javac.compilerargs.jaxws}"/>
+                    <compilerarg line="${javac.compilerargs} @{javac.compilerargs.jaxws} -XDignore.symbol.file"/>
                     <customize/>
                 </javac>
             </sequential>

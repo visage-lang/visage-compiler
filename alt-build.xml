@@ -76,7 +76,9 @@
 
     <target name="compile-java" depends="prepare">
         <javac srcdir="${src.java.dir}" classpathref="build.class.path" includes="**/*.java"
-               destdir="${build.classes.dir}" debug="true"/>
+               destdir="${build.classes.dir}" debug="true">
+            <compilerarg value="-XDignore.symbol.file" />
+        </javac>
         <copy todir="${build.classes.dir}">
             <fileset dir="${src.fx.dir}" includes="**/*.properties"/>
             <fileset dir="${src.java.dir}" includes="META-INF/**"/>
@@ -85,7 +87,9 @@
 
     <target name="compile-tests" depends="prepare">
         <javac srcdir="${test.src.dir}" classpathref="build.class.path" includes="**/*.java"
-               destdir="${test.classes.dir}" debug="true"/>
+               destdir="${test.classes.dir}" debug="true">
+        <compilerarg value="-XDignore.symbol.file" />
+        </javac>
     </target>
 
     <target name="coverage">
