@@ -77,4 +77,9 @@ public final class Sequences {
     public static<T> Sequence<T> emptySequence(Class<T> clazz) {
         return EmptySequence.get(clazz);
     }
+
+    /** Reverse an existing sequence */
+    public static<T> Sequence<T> reverse(Sequence<T> sequence) {
+        return new ReverseSequence<T>(sequence);
+    }
 }

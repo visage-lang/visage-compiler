@@ -139,6 +139,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEmpty(seq.delete(nullMatcher));
         assertEmpty(seq.delete(firstMatcher));
         assertEmpty(seq.delete(lastMatcher));
+
+        assertEmpty(seq.reverse());
     }
 
     /**
@@ -167,6 +169,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEmpty(seq.delete(firstMatcher));
         assertEmpty(seq.delete(lastMatcher));
         assertOneElement(seq.delete(nullMatcher), value);
+
+        assertEquals(seq.reverse(), value);
     }
 
     private void twoElementHelper(Sequence<Integer> seq, Integer a, Integer b) {
@@ -225,6 +229,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(seq.insertBefore(cc, firstMatcher), C, C, a, b);
         assertEquals(seq.insertBefore(cc, lastMatcher), a, C, C, b);
         assertEquals(seq.insertBefore(cc, allMatcher), C, C, a, C, C, b);
+
+        assertTwoElements(seq.reverse(), b, a);
     }
 
 
@@ -299,6 +305,9 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         Sequence<Integer> five = Sequences.rangeSequence(0, 5);
         assertEquals(five.insertBefore(C, allMatcher), C, 0, C, 1, C, 2, C, 3, C, 4, C, 5);
         assertEquals(five.insertAfter(C, allMatcher), 0, C, 1, C, 2, C, 3, C, 4, C, 5, C);
+
+        assertEquals(Sequences.reverse(five), 5, 4, 3, 2, 1, 0);
+        assertEquals(Sequences.reverse(Sequences.reverse(five)), five);
 
         assertEquals(five.insertAfter(C, evenMatcher), 0, C, 1, 2, C, 3, 4, C, 5);
         assertEquals(five.insertBefore(C, evenMatcher), C, 0, 1, C, 2, 3, C, 4, 5);
@@ -412,5 +421,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertDepth(1, Sequences.subsequence(TWO_SEQUENCE, 1, 2));
         assertDepth(0, Sequences.subsequence(TWO_SEQUENCE, 0, 0));
         assertDepth(1, Sequences.subsequence(TWO_SEQUENCE, 0, 1));
+
+        assertDepth(1, Sequences.reverse(TWO_SEQUENCE));
     }
 }

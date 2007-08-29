@@ -320,4 +320,8 @@ public abstract class AbstractSequence<T> implements Sequence<T>, SequenceIntern
         else
             return multiInsertAfter(bits, values);
     }
+
+    public Sequence<T> reverse() {
+        return Sequences.reverse(this);
+    }
 }
