@@ -27,7 +27,6 @@ package com.sun.tools.javafx.parser;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.io.OutputStreamWriter;
 
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.tree.JCTree.*;
@@ -915,6 +914,7 @@ public class Parser {
      *
      * ary := '?' | '*' | '+'
      */
+    @SuppressWarnings("fallthrough")
     JFXType type() {
         accept(COLON);
         if (S.pos() <= errorEndPos) {
@@ -934,7 +934,7 @@ public class Parser {
             return toP(F.at(pos).TypeFunctional(params, restype, ary));
         }
         case IDENTIFIER: {
-            Name className = ident();
+            JCExpression className = qualident();
             int ary = ary();
             return toP(F.at(pos).TypeClass(className, ary));
         }
@@ -953,6 +953,7 @@ public class Parser {
      *
      * ary := '?' | '*' | '+'
      */
+    @SuppressWarnings("fallthrough")
     JFXType typeOpt() {
         if (S.token() == COLON) {
             S.nextToken();
@@ -969,7 +970,7 @@ public class Parser {
                 return toP(F.at(pos).TypeFunctional(params, restype, ary));
             }
             case IDENTIFIER: {
-                Name className = ident();
+                JCExpression className = qualident();
                 int ary = ary();
                 return toP(F.at(pos).TypeClass(className, ary));
             }

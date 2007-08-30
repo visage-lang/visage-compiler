@@ -591,21 +591,22 @@ public class Javafx2JavaTranslator extends JavafxTreeTranslator {
         
         if (jfxType != null) {
             if (jfxType instanceof JFXTypeClass) {
-                Name className = ((JFXTypeClass)jfxType).getClassName();
-                if (className == numberTypeName) {
-                    type = make.TypeIdent(TypeTags.DOUBLE);
-                    type.type = syms.javafx_NumberType;
-                } else if (className == integerTypeName) {
-                    type = make.TypeIdent(TypeTags.INT);
-                    type.type = syms.javafx_IntegerType;
-                } else if (className == booleanTypeName) {
-                    type = make.TypeIdent(TypeTags.BOOLEAN);
-                    type.type = syms.javafx_BooleanType;
-                } else if (className == voidTypeName) {
-                    type = make.TypeIdent(TypeTags.VOID);
-                    type.type = syms.voidType;
-                } else {
-                    type = make.Ident(className);
+                type = ((JFXTypeClass)jfxType).getClassName();
+                if (type instanceof JCIdent) {
+                    Name className = ((JCIdent)type).getName();
+                    if (className == numberTypeName) {
+                        type = make.TypeIdent(TypeTags.DOUBLE);
+                        type.type = syms.javafx_NumberType;
+                    } else if (className == integerTypeName) {
+                        type = make.TypeIdent(TypeTags.INT);
+                        type.type = syms.javafx_IntegerType;
+                    } else if (className == booleanTypeName) {
+                        type = make.TypeIdent(TypeTags.BOOLEAN);
+                        type.type = syms.javafx_BooleanType;
+                    } else if (className == voidTypeName) {
+                        type = make.TypeIdent(TypeTags.VOID);
+                        type.type = syms.voidType;
+                    } 
                 }
             } else {
                 // TODO: Figure out what this could be???

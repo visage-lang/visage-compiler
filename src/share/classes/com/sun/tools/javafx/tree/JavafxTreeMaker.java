@@ -36,7 +36,6 @@ import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.Position;
 import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javafx.code.JavafxMethodSymbol;
 import com.sun.tools.javafx.code.JavafxBindStatus;
 
 /* JavaFX version of tree maker
@@ -53,6 +52,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     
     public static void preRegister(final Context context) {
         context.put(treeMakerKey, new Context.Factory<TreeMaker>() {
+            @Override
             public TreeMaker make() {
                 return new JavafxTreeMaker(context);
             }
@@ -78,12 +78,14 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     
     /** Create a new tree maker for a given toplevel.
      */
+    @Override
     public JavafxTreeMaker forToplevel(JCCompilationUnit toplevel) {
         return new JavafxTreeMaker(toplevel, names, types, syms);
     }
     
     /** Reassign current position.
      */
+    @Override
     public JavafxTreeMaker at(int pos) {
         this.pos = pos;
         return this;
@@ -91,6 +93,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     
     /** Reassign current position.
      */
+    @Override
     public JavafxTreeMaker at(DiagnosticPosition pos) {
         this.pos = (pos == null ? Position.NOPOS : pos.getStartPosition());
         return this;
@@ -408,7 +411,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXType  TypeClass(Name className,int cardinality) {
+    public JFXType  TypeClass(JCExpression className,int cardinality) {
         JFXType tree = new JFXTypeClass(className, cardinality, null);
         tree.pos = pos;
         return tree;

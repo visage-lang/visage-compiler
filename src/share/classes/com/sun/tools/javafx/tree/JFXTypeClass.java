@@ -26,7 +26,6 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.util.Name;
 
 /**
  * Type referencing a class
@@ -34,22 +33,24 @@ import com.sun.tools.javac.util.Name;
  * @author Robert Field
  */
 public class JFXTypeClass extends JFXType {
-    private final Name className; // TODO: Make this an indent.
+    private final JCExpression className; // TODO: Make this an indent.
     ClassSymbol sym;
     
     /*
      * @param cardinality one of the cardinality constants
      */
-    protected JFXTypeClass(Name className,
+    protected JFXTypeClass(JCExpression className,
             int cardinality,
             ClassSymbol sym) {
         super(cardinality);
         this.className = className;
         this.sym = sym;
     }
+
+    @Override
     public void accept(JavafxVisitor v) { v.visitTypeClass(this); }
     
-    public Name getClassName() { return className; }
+    public JCExpression getClassName() { return className; }
 
     @Override
     public int getTag() {

@@ -627,7 +627,7 @@ assignmentOperator  returns [int optag]
 	| PERCENTEQ   			{ $optag = JCTree.MOD_ASG; } 
 	;
 typeReference returns [JFXType type]
-	: ( COLON  ( name ccn=cardinalityConstraint		{ $type = F.TypeClass($name.value, $ccn.ary); }
+	: ( COLON  ( typeName ccn=cardinalityConstraint		{ $type = F.TypeClass($typeName.expr, $ccn.ary); }
                    | STAR ccs=cardinalityConstraint		{ $type = F.at(pos($STAR)).TypeAny($ccs.ary); } 
                    ) 
           )? 

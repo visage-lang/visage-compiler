@@ -441,7 +441,7 @@ public class JavafxMemberEnter extends MemberEnter {
 
                 // Check that result type is well-formed.
                 chk.validate(restype);
-                restype = restype.getTag() == JavafxTag.TYPECLASS ? make.Ident(((JFXTypeClass)restype).getClassName()) : restype;
+                restype = restype.getTag() == JavafxTag.TYPECLASS ? ((JFXTypeClass)restype).getClassName() : restype;
                 attr.attribType(restype, localEnv);
 
                 defRestype = restype;
@@ -498,7 +498,7 @@ public class JavafxMemberEnter extends MemberEnter {
 
                 // Check that result type is well-formed.
                 chk.validate(restype);
-                restype = restype.getTag() == JavafxTag.TYPECLASS ? make.Ident(((JFXTypeClass)restype).getClassName()) : restype;
+                restype = restype.getTag() == JavafxTag.TYPECLASS ? ((JFXTypeClass)restype).getClassName() : restype;
                 attr.attribType(restype, localEnv);
 
                 declRestype = restype;

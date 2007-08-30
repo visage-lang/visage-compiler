@@ -680,7 +680,7 @@ typeReference returns [JFXType type]
                      (options { backtrack = true; } : (FUNCTION | OPERATION)? formalParameters typeReference ccf=cardinalityConstraint) 
                        					{ $type = F.TypeFunctional($formalParameters.params.toList(), 
                                                                                        $typeReference.type, $ccf.ary); }
-                   | name ccn=cardinalityConstraint		{ $type = F.TypeClass($name.value, $ccn.ary); }
+                   | typeName ccn=cardinalityConstraint		{ $type = F.TypeClass($typeName.expr, $ccn.ary); }
                    | STAR ccs=cardinalityConstraint		{ $type = F.at(pos($STAR)).TypeAny($ccs.ary); } ) )? 
         ;
 cardinalityConstraint returns [int ary]
