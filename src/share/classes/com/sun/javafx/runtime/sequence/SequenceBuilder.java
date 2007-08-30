@@ -51,6 +51,8 @@ public class SequenceBuilder<T> {
     }
 
     public Sequence<T> toSequence() {
+        // OPT: This causes the array to be copied; we can do the same trick as in StringBuilder to transfer
+        // ownership of the array instead and avoid the copy
         return Sequences.make(clazz, array, size);
     }
 }

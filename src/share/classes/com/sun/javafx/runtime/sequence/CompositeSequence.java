@@ -23,7 +23,7 @@ public class CompositeSequence<T> extends AbstractSequence<T> implements Sequenc
             startPositions[i] = offset;
             size += sequences[i].size();
             offset += sequences[i].size();
-            depth = Math.max(depth, ((SequenceInternal) sequences[i]).getDepth());
+            depth = Math.max(depth, sequences[i].getDepth());
         }
         this.size = size;
         this.depth = depth + 1;

@@ -8,7 +8,7 @@ import java.util.Iterator;
  *
  * @author Brian Goetz
  */
-public abstract class AbstractSequence<T> implements Sequence<T>, SequenceInternal<T> {
+public abstract class AbstractSequence<T> implements Sequence<T> {
     protected final Class<T> clazz;
     protected final T nullValue;
 

@@ -7,13 +7,13 @@ package com.sun.javafx.runtime.sequence;
  */
 public class SubSequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
-    private final SequenceInternal<T> sequence;
+    private final Sequence<T> sequence;
     private final int start;
     private final int end;
 
     public SubSequence(Sequence<T> sequence, int start, int end) {
         super(sequence.getElementType());
-        this.sequence = (SequenceInternal<T>) sequence;
+        this.sequence = sequence;
         this.start = Math.max(start, 0);
         this.end = Math.min(end, sequence.size());
     }

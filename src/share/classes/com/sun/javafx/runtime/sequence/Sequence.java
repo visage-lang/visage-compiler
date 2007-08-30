@@ -1,5 +1,7 @@
 package com.sun.javafx.runtime.sequence;
 
+import java.util.BitSet;
+
 /**
  * Sequences are immutable, homogeneous, ordered collections.  A sequence has an element type,
  * a length, and a list of elements.  New sequences can be derived by calling the factory methods
@@ -106,4 +108,19 @@ public interface Sequence<T> extends Iterable<T> {
      * copy the elements into a new sequence of depth == 0.
      */
     public Sequence<T> flatten();
+
+    /**
+     * Returns the number of levels of sequence objects between this Sequence object and the deepest data.
+     * Leaf classes (e.g., ArraySequence, IntRangeSequence) have a depth of zero; composite classes have a depth
+     * one greater than their deepest leaf.
+     */
+    public int getDepth();
+
+    /**
+     * Return a BitSet indicating which elements of the sequence match the given predicate.  AbstractSequence
+     * provides a default implementation in terms of get(i); implementations may want to provide an optimized
+     * version.
+     */
+    public BitSet getBits(SequencePredicate<T> predicate);
+
 }

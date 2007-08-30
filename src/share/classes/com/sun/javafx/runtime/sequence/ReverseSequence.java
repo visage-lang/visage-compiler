@@ -7,12 +7,12 @@ package com.sun.javafx.runtime.sequence;
  */
 public class ReverseSequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
-    private final SequenceInternal<T> sequence;
+    private final Sequence<T> sequence;
     private final int size;
 
     public ReverseSequence(Sequence<T> sequence) {
         super(sequence.getElementType());
-        this.sequence = (SequenceInternal<T>) sequence;
+        this.sequence = sequence;
         this.size = sequence.size();
     }
 

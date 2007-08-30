@@ -1,18 +1,18 @@
 package com.sun.javafx.runtime.sequence;
 
 /**
- * MapSequence
+ * MapSequence -- applying a transformation to the elements of a sequence.  Transformation is done lazily.
  *
  * @author Brian Goetz
  */
-public class MapSequence<T,U> extends AbstractSequence<U> implements Sequence<U> {
+public class MapSequence<T, U> extends AbstractSequence<U> implements Sequence<U> {
 
-    private final SequenceInternal<T> sequence;
-    private final SequenceMapper<T,U> mapper;
+    private final Sequence<T> sequence;
+    private final SequenceMapper<T, U> mapper;
 
     public MapSequence(Class<U> clazz, Sequence<T> sequence, SequenceMapper<T, U> mapper) {
         super(clazz);
-        this.sequence = (SequenceInternal<T>) sequence;
+        this.sequence = sequence;
         this.mapper = mapper;
     }
 

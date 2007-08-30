@@ -53,7 +53,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
      * Helper method for asserting the depth of a Sequence
      */
     private <T> void assertDepth(int depth, Sequence<T> seq) {
-        assertEquals(depth, ((SequenceInternal<T>) seq).getDepth());
+        assertEquals(depth, seq.getDepth());
     }
 
 
@@ -413,13 +413,13 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertDepth(0, Sequences.concatenate(Integer.class, EMPTY_SEQUENCE, ONE_SEQUENCE));
         assertDepth(0, Sequences.concatenate(Integer.class, ONE_SEQUENCE, EMPTY_SEQUENCE));
 
-        assertDepth(1, new FilterSequence<Integer>(ONE_SEQUENCE, ((SequenceInternal<Integer>) ONE_SEQUENCE).getBits(nullMatcher)));
-        assertDepth(1, new FilterSequence<Integer>(ONE_SEQUENCE, ((SequenceInternal<Integer>) ONE_SEQUENCE).getBits(allMatcher)));
-        assertDepth(0, Sequences.filter(ONE_SEQUENCE, ((SequenceInternal<Integer>) ONE_SEQUENCE).getBits(nullMatcher)));
-        assertDepth(0, Sequences.filter(ONE_SEQUENCE, ((SequenceInternal<Integer>) ONE_SEQUENCE).getBits(allMatcher)));
-        assertDepth(0, Sequences.filter(TWO_SEQUENCE, ((SequenceInternal<Integer>) TWO_SEQUENCE).getBits(nullMatcher)));
-        assertDepth(0, Sequences.filter(TWO_SEQUENCE, ((SequenceInternal<Integer>) TWO_SEQUENCE).getBits(allMatcher)));
-        assertDepth(1, Sequences.filter(TWO_SEQUENCE, ((SequenceInternal<Integer>) TWO_SEQUENCE).getBits(firstMatcher)));
+        assertDepth(1, new FilterSequence<Integer>(ONE_SEQUENCE, ONE_SEQUENCE.getBits(nullMatcher)));
+        assertDepth(1, new FilterSequence<Integer>(ONE_SEQUENCE, ONE_SEQUENCE.getBits(allMatcher)));
+        assertDepth(0, Sequences.filter(ONE_SEQUENCE, ONE_SEQUENCE.getBits(nullMatcher)));
+        assertDepth(0, Sequences.filter(ONE_SEQUENCE, ONE_SEQUENCE.getBits(allMatcher)));
+        assertDepth(0, Sequences.filter(TWO_SEQUENCE, TWO_SEQUENCE.getBits(nullMatcher)));
+        assertDepth(0, Sequences.filter(TWO_SEQUENCE, TWO_SEQUENCE.getBits(allMatcher)));
+        assertDepth(1, Sequences.filter(TWO_SEQUENCE, TWO_SEQUENCE.getBits(firstMatcher)));
 
         assertDepth(1, new SubSequence<Integer>(TWO_SEQUENCE, 0, 2));
         assertDepth(1, new SubSequence<Integer>(TWO_SEQUENCE, 0, 0));
