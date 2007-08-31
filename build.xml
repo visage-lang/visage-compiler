@@ -2,7 +2,7 @@
 <!-- You may freely edit this file. See commented blocks below for -->
 <!-- some examples of how to customize the build. -->
 <!-- (If you delete it and reopen the project it will be recreated.) -->
-<project name="JavaFX Compiler" default="jar" basedir=".">
+<project name="JavaFX Compiler" default="default" basedir=".">
     <description>Builds, tests, and runs the project JavaFX.</description>
 
     <property name="tools.dir" value="${basedir}/tools"/>
@@ -84,7 +84,10 @@
 
     -->
 
-    <target name="all" depends="jar, spec, test, findbugs, hudson"
+    <target name="default" depends="jar, bin"
+            description="Build javafxc compiler."/>
+
+    <target name="all" depends="jar, bin, spec, test, findbugs, hudson"
             description="Build and test all project artifacts"/>
 
     <target name="all-with-coverage" depends="coverage, all"
@@ -174,6 +177,13 @@
     <target name="-post-test-hook" depends="conditional-coverage-report"/>
 
     <!-- End stuff dealing with adding coverage to JUnit execution -->
+
+    <target name="bin" description="Copy command wrappers to dest/bin directory.">
+        <copy todir="dist/bin">
+            <fileset dir="bin"/>
+        </copy>
+        <chmod dir="dist/bin" perm="755" includes="**/javafxc*"/>
+    </target>
 
     <target name="spec" description="Build JavaFX Script specification.">
         <ant antfile="doc/build.xml" target="spec" inheritAll="false"/>

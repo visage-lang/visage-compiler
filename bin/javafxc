@@ -1,0 +1,46 @@
+#!/bin/sh
+#
+# JavaFX Script compiler script for Linux/Solaris/OS X.
+#
+# Uses the same arguments as the JDK's javac command.
+#
+
+# resolve symlinks
+PRG=$0
+while [ -h "$PRG" ]; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '^.*-> \(.*\)$' 2>/dev/null`
+    if expr "$link" : '^/' 2> /dev/null >/dev/null; then
+	PRG="$link"
+    else
+	PRG="`dirname "$PRG"`/$link"
+    fi
+done
+
+HOME=`dirname "$PRG"`/..
+MAIN_JAR=$HOME/javafx.jar
+
+case "`uname`" in
+  Linux*) if [ -z "$JAVA_HOME" ] ; then
+              JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Home
+           fi
+           BOOT_CLASSPATH="-Xbootclasspath/p:$MAIN_JAR"
+           ;;
+esac
+
+if [ -n "$JAVA_HOME"  ] ; then
+    JAVA_CMD="$JAVA_HOME/bin/java"
+else
+  JAVA_CMD=`which java 2> /dev/null `
+  if [ -z "$JAVA_CMD" ] ; then
+      JAVA_CMD=java
+  fi
+fi
+
+if [ ! -x "$JAVA_CMD" ] ; then
+  echo 'Error: JAVA_HOME is not defined, cannot find "java" command.'
+  exit 1
+fi
+
+$JAVA_CMD $BOOT_CLASSPATH -jar $MAIN_JAR $*
+
