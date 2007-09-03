@@ -18,7 +18,7 @@ public class ObjectExpression<T> extends AbstractLocation implements ObjectLocat
     public static<T> ObjectLocation<T> make(ObjectBindingExpression<T> exp, Location... dependencies) {
         ObjectExpression<T> loc = new ObjectExpression<T>(false, exp);
         for (Location dep : dependencies)
-            dep.addChangeListener(loc);
+            dep.addChangeListener(loc.getWeakChangeListener());
         return loc;
     }
 
@@ -26,7 +26,7 @@ public class ObjectExpression<T> extends AbstractLocation implements ObjectLocat
     public static<T> ObjectLocation<T> makeLazy(ObjectBindingExpression<T> exp, Location... dependencies) {
         ObjectExpression<T> loc = new ObjectExpression<T>(true, exp);
         for (Location dep : dependencies)
-            dep.addChangeListener(loc);
+            dep.addChangeListener(loc.getWeakChangeListener());
         return loc;
     }
 

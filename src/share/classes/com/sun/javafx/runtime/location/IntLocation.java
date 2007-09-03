@@ -7,8 +7,11 @@ package com.sun.javafx.runtime.location;
  */
 public interface IntLocation extends Location {
     /** Retrieve the current value of this location, recomputing if necessary */
-    int get();
+    public int get();
 
     /** Set the current value of this location, recomputing if necessary */
-    void set(int value);
+    public void set(int value);
+
+    /** Get a reference to an ObjectLocation<Integer> that describes the same location */
+    public ObjectLocation<Integer> asIntegerLocation();
 }

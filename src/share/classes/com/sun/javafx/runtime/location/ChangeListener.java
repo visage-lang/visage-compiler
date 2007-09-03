@@ -7,5 +7,11 @@ package com.sun.javafx.runtime.location;
  * @author Brian Goetz
  */
 public interface ChangeListener {
-    public void onChange();
+    /** Notifies the listener that the contents of the location may have changed.
+     *
+     * @return a boolean value indicating whether this listener is still valid.  Returning false will cause the
+     * listener to be removed from the listener list.  For listeners that do their own weak reference management,
+     * they should return false when the relevant weak references have been reported as cleared.  
+     */
+    public boolean onChange();
 }

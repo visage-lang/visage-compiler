@@ -6,7 +6,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public class ObjectVar<T> extends AbstractLocation implements ObjectLocation<T> {
+public class ObjectVar<T> extends AbstractLocation implements ObjectLocation<T>, MutableLocation {
     private T value;
 
 

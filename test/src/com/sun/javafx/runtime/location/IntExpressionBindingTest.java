@@ -120,7 +120,9 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         assertEquals(7, c);
     }
 
-    /** bind c = a + b */
+    /**
+     * bind c = a + b
+     */
     public void testDouble() {
         final DoubleLocation a = DoubleVar.make(0);
         final DoubleLocation b = DoubleVar.make(0);
@@ -136,7 +138,9 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         assertEquals(5.4, c);
     }
 
-    /** bind c = a + b */
+    /**
+     * bind c = a + b
+     */
     public void testString() {
         final ObjectLocation<String> a = ObjectVar.make("foo");
         final ObjectLocation<String> b = ObjectVar.make(" bar");
@@ -150,5 +154,29 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         assertEquals("yoo  bar", c);
         b.set("hoo");
         assertEquals("yoo hoo", c);
+    }
+
+    public void testWeakRef() {
+        final IntLocation v = IntVar.make(3);
+        IntLocation vPlusOne = IntExpression.make(new IntBindingExpression() {
+            public int get() {
+                return v.get() + 1;
+            }
+        }, v);
+        assertEqualsLazy(4, vPlusOne);
+        v.set(5);
+        assertEquals(6, vPlusOne);
+        assertEquals(1, ((AbstractLocation) v).getListenerCount());
+
+        // "Force" GC, make sure listener stays around
+        System.gc();
+        v.set(5);
+        assertEquals(1, ((AbstractLocation) v).getListenerCount());
+
+        // "Force" GC, make sure listener goes away
+        vPlusOne = null;
+        System.gc();
+        v.set(0);
+        assertEquals(0, ((AbstractLocation) v).getListenerCount());
     }
 }

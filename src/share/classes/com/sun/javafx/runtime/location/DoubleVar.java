@@ -6,7 +6,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public class DoubleVar extends AbstractLocation implements DoubleLocation {
+public class DoubleVar extends AbstractLocation implements DoubleLocation, MutableLocation {
     private double value;
 
 
@@ -37,5 +37,9 @@ public class DoubleVar extends AbstractLocation implements DoubleLocation {
     @Override
     public void invalidate() {
         throw new UnsupportedOperationException();
+    }
+
+    public ObjectLocation<Double> asDoubleLocation() {
+        return new DoubleObjectMutableLocation(this);
     }
 }

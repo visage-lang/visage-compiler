@@ -8,7 +8,8 @@ package com.sun.javafx.runtime.location;
 class CountingListener implements ChangeListener {
     public int count;
 
-    public void onChange() {
+    public boolean onChange() {
         ++count;
+        return true;
     }
 }

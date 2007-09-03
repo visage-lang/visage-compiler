@@ -25,15 +25,40 @@ public class InstanceTriggerTest extends JavaFXTestCase {
         final IntLocation v = IntVar.make(3);
         for (int i=0; i<1; i++) {
             CountingListener cl = new CountingListener();
-            v.addChangeListener(cl);
+            v.addWeakListener(cl);
             assertEquals(0, cl.count);
             v.set(v.get() + 1);
             assertEquals(1, cl.count);
             assertEquals(i+1, ((AbstractLocation) v).getListenerCount());
         }
-        // Try and force GC
+
+        // "Force" GC, make sure weak listener goes away
+        System.gc();
+        v.set(0);
+        assertEquals(0, ((AbstractLocation) v).getListenerCount());
+
+        // "Force" GC, make sure weak listener stays around
+        CountingListener cl = new CountingListener();
+        v.addWeakListener(cl);
+        assertEquals(0, cl.count);
+        v.set(2);
+        assertEquals(1, cl.count);
+        assertEquals(1, ((AbstractLocation) v).getListenerCount());
         System.gc();
         v.set(5);
-        assertEquals(0, ((AbstractLocation) v).getListenerCount());
+        assertEquals(1, ((AbstractLocation) v).getListenerCount());
+
+        // "Force" GC, make sure strong but out-of-scope listener stays around
+        final IntLocation u = IntVar.make(3);
+        for (int i=0; i<1; i++) {
+            cl = new CountingListener();
+            v.addChangeListener(cl);
+            assertEquals(0, cl.count);
+            v.set(v.get() + 1);
+            assertEquals(1, cl.count);
+        }
+        System.gc();
+        v.set(0);
+        assertEquals(1, ((AbstractLocation) v).getListenerCount());
     }
 }

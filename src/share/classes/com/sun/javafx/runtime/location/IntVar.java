@@ -6,7 +6,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public class IntVar extends AbstractLocation implements IntLocation {
+public class IntVar extends AbstractLocation implements IntLocation, MutableLocation {
     private int value;
 
 
@@ -37,5 +37,9 @@ public class IntVar extends AbstractLocation implements IntLocation {
     @Override
     public void invalidate() {
         throw new UnsupportedOperationException();
+    }
+
+    public ObjectLocation<Integer> asIntegerLocation() {
+        return new IntObjectMutableLocation(this);
     }
 }

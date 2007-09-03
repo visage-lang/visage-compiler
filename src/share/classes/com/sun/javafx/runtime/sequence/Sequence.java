@@ -26,9 +26,6 @@ public interface Sequence<T> extends Iterable<T> {
     /** Copy the contents of this sequence to an array, at a specified offset within the destination array */
     public void toArray(Object[] array, int destOffset);
 
-    /** Execute a closure for each element of the sequence */
-    public void foreach(SequenceClosure<T> closure);
-
     /** Create a new sequence whose elements are the result of applying a mapping function to the elements
      * of the original sequence. */
     public<V> Sequence<V> map(Class<V> clazz, SequenceMapper<T, V> mapper);

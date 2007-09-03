@@ -33,4 +33,15 @@ public interface Location {
      * to notify change listeners spuriously.
      */
     public void addChangeListener(ChangeListener listener);
+
+    /** Register a change listener that will be notified whenever this location may have changed, but use a weak
+     * reference for the listener, so that the listener list does not pin the listener in memory after it otherwise
+     * could be collected.
+     */
+    public void addWeakListener(ChangeListener listener);
+
+    /** Return a change listener that holds a weak reference to this Location, so that maintenance of the change
+     * listener in a listener list will not pin this object in memory.
+     */
+    public ChangeListener getWeakChangeListener();
 }

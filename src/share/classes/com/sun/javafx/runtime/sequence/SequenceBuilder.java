@@ -50,6 +50,17 @@ public class SequenceBuilder<T> {
         size += elements.size();
     }
 
+    public int size() {
+        return size;
+    }
+
+    public T get(int n) {
+        if (n < 0 || n >= size)
+            return AbstractSequence.nullValue(clazz);
+        else
+            return array[n];
+    }
+    
     public Sequence<T> toSequence() {
         // OPT: This causes the array to be copied; we can do the same trick as in StringBuilder to transfer
         // ownership of the array instead and avoid the copy

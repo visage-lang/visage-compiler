@@ -3,7 +3,6 @@ package com.sun.javafx.runtime.location;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 
-import java.lang.ref.WeakReference;
 import java.util.Iterator;
 
 /**
@@ -13,7 +12,7 @@ import java.util.Iterator;
  *
  * @author Brian Goetz
  */
-public class SequenceVar<T> extends AbstractLocation implements SequenceLocation<T> {
+public class SequenceVar<T> extends AbstractLocation implements SequenceLocation<T>, MutableLocation {
 
     private Sequence<T> sequence;
     private boolean hasSequenceListeners;
@@ -42,14 +41,12 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
 
     private void elementChanged(int position, T oldValue, T newValue) {
         if (listeners != null) {
-            for (Iterator<WeakReference<ChangeListener>> iterator = listeners.iterator(); iterator.hasNext();) {
-                WeakReference<ChangeListener> ref = iterator.next();
-                ChangeListener listener = ref.get();
-                if (listener == null) {
+            for (Iterator<ChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
+                ChangeListener listener = iterator.next();
+                if (!listener.onChange()) {
                     iterator.remove();
                     continue;
                 }
-                listener.onChange();
                 if (hasSequenceListeners && listener instanceof SequenceChangeListener) {
                     ((SequenceChangeListener<T>) listener).onReplace(position, oldValue, newValue);
                 }
@@ -59,14 +56,12 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
 
     private void elementDeleted(T oldValue) {
         if (listeners != null) {
-            for (Iterator<WeakReference<ChangeListener>> iterator = listeners.iterator(); iterator.hasNext();) {
-                WeakReference<ChangeListener> ref = iterator.next();
-                ChangeListener listener = ref.get();
-                if (listener == null) {
+            for (Iterator<ChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
+                ChangeListener listener = iterator.next();
+                if (!listener.onChange()) {
                     iterator.remove();
                     continue;
                 }
-                listener.onChange();
                 if (hasSequenceListeners && listener instanceof SequenceChangeListener) {
                     ((SequenceChangeListener<T>) listener).onDelete(oldValue);
                 }
@@ -76,14 +71,12 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
 
     private void elementInserted(T newValue) {
         if (listeners != null) {
-            for (Iterator<WeakReference<ChangeListener>> iterator = listeners.iterator(); iterator.hasNext();) {
-                WeakReference<ChangeListener> ref = iterator.next();
-                ChangeListener listener = ref.get();
-                if (listener == null) {
+            for (Iterator<ChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
+                ChangeListener listener = iterator.next();
+                if (!listener.onChange()) {
                     iterator.remove();
                     continue;
                 }
-                listener.onChange();
                 if (hasSequenceListeners && listener instanceof SequenceChangeListener) {
                     ((SequenceChangeListener<T>) listener).onInsert(newValue);
                 }

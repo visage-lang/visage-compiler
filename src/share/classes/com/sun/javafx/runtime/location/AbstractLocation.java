@@ -1,19 +1,19 @@
 package com.sun.javafx.runtime.location;
 
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Iterator;
 import java.lang.ref.WeakReference;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * AbstractLocation is a base class for Location implementations, handling change listener notification and lazy updates.
  *
  * @author Brian Goetz
  */
-public abstract class AbstractLocation implements Location, ChangeListener {
+public abstract class AbstractLocation implements Location {
     private boolean isValid;
     private final boolean isLazy;
-    protected List<WeakReference<ChangeListener>> listeners;
+    protected List<ChangeListener> listeners;
 
     protected AbstractLocation(boolean valid, boolean lazy) {
         isValid = valid;
@@ -41,33 +41,62 @@ public abstract class AbstractLocation implements Location, ChangeListener {
 
     protected void valueChanged() {
         if (listeners != null) {
-            for (Iterator<WeakReference<ChangeListener>> iterator = listeners.iterator(); iterator.hasNext();) {
-                WeakReference<ChangeListener> ref = iterator.next();
-                ChangeListener listener = ref.get();
-                if (listener == null) {
+            for (Iterator<ChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
+                ChangeListener listener = iterator.next();
+                if (!listener.onChange())
                     iterator.remove();
-                    continue;
-                }
-                listener.onChange();
             }
         }
     }
 
-    public void onChange() {
-        invalidate();
-    }
-
     public void addChangeListener(ChangeListener listener) {
         if (listeners == null)
-            listeners = new LinkedList<WeakReference<ChangeListener>>();
-        listeners.add(new WeakReference<ChangeListener>(listener));
+            listeners = new LinkedList<ChangeListener>();
+        listeners.add(listener);
+    }
+
+    public void addWeakListener(ChangeListener listener) {
+        addChangeListener(new WeakListener(listener));
+    }
+
+    public ChangeListener getWeakChangeListener() {
+        return new WeakLocationListener(this);
     }
 
     public void update() {
     }
 
-    // For testing 
+    private static class WeakLocationListener extends WeakReference<Location> implements ChangeListener {
+        public WeakLocationListener(Location referent) {
+            super(referent);
+        }
+
+        public boolean onChange() {
+            Location loc = get();
+            if (loc == null)
+                return false;
+            else {
+                loc.invalidate();
+                return true;
+            }
+        }
+    }
+    
+    private static class WeakListener extends WeakReference<ChangeListener> implements ChangeListener {
+
+        public WeakListener(ChangeListener referent) {
+            super(referent);
+        }
+
+        public boolean onChange() {
+            ChangeListener listener = get();
+            return listener == null ? false : listener.onChange();
+        }
+    }
+
+    // For testing
     int getListenerCount() {
         return listeners == null ? 0 : listeners.size();
     }
 }
+

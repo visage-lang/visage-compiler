@@ -18,7 +18,7 @@ public class DoubleExpression extends AbstractLocation implements DoubleLocation
     public static DoubleLocation make(DoubleBindingExpression exp, Location... dependencies) {
         DoubleExpression loc = new DoubleExpression(false, exp);
         for (Location dep : dependencies)
-            dep.addChangeListener(loc);
+            dep.addChangeListener(loc.getWeakChangeListener());
         return loc;
     }
 
@@ -26,7 +26,7 @@ public class DoubleExpression extends AbstractLocation implements DoubleLocation
     public static DoubleLocation makeLazy(DoubleBindingExpression exp, Location... dependencies) {
         DoubleExpression loc = new DoubleExpression(true, exp);
         for (Location dep : dependencies)
-            dep.addChangeListener(loc);
+            dep.addChangeListener(loc.getWeakChangeListener());
         return loc;
     }
 
@@ -51,5 +51,9 @@ public class DoubleExpression extends AbstractLocation implements DoubleLocation
             value = expression.get();
             setValid();
         }
+    }
+
+    public ObjectLocation<Double> asDoubleLocation() {
+        return new DoubleObjectLocation(this);
     }
 }

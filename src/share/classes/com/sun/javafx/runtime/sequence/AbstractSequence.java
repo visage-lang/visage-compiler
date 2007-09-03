@@ -12,17 +12,21 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
     protected final Class<T> clazz;
     protected final T nullValue;
 
-    @SuppressWarnings("unchecked")
     protected AbstractSequence(Class<T> clazz) {
         this.clazz = clazz;
+        nullValue = nullValue(clazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static<T> T nullValue(Class<T> clazz) {
         if (clazz == Integer.class)
-            nullValue = (T) Sequences.INTEGER_ZERO;
+            return (T) Sequences.INTEGER_ZERO;
         else if (clazz == Double.class)
-            nullValue = (T) Sequences.DOUBLE_ZERO;
+            return (T) Sequences.DOUBLE_ZERO;
         else if (clazz == Boolean.class)
-            nullValue = (T) Sequences.BOOLEAN_ZERO;
+            return (T) Sequences.BOOLEAN_ZERO;
         else
-            nullValue = null;
+            return null;
     }
 
     public abstract int size();
@@ -48,12 +52,6 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
 
     public int getDepth() {
         return 0;
-    }
-
-    public void foreach(SequenceClosure<T> sequenceClosure) {
-        int length = size();
-        for (int i = 0; i < length; i++)
-            sequenceClosure.call(this, i, get(i));
     }
 
     public<V> Sequence<V> map(Class<V> clazz, SequenceMapper<T, V> sequenceMapper) {

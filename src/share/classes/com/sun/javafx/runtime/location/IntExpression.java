@@ -18,7 +18,7 @@ public class IntExpression extends AbstractLocation implements IntLocation {
     public static IntLocation make(IntBindingExpression exp, Location... dependencies) {
         IntExpression loc = new IntExpression(false, exp);
         for (Location dep : dependencies)
-            dep.addChangeListener(loc);
+            dep.addChangeListener(loc.getWeakChangeListener());
         return loc;
     }
 
@@ -26,7 +26,7 @@ public class IntExpression extends AbstractLocation implements IntLocation {
     public static IntLocation makeLazy(IntBindingExpression exp, Location... dependencies) {
         IntExpression loc = new IntExpression(true, exp);
         for (Location dep : dependencies)
-            dep.addChangeListener(loc);
+            dep.addChangeListener(loc.getWeakChangeListener());
         return loc;
     }
 
@@ -51,5 +51,9 @@ public class IntExpression extends AbstractLocation implements IntLocation {
             value = expression.get();
             setValid();
         }
+    }
+
+    public ObjectLocation<Integer> asIntegerLocation() {
+        return new IntObjectLocation(this);
     }
 }
