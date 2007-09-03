@@ -122,4 +122,36 @@ public class BijectiveBindTest extends JavaFXTestCase {
         i.set(3);
         assertEquals(0, ((AbstractLocation) i).getListenerCount());            
     }
+
+    public void testChainedBijection() {
+        final IntLocation i = IntVar.make(0);
+        final IntLocation j = IntVar.make(7);
+        final IntLocation k = IntVar.make(9);
+        Bindings.bijectiveBind(i, j, new Bijection<Integer, Integer>() {
+            public Integer mapForwards(Integer a) { return a + 1; }
+            public Integer mapBackwards(Integer b) { return b - 1; }
+        });
+        Bindings.bijectiveBind(j, k, new Bijection<Integer, Integer>() {
+            public Integer mapForwards(Integer a) { return a + 1; }
+            public Integer mapBackwards(Integer b) { return b - 1; }
+        });
+        assertEquals(7, i.get());
+        assertEquals(8, j.get());
+        assertEquals(9, k.get());
+
+        i.set(0);
+        assertEquals(0, i.get());
+        assertEquals(1, j.get());
+        assertEquals(2, k.get());
+
+        j.set(5);
+        assertEquals(4, i.get());
+        assertEquals(5, j.get());
+        assertEquals(6, k.get());
+
+        k.set(11);
+        assertEquals(9, i.get());
+        assertEquals(10, j.get());
+        assertEquals(11, k.get());
+    }
 }
