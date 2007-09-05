@@ -8,17 +8,6 @@
     <property name="tools.dir" value="${basedir}/tools"/>
     <import file="tools-defs.xml"/>
 
-    <!-- Define actual properties for the known paths so they can be used in the properties file -->
-    <property name="ant.class.path" refid="ant.class.path"/>
-    <property name="junit.class.path" refid="junit.class.path"/>
-    <property name="findbugs.class.path" refid="findbugs.class.path"/>
-    <property name="saxon.class.path" refid="saxon.class.path"/>
-    <property name="xincluder.class.path" refid="xincluder.class.path"/>
-    <property name="antlr.class.path" refid="antlr.class.path"/>
-    <property name="antlr-runtime.class.path" refid="antlr-runtime.class.path"/>
-    <property name="antlrworks.class.path" refid="antlrworks.class.path"/>
-    <property name="cobertura.class.path" refid="cobertura.class.path"/>
-
     <import file="nbproject/build-impl.xml"/>
     <!--<property file="nbproject/project.properties" />-->
 
@@ -84,10 +73,10 @@
 
     -->
 
-    <target name="default" depends="jar, bin"
+    <target name="default" depends="jar"
             description="Build javafxc compiler."/>
 
-    <target name="all" depends="jar, bin, spec, test, findbugs, hudson"
+    <target name="all" depends="jar, spec, test, findbugs, hudson"
             description="Build and test all project artifacts"/>
 
     <target name="all-with-coverage" depends="coverage, all"
@@ -110,12 +99,36 @@
         </fail>
     </target>
 
-    <target name="set-jdk-1.6">
+    <target name="check-jdk-1.6">
         <available property="has-jdk-1.6" classname="javax.script.ScriptEngine"/>
     </target>
-
-    <target name="check-jdk-1.6" depends="set-jdk-1.6" unless="has-jdk-1.6">
-        <available property="has-jdk-1.6" classname="javax.script.ScriptEngine"/>
+    
+    <target name="check-bootstrap">
+        <condition property="has-bootstrap-dirs">
+            <and>
+                <available file="${ant.dir}"/>
+                <available file="${junit.dir}"/>
+                <available file="${docbook.dir}"/>
+                <available file="${antlr.dir}"/>
+            </and>
+        </condition>
+    </target>
+    
+    <target name="tool-paths">
+        <!-- Define actual properties for the known paths so they can be used in the properties file -->
+        <property name="ant.class.path" refid="ant.class.path"/>
+        <property name="junit.class.path" refid="junit.class.path"/>
+        <property name="findbugs.class.path" refid="findbugs.class.path"/>
+        <property name="saxon.class.path" refid="saxon.class.path"/>
+        <property name="xincluder.class.path" refid="xincluder.class.path"/>
+        <property name="antlr.class.path" refid="antlr.class.path"/>
+        <property name="antlr-runtime.class.path" refid="antlr-runtime.class.path"/>
+        <property name="antlrworks.class.path" refid="antlrworks.class.path"/>
+        <property name="cobertura.class.path" refid="cobertura.class.path"/>
+    </target>
+    
+    <target name="do-bootstrap" depends="check-bootstrap" unless="has-bootstrap-dirs">
+        <ant antfile="bootstrap.xml" target="all"/>
     </target>
 
     <target name="fx-taskdef">
@@ -128,8 +141,8 @@
         </taskdef>
     </target>
 
-    <target name="-pre-init" depends="check-ant,check-jdk-1.6" unless="has-jdk-1.6">
-        <fail>You need JDK 1.6 or higher to build JavaFX.</fail>
+    <target name="-pre-init" depends="check-ant,check-jdk-1.6,do-bootstrap,tool-paths">
+        <fail unless="has-jdk-1.6">You need JDK 1.6 or higher to build JavaFX.</fail>
     </target>
 
     <target name="-post-compile" depends="fx-taskdef">
@@ -139,6 +152,21 @@
                  <!--includes="**/*.fx" source="${javac.source}" sourcepath=""-->
                  <!--srcdir="${src.classes.dir}" target="${javac.target}"-->
                  <!--compilerclasspath="${build.classes.dir}:${javac.classpath}"/>-->
+    </target>
+    
+    <!-- jar file creation: external runtime jar contents are included to reduce classpath issues -->
+    <target depends="init,compile,-pre-pre-jar,-pre-jar" if="manifest.available+main.class+mkdist.available" name="-do-jar-with-libraries">
+        <jar compress="${jar.compress}" destfile="${dist.jar}" manifest="${manifest.file}">
+            <fileset dir="${build.classes.dir}"/>
+            <zipfileset src="${file.reference.javac.jar}" excludes="META-INF/**/"/>
+            <zipfileset src="${antlr-runtime.class.path}" excludes="META-INF/**/"/>
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+            </manifest>
+        </jar>
+        <echo>To run this application from the command line without Ant, try:</echo>
+        <property location="${dist.jar}" name="dist.jar.resolved"/>
+        <echo>java -jar "${dist.jar.resolved}"</echo>
     </target>
 
     <!-- Stuff dealing with adding coverage to JUnit execution -->
@@ -178,7 +206,7 @@
 
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
-    <target name="bin" description="Copy command wrappers to dest/bin directory.">
+    <target name="-post-jar" description="Copy command wrappers to dest/bin directory.">
         <copy todir="dist/bin">
             <fileset dir="bin"/>
         </copy>

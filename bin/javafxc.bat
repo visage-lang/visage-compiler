@@ -25,7 +25,7 @@ shift
 goto setupArgs
 
 :runCompiler
-"%_JAVACMD%" -jar "%_JAVAFXC_HOME%\javafx.jar" %_CMD_LINE_ARGS%
+"%_JAVACMD%" "-Xbootclasspath/p:%_JAVAFXC_HOME%\javafx.jar" com.sun.tools.javafx.Main %_CMD_LINE_ARGS%
 
 REM cleanup
 if not "%_JAVAFXC_HOME"=="" set _JAVAFXC_HOME=
