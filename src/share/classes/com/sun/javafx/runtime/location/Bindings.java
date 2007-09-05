@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference;
  * updates. The listeners share weak references back to A and B, so that when one of A or B is garbage
  * collected, the next time the other is updated, the listeners observe that and return false from the
  * onChange() method to detach the listener.
- * 
+ *
  * Implementation note: to avoid a combinatorial explosion, the bidirectional binding machinery is defined in terms
  * of a pair of object locations.  For primitive-valued locations (e.g., IntLocation), the factory methods wrap
  * them with a wrapper that implements ObjectLocation<PrimitiveWrapperClass>.
@@ -80,9 +80,9 @@ public class Bindings {
                     if (a == null || b == null)
                         return false;
                     T newA = a.get();
-                    if ((newA == null && lastA == null) || newA.equals(lastA))
+                    if ((newA == null && lastA == null) || (newA != null && newA.equals(lastA)))
                         return true;
-                    U newB = BijectiveBinding.this.mapper.mapForwards(a.get());
+                    U newB = BijectiveBinding.this.mapper.mapForwards(newA);
                     lastA = newA;
                     lastB = newB;
                     b.set(newB);
@@ -96,9 +96,9 @@ public class Bindings {
                     if (a == null || b == null)
                         return false;
                     U newB = b.get();
-                    if ((newB == null && lastB == null) || newB.equals(lastB))
+                    if ((newB == null && lastB == null) || (newB != null && newB.equals(lastB)))
                         return true;
-                    T newA = BijectiveBinding.this.mapper.mapBackwards(b.get());
+                    T newA = BijectiveBinding.this.mapper.mapBackwards(newB);
                     lastA = newA;
                     lastB = newB;
                     a.set(newA);
