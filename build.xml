@@ -76,7 +76,7 @@
     <target name="default" depends="jar"
             description="Build javafxc compiler."/>
 
-    <target name="all" depends="jar, spec, javadoc, test, findbugs, hudson"
+    <target name="all" depends="jar, spec, javadoc, test, findbugs, svnstat, hudson"
             description="Build and test all project artifacts"/>
 
     <target name="all-with-coverage" depends="coverage, all"
@@ -240,6 +240,16 @@
         </exec>
     </target>
 
+    <target name="svnstat">
+        <mkdir dir="${dist.svnstat.dir}"/>
+        <java classname="de.agentlab.svnstat.SvnStat" fork="true" classpathref="svnstat.class.path">
+            <arg value="-r" />
+            <arg value="${svn.repository}" />
+            <arg value="-d" />
+            <arg value="${dist.svnstat.dir}" />
+        </java>
+    </target>
+
     <!-- Runs only if export.dir is set, which should only be set from the continuous build.
          Publishes build results to ${export.dir}.
          Depends on Hudson environment params JOB_NAME and SVN_REVISION.
@@ -256,7 +266,6 @@
             <redirector output="${export.dir}/findbugs/${env.JOB_NAME}-${env.SVN_REVISION}.xml"/>
         </exec>
         <delete dir="${export.dir}/docroot/current-build" />
-        <mkdir dir="${export.dir}/docroot/current-build" />
         <copy todir="${export.dir}/docroot/current-build">
             <fileset dir="${dist.dir}"/>
         </copy>

@@ -42,6 +42,9 @@
     <property name="cobertura.url" value="http://downloads.sourceforge.net/cobertura/cobertura-${cobertura.ver}-bin.zip"/>
     <property name="cobertura.zipfile" value="${bootstrap.dir}/cobertura-${cobertura.ver}.zip"/>
 
+    <property name="svnstat.url" value="http://downloads.sourceforge.net/svnstat/SvnStat-${svnstat.ver}.zip"/>
+    <property name="svnstat.zipfile" value="${bootstrap.dir}/svnstat-${svnstat.ver}.zip"/>
+
 
     <target name="prepare">
         <mkdir dir="${bootstrap.dir}"/>
@@ -55,6 +58,7 @@
         <mkdir dir="${antlr.dir}"/>
         <mkdir dir="${antlrworks.dir}"/>
         <mkdir dir="${cobertura.dir}"/>
+        <mkdir dir="${svnstat.dir}"/>
     </target>
 
     <target name="clean">
@@ -68,9 +72,10 @@
         <delete dir="${antlr.dir}"/>
         <delete dir="${antlrworks.dir}"/>
         <delete dir="${cobertura.dir}"/>
+        <delete dir="${svnstat.dir}"/>
     </target>
 
-    <target name="all" depends="prepare,junit,ant,docbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura"/>
+    <target name="all" depends="prepare,junit,ant,docbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura,svnstat"/>
 
     <target name="ant" depends="prepare">
         <get src="${ant.url}" dest="${ant.zipfile}"/>
@@ -143,6 +148,15 @@
             <mapper type="flatten"/>
         </unzip>
         <delete file="${cobertura.zipfile}" />
+    </target>
+
+    <target name="svnstat" depends="prepare">
+        <get src="${svnstat.url}" dest="${svnstat.zipfile}"/>
+        <unzip src="${svnstat.zipfile}" dest="${svnstat.dir}">
+            <patternset includes="**/*.jar"/>
+            <mapper type="flatten"/>
+        </unzip>
+        <delete file="${svnstat.zipfile}" />
     </target>
 
 

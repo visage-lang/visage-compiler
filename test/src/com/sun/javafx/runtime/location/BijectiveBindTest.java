@@ -178,11 +178,13 @@ public class BijectiveBindTest extends JavaFXTestCase {
     public void testCircularBijection() {
         final IntLocation i = IntVar.make(0);
         final IntLocation j = IntVar.make(7);
+        assertFalse(Bindings.isPeerLocation(i, j));
 
         Bindings.bijectiveBind(i, j, new Bijection<Integer, Integer>() {
             public Integer mapForwards(Integer a) { return a + 1; }
             public Integer mapBackwards(Integer b) { return b - 1; }
         });
+        assertTrue(Bindings.isPeerLocation(i, j));
 
         assertEquals(Bindings.getPeerLocations(i), new Location[] { j });
         assertEquals(Bindings.getPeerLocations(j), new Location[] { i });

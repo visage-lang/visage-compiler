@@ -133,7 +133,6 @@ public abstract class AbstractContainer implements Container {
     }
 
     public void setBidirectionalBinding(LocationKey key, Container remoteContainer, LocationKey remoteKey) {
-        BindingInfo bi = new BindingInfo(remoteContainer, remoteKey);
         throw new UnsupportedOperationException();
     }
 
