@@ -1,11 +1,13 @@
 package com.sun.javafx.runtime.location;
 
+import java.util.Collection;
+
 /**
  * Wrapper class that creates an ObjectLocation<Boolean> view of a BooleanLocation
  *
  * @author Brian Goetz
  */
-class BooleanObjectLocation implements ObjectLocation<Boolean> {
+class BooleanObjectLocation implements ObjectLocation<Boolean>, ViewLocation {
     private final BooleanLocation location;
 
     public BooleanObjectLocation(BooleanLocation location) {
@@ -46,6 +48,14 @@ class BooleanObjectLocation implements ObjectLocation<Boolean> {
 
     public ChangeListener getWeakChangeListener() {
         return location.getWeakChangeListener();
+    }
+
+    public Collection<ChangeListener> getListeners() {
+        return location.getListeners();
+    }
+
+    public Location getUnderlyingLocation() {
+        return location;
     }
 }
 

@@ -1,6 +1,9 @@
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.CircularBindingException;
+
 import java.lang.ref.WeakReference;
+import java.util.*;
 
 /**
  * Bindings -- helper class for setting up bijective bindings.
@@ -55,6 +58,32 @@ public class Bindings {
         new BijectiveBinding<T, Double>(a, b.asDoubleLocation(), mapper);
     }
 
+    /** Return the set of locations that are "peered" with this one through a chain of bidirectional bindings */
+    public static Collection<Location> getPeerLocations(Location location) {
+        Collection<Location> newLocs = BijectiveBinding.getDirectPeers(location);
+        if (newLocs.size() == 0)
+            return newLocs;
+
+        Set<Location> knownLocs = new HashSet<Location>();
+        LinkedList<Location> toExplore = new LinkedList<Location>(newLocs);
+        while (toExplore.size() > 0) {
+            Location loc = toExplore.removeFirst();
+            while (loc instanceof ViewLocation)
+                loc = ((ViewLocation) loc).getUnderlyingLocation();
+            if (!knownLocs.contains(loc) && loc != location) {
+                knownLocs.add(loc);
+                toExplore.addAll(BijectiveBinding.getDirectPeers(loc));
+            }
+        }
+        return knownLocs;
+    }
+
+    public static boolean isPeerLocation(Location a, Location b) {
+        Collection<Location> aPeers = getPeerLocations(a);
+        while (b instanceof ViewLocation)
+            b = ((ViewLocation) b).getUnderlyingLocation();
+        return (aPeers != null && aPeers.contains(b));
+    }
 
     private static class BijectiveBinding<T, U> {
         private final WeakReference<ObjectLocation<T>> aRef;
@@ -66,6 +95,9 @@ public class Bindings {
         public BijectiveBinding(ObjectLocation<T> a, ObjectLocation<U> b, Bijection<T, U> mapper) {
             if (!(a instanceof MutableLocation) || !(b instanceof MutableLocation))
                 throw new IllegalArgumentException("Both components of bijective bind must be mutable");
+            if (isPeerLocation(a, b))
+                throw new CircularBindingException("Binding circularity detected");
+            
             this.aRef = new WeakReference<ObjectLocation<T>>(a);
             this.bRef = new WeakReference<ObjectLocation<U>>(b);
             this.mapper = mapper;
@@ -73,7 +105,7 @@ public class Bindings {
             // Set A before setting up the listeners
             a.set(mapper.mapBackwards(b.get()));
 
-            a.addChangeListener(new ChangeListener() {
+            a.addChangeListener(new BijectiveChangeListener() {
                 public boolean onChange() {
                     ObjectLocation<T> a = aRef.get();
                     ObjectLocation<U> b = bRef.get();
@@ -88,8 +120,12 @@ public class Bindings {
                     b.set(newB);
                     return true;
                 }
+
+                public BijectiveBinding getBijectiveBinding() {
+                    return BijectiveBinding.this;
+                }
             });
-            b.addChangeListener(new ChangeListener() {
+            b.addChangeListener(new BijectiveChangeListener() {
                 public boolean onChange() {
                     ObjectLocation<T> a = aRef.get();
                     ObjectLocation<U> b = bRef.get();
@@ -104,7 +140,41 @@ public class Bindings {
                     a.set(newA);
                     return true;
                 }
+
+                public BijectiveBinding getBijectiveBinding() {
+                    return BijectiveBinding.this;
+                }
             });
         }
+
+        public static Collection<Location> getDirectPeers(Location loc) {
+            Set<Location> set = null;
+            for (ChangeListener cl : loc.getListeners()) {
+                if (cl instanceof BijectiveChangeListener) {
+                    BijectiveBinding<?, ?> bb = ((BijectiveChangeListener) cl).getBijectiveBinding();
+                    ObjectLocation<?> a = (ObjectLocation) bb.aRef.get();
+                    ObjectLocation<?> b = (ObjectLocation) bb.bRef.get();
+                    if (a != null && a != loc) {
+                        if (set == null)
+                            set = new HashSet<Location>();
+                        set.add(a);
+                    }
+                    if (b != null && b != loc) {
+                        if (set == null)
+                            set = new HashSet<Location>();
+                        set.add(b);
+                    }
+                }
+            }
+            if (set != null)
+                return set;
+            else
+                return Collections.emptySet();
+        }
+
+        private interface BijectiveChangeListener extends ChangeListener {
+            public abstract BijectiveBinding getBijectiveBinding();
+        }
     }
+
 }

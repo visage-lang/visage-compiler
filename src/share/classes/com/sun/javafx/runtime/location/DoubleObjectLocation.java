@@ -1,11 +1,13 @@
 package com.sun.javafx.runtime.location;
 
+import java.util.Collection;
+
 /**
  * Wrapper class that creates an ObjectLocation<Double> view of a DoubleLocation
  *
  * @author Brian Goetz
  */
-class DoubleObjectLocation implements ObjectLocation<Double> {
+class DoubleObjectLocation implements ObjectLocation<Double>, ViewLocation {
     private final DoubleLocation location;
 
     public DoubleObjectLocation(DoubleLocation location) {
@@ -46,6 +48,14 @@ class DoubleObjectLocation implements ObjectLocation<Double> {
 
     public ChangeListener getWeakChangeListener() {
         return location.getWeakChangeListener();
+    }
+
+    public Collection<ChangeListener> getListeners() {
+        return location.getListeners();
+    }
+
+    public Location getUnderlyingLocation() {
+        return location;
     }
 }
 

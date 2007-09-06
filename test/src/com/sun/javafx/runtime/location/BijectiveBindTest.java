@@ -1,6 +1,7 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
+import com.sun.javafx.runtime.CircularBindingException;
 
 /**
  * BijectiveBindTest
@@ -83,6 +84,9 @@ public class BijectiveBindTest extends JavaFXTestCase {
         assertEquals(8, i);
         i.set(4);
         assertEquals(5, j);
+
+        assertEquals(Bindings.getPeerLocations(i), new Location[] { j });
+        assertEquals(Bindings.getPeerLocations(j), new Location[] { i });
     }
 
     public void testIntStringBijection() {
@@ -103,6 +107,9 @@ public class BijectiveBindTest extends JavaFXTestCase {
         assertEquals("9", s.get());
         s.set("11");
         assertEquals(11, i.get());
+
+        assertEquals(Bindings.getPeerLocations(i), new Location[] { s });
+        assertEquals(Bindings.getPeerLocations(s), new Location[] { i });
     }
 
     public void testGarbageCollection() {
@@ -115,12 +122,15 @@ public class BijectiveBindTest extends JavaFXTestCase {
             });
             assertEquals(1, ((AbstractLocation) i).getListenerCount());
             assertEquals(1, ((AbstractLocation) j).getListenerCount());
+            assertEquals(Bindings.getPeerLocations(i), new Location[] { j });
         }
 
         System.gc();
         assertEquals(1, ((AbstractLocation) i).getListenerCount());
         i.set(3);
         assertEquals(0, ((AbstractLocation) i).getListenerCount());            
+
+        assertEquals(Bindings.getPeerLocations(i), new Location[] { });
     }
 
     public void testChainedBijection() {
@@ -153,5 +163,44 @@ public class BijectiveBindTest extends JavaFXTestCase {
         assertEquals(9, i.get());
         assertEquals(10, j.get());
         assertEquals(11, k.get());
+
+        assertEquals(Bindings.getPeerLocations(i), new Location[] { j, k });
+        assertEquals(Bindings.getPeerLocations(j), new Location[] { i, k });
+        assertEquals(Bindings.getPeerLocations(k), new Location[] { i, j });
+        assertTrue(Bindings.isPeerLocation(i, j));
+        assertTrue(Bindings.isPeerLocation(j, k));
+        assertTrue(Bindings.isPeerLocation(i, k));
+    }
+
+    public void testCircularBijection() {
+        final IntLocation i = IntVar.make(0);
+        final IntLocation j = IntVar.make(7);
+
+        Bindings.bijectiveBind(i, j, new Bijection<Integer, Integer>() {
+            public Integer mapForwards(Integer a) { return a + 1; }
+            public Integer mapBackwards(Integer b) { return b - 1; }
+        });
+
+        assertEquals(Bindings.getPeerLocations(i), new Location[] { j });
+        assertEquals(Bindings.getPeerLocations(j), new Location[] { i });
+
+        assertThrows(CircularBindingException.class, new VoidCallable() {
+            public void call() throws Exception {
+                Bindings.bijectiveBind(i, j, new Bijection<Integer, Integer>() {
+                    public Integer mapForwards(Integer a) { return 0; }
+                    public Integer mapBackwards(Integer b) { return 0; }
+                });
+            }
+        });
+
+        assertThrows(CircularBindingException.class, new VoidCallable() {
+            public void call() throws Exception {
+                Bindings.bijectiveBind(j, i, new Bijection<Integer, Integer>() {
+                    public Integer mapForwards(Integer a) { return 0; }
+                    public Integer mapBackwards(Integer b) { return 0; }
+                });
+            }
+        });
+
     }
 }

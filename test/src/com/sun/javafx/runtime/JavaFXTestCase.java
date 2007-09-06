@@ -8,6 +8,9 @@ import com.sun.javafx.runtime.sequence.ArraySequence;
 import com.sun.javafx.runtime.sequence.Sequence;
 import junit.framework.TestCase;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 /**
  * JavaFXTestCase
  *
@@ -83,6 +86,13 @@ public abstract class JavaFXTestCase extends TestCase {
         assertFalse(loc.isValid());
         assertEquals(value, loc.get());
         assertTrue(loc.isValid());
+    }
+
+    protected<T> void assertEquals(Collection<T> collection, T... values) {
+        Collection<T> newCollection = new HashSet<T>();
+        for (T val : values)
+            newCollection.add(val);
+        assertEquals(collection, newCollection);
     }
 
     protected interface VoidCallable {

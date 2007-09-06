@@ -1,9 +1,7 @@
 package com.sun.javafx.runtime.location;
 
 import java.lang.ref.WeakReference;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * AbstractLocation is a base class for Location implementations, handling change listener notification and lazy updates.
@@ -61,6 +59,13 @@ public abstract class AbstractLocation implements Location {
 
     public ChangeListener getWeakChangeListener() {
         return new WeakLocationListener(this);
+    }
+
+    public Collection<ChangeListener> getListeners() {
+        if (listeners == null)
+            return Collections.emptySet();
+        else
+            return Collections.unmodifiableCollection(listeners);
     }
 
     public void update() {

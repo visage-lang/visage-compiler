@@ -1,5 +1,7 @@
 package com.sun.javafx.runtime.location;
 
+import java.util.Collection;
+
 /**
  * A Location represents any value on which another variable may express a dependency, including binding dependency
  * and change triggers.  The location is assumed to have a value, whose type is determined by the subinterfaces
@@ -44,4 +46,7 @@ public interface Location {
      * listener in a listener list will not pin this object in memory.
      */
     public ChangeListener getWeakChangeListener();
+
+    /** Return the collection of change listeners */
+    public Collection<ChangeListener> getListeners();
 }

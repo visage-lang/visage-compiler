@@ -1,11 +1,13 @@
 package com.sun.javafx.runtime.location;
 
+import java.util.Collection;
+
 /**
  * Wrapper class that creates an ObjectLocation<Integer> view of an IntLocation
  *
  * @author Brian Goetz
  */
-class IntObjectLocation implements ObjectLocation<Integer> {
+class IntObjectLocation implements ObjectLocation<Integer>, ViewLocation {
     private final IntLocation location;
 
     public IntObjectLocation(IntLocation location) {
@@ -46,6 +48,14 @@ class IntObjectLocation implements ObjectLocation<Integer> {
 
     public ChangeListener getWeakChangeListener() {
         return location.getWeakChangeListener();
+    }
+
+    public Collection<ChangeListener> getListeners() {
+        return location.getListeners();
+    }
+
+    public Location getUnderlyingLocation() {
+        return location;
     }
 }
 
