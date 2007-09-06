@@ -255,7 +255,9 @@
             <arg value="${build.dir}/findbugs.xml"/>
             <redirector output="${export.dir}/findbugs/${env.JOB_NAME}-${env.SVN_REVISION}.xml"/>
         </exec>
-        <copy todir="${export.dir}/current-build">
+        <delete dir="${export.dir}/docroot/current-build" />
+        <mkdir dir="${export.dir}/docroot/current-build" />
+        <copy todir="${export.dir}/docroot/current-build">
             <fileset dir="${publish.dir}"/>
         </copy>
     </target>
