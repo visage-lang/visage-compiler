@@ -130,7 +130,7 @@ public class BijectiveBindTest extends JavaFXTestCase {
         i.set(3);
         assertEquals(0, ((AbstractLocation) i).getListenerCount());            
 
-        assertEquals(Bindings.getPeerLocations(i), new Location[] { });
+        assertEquals(Bindings.getPeerLocations(i) /* empty */);
     }
 
     public void testChainedBijection() {
@@ -164,12 +164,15 @@ public class BijectiveBindTest extends JavaFXTestCase {
         assertEquals(10, j.get());
         assertEquals(11, k.get());
 
-        assertEquals(Bindings.getPeerLocations(i), new Location[] { j, k });
-        assertEquals(Bindings.getPeerLocations(j), new Location[] { i, k });
-        assertEquals(Bindings.getPeerLocations(k), new Location[] { i, j });
+        assertEquals(Bindings.getPeerLocations(i), j, k);
+        assertEquals(Bindings.getPeerLocations(j), i, k);
+        assertEquals(Bindings.getPeerLocations(k), i, j);
         assertTrue(Bindings.isPeerLocation(i, j));
         assertTrue(Bindings.isPeerLocation(j, k));
         assertTrue(Bindings.isPeerLocation(i, k));
+        assertTrue(Bindings.isPeerLocation(j, i));
+        assertTrue(Bindings.isPeerLocation(k, j));
+        assertTrue(Bindings.isPeerLocation(k, i));
     }
 
     public void testCircularBijection() {
@@ -202,5 +205,46 @@ public class BijectiveBindTest extends JavaFXTestCase {
             }
         });
 
+        final IntLocation k = IntVar.make(9);
+        Bindings.bijectiveBind(j, k, new Bijection<Integer, Integer>() {
+            public Integer mapForwards(Integer a) { return a + 1; }
+            public Integer mapBackwards(Integer b) { return b - 1; }
+        });
+
+        assertThrows(CircularBindingException.class, new VoidCallable() {
+            public void call() throws Exception {
+                Bindings.bijectiveBind(i, k, new Bijection<Integer, Integer>() {
+                    public Integer mapForwards(Integer a) { return 0; }
+                    public Integer mapBackwards(Integer b) { return 0; }
+                });
+            }
+        });
+
+        assertThrows(CircularBindingException.class, new VoidCallable() {
+            public void call() throws Exception {
+                Bindings.bijectiveBind(k, i, new Bijection<Integer, Integer>() {
+                    public Integer mapForwards(Integer a) { return 0; }
+                    public Integer mapBackwards(Integer b) { return 0; }
+                });
+            }
+        });
+
+        assertThrows(CircularBindingException.class, new VoidCallable() {
+            public void call() throws Exception {
+                Bindings.bijectiveBind(k, j, new Bijection<Integer, Integer>() {
+                    public Integer mapForwards(Integer a) { return 0; }
+                    public Integer mapBackwards(Integer b) { return 0; }
+                });
+            }
+        });
+
+        assertThrows(CircularBindingException.class, new VoidCallable() {
+            public void call() throws Exception {
+                Bindings.bijectiveBind(j, k, new Bijection<Integer, Integer>() {
+                    public Integer mapForwards(Integer a) { return 0; }
+                    public Integer mapBackwards(Integer b) { return 0; }
+                });
+            }
+        });
     }
 }
