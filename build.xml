@@ -6,6 +6,7 @@
     <description>Builds, tests, and runs the project JavaFX.</description>
 
     <property name="tools.dir" value="${basedir}/tools"/>
+    <property environment="env" />
     <import file="tools-defs.xml"/>
 
     <import file="nbproject/build-impl.xml"/>
@@ -243,6 +244,7 @@
     <target name="svnstat">
         <mkdir dir="${dist.svnstat.dir}"/>
         <java classname="de.agentlab.svnstat.SvnStat" fork="true" classpathref="svnstat.class.path">
+            <env key="PATH" path="${env.PATH}:${svn.path}" />
             <arg value="-r" />
             <arg value="${svn.repository}" />
             <arg value="-d" />
