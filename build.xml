@@ -196,6 +196,7 @@
                 <path location="${build.classes.dir}"/>
             </classpath>
         </cobertura-report>
+        <cobertura-report format="xml" srcdir="${src.classes.dir}" destdir="${build.dir}"/>
     </target>
 
     <target name="-pre-test-hook" depends="conditional-instrument,conditional-clean-instrument">
