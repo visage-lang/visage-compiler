@@ -76,7 +76,7 @@
     <target name="default" depends="jar"
             description="Build javafxc compiler."/>
 
-    <target name="all" depends="jar, spec, test, findbugs, hudson"
+    <target name="all" depends="jar, spec, javadoc, test, findbugs, hudson"
             description="Build and test all project artifacts"/>
 
     <target name="all-with-coverage" depends="coverage, all"
@@ -190,8 +190,8 @@
     </target>
 
     <target name="conditional-coverage-report" if="do.coverage">
-        <mkdir dir="${publish.coverage.dir}"/>
-        <cobertura-report srcdir="${src.classes.dir}" destdir="${publish.coverage.dir}">
+        <mkdir dir="${dist.coverage.dir}"/>
+        <cobertura-report srcdir="${src.classes.dir}" destdir="${dist.coverage.dir}">
             <classpath>
                 <path location="${build.classes.dir}"/>
             </classpath>
@@ -224,7 +224,7 @@
     <target name="findbugs" depends="compile">
         <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
                  classpathref="findbugs.class.path" />
-        <mkdir dir="${publish.findbugs.dir}"/>
+        <mkdir dir="${dist.findbugs.dir}"/>
         <findbugs output="xml" outputFile="${build.dir}/findbugs.xml" home="${findbugs.dir}" jvmargs="-Xmx512m"
                   excludeFilter="findbugs-exclude.xml">
             <class location="${build.classes.dir}"/>
@@ -236,7 +236,7 @@
             <arg value="-longBugCodes"/>
             <arg value="-html:${findbugs.dir}/src/xsl/fancy.xsl"/>
             <arg value="${build.dir}/findbugs.xml"/>
-            <redirector output="${publish.findbugs.dir}/findbugs.html"/>
+            <redirector output="${dist.findbugs.dir}/findbugs.html"/>
         </exec>
     </target>
 
@@ -258,7 +258,7 @@
         <delete dir="${export.dir}/docroot/current-build" />
         <mkdir dir="${export.dir}/docroot/current-build" />
         <copy todir="${export.dir}/docroot/current-build">
-            <fileset dir="${publish.dir}"/>
+            <fileset dir="${dist.dir}"/>
         </copy>
     </target>
 
