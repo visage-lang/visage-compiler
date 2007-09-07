@@ -77,7 +77,7 @@
     <target name="default" depends="jar"
             description="Build javafxc compiler."/>
 
-    <target name="all" depends="jar, spec, javadoc, test, findbugs, svnstat, hudson"
+    <target name="all" depends="jar, spec, javadoc, test, findbugs, hudson"
             description="Build and test all project artifacts"/>
 
     <target name="all-with-coverage" depends="coverage, all"
