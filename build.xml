@@ -8,6 +8,7 @@
     <property name="tools.dir" value="${basedir}/tools"/>
     <property environment="env" />
     <import file="tools-defs.xml"/>
+    <property name="antlr.grammar" value="v2" />
 
     <import file="nbproject/build-impl.xml"/>
     <!--<property file="nbproject/project.properties" />-->
@@ -146,6 +147,13 @@
         <fail unless="has-jdk-1.6">You need JDK 1.6 or higher to build JavaFX.</fail>
     </target>
 
+    <target name="-post-init">
+        <condition property="antlr.uptodate" >
+            <uptodate srcfile="${antlr.src.dir}/${antlr.grammar}.g" targetfile="${antlr.generated.dir}/${antlr.grammar}Parser.java" />
+        </condition>
+    </target>
+
+
     <target name="-post-compile" depends="fx-taskdef">
         <!--<javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"-->
                  <!--destdir="${build.classes.dir}"-->
@@ -169,6 +177,14 @@
         <property location="${dist.jar}" name="dist.jar.resolved"/>
         <echo>java -jar "${dist.jar.resolved}"</echo>
     </target>
+
+    <target name="antlr" unless="antlr.uptodate">
+        <java classname="org.antlr.Tool" classpathref="antlr.class.path">
+            <arg value="${antlr.src.dir}/${antlr.grammar}.g" />
+        </java>
+    </target>
+
+    <target name="-pre-compile" depends="antlr" />
 
     <!-- Stuff dealing with adding coverage to JUnit execution -->
 

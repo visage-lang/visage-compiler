@@ -55,7 +55,7 @@
     </path>
 
     <path id="antlr.class.path">
-        <fileset dir="${antlr.dir}" includes="**/antlr-${antlr.ver}.jar" />
+        <fileset dir="${antlr.dir}" includes="**/*.jar" />
     </path>
 
     <path id="antlr-runtime.class.path">

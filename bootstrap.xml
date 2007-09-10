@@ -31,10 +31,9 @@
     <property name="xincluder.tgzfile" value="${bootstrap.dir}/xincluder-${xincluder.ver}.tgz"/>
     <property name="xincluder.tarfile" value="${bootstrap.dir}/xincluder-${xincluder.ver}.tar"/>
 
-    <property name="antlr.url" value="http://antlr.org/download/antlr-${antlr.ver}.jar"/>
-    <property name="antlr-runtime.url" value="http://antlr.org/download/antlr-runtime-${antlr.ver}.jar"/>
-    <property name="antlr.file" value="${antlr.dir}/antlr-${antlr.ver}.jar"/>
-    <property name="antlr-runtime.file" value="${antlr.dir}/antlr-runtime-${antlr.ver}.jar"/>
+    <property name="antlr.url" value="http://antlr.org/download/antlr-${antlr.ver}.tar.gz"/>
+    <property name="antlr.tgzfile" value="${bootstrap.dir}/antlr-${antlr.ver}.tar.gz"/>
+    <property name="antlr.tarfile" value="${bootstrap.dir}/antlr-${antlr.ver}.tar"/>
 
     <property name="antlrworks.url" value="http://antlr.org/download/antlrworks-${antlrworks.ver}.jar"/>
     <property name="antlrworks.file" value="${antlrworks.dir}/antlrworks-${antlrworks.ver}.jar"/>
@@ -132,8 +131,16 @@
 
     <target name="antlr" depends="prepare">
         <mkdir dir="${antlr.dir}"/>
-        <get src="${antlr.url}" dest="${antlr.file}"/>
-        <get src="${antlr-runtime.url}" dest="${antlr-runtime.file}"/>
+        <get src="${antlr.url}" dest="${antlr.tgzfile}"/>
+        <gunzip src="${antlr.tgzfile}" dest="${antlr.tarfile}"/>
+        <untar src="${antlr.tarfile}" dest="${antlr.dir}">
+            <patternset>
+                 <include name="antlr-${antlr.ver}/lib/*.jar" />
+             </patternset>
+            <mapper type="flatten"/>
+        </untar>
+        <delete file="${antlr.tarfile}" />
+        <delete file="${antlr.tgzfile}" />
     </target>
 
     <target name="antlrworks" depends="prepare">

@@ -50,7 +50,6 @@ import com.sun.tools.javac.comp.*;
 import com.sun.tools.javac.jvm.*;
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.processing.*;
 import com.sun.tools.javafx.comp.*;
 import java.util.Iterator;
 import static javax.tools.StandardLocation.CLASS_OUTPUT;
