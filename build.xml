@@ -145,6 +145,8 @@
 
     <target name="-pre-init" depends="check-ant,check-jdk-1.6,do-bootstrap,tool-paths">
         <fail unless="has-jdk-1.6">You need JDK 1.6 or higher to build JavaFX.</fail>
+        <echo message="JDK version ${java.version}"/>
+        <echo message="Ant version ${ant.version}"/>
     </target>
 
     <target name="-post-init">
@@ -177,7 +179,7 @@
         <property location="${dist.jar}" name="dist.jar.resolved"/>
         <echo>java -jar "${dist.jar.resolved}"</echo>
     </target>
-
+    
     <target name="antlr" unless="antlr.uptodate">
         <java classname="org.antlr.Tool" classpathref="antlr.class.path">
             <arg value="${antlr.src.dir}/${antlr.grammar}.g" />
@@ -188,13 +190,15 @@
 
     <!-- Stuff dealing with adding coverage to JUnit execution -->
 
-    <taskdef classpathref="cobertura.class.path" resource="tasks.properties"/>
-
     <target name="coverage" description="Enables coverage for junit test targets">
         <property name="do.coverage" value="true"/>
     </target>
+    
+    <target name="cobertura-taskdefs">
+        <taskdef classpathref="cobertura.class.path" resource="tasks.properties"/>
+    </target>
 
-    <target name="conditional-instrument" if="do.coverage">
+    <target name="conditional-instrument" if="do.coverage" depends="cobertura-taskdefs">
         <mkdir dir="${build.instrumented.dir}"/>
         <cobertura-instrument todir="${build.instrumented.dir}">
             <fileset dir="${build.classes.dir}" includes="**/*.class"/>
@@ -206,7 +210,7 @@
         <delete dir="${build.instrumented.dir}"/>
     </target>
 
-    <target name="conditional-coverage-report" if="do.coverage">
+    <target name="conditional-coverage-report" if="do.coverage" depends="cobertura-taskdefs">
         <mkdir dir="${dist.coverage.dir}"/>
         <cobertura-report srcdir="${src.classes.dir}" destdir="${dist.coverage.dir}">
             <classpath>
@@ -230,6 +234,11 @@
         </copy>
         <chmod dir="dist/bin" perm="755" includes="**/javafxc*"/>
     </target>
+    
+    <target name="-post-clean" description="Delete ANTLR-generated files">
+        <delete dir="src/share/classes/com/sun/tools/javafx"
+                includes="**/v2*.*" excludes="**/v2.g"/>
+    </target>        
 
     <target name="spec" description="Build JavaFX Script specification.">
         <ant antfile="doc/build.xml" target="spec" inheritAll="false"/>
