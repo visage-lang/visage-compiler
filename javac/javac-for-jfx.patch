@@ -1,6 +1,26 @@
+Index: javax/tools/JavaFileObject.java
+===================================================================
+--- javax/tools/JavaFileObject.java	(revision 250)
++++ javax/tools/JavaFileObject.java	(working copy)
+@@ -60,7 +60,14 @@
+          * example, regular files ending with {@code .java}.
+          */
+         SOURCE(".java"),
+-
++// Javafx change
++// Enable this to allow pulling sources for source completion.
++//        /**
++//         * Source files written in the JavaFX programming language.  For
++//         * example, regular files ending with {@code .fx}.
++//         */
++//        JFX_SOURCE(".fx"),
++// Javafx change
+         /**
+          * Class files for the Java Virtual Machine.  For example,
+          * regular files ending with {@code .class}.
 Index: com/sun/tools/javac/jvm/Items.java
 ===================================================================
---- com/sun/tools/javac/jvm/Items.java	(revision 246)
+--- com/sun/tools/javac/jvm/Items.java	(revision 250)
 +++ com/sun/tools/javac/jvm/Items.java	(working copy)
 @@ -186,7 +186,7 @@
  
@@ -110,9 +130,22 @@ Index: com/sun/tools/javac/jvm/Items.java
  	    Chain trueChain = null;
  	    Chain falseChain = jumpFalse();
  	    if (!isFalse()) {
+Index: com/sun/tools/javac/jvm/ClassReader.java
+===================================================================
+--- com/sun/tools/javac/jvm/ClassReader.java	(revision 250)
++++ com/sun/tools/javac/jvm/ClassReader.java	(working copy)
+@@ -2070,7 +2070,7 @@
+     protected EnumSet<JavaFileObject.Kind> getPackageFileKinds() {
+         return EnumSet.of(JavaFileObject.Kind.CLASS, JavaFileObject.Kind.SOURCE);
+     }
+-
++    
+     /**
+      * this is used to support javadoc
+      */
 Index: com/sun/tools/javac/jvm/Gen.java
 ===================================================================
---- com/sun/tools/javac/jvm/Gen.java	(revision 246)
+--- com/sun/tools/javac/jvm/Gen.java	(revision 250)
 +++ com/sun/tools/javac/jvm/Gen.java	(working copy)
 @@ -173,7 +173,7 @@
  
@@ -152,7 +185,7 @@ Index: com/sun/tools/javac/jvm/Gen.java
  	 */
 Index: com/sun/tools/javac/jvm/Code.java
 ===================================================================
---- com/sun/tools/javac/jvm/Code.java	(revision 246)
+--- com/sun/tools/javac/jvm/Code.java	(revision 250)
 +++ com/sun/tools/javac/jvm/Code.java	(working copy)
 @@ -154,7 +154,7 @@
       *  We need this to emit line numbers lazily, which we need to do
@@ -163,11 +196,32 @@ Index: com/sun/tools/javac/jvm/Code.java
  
      /** Set true when a stackMap is needed at the current PC. */
      boolean pendingStackMap = false;
+Index: com/sun/tools/javac/comp/Infer.java
+===================================================================
+--- com/sun/tools/javac/comp/Infer.java	(revision 250)
++++ com/sun/tools/javac/comp/Infer.java	(working copy)
+@@ -68,7 +68,7 @@
+     public static class NoInstanceException extends RuntimeException {
+ 	private static final long serialVersionUID = 0;
+ 
+-	boolean isAmbiguous; // exist several incomparable best instances?
++	public boolean isAmbiguous; // exist several incomparable best instances?
+ 
+ 	JCDiagnostic diagnostic;
+ 
 Index: com/sun/tools/javac/comp/MemberEnter.java
 ===================================================================
---- com/sun/tools/javac/comp/MemberEnter.java	(revision 246)
+--- com/sun/tools/javac/comp/MemberEnter.java	(revision 250)
 +++ com/sun/tools/javac/comp/MemberEnter.java	(working copy)
-@@ -60,16 +60,34 @@
+@@ -53,6 +53,7 @@
+  *  This code and its internal interfaces are subject to change or
+  *  deletion without notice.</b>
+  */
++
+ @Version("@(#)MemberEnter.java	1.72 07/06/14")
+ public class MemberEnter extends JCTree.Visitor implements Completer {
+     protected static final Context.Key<MemberEnter> memberEnterKey =
+@@ -60,16 +61,34 @@
  
      /** A switch to determine whether we check for package/class conflicts
       */
@@ -210,7 +264,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
      private final Todo todo;
      private final Annotate annotate;
      private final Types types;
-@@ -127,7 +145,8 @@
+@@ -127,7 +146,8 @@
       *  @param toScope   The (import) scope in which imported classes
       *               are entered.
       */
@@ -220,7 +274,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
                             final TypeSymbol tsym,
                             Env<AttrContext> env) {
          // Check that packages imported from exist (JLS ???).
-@@ -334,12 +353,17 @@
+@@ -334,12 +354,17 @@
       *  @param env           The environment containing the named import
       *                  scope to add to.
       */
@@ -239,7 +293,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
      /** Construct method type from method signature.
       *  @param typarams    The method's type parameters.
       *  @param params      The method's value parameters.
-@@ -394,7 +418,10 @@
+@@ -394,7 +419,10 @@
      /** Enter field and method definitions and process import
       *  clauses, catching any completion failure exceptions.
       */
@@ -251,7 +305,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
          Env<AttrContext> prevEnv = this.env;
          try {
              this.env = env;
-@@ -408,6 +435,8 @@
+@@ -408,6 +436,8 @@
  
      /** Enter members from a list of trees.
       */
@@ -260,7 +314,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
      void memberEnter(List<? extends JCTree> trees, Env<AttrContext> env) {
          for (List<? extends JCTree> l = trees; l.nonEmpty(); l = l.tail)
              memberEnter(l.head, env);
-@@ -415,6 +444,9 @@
+@@ -415,6 +445,9 @@
  
      /** Enter members for a class.
       */
@@ -270,7 +324,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
      void finishClass(JCClassDecl tree, Env<AttrContext> env) {
          if ((tree.mods.flags & Flags.ENUM) != 0 &&
              (types.supertype(tree.sym.type).tsym.flags() & Flags.ENUM) == 0) {
-@@ -601,6 +633,9 @@
+@@ -601,6 +634,9 @@
       *  @param tree     The method definition.
       *  @param env      The environment current outside of the method definition.
       */
@@ -280,7 +334,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
      Env<AttrContext> methodEnv(JCMethodDecl tree, Env<AttrContext> env) {
          Env<AttrContext> localEnv =
              env.dup(tree, env.info.dup(env.info.scope.dupUnshared()));
-@@ -644,6 +679,9 @@
+@@ -644,6 +680,9 @@
       *  @param tree     The variable definition.
       *  @param env      The environment current outside of the variable definition.
       */
@@ -290,7 +344,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
      Env<AttrContext> initEnv(JCVariableDecl tree, Env<AttrContext> env) {
          Env<AttrContext> localEnv = env.dupto(new AttrContextEnv(tree, env.info.dup()));
          if (tree.sym.owner.kind == TYP) {
-@@ -702,6 +740,9 @@
+@@ -702,6 +741,9 @@
   *********************************************************************/
  
      /** Queue annotations for later processing. */
@@ -300,7 +354,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
      void annotateLater(final List<JCAnnotation> annotations,
                         final Env<AttrContext> localEnv,
                         final Symbol s) {
-@@ -769,6 +810,9 @@
+@@ -769,6 +811,9 @@
          s.attributes_field = buf.toList();
      }
  
@@ -310,7 +364,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
      /** Queue processing of an attribute default value. */
      void annotateDefaultValueLater(final JCExpression defaultValue,
                                     final Env<AttrContext> localEnv,
-@@ -1091,6 +1135,9 @@
+@@ -1091,6 +1136,9 @@
       *  @param typarams  The type parameters that need to be passed to super
       *  @param based   Is first parameter a this$n?
       */
@@ -322,7 +376,7 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
                     List<JCVariableDecl> params,
 Index: com/sun/tools/javac/comp/Attr.java
 ===================================================================
---- com/sun/tools/javac/comp/Attr.java	(revision 246)
+--- com/sun/tools/javac/comp/Attr.java	(revision 250)
 +++ com/sun/tools/javac/comp/Attr.java	(working copy)
 @@ -69,17 +69,47 @@
      protected static final Context.Key<Attr> attrKey =
@@ -577,95 +631,9 @@ Index: com/sun/tools/javac/comp/Attr.java
          return types.capture(type);
      }
  }
-Index: com/sun/tools/javac/comp/Enter.java
-===================================================================
---- com/sun/tools/javac/comp/Enter.java	(revision 246)
-+++ com/sun/tools/javac/comp/Enter.java	(working copy)
-@@ -96,10 +96,22 @@
- 
-     Log log;
-     Symtab syms;
-+// JavaFX change
-+    protected
-+// JavaFX change
-     Check chk;
-+// JavaFX change
-+    protected
-+// JavaFX change
-     TreeMaker make;
-+// JavaFX change
-+    protected
-+// JavaFX change
-     ClassReader reader;
-     Annotate annotate;
-+// JavaFX change
-+    protected
-+// JavaFX change
-     MemberEnter memberEnter;
-     Lint lint;
-     JavaFileManager fileManager;
-@@ -136,6 +148,9 @@
-     /** A hashtable mapping classes and packages to the environments current
-      *  at the points of their definitions.
-      */
-+// JavaFX change
-+    protected
-+// JavaFX change
-     Map<TypeSymbol,Env<AttrContext>> typeEnvs =
- 	    new HashMap<TypeSymbol,Env<AttrContext>>();
- 
-@@ -157,6 +172,9 @@
-     /** The queue of all classes that might still need to be completed;
-      *	saved and initialized by main().
-      */
-+// JavaFX change
-+    protected
-+// JavaFX change
-     ListBuffer<ClassSymbol> uncompleted;
- 
-     /** A dummy class to serve as enclClass for toplevel environments.
-@@ -220,6 +238,9 @@
-      *	where the local scope is for type variables, and the this and super symbol
-      *	only, and members go into the class member scope.
-      */
-+// JavaFX change
-+    public
-+// JavaFX change
-     Scope enterScope(Env<AttrContext> env) {
- 	return (env.tree.getTag() == JCTree.CLASSDEF)
- 	    ? ((JCClassDecl) env.tree).sym.members_field
-@@ -236,6 +257,9 @@
- 
-     /** Visitor result: the computed type.
-      */
-+// JavaFX change
-+    protected
-+// JavaFX change
-     Type result;
- 
-     /** Visitor method: enter all classes in given tree, catching any
-@@ -259,6 +283,9 @@
- 
-     /** Visitor method: enter classes of a list of trees, returning a list of types.
-      */
-+// JavaFX change
-+    protected
-+// JavaFX change
-     <T extends JCTree> List<Type> classEnter(List<T> trees, Env<AttrContext> env) {
- 	ListBuffer<Type> ts = new ListBuffer<Type>();
- 	for (List<T> l = trees; l.nonEmpty(); l = l.tail)
-@@ -405,7 +432,7 @@
-     //where
- 	/** Does class have the same name as the file it appears in?
- 	 */
--	private static boolean classNameMatchesFileName(ClassSymbol c,
-+	protected static boolean classNameMatchesFileName(ClassSymbol c,
- 							Env<AttrContext> env) {
- 	    return env.toplevel.sourcefile.isNameCompatible(c.name.toString(),
- 							    JavaFileObject.Kind.SOURCE);
 Index: com/sun/tools/javac/comp/Check.java
 ===================================================================
---- com/sun/tools/javac/comp/Check.java	(revision 246)
+--- com/sun/tools/javac/comp/Check.java	(revision 250)
 +++ com/sun/tools/javac/comp/Check.java	(working copy)
 @@ -57,13 +57,19 @@
      protected static final Context.Key<Check> checkKey =
@@ -780,7 +748,17 @@ Index: com/sun/tools/javac/comp/Check.java
      /** Check that type is different from 'void'.
       *  @param pos           Position to be used for error reporting.
       *  @param t             The type to be checked.
-@@ -504,6 +536,9 @@
+@@ -472,6 +504,9 @@
+      *  @param t             The type to be checked.
+      *  @param noBounds    True if type bounds are illegal here.
+      */
++// JavaFX change
++    public
++// JavaFX change
+     Type checkClassType(DiagnosticPosition pos, Type t, boolean noBounds) {
+ 	t = checkClassType(pos, t);
+ 	if (noBounds && t.isParameterized()) {
+@@ -504,6 +539,9 @@
  	}
      }
  
@@ -790,7 +768,7 @@ Index: com/sun/tools/javac/comp/Check.java
      /** Check that type is a reference type, i.e. a class, interface or array type
       *  or a type variable.
       *  @param pos           Position to be used for error reporting.
-@@ -571,6 +606,9 @@
+@@ -571,6 +609,9 @@
       *  @param flags         The set of modifiers given in a definition.
       *  @param sym           The defined symbol.
       */
@@ -800,7 +778,7 @@ Index: com/sun/tools/javac/comp/Check.java
      long checkFlags(DiagnosticPosition pos, long flags, Symbol sym, JCTree tree) {
  	long mask;
  	long implicit = 0;
-@@ -741,6 +779,9 @@
+@@ -741,6 +782,9 @@
      /** Visitor method: Validate a type expression, if it is not null, catching
       *  and reporting any completion failures.
       */
@@ -810,7 +788,7 @@ Index: com/sun/tools/javac/comp/Check.java
      void validate(JCTree tree) {
  	try {
  	    if (tree != null) tree.accept(validator);
-@@ -751,6 +792,9 @@
+@@ -751,6 +795,9 @@
  
      /** Visitor method: Validate a list of type expressions.
       */
@@ -820,7 +798,7 @@ Index: com/sun/tools/javac/comp/Check.java
      void validate(List<? extends JCTree> trees) {
  	for (List<? extends JCTree> l = trees; l.nonEmpty(); l = l.tail)
  	    validate(l.head);
-@@ -758,6 +802,9 @@
+@@ -758,6 +805,9 @@
  
      /** Visitor method: Validate a list of type parameters.
       */
@@ -830,7 +808,7 @@ Index: com/sun/tools/javac/comp/Check.java
      void validateTypeParams(List<JCTypeParameter> trees) {
  	for (List<JCTypeParameter> l = trees; l.nonEmpty(); l = l.tail)
  	    validate(l.head);
-@@ -1078,6 +1125,9 @@
+@@ -1078,6 +1128,9 @@
       *  @param origin       The class of which the overriding method
       *			    is a member.
       */
@@ -840,7 +818,7 @@ Index: com/sun/tools/javac/comp/Check.java
      void checkOverride(JCTree tree,
  		       MethodSymbol m,
  		       MethodSymbol other,
-@@ -1381,6 +1431,9 @@
+@@ -1381,6 +1434,9 @@
       *			    for errors.
       *  @param m            The overriding method.
       */
@@ -850,7 +828,7 @@ Index: com/sun/tools/javac/comp/Check.java
      void checkOverride(JCTree tree, MethodSymbol m) {
  	ClassSymbol origin = (ClassSymbol)m.owner;
  	if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name))
-@@ -1655,6 +1708,9 @@
+@@ -1655,6 +1711,9 @@
       *  enum, an annotation, Class, Class<?>, Class<? extends
       *  Anything>, arrays of the preceding.
       */
@@ -860,7 +838,7 @@ Index: com/sun/tools/javac/comp/Check.java
      void validateAnnotationType(JCTree restype) {
          // restype may be null if an error occurred, so don't bother validating it
          if (restype != null) {
-@@ -1683,6 +1739,9 @@
+@@ -1683,6 +1742,9 @@
       *
       * @jls3 9.6 Annotation Types
       */
@@ -870,7 +848,7 @@ Index: com/sun/tools/javac/comp/Check.java
      void validateAnnotationMethod(DiagnosticPosition pos, MethodSymbol m) {
          for (Type sup = syms.annotationType; sup.tag == CLASS; sup = types.supertype(sup)) {
              Scope s = sup.tsym.members();
-@@ -1830,6 +1889,9 @@
+@@ -1830,6 +1892,9 @@
  	}
      }
  
@@ -880,7 +858,7 @@ Index: com/sun/tools/javac/comp/Check.java
      void checkDeprecatedAnnotation(DiagnosticPosition pos, Symbol s) {
  	if (allowAnnotations &&
  	    lint.isEnabled(Lint.LintCategory.DEP_ANN) &&
-@@ -1948,7 +2010,9 @@
+@@ -1948,7 +2013,9 @@
  /* *************************************************************************
   * Miscellaneous
   **************************************************************************/
@@ -891,7 +869,7 @@ Index: com/sun/tools/javac/comp/Check.java
      /**
       * Return the opcode of the operator but emit an error if it is an
       * error.
-@@ -1973,6 +2037,9 @@
+@@ -1973,6 +2040,9 @@
      }
  
  
@@ -901,7 +879,7 @@ Index: com/sun/tools/javac/comp/Check.java
      /**
       *  Check for division by integer constant zero
       *	@param pos	     Position for error reporting.
-@@ -2005,6 +2072,9 @@
+@@ -2005,6 +2075,9 @@
       *	@param sym	     The symbol.
       *	@param s	     The scope.
       */
@@ -911,9 +889,205 @@ Index: com/sun/tools/javac/comp/Check.java
      boolean checkUnique(DiagnosticPosition pos, Symbol sym, Scope s) {
  	if (sym.type.isErroneous())
  	    return true;
+Index: com/sun/tools/javac/comp/Enter.java
+===================================================================
+--- com/sun/tools/javac/comp/Enter.java	(revision 250)
++++ com/sun/tools/javac/comp/Enter.java	(working copy)
+@@ -96,10 +96,22 @@
+ 
+     Log log;
+     Symtab syms;
++// JavaFX change
++    protected
++// JavaFX change
+     Check chk;
++// JavaFX change
++    protected
++// JavaFX change
+     TreeMaker make;
++// JavaFX change
++    protected
++// JavaFX change
+     ClassReader reader;
+     Annotate annotate;
++// JavaFX change
++    protected
++// JavaFX change
+     MemberEnter memberEnter;
+     Lint lint;
+     JavaFileManager fileManager;
+@@ -136,6 +148,9 @@
+     /** A hashtable mapping classes and packages to the environments current
+      *  at the points of their definitions.
+      */
++// JavaFX change
++    protected
++// JavaFX change
+     Map<TypeSymbol,Env<AttrContext>> typeEnvs =
+ 	    new HashMap<TypeSymbol,Env<AttrContext>>();
+ 
+@@ -157,6 +172,9 @@
+     /** The queue of all classes that might still need to be completed;
+      *	saved and initialized by main().
+      */
++// JavaFX change
++    protected
++// JavaFX change
+     ListBuffer<ClassSymbol> uncompleted;
+ 
+     /** A dummy class to serve as enclClass for toplevel environments.
+@@ -220,6 +238,9 @@
+      *	where the local scope is for type variables, and the this and super symbol
+      *	only, and members go into the class member scope.
+      */
++// JavaFX change
++    public
++// JavaFX change
+     Scope enterScope(Env<AttrContext> env) {
+ 	return (env.tree.getTag() == JCTree.CLASSDEF)
+ 	    ? ((JCClassDecl) env.tree).sym.members_field
+@@ -236,6 +257,9 @@
+ 
+     /** Visitor result: the computed type.
+      */
++// JavaFX change
++    protected
++// JavaFX change
+     Type result;
+ 
+     /** Visitor method: enter all classes in given tree, catching any
+@@ -259,6 +283,9 @@
+ 
+     /** Visitor method: enter classes of a list of trees, returning a list of types.
+      */
++// JavaFX change
++    protected
++// JavaFX change
+     <T extends JCTree> List<Type> classEnter(List<T> trees, Env<AttrContext> env) {
+ 	ListBuffer<Type> ts = new ListBuffer<Type>();
+ 	for (List<T> l = trees; l.nonEmpty(); l = l.tail)
+@@ -405,7 +432,7 @@
+     //where
+ 	/** Does class have the same name as the file it appears in?
+ 	 */
+-	private static boolean classNameMatchesFileName(ClassSymbol c,
++	protected static boolean classNameMatchesFileName(ClassSymbol c,
+ 							Env<AttrContext> env) {
+ 	    return env.toplevel.sourcefile.isNameCompatible(c.name.toString(),
+ 							    JavaFileObject.Kind.SOURCE);
+Index: com/sun/tools/javac/comp/Resolve.java
+===================================================================
+--- com/sun/tools/javac/comp/Resolve.java	(revision 250)
++++ com/sun/tools/javac/comp/Resolve.java	(working copy)
+@@ -115,6 +115,9 @@
+     /** An environment is "static" if its static level is greater than
+      *  the one of its outer environment
+      */
++// JavaFX change
++    public
++// JavaFX change
+     static boolean isStatic(Env<AttrContext> env) {
+         return env.info.staticLevel > env.outer.info.staticLevel;
+     }
+@@ -404,6 +407,9 @@
+      *  @param c       The class to search for the field. This is always
+      *                 a superclass or implemented interface of site's class.
+      */
++// Javafx change
++    public
++// javafx change 
+     Symbol findField(Env<AttrContext> env,
+                      Type site,
+                      Name name,
+@@ -702,6 +708,9 @@
+      *  @param allowBoxing Allow boxing conversions of arguments.
+      *  @param useVarargs Box trailing arguments into an array for varargs.
+      */
++// Javafx change
++    public
++// Javafx change
+     Symbol findMethod(Env<AttrContext> env,
+                       Type site,
+                       Name name,
+@@ -872,6 +881,9 @@
+      *                   always a superclass or implemented interface of
+      *                   site's class.
+      */
++// Javafx change
++    public
++// Javafx change
+     Symbol findMemberType(Env<AttrContext> env,
+                           Type site,
+                           Name name,
+@@ -1101,6 +1113,9 @@
+ 
+     /** Same as above, but without type arguments and arguments.
+      */
++// Javafx change
++    public
++// Javafx change
+     Symbol access(Symbol sym,
+                   DiagnosticPosition pos,
+                   Type site,
+@@ -1258,6 +1273,7 @@
+      *  @param typeargtypes  The types of the constructor invocation's type
+      *                   arguments.
+      */
++    public // Javafx change
+     Symbol resolveConstructor(DiagnosticPosition pos,
+                               Env<AttrContext> env,
+                               Type site,
+@@ -1286,6 +1302,7 @@
+      *  @param allowBoxing Allow boxing and varargs conversions.
+      *  @param useVarargs Box trailing arguments into an array for varargs.
+      */
++    public // Javafx change
+     Symbol resolveConstructor(DiagnosticPosition pos, Env<AttrContext> env,
+                               Type site, List<Type> argtypes,
+                               List<Type> typeargtypes,
+@@ -1355,6 +1372,7 @@
+      *  @param left      The types of the left operand.
+      *  @param right     The types of the right operand.
+      */
++    public // Javafx change
+     Symbol resolveBinaryOperator(DiagnosticPosition pos,
+                                  int optag,
+                                  Env<AttrContext> env,
+@@ -1370,6 +1388,7 @@
+      * @param c             The qualifier.
+      * @param name          The identifier's name.
+      */
++    public // Javafx change
+     Symbol resolveSelf(DiagnosticPosition pos,
+                        Env<AttrContext> env,
+                        TypeSymbol c,
+@@ -1429,6 +1448,7 @@
+      * Resolve an appropriate implicit this instance for t's container.
+      * JLS2 8.8.5.1 and 15.9.2
+      */
++    public // Javafx change
+     Type resolveImplicitThis(DiagnosticPosition pos, Env<AttrContext> env, Type t) {
+         Type thisType = (((t.tsym.owner.kind & (MTH|VAR)) != 0)
+                          ? resolveSelf(pos, env, t.getEnclosingType().tsym, names._this)
+@@ -1444,6 +1464,7 @@
+ 
+     /** A localized string describing a given kind.
+      */
++    public // Javafx change
+     static JCDiagnostic kindName(int kind) {
+         switch (kind) {
+         case PCK: return JCDiagnostic.fragment("kindname.package");
+@@ -1495,6 +1516,7 @@
+ 
+     /** A localized string describing a given set of kinds.
+      */
++    public // Javafx change
+     static JCDiagnostic kindNames(int kind) {
+         StringBuffer key = new StringBuffer();
+         key.append("kindname");
 Index: com/sun/tools/javac/comp/AttrContext.java
 ===================================================================
---- com/sun/tools/javac/comp/AttrContext.java	(revision 246)
+--- com/sun/tools/javac/comp/AttrContext.java	(revision 250)
 +++ com/sun/tools/javac/comp/AttrContext.java	(working copy)
 @@ -41,20 +41,35 @@
  
@@ -978,61 +1152,9 @@ Index: com/sun/tools/javac/comp/AttrContext.java
      AttrContext dup() {
  	return dup(scope);
      }
-Index: com/sun/tools/javac/comp/Resolve.java
-===================================================================
---- com/sun/tools/javac/comp/Resolve.java	(revision 246)
-+++ com/sun/tools/javac/comp/Resolve.java	(working copy)
-@@ -1258,6 +1258,7 @@
-      *  @param typeargtypes  The types of the constructor invocation's type
-      *                   arguments.
-      */
-+    public // Javafx change
-     Symbol resolveConstructor(DiagnosticPosition pos,
-                               Env<AttrContext> env,
-                               Type site,
-@@ -1355,6 +1356,7 @@
-      *  @param left      The types of the left operand.
-      *  @param right     The types of the right operand.
-      */
-+    public // Javafx change
-     Symbol resolveBinaryOperator(DiagnosticPosition pos,
-                                  int optag,
-                                  Env<AttrContext> env,
-@@ -1370,6 +1372,7 @@
-      * @param c             The qualifier.
-      * @param name          The identifier's name.
-      */
-+    public // Javafx change
-     Symbol resolveSelf(DiagnosticPosition pos,
-                        Env<AttrContext> env,
-                        TypeSymbol c,
-@@ -1429,6 +1432,7 @@
-      * Resolve an appropriate implicit this instance for t's container.
-      * JLS2 8.8.5.1 and 15.9.2
-      */
-+    public // Javafx change
-     Type resolveImplicitThis(DiagnosticPosition pos, Env<AttrContext> env, Type t) {
-         Type thisType = (((t.tsym.owner.kind & (MTH|VAR)) != 0)
-                          ? resolveSelf(pos, env, t.getEnclosingType().tsym, names._this)
-@@ -1444,6 +1448,7 @@
- 
-     /** A localized string describing a given kind.
-      */
-+    public // Javafx change
-     static JCDiagnostic kindName(int kind) {
-         switch (kind) {
-         case PCK: return JCDiagnostic.fragment("kindname.package");
-@@ -1495,6 +1500,7 @@
- 
-     /** A localized string describing a given set of kinds.
-      */
-+    public // Javafx change
-     static JCDiagnostic kindNames(int kind) {
-         StringBuffer key = new StringBuffer();
-         key.append("kindname");
 Index: com/sun/tools/javac/comp/ConstFold.java
 ===================================================================
---- com/sun/tools/javac/comp/ConstFold.java	(revision 246)
+--- com/sun/tools/javac/comp/ConstFold.java	(revision 250)
 +++ com/sun/tools/javac/comp/ConstFold.java	(working copy)
 @@ -43,6 +43,9 @@
   *  deletion without notice.</b>
@@ -1066,7 +1188,7 @@ Index: com/sun/tools/javac/comp/ConstFold.java
       *                    which is assumed to be a constant type compatble with
 Index: com/sun/tools/javac/tree/TreeMaker.java
 ===================================================================
---- com/sun/tools/javac/tree/TreeMaker.java	(revision 246)
+--- com/sun/tools/javac/tree/TreeMaker.java	(revision 250)
 +++ com/sun/tools/javac/tree/TreeMaker.java	(working copy)
 @@ -68,12 +68,12 @@
      public JCCompilationUnit toplevel;
@@ -1095,7 +1217,7 @@ Index: com/sun/tools/javac/tree/TreeMaker.java
          this.names = names;
 Index: com/sun/tools/javac/tree/Pretty.java
 ===================================================================
---- com/sun/tools/javac/tree/Pretty.java	(revision 246)
+--- com/sun/tools/javac/tree/Pretty.java	(revision 250)
 +++ com/sun/tools/javac/tree/Pretty.java	(working copy)
 @@ -57,7 +57,7 @@
       *  the output even though that detail would not be valid java
@@ -1169,7 +1291,7 @@ Index: com/sun/tools/javac/tree/Pretty.java
          } catch (IOException e) {
 Index: com/sun/tools/javac/tree/TreeInfo.java
 ===================================================================
---- com/sun/tools/javac/tree/TreeInfo.java	(revision 246)
+--- com/sun/tools/javac/tree/TreeInfo.java	(revision 250)
 +++ com/sun/tools/javac/tree/TreeInfo.java	(working copy)
 @@ -58,9 +58,13 @@
  
@@ -1189,7 +1311,7 @@ Index: com/sun/tools/javac/tree/TreeInfo.java
  	Name.Table names = Name.Table.instance(context);
 Index: com/sun/tools/javac/code/Symtab.java
 ===================================================================
---- com/sun/tools/javac/code/Symtab.java	(revision 246)
+--- com/sun/tools/javac/code/Symtab.java	(revision 250)
 +++ com/sun/tools/javac/code/Symtab.java	(working copy)
 @@ -202,7 +202,7 @@
       *  @param name   The constant's name.
@@ -1271,3 +1393,19 @@ Index: com/sun/tools/javac/code/Symtab.java
  
  	// string concatenation
          enterBinop("+", stringType, objectType, stringType, string_add);
+Index: com/sun/tools/javac/util/BaseFileObject.java
+===================================================================
+--- com/sun/tools/javac/util/BaseFileObject.java	(revision 250)
++++ com/sun/tools/javac/util/BaseFileObject.java	(working copy)
+@@ -44,6 +44,11 @@
+             return CLASS;
+         else if (n.endsWith(SOURCE.extension))
+             return SOURCE;
++// Javafx change
++// Enable this to allow pulling sources for source completion.
++//        else if (n.endsWith(JFX_SOURCE.extension))
++//            return SOURCE;
++// Javafx change end
+         else if (n.endsWith(HTML.extension))
+             return HTML;
+         else
