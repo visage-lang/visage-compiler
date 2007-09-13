@@ -28,20 +28,24 @@ package com.sun.tools.javafx.tree;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCStatement;
 
 /**
  *
  * @author Robert Field
  */
-public class JavafxTreeScanner extends JavafxAbstractVisitor {
+public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
+    public boolean shouldVisitRemoved;
+    public boolean shouldVisitSynthetic;
 
-    /** Creates a new instance of JavafxTreeScanner */
-    JavafxTreeScanner() {
-        super(new TreeScanner());
+    public JavafxTreeScanner() {
+        this.shouldVisitRemoved = false;
+        this.shouldVisitSynthetic = true;
     }
-    
-       /** Visitor method: Scan a single node.
-     */
+
+    /** Visitor method: Scan a single node.
+   */
     public void scan(JCTree tree) {
 	if(tree!=null) tree.accept(this);
     }
@@ -58,4 +62,167 @@ public class JavafxTreeScanner extends JavafxAbstractVisitor {
 /* ***************************************************************************
  * Visitor methods
  ****************************************************************************/
+    // Begin JavaFX trees
+    
+    @Override
+    public void visitClassDeclaration(JFXClassDeclaration that) {
+        that.mods.accept(this);
+        for (JCTree member : that.defs) {
+            member.accept(this);
+        }
+    }
+    
+    @Override
+    public void visitAbstractMember(JFXAbstractMember that) {
+        that.modifiers.accept(this);
+        if (that.getType() != null) {
+            that.getType().accept((JavafxVisitor)this);
+        }
+    }
+    
+    @Override
+    public void visitAbstractFunction(JFXAbstractFunction that) {
+        visitAbstractMember(that);
+        for (JCTree param : that.getParameters()) {
+            param.accept(this);
+        }
+    }
+    
+    @Override
+    public void visitAttributeDefinition(JFXAttributeDefinition that) {
+        visitVarDef(that);
+        if (that.getInitializer() != null) {
+            that.getInitializer().accept(this);
+        }
+    }
+    
+    @Override
+    public void visitFunctionDefinitionStatement(JFXFunctionDefinitionStatement that) {
+        visitOperationDefinition(that.funcDef);
+    }
+
+    @Override
+    public void visitOperationDefinition(JFXOperationDefinition that) {
+        visitMethodDef(that);
+        that.getBodyExpression().accept((JavafxVisitor)this);
+    }
+
+    @Override
+    public void visitInitDefinition(JFXInitDefinition that) {
+        that.getBody().accept(this);
+    }
+
+    @Override
+    public void visitDoLater(JFXDoLater that) {
+        that.getBody().accept(this);
+    }
+
+    @Override
+    public void visitMemberSelector(JFXMemberSelector that) {
+    }
+    
+    @Override
+    public void visitSequenceEmpty(JFXSequenceEmpty that) {
+    }
+    
+    @Override
+    public void visitSequenceRange(JFXSequenceRange that) {
+        that.getLower().accept(this);
+        that.getUpper().accept(this);
+    }
+    
+    @Override
+    public void visitSequenceExplicit(JFXSequenceExplicit that) {
+        for (JCExpression expr : that.getItems()) {
+            expr.accept(this);
+        }
+    }
+
+    @Override
+    public void visitStringExpression(JFXStringExpression that) {
+        List<JCExpression> parts = that.getParts();
+        parts = parts.tail;
+        while (parts.nonEmpty()) {
+            parts = parts.tail;
+            parts.head.accept(this);
+            parts = parts.tail;
+            parts = parts.tail;
+        }
+    }
+    
+    @Override
+    public void visitPureObjectLiteral(JFXPureObjectLiteral that) {
+        that.getIdentifier().accept(this);
+        for (JCStatement part : that.getParts()) {
+            part.accept(this);
+        }
+    }
+    
+    @Override
+    public void visitVarIsObjectBeingInitialized(JFXVarIsObjectBeingInitialized that) {
+        visitVar(that);
+    }
+    
+    @Override
+    public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized that) {
+    }
+    
+    @Override
+    public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
+        that.getExpression().accept(this);
+    }  
+    
+    @Override
+    public void visitTypeAny(JFXTypeAny that) {
+        visitType(that);
+    }
+    
+    @Override
+    public void visitTypeClass(JFXTypeClass that) {
+        visitType(that);
+    }
+    
+    @Override
+    public void visitTypeFunctional(JFXTypeFunctional that) {
+        for (JCTree param : that.getParameters()) {
+            param.accept(this);
+        }
+        that.getReturnType().accept((JavafxVisitor)this);
+        visitType(that);
+    }
+    
+    @Override
+    public void visitTypeUnknown(JFXTypeUnknown that) {
+        visitType(that);
+    }
+    
+    @Override
+    public void visitType(JFXType that) {
+    }
+    
+    @Override
+    public void visitVar(JFXVar that) {
+        visitType(that.getJFXType());
+    }
+    
+    @Override
+    public boolean shouldVisitRemoved() {
+        return shouldVisitRemoved;
+    }
+    
+    @Override
+    public boolean shouldVisitSynthetic() {
+        return shouldVisitSynthetic;
+    }
+    
+    @Override
+    public void visitBlockExpression(JFXBlockExpression that) {
+        scan(that.stats);
+        scan(that.value);
+    }
+
+    @Override
+    public void visitTree(JCTree that) {
+        assert false : "Should not be here!!!";
+    }
 }

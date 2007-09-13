@@ -54,6 +54,7 @@ public class JavafxSymtab extends Symtab {
         javafx_AnyType = objectType;
         javafx_StringType = stringType;
         javafx_BooleanType = booleanType;
+        javafx_VoidType = voidType;
     }
     
     // Javafx types
@@ -62,6 +63,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_AnyType;
     public final Type javafx_StringType;
     public final Type javafx_BooleanType;
+    public final Type javafx_VoidType;
     
     protected void enterOperators() {
         super.enterOperators();

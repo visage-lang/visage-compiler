@@ -44,8 +44,8 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
     }
 
     public void visitClassDeclaration(JFXClassDeclaration that) {
-        that.mods = translate(that.mods);
-        that.declarations = translate(that.declarations);
+        visitClassDef(that);
+        that.supertypes = translate(that.supertypes);
         result = that;
     }
     
@@ -75,7 +75,7 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
     }
     
     public void visitAttributeDefinition(JFXAttributeDefinition that) {
-        visitAbstractAttribute(that);
+        visitVar(that);
         if (that.init != null) {
             that.init = translate(that.init);
         }
@@ -85,93 +85,25 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
-    public void visitFunctionDefinition(JFXFunctionDefinition that) {
-        visitAbstractFunction(that);
+    @Override
+    public void visitOperationDefinition(JFXOperationDefinition that) {
+        visitMethodDef(that);
         that.bodyExpression = translate(that.bodyExpression);
         result = that;
     }
 
+    @Override
+    public void visitFunctionDefinitionStatement(JFXFunctionDefinitionStatement that) {
+        visitOperationDefinition(that.funcDef);
+        result = that;
+    }
+
+    @Override
     public void visitInitDefinition(JFXInitDefinition that) {
         that.body = translate(that.body);
         result = that;
     }
 
-    // old-style "retro" separate definition/declaration
-    
-    public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration that) {
-        visitAbstractAttribute(that);
-        result = that;
-    }
-    
-    public void visitRetroFunctionDeclaration(JFXRetroFunctionMemberDeclaration that) {
-        visitAbstractFunction(that);
-        result = that;
-    }
-    
-    public void visitRetroOperationDeclaration(JFXRetroOperationMemberDeclaration that) {
-        visitAbstractFunction(that);
-        result = that;
-    }
-    
-    public void visitRetroMemberDefinition(JFXRetroMemberDefinition that) {
-        if (that.selector != null) {
-            that.selector = translate(that.selector);
-        }
-        if (that.memtype != null) {
-            that.memtype = translate(that.memtype);
-        }
-        result = that;
-    }
-    
-    public void visitRetroFuncOpDefinition(JFXRetroFuncOpMemberDefinition that) {
-        visitRetroMemberDefinition(that);
-        
-        that.params = translate(that.params);
-        that.body = translate(that.body);
-        result = that;
-    }
-    
-    public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that) {
-        visitRetroMemberDefinition(that);
-        if (that.init != null) {
-            that.init = translate(that.init);
-        }
-        
-        result = that;
-    }
-    
-    public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition that) {
-        visitRetroFuncOpDefinition(that);
-        result = that;
-    }
-    
-    public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition that) {
-        visitRetroFuncOpDefinition(that);
-        result = that;
-    }
-    
-    public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition that) {
-        if (that.restype != null) {
-            that.restype = translate(that.restype);
-        }
-        
-        that.params = translate(that.params);
-        that.body = translate(that.body);
-        
-        result = that;
-    }
-    
-    public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that) {
-        if (that.restype != null) {
-            that.restype = translate(that.restype);
-        }
-        
-        that.params = translate(that.params);
-        that.body = translate(that.body);
-        
-        result = that;
-    }
-    
   public void visitBlockExpression(JFXBlockExpression tree) {
 	tree.value = translate(tree.value);
         tree.stats = translate(tree.stats);
@@ -183,53 +115,6 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
 
-    public void visitTriggerOnInsert(JFXTriggerOnInsert that) {
-        that.selector = translate(that.selector);
-        that.identifier = translate(that.identifier);
-        that.block = translate(that.block);
-        result = that;
-    }    
-
-    public void visitTriggerOnDelete(JFXTriggerOnDelete that) {
-        that.selector = translate(that.selector);
-        that.identifier = translate(that.identifier);
-        that.block = translate(that.block);
-        result = that;
-    }
-    
-    public void visitTriggerOnDeleteElement(JFXTriggerOnDeleteElement that) {
-        that.selector = translate(that.selector);
-        that.identifier = translate(that.identifier);
-        that.block = translate(that.block);
-        result = that;
-    }
-    
-    public void visitTriggerOnNew(JFXTriggerOnNew that) {
-        that.typeIdentifier = translate(that.typeIdentifier);
-        if (that.identifier != null) {
-            that.identifier = translate(that.identifier);
-        }
-        
-        that.block = translate(that.block);
- 
-        result = that;
-    }
-    
-    public void visitTriggerOnReplace(JFXTriggerOnReplace that) {
-        that.selector = translate(that.selector);
-        that.identifier = translate(that.identifier);
-        that.block = translate(that.block);
-        result = that;
-    }
-    
-    public void visitTriggerOnReplaceElement(JFXTriggerOnReplaceElement that) {
-        that.selector = translate(that.selector);
-        that.identifier = translate(that.identifier);
-        that.elementIdentifier = translate(that.elementIdentifier);
-        that.block = translate(that.block);
-        result = that;
-    }
-    
     public void visitMemberSelector(JFXMemberSelector that) {
         result = that;
     }
@@ -299,19 +184,13 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
-    public void visitVarInit(JFXVarInit that) {
-        that.initializer = translate(that.initializer);
-        that.type = translate(that.type);
-        result = that;
-    }
-    
-    public void visitVarStatement(JFXVarStatement that) {
-        visitVar(that);
-        result = that;
-    }
-    
     public void visitVar(JFXVar that) {
-        that.type = translate(that.type);
+        if (that.jfxtype != null) {
+            that.jfxtype = translate(that.jfxtype);
+        }
+        if (that.init != null) {
+            that.init = translate(that.init);
+        }
         result = that;
     }
 

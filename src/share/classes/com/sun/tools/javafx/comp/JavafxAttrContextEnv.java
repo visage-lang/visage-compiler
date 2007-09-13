@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2000-2005 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,46 +23,26 @@
  * have any questions.
  */
 
-package com.sun.tools.javafx.tree;
+package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCModifiers;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.util.Version;
 
-/**
- * A function definition.
+
+/** {@code JavafxEnv<A>} specialized as {@code JavafxEnv<JavafxAttrContext>}
+ *
+ *  <p><b>This is NOT part of any API supported by Sun Microsystems.  If
+ *  you write code that depends on this, you do so at your own risk.
+ *  This code and its internal interfaces are subject to change or
+ *  deletion without notice.</b>
  */
-public class JFXFunctionDefinition extends JFXAbstractFunction {
-    public JFXBlockExpression bodyExpression;
+@Version("@(#)JavafxAttrContextEnv.java	1.19 07/05/05")
+public class JavafxAttrContextEnv extends JavafxEnv<JavafxAttrContext> {
 
-    /*
-     * @param modifiers operation modifiers
-     * @param name operation name
-     * @param restype type of operation return value
-     * @param params value parameters
+    /** Create an outermost environment for a given (toplevel)tree,
+     *  with a given info field.
      */
-    protected JFXFunctionDefinition(
-            JCModifiers modifiers, 
-            Name name, 
-            JFXType restype, 
-            List<JCTree> params, 
-            JFXBlockExpression bodyExpression) {
-        super(modifiers, name, restype, params);
-        this.bodyExpression = bodyExpression;
-    }
-    
-    public JFXBlockExpression getBodyExpression() {
-        return bodyExpression;
-    }
-
-    @Override
-    public void accept(JavafxVisitor v) {
-        v.visitFunctionDefinition(this);
-    }
-
-    @Override
-    public int getTag() {
-        return JavafxTag.FUNCTIONDEF;
+    public JavafxAttrContextEnv(JCTree tree, JavafxAttrContext info) {
+	super(tree, info);
     }
 }

@@ -25,7 +25,6 @@
 
 package com.sun.tools.javafx.main;
 
-import com.sun.tools.javafx.comp.Javafx2JavaTranslator;
 import java.io.*;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -45,16 +44,16 @@ import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javafx.parser.*;
 import com.sun.tools.javac.comp.*;
 import com.sun.tools.javac.jvm.*;
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.processing.*;
 import com.sun.tools.javafx.comp.*;
+import com.sun.tools.javafx.code.*;
 import java.util.Iterator;
 import static javax.tools.StandardLocation.CLASS_OUTPUT;
 import static com.sun.tools.javac.util.ListBuffer.lb;
-import javax.lang.model.SourceVersion;
 import com.sun.tools.javafx.antlr.*;
 
 /** This class could be the main entry point for GJC when GJC is used as a
@@ -210,19 +209,15 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** The module for the symbol table entry phases.
      */
-    protected Enter enter;
+    protected JavafxEnter enter;
 
     /** The symbol table.
      */
-    protected Symtab syms;
+    protected JavafxSymtab syms;
 
     /** The language version.
      */
     protected Source source;
-
-    /** The module for code generation.
-     */
-    protected Gen gen;
 
     /** The name table.
      */
@@ -230,27 +225,23 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** The attributor.
      */
-    protected Attr attr;
+    protected JavafxAttr attr;
 
     /** The attributor.
      */
-    protected Check chk;
-
-    /** The flow analyzer.
-     */
-    protected Flow flow;
-
-    /** The type eraser.
-     */
-    TransTypes transTypes;
-
-    /** The syntactic sugar desweetener.
-     */
-    Lower lower;
+    protected JavafxCheck chk;
 
     /** The annotation annotator.
      */
-    protected Annotate annotate;
+    protected JavafxAnnotate annotate;
+    
+    /** The back-end preper
+     */
+    protected JavafxPrepForBackEnd prepForBackEnd;    
+    
+    /** The Java Compiler instance the processes the flow through gen.
+     */
+    protected JavafxJavaCompiler javafxJavaCompiler;    
 
     /** Force a completion failure on this name
      */
@@ -264,20 +255,15 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     protected JavaFileManager fileManager;
 
-    /** Factory for parsers.
-     */
-    protected Parser.Factory parserFactory;
-
     /** Optional listener for progress events
      */
     protected TaskListener taskListener;
 
 // Javafx change
-    protected Javafx2JavaTranslator javafx2JavaTransformer;
     protected JavafxModuleBuilder javafxModuleBuilder;
-    protected JavafxDeclarationDefinitionMapper declDefMapper;
     protected JavafxTypeMorpher javafxTypeMorpher;
     protected JavafxInitializationBuilder initializerBuilder;
+    protected JavafxToJava jfxToJava;
 // Javafx change
     /**
      * Flag set if any implicit source files read.
@@ -291,15 +277,15 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     public JavafxCompiler(final Context context) {
         this.context = context;
         context.put(compilerKey, this);
-
+        
         // if fileManager not already set, register the JavacFileManager to be used
         if (context.get(JavaFileManager.class) == null)
-            JavacFileManager.preRegister(context);
+// javafx modification            JavacFileManager.preRegister(context);
+        com.sun.tools.javafx.util.JavafxFileManager.preRegister(context);
+// Javafx modification end
 // Javafx change // TODO: Javafx change...
-        com.sun.tools.javafx.comp.JavafxCheck.preRegister(context);
-        com.sun.tools.javafx.comp.JavafxAttr.preRegister(context);
-        com.sun.tools.javafx.comp.JavafxEnter.preRegister(context);
-        com.sun.tools.javafx.comp.JavafxMemberEnter.preRegister(context);
+        javafxJavaCompiler = JavafxJavaCompiler.instance(context);
+
         com.sun.tools.javafx.tree.JavafxTreeMaker.preRegister(context);
         com.sun.tools.javafx.tree.JavafxTreeInfo.preRegister(context);
         com.sun.tools.javafx.code.JavafxSymtab.preRegister(context);
@@ -310,25 +296,24 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         reader = ClassReader.instance(context);
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         writer = ClassWriter.instance(context);
-        enter = Enter.instance(context);
-        todo = Todo.instance(context);
+        enter = JavafxEnter.instance(context);
+        todo = JavafxTodo.instance(context);
 
         fileManager = context.get(JavaFileManager.class);
-        parserFactory = Parser.Factory.instance(context);
 
 // Javafx change
-        javafx2JavaTransformer = Javafx2JavaTranslator.instance(context);
         javafxModuleBuilder = JavafxModuleBuilder.instance(context);
-        declDefMapper = JavafxDeclarationDefinitionMapper.instance(context);
         initializerBuilder = JavafxInitializationBuilder.instance(context);
+        jfxToJava = JavafxToJava.instance(context);
         javafxTypeMorpher = JavafxTypeMorpher.instance(context);
+        prepForBackEnd = JavafxPrepForBackEnd.instance(context);
         
         // Add the javafx message resource bundle
         Messages.instance(context).add(javafxErrorsKey);
 // Javafx change
         try {
             // catch completion problems with predefineds
-            syms = Symtab.instance(context);
+            syms = (JavafxSymtab)JavafxSymtab.instance(context);
         } catch (CompletionFailure ex) {
             // inlined Check.completionError as it is not initialized yet
             log.error("cant.access", ex.sym, ex.errmsg);
@@ -336,13 +321,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 throw new Abort();
         }
         source = Source.instance(context);
-        attr = Attr.instance(context);
-        chk = Check.instance(context);
-        gen = JavafxGen.instance(context);
-        flow = Flow.instance(context);
-        transTypes = JavafxTransTypes.instance(context);
-        lower = JavafxLower.instance(context);
-        annotate = Annotate.instance(context);
+        attr = JavafxAttr.instance(context);
+        chk = JavafxCheck.instance(context);
+        annotate = JavafxAnnotate.instance(context);
         types = Types.instance(context);
         taskListener = context.get(TaskListener.class);
 
@@ -448,9 +429,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** A queue of all as yet unattributed classes.
      */
-    public Todo todo;
+    public JavafxTodo todo;
 
-    private Set<Env<AttrContext>> deferredSugar = new HashSet<Env<AttrContext>>();
+    private Set<JavafxEnv<JavafxAttrContext>> deferredSugar = new HashSet<JavafxEnv<JavafxAttrContext>>();
 
     /** The set of currently compiled inputfiles, needed to ensure
      *  we don't accidentally overwrite an input file when -s is set.
@@ -482,16 +463,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     public int warningCount() {
         return log.nwarnings;
-    }
-    
-    /** Whether or not any parse errors have occurred.
-     */
-    public boolean parseErrors() {
-	return parseErrors;
-    }
-
-    protected Scanner.Factory getScannerFactory() {
-        return Scanner.Factory.instance(context);
     }
 
     /** Try to open input stream with given name.
@@ -529,15 +500,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             if (parserChoice == null) {
                 parserChoice = "vn"; // default
             }
-            if (parserChoice.equals("old")) {
-                Scanner scanner = getScannerFactory().newScanner(content);
-                Parser parser = parserFactory.newParser(scanner, keepComments(), genEndPos);
-                tree = parser.compilationUnit();
-                parseErrors |= (log.nerrors > initialErrorCount);
-                if (lineDebugInfo) {
-                    tree.lineMap = scanner.getLineMap();
-                }
-            } else {
+            {
                 AbstractGeneratedParser generatedParser;
                 if (parserChoice.equals("v1")) {
                     generatedParser = new v1Parser(context, content);
@@ -562,6 +525,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
         tree.sourcefile = filename;
 
+        javafxModuleBuilder.visitTopLevel(tree);
+
         if (content != null && taskListener != null) {
             TaskEvent e = new TaskEvent(TaskEvent.Kind.PARSE, tree);
             taskListener.finished(e);
@@ -575,17 +540,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             return keepComments || sourceOutput || stubOutput;
         }
 
-
-    /** Parse contents of file.
-     *  @param filename     The name of the file to be parsed.
-     */
-    @Deprecated
-    public JCTree.JCCompilationUnit parse(String filename) throws IOException {
-	JavacFileManager fm = (JavacFileManager)fileManager;
-        return parse(fm.getJavaFileObjectsFromStrings(List.of(filename)).iterator().next());
-    }
-
-    /** Parse contents of file.
+        /** Parse contents of file.
      *  @param filename     The name of the file to be parsed.
      */
     public JCTree.JCCompilationUnit parse(JavaFileObject filename) {
@@ -600,48 +555,25 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
     }
 
-    /** Resolve an identifier.
-     * @param name      The identifier to resolve
-     */
-    public Symbol resolveIdent(String name) {
-        if (name.equals(""))
-            return syms.errSymbol;
-        JavaFileObject prev = log.useSource(null);
-        try {
-            JCExpression tree = null;
-            for (String s : name.split("\\.", -1)) {
-                if (!SourceVersion.isIdentifier(s)) // TODO: check for keywords
-                    return syms.errSymbol;
-                tree = (tree == null) ? make.Ident(names.fromString(s))
-                                      : make.Select(tree, names.fromString(s));
-            }
-            JCCompilationUnit toplevel =
-                make.TopLevel(List.<JCTree.JCAnnotation>nil(), null, List.<JCTree>nil());
-            toplevel.packge = syms.unnamedPackage;
-            return attr.attribIdent(tree, toplevel);
-        } finally {
-            log.useSource(prev);
-        }
-    }
-
     /** Emit plain Java source for a class.
      *  @param env    The attribution environment of the outermost class
      *                containing this class.
      *  @param cdef   The class definition to be printed.
      */
-    JavaFileObject printSource(Env<AttrContext> env, JCClassDecl cdef) throws IOException {
+    JavaFileObject printSource(JavafxEnv<JavafxAttrContext> env, JCClassDecl cdef) throws IOException {
         JavaFileObject outFile
             = fileManager.getJavaFileForOutput(CLASS_OUTPUT,
-					       cdef.sym.flatname.toString(),
+					       cdef == null? env.toplevel.sourcefile.toString().replace(".fx", "")
+                                                             : cdef.sym.flatname.toString(),
 					       JavaFileObject.Kind.SOURCE,
 					       null);
-        if (inputFiles.contains(outFile)) {
+        if (cdef != null && inputFiles.contains(outFile)) {
             log.error(cdef.pos(), "source.cant.overwrite.input.file", outFile);
             return null;
         } else {
             BufferedWriter out = new BufferedWriter(outFile.openWriter());
             try {
-                new Pretty(out, true).printUnit(env.toplevel, cdef);
+                new BlockExprPretty(out, true).printUnit(env.toplevel, cdef);
                 if (verbose)
                     printVerbose("wrote.file", outFile);
             } finally {
@@ -649,26 +581,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             }
             return outFile;
         }
-    }
-
-    /** Generate code and emit a class file for a given class
-     *  @param env    The attribution environment of the outermost class
-     *                containing this class.
-     *  @param cdef   The class definition from which code is generated.
-     */
-    JavaFileObject genCode(Env<AttrContext> env, JCClassDecl cdef) throws IOException {
-        try {
-            if (gen.genClass(env, cdef)) 
-                return writer.writeClass(cdef.sym);
-        } catch (ClassWriter.PoolOverflow ex) {
-            log.error(cdef.pos(), "limit.pool");
-        } catch (ClassWriter.StringOverflow ex) {
-            log.error(cdef.pos(), "limit.string.overflow",
-                      ex.value.substring(0, 20));
-        } catch (CompletionFailure ex) {
-            chk.completionError(cdef.pos(), ex);
-        }
-        return null;
     }
 
     /** Complete compiling a source file that has been accessed
@@ -765,9 +677,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             // Translate JavafxTrees into Javac trees.
             List<JCCompilationUnit> cus = stopIfError(parseFiles(sourceFileObjects));
 
-            stopIfError(buildJavafxModule(cus, sourceFileObjects));
-            stopIfError(mapDeclDefs(cus, sourceFileObjects));
-            stopIfError(transformJavafx2Java(cus, sourceFileObjects));
+//             stopIfError(buildJavafxModule(cus, sourceFileObjects));
 
             // These method calls must be chained to avoid memory leaks
             enterTrees(cus);
@@ -781,27 +691,21 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
 // Javafx change
-    public List<Env<AttrContext>> buildInitializers(List<Env<AttrContext>> envs) {
-        ListBuffer<Env<AttrContext>> results = lb();
-        for (List<Env<AttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
+    public List<JavafxEnv<JavafxAttrContext>> buildInitializers(List<JavafxEnv<JavafxAttrContext>> envs) {
+        ListBuffer<JavafxEnv<JavafxAttrContext>> results = lb();
+        for (List<JavafxEnv<JavafxAttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
             buildInitializers(l.head, results);
         }
         return stopIfError(results);
     }
 
-    /**
-     * Perform dataflow checks on an attributed parse tree.
-     */
-    public List<Env<AttrContext>> buildInitializers(Env<AttrContext> env) {
-        ListBuffer<Env<AttrContext>> results = lb();
+    public List<JavafxEnv<JavafxAttrContext>> buildInitializers(JavafxEnv<JavafxAttrContext> env) {
+        ListBuffer<JavafxEnv<JavafxAttrContext>> results = lb();
         buildInitializers(env, results);
         return stopIfError(results);
     }
     
-    /**
-     * Perform dataflow checks on an attributed parse tree.
-     */
-    protected void buildInitializers(Env<AttrContext> env, ListBuffer<Env<AttrContext>> results) {
+    protected void buildInitializers(JavafxEnv<JavafxAttrContext> env, ListBuffer<JavafxEnv<JavafxAttrContext>> results) {
         try {
             if (errorCount() > 0)
                 return;
@@ -837,20 +741,56 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             }
         }
     }
+    
+    public List<JavafxEnv<JavafxAttrContext>> jfxToJava(List<JavafxEnv<JavafxAttrContext>> envs) {
+        ListBuffer<JavafxEnv<JavafxAttrContext>> results = lb();
+        for (List<JavafxEnv<JavafxAttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
+            jfxToJava(l.head, results);
+        }
+        return stopIfError(results);
+    }
 
-    public List<JCCompilationUnit> transformJavafx2Java(List<JCCompilationUnit> cus, List<JavaFileObject> sourceFileObjects) {
-        Iterator<JavaFileObject> fileObjIterator = sourceFileObjects.iterator();
-        for (JCCompilationUnit cu : cus) {
-            JavaFileObject jfo = fileObjIterator.next();
-            JavaFileObject prev = log.useSource(jfo);
+    public List<JavafxEnv<JavafxAttrContext>> jfxToJava(JavafxEnv<JavafxAttrContext> env) {
+        ListBuffer<JavafxEnv<JavafxAttrContext>> results = lb();
+        jfxToJava(env, results);
+        return stopIfError(results);
+    }
+    
+    protected void jfxToJava(JavafxEnv<JavafxAttrContext> env, ListBuffer<JavafxEnv<JavafxAttrContext>> results) {
+        try {
+            if (errorCount() > 0)
+                return;
+
+            if (relax || deferredSugar.contains(env)) {
+                results.append(env);
+                return;
+            }
+
+            if (verboseCompilePolicy)
+                log.printLines(log.noticeWriter, "[flow " + env.enclClass.sym + "]");
+            JavaFileObject prev = log.useSource(
+                                                env.enclClass.sym.sourcefile != null ?
+                                                env.enclClass.sym.sourcefile :
+                                                env.toplevel.sourcefile);
             try {
-                javafx2JavaTransformer.translate(cu);
+                make.at(Position.FIRSTPOS);
+                jfxToJava.translate(env.toplevel);
+
+                if (errorCount() > 0)
+                    return;
+
+                results.append(env);
             }
             finally {
                 log.useSource(prev);
             }
         }
-        return cus;
+        finally {
+            if (taskListener != null) {
+                TaskEvent e = new TaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
+                taskListener.finished(e);
+            }
+        }
     }
 
     public List<JCCompilationUnit> buildJavafxModule(List<JCCompilationUnit> cus, List<JavaFileObject> sourceFileObjects) {
@@ -868,41 +808,11 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         return cus;
     }
 
-    public List<JCCompilationUnit> mapDeclDefs(List<JCCompilationUnit> cus, List<JavaFileObject> sourceFileObjects) {
-        Iterator<JavaFileObject> fileObjIterator = sourceFileObjects.iterator();
-        for (JCCompilationUnit cu : cus) {
-            JavaFileObject jfo = fileObjIterator.next();
-            JavaFileObject prev = log.useSource(jfo);
-            try {
-                declDefMapper.visitTopLevel(cu);
-            }
-            finally {
-                log.useSource(prev);
-            }
-        }
-        return cus;
-    }
-
-    public List<JCCompilationUnit> morphTypes(List<JCCompilationUnit> cus, List<JavaFileObject> sourceFileObjects) {
-        Iterator<JavaFileObject> fileObjIterator = sourceFileObjects.iterator();
-        for (JCCompilationUnit cu : cus) {
-            JavaFileObject jfo = fileObjIterator.next();
-            JavaFileObject prev = log.useSource(jfo);
-            try {
-                javafxTypeMorpher.visitTopLevel(cu);
-            }
-            finally {
-                log.useSource(prev);
-            }
-        }
-        return cus;
-    }
-// Javafx change
     /**
      * The phases following annotation processing: attribution,
      * desugar, and finally code generation.
      */
-    private void compile2() {
+    private void compile2() throws IOException {
         try {
             switch (compilePolicy) {
             case ATTR_ONLY:
@@ -910,21 +820,21 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 break;
 
             case CHECK_ONLY:
-                flow(buildInitializers(typeMorph(attribute(todo))));
+                backEnd(prepForBackEnd(jfxToJava(buildInitializers(typeMorph(attribute(todo))))));
                 break;
 
             case SIMPLE:
-                generate(desugar(flow(buildInitializers(typeMorph(attribute(todo))))));
+                backEnd(prepForBackEnd(jfxToJava(buildInitializers(typeMorph(attribute(todo))))));
                 break;
 
             case BY_FILE:
-                for (List<Env<AttrContext>> list : groupByFile(flow(buildInitializers(typeMorph(attribute(todo))))).values())
-                    generate(desugar(list));
+                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(buildInitializers(typeMorph(attribute(todo))))).values())
+                    backEnd(prepForBackEnd(list));
                 break;
 
             case BY_TODO:
                 while (todo.nonEmpty())
-                    generate(desugar(flow(buildInitializers(typeMorph(attribute(todo.next()))))));
+                    backEnd(prepForBackEnd(jfxToJava(buildInitializers(typeMorph(attribute(todo.next()))))));
                 break;
 
             default:
@@ -946,6 +856,22 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             printCount("error", errorCount());
             printCount("warn", warningCount());
         }
+    }
+    
+    private void backEnd(List<JavafxEnv<JavafxAttrContext>> envs) throws IOException {
+        ListBuffer<JCCompilationUnit> trees = lb();
+        for (JavafxEnv<JavafxAttrContext> env : envs) {
+             printSource(env, null);
+             trees.append(env.toplevel);
+       }
+       javafxJavaCompiler.backEnd(trees.toList());
+    }
+
+    public void backEnd(JavafxEnv<JavafxAttrContext> env) throws IOException {
+        ListBuffer<JCCompilationUnit> trees = lb();
+        printSource(env, null);
+        trees.append(env.toplevel);
+        javafxJavaCompiler.backEnd(trees.toList());
     }
 
     private List<JCClassDecl> rootClasses;
@@ -1011,8 +937,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * Attribution of the entries in the list does not stop if any errors occur.
      * @returns a list of environments for attributd classes.
      */
-    public List<Env<AttrContext>> attribute(ListBuffer<Env<AttrContext>> envs) {
-        ListBuffer<Env<AttrContext>> results = lb();
+    public List<JavafxEnv<JavafxAttrContext>> attribute(ListBuffer<JavafxEnv<JavafxAttrContext>> envs) {
+        ListBuffer<JavafxEnv<JavafxAttrContext>> results = lb();
         while (envs.nonEmpty())
             results.append(attribute(envs.next()));
         return results.toList();
@@ -1022,7 +948,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * Attribute a parse tree.
      * @returns the attributed parse tree
      */
-    public Env<AttrContext> attribute(Env<AttrContext> env) {
+    public JavafxEnv<JavafxAttrContext> attribute(JavafxEnv<JavafxAttrContext> env) {
         if (verboseCompilePolicy)
             log.printLines(log.noticeWriter, "[attribute " + env.enclClass.sym + "]");
         if (verbose)
@@ -1051,8 +977,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * Morph types.
      * @returns the list of attributed parse trees
      */
-    public List<Env<AttrContext>> typeMorph(List<Env<AttrContext>> envs) {
-        for (List<Env<AttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
+    public List<JavafxEnv<JavafxAttrContext>> typeMorph(List<JavafxEnv<JavafxAttrContext>> envs) {
+        for (List<JavafxEnv<JavafxAttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
             typeMorph(l.head);
         }
         return envs;
@@ -1062,7 +988,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * Morph types.
      * @returns the attributed parse tree
      */
-    public Env<AttrContext> typeMorph(Env<AttrContext> env) {
+    public JavafxEnv<JavafxAttrContext> typeMorph(JavafxEnv<JavafxAttrContext> env) {
         if (verboseCompilePolicy)
             log.printLines(log.noticeWriter, "[type-morph " + env.enclClass.sym + "]");
         //if (verbose)
@@ -1087,279 +1013,39 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         return env;
     }
 
-    /**
-     * Perform dataflow checks on attributed parse trees.
-     * These include checks for definite assignment and unreachable statements.
-     * If any errors occur, an empty list will be returned.
-     * @returns the list of attributed parse trees
-     */
-    public List<Env<AttrContext>> flow(List<Env<AttrContext>> envs) {
-        ListBuffer<Env<AttrContext>> results = lb();
-        for (List<Env<AttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
-            flow(l.head, results);
+    public List<JavafxEnv<JavafxAttrContext>> prepForBackEnd(List<JavafxEnv<JavafxAttrContext>> envs) {
+        for (List<JavafxEnv<JavafxAttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
+            prepForBackEnd(l.head);
         }
-        return stopIfError(results);
+        return envs;
     }
 
-    /**
-     * Perform dataflow checks on an attributed parse tree.
-     */
-    public List<Env<AttrContext>> flow(Env<AttrContext> env) {
-        ListBuffer<Env<AttrContext>> results = lb();
-        flow(env, results);
-        return stopIfError(results);
-    }
-
-    /**
-     * Perform dataflow checks on an attributed parse tree.
-     */
-    protected void flow(Env<AttrContext> env, ListBuffer<Env<AttrContext>> results) {
-        try {
-            if (errorCount() > 0)
-                return;
-
-            if (relax || deferredSugar.contains(env)) {
-                results.append(env);
-                return;
-            }
-
-            if (verboseCompilePolicy)
-                log.printLines(log.noticeWriter, "[flow " + env.enclClass.sym + "]");
-            JavaFileObject prev = log.useSource(
-                                                env.enclClass.sym.sourcefile != null ?
-                                                env.enclClass.sym.sourcefile :
-                                                env.toplevel.sourcefile);
-            try {
-                make.at(Position.FIRSTPOS);
-                JavafxTreeMaker localMake = make.forToplevel(env.toplevel);
-                flow.analyzeTree(env.tree, localMake);
-
-                if (errorCount() > 0)
-                    return;
-
-                results.append(env);
-            }
-            finally {
-                log.useSource(prev);
-            }
-        }
-        finally {
-            if (taskListener != null) {
-                TaskEvent e = new TaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
-                taskListener.finished(e);
-            }
-        }
-    }
-
-    /**
-     * Prepare attributed parse trees, in conjunction with their attribution contexts,
-     * for source or code generation.
-     * If any errors occur, an empty list will be returned.
-     * @returns a list containing the classes to be generated
-     */
-    public List<Pair<Env<AttrContext>, JCClassDecl>> desugar(List<Env<AttrContext>> envs) {
-        ListBuffer<Pair<Env<AttrContext>, JCClassDecl>> results = lb();
-        for (List<Env<AttrContext>> l = envs; l.nonEmpty(); l = l.tail)
-            desugar(l.head, results);
-        return stopIfError(results);
-    }
-
-    /**
-     * Prepare attributed parse trees, in conjunction with their attribution contexts,
-     * for source or code generation. If the file was not listed on the command line,
-     * the current implicitSourcePolicy is taken into account.
-     * The preparation stops as soon as an error is found.
-     */
-    protected void desugar(Env<AttrContext> env, ListBuffer<Pair<Env<AttrContext>, JCClassDecl>> results) {
-        if (errorCount() > 0)
-            return;
-        
-        if (implicitSourcePolicy == ImplicitSourcePolicy.NONE
-                && !inputFiles.contains(env.toplevel.sourcefile)) {
-            return;
-        }
-
-        if (desugarLater(env)) {
-            if (verboseCompilePolicy)
-                log.printLines(log.noticeWriter, "[defer " + env.enclClass.sym + "]");
-            todo.append(env);
-            return;
-        }
-        deferredSugar.remove(env);
-
+    public JavafxEnv<JavafxAttrContext> prepForBackEnd(JavafxEnv<JavafxAttrContext> env) {
         if (verboseCompilePolicy)
-            log.printLines(log.noticeWriter, "[desugar " + env.enclClass.sym + "]");
+            log.printLines(log.noticeWriter, "[prep-for-back-end " + env.enclClass.sym + "]");
 
-        JavaFileObject prev = log.useSource(env.enclClass.sym.sourcefile != null ?
+        JavaFileObject prev = log.useSource(
+                                  env.enclClass.sym.sourcefile != null ?
                                   env.enclClass.sym.sourcefile :
                                   env.toplevel.sourcefile);
         try {
-            //save tree prior to rewriting
-            JCTree untranslated = env.tree;
-
-            make.at(Position.FIRSTPOS);
-            JavafxTreeMaker localMake = make.forToplevel(env.toplevel);
-
-            if (env.tree instanceof JCCompilationUnit) {
-                if (!(stubOutput || sourceOutput || printFlat)) {
-                    List<JCTree> pdef = lower.translateTopLevelClass(env, env.tree, localMake);
-                    if (pdef.head != null) {
-                        assert pdef.tail.isEmpty();
-                        results.append(new Pair<Env<AttrContext>, JCClassDecl>(env, (JCClassDecl)pdef.head));
-                    }
-                }
-                return;
-            }
-
-            if (stubOutput) {
-                //emit stub Java source file, only for compilation
-                //units enumerated explicitly on the command line
-                JCClassDecl cdef = (JCClassDecl)env.tree;
-                if (untranslated instanceof JCClassDecl &&
-                    rootClasses.contains((JCClassDecl)untranslated) &&
-                    ((cdef.mods.flags & (Flags.PROTECTED|Flags.PUBLIC)) != 0 ||
-                     cdef.sym.packge().getQualifiedName() == names.java_lang)) {
-                    results.append(new Pair<Env<AttrContext>, JCClassDecl>(env, removeMethodBodies(cdef)));
-                }
-                return;
-            }
-
-            env.tree = transTypes.translateTopLevelClass(env.tree, localMake);
-
-            if (errorCount() != 0)
-                return;
-
-            if (sourceOutput) {
-                //emit standard Java source file, only for compilation
-                //units enumerated explicitly on the command line
-                JCClassDecl cdef = (JCClassDecl)env.tree;
-                if (untranslated instanceof JCClassDecl &&
-                    rootClasses.contains((JCClassDecl)untranslated)) {
-                    results.append(new Pair<Env<AttrContext>, JCClassDecl>(env, cdef));
-                }
-                return;
-            }
-
-            //translate out inner classes
-            List<JCTree> cdefs = lower.translateTopLevelClass(env, env.tree, localMake);
-
-            if (errorCount() != 0)
-                return;
-
-            //generate code for each class
-            for (List<JCTree> l = cdefs; l.nonEmpty(); l = l.tail) {
-                JCClassDecl cdef = (JCClassDecl)l.head;
-                results.append(new Pair<Env<AttrContext>, JCClassDecl>(env, cdef));
-            }
+            prepForBackEnd.prep(env);
         }
         finally {
             log.useSource(prev);
         }
 
-    }
-
-    /**
-     * Determine if a class needs to be desugared later.  As erasure
-     * (TransTypes) destroys information needed in flow analysis, we
-     * need to ensure that supertypes are translated before derived
-     * types are translated.
-     */
-    public boolean desugarLater(final Env<AttrContext> env) {
-        if (compilePolicy == CompilePolicy.BY_FILE)
-            return false;
-        if (!devVerbose && deferredSugar.contains(env))
-            // guarantee that compiler terminates
-            return false;
-        class ScanNested extends TreeScanner {
-            Set<Symbol> externalSupers = new HashSet<Symbol>();
-            public void visitClassDef(JCClassDecl node) {
-                Type st = types.supertype(node.sym.type);
-                if (st.tag == TypeTags.CLASS) {
-                    ClassSymbol c = st.tsym.outermostClass();
-                    Env<AttrContext> stEnv = enter.getEnv(c);
-                    if (stEnv != null && env != stEnv)
-                        externalSupers.add(st.tsym);
-                }
-                super.visitClassDef(node);
-            }
-        }
-        ScanNested scanner = new ScanNested();
-        scanner.scan(env.tree);
-        if (scanner.externalSupers.isEmpty())
-            return false;
-        if (!deferredSugar.add(env) && devVerbose) {
-            throw new AssertionError(env.enclClass.sym + " was deferred, " +
-                                     "second time has these external super types " +
-                                     scanner.externalSupers);
-        }
-        return true;
-    }
-
-    /** Generates the source or class file for a list of classes.
-     * The decision to generate a source file or a class file is
-     * based upon the compiler's options.
-     * Generation stops if an error occurs while writing files.
-     */
-    public void generate(List<Pair<Env<AttrContext>, JCClassDecl>> list) {
-        generate(list, null);
-    }
-    
-    public void generate(List<Pair<Env<AttrContext>, JCClassDecl>> list, ListBuffer<JavaFileObject> results) {
-        boolean usePrintSource = (stubOutput || sourceOutput || printFlat);
-
-        for (List<Pair<Env<AttrContext>, JCClassDecl>> l = list; l.nonEmpty(); l = l.tail) {
-            Pair<Env<AttrContext>, JCClassDecl> x = l.head;
-            Env<AttrContext> env = x.fst;
-            JCClassDecl cdef = x.snd;
-
-            if (verboseCompilePolicy) {
-                log.printLines(log.noticeWriter, "[generate "
-                               + (usePrintSource ? " source" : "code")
-                               + " " + env.enclClass.sym + "]");
-            }
-
-            if (taskListener != null) {
-                TaskEvent e = new TaskEvent(TaskEvent.Kind.GENERATE, env.toplevel, cdef.sym);
-                taskListener.started(e);
-            }
-
-            JavaFileObject prev = log.useSource(env.enclClass.sym.sourcefile != null ?
-                                      env.enclClass.sym.sourcefile :
-                                      env.toplevel.sourcefile);
-            try {
-                JavaFileObject file;
-                
-                //while we are actively debugging, always generate source
-                JavaFileObject srcfile = printSource(env, cdef);
-                if (usePrintSource)
-                    file = srcfile;
-                else
-                    file = genCode(env, cdef);
-                if (results != null && file != null)
-                    results.append(file);
-            } catch (IOException ex) {
-                log.error(cdef.pos(), "class.cant.write",
-                          cdef.sym, ex.getMessage());
-                return;
-            } finally {
-                log.useSource(prev);
-            }
-
-            if (taskListener != null) {
-                TaskEvent e = new TaskEvent(TaskEvent.Kind.GENERATE, env.toplevel, cdef.sym);
-                taskListener.finished(e);
-            }
-        }
+        return env;
     }
 
         // where
-        Map<JCCompilationUnit, List<Env<AttrContext>>> groupByFile(List<Env<AttrContext>> list) {
+        Map<JCCompilationUnit, List<JavafxEnv<JavafxAttrContext>>> groupByFile(List<JavafxEnv<JavafxAttrContext>> list) {
             // use a LinkedHashMap to preserve the order of the original list as much as possible
-            Map<JCCompilationUnit, List<Env<AttrContext>>> map = new LinkedHashMap<JCCompilationUnit, List<Env<AttrContext>>>();
+            Map<JCCompilationUnit, List<JavafxEnv<JavafxAttrContext>>> map = new LinkedHashMap<JCCompilationUnit, List<JavafxEnv<JavafxAttrContext>>>();
             Set<JCCompilationUnit> fixupSet = new HashSet<JCTree.JCCompilationUnit>();
-            for (List<Env<AttrContext>> l = list; l.nonEmpty(); l = l.tail) {
-                Env<AttrContext> env = l.head;
-                List<Env<AttrContext>> sublist = map.get(env.toplevel);
+            for (List<JavafxEnv<JavafxAttrContext>> l = list; l.nonEmpty(); l = l.tail) {
+                JavafxEnv<JavafxAttrContext> env = l.head;
+                List<JavafxEnv<JavafxAttrContext>> sublist = map.get(env.toplevel);
                 if (sublist == null)
                     sublist = List.of(env);
                 else {
@@ -1445,16 +1131,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 	if (todo != null)
 	    todo.clear();
         todo = null;
-        parserFactory = null;
         syms = null;
         source = null;
         attr = null;
-        javafx2JavaTransformer = null;
         chk = null;
-        gen = null;
-        flow = null;
-        transTypes = null;
-        lower = null;
         annotate = null;
         types = null;
 

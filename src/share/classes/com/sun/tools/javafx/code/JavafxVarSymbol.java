@@ -35,7 +35,6 @@ import com.sun.tools.javac.util.Name;
  * @author llitchev
  */
 public class JavafxVarSymbol extends VarSymbol {
-    private final int javafxVarType;
     private final boolean isBound;
     private final boolean isLazy;
     private Type realType;
@@ -55,21 +54,16 @@ public class JavafxVarSymbol extends VarSymbol {
     /** Creates a new instance of JavafxVarSymbol */
     public JavafxVarSymbol(long flags,
             Name name,
-            int javafxVarType,
             Type type,
             boolean isBound,
             boolean isLazy,
             Symbol owner) {
         super(flags, name, type, owner);
-        this.javafxVarType = javafxVarType;
         this.isBound = isBound;
         this.isLazy = isLazy;
         this.realType = type;
     }
     
-    public int getJavafxVarType() {
-        return javafxVarType;
-    }
     public boolean isBound() { return isBound; }
     public boolean isLazy() { return isLazy; }
     public void markShouldMorph() { shouldMorph = true; }

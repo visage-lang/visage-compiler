@@ -28,15 +28,16 @@ package com.sun.tools.javafx.tree;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
+import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javafx.code.JavafxBindStatus;
 
 /**
  * An attribute declaration.
  */
-public class JFXAttributeDefinition extends JFXAbstractAttribute {
+public class JFXAttributeDefinition extends JFXVar {
 
-    public JCExpression init;
-    public JavafxBindStatus bindStatus;
+    public JFXMemberSelector inverseOrNull;
+    public JCExpression orderingOrNull;
     public JCBlock onChange;
 
     protected JFXAttributeDefinition(
@@ -48,42 +49,27 @@ public class JFXAttributeDefinition extends JFXAbstractAttribute {
             JavafxBindStatus bindStatus, 
             JCExpression init,
             JCBlock onChange) {
-        super(modifiers, name, type, inverseOrNull, orderingOrNull);
-        this.bindStatus = bindStatus;
-        this.init = init;
+        super(name, type, modifiers, init, bindStatus, null);
         this.onChange = onChange;
+        this.orderingOrNull = orderingOrNull;
+        this.inverseOrNull = inverseOrNull;
     }
 
     public void accept(JavafxVisitor v) {
         v.visitAttributeDefinition(this);
     }
 
-    public JCExpression getInitializer() {
-        return init;
-    }
-
-    public JavafxBindStatus getBindStatus() {
-        return bindStatus;
+    @Override
+    public void accept(Visitor v) {
+        if (v instanceof JavafxVisitor) {
+            this.accept((JavafxVisitor)v);
+        } else {
+            v.visitVarDef(this);
+        }
     }
 
     public JCBlock getOnChangeBlock() {
         return onChange;
-    }
-
-    public boolean isBound() {
-        return bindStatus.isBound;
-    }
-
-    public boolean isUnidiBind() {
-        return bindStatus.isUnidiBind;
-    }
-
-    public boolean isBidiBind() {
-        return bindStatus.isBidiBind;
-    }
-
-    public boolean isLazy() {
-        return bindStatus.isLazy;
     }
 
     @Override

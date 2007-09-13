@@ -37,7 +37,7 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
  *
  * @author Robert Field
  */
-public class JavafxVarUsageAnalysis extends TreeScanner {
+public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     private final JavafxTypeMorpher typeMorpher;
     private boolean inLHS = false;
     private boolean inBindContext = false;
@@ -65,52 +65,32 @@ public class JavafxVarUsageAnalysis extends TreeScanner {
     }
     
     @Override
-    public void visitVarDef(JCVariableDecl tree) {
-        scan(tree.mods);
-        if (tree instanceof JavafxJCVarDecl) {
-            JavafxJCVarDecl var = (JavafxJCVarDecl)tree;
-            boolean wasInBindContext = inBindContext;
-            inBindContext |= var.isBound();
-            scan(tree.init);
-            if (inBindContext) {
-                markVarUse(tree.sym);
-            }
-            inBindContext = wasInBindContext;
-        } else {
-            scan(tree.init);
+    public void visitAttributeDefinition(JFXAttributeDefinition tree) {
+        if (tree.onChange != null) {
+            tree.onChange.accept(this);
         }
+        //TODO: handle on change
+        visitVar(tree);
     }
     
     @Override
-    public void visitAssign(JCAssign tree) {
-        inLHS = true;
-        scan(tree.lhs);
-        inLHS = false;
+    public void visitVar(JFXVar tree) {
         boolean wasInBindContext = inBindContext;
-        inBindContext = false;
-        if (tree instanceof JavafxJCAssign) {
-            JavafxJCAssign assign = (JavafxJCAssign)tree;
-            inBindContext = assign.isBound();
-            if (inBindContext) {
-                Symbol vsym = null;
-                if (tree.lhs instanceof JCIdent) {
-                    vsym = ((JCIdent)tree.lhs).sym;
-                } else if (tree.lhs instanceof JCFieldAccess) {
-                    vsym = ((JCFieldAccess)tree.lhs).sym;
-                }
-                markVarUse(vsym);
-            }
+        inBindContext |= tree.isBound();
+        if (tree.getInitializer() != null) {
+            tree.getInitializer().accept(this);
         }
-        scan(tree.rhs);
+        markVarUse(tree.sym);
         inBindContext = wasInBindContext;
     }
     
     @Override
-    public void visitAssignop(JCAssignOp tree) {
-        inLHS = true;
-        scan(tree.lhs);
-        inLHS = false;
-        scan(tree.rhs);
+    public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
+        boolean wasInBindContext = inBindContext;
+        inBindContext = tree.isBound();
+        markVarUse(tree.sym);
+        tree.getExpression().accept(this);
+        inBindContext = wasInBindContext;
     }
     
     @Override

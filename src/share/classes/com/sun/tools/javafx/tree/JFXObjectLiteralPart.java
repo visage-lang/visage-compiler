@@ -29,7 +29,7 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
 
 import com.sun.tools.javac.util.Name;
 
-import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.javac.code.Symbol;
 
 import com.sun.tools.javafx.code.JavafxBindStatus;
 
@@ -40,7 +40,8 @@ public class JFXObjectLiteralPart extends JFXStatement {
     public JCExpression expr;
     public Name name; // Make this an Ident. Tools might need position information.
     private JavafxBindStatus bindStatus;
-    public VarSymbol sym;
+    private JCExpression translationInit = null;
+    public Symbol sym;
    /*
     * @param selector member name and class name of member
     * @param init type of attribute
@@ -50,7 +51,7 @@ public class JFXObjectLiteralPart extends JFXStatement {
             Name name,
             JCExpression expr,
             JavafxBindStatus bindStatus,
-            VarSymbol sym) {
+            Symbol sym) {
         this.name = name;
         this.expr = expr;
         this.bindStatus = bindStatus;
@@ -60,6 +61,8 @@ public class JFXObjectLiteralPart extends JFXStatement {
     
     public Name getName() { return name; }
     public JCExpression getExpression() { return expr; }
+    public void setTranslationInit(JCExpression tra) { translationInit = tra; }
+    public JCExpression getTranslationInit() { return translationInit; }
     public JavafxBindStatus getBindStatus() { return bindStatus; }
     public boolean isBound()     { return bindStatus.isBound; }
     public boolean isUnidiBind() { return bindStatus.isUnidiBind; }

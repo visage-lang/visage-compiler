@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2006 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2001-2005 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,33 +23,33 @@
  * have any questions.
  */
 
-package com.sun.tools.javafx.tree;
+package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.util.*;
 
-/**
- * An attribute declaration.
+/** A queue of all as yet unattributed classes.
+ *
+ *  <p><b>This is NOT part of any API supported by Sun Microsystems.  If
+ *  you write code that depends on this, you do so at your own risk.
+ *  This code and its internal interfaces are subject to change or
+ *  deletion without notice.</b>
  */
-public class JFXRetroAttributeDeclaration extends JFXAbstractAttribute {
-    public JFXRetroAttributeDefinition retroDefinition;
-    
-   /*
-    * @param modifiers attribute modifiers
-    * @param name attribute name
-    * @param type type of attribute
-    */
-    protected JFXRetroAttributeDeclaration(JCModifiers mods,
-            Name name,
-            JFXType type,
-            JFXMemberSelector inverseOrNull,
-            JCExpression orderingOrNull) {
-        super(mods, name, type, inverseOrNull, orderingOrNull);
-    }
-    public void accept(JavafxVisitor v) { v.visitRetroAttributeDeclaration(this); }
+@Version("@(#)Todo.java	1.17 07/05/05")
+public class JavafxTodo extends ListBuffer<JavafxEnv<JavafxAttrContext>> {
+    /** The context key for the todo list. */
+    protected static final Context.Key<JavafxTodo> javafxTodoKey =
+	new Context.Key<JavafxTodo>();
 
-    @Override
-    public int getTag() {
-        return JavafxTag.RETROATTRIBUTEDECL;
+    /** Get the Todo instance for this context. */
+    public static JavafxTodo instance(Context context) {
+	JavafxTodo instance = context.get(javafxTodoKey);
+	if (instance == null)
+	    instance = new JavafxTodo(context);
+	return instance;
+    }
+
+    /** Create a new todo list. */
+    protected JavafxTodo(Context context) {
+	context.put(javafxTodoKey, this);
     }
 }

@@ -26,25 +26,31 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.code.*;
-import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javac.jvm.*;
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.code.Type.*;
+import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.comp.AttrContext;
-import com.sun.tools.javac.comp.Env;
+import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.tree.JCTree.*;
+
 import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.Kinds.*;
 import static com.sun.tools.javac.code.TypeTags.*;
 
-import com.sun.tools.javac.comp.MemberEnter;
+import static com.sun.tools.javac.tree.JCTree.SELECT;
+
+import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javafx.code.JavafxBindStatus;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
-import java.util.Iterator;
 
-import static com.sun.tools.javac.tree.JCTree.*;
+import javax.tools.JavaFileObject;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.HashSet;
+
 
 /** This is the second phase of Enter, in which classes are completed
  *  by entering their members into the class scope using
@@ -55,35 +61,465 @@ import static com.sun.tools.javac.tree.JCTree.*;
  *  This code and its internal interfaces are subject to change or
  *  deletion without notice.</b>
  */
-@Version("@(#)JavafxMemberEnter.java	1.71 07/05/05")
-public class JavafxMemberEnter extends MemberEnter {
+public class JavafxMemberEnter extends JCTree.Visitor implements JavafxVisitor, Completer {
+    protected static final Context.Key<JavafxMemberEnter> javafxMemberEnterKey =
+        new Context.Key<JavafxMemberEnter>();
     
-    private JavafxSymtab syms;
+// JavaFX change
+    protected
+    final static boolean checkClash = true;
+
+    private final Name.Table names;
+    private final JavafxEnter enter;
+    private final Log log;
+    private final JavafxCheck chk;
+    private final JavafxAttr attr;
+    private final JavafxSymtab syms;
+    private final JavafxTreeMaker make;
+    private final ClassReader reader;
+    private final JavafxTodo todo;
+    private final JavafxAnnotate annotate;
+    private final Types types;
+    private final Target target;
+
+    private final Name numberTypeName;
+    private final Name integerTypeName;
+    private final Name booleanTypeName;
+    private final Name voidTypeName;  // possibly temporary
+
+    private final boolean skipAnnotations;
     private boolean isInMethodParamVars;
     private boolean isVarArgs;
     private JCMethodDecl currentMethodDecl = null;
     private List<MethodInferTypeHelper> methodsToInferReturnType;
     private Type methodReturnType;
-    private Env<AttrContext> localEnv;
+    private JavafxEnv<JavafxAttrContext> localEnv;
     
-    public static MemberEnter instance0(Context context) {
-        MemberEnter instance = context.get(memberEnterKey);
+    public static JavafxMemberEnter instance(Context context) {
+        JavafxMemberEnter instance = context.get(javafxMemberEnterKey);
         if (instance == null)
             instance = new JavafxMemberEnter(context);
         return instance;
     }
 
-    public static void preRegister(final Context context) {
-        context.put(memberEnterKey, new Context.Factory<MemberEnter>() {
-	       public MemberEnter make() {
-		   return new JavafxMemberEnter(context);
-	       }
+    protected JavafxMemberEnter(Context context) {
+        
+        context.put(javafxMemberEnterKey, this);
+        names = Name.Table.instance(context);
+        enter = JavafxEnter.instance(context);
+        log = Log.instance(context);
+        chk = (JavafxCheck)JavafxCheck.instance(context);
+        attr = JavafxAttr.instance(context);
+        syms = (JavafxSymtab)JavafxSymtab.instance(context);
+        make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
+        reader = ClassReader.instance(context);
+        todo = JavafxTodo.instance(context);
+        annotate = JavafxAnnotate.instance(context);
+        types = Types.instance(context);
+        target = Target.instance(context);
+        
+        numberTypeName  = names.fromString("Number");
+        integerTypeName = names.fromString("Integer");
+        booleanTypeName = names.fromString("Boolean");
+        voidTypeName = names.fromString("Void");
+
+        skipAnnotations =
+            Options.instance(context).get("skipAnnotations") != null;
+    }
+
+
+    /** A queue for classes whose members still need to be entered into the
+     *  symbol table.
+     */
+    ListBuffer<JavafxEnv<JavafxAttrContext>> halfcompleted = new ListBuffer<JavafxEnv<JavafxAttrContext>>();
+
+    /** Set to true only when the first of a set of classes is
+     *  processed from the halfcompleted queue.
+     */
+    boolean isFirst = true;
+
+    /** A flag to disable completion from time to time during member
+     *  enter, as we only need to look up types.  This avoids
+     *  unnecessarily deep recursion.
+     */
+    boolean completionEnabled = true;
+
+    /* ---------- Processing import clauses ----------------
+     */
+
+    /** Import all classes of a class or package on demand.
+     *  @param pos           Position to be used for error reporting.
+     *  @param tsym          The class or package the members of which are imported.
+     *  @param toScope   The (import) scope in which imported classes
+     *               are entered.
+     */
+// JavaFX change
+    protected void importAll(int pos,
+                           final TypeSymbol tsym,
+                           JavafxEnv<JavafxAttrContext> env) {
+        // Check that packages imported from exist (JLS ???).
+        if (tsym.kind == PCK && tsym.members().elems == null && !tsym.exists()) {
+            // If we can't find java.lang, exit immediately.
+            if (((PackageSymbol)tsym).fullname.equals(names.java_lang)) {
+                JCDiagnostic msg = JCDiagnostic.fragment("fatal.err.no.java.lang");
+                throw new FatalError(msg);
+            } else {
+                log.error(pos, "doesnt.exist", tsym);
+            }
+        }
+        final Scope fromScope = tsym.members();
+        final Scope toScope = env.toplevel.starImportScope;
+        for (Scope.Entry e = fromScope.elems; e != null; e = e.sibling) {
+            if (e.sym.kind == TYP && !toScope.includes(e.sym))
+                toScope.enter(e.sym, fromScope);
+        }
+    }
+
+    /** Import all static members of a class or package on demand.
+     *  @param pos           Position to be used for error reporting.
+     *  @param tsym          The class or package the members of which are imported.
+     *  @param toScope   The (import) scope in which imported classes
+     *               are entered.
+     */
+    private void importStaticAll(int pos,
+                                 final TypeSymbol tsym,
+                                 JavafxEnv<JavafxAttrContext> env) {
+        final JavaFileObject sourcefile = env.toplevel.sourcefile;
+        final Scope toScope = env.toplevel.starImportScope;
+        final PackageSymbol packge = env.toplevel.packge;
+        final TypeSymbol origin = tsym;
+
+        // enter imported types immediately
+        new Object() {
+            Set<Symbol> processed = new HashSet<Symbol>();
+            void importFrom(TypeSymbol tsym) {
+                if (tsym == null || !processed.add(tsym))
+                    return;
+
+                // also import inherited names
+                importFrom(types.supertype(tsym.type).tsym);
+                for (Type t : types.interfaces(tsym.type))
+                    importFrom(t.tsym);
+
+                final Scope fromScope = tsym.members();
+                for (Scope.Entry e = fromScope.elems; e != null; e = e.sibling) {
+                    Symbol sym = e.sym;
+                    if (sym.kind == TYP &&
+                        (sym.flags() & STATIC) != 0 &&
+                        staticImportAccessible(sym, packge) &&
+                        sym.isMemberOf(origin, types) &&
+                        !toScope.includes(sym))
+                        toScope.enter(sym, fromScope, origin.members());
+                }
+            }
+        }.importFrom(tsym);
+
+        // enter non-types before annotations that might use them
+        annotate.earlier(new JavafxAnnotate.Annotator() {
+            Set<Symbol> processed = new HashSet<Symbol>();
+
+            public String toString() {
+                return "import static " + tsym + ".*" + " in " + sourcefile;
+            }
+            void importFrom(TypeSymbol tsym) {
+                if (tsym == null || !processed.add(tsym))
+                    return;
+
+                // also import inherited names
+                importFrom(types.supertype(tsym.type).tsym);
+                for (Type t : types.interfaces(tsym.type))
+                    importFrom(t.tsym);
+
+                final Scope fromScope = tsym.members();
+                for (Scope.Entry e = fromScope.elems; e != null; e = e.sibling) {
+                    Symbol sym = e.sym;
+                    if (sym.isStatic() && sym.kind != TYP &&
+                        staticImportAccessible(sym, packge) &&
+                        !toScope.includes(sym) &&
+                        sym.isMemberOf(origin, types)) {
+                        toScope.enter(sym, fromScope, origin.members());
+                    }
+                }
+            }
+            public void enterAnnotation() {
+                importFrom(tsym);
+            }
         });
     }
 
-    protected JavafxMemberEnter(Context context) {
-        super(context);
-        syms = (JavafxSymtab)JavafxSymtab.instance(context);
+    // is the sym accessible everywhere in packge?
+    boolean staticImportAccessible(Symbol sym, PackageSymbol packge) {
+        int flags = (int)(sym.flags() & AccessFlags);
+        switch (flags) {
+        default:
+        case PUBLIC:
+            return true;
+        case PRIVATE:
+            return false;
+        case 0:
+        case PROTECTED:
+            return sym.packge() == packge;
+        }
+    }
+
+    /** Import statics types of a given name.  Non-types are handled in Attr.
+     *  @param pos           Position to be used for error reporting.
+     *  @param tsym          The class from which the name is imported.
+     *  @param name          The (simple) name being imported.
+     *  @param env           The environment containing the named import
+     *                  scope to add to.
+     */
+    private void importNamedStatic(final DiagnosticPosition pos,
+                                   final TypeSymbol tsym,
+                                   final Name name,
+                                   final JavafxEnv<JavafxAttrContext> env) {
+        if (tsym.kind != TYP) {
+            log.error(pos, "static.imp.only.classes.and.interfaces");
+            return;
+        }
+
+        final Scope toScope = env.toplevel.namedImportScope;
+        final PackageSymbol packge = env.toplevel.packge;
+        final TypeSymbol origin = tsym;
+
+        // enter imported types immediately
+        new Object() {
+            Set<Symbol> processed = new HashSet<Symbol>();
+            void importFrom(TypeSymbol tsym) {
+                if (tsym == null || !processed.add(tsym))
+                    return;
+
+                // also import inherited names
+                importFrom(types.supertype(tsym.type).tsym);
+                for (Type t : types.interfaces(tsym.type))
+                    importFrom(t.tsym);
+
+                for (Scope.Entry e = tsym.members().lookup(name);
+                     e.scope != null;
+                     e = e.next()) {
+                    Symbol sym = e.sym;
+                    if (sym.isStatic() &&
+                        sym.kind == TYP &&
+                        staticImportAccessible(sym, packge) &&
+                        sym.isMemberOf(origin, types) &&
+                        chk.checkUniqueStaticImport(pos, sym, toScope))
+                        toScope.enter(sym, sym.owner.members(), origin.members());
+                }
+            }
+        }.importFrom(tsym);
+
+        // enter non-types before annotations that might use them
+        annotate.earlier(new JavafxAnnotate.Annotator() {
+            Set<Symbol> processed = new HashSet<Symbol>();
+            boolean found = false;
+
+            public String toString() {
+                return "import static " + tsym + "." + name;
+            }
+            void importFrom(TypeSymbol tsym) {
+                if (tsym == null || !processed.add(tsym))
+                    return;
+
+                // also import inherited names
+                importFrom(types.supertype(tsym.type).tsym);
+                for (Type t : types.interfaces(tsym.type))
+                    importFrom(t.tsym);
+
+                for (Scope.Entry e = tsym.members().lookup(name);
+                     e.scope != null;
+                     e = e.next()) {
+                    Symbol sym = e.sym;
+                    if (sym.isStatic() &&
+                        staticImportAccessible(sym, packge) &&
+                        sym.isMemberOf(origin, types)) {
+                        found = true;
+                        if (sym.kind == MTH ||
+                            sym.kind != TYP && chk.checkUniqueStaticImport(pos, sym, toScope))
+                            toScope.enter(sym, sym.owner.members(), origin.members());
+                    }
+                }
+            }
+            public void enterAnnotation() {
+                JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
+                try {
+                    importFrom(tsym);
+                    if (!found) {
+                        log.error(pos, "cant.resolve.location",
+                                  JCDiagnostic.fragment("kindname.static"),
+                                  name, "", "", JavafxResolve.typeKindName(tsym.type),
+                                  tsym.type);
+                    }
+                } finally {
+                    log.useSource(prev);
+                }
+            }
+        });
+    }
+
+    /** Import given class.
+     *  @param pos           Position to be used for error reporting.
+     *  @param tsym          The class to be imported.
+     *  @param env           The environment containing the named import
+     *                  scope to add to.
+     */
+// JavaFX change
+    protected
+    /*private*/ void importNamed(DiagnosticPosition pos, Symbol tsym, JavafxEnv<JavafxAttrContext> env) {
+        if (tsym.kind == TYP &&
+            chk.checkUniqueImport(pos, tsym, env.toplevel.namedImportScope))
+            env.toplevel.namedImportScope.enter(tsym, tsym.owner.members());
+    }
+
+// Javafx change
+    protected
+// Javafx change
+    /** Construct method type from method signature.
+     *  @param typarams    The method's type parameters.
+     *  @param params      The method's value parameters.
+     *  @param res             The method's result type,
+     *                 null if it is a constructor.
+     *  @param thrown      The method's thrown exceptions.
+     *  @param env             The method's (local) environment.
+     */
+    Type signature(List<JCTypeParameter> typarams,
+                   List<JCVariableDecl> params,
+                   JCTree res,
+                   List<JCExpression> thrown,
+                   JavafxEnv<JavafxAttrContext> env) {
+
+        // Enter and attribute type parameters.
+        List<Type> tvars = enter.classEnter(typarams, env);
+        attr.attribTypeVariables(typarams, env);
+
+        // Enter and attribute value parameters.
+        ListBuffer<Type> argbuf = new ListBuffer<Type>();
+        for (List<JCVariableDecl> l = params; l.nonEmpty(); l = l.tail) {
+            memberEnter(l.head, env);
+            argbuf.append(l.head.vartype.type);
+        }
+
+        // Attribute result type, if one is given.
+        Type restype = res == null ? syms.voidType : attr.attribType(res, env);
+
+        // Attribute thrown exceptions.
+        ListBuffer<Type> thrownbuf = new ListBuffer<Type>();
+        for (List<JCExpression> l = thrown; l.nonEmpty(); l = l.tail) {
+            Type exc = attr.attribType(l.head, env);
+            if (exc.tag != TYPEVAR)
+                exc = chk.checkClassType(l.head.pos(), exc);
+            thrownbuf.append(exc);
+        }
+        Type mtype = new MethodType(argbuf.toList(),
+                                    restype,
+                                    thrownbuf.toList(),
+                                    syms.methodClass);
+        return tvars.isEmpty() ? mtype : new ForAll(tvars, mtype);
+    }
+
+/* ********************************************************************
+ * Visitor methods for member enter
+ *********************************************************************/
+
+    /** Visitor argument: the current environment
+     */
+    protected JavafxEnv<JavafxAttrContext> env;
+
+    /** Enter field and method definitions and process import
+     *  clauses, catching any completion failure exceptions.
+     */
+// JavaFX change
+    public
+// JavaFX change
+    /*protected*/ void memberEnter(JCTree tree, JavafxEnv<JavafxAttrContext> env) {
+        JavafxEnv<JavafxAttrContext> prevEnv = this.env;
+        try {
+            this.env = env;
+            tree.accept(this);
+        }  catch (CompletionFailure ex) {
+            chk.completionError(tree.pos(), ex);
+        } finally {
+            this.env = prevEnv;
+        }
+    }
+
+    /** Enter members from a list of trees.
+     */
+// JavaFX change
+    public
+    void memberEnter(List<? extends JCTree> trees, JavafxEnv<JavafxAttrContext> env) {
+        for (List<? extends JCTree> l = trees; l.nonEmpty(); l = l.tail)
+            memberEnter(l.head, env);
+    }
+
+    /** Add the implicit members for an enum type
+     *  to the symbol table.
+     */
+    private void addEnumMembers(JCClassDecl tree, JavafxEnv<JavafxAttrContext> env) {
+        JCExpression valuesType = make.Type(new ArrayType(tree.sym.type, syms.arrayClass));
+
+        // public static T[] values() { return ???; }
+        JCMethodDecl values = make.
+            MethodDef(make.Modifiers(Flags.PUBLIC|Flags.STATIC),
+                      names.values,
+                      valuesType,
+                      List.<JCTypeParameter>nil(),
+                      List.<JCVariableDecl>nil(),
+                      List.<JCExpression>nil(), // thrown
+                      null, //make.Block(0, Tree.emptyList.prepend(make.Return(make.Ident(names._null)))),
+                      null);
+        memberEnter(values, env);
+
+        // public static T valueOf(String name) { return ???; }
+        JCMethodDecl valueOf = make.
+            MethodDef(make.Modifiers(Flags.PUBLIC|Flags.STATIC),
+                      names.valueOf,
+                      make.Type(tree.sym.type),
+                      List.<JCTypeParameter>nil(),
+                      List.of(make.VarDef(make.Modifiers(Flags.PARAMETER),
+                                            names.fromString("name"),
+                                            make.Type(syms.stringType), null)),
+                      List.<JCExpression>nil(), // thrown
+                      null, //make.Block(0, Tree.emptyList.prepend(make.Return(make.Ident(names._null)))),
+                      null);
+        memberEnter(valueOf, env);
+
+        // the remaining members are for bootstrapping only
+        if (!target.compilerBootstrap(tree.sym)) return;
+
+        // public final int ordinal() { return ???; }
+        JCMethodDecl ordinal = make.at(tree.pos).
+            MethodDef(make.Modifiers(Flags.PUBLIC|Flags.FINAL),
+                      names.ordinal,
+                      make.Type(syms.intType),
+                      List.<JCTypeParameter>nil(),
+                      List.<JCVariableDecl>nil(),
+                      List.<JCExpression>nil(),
+                      null,
+                      null);
+        memberEnter(ordinal, env);
+
+        // public final String name() { return ???; }
+        JCMethodDecl name = make.
+            MethodDef(make.Modifiers(Flags.PUBLIC|Flags.FINAL),
+                      names._name,
+                      make.Type(syms.stringType),
+                      List.<JCTypeParameter>nil(),
+                      List.<JCVariableDecl>nil(),
+                      List.<JCExpression>nil(),
+                      null,
+                      null);
+        memberEnter(name, env);
+
+        // public int compareTo(E other) { return ???; }
+        MethodSymbol compareTo = new
+            MethodSymbol(Flags.PUBLIC,
+                         names.compareTo,
+                         new MethodType(List.of(tree.sym.type),
+                                        syms.intType,
+                                        List.<Type>nil(),
+                                        syms.methodClass),
+                         tree.sym);
+        memberEnter(make.MethodDef(compareTo, null), env);
     }
 
     @Override
@@ -92,14 +528,30 @@ public class JavafxMemberEnter extends MemberEnter {
             tree.accept(this);
         }
     }
- 
-    public void visitBlockExpression(JFXBlockExpression tree) {
-        for (JCStatement stmt : tree.stats) {
-            stmt.accept(this);
+     
+    /** Create a fresh environment for a variable's initializer.
+     *  If the variable is a field, the owner of the environment's scope
+     *  is be the variable itself, otherwise the owner is the method
+     *  enclosing the variable definition.
+     *
+     *  @param tree     The variable definition.
+     *  @param env      The environment current outside of the variable definition.
+     */
+// JavaFX change
+    public
+// JavaFX change
+    JavafxEnv<JavafxAttrContext> initEnv(JCVariableDecl tree, JavafxEnv<JavafxAttrContext> env) {
+        JavafxEnv<JavafxAttrContext> localEnv = env.dupto(new JavafxAttrContextEnv(tree, env.info.dup()));
+        if (tree.sym.owner.kind == TYP) {
+            localEnv.info.scope = new Scope.DelegatedScope(env.info.scope);
+            localEnv.info.scope.owner = tree.sym;
         }
-        tree.value.accept(this);
+        if ((tree.mods.flags & STATIC) != 0 ||
+            (env.enclClass.sym.flags() & INTERFACE) != 0)
+            localEnv.info.staticLevel++;
+        return localEnv;
     }
-    
+
     @Override
     public void visitTree(JCTree tree) {
         if (tree instanceof JFXBlockExpression)
@@ -108,6 +560,11 @@ public class JavafxMemberEnter extends MemberEnter {
             super.visitTree(tree);
     }
 
+    @Override
+    public void visitErroneous(JCErroneous tree) {
+        memberEnter(tree.errs, env);
+    }
+    
     @Override
     public void visitTopLevel(JCCompilationUnit tree) {
         if (tree.starImportScope.elems != null) {
@@ -162,22 +619,73 @@ public class JavafxMemberEnter extends MemberEnter {
             }
         }
         
-        super.visitImport(tree);
+        JCTree imp = tree.qualid;
+        Name name = TreeInfo.name(imp);
+        TypeSymbol p;
+
+        // Create a local environment pointing to this tree to disable
+        // effects of other imports in Resolve.findGlobalType
+        JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree);
+
+        // Attribute qualifying package or class.
+        JCFieldAccess s = (JCFieldAccess) imp;
+        p = attr.
+            attribTree(s.selected,
+                       localEnv,
+                       tree.staticImport ? TYP : (TYP | PCK),
+                       Type.noType).tsym;
+        if (name == names.asterisk) {
+            // Import on demand.
+            chk.checkCanonical(s.selected);
+            if (tree.staticImport)
+                importStaticAll(tree.pos, p, env);
+            else
+                importAll(tree.pos, p, env);
+        } else {
+            // Named type import.
+            if (tree.staticImport) {
+                importNamedStatic(tree.pos(), p, name, localEnv);
+                chk.checkCanonical(s.selected);
+            } else {
+                TypeSymbol c = attribImportType(imp, localEnv).tsym;
+                chk.checkCanonical(imp);
+                importNamed(tree.pos(), c, env);
+            }
+        }
     }
     
-    @Override
-    protected void finishClass(JCClassDecl tree, Env<AttrContext> env) {
+    protected void finishClass(JCClassDecl tree, JavafxEnv<JavafxAttrContext> env) {
         List<MethodInferTypeHelper> prevMethodsToInferReturnType;
         prevMethodsToInferReturnType = methodsToInferReturnType;
         methodsToInferReturnType = List.nil();
-        super.finishClass(tree, env);
+        if ((tree.mods.flags & Flags.ENUM) != 0 &&
+            (types.supertype(tree.sym.type).tsym.flags() & Flags.ENUM) == 0) {
+            addEnumMembers(tree, env);
+        }
+        memberEnter(tree.defs, env);
         inferMethodReturnTypes();
         methodsToInferReturnType = prevMethodsToInferReturnType;
     }
 
+    /** Create a fresh environment for method bodies.
+     *  @param tree     The method definition.
+     *  @param env      The environment current outside of the method definition.
+     */
+// Javafx modification
+public
+// Javafx modification
+    JavafxEnv<JavafxAttrContext> methodEnv(JCMethodDecl tree, JavafxEnv<JavafxAttrContext> env) {
+        JavafxEnv<JavafxAttrContext> localEnv =
+            env.dup(tree, env.info.dup(env.info.scope.dupUnshared()));
+        localEnv.enclMethod = tree;
+        localEnv.info.scope.owner = tree.sym;
+        if ((tree.mods.flags & STATIC) != 0) localEnv.info.staticLevel++;
+        return localEnv;
+    }
+
     @Override
     public void visitVarDef(JCVariableDecl tree) {
-        Env<AttrContext> localEnv = env;
+        JavafxEnv<JavafxAttrContext> localEnv = env;
         if ((tree.mods.flags & STATIC) != 0 ||
             (env.info.scope.owner.flags() & INTERFACE) != 0) {
             localEnv = env.dup(tree, env.info.dup());
@@ -197,9 +705,9 @@ public class JavafxMemberEnter extends MemberEnter {
 // Javafx change
         Scope enclScope = enter.enterScope(env);
         VarSymbol v;
-        if (tree instanceof JavafxJCVarDecl) {
-            JavafxJCVarDecl decl = (JavafxJCVarDecl)tree;
-            v = new JavafxVarSymbol(0, tree.name, decl.getJavafxVarType(), tree.vartype.type, 
+        if (tree instanceof JFXVar) {
+            JFXVar decl = (JFXVar)tree;
+            v = new JavafxVarSymbol(0, tree.name, tree.vartype.type, 
                     decl.isBound(), decl.isLazy(), enclScope.owner);
         } else {
             v = new VarSymbol(0, tree.name, tree.vartype.type, enclScope.owner);
@@ -209,14 +717,16 @@ public class JavafxMemberEnter extends MemberEnter {
         tree.sym = v;
         if (tree.init != null) {
             v.flags_field |= HASINIT;
+            /** don't want const value -- and env doesn't match
             if ((v.flags_field & FINAL) != 0 && tree.init.getTag() != JCTree.NEWCLASS)
                 v.setLazyConstValue(initEnv(tree, env), log, attr, tree.init);
+             **/
 // Javafx change
-        if (tree.vartype.type == syms.javafx_AnyType) {
-            Env<AttrContext> initEnv = initEnv(tree, env);
-            tree.vartype.type = attr.attribExpr(tree.init, initEnv, Type.noType);
-            tree.sym.type = tree.vartype.type;
-        }
+            if (tree.vartype.type == syms.javafx_AnyType) {
+                JavafxEnv<JavafxAttrContext> initEnv = initEnv(tree, env);
+                tree.vartype.type = attr.attribExpr(tree.init, initEnv, Type.noType);
+                tree.sym.type = tree.vartype.type;
+            }
 // Javafx change
 
         }
@@ -237,7 +747,7 @@ public class JavafxMemberEnter extends MemberEnter {
             MethodSymbol m = new MethodSymbol(0, tree.name, null, enclScope.owner);
             m.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, m, tree);
             tree.sym = m;
-            Env<AttrContext> localEnv = methodEnv(tree, env);
+            JavafxEnv<JavafxAttrContext> localEnv = methodEnv(tree, env);
 
             m.type = attrMethodType(tree, localEnv);
         
@@ -365,7 +875,7 @@ public class JavafxMemberEnter extends MemberEnter {
         return res;
     }
 
-    private Type attrMethodType(JCMethodDecl tree, Env<AttrContext> lEnv) {
+    private Type attrMethodType(JCMethodDecl tree, JavafxEnv<JavafxAttrContext> lEnv) {
         Type res = null;
         List<JCTree> declParams = null;
         JCTree declRestype = null;
@@ -386,6 +896,7 @@ public class JavafxMemberEnter extends MemberEnter {
             if (methodDef != null &&
                     jfxTree.getJavafxMethodType() >= JavafxFlags.OPERATION && 
                     jfxTree.getJavafxMethodType() <= JavafxFlags.LOCAL_FUNCTION) {
+                /**** TODO: RETRO code, may need to be converted, REMOVE
                 switch (methodDef.getTag()) {
                     case JavafxTag.RETROOPERATIONDEF: {
                         JFXRetroOperationMemberDefinition operationMemberDef = (JFXRetroOperationMemberDefinition)methodDef;
@@ -416,6 +927,7 @@ public class JavafxMemberEnter extends MemberEnter {
                         throw new AssertionError("Unexpected JFXMethodDecl definition type!");
                     }
                 }
+                 * ***/
 
                 if (params == null) {
                     params = List.nil();
@@ -428,7 +940,7 @@ public class JavafxMemberEnter extends MemberEnter {
 
                 // Create a new environment with local scope
                 // for attributing the method.
-                Env<AttrContext> localEnv = methodEnv(tree, env);
+                JavafxEnv<JavafxAttrContext> localEnv = methodEnv(tree, env);
 
                 // Attribute all value parameters.
                 boolean prevIsInMethodLocalVars = isInMethodParamVars;
@@ -455,6 +967,7 @@ public class JavafxMemberEnter extends MemberEnter {
             if (methodDecl != null &&
                     jfxTree.getJavafxMethodType() >= JavafxFlags.OPERATION && 
                     jfxTree.getJavafxMethodType() <= JavafxFlags.LOCAL_FUNCTION) {
+                /**** TODO: RETRO code, may need to be converted, REMOVE
                 switch (methodDecl.getTag()) {
                 case JavafxTag.RETROOPERATIONDECL: {
                         JFXRetroOperationMemberDeclaration operationMemberDecl = (JFXRetroOperationMemberDeclaration)methodDecl;
@@ -472,6 +985,7 @@ public class JavafxMemberEnter extends MemberEnter {
                         throw new AssertionError("Unexpected JFXMethodDecl declaration type!");
                     }
                 }
+                 * ****/
 
                 if (params == null) {
                     params = List.nil();
@@ -484,7 +998,7 @@ public class JavafxMemberEnter extends MemberEnter {
 
                 // Create a new environment with local scope
                 // for attributing the method.
-                Env<AttrContext> localEnv = methodEnv(tree, env);
+                JavafxEnv<JavafxAttrContext> localEnv = methodEnv(tree, env);
 
                 // Attribute all value parameters.
                 boolean prevIsInMethodLocalVars = isInMethodParamVars;
@@ -540,6 +1054,57 @@ public class JavafxMemberEnter extends MemberEnter {
             }
         }
 
+        if (tree instanceof JFXOperationDefinition) {
+            JFXOperationDefinition opDef = (JFXOperationDefinition)tree;
+            
+            List<JCTree> params = null;
+            JCTree restype = null;
+            if (params == null) {
+                params = List.nil();
+            }
+
+            if (restype == null) {
+                restype = make.TypeIdent(CLASS);
+                restype.type = syms.javafx_AnyType;
+            }
+
+            // Create a new environment with local scope
+            // for attributing the method.
+            JavafxEnv<JavafxAttrContext> localEnv = methodEnv(tree, env);
+
+            // Attribute all value parameters.
+            boolean prevIsInMethodLocalVars = isInMethodParamVars;
+            isInMethodParamVars = true;
+            for (List<JCTree> l = opDef.funParams; l.nonEmpty(); l = l.tail) {
+                attr.attribStat(l.head, localEnv);
+            }
+            isInMethodParamVars = prevIsInMethodLocalVars;
+
+            declParams = opDef.funParams;
+
+            // Check that result type is well-formed.
+            chk.validate(restype);
+            restype = restype.getTag() == JavafxTag.TYPECLASS ? ((JFXTypeClass)restype).getClassName() : restype;
+            attr.attribType(restype, localEnv);
+
+            declRestype = restype;
+
+            if (opDef.rettype == null) {
+                if (opDef.bodyExpression != null &&
+                    opDef.bodyExpression.value != null) {
+                    Type tp = attr.attribExpr(opDef.bodyExpression, localEnv, Type.noType);
+                    opDef.restype = make.Ident(tp.tsym);
+                }
+                else {
+                    opDef.restype = make.TypeIdent(VOID);
+                }
+            }
+            else {
+                opDef.restype = (JCExpression)opDef.rettype.getJCTypeTree();
+            }
+            localEnv.info.scope.leave();
+        }
+        
        res = signature(tree.typarams, tree.params,
                            tree.restype, tree.thrown,
                            lEnv);
@@ -560,7 +1125,7 @@ public class JavafxMemberEnter extends MemberEnter {
                       methodReturnType = null;
                       Type prevRestype = methodDeclHelper.method.restype.type;
                       methodDeclHelper.method.restype.type = Type.noType;
-                      Env<AttrContext> prevLocalEnv = localEnv;
+                      JavafxEnv<JavafxAttrContext> prevLocalEnv = localEnv;
                       localEnv = methodDeclHelper.lEnv;
                       memberEnter(methodDeclHelper.method.body, localEnv);
                       localEnv = prevLocalEnv;
@@ -593,11 +1158,660 @@ public class JavafxMemberEnter extends MemberEnter {
 
     static class MethodInferTypeHelper {
         JCMethodDecl method;
-        Env<AttrContext> lEnv;
-        MethodInferTypeHelper(JCMethodDecl method,  Env<AttrContext> lEnv) {
+        JavafxEnv<JavafxAttrContext> lEnv;
+        MethodInferTypeHelper(JCMethodDecl method,  JavafxEnv<JavafxAttrContext> lEnv) {
             this.method = method;
             this.lEnv = lEnv;
         }
     }
 // Javafx modification
+    // Begin JavaFX trees
+    @Override
+    public void visitClassDeclaration(JFXClassDeclaration that) {
+    }
+    
+    @Override
+    public void visitAbstractMember(JFXAbstractMember that) {
+        that.modifiers.accept(this);
+        if (that.getType() != null) {
+            that.getType().accept((JavafxVisitor)this);
+        }
+    }
+    
+    @Override
+    public void visitAbstractFunction(JFXAbstractFunction that) {
+        visitAbstractMember(that);
+        for (JCTree param : that.getParameters()) {
+            param.accept(this);
+        }
+    }
+    
+    @Override
+    public void visitAttributeDefinition(JFXAttributeDefinition tree) {
+        visitVar(tree);
+    }
+    
+    @Override
+    public void visitOperationDefinition(JFXOperationDefinition that) {
+        visitType(that.rettype);
+
+        that.params = buildParams(that.funParams);
+        visitMethodDef(that);
+    }
+
+    @Override
+    public void visitFunctionDefinitionStatement(JFXFunctionDefinitionStatement that) {
+        visitOperationDefinition(that.funcDef);
+    }
+
+    @Override
+    public void visitInitDefinition(JFXInitDefinition that) {
+        that.getBody().accept(this);
+    }
+
+    @Override
+    public void visitDoLater(JFXDoLater that) {
+        that.getBody().accept(this);
+    }
+
+    @Override
+    public void visitMemberSelector(JFXMemberSelector that) {
+    }
+    
+    @Override
+    public void visitSequenceEmpty(JFXSequenceEmpty that) {
+    }
+    
+    @Override
+    public void visitSequenceRange(JFXSequenceRange that) {
+        that.getLower().accept(this);
+        that.getUpper().accept(this);
+    }
+    
+    @Override
+    public void visitSequenceExplicit(JFXSequenceExplicit that) {
+        for (JCExpression expr : that.getItems()) {
+            expr.accept(this);
+        }
+    }
+
+    @Override
+    public void visitStringExpression(JFXStringExpression that) {
+        List<JCExpression> parts = that.getParts();
+        parts = parts.tail;
+        while (parts.nonEmpty()) {
+            parts = parts.tail;
+            parts.head.accept(this);
+            parts = parts.tail;
+            parts = parts.tail;
+        }
+    }
+    
+    @Override
+    public void visitPureObjectLiteral(JFXPureObjectLiteral that) {
+        that.getIdentifier().accept(this);
+        for (JCStatement part : that.getParts()) {
+            part.accept(this);
+        }
+    }
+    
+    @Override
+    public void visitVarIsObjectBeingInitialized(JFXVarIsObjectBeingInitialized that) {
+        visitVar(that);
+    }
+    
+    @Override
+    public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized that) {
+    }
+    
+    @Override
+    public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
+        that.getExpression().accept(this);
+    }  
+    
+    @Override
+    public void visitTypeAny(JFXTypeAny that) {
+        visitType(that);
+    }
+    
+    @Override
+    public void visitTypeClass(JFXTypeClass that) {
+        visitType(that);
+    }
+    
+    @Override
+    public void visitTypeFunctional(JFXTypeFunctional that) {
+        for (JCTree param : that.getParameters()) {
+            param.accept(this);
+        }
+        that.getReturnType().accept((JavafxVisitor)this);
+        visitType(that);
+    }
+    
+    @Override
+    public void visitTypeUnknown(JFXTypeUnknown that) {
+        visitType(that);
+    }
+    
+    @Override
+    public void visitType(JFXType that) {
+    }
+    
+    @Override
+    public void visitVar(JFXVar that) {
+        visitType(that.getJFXType());
+        visitVarDef(that);
+   }
+    
+    @Override
+    public boolean shouldVisitRemoved() {
+        return false;
+    }
+    
+    @Override
+    public boolean shouldVisitSynthetic() {
+        return true;
+    }
+    
+    @Override
+    public void visitBlockExpression(JFXBlockExpression tree) {
+        for (JCStatement stmt : tree.stats) {
+            stmt.accept(this);
+        }
+        if (tree.value != null) {
+            tree.value.accept(this);
+        }
+    }
+
+/* ********************************************************************
+ * Type completion
+ *********************************************************************/
+
+    Type attribImportType(JCTree tree, JavafxEnv<JavafxAttrContext> env) {
+        assert completionEnabled;
+        try {
+            // To prevent deep recursion, suppress completion of some
+            // types.
+            completionEnabled = false;
+            return attr.attribType(tree, env);
+        } finally {
+            completionEnabled = true;
+        }
+    }
+
+/* ********************************************************************
+ * Annotation processing
+ *********************************************************************/
+
+    /** Queue annotations for later processing. */
+// JavaFX change
+    protected
+// JavaFX change
+    void annotateLater(final List<JCAnnotation> annotations,
+                       final JavafxEnv<JavafxAttrContext> localEnv,
+                       final Symbol s) {
+        if (annotations.isEmpty()) return;
+        if (s.kind != PCK) s.attributes_field = null; // mark it incomplete for now
+        annotate.later(new JavafxAnnotate.Annotator() {
+                public String toString() {
+                    return "annotate " + annotations + " onto " + s + " in " + s.owner;
+                }
+                public void enterAnnotation() {
+                    assert s.kind == PCK || s.attributes_field == null;
+                    JavaFileObject prev = log.useSource(localEnv.toplevel.sourcefile);
+                    try {
+                        if (s.attributes_field != null &&
+                            s.attributes_field.nonEmpty() &&
+                            annotations.nonEmpty())
+                            log.error(annotations.head.pos,
+                                      "already.annotated",
+                                      JavafxResolve.kindName(s), s);
+                        enterAnnotations(annotations, localEnv, s);
+                    } finally {
+                        log.useSource(prev);
+                    }
+                }
+            });
+    }
+
+    /**
+     * Check if a list of annotations contains a reference to
+     * java.lang.Deprecated.
+     **/
+    private boolean hasDeprecatedAnnotation(List<JCAnnotation> annotations) {
+        for (List<JCAnnotation> al = annotations; al.nonEmpty(); al = al.tail) {
+            JCAnnotation a = al.head;
+            if (a.annotationType.type == syms.deprecatedType && a.args.isEmpty())
+                return true;
+        }
+        return false;
+    }
+
+    /** Enter a set of annotations. */
+    private void enterAnnotations(List<JCAnnotation> annotations,
+                          JavafxEnv<JavafxAttrContext> env,
+                          Symbol s) {
+        ListBuffer<Attribute.Compound> buf =
+            new ListBuffer<Attribute.Compound>();
+        Set<TypeSymbol> annotated = new HashSet<TypeSymbol>();
+        if (!skipAnnotations)
+        for (List<JCAnnotation> al = annotations; al.nonEmpty(); al = al.tail) {
+            JCAnnotation a = al.head;
+            Attribute.Compound c = annotate.enterAnnotation(a,
+                                                            syms.annotationType,
+                                                            env);
+            if (c == null) continue;
+            buf.append(c);
+            // Note: @Deprecated has no effect on local variables and parameters
+            if (!c.type.isErroneous()
+                && s.owner.kind != MTH
+                && types.isSameType(c.type, syms.deprecatedType))
+                s.flags_field |= Flags.DEPRECATED;
+            if (!annotated.add(a.type.tsym))
+                log.error(a.pos, "duplicate.annotation");
+        }
+        s.attributes_field = buf.toList();
+    }
+
+// Javafx change
+    protected
+// Javafx change
+    /** Queue processing of an attribute default value. */
+    void annotateDefaultValueLater(final JCExpression defaultValue,
+                                   final JavafxEnv<JavafxAttrContext> localEnv,
+                                   final MethodSymbol m) {
+        annotate.later(new JavafxAnnotate.Annotator() {
+                public String toString() {
+                    return "annotate " + m.owner + "." +
+                        m + " default " + defaultValue;
+                }
+                public void enterAnnotation() {
+                    JavaFileObject prev = log.useSource(localEnv.toplevel.sourcefile);
+                    try {
+                        enterDefaultValue(defaultValue, localEnv, m);
+                    } finally {
+                        log.useSource(prev);
+                    }
+                }
+            });
+    }
+
+    /** Enter a default value for an attribute method. */
+    private void enterDefaultValue(final JCExpression defaultValue,
+                                   final JavafxEnv<JavafxAttrContext> localEnv,
+                                   final MethodSymbol m) {
+        m.defaultValue = annotate.enterAttributeValue(m.type.getReturnType(),
+                                                      defaultValue,
+                                                      localEnv);
+    }
+
+/* ********************************************************************
+ * Source completer
+ *********************************************************************/
+
+    /** Complete entering a class.
+     *  @param sym         The symbol of the class to be completed.
+     */
+    public void complete(Symbol sym) throws CompletionFailure {
+        // Suppress some (recursive) MemberEnter invocations
+        if (!completionEnabled) {
+            // Re-install same completer for next time around and return.
+            assert (sym.flags() & Flags.COMPOUND) == 0;
+            sym.completer = this;
+            return;
+        }
+
+        ClassSymbol c = (ClassSymbol)sym;
+        ClassType ct = (ClassType)c.type;
+        JavafxEnv<JavafxAttrContext> env = enter.typeEnvs.get(c);
+        JCClassDecl tree = (JCClassDecl)env.tree;
+        boolean wasFirst = isFirst;
+        isFirst = false;
+
+        JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
+        try {
+            // Save class environment for later member enter (2) processing.
+            halfcompleted.append(env);
+
+            // If this is a toplevel-class, make sure any preceding import
+            // clauses have been seen.
+            if (c.owner.kind == PCK) {
+                memberEnter(env.toplevel, env.enclosing(JCTree.TOPLEVEL));
+                todo.append(env);
+            }
+
+            // Mark class as not yet attributed.
+            c.flags_field |= UNATTRIBUTED;
+
+            if (c.owner.kind == TYP)
+                c.owner.complete();
+
+            // create an environment for evaluating the base clauses
+            JavafxEnv<JavafxAttrContext> baseEnv = baseEnv(tree, env);
+
+            // Determine supertype.
+            Type supertype =
+                (tree.extending != null)
+                ? attr.attribBase(tree.extending, baseEnv, true, false, true)
+                : ((tree.mods.flags & Flags.ENUM) != 0 && !target.compilerBootstrap(c))
+                ? attr.attribBase(enumBase(tree.pos, c), baseEnv,
+                                  true, false, false)
+                : (c.fullname == names.java_lang_Object)
+                ? Type.noType
+                : syms.objectType;
+            ct.supertype_field = supertype;
+
+            // Determine interfaces.
+            ListBuffer<Type> interfaces = new ListBuffer<Type>();
+            Set<Type> interfaceSet = new HashSet<Type>();
+            List<JCExpression> interfaceTrees = tree.implementing;
+            if ((tree.mods.flags & Flags.ENUM) != 0 && target.compilerBootstrap(c)) {
+                // add interface Comparable<T>
+                interfaceTrees =
+                    interfaceTrees.prepend(make.Type(new ClassType(syms.comparableType.getEnclosingType(),
+                                                                   List.of(c.type),
+                                                                   syms.comparableType.tsym)));
+                // add interface Serializable
+                interfaceTrees =
+                    interfaceTrees.prepend(make.Type(syms.serializableType));
+            }
+            for (JCExpression iface : interfaceTrees) {
+                Type i = attr.attribBase(iface, baseEnv, false, true, true);
+                if (i.tag == CLASS) {
+                    interfaces.append(i);
+                    chk.checkNotRepeated(iface.pos(), types.erasure(i), interfaceSet);
+                }
+            }
+            if ((c.flags_field & ANNOTATION) != 0)
+                ct.interfaces_field = List.of(syms.annotationType);
+            else
+                ct.interfaces_field = interfaces.toList();
+
+            if (c.fullname == names.java_lang_Object) {
+                if (tree.extending != null) {
+                    chk.checkNonCyclic(tree.extending.pos(),
+                                       supertype);
+                    ct.supertype_field = Type.noType;
+                }
+                else if (tree.implementing.nonEmpty()) {
+                    chk.checkNonCyclic(tree.implementing.head.pos(),
+                                       ct.interfaces_field.head);
+                    ct.interfaces_field = List.nil();
+                }
+            }
+
+            // Annotations.
+            // In general, we cannot fully process annotations yet,  but we
+            // can attribute the annotation types and then check to see if the
+            // @Deprecated annotation is present.
+            attr.attribAnnotationTypes(tree.mods.annotations, baseEnv);
+            if (hasDeprecatedAnnotation(tree.mods.annotations))
+                c.flags_field |= DEPRECATED;
+            annotateLater(tree.mods.annotations, baseEnv, c);
+
+            attr.attribTypeVariables(tree.typarams, baseEnv);
+
+            chk.checkNonCyclic(tree.pos(), c.type);
+
+            // We need default constructor. Otherwise the NewClass ASTs cannot be attributed.
+                        // Add default constructor if needed.
+            if ((c.flags() & INTERFACE) == 0 &&
+                !TreeInfo.hasConstructors(tree.defs)) {
+                List<Type> argtypes = List.nil();
+                List<Type> typarams = List.nil();
+                List<Type> thrown = List.nil();
+                long ctorFlags = 0;
+                boolean based = false;
+                if (c.name.len == 0) {
+                    JCNewClass nc = (JCNewClass)env.next.tree;
+                    if (nc.constructor != null) {
+                        Type superConstrType = types.memberType(c.type,
+                                                                nc.constructor);
+                        argtypes = superConstrType.getParameterTypes();
+                        typarams = superConstrType.getTypeArguments();
+                        ctorFlags = nc.constructor.flags() & VARARGS;
+                        if (nc.encl != null) {
+                            argtypes = argtypes.prepend(nc.encl.type);
+                            based = true;
+                        }
+                        thrown = superConstrType.getThrownTypes();
+                    }
+                }
+                JCTree constrDef = DefaultConstructor(make.at(tree.pos), c,
+                                                    typarams, argtypes, thrown,
+                                                    ctorFlags, based);
+                tree.defs = tree.defs.prepend(constrDef);
+            }
+
+            // If this is a class, enter symbols for this and super into
+            // current scope.
+            if ((c.flags_field & INTERFACE) == 0) {
+                VarSymbol thisSym =
+                    new VarSymbol(FINAL | HASINIT, names._this, c.type, c);
+                thisSym.pos = Position.FIRSTPOS;
+                env.info.scope.enter(thisSym);
+                if (ct.supertype_field.tag == CLASS) {
+                    VarSymbol superSym =
+                        new VarSymbol(FINAL | HASINIT, names._super,
+                                      ct.supertype_field, c);
+                    superSym.pos = Position.FIRSTPOS;
+                    env.info.scope.enter(superSym);
+                }
+            }
+
+            // check that no package exists with same fully qualified name,
+            // but admit classes in the unnamed package which have the same
+            // name as a top-level package.
+            if (checkClash &&
+                c.owner.kind == PCK && c.owner != syms.unnamedPackage &&
+                reader.packageExists(c.fullname))
+                {
+                    log.error(tree.pos, "clash.with.pkg.of.same.name", c);
+                }
+
+        } catch (CompletionFailure ex) {
+            chk.completionError(tree.pos(), ex);
+        } finally {
+            log.useSource(prev);
+        }
+
+        // Enter all member fields and methods of a set of half completed
+        // classes in a second phase.
+        if (wasFirst) {
+            try {
+                while (halfcompleted.nonEmpty()) {
+                    finish(halfcompleted.next());
+                }
+            } finally {
+                isFirst = true;
+            }
+
+            // commit pending annotations
+            annotate.flush();
+        }
+    }
+
+        private JavafxEnv<JavafxAttrContext> baseEnv(JCClassDecl tree, JavafxEnv<JavafxAttrContext> env) {
+        Scope typaramScope = new Scope(tree.sym);
+        if (tree.typarams != null)
+            for (List<JCTypeParameter> typarams = tree.typarams;
+                 typarams.nonEmpty();
+                 typarams = typarams.tail)
+                typaramScope.enter(typarams.head.type.tsym);
+        JavafxEnv<JavafxAttrContext> outer = env.outer; // the base clause can't see members of this class
+        JavafxEnv<JavafxAttrContext> localEnv = outer.dup(tree, outer.info.dup(typaramScope));
+        localEnv.baseClause = true;
+        localEnv.outer = outer;
+        localEnv.info.isSelfCall = false;
+        return localEnv;
+    }
+
+    /** Enter member fields and methods of a class
+     *  @param env        the environment current for the class block.
+     */
+    private void finish(JavafxEnv<JavafxAttrContext> env) {
+        JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
+        try {
+            JCClassDecl tree = (JCClassDecl)env.tree;
+            finishClass(tree, env);
+        } finally {
+            log.useSource(prev);
+        }
+    }
+
+    /** Generate a base clause for an enum type.
+     *  @param pos              The position for trees and diagnostics, if any
+     *  @param c                The class symbol of the enum
+     */
+    private JCExpression enumBase(int pos, ClassSymbol c) {
+        JCExpression result = make.at(pos).
+            TypeApply(make.QualIdent(syms.enumSym),
+                      List.<JCExpression>of(make.Type(c.type)));
+        return result;
+    }
+
+/* ***************************************************************************
+ * tree building
+ ****************************************************************************/
+
+    /** Generate default constructor for given class. For classes different
+     *  from java.lang.Object, this is:
+     *
+     *    c(argtype_0 x_0, ..., argtype_n x_n) throws thrown {
+     *      super(x_0, ..., x_n)
+     *    }
+     *
+     *  or, if based == true:
+     *
+     *    c(argtype_0 x_0, ..., argtype_n x_n) throws thrown {
+     *      x_0.super(x_1, ..., x_n)
+     *    }
+     *
+     *  @param make     The tree factory.
+     *  @param c        The class owning the default constructor.
+     *  @param argtypes The parameter types of the constructor.
+     *  @param thrown   The thrown exceptions of the constructor.
+     *  @param based    Is first parameter a this$n?
+     */
+    JCTree DefaultConstructor(TreeMaker make,
+                            ClassSymbol c,
+                            List<Type> typarams,
+                            List<Type> argtypes,
+                            List<Type> thrown,
+                            long flags,
+                            boolean based) {
+        List<JCVariableDecl> params = make.Params(argtypes, syms.noSymbol);
+        List<JCStatement> stats = List.nil();
+        if (c.type != syms.objectType)
+            stats = stats.prepend(SuperCall(make, typarams, params, based));
+        if ((c.flags() & ENUM) != 0 &&
+            (types.supertype(c.type).tsym == syms.enumSym ||
+             target.compilerBootstrap(c))) {
+            // constructors of true enums are private
+            flags = (flags & ~AccessFlags) | PRIVATE | GENERATEDCONSTR;
+        } else
+            flags |= (c.flags() & AccessFlags) | GENERATEDCONSTR;
+        if (c.name.len == 0) flags |= ANONCONSTR;
+        JCTree result = make.MethodDef(
+            make.Modifiers(flags),
+            names.init,
+            null,
+            make.TypeParams(typarams),
+            params,
+            make.Types(thrown),
+            make.Block(0, stats),
+            null);
+        return result;
+    }
+
+    /** Generate call to superclass constructor. This is:
+     *
+     *    super(id_0, ..., id_n)
+     *
+     * or, if based == true
+     *
+     *    id_0.super(id_1,...,id_n)
+     *
+     *  where id_0, ..., id_n are the names of the given parameters.
+     *
+     *  @param make    The tree factory
+     *  @param params  The parameters that need to be passed to super
+     *  @param typarams  The type parameters that need to be passed to super
+     *  @param based   Is first parameter a this$n?
+     */
+// JavaFX change
+    public
+// JavaFX change
+    JCExpressionStatement SuperCall(TreeMaker make,
+                   List<Type> typarams,
+                   List<JCVariableDecl> params,
+                   boolean based) {
+        JCExpression meth;
+        if (based) {
+            meth = make.Select(make.Ident(params.head), names._super);
+            params = params.tail;
+        } else {
+            meth = make.Ident(names._super);
+        }
+        List<JCExpression> typeargs = typarams.nonEmpty() ? make.Types(typarams) : null;
+        return make.Exec(make.Apply(typeargs, meth, make.Idents(params)));
+    }
+
+    private List<JCVariableDecl> buildParams(List<JCTree> fxparams) {
+        List<JCVariableDecl> params = List.nil();
+        for (JCTree var : fxparams) {
+            if (var.getTag() == JavafxTag.VARDECL) {
+                params = params.append(jcVarDeclFromJFXVar((JFXVar)var));
+            } else if (var.getTag() == JCTree.VARDEF) {
+                params = params.append((JCVariableDecl)var);
+            } else {
+                throw new AssertionError("Unexpected tree in the JFXFunctionMemberDeclaration parameter list.");
+            }
+        }
+        return params;
+    }
+
+    private JavafxJCVarDecl jcVarDeclFromJFXVar(JFXVar tree) {
+        JCModifiers mods = tree.getModifiers();
+        if (mods == null) {
+            mods = make.Modifiers(0);
+        }
+        return make.JavafxVarDef(mods, tree.name,
+                JavafxFlags.VARIABLE, jcType(tree.getJFXType()),
+                null, JavafxBindStatus.UNBOUND);
+    }
+
+    JCExpression jcType(JFXType jfxType) {
+        JCExpression type = null;
+        
+        if (jfxType != null) {
+            if (jfxType instanceof JFXTypeClass) {
+                type = ((JFXTypeClass)jfxType).getClassName();
+                if (type instanceof JCIdent) {
+                    Name className = ((JCIdent)type).getName();
+                    if (className == numberTypeName) {
+                        type = make.TypeIdent(TypeTags.DOUBLE);
+                        type.type = syms.javafx_NumberType;
+                    } else if (className == integerTypeName) {
+                        type = make.TypeIdent(TypeTags.INT);
+                        type.type = syms.javafx_IntegerType;
+                    } else if (className == booleanTypeName) {
+                        type = make.TypeIdent(TypeTags.BOOLEAN);
+                        type.type = syms.javafx_BooleanType;
+                    } else if (className == voidTypeName) {
+                        type = make.TypeIdent(TypeTags.VOID);
+                        type.type = syms.voidType;
+                    } 
+                }
+            } else {
+                // TODO: Figure out what this could be???
+                throw new Error("Unexpected instanceof for JFXVar.getType()!!!");
+            }
+        } else {
+            type = make.TypeIdent(TypeTags.NONE);
+            type.type = syms.javafx_AnyType;
+        }
+        
+        return type;
+    }
 }

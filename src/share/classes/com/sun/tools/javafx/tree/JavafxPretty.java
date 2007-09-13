@@ -48,8 +48,6 @@ import static com.sun.tools.javac.code.Flags.*;
  */
 public class JavafxPretty extends Pretty implements JavafxVisitor {
 
-    public boolean retro = false;
-
     public JavafxPretty(Writer out, boolean sourceOutput) {
         super(out, sourceOutput);
     }
@@ -83,6 +81,15 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
+    public void visitAbstractFunction(JFXAbstractFunction that) {
+        //TODO: REMOVE ME
+    }
+    
+
+    public void visitAbstractMember(JFXAbstractMember that) {
+        //TODO: REMOVE ME
+    }
+    
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         try {
             println();
@@ -94,8 +101,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             print(" {");
             println();
             indent();
-            List<JCTree> mems = tree.getDeclaredMembers();
-            for (JCTree mem : mems) {
+            for (JCTree mem : tree.defs) {
                 align();
                 printExpr(mem);
             }
@@ -109,36 +115,9 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-    public void visitAbstractMember(JFXAbstractMember tree) {
-        // not used
-    }
-    
-    public void visitAbstractAttribute(JFXAbstractAttribute tree) {
-        try {
-            printDocComment(tree);
-            printExpr(tree.modifiers);
-            print(" attribute ");
-            print(tree.name);
-            print(" ");
-            if (tree.getType() != null) {
-                printExpr(tree.getType());
-            }
-            if (tree.getInverse() != null) {
-                print(" inverse ");
-                printExpr(tree.getInverse());
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void visitAbstractFunction(JFXAbstractFunction tree) {
-        // not used
-    }
-    
     public void visitAttributeDefinition(JFXAttributeDefinition tree) {
         try {
-            visitAbstractAttribute(tree);
+            visitVarDef(tree);
             if (tree.getInitializer() != null) {
                 print(" = ");
                 printBind(tree.getBindStatus());
@@ -152,19 +131,24 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+    @Override
+    public void visitFunctionDefinitionStatement(JFXFunctionDefinitionStatement that) {
+        visitOperationDefinition(that.funcDef);
+    }
+
+    public void visitOperationDefinition(JFXOperationDefinition tree) {
         try {
             println();
             align();
             printDocComment(tree);
-            printExpr(tree.modifiers);
-            print(" function ");
+            printExpr(tree.mods);
+            print(" operation ");
             print(tree.name);
             print("(");
             printExprs(tree.getParameters());
             print(")");
-            if (tree.getType() != null) {
-                printExpr(tree.getType());
+            if (tree.restype != null) {
+                printExpr(tree.restype);
             }
             printExpr(tree.getBodyExpression());
             println();
@@ -184,60 +168,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    public void visitRetroFunctionDeclaration(JFXRetroFunctionMemberDeclaration tree) {
-        printFuncOpDecl(tree, "function");
-    }
-
-    public void visitRetroOperationDeclaration(JFXRetroOperationMemberDeclaration tree) {
-        printFuncOpDecl(tree, "operation");
-    }
-
-    public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition tree) {
-        printRetroFuncOpDef(tree, "operation");
-    }
-
-    public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition tree) {
-        printRetroFuncOpDef(tree, "function");
-    }
-
-    public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration tree) {
-        try {
-            visitAbstractAttribute(tree);
-            print(";");
-            println();
-            align();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition tree) {
-        try {
-            printDocComment(tree);
-            print("attribute ");
-            printExpr(tree.getSelector());
-            if (tree.memtype != null) {
-                printExpr(tree.memtype);
-            }
-            print(" = ");
-            printBind(tree.getBindStatus());
-            printExpr(tree.getInitializer());
-            print(";");
-            println();
-            align();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition tree) {
-        printRetroFuncOpLocalDef(tree, "operation");
-    }
-
-    public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition tree) {
-        printRetroFuncOpLocalDef(tree, "function");
     }
 
     public void visitBlockExpression(JFXBlockExpression tree) {
@@ -274,81 +204,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-    public void printRetroFuncOpDef(JFXRetroFuncOpMemberDefinition tree, String which) {
-        try {
-            println();
-            align();
-            printDocComment(tree);
-            print(which);
-            print(" ");
-            printExpr(tree.getSelector());
-            print("(");
-            printExprs(tree.getParameters());
-            print(")");
-            if (tree.memtype != null) {
-                printExpr(tree.memtype);
-            }
-            if (tree.getBody() != null) {
-                print(" ");
-                printStat(tree.getBody());
-            } else {
-                print(";");
-            }
-            println();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void printRetroFuncOpLocalDef(JFXRetroFuncOpLocalDefinition tree, String which) {
-        try {
-            println();
-            align();
-            printDocComment(tree);
-            print(which);
-            print(" ");
-            print(tree.getName());
-            print("(");
-            printExprs(tree.getParameters());
-            print(")");
-            if (tree.type != null) {
-                printExpr(tree.getType());
-            }
-            if (tree.getBody() != null) {
-                print(" ");
-                printStat(tree.getBody());
-            } else {
-                print(";");
-            }
-            println();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void printFuncOpDecl(JFXAbstractFunction tree, String which) {
-        try {
-            println();
-            align();
-            printDocComment(tree);
-            printExpr(tree.modifiers);
-            print(" ");
-            print(which);
-            print(" ");
-            print(tree.name);
-            print("(");
-            printExprs(tree.getParameters());
-            print(")");
-            if (tree.getType() != null) {
-                printExpr(tree.getType());
-            }
-            print(";");
-            println();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     void printBind(JavafxBindStatus bindStatus) {
         try {
             if (bindStatus.isUnidiBind()) {
@@ -376,89 +231,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             } else {
                 print(";");
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void visitTriggerOnInsert(JFXTriggerOnInsert tree) {
-        visitTree(tree);
-    }
-
-    public void visitTriggerOnDelete(JFXTriggerOnDelete tree) {
-        visitTree(tree);
-    }
-
-    public void visitTriggerOnDeleteElement(JFXTriggerOnDeleteElement tree) {
-        visitTree(tree);
-    }
-
-    /**
-     * changeRule		:=	'trigger' 'on' changeCondition block
-     * changeCondition		:=	...
-     * |	[ Identifier '=' ] 'new' Identifier
-     *
-     */
-    public void visitTriggerOnNew(JFXTriggerOnNew tree) {
-        try {
-            println();
-            align();
-            print("trigger on ");
-            JCExpression id = tree.getNewValueIdentifier();
-            if (id != null) {
-                printExpr(tree.getNewValueIdentifier());
-                print(" = ");
-            }
-            print(" new ");
-            printExpr(tree.getClassIdentifier());
-            print(" ");
-            printExpr(tree.getBlock());
-            println();
-            align();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    /**
-     * changeCondition	:=	...
-     *                  |	memberSelector '=' Identifier
-     */
-    public void visitTriggerOnReplace(JFXTriggerOnReplace tree) {
-        try {
-            println();
-            align();
-            print("trigger on ");
-            printExpr(tree.getSelector());
-            print(" = ");
-            printExpr(tree.getNewValueIdentifier());
-            print(" ");
-            printExpr(tree.getBlock());
-            println();
-            align();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    /**
-     * changeCondition	:=	...
-     *                  |	memberSelector '[' Identifier ']' '=' Identifier
-     */
-    public void visitTriggerOnReplaceElement(JFXTriggerOnReplaceElement tree) {
-        try {
-            println();
-            align();
-            print("trigger on ");
-            printExpr(tree.getSelector());
-            print(" [ ");
-            printExpr(tree.getElementIdentifier());
-            print(" ] =  ");
-            printExpr(tree.getNewValueIdentifier());
-            print(" ");
-            printExpr(tree.getBlock());
-            println();
-            align();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -529,8 +301,8 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             }
             print(" {");
             indent();
-            List<JFXStatement> mems = tree.getParts();
-            for (JFXStatement mem : mems) {
+            List<JCStatement> mems = tree.getParts();
+            for (JCStatement mem : mems) {
                 println();
                 align();
                 printExpr(mem);
@@ -614,6 +386,14 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
+    public void visitType(JFXType tree) {
+        try {
+            print(ary(tree));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     String ary(JFXType tree) {
         String show;
         switch (tree.getCardinality()) {
@@ -628,31 +408,12 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitVar(JFXVar tree) {
         try {
             print(tree.getName());
-            if (tree.type != null) {
-                printExpr(tree.type);
+            if (tree.jfxtype != null) {
+                printExpr(tree.jfxtype);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    public void visitVarStatement(JFXVarStatement tree) {
-        try {
-            print("var ");
-            visitVar(tree);
-            if (tree instanceof JFXVarInit) {
-                print(" = ");
-                printExpr(((JFXVarInit) tree).getInitializer());
-            }
-            print(";");
-            println();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void visitVarInit(JFXVarInit tree) {
-        visitVarStatement(tree);
     }
 
     public void visitTree(JCTree tree) {

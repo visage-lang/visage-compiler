@@ -25,6 +25,7 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.source.tree.TreeVisitor;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 
@@ -36,15 +37,10 @@ import com.sun.tools.javac.code.Symbol.*;
 /**
  * A class declaration
  */
-public class JFXClassDeclaration extends JFXTree {
-    public JCModifiers mods;
-    public Name name; // TODO: Make this an ident, so posituion info is kept for tooling.
+public class JFXClassDeclaration extends JCClassDecl {
     public List<JCExpression> supertypes; 
-    public List<JCExpression> implementedInterfaces;
-    public List<JCTree> declarations;
-    public ClassSymbol sym;
-    
     public JavafxJCMethodDecl initializer = null;
+    public boolean isModuleClass = false;
     
     protected JFXClassDeclaration(JCModifiers mods,
             Name name,
@@ -52,23 +48,41 @@ public class JFXClassDeclaration extends JFXTree {
             List<JCExpression> implementedInterfaces,
             List<JCTree> declarations,
             ClassSymbol sym) {
-        this.mods = mods;
-        this.name = name;
+        super(mods, 
+                name, 
+                List.<JCTypeParameter>nil(), 
+                supertypes.head,     //TODO: hack.  Won't work when we have multiple inheritiance
+                implementedInterfaces, 
+                declarations, 
+                sym);
         this.supertypes = supertypes;
-        this.implementedInterfaces = implementedInterfaces;
-        this.declarations = declarations;
-        this.sym = sym;
     }
     public void accept(JavafxVisitor v) { v.visitClassDeclaration(this); }
-    public Name getSimpleName() { return name; }
     public List<JCExpression> getSupertypes() { return supertypes; }
-    public List<JCExpression> getImplementedInterfaces() { return implementedInterfaces; }
-    public List<JCTree> getDeclaredMembers() {
-        return declarations;
-    }
+
 
     @Override
     public int getTag() {
         return JavafxTag.CLASSDECL;
+    }
+    
+    @Override
+    public void accept(Visitor v) {
+        if (v instanceof JavafxVisitor) {
+            this.accept((JavafxVisitor)v);
+        } else {
+            v.visitTree(this);
+        }
+    }
+    
+    // stuff to ignore
+    
+    public Kind getKind()  {
+        throw new InternalError("not implemented");
+    }
+    
+    @Override
+    public <R,D> R accept(TreeVisitor<R,D> v, D d) {
+        throw new InternalError("not implemented");
     }
 }

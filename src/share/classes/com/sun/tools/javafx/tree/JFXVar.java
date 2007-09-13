@@ -28,32 +28,64 @@ package com.sun.tools.javafx.tree;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.tree.JCTree.JCModifiers;
+import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import com.sun.tools.javafx.code.JavafxBindStatus;
 
 /**
  * Variable declaration.
  *
  * @author Robert Field
  */
-public class JFXVar extends JFXStatement {
-    public Name name; // TODO: Make this an Ident because of tools.
-    public JFXType type;
-    private JCModifiers mods;
-    VarSymbol sym;
+public class JFXVar extends JCVariableDecl {
+    public JFXType jfxtype;
+    public JavafxBindStatus bindStatus;
     
     protected JFXVar(Name name,
-            JFXType type,
+            JFXType jfxtype,
             JCModifiers mods,
+            JCExpression init,
+            JavafxBindStatus bindStat,
             VarSymbol sym) {
-        this.name = name;
-        this.type = type;
-        this.mods = mods;
+        super(mods, name,
+                (JCExpression)((jfxtype == null || jfxtype.getJCTypeTree() == null) ? null : jfxtype.getJCTypeTree()), init, sym);
+        this.jfxtype = jfxtype;
+        this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
         this.sym = sym;
     }
     
     public void accept(JavafxVisitor v) { v.visitVar(this); }
     
+    @Override
+    public void accept(Visitor v) {
+        if (v instanceof JavafxVisitor) {
+            this.accept((JavafxVisitor)v);
+        } else {
+            v.visitVarDef(this);
+        }
+    }
+
+    public JavafxBindStatus getBindStatus() {
+        return bindStatus;
+    }
+
+    public boolean isBound() {
+        return bindStatus.isBound;
+    }
+
+    public boolean isUnidiBind() {
+        return bindStatus.isUnidiBind;
+    }
+
+    public boolean isBidiBind() {
+        return bindStatus.isBidiBind;
+    }
+
+    public boolean isLazy() {
+        return bindStatus.isLazy;
+    }
+
     public Name getName() { return name; }
-    public JFXType getType() { return type; }
+    public JFXType getJFXType() { return jfxtype; }
 
     @Override
     public int getTag() {

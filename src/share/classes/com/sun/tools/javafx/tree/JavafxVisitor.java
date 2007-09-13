@@ -33,10 +33,10 @@ public interface JavafxVisitor extends JCVisitor {
     
     public void visitClassDeclaration(JFXClassDeclaration that);
     public void visitAbstractMember(JFXAbstractMember that);
-    public void visitAbstractAttribute(JFXAbstractAttribute that);
     public void visitAbstractFunction(JFXAbstractFunction that);
     public void visitAttributeDefinition(JFXAttributeDefinition that);
-    public void visitFunctionDefinition(JFXFunctionDefinition that);
+    public void visitOperationDefinition(JFXOperationDefinition that);
+    public void visitFunctionDefinitionStatement(JFXFunctionDefinitionStatement that);
     public void visitInitDefinition(JFXInitDefinition that);
     public void visitMemberSelector(JFXMemberSelector that);
     public void visitDoLater(JFXDoLater that);
@@ -49,27 +49,10 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitTypeClass(JFXTypeClass that);
     public void visitTypeFunctional(JFXTypeFunctional that);
     public void visitTypeUnknown(JFXTypeUnknown that);
+    public void visitType(JFXType that);
     public void visitVar(JFXVar that);
-    public void visitVarStatement(JFXVarStatement that);
-    public void visitVarInit(JFXVarInit that);
     public void visitBlockExpression(JFXBlockExpression that);
     public void visitSequenceEmpty(JFXSequenceEmpty that);
     public void visitSequenceRange(JFXSequenceRange that);
     public void visitSequenceExplicit(JFXSequenceExplicit that);
-    
-    // Retro support
-    public void visitRetroAttributeDeclaration(JFXRetroAttributeDeclaration that);
-    public void visitRetroFunctionDeclaration(JFXRetroFunctionMemberDeclaration that);
-    public void visitRetroOperationDeclaration(JFXRetroOperationMemberDeclaration that);
-    public void visitRetroAttributeDefinition(JFXRetroAttributeDefinition that);
-    public void visitRetroOperationDefinition(JFXRetroOperationMemberDefinition that);
-    public void visitRetroFunctionDefinition(JFXRetroFunctionMemberDefinition that);
-    public void visitRetroOperationLocalDefinition(JFXRetroOperationLocalDefinition that);
-    public void visitRetroFunctionLocalDefinition(JFXRetroFunctionLocalDefinition that);
-    public void visitTriggerOnInsert(JFXTriggerOnInsert that);
-    public void visitTriggerOnDelete(JFXTriggerOnDelete that);
-    public void visitTriggerOnDeleteElement(JFXTriggerOnDeleteElement that);
-    public void visitTriggerOnNew(JFXTriggerOnNew that);
-    public void visitTriggerOnReplace(JFXTriggerOnReplace that);
-    public void visitTriggerOnReplaceElement(JFXTriggerOnReplaceElement that);
 }

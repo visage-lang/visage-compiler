@@ -19,16 +19,24 @@ import com.sun.tools.javac.tree.*;
  *
  * @author bothner
  */
-public class JavafxGen extends Gen {
+public class BlockExprGen extends Gen {
 
-    public JavafxGen(Context context) {
+    public static void preRegister(final Context context) {
+        context.put(genKey, new Context.Factory<Gen>() {
+            public Gen make() {
+                return new BlockExprGen(context);
+            }
+        });
+    }
+
+    public BlockExprGen(Context context) {
         super(context);
     }
     
-    public static JavafxGen instance(Context context) {
-        JavafxGen instance = (JavafxGen) context.get(genKey);
+    public static BlockExprGen instance(Context context) {
+        BlockExprGen instance = (BlockExprGen) context.get(genKey);
         if (instance == null)
-            instance = new JavafxGen(context);
+            instance = new BlockExprGen(context);
         return instance;
     }
   public void visitBlockExpression(JFXBlockExpression tree) {

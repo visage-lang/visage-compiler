@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2006 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,36 +25,42 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree.*;
-
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
 
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.*;
 
 /**
- * A function declaration.
+ * A function definition.
  */
-public class JFXRetroFunctionMemberDeclaration extends JFXAbstractFunction {
-    public JFXRetroFunctionMemberDefinition retroDefinition;
+public class JFXFunctionDefinitionStatement extends JFXStatement {
 
+    public JFXOperationDefinition funcDef;
     /*
-    * @param modifiers operation modifiers
-    * @param name operation name
-    * @param restype type of operation return value
-    * @param params value parameters
-    */
-    protected JFXRetroFunctionMemberDeclaration(JCModifiers mods,
-            Name name,
-            JFXType restype,
-            List<JCTree> params) {
-        super(mods, name, restype, params);
+     * @param modifiers operation modifiers
+     * @param name operation name
+     * @param restype type of operation return value
+     * @param params value parameters
+     */
+    protected JFXFunctionDefinitionStatement(
+            JCModifiers modifiers, 
+            Name name, 
+            JFXType restype, 
+            List<JCTree> params, 
+            JFXBlockExpression bodyExpression) {
+        super();
+        funcDef = new JFXOperationDefinition(modifiers, name,
+                restype,params, bodyExpression);
     }
-    public void accept(JavafxVisitor v) { v.visitRetroFunctionDeclaration(this); }
+    
+    public void accept(JavafxVisitor v) {
+        v.visitFunctionDefinitionStatement(this);
+    }
 
     @Override
     public int getTag() {
-        return JavafxTag.RETROFUNCTIONDECL;
+        return JavafxTag.FUNCTIONDEFSTATEMENT;
     }
 }

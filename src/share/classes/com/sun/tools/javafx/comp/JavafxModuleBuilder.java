@@ -36,22 +36,20 @@ import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Name.Table;
-import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.tree.JavafxTag.*;
-import static com.sun.tools.javafx.tree.JavafxTag.IMPORT;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class JavafxModuleBuilder extends JavafxAbstractVisitor {
+public class JavafxModuleBuilder extends JavafxTreeScanner {
     protected static final Context.Key<JavafxModuleBuilder> javafxModuleBuilderKey =
         new Context.Key<JavafxModuleBuilder>();
 
     public static final String runMethodName = "javafx$run$";
-    private Table nameTable;
+    private Table names;
     private JavafxTreeMaker make;
     private Log log;
     private Set<Name> topLevelNamesSet;
@@ -64,8 +62,7 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
     }
 
     protected JavafxModuleBuilder(Context context) {
-        super(null);
-        nameTable = Table.instance(context);
+        names = Table.instance(context);
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         log = Log.instance(context);
     }
@@ -104,26 +101,15 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
                 }
                 break;
             }
-            case RETROOPERATIONDEF:
-            case RETROFUNCTIONDEF:
-            case RETROATTRIBUTEDEF:
-                moduleClassDefs.append(tree);
-                break;
-            case RETROOPERATIONLOCALDEF:
-            case RETROFUNCTIONLOCALDEF:
-                checkName(tree.pos, ((JFXRetroFuncOpLocalDefinition)tree).getName());
-                moduleClassDefs.append(tree);
-                break;
-            case FUNCTIONDEF: {
-                JFXFunctionDefinition decl = (JFXFunctionDefinition)tree;
-                decl.modifiers.flags |= STATIC;
+            case OPERATIONDEF: {
+                JFXOperationDefinition decl = (JFXOperationDefinition)tree;
+                decl.mods.flags |= STATIC;
                 Name name = decl.name;
                 checkName(tree.pos, name);
                 moduleClassDefs.append(tree);
                 break;
             }
             case VARDECL:
-            case VARINIT:
                 checkName(tree.pos, ((JFXVar)tree).getName());
                 stats.append((JCStatement)tree);
                 break;
@@ -134,47 +120,67 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
             }
         }
                 
-        List<JCExpression> emptyExpressionList = List.nil();
-        List<JCVariableDecl> emptyVarDefList = List.nil();
+        List<JCTree> emptyVarList = List.nil();
 
         // Add run() method...
-        moduleClassDefs.prepend(makeModuleMethod(runMethodName, emptyVarDefList, false, stats.toList()));
-
-        // Add main method...
-        JCNewClass newClass = make.NewClass(null, emptyExpressionList, make.Ident(moduleClassName),
-                emptyExpressionList, null);
-        JCFieldAccess select = make.Select(newClass, Name.fromString(nameTable, runMethodName));
-        JCMethodInvocation runCall = make.Apply(emptyExpressionList, select, emptyExpressionList);
-        List<JCStatement> mainStats = List.<JCStatement>of(make.Exec(runCall)); 
-        List<JCVariableDecl> paramList = List.nil();
-        paramList = paramList.append(
-                make.VarDef(make.Modifiers(0), 
-                            Name.fromString(nameTable, "args"), 
-                            make.TypeArray(make.Ident(Name.fromString(nameTable, "String"))), 
-                            null));        
-        moduleClassDefs.prepend(makeModuleMethod("main", paramList, true, mainStats));
+        moduleClassDefs.prepend(makeModuleMethod(runMethodName, emptyVarList, false, stats.toList()));
 
         if (moduleClass == null) {
             moduleClass =  make.ClassDeclaration(
-                make.Modifiers(PUBLIC), 
+                make.Modifiers(0),   //TODO: maybe?  make.Modifiers(PUBLIC), 
                 moduleClassName, 
                 List.<JCExpression>nil(),             // no supertypes
                 moduleClassDefs.toList());
         } else {
-            moduleClass.declarations = moduleClass.declarations.appendList(moduleClassDefs);
+            moduleClass.defs = moduleClass.defs.appendList(moduleClassDefs);
         }
+        moduleClass.isModuleClass = true;
         topLevelDefs.append(moduleClass);
         
         module.defs = topLevelDefs.toList();
     }
-    
-    private JCMethodDecl makeModuleMethod(String name, List<JCVariableDecl> paramList, boolean isStatic, List<JCStatement> stats) {
-        JCBlock body = make.Block(0, stats);
-        return make.JavafxMethodDef(
+
+    @Override
+    public void visitMemberSelector(JFXMemberSelector that) {
+        // TODO:
+    }
+
+    @Override
+    public void visitDoLater(JFXDoLater that) {
+        // TODO:
+    }
+
+    @Override
+    public void visitTypeAny(JFXTypeAny that) {
+        // TODO:
+    }
+
+    @Override
+    public void visitTypeClass(JFXTypeClass that) {
+        // TODO:
+    }
+
+    @Override
+    public void visitTypeFunctional(JFXTypeFunctional that) {
+        // TODO:
+    }
+
+    @Override
+    public void visitTypeUnknown(JFXTypeUnknown that) {
+        // TODO:
+    }
+
+    @Override
+    public void visitVar(JFXVar that) {
+    }
+
+
+     private JFXOperationDefinition makeModuleMethod(String name, List<JCTree> paramList, boolean isStatic, List<JCStatement> stats) {
+        JFXBlockExpression body = make.BlockExpression(0, stats, null);
+        return make.OperationDefinition(
                 make.Modifiers(isStatic? PUBLIC | STATIC : PUBLIC), 
-                JavafxFlags.SIMPLE_JAVA, 
-                Name.fromString(nameTable, name), 
-                make.TypeIdent(VOID),
+                Name.fromString(names, name), 
+                make.TypeClass(make.Ident(Name.fromString(names, "Void")), JFXType.CARDINALITY_OPTIONAL),
                 paramList, 
                 body);        
     }
@@ -192,7 +198,7 @@ public class JavafxModuleBuilder extends JavafxAbstractVisitor {
             assert false : "URL Exception!!!";
         }
 
-        return Name.fromString(nameTable, fileObjName);
+        return Name.fromString(names, fileObjName);
     }
 
     @Override

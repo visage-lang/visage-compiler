@@ -25,11 +25,10 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree.*;
 
 import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
 
 import com.sun.tools.javac.code.Symbol.*;
 
@@ -37,15 +36,16 @@ import com.sun.tools.javac.code.Symbol.*;
  * A class declaration
  */
 public class JFXPureObjectLiteral extends JFXExpression {
-    public JCExpression ident;
-    public List<JFXStatement> parts;
+    public JCIdent ident;
+    public List<JCStatement> parts;
     public ClassSymbol sym;
+    public Symbol constructor;
 
     protected JFXPureObjectLiteral(
             JCExpression ident,
-            List<JFXStatement> parts,
+            List<JCStatement> parts,
             ClassSymbol sym) {
-        this.ident = ident;
+        this.ident = (JCIdent)ident; // TODO: Fix the types
         this.parts = parts;
         this.sym = sym;
     }
@@ -54,8 +54,8 @@ public class JFXPureObjectLiteral extends JFXExpression {
     /**
      * Identifer or null
      */
-    public JCExpression getIdentifier() { return ident; }
-    public List<JFXStatement> getParts() {
+    public JCIdent getIdentifier() { return ident; }
+    public List<JCStatement> getParts() {
         return parts;
     }
 

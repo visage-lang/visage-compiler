@@ -36,9 +36,10 @@ import com.sun.tools.javac.util.Name;
 public class JFXVarIsObjectBeingInitialized extends JFXVar {
     
     protected JFXVarIsObjectBeingInitialized(Name name,
-            VarSymbol sym) {
-        super(name, null, null, sym);
+            JCModifiers mods, VarSymbol sym) {
+        super(name, null, mods, null, null, sym);
     }
+    
     public void accept(JavafxVisitor v) { v.visitVarIsObjectBeingInitialized(this); }
 
     @Override

@@ -128,22 +128,6 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JavafxJCClassDecl JavafxJCClassDef(JCModifiers mods,
-                                              Name name,
-                                              JCTree extending,
-                                              List<JCExpression> implementing,
-                                              List<JCTree> defs, JavafxJCMethodDecl initializer) {
-        List<JCTypeParameter> typarams = List.nil();
-        JavafxJCClassDecl tree = new JavafxJCClassDecl(mods,
-                name,
-                typarams,
-                extending,
-                implementing,
-                defs, initializer);
-        tree.pos = pos;
-        return tree;
-    }
-
     public JFXBlockExpression BlockExpression(long flags, List<JCStatement> stats, JCExpression value) {
         JFXBlockExpression tree = new JFXBlockExpression(flags, stats, value);
         tree.pos = pos;
@@ -172,13 +156,29 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXFunctionDefinition FunctionDefinition(
+    public JFXOperationDefinition OperationDefinition(
             JCModifiers modifiers,
             Name name,
             JFXType restype,
             List<JCTree> params, 
             JFXBlockExpression bodyExpression) {
-        JFXFunctionDefinition tree = new JFXFunctionDefinition(
+        JFXOperationDefinition tree = new JFXOperationDefinition(
+                modifiers,
+                name,
+                restype,
+                params,
+                bodyExpression);
+        tree.pos = pos;
+        return tree;
+    }
+    
+    public JFXFunctionDefinitionStatement FunctionDefinitionStatement(
+            JCModifiers modifiers,
+            Name name,
+            JFXType restype,
+            List<JCTree> params, 
+            JFXBlockExpression bodyExpression) {
+        JFXFunctionDefinitionStatement tree = new JFXFunctionDefinitionStatement(
                 modifiers,
                 name,
                 restype,
@@ -192,143 +192,6 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
             JCBlock body) {
         JFXInitDefinition tree = new JFXInitDefinition(
                 body);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXRetroAttributeDeclaration RetroAttributeDeclaration(JCModifiers mods,
-            Name name,
-            JFXType type,
-            JFXMemberSelector inverseOrNull,
-            JCExpression orderingOrNull) {
-        JFXRetroAttributeDeclaration tree = new JFXRetroAttributeDeclaration(mods,
-                name,
-                type,
-                inverseOrNull,
-                orderingOrNull);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXRetroFunctionMemberDeclaration RetroFunctionDeclaration(JCModifiers mods,
-            Name name,
-            JFXType restype,
-            List<JCTree> params) {
-        JFXRetroFunctionMemberDeclaration tree = new JFXRetroFunctionMemberDeclaration(mods,
-                name,
-                restype,
-                params);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXRetroOperationMemberDeclaration RetroOperationDeclaration(JCModifiers mods,
-            Name name,
-            JFXType restype,
-            List<JCTree> params) {
-        JFXRetroOperationMemberDeclaration tree = new JFXRetroOperationMemberDeclaration(mods,
-                name,
-                restype,
-                params);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    
-    
-    public JFXRetroAttributeDefinition RetroAttributeDefinition(
-            JFXMemberSelector selector,
-            JCExpression init,
-            JavafxBindStatus bindStatus) {
-        JFXRetroAttributeDefinition tree = new JFXRetroAttributeDefinition(
-                selector,
-                init,
-                bindStatus);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXRetroFunctionMemberDefinition RetroFunctionDefinition(
-            JFXMemberSelector selector,
-            JFXType restype,
-            List<JCTree> params,
-            JCBlock body) {
-        JFXRetroFunctionMemberDefinition tree = new JFXRetroFunctionMemberDefinition(
-                selector,
-                restype,
-                params,
-                body);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXRetroOperationMemberDefinition RetroOperationDefinition(
-            JFXMemberSelector selector,
-            JFXType restype,
-            List<JCTree> params,
-            JCBlock body) {
-        JFXRetroOperationMemberDefinition tree = new JFXRetroOperationMemberDefinition(
-                selector,
-                restype,
-                params,
-                body);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXRetroFunctionLocalDefinition RetroFunctionLocalDefinition(
-            Name name,
-            JFXType restype,
-            List<JCTree> params,
-            JCBlock body) {
-        JFXRetroFunctionLocalDefinition tree = new JFXRetroFunctionLocalDefinition(
-                name,
-                restype,
-                params,
-                body);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXRetroOperationLocalDefinition RetroOperationLocalDefinition(
-            Name name,
-            JFXType restype,
-            List<JCTree> params,
-            JCBlock body) {
-        JFXRetroOperationLocalDefinition tree = new JFXRetroOperationLocalDefinition(
-                name,
-                restype,
-                params,
-                body);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXTriggerOnNew TriggerOnNew(
-            JCExpression typeIdentifier,
-            JCExpression identifier,
-            JCBlock block) {
-        JFXTriggerOnNew tree = new JFXTriggerOnNew(typeIdentifier,
-                identifier, block);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXTriggerOnReplace TriggerOnReplace(
-            JFXMemberSelector selector,
-            JCExpression identifier,
-            JCBlock block) {
-        JFXTriggerOnReplace tree = new JFXTriggerOnReplace(selector, identifier, block);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXTriggerOnReplaceElement TriggerOnReplaceElement(
-            JFXMemberSelector selector,
-            JCExpression elementIdentifier,
-            JCExpression identifier,
-            JCBlock block) {
-        JFXTriggerOnReplaceElement tree = new JFXTriggerOnReplaceElement(selector, elementIdentifier, identifier, block);
         tree.pos = pos;
         return tree;
     }
@@ -371,14 +234,14 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     }
     
     public JFXPureObjectLiteral PureObjectLiteral(JCExpression ident,
-            List<JFXStatement> parts) {
+            List<JCStatement> parts) {
         JFXPureObjectLiteral tree = new JFXPureObjectLiteral(ident, parts, null);
         tree.pos = pos;
         return tree;
     }
     
     public JFXVarIsObjectBeingInitialized VarIsObjectBeingInitialized(Name name) {
-        JFXVarIsObjectBeingInitialized tree = new JFXVarIsObjectBeingInitialized(name, null);
+        JFXVarIsObjectBeingInitialized tree = new JFXVarIsObjectBeingInitialized(name, Modifiers(0L), null);
         tree.pos = pos;
         return tree;
     }
@@ -427,32 +290,14 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXVar  Var(Name name,
-                        JFXType type) {
-        return Var(name, type, null);
-    }
     
-    public JFXVar  Var(Name name,
-                        JFXType type,
-                        JCModifiers mods) {
-        JFXVar tree = new JFXVar(name, type, mods, null);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXVarStatement  VarStatement(Name name,
-            JFXType type) {
-        JFXVarStatement tree = new JFXVarStatement(name, type, null);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXVarInit  VarInit(Name name,
+    public JFXVar Var(Name name,
             JFXType type,
+            JCModifiers mods,
             JCExpression initializer,
             JavafxBindStatus bindStatus) {
-        JFXVarInit tree = new JFXVarInit(name, type, 
-                initializer, bindStatus, null);
+        JFXVar tree = new JFXVar(name, type, 
+                mods, initializer, bindStatus, null);
         tree.pos = pos;
         return tree;
     }
@@ -564,14 +409,6 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                 init, null, bindStatus);
     }
     
-    public JavafxJCAssign JavafxAssign(JCExpression lhs, 
-            JCExpression rhs,
-            JavafxBindStatus bindStatus) {
-        JavafxJCAssign tree = new JavafxJCAssign(lhs, rhs, bindStatus);
-        tree.pos = pos;
-        return tree;
-    }
-
     public JCExpression Identifier(Name name) {
         String str = name.toString();
         if (str.indexOf('.') < 0 && str.indexOf('<') < 0) {
@@ -611,17 +448,6 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
             tree.pos = pos;
             lastInx = endInx + 1;
         } while (inx >= 0);
-        return tree;
-    }
-
-    public JavafxJCNewClassObjectLiteral NewClassObjectLiteral(JCExpression encl,
-                             List<JCExpression> typeargs,
-                             JCExpression clazz,
-                             List<JCExpression> args,
-                             JCClassDecl def)
-    {
-        JavafxJCNewClassObjectLiteral tree = new JavafxJCNewClassObjectLiteral(encl, typeargs, clazz, args, def);
-        tree.pos = pos;
         return tree;
     }
 }

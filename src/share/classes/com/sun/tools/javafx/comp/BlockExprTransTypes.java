@@ -17,16 +17,24 @@ import com.sun.tools.javac.tree.*;
  *
  * @author bothner
  */
-public class JavafxTransTypes extends TransTypes {
+public class BlockExprTransTypes extends TransTypes {
     
-    protected JavafxTransTypes(Context context) {
+    public static void preRegister(final Context context) { 
+        context.put(transTypesKey, new Context.Factory<TransTypes>() {
+            public TransTypes make() {
+                return new BlockExprTransTypes(context);
+            }
+        });
+    }
+
+    protected BlockExprTransTypes(Context context) {
         super(context);
     }
 
-     public static JavafxTransTypes instance(Context context) {
-        JavafxTransTypes instance = (JavafxTransTypes) context.get(transTypesKey);
+     public static BlockExprTransTypes instance(Context context) {
+        BlockExprTransTypes instance = (BlockExprTransTypes) context.get(transTypesKey);
         if (instance == null)
-            instance = new JavafxTransTypes(context);
+            instance = new BlockExprTransTypes(context);
         return instance;
     }
      

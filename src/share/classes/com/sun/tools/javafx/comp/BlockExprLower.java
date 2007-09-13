@@ -17,16 +17,24 @@ import com.sun.tools.javafx.tree.JFXBlockExpression;
 /**
  * @author bothner
  */
-public class JavafxLower extends Lower {
+public class BlockExprLower extends Lower {
 
-    public static JavafxLower instance(Context context) {
-        JavafxLower instance = (JavafxLower) context.get(lowerKey);
+    public static void preRegister(final Context context) {
+        context.put(lowerKey, new Context.Factory<Lower>() {
+            public Lower make() {
+                return new BlockExprLower(context);
+            }
+        });
+    }
+
+    public static BlockExprLower instance(Context context) {
+        BlockExprLower instance = (BlockExprLower) context.get(lowerKey);
         if (instance == null)
-            instance = new JavafxLower(context);
+            instance = new BlockExprLower(context);
         return instance;
     }
 
-    protected JavafxLower(Context context) {
+    protected BlockExprLower(Context context) {
         super(context);
     }
 

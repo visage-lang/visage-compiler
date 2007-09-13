@@ -25,6 +25,8 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.tools.javac.tree.JCTree;
+
 /**
  * Abstract base for types
  *
@@ -46,4 +48,8 @@ public abstract class JFXType extends JFXTree {
     }
     
     public int getCardinality() { return cardinality; }
+    
+    public JCTree getJCTypeTree() {
+        return this;
+    }
 }

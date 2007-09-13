@@ -62,6 +62,7 @@ tokens {
    PROTECTED='protected';
    PUBLIC='public';
    FUNCTION='function';
+   OPERATION='operation';
    READONLY='readonly';
    INVERSE='inverse';
    TYPE='type';
@@ -350,10 +351,12 @@ interfaces returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>(
 classMembers returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]
 	: ( ad1=attributeDefinition          	{ $mems.append($ad1.def); }
 	  |  fd1=functionDefinition     	{ $mems.append($fd1.def); }
+	  |  od1=operationDefinition     	{ $mems.append($od1.def); }
 	  ) *   
 	  (initDefinition	     		{ $mems.append($initDefinition.def); }			
 	    ( ad2=attributeDefinition          	{ $mems.append($ad2.def); }
 	    | fd2=functionDefinition     	{ $mems.append($fd2.def); }
+	    | od2=operationDefinition     	{ $mems.append($od2.def); }
 	    ) *   
 	  )?
 	;
@@ -367,11 +370,34 @@ attributeDefinition  returns [JFXAttributeDefinition def]
 	    						$bindOpt.status, $expression.expr, $ocb.value); }
 	;
 inverseClause returns [JFXMemberSelector inverse = null]
-	: INVERSE memberSelector 		{ $inverse = $memberSelector.value; } ;
-functionDefinition  returns [JFXFunctionDefinition def]
+	: INVERSE memberSelector 		{ $inverse = $memberSelector.value; } 
+	;
+functionDefinition  returns [JFXOperationDefinition def]
 	: modifierFlags FUNCTION name 
 	    formalParameters  typeReference  
-	    blockExpression 			{ $def = F.at(pos($FUNCTION)).FunctionDefinition($modifierFlags.mods,
+	    blockExpression 			{ $def = F.at(pos($FUNCTION)).OperationDefinition($modifierFlags.mods,
+	    						$name.value, $typeReference.type, 
+	    						$formalParameters.params.toList(), $blockExpression.expr); }
+	;
+operationDefinition  returns [JFXOperationDefinition def]
+	: modifierFlags OPERATION name 
+	    formalParameters  typeReference  
+	    blockExpression 			{ $def = F.at(pos($OPERATION)).OperationDefinition($modifierFlags.mods,
+	    						$name.value, $typeReference.type, 
+	    						$formalParameters.params.toList(), $blockExpression.expr); }
+	;
+
+functionDefinitionStatement  returns [JFXFunctionDefinitionStatement def]
+	: modifierFlags FUNCTION name 
+	    formalParameters  typeReference  
+	    blockExpression 			{ $def = F.at(pos($FUNCTION)).FunctionDefinitionStatement($modifierFlags.mods,
+	    						$name.value, $typeReference.type, 
+	    						$formalParameters.params.toList(), $blockExpression.expr); }
+	;
+operationDefinitionStatement  returns [JFXFunctionDefinitionStatement def]
+	: modifierFlags OPERATION name 
+	    formalParameters  typeReference  
+	    blockExpression 			{ $def = F.at(pos($OPERATION)).FunctionDefinitionStatement($modifierFlags.mods,
 	    						$name.value, $typeReference.type, 
 	    						$formalParameters.params.toList(), $blockExpression.expr); }
 	;
@@ -388,7 +414,7 @@ modifierFlags returns [JCModifiers mods]
 	;
 accessModifier returns [long flags = 0]
 	: (PUBLIC          			{ flags |= Flags.PUBLIC; }
-	|  PRIVATE         			{ flags |= Flags.PUBLIC; }
+	|  PRIVATE         			{ flags |= Flags.PRIVATE; }
 	|  PROTECTED       			{ flags |= Flags.PROTECTED; } ) ;
 otherModifier returns [long flags = 0]
 	: (ABSTRACT        			{ flags |= Flags.ABSTRACT; }
@@ -401,7 +427,7 @@ formalParameters returns [ListBuffer<JCTree> params = new ListBuffer<JCTree>()]
 	          ( COMMA   fpn=formalParameter	{ params.append($fpn.var); } )* )?  RPAREN 
 	;
 formalParameter returns [JFXVar var]
-	: name typeReference			{ $var = F.at($name.pos).Var($name.value, $typeReference.type, F.Modifiers(Flags.PARAMETER)); } 
+	: name typeReference			{ $var = F.at($name.pos).Var($name.value, $typeReference.type, F.Modifiers(Flags.PARAMETER), null, null); } 
 	;
 block returns [JCBlock value]
 @init 		{ ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
@@ -430,7 +456,8 @@ statements [ListBuffer<JCStatement> stats]  returns [JCExpression expr = null]
 	;
 statement returns [JCStatement value]
 	: variableDeclaration SEMI		{ $value = $variableDeclaration.value; }
-	| functionDefinition			{ $value = $functionDefinition.def; }
+	| functionDefinitionStatement		{ $value = $functionDefinitionStatement.def; }
+	| operationDefinitionStatement		{ $value = $operationDefinitionStatement.def; }
         | WHILE LPAREN expression RPAREN block	{ $value = F.at(pos($WHILE)).WhileLoop($expression.expr, $block.value); }
 	| BREAK SEMI   				{ $value = F.at(pos($BREAK)).Break(null); }
 	| CONTINUE  SEMI 	 		{ $value = F.at(pos($CONTINUE)).Continue(null); }
@@ -441,9 +468,9 @@ statement returns [JCStatement value]
        	;
 variableDeclaration   returns [JCStatement value]
 	: VAR  name  typeReference  
-	    ( EQ bindOpt  expression 		{ $value = F.at(pos($VAR)).VarInit($name.value, $typeReference.type, 
+	    ( EQ bindOpt  expression 		{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(Flags.PARAMETER),
 	    							$expression.expr, $bindOpt.status); }
-	    | 					{ $value = F.at(pos($VAR)).VarStatement($name.value, $typeReference.type); } 
+	    | 					{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(Flags.PARAMETER), null, null); } 
 	    )   
 	   ;
 bindOpt   returns [JavafxBindStatus status = UNBOUND]
@@ -563,7 +590,7 @@ newExpression  returns [JCExpression expr]
 												(args==null? new ListBuffer<JCExpression>() : args).toList(), null); }
 		   //TODO: need anonymous subclasses
 	;
-objectLiteral  returns [ListBuffer<JFXStatement> parts = new ListBuffer<JFXStatement>()]
+objectLiteral  returns [ListBuffer<JCStatement> parts = new ListBuffer<JCStatement>()]
 	: ( objectLiteralPart  					{ $parts.append($objectLiteralPart.value); } ) * 
 	;
 objectLiteralPart  returns [JFXStatement value]
@@ -574,18 +601,18 @@ objectLiteralPart  returns [JFXStatement value]
 stringExpression  returns [JCExpression expr] 
 @init { ListBuffer<JCExpression> strexp = new ListBuffer<JCExpression>(); }
 	: ql=QUOTE_LBRACE_STRING_LITERAL	{ strexp.append(F.at(pos($ql)).Literal(TypeTags.CLASS, $ql.text)); }
-	  f1=formatOrNull			{ strexp.append($f1.expr); }
+	  f1=stringFormat			{ strexp.append($f1.expr); }
 	  e1=expression 			{ strexp.append($e1.expr); }
 	  (  rl=RBRACE_LBRACE_STRING_LITERAL	{ strexp.append(F.at(pos($rl)).Literal(TypeTags.CLASS, $rl.text)); }
-	     fn=formatOrNull			{ strexp.append($fn.expr); }
+	     fn=stringFormat			{ strexp.append($fn.expr); }
 	     en=expression 			{ strexp.append($en.expr); }
 	  )*   
 	  rq=RBRACE_QUOTE_STRING_LITERAL	{ strexp.append(F.at(pos($rq)).Literal(TypeTags.CLASS, $rq.text)); }
 	  					{ $expr = F.at(pos($ql)).StringExpression(strexp.toList()); }
 	;
-formatOrNull  returns [JCExpression expr] 
+stringFormat  returns [JCExpression expr] 
 	: fs=FORMAT_STRING_LITERAL		{ $expr = F.at(pos($fs)).Literal(TypeTags.CLASS, $fs.text); }
-	| /* no formar */			{ $expr = null; }
+	| /* no formar */			{ $expr = F.             Literal(TypeTags.CLASS, ""); }
 	;
 bracketExpression   returns [JFXAbstractSequenceCreator expr]
 @init { ListBuffer<JCExpression> exps = new ListBuffer<JCExpression>(); }

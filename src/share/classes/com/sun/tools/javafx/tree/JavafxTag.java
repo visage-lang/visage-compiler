@@ -55,61 +55,25 @@ public abstract class JavafxTag extends JCTree {
      */
     public static final int ATTRIBUTEDEF = CLASSDECL + 1;     
 
-    /** function definition
+    /** Operation definition
      */
-    public static final int FUNCTIONDEF = ATTRIBUTEDEF + 1;     
+    public static final int OPERATIONDEF = ATTRIBUTEDEF + 1;     
+
+    /** function definition statement
+     */
+    public static final int FUNCTIONDEFSTATEMENT = ATTRIBUTEDEF + 1;     
 
     /** init definition
      */
-    public static final int INITDEF = FUNCTIONDEF + 1;     
-
-    /** old style "retro" separate attribute definition
-     */
-    public static final int RETROATTRIBUTEDEF = INITDEF + 1;     
-
-    /** old style "retro" separate operation definition
-     */
-    public static final int RETROOPERATIONDEF = RETROATTRIBUTEDEF + 1;     
-
-    /** old style "retro" separate function definition
-     */
-    public static final int RETROFUNCTIONDEF = RETROOPERATIONDEF + 1;     
-
-    /** old style "retro" separate operation definition
-     */
-    public static final int RETROOPERATIONLOCALDEF = RETROFUNCTIONDEF + 1;     
-
-    /** old style "retro" separate function definition
-     */
-    public static final int RETROFUNCTIONLOCALDEF = RETROOPERATIONLOCALDEF + 1;     
-
-    /** old style "retro" separate attribute declaration
-     */
-    public static final int RETROATTRIBUTEDECL = RETROFUNCTIONLOCALDEF + 1;     
-
-    /** old style "retro" separate operator declaration
-     */
-    public static final int RETROOPERATIONDECL = RETROATTRIBUTEDECL + 1;     
-
-    /** old style "retro" separate function declaration
-     */
-    public static final int RETROFUNCTIONDECL = RETROOPERATIONDECL + 1;     
+    public static final int INITDEF = FUNCTIONDEFSTATEMENT + 1;     
 
     /** any var declaration including formal params
      */
-    public static final int VARDECL = RETROFUNCTIONDECL + 1;     
+    public static final int VARDECL = INITDEF + 1;        
 
-    /** var statement
-     */
-    public static final int VARSTATEMENT = VARDECL + 1;     
-
-    /** var definition / initilization
-     */
-    public static final int VARINIT = VARSTATEMENT + 1;     
-    
     /** In object literal  "var: name"
      */
-    public static final int VARISOBJECTBEINGINITIALIZED = VARINIT + 1;     
+    public static final int VARISOBJECTBEINGINITIALIZED = VARDECL + 1;     
     
     /** In object literal  "attribute: name"
      */
@@ -133,51 +97,11 @@ public abstract class JavafxTag extends JCTree {
 
     /** do statement
      */
-    public static final int DOBACKGROUND = DOLATER + 1;        
-
-    /** top-level trigger on 
-     */
-    public static final int TRIGGERONINSERT = DOBACKGROUND + 1;        
-
-    /** top-level trigger on 
-     */
-    public static final int TRIGGERONDELETE = TRIGGERONINSERT + 1;        
-
-    /** top-level trigger on 
-     */
-    public static final int TRIGGERONDELETEELEMENT = TRIGGERONDELETE + 1;        
-
-    /** top-level trigger on 
-     */
-    public static final int TRIGGERONNEW = TRIGGERONDELETEELEMENT + 1;        
-
-    /** top-level trigger on 
-     */
-    public static final int TRIGGERONREPLACE = TRIGGERONNEW + 1;        
-
-    /** top-level trigger on 
-     */
-    public static final int TRIGGERONREPLACEELEMENT = TRIGGERONREPLACE + 1;        
-
-    /** local trigger on 
-     */
-    public static final int LOCALTRIGGERONREPLACE = TRIGGERONREPLACEELEMENT + 1;        
-
-    /** local trigger on 
-     */
-    public static final int LOCALTRIGGERONREPLACEELEMENT = LOCALTRIGGERONREPLACE + 1;        
-
-    /** local trigger on 
-     */
-    public static final int LOCALTRIGGERONINSERT = LOCALTRIGGERONREPLACEELEMENT + 1;        
-
-    /** local trigger on 
-     */
-    public static final int LOCALTRIGGERONDELETE = LOCALTRIGGERONINSERT + 1;        
+    public static final int DOBACKGROUND = DOLATER + 1;           
 
     /** for (unitinterval ...
      */
-    public static final int FORALPHA = LOCALTRIGGERONDELETE + 1;        
+    public static final int FORALPHA = DOBACKGROUND + 1;           
 
     /** for ( id in ...
      */

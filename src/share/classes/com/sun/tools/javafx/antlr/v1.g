@@ -333,10 +333,10 @@ moduleItems returns [ListBuffer<JCTree> items = new ListBuffer<JCTree>()]
 moduleItem returns [JCTree value]
        : importDecl			{ $value = $importDecl.value; }
        | classDefinition 		{ $value = $classDefinition.value; }
-       | attributeDefinition 		{ $value = $attributeDefinition.def; }
-       | memberOperationDefinition 	{ $value = $memberOperationDefinition.def; }
-       | memberFunctionDefinition 	{ $value = $memberFunctionDefinition.def; }
-       | TRIGGER ON changeRule		{ $value = $changeRule.value; }
+       | attributeDefinition 		
+       | memberOperationDefinition 	
+       | memberFunctionDefinition 	
+       | TRIGGER ON changeRule		
        | statementExcept 		{ $value = $statementExcept.value; } ;
 importDecl returns [JCTree value]
 @init { JCExpression pid = null; }
@@ -357,36 +357,31 @@ supers returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>()]
 	  )?
 	;
 classMembers returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]
-	:( attributeDecl                { $mems.append($attributeDecl.decl); }
-	|  functionDecl                 { $mems.append($functionDecl.decl); }
-	|  operationDecl                { $mems.append($operationDecl.decl); }
+	:( attributeDecl            
+	|  functionDecl             
+	|  operationDecl           
 	) *   ;
-attributeDecl returns [JFXAbstractMember decl]
+attributeDecl 
 	: modifierFlags ATTRIBUTE name typeReference inverseClause  (orderBy | indexOn)? SEMI 
-		{ $decl = F.at(pos($ATTRIBUTE)).RetroAttributeDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
-	                                    $inverseClause.inverse, null/*order/index*/); } ;
+		 ;
 inverseClause returns [JFXMemberSelector inverse = null]
 	: (INVERSE memberSelector { inverse = $memberSelector.value; } )? ;
-functionDecl returns [JFXAbstractMember decl]
+functionDecl 
 	: modifierFlags FUNCTION name formalParameters typeReference SEMI 
-		{ $decl =  F.at($name.pos).RetroFunctionDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
-	                                            $formalParameters.params.toList()); } ;
+		 ;
 
-operationDecl returns [JFXAbstractMember decl]
+operationDecl 
 	: modifierFlags   OPERATION   name   formalParameters   typeReference    SEMI 
-		{ $decl = F.at(pos($OPERATION)).RetroOperationDeclaration($modifierFlags.mods, $name.value, $typeReference.type,
-	                                            $formalParameters.params.toList()); } ;
-attributeDefinition  returns [JFXRetroAttributeDefinition def]
+		 ;
+attributeDefinition  
 	: ATTRIBUTE   memberSelector   EQ bindOpt  expression   SEMI 
-		{ $def = F.at(pos($ATTRIBUTE)).RetroAttributeDefinition($memberSelector.value, $expression.expr, $bindOpt.status); } ;
-memberOperationDefinition  returns [JFXRetroOperationMemberDefinition def]
+	 ;
+memberOperationDefinition  
 	: OPERATION   memberSelector   formalParameters   typeReference  block 
-		{ $def = F.at(pos($OPERATION)).RetroOperationDefinition($memberSelector.value, $typeReference.type, 
-		              $formalParameters.params.toList(), $block.value); } ;
-memberFunctionDefinition  returns [JFXRetroFunctionMemberDefinition def]
+		 ;
+memberFunctionDefinition  
 	: FUNCTION   memberSelector   formalParameters   typeReference  block /*TODO functionBody */
-		{ $def = F.at(pos($FUNCTION)).RetroFunctionDefinition($memberSelector.value, $typeReference.type, 
-		              $formalParameters.params.toList(), $block.value); } ;
+		 ;
 functionBody // TODO
 	: EQ   expression   whereVarDecls ?   SEMI    
         | LBRACE   (   variableDefinition   |   localFunctionDefinition   |   localOperationDefinition   ) *   RETURN   expression   SEMI ?   RBRACE ;
@@ -394,15 +389,11 @@ whereVarDecls : WHERE   whereVarDecl   (   COMMA   whereVarDecl   ) * ;
 whereVarDecl : localFunctionDefinition 
        | name   typeReference   EQ   expression ;
 variableDefinition : VAR   name   typeReference  EQ   expression   SEMI ;
-changeRule  returns [JFXAbstractTriggerOn value]
+changeRule  
 	: LPAREN   NEW   typeName  RPAREN  block
-	        { $value = F.at(pos($LPAREN)).TriggerOnNew($typeName.expr, null, $block.value); }
 	| LPAREN   memberSelector  EQ identifier   RPAREN  block
-	     	{ $value = F.at(pos($LPAREN)).TriggerOnReplace($memberSelector.value, $identifier.expr, $block.value); }
 	| memberSelector  EQ identifier block
-	     	{ $value = F.at(pos($EQ)).TriggerOnReplace($memberSelector.value, $identifier.expr, $block.value); }
 	| LPAREN   memberSelector   LBRACKET   id1=identifier   RBRACKET   EQ id2=identifier   RPAREN  block
-	     	{ $value = F.at(pos($LPAREN)).TriggerOnReplaceElement($memberSelector.value, $id1.expr, $id2.expr, $block.value); }
 	| LPAREN   INSERT   identifier   INTO   memberSelector   RPAREN block 	
 	| LPAREN   DELETE   identifier   FROM   memberSelector   RPAREN block 	
 	| LPAREN   DELETE  memberSelector   LBRACKET   identifier   RBRACKET   RPAREN block
@@ -428,7 +419,7 @@ formalParameters returns [ListBuffer<JCTree> params = new ListBuffer<JCTree>()]
 	: LPAREN   ( fp0=formalParameter		{ params.append($fp0.var); }
 	           ( COMMA   fpn=formalParameter	{ params.append($fpn.var); } )* )?  RPAREN ;
 formalParameter returns [JFXVar var]
-	: name typeReference			{ $var = F.at($name.pos).Var($name.value, $typeReference.type); } ;
+	: name typeReference			{ $var = F.at($name.pos).Var($name.value, $typeReference.type, F.Modifiers(Flags.PARAMETER), null, null); } ;
 block returns [JCBlock value]
 	: LBRACE   statements   RBRACE		{ $value = F.at(pos($LBRACE)).Block(0L, $statements.stats.toList()); }
 	;
@@ -459,17 +450,16 @@ assertStatement  returns [JCStatement value = null]
 	: ASSERT   expression   (   COLON   expression   ) ?   SEMI ;
 localOperationDefinition   returns [JCStatement value]
 	: OPERATION   name   formalParameters   typeReference  block 
-		{ $value = F.at(pos($OPERATION)).RetroOperationLocalDefinition($name.value, $typeReference.type, 
-									$formalParameters.params.toList(), $block.value); } ;
+		 ;
 localFunctionDefinition   returns [JCStatement value]
 	: FUNCTION ?   name   formalParameters   typeReference  block // TODO? functionBody 
-		{ $value = F.at($name.pos).RetroFunctionLocalDefinition($name.value, $typeReference.type, 
-									$formalParameters.params.toList(), $block.value); } ;
+		 ;
 variableDeclaration   returns [JCStatement value]
 	: VAR  name  typeReference  
-	    ( EQ bindOpt  expression SEMI	{ $value = F.at(pos($VAR)).VarInit($name.value, $typeReference.type, 
+	    ( EQ bindOpt  expression SEMI	{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(Flags.PARAMETER),
 	    							$expression.expr, $bindOpt.status); }
-	    | SEMI				{ $value = F.at(pos($VAR)).VarStatement($name.value, $typeReference.type); } 
+	    | SEMI				{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(Flags.PARAMETER),
+	    							$expression.expr, $bindOpt.status); } 
 	    )   
 	   ;
 bindOpt   returns [JavafxBindStatus status = UNBOUND]
@@ -606,9 +596,9 @@ newExpression  returns [JCExpression expr]
 												(args==null? new ListBuffer<JCExpression>() : args).toList(), null); }
 		   //TODO: need objectLiteral 
 	;
-objectLiteral  returns [ListBuffer<JFXStatement> parts = new ListBuffer<JFXStatement>()]
+objectLiteral  returns [ListBuffer<JCStatement> parts = new ListBuffer<JCStatement>()]
 	: ( objectLiteralPart  					{ $parts.append($objectLiteralPart.value); } ) * ;
-objectLiteralPart  returns [JFXStatement value]
+objectLiteralPart  returns [JCStatement value]
 	: name COLON  bindOpt expression (COMMA | SEMI)?	{ $value = F.at(pos($COLON)).ObjectLiteralPart($name.value, $expression.expr, $bindOpt.status); }
        | ATTRIBUTE   name   typeReference   EQ  bindOpt expression   SEMI 
        | localOperationDefinition 

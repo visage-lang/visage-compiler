@@ -35,6 +35,7 @@ import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javafx.main.JavafxOption.Option;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javafx.main.RecognizedOptions.OptionHelper;
+import com.sun.tools.javafx.util.JavafxFileManager;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 
@@ -290,8 +291,29 @@ public class Main {
      * @param args    The command line parameters.
      */
     public int compile(String[] args) {
+        Context backEndContext = new Context();
+        com.sun.tools.javafx.comp.BlockExprAttr.preRegister(backEndContext);
+        com.sun.tools.javafx.comp.BlockExprEnter.preRegister(backEndContext);
+        com.sun.tools.javafx.comp.BlockExprMemberEnter.preRegister(backEndContext);
+        com.sun.tools.javafx.comp.BlockExprLower.preRegister(backEndContext);
+        com.sun.tools.javafx.comp.BlockExprTransTypes.preRegister(backEndContext);
+        com.sun.tools.javafx.comp.BlockExprGen.preRegister(backEndContext);
+        JavacFileManager.preRegister(backEndContext); 
+        
+        // Sequencing requires that we get the name table from the fully initialized back-end
+        // rather than send the compleated one.
+        JavafxJavaCompiler javafxJavaCompiler = JavafxJavaCompiler.instance(backEndContext);
+        
         Context context = new Context();
-        JavacFileManager.preRegister(context); // can't create it until Log has been set up
+        context.put(JavafxJavaCompiler.javafxJavaCompilerKey, javafxJavaCompiler);
+        
+        // Tranfer the name table -- must be done before any initialization
+        context.put(Name.Table.namesKey, backEndContext.get(Name.Table.namesKey));
+        
+        // Tranfer the options -- must be done before any initialization
+        context.put(Options.optionsKey, backEndContext.get(Options.optionsKey));
+        
+        JavafxFileManager.preRegister(context); // can't create it until Log has been set up
         int result = compile(args, context);
         if (fileManager instanceof JavacFileManager) {
             // A fresh context was created above, so jfm must be a JavacFileManager

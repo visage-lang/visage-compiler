@@ -57,8 +57,18 @@ public class JFXBlockExpression extends JFXExpression {
     
     public void accept(Visitor v) {
         // Kludge
-        if (v instanceof Pretty && ! (v instanceof JavafxPretty))
-            JavafxPretty.visitBlockExpression((Pretty) v, this);
+        if (v instanceof Pretty && !(v instanceof JavafxPretty))
+            BlockExprPretty.visitBlockExpression((Pretty) v, this);
+        else if (v instanceof BlockExprAttr)
+            ((BlockExprAttr) v).visitBlockExpression(this);
+        else if (v instanceof BlockExprEnter)
+            ((BlockExprEnter) v).visitBlockExpression(this);
+        else if (v instanceof BlockExprMemberEnter)
+            ((BlockExprMemberEnter) v).visitBlockExpression(this);
+        else if (v instanceof JavafxPrepForBackEnd)
+            ((JavafxPrepForBackEnd) v).visitBlockExpression(this);
+        
+        // these should probably be removed
         else if (v instanceof JavafxTypeMorpher)
             ((JavafxTypeMorpher) v).visitBlockExpression(this);
         else if (v instanceof JavafxVarUsageAnalysis)
