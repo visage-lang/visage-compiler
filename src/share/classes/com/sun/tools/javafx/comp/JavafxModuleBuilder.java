@@ -102,7 +102,13 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
                 break;
             }
             case OPERATIONDEF: {
-                JFXOperationDefinition decl = (JFXOperationDefinition)tree;
+                JFXOperationDefinition decl = null;
+                if (tree instanceof JFXFunctionDefinitionStatement) {
+                    decl = ((JFXFunctionDefinitionStatement)tree).funcDef;
+                }
+                else {
+                    decl = (JFXOperationDefinition)tree;
+                }
                 decl.mods.flags |= STATIC;
                 Name name = decl.name;
                 checkName(tree.pos, name);
