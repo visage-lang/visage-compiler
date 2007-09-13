@@ -1,0 +1,4 @@
+call named plus10: 1->11 2->12 3->13
+call anonymous x+5: 1->6 2->7 3->8
+call plus10 assigned to ff: 1->11 2->12 3->13
+call anonymous x+2 assigned to ff: 1->3 2->4 3->5
