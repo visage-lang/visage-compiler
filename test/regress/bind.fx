@@ -8,17 +8,17 @@
 import java.lang.System;
 
 public class Bar {
-	readonly attribute alpha = 3;
-	private attribute beta = bind alpha * 10;
-	function foo(x : Integer, y : Integer) { x - y } 
+	readonly attribute alpha : Integer = 3;
+	private attribute beta : Integer = bind alpha * 10;
+	function foo(x : Integer, y : Integer) : Integer { x - y } 
 }
 
-var pass = true;
+var pass : Boolean = true;
 
-var v1 = 0;
-var v2 = bind v1 * 5;
+var v1 : Integer = 0;
+var v2 : Integer = bind v1 * 5;
 
-var bb = new Bar;
+var bb : Bar = new Bar;
 pass = (if bb.alpha == 3 then pass else false);
 pass = (if bb.beta == 30 then pass else false);
 System.out.println("{pass} Default-thirty beta={bb.beta}");
