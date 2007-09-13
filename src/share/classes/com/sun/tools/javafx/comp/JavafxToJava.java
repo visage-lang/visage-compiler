@@ -127,7 +127,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
     public void visitTopLevel(JCCompilationUnit tree) {
         currentObjLitCounter = 0;
         super.visitTopLevel(tree);
-        tree.defs = tree.defs.prepend(makeImport("com.sun.javafx.runtime"));
+//        tree.defs = tree.defs.prepend(makeImport("com.sun.javafx.runtime.location"));
         result = tree;
     }
     
@@ -263,15 +263,13 @@ public class JavafxToJava extends JavafxTreeTranslator {
     public void visitVar(JFXVar tree) {
         super.visitVar(tree);
         JCModifiers mods = tree.getModifiers();
-        if (mods == null) {
-            mods = make.Modifiers(0);
-        } else {
-            long modFlags = mods.flags;
-            modFlags &= ~Flags.FINAL;
-            mods.flags = modFlags;
+        long modFlags = mods==null? 0L : mods.flags;
+        if ((modFlags & Flags.FINAL) != 0 && tree instanceof JFXAttributeDefinition) {
+            modFlags &= ~Flags.FINAL;  // because of init fields can't be final
         }
+        mods = make.Modifiers(modFlags);
         JCExpression typeExpresion = makeTypeTree(tree.type);
-        result = make.VarDef(mods, tree.name, typeExpresion, tree.init);
+        result = make.at(tree.pos).VarDef(mods, tree.name, typeExpresion, tree.init);
     }
       
     @Override
@@ -339,20 +337,20 @@ public class JavafxToJava extends JavafxTreeTranslator {
         Name tmpName = getSyntheticName();
         ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
         
-        JCVariableDecl tmpVar = make. VarDef(make.Modifiers(0), tmpName, tree.clazz, tree);
+        JCVariableDecl tmpVar = make.at(tree.pos).VarDef(make.Modifiers(0), tmpName, tree.clazz, tree);
         stats.append(tmpVar);
         
         List<JCExpression> typeargs = List.nil();
         List<JCExpression> args = List.nil();
         
         JCIdent ident3 = make.Ident(tmpName);   
-        JCFieldAccess select1 = make.Select(ident3, initBuilder.initializerName);
-        JCMethodInvocation apply1 = make.Apply(typeargs, select1, args);
-        JCExpressionStatement exec1 = make.Exec(apply1);
+        JCFieldAccess select1 = make.at(tree.pos).Select(ident3, initBuilder.initializerName);
+        JCMethodInvocation apply1 = make.at(tree.pos).Apply(typeargs, select1, args);
+        JCExpressionStatement exec1 = make.at(tree.pos).Exec(apply1);
         stats.append(exec1);
          
         JCIdent ident2 = make.Ident(tmpName);
-        JFXBlockExpression blockExpr1 = ((JavafxTreeMaker)make).BlockExpression(0, stats.toList(), ident2);
+        JFXBlockExpression blockExpr1 = ((JavafxTreeMaker)make).at(tree.pos).BlockExpression(0, stats.toList(), ident2);
         result = blockExpr1; 
         }
     }

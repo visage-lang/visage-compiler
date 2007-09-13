@@ -56,7 +56,7 @@ public class JavafxInitializationBuilder extends JavafxTreeScanner {
     private JavafxEnv<JavafxAttrContext> env;
     
     private Name addChangeListenerName;
-    private Name addChangeListenerFirstParamName;
+    private Name changeListenerInterfaceName;
     
     final Name initializerName;
     private final String initSyntheticName = "$init$synth$";
@@ -65,12 +65,6 @@ public class JavafxInitializationBuilder extends JavafxTreeScanner {
     private int currentInitCounter = 0;
     
     private JavafxSymtab syms = null;
-    
-    private final Name strongName;
-    private final Name runtimeName;
-    private final Name javafxName;
-    private final Name sunName;
-    private final Name comName;
     
     private final Name changedName;
     
@@ -90,17 +84,11 @@ public class JavafxInitializationBuilder extends JavafxTreeScanner {
         
         names = Name.Table.instance(context);
         addChangeListenerName = names.fromString("addChangeListener");
-        addChangeListenerFirstParamName = names.fromString("com.sun.javafx.runtime.ChangeListenerEntry");
+        changeListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "ChangeListener");
         
         initializerName = names.fromString("javafx$init$");
 
-        strongName = names.fromString("StrongListener");
-        runtimeName = names.fromString("runtime");
-        javafxName = names.fromString("javafx");
-        sunName = names.fromString("sun");
-        comName = names.fromString("com");
-        
-        changedName = names.fromString("changed");
+        changedName = names.fromString("onChange");
     }
     
     public void visitTopLevel(JCCompilationUnit cu, JavafxEnv<JavafxAttrContext> env) {
@@ -250,7 +238,7 @@ public class JavafxInitializationBuilder extends JavafxTreeScanner {
                     varIdent.sym = jfxAttributeDefinition.sym;
                     
                     JCFieldAccess tmpSelect = make.Select(varIdent, addChangeListenerName);
-                    
+/***                    
                     // Get the symbol for addChangeListener(ChangeListener listener) method.
                     Scope.Entry entry = null;
                     TypeSymbol lookIn = varIdent.type.tag == TypeTags.CLASS ? (ClassSymbol)varIdent.type.tsym : null;
@@ -276,7 +264,7 @@ public class JavafxInitializationBuilder extends JavafxTreeScanner {
                         
                         lookIn = ((ClassSymbol)lookIn.type.tsym).getSuperclass().tsym;
                     }
-
+***/
 
                     List<JCExpression> typeargs = List.nil();
                     List<JCExpression> args = List.nil();
@@ -427,40 +415,27 @@ public class JavafxInitializationBuilder extends JavafxTreeScanner {
         // TODO: Do the same for javafx vars...
         if (tree.onChange != null) {
             List<JCTypeParameter> typarams = List.nil();
-            List<JCExpression> implementing = List.nil();
-            
-            JCIdent comIdent = make.Ident(comName);
-            JCFieldAccess sunSelect = make.Select(comIdent, sunName);
-            JCFieldAccess javafxSelect = make.Select(sunSelect, javafxName);
-            JCFieldAccess runtimeSelect = make.Select(javafxSelect, runtimeName);
-            JCFieldAccess strongSelect = make.Select(runtimeSelect, strongName);
-            
             List<JCTree> defs = List.nil();
+            
+            JCBlock ocBlock = tree.getOnChangeBlock();
+            ocBlock.stats = ocBlock.stats.append(
+                    make.at(tree.pos).Return(make.Literal(TypeTags.BOOLEAN, 1)));
             
             // changed() method
             defs = defs.append(make.MethodDef(make.Modifiers(Flags.PUBLIC),
                     changedName,
-                    make.TypeIdent(TypeTags.VOID),
+                    make.TypeIdent(TypeTags.BOOLEAN),
                     List.<JCTypeParameter>nil(),
                     List.<JCVariableDecl>nil(),
                     List.<JCExpression>nil(),
-                    tree.getOnChangeBlock(),
+                    ocBlock,
                     null));
 
-            JCClassDecl anonClass = make.ClassDef(make.Modifiers(0L),
-                    names.empty, typarams, strongSelect, implementing, defs);
-            
-            JCIdent comIdent1 = make.Ident(comName);
-            JCFieldAccess sunSelect1 = make.Select(comIdent1, sunName);
-            JCFieldAccess javafxSelect1 = make.Select(sunSelect1, javafxName);
-            JCFieldAccess runtimeSelect1 = make.Select(javafxSelect1, runtimeName);
-            JCFieldAccess strongSelect1 = make.Select(runtimeSelect1, strongName);
-            
             JCNewClass jcNC = make.NewClass(null,
                     List.<JCExpression>nil(),
-                    strongSelect1,
+                    make.at(tree.pos).Identifier(changeListenerInterfaceName), 
                     List.<JCExpression>nil(),
-                    anonClass);
+                    make.at(tree.pos).AnonymousClassDef(make.Modifiers(0L), defs));
 
             currentChangeHelpers.put(tree, new ChangeProcessingHelper(jcNC));
         }

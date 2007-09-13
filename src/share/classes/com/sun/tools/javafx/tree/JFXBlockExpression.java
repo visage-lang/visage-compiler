@@ -73,7 +73,14 @@ public class JFXBlockExpression extends JFXExpression {
             ((JavafxTypeMorpher) v).visitBlockExpression(this);
         else if (v instanceof JavafxVarUsageAnalysis)
             ((JavafxVarUsageAnalysis) v).visitBlockExpression(this);
-        else
+        else if (v instanceof TreeScanner) {
+            ((TreeScanner)v).scan(stats);
+            ((TreeScanner)v).scan(value);
+        } else if (v instanceof TreeTranslator) {
+            stats = ((TreeTranslator)v).translate(stats);
+            value = ((TreeTranslator)v).translate(value);
+            ((TreeTranslator)v).result = this;
+        } else
             super.accept(v);
     }
     public boolean isStatic() { return (flags & Flags.STATIC) != 0; }

@@ -468,9 +468,9 @@ statement returns [JCStatement value]
        	;
 variableDeclaration   returns [JCStatement value]
 	: VAR  name  typeReference  
-	    ( EQ bindOpt  expression 		{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(Flags.PARAMETER),
+	    ( EQ bindOpt  expression 		{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(0L),
 	    							$expression.expr, $bindOpt.status); }
-	    | 					{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(Flags.PARAMETER), null, null); } 
+	    | 					{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(0L), null, null); } 
 	    )   
 	   ;
 bindOpt   returns [JavafxBindStatus status = UNBOUND]
