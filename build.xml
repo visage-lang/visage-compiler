@@ -182,7 +182,7 @@
     </target>
     
     <target name="antlr" unless="antlr.uptodate">
-        <java classname="org.antlr.Tool" classpathref="antlr.class.path">
+        <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
             <arg value="${antlr.src.dir}/${antlr.grammar}.g" />
         </java>
     </target>
