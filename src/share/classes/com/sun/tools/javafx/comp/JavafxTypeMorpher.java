@@ -78,6 +78,7 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
     private final Name getMethodName;
     private final Name setMethodName;
     private final Name makeMethodName;
+    private final Name makeLazyMethodName;
     
     private JavafxBindStatus bindContext = JavafxBindStatus.UNBOUND;
     private boolean inLHS = false;
@@ -267,6 +268,7 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
         getMethodName = Name.fromString(names, "get");
         setMethodName = Name.fromString(names, "set");
         makeMethodName = Name.fromString(names, "make");
+        makeLazyMethodName = Name.fromString(names, "makeLazy");
     }
        
     public void morph(JavafxEnv<JavafxAttrContext> attrEnv) {
@@ -431,7 +433,7 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
                                                         JavafxBindStatus bindStatus) {
         JCExpression initExpr = boundTranslate(init, bindStatus);
         if (bindStatus.isUnidiBind()) {
-            initExpr = registerExpression(vmi.varSymbol, initExpr);
+            initExpr = buildExpression(vmi.varSymbol, initExpr, bindStatus);
         } else {
             if (initExpr.type.tsym != vmi.getUsedType().tsym) {
                 JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, makeMethodName);
@@ -686,7 +688,7 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
         return make.Literal(tag, value).setType(type.constType(value));
     }
     
-    public JCExpression registerExpression(VarSymbol vsym, JCExpression tree) {
+    public JCExpression buildExpression(VarSymbol vsym, JCExpression tree, JavafxBindStatus bindStatus) {
         final HashMap<VarSymbol,VarInfo> varMap = new HashMap<VarSymbol,VarInfo>();
         
         TreeScanner ts = new TreeScanner() {
@@ -742,7 +744,8 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
             argValues.append(vi.origIdent);
         }
         
-        JCFieldAccess makeSelect = make.Select(exprLocId, makeMethodName);        
+        Name makeName = bindStatus.isLazy()? makeLazyMethodName : makeMethodName;
+        JCFieldAccess makeSelect = make.Select(exprLocId, makeName);        
         JCExpression makeApply = make.Apply(null, makeSelect, argValues.toList());
         return makeApply;
     }
