@@ -1289,6 +1289,22 @@ Index: com/sun/tools/javac/tree/Pretty.java
                      break;
              }
          } catch (IOException e) {
+Index: com/sun/tools/javac/tree/TreeTranslator.java
+===================================================================
+--- com/sun/tools/javac/tree/TreeTranslator.java	(revision 250)
++++ com/sun/tools/javac/tree/TreeTranslator.java	(working copy)
+@@ -47,7 +47,10 @@
+ 
+     /** Visitor result field: a tree
+      */
+-    protected JCTree result;
++// JavaFX change
++    public
++// JavaFX change
++    JCTree result;
+ 
+     /** Visitor method: Translate a single node.
+      */
 Index: com/sun/tools/javac/tree/TreeInfo.java
 ===================================================================
 --- com/sun/tools/javac/tree/TreeInfo.java	(revision 250)
