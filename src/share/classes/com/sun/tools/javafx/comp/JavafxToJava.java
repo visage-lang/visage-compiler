@@ -262,14 +262,15 @@ public class JavafxToJava extends JavafxTreeTranslator {
     @Override
     public void visitVar(JFXVar tree) {
         super.visitVar(tree);
+        DiagnosticPosition diagPos = tree.pos();
         JCModifiers mods = tree.getModifiers();
         long modFlags = mods==null? 0L : mods.flags;
         if ((modFlags & Flags.FINAL) != 0 && tree instanceof JFXAttributeDefinition) {
             modFlags &= ~Flags.FINAL;  // because of init fields can't be final
         }
         mods = make.Modifiers(modFlags);
-        JCExpression typeExpresion = makeTypeTree(tree.type);
-        result = make.at(tree.pos).VarDef(mods, tree.name, typeExpresion, tree.init);
+        JCExpression typeExpresion = makeTypeTree(tree.type, diagPos);
+        result = make.at(diagPos).VarDef(mods, tree.name, typeExpresion, tree.init);
     }
       
     @Override
@@ -297,7 +298,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
         body = make.at(diagPos).Block(0, stats);
         result = make.at(diagPos).MethodDef(tree.mods, 
                 tree.name, 
-                makeTypeTree(mtype.getReturnType()), 
+                makeTypeTree(mtype.getReturnType(), diagPos), 
                 make.at(diagPos).TypeParams(mtype.getTypeArguments()), 
                 tree.getParameters(),
                 make.at(diagPos).Types(mtype.getThrownTypes()),
@@ -359,13 +360,13 @@ public class JavafxToJava extends JavafxTreeTranslator {
         return Name.fromString(names, objLitSyntheticName + currentObjLitCounter++);
     }
 
-    public JCImport makeImport(String str) {
-        JCExpression tree = makeQualifiedTree(str);
-        tree = make.Select(tree, names.asterisk);
-        return make.Import(tree, false);
+    public JCImport makeImport(String str, DiagnosticPosition diagPos) {
+        JCExpression tree = makeQualifiedTree(str, diagPos);
+        tree = make.at(diagPos).Select(tree, names.asterisk);
+        return make.at(diagPos).Import(tree, false);
     }
 
-    public JCExpression makeQualifiedTree(String str) {
+    public JCExpression makeQualifiedTree(String str, DiagnosticPosition diagPos) {
         JCExpression tree = null;
         int inx;
         int lastInx = 0;
@@ -379,26 +380,28 @@ public class JavafxToJava extends JavafxTreeTranslator {
             }
             String part = str.substring(lastInx, endInx);
             Name partName = Name.fromString(names, part);
-            tree = tree == null? make.Ident(partName) : make.Select(tree, partName);
+            tree = tree == null? 
+                make.at(diagPos).Ident(partName) : 
+                make.at(diagPos).Select(tree, partName);
             lastInx = endInx + 1;
         } while (inx >= 0);
         return tree;
     }
     
-    public JCExpression makeTypeTree(Type t) {
+    public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos) {
         if (t.tag == TypeTags.CLASS) {
-            JCExpression texp = makeQualifiedTree(t.tsym.getQualifiedName().toString());
+            JCExpression texp = makeQualifiedTree(t.tsym.getQualifiedName().toString(), diagPos);
             // Type outer = t.getEnclosingType();
             if (!t.getTypeArguments().isEmpty()) {
                 List<JCExpression> targs = List.<JCExpression>nil();
                 for (Type ta : t.getTypeArguments()) {
-                    targs = targs.append(makeTypeTree(ta));
+                    targs = targs.append(makeTypeTree(ta, diagPos));
                 }
-                texp = make.TypeApply(texp, targs);
+                texp = make.at(diagPos).TypeApply(texp, targs);
             }
             return texp;
         } else {
-            return make.Type(t);
+            return make.at(diagPos).Type(t);
         }
     }
 
