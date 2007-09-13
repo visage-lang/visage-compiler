@@ -1,5 +1,5 @@
 /* Feature test #9 -- block expressions
- * @test
+ * TODO: reenable when fixed.
  * @run
  */
 

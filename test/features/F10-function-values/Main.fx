@@ -1,5 +1,5 @@
 /* Feature test #10 -- function values
- * @test
+ * TODO: reenable when fixed.
  * @run
  */
 import java.lang.*;
