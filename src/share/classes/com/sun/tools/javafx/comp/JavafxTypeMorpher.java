@@ -98,19 +98,9 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
     
     private Map<VarSymbol, VarMorphInfo> vmiMap = new HashMap<VarSymbol, VarMorphInfo>();
     
-    static class VarInfo {
-        JCIdent origIdent;
-        JCExpression replacement;
-        VarInfo(JCIdent origIdent) {
-            this.origIdent = origIdent;
-        }
-    }
-    
     class VarMorphInfo {
         VarSymbol varSymbol;
         Type realType;
-        Type varType;
-        Type expressionType;
         Type bindingExpressionType;
         int typeKind;
         boolean shouldMorph = false;
@@ -178,8 +168,6 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
                     }
                     // must be called AFTER typeKind and realType are set in vsym
                     setUsedType(generifyIfNeeded(declLocationType(typeKind), this));
-                    setVarType(generifyIfNeeded(varLocationType(typeKind), this));
-                    setExpressionType(generifyIfNeeded(expressionLocationType(typeKind), this));
                     setBindingExpressionType(generifyIfNeeded(bindingExpressionType(typeKind), this));
                     markShouldMorph();
                 }
@@ -194,10 +182,6 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
         public Type getRealType() { return realType; }
         public Type getUsedType() { return varSymbol.type; }
         private void setUsedType(Type usedType) { varSymbol.type = usedType; }
-        public Type getVarType() { return varType; }
-        private void setVarType(Type t) { varType = t; }
-        public Type getExpressionType() { return expressionType; }
-        private void setExpressionType(Type t) { expressionType = t; }
         public Type getBindingExpressionType() { return bindingExpressionType; }
         private void setBindingExpressionType(Type t) { bindingExpressionType = t; }
         public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
@@ -321,32 +305,6 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
     Type bindingExpressionType(int typeKind) {
         return bindingExpression[typeKind].type;
     }
-
-    Type sharedLocationType(int typeKind, LocationNameSymType[] lnsta) {
-        LocationNameSymType lnst = lnsta[typeKind];
-        return lnst.type;
-    }
-
-    JCExpression declLocationId(int pos, int typeKind) {
-        return sharedLocationId(pos, typeKind, declLocation);
-    }
-    
-    JCExpression varLocationId(int pos, int typeKind) {
-        return sharedLocationId(pos, typeKind, varLocation);
-    }
-    
-    JCExpression expressionLocationId(int pos, int typeKind) {
-        return sharedLocationId(pos, typeKind, exprLocation);
-    }
-    
-    JCExpression bindingExpressionId(int pos, int typeKind) {
-        return sharedLocationId(pos, typeKind, bindingExpression);
-    }
-    
-    JCExpression sharedLocationId(int pos, int typeKind, LocationNameSymType[] lnsta) {
-        LocationNameSymType lnst = lnsta[typeKind];
-        return make.at(pos).Identifier(lnst.name);
-    }
     
     JCExpression sharedLocationId(DiagnosticPosition diagPos, int typeKind, LocationNameSymType[] lnsta) {
         LocationNameSymType lnst = lnsta[typeKind];
@@ -355,10 +313,8 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
     
     JCExpression castToReal(Type realType, JCExpression expr) {
         // cast the expression so that boxing works
-
         JCExpression typeExpr = make.Type(realType);
-        JCExpression result = make.TypeCast(typeExpr, expr);
-        
+        JCExpression result = make.TypeCast(typeExpr, expr);     
         return result;
     }
     
@@ -670,7 +626,7 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
     
     public JCExpression buildExpression(VarSymbol vsym, JCExpression tree, JavafxBindStatus bindStatus) {
         DiagnosticPosition diagPos = tree.pos();
-        final HashMap<VarSymbol,VarInfo> varMap = new HashMap<VarSymbol,VarInfo>();
+        final ListBuffer<JCExpression> varList = ListBuffer.<JCExpression>lb();
         
         TreeScanner ts = new TreeScanner() {
             @Override
@@ -678,18 +634,15 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
                 if (tree.sym instanceof VarSymbol) {
                     VarSymbol vsym = (VarSymbol)tree.sym;
                     VarMorphInfo vmi = varMorphInfo(vsym);
-                    if (vmi.shouldMorph()) {
-                        tree.setType(vmi.getUsedType());
-                        
-                        varMap.put(vsym, new VarInfo(tree));
-                    }
+                    assert vmi.shouldMorph();
+                    
+                    varList.append(tree);
                 }
             }
         };
         ts.scan(tree);
         
         VarMorphInfo vmi = varMorphInfo(vsym);
-        int typeKind = vmi.getTypeKind();
         
         ListBuffer<JCExpression> argValues = ListBuffer.lb();
         //TODO: this should be either JavaFX ASTs of hidden in translation field
@@ -714,9 +667,7 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
                     make.at(diagPos).Modifiers(0), 
                     List.<JCTree>of(getMethod)));
         argValues.append(newExpr);
-        for (VarInfo vi : varMap.values()) {
-            argValues.append(vi.origIdent);
-        }
+        argValues.appendList(varList);
         
         Name makeName = bindStatus.isLazy()? makeLazyMethodName : makeMethodName;
         return makeCall(vmi, diagPos, argValues.toList(), exprLocation, makeName);
