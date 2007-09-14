@@ -25,6 +25,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.tools.javac.code.Flags;
 import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.TypeTags.BOT;
 import static com.sun.tools.javac.code.TypeTags.VOID;
@@ -128,19 +129,21 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
                 
         List<JCTree> emptyVarList = List.nil();
 
-        // Add run() method...
-        moduleClassDefs.prepend(makeModuleMethod(runMethodName, emptyVarList, false, stats.toList()));
+        // Add run() method... If the class can be a module class.
+        if (canClassBeModule(moduleClass)) {
+            moduleClassDefs.prepend(makeModuleMethod(runMethodName, emptyVarList, false, stats.toList()));
 
-        if (moduleClass == null) {
-            moduleClass =  make.ClassDeclaration(
-                make.Modifiers(0),   //TODO: maybe?  make.Modifiers(PUBLIC), 
-                moduleClassName, 
-                List.<JCExpression>nil(),             // no supertypes
-                moduleClassDefs.toList());
-        } else {
-            moduleClass.defs = moduleClass.defs.appendList(moduleClassDefs);
+            if (moduleClass == null) {
+                moduleClass =  make.ClassDeclaration(
+                    make.Modifiers(0),   //TODO: maybe?  make.Modifiers(PUBLIC), 
+                    moduleClassName, 
+                    List.<JCExpression>nil(),             // no supertypes
+                    moduleClassDefs.toList());
+            } else {
+                moduleClass.defs = moduleClass.defs.appendList(moduleClassDefs);
+            }
+            moduleClass.isModuleClass = true;
         }
-        moduleClass.isModuleClass = true;
         topLevelDefs.append(moduleClass);
         
         module.defs = topLevelDefs.toList();
@@ -227,5 +230,14 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         }
         
         topLevelNamesSet.add(name);
+    }
+    
+    private boolean canClassBeModule(JFXClassDeclaration moduleClass) {
+        if (moduleClass != null && moduleClass.mods != null &&
+                (moduleClass.mods.flags & Flags.ABSTRACT) != 0) {
+            return false;
+        }
+        
+        return true;
     }
 }
