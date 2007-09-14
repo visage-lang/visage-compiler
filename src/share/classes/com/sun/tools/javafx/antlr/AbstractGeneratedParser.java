@@ -93,7 +93,7 @@ public abstract class AbstractGeneratedParser extends Parser {
         return List.<JCTree>nil();
     }
     
-    protected List noJCAnnotations() {
+    protected List<JCAnnotation> noJCAnnotations() {
         return List.<JCAnnotation>nil();
     }
 }

@@ -3,10 +3,6 @@ grammar v2;
 options { superClass = AbstractGeneratedParser; }
  
 tokens {
-   BAR='|';
-   POUND='#';
-   TYPEOF='typeof';
-   DOTDOT='..';
    ABSTRACT='abstract';
    AFTER='after';
    AND='and';
@@ -20,64 +16,70 @@ tokens {
    CATCH='catch';
    CHANGE='change';
    CLASS='class';
+   CONTINUE='continue';
    DELETE='delete';
    DO='do';
    DUR='dur';
    EASEBOTH='easeboth';
    EASEIN='easein';
    EASEOUT='easeout';
-   TIE='tie';
-   STAYS='stays';
-   RETURN='return';
-   THROW='throw';
-   VAR='var';
-   PACKAGE='package';
-   IMPORT='import';
+   ELSE='else';
+   EXTENDS='extends';
+   FALSE='false';
+   FINALLY='finally';
+   FIRST='first';
+   FOR='for';
    FROM='from';
-   ON='on';
+   FUNCTION='function';
+   IF='if';
+   IMPLEMENTS='implements';
+   IMPORT='import';
+   IN='in';
+   INDEX='index';
+   INDEXOF='indexof';
+   INIT='init';
+   INSTANCEOF='instanceof';
    INSERT='insert';
    INTO='into';
-   FIRST='first';
+   INVERSE='inverse';
    LAST='last';
-   IF='if';
-   THEN='then';
-   ELSE='else';
-   THIS='this';
-   NULL='null';
-   TRUE='true';
-   FALSE='false';
-   FOR='for';
-   IN='in';
-   WHILE='while';
-   CONTINUE='continue';
+   LAZY='lazy';
    LINEAR='linear';
    MOTION='motion';
-   TRY='try';
-   FINALLY='finally';
-   LAZY='lazy';
-   WHERE='where';
-   NOT='not';
    NEW='new';
+   NOT='not';
+   NULL='null';
+   OPERATION='operation';
+   ON='on';
+   OR='or';
+   ORDER='order';
+   PACKAGE='package';
    PRIVATE='private';
    PROTECTED='protected';
    PUBLIC='public';
-   FUNCTION='function';
-   OPERATION='operation';
    READONLY='readonly';
-   INVERSE='inverse';
-   TYPE='type';
-   EXTENDS='extends';
-   ORDER='order';
-   IMPLEMENTS='implements';
-   INDEX='index';
-   INIT='init';
-   INSTANCEOF='instanceof';
-   INDEXOF='indexof';
+   RETURN='return';
+   REVERSE='reverse';
    SELECT='select';
    SUPER='super';
-   OR='or';
    SIZEOF='sizeof';
-   REVERSE='reverse';
+   STAYS='stays';
+   THEN='then';
+   THIS='this';
+   THROW='throw';
+   TIE='tie';
+   TRY='try';
+   TRUE='true';
+   TYPE='type';  
+   TYPEOF='typeof';
+   VAR='var';
+   WITH='with';
+   WHILE='while';
+   WHERE='where';
+   
+   BAR='|';
+   POUND='#';
+   DOTDOT='..';
    LPAREN='(';
    RPAREN=')';
    LBRACKET='[';
@@ -361,13 +363,18 @@ classMembers returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]
 	  )?
 	;
 attributeDefinition  returns [JFXAttributeDefinition def]
+@init { JavafxBindStatus bindStatus = JavafxBindStatus.UNBOUND; 
+	JCExpression expr = null; 
+	JFXMemberSelector inverse = null;
+}
 	: modifierFlags ATTRIBUTE name 
 	    typeReference 
-	   (EQ bindOpt expression | inverseClause)? 
+	   (EQ boundExpression 			{ bindStatus = $boundExpression.status; expr = $boundExpression.expr; }
+	   | inverseClause			{ inverse = $inverseClause.inverse; } )? 
 	   (ON CHANGE ocb=block)?
 	    SEMI        			{ $def = F.at(pos($ATTRIBUTE)).AttributeDefinition($modifierFlags.mods,
-	    						$name.value, $typeReference.type, $inverseClause.inverse, null, 
-	    						$bindOpt.status, $expression.expr, $ocb.value); }
+	    						$name.value, $typeReference.type, inverse, null, 
+	    						bindStatus, expr, $ocb.value); }
 	;
 inverseClause returns [JFXMemberSelector inverse = null]
 	: INVERSE memberSelector 		{ $inverse = $memberSelector.value; } 
@@ -468,19 +475,22 @@ statement returns [JCStatement value]
        	;
 variableDeclaration   returns [JCStatement value]
 	: VAR  name  typeReference  
-	    ( EQ bindOpt  expression 		{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(0L),
-	    							$expression.expr, $bindOpt.status); }
+	    ( EQ boundExpression	 	{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(0L),
+	    							$boundExpression.expr, $boundExpression.status); }
 	    | 					{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(0L), null, null); } 
 	    )   
 	   ;
-bindOpt   returns [JavafxBindStatus status = UNBOUND]
-	: ( BIND 				{ $status = UNIDIBIND; }
-	      (LAZY				{ $status = LAZY_UNIDIBIND; } )?
-	  | STAYS 				{ $status = UNIDIBIND; }
-	      (LAZY				{ $status = LAZY_UNIDIBIND; } )?
-	  | TIE					{ $status = BIDIBIND; }
-	      (LAZY				{ $status = LAZY_BIDIBIND; } )?
-	  )? ;
+boundExpression   returns [JavafxBindStatus status, JCExpression expr]
+@init { boolean isLazy = false; }
+	: ( BIND 				
+	      (LAZY				{ isLazy = true; } )?
+	      e1=expression			{ $expr = $e1.expr; }
+	      (WITH INVERSE			{ $status = isLazy? JavafxBindStatus.LAZY_BIDIBIND :  JavafxBindStatus.BIDIBIND; }
+	      |					{ $status = isLazy? JavafxBindStatus.LAZY_UNIDIBIND :  JavafxBindStatus.UNIDIBIND; }
+	      )
+	  )
+	| e2=expression				{ $expr = $e2.expr; $status = UNBOUND; }
+	;
 returnStatement   returns [JCStatement value]
 @init { JCExpression expr = null; }
 	: RETURN (expression 			{ expr = $expression.expr; } )?  
@@ -594,7 +604,7 @@ objectLiteral  returns [ListBuffer<JCStatement> parts = new ListBuffer<JCStateme
 	: ( objectLiteralPart  					{ $parts.append($objectLiteralPart.value); } ) * 
 	;
 objectLiteralPart  returns [JFXStatement value]
-	: name COLON  bindOpt expression (COMMA | SEMI)?	{ $value = F.at(pos($COLON)).ObjectLiteralPart($name.value, $expression.expr, $bindOpt.status); }
+	: name COLON  boundExpression (COMMA | SEMI)?	{ $value = F.at(pos($COLON)).ObjectLiteralPart($name.value, $boundExpression.expr, $boundExpression.status); }
        	| attributeDefinition
        	| functionDefinition 
        	;

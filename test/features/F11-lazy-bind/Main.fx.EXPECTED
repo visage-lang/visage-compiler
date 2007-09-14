@@ -1,3 +1,9 @@
-(pasta, primavera) == (pasta, primavera)
-Lazy:  1
-Eager:  4
+far == far
+near == near
+there == there
+14 == 14
+3 == 3
+99 == 99
+77 == 77
+6 == 6
+1111 == 1111

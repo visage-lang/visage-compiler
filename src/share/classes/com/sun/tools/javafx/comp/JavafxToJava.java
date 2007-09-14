@@ -64,7 +64,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
     private Name.Table names;
     private final Symtab syms;
     private JavafxInitializationBuilder initBuilder;
-    private Set visitedNewClasses;
+    private Set<JCNewClass> visitedNewClasses;
 
     private final String objLitSyntheticName = "$objlit$synth$";
     private int currentObjLitCounter = 0;
@@ -135,7 +135,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         int prevObjLitCounter = currentObjLitCounter;
         currentObjLitCounter = 0;
-        Set prevVisitedNews = visitedNewClasses;
+        Set<JCNewClass> prevVisitedNews = visitedNewClasses;
         try {
             visitedNewClasses = new HashSet<JCNewClass>();
             super.visitClassDeclaration(tree);

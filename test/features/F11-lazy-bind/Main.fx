@@ -1,38 +1,47 @@
-/* Feature test #11 -- lazy attribute binding
- * Demonstrates: lazy binding
+/* Feature test #12 - bidirectional attribute binding
+ * Demonstrates: bidirectional binding
  * @test
  * @run
  */
 
 import java.lang.System;
 
-class Test {
-	attribute a : String;
-	attribute b : String;
-	attribute lz : String = bind lazy lzdo(a, b);
-	attribute lzcount : Integer = 0;
-	operation lzdo(a : String, b : String) {
-		lzcount = lzcount + 1;
-		"({a}, {b})"
-	}
-	attribute eg : String = bind egdo(a, b);
-	attribute egcount : Integer = 0;
-	operation egdo(a : String, b : String) {
-		egcount = egcount + 1;
-		"({a}, {b})"
-	}
+class AttHold {
+    attribute a : Integer = 14;
+    attribute b : Integer = bind a with inverse;
 }
+var label = "far";
+var bound = bind label with inverse;
 
-var t = Test { 
-	a: "ink"
-	b: "blot"
+System.out.println("{label} == {bound}");
+
+label = "near";
+System.out.println("{label} == {bound}");
+
+bound = "there";
+System.out.println("{label} == {bound}");
+
+var ah = new AttHold;
+
+System.out.println("{ah.a} == {ah.b}");
+
+ah.a = 3;
+System.out.println("{ah.a} == {ah.b}");
+
+ah.b = 99;
+System.out.println("{ah.a} == {ah.b}");
+
+var tr = 77;
+
+ah = AttHold {
+    a: bind tr with inverse
 };
 
-t.a = "pink";
-t.b = "ribbon";
-t.a = "pasta";
-t.b = "primavera";
+System.out.println("{ah.a} == {tr}");
 
-System.out.println("{t.lz} == {t.eg}");
-System.out.println("Lazy:  {t.lzcount}");
-System.out.println("Eager:  {t.egcount}");
+ah.a = 6;
+System.out.println("{ah.a} == {tr}");
+
+tr = 1111;
+System.out.println("{ah.a} == {tr}");
+
