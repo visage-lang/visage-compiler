@@ -8,7 +8,7 @@ JavaFX compiler using NetBeans.  Here are the steps:
 
 1.  Download the OpenJDK source for JDK 7 build b17 (or at least its shared classes).
     The subversion repository for this build is located at 
-    https://openjdk.dev.java.net/source/browse/openjdk/jdk/tags/jdk7-b17
+    https://openjdk.dev.java.net/svn/openjdk/jdk/tags/jdk7-b17
 
 2a. From the top-level directory (normally j2se/classes/src/share/classes),
     run:
