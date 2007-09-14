@@ -9,6 +9,7 @@ import java.util.List;
  * (such as appending an empty sequence). These methods are generally preferable to the constructors for
  * CompositeSequence, FilterSequence, SubSequence, etc, because they implement heuristics for sensible time-space
  * tradeoffs.
+ * 
  * @author Brian Goetz
  */
 public final class Sequences {

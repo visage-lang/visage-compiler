@@ -1,11 +1,13 @@
 package com.sun.javafx.runtime.sequence;
 
 /**
- * CompositeSequence
+ * Intermediate (view) sequence implementation that represents the concatenation of zero or more other sequences of
+ * the same element type.  Concatenating sequences should be done through the Sequences.concatenate() factory,
+ * not through the CompositeSequence constructor.  O(nSeq) space and time construction costs.
  *
  * @author Brian Goetz
  */
-public class CompositeSequence<T> extends AbstractSequence<T> implements Sequence<T> {
+class CompositeSequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
     private final Sequence<? extends T>[] sequences;
     private final int[] startPositions;

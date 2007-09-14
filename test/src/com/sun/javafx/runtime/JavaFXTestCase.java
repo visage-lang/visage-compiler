@@ -4,8 +4,8 @@ import com.sun.javafx.runtime.location.DoubleLocation;
 import com.sun.javafx.runtime.location.IntLocation;
 import com.sun.javafx.runtime.location.ObjectLocation;
 import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.sequence.ArraySequence;
 import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
 import junit.framework.TestCase;
 
 import java.util.Collection;
@@ -22,7 +22,7 @@ public abstract class JavaFXTestCase extends TestCase {
      * equality of toString(), by iterating the elements, and by toArray
      */
     protected <T> void assertEquals(Sequence<T> sequence, T... values) {
-        Sequence<T> newSeq = new ArraySequence<T>(sequence.getElementType(), values);
+        Sequence<T> newSeq = Sequences.make(sequence.getElementType(), values);
         assertEquals(sequence, newSeq);
 
         StringBuffer sb = new StringBuffer();
@@ -48,7 +48,7 @@ public abstract class JavaFXTestCase extends TestCase {
     }
 
     protected <T> void assertEquals(Sequence<T> sequence, T value) {
-        assertEquals(sequence, new ArraySequence<T>(sequence.getElementType(), value));
+        assertEquals(sequence, Sequences.singleton(sequence.getElementType(), value));
     }
 
     protected <T> void assertEquals(SequenceLocation<T> sequence, T... values) {

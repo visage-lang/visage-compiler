@@ -3,11 +3,13 @@ package com.sun.javafx.runtime.sequence;
 import java.util.BitSet;
 
 /**
- * FilterSequence
+ * Represents a view of another sequence that has some elements removed, suitable for "delete from" or foo[predicate]
+ * sequence operations.  Instances of FilterSequence should be constructed with the Sequences.filter() factory, rather
+ * than with the FilterSequence constructor.  O(newElementCount) space and time construction costs.
  *
  * @author Brian Goetz
  */
-public class FilterSequence<T> extends AbstractSequence<T> implements Sequence<T> {
+class FilterSequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
     private final Sequence<T> sequence;
     private final int[] indices;

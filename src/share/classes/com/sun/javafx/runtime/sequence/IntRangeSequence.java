@@ -1,11 +1,13 @@
 package com.sun.javafx.runtime.sequence;
 
 /**
- * IntRangeSequence
+ * Special case implementation for sequences that are ranges of integers, such as [1..10].  Range sequences should
+ * be constructed with the Sequences.range() factory method rather than with the IntRangeSequence constructor.
+ * O(1) space and time construction costs.
  *
  * @author Brian Goetz
  */
-public class IntRangeSequence extends AbstractSequence<Integer> implements Sequence<Integer> {
+class IntRangeSequence extends AbstractSequence<Integer> implements Sequence<Integer> {
 
     private final int lower, upper;
 

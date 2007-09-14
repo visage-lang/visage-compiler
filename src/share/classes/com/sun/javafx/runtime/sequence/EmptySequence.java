@@ -4,11 +4,13 @@ import java.util.Map;
 import java.util.HashMap;
 
 /**
- * EmptySequence
+ * Represents an empty sequence of a specific type.  Empty sequences are cached using the "Flyweight" pattern.
+ * To construct an empty sequence, use the Sequences.emptySequence() factory, not the EmptySequence constructor.
+ * O(1) space and time construction costs.  
  *
  * @author Brian Goetz
  */
-public class EmptySequence<T> extends AbstractSequence<T> implements Sequence<T> {
+class EmptySequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
     private static final Map<Class<?>, Sequence<?>> map = new HashMap<Class<?>, Sequence<?>>();
 

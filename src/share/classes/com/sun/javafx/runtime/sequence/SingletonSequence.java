@@ -1,11 +1,12 @@
 package com.sun.javafx.runtime.sequence;
 
 /**
- * SingletonSequence
+ * Represents a sequence with a single element.  Singleton sequences should be created with the Sequences.singleton()
+ * factory, not the SingletonSequence constructor.  O(1) space and time construction costs.
  *
  * @author Brian Goetz
  */
-public class SingletonSequence<T> extends AbstractSequence<T> implements Sequence<T> {
+class SingletonSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     private final T value;
 
     public SingletonSequence(Class<T> clazz, T value) {

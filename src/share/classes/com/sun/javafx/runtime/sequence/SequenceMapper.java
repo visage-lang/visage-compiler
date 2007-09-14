@@ -1,7 +1,7 @@
 package com.sun.javafx.runtime.sequence;
 
 /**
- * SequenceMapper
+ * Represents a mapping function that will be applied to each element of a sequence, used in list comprehensions.
  *
  * @author Brian Goetz
  */

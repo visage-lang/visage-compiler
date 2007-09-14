@@ -4,7 +4,9 @@ import java.util.BitSet;
 import java.util.Iterator;
 
 /**
- * AbstractSequence
+ * Abstract base class for sequence classes.  A subclass need only define the size() and get() methods; subclasses
+ * may also want to provide optimized versions of some other methods, such as toArray() or getBits().  Subclasses that
+ * represent views onto other sequences should also implement the getDepth() method.  
  *
  * @author Brian Goetz
  */

@@ -1,11 +1,13 @@
 package com.sun.javafx.runtime.sequence;
 
 /**
- * ReverseSequence
+ * Provides a view of another sequence with the elements in reverse order.  Reversed sequences should be created
+ * with the static factory Sequences.reverse() rather than with the ReverseSequence constructor.  O(1) space and time
+ * construction costs.
  *
  * @author Brian Goetz
  */
-public class ReverseSequence<T> extends AbstractSequence<T> implements Sequence<T> {
+class ReverseSequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
     private final Sequence<T> sequence;
     private final int size;

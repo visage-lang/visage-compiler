@@ -4,11 +4,13 @@ import java.util.BitSet;
 import java.util.List;
 
 /**
- * ArraySequence
+ * Sequence implementation class that stores sequence elements in an array.  To create array-based sequences, use
+ * the make() factory methods in Sequences instead of the ArraySequence constructor.   O(n) space and time construction
+ * costs.  
  *
  * @author Brian Goetz
  */
-public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
+class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
     private final T[] array;
 

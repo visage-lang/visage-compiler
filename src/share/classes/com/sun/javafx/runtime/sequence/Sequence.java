@@ -7,6 +7,12 @@ import java.util.BitSet;
  * a length, and a list of elements.  New sequences can be derived by calling the factory methods
  * (insert, delete, subsequence, etc) or can be constructed with the static factories in Sequences.
  * Sequence types are reified; the sequence references the Class object for the element type.
+ *
+ * Sequences are stored as trees.  The "leaf" nodes are array-based sequences; intermediate nodes are "views"
+ * onto underlying sequences, performing transformations such as adding elements, filtering elements, changing the
+ * order of elements, etc.  Do not use the constructors for the various Sequence implementation classes to produce
+ * sequences; use the factory methods in the Sequence interface or the static factories in the Sequences class.
+ *
  * Sequences with elements of type Integer, Boolean, and Double are special; in these cases, when the
  * get() operation might return a null (because the index is out of range), it will instead return the
  * default value for that type (zero or false).

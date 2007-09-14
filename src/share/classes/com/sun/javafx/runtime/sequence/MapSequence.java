@@ -1,11 +1,14 @@
 package com.sun.javafx.runtime.sequence;
 
 /**
- * MapSequence -- applying a transformation to the elements of a sequence.  Transformation is done lazily.
+ * Provides a view of an underlying sequence by applying a mapping function to each element of the underlying
+ * sequence. The mapping is done lazily, on each call to get(), rather than eagerly, so the time and space
+ * construction costs of a MapSequence are O(1).  Mapped sequences should be constructed with the factory method
+ * Sequences.map(), rather than with the MapSequence constructor.
  *
  * @author Brian Goetz
  */
-public class MapSequence<T, U> extends AbstractSequence<U> implements Sequence<U> {
+class MapSequence<T, U> extends AbstractSequence<U> implements Sequence<U> {
 
     private final Sequence<T> sequence;
     private final SequenceMapper<T, U> mapper;
