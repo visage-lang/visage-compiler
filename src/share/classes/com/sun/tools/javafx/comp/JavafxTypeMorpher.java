@@ -322,8 +322,6 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
         Type newType;
         if (vmi.getTypeKind() == TYPE_KIND_OBJECT) {
             List<Type> actuals = List.of(vmi.getRealType());
-            List<Type> formals = aLocationType.tsym.type.getTypeArguments();
-            //actuals.head = actuals.head.withTypeVar(formals.head);
             Type clazzOuter = declLocationType(vmi.getTypeKind()).getEnclosingType();
             newType = new ClassType(clazzOuter, actuals, aLocationType.tsym);
         } else {
@@ -456,7 +454,9 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
         VarSymbol vsym = tree.sym;
         VarMorphInfo vmi = varMorphInfo(vsym);
         if (vmi.shouldMorph()) {
-            JCExpression init = tree.init != null? tree.init : makeLit(vmi.getRealType(), vmi.getDefaultValue());
+            JCExpression init = tree.init != null? 
+                tree.init : 
+                makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
             tree.init = translateDefinitionalAssignment(init, vmi, tree.pos(), bindStatus);
             tree.type = vmi.getUsedType();
 
@@ -613,15 +613,14 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
     // Bound Expression support
     //========================================================================================================================
     
-    /** Make an attributed tree representing a literal. This will be an
-     *  Ident node in the case of boolean literals, a Literal node in all
-     *  other cases.
+    /** Make an attributed tree representing a literal. This will be 
+     *  a Literal node.
      *  @param type       The literal's type.
      *  @param value      The literal's value.
      */
-    JCExpression makeLit(Type type, Object value) {
+    JCExpression makeLit(Type type, Object value, DiagnosticPosition diagPos) {
         int tag = value==null? TypeTags.BOT : type.tag;
-        return make.Literal(tag, value).setType(type.constType(value));
+        return make.at(diagPos).Literal(tag, value).setType(type.constType(value));
     }
     
     public JCExpression buildExpression(VarSymbol vsym, JCExpression tree, JavafxBindStatus bindStatus) {
