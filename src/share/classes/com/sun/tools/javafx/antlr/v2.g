@@ -64,6 +64,7 @@ tokens {
    SUPER='super';
    SIZEOF='sizeof';
    STAYS='stays';
+   STATIC='static';
    THEN='then';
    THIS='this';
    THROW='throw';
@@ -425,7 +426,8 @@ accessModifier returns [long flags = 0]
 	|  PROTECTED       			{ flags |= Flags.PROTECTED; } ) ;
 otherModifier returns [long flags = 0]
 	: (ABSTRACT        			{ flags |= Flags.ABSTRACT; }
-	|  READONLY        			{ flags |= Flags.FINAL; } ) ;
+	|  READONLY        			{ flags |= Flags.FINAL; } 
+	|  STATIC        			{ flags |= Flags.STATIC; } ) ;
 memberSelector returns [JFXMemberSelector value]
 	: name1=name   DOT   name2=name		{ $value = F.at($name1.pos).MemberSelector($name1.value, $name2.value); } 
 	;
