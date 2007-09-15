@@ -26,6 +26,7 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
@@ -51,7 +52,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
     protected static final Context.Key<JavafxToJava> jfxToJavaKey =
         new Context.Key<JavafxToJava>();
 
-    private JavafxTreeMaker make;
+    private TreeMaker make;  // should be generating Java AST, explicitly cast when not
     private Log log;
     private Name.Table names;
     private final Symtab syms;
@@ -62,6 +63,8 @@ public class JavafxToJava extends JavafxTreeTranslator {
     private int currentObjLitCounter = 0;
     private ListBuffer<JCStatement> prependInFrontOfStatement = null;
     
+    private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";
+    
     public static JavafxToJava instance(Context context) {
         JavafxToJava instance = context.get(jfxToJavaKey);
         if (instance == null)
@@ -70,7 +73,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
     }
 
     protected JavafxToJava(Context context) {
-        make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
+        make = JavafxTreeMaker.instance(context);
         log = Log.instance(context);
         names = Name.Table.instance(context);
         syms = Symtab.instance(context);
@@ -348,8 +351,17 @@ public class JavafxToJava extends JavafxTreeTranslator {
     }
     
     @Override
-    public void visitSequenceExplicit(JFXSequenceExplicit that) {
-        super.visitSequenceExplicit(that);
+    public void visitSequenceExplicit(JFXSequenceExplicit tree) {
+        DiagnosticPosition diagPos = tree.pos();
+        super.visitSequenceExplicit(tree);
+        JCExpression meth = ((JavafxTreeMaker)make).at(diagPos).Identifier(sequencesMakeString);
+        Type elemType = tree.type.getTypeArguments().get(0);
+        ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb();
+        List<JCExpression> typeArgs = List.<JCExpression>of(makeTypeTree(elemType, diagPos));
+        // type name .class
+        args.append(make.at(diagPos).Select(makeTypeTree(elemType, diagPos), names._class));
+        args.appendList(tree.getItems());
+        result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
     }
     
     private Name getSyntheticName() {

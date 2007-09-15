@@ -414,6 +414,10 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         if (str.indexOf('.') < 0 && str.indexOf('<') < 0) {
             return Ident(name);
         }
+        return Identifier(str);
+    }
+    
+    public JCExpression Identifier(String str) {
         JCExpression tree = null;
         int inx;
         int lastInx = 0;
@@ -426,13 +430,13 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                 if (ltInx >= 0) {
                     // proof of concept only
                     String part = str.substring(lastInx, ltInx);
-                    Name partName = Name.fromString(name.table, part);
+                    Name partName = Name.fromString(names, part);
                     tree = tree==null? Ident(partName) : Select(tree, partName);
                     tree.pos = pos;
                     ListBuffer<JCExpression> generic = ListBuffer.lb();
                     int gtInx = str.indexOf('>', ltInx);
                     String tpart = str.substring(ltInx+1, gtInx);
-                    Name tpartName = Name.fromString(name.table, tpart);
+                    Name tpartName = Name.fromString(names, tpart);
                     JCExpression texp = Ident(tpartName);
                     generic.append(texp);
                     tree = TypeApply(tree, generic.toList());
@@ -443,7 +447,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                 endInx = inx;
             }
             String part = str.substring(lastInx, endInx);
-            Name partName = Name.fromString(name.table, part);
+            Name partName = Name.fromString(names, part);
             tree = tree==null? Ident(partName) : Select(tree, partName);
             tree.pos = pos;
             lastInx = endInx + 1;
