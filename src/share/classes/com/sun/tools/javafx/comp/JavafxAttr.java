@@ -152,7 +152,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         names = Name.Table.instance(context);
         log = Log.instance(context);
         rs = JavafxResolve.instance(context);
-        chk = (JavafxCheck)JavafxCheck.instance(context);
+        chk = JavafxCheck.instance(context);
         memberEnter = JavafxMemberEnter.instance(context);
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         enter = JavafxEnter.instance(context);
@@ -367,9 +367,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
     /** Derived visitor method: attribute a type tree.
      */
-// JavaFX change
-    public
-// JavaFX change
     Type attribType(JCTree tree, JavafxEnv<JavafxAttrContext> env) {
         Type result = attribTree(tree, env, TYP, Type.noType);
         return result;
@@ -381,9 +378,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         return attribTree(tree, env, NIL, Type.noType);
     }
 
-    // Javafx change
-    protected
-// Javafx change
+    /** Attribute a list of expressions, returning a list of types.
+     */
+    List<Type> attribExprs(List<JCExpression> trees, JavafxEnv<JavafxAttrContext> env, Type pt) {
+        ListBuffer<Type> ts = new ListBuffer<Type>();
+        for (List<JCExpression> l = trees; l.nonEmpty(); l = l.tail)
+            ts.append(attribExpr(l.head, env, pt));
+        return ts.toList();
+    }
+    
     /** Attribute the arguments in a method call, returning a list of types.
      */
     List<Type> attribArgs(List<JCExpression> trees, JavafxEnv<JavafxAttrContext> env) {
@@ -2271,10 +2274,34 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
     
     @Override
-    public void visitSequenceExplicit(JFXSequenceExplicit that) {
-        for (JCExpression expr : that.getItems()) {
-            expr.accept(this);
+    public void visitSequenceExplicit(JFXSequenceExplicit tree) {
+        //TODO: fix this -- temp hack: use first item type as element type
+        JCExpression first = tree.getItems().get(0);
+        Type elemType = chk.checkNonVoid(first.pos(), attribExpr(first, env));
+        /*****
+        for (JCExpression expr : tree.getItems()) {
+            Type itemType = chk.checkNonVoid(expr.pos(), attribExpr(expr, env));
+            if (elemType == null) {
+                elemType = itemType;
+            } else {
+         *      compare and merge types
+                if (incompatible) {
+                    log.error(expr.pos(), "incomparable.types", itemType, elemType);
+                }
+            }
         }
+         * *****/
+        attribExprs(tree.getItems(), env, elemType);
+        
+        if (elemType.isPrimitive()) {
+            elemType = types.boxedClass(elemType).type;
+        }
+        Type owntype = syms.javafx_sequenceType;
+        List<Type> actuals = List.of(elemType);
+        Type clazzOuter = owntype.getEnclosingType();
+        owntype = new ClassType(clazzOuter, actuals, owntype.tsym);
+
+        result = check(tree, owntype, VAL, pkind, pt);
     }
 
     @Override

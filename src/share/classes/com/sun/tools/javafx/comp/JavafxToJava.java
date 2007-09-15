@@ -41,15 +41,7 @@ import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 
-import com.sun.tools.javafx.tree.JFXAttributeDefinition;
-import com.sun.tools.javafx.tree.JFXBlockExpression;
-import com.sun.tools.javafx.tree.JFXClassDeclaration;
-import com.sun.tools.javafx.tree.JFXOperationDefinition;
-import com.sun.tools.javafx.tree.JFXInitDefinition;
-import com.sun.tools.javafx.tree.JFXObjectLiteralPart;
-import com.sun.tools.javafx.tree.JFXPureObjectLiteral;
-import com.sun.tools.javafx.tree.JFXStringExpression;
-import com.sun.tools.javafx.tree.JFXVar;
+import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.tree.JavafxTreeTranslator;
 import com.sun.tools.javafx.tree.JavafxTreeMaker; // only for BlockExpression
 import java.util.HashSet;
@@ -353,6 +345,11 @@ public class JavafxToJava extends JavafxTreeTranslator {
         JFXBlockExpression blockExpr1 = ((JavafxTreeMaker)make).at(tree.pos).BlockExpression(0, stats.toList(), ident2);
         result = blockExpr1; 
         }
+    }
+    
+    @Override
+    public void visitSequenceExplicit(JFXSequenceExplicit that) {
+        super.visitSequenceExplicit(that);
     }
     
     private Name getSyntheticName() {

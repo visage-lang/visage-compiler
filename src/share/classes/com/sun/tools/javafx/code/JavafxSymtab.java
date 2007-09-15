@@ -37,6 +37,8 @@ import static com.sun.tools.javac.jvm.ByteCodes.*;
  */
 public class JavafxSymtab extends Symtab {
     
+    public final Type javafx_sequenceType;
+    
     public static void preRegister(final Context context) {
         context.put(symtabKey, new Context.Factory<Symtab>() {
             public Symtab make() {
@@ -55,6 +57,7 @@ public class JavafxSymtab extends Symtab {
         javafx_StringType = stringType;
         javafx_BooleanType = booleanType;
         javafx_VoidType = voidType;
+        javafx_sequenceType = enterClass("com.sun.javafx.runtime.sequence.Sequence");
     }
     
     // Javafx types
