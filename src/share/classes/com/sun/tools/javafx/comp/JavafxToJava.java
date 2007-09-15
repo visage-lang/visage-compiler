@@ -148,9 +148,8 @@ public class JavafxToJava extends JavafxTreeTranslator {
         if (tree.isModuleClass) {
             // Add main method...
             List<JCExpression> emptyExpressionList = List.nil();
-            JCNewClass newClass = make.NewClass(null, emptyExpressionList, make.Ident(tree.getSimpleName()), emptyExpressionList, null);
-            JCFieldAccess select = make.Select(newClass, Name.fromString(names, JavafxModuleBuilder.runMethodName));
-            JCMethodInvocation runCall = make.Apply(emptyExpressionList, select, emptyExpressionList);
+            JCIdent runIdent = make.Ident(Name.fromString(names, JavafxModuleBuilder.runMethodName));
+            JCMethodInvocation runCall = make.Apply(emptyExpressionList, runIdent, emptyExpressionList);
             List<JCStatement> mainStats = List.<JCStatement>of(make.Exec(runCall));
             List<JCVariableDecl> paramList = List.nil();
             paramList = paramList.append(make.VarDef(make.Modifiers(0), 

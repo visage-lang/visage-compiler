@@ -130,20 +130,19 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         List<JCTree> emptyVarList = List.nil();
 
         // Add run() method... If the class can be a module class.
-        if (canClassBeModule(moduleClass)) {
-            moduleClassDefs.prepend(makeModuleMethod(runMethodName, emptyVarList, false, stats.toList()));
+        moduleClassDefs.prepend(makeModuleMethod(runMethodName, emptyVarList, true, stats.toList()));
 
-            if (moduleClass == null) {
-                moduleClass =  make.ClassDeclaration(
-                    make.Modifiers(0),   //TODO: maybe?  make.Modifiers(PUBLIC), 
-                    moduleClassName, 
-                    List.<JCExpression>nil(),             // no supertypes
-                    moduleClassDefs.toList());
-            } else {
-                moduleClass.defs = moduleClass.defs.appendList(moduleClassDefs);
-            }
-            moduleClass.isModuleClass = true;
+        if (moduleClass == null) {
+            moduleClass =  make.ClassDeclaration(
+                make.Modifiers(0),   //TODO: maybe?  make.Modifiers(PUBLIC), 
+                moduleClassName, 
+                List.<JCExpression>nil(),             // no supertypes
+                moduleClassDefs.toList());
+        } else {
+            moduleClass.defs = moduleClass.defs.appendList(moduleClassDefs);
         }
+        moduleClass.isModuleClass = true;
+
         topLevelDefs.append(moduleClass);
         
         module.defs = topLevelDefs.toList();
@@ -184,7 +183,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     }
 
 
-     private JFXOperationDefinition makeModuleMethod(String name, List<JCTree> paramList, boolean isStatic, List<JCStatement> stats) {
+    private JFXOperationDefinition makeModuleMethod(String name, List<JCTree> paramList, boolean isStatic, List<JCStatement> stats) {
         JFXBlockExpression body = make.BlockExpression(0, stats, null);
         return make.OperationDefinition(
                 make.Modifiers(isStatic? PUBLIC | STATIC : PUBLIC), 
@@ -230,14 +229,5 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         }
         
         topLevelNamesSet.add(name);
-    }
-    
-    private boolean canClassBeModule(JFXClassDeclaration moduleClass) {
-        if (moduleClass != null && moduleClass.mods != null &&
-                (moduleClass.mods.flags & Flags.ABSTRACT) != 0) {
-            return false;
-        }
-        
-        return true;
     }
 }
