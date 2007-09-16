@@ -416,6 +416,24 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
+    @Override
+    public void visitForExpression(JFXForExpression tree) {
+        try {
+            print("for (");
+            print(tree.getName());
+            print(" in ");
+            printExpr(tree.getSequenceExpression());
+            if (tree.getWhereExpression() != null) {
+                print(" where ");
+                printExpr(tree.getWhereExpression());
+            }
+            print(") ");
+            printExpr(tree.getBodyExpression());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+    
     public void visitTree(JCTree tree) {
         assert false : "Should not be here!!!";
     }

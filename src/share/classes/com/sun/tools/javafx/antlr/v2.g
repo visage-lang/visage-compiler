@@ -481,17 +481,6 @@ variableDeclaration   returns [JCStatement value]
 	    							$boundExpression.expr, $boundExpression.status); }
 	    | 					{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(0L), null, null); } 
 	    )   
-	   ;
-boundExpression   returns [JavafxBindStatus status, JCExpression expr]
-@init { boolean isLazy = false; }
-	: ( BIND 				
-	      (LAZY				{ isLazy = true; } )?
-	      e1=expression			{ $expr = $e1.expr; }
-	      (WITH INVERSE			{ $status = isLazy? JavafxBindStatus.LAZY_BIDIBIND :  JavafxBindStatus.BIDIBIND; }
-	      |					{ $status = isLazy? JavafxBindStatus.LAZY_UNIDIBIND :  JavafxBindStatus.UNIDIBIND; }
-	      )
-	  )
-	| e2=expression				{ $expr = $e2.expr; $status = UNBOUND; }
 	;
 returnStatement   returns [JCStatement value]
 @init { JCExpression expr = null; }
@@ -516,11 +505,28 @@ catchClause    returns [JCCatch value]
 	  					  JCVariableDecl formal = F.at($name.pos).VarDef(mods, $name.value, $identifier.expr, null);
 	  					  $value = F.at(pos($CATCH)).Catch(formal, $block.value); } 
 	;
+boundExpression   returns [JavafxBindStatus status, JCExpression expr]
+@init { boolean isLazy = false; }
+	: ( BIND 				
+	      (LAZY				{ isLazy = true; } )?
+	      e1=expression			{ $expr = $e1.expr; }
+	      (WITH INVERSE			{ $status = isLazy? JavafxBindStatus.LAZY_BIDIBIND :  JavafxBindStatus.BIDIBIND; }
+	      |					{ $status = isLazy? JavafxBindStatus.LAZY_UNIDIBIND :  JavafxBindStatus.UNIDIBIND; }
+	      )
+	  )
+	| e2=expression				{ $expr = $e2.expr; $status = UNBOUND; }
+	;
 expression returns [JCExpression expr] 
        	: ifExpression   					{ $expr = $ifExpression.expr; }  
+       	| forExpression   					{ $expr = $forExpression.expr; }  
        	| suffixedExpression					{ $expr = $suffixedExpression.expr; }  
 //     	| LPAREN  typeName  RPAREN   suffixedExpression     //FIXME: CAST
       	;
+forExpression   returns [JCExpression expr] 
+	: FOR  LPAREN  name IN se=expression  
+	      (WHERE  we=expression)?  
+	      RPAREN  be=blockExpression 			{ $expr = F.at(pos($FOR)).ForExpression($name.value, $se.expr, $we.expr, $be.expr); }
+	;
 ifExpression  returns [JCExpression expr] 
 	: IF econd=expression   THEN  ethen=expression   
 	  (ELSE  eelse=expression)?				{ JCExpression elsepart = $eelse.expr;

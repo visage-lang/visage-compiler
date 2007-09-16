@@ -194,6 +194,12 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
 
+    public void visitForExpression(JFXForExpression that) {
+        that.seqExpr = translate(that.seqExpr);
+        that.whereExpr = translate(that.whereExpr);
+        that.bodyExpr = translate(that.bodyExpr); 
+    }
+    
     public boolean shouldVisitRemoved() {
         return false;
     }

@@ -91,9 +91,13 @@ public abstract class JavafxTag extends JCTree {
      */
     public static final int STRINGEXPRESSION = PUREOBJECTLITERAL + 1;     
 
+    /** for expression 
+     */
+    public static final int FOREXPRESSION = STRINGEXPRESSION + 1;     
+
     /** do later statement
      */
-    public static final int DOLATER = STRINGEXPRESSION + 1;        
+    public static final int DOLATER = FOREXPRESSION + 1;        
 
     /** do statement
      */

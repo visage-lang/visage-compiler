@@ -998,7 +998,14 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             chk.setLint(prevLint);
         }
     }
-
+    
+    @Override
+    public void visitForExpression(JFXForExpression that) {
+        that.seqExpr.accept(this);
+        that.whereExpr.accept(this);
+        that.bodyExpr.accept((JavafxVisitor)this);
+    }
+    
     public void visitSkip(JCSkip tree) {
         result = null;
     }

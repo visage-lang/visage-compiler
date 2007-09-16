@@ -302,6 +302,16 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
+    public JFXForExpression ForExpression(
+            Name name, 
+            JCExpression seqExpr,
+            JCExpression whereExpr,
+            JFXBlockExpression bodyExpr) {
+        JFXForExpression tree = new JFXForExpression(name, seqExpr, whereExpr, bodyExpr);       
+        tree.pos = pos;
+        return tree;
+    }
+    
     public JFXPseudoRemoveExpression RemoveExpression(JCExpression removed) {
         JFXPseudoRemoveExpression tree = new JFXPseudoRemoveExpression(removed);
         tree.pos = Position.NOPOS;

@@ -1304,6 +1304,13 @@ public
    }
     
     @Override
+    public void visitForExpression(JFXForExpression that) {
+        that.seqExpr.accept(this);
+        that.whereExpr.accept(this);
+        that.bodyExpr.accept((JavafxVisitor)this);
+    }
+    
+    @Override
     public boolean shouldVisitRemoved() {
         return false;
     }
