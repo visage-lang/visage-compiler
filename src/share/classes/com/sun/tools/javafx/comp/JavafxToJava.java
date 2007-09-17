@@ -59,11 +59,12 @@ public class JavafxToJava extends JavafxTreeTranslator {
     private JavafxInitializationBuilder initBuilder;
     private Set<JCNewClass> visitedNewClasses;
 
-    private final String objLitSyntheticName = "$objlit$synth$";
-    private int currentObjLitCounter = 0;
+    private final String syntheticNamePrefix = "jfx$$";
+    private int syntheticNameCounter = 0;
     private ListBuffer<JCStatement> prependInFrontOfStatement = null;
     
     private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";
+    private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.SequenceBuilder";
     
     public static JavafxToJava instance(Context context) {
         JavafxToJava instance = context.get(jfxToJavaKey);
@@ -120,7 +121,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
     
     @Override
     public void visitTopLevel(JCCompilationUnit tree) {
-        currentObjLitCounter = 0;
+        syntheticNameCounter = 0;
         super.visitTopLevel(tree);
 //        tree.defs = tree.defs.prepend(makeImport("com.sun.javafx.runtime.location"));
         result = tree;
@@ -128,17 +129,14 @@ public class JavafxToJava extends JavafxTreeTranslator {
     
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
-        int prevObjLitCounter = currentObjLitCounter;
-        currentObjLitCounter = 0;
         Set<JCNewClass> prevVisitedNews = visitedNewClasses;
         try {
             visitedNewClasses = new HashSet<JCNewClass>();
             super.visitClassDeclaration(tree);
         } finally {
-            currentObjLitCounter = prevObjLitCounter;
             visitedNewClasses = prevVisitedNews;
         }
-        
+
         List<JCTree> defs = tree.defs;
         if (tree.isModuleClass) {
             // Add main method...
@@ -174,7 +172,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
     @Override
     public void visitPureObjectLiteral(JFXPureObjectLiteral tree) {
         super.visitPureObjectLiteral(tree);
-        Name tmpName = getSyntheticName();
+        Name tmpName = getSyntheticName("objlit");
         JCIdent clazz = tree.getIdentifier();
         ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
         JCNewClass newClass = 
@@ -266,7 +264,91 @@ public class JavafxToJava extends JavafxTreeTranslator {
         JCExpression typeExpresion = makeTypeTree(tree.type, diagPos);
         result = make.at(diagPos).VarDef(mods, tree.name, typeExpresion, tree.init);
     }
-      
+
+    /**
+     * assume seq is a sequence of element type U
+     * convert   for (x in seq where cond) { body }
+     * into the following block expression
+     * 
+     *   {
+     *     SequenceBuilder<T> sb = new SequenceBuilder<T>(clazz);
+     *     for (U x : seq) {
+     *       if (!cond)
+     *         continue;
+     *       sb.add( { body } );
+     *     }
+     *     sb.toSequence()
+     *   }
+     *
+     * **/
+    @Override
+    public void visitForExpression(JFXForExpression tree) {
+        // sub-translation in done inline -- no super.visitForExpression(tree);
+        DiagnosticPosition diagPos = tree.pos();
+        //TODO: handle void type body
+        
+        // Compute the element type from the sequence type
+        assert tree.type.getTypeArguments().size() == 1;
+        Type elemType = tree.type.getTypeArguments().get(0);
+        
+        // Build the type declaration expression for the sequence builder
+        JCExpression builderTypeExpr = ((JavafxTreeMaker)make).at(diagPos).Identifier(sequenceBuilderString);
+        List<JCExpression> btargs = List.<JCExpression>of(makeTypeTree(elemType, diagPos));
+        builderTypeExpr = make.at(diagPos).TypeApply(builderTypeExpr, btargs);
+                
+        // Sequence builder temp var name "sb"
+        Name sbName = getSyntheticName("sb");
+        
+        // Build "sb" initializing expression -- new SequenceBuilder<T>(clazz)
+        List<JCExpression> args = List.<JCExpression>of( make.at(diagPos).Select(
+                makeTypeTree(elemType, diagPos), 
+                names._class));               
+        JCExpression newExpr = make.at(diagPos).NewClass(
+                null,                       // enclosing
+                List.<JCExpression>of(makeTypeTree(elemType, diagPos)),   // type args
+                // class name
+                ((JavafxTreeMaker)make).at(diagPos).Identifier(sequenceBuilderString),
+                args,   // args
+                null    // body
+                );
+        
+        // Build the sequence builder variable
+        JCStatement varDef = make.at(diagPos).VarDef( 
+                make.at(diagPos).Modifiers(0L), 
+                sbName, builderTypeExpr, newExpr);
+        
+        // Build the loop body
+        //TODO: handle where conditional -- translate(tree.getWhereExpression())
+        List<JCStatement> stmts = List.nil();
+        JCIdent varIdent = make.Ident(sbName);  
+        JCMethodInvocation addCall = make.Apply(
+                List.<JCExpression>nil(), // type arguments
+                make.at(diagPos).Select(varIdent, Name.fromString(names, "add")), 
+                List.<JCExpression>of(translate(tree.getBodyExpression())));
+        JCStatement addStmt = make.at(diagPos).Exec(addCall);
+        stmts = stmts.append(addStmt);
+        JCBlock block = make.at(diagPos).Block(0L, stmts);
+        
+        // Build the result value
+        JCIdent varIdent2 = make.Ident(sbName);  
+        JCMethodInvocation toSequenceCall = make.Apply(
+                List.<JCExpression>nil(), // type arguments
+                make.at(diagPos).Select(varIdent2, Name.fromString(names, "toSequence")), 
+                List.<JCExpression>nil() // arguments
+                );
+        
+        // Build the loop
+        JCStatement forLoop = make.at(diagPos).ForeachLoop(
+                translate(tree.getVar()), 
+                translate(tree.getSequenceExpression()), 
+                block);
+        
+        // Build the block expression -- which is what we translate to
+        result = ((JavafxTreeMaker)make).at(diagPos).BlockExpression(0L, 
+                List.<JCStatement>of(varDef, forLoop), 
+                toSequenceCall);
+    }
+          
     @Override
     public void visitAttributeDefinition(JFXAttributeDefinition tree) {
         visitVar(tree);
@@ -329,7 +411,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
             super.visitNewClass(tree);
         }
         else {
-        Name tmpName = getSyntheticName();
+        Name tmpName = getSyntheticName("init");
         ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
         
         JCVariableDecl tmpVar = make.at(tree.pos).VarDef(make.Modifiers(0), tmpName, tree.clazz, tree);
@@ -364,8 +446,8 @@ public class JavafxToJava extends JavafxTreeTranslator {
         result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
     }
     
-    private Name getSyntheticName() {
-        return Name.fromString(names, objLitSyntheticName + currentObjLitCounter++);
+    private Name getSyntheticName(String kind) {
+        return Name.fromString(names, syntheticNamePrefix + syntheticNameCounter++ + kind);
     }
 
     public JCImport makeImport(String str, DiagnosticPosition diagPos) {

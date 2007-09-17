@@ -303,11 +303,11 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     }
     
     public JFXForExpression ForExpression(
-            Name name, 
+            JFXVar var, 
             JCExpression seqExpr,
             JCExpression whereExpr,
             JFXBlockExpression bodyExpr) {
-        JFXForExpression tree = new JFXForExpression(name, seqExpr, whereExpr, bodyExpr);       
+        JFXForExpression tree = new JFXForExpression(var, seqExpr, whereExpr, bodyExpr);       
         tree.pos = pos;
         return tree;
     }

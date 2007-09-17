@@ -523,9 +523,11 @@ expression returns [JCExpression expr]
 //     	| LPAREN  typeName  RPAREN   suffixedExpression     //FIXME: CAST
       	;
 forExpression   returns [JCExpression expr] 
-	: FOR  LPAREN  name IN se=expression  
-	      (WHERE  we=expression)?  
-	      RPAREN  be=blockExpression 			{ $expr = F.at(pos($FOR)).ForExpression($name.value, $se.expr, $we.expr, $be.expr); }
+@init { JFXVar var; }
+	: FOR   LPAREN  name 					{ var = F.at($name.pos).Var($name.value, null, F.Modifiers(0L), null, null); } 
+	        IN se=expression  
+	        (WHERE  we=expression)?  	       
+	        RPAREN be=blockExpression 			{ $expr = F.at(pos($FOR)).ForExpression(var, $se.expr, $we.expr, $be.expr); }
 	;
 ifExpression  returns [JCExpression expr] 
 	: IF econd=expression   THEN  ethen=expression   

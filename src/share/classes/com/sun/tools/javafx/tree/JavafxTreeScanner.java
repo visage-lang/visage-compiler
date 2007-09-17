@@ -207,9 +207,12 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     
     @Override
     public void visitForExpression(JFXForExpression that) {
-        that.seqExpr.accept(this);
-        that.whereExpr.accept(this);
-        that.bodyExpr.accept((JavafxVisitor)this);
+        that.getVar().accept((JavafxVisitor)this);
+        that.getSequenceExpression().accept(this);
+        if (that.getWhereExpression() != null) {
+            that.getWhereExpression().accept(this);
+        }
+        that.getBodyExpression().accept((JavafxVisitor)this);
     }
     
     @Override

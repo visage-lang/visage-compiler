@@ -26,32 +26,29 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.tools.javac.tree.JCTree.JCExpression;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
 
 /**
  * for (name in seqExpr where whereExpr) bodyExpr
  */
 public class JFXForExpression extends JFXExpression {
-    public Name name; 
+    public JFXVar var; 
     public JCExpression seqExpr;
     public JCExpression whereExpr;
     public JFXBlockExpression bodyExpr;
-    public VarSymbol sym;
 
     protected JFXForExpression(
-            Name name, 
+            JFXVar var, 
             JCExpression seqExpr,
             JCExpression whereExpr,
             JFXBlockExpression bodyExpr) {
-        this.name = name;
+        this.var = var;
         this.seqExpr = seqExpr;
         this.whereExpr = whereExpr;
         this.bodyExpr = bodyExpr;
     }
     public void accept(JavafxVisitor v) { v.visitForExpression(this); }
     
-    public Name getName() { return name; }
+    public JFXVar getVar() { return var; }
     public JCExpression getSequenceExpression() { return seqExpr; }
     public JCExpression getWhereExpression() { return whereExpr; }
     public JFXBlockExpression getBodyExpression() { return bodyExpr; }

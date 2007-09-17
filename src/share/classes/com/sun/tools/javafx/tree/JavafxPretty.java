@@ -420,7 +420,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitForExpression(JFXForExpression tree) {
         try {
             print("for (");
-            print(tree.getName());
+            print(tree.getVar().getName());
             print(" in ");
             printExpr(tree.getSequenceExpression());
             if (tree.getWhereExpression() != null) {
