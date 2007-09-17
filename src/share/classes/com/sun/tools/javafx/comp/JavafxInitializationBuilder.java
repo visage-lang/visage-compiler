@@ -278,6 +278,7 @@ public class JavafxInitializationBuilder extends JavafxTreeScanner {
         }
     }
     
+    // Not used for now. We will use primitive fields if there are no bind for private fields.
     private JCLiteral getEmptyLiteral(Type type) {
         JCLiteral ret = null;
         if (type == null) {
@@ -357,21 +358,7 @@ public class JavafxInitializationBuilder extends JavafxTreeScanner {
         
         currentInitBlocks = currentInitBlocks.append(res);
    }
-    
-    static class ObjectLiteralHelper {
-        public JFXPureObjectLiteral objlit;
-        public JCStatement ownerStatement;
-        public JCTree ownerBlock;
-        public Symbol owner;
-        
-        ObjectLiteralHelper(JFXPureObjectLiteral objlit, JCStatement ownerStatement, JCTree ownerBlock, Symbol owner) {
-            this.objlit = objlit;
-            this.ownerStatement = ownerStatement;
-            this.ownerBlock = ownerBlock;
-            this.owner = owner;
-        }
-    }
-    
+   
     private JCMethodDecl createInitializerMethod(JFXClassDeclaration classDecl) {
         if (classDecl != null) {
             List<JCVariableDecl> params = List.nil();
