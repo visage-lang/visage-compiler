@@ -319,15 +319,15 @@ public class JavafxToJava extends JavafxTreeTranslator {
         
         // Build the loop body
         //TODO: handle where conditional -- translate(tree.getWhereExpression())
-        List<JCStatement> stmts = List.nil();
         JCIdent varIdent = make.Ident(sbName);  
         JCMethodInvocation addCall = make.Apply(
                 List.<JCExpression>nil(), // type arguments
                 make.at(diagPos).Select(varIdent, Name.fromString(names, "add")), 
                 List.<JCExpression>of(translate(tree.getBodyExpression())));
-        JCStatement addStmt = make.at(diagPos).Exec(addCall);
-        stmts = stmts.append(addStmt);
-        JCBlock block = make.at(diagPos).Block(0L, stmts);
+        JCStatement stmt = make.at(diagPos).Exec(addCall);
+        if (tree.getWhereExpression() != null) {
+            stmt = make.at(diagPos).If(tree.getWhereExpression(), stmt, null);
+        }
         
         // Build the result value
         JCIdent varIdent2 = make.Ident(sbName);  
@@ -341,7 +341,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
         JCStatement forLoop = make.at(diagPos).ForeachLoop(
                 translate(tree.getVar()), 
                 translate(tree.getSequenceExpression()), 
-                block);
+                stmt);
         
         // Build the block expression -- which is what we translate to
         result = ((JavafxTreeMaker)make).at(diagPos).BlockExpression(0L, 

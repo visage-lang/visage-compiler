@@ -1036,16 +1036,16 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         chk.checkType(tree.getSequenceExpression().pos(), elemtype, tree.var.sym.type);
         forExprEnv.tree = tree; // before, we were not in loop!
         attribExpr(tree.getBodyExpression(), forExprEnv);
+        
+        if (tree.getWhereExpression() != null) {
+            attribExpr(tree.getWhereExpression(), env, syms.booleanType);
+        }
 
         Type bodyType = tree.getBodyExpression().type;
         Type owntype = sequenceType(bodyType);
 
         forExprEnv.info.scope.leave();
         result = check(tree, owntype, VAL, pkind, pt);
-    
-//        if (that.getWhereExpression() != null) {
-//            that.getWhereExpression().accept(this);
-//        }
     }
     
     public void visitSkip(JCSkip tree) {
