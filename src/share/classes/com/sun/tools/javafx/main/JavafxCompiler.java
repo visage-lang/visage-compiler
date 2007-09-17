@@ -827,16 +827,20 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 backEnd(prepForBackEnd(jfxToJava(buildInitializers(typeMorph(attribute(todo))))));
                 break;
 
-            case BY_FILE:
+            case BY_FILE: {
+                ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
                 for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(buildInitializers(typeMorph(attribute(todo))))).values())
-                    backEnd(prepForBackEnd(list));
+                    envbuff.appendList(prepForBackEnd(list));
+                backEnd(envbuff.toList());
                 break;
-
-            case BY_TODO:
+            }
+            case BY_TODO: {
+                ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
                 while (todo.nonEmpty())
-                    backEnd(prepForBackEnd(jfxToJava(buildInitializers(typeMorph(attribute(todo.next()))))));
+                    envbuff.appendList(prepForBackEnd(jfxToJava(buildInitializers(typeMorph(attribute(todo.next()))))));
+                backEnd(envbuff.toList());
                 break;
-
+            }
             default:
                 assert false: "unknown compile policy";
             }
@@ -865,13 +869,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
              trees.append(env.toplevel);
        }
        javafxJavaCompiler.backEnd(trees.toList());
-    }
-
-    public void backEnd(JavafxEnv<JavafxAttrContext> env) throws IOException {
-        ListBuffer<JCCompilationUnit> trees = lb();
-        printSource(env, null);
-        trees.append(env.toplevel);
-        javafxJavaCompiler.backEnd(trees.toList());
     }
 
     private List<JCClassDecl> rootClasses;
