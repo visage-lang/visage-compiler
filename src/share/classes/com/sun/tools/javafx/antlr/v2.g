@@ -523,11 +523,16 @@ expression returns [JCExpression expr]
 //     	| LPAREN  typeName  RPAREN   suffixedExpression     //FIXME: CAST
       	;
 forExpression   returns [JCExpression expr] 
+@init { ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb(); }
+	: FOR   LPAREN  
+		in1=inClause					{ clauses.append($in1.value); }	       
+		( COMMA in2=inClause				{ clauses.append($in2.value); } )*	       
+	        RPAREN be=blockExpression 			{ $expr = F.at(pos($FOR)).ForExpression(clauses.toList(), $be.expr); }
+	;
+inClause   returns [JFXForExpressionInClause value] 
 @init { JFXVar var; }
-	: FOR   LPAREN  name 					{ var = F.at($name.pos).Var($name.value, null, F.Modifiers(0L), null, null); } 
-	        IN se=expression  
-	        (WHERE  we=expression)?  	       
-	        RPAREN be=blockExpression 			{ $expr = F.at(pos($FOR)).ForExpression(var, $se.expr, $we.expr, $be.expr); }
+	: name 							{ var = F.at($name.pos).Var($name.value, null, F.Modifiers(0L), null, null); } 
+	        IN se=expression   (WHERE  we=expression)?  	{ $value = F.at(pos($IN)).InClause(var, $se.expr, $we.expr); }
 	;
 ifExpression  returns [JCExpression expr] 
 	: IF econd=expression   THEN  ethen=expression   

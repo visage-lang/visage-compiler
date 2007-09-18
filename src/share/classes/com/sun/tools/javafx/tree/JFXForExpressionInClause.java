@@ -26,28 +26,31 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.tools.javac.tree.JCTree.JCExpression;
-import com.sun.tools.javac.util.List;
 
 /**
  * for (name in seqExpr where whereExpr) bodyExpr
  */
-public class JFXForExpression extends JFXExpression {
-    public List<JFXForExpressionInClause> inClauses;
-    public JFXBlockExpression bodyExpr;
+public class JFXForExpressionInClause extends JFXTree {
+    public JFXVar var; 
+    public JCExpression seqExpr;
+    public JCExpression whereExpr;
 
-    protected JFXForExpression(
-            List<JFXForExpressionInClause> inClauses,
-            JFXBlockExpression bodyExpr) {
-        this.inClauses = inClauses;
-        this.bodyExpr = bodyExpr;
+    protected JFXForExpressionInClause(
+            JFXVar var, 
+            JCExpression seqExpr,
+            JCExpression whereExpr) {
+        this.var = var;
+        this.seqExpr = seqExpr;
+        this.whereExpr = whereExpr;
     }
-    public void accept(JavafxVisitor v) { v.visitForExpression(this); }
+    public void accept(JavafxVisitor v) { v.visitForExpressionInClause(this); }
     
-    public List<JFXForExpressionInClause> getInClauses() { return inClauses; }
-    public JFXBlockExpression getBodyExpression() { return bodyExpr; }
+    public JFXVar getVar() { return var; }
+    public JCExpression getSequenceExpression() { return seqExpr; }
+    public JCExpression getWhereExpression() { return whereExpr; }
 
     @Override
     public int getTag() {
-        return JavafxTag.FOREXPRESSION;
+        return JavafxTag.FOREXPRESSIONINCLAUSE;
     }
 }

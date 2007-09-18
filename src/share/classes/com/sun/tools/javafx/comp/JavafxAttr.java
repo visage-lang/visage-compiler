@@ -1003,43 +1003,47 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public void visitForExpression(JFXForExpression tree) {
         JavafxEnv<JavafxAttrContext> forExprEnv =
             env.dup(env.tree, env.info.dup(env.info.scope.dup()));
-        attribStat(tree.getVar(), forExprEnv);
-        Type exprType = types.upperBound(attribExpr(tree.getSequenceExpression(), forExprEnv));
-        chk.checkNonVoid(tree.pos(), exprType);
-        Type elemtype;
-        // must implement Sequence<T>?
-        Type base = types.asSuper(exprType, syms.javafx_sequenceType.tsym);
-        if (base == null) { //TODO: fix error message
-            elemtype = syms.errType;
-        } else {
-            List<Type> iterableParams = base.allparams();
-            if (iterableParams.isEmpty()) {
+        
+        for (JFXForExpressionInClause clause : tree.getInClauses()) {
+            attribStat(clause.getVar(), forExprEnv);
+            Type exprType = types.upperBound(attribExpr(clause.getSequenceExpression(), forExprEnv));
+            chk.checkNonVoid(clause.pos(), exprType);
+            Type elemtype;
+            // must implement Sequence<T>?
+            Type base = types.asSuper(exprType, syms.javafx_sequenceType.tsym);
+            if (base == null) {
+                //TODO: fix error message
                 elemtype = syms.errType;
             } else {
-                elemtype = types.upperBound(iterableParams.head);
+                List<Type> iterableParams = base.allparams();
+                if (iterableParams.isEmpty()) {
+                    elemtype = syms.errType;
+                } else {
+                    elemtype = types.upperBound(iterableParams.head);
+                }
             }
-            
-        }
-        if (elemtype == syms.errType) {
-            log.error(tree.getSequenceExpression().pos(), "foreach.not.applicable.to.type");
-        } else {
-            // if it is a primitive type, unbox it
-            Type unboxed = types.unboxedType(elemtype);
-            if (unboxed != Type.noType) {
-                elemtype = unboxed;
+            if (elemtype == syms.errType) {
+                log.error(clause.getSequenceExpression().pos(), "foreach.not.applicable.to.type");
+            } else {
+                // if it is a primitive type, unbox it
+                Type unboxed = types.unboxedType(elemtype);
+                if (unboxed != Type.noType) {
+                    elemtype = unboxed;
+                }
             }
-        }
-        //TODO: this is certainly wrong
-        tree.getVar().type = elemtype;
-        tree.getVar().sym.type = elemtype;
+            //TODO: this is certainly wrong
+            clause.getVar().type = elemtype;
+            clause.getVar().sym.type = elemtype;
 
-        chk.checkType(tree.getSequenceExpression().pos(), elemtype, tree.var.sym.type);
+            chk.checkType(clause.getSequenceExpression().pos(), elemtype, clause.var.sym.type);
+
+            if (clause.getWhereExpression() != null) {
+                attribExpr(clause.getWhereExpression(), env, syms.booleanType);
+            }
+        }
+
         forExprEnv.tree = tree; // before, we were not in loop!
         attribExpr(tree.getBodyExpression(), forExprEnv);
-        
-        if (tree.getWhereExpression() != null) {
-            attribExpr(tree.getWhereExpression(), env, syms.booleanType);
-        }
 
         Type bodyType = tree.getBodyExpression().type;
         Type owntype = sequenceType(bodyType);
@@ -1048,6 +1052,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         result = check(tree, owntype, VAL, pkind, pt);
     }
     
+    @Override
+    public void visitForExpressionInClause(JFXForExpressionInClause that) {
+        assert false : "should not reach here";
+    }
+
     public void visitSkip(JCSkip tree) {
         result = null;
     }

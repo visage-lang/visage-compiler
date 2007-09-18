@@ -95,9 +95,13 @@ public abstract class JavafxTag extends JCTree {
      */
     public static final int FOREXPRESSION = STRINGEXPRESSION + 1;     
 
+    /** for expression (x in seq where cond) clause
+     */
+    public static final int FOREXPRESSIONINCLAUSE = FOREXPRESSION + 1;     
+
     /** do later statement
      */
-    public static final int DOLATER = FOREXPRESSION + 1;        
+    public static final int DOLATER = FOREXPRESSIONINCLAUSE + 1;        
 
     /** do statement
      */

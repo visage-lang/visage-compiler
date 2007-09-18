@@ -323,16 +323,25 @@ public class JavafxToJava extends JavafxTreeTranslator {
                 make.at(diagPos).Modifiers(0L), 
                 sbName, builderTypeExpr, newExpr);
         
-        // Build the loop body
-        //TODO: handle where conditional -- translate(tree.getWhereExpression())
+        // Build innermost loop body
         JCIdent varIdent = make.Ident(sbName);  
         JCMethodInvocation addCall = make.Apply(
                 List.<JCExpression>nil(), // type arguments
                 make.at(diagPos).Select(varIdent, Name.fromString(names, "add")), 
                 List.<JCExpression>of(translate(tree.getBodyExpression())));
         JCStatement stmt = make.at(diagPos).Exec(addCall);
-        if (tree.getWhereExpression() != null) {
-            stmt = make.at(diagPos).If(tree.getWhereExpression(), stmt, null);
+        
+        for (int inx = tree.getInClauses().size() - 1; inx >= 0; --inx) {
+            JFXForExpressionInClause clause = tree.getInClauses().get(inx);
+            if (clause.getWhereExpression() != null) {
+                stmt = make.at(diagPos).If(clause.getWhereExpression(), stmt, null);
+            }
+
+            // Build the loop
+            stmt = make.at(diagPos).ForeachLoop(
+                    translate(clause.getVar()), 
+                    translate(clause.getSequenceExpression()),
+                    stmt);
         }
         
         // Build the result value
@@ -343,15 +352,9 @@ public class JavafxToJava extends JavafxTreeTranslator {
                 List.<JCExpression>nil() // arguments
                 );
         
-        // Build the loop
-        JCStatement forLoop = make.at(diagPos).ForeachLoop(
-                translate(tree.getVar()), 
-                translate(tree.getSequenceExpression()), 
-                stmt);
-        
         // Build the block expression -- which is what we translate to
         result = ((JavafxTreeMaker)make).at(diagPos).BlockExpression(0L, 
-                List.<JCStatement>of(varDef, forLoop), 
+                List.<JCStatement>of(varDef, stmt), 
                 toSequenceCall);
     }
           

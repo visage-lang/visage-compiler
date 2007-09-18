@@ -1305,12 +1305,19 @@ public
     
     @Override
     public void visitForExpression(JFXForExpression that) {
+        for (JFXForExpressionInClause clause : that.getInClauses()) {
+            clause.accept((JavafxVisitor)this);
+        }
+        that.getBodyExpression().accept((JavafxVisitor)this);
+    }
+    
+    @Override
+    public void visitForExpressionInClause(JFXForExpressionInClause that) {
         that.getVar().accept((JavafxVisitor)this);
         that.getSequenceExpression().accept(this);
         if (that.getWhereExpression() != null) {
             that.getWhereExpression().accept(this);
         }
-        that.getBodyExpression().accept((JavafxVisitor)this);
     }
     
     @Override

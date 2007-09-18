@@ -56,4 +56,5 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitSequenceRange(JFXSequenceRange that);
     public void visitSequenceExplicit(JFXSequenceExplicit that);
     public void visitForExpression(JFXForExpression that);
+    public void visitForExpressionInClause(JFXForExpressionInClause that);
 }
