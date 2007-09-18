@@ -1340,19 +1340,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
-        JFXBlockExpression bodyExpression = tree.getBodyExpression();
-        List<JCStatement> statements = bodyExpression.getStatements();
-        if (bodyExpression.value != null) {
-            // if the block expression has a value, convert it to a return statement
-            ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
-            stats.appendList(statements);
-            stats.append(make.Return(bodyExpression.value));
-            statements = stats.toList();
-        }
-        JCBlock block = make.Block(0L, statements);
-         
-        tree.body = block;
-
+        
+        // Do not in this method translate the blockExpression into
+        // a block, as in future passes (such as the type morpher) only
+        // the block expression will be visited and the block will 
+        // hold bogus information.  This translation should happen in
+        // in the final translation to a Java AST.  Any NPE caused by the
+        // block being null should be fixed where they occur as this indicates 
+        // bad code.
+        
         visitType(tree.rettype);
 
         MethodSymbol m = tree.sym;

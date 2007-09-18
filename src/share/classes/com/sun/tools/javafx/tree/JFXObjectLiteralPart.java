@@ -62,7 +62,7 @@ public class JFXObjectLiteralPart extends JFXStatement {
     public Name getName() { return name; }
     public JCExpression getExpression() { return expr; }
     public void setTranslationInit(JCExpression tra) { translationInit = tra; }
-    public JCExpression getTranslationInit() { return translationInit; }
+    public JCExpression getTranslationInit() { assert false : "currently not being used"; return translationInit; }
     public JavafxBindStatus getBindStatus() { return bindStatus; }
     public boolean isBound()     { return bindStatus.isBound; }
     public boolean isUnidiBind() { return bindStatus.isUnidiBind; }

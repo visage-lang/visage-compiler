@@ -76,9 +76,6 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
     
     public void visitAttributeDefinition(JFXAttributeDefinition that) {
         visitVar(that);
-        if (that.init != null) {
-            that.init = translate(that.init);
-        }
         if (that.onChange != null) {
             that.onChange = translate(that.onChange);
         }
@@ -87,7 +84,11 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
     
     @Override
     public void visitOperationDefinition(JFXOperationDefinition that) {
-        visitMethodDef(that);
+	that.mods = translate(that.mods);
+	that.restype = translate(that.restype);
+	that.typarams = translateTypeParams(that.typarams);
+	that.params = translateVarDefs(that.params);
+	that.thrown = translate(that.thrown);
         that.bodyExpression = translate(that.bodyExpression);
         result = that;
     }

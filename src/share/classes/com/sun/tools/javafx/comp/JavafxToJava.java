@@ -170,6 +170,12 @@ public class JavafxToJava extends JavafxTreeTranslator {
     }
 
     @Override
+    public void visitFunctionDefinitionStatement(JFXFunctionDefinitionStatement tree) {
+        // Replace the statement with the operation definition
+        result = translate(tree.funcDef);
+    }
+
+    @Override
     public void visitPureObjectLiteral(JFXPureObjectLiteral tree) {
         super.visitPureObjectLiteral(tree);
         Name tmpName = getSyntheticName("objlit");
@@ -194,7 +200,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
                         olpart.getName());
                 JCAssign assign1 = make.Assign(
                         attr,
-                        translate(olpart.getTranslationInit()));
+                        translate(olpart.getExpression()));
                 lastStatement = make.Exec(assign1);
                 stats.append(lastStatement); 
             } else {

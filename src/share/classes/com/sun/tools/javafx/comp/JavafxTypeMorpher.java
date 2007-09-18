@@ -393,12 +393,6 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
     }
     
     @Override
-    public void visitTopLevel(JCCompilationUnit tree) {
-        tree.defs = translate(tree.defs);
-        result = tree;
-    }
-    
-    @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
             
             //TODO: remove this
@@ -439,12 +433,6 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
         tree.body = translate(tree.body);
         
         result = tree;
-    }
-    
-    @Override
-    public void visitAttributeDefinition(JFXAttributeDefinition tree) {
-        tree.onChange = translate(tree.onChange);
-        visitVar(tree);
     }
     
     @Override
@@ -502,26 +490,17 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
             }
         }
     }
-    
-    @Override
-    public void visitOperationDefinition(JFXOperationDefinition tree) {
-        visitMethodDef(tree);
-    }
-    @Override
-    public void visitFunctionDefinitionStatement(JFXFunctionDefinitionStatement tree) {
-        visitOperationDefinition(tree.funcDef);
-    }
 
     @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         VarSymbol vsym = (VarSymbol) tree.sym;
         VarMorphInfo vmi = varMorphInfo(vsym);
         if (vmi.shouldMorph()) {
-            tree.setTranslationInit(
+            tree.expr = 
                   translateDefinitionalAssignment(tree.expr, 
                     vmi, 
                     tree.pos(), 
-                    tree.getBindStatus()));
+                    tree.getBindStatus());
         } else {
             tree.expr = translate(tree.expr);   
         }
@@ -572,41 +551,6 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
             }
         }
         super.visitIdent(tree);
-    }
-
-    public void visitBlockExpression(JFXBlockExpression tree) {
-        tree.stats = translate(tree.stats);
-        tree.value = translate(tree.value);
-	result = tree;
-    }
- 
-    @Override
-    public void visitBlock(JCBlock tree) {
-        List<JCStatement> stats = tree.stats;
-        if (stats != null)  {
-            List<JCStatement> prev = null;
-            for (List<JCStatement> l = stats; l.nonEmpty(); l = l.tail) {
-                // translate must occur immediately before prependInFrontOfStatement check
-                JCStatement trans = translate(l.head);
-                if (trans == null) {
-                    // This statement has translated to nothing, remove it from the list
-                    prev.tail = l.tail;
-                    l = prev;
-                    continue;
-                }
-                l.head = trans;
-                prev = l;
-            }
-            tree.stats = stats;
-        }
-        result = tree;
-    }
-        
-    @Override
-    public void visitInitDefinition(JFXInitDefinition tree) {
-        tree.body = translate(tree.body);
-        
-        result = tree;
     }
 
     //========================================================================================================================

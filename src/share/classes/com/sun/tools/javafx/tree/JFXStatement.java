@@ -49,6 +49,7 @@ public abstract class JFXStatement extends JCStatement {
         if (v instanceof JavafxVisitor) {
             this.accept((JavafxVisitor)v);
         } else {
+            assert false : "FX tree should not reach here";
             v.visitTree(this);
         }
     }
