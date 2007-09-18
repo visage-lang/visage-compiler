@@ -28,8 +28,6 @@ package com.sun.tools.javafx;
 import java.io.PrintWriter;
 import java.lang.reflect.*;
 
-import com.sun.tools.javac.util.Version;
-
 /**
  * The programmatic interface for the Java Programming Language
  * compiler, javac.
@@ -42,7 +40,6 @@ import com.sun.tools.javac.util.Version;
  * risk.  This code and its internal interfaces are subject to change
  * or deletion without notice.
  */
-@Version("@(#)Main.java	1.32 07/05/05")
 public class Main {
 
     static {

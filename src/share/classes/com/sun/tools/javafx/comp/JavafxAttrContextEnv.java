@@ -26,7 +26,6 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.util.Version;
 
 
 /** {@code JavafxEnv<A>} specialized as {@code JavafxEnv<JavafxAttrContext>}
@@ -36,7 +35,6 @@ import com.sun.tools.javac.util.Version;
  *  This code and its internal interfaces are subject to change or
  *  deletion without notice.</b>
  */
-@Version("@(#)JavafxAttrContextEnv.java	1.19 07/05/05")
 public class JavafxAttrContextEnv extends JavafxEnv<JavafxAttrContext> {
 
     /** Create an outermost environment for a given (toplevel)tree,

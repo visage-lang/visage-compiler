@@ -36,7 +36,6 @@ import com.sun.tools.javac.code.*;
  *  This code and its internal interfaces are subject to change or
  *  deletion without notice.</b>
  */
-@Version("@(#)JavafxAttrContext.java	1.32 07/05/05")
 public class JavafxAttrContext {
 
     /** The scope of local symbols.

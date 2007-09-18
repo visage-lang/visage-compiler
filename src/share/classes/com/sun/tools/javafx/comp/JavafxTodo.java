@@ -34,7 +34,6 @@ import com.sun.tools.javac.util.*;
  *  This code and its internal interfaces are subject to change or
  *  deletion without notice.</b>
  */
-@Version("@(#)Todo.java	1.17 07/05/05")
 public class JavafxTodo extends ListBuffer<JavafxEnv<JavafxAttrContext>> {
     /** The context key for the todo list. */
     protected static final Context.Key<JavafxTodo> javafxTodoKey =

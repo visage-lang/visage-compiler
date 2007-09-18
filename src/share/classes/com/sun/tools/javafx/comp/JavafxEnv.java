@@ -42,7 +42,6 @@ import java.util.NoSuchElementException;
  *  This code and its internal interfaces are subject to change or
  *  deletion without notice.</b>
  */
-@Version("@(#)JavafxEnv.java	1.30 07/06/14")
 public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
 
     /** The next enclosing environment.

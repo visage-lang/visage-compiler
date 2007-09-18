@@ -46,7 +46,6 @@ import static com.sun.tools.javac.code.Flags.*;
  *  This code and its internal interfaces are subject to change or
  *  deletion without notice.</b>
  */
-@Version("@(#)JavafxTreeInfo.java	1.56 07/05/05")
 public class JavafxTreeInfo extends TreeInfo {
 
     public static void preRegister(final Context context) {
