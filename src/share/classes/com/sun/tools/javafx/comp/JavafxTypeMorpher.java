@@ -101,7 +101,6 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
     class VarMorphInfo {
         VarSymbol varSymbol;
         Type realType;
-        Type bindingExpressionType;
         int typeKind;
         boolean shouldMorph = false;
         boolean haveDeterminedMorphability = false;
@@ -168,7 +167,6 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
                     }
                     // must be called AFTER typeKind and realType are set in vsym
                     setUsedType(generifyIfNeeded(declLocationType(typeKind), this));
-                    setBindingExpressionType(generifyIfNeeded(bindingExpressionType(typeKind), this));
                     markShouldMorph();
                 }
                 markDeterminedMorphability();
@@ -182,8 +180,7 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
         public Type getRealType() { return realType; }
         public Type getUsedType() { return varSymbol.type; }
         private void setUsedType(Type usedType) { varSymbol.type = usedType; }
-        public Type getBindingExpressionType() { return bindingExpressionType; }
-        private void setBindingExpressionType(Type t) { bindingExpressionType = t; }
+        public Type getBindingExpressionType() { return generifyIfNeeded(bindingExpressionType(typeKind), this); }
         public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
     
         public boolean isBoundTo() { return isBoundTo; }
@@ -250,7 +247,7 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
         defaultValueByKind = new Object[TYPE_KIND_COUNT];
         defaultValueByKind[TYPE_KIND_OBJECT] = null;
         defaultValueByKind[TYPE_KIND_DOUBLE] = new Double(0.0);
-        defaultValueByKind[TYPE_KIND_BOOLEAN] = new Boolean(false);
+        defaultValueByKind[TYPE_KIND_BOOLEAN] = new Integer(0);
         defaultValueByKind[TYPE_KIND_INT] = new Integer(0);
         
         getMethodName = Name.fromString(names, "get");
