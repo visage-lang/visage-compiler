@@ -547,7 +547,7 @@ public class JavafxEnter extends JCTree.Visitor implements JavafxVisitor {
     public void visitTypeParameter(JCTypeParameter tree) {
 	TypeVar a = (tree.type != null)
 	    ? (TypeVar)tree.type
-	    : new TypeVar(tree.name, env.info.scope.owner);
+	    : new TypeVar(tree.name, env.info.scope.owner, syms.botType);
 	tree.type = a;
 	if (chk.checkUnique(tree.pos(), a.tsym, env.info.scope)) {
 	    env.info.scope.enter(a.tsym);
