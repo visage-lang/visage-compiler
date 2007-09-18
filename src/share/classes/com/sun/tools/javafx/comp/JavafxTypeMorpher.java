@@ -29,6 +29,7 @@ import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javac.tree.*;
@@ -133,13 +134,13 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
                     locationType = ((ClassType) realType).typarams_field.head;
                     typeKind = TYPE_KIND_OBJECT;
                 } else if (realTsym == declLocation[TYPE_KIND_BOOLEAN].sym) {
-                    locationType = Symtab.booleanType;
+                    locationType = syms.booleanType;
                     typeKind = TYPE_KIND_BOOLEAN;
                 } else if (realTsym == declLocation[TYPE_KIND_DOUBLE].sym) {
-                    locationType = Symtab.doubleType;
+                    locationType = syms.doubleType;
                     typeKind = TYPE_KIND_DOUBLE;
                 } else if (realTsym == declLocation[TYPE_KIND_INT].sym) {
-                    locationType = Symtab.intType;
+                    locationType = syms.intType;
                     typeKind = TYPE_KIND_INT;
                 }
                 if (locationType != null) {
@@ -149,11 +150,11 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
                     markShouldMorph();
                 } else if (isBoundTo() || isAttribute()) {
                     if (realType.isPrimitive()) {
-                        if (realTsym == Symtab.doubleType.tsym) {
+                        if (realTsym == syms.doubleType.tsym) {
                             typeKind = TYPE_KIND_DOUBLE;
-                        } else if (realTsym == Symtab.intType.tsym) {
+                        } else if (realTsym == syms.intType.tsym) {
                             typeKind = TYPE_KIND_INT;
-                        } else if (realTsym == Symtab.booleanType.tsym) {
+                        } else if (realTsym == syms.booleanType.tsym) {
                             typeKind = TYPE_KIND_BOOLEAN;
                         } else {
                             assert false : "should not reach here";
@@ -240,9 +241,9 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
                 
         realTypeByKind = new Type[TYPE_KIND_COUNT];
         realTypeByKind[TYPE_KIND_OBJECT] = syms.objectType;
-        realTypeByKind[TYPE_KIND_DOUBLE] = Symtab.doubleType;
-        realTypeByKind[TYPE_KIND_BOOLEAN] = Symtab.booleanType;
-        realTypeByKind[TYPE_KIND_INT] = Symtab.intType;
+        realTypeByKind[TYPE_KIND_DOUBLE] = syms.doubleType;
+        realTypeByKind[TYPE_KIND_BOOLEAN] = syms.booleanType;
+        realTypeByKind[TYPE_KIND_INT] = syms.intType;
         
         defaultValueByKind = new Object[TYPE_KIND_COUNT];
         defaultValueByKind[TYPE_KIND_OBJECT] = null;

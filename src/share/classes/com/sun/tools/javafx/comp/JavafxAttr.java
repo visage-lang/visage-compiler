@@ -2208,23 +2208,23 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (t == null) return null;
         switch (t.tag) {
             case BYTE:
-                return Symtab.byteType;
+                return syms.byteType;
             case CHAR:
-                return Symtab.charType;
+                return syms.charType;
             case SHORT:
-                return Symtab.shortType;
+                return syms.shortType;
             case INT:
-                return Symtab.intType;
+                return syms.intType;
             case LONG:
-                return Symtab.longType;
+                return syms.longType;
             case FLOAT:
-                return Symtab.floatType;
+                return syms.floatType;
             case DOUBLE:
-                return Symtab.doubleType;
+                return syms.doubleType;
             case BOOLEAN:
-                return Symtab.booleanType;
+                return syms.booleanType;
             case VOID:
-                return Symtab.voidType;
+                return syms.voidType;
             default:
                 return t;
         }

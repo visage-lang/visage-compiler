@@ -380,11 +380,11 @@ public class JavafxCheck {
             if (req.tsym == typeMorpher.declLocation[TYPE_KIND_OBJECT].sym) {
                 req = ((ClassType)req).typarams_field.head;
             } else if (req.tsym == typeMorpher.declLocation[TYPE_KIND_BOOLEAN].sym) {
-                req = Symtab.booleanType;
+                req = syms.booleanType;
             } else if (req.tsym == typeMorpher.declLocation[TYPE_KIND_DOUBLE].sym) {
-                req = Symtab.doubleType;
+                req = syms.doubleType;
             } else if (req.tsym == typeMorpher.declLocation[TYPE_KIND_INT].sym) {
-                req = Symtab.intType;
+                req = syms.intType;
             }
         }
 	if (req.tag == ERROR)

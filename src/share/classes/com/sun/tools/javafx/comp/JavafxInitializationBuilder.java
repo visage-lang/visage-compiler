@@ -168,7 +168,7 @@ public class JavafxInitializationBuilder extends JavafxTreeScanner {
                     lhsIdent.sym = jfxVarDecl.sym;
                     lhsIdent.type = jfxVarDecl.type;
                     JCBinary cond = make.Binary(JCTree.EQ, lhsIdent, jcLiteral);
-                    cond.type = JavafxSymtab.booleanType;
+                    cond.type = syms.booleanType;
                     cond.operator = rs.resolveBinaryOperator(cond.pos(), cond.getTag(), env, lhsIdent.type, jcLiteral.type);
 
                     JCIdent lhsAssignIdent = make.Ident(jfxVarDecl.name);
@@ -288,42 +288,42 @@ public class JavafxInitializationBuilder extends JavafxTreeScanner {
         if (type.isPrimitive()) {
             if (type.tag == TypeTags.BOOLEAN) {
                 ret = make.Literal(TypeTags.BOOLEAN, Boolean.FALSE);
-                ret.type = JavafxSymtab.booleanType;
+                ret.type = syms.booleanType;
                 return ret;
             }
             else if (type.tag == TypeTags.BYTE) {
                 ret = make.Literal(TypeTags.BYTE, Byte.valueOf((byte)0));
-                ret.type = JavafxSymtab.byteType;
+                ret.type = syms.byteType;
                 return ret;
             }
             else if (type.tag == TypeTags.CHAR) {
                 ret = make.Literal(TypeTags.CHAR, Character.valueOf((char)0));
-                ret.type = JavafxSymtab.charType;
+                ret.type = syms.charType;
                 return ret;
             }
             else if (type.tag == TypeTags.DOUBLE) {
                 ret = make.Literal(TypeTags.DOUBLE, Double.valueOf(0.0));
-                ret.type = JavafxSymtab.doubleType;
+                ret.type = syms.doubleType;
                 return ret;
             }
             else if (type.tag == TypeTags.FLOAT) {
                 ret = make.Literal(TypeTags.FLOAT, Float.valueOf(0.0f));
-                ret.type = JavafxSymtab.floatType;
+                ret.type = syms.floatType;
                 return ret;
             }
             else if (type.tag == TypeTags.INT) {
                 ret = make.Literal(TypeTags.INT, Integer.valueOf(0));
-                ret.type = JavafxSymtab.intType;
+                ret.type = syms.intType;
                 return ret;
             }
             else if (type.tag == TypeTags.LONG) {
                 ret = make.Literal(TypeTags.LONG, Long.valueOf(0L));
-                ret.type = JavafxSymtab.longType;
+                ret.type = syms.longType;
                 return ret;
             }
             else if (type.tag == TypeTags.SHORT) {
                 ret = make.Literal(TypeTags.SHORT, Short.valueOf((short)0));
-                ret.type = JavafxSymtab.shortType;
+                ret.type = syms.shortType;
                 return ret;
             }
             else 

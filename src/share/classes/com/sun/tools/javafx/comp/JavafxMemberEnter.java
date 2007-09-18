@@ -786,7 +786,7 @@ public
         if (localEnv != null) {
             attr.attribStat(tree, localEnv);
             if (tree.expr == null) {
-                methodReturnType = Symtab.voidType;
+                methodReturnType = syms.voidType;
             }
             else {
                 methodReturnType = tree.expr.type;
@@ -1131,10 +1131,10 @@ public
                       localEnv = prevLocalEnv;
                       if (methodReturnType == null) {
                           methodDeclHelper.method.restype = make.TypeIdent(VOID);
-                          methodDeclHelper.method.restype.type = Symtab.voidType;
+                          methodDeclHelper.method.restype.type = syms.voidType;
                           if (methodDeclHelper.method.sym != null && methodDeclHelper.method.sym.type != null &&
                               methodDeclHelper.method.sym.kind == MTH) {
-                              ((MethodType)methodDeclHelper.method.sym.type).restype = Symtab.voidType;
+                              ((MethodType)methodDeclHelper.method.sym.type).restype = syms.voidType;
                           }
                       }
                       else {
