@@ -49,7 +49,6 @@ import javax.lang.model.element.ElementVisitor;
  *  This code and its internal interfaces are subject to change or
  *  deletion without notice.</b>
  */
-@Version("@(#)JavafxResolve.java	1.141 07/06/14")
 public class JavafxResolve {
     protected static final Context.Key<JavafxResolve> javafxResolveKey =
         new Context.Key<JavafxResolve>();

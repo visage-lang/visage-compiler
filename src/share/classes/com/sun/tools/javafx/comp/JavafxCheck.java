@@ -32,7 +32,6 @@ import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.comp.Infer;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.util.Version;
 import com.sun.tools.javac.jvm.*;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Lint;
@@ -61,7 +60,6 @@ import java.util.HashSet;
  *  This code and its internal interfaces are subject to change or
  *  deletion without notice.</b>
  */
-@Version("@(#)JavafxCheck.java	1.173 07/05/05")
 public class JavafxCheck {
     protected static final Context.Key<JavafxCheck> javafxCheckKey =
 	new Context.Key<JavafxCheck>();

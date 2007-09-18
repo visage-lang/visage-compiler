@@ -41,7 +41,6 @@ import com.sun.tools.javafx.tree.JavafxTreeMaker;
  *  This code and its internal interfaces are subject to change or
  *  deletion without notice.</b>
  */
-@Version("@(#)Annotate.java	1.44 07/06/14")
 public class JavafxAnnotate {
     protected static final Context.Key<JavafxAnnotate> javafxAnnotateKey =
 	new Context.Key<JavafxAnnotate>();
