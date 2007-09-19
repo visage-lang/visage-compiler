@@ -45,11 +45,10 @@ public class BlockExprGen extends Gen {
       Env<GenContext> localEnv = env.dup(tree, new GenContext());
       genStats(tree.stats, localEnv);
       if (tree.value != null) {
-          result = genExpr(tree.value, tree.value.type);
-          result= result.load();
+          tree.value.accept(this);
           if (result instanceof Items.LocalItem
                   /* && we're about to exit result's scope -- FIXME */) {
-              result= result.load();
+              result = result.load();
           }
       }
       // End the scope of all block-local variables in variable info.
