@@ -262,7 +262,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 // Javafx change
     protected JavafxModuleBuilder javafxModuleBuilder;
     protected JavafxTypeMorpher javafxTypeMorpher;
-    protected JavafxInitializationBuilder initializerBuilder;
     protected JavafxToJava jfxToJava;
 // Javafx change
     /**
@@ -303,7 +302,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
 // Javafx change
         javafxModuleBuilder = JavafxModuleBuilder.instance(context);
-        initializerBuilder = JavafxInitializationBuilder.instance(context);
         jfxToJava = JavafxToJava.instance(context);
         javafxTypeMorpher = JavafxTypeMorpher.instance(context);
         prepForBackEnd = JavafxPrepForBackEnd.instance(context);
@@ -689,58 +687,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 ex.printStackTrace();
         }
     }
-
-// Javafx change
-    public List<JavafxEnv<JavafxAttrContext>> buildInitializers(List<JavafxEnv<JavafxAttrContext>> envs) {
-        ListBuffer<JavafxEnv<JavafxAttrContext>> results = lb();
-        for (List<JavafxEnv<JavafxAttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
-            buildInitializers(l.head, results);
-        }
-        return stopIfError(results);
-    }
-
-    public List<JavafxEnv<JavafxAttrContext>> buildInitializers(JavafxEnv<JavafxAttrContext> env) {
-        ListBuffer<JavafxEnv<JavafxAttrContext>> results = lb();
-        buildInitializers(env, results);
-        return stopIfError(results);
-    }
-    
-    protected void buildInitializers(JavafxEnv<JavafxAttrContext> env, ListBuffer<JavafxEnv<JavafxAttrContext>> results) {
-        try {
-            if (errorCount() > 0)
-                return;
-
-            if (relax || deferredSugar.contains(env)) {
-                results.append(env);
-                return;
-            }
-
-            if (verboseCompilePolicy)
-                log.printLines(log.noticeWriter, "[flow " + env.enclClass.sym + "]");
-            JavaFileObject prev = log.useSource(
-                                                env.enclClass.sym.sourcefile != null ?
-                                                env.enclClass.sym.sourcefile :
-                                                env.toplevel.sourcefile);
-            try {
-                make.at(Position.FIRSTPOS);
-                initializerBuilder.visitTopLevel(env.toplevel, env);
-
-                if (errorCount() > 0)
-                    return;
-
-                results.append(env);
-            }
-            finally {
-                log.useSource(prev);
-            }
-        }
-        finally {
-            if (taskListener != null) {
-                TaskEvent e = new TaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
-                taskListener.finished(e);
-            }
-        }
-    }
     
     public List<JavafxEnv<JavafxAttrContext>> jfxToJava(List<JavafxEnv<JavafxAttrContext>> envs) {
         ListBuffer<JavafxEnv<JavafxAttrContext>> results = lb();
@@ -820,16 +766,16 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 break;
 
             case CHECK_ONLY:
-                backEnd(prepForBackEnd(jfxToJava(buildInitializers(typeMorph(attribute(todo))))));
+                backEnd(prepForBackEnd(jfxToJava(typeMorph(attribute(todo)))));
                 break;
 
             case SIMPLE:
-                backEnd(prepForBackEnd(jfxToJava(buildInitializers(typeMorph(attribute(todo))))));
+                backEnd(prepForBackEnd(jfxToJava(typeMorph(attribute(todo)))));
                 break;
 
             case BY_FILE: {
                 ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
-                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(buildInitializers(typeMorph(attribute(todo))))).values())
+                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(typeMorph(attribute(todo)))).values())
                     envbuff.appendList(prepForBackEnd(list));
                 backEnd(envbuff.toList());
                 break;
@@ -837,7 +783,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             case BY_TODO: {
                 ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
                 while (todo.nonEmpty())
-                    envbuff.appendList(prepForBackEnd(jfxToJava(buildInitializers(typeMorph(attribute(todo.next()))))));
+                    envbuff.appendList(prepForBackEnd(jfxToJava(typeMorph(attribute(todo.next())))));
                 backEnd(envbuff.toList());
                 break;
             }

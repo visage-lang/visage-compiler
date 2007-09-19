@@ -319,6 +319,17 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
+    public JFXInstanciate Instanciate(JCExpression encl,
+                             List<JCExpression> typeargs,
+                             JCExpression clazz,
+                             List<JCExpression> args,
+                             JCClassDecl def)
+    {
+        JFXInstanciate tree = new JFXInstanciate(encl, typeargs, clazz, args, def);
+        tree.pos = pos;
+        return tree;
+    }
+
     public JFXPseudoRemoveExpression RemoveExpression(JCExpression removed) {
         JFXPseudoRemoveExpression tree = new JFXPseudoRemoveExpression(removed);
         tree.pos = Position.NOPOS;
@@ -373,48 +384,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    // Enable for debugging. To make sure noone is calling thiese methods form the different translators before javafxAttr.
-    //    public JCMethodDecl MethodDef(JCModifiers mods,
-    //                               Name name,
-    //                               JCExpression restype,
-    //                               List<JCTypeParameter> typarams,
-    //                               List<JCVariableDecl> params,
-    //                               List<JCExpression> thrown,
-    //                               JCBlock body,
-    //                               JCExpression defaultValue)
-    //    {
-    //        throw new Error("Illegal call! Try JavafxMethodDef instead!");
-    //    }
-    //
-    //    public JCVariableDecl VarDef(JCModifiers mods, Name name, JCExpression vartype, JCExpression init) {
-    //        throw new Error("Illegal call! Try JavafxVarDef instead!");
-    //    }
-    
-    public JavafxJCMethodDecl JavafxMethodDef(JCModifiers mods,
-            int javafxMethodType,
-            Name name,
-            JCExpression restype,
-            List<JCVariableDecl> params,
-            JCBlock body,
-            JFXStatement definition,
-            JFXStatement declaration) {
-        List<JCTypeParameter> typarams = List.nil();
-        List<JCExpression> thrown = List.nil();
-        return new JavafxJCMethodDecl(mods, javafxMethodType, name, restype, typarams,
-                params, thrown, body, null, definition, declaration);
-    }
-    
-    public JavafxJCMethodDecl JavafxMethodDef(JCModifiers mods,
-            int javafxMethodType,
-            Name name,
-            JCExpression restype,
-            List<JCVariableDecl> params,
-            JCBlock body) {
-        List<JCTypeParameter> typarams = List.nil();
-        List<JCExpression> thrown = List.nil();
-        return new JavafxJCMethodDecl(mods, javafxMethodType, name, restype, typarams,
-                params, thrown, body, null, null, null);
-    }
+
     
     public JavafxJCVarDecl JavafxVarDef(JCModifiers mods,
 			 Name name,

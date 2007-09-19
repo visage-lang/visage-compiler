@@ -793,6 +793,7 @@ public
             }
         }
     }
+    /************
 // Javafx modification    
     private List<Type> checkParameterTypes(List<JCTree> defParams, List<JCTree> declParams, JavafxJCMethodDecl methodDecl) {
         isVarArgs = false;
@@ -874,6 +875,7 @@ public
         
         return res;
     }
+     * ************/
 
     private Type attrMethodType(JCMethodDecl tree, JavafxEnv<JavafxAttrContext> lEnv) {
         Type res = null;
@@ -883,6 +885,7 @@ public
         List<JCTree> defParams = null;
         JCTree defRestype = null;
 
+        /*****
         JavafxJCMethodDecl jfxTree = null;
 
         if (tree instanceof JavafxJCMethodDecl) {
@@ -896,7 +899,7 @@ public
             if (methodDef != null &&
                     jfxTree.getJavafxMethodType() >= JavafxFlags.OPERATION && 
                     jfxTree.getJavafxMethodType() <= JavafxFlags.LOCAL_FUNCTION) {
-                /**** TODO: RETRO code, may need to be converted, REMOVE
+                **** TODO: RETRO code, may need to be converted, REMOVE
                 switch (methodDef.getTag()) {
                     case JavafxTag.RETROOPERATIONDEF: {
                         JFXRetroOperationMemberDefinition operationMemberDef = (JFXRetroOperationMemberDefinition)methodDef;
@@ -927,7 +930,7 @@ public
                         throw new AssertionError("Unexpected JFXMethodDecl definition type!");
                     }
                 }
-                 * ***/
+                 * ***
 
                 if (params == null) {
                     params = List.nil();
@@ -967,7 +970,7 @@ public
             if (methodDecl != null &&
                     jfxTree.getJavafxMethodType() >= JavafxFlags.OPERATION && 
                     jfxTree.getJavafxMethodType() <= JavafxFlags.LOCAL_FUNCTION) {
-                /**** TODO: RETRO code, may need to be converted, REMOVE
+                **** TODO: RETRO code, may need to be converted, REMOVE
                 switch (methodDecl.getTag()) {
                 case JavafxTag.RETROOPERATIONDECL: {
                         JFXRetroOperationMemberDeclaration operationMemberDecl = (JFXRetroOperationMemberDeclaration)methodDecl;
@@ -985,7 +988,7 @@ public
                         throw new AssertionError("Unexpected JFXMethodDecl declaration type!");
                     }
                 }
-                 * ****/
+                 * ****
 
                 if (params == null) {
                     params = List.nil();
@@ -1053,6 +1056,7 @@ public
                 }
             }
         }
+         * ***/
 
         if (tree instanceof JFXOperationDefinition) {
             JFXOperationDefinition opDef = (JFXOperationDefinition)tree;
@@ -1318,6 +1322,11 @@ public
         if (that.getWhereExpression() != null) {
             that.getWhereExpression().accept(this);
         }
+    }
+    
+    @Override
+    public void visitInstanciate(JFXInstanciate that) {
+        visitNewClass(that);
     }
     
     @Override

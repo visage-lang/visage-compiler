@@ -57,7 +57,9 @@ public class JFXBlockExpression extends JFXExpression {
     
     public void accept(Visitor v) {
         // Kludge
-        if (v instanceof Pretty && !(v instanceof JavafxPretty))
+        if (v instanceof JavafxVisitor)
+            this.accept((JavafxVisitor)v);
+        else if (v instanceof Pretty)
             BlockExprPretty.visitBlockExpression((Pretty) v, this);
         else if (v instanceof BlockExprAttr)
             ((BlockExprAttr) v).visitBlockExpression(this);
@@ -68,11 +70,6 @@ public class JFXBlockExpression extends JFXExpression {
         else if (v instanceof JavafxPrepForBackEnd)
             ((JavafxPrepForBackEnd) v).visitBlockExpression(this);
         
-        // these should probably be removed
-        else if (v instanceof JavafxTypeMorpher)
-            ((JavafxTypeMorpher) v).visitBlockExpression(this);
-        else if (v instanceof JavafxVarUsageAnalysis)
-            ((JavafxVarUsageAnalysis) v).visitBlockExpression(this);
         else if (v instanceof TreeScanner) {
             ((TreeScanner)v).scan(stats);
             ((TreeScanner)v).scan(value);
@@ -80,8 +77,9 @@ public class JFXBlockExpression extends JFXExpression {
             stats = ((TreeTranslator)v).translate(stats);
             value = ((TreeTranslator)v).translate(value);
             ((TreeTranslator)v).result = this;
-        } else
-            super.accept(v);
+        } else {
+            v.visitTree(this);
+        }
     }
     public boolean isStatic() { return (flags & Flags.STATIC) != 0; }
 

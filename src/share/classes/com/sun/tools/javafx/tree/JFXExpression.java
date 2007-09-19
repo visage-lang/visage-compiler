@@ -49,6 +49,7 @@ public abstract class JFXExpression extends JCExpression {
         if (v instanceof JavafxVisitor) {
             this.accept((JavafxVisitor)v);
         } else {
+            assert false : "should be seen by a non-JavaFX visitor: " + this.getClass();
             v.visitTree(this);
         }
     }

@@ -223,6 +223,11 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     }
     
     @Override
+    public void visitInstanciate(JFXInstanciate that) {
+        visitNewClass(that);
+    }
+        
+    @Override
     public boolean shouldVisitRemoved() {
         return shouldVisitRemoved;
     }

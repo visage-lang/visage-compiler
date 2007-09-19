@@ -25,63 +25,31 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.source.tree.TreeVisitor;
-import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
-
 import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
-
-import com.sun.tools.javac.code.Symbol.*;
 
 /**
- * A class declaration
+ * Marker wrapper class for NewClass created by JavaFX code
  */
-public class JFXClassDeclaration extends JCClassDecl {
-    public List<JCExpression> supertypes; 
-    public boolean isModuleClass = false;
-    
-    protected JFXClassDeclaration(JCModifiers mods,
-            Name name,
-            List<JCExpression> supertypes,
-            List<JCExpression> implementedInterfaces,
-            List<JCTree> declarations,
-            ClassSymbol sym) {
-        super(mods, 
-                name, 
-                List.<JCTypeParameter>nil(), 
-                supertypes.head,     //TODO: hack.  Won't work when we have multiple inheritiance
-                implementedInterfaces, 
-                declarations, 
-                sym);
-        this.supertypes = supertypes;
-    }
-    public void accept(JavafxVisitor v) { v.visitClassDeclaration(this); }
-    public List<JCExpression> getSupertypes() { return supertypes; }
+public class JFXInstanciate extends JCNewClass {
 
-
-    @Override
-    public int getTag() {
-        return JavafxTag.CLASSDECL;
+        protected JFXInstanciate(
+                           JCExpression encl,
+			   List<JCExpression> typeargs,
+			   JCExpression clazz,
+			   List<JCExpression> args,
+			   JCClassDecl def) {
+        super(encl, typeargs, clazz, args, def);
     }
+    public void accept(JavafxVisitor v) { v.visitInstanciate(this); }
     
     @Override
     public void accept(Visitor v) {
         if (v instanceof JavafxVisitor) {
             this.accept((JavafxVisitor)v);
         } else {
-            v.visitTree(this);
+            super.accept(v);
         }
     }
     
-    // stuff to ignore
-    
-    public Kind getKind()  {
-        throw new InternalError("not implemented");
-    }
-    
-    @Override
-    public <R,D> R accept(TreeVisitor<R,D> v, D d) {
-        throw new InternalError("not implemented");
-    }
 }

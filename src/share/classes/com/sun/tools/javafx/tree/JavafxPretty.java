@@ -393,6 +393,11 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             throw new UncheckedIOException(e);
         }
     }
+    
+    @Override
+    public void visitInstanciate(JFXInstanciate that) {
+        visitNewClass(that);
+    }
 
     String ary(JFXType tree) {
         String show;

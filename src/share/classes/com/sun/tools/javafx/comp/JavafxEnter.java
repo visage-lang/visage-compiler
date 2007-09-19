@@ -518,6 +518,11 @@ public class JavafxEnter extends JCTree.Visitor implements JavafxVisitor {
             that.getWhereExpression().accept(this);
         }
     }
+    
+    @Override
+    public void visitInstanciate(JFXInstanciate that) {
+        visitNewClass(that);
+    }
         
     @Override
     public boolean shouldVisitRemoved() {

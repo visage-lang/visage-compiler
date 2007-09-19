@@ -36,12 +36,14 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
+import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 
+import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedAttributeInfo;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.tree.JavafxTreeTranslator;
 import com.sun.tools.javafx.tree.JavafxTreeMaker; // only for BlockExpression
@@ -129,39 +131,61 @@ public class JavafxToJava extends JavafxTreeTranslator {
     
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
+        ListBuffer<JCBlock> translatedInitBlocks = ListBuffer.<JCBlock>lb();
+        ListBuffer<JCTree> translatedDefs = ListBuffer.<JCTree>lb();
+        ListBuffer<TranslatedAttributeInfo> attrInfo = ListBuffer.<TranslatedAttributeInfo>lb();
+        JCMethodDecl initMethod = null;
         Set<JCNewClass> prevVisitedNews = visitedNewClasses;
         try {
             visitedNewClasses = new HashSet<JCNewClass>();
-            super.visitClassDeclaration(tree);
+            for (JCTree def : tree.defs) {
+                switch(def.getTag()) {
+                    case JavafxTag.INITDEF: {
+                        JFXInitDefinition initDef = (JFXInitDefinition) def;
+                        translatedInitBlocks.append(translate(initDef.getBody()));
+                        break;
+                    }
+                    case JavafxTag.ATTRIBUTEDEF: {
+                        JFXAttributeDefinition attrDef = (JFXAttributeDefinition) def;
+                        JCTree trans = translate(attrDef);
+                        attrInfo.append(new TranslatedAttributeInfo(
+                                attrDef.getName(), 
+                                translate(attrDef.init), 
+                                translate(attrDef.onChange)));
+                        translatedDefs.append(trans);
+                        break;
+                    }
+                    case JavafxTag.OPERATIONDEF: {
+                        JCMethodDecl method = (JCMethodDecl)translate(def);
+                        translatedDefs.append(method);
+                        if (method.getName() == initBuilder.initializerName) {
+                            initMethod = method;
+                        }
+                        break;
+                    }
+                    default: {
+                        translatedDefs.append(translate(def));
+                        break;
+                    }
+                }
+            }
         } finally {
             visitedNewClasses = prevVisitedNews;
         }
-
-        List<JCTree> defs = tree.defs;
-        if (tree.isModuleClass) {
-            // Add main method...
-            List<JCExpression> emptyExpressionList = List.nil();
-            JCIdent runIdent = make.Ident(Name.fromString(names, JavafxModuleBuilder.runMethodName));
-            JCMethodInvocation runCall = make.Apply(emptyExpressionList, runIdent, emptyExpressionList);
-            List<JCStatement> mainStats = List.<JCStatement>of(make.Exec(runCall));
-            List<JCVariableDecl> paramList = List.nil();
-            paramList = paramList.append(make.VarDef(make.Modifiers(0), 
-                    Name.fromString(names, "args"), 
-                    make.TypeArray(make.Ident(Name.fromString(names, "String"))), 
-                    null));
-            JCBlock body = make.Block(0, mainStats);
-            JCMethodDecl meth = make.MethodDef(make.Modifiers(Flags.PUBLIC | Flags.STATIC),
-                    Name.fromString(names, "main"), 
-                    make.TypeIdent(TypeTags.VOID), 
-                    List.<JCTypeParameter>nil(), 
-                    paramList, 
-                    emptyExpressionList, 
-                    body, 
-                    null);
-            defs = defs.append(meth);
+        
+        // add the class instance initializer method
+        if (initMethod != null) {
+            initMethod.body.stats = initBuilder.initializerMethodBody(attrInfo.toList(), translatedInitBlocks.toList());
+        } else {
+            assert false : "should always be an init method";
         }
 
-        result = make.ClassDef(tree.mods, tree.name, tree.typarams, tree.extending, tree.implementing, defs);
+        if (tree.isModuleClass) {
+            // Add main method...
+            translatedDefs.append(makeMainMethod());
+        }
+
+        result = make.ClassDef(tree.mods, tree.name, tree.typarams, tree.extending, tree.implementing, translatedDefs.toList());
     }
     
     @Override
@@ -259,16 +283,21 @@ public class JavafxToJava extends JavafxTreeTranslator {
 
     @Override
     public void visitVar(JFXVar tree) {
-        super.visitVar(tree);
+        DiagnosticPosition diagPos = tree.pos();
+        JCModifiers mods = tree.getModifiers();
+        JCExpression typeExpresion = makeTypeTree(tree.type, diagPos);
+        result = make.at(diagPos).VarDef(mods, tree.name, typeExpresion, translate(tree.init));
+    }
+
+    @Override
+    public void visitAttributeDefinition(JFXAttributeDefinition tree) {
         DiagnosticPosition diagPos = tree.pos();
         JCModifiers mods = tree.getModifiers();
         long modFlags = mods==null? 0L : mods.flags;
-        if ((modFlags & Flags.FINAL) != 0 && tree instanceof JFXAttributeDefinition) {
-            modFlags &= ~Flags.FINAL;  // because of init fields can't be final
-        }
+        modFlags &= ~Flags.FINAL;  // because of init fields can't be final
         mods = make.Modifiers(modFlags);
         JCExpression typeExpresion = makeTypeTree(tree.type, diagPos);
-        result = make.at(diagPos).VarDef(mods, tree.name, typeExpresion, tree.init);
+        result = make.at(diagPos).VarDef(mods, tree.name, typeExpresion, null);
     }
 
     /**
@@ -357,11 +386,6 @@ public class JavafxToJava extends JavafxTreeTranslator {
                 List.<JCStatement>of(varDef, stmt), 
                 toSequenceCall);
     }
-          
-    @Override
-    public void visitAttributeDefinition(JFXAttributeDefinition tree) {
-        visitVar(tree);
-    }
     
     @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
@@ -407,37 +431,29 @@ public class JavafxToJava extends JavafxTreeTranslator {
     }
 
     @Override
-    public void visitNewClass(JCNewClass tree) {
-        if (visitedNewClasses.contains(tree)) {
-            result = tree;
-            return;
-        }
-        
-        visitedNewClasses.add(tree);
-        
+    public void visitInstanciate(JFXInstanciate tree) {
+        super.visitInstanciate(tree);
+
         Symbol initSym = getJavafxInitializerSymbol(tree);
-        if (initSym == null) {
-            super.visitNewClass(tree);
-        }
-        else {
-        Name tmpName = getSyntheticName("init");
-        ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
-        
-        JCVariableDecl tmpVar = make.at(tree.pos).VarDef(make.Modifiers(0), tmpName, tree.clazz, tree);
-        stats.append(tmpVar);
-        
-        List<JCExpression> typeargs = List.nil();
-        List<JCExpression> args = List.nil();
-        
-        JCIdent ident3 = make.Ident(tmpName);   
-        JCFieldAccess select1 = make.at(tree.pos).Select(ident3, initBuilder.initializerName);
-        JCMethodInvocation apply1 = make.at(tree.pos).Apply(typeargs, select1, args);
-        JCExpressionStatement exec1 = make.at(tree.pos).Exec(apply1);
-        stats.append(exec1);
-         
-        JCIdent ident2 = make.Ident(tmpName);
-        JFXBlockExpression blockExpr1 = ((JavafxTreeMaker)make).at(tree.pos).BlockExpression(0, stats.toList(), ident2);
-        result = blockExpr1; 
+        if (initSym != null) {
+            Name tmpName = getSyntheticName("init");
+            ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
+
+            JCVariableDecl tmpVar = make.at(tree.pos).VarDef(make.Modifiers(0), tmpName, tree.clazz, tree);
+            stats.append(tmpVar);
+
+            List<JCExpression> typeargs = List.nil();
+            List<JCExpression> args = List.nil();
+
+            JCIdent ident3 = make.Ident(tmpName);
+            JCFieldAccess select1 = make.at(tree.pos).Select(ident3, initBuilder.initializerName);
+            JCMethodInvocation apply1 = make.at(tree.pos).Apply(typeargs, select1, args);
+            JCExpressionStatement exec1 = make.at(tree.pos).Exec(apply1);
+            stats.append(exec1);
+
+            JCIdent ident2 = make.Ident(tmpName);
+            JFXBlockExpression blockExpr1 = ((JavafxTreeMaker) make).at(tree.pos).BlockExpression(0, stats.toList(), ident2);
+            result = blockExpr1;
         }
     }
     
@@ -459,6 +475,27 @@ public class JavafxToJava extends JavafxTreeTranslator {
         return Name.fromString(names, syntheticNamePrefix + syntheticNameCounter++ + kind);
     }
 
+    JCMethodDecl makeMainMethod() {
+            List<JCExpression> emptyExpressionList = List.nil();
+            JCIdent runIdent = make.Ident(Name.fromString(names, JavafxModuleBuilder.runMethodString));
+            JCMethodInvocation runCall = make.Apply(emptyExpressionList, runIdent, emptyExpressionList);
+            List<JCStatement> mainStats = List.<JCStatement>of(make.Exec(runCall));
+            List<JCVariableDecl> paramList = List.nil();
+            paramList = paramList.append(make.VarDef(make.Modifiers(0), 
+                    Name.fromString(names, "args"), 
+                    make.TypeArray(make.Ident(Name.fromString(names, "String"))), 
+                    null));
+            JCBlock body = make.Block(0, mainStats);
+            return make.MethodDef(make.Modifiers(Flags.PUBLIC | Flags.STATIC),
+                    Name.fromString(names, "main"), 
+                    make.TypeIdent(TypeTags.VOID), 
+                    List.<JCTypeParameter>nil(), 
+                    paramList, 
+                    emptyExpressionList, 
+                    body, 
+                    null);
+    }
+    
     public JCImport makeImport(String str, DiagnosticPosition diagPos) {
         JCExpression tree = makeQualifiedTree(str, diagPos);
         tree = make.at(diagPos).Select(tree, names.asterisk);
@@ -503,10 +540,8 @@ public class JavafxToJava extends JavafxTreeTranslator {
             return make.at(diagPos).Type(t);
         }
     }
-
+    
     private Symbol getJavafxInitializerSymbol(JCNewClass newClass) {
-        // newClass.type is null for the changeListener (on change trigger) anonymous class.
-        // See JavaffxInitializationBuilder.visitAttributeDefinition
         if (newClass.type == null) {
             return null;
         }
@@ -525,6 +560,6 @@ public class JavafxToJava extends JavafxTreeTranslator {
 
         return entry.sym;
     }
-
 }
+
 

@@ -208,6 +208,11 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
     
+    @Override
+    public void visitInstanciate(JFXInstanciate that) {
+        visitNewClass(that);
+    }
+    
     public boolean shouldVisitRemoved() {
         return false;
     }

@@ -1115,6 +1115,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         assert false;
     }
 
+    
+    @Override
+    public void visitInstanciate(JFXInstanciate that) {
+        visitNewClass(that);
+    }
+
     public void visitNewClass(JCNewClass tree) {
         Type owntype = syms.errType;
 

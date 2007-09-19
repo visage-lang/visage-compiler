@@ -49,7 +49,8 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     protected static final Context.Key<JavafxModuleBuilder> javafxModuleBuilderKey =
         new Context.Key<JavafxModuleBuilder>();
 
-    public static final String runMethodName = "javafx$run$";
+    public static final String runMethodString = "javafx$run$";
+    public static final String initMethodString = "javafx$init$";
     private Table names;
     private JavafxTreeMaker make;
     private Log log;
@@ -70,11 +71,11 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
 
    @Override
    public void visitTopLevel(JCCompilationUnit tree) {
-        try {
+       try {
             preProcessJfxTopLevel(tree);
-        } finally {
+       } finally {
             topLevelNamesSet = null;
-        }
+       }
     }
 
     private void preProcessJfxTopLevel(JCCompilationUnit module) {
@@ -127,10 +128,8 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
             }
         }
                 
-        List<JCTree> emptyVarList = List.nil();
-
         // Add run() method... If the class can be a module class.
-        moduleClassDefs.prepend(makeModuleMethod(runMethodName, emptyVarList, true, stats.toList()));
+        moduleClassDefs.prepend(makeMethod(runMethodString, true, stats.toList()));
 
         if (moduleClass == null) {
             moduleClass =  make.ClassDeclaration(
@@ -141,55 +140,35 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         } else {
             moduleClass.defs = moduleClass.defs.appendList(moduleClassDefs);
         }
+        moduleClass.accept((JavafxVisitor)this);
         moduleClass.isModuleClass = true;
 
         topLevelDefs.append(moduleClass);
         
         module.defs = topLevelDefs.toList();
     }
-
+    
+    /**
+     * Create the init method now so that all the classes in a compilation
+     * unit can be detected to be JavaFX.
+     */
     @Override
-    public void visitMemberSelector(JFXMemberSelector that) {
-        // TODO:
+    public void visitClassDeclaration(JFXClassDeclaration tree) {
+        super.visitClassDeclaration(tree);
+        tree.defs = tree.defs.prepend(makeMethod(
+                initMethodString, 
+                false, 
+                List.<JCStatement>nil()));
     }
 
-    @Override
-    public void visitDoLater(JFXDoLater that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitTypeAny(JFXTypeAny that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitTypeClass(JFXTypeClass that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitTypeFunctional(JFXTypeFunctional that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitTypeUnknown(JFXTypeUnknown that) {
-        // TODO:
-    }
-
-    @Override
-    public void visitVar(JFXVar that) {
-    }
-
-
-    private JFXOperationDefinition makeModuleMethod(String name, List<JCTree> paramList, boolean isStatic, List<JCStatement> stats) {
+    private JFXOperationDefinition makeMethod(String name, boolean isStatic, List<JCStatement> stats) {
+        List<JCTree> emptyVarList = List.nil();
         JFXBlockExpression body = make.BlockExpression(0, stats, null);
         return make.OperationDefinition(
                 make.Modifiers(isStatic? PUBLIC | STATIC : PUBLIC), 
                 Name.fromString(names, name), 
                 make.TypeClass(make.Ident(Name.fromString(names, "Void")), JFXType.CARDINALITY_OPTIONAL),
-                paramList, 
+                emptyVarList, 
                 body);        
     }
     
