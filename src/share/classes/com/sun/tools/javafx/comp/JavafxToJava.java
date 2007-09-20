@@ -69,6 +69,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
     private ListBuffer<JCStatement> prependInFrontOfStatement = null;
     
     private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";
+    private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.SequenceBuilder";
     
     // for type morphing
@@ -580,6 +581,18 @@ public class JavafxToJava extends JavafxTreeTranslator {
         // type name .class
         args.append(make.at(diagPos).Select(makeTypeTree(elemType, diagPos), names._class));
         args.appendList(tree.getItems());
+        result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
+    }
+    
+    @Override
+    public void visitSequenceRange(JFXSequenceRange tree) {
+        DiagnosticPosition diagPos = tree.pos();
+        super.visitSequenceRange(tree);
+        JCExpression meth = ((JavafxTreeMaker)make).at(diagPos).Identifier(sequencesRangeString);
+        ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb();
+        List<JCExpression> typeArgs = List.<JCExpression>nil();
+        args.append(tree.getLower());
+        args.append(tree.getUpper());
         result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
     }
     
