@@ -261,7 +261,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
 // Javafx change
     protected JavafxModuleBuilder javafxModuleBuilder;
-    protected JavafxTypeMorpher javafxTypeMorpher;
+    protected JavafxVarUsageAnalysis varUsageAnalysis;
     protected JavafxToJava jfxToJava;
 // Javafx change
     /**
@@ -302,8 +302,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
 // Javafx change
         javafxModuleBuilder = JavafxModuleBuilder.instance(context);
+        varUsageAnalysis = JavafxVarUsageAnalysis.instance(context);
         jfxToJava = JavafxToJava.instance(context);
-        javafxTypeMorpher = JavafxTypeMorpher.instance(context);
         prepForBackEnd = JavafxPrepForBackEnd.instance(context);
         
         // Add the javafx message resource bundle
@@ -720,7 +720,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                                                 env.toplevel.sourcefile);
             try {
                 make.at(Position.FIRSTPOS);
-                jfxToJava.translate(env.toplevel);
+                jfxToJava.toJava(env);
 
                 if (errorCount() > 0)
                     return;
@@ -766,16 +766,16 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 break;
 
             case CHECK_ONLY:
-                backEnd(prepForBackEnd(jfxToJava(typeMorph(attribute(todo)))));
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo)))));
                 break;
 
             case SIMPLE:
-                backEnd(prepForBackEnd(jfxToJava(typeMorph(attribute(todo)))));
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo)))));
                 break;
 
             case BY_FILE: {
                 ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
-                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(typeMorph(attribute(todo)))).values())
+                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(varAnalysis(attribute(todo)))).values())
                     envbuff.appendList(prepForBackEnd(list));
                 backEnd(envbuff.toList());
                 break;
@@ -783,7 +783,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             case BY_TODO: {
                 ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
                 while (todo.nonEmpty())
-                    envbuff.appendList(prepForBackEnd(jfxToJava(typeMorph(attribute(todo.next())))));
+                    envbuff.appendList(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo.next())))));
                 backEnd(envbuff.toList());
                 break;
             }
@@ -917,12 +917,12 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
     /**
-     * Morph types.
+     * Analyze variable usage.
      * @returns the list of attributed parse trees
      */
-    public List<JavafxEnv<JavafxAttrContext>> typeMorph(List<JavafxEnv<JavafxAttrContext>> envs) {
+    public List<JavafxEnv<JavafxAttrContext>> varAnalysis(List<JavafxEnv<JavafxAttrContext>> envs) {
         for (List<JavafxEnv<JavafxAttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
-            typeMorph(l.head);
+            varAnalysis(l.head);
         }
         return envs;
     }
@@ -931,23 +931,16 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * Morph types.
      * @returns the attributed parse tree
      */
-    public JavafxEnv<JavafxAttrContext> typeMorph(JavafxEnv<JavafxAttrContext> env) {
+    public JavafxEnv<JavafxAttrContext> varAnalysis(JavafxEnv<JavafxAttrContext> env) {
         if (verboseCompilePolicy)
             log.printLines(log.noticeWriter, "[type-morph " + env.enclClass.sym + "]");
-        //if (verbose)
-        //    printVerbose("checking.attribution", env.enclClass.sym);
-
-        //if (taskListener != null) {
-        //    TaskEvent e = new TaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
-        //    taskListener.started(e);
-        //}
 
         JavaFileObject prev = log.useSource(
                                   env.enclClass.sym.sourcefile != null ?
                                   env.enclClass.sym.sourcefile :
                                   env.toplevel.sourcefile);
         try {
-            javafxTypeMorpher.morph(env);
+            varUsageAnalysis.analyzeVarUse(env);
         }
         finally {
             log.useSource(prev);

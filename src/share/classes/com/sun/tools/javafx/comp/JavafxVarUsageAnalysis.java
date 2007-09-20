@@ -31,6 +31,7 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.util.Context;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 
 /**
@@ -38,12 +39,30 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
  * @author Robert Field
  */
 public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
-    private final JavafxTypeMorpher typeMorpher;
-    private boolean inLHS = false;
-    private boolean inBindContext = false;
+    protected static final Context.Key<JavafxVarUsageAnalysis> varUsageKey =
+            new Context.Key<JavafxVarUsageAnalysis>();
     
-    JavafxVarUsageAnalysis(JavafxTypeMorpher typeMorpher) { 
-        this.typeMorpher = typeMorpher;
+    private final JavafxTypeMorpher typeMorpher;
+    private boolean inLHS;
+    private boolean inBindContext;
+    
+    public static JavafxVarUsageAnalysis instance(Context context) {
+        JavafxVarUsageAnalysis instance = context.get(varUsageKey);
+        if (instance == null)
+            instance = new JavafxVarUsageAnalysis(context);
+        return instance;
+    }
+    
+    JavafxVarUsageAnalysis(Context context) {
+        context.put(varUsageKey, this);
+        
+        this.typeMorpher = JavafxTypeMorpher.instance(context);
+        inLHS = false;
+        inBindContext = false;
+    }
+    
+    public void analyzeVarUse(JavafxEnv<JavafxAttrContext> attrEnv) {
+        scan(attrEnv.tree);
     }
     
     private void markVarUse(Symbol sym) {

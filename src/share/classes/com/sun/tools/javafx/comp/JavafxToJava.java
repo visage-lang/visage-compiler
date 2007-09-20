@@ -36,15 +36,18 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
-import com.sun.tools.javac.code.Symbol.MethodSymbol;
+import com.sun.tools.javafx.code.JavafxBindStatus;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
 
+import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedAttributeInfo;
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.JavafxTreeTranslator;
 import com.sun.tools.javafx.tree.JavafxTreeMaker; // only for BlockExpression
 import java.util.HashSet;
@@ -68,6 +71,12 @@ public class JavafxToJava extends JavafxTreeTranslator {
     private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.SequenceBuilder";
     
+    // for type morphing
+    private final JavafxTypeMorpher typeMorpher;
+    private JavafxBindStatus bindContext = JavafxBindStatus.UNBOUND;
+    private boolean inLHS = false;
+    private JavafxEnv<JavafxAttrContext> attrEnv;
+    
     public static JavafxToJava instance(Context context) {
         JavafxToJava instance = context.get(jfxToJavaKey);
         if (instance == null)
@@ -80,6 +89,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
         log = Log.instance(context);
         names = Name.Table.instance(context);
         syms = Symtab.instance(context);
+        typeMorpher = JavafxTypeMorpher.instance(context);
         initBuilder = JavafxInitializationBuilder.instance(context);
         names = Name.Table.instance(context);
     }
@@ -121,16 +131,43 @@ public class JavafxToJava extends JavafxTreeTranslator {
         return stats;
     }
     
-    @Override
-    public void visitTopLevel(JCCompilationUnit tree) {
+    private  <T extends JCTree> T boundTranslate(T tree, JavafxBindStatus bind) {
+        JavafxBindStatus prevBindContext = bindContext;
+        if (bindContext == JavafxBindStatus.UNBOUND) {
+            bindContext = bind;
+        } else { // TODO
+            assert bind == JavafxBindStatus.UNBOUND || bind == bindContext : "how do we handle this?";
+        }
+        T result = translate(tree);
+        bindContext = prevBindContext;
+        return result;
+    }
+    
+    private  <T extends JCTree> T translateLHS(T tree, boolean isImmediateLHS) {
+        boolean wasInLHS = inLHS;
+        inLHS = isImmediateLHS;
+        T result = translate(tree);
+        inLHS = wasInLHS;
+        return result;
+    }
+    
+    public void toJava(JavafxEnv<JavafxAttrContext> attrEnv) {
+        this.attrEnv = attrEnv;
         syntheticNameCounter = 0;
-        super.visitTopLevel(tree);
-//        tree.defs = tree.defs.prepend(makeImport("com.sun.javafx.runtime.location"));
-        result = tree;
+        
+        translate(attrEnv.toplevel);
     }
     
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
+        JCClassDecl prevEnclClass = attrEnv.enclClass;
+        JavafxBindStatus prevBindContext = bindContext;
+        boolean prevInLHS = inLHS;
+        
+        attrEnv.enclClass = tree;
+        bindContext = JavafxBindStatus.UNBOUND;
+        inLHS = false;
+        
         ListBuffer<JCBlock> translatedInitBlocks = ListBuffer.<JCBlock>lb();
         ListBuffer<JCTree> translatedDefs = ListBuffer.<JCTree>lb();
         ListBuffer<TranslatedAttributeInfo> attrInfo = ListBuffer.<TranslatedAttributeInfo>lb();
@@ -150,7 +187,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
                         JCTree trans = translate(attrDef);
                         attrInfo.append(new TranslatedAttributeInfo(
                                 attrDef.getName(), 
-                                translate(attrDef.init), 
+                                translateVarInit(attrDef), 
                                 translate(attrDef.onChange)));
                         translatedDefs.append(trans);
                         break;
@@ -186,6 +223,10 @@ public class JavafxToJava extends JavafxTreeTranslator {
         }
 
         result = make.ClassDef(tree.mods, tree.name, tree.typarams, tree.extending, tree.implementing, translatedDefs.toList());
+
+        attrEnv.enclClass = prevEnclClass;
+        bindContext = prevBindContext;
+        inLHS = prevInLHS;
     }
     
     @Override
@@ -198,10 +239,9 @@ public class JavafxToJava extends JavafxTreeTranslator {
         // Replace the statement with the operation definition
         result = translate(tree.funcDef);
     }
-
+    
     @Override
     public void visitPureObjectLiteral(JFXPureObjectLiteral tree) {
-        super.visitPureObjectLiteral(tree);
         Name tmpName = getSyntheticName("objlit");
         JCIdent clazz = tree.getIdentifier();
         ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
@@ -218,14 +258,19 @@ public class JavafxToJava extends JavafxTreeTranslator {
             if (part instanceof JFXObjectLiteralPart) {
                 JFXObjectLiteralPart olpart = (JFXObjectLiteralPart)part;
                 DiagnosticPosition diagPos = olpart.pos();
-                JCIdent ident1 = make.Ident(tmpName);
+                JavafxBindStatus bindStatus = olpart.getBindStatus();
+                JCExpression init = boundTranslate(olpart.getExpression(), bindStatus);
+                VarSymbol vsym = (VarSymbol)olpart.sym;
+                VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+                if (vmi.shouldMorph()) {
+                    init = typeMorpher.translateDefinitionalAssignment(init, vmi, diagPos, bindStatus);
+                }
+                JCIdent ident1 = make.at(diagPos).Ident(tmpName);
                 JCFieldAccess attr = make.at(diagPos).Select(
                         ident1,
                         olpart.getName());
-                JCAssign assign1 = make.Assign(
-                        attr,
-                        translate(olpart.getExpression()));
-                lastStatement = make.Exec(assign1);
+                JCAssign assign1 = make.at(diagPos).Assign(attr,init);
+                lastStatement = make.at(diagPos).Exec(assign1);
                 stats.append(lastStatement); 
             } else {
                 log.error(tree.pos, "compiler.err.javafx.not.yet.implemented",
@@ -281,22 +326,53 @@ public class JavafxToJava extends JavafxTreeTranslator {
         result = make.Apply(null, formatter, values.toList());
     }
 
+    public JCExpression translateVarInit(JFXVar tree) {
+        DiagnosticPosition diagPos = tree.pos();
+        JavafxBindStatus bindStatus = tree.getBindStatus();
+        JCExpression init = boundTranslate(tree.init, bindStatus);
+        VarSymbol vsym = tree.sym;
+        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+        if (vmi.shouldMorph()) {
+            init = typeMorpher.translateDefinitionalAssignment(init, vmi, diagPos, bindStatus);
+
+        }
+        return init;
+    }
+
     @Override
     public void visitVar(JFXVar tree) {
         DiagnosticPosition diagPos = tree.pos();
+        Type type = tree.type;
+        VarSymbol vsym = tree.sym;
+        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+        if (vmi.shouldMorph()) {
+            type = vmi.getUsedType();
+
+            // local variables need to be final so they can be referenced
+            // attributes cannot be final since they are initialized outside of the constructor
+            if (!(tree instanceof JFXAttributeDefinition)) {
+                tree.mods.flags |= Flags.FINAL;  
+            }
+        }
         JCModifiers mods = tree.getModifiers();
-        JCExpression typeExpresion = makeTypeTree(tree.type, diagPos);
-        result = make.at(diagPos).VarDef(mods, tree.name, typeExpresion, translate(tree.init));
+        JCExpression typeExpresion = makeTypeTree(type, diagPos);
+        result = make.at(diagPos).VarDef(mods, tree.name, typeExpresion, translateVarInit(tree));
     }
 
     @Override
     public void visitAttributeDefinition(JFXAttributeDefinition tree) {
         DiagnosticPosition diagPos = tree.pos();
+        Type type = tree.type;
+        VarSymbol vsym = tree.sym;
+        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+        if (vmi.shouldMorph()) {
+            type = vmi.getUsedType();
+        }
         JCModifiers mods = tree.getModifiers();
         long modFlags = mods==null? 0L : mods.flags;
         modFlags &= ~Flags.FINAL;  // because of init fields can't be final
         mods = make.Modifiers(modFlags);
-        JCExpression typeExpresion = makeTypeTree(tree.type, diagPos);
+        JCExpression typeExpresion = makeTypeTree(type, diagPos);
         result = make.at(diagPos).VarDef(mods, tree.name, typeExpresion, null);
     }
 
@@ -457,6 +533,42 @@ public class JavafxToJava extends JavafxTreeTranslator {
         }
     }
     
+    @Override
+    public void visitClassDef(JCClassDecl tree) {
+        assert false : "raw class def";
+    }
+    
+    @Override
+    public void visitMethodDef(JCMethodDecl tree) {
+        // At least for now, prevent parameters and return from being translated
+        //tree.params = translateVarDefs(tree.params);
+        //tree.restype = translate(tree.restype);
+        tree.body = translate(tree.body);
+        
+        result = tree;
+    }
+    
+    @Override
+    public void visitAssign(JCAssign tree) {
+        JCExpression lhs = translateLHS(tree.lhs, true);
+        JCExpression rhs = translate(tree.rhs);
+        result = typeMorpher.morphAssign(tree, lhs, rhs);
+    }
+
+    @Override
+    public void visitSelect(JCFieldAccess tree) {
+        // this may or may not be in a LHS but in either
+        // event the selector is a value expression
+        tree.selected = translateLHS(tree.selected, false);
+        
+        result = typeMorpher.convertVariableReference(tree, tree.sym, bindContext, inLHS);
+    }
+    
+    @Override
+    public void visitIdent(JCIdent tree)   {
+        result = typeMorpher.convertVariableReference(tree, tree.sym, bindContext, inLHS);
+    }
+
     @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
         DiagnosticPosition diagPos = tree.pos();
