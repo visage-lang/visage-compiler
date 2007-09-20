@@ -31,9 +31,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.MissingResourceException;
 import com.sun.tools.javac.code.Source;
+import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javafx.main.JavafxOption.Option;
 import com.sun.tools.javac.util.*;
+import com.sun.tools.javafx.code.BlockExprSymtab;
 import com.sun.tools.javafx.main.RecognizedOptions.OptionHelper;
 import com.sun.tools.javafx.util.JavafxFileManager;
 import javax.tools.JavaFileManager;
@@ -291,6 +293,8 @@ public class Main {
      */
     public int compile(String[] args) {
         Context backEndContext = new Context();
+
+        BlockExprSymtab.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprAttr.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprEnter.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprMemberEnter.preRegister(backEndContext);
@@ -308,7 +312,7 @@ public class Main {
         
         // Tranfer the name table -- must be done before any initialization
         context.put(Name.Table.namesKey, backEndContext.get(Name.Table.namesKey));
-        
+
         // Tranfer the options -- must be done before any initialization
         context.put(Options.optionsKey, backEndContext.get(Options.optionsKey));
         

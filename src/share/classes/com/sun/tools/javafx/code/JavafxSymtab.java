@@ -58,6 +58,8 @@ public class JavafxSymtab extends Symtab {
         javafx_BooleanType = booleanType;
         javafx_VoidType = voidType;
         javafx_sequenceType = enterClass("com.sun.javafx.runtime.sequence.Sequence");
+        
+        enterOperators();
     }
     
     // Javafx types
@@ -68,7 +70,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_BooleanType;
     public final Type javafx_VoidType;
     
-    protected void enterOperators() {
+    public void enterOperators() {
         super.enterOperators();
         
         enterBinop("<>", objectType, objectType, booleanType, if_acmpne);
