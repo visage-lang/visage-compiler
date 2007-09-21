@@ -80,9 +80,11 @@ public class BlockExprAttr extends Attr  {
                 env.info.dup(env.info.scope.dup()));
         for (List<JCStatement> l = tree.stats; l.nonEmpty(); l = l.tail)
             attribStat(l.head, localEnv);
-        if (tree.value != null) {
+        if (tree.value == null) {
+            result = check(tree, syms.voidType, VAL, pkind, pt);
+        } else {
             Type valtype = attribExpr(tree.value, localEnv);
-             result = check(tree, valtype, VAL, pkind, pt);
+            result = check(tree, valtype, VAL, pkind, pt);
         }
         localEnv.info.scope.leave();
     }

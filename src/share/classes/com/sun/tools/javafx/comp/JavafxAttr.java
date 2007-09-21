@@ -1046,7 +1046,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         attribExpr(tree.getBodyExpression(), forExprEnv);
 
         Type bodyType = tree.getBodyExpression().type;
-        Type owntype = sequenceType(bodyType);
+        Type owntype = bodyType == syms.voidType? syms.voidType : sequenceType(bodyType);
 
         forExprEnv.info.scope.leave();
         result = check(tree, owntype, VAL, pkind, pt);
