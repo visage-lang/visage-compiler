@@ -507,7 +507,7 @@ public class JavafxEnter extends JCTree.Visitor implements JavafxVisitor {
         for (JFXForExpressionInClause clause : that.getInClauses()) {
             clause.accept((JavafxVisitor)this);
         }
-        that.getBodyExpression().accept((JavafxVisitor)this);
+        that.getBodyExpression().accept(this);
     }
     
     @Override

@@ -14,7 +14,6 @@ tokens {
    BREAK='break';
    BY='by';
    CATCH='catch';
-   CHANGE='change';
    CLASS='class';
    CONTINUE='continue';
    DELETE='delete';
@@ -28,7 +27,7 @@ tokens {
    FALSE='false';
    FINALLY='finally';
    FIRST='first';
-   FOR='for';
+   FOREACH='foreach';
    FROM='from';
    FUNCTION='function';
    IF='if';
@@ -59,6 +58,7 @@ tokens {
    PUBLIC='public';
    READONLY='readonly';
    RETURN='return';
+   REPLACE='replace';
    REVERSE='reverse';
    SELECT='select';
    SUPER='super';
@@ -372,7 +372,7 @@ attributeDefinition  returns [JFXAttributeDefinition def]
 	    typeReference 
 	   (EQ boundExpression 			{ bindStatus = $boundExpression.status; expr = $boundExpression.expr; }
 	   | inverseClause			{ inverse = $inverseClause.inverse; } )? 
-	   (ON CHANGE ocb=block)?
+	   (ON REPLACE ocb=block)?
 	    SEMI        			{ $def = F.at(pos($ATTRIBUTE)).AttributeDefinition($modifierFlags.mods,
 	    						$name.value, $typeReference.type, inverse, null, 
 	    						bindStatus, expr, $ocb.value); }
@@ -524,10 +524,10 @@ expression returns [JCExpression expr]
       	;
 forExpression   returns [JCExpression expr] 
 @init { ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb(); }
-	: FOR   LPAREN  
+	: FOREACH   LPAREN  
 		in1=inClause					{ clauses.append($in1.value); }	       
 		( COMMA in2=inClause				{ clauses.append($in2.value); } )*	       
-	        RPAREN be=blockExpression 			{ $expr = F.at(pos($FOR)).ForExpression(clauses.toList(), $be.expr); }
+	        RPAREN be=expression 				{ $expr = F.at(pos($FOREACH)).ForExpression(clauses.toList(), $be.expr); }
 	;
 inClause   returns [JFXForExpressionInClause value] 
 @init { JFXVar var; }

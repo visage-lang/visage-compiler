@@ -1,6 +1,6 @@
 /*
- * Feature test #8 -- change triggers
- * Demonstrates simple change triggers
+ * Feature test #8 -- replace triggers
+ * Demonstrates simple replace triggers
  *
  * @test
  */
@@ -9,11 +9,11 @@ import java.lang.System;
 
 class Foo {
     attribute x : Integer
-        on change { System.out.println("x: {x}"); };
+        on replace { System.out.println("x: {x}"); };
     attribute y : Integer
-        on change { System.out.println("y: {y}"); };
+        on replace { System.out.println("y: {y}"); };
     attribute z : Integer = 3
-        on change { System.out.println("z: {z}"); };
+        on replace { System.out.println("z: {z}"); };
 }
 
 var n = 3;

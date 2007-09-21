@@ -304,7 +304,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     
     public JFXForExpression ForExpression(
             List<JFXForExpressionInClause> inClauses,
-            JFXBlockExpression bodyExpr) {
+            JCExpression bodyExpr) {
         JFXForExpression tree = new JFXForExpression(inClauses, bodyExpr);       
         tree.pos = pos;
         return tree;

@@ -33,18 +33,18 @@ import com.sun.tools.javac.util.List;
  */
 public class JFXForExpression extends JFXExpression {
     public List<JFXForExpressionInClause> inClauses;
-    public JFXBlockExpression bodyExpr;
+    public JCExpression bodyExpr;
 
     protected JFXForExpression(
             List<JFXForExpressionInClause> inClauses,
-            JFXBlockExpression bodyExpr) {
+            JCExpression bodyExpr) {
         this.inClauses = inClauses;
         this.bodyExpr = bodyExpr;
     }
     public void accept(JavafxVisitor v) { v.visitForExpression(this); }
     
     public List<JFXForExpressionInClause> getInClauses() { return inClauses; }
-    public JFXBlockExpression getBodyExpression() { return bodyExpr; }
+    public JCExpression getBodyExpression() { return bodyExpr; }
 
     @Override
     public int getTag() {

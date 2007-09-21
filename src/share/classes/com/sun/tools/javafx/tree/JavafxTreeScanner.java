@@ -210,7 +210,7 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
         for (JFXForExpressionInClause clause : that.getInClauses()) {
             clause.accept((JavafxVisitor)this);
         }
-        that.getBodyExpression().accept((JavafxVisitor)this);
+        that.getBodyExpression().accept(this);
     }
     
     @Override
