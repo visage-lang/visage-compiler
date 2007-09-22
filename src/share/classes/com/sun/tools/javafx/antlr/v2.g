@@ -143,6 +143,21 @@ import org.antlr.runtime.*;
 }
 
 @lexer::members {
+    /** Allow emitting more than one token from a lexer rule
+     */
+    List tokens = new ArrayList();
+    public void emit(Token token) {
+            this.token = token;
+        	tokens.add(token);
+    }
+    public Token nextToken() {
+    	super.nextToken();
+        if ( tokens.size()==0 ) {
+            return Token.EOF_TOKEN;
+        }
+        return (Token)tokens.remove(0);
+    }
+    
     /** Track "He{"l{"l"}o"} world" quotes
      */
     private static class BraceQuoteTracker {
@@ -252,16 +267,31 @@ FORMAT_STRING_LITERAL		: 				{ BraceQuoteTracker.percentIsFormat() }?=>
 QUOTED_IDENTIFIER 
 		:	'<<' (~'>'| '>' ~'>')* '>'* '>>'   	{ setText(getText().substring(2, getText().length()-2)); };
  
-INTEGER_LITERAL : ('0' | '1'..'9' '0'..'9'*) ;
+INTEGER_LITERAL : Digits ;
 
 FLOATING_POINT_LITERAL
-    :   ('0'..'9')+ '.' ('0'..'9')+ Exponent? 
-    |   '.' ('0'..'9')+ Exponent? 
-    |   ('0'..'9')+ Exponent 
-	;
+    :     d=Digits RangeDots
+    	  	{
+    	  		$d.setType(INTEGER_LITERAL);
+    	  		emit($d);
+          		$RangeDots.setType(DOTDOT);
+    	  		emit($RangeDots);
+    	  	}
+    |	  Digits '.' (Digits)? (Exponent)? 
+    | '.' Digits (Exponent)? 
+    |     Digits Exponent
+    ;
 
 fragment
-Exponent : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
+RangeDots 
+	:	'..'
+	;
+fragment
+Digits	:	('0'..'9')+ 
+        ;
+fragment
+Exponent : 	('e'|'E') ('+'|'-')? Digits
+        ;
 
 IDENTIFIER 
     :   Letter (Letter|JavaIDDigit)*
@@ -593,7 +623,8 @@ postfixExpression  returns [JCExpression expr]
 	            ( LPAREN expressionListOpt RPAREN   	{ $expr = F.at(pos($LPAREN)).Apply(null, $expr, $expressionListOpt.args.toList()); } ) *
 	         )   
 	   | LBRACKET expression  RBRACKET			{ $expr = F.at(pos($LBRACKET)).SequenceIndexed($expr, $expression.expr); }
-	   ) * ;
+	   ) * 
+	;
 primaryExpression  returns [JCExpression expr] 
 	: newExpression 					{ $expr = $newExpression.expr; }
 	| identifier LBRACE  objectLiteral RBRACE 		{ $expr = F.at(pos($LBRACE)).PureObjectLiteral($identifier.expr, $objectLiteral.parts.toList()); } 
