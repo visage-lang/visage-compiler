@@ -589,10 +589,10 @@ unaryExpression  returns [JCExpression expr]
 postfixExpression  returns [JCExpression expr] 
 	: primaryExpression 					{ $expr = $primaryExpression.expr; }
 	   ( DOT ( CLASS   					//TODO
-	         | name1=name   				{ $expr = F.at(pos($DOT)).Select($expr, $name1.value); }
+	         | name   					{ $expr = F.at(pos($DOT)).Select($expr, $name.value); }
 	            ( LPAREN expressionListOpt RPAREN   	{ $expr = F.at(pos($LPAREN)).Apply(null, $expr, $expressionListOpt.args.toList()); } ) *
 	         )   
-	   | LBRACKET (name BAR)? expression  RBRACKET		//TODO: selectionClause   
+	   | LBRACKET expression  RBRACKET			{ $expr = F.at(pos($LBRACKET)).SequenceIndexed($expr, $expression.expr); }
 	   ) * ;
 primaryExpression  returns [JCExpression expr] 
 	: newExpression 					{ $expr = $newExpression.expr; }

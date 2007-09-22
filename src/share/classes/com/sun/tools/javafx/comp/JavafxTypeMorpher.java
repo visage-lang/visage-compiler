@@ -356,7 +356,7 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
         return initExpr;
     }
     
-    public JCExpression morphAssign(JCAssign tree, JCExpression lhs, JCExpression rhs) {
+    public JCExpression morphAssign(DiagnosticPosition diagPos, JCExpression lhs, JCExpression rhs) {
         Symbol sym = null;
         // TODO other cases
         if (lhs instanceof JCIdent) {
@@ -376,12 +376,35 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
             if (vmi.shouldMorph()) {     
                 JCFieldAccess setSelect = make.Select(lhs, setMethodName);
                 List<JCExpression> setArgs = List.of(rhs);
-                return make.Apply(null, setSelect, setArgs);
+                return make.at(diagPos).Apply(null, setSelect, setArgs);
             }
         }
-        tree.lhs = lhs;
-        tree.rhs = rhs;
-        return tree;
+        return make.at(diagPos).Assign(lhs, rhs); // make a new one so we are non-destructive
+    }        
+    
+    /**
+     * assignment of a sequence element --  s[i]=8
+     */
+    public JCExpression morphSequenceIndexedAssign(
+            DiagnosticPosition diagPos, 
+            JCExpression seq, 
+            JCExpression index, 
+            JCExpression value) {
+        JCFieldAccess select = make.Select(seq, setMethodName);
+        List<JCExpression> args = List.of(index, value);
+        return make.at(diagPos).Apply(null, select, args);
+    }        
+
+    /**
+     * access of a sequence element (RHS) --  s[i]
+     */
+    public JCExpression morphSequenceIndexedAccess(
+            DiagnosticPosition diagPos, 
+            JCExpression seq, 
+            JCExpression index) {
+        JCFieldAccess select = make.Select(seq, getMethodName);
+        List<JCExpression> args = List.of(index);
+        return make.at(diagPos).Apply(null, select, args);
     }        
 
     //========================================================================================================================

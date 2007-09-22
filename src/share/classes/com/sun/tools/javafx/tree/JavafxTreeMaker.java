@@ -226,6 +226,12 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
+    
+    public JFXSequenceIndexed SequenceIndexed(JCExpression sequence, JCExpression index) {
+        JFXSequenceIndexed tree = new JFXSequenceIndexed(sequence, index);
+        tree.pos = pos;
+        return tree;
+    }
 
     public JFXStringExpression StringExpression(List<JCExpression> parts) {
         JFXStringExpression tree = new JFXStringExpression(parts);

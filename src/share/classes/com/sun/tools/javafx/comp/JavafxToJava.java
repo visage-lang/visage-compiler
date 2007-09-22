@@ -560,9 +560,26 @@ public class JavafxToJava extends JavafxTreeTranslator {
     
     @Override
     public void visitAssign(JCAssign tree) {
-        JCExpression lhs = translateLHS(tree.lhs, true);
+        DiagnosticPosition diagPos = tree.pos();
         JCExpression rhs = translate(tree.rhs);
-        result = typeMorpher.morphAssign(tree, lhs, rhs);
+        if (tree.lhs.getTag() == JavafxTag.SEQUENCE_INDEXED) {
+            // assignment of a sequence element --  s[i]=8
+            JFXSequenceIndexed si = (JFXSequenceIndexed)tree.lhs;
+            JCExpression seq = translateLHS(si.getSequence(), true);  // LHS?
+            JCExpression index = translate(si.getIndex());
+            result = typeMorpher.morphSequenceIndexedAssign(diagPos, seq, index, rhs);
+        } else {
+            JCExpression lhs = translateLHS(tree.lhs, true);
+            result = typeMorpher.morphAssign(diagPos, lhs, rhs);
+        }
+    }
+
+    @Override
+    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
+        DiagnosticPosition diagPos = tree.pos();
+        JCExpression seq = translateLHS(tree.getSequence(), true);  // LHS?
+        JCExpression index = translate(tree.getIndex());
+        result = typeMorpher.morphSequenceIndexedAccess(diagPos, seq, index);
     }
 
     @Override

@@ -2341,7 +2341,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         Type elemType = null;
         Type expected = Type.noType;
         if (pt != null && types.erasure(pt) == syms.javafx_sequenceType) {
-            expected = pt.getParameterTypes().head;
+            expected = pt.getTypeArguments().head;
         }
         for (JCExpression expr : tree.getItems()) {
             Type itemType = chk.checkNonVoid(expr.pos(), attribExpr(expr, env, expected));
@@ -2365,10 +2365,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {
-        Type seqType = attribExpr(tree.getSequence(), env, syms.javafx_sequenceType);        
+        Type seqType = attribExpr(tree.getSequence(), env);        
+        //TODO: check that it is a sequence
         attribExpr(tree.getIndex(), env, syms.javafx_IntegerType);
-        Type owntype = seqType.getParameterTypes().head;
-        result = check(tree, owntype, VAL, pkind, pt);
+        Type owntype = seqType.getTypeArguments().head;
+        Type unboxed = types.unboxedType(owntype);
+        if (unboxed != Type.noType) {
+            owntype = unboxed;
+        }
+        result = check(tree, owntype, VAR, pkind, pt);
     }
     
     @Override
