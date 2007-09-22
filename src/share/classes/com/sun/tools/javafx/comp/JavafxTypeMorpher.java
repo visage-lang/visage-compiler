@@ -350,10 +350,8 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
                 makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
         if (bindStatus.isUnidiBind()) {
             initExpr = buildExpression(vmi.varSymbol, initExpr, bindStatus);
-        } else {
-            if (init == null || initExpr.type.tsym != vmi.getUsedType().tsym) {
-                initExpr = makeCall(vmi, diagPos, List.of(initExpr), varLocation, makeMethodName);
-            }
+        } else if (!bindStatus.isBidiBind()) {
+            initExpr = makeCall(vmi, diagPos, List.of(initExpr), varLocation, makeMethodName);
         }
         return initExpr;
     }
