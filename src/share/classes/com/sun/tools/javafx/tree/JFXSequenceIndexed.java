@@ -31,29 +31,29 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
  *
  * @author Robert Field
  */
-public class JFXSequenceRange extends JFXAbstractSequenceCreator {
-    public JCExpression lower;
-    public JCExpression upper;
+public class JFXSequenceIndexed extends JFXExpression {
+    public JCExpression sequence;
+    public JCExpression index;
 
-    public JFXSequenceRange(JCExpression lower, JCExpression upper) {
-        this.lower = lower;
-        this.upper = upper;
+    public JFXSequenceIndexed(JCExpression sequence, JCExpression index) {
+        this.sequence = sequence;
+        this.index = index;
     }
 
     public void accept(JavafxVisitor v) {
-        v.visitSequenceRange(this);
+        v.visitSequenceIndexed(this);
     }
 
-    public JCExpression getLower() {
-        return lower;
+    public JCExpression getSequence() {
+        return sequence;
     }
     
-    public JCExpression getUpper() {
-        return upper;
+    public JCExpression getIndex() {
+        return index;
     }
     
     @Override
     public int getTag() {
-        return JavafxTag.SEQUENCE_RANGE;
+        return JavafxTag.SEQUENCE_INDEXED;
     }
 }

@@ -135,6 +135,12 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         result = that;
     }
 
+    public void visitSequenceIndexed(JFXSequenceIndexed that) {
+        that.sequence = translate(that.sequence);
+        that.index = translate(that.index);
+        result = that;
+    }
+    
     public void visitStringExpression(JFXStringExpression that) {
         that.parts = that.parts==null? null : translate(that.parts);
         result = that;

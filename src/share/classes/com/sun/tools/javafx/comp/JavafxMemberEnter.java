@@ -1239,6 +1239,11 @@ public
         }
     }
 
+    public void visitSequenceIndexed(JFXSequenceIndexed that) {
+        that.getSequence().accept(this);
+        that.getIndex().accept(this);
+    }
+    
     @Override
     public void visitStringExpression(JFXStringExpression that) {
         List<JCExpression> parts = that.getParts();

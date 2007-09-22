@@ -2337,27 +2337,40 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
-        //TODO: fix this -- temp hack: use first item type as element type
-        JCExpression first = tree.getItems().get(0);
-        Type elemType = chk.checkNonVoid(first.pos(), attribExpr(first, env));
-        /*****
+        // atrribute the items, and determine least upper bound of type
+        Type elemType = null;
+        Type expected = Type.noType;
+        if (pt != null && types.erasure(pt) == syms.javafx_sequenceType) {
+            expected = pt.getParameterTypes().head;
+        }
         for (JCExpression expr : tree.getItems()) {
-            Type itemType = chk.checkNonVoid(expr.pos(), attribExpr(expr, env));
+            Type itemType = chk.checkNonVoid(expr.pos(), attribExpr(expr, env, expected));
+            //TODO: flatten sequence types
             if (elemType == null) {
                 elemType = itemType;
-            } else {
-         *      compare and merge types
-                if (incompatible) {
-                    log.error(expr.pos(), "incomparable.types", itemType, elemType);
+            } else if (!itemType.baseType().equals(elemType.baseType())) {
+                if ( (itemType == syms.javafx_IntegerType && elemType == syms.javafx_NumberType) ||
+                     (itemType == syms.javafx_NumberType && elemType == syms.javafx_IntegerType) ) {
+                    elemType = syms.javafx_NumberType;  // number and int go to number
+                } else if (itemType.isPrimitive() || elemType.isPrimitive()) {
+                    elemType = syms.javafx_AnyType;  // only place to go is to Object
+                } else {
+                    elemType = syms.javafx_AnyType;  //TODO: punt for now
                 }
             }
         }
-         * *****/
-        attribExprs(tree.getItems(), env, elemType);
         Type owntype = sequenceType(elemType);
         result = check(tree, owntype, VAL, pkind, pt);
     }
 
+    @Override
+    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
+        Type seqType = attribExpr(tree.getSequence(), env, syms.javafx_sequenceType);        
+        attribExpr(tree.getIndex(), env, syms.javafx_IntegerType);
+        Type owntype = seqType.getParameterTypes().head;
+        result = check(tree, owntype, VAL, pkind, pt);
+    }
+    
     @Override
     public void visitStringExpression(JFXStringExpression tree) {
         List<JCExpression> parts = tree.getParts();

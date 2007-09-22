@@ -135,9 +135,13 @@ public abstract class JavafxTag extends JCTree {
      */
     public static final int SEQUENCE_EMPTY = SEQUENCE_RANGE + 1;        
 
+    /** index into a sequence
+     */
+    public static final int SEQUENCE_INDEXED = SEQUENCE_EMPTY + 1;        
+
     /** insert statement
      */
-    public static final int INSERT = SEQUENCE_EMPTY + 1;        
+    public static final int INSERT = SEQUENCE_INDEXED + 1;        
 
     /** delete statement
      */
