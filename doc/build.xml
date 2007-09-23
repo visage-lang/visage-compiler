@@ -10,6 +10,7 @@
     <property name="doc.src.dir" value="${basedir}/doc/langspec"/>
     <property name="html.style" value="${docbook.dir}/html/docbook.xsl"/>
     <property name="xhtml.style" value="${docbook.dir}/xhtml/docbook.xsl"/>
+    <property name="doc.name" value="JavaFX-Language"/>
 
     <!-- Choose between HTML and XHTML -->
     <property name="chunk.style" value="${html.style}"/>
@@ -32,9 +33,7 @@
 
     <target name="spec"
      description="Build language specification using Ant">
-        <antcall target="chunk-html">
-            <param name="doc.name" value="JavaFX-Language"/>
-        </antcall>
+        <antcall target="chunk-html"/>
     </target>
 
     <target name="clean" description="Deletes all generated documentation.">
@@ -45,17 +44,20 @@
 
     <!-- arg: doc.name -->
     <target name="chunk-html" depends="prepare">
-        <java classname="com.elharo.xml.xinclude.SAXXIncluder" fork="true" dir="${doc.build.dir}/html">
+        <makeurl property="doc.xml" file="${doc.src.dir}/${doc.name}.xml"/>
+        <java classname="com.elharo.xml.xinclude.SAXXIncluder" fork="true" 
+              dir="${doc.build.dir}/html" failonerror="true">
             <classpath refid="doc.build.class.path" />
-            <arg value="${doc.src.dir}/${doc.name}.xml"/>
+            <arg value="${doc.xml}"/>
             <redirector output="${doc.build.dir}/tmp/${doc.name}-xi-tmp.xml" />
         </java>
 
-        <java classname="com.icl.saxon.StyleSheet" fork="true" dir="${doc.build.dir}/html">
+        <java classname="com.icl.saxon.StyleSheet" fork="true"
+              dir="${doc.build.dir}/html" failonerror="true">
             <classpath refid="doc.build.class.path"/>
             <arg value="-o"/>
-            <arg value="${doc.build.dir}/html/${doc.name}.html"/>
-            <arg value="${doc.build.dir}/tmp/${doc.name}-xi-tmp.xml"/>
+            <arg file="${doc.build.dir}/html/${doc.name}.html"/>
+            <arg file="${doc.build.dir}/tmp/${doc.name}-xi-tmp.xml"/>
             <arg value="${chunk.style}"/>
             <arg value="use.id.as.filename=1"/>
             <arg value="chunk.section.depth=0"/>
