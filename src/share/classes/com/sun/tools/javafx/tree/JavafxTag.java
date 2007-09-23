@@ -145,15 +145,11 @@ public abstract class JavafxTag extends JCTree {
 
     /** delete statement
      */
-    public static final int DELETE = INSERT + 1;        
-
-    /** foreach expression
-     */
-    public static final int FOREACHEXPRESSION = DELETE + 1;        
+    public static final int DELETE = INSERT + 1;             
 
     /** function expression
      */
-    public static final int FUNCTIONEXPRESSION = FOREACHEXPRESSION + 1;        
+    public static final int FUNCTIONEXPRESSION = DELETE + 1;        
 
     /** operation expression
      */

@@ -1002,7 +1002,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitForExpression(JFXForExpression tree) {
         JavafxEnv<JavafxAttrContext> forExprEnv =
-            env.dup(env.tree, env.info.dup(env.info.scope.dup()));
+            env.dup(tree, env.info.dup(env.info.scope.dup()));
         
         for (JFXForExpressionInClause clause : tree.getInClauses()) {
             attribStat(clause.getVar(), forExprEnv);
@@ -1642,9 +1642,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                         // If jump is a continue, check that target is a loop.
                         if (tag == JCTree.CONTINUE) {
                             if (labelled.body.getTag() != JCTree.DOLOOP &&
-                                labelled.body.getTag() != JCTree.WHILELOOP &&
-                                labelled.body.getTag() != JCTree.FORLOOP &&
-                                labelled.body.getTag() != JCTree.FOREACHLOOP)
+                                labelled.body.getTag() != JCTree.WHILELOOP)
                                 log.error(pos, "not.loop.label", label);
                             // Found labelled statement target, now go inwards
                             // to next non-labelled tree.
@@ -1654,10 +1652,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                         }
                     }
                     break;
-                case JCTree.DOLOOP:
                 case JCTree.WHILELOOP:
-                case JCTree.FORLOOP:
-                case JCTree.FOREACHLOOP:
+                case JavafxTag.FOREXPRESSION:
                     if (label == null) return env1.tree;
                     break;
                 case JCTree.SWITCH:
