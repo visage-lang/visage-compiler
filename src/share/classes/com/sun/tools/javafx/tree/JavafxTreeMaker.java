@@ -336,62 +336,6 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXPseudoRemoveExpression RemoveExpression(JCExpression removed) {
-        JFXPseudoRemoveExpression tree = new JFXPseudoRemoveExpression(removed);
-        tree.pos = Position.NOPOS;
-        return tree;
-    }
-    
-    public JFXPseudoReplaceExpression ReplaceExpression(JCExpression removed, JCExpression synthetic) {
-        JFXPseudoReplaceExpression tree = new JFXPseudoReplaceExpression(removed, synthetic);
-        tree.pos = Position.NOPOS;
-        return tree;
-    }
-    
-    public JFXPseudoSyntheticExpression SyntheticExpression(JCExpression synthetic) {
-        JFXPseudoSyntheticExpression tree = new JFXPseudoSyntheticExpression(synthetic);
-        tree.pos = Position.NOPOS;
-        return tree;
-    }
-    
-    public JFXPseudoRemoveStatement RemoveStatement(JCStatement removed) {
-        JFXPseudoRemoveStatement tree = new JFXPseudoRemoveStatement(removed);
-        tree.pos = Position.NOPOS;
-        return tree;
-    }
-    
-    public JFXPseudoReplaceStatement ReplaceStatement(JCStatement removed, JCStatement synthetic) {
-        JFXPseudoReplaceStatement tree = new JFXPseudoReplaceStatement(removed, synthetic);
-        tree.pos = Position.NOPOS;
-        return tree;
-    }
-    
-    public JFXPseudoSyntheticStatement SyntheticStatement(JCStatement synthetic) {
-        JFXPseudoSyntheticStatement tree = new JFXPseudoSyntheticStatement(synthetic);
-        tree.pos = Position.NOPOS;
-        return tree;
-    }
-    
-    public JFXPseudoRemoveTree RemoveTree(JCTree removed) {
-        JFXPseudoRemoveTree tree = new JFXPseudoRemoveTree(removed);
-        tree.pos = Position.NOPOS;
-        return tree;
-    }
-    
-    public JFXPseudoReplaceTree ReplaceTree(JCTree removed, JCTree synthetic) {
-        JFXPseudoReplaceTree tree = new JFXPseudoReplaceTree(removed, synthetic);
-        tree.pos = Position.NOPOS;
-        return tree;
-    }
-    
-    public JFXPseudoSyntheticTree SyntheticTree(JCTree synthetic) {
-        JFXPseudoSyntheticTree tree = new JFXPseudoSyntheticTree(synthetic);
-        tree.pos = Position.NOPOS;
-        return tree;
-    }
-    
-
-    
     public JavafxJCVarDecl JavafxVarDef(JCModifiers mods,
 			 Name name,
                          int javafxVarType,
