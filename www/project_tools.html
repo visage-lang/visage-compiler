@@ -1,0 +1,48 @@
+</dd>
+<script id="eraser">
+  // hide all default navigation bars
+  
+  // get to the block
+  var dd = document.getElementById("eraser").previousSibling;
+  for( n=dd; n!=null; n=n.previousSibling ) {
+    if(n.nodeType==1) { // if element
+      if(n.tagName=="DD") { // kill all the link items
+        n.style.display = "none";
+      }
+      if(n.tagName=="DT") { // change the title
+        n.innerHTML = "openjfx-compiler project";
+      }
+    }
+  }
+  
+  // delete the "get involved" block
+  for( n=dd.parentNode.previousSibling; n!=null; n=n.previousSibling ) {
+    if(n.nodeType==1) { // if element
+      if(n.tagName=="DL") {
+        n.style.display = "none";
+      }
+    }
+  }
+ 
+</script>
+<dd> 
+  <ul>
+    <li> <a href="/servlets/ProjectHome">Project home</a> 
+    <li> <a href="/servlets/ProjectMemberList">Membership</a> 
+  </ul>
+<dd> 
+  <ul>
+    <li> <a href="/servlets/ProjectNewsList">Announcements</a> 
+    <li> <a href="/servlets/ProjectForumView">Discussion Forums</a> 
+    <li> <a href="/servlets/ProjectMailingListList">Mailing lists</a> 
+  </ul>
+<dd> 
+  <ul>
+    <li> <a href="/servlets/ProjectDocumentList">Documents & files</a> 
+    <li> <a href="/source/browse/openjfx-compiler/">Subversion</a> 
+  </ul>
+<dd> 
+  <ul>
+    <li> <a href="https://openjfx-compiler.dev.java.net/Issues">Issue Tracker</a> 
+  </ul>
+
