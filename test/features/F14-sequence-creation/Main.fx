@@ -1,6 +1,6 @@
 /*
  * Feature test #14 -- sequence creation and access
-* 
+ * 
  * @test
  * @run
  */
