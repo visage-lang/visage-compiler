@@ -12,6 +12,7 @@ public abstract class AbstractLocation implements Location {
     private boolean isValid;
     private final boolean isLazy;
     protected List<ChangeListener> listeners;
+    private boolean notifying;
 
     protected AbstractLocation(boolean valid, boolean lazy) {
         isValid = valid;
@@ -38,12 +39,22 @@ public abstract class AbstractLocation implements Location {
     }
 
     protected void valueChanged() {
-        if (listeners != null) {
-            for (Iterator<ChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
-                ChangeListener listener = iterator.next();
-                if (!listener.onChange())
-                    iterator.remove();
+        if (notifying) {
+            return;
+        }
+        
+        notifying = true;
+        try {
+            if (listeners != null) {
+                for (Iterator<ChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
+                    ChangeListener listener = iterator.next();
+                    if (!listener.onChange())
+                        iterator.remove();
+                }
             }
+        }
+        finally {
+            notifying = false;
         }
     }
 
