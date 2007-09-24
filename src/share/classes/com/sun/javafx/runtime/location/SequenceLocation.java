@@ -10,7 +10,18 @@ import com.sun.javafx.runtime.sequence.SequencePredicate;
  *
  * @author Brian Goetz
  */
-public interface SequenceLocation<T> extends ObjectLocation<Sequence<T>> {
+public interface SequenceLocation<T> extends Location, Iterable<T> {
+    
+    T get(int position);
+
+    SequenceLocation<T> get();
+    
+    Sequence<T> getSequence();
+
+    void set(Sequence<T> value);
+
+    void set(SequenceLocation<T> value);
+
     public void set(int position, T value);
 
     public void delete(int position);

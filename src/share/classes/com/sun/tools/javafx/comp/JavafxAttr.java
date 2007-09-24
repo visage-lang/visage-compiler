@@ -1010,7 +1010,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             chk.checkNonVoid(clause.pos(), exprType);
             Type elemtype;
             // must implement Sequence<T>?
-            Type base = types.asSuper(exprType, syms.javafx_sequenceType.tsym);
+            Type base = types.asSuper(exprType, syms.javafx_SequenceType.tsym);
             if (base == null) {
                 //TODO: fix error message
                 elemtype = syms.errType;
@@ -2336,7 +2336,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // atrribute the items, and determine least upper bound of type
         Type elemType = null;
         Type expected = Type.noType;
-        if (pt != null && types.erasure(pt) == syms.javafx_sequenceType) {
+        if (pt != null && types.erasure(pt) == syms.javafx_SequenceTypeErasure) {
             expected = pt.getTypeArguments().head;
         }
         for (JCExpression expr : tree.getItems()) {
@@ -2493,7 +2493,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (elemType.isPrimitive()) {
             elemType = types.boxedClass(elemType).type;
         }
-        Type seqtype = syms.javafx_sequenceType;
+        Type seqtype = syms.javafx_SequenceType;
         List<Type> actuals = List.of(elemType);
         Type clazzOuter = seqtype.getEnclosingType();
         return new ClassType(clazzOuter, actuals, seqtype.tsym);

@@ -1,5 +1,7 @@
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.location.SequenceLocation;
+
 /**
  * Helper classes for building sequences, much like StringBuilder assists in building Strings.  SequenceBuilder
  * stores the sequence building built in an array, which is automatically resized as needed.  It can be converted
@@ -83,5 +85,13 @@ public class SequenceBuilder<T> {
         // OPT: This causes the array to be copied; we can do the same trick as in StringBuilder to transfer
         // ownership of the array instead and avoid the copy
         return Sequences.make(clazz, array, size);
+    }
+
+    /** Convert the SequenceBuilder to a Sequence.  The elements will be copied to a new sequence, and will remain
+     * in the SequenceBuilder, so it can continue to be used to make more sequences */
+    public SequenceLocation<T> toSequenceLocation() {
+        // OPT: This causes the array to be copied; we can do the same trick as in StringBuilder to transfer
+        // ownership of the array instead and avoid the copy
+        return Sequences.makeLocation(clazz, array, size);
     }
 }

@@ -27,6 +27,7 @@ package com.sun.tools.javafx.code;
 
 import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.util.Context;
 
 import static com.sun.tools.javac.jvm.ByteCodes.*;
@@ -37,7 +38,8 @@ import static com.sun.tools.javac.jvm.ByteCodes.*;
  */
 public class JavafxSymtab extends Symtab {
     
-    public final Type javafx_sequenceType;
+    public final Type javafx_SequenceType;
+    public final Type javafx_SequenceTypeErasure;
     
     public static void preRegister(final Context context) {
         context.put(symtabKey, new Context.Factory<Symtab>() {
@@ -51,13 +53,17 @@ public class JavafxSymtab extends Symtab {
     JavafxSymtab(Context context) {
         super(context);
 
+        // used only with constructor
+        Types types = Types.instance(context);
+        
         javafx_IntegerType = intType;
         javafx_NumberType = doubleType;
         javafx_AnyType = objectType;
         javafx_StringType = stringType;
         javafx_BooleanType = booleanType;
         javafx_VoidType = voidType;
-        javafx_sequenceType = enterClass("com.sun.javafx.runtime.sequence.Sequence");
+        javafx_SequenceType = enterClass("com.sun.javafx.runtime.location.SequenceLocation");
+        javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);
         
         enterOperators();
     }

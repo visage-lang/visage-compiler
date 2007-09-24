@@ -29,7 +29,7 @@ import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Symtab;
+import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javac.tree.*;
@@ -60,9 +60,10 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
     private final Name.Table names;
     private final ClassReader reader;
     private final JavafxTreeMaker make;
-    private final Symtab syms;
+    private final JavafxSymtab syms;
     private final Log log;
     private final JavafxToJava toJava;
+    private final Types types;
     
     public static final String locationPackageName = "com.sun.javafx.runtime.location.";
     
@@ -139,7 +140,12 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
                     locationType = syms.intType;
                     typeKind = TYPE_KIND_INT;
                 }
-                if (locationType != null) {
+                if (types.erasure(realType) == syms.javafx_SequenceTypeErasure) {
+                    // realType unchanged, already a Location
+                    setUsedType(realType);
+                    typeKind = TYPE_KIND_SEQUENCE;
+                    markShouldMorph();
+                } else if (locationType != null) {
                     // External module with a Location type
                     setUsedType(realType);
                     realType = locationType;
@@ -207,7 +213,8 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
     protected JavafxTypeMorpher(Context context) {
         context.put(typeMorpherKey, this);
         
-        syms = Symtab.instance(context);
+        syms = (JavafxSymtab)(JavafxSymtab.instance(context));
+        types = Types.instance(context);
         names = Name.Table.instance(context);
         reader = ClassReader.instance(context);
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
@@ -219,6 +226,7 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
         locClass[TYPE_KIND_DOUBLE] = "Double";
         locClass[TYPE_KIND_BOOLEAN] = "Boolean";
         locClass[TYPE_KIND_INT] = "Int";
+        locClass[TYPE_KIND_SEQUENCE] = "Sequence";
 
         varLocation = new LocationNameSymType[TYPE_KIND_COUNT];
         exprLocation = new LocationNameSymType[TYPE_KIND_COUNT];
@@ -239,12 +247,14 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
         realTypeByKind[TYPE_KIND_DOUBLE] = syms.doubleType;
         realTypeByKind[TYPE_KIND_BOOLEAN] = syms.booleanType;
         realTypeByKind[TYPE_KIND_INT] = syms.intType;
+        realTypeByKind[TYPE_KIND_SEQUENCE] = syms.javafx_SequenceType;
         
         defaultValueByKind = new Object[TYPE_KIND_COUNT];
         defaultValueByKind[TYPE_KIND_OBJECT] = null;
         defaultValueByKind[TYPE_KIND_DOUBLE] = new Double(0.0);
         defaultValueByKind[TYPE_KIND_BOOLEAN] = new Integer(0);
         defaultValueByKind[TYPE_KIND_INT] = new Integer(0);
+        defaultValueByKind[TYPE_KIND_SEQUENCE] = null; //TODO: empty sequence
         
         getMethodName = Name.fromString(names, "get");
         setMethodName = Name.fromString(names, "set");
@@ -288,8 +298,11 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
     
     private Type generifyIfNeeded(Type aLocationType, VarMorphInfo vmi) {
         Type newType;
-        if (vmi.getTypeKind() == TYPE_KIND_OBJECT) {
-            List<Type> actuals = List.of(vmi.getRealType());
+        if (vmi.getTypeKind() == TYPE_KIND_OBJECT || 
+                vmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
+            List<Type> actuals = vmi.getTypeKind() == TYPE_KIND_SEQUENCE?
+                  vmi.getRealType().getTypeArguments()
+                : List.of(vmi.getRealType());
             Type clazzOuter = declLocationType(vmi.getTypeKind()).getEnclosingType();
             newType = new ClassType(clazzOuter, actuals, aLocationType.tsym);
         } else {
@@ -350,7 +363,7 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
                 makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
         if (bindStatus.isUnidiBind()) {
             initExpr = buildExpression(vmi.varSymbol, initExpr, bindStatus);
-        } else if (!bindStatus.isBidiBind()) {
+        } else if (!bindStatus.isBidiBind() && vmi.typeKind != TYPE_KIND_SEQUENCE) {
             initExpr = makeCall(vmi, diagPos, List.of(initExpr), varLocation, makeMethodName);
         }
         return initExpr;
@@ -402,7 +415,7 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
             DiagnosticPosition diagPos, 
             JCExpression seq, 
             JCExpression index) {
-        JCFieldAccess select = make.Select(seq, getMethodName);
+        JCFieldAccess select = make.at(diagPos).Select(seq, getMethodName);
         List<JCExpression> args = List.of(index);
         return make.at(diagPos).Apply(null, select, args);
     }        

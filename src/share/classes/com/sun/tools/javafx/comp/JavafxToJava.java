@@ -68,9 +68,10 @@ public class JavafxToJava extends JavafxTreeTranslator {
     private int syntheticNameCounter = 0;
     private ListBuffer<JCStatement> prependInFrontOfStatement = null;
     
-    private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";
-    private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
+    private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.makeLocation";
+    private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.rangeLocation";
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.SequenceBuilder";
+    private static final String toSequenceString = "toSequenceLocation";
     
     // for type morphing
     private final JavafxTypeMorpher typeMorpher;
@@ -446,7 +447,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
             JCIdent varIdent2 = make.Ident(sbName);  
             value = make.Apply(
                 List.<JCExpression>nil(), // type arguments
-                make.at(diagPos).Select(varIdent2, Name.fromString(names, "toSequence")), 
+                make.at(diagPos).Select(varIdent2, Name.fromString(names, toSequenceString)), 
                 List.<JCExpression>nil() // arguments
                 );
         } else {

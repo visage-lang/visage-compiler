@@ -94,7 +94,33 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
             elementDeleted(value);
     }
 
-    public Sequence<T> get() {
+    @Override
+    public String toString() {
+        return getSequence().toString(); 
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return getSequence().iterator(); 
+    }
+
+    @Override
+    public T get(int position) {
+        return getSequence().get(position);
+    }
+    
+    @Override
+    public SequenceLocation<T> get() {
+        return this;
+    }
+
+    @Override
+    public void set(SequenceLocation<T> value) {
+        set(value.getSequence());
+    }
+
+    @Override
+    public Sequence<T> getSequence() {
         return sequence;
     }
 

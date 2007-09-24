@@ -3,6 +3,8 @@ package com.sun.javafx.runtime.location;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 
+import java.util.Iterator;
+
 /**
  * SequenceExpression represents an integer-value bound expression.  Associated with an SequenceExpression is an expression
  * that is used to recalculate the value, and a list of dependencies (locations).  If any of the dependencies are
@@ -38,7 +40,33 @@ public class SequenceExpression<T> extends AbstractLocation implements SequenceL
         this.expression = expression;
     }
 
-    public Sequence<T> get() {
+    @Override
+    public String toString() {
+        return getSequence().toString(); 
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return getSequence().iterator(); 
+    }
+
+    @Override
+    public T get(int position) {
+        return getSequence().get(position);
+    }
+    
+    @Override
+    public SequenceLocation<T> get() {
+        return this;
+    }
+
+    @Override
+    public void set(SequenceLocation<T> value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Sequence<T> getSequence() {
         if (!isValid())
             update();
         return value;
@@ -51,7 +79,7 @@ public class SequenceExpression<T> extends AbstractLocation implements SequenceL
     @Override
     public void update() {
         if (!isValid()) {
-            value = expression.get();
+            value = expression.get().getSequence();
             setValid();
         }
     }

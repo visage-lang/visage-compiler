@@ -47,7 +47,8 @@ public class JavafxVarSymbol extends VarSymbol {
     public static final int TYPE_KIND_DOUBLE = 1;
     public static final int TYPE_KIND_BOOLEAN = 2;
     public static final int TYPE_KIND_INT = 3;
-    public static final int TYPE_KIND_COUNT = 4;
+    public static final int TYPE_KIND_SEQUENCE = 4;
+    public static final int TYPE_KIND_COUNT = 5;
     
     private int typeKind;
     
