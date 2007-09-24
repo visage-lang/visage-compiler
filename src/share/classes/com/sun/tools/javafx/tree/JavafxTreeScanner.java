@@ -159,7 +159,9 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     public void visitPureObjectLiteral(JFXPureObjectLiteral that) {
         that.getIdentifier().accept(this);
         for (JCStatement part : that.getParts()) {
-            part.accept(this);
+            if (part != null) {
+                part.accept(this);
+            }
         }
     }
     

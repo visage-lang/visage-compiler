@@ -2395,7 +2395,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         try {
             objLitSymbol = that.getIdentifier().sym;
             for (JCStatement part : that.getParts()) {
-                part.accept(this);
+                if (part != null) {
+                    part.accept(this);
+                }
             }
         }
         finally {

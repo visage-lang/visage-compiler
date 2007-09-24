@@ -455,7 +455,9 @@ public class JavafxEnter extends JCTree.Visitor implements JavafxVisitor {
     public void visitPureObjectLiteral(JFXPureObjectLiteral that) {
         that.getIdentifier().accept(this);
         for (JCStatement part : that.getParts()) {
-            part.accept(this);
+            if (part != null) {
+                part.accept(this);
+            }
         }
     }
     

@@ -257,6 +257,10 @@ public class JavafxToJava extends JavafxTreeTranslator {
         stats.append(tmpVar);
         JCStatement lastStatement = null;
         for (JCStatement part : tree.getParts()) {
+            if (part == null) {
+                continue;
+            }
+            
             if (part instanceof JFXObjectLiteralPart) {
                 JFXObjectLiteralPart olpart = (JFXObjectLiteralPart)part;
                 DiagnosticPosition diagPos = olpart.pos();
