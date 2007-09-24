@@ -2678,12 +2678,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 ((v.flags() & STATIC) != 0) == JavafxResolve.isStatic(env) &&
                 (env.tree.getTag() != JCTree.ASSIGN ||
                  TreeInfo.skipParens(((JCAssign) env.tree).lhs) != tree)) {
-
-                if (!onlyWarning || isNonStaticEnumField(v)) {
-                    log.error(tree.pos(), "illegal.forward.ref");
-                } else if (useBeforeDeclarationWarning) {
-                    log.warning(tree.pos(), "forward.ref", v);
-                }
+// Javafx change
+                // In JXF is OK to forward reference an attribute even if it's not initialized yet!
+//                if (!onlyWarning || isNonStaticEnumField(v)) {
+//                    log.error(tree.pos(), "illegal.forward.ref");
+//                
+//                } else if (useBeforeDeclarationWarning) {
+//                    log.warning(tree.pos(), "forward.ref", v);
+//                }
+// Javafx change end
             }
 
             v.getConstValue(); // ensure initializer is evaluated
