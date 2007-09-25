@@ -52,14 +52,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         super(out, sourceOutput);
     }
 
-    public boolean shouldVisitRemoved() {
-        return false;
-    }
-
-    public boolean shouldVisitSynthetic() {
-        return true;
-    }
-
     /** Visitor method: print expression tree.
      *  @param prec  The current precedence level.
      */

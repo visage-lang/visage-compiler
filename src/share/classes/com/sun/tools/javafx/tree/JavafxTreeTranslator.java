@@ -219,14 +219,6 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
         visitNewClass(that);
     }
     
-    public boolean shouldVisitRemoved() {
-        return false;
-    }
-    
-    public boolean shouldVisitSynthetic() {
-        return true;
-    }
-
     protected void prettyPrint(JCTree node) {
         OutputStreamWriter osw = new OutputStreamWriter(System.out);
         JavafxPretty pretty = new JavafxPretty(osw, false);

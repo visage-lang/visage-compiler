@@ -36,12 +36,8 @@ import com.sun.tools.javac.tree.JCTree.JCStatement;
  * @author Robert Field
  */
 public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
-    public boolean shouldVisitRemoved;
-    public boolean shouldVisitSynthetic;
 
     public JavafxTreeScanner() {
-        this.shouldVisitRemoved = false;
-        this.shouldVisitSynthetic = true;
     }
 
     /** Visitor method: Scan a single node.
@@ -234,16 +230,6 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
         visitNewClass(that);
     }
         
-    @Override
-    public boolean shouldVisitRemoved() {
-        return shouldVisitRemoved;
-    }
-    
-    @Override
-    public boolean shouldVisitSynthetic() {
-        return shouldVisitSynthetic;
-    }
-    
     @Override
     public void visitBlockExpression(JFXBlockExpression that) {
         scan(that.stats);

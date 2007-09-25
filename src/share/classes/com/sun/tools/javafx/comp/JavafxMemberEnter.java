@@ -1335,16 +1335,6 @@ public
     }
     
     @Override
-    public boolean shouldVisitRemoved() {
-        return false;
-    }
-    
-    @Override
-    public boolean shouldVisitSynthetic() {
-        return true;
-    }
-    
-    @Override
     public void visitBlockExpression(JFXBlockExpression tree) {
         for (JCStatement stmt : tree.stats) {
             stmt.accept(this);

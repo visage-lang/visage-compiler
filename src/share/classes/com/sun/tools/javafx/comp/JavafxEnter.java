@@ -532,16 +532,6 @@ public class JavafxEnter extends JCTree.Visitor implements JavafxVisitor {
     }
         
     @Override
-    public boolean shouldVisitRemoved() {
-        return false;
-    }
-    
-    @Override
-    public boolean shouldVisitSynthetic() {
-        return true;
-    }
-    
-    @Override
     public void visitBlockExpression(JFXBlockExpression that) {
         scan(that.stats);
         scan(that.value);

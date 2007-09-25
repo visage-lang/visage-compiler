@@ -27,10 +27,7 @@ package com.sun.tools.javafx.tree;
 
 /** The visitor interface for JavaFX trees.
  */
-public interface JavafxVisitor extends JCVisitor {
-    public boolean shouldVisitRemoved();
-    public boolean shouldVisitSynthetic();
-    
+public interface JavafxVisitor extends JCVisitor {  
     public void visitClassDeclaration(JFXClassDeclaration that);
     public void visitAbstractMember(JFXAbstractMember that);
     public void visitAbstractFunction(JFXAbstractFunction that);

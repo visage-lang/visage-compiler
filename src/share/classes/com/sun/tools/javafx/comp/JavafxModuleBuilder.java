@@ -188,16 +188,6 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         return Name.fromString(names, fileObjName);
     }
 
-    @Override
-    public boolean shouldVisitRemoved() {
-        return false;
-    }
-    
-    @Override
-    public boolean shouldVisitSynthetic() {
-        return true;
-    }
-
     private void checkName(int pos, Name name) {
         if (topLevelNamesSet == null) {
             topLevelNamesSet = new HashSet<Name>();
