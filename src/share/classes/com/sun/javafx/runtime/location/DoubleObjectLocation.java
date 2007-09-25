@@ -57,6 +57,10 @@ class DoubleObjectLocation implements ObjectLocation<Double>, ViewLocation {
     public Location getUnderlyingLocation() {
         return location;
     }
+    
+    public void valueChanged() {
+        location.valueChanged();
+    }
 }
 
 class DoubleObjectMutableLocation extends DoubleObjectLocation implements MutableLocation {

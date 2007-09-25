@@ -214,7 +214,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
         
         // add the class instance initializer method
         if (initMethod != null) {
-            initMethod.body.stats = initBuilder.initializerMethodBody(attrInfo.toList(), translatedInitBlocks.toList());
+            initMethod.body.stats = initBuilder.initializerMethodBody(tree, attrInfo.toList(), translatedInitBlocks.toList());
         } else {
             assert false : "should always be an init method";
         }

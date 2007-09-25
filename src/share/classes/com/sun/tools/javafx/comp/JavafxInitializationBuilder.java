@@ -51,6 +51,7 @@ public class JavafxInitializationBuilder {
     private final Name changeListenerInterfaceName;
     final Name initializerName;
     private final Name changedName;
+    private final Name valueChangedName;
 
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
@@ -67,6 +68,7 @@ public class JavafxInitializationBuilder {
         changeListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "ChangeListener");
         initializerName = names.fromString(JavafxModuleBuilder.initMethodString);
         changedName = names.fromString("onChange");
+        valueChangedName = names.fromString("valueChanged");
     }
     
     static class TranslatedAttributeInfo {
@@ -86,6 +88,7 @@ public class JavafxInitializationBuilder {
      * Incoming info MUST be translated into Java ASTs already
      */
     List<JCStatement> initializerMethodBody(
+            JFXClassDeclaration classDecl,
             List<TranslatedAttributeInfo> attrInfo, 
             List<JCBlock> initBlocks) {
         ListBuffer<JCStatement> stmts = ListBuffer.<JCStatement>lb();
@@ -107,6 +110,10 @@ public class JavafxInitializationBuilder {
                stmts.append(makeChangeListenerCall(info));
             }
         }
+        
+        // Now add a call to notify changes for all attribute, so dependents 
+        // initial values will be set
+        makeOnChangedCall(classDecl, stmts);
 
         return stmts.toList();
     }  
@@ -158,6 +165,22 @@ public class JavafxInitializationBuilder {
         List<JCExpression> typeargs = List.nil();
         List<JCExpression> args = List.<JCExpression>of(anonymousChangeListener);
         return make.at(diagPos).Exec(make.at(diagPos).Apply(typeargs, tmpSelect, args));
+    }
+    
+    private void makeOnChangedCall(JFXClassDeclaration classDecl,
+                                    ListBuffer<JCStatement> stmts) {
+        for (JCTree tree : classDecl.defs) {
+            if (tree.getTag() == JavafxTag.ATTRIBUTEDEF) {
+                JFXAttributeDefinition attrDef = (JFXAttributeDefinition)tree;
+                DiagnosticPosition diagPos = attrDef.pos();
+                JCIdent varIdent = make.at(diagPos).Ident(attrDef.name);
+                JCFieldAccess tmpSelect = make.at(diagPos).Select(varIdent, valueChangedName);
+
+                List<JCExpression> typeargs = List.nil();
+                List<JCExpression> args = List.<JCExpression>nil();
+                stmts = stmts.append(make.at(diagPos).Exec(make.at(diagPos).Apply(typeargs, tmpSelect, args)));
+            }
+        }
     }
 }
 

@@ -38,7 +38,7 @@ public abstract class AbstractLocation implements Location {
         valueChanged();
     }
 
-    protected void valueChanged() {
+    public void valueChanged() {
         if (notifying) {
             return;
         }

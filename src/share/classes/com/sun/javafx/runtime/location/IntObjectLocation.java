@@ -57,6 +57,10 @@ class IntObjectLocation implements ObjectLocation<Integer>, ViewLocation {
     public Location getUnderlyingLocation() {
         return location;
     }
+    
+    public void valueChanged() {
+        location.valueChanged();
+    }
 }
 
 class IntObjectMutableLocation extends IntObjectLocation implements MutableLocation {

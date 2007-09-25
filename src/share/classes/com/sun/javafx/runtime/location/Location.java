@@ -49,4 +49,7 @@ public interface Location {
 
     /** Return the collection of change listeners */
     public Collection<ChangeListener> getListeners();
+
+    /** Called when a location value is changed */
+    public void valueChanged();
 }

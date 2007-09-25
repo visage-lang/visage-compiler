@@ -57,6 +57,11 @@ class BooleanObjectLocation implements ObjectLocation<Boolean>, ViewLocation {
     public Location getUnderlyingLocation() {
         return location;
     }
+    
+    public void valueChanged() {
+        location.valueChanged();
+    }
+
 }
 
 class BooleanObjectMutableLocation extends BooleanObjectLocation implements MutableLocation {
