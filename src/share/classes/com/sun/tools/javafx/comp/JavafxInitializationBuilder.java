@@ -25,20 +25,16 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Symbol.MethodSymbol;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.TypeTags;
-import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
-import com.sun.tools.javafx.code.JavafxFlags;
-import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.javac.util.List;
 
 public class JavafxInitializationBuilder {
     protected static final Context.Key<JavafxInitializationBuilder> javafxInitializationBuilderKey =
@@ -52,6 +48,7 @@ public class JavafxInitializationBuilder {
     final Name initializerName;
     private final Name changedName;
     private final Name valueChangedName;
+    private final Name classNameSuffix;
 
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
@@ -69,6 +66,7 @@ public class JavafxInitializationBuilder {
         initializerName = names.fromString(JavafxModuleBuilder.initMethodString);
         changedName = names.fromString("onChange");
         valueChangedName = names.fromString("valueChanged");
+        classNameSuffix = names.fromString("$Impl");
     }
     
     static class TranslatedAttributeInfo {
@@ -181,6 +179,36 @@ public class JavafxInitializationBuilder {
                 stmts = stmts.append(make.at(diagPos).Exec(make.at(diagPos).Apply(typeargs, tmpSelect, args)));
             }
         }
+    }
+    
+
+    List<JCTree> createJFXClassModel(JFXClassDeclaration cDecl) {
+        ListBuffer<JCTree> ret = new ListBuffer<JCTree>();
+        
+        ListBuffer<JCExpression> implementing = new ListBuffer<JCExpression>();
+        Name [] nms = new Name [] {names.fromString("com"), names.fromString("sun"), names.fromString("javafx"), names.fromString("runtime"), names.fromString("FXObject")};
+        implementing.append(makeIdentOrSelect(nms));
+        JCClassDecl cInterface = make.ClassDef(make.Modifiers(cDecl.mods.flags | Flags.INTERFACE),
+                names.fromString(cDecl.name.toString() + classNameSuffix) , 
+                List.<JCTypeParameter>nil(), null, implementing.toList(), List.<JCTree>nil());
+        ret.append(cInterface);
+        return ret.toList();
+    }
+    
+    private JCExpression makeIdentOrSelect(Name[] nms) {
+        JCExpression last = null;
+        boolean isFirst = true;
+        for (Name name : nms) {
+            if (isFirst) {
+                last = make.Ident(name);
+                isFirst = false;
+            }
+            else {
+                last = make.Select(last, name);
+            }
+        }
+        
+        return last;
     }
 }
 

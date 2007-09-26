@@ -78,6 +78,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
     private JavafxBindStatus bindContext = JavafxBindStatus.UNBOUND;
     private boolean inLHS = false;
     private JavafxEnv<JavafxAttrContext> attrEnv;
+    private JCCompilationUnit currentCompilationUnit;
     
     public static JavafxToJava instance(Context context) {
         JavafxToJava instance = context.get(jfxToJavaKey);
@@ -161,7 +162,20 @@ public class JavafxToJava extends JavafxTreeTranslator {
     }
     
     @Override
+    public void visitTopLevel(JCCompilationUnit tree) {
+        JCCompilationUnit prev = currentCompilationUnit;
+        try {
+            currentCompilationUnit = tree;
+            super.visitTopLevel(tree);
+        }
+        finally {
+            currentCompilationUnit = prev;
+        }
+    }
+    
+    @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
+        currentCompilationUnit.defs = currentCompilationUnit.defs.appendList(initBuilder.createJFXClassModel(tree));
         JCClassDecl prevEnclClass = attrEnv.enclClass;
         JavafxBindStatus prevBindContext = bindContext;
         boolean prevInLHS = inLHS;
