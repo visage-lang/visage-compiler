@@ -15,31 +15,40 @@ import java.util.List;
  *
  * @author Brian Goetz
  */
-public class InitHelper {
-    private final FXObject object;
+public class InitHelper<T extends FXObject> {
+    private final T object;
     private final List<Location> providedInLiteral = new ArrayList<Location>();
     private final List<Location> didDefaults = new ArrayList<Location>();
 
-    public InitHelper(FXObject object) {
+    public InitHelper(T object) {
         this.object = object;
     }
 
-    public <T extends Location> T addDefaulted(T loc) {
+    public T getInitTarget() { return object; }
+
+    public <V extends Location> V addDefaulted(V loc) {
         didDefaults.add(loc);
         return loc;
     }
 
-    public <T extends Location> T addProvided(T loc) {
+    public <V extends Location> V addProvided(V loc) {
         providedInLiteral.add(loc);
         return loc;
     }
 
-    public void initialize() {
+    public T initialize() {
         object.setDefaults$(this);
         object.userInit$();
         for (Location loc : providedInLiteral)
             loc.valueChanged();
         for (Location loc : didDefaults)
             loc.valueChanged();
+        return object;
     }
+
+    public static void assertNonNull(Location location, String name) {
+        if (location != null)
+            throw new IllegalStateException("Duplicate initialization for attribute: " + name);
+    }
+
 }
