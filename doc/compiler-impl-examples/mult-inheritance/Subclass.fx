@@ -6,7 +6,7 @@ class OtherBase {
     attribute c : Integer = 4;
 }
 
-class Subclass extends Base$Intf, OtherBase$Intf {
+class Subclass extends Base, OtherBase {
     attribute c : Integer = 5;
 }
 
