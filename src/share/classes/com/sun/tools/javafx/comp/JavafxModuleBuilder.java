@@ -105,12 +105,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
             }
             case OPERATIONDEF: {
                 JFXOperationDefinition decl = null;
-                if (tree instanceof JFXFunctionDefinitionStatement) {
-                    decl = ((JFXFunctionDefinitionStatement)tree).funcDef;
-                }
-                else {
-                    decl = (JFXOperationDefinition)tree;
-                }
+                decl = (JFXOperationDefinition)tree;
                 decl.mods.flags |= STATIC;
                 Name name = decl.name;
                 checkName(tree.pos, name);
@@ -162,12 +157,12 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     }
 
     private JFXOperationDefinition makeMethod(String name, boolean isStatic, List<JCStatement> stats) {
-        List<JCTree> emptyVarList = List.nil();
+        List<JFXVar> emptyVarList = List.nil();
         JFXBlockExpression body = make.BlockExpression(0, stats, null);
         return make.OperationDefinition(
                 make.Modifiers(isStatic? PUBLIC | STATIC : PUBLIC), 
                 Name.fromString(names, name), 
-                make.TypeClass(make.Ident(Name.fromString(names, "Void")), JFXType.CARDINALITY_OPTIONAL),
+                make.TypeClass(make.Ident(Name.fromString(names, "Void")), JFXType.CARDINALITY_SINGLETON),
                 emptyVarList, 
                 body);        
     }

@@ -500,11 +500,11 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             }
             {
                 AbstractGeneratedParser generatedParser;
-                if (parserChoice.equals("v1")) {
-                    generatedParser = new v1Parser(context, content);
-                } else {
+//                if (parserChoice.equals("v1")) {
+//                    generatedParser = new v1Parser(context, content);
+//                } else {
                     generatedParser = new v2Parser(context, content);
-                }
+//                }
                 try {  
                     tree = generatedParser.module();
                 } catch (Exception exc) {

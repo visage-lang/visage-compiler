@@ -160,25 +160,9 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
             JCModifiers modifiers,
             Name name,
             JFXType restype,
-            List<JCTree> params, 
+            List<JFXVar> params, 
             JFXBlockExpression bodyExpression) {
         JFXOperationDefinition tree = new JFXOperationDefinition(
-                modifiers,
-                name,
-                restype,
-                params,
-                bodyExpression);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXFunctionDefinitionStatement FunctionDefinitionStatement(
-            JCModifiers modifiers,
-            Name name,
-            JFXType restype,
-            List<JCTree> params, 
-            JFXBlockExpression bodyExpression) {
-        JFXFunctionDefinitionStatement tree = new JFXFunctionDefinitionStatement(
                 modifiers,
                 name,
                 restype,
@@ -274,8 +258,8 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXType  TypeUnknown(int cardinality) {
-        JFXType tree = new JFXTypeUnknown(cardinality);
+    public JFXType  TypeUnknown() {
+        JFXType tree = new JFXTypeUnknown();
         tree.pos = pos;
         return tree;
     }

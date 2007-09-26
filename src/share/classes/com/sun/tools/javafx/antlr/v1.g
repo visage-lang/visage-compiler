@@ -675,10 +675,10 @@ typeReference returns [JFXType type]
         ;
 cardinalityConstraint returns [int ary]
 	:  LBRACKET   RBRACKET    	{ ary = JFXType.CARDINALITY_ANY; }
-	|  QUES                   	{ ary = JFXType.CARDINALITY_OPTIONAL; }
+	|  QUES                   	{ ary = JFXType.CARDINALITY_SINGLETON; }
 	|  PLUS                   	{ ary = JFXType.CARDINALITY_ANY; }
 	|  STAR                   	{ ary = JFXType.CARDINALITY_ANY; }
-	|                         	{ ary = JFXType.CARDINALITY_OPTIONAL; } 
+	|                         	{ ary = JFXType.CARDINALITY_SINGLETON; } 
 	;
 literal  returns [JCExpression expr]
 	: t=STRING_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.CLASS, $t.text); }

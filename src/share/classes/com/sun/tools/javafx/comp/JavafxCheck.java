@@ -853,7 +853,7 @@ public
 
     /** A visitor class for type validation.
      */
-    class Validator extends JCTree.Visitor {
+    class Validator extends JavafxTreeScanner {
 
         public void visitTypeArray(JCArrayTypeTree tree) {
 	    validate(tree.elemtype);

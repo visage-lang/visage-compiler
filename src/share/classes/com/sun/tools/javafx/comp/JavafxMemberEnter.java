@@ -82,15 +82,9 @@ public class JavafxMemberEnter extends JCTree.Visitor implements JavafxVisitor, 
     private final Types types;
     private final Target target;
 
-    private final Name numberTypeName;
-    private final Name integerTypeName;
-    private final Name booleanTypeName;
-    private final Name voidTypeName;  // possibly temporary
-
     private final boolean skipAnnotations;
     private boolean isInMethodParamVars;
     private boolean isVarArgs;
-    private JCMethodDecl currentMethodDecl = null;
     private List<MethodInferTypeHelper> methodsToInferReturnType;
     private Type methodReturnType;
     private JavafxEnv<JavafxAttrContext> localEnv;
@@ -117,11 +111,6 @@ public class JavafxMemberEnter extends JCTree.Visitor implements JavafxVisitor, 
         annotate = JavafxAnnotate.instance(context);
         types = Types.instance(context);
         target = Target.instance(context);
-        
-        numberTypeName  = names.fromString("Number");
-        integerTypeName = names.fromString("Integer");
-        booleanTypeName = names.fromString("Boolean");
-        voidTypeName = names.fromString("Void");
 
         skipAnnotations =
             Options.instance(context).get("skipAnnotations") != null;
@@ -362,58 +351,27 @@ public class JavafxMemberEnter extends JCTree.Visitor implements JavafxVisitor, 
      *  @param env           The environment containing the named import
      *                  scope to add to.
      */
-// JavaFX change
-    protected
-    /*private*/ void importNamed(DiagnosticPosition pos, Symbol tsym, JavafxEnv<JavafxAttrContext> env) {
+    void importNamed(DiagnosticPosition pos, Symbol tsym, JavafxEnv<JavafxAttrContext> env) {
         if (tsym.kind == TYP &&
             chk.checkUniqueImport(pos, tsym, env.toplevel.namedImportScope))
             env.toplevel.namedImportScope.enter(tsym, tsym.owner.members());
     }
 
-// Javafx change
-    protected
-// Javafx change
-    /** Construct method type from method signature.
-     *  @param typarams    The method's type parameters.
-     *  @param params      The method's value parameters.
-     *  @param res             The method's result type,
-     *                 null if it is a constructor.
-     *  @param thrown      The method's thrown exceptions.
-     *  @param env             The method's (local) environment.
-     */
-    Type signature(List<JCTypeParameter> typarams,
-                   List<JCVariableDecl> params,
-                   JCTree res,
-                   List<JCExpression> thrown,
+    private Type signature(List<JFXVar> params,
+                   Type restype,
                    JavafxEnv<JavafxAttrContext> env) {
-
-        // Enter and attribute type parameters.
-        List<Type> tvars = enter.classEnter(typarams, env);
-        attr.attribTypeVariables(typarams, env);
-
         // Enter and attribute value parameters.
         ListBuffer<Type> argbuf = new ListBuffer<Type>();
-        for (List<JCVariableDecl> l = params; l.nonEmpty(); l = l.tail) {
+        for (List<JFXVar> l = params; l.nonEmpty(); l = l.tail) {
             memberEnter(l.head, env);
-            argbuf.append(l.head.vartype.type);
+            argbuf.append(l.head.getJFXType().type);
         }
 
-        // Attribute result type, if one is given.
-        Type restype = res == null ? syms.voidType : attr.attribType(res, env);
-
-        // Attribute thrown exceptions.
-        ListBuffer<Type> thrownbuf = new ListBuffer<Type>();
-        for (List<JCExpression> l = thrown; l.nonEmpty(); l = l.tail) {
-            Type exc = attr.attribType(l.head, env);
-            if (exc.tag != TYPEVAR)
-                exc = chk.checkClassType(l.head.pos(), exc);
-            thrownbuf.append(exc);
-        }
         Type mtype = new MethodType(argbuf.toList(),
                                     restype,
-                                    thrownbuf.toList(),
+                                    List.<Type>nil(),
                                     syms.methodClass);
-        return tvars.isEmpty() ? mtype : new ForAll(tvars, mtype);
+        return mtype;
     }
 
 /* ********************************************************************
@@ -427,10 +385,7 @@ public class JavafxMemberEnter extends JCTree.Visitor implements JavafxVisitor, 
     /** Enter field and method definitions and process import
      *  clauses, catching any completion failure exceptions.
      */
-// JavaFX change
-    public
-// JavaFX change
-    /*protected*/ void memberEnter(JCTree tree, JavafxEnv<JavafxAttrContext> env) {
+    void memberEnter(JCTree tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> prevEnv = this.env;
         try {
             this.env = env;
@@ -444,82 +399,9 @@ public class JavafxMemberEnter extends JCTree.Visitor implements JavafxVisitor, 
 
     /** Enter members from a list of trees.
      */
-// JavaFX change
-    public
     void memberEnter(List<? extends JCTree> trees, JavafxEnv<JavafxAttrContext> env) {
         for (List<? extends JCTree> l = trees; l.nonEmpty(); l = l.tail)
             memberEnter(l.head, env);
-    }
-
-    /** Add the implicit members for an enum type
-     *  to the symbol table.
-     */
-    private void addEnumMembers(JCClassDecl tree, JavafxEnv<JavafxAttrContext> env) {
-        JCExpression valuesType = make.Type(new ArrayType(tree.sym.type, syms.arrayClass));
-
-        // public static T[] values() { return ???; }
-        JCMethodDecl values = make.
-            MethodDef(make.Modifiers(Flags.PUBLIC|Flags.STATIC),
-                      names.values,
-                      valuesType,
-                      List.<JCTypeParameter>nil(),
-                      List.<JCVariableDecl>nil(),
-                      List.<JCExpression>nil(), // thrown
-                      null, //make.Block(0, Tree.emptyList.prepend(make.Return(make.Ident(names._null)))),
-                      null);
-        memberEnter(values, env);
-
-        // public static T valueOf(String name) { return ???; }
-        JCMethodDecl valueOf = make.
-            MethodDef(make.Modifiers(Flags.PUBLIC|Flags.STATIC),
-                      names.valueOf,
-                      make.Type(tree.sym.type),
-                      List.<JCTypeParameter>nil(),
-                      List.of(make.VarDef(make.Modifiers(Flags.PARAMETER),
-                                            names.fromString("name"),
-                                            make.Type(syms.stringType), null)),
-                      List.<JCExpression>nil(), // thrown
-                      null, //make.Block(0, Tree.emptyList.prepend(make.Return(make.Ident(names._null)))),
-                      null);
-        memberEnter(valueOf, env);
-
-        // the remaining members are for bootstrapping only
-        if (!target.compilerBootstrap(tree.sym)) return;
-
-        // public final int ordinal() { return ???; }
-        JCMethodDecl ordinal = make.at(tree.pos).
-            MethodDef(make.Modifiers(Flags.PUBLIC|Flags.FINAL),
-                      names.ordinal,
-                      make.Type(syms.intType),
-                      List.<JCTypeParameter>nil(),
-                      List.<JCVariableDecl>nil(),
-                      List.<JCExpression>nil(),
-                      null,
-                      null);
-        memberEnter(ordinal, env);
-
-        // public final String name() { return ???; }
-        JCMethodDecl name = make.
-            MethodDef(make.Modifiers(Flags.PUBLIC|Flags.FINAL),
-                      names._name,
-                      make.Type(syms.stringType),
-                      List.<JCTypeParameter>nil(),
-                      List.<JCVariableDecl>nil(),
-                      List.<JCExpression>nil(),
-                      null,
-                      null);
-        memberEnter(name, env);
-
-        // public int compareTo(E other) { return ???; }
-        MethodSymbol compareTo = new
-            MethodSymbol(Flags.PUBLIC,
-                         names.compareTo,
-                         new MethodType(List.of(tree.sym.type),
-                                        syms.intType,
-                                        List.<Type>nil(),
-                                        syms.methodClass),
-                         tree.sym);
-        memberEnter(make.MethodDef(compareTo, null), env);
     }
 
     @Override
@@ -658,10 +540,7 @@ public class JavafxMemberEnter extends JCTree.Visitor implements JavafxVisitor, 
         List<MethodInferTypeHelper> prevMethodsToInferReturnType;
         prevMethodsToInferReturnType = methodsToInferReturnType;
         methodsToInferReturnType = List.nil();
-        if ((tree.mods.flags & Flags.ENUM) != 0 &&
-            (types.supertype(tree.sym.type).tsym.flags() & Flags.ENUM) == 0) {
-            addEnumMembers(tree, env);
-        }
+        //JavaFX remove
         memberEnter(tree.defs, env);
         inferMethodReturnTypes();
         methodsToInferReturnType = prevMethodsToInferReturnType;
@@ -671,10 +550,7 @@ public class JavafxMemberEnter extends JCTree.Visitor implements JavafxVisitor, 
      *  @param tree     The method definition.
      *  @param env      The environment current outside of the method definition.
      */
-// Javafx modification
-public
-// Javafx modification
-    JavafxEnv<JavafxAttrContext> methodEnv(JCMethodDecl tree, JavafxEnv<JavafxAttrContext> env) {
+    JavafxEnv<JavafxAttrContext> methodEnv(JFXOperationDefinition tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> localEnv =
             env.dup(tree, env.info.dup(env.info.scope.dupUnshared()));
         localEnv.enclMethod = tree;
@@ -685,50 +561,32 @@ public
 
     @Override
     public void visitVarDef(JCVariableDecl tree) {
+        assert false : "should not be here";
+    }
+    
+    @Override
+    public void visitVar(JFXVar tree) {
         JavafxEnv<JavafxAttrContext> localEnv = env;
         if ((tree.mods.flags & STATIC) != 0 ||
             (env.info.scope.owner.flags() & INTERFACE) != 0) {
             localEnv = env.dup(tree, env.info.dup());
             localEnv.info.staticLevel++;
         }
-// Javafx change
-        if (tree.vartype == null) {
-            tree.vartype = make.TypeIdent(CLASS);
-            tree.vartype.type = syms.javafx_AnyType;
-        }
-        
-        if (tree.vartype.type != syms.javafx_AnyType) {
-// Javafx change
-            attr.attribType(tree.vartype, localEnv);
-// Javafx change
-        }
-// Javafx change
+        attr.attribType(tree.getJFXType(), localEnv);
+
         Scope enclScope = enter.enterScope(env);
-        VarSymbol v;
-        if (tree instanceof JFXVar) {
-            JFXVar decl = (JFXVar)tree;
-            v = new JavafxVarSymbol(0, tree.name, tree.vartype.type, 
-                    decl.isBound(), decl.isLazy(), enclScope.owner);
-        } else {
-            v = new VarSymbol(0, tree.name, tree.vartype.type, enclScope.owner);
-        }
+        VarSymbol v = new JavafxVarSymbol(0, tree.name, tree.getJFXType().type, 
+                    tree.isBound(), tree.isLazy(), enclScope.owner);
 
         v.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, v, tree);
         tree.sym = v;
         if (tree.init != null) {
             v.flags_field |= HASINIT;
-            /** don't want const value -- and env doesn't match
-            if ((v.flags_field & FINAL) != 0 && tree.init.getTag() != JCTree.NEWCLASS)
-                v.setLazyConstValue(initEnv(tree, env), log, attr, tree.init);
-             **/
-// Javafx change
-            if (tree.vartype.type == syms.javafx_AnyType) {
+            if (tree.getJFXType().type == syms.javafx_AnyType) {
                 JavafxEnv<JavafxAttrContext> initEnv = initEnv(tree, env);
-                tree.vartype.type = attr.attribExpr(tree.init, initEnv, Type.noType);
-                tree.sym.type = tree.vartype.type;
+                tree.getJFXType().type = attr.attribExpr(tree.init, initEnv, Type.noType);
+                tree.sym.type = tree.getJFXType().type;
             }
-// Javafx change
-
         }
         if (chk.checkUnique(tree.pos(), v, enclScope)) {
             chk.checkTransparentVar(tree.pos(), v, enclScope);
@@ -738,11 +596,12 @@ public
         v.pos = tree.pos;
     }
 
-    @Override
     public void visitMethodDef(JCMethodDecl tree) {
-        JCMethodDecl prevMethodDecl = currentMethodDecl;
-        currentMethodDecl = tree;
-        try {
+        assert false;
+    }
+    
+    @Override
+    public void visitOperationDefinition(JFXOperationDefinition tree) {
             Scope enclScope = enter.enterScope(env);
             MethodSymbol m = new MethodSymbol(0, tree.name, null, enclScope.owner);
             m.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, m, tree);
@@ -751,7 +610,6 @@ public
 
             m.type = attrMethodType(tree, localEnv);
         
-// Javafx modification
             // If types were not set, set them to syms.javafx_AnyType
             // TODO: Can we do some type inference in here?
             if (m != null && m.type != null && ((MethodType)m.type).argtypes != null) {
@@ -761,7 +619,6 @@ public
                     } 
                 }
             }
-// Javafx modification
 
             // mark the method varargs, if necessary
             if (isVarArgs)
@@ -771,13 +628,6 @@ public
             if (chk.checkUnique(tree.pos(), m, enclScope)) {
                 enclScope.enter(m);
             }
-            annotateLater(tree.mods.annotations, localEnv, m);
-            if (tree.defaultValue != null)
-                annotateDefaultValueLater(tree.defaultValue, localEnv, m);
-        }
-        finally {
-            currentMethodDecl = prevMethodDecl;
-        }
     }
 
     @Override
@@ -793,365 +643,75 @@ public
             }
         }
     }
-    /************
-// Javafx modification    
-    private List<Type> checkParameterTypes(List<JCTree> defParams, List<JCTree> declParams, JavafxJCMethodDecl methodDecl) {
-        isVarArgs = false;
-        ListBuffer<Type> ret = new ListBuffer<Type>();
-        if (declParams == null || defParams == null || declParams.size() != defParams.size()) {
-            return null;
+
+    private Type attrMethodType(JFXOperationDefinition opDef, JavafxEnv<JavafxAttrContext> lEnv) {
+        Type returnType;
+
+        // Create a new environment with local scope
+        // for attributing the method.
+        JavafxEnv<JavafxAttrContext> localEnv = methodEnv(opDef, env);
+
+        // Attribute all value parameters.
+        boolean prevIsInMethodLocalVars = isInMethodParamVars;
+        isInMethodParamVars = true;
+        for (List<JFXVar> l = opDef.funParams; l.nonEmpty(); l = l.tail) {
+            attr.attribStat(l.head, localEnv);
         }
-        
-        Iterator<JCTree> defParamIter = defParams.iterator();
-        Iterator<JCTree> declParamIter = declParams.iterator();
-        
-        while (defParamIter.hasNext()) {
-            JCTree defTree = defParamIter.next();
-            JCTree declTree = declParamIter.next();
-            
-            if (defTree.type == null) {
-                defTree.type = syms.javafx_AnyType;
-            }
-            
-            if (declTree.type == null) {
-                declTree.type = syms.javafx_AnyType;
-            }
+        isInMethodParamVars = prevIsInMethodLocalVars;
 
-            Symbol defTypeSym = defTree.type.tsym;
-            Symbol declTypeSym = declTree.type.tsym;
-            
-            if (defTypeSym == declTypeSym) {
-                ret.append(defTree.type);
-                continue;
+        if (opDef.getJFXReturnType().getTag() == JavafxTag.TYPEUNKNOWN) {
+            if (opDef.bodyExpression == null) {
+                // no body, can't infer, assume Any
+                returnType = syms.javafx_AnyType;
+            } else {
+                // infer the type from the body
+                if (opDef.bodyExpression.value == null) {
+                    returnType = syms.javafx_VoidType;
+                } else {
+                    returnType = attr.attribExpr(opDef.bodyExpression, localEnv);
+                }
             }
-            else if (defTree.type == syms.javafx_AnyType) {
-                defTree.type = declTree.type;
-                ret.append(defTree.type);
-            }
-            else if (declTree.type == syms.javafx_AnyType) {
-                declTree.type = defTree.type;
-                ret.append(declTree.type);
-            }
-            else {
-                log.error(methodDecl.pos, "javafx.different.types.of.parameters.for.definition.and.declaration");
-                ret.append(syms.javafx_AnyType);
-            }
+            methodsToInferReturnType = methodsToInferReturnType.append(new MethodInferTypeHelper(opDef, lEnv));
+        } else {
+            returnType = attr.attribType(opDef.getJFXReturnType(), localEnv);
         }
-        
-        return ret.toList();
-    }
-    
-    private Type checkReturnTypes(JCTree defRestype, JCTree declRestype, JavafxJCMethodDecl methodDecl) {
-        Type res = syms.javafx_AnyType;
-        if (defRestype == null || declRestype == null) {
-            return syms.javafx_AnyType;
-        }
-        
-        if (defRestype.type == null) {
-            defRestype.type = syms.javafx_AnyType;
-        }
-        
-        if (declRestype.type == null) {
-            declRestype.type = syms.javafx_AnyType;
-        }
+        localEnv.info.scope.leave();
 
-        Symbol defTypeSym = defRestype.type.tsym;
-        Symbol declTypeSym = declRestype.type.tsym;
-        if (defTypeSym == declTypeSym) {
-            return defRestype.type;
-        }
-        else if (defRestype.type == syms.javafx_AnyType) {
-            defRestype.type = declRestype.type;
-            res = defRestype.type;
-        }
-        else if (declRestype.type == syms.javafx_AnyType) {
-            declRestype.type = defRestype.type;
-            res = declRestype.type;
-        }
-        else {
-            log.error(methodDecl.pos, "javafx.different.types.of.result.for.definition.and.declaration");
-            res = syms.javafx_AnyType;
-        }
-        
-        return res;
-    }
-     * ************/
+        Type methType = signature(opDef.getParameters(), returnType, lEnv);
 
-    private Type attrMethodType(JCMethodDecl tree, JavafxEnv<JavafxAttrContext> lEnv) {
-        Type res = null;
-        List<JCTree> declParams = null;
-        JCTree declRestype = null;
-
-        List<JCTree> defParams = null;
-        JCTree defRestype = null;
-
-        /*****
-        JavafxJCMethodDecl jfxTree = null;
-
-        if (tree instanceof JavafxJCMethodDecl) {
-            // First attribute the definition
-            jfxTree = (JavafxJCMethodDecl)tree;
-
-            List<JCTree> params = null;
-            JCTree restype = null;
-            JFXStatement methodDef = jfxTree.definition;
-
-            if (methodDef != null &&
-                    jfxTree.getJavafxMethodType() >= JavafxFlags.OPERATION && 
-                    jfxTree.getJavafxMethodType() <= JavafxFlags.LOCAL_FUNCTION) {
-                **** TODO: RETRO code, may need to be converted, REMOVE
-                switch (methodDef.getTag()) {
-                    case JavafxTag.RETROOPERATIONDEF: {
-                        JFXRetroOperationMemberDefinition operationMemberDef = (JFXRetroOperationMemberDefinition)methodDef;
-                        params = operationMemberDef.params;
-                        restype = operationMemberDef.getType();
-                        break;
-                    }
-                    case JavafxTag.RETROFUNCTIONDEF: {
-                        JFXRetroFunctionMemberDefinition functionMemberDef = (JFXRetroFunctionMemberDefinition)methodDef;
-                        params = functionMemberDef.params;
-                        restype = functionMemberDef.getType();
-                        break;
-                    }                    case JavafxTag.RETROOPERATIONLOCALDEF: {
-                        JFXRetroOperationLocalDefinition operationLocalDef = (JFXRetroOperationLocalDefinition)methodDef;
-                        params = operationLocalDef.params;
-                        restype = operationLocalDef.restype;
-                        break;
-                    }
-
-                    case JavafxTag.RETROFUNCTIONLOCALDEF: {
-                        JFXRetroFunctionLocalDefinition functionLocalDef = (JFXRetroFunctionLocalDefinition)methodDef;
-                        params = functionLocalDef.params;
-                        restype = functionLocalDef.restype;
-                        break;
-                    }
-
-                    default : {
-                        throw new AssertionError("Unexpected JFXMethodDecl definition type!");
-                    }
-                }
-                 * ***
-
-                if (params == null) {
-                    params = List.nil();
-                }
-
-                if (restype == null) {
-                    restype = make.TypeIdent(CLASS);
-                    restype.type = syms.javafx_AnyType;
-                }
-
-                // Create a new environment with local scope
-                // for attributing the method.
-                JavafxEnv<JavafxAttrContext> localEnv = methodEnv(tree, env);
-
-                // Attribute all value parameters.
-                boolean prevIsInMethodLocalVars = isInMethodParamVars;
-                isInMethodParamVars = true;
-                for (List<JCTree> l = params; l.nonEmpty(); l = l.tail) {
-                    attr.attribStat(l.head, localEnv);
-                }
-                isInMethodParamVars = prevIsInMethodLocalVars;
-                defParams = params;
-
-                // Check that result type is well-formed.
-                chk.validate(restype);
-                restype = restype.getTag() == JavafxTag.TYPECLASS ? ((JFXTypeClass)restype).getClassName() : restype;
-                attr.attribType(restype, localEnv);
-
-                defRestype = restype;
-
-                localEnv.info.scope.leave();
-            }
-
-            // Then attribute the declaration
-            JFXStatement methodDecl = jfxTree.declaration;
-
-            if (methodDecl != null &&
-                    jfxTree.getJavafxMethodType() >= JavafxFlags.OPERATION && 
-                    jfxTree.getJavafxMethodType() <= JavafxFlags.LOCAL_FUNCTION) {
-                **** TODO: RETRO code, may need to be converted, REMOVE
-                switch (methodDecl.getTag()) {
-                case JavafxTag.RETROOPERATIONDECL: {
-                        JFXRetroOperationMemberDeclaration operationMemberDecl = (JFXRetroOperationMemberDeclaration)methodDecl;
-                        params = operationMemberDecl.params;
-                        restype = operationMemberDecl.getType();
-                        break;
-                    }
-                case JavafxTag.RETROFUNCTIONDECL: {
-                        JFXRetroFunctionMemberDeclaration functionMemberDecl = (JFXRetroFunctionMemberDeclaration)methodDecl;
-                        params = functionMemberDecl.params;
-                        restype = functionMemberDecl.getType();
-                        break;
-                    }
-                default : {
-                        throw new AssertionError("Unexpected JFXMethodDecl declaration type!");
-                    }
-                }
-                 * ****
-
-                if (params == null) {
-                    params = List.nil();
-                }
-
-                if (restype == null) {
-                    restype = make.TypeIdent(CLASS);
-                    restype.type = syms.javafx_AnyType;
-                }
-
-                // Create a new environment with local scope
-                // for attributing the method.
-                JavafxEnv<JavafxAttrContext> localEnv = methodEnv(tree, env);
-
-                // Attribute all value parameters.
-                boolean prevIsInMethodLocalVars = isInMethodParamVars;
-                isInMethodParamVars = true;
-                for (List<JCTree> l = params; l.nonEmpty(); l = l.tail) {
-                    attr.attribStat(l.head, localEnv);
-                }
-                isInMethodParamVars = prevIsInMethodLocalVars;
-
-                declParams = params;
-
-                // Check that result type is well-formed.
-                chk.validate(restype);
-                restype = restype.getTag() == JavafxTag.TYPECLASS ? ((JFXTypeClass)restype).getClassName() : restype;
-                attr.attribType(restype, localEnv);
-
-                declRestype = restype;
-
-                localEnv.info.scope.leave();
-            }
-
-            if (defParams != null && declParams != null) {
-                if (declParams.size() != defParams.size()) {
-                    log.error(tree.pos, "javafx.different.number.of.parameters.for.definition.and.declaration");
-                }
-            }
-
-            List<Type> params1 = null;
-            if (jfxTree != null) {
-                params1 = checkParameterTypes(defParams, declParams, jfxTree);
-                Type temp = checkReturnTypes(defRestype, declRestype, jfxTree);
-                if (tree.restype == null || tree.restype.type == Type.noType || tree.restype.type == syms.javafx_AnyType) {
-                    if (temp.tag <= TypeTags.VOID) {
-                        tree.restype = make.TypeIdent(temp.tag);
-                    }
-                    else {
-                        tree.restype = make.Ident(temp.tsym);
-                    }
-                }
-            }
-
-            if (params1 != null && params.length() != params1.length()) {
-                throw new AssertionError("Different number of params!");
-            }
-            
-            if (params != null) {
-                for (JCVariableDecl param : tree.params) {
-                    param.type = params1 != null && params1.head != null ? params1.head : syms.javafx_AnyType;
-                    if (params1 != null) {
-                        params1 = params1.tail;
-                    }
-                }
-            }
-        }
-         * ***/
-
-        if (tree instanceof JFXOperationDefinition) {
-            JFXOperationDefinition opDef = (JFXOperationDefinition)tree;
-            
-            List<JCTree> params = null;
-            JCTree restype = null;
-            if (params == null) {
-                params = List.nil();
-            }
-
-            if (restype == null) {
-                restype = make.TypeIdent(CLASS);
-                restype.type = syms.javafx_AnyType;
-            }
-
-            // Create a new environment with local scope
-            // for attributing the method.
-            JavafxEnv<JavafxAttrContext> localEnv = methodEnv(tree, env);
-
-            // Attribute all value parameters.
-            boolean prevIsInMethodLocalVars = isInMethodParamVars;
-            isInMethodParamVars = true;
-            for (List<JCTree> l = opDef.funParams; l.nonEmpty(); l = l.tail) {
-                attr.attribStat(l.head, localEnv);
-            }
-            isInMethodParamVars = prevIsInMethodLocalVars;
-
-            declParams = opDef.funParams;
-
-            // Check that result type is well-formed.
-            chk.validate(restype);
-            restype = restype.getTag() == JavafxTag.TYPECLASS ? ((JFXTypeClass)restype).getClassName() : restype;
-            attr.attribType(restype, localEnv);
-
-            declRestype = restype;
-
-            if (opDef.rettype == null) {
-                if (opDef.bodyExpression != null &&
-                    opDef.bodyExpression.value != null) {
-                    Type tp = attr.attribExpr(opDef.bodyExpression, localEnv, Type.noType);
-                    opDef.restype = make.Ident(tp.tsym);
-                }
-                else {
-                    opDef.restype = make.TypeIdent(VOID);
-                }
-            }
-            else {
-                opDef.restype = (JCExpression)opDef.rettype.getJCTypeTree();
-            }
-            localEnv.info.scope.leave();
-        }
-        
-       res = signature(tree.typarams, tree.params,
-                           tree.restype, tree.thrown,
-                           lEnv);
-       
-        if (tree.restype != null && tree.restype.type == syms.javafx_AnyType) {
-            methodsToInferReturnType = methodsToInferReturnType.append(new MethodInferTypeHelper(tree, lEnv));
-        }
-        return res;
+        return methType;
     }
 
     private void inferMethodReturnTypes() {
         if (methodsToInferReturnType != null) { 
             for (MethodInferTypeHelper methodDeclHelper : methodsToInferReturnType) {
-                if (methodDeclHelper.method.restype != null &&
-                          methodDeclHelper.method.restype.type == syms.javafx_AnyType &&
-                          methodDeclHelper.method.body != null) {
+                if (methodDeclHelper.method.rettype.type == syms.javafx_AnyType &&
+                          methodDeclHelper.method.getBodyExpression() != null) {
                       Type prevMethodReturnType = methodReturnType;
                       methodReturnType = null;
-                      Type prevRestype = methodDeclHelper.method.restype.type;
-                      methodDeclHelper.method.restype.type = Type.noType;
+                      Type prevrettype = methodDeclHelper.method.rettype.type;
+                      methodDeclHelper.method.rettype.type = Type.noType;
                       JavafxEnv<JavafxAttrContext> prevLocalEnv = localEnv;
                       localEnv = methodDeclHelper.lEnv;
-                      memberEnter(methodDeclHelper.method.body, localEnv);
+                      memberEnter(methodDeclHelper.method.getBodyExpression(), localEnv);
                       localEnv = prevLocalEnv;
                       if (methodReturnType == null) {
-                          methodDeclHelper.method.restype = make.TypeIdent(VOID);
-                          methodDeclHelper.method.restype.type = syms.voidType;
+                          methodDeclHelper.method.rettype.type = syms.voidType;
                           if (methodDeclHelper.method.sym != null && methodDeclHelper.method.sym.type != null &&
                               methodDeclHelper.method.sym.kind == MTH) {
                               ((MethodType)methodDeclHelper.method.sym.type).restype = syms.voidType;
                           }
                       }
                       else {
-                          methodDeclHelper.method.restype = make.Type(methodReturnType);
-                          methodDeclHelper.method.restype.type = methodReturnType;
+                          methodDeclHelper.method.rettype.type = methodReturnType;
                           if (methodDeclHelper.method.sym != null && methodDeclHelper.method.sym.type != null &&
                               methodDeclHelper.method.sym.kind == MTH) {
                               ((MethodType)methodDeclHelper.method.sym.type).restype = methodReturnType;
                           }
                       }
                       
-                      if (methodDeclHelper.method.restype.type == Type.noType) {
-                          methodDeclHelper.method.restype.type = prevRestype;
+                      if (methodDeclHelper.method.rettype.type == Type.noType) {
+                          methodDeclHelper.method.rettype.type = prevrettype;
                       }
   
                       methodReturnType = prevMethodReturnType;
@@ -1161,9 +721,9 @@ public
     }
 
     static class MethodInferTypeHelper {
-        JCMethodDecl method;
+        JFXOperationDefinition method;
         JavafxEnv<JavafxAttrContext> lEnv;
-        MethodInferTypeHelper(JCMethodDecl method,  JavafxEnv<JavafxAttrContext> lEnv) {
+        MethodInferTypeHelper(JFXOperationDefinition method,  JavafxEnv<JavafxAttrContext> lEnv) {
             this.method = method;
             this.lEnv = lEnv;
         }
@@ -1193,19 +753,6 @@ public
     @Override
     public void visitAttributeDefinition(JFXAttributeDefinition tree) {
         visitVar(tree);
-    }
-    
-    @Override
-    public void visitOperationDefinition(JFXOperationDefinition that) {
-        visitType(that.rettype);
-
-        that.params = buildParams(that.funParams);
-        visitMethodDef(that);
-    }
-
-    @Override
-    public void visitFunctionDefinitionStatement(JFXFunctionDefinitionStatement that) {
-        visitOperationDefinition(that.funcDef);
     }
 
     @Override
@@ -1305,12 +852,6 @@ public
     @Override
     public void visitType(JFXType that) {
     }
-    
-    @Override
-    public void visitVar(JFXVar that) {
-        visitType(that.getJFXType());
-        visitVarDef(that);
-   }
     
     @Override
     public void visitForExpression(JFXForExpression that) {
@@ -1574,36 +1115,6 @@ public
 
             chk.checkNonCyclic(tree.pos(), c.type);
 
-            // We need default constructor. Otherwise the NewClass ASTs cannot be attributed.
-                        // Add default constructor if needed.
-            if ((c.flags() & INTERFACE) == 0 &&
-                !TreeInfo.hasConstructors(tree.defs)) {
-                List<Type> argtypes = List.nil();
-                List<Type> typarams = List.nil();
-                List<Type> thrown = List.nil();
-                long ctorFlags = 0;
-                boolean based = false;
-                if (c.name.len == 0) {
-                    JCNewClass nc = (JCNewClass)env.next.tree;
-                    if (nc.constructor != null) {
-                        Type superConstrType = types.memberType(c.type,
-                                                                nc.constructor);
-                        argtypes = superConstrType.getParameterTypes();
-                        typarams = superConstrType.getTypeArguments();
-                        ctorFlags = nc.constructor.flags() & VARARGS;
-                        if (nc.encl != null) {
-                            argtypes = argtypes.prepend(nc.encl.type);
-                            based = true;
-                        }
-                        thrown = superConstrType.getThrownTypes();
-                    }
-                }
-                JCTree constrDef = DefaultConstructor(make.at(tree.pos), c,
-                                                    typarams, argtypes, thrown,
-                                                    ctorFlags, based);
-                tree.defs = tree.defs.prepend(constrDef);
-            }
-
             // If this is a class, enter symbols for this and super into
             // current scope.
             if ((c.flags_field & INTERFACE) == 0) {
@@ -1691,148 +1202,5 @@ public
         return result;
     }
 
-/* ***************************************************************************
- * tree building
- ****************************************************************************/
 
-    /** Generate default constructor for given class. For classes different
-     *  from java.lang.Object, this is:
-     *
-     *    c(argtype_0 x_0, ..., argtype_n x_n) throws thrown {
-     *      super(x_0, ..., x_n)
-     *    }
-     *
-     *  or, if based == true:
-     *
-     *    c(argtype_0 x_0, ..., argtype_n x_n) throws thrown {
-     *      x_0.super(x_1, ..., x_n)
-     *    }
-     *
-     *  @param make     The tree factory.
-     *  @param c        The class owning the default constructor.
-     *  @param argtypes The parameter types of the constructor.
-     *  @param thrown   The thrown exceptions of the constructor.
-     *  @param based    Is first parameter a this$n?
-     */
-    JCTree DefaultConstructor(TreeMaker make,
-                            ClassSymbol c,
-                            List<Type> typarams,
-                            List<Type> argtypes,
-                            List<Type> thrown,
-                            long flags,
-                            boolean based) {
-        List<JCVariableDecl> params = make.Params(argtypes, syms.noSymbol);
-        List<JCStatement> stats = List.nil();
-        if (c.type != syms.objectType)
-            stats = stats.prepend(SuperCall(make, typarams, params, based));
-        if ((c.flags() & ENUM) != 0 &&
-            (types.supertype(c.type).tsym == syms.enumSym ||
-             target.compilerBootstrap(c))) {
-            // constructors of true enums are private
-            flags = (flags & ~AccessFlags) | PRIVATE | GENERATEDCONSTR;
-        } else
-            flags |= (c.flags() & AccessFlags) | GENERATEDCONSTR;
-        if (c.name.len == 0) flags |= ANONCONSTR;
-        JCTree result = make.MethodDef(
-            make.Modifiers(flags),
-            names.init,
-            null,
-            make.TypeParams(typarams),
-            params,
-            make.Types(thrown),
-            make.Block(0, stats),
-            null);
-        return result;
-    }
-
-    /** Generate call to superclass constructor. This is:
-     *
-     *    super(id_0, ..., id_n)
-     *
-     * or, if based == true
-     *
-     *    id_0.super(id_1,...,id_n)
-     *
-     *  where id_0, ..., id_n are the names of the given parameters.
-     *
-     *  @param make    The tree factory
-     *  @param params  The parameters that need to be passed to super
-     *  @param typarams  The type parameters that need to be passed to super
-     *  @param based   Is first parameter a this$n?
-     */
-// JavaFX change
-    public
-// JavaFX change
-    JCExpressionStatement SuperCall(TreeMaker make,
-                   List<Type> typarams,
-                   List<JCVariableDecl> params,
-                   boolean based) {
-        JCExpression meth;
-        if (based) {
-            meth = make.Select(make.Ident(params.head), names._super);
-            params = params.tail;
-        } else {
-            meth = make.Ident(names._super);
-        }
-        List<JCExpression> typeargs = typarams.nonEmpty() ? make.Types(typarams) : null;
-        return make.Exec(make.Apply(typeargs, meth, make.Idents(params)));
-    }
-
-    private List<JCVariableDecl> buildParams(List<JCTree> fxparams) {
-        List<JCVariableDecl> params = List.nil();
-        for (JCTree var : fxparams) {
-            if (var.getTag() == JavafxTag.VARDECL) {
-                params = params.append(jcVarDeclFromJFXVar((JFXVar)var));
-            } else if (var.getTag() == JCTree.VARDEF) {
-                params = params.append((JCVariableDecl)var);
-            } else {
-                throw new AssertionError("Unexpected tree in the JFXFunctionMemberDeclaration parameter list.");
-            }
-        }
-        return params;
-    }
-
-    private JavafxJCVarDecl jcVarDeclFromJFXVar(JFXVar tree) {
-        JCModifiers mods = tree.getModifiers();
-        if (mods == null) {
-            mods = make.Modifiers(0);
-        }
-        return make.JavafxVarDef(mods, tree.name,
-                JavafxFlags.VARIABLE, jcType(tree.getJFXType()),
-                null, JavafxBindStatus.UNBOUND);
-    }
-
-    JCExpression jcType(JFXType jfxType) {
-        JCExpression type = null;
-        
-        if (jfxType != null) {
-            if (jfxType instanceof JFXTypeClass) {
-                type = ((JFXTypeClass)jfxType).getClassName();
-                if (type instanceof JCIdent) {
-                    Name className = ((JCIdent)type).getName();
-                    if (className == numberTypeName) {
-                        type = make.TypeIdent(TypeTags.DOUBLE);
-                        type.type = syms.javafx_NumberType;
-                    } else if (className == integerTypeName) {
-                        type = make.TypeIdent(TypeTags.INT);
-                        type.type = syms.javafx_IntegerType;
-                    } else if (className == booleanTypeName) {
-                        type = make.TypeIdent(TypeTags.BOOLEAN);
-                        type.type = syms.javafx_BooleanType;
-                    } else if (className == voidTypeName) {
-                        type = make.TypeIdent(TypeTags.VOID);
-                        type.type = syms.voidType;
-                    } 
-                }
-            } else {
-                // TODO: Figure out what this could be???
-                throw new Error("Unexpected instanceof for JFXVar.getType()!!!");
-            }
-        } else {
-            type = make.TypeIdent(TypeTags.NONE);
-            type.type = syms.javafx_AnyType;
-        }
-        
-        return type;
-    }
 }

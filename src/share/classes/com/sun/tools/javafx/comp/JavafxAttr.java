@@ -133,6 +133,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 // JavaFX change
     final Annotate annotate;
 
+    private final Name numberTypeName;
+    private final Name integerTypeName;
+    private final Name booleanTypeName;
+    private final Name stringTypeName;
+    private final Name voidTypeName;  // possibly temporary
+
     private JCMethodDecl currentMethod = null;
     private boolean attribDefDeclParams = false;
     
@@ -173,6 +179,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         relax = (options.get("-retrofit") != null ||
                  options.get("-relax") != null);
         useBeforeDeclarationWarning = options.get("useBeforeDeclarationWarning") != null;
+        
+        numberTypeName  = names.fromString("Number");
+        integerTypeName = names.fromString("Integer");
+        booleanTypeName = names.fromString("Boolean");
+        stringTypeName = names.fromString("String");
+        voidTypeName = names.fromString("Void");
     }
     /** Switch: relax some constraints for retrofit mode.
      */
@@ -565,26 +577,31 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public void visitIdent(JCIdent tree) {
         // TODO: Fix this when the new named table is available
         if (tree.name == names.fromString("Integer")) {
+            assert false : "MUST REMOVE";
             tree.type = syms.javafx_IntegerType;
             tree.sym = syms.javafx_IntegerType.tsym;
             result = tree.type;
         }
         else if (tree.name == names.fromString("Boolean")) {
+            assert false : "MUST REMOVE";
             tree.type = syms.javafx_BooleanType;
             tree.sym = syms.javafx_BooleanType.tsym;
             result = tree.type;
         }
         else if (tree.name == names.fromString("Number")) {
+            assert false : "MUST REMOVE";
             tree.type = syms.javafx_NumberType;
             tree.sym = syms.javafx_NumberType.tsym;
             result = tree.type;
         }
         else if (tree.name == names.fromString("String")) {
+            assert false : "MUST REMOVE";
             tree.type = syms.javafx_StringType;
             tree.sym = syms.javafx_StringType.tsym;
             result = tree.type;
         }
         else if (tree.name == names.fromString("Void")) {
+            assert false : "MUST REMOVE";
             tree.type = syms.javafx_VoidType;
             tree.sym = syms.javafx_StringType.tsym;
             result = tree.type;
@@ -933,10 +950,16 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 
         result = check(tree, capturedType, VAL, pkind, pt);
     }
-
-
+    
     @Override
     public void visitVarDef(JCVariableDecl tree) {
+        assert false : "SHOULD NOT REACH HERE";
+    }
+
+    @Override
+    public void visitVar(JFXVar tree) {
+        attribType(tree.getJFXType(), env);
+
         // Local variables have not been entered yet, so we need to do it now:
         if (env.info.scope.owner.kind == MTH) {
             if (tree.sym != null) {
@@ -949,7 +972,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
 
         // Check that the variable's declared type is well-formed.
-        chk.validate(tree.vartype);
+//        chk.validate(tree.vartype);
 
         VarSymbol v = tree.sym;
 
@@ -985,6 +1008,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             result = tree.type = v.type;
             chk.validateAnnotations(tree.mods.annotations, v);
 
+            /****
             // Attribute the anonimous change listener class if there is any.
             if (tree instanceof JavafxJCVarDecl) {
                 if (((JavafxJCVarDecl)tree).getChangeListener() != null) {
@@ -993,6 +1017,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     attribExpr(((JavafxJCVarDecl)tree).getChangeListener(), initEnv, Type.noType);
                 }
             }
+             * *****/
         }
         finally {
             chk.setLint(prevLint);
@@ -1226,6 +1251,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             else {
                 localEnv.info.selectSuper = cdef != null;
                 localEnv.info.varArgs = false;
+                /***
                 tree.constructor = rs.resolveConstructor(
                     tree.pos(), localEnv, clazztype, argtypes, typeargtypes);
                 Type ctorType = checkMethod(clazztype,
@@ -1237,6 +1263,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                                             localEnv.info.varArgs);
                 if (localEnv.info.varArgs)
                     assert ctorType.isErroneous() || tree.varargsElement != null;
+                 * ***/
             }
 
             if (cdef != null) {
@@ -1300,7 +1327,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 tree.constructor = sym;
             }
 
-            if (tree.constructor != null && tree.constructor.kind == MTH)
+//            if (tree.constructor != null && tree.constructor.kind == MTH)
                 owntype = clazztype;
         }
         result = check(tree, owntype, VAL, pkind, pt);
@@ -1322,35 +1349,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitClassDef(JCClassDecl tree) {
-        // Local classes have not been entered yet, so we need to do it now:
-        if ((env.info.scope.owner.kind & (VAR | MTH)) != 0)
-            enter.classEnter(tree, env);
-
-        ClassSymbol c = tree.sym;
-        if (c == null) {
-            // exit in case something drastic went wrong during enter.
-            result = null;
-        } else {
-            // make sure class has been completed:
-            c.complete();
-
-            // If this class appears as an anonymous class
-            // in a superclass constructor call where
-            // no explicit outer instance is given,
-            // disable implicit outer instance from being passed.
-            // (This would be an illegal access to "this before super").
-            if (env.info.isSelfCall &&
-                env.tree.getTag() == JCTree.NEWCLASS &&
-                ((JCNewClass) env.tree).encl == null)
-            {
-                c.flags_field |= NOOUTERTHIS;
-            }
-            attribClass(tree.pos(), c);
-            result = tree.type = c.type;
-        }
+        assert false : "Should never reach here";
     }
 
     public void visitMethodDef(JCMethodDecl tree) {
+        assert false : "Should never reach here";
     }
     
     @Override
@@ -1364,7 +1367,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // block being null should be fixed where they occur as this indicates 
         // bad code.
         
-        visitType(tree.rettype);
+        attribType(tree.rettype, env);
 
         MethodSymbol m = tree.sym;
 
@@ -1372,8 +1375,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         Lint prevLint = chk.setLint(lint);
         try {
             chk.checkDeprecatedAnnotation(tree.pos(), m);
-
-            attribBounds(tree.typarams);
 
             // If we override any other methods, check that we do so properly.
             // JLS ???
@@ -1385,44 +1386,17 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             localEnv.info.lint = lint;
 
-            // Enter all type parameters into the local method scope.
-            for (List<JCTypeParameter> l = tree.typarams; l.nonEmpty(); l = l.tail)
-                localEnv.info.scope.enterIfAbsent(l.head.type.tsym);
-
             ClassSymbol owner = env.enclClass.sym;
             if ((owner.flags() & ANNOTATION) != 0 &&
-                tree.params.nonEmpty())
-                log.error(tree.params.head.pos(),
+                tree.funParams.nonEmpty())
+                log.error(tree.funParams.head.pos(),
                           "intf.annotation.members.cant.have.params");
 
             // Attribute all value parameters.
-            for (List<JCVariableDecl> l = tree.params; l.nonEmpty(); l = l.tail) {
+            for (List<JFXVar> l = tree.funParams; l.nonEmpty(); l = l.tail) {
                 attribStat(l.head, localEnv);
             }
-
-            // Check that type parameters are well-formed.
-            chk.validateTypeParams(tree.typarams);
-            if ((owner.flags() & ANNOTATION) != 0 &&
-                tree.typarams.nonEmpty())
-                log.error(tree.typarams.head.pos(),
-                          "intf.annotation.members.cant.have.type.params");
-
-            // Check that result type is well-formed.
-            chk.validate(tree.restype);
-            if ((owner.flags() & ANNOTATION) != 0)
-                chk.validateAnnotationType(tree.restype);
-
-            if ((owner.flags() & ANNOTATION) != 0)
-                chk.validateAnnotationMethod(tree.pos(), m);
-
-            // Check that all exceptions mentioned in the throws clause extend
-            // java.lang.Throwable.
-            if ((owner.flags() & ANNOTATION) != 0 && tree.thrown.nonEmpty())
-                log.error(tree.thrown.head.pos(),
-                          "throws.not.allowed.in.intf.annotation");
-            for (List<JCExpression> l = tree.thrown; l.nonEmpty(); l = l.tail)
-                chk.checkType(l.head.pos(), l.head.type, syms.throwableType);
-
+            
             if (tree.bodyExpression == null) {
                 // Empty bodies are only allowed for
                 // abstract, native, or interface methods, or for methods
@@ -1431,11 +1405,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     (tree.mods.flags & (ABSTRACT | NATIVE)) == 0 &&
                     !relax)
                     log.error(tree.pos(), "missing.meth.body.or.decl.abstract");
-                if (tree.defaultValue != null) {
-                    if ((owner.flags() & ANNOTATION) == 0)
-                        log.error(tree.pos(),
-                                  "default.allowed.in.intf.annotation.member");
-                }
             } else if ((owner.flags() & INTERFACE) != 0) {
                 log.error(tree.bodyExpression.pos(), "intf.meth.cant.have.body");
             } else if ((tree.mods.flags & ABSTRACT) != 0) {
@@ -1448,8 +1417,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             }
             localEnv.info.scope.leave();
             result = tree.type = m.type;
-            chk.validateAnnotations(tree.mods.annotations, m);
-
         }
         finally {
             chk.setLint(prevLint);
@@ -1475,9 +1442,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             if (c.param.type.tsym.kind == Kinds.VAR) {
                 c.param.sym.setData(ElementKind.EXCEPTION_PARAMETER);
             }
-            chk.checkType(c.param.vartype.pos(),
-                          chk.checkClassType(c.param.vartype.pos(), ctype),
-                          syms.throwableType);
+//uses vartype            
+//            chk.checkType(c.param.vartype.pos(),
+//                          chk.checkClassType(c.param.vartype.pos(), ctype),
+//                          syms.throwableType);
             attribStat(c.body, catchEnv);
             catchEnv.info.scope.leave();
         }
@@ -1727,88 +1695,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         List<Type> typeargtypes = null;
 
         Name methName = JavafxTreeInfo.name(tree.meth);
-
-        boolean isConstructorCall =
-            methName == names._this || methName == names._super;
-
-        if (isConstructorCall) {
-            // We are seeing a ...this(...) or ...super(...) call.
-            // Check that this is the first statement in a constructor.
-            if (checkFirstConstructorStat(tree, env)) {
-
-                // Record the fact
-                // that this is a constructor call (using isSelfCall).
-                localEnv.info.isSelfCall = true;
-
-                // Attribute arguments, yielding list of argument types.
-                argtypes = attribArgs(tree.args, localEnv);
-                typeargtypes = attribTypes(tree.typeargs, localEnv);
-
-                // Variable `site' points to the class in which the called
-                // constructor is defined.
-                Type site = env.enclClass.sym.type;
-                if (methName == names._super) {
-                    if (site == syms.objectType || site == syms.javafx_AnyType) {
-                        log.error(tree.meth.pos(), "no.superclass", site);
-                        site = syms.errType;
-                    } else {
-                        site = types.supertype(site);
-                    }
-                }
-
-                if (site.tag == CLASS) {
-                    if (site.getEnclosingType().tag == CLASS) {
-                        // we are calling a nested class
-
-                        if (tree.meth.getTag() == JCTree.SELECT) {
-                            JCTree qualifier = ((JCFieldAccess) tree.meth).selected;
-
-                            // We are seeing a prefixed call, of the form
-                            //     <expr>.super(...).
-                            // Check that the prefix expression conforms
-                            // to the outer instance type of the class.
-                            chk.checkRefType(qualifier.pos(),
-                                             attribExpr(qualifier, localEnv,
-                                                        site.getEnclosingType()));
-                        } else if (methName == names._super) {
-                            // qualifier omitted; check for existence
-                            // of an appropriate implicit qualifier.
-                            rs.resolveImplicitThis(tree.meth.pos(),
-                                                   localEnv, site);
-                        }
-                    } else if (tree.meth.getTag() == JCTree.SELECT) {
-                        log.error(tree.meth.pos(), "illegal.qual.not.icls",
-                                  site.tsym);
-                    }
-
-                    // if we're calling a java.lang.Enum constructor,
-                    // prefix the implicit String and int parameters
-                    if (site.tsym == syms.enumSym && allowEnums)
-                        argtypes = argtypes.prepend(syms.intType).prepend(syms.stringType);
-
-                    // Resolve the called constructor under the assumption
-                    // that we are referring to a superclass instance of the
-                    // current instance (JLS ???).
-                    boolean selectSuperPrev = localEnv.info.selectSuper;
-                    localEnv.info.selectSuper = true;
-                    localEnv.info.varArgs = false;
-                    Symbol sym = rs.resolveConstructor(
-                        tree.meth.pos(), localEnv, site, argtypes, typeargtypes);
-                    localEnv.info.selectSuper = selectSuperPrev;
-
-                    // Set method symbol to resolved constructor...
-                    JavafxTreeInfo.setSymbol(tree.meth, sym);
-
-                    // ...and check that it is legal in the current context.
-                    // (this will also set the tree's type)
-                    Type mpt = newMethTemplate(argtypes, typeargtypes);
-                    checkId(tree.meth, site, sym, localEnv, MTH,
-                            mpt, tree.varargsElement != null);
-                }
-                // Otherwise, `site' is an error type and we do nothing
-            }
-            result = tree.type = syms.voidType;
-        } else {
+        
+        {
             // Otherwise, we are seeing a regular method call.
             // Attribute the arguments, yielding list of argument types, ...
             argtypes = attribArgs(tree.args, localEnv);
@@ -1864,27 +1752,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
         chk.validate(tree.typeargs);
     }
-    //where
-        /** Check that given application node appears as first statement
-         *  in a constructor call.
-         *  @param tree   The application node
-         *  @param env    The environment current at the application.
-         */
-// Javafx change
-    protected
-// Javafx change
-        boolean checkFirstConstructorStat(JCMethodInvocation tree, JavafxEnv<JavafxAttrContext> env) {
-            JCMethodDecl enclMethod = env.enclMethod;
-            if (enclMethod != null && enclMethod.name == names.init) {
-                JCBlock body = enclMethod.body;
-                if (body.stats.head.getTag() == JCTree.EXEC &&
-                    ((JCExpressionStatement) body.stats.head).expr == tree)
-                    return true;
-            }
-            log.error(tree.pos(),"call.must.be.first.stmt.in.ctor",
-                      TreeInfo.name(tree.meth));
-            return false;
-        }
     
     public void visitAssignop(JCAssignOp tree) {
         // Attribute arguments.
@@ -2261,8 +2128,33 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
 // Begin JavaFX trees
     @Override
-    public void visitClassDeclaration(JFXClassDeclaration that) {
-        visitClassDef(that);
+    public void visitClassDeclaration(JFXClassDeclaration tree) {
+        // Local classes have not been entered yet, so we need to do it now:
+        if ((env.info.scope.owner.kind & (VAR | MTH)) != 0)
+            enter.classEnter(tree, env);
+
+        ClassSymbol c = tree.sym;
+        if (c == null) {
+            // exit in case something drastic went wrong during enter.
+            result = null;
+        } else {
+            // make sure class has been completed:
+            c.complete();
+
+            // If this class appears as an anonymous class
+            // in a superclass constructor call where
+            // no explicit outer instance is given,
+            // disable implicit outer instance from being passed.
+            // (This would be an illegal access to "this before super").
+            if (env.info.isSelfCall &&
+                env.tree.getTag() == JCTree.NEWCLASS &&
+                ((JCNewClass) env.tree).encl == null)
+            {
+                c.flags_field |= NOOUTERTHIS;
+            }
+            attribClass(tree.pos(), c);
+            result = tree.type = c.type;
+        }
     }
     
     @Override
@@ -2290,19 +2182,14 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             JFXOperationDefinition onChangeMethod = make.at(that.pos()).OperationDefinition(
                     make.Modifiers(0L), 
                     Name.fromString(names, "<onChange>"), 
-                    make.TypeClass(make.Ident(Name.fromString(names, "Void")), JFXType.CARDINALITY_OPTIONAL), 
-                    List.<JCTree>nil(), 
+                    make.TypeClass(make.Ident(Name.fromString(names, "Void")), JFXType.CARDINALITY_SINGLETON), 
+                    List.<JFXVar>nil(), 
                     body);
             JavafxEnv<JavafxAttrContext> locEnv = memberEnter.methodEnv(onChangeMethod, env);
             // attribute the change trigger
             visitBlock(that.onChange);
             locEnv.info.scope.leave();
         }
-    }
-    
-    @Override
-    public void visitFunctionDefinitionStatement(JFXFunctionDefinitionStatement that) {
-        visitOperationDefinition(that.funcDef);
     }
 
     @Override
@@ -2433,37 +2320,51 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }  
     
     @Override
-    public void visitTypeAny(JFXTypeAny that) {
-        visitType(that);
+    public void visitTypeAny(JFXTypeAny tree) {
+        assert false : "MUST IMPLEMENT";
     }
     
     @Override
-    public void visitTypeClass(JFXTypeClass that) {
-        visitType(that);
-    }
-    
-    @Override
-    public void visitTypeFunctional(JFXTypeFunctional that) {
-        for (JCTree param : that.getParameters()) {
-            param.accept(this);
+    public void visitTypeClass(JFXTypeClass tree) {
+        Type type = null;
+        JCExpression classNameExpr = ((JFXTypeClass) tree).getClassName();
+        if (classNameExpr instanceof JCIdent) {
+            Name className = ((JCIdent) classNameExpr).getName();
+            if (className == numberTypeName) {
+                type = syms.javafx_NumberType;
+            } else if (className == integerTypeName) {
+                type = syms.javafx_IntegerType;
+            } else if (className == booleanTypeName) {
+                type = syms.javafx_BooleanType;
+            } else if (className == voidTypeName) {
+                type = syms.javafx_VoidType;
+            } else if (className == stringTypeName) {
+                type = syms.javafx_StringType;
+            }
         }
-        that.getReturnType().accept((JavafxVisitor)this);
-        visitType(that);
+        if (type == null) {
+            type = attribType(classNameExpr, env);
+        }
+        if (tree.getCardinality() == JFXType.CARDINALITY_ANY) {
+            type = sequenceType(type);
+        }
+        tree.type = type;
+        result = type;
     }
     
     @Override
-    public void visitTypeUnknown(JFXTypeUnknown that) {
-        visitType(that);
+    public void visitTypeFunctional(JFXTypeFunctional tree) {
+        assert false : "MUST IMPLEMENT";
+    }
+    
+    @Override
+    public void visitTypeUnknown(JFXTypeUnknown tree) {
+        result = tree.type = syms.javafx_AnyType;
     }
     
     @Override
     public void visitType(JFXType that) {
-    }
-    
-    @Override
-    public void visitVar(JFXVar that) {
-        visitType(that.getJFXType());
-        visitVarDef(that);
+        assert false : "MUST REMOVE";
     }
     
     @Override

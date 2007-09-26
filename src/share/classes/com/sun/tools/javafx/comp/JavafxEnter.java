@@ -75,14 +75,14 @@ public class JavafxEnter extends JCTree.Visitor implements JavafxVisitor {
 	reader = ClassReader.instance(context);
 	make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
 	syms = (JavafxSymtab)JavafxSymtab.instance(context);
-	chk = (JavafxCheck)JavafxCheck.instance(context);
+	chk = JavafxCheck.instance(context);
 	memberEnter = JavafxMemberEnter.instance(context);
 	annotate = JavafxAnnotate.instance(context);
 	lint = Lint.instance(context);
 
-	predefClassDef = make.ClassDef(
+	predefClassDef = make.ClassDeclaration(
 	    make.Modifiers(PUBLIC),
-	    syms.predefClass.name, null, null, null, null);
+	    syms.predefClass.name, List.<JCExpression>nil(), null);
 	predefClassDef.sym = syms.predefClass;
 	todo = JavafxTodo.instance(context);
         fileManager = context.get(JavaFileManager.class);
@@ -91,9 +91,6 @@ public class JavafxEnter extends JCTree.Visitor implements JavafxVisitor {
     /** A hashtable mapping classes and packages to the environments current
      *  at the points of their definitions.
      */
-// JavaFX change
-    protected
-// JavaFX change
     Map<TypeSymbol,JavafxEnv<JavafxAttrContext>> typeEnvs =
 	    new HashMap<TypeSymbol,JavafxEnv<JavafxAttrContext>>();
 
@@ -127,7 +124,7 @@ public class JavafxEnter extends JCTree.Visitor implements JavafxVisitor {
 
     /** A dummy class to serve as enclClass for toplevel environments.
      */
-    private JCClassDecl predefClassDef;
+    private JFXClassDeclaration predefClassDef;
 
 /* ************************************************************************
  * environment construction
@@ -147,7 +144,7 @@ public class JavafxEnter extends JCTree.Visitor implements JavafxVisitor {
      *	@param tree	The class definition.
      *	@param env	The environment current outside of the class definition.
      */
-    public JavafxEnv<JavafxAttrContext> classEnv(JCClassDecl tree, JavafxEnv<JavafxAttrContext> env) {
+    public JavafxEnv<JavafxAttrContext> classEnv(JFXClassDeclaration tree, JavafxEnv<JavafxAttrContext> env) {
 	JavafxEnv<JavafxAttrContext> localEnv =
 	    env.dup(tree, env.info.dup(new Scope(tree.sym)));
 	localEnv.enclClass = tree;
@@ -280,7 +277,7 @@ public class JavafxEnter extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
-    public void visitClassDef(JCClassDecl tree) {
+    public void visitClassDeclaration(JFXClassDeclaration tree) {
         Symbol owner = env.info.scope.owner;
         Scope enclScope = enterScope(env);
         ClassSymbol c;
@@ -364,12 +361,7 @@ public class JavafxEnter extends JCTree.Visitor implements JavafxVisitor {
         result = c.type;
     }
 
-    // Begin JavaFX trees
-    @Override
-    public void visitClassDeclaration(JFXClassDeclaration that) {
-        visitClassDef(that);
-    }
-    
+
     @Override
     public void visitAbstractMember(JFXAbstractMember that) {
         that.modifiers.accept(this);
@@ -393,14 +385,12 @@ public class JavafxEnter extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitOperationDefinition(JFXOperationDefinition that) {
-        visitType(that.rettype);
-        visitMethodDef(that);
+        that.getModifiers().accept(this);
+        that.getJFXReturnType().accept((JavafxVisitor)this);
+        for (JFXVar param : that.getParameters()) {
+            param.accept((JavafxVisitor)this);
+        }
         that.getBodyExpression().accept((JavafxVisitor)this);
-    }
-    
-    @Override
-    public void visitFunctionDefinitionStatement(JFXFunctionDefinitionStatement that) {
-        visitOperationDefinition(that.funcDef);
     }
 
     @Override

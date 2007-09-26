@@ -33,7 +33,6 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitAbstractFunction(JFXAbstractFunction that);
     public void visitAttributeDefinition(JFXAttributeDefinition that);
     public void visitOperationDefinition(JFXOperationDefinition that);
-    public void visitFunctionDefinitionStatement(JFXFunctionDefinitionStatement that);
     public void visitInitDefinition(JFXInitDefinition that);
     public void visitMemberSelector(JFXMemberSelector that);
     public void visitDoLater(JFXDoLater that);

@@ -26,7 +26,7 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
@@ -36,49 +36,34 @@ import com.sun.tools.javac.tree.JCTree.*;
 /**
  * A function definition.
  */
-public class JFXOperationDefinition extends JCMethodDecl {
-
+public class JFXOperationDefinition extends JFXStatement {
+    public JCModifiers mods;
+    public Name name;
     public JFXType rettype;
+    public List<JFXVar> funParams;
     public JFXBlockExpression bodyExpression;
-    public List<JCTree> funParams;
-    public JFXFunctionDefinitionStatement funStat;
+    public MethodSymbol sym;
 
-    /*
-     * @param modifiers operation modifiers
-     * @param name operation name
-     * @param restype type of operation return value
-     * @param params value parameters
-     */
     protected JFXOperationDefinition(
-            JCModifiers modifiers, 
+            JCModifiers mods, 
             Name name, 
-            JFXType restype, 
-            List<JCTree> params, 
+            JFXType rettype, 
+            List<JFXVar> funParams, 
             JFXBlockExpression bodyExpression) {
-        super(modifiers, name,
-                (JCExpression)((restype == null || restype.getJCTypeTree() == null) ? null : restype.getJCTypeTree()),
-                List.<JCTypeParameter>nil(), List.<JCVariableDecl>nil(),
-                List.<JCExpression>nil(), null, null, null);
+        this.mods = mods;
+        this.name = name;
+        this.rettype = rettype;
+        this.funParams = funParams;
         this.bodyExpression = bodyExpression;
-        this.funParams = params;
-        this.rettype = restype;
     }
     
-    protected JFXOperationDefinition(
-            JCModifiers modifiers, 
-            Name name, 
-            JFXType restype, 
-            List<JCTree> params, 
-            JFXBlockExpression bodyExpression,
-            JFXFunctionDefinitionStatement funStat) {
-        this(modifiers, name,
-                restype, params, bodyExpression);
-        this.funStat = funStat;
-    }
-
     public JFXBlockExpression getBodyExpression() {
         return bodyExpression;
     }
+    public JCModifiers getModifiers() { return mods; }
+    public Name getName() { return name; }
+    public JFXType getJFXReturnType() { return rettype; }
+    public List<JFXVar> getParameters() { return funParams; }
 
     public void accept(JavafxVisitor v) {
         v.visitOperationDefinition(this);

@@ -48,7 +48,6 @@ public class JFXTypeClass extends JFXType {
         this.sym = sym;
     }
 
-    @Override
     public JCTree getJCTypeTree() {
         return className;
     }

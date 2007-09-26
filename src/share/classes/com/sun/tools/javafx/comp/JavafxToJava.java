@@ -181,7 +181,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
     
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
-        JCClassDecl prevEnclClass = attrEnv.enclClass;
+        JFXClassDeclaration prevEnclClass = attrEnv.enclClass;
         JavafxBindStatus prevBindContext = bindContext;
         boolean prevInLHS = inLHS;
         
@@ -271,12 +271,6 @@ public class JavafxToJava extends JavafxTreeTranslator {
         result = null; // Just remove this tree...
     }
 
-    @Override
-    public void visitFunctionDefinitionStatement(JFXFunctionDefinitionStatement tree) {
-        // Replace the statement with the operation definition
-        result = translate(tree.funcDef);
-    }
-    
     @Override
     public void visitPureObjectLiteral(JFXPureObjectLiteral tree) {
         Name tmpName = getSyntheticName("objlit");
@@ -515,31 +509,34 @@ public class JavafxToJava extends JavafxTreeTranslator {
     
     @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
-        super.visitOperationDefinition(tree);
         DiagnosticPosition diagPos = tree.pos();
         MethodType mtype = (MethodType)tree.type;
         JFXBlockExpression bexpr = tree.getBodyExpression();
-        JCBlock body = null;
-        List<JCStatement> stats = null;
+        JCBlock body = null; // stays null if no block expression
         if (bexpr != null) {
-            stats = bexpr.stats;
+            List<JCStatement> stats = translate(bexpr.stats);
             if (bexpr.value != null) {
                 JCStatement valueStatement;
+                JCExpression value = translate(bexpr.value);
                 if (mtype.getReturnType() == syms.voidType) {
-                    valueStatement = make.at(diagPos).Exec(bexpr.value);
+                    valueStatement = make.at(diagPos).Exec(value);
                 } else {
-                    valueStatement = make.at(diagPos).Return(bexpr.value);
+                    valueStatement = make.at(diagPos).Return(value);
                 }
-                stats = stats.append(valueStatement);
+                stats.append(valueStatement);
             }
+            body = make.at(diagPos).Block(0, stats);
         }
-        
-        body = stats == null ? null : make.at(diagPos).Block(0, stats);
-        result = make.at(diagPos).MethodDef(tree.mods, 
+        ListBuffer<JCVariableDecl> params = ListBuffer.<JCVariableDecl>lb();
+        for (JFXVar fxVar : tree.getParameters()) {
+            params.append(translate(fxVar));
+        }
+        result = make.at(diagPos).MethodDef(
+                translate(tree.mods),
                 tree.name, 
                 makeTypeTree(mtype.getReturnType(), diagPos), 
                 make.at(diagPos).TypeParams(mtype.getTypeArguments()), 
-                tree.getParameters(),
+                params.toList(),
                 make.at(diagPos).Types(mtype.getThrownTypes()),
                 body, 
                 null);

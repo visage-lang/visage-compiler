@@ -46,8 +46,7 @@ public class JFXVar extends JCVariableDecl {
             JCExpression init,
             JavafxBindStatus bindStat,
             VarSymbol sym) {
-        super(mods, name,
-                (JCExpression)((jfxtype == null || jfxtype.getJCTypeTree() == null) ? null : jfxtype.getJCTypeTree()), init, sym);
+        super(mods, name, jfxtype, init, sym);
         this.jfxtype = jfxtype;
         this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
         this.sym = sym;

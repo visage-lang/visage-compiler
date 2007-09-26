@@ -425,20 +425,6 @@ operationDefinition  returns [JFXOperationDefinition def]
 	    						$formalParameters.params.toList(), $blockExpression.expr); }
 	;
 
-functionDefinitionStatement  returns [JFXFunctionDefinitionStatement def]
-	: modifierFlags FUNCTION name 
-	    formalParameters  typeReference  
-	    blockExpression 			{ $def = F.at(pos($FUNCTION)).FunctionDefinitionStatement($modifierFlags.mods,
-	    						$name.value, $typeReference.type, 
-	    						$formalParameters.params.toList(), $blockExpression.expr); }
-	;
-operationDefinitionStatement  returns [JFXFunctionDefinitionStatement def]
-	: modifierFlags OPERATION name 
-	    formalParameters  typeReference  
-	    blockExpression 			{ $def = F.at(pos($OPERATION)).FunctionDefinitionStatement($modifierFlags.mods,
-	    						$name.value, $typeReference.type, 
-	    						$formalParameters.params.toList(), $blockExpression.expr); }
-	;
 initDefinition  returns [JFXInitDefinition def]
 	: INIT block 				{ $def = F.at(pos($INIT)).InitDefinition($block.value); }
 	;
@@ -461,7 +447,7 @@ otherModifier returns [long flags = 0]
 memberSelector returns [JFXMemberSelector value]
 	: name1=name   DOT   name2=name		{ $value = F.at($name1.pos).MemberSelector($name1.value, $name2.value); } 
 	;
-formalParameters returns [ListBuffer<JCTree> params = new ListBuffer<JCTree>()]
+formalParameters returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]
 	: LPAREN  ( fp0=formalParameter		{ params.append($fp0.var); }
 	          ( COMMA   fpn=formalParameter	{ params.append($fpn.var); } )* )?  RPAREN 
 	;
@@ -495,8 +481,8 @@ statements [ListBuffer<JCStatement> stats]  returns [JCExpression expr = null]
 	;
 statement returns [JCStatement value]
 	: variableDeclaration SEMI		{ $value = $variableDeclaration.value; }
-	| functionDefinitionStatement		{ $value = $functionDefinitionStatement.def; }
-	| operationDefinitionStatement		{ $value = $operationDefinitionStatement.def; }
+	| functionDefinition			{ $value = $functionDefinition.def; }
+	| operationDefinition			{ $value = $operationDefinition.def; }
         | WHILE LPAREN expression RPAREN block	{ $value = F.at(pos($WHILE)).WhileLoop($expression.expr, $block.value); }
 	| BREAK SEMI   				{ $value = F.at(pos($BREAK)).Break(null); }
 	| CONTINUE  SEMI 	 		{ $value = F.at(pos($CONTINUE)).Continue(null); }
@@ -561,7 +547,7 @@ forExpression   returns [JCExpression expr]
 	;
 inClause   returns [JFXForExpressionInClause value] 
 @init { JFXVar var; }
-	: name 							{ var = F.at($name.pos).Var($name.value, null, F.Modifiers(0L), null, null); } 
+	: name 							{ var = F.at($name.pos).Var($name.value, F.TypeUnknown(), F.Modifiers(0L), null, null); } 
 	        IN se=expression   (WHERE  we=expression)?  	{ $value = F.at(pos($IN)).InClause(var, $se.expr, $we.expr); }
 	;
 ifExpression  returns [JCExpression expr] 
@@ -710,14 +696,14 @@ assignmentOperator  returns [int optag]
 	| PERCENTEQ   			{ $optag = JCTree.MOD_ASG; } 
 	;
 typeReference returns [JFXType type]
-	: ( COLON  ( typeName ccn=cardinalityConstraint		{ $type = F.TypeClass($typeName.expr, $ccn.ary); }
+	: COLON  ( typeName ccn=cardinalityConstraint		{ $type = F.TypeClass($typeName.expr, $ccn.ary); }
                    | STAR ccs=cardinalityConstraint		{ $type = F.at(pos($STAR)).TypeAny($ccs.ary); } 
                    ) 
-          )? 
+	| /*nada*/						{ $type = F.TypeUnknown(); }
         ;
 cardinalityConstraint returns [int ary]
 	:  LBRACKET   RBRACKET    	{ ary = JFXType.CARDINALITY_ANY; }
-	|                         	{ ary = JFXType.CARDINALITY_OPTIONAL; } 
+	|                         	{ ary = JFXType.CARDINALITY_SINGLETON; } 
 	;
 literal  returns [JCExpression expr]
 	: t=STRING_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.CLASS, $t.text); }

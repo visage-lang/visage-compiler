@@ -26,16 +26,14 @@
 package com.sun.tools.javafx.tree;
 
 /**
- * Any Type
+ * Type not specified
  *
  * @author Robert Field
  */
 public class JFXTypeUnknown extends JFXType {
-    /*
-     * @param cardinality one of the cardinality constants
-     */
-    protected JFXTypeUnknown(int cardinality) {
-        super(cardinality);
+
+    protected JFXTypeUnknown() {
+        super(CARDINALITY_UNKNOWN);
     }
     public void accept(JavafxVisitor v) { v.visitTypeUnknown(this); }
 

@@ -43,6 +43,14 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
 	return trees;
     }
 
+    /**  Visitor method: translate a list of variable definitions.
+     */
+    public List<JFXVar> translateJFXVarDefs(List<JFXVar> trees) {
+	for (List<JFXVar> l = trees; l.nonEmpty(); l = l.tail)
+	    l.head = translate(l.head);
+	return trees;
+    }
+
     public void visitClassDeclaration(JFXClassDeclaration that) {
         visitClassDef(that);
         that.supertypes = translate(that.supertypes);
@@ -85,17 +93,9 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
     @Override
     public void visitOperationDefinition(JFXOperationDefinition that) {
 	that.mods = translate(that.mods);
-	that.restype = translate(that.restype);
-	that.typarams = translateTypeParams(that.typarams);
-	that.params = translateVarDefs(that.params);
-	that.thrown = translate(that.thrown);
+	that.rettype = translate(that.rettype);
+	that.funParams = translateJFXVarDefs(that.funParams);
         that.bodyExpression = translate(that.bodyExpression);
-        result = that;
-    }
-
-    @Override
-    public void visitFunctionDefinitionStatement(JFXFunctionDefinitionStatement that) {
-        visitOperationDefinition(that.funcDef);
         result = that;
     }
 

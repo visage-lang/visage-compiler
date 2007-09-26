@@ -27,6 +27,7 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.tree.*;
+import com.sun.tools.javafx.tree.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -62,11 +63,11 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
 
     /** The next enclosing class definition.
      */
-    public JCTree.JCClassDecl enclClass;
+    public JFXClassDeclaration enclClass;
 
     /** The next enclosing method definition.
      */
-    public JCTree.JCMethodDecl enclMethod;
+    public JFXOperationDefinition enclMethod;
 
     /** A generic field for further information.
      */

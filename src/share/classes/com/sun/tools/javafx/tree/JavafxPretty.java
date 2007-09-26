@@ -123,11 +123,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-    @Override
-    public void visitFunctionDefinitionStatement(JFXFunctionDefinitionStatement that) {
-        visitOperationDefinition(that.funcDef);
-    }
-
     public void visitOperationDefinition(JFXOperationDefinition tree) {
         try {
             println();
@@ -139,9 +134,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             print("(");
             printExprs(tree.getParameters());
             print(")");
-            if (tree.restype != null) {
-                printExpr(tree.restype);
-            }
+            printExpr(tree.rettype);
             printExpr(tree.getBodyExpression());
             println();
         } catch (IOException e) {
@@ -407,7 +400,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         switch (tree.getCardinality()) {
             case JFXType.CARDINALITY_ANY:
                 return "[]";
-            case JFXType.CARDINALITY_OPTIONAL:
+            case JFXType.CARDINALITY_SINGLETON:
                 return " ";
         }
         return "";
