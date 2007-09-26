@@ -827,12 +827,10 @@ public class JavafxMemberEnter extends JCTree.Visitor implements JavafxVisitor, 
     
     @Override
     public void visitTypeAny(JFXTypeAny that) {
-        visitType(that);
     }
     
     @Override
     public void visitTypeClass(JFXTypeClass that) {
-        visitType(that);
     }
     
     @Override
@@ -841,16 +839,10 @@ public class JavafxMemberEnter extends JCTree.Visitor implements JavafxVisitor, 
             param.accept(this);
         }
         that.getReturnType().accept((JavafxVisitor)this);
-        visitType(that);
     }
     
     @Override
     public void visitTypeUnknown(JFXTypeUnknown that) {
-        visitType(that);
-    }
-    
-    @Override
-    public void visitType(JFXType that) {
     }
     
     @Override

@@ -167,12 +167,10 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
     }  
     
     public void visitTypeAny(JFXTypeAny that) {
-        visitType(that);
         result = that;
     }
     
     public void visitTypeClass(JFXTypeClass that) {
-        visitType(that);
         result = that;
     }
     
@@ -183,11 +181,6 @@ public class JavafxTreeTranslator extends TreeTranslator implements JavafxVisito
     }
     
     public void visitTypeUnknown(JFXTypeUnknown that) {
-        visitType(that);
-        result = that;
-    }
-        
-    public void visitType(JFXType that) {
         result = that;
     }
     

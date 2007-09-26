@@ -201,9 +201,12 @@ public class JavafxInitializationBuilder {
         for (JCTree tree : cdef.defs) {
             if (tree.getTag() == JavafxTag.ATTRIBUTEDEF) {
                 JFXAttributeDefinition adef = (JFXAttributeDefinition)tree;
-                idefs.append(make.OperationDefinition(make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT),
+                idefs.append(make.OperationDefinition(
+                        make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT),
                         names.fromString(attributeGetMethodNamePrefix + adef.name.toString()),
-                        adef.getJFXType(), List.<JCTree>nil(), null));
+                        adef.getJFXType(), 
+                        List.<JFXVar>nil(), 
+                        null));
             }
         }
     }

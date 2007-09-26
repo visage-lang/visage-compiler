@@ -523,7 +523,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
                 } else {
                     valueStatement = make.at(diagPos).Return(value);
                 }
-                stats.append(valueStatement);
+                stats = stats.append(valueStatement);
             }
             body = make.at(diagPos).Block(0, stats);
         }

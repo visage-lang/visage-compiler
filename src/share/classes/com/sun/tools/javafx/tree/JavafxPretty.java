@@ -382,14 +382,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-    public void visitType(JFXType tree) {
-        try {
-            print(ary(tree));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-    
     @Override
     public void visitInstanciate(JFXInstanciate that) {
         visitNewClass(that);

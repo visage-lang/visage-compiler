@@ -45,7 +45,6 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitTypeClass(JFXTypeClass that);
     public void visitTypeFunctional(JFXTypeFunctional that);
     public void visitTypeUnknown(JFXTypeUnknown that);
-    public void visitType(JFXType that);
     public void visitVar(JFXVar that);
     public void visitBlockExpression(JFXBlockExpression that);
     public void visitSequenceEmpty(JFXSequenceEmpty that);

@@ -45,7 +45,6 @@ import com.sun.tools.javac.util.*;
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.tree.JFXBlockExpression;
-import com.sun.tools.javafx.tree.JavafxJCVarDecl;
 import com.sun.tools.javafx.tree.JavafxTreeInfo;
 import com.sun.tools.javafx.tree.*;
 import java.util.*;
@@ -575,38 +574,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitIdent(JCIdent tree) {
-        // TODO: Fix this when the new named table is available
-        if (tree.name == names.fromString("Integer")) {
-            assert false : "MUST REMOVE";
-            tree.type = syms.javafx_IntegerType;
-            tree.sym = syms.javafx_IntegerType.tsym;
-            result = tree.type;
-        }
-        else if (tree.name == names.fromString("Boolean")) {
-            assert false : "MUST REMOVE";
-            tree.type = syms.javafx_BooleanType;
-            tree.sym = syms.javafx_BooleanType.tsym;
-            result = tree.type;
-        }
-        else if (tree.name == names.fromString("Number")) {
-            assert false : "MUST REMOVE";
-            tree.type = syms.javafx_NumberType;
-            tree.sym = syms.javafx_NumberType.tsym;
-            result = tree.type;
-        }
-        else if (tree.name == names.fromString("String")) {
-            assert false : "MUST REMOVE";
-            tree.type = syms.javafx_StringType;
-            tree.sym = syms.javafx_StringType.tsym;
-            result = tree.type;
-        }
-        else if (tree.name == names.fromString("Void")) {
-            assert false : "MUST REMOVE";
-            tree.type = syms.javafx_VoidType;
-            tree.sym = syms.javafx_StringType.tsym;
-            result = tree.type;
-        }
-        else {
         Symbol sym;
         boolean varArgs = false;
 
@@ -689,7 +656,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 		env1 = env1.outer;
 	}
         result = checkId(tree, env1.enclClass.sym.type, sym, env, pkind, pt, varArgs);
-        }
     }
     
     public void visitSelect(JCFieldAccess tree) {
@@ -2360,11 +2326,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitTypeUnknown(JFXTypeUnknown tree) {
         result = tree.type = syms.javafx_AnyType;
-    }
-    
-    @Override
-    public void visitType(JFXType that) {
-        assert false : "MUST REMOVE";
     }
     
     @Override

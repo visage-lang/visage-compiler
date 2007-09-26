@@ -176,12 +176,10 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     
     @Override
     public void visitTypeAny(JFXTypeAny that) {
-        visitType(that);
     }
     
     @Override
     public void visitTypeClass(JFXTypeClass that) {
-        visitType(that);
     }
     
     @Override
@@ -190,21 +188,15 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
             param.accept(this);
         }
         that.getReturnType().accept((JavafxVisitor)this);
-        visitType(that);
     }
     
     @Override
     public void visitTypeUnknown(JFXTypeUnknown that) {
-        visitType(that);
-    }
-    
-    @Override
-    public void visitType(JFXType that) {
     }
     
     @Override
     public void visitVar(JFXVar that) {
-        visitType(that.getJFXType());
+        that.getJFXType().accept((JavafxVisitor)this);
     }
     
     @Override

@@ -320,16 +320,6 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JavafxJCVarDecl JavafxVarDef(JCModifiers mods,
-			 Name name,
-                         int javafxVarType,
-			 JCExpression vartype,
-			 JCExpression init,
-                         JavafxBindStatus bindStatus) {
-        return new JavafxJCVarDecl(mods, name, javafxVarType, vartype, 
-                init, null, bindStatus);
-    }
-    
     public JCExpression Identifier(Name name) {
         String str = name.toString();
         if (str.indexOf('.') < 0 && str.indexOf('<') < 0) {
