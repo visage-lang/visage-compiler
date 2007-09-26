@@ -49,6 +49,7 @@ public class JavafxInitializationBuilder {
     private final Name changedName;
     private final Name valueChangedName;
     private final Name classNameSuffix;
+    private final String attributeGetMethodNamePrefix = "get$";
 
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
@@ -187,11 +188,24 @@ public class JavafxInitializationBuilder {
         
         ListBuffer<JCExpression> implementing = new ListBuffer<JCExpression>();
         implementing.append(make.Identifier("com.sun.javafx.runtime.FXObject"));
+        ListBuffer<JCTree> iDefinitions = new ListBuffer<JCTree>();
+// TODO:        addAttributeMethods(iDefinitions, cDecl);
         JCClassDecl cInterface = make.ClassDef(make.Modifiers(cDecl.mods.flags | Flags.INTERFACE),
                 names.fromString(cDecl.name.toString() + classNameSuffix) , 
-                List.<JCTypeParameter>nil(), null, implementing.toList(), List.<JCTree>nil());
+                List.<JCTypeParameter>nil(), null, implementing.toList(), iDefinitions.toList());
         ret.append(cInterface);
         return ret.toList();
+    }
+    
+    private void addAttributeMethods(ListBuffer<JCTree> idefs, JFXClassDeclaration cdef) {
+        for (JCTree tree : cdef.defs) {
+            if (tree.getTag() == JavafxTag.ATTRIBUTEDEF) {
+                JFXAttributeDefinition adef = (JFXAttributeDefinition)tree;
+                idefs.append(make.OperationDefinition(make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT),
+                        names.fromString(attributeGetMethodNamePrefix + adef.name.toString()),
+                        adef.getJFXType(), List.<JCTree>nil(), null));
+            }
+        }
     }
 }
 

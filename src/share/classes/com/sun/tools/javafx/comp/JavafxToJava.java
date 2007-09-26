@@ -194,6 +194,22 @@ public class JavafxToJava extends JavafxTreeTranslator {
         ListBuffer<TranslatedAttributeInfo> attrInfo = ListBuffer.<TranslatedAttributeInfo>lb();
         JCMethodDecl initMethod = null;
         Set<JCNewClass> prevVisitedNews = visitedNewClasses;
+//Lubo
+        List<JCStatement> defs = List.<JCStatement>nil();
+        for (JCTree def : tree.defs) {
+            if (def.getTag() == JavafxTag.CLASSDECL) {
+                List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def);
+                for (JCStatement retDef : ret) {
+                    defs = defs.append(retDef);
+                }
+            }
+        }
+        
+        for (JCStatement stat : defs) {
+            tree.defs = tree.defs.append(stat);
+        }
+
+// Lubo
         try {
             visitedNewClasses = new HashSet<JCNewClass>();
             for (JCTree def : tree.defs) {
@@ -503,18 +519,22 @@ public class JavafxToJava extends JavafxTreeTranslator {
         DiagnosticPosition diagPos = tree.pos();
         MethodType mtype = (MethodType)tree.type;
         JFXBlockExpression bexpr = tree.getBodyExpression();
-        JCBlock body;
-        List<JCStatement> stats = bexpr.stats;
-        if (bexpr.value != null) {
-            JCStatement valueStatement;
-            if (mtype.getReturnType() == syms.voidType) {
-                valueStatement = make.at(diagPos).Exec(bexpr.value);
-            } else {
-                valueStatement = make.at(diagPos).Return(bexpr.value);
+        JCBlock body = null;
+        List<JCStatement> stats = null;
+        if (bexpr != null) {
+            stats = bexpr.stats;
+            if (bexpr.value != null) {
+                JCStatement valueStatement;
+                if (mtype.getReturnType() == syms.voidType) {
+                    valueStatement = make.at(diagPos).Exec(bexpr.value);
+                } else {
+                    valueStatement = make.at(diagPos).Return(bexpr.value);
+                }
+                stats = stats.append(valueStatement);
             }
-            stats = stats.append(valueStatement);
         }
-        body = make.at(diagPos).Block(0, stats);
+        
+        body = stats == null ? null : make.at(diagPos).Block(0, stats);
         result = make.at(diagPos).MethodDef(tree.mods, 
                 tree.name, 
                 makeTypeTree(mtype.getReturnType(), diagPos), 
