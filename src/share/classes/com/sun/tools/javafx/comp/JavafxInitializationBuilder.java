@@ -182,33 +182,16 @@ public class JavafxInitializationBuilder {
     }
     
 
-    List<JCTree> createJFXClassModel(JFXClassDeclaration cDecl) {
-        ListBuffer<JCTree> ret = new ListBuffer<JCTree>();
+    List<JCStatement> createJFXClassModel(JFXClassDeclaration cDecl) {
+        ListBuffer<JCStatement> ret = new ListBuffer<JCStatement>();
         
         ListBuffer<JCExpression> implementing = new ListBuffer<JCExpression>();
-        Name [] nms = new Name [] {names.fromString("com"), names.fromString("sun"), names.fromString("javafx"), names.fromString("runtime"), names.fromString("FXObject")};
-        implementing.append(makeIdentOrSelect(nms));
+        implementing.append(make.Identifier("com.sun.javafx.runtime.FXObject"));
         JCClassDecl cInterface = make.ClassDef(make.Modifiers(cDecl.mods.flags | Flags.INTERFACE),
                 names.fromString(cDecl.name.toString() + classNameSuffix) , 
                 List.<JCTypeParameter>nil(), null, implementing.toList(), List.<JCTree>nil());
         ret.append(cInterface);
         return ret.toList();
-    }
-    
-    private JCExpression makeIdentOrSelect(Name[] nms) {
-        JCExpression last = null;
-        boolean isFirst = true;
-        for (Name name : nms) {
-            if (isFirst) {
-                last = make.Ident(name);
-                isFirst = false;
-            }
-            else {
-                last = make.Select(last, name);
-            }
-        }
-        
-        return last;
     }
 }
 

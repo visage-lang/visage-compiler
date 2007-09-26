@@ -78,7 +78,6 @@ public class JavafxToJava extends JavafxTreeTranslator {
     private JavafxBindStatus bindContext = JavafxBindStatus.UNBOUND;
     private boolean inLHS = false;
     private JavafxEnv<JavafxAttrContext> attrEnv;
-    private JCCompilationUnit currentCompilationUnit;
     
     public static JavafxToJava instance(Context context) {
         JavafxToJava instance = context.get(jfxToJavaKey);
@@ -163,19 +162,25 @@ public class JavafxToJava extends JavafxTreeTranslator {
     
     @Override
     public void visitTopLevel(JCCompilationUnit tree) {
-        JCCompilationUnit prev = currentCompilationUnit;
-        try {
-            currentCompilationUnit = tree;
-            super.visitTopLevel(tree);
+        List<JCStatement> defs = List.<JCStatement>nil();
+        for (JCTree def : tree.defs) {
+            if (def.getTag() == JavafxTag.CLASSDECL) {
+                List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def);
+                for (JCStatement retDef : ret) {
+                    defs = defs.append(retDef);
+                }
+            }
         }
-        finally {
-            currentCompilationUnit = prev;
+        
+        for (JCStatement stat : defs) {
+            tree.defs = tree.defs.append(stat);
         }
+        
+        super.visitTopLevel(tree);
     }
     
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
-        currentCompilationUnit.defs = currentCompilationUnit.defs.appendList(initBuilder.createJFXClassModel(tree));
         JCClassDecl prevEnclClass = attrEnv.enclClass;
         JavafxBindStatus prevBindContext = bindContext;
         boolean prevInLHS = inLHS;
@@ -521,6 +526,20 @@ public class JavafxToJava extends JavafxTreeTranslator {
     }
 
     public void visitBlockExpression(JFXBlockExpression tree) {
+        List<JCStatement> defs = List.<JCStatement>nil();
+        for (JCTree def : tree.stats) {
+            if (def.getTag() == JavafxTag.CLASSDECL) {
+                List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def);
+                for (JCStatement retDef : ret) {
+                    defs = defs.append(retDef);
+                }
+            }
+        }
+        
+        for (JCStatement stat : defs) {
+            tree.stats = tree.stats.append(stat);
+        }
+
         tree.stats = translateStatements(tree.stats);
         tree.value = translate(tree.value);
 	result = tree;
@@ -531,6 +550,20 @@ public class JavafxToJava extends JavafxTreeTranslator {
      */
     @Override
     public void visitBlock(JCBlock tree) {
+        List<JCStatement> defs = List.<JCStatement>nil();
+        for (JCTree def : tree.stats) {
+            if (def.getTag() == JavafxTag.CLASSDECL) {
+                List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def);
+                for (JCStatement retDef : ret) {
+                    defs = defs.append(retDef);
+                }
+            }
+        }
+        
+        for (JCStatement stat : defs) {
+            tree.stats = tree.stats.append(stat);
+        }
+
         tree.stats = translateStatements(tree.stats);
 	result = tree;
     }
@@ -564,7 +597,8 @@ public class JavafxToJava extends JavafxTreeTranslator {
     
     @Override
     public void visitClassDef(JCClassDecl tree) {
-        assert false : "raw class def";
+        super.visitClassDef(tree);
+        result = tree;
     }
     
     @Override
