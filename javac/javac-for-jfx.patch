@@ -1,7 +1,7 @@
-Index: javax/tools/JavaFileObject.java
+Index: src/share/classes/javax/tools/JavaFileObject.java
 ===================================================================
---- javax/tools/JavaFileObject.java	(revision 252)
-+++ javax/tools/JavaFileObject.java	(working copy)
+--- src/share/classes/javax/tools/JavaFileObject.java	(revision 252)
++++ src/share/classes/javax/tools/JavaFileObject.java	(working copy)
 @@ -60,7 +60,14 @@
           * example, regular files ending with {@code .java}.
           */
@@ -18,10 +18,10 @@ Index: javax/tools/JavaFileObject.java
          /**
           * Class files for the Java Virtual Machine.  For example,
           * regular files ending with {@code .class}.
-Index: com/sun/tools/javac/jvm/Items.java
+Index: src/share/classes/com/sun/tools/javac/jvm/Items.java
 ===================================================================
---- com/sun/tools/javac/jvm/Items.java	(revision 252)
-+++ com/sun/tools/javac/jvm/Items.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/jvm/Items.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/jvm/Items.java	(working copy)
 @@ -185,7 +185,7 @@
  
      /** The base class of all items, which implements default behavior.
@@ -130,10 +130,10 @@ Index: com/sun/tools/javac/jvm/Items.java
  	    Chain trueChain = null;
  	    Chain falseChain = jumpFalse();
  	    if (!isFalse()) {
-Index: com/sun/tools/javac/jvm/Gen.java
+Index: src/share/classes/com/sun/tools/javac/jvm/Gen.java
 ===================================================================
---- com/sun/tools/javac/jvm/Gen.java	(revision 252)
-+++ com/sun/tools/javac/jvm/Gen.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/jvm/Gen.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/jvm/Gen.java	(working copy)
 @@ -172,7 +172,7 @@
  
      /** Code buffer, set by genMethod.
@@ -170,10 +170,10 @@ Index: com/sun/tools/javac/jvm/Gen.java
  
  	/** A chain for all unresolved jumps that exit the current environment.
  	 */
-Index: com/sun/tools/javac/jvm/Code.java
+Index: src/share/classes/com/sun/tools/javac/jvm/Code.java
 ===================================================================
---- com/sun/tools/javac/jvm/Code.java	(revision 252)
-+++ com/sun/tools/javac/jvm/Code.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/jvm/Code.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/jvm/Code.java	(working copy)
 @@ -153,7 +153,7 @@
       *  We need this to emit line numbers lazily, which we need to do
       *  because of jump-to-jump optimization.
@@ -183,10 +183,10 @@ Index: com/sun/tools/javac/jvm/Code.java
  
      /** Set true when a stackMap is needed at the current PC. */
      boolean pendingStackMap = false;
-Index: com/sun/tools/javac/comp/Infer.java
+Index: src/share/classes/com/sun/tools/javac/comp/Infer.java
 ===================================================================
---- com/sun/tools/javac/comp/Infer.java	(revision 252)
-+++ com/sun/tools/javac/comp/Infer.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/comp/Infer.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/comp/Infer.java	(working copy)
 @@ -67,7 +67,7 @@
      public static class NoInstanceException extends RuntimeException {
  	private static final long serialVersionUID = 0;
@@ -196,10 +196,10 @@ Index: com/sun/tools/javac/comp/Infer.java
  
  	JCDiagnostic diagnostic;
  
-Index: com/sun/tools/javac/comp/MemberEnter.java
+Index: src/share/classes/com/sun/tools/javac/comp/MemberEnter.java
 ===================================================================
---- com/sun/tools/javac/comp/MemberEnter.java	(revision 252)
-+++ com/sun/tools/javac/comp/MemberEnter.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/comp/MemberEnter.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/comp/MemberEnter.java	(working copy)
 @@ -126,7 +126,8 @@
       *  @param toScope   The (import) scope in which imported classes
       *               are entered.
@@ -252,10 +252,10 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
      /** Queue processing of an attribute default value. */
      void annotateDefaultValueLater(final JCExpression defaultValue,
                                     final Env<AttrContext> localEnv,
-Index: com/sun/tools/javac/comp/Attr.java
+Index: src/share/classes/com/sun/tools/javac/comp/Attr.java
 ===================================================================
---- com/sun/tools/javac/comp/Attr.java	(revision 252)
-+++ com/sun/tools/javac/comp/Attr.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/comp/Attr.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/comp/Attr.java	(working copy)
 @@ -68,17 +68,47 @@
      protected static final Context.Key<Attr> attrKey =
          new Context.Key<Attr>();
@@ -458,10 +458,10 @@ Index: com/sun/tools/javac/comp/Attr.java
          return types.capture(type);
      }
  }
-Index: com/sun/tools/javac/comp/Enter.java
+Index: src/share/classes/com/sun/tools/javac/comp/Enter.java
 ===================================================================
---- com/sun/tools/javac/comp/Enter.java	(revision 252)
-+++ com/sun/tools/javac/comp/Enter.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/comp/Enter.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/comp/Enter.java	(working copy)
 @@ -95,10 +95,22 @@
  
      Log log;
@@ -546,10 +546,10 @@ Index: com/sun/tools/javac/comp/Enter.java
  							Env<AttrContext> env) {
  	    return env.toplevel.sourcefile.isNameCompatible(c.name.toString(),
  							    JavaFileObject.Kind.SOURCE);
-Index: com/sun/tools/javac/comp/Check.java
+Index: src/share/classes/com/sun/tools/javac/comp/Check.java
 ===================================================================
---- com/sun/tools/javac/comp/Check.java	(revision 252)
-+++ com/sun/tools/javac/comp/Check.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/comp/Check.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/comp/Check.java	(working copy)
 @@ -56,13 +56,19 @@
      protected static final Context.Key<Check> checkKey =
  	new Context.Key<Check>();
@@ -702,10 +702,10 @@ Index: com/sun/tools/javac/comp/Check.java
      /**
       *  Check for division by integer constant zero
       *	@param pos	     Position for error reporting.
-Index: com/sun/tools/javac/comp/Resolve.java
+Index: src/share/classes/com/sun/tools/javac/comp/Resolve.java
 ===================================================================
---- com/sun/tools/javac/comp/Resolve.java	(revision 252)
-+++ com/sun/tools/javac/comp/Resolve.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/comp/Resolve.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/comp/Resolve.java	(working copy)
 @@ -114,6 +114,9 @@
      /** An environment is "static" if its static level is greater than
       *  the one of its outer environment
@@ -768,10 +768,10 @@ Index: com/sun/tools/javac/comp/Resolve.java
      static JCDiagnostic kindNames(int kind) {
          StringBuffer key = new StringBuffer();
          key.append("kindname");
-Index: com/sun/tools/javac/comp/AttrContext.java
+Index: src/share/classes/com/sun/tools/javac/comp/AttrContext.java
 ===================================================================
---- com/sun/tools/javac/comp/AttrContext.java	(revision 252)
-+++ com/sun/tools/javac/comp/AttrContext.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/comp/AttrContext.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/comp/AttrContext.java	(working copy)
 @@ -40,20 +40,35 @@
  
      /** The scope of local symbols.
@@ -835,10 +835,10 @@ Index: com/sun/tools/javac/comp/AttrContext.java
      AttrContext dup() {
  	return dup(scope);
      }
-Index: com/sun/tools/javac/comp/ConstFold.java
+Index: src/share/classes/com/sun/tools/javac/comp/ConstFold.java
 ===================================================================
---- com/sun/tools/javac/comp/ConstFold.java	(revision 252)
-+++ com/sun/tools/javac/comp/ConstFold.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/comp/ConstFold.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/comp/ConstFold.java	(working copy)
 @@ -42,6 +42,9 @@
   *  This code and its internal interfaces are subject to change or
   *  deletion without notice.</b>
@@ -869,10 +869,10 @@ Index: com/sun/tools/javac/comp/ConstFold.java
      /** Coerce constant type to target type.
       *  @param etype      The source type of the coercion,
       *                    which is assumed to be a constant type compatble with
-Index: com/sun/tools/javac/tree/TreeMaker.java
+Index: src/share/classes/com/sun/tools/javac/tree/TreeMaker.java
 ===================================================================
---- com/sun/tools/javac/tree/TreeMaker.java	(revision 252)
-+++ com/sun/tools/javac/tree/TreeMaker.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/tree/TreeMaker.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/tree/TreeMaker.java	(working copy)
 @@ -67,12 +67,12 @@
      public JCCompilationUnit toplevel;
  
@@ -898,10 +898,10 @@ Index: com/sun/tools/javac/tree/TreeMaker.java
          this.pos = Position.FIRSTPOS;
          this.toplevel = toplevel;
          this.names = names;
-Index: com/sun/tools/javac/tree/Pretty.java
+Index: src/share/classes/com/sun/tools/javac/tree/Pretty.java
 ===================================================================
---- com/sun/tools/javac/tree/Pretty.java	(revision 252)
-+++ com/sun/tools/javac/tree/Pretty.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/tree/Pretty.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/tree/Pretty.java	(working copy)
 @@ -56,7 +56,7 @@
       *  the output even though that detail would not be valid java
       *  soruce.
@@ -972,10 +972,10 @@ Index: com/sun/tools/javac/tree/Pretty.java
                      break;
              }
          } catch (IOException e) {
-Index: com/sun/tools/javac/tree/TreeTranslator.java
+Index: src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java
 ===================================================================
---- com/sun/tools/javac/tree/TreeTranslator.java	(revision 252)
-+++ com/sun/tools/javac/tree/TreeTranslator.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java	(working copy)
 @@ -46,7 +46,10 @@
  
      /** Visitor result field: a tree
@@ -988,10 +988,10 @@ Index: com/sun/tools/javac/tree/TreeTranslator.java
  
      /** Visitor method: Translate a single node.
       */
-Index: com/sun/tools/javac/tree/TreeInfo.java
+Index: src/share/classes/com/sun/tools/javac/tree/TreeInfo.java
 ===================================================================
---- com/sun/tools/javac/tree/TreeInfo.java	(revision 252)
-+++ com/sun/tools/javac/tree/TreeInfo.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/tree/TreeInfo.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/tree/TreeInfo.java	(working copy)
 @@ -57,9 +57,13 @@
  
      /** The names of all operators.
@@ -1008,11 +1008,23 @@ Index: com/sun/tools/javac/tree/TreeInfo.java
  	context.put(treeInfoKey, this);
  
  	Name.Table names = Name.Table.instance(context);
-Index: com/sun/tools/javac/code/Symtab.java
+Index: src/share/classes/com/sun/tools/javac/code/Symtab.java
 ===================================================================
---- com/sun/tools/javac/code/Symtab.java	(revision 252)
-+++ com/sun/tools/javac/code/Symtab.java	(working copy)
-@@ -201,7 +201,7 @@
+--- src/share/classes/com/sun/tools/javac/code/Symtab.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/code/Symtab.java	(working copy)
+@@ -55,8 +55,10 @@
+     /** Get the symbol table instance. */
+     public static Symtab instance(Context context) {
+ 	Symtab instance = context.get(symtabKey);
+-	if (instance == null)
++	if (instance == null) {
+ 	    instance = new Symtab(context);
++            instance.enterOperators();
++        }
+ 	return instance;
+     }
+ 
+@@ -201,7 +203,7 @@
       *  @param name   The constant's name.
       *  @param type   The constant's type.
       */
@@ -1021,7 +1033,7 @@ Index: com/sun/tools/javac/code/Symtab.java
          VarSymbol c = new VarSymbol(
  	    PUBLIC | STATIC | FINAL,
  	    names.fromString(name),
-@@ -219,7 +219,7 @@
+@@ -219,7 +221,7 @@
       *  @param res      The operation's result type.
       *  @param opcode   The operation's bytecode instruction.
       */
@@ -1030,7 +1042,7 @@ Index: com/sun/tools/javac/code/Symtab.java
  			    Type left, Type right, Type res,
  			    int opcode) {
          predefClass.members().enter(
-@@ -236,7 +236,7 @@
+@@ -236,7 +238,7 @@
       *  @param opcode1     First opcode.
       *  @param opcode2     Second opcode.
       */
@@ -1039,7 +1051,7 @@ Index: com/sun/tools/javac/code/Symtab.java
  			    Type left, Type right, Type res,
  			    int opcode1, int opcode2) {
  	enterBinop(
-@@ -249,7 +249,7 @@
+@@ -249,7 +251,7 @@
       *  @param res      The operation's result type.
       *  @param opcode   The operation's bytecode instruction.
       */
@@ -1048,7 +1060,7 @@ Index: com/sun/tools/javac/code/Symtab.java
  				     Type arg,
  				     Type res,
  				     int opcode) {
-@@ -268,7 +268,7 @@
+@@ -268,7 +270,7 @@
      /** Enter a class into symbol table.
       *  @param    The name of the class.
       */
@@ -1057,7 +1069,7 @@ Index: com/sun/tools/javac/code/Symtab.java
  	return reader.enterClass(names.fromString(s)).type;
      }
  
-@@ -419,7 +419,11 @@
+@@ -419,7 +421,11 @@
  			   List.<Type>nil(), methodClass),
  	    arrayClass);
  	arrayClass.members().enter(arrayCloneMethod);
@@ -1069,7 +1081,7 @@ Index: com/sun/tools/javac/code/Symtab.java
  	// Enter operators.
          enterUnop("+", doubleType, doubleType, nop);
          enterUnop("+", floatType, floatType, nop);
-@@ -451,7 +455,6 @@
+@@ -451,7 +457,6 @@
          enterUnop("--", byteType, byteType, isub);
  
          enterUnop("!", booleanType, booleanType, bool_not);
@@ -1077,10 +1089,10 @@ Index: com/sun/tools/javac/code/Symtab.java
  
  	// string concatenation
          enterBinop("+", stringType, objectType, stringType, string_add);
-Index: com/sun/tools/javac/util/BaseFileObject.java
+Index: src/share/classes/com/sun/tools/javac/util/BaseFileObject.java
 ===================================================================
---- com/sun/tools/javac/util/BaseFileObject.java	(revision 252)
-+++ com/sun/tools/javac/util/BaseFileObject.java	(working copy)
+--- src/share/classes/com/sun/tools/javac/util/BaseFileObject.java	(revision 252)
++++ src/share/classes/com/sun/tools/javac/util/BaseFileObject.java	(working copy)
 @@ -43,6 +43,11 @@
              return CLASS;
          else if (n.endsWith(SOURCE.extension))
