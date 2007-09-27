@@ -61,7 +61,7 @@ import java.util.HashSet;
  *  This code and its internal interfaces are subject to change or
  *  deletion without notice.</b>
  */
-public class JavafxMemberEnter extends JCTree.Visitor implements JavafxVisitor, Completer {
+public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisitor, Completer {
     protected static final Context.Key<JavafxMemberEnter> javafxMemberEnterKey =
         new Context.Key<JavafxMemberEnter>();
     
@@ -404,13 +404,6 @@ public class JavafxMemberEnter extends JCTree.Visitor implements JavafxVisitor, 
             memberEnter(l.head, env);
     }
 
-    @Override
-    public void visitBlock(JCBlock block) {
-        for (JCStatement tree : block.stats) {
-            tree.accept(this);
-        }
-    }
-     
     /** Create a fresh environment for a variable's initializer.
      *  If the variable is a field, the owner of the environment's scope
      *  is be the variable itself, otherwise the owner is the method
@@ -735,146 +728,8 @@ public class JavafxMemberEnter extends JCTree.Visitor implements JavafxVisitor, 
     }
     
     @Override
-    public void visitAbstractMember(JFXAbstractMember that) {
-        that.modifiers.accept(this);
-        if (that.getType() != null) {
-            that.getType().accept((JavafxVisitor)this);
-        }
-    }
-    
-    @Override
-    public void visitAbstractFunction(JFXAbstractFunction that) {
-        visitAbstractMember(that);
-        for (JCTree param : that.getParameters()) {
-            param.accept(this);
-        }
-    }
-    
-    @Override
     public void visitAttributeDefinition(JFXAttributeDefinition tree) {
         visitVar(tree);
-    }
-
-    @Override
-    public void visitInitDefinition(JFXInitDefinition that) {
-        that.getBody().accept(this);
-    }
-
-    @Override
-    public void visitDoLater(JFXDoLater that) {
-        that.getBody().accept(this);
-    }
-
-    @Override
-    public void visitMemberSelector(JFXMemberSelector that) {
-    }
-    
-    @Override
-    public void visitSequenceEmpty(JFXSequenceEmpty that) {
-    }
-    
-    @Override
-    public void visitSequenceRange(JFXSequenceRange that) {
-        that.getLower().accept(this);
-        that.getUpper().accept(this);
-    }
-    
-    @Override
-    public void visitSequenceExplicit(JFXSequenceExplicit that) {
-        for (JCExpression expr : that.getItems()) {
-            expr.accept(this);
-        }
-    }
-
-    public void visitSequenceIndexed(JFXSequenceIndexed that) {
-        that.getSequence().accept(this);
-        that.getIndex().accept(this);
-    }
-    
-    @Override
-    public void visitStringExpression(JFXStringExpression that) {
-        List<JCExpression> parts = that.getParts();
-        parts = parts.tail;
-        while (parts.nonEmpty()) {
-            parts = parts.tail;
-            parts.head.accept(this);
-            parts = parts.tail;
-            parts = parts.tail;
-        }
-    }
-    
-    @Override
-    public void visitPureObjectLiteral(JFXPureObjectLiteral that) {
-        that.getIdentifier().accept(this);
-        for (JCStatement part : that.getParts()) {
-            part.accept(this);
-        }
-    }
-    
-    @Override
-    public void visitVarIsObjectBeingInitialized(JFXVarIsObjectBeingInitialized that) {
-        visitVar(that);
-    }
-    
-    @Override
-    public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized that) {
-    }
-    
-    @Override
-    public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
-        that.getExpression().accept(this);
-    }  
-    
-    @Override
-    public void visitTypeAny(JFXTypeAny that) {
-    }
-    
-    @Override
-    public void visitTypeClass(JFXTypeClass that) {
-    }
-    
-    @Override
-    public void visitTypeFunctional(JFXTypeFunctional that) {
-        for (JCTree param : that.getParameters()) {
-            param.accept(this);
-        }
-        that.getReturnType().accept((JavafxVisitor)this);
-    }
-    
-    @Override
-    public void visitTypeUnknown(JFXTypeUnknown that) {
-    }
-    
-    @Override
-    public void visitForExpression(JFXForExpression that) {
-        for (JFXForExpressionInClause clause : that.getInClauses()) {
-            clause.accept((JavafxVisitor)this);
-        }
-        that.getBodyExpression().accept(this);
-    }
-    
-    @Override
-    public void visitForExpressionInClause(JFXForExpressionInClause that) {
-        that.getVar().accept((JavafxVisitor)this);
-        that.getSequenceExpression().accept(this);
-        if (that.getWhereExpression() != null) {
-            that.getWhereExpression().accept(this);
-        }
-    }
-    
-    @Override
-    public void visitInstanciate(JFXInstanciate that) {
-        visitNewClass(that);
-    }
-    
-    @Override
-    public void visitBlockExpression(JFXBlockExpression tree) {
-        for (JCStatement stmt : tree.stats) {
-            stmt.accept(this);
-        }
-        if (tree.value != null) {
-            tree.value.accept(this);
-        }
     }
 
 /* ********************************************************************

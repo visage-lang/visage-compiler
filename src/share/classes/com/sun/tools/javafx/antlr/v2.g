@@ -483,6 +483,8 @@ statement returns [JCStatement value]
 	: variableDeclaration SEMI		{ $value = $variableDeclaration.value; }
 	| functionDefinition			{ $value = $functionDefinition.def; }
 	| operationDefinition			{ $value = $operationDefinition.def; }
+	| insertStatement SEMI			{ $value = $insertStatement.value; }
+	| deleteStatement SEMI			{ $value = $deleteStatement.value; }
         | WHILE LPAREN expression RPAREN block	{ $value = F.at(pos($WHILE)).WhileLoop($expression.expr, $block.value); }
 	| BREAK SEMI   				{ $value = F.at(pos($BREAK)).Break(null); }
 	| CONTINUE  SEMI 	 		{ $value = F.at(pos($CONTINUE)).Continue(null); }
@@ -497,6 +499,12 @@ variableDeclaration   returns [JCStatement value]
 	    							$boundExpression.expr, $boundExpression.status); }
 	    | 					{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(0L), null, null); } 
 	    )   
+	;
+insertStatement   returns [JCStatement value]
+	: INSERT expression  INTO expression 
+	;
+deleteStatement   returns [JCStatement value]
+	: DELETE  expression    
 	;
 returnStatement   returns [JCStatement value]
 @init { JCExpression expr = null; }
