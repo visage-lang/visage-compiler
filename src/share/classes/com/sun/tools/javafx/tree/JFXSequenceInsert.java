@@ -41,7 +41,7 @@ public class JFXSequenceInsert extends JFXStatement {
     }
 
     public void accept(JavafxVisitor v) {
-//        v.visitSequenceInsert(this);
+        v.visitSequenceInsert(this);
     }
 
     public JCExpression getElement() {

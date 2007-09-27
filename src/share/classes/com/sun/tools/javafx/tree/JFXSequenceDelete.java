@@ -41,7 +41,7 @@ public class JFXSequenceDelete extends JFXStatement {
     }
 
     public void accept(JavafxVisitor v) {
-//        v.visitSequenceDelete(this);
+        v.visitSequenceDelete(this);
     }
 
     public JCExpression getSequence() {

@@ -53,13 +53,13 @@ import java.util.Map;
  *
  * @author Robert Field
  */
-public class JavafxTypeMorpher extends JavafxTreeTranslator {
+public class JavafxTypeMorpher {
     protected static final Context.Key<JavafxTypeMorpher> typeMorpherKey =
             new Context.Key<JavafxTypeMorpher>();
     
     private final Name.Table names;
     private final ClassReader reader;
-    private final JavafxTreeMaker make;
+    private final TreeMaker make;
     private final JavafxSymtab syms;
     private final Log log;
     private final JavafxToJava toJava;
@@ -80,8 +80,6 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
     private final Name setMethodName;
     private final Name makeMethodName;
     private final Name makeLazyMethodName;
-        
-    private JavafxEnv<JavafxAttrContext> attrEnv;
     
     public class LocationNameSymType {
         public final Name name;
@@ -262,12 +260,6 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
         makeLazyMethodName = Name.fromString(names, "makeLazy");
     }
        
-    public void morph(JavafxEnv<JavafxAttrContext> attrEnv) {
-        this.attrEnv = attrEnv;
-        
-        translate(attrEnv.tree);
-    }
-    
     Type declLocationType(int typeKind) {
         return declLocation[typeKind].type;
     }
@@ -286,7 +278,7 @@ public class JavafxTypeMorpher extends JavafxTreeTranslator {
     
     JCExpression sharedLocationId(DiagnosticPosition diagPos, int typeKind, LocationNameSymType[] lnsta) {
         LocationNameSymType lnst = lnsta[typeKind];
-        return make.at(diagPos).Identifier(lnst.name);
+        return ((JavafxTreeMaker)make).at(diagPos).Identifier(lnst.name);
     }
     
     JCExpression castToReal(Type realType, JCExpression expr) {

@@ -269,6 +269,35 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
     
+    @Override
+    public void visitSequenceInsert(JFXSequenceInsert that) {
+        try {
+            print("insert ");
+            printExpr(that.getElement());
+            print(" into ");
+            printExpr(that.getSequence());
+            print("; ");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+    
+    @Override
+    public void visitSequenceDelete(JFXSequenceDelete that) {
+        try {
+            print("delete ");
+            printExpr(that.getSequence());
+            if (that.getSelection() != null) {
+                print(" (");
+                printExpr(that.getSelection());
+                print(")");
+            }
+            print("; ");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public void visitStringExpression(JFXStringExpression tree) {
         try {
             int i;
@@ -401,8 +430,10 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitVar(JFXVar tree) {
         try {
             print(tree.getName());
-            if (tree.jfxtype != null) {
-                printExpr(tree.jfxtype);
+            printExpr(tree.jfxtype);
+            if (tree.getInitializer() != null) {
+                print(" = ");
+                printExpr(tree.getInitializer());
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);

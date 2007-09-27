@@ -85,11 +85,11 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     }
     
     @Override
-    public void visitAttributeDefinition(JFXAttributeDefinition tree) {
-        visitVar(tree);
-        scan(tree.onChange);
-        scan(tree.inverseOrNull);
-        scan(tree.orderingOrNull);
+    public void visitAttributeDefinition(JFXAttributeDefinition that) {
+        visitVar(that);
+        scan(that.onChange);
+        scan(that.inverseOrNull);
+        scan(that.orderingOrNull);
     }
 
     @Override
@@ -133,11 +133,24 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
         }
     }
 
+    @Override
     public void visitSequenceIndexed(JFXSequenceIndexed that) {
         that.getSequence().accept(this);
         that.getIndex().accept(this);
     }
     
+    @Override
+    public void visitSequenceInsert(JFXSequenceInsert that) {
+        scan(that.getSequence());
+        scan(that.getElement());
+    }
+    
+    @Override
+    public void visitSequenceDelete(JFXSequenceDelete that) {
+        scan(that.getSequence());
+        scan(that.getSelection());
+    }
+
     @Override
     public void visitStringExpression(JFXStringExpression that) {
         List<JCExpression> parts = that.getParts();
