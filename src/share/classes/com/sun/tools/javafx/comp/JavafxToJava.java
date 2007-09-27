@@ -194,7 +194,7 @@ public class JavafxToJava extends JavafxTreeTranslator {
         ListBuffer<TranslatedAttributeInfo> attrInfo = ListBuffer.<TranslatedAttributeInfo>lb();
         JCMethodDecl initMethod = null;
         Set<JCNewClass> prevVisitedNews = visitedNewClasses;
-//Lubo
+
         List<JCStatement> defs = List.<JCStatement>nil();
         for (JCTree def : tree.defs) {
             if (def.getTag() == JavafxTag.CLASSDECL) {
@@ -209,7 +209,6 @@ public class JavafxToJava extends JavafxTreeTranslator {
             tree.defs = tree.defs.append(stat);
         }
 
-// Lubo
         try {
             visitedNewClasses = new HashSet<JCNewClass>();
             for (JCTree def : tree.defs) {
