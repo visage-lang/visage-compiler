@@ -1037,7 +1037,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         attribExpr(tree.getBodyExpression(), forExprEnv);
 
         Type bodyType = tree.getBodyExpression().type;
-        Type owntype = bodyType == syms.voidType? syms.voidType : sequenceType(bodyType);
+        Type owntype = (bodyType == null || bodyType == syms.voidType)? 
+            syms.voidType : 
+            sequenceType(bodyType);
 
         forExprEnv.info.scope.leave();
         result = check(tree, owntype, VAL, pkind, pt);
@@ -2227,20 +2229,40 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
-        Type seqType = attribExpr(tree.getSequence(), env); 
+        Type seqType = attribTree(tree.getSequence(), env, VAR, syms.javafx_SequenceTypeErasure); 
         Type elemType = seqType.getTypeArguments().head;
         Type unboxed = types.unboxedType(elemType);
         if (unboxed != Type.noType) {
             elemType = unboxed;
         }
-        result = check(tree.getElement(), elemType, VAL, pkind, pt);
+        attribExpr(tree.getElement(), env, elemType);
         result = null;
     }
     
     @Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
-        Type seqType = attribExpr(tree.getSequence(), env); 
-        //TODO:  (that.getSelection());
+        if (tree.getElement() == null) {
+            if (tree.getSequence() instanceof JFXSequenceIndexed) { 
+                // delete seq[index];
+                JFXSequenceIndexed seqInd = (JFXSequenceIndexed)tree.getSequence();
+                JCExpression seq = seqInd.getSequence();
+                JCExpression index = seqInd.getIndex();
+                tree.resetSequenceAndIndex(seq, index);
+                attribTree(tree.getSequence(), env, VAR, syms.javafx_SequenceTypeErasure); 
+                attribExpr(index, env, syms.javafx_IntegerType);
+            } else {
+                // delete seq;   // that is, all the elements
+                attribTree(tree.getSequence(), env, VAR, syms.javafx_SequenceTypeErasure); 
+            }
+        } else {
+            Type seqType = attribTree(tree.getSequence(), env, VAR, syms.javafx_SequenceTypeErasure); 
+            Type elemType = seqType.getTypeArguments().head;
+            Type unboxed = types.unboxedType(elemType);
+            if (unboxed != Type.noType) {
+                elemType = unboxed;
+            }
+            attribExpr(tree.getElement(), env, elemType);
+        }
         result = null;
     }
     

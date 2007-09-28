@@ -32,12 +32,14 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
  * @author Robert Field
  */
 public class JFXSequenceDelete extends JFXStatement {
-    public JCExpression sequence;
-    public JCExpression selection;
+    private JCExpression sequence;
+    private final JCExpression element;
+    
+    private JCExpression index;   // may be filled in by Attr
 
-    public JFXSequenceDelete(JCExpression sequence, JCExpression selection) {
+    public JFXSequenceDelete(JCExpression sequence, JCExpression element) {
         this.sequence = sequence;
-        this.selection = selection;
+        this.element = element;
     }
 
     public void accept(JavafxVisitor v) {
@@ -48,8 +50,18 @@ public class JFXSequenceDelete extends JFXStatement {
         return sequence;
     }
     
-    public JCExpression getSelection() {
-        return selection;
+    public JCExpression getElement() {
+        return element;
+    }
+    
+    public JCExpression getIndex() {
+        return index;
+    }
+    
+    public void resetSequenceAndIndex(JCExpression sequence, JCExpression index) {
+        assert element == null;
+        this.sequence = sequence;
+        this.index = index;
     }
     
     @Override

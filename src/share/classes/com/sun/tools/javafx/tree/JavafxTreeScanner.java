@@ -148,7 +148,7 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     @Override
     public void visitSequenceDelete(JFXSequenceDelete that) {
         scan(that.getSequence());
-        scan(that.getSelection());
+        scan(that.getElement());
     }
 
     @Override

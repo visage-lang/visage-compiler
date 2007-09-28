@@ -32,8 +32,8 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
  * @author Robert Field
  */
 public class JFXSequenceRange extends JFXAbstractSequenceCreator {
-    public JCExpression lower;
-    public JCExpression upper;
+    private final JCExpression lower;
+    private final JCExpression upper;
 
     public JFXSequenceRange(JCExpression lower, JCExpression upper) {
         this.lower = lower;

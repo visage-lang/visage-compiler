@@ -287,9 +287,9 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         try {
             print("delete ");
             printExpr(that.getSequence());
-            if (that.getSelection() != null) {
+            if (that.getElement() != null) {
                 print(" (");
-                printExpr(that.getSelection());
+                printExpr(that.getElement());
                 print(")");
             }
             print("; ");

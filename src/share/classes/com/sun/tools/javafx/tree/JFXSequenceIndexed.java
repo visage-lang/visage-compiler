@@ -32,8 +32,8 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
  * @author Robert Field
  */
 public class JFXSequenceIndexed extends JFXExpression {
-    public JCExpression sequence;
-    public JCExpression index;
+    private final JCExpression sequence;
+    private final JCExpression index;
 
     public JFXSequenceIndexed(JCExpression sequence, JCExpression index) {
         this.sequence = sequence;

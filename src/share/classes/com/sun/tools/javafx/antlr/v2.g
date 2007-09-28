@@ -501,10 +501,14 @@ variableDeclaration   returns [JCStatement value]
 	    )   
 	;
 insertStatement   returns [JCStatement value]
-	: INSERT expression  INTO expression 
+	: INSERT e1=expression  INTO e2=expression 
+						{ $value = F.at(pos($INSERT)).SequenceInsert($e2.expr, $e1.expr); } 
 	;
 deleteStatement   returns [JCStatement value]
-	: DELETE  expression    
+	: DELETE  e1=expression  
+	   ( FROM e2=expression 		{ $value = F.at(pos($DELETE)).SequenceDelete($e2.expr,$e1.expr); } 
+	   | /* indexed and whole cases */	{ $value = F.at(pos($DELETE)).SequenceDelete($e1.expr); } 
+	   )
 	;
 returnStatement   returns [JCStatement value]
 @init { JCExpression expr = null; }

@@ -32,10 +32,10 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
  * @author Robert Field
  */
 public class JFXSequenceInsert extends JFXStatement {
-    public JCExpression element;
-    public JCExpression sequence;
+    private final JCExpression element;
+    private final JCExpression sequence;
 
-    public JFXSequenceInsert(JCExpression element, JCExpression sequence) {
+    public JFXSequenceInsert(JCExpression sequence, JCExpression element) {
         this.element = element;
         this.sequence = sequence;
     }

@@ -34,7 +34,7 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
  * @author Robert Field
  */
 public class JFXSequenceExplicit extends JFXAbstractSequenceCreator {
-    public List<JCExpression> items;
+    private final List<JCExpression> items;
 
     public JFXSequenceExplicit(List<JCExpression> items) {
         this.items = items;
