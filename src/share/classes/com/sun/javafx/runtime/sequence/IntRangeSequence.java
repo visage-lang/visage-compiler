@@ -9,30 +9,45 @@ package com.sun.javafx.runtime.sequence;
  */
 class IntRangeSequence extends AbstractSequence<Integer> implements Sequence<Integer> {
 
-    private final int lower, upper;
+    private final int start, bound, step, size;
 
 
-    public IntRangeSequence(int lower, int upper) {
+    public IntRangeSequence(int start, int bound, int step) {
         super(Integer.class);
-        this.lower = lower;
-        this.upper = upper;
+        this.start = start;
+        this.bound = bound;
+        this.step = step;
+        if (bound == start) {
+            this.size = 1;
+        }
+        else if (bound > start) {
+            this.size = step > 0 ? (((bound - start) / step) + 1) : 0;
+        }
+        else {
+            this.size = step < 0 ? (((start - bound) / -step) + 1) : 0;
+        }
+    }
+
+
+    public IntRangeSequence(int start, int bound) {
+        this(start, bound, 1);
     }
 
     @Override
     public int size() {
-        return (upper >= lower) ? upper - lower + 1 : 0;
+        return size;
     }
 
     @Override
     public Integer get(int position) {
-        return (position < 0 || position >= upper - lower + 1)
+        return (position < 0 || position >= size)
                 ? nullValue
-                : (lower + position);
+                : (start + position * step);
     }
 
     @Override
     public void toArray(Object[] array, int destOffset) {
-        for (int i = lower, index=destOffset; i <= upper; i++, index++)
-            array[index] = i;
+        for (int value = start, index = destOffset; index < destOffset+size; value += step, index++)
+            array[index] = value;
     }
 }

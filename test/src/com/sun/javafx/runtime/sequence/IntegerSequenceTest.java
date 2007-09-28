@@ -381,6 +381,25 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(five.set(6, C), 0, 1, 2, 3, 4, 5);
     }
 
+    /** Test ranges, including skip ranges and backwards ranges */
+    public void testRange() {
+        // [ 0..0 ] => [ 0 ]
+        assertEquals(Sequences.range(0, 0), 0);
+        // [ 0..-1 ] => [ ]
+        assertEquals(Sequences.range(0, -1), EMPTY_SEQUENCE);
+        // [ 0..0 STEP 3 ] => [ 0 ]
+        assertEquals(Sequences.range(0, 0, 3), 0);
+        // [ 0..1 ] => [ 0, 1 ]
+        assertEquals(Sequences.range(0, 1), 0, 1);
+        // [ 0..1 STEP 2 ] => [ 0 ]
+        assertEquals(Sequences.range(0, 1, 2), 0);
+
+        // [ 5..3 ] => [ 5, 4, 3 ]
+        assertEquals(Sequences.range(5, 3, -1), 5, 4, 3);
+        // [ 5..3 STEP 2 ] => [ 5, 3 ]
+        assertEquals(Sequences.range(5, 3, -2), 5, 3);
+    }
+
     /** Test out-of-bounds sets and gets */
     public void testOutOfBounds() {
         assertEquals(EMPTY_SEQUENCE.get(-1), Sequences.INTEGER_ZERO);

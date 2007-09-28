@@ -78,6 +78,11 @@ public final class Sequences {
         return new IntRangeSequence(lower, upper);
     }
 
+    /** Create an Integer range sequence ranging from lower to upper inclusive, incrementing by the specified step. */
+    public static Sequence<Integer> range(int lower, int upper, int step) {
+        return new IntRangeSequence(lower, upper, step);
+    }
+
     /** Create a filtered sequence.  A filtered sequence contains some, but not necessarily all, of the elements
      * of another sequence, in the same order as that sequence.  If bit n is set in the BitSet, then the element
      * at position n of the original sequence appears in the filtered sequence.  */
