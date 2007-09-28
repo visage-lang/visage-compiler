@@ -811,13 +811,14 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     private void backEnd(List<JavafxEnv<JavafxAttrContext>> envs) throws IOException {
         ListBuffer<JCCompilationUnit> trees = lb();
         for (JavafxEnv<JavafxAttrContext> env : envs) {
-             printSource(env, null);
-             trees.append(env.toplevel);
+            String dump = options.get("dump");
+            if (dump != null && dump.equals("java")) {
+                printSource(env, null);
+            }
+            trees.append(env.toplevel);
        }
        javafxJavaCompiler.backEnd(trees.toList());
     }
-
-    private List<JCClassDecl> rootClasses;
 
     /**
      * Parses a list of files.
@@ -868,7 +869,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                         cdefs.append((JCClassDecl)defs.head);
                 }
             }
-            rootClasses = cdefs.toList();
         }
         return roots;
     }
@@ -1059,7 +1059,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
     private void close(boolean disposeNames) {
-        rootClasses = null;
         reader = null;
         make = null;
         writer = null;
