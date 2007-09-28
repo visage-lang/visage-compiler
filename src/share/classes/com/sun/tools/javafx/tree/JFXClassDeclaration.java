@@ -62,7 +62,7 @@ public class JFXClassDeclaration extends JCClassDecl {
 
     @Override
     public int getTag() {
-        return JavafxTag.CLASSDECL;
+        return JavafxTag.CLASS_DEF;
     }
     
     @Override

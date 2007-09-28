@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2006 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,34 +25,25 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
-
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
 
 /**
- * A function declaration.
+ *
+ * @author Robert Field
  */
-public abstract class JFXAbstractFunction extends JFXAbstractMember {
-    public List<JCTree> params;
-    
-   /*
-    * @param modifiers function modifiers
-    * @param name function name
-    * @param restype function return type
-    * @param params value parameters
-    */
-    protected JFXAbstractFunction(JCModifiers modifiers,
-            Name name,
-            JFXType restype,
-            List<JCTree> params) {
-        super(modifiers, name, restype);
-        this.params = params;
+public class JFXOnDeleteElement extends JFXAbstractOnChange {
+
+    public JFXOnDeleteElement(JCIdent index, JCIdent oldValue, JCBlock body) {
+        super(index, oldValue, body);
     }
 
-    public List<JCTree> getParameters() {
-        return params;
+    public void accept(JavafxVisitor v) {
+        v.visitOnDeleteElement(this);
     }
+
     
+    @Override
+    public int getTag() {
+        return JavafxTag.ON_DELETE_ELEMENT;
+    }
 }

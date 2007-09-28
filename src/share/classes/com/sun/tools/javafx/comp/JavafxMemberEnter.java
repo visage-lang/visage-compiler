@@ -727,11 +727,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     public void visitClassDeclaration(JFXClassDeclaration that) {
     }
     
-    @Override
-    public void visitAttributeDefinition(JFXAttributeDefinition tree) {
-        visitVar(tree);
-    }
-
 /* ********************************************************************
  * Type completion
  *********************************************************************/

@@ -46,7 +46,6 @@ public class JavafxInitializationBuilder {
     private final Name addChangeListenerName;
     private final Name changeListenerInterfaceName;
     final Name initializerName;
-    private final Name changedName;
     private final Name valueChangedName;
     private final Name classNameSuffix;
     private final String attributeGetMethodNamePrefix = "get$";
@@ -65,19 +64,18 @@ public class JavafxInitializationBuilder {
         addChangeListenerName = names.fromString("addChangeListener");
         changeListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "ChangeListener");
         initializerName = names.fromString(JavafxModuleBuilder.initMethodString);
-        changedName = names.fromString("onChange");
         valueChangedName = names.fromString("valueChanged");
         classNameSuffix = names.fromString("$Impl");
     }
     
     static class TranslatedAttributeInfo {
-        Name name;
+        JFXVar attribute;
         JCExpression initExpr;
-        JCBlock onChangeBlock;
-        TranslatedAttributeInfo(Name name, JCExpression initExpr, JCBlock onChangeBlock) {
-            this.name = name;
+        List<JFXAbstractOnChange> onChanges;
+        TranslatedAttributeInfo(JFXVar attribute, JCExpression initExpr, List<JFXAbstractOnChange> onChanges) {
+            this.attribute = attribute;
             this.initExpr = initExpr;
-            this.onChangeBlock = onChangeBlock;
+            this.onChanges = onChanges;
         }
     }
   
@@ -105,7 +103,7 @@ public class JavafxInitializationBuilder {
 
         // Now do the on change blocks
         for (TranslatedAttributeInfo info : attrInfo) {
-            if (info.onChangeBlock != null) { // if there is an on change clause
+            if (info.onChanges.length() > 0) { // if there is an on change clause
                stmts.append(makeChangeListenerCall(info));
             }
         }
@@ -122,10 +120,10 @@ public class JavafxInitializationBuilder {
      */
     private JCStatement makeAttributeInitialization(TranslatedAttributeInfo info) {
         JCLiteral nullValue = make.Literal(TypeTags.BOT, null);
-        JCIdent lhsIdent = make.Ident(info.name);
+        JCIdent lhsIdent = make.Ident(info.attribute.name);
         JCBinary cond = make.Binary(JCTree.EQ, lhsIdent, nullValue);
 
-        JCIdent lhsAssignIdent = make.Ident(info.name);
+        JCIdent lhsAssignIdent = make.Ident(info.attribute.name);
         JCAssign defValAssign = make.Assign(lhsAssignIdent, info.initExpr);
         JCExpressionStatement defAttrValue = make.Exec(defValAssign);
         return make.If(cond, defAttrValue, null);
@@ -135,30 +133,45 @@ public class JavafxInitializationBuilder {
      * Non-destructive creation of "on change" change listener set-up call.
      */
     private JCStatement makeChangeListenerCall(TranslatedAttributeInfo info) {
-        DiagnosticPosition diagPos = info.onChangeBlock.pos();
-        ListBuffer<JCStatement> ocMethStmts = ListBuffer.<JCStatement>lb();
-        ocMethStmts.appendList(info.onChangeBlock.stats);
-        ocMethStmts.append(make.at(diagPos).Return(make.at(diagPos).Literal(TypeTags.BOOLEAN, 1)));
-
-        // changed() method
-        List<JCTree> defs = List.<JCTree>of(make.at(diagPos).MethodDef(
-                make.at(diagPos).Modifiers(Flags.PUBLIC), 
-                changedName, 
-                make.at(diagPos).TypeIdent(TypeTags.BOOLEAN), 
-                List.<JCTypeParameter>nil(), 
-                List.<JCVariableDecl>nil(), 
-                List.<JCExpression>nil(), 
-                make.at(diagPos).Block(0L, ocMethStmts.toList()), 
-                null));
-
+        JFXAbstractOnChange onReplace = null;
+        DiagnosticPosition diagPos = info.attribute.pos();
+        ListBuffer<JCTree> defs = ListBuffer.<JCTree>lb();
+        
+        for (JFXAbstractOnChange onc : info.onChanges) {
+            switch (onc.getTag()) {
+                case JavafxTag.ON_REPLACE:
+                    onReplace = onc;
+                    break;
+                /***
+                case JavafxTag.ON_REPLACE_ELEMENT: {
+                    JFXOnReplaceElement sonc = (JFXOnReplaceElement)onc;
+                    meths.append(makeChangeListenerMethod(
+                        onc, 
+                        "onReplace",
+                        List.<JCVariableDecl>of(),
+                        TypeTags.VOID));
+                    break;
+                }
+                 * ***/
+            }
+        }
+       
+        // If there are any listenere, we need to build this, even if empty
+        defs.append(makeChangeListenerMethod(
+                        diagPos,
+                        onReplace, 
+                        "onChange",
+                        List.<JCVariableDecl>nil(),
+                        TypeTags.BOOLEAN));
+        
         JCNewClass anonymousChangeListener = make.NewClass(
                 null, 
                 List.<JCExpression>nil(), 
                 make.at(diagPos).Identifier(changeListenerInterfaceName), 
                 List.<JCExpression>nil(), 
-                make.at(diagPos).AnonymousClassDef(make.Modifiers(0L), defs));
+                make.at(diagPos).AnonymousClassDef(make.Modifiers(0L), defs.toList()));
 
-        JCIdent varIdent = make.at(diagPos).Ident(info.name);
+        JCIdent varIdent = make.at(diagPos).Ident(info.attribute.name);
         JCFieldAccess tmpSelect = make.at(diagPos).Select(varIdent, addChangeListenerName);
 
         List<JCExpression> typeargs = List.nil();
@@ -166,11 +179,43 @@ public class JavafxInitializationBuilder {
         return make.at(diagPos).Exec(make.at(diagPos).Apply(typeargs, tmpSelect, args));
     }
     
+    /**
+     * construct a change listener method for insertion in a listener anon class.
+     *   boolean onChange();
+     *   void onInsert(...);
+     *   void on Delete(...); ...
+     */
+    private JCMethodDecl makeChangeListenerMethod(
+            DiagnosticPosition diagPos,
+            JFXAbstractOnChange onChange, 
+            String methodName, 
+            List<JCVariableDecl> args, 
+            int returnTypeTag) {
+        ListBuffer<JCStatement> ocMethStmts = ListBuffer.<JCStatement>lb();
+        if (onChange != null) {
+            diagPos = onChange.pos();
+            ocMethStmts.appendList(onChange.getBody().getStatements());
+        }
+        if (returnTypeTag == TypeTags.BOOLEAN) {
+            ocMethStmts.append(make.at(diagPos).Return(make.at(diagPos).Literal(TypeTags.BOOLEAN, 1)));
+        }
+
+        return make.at(diagPos).MethodDef(
+                make.at(diagPos).Modifiers(Flags.PUBLIC), 
+                names.fromString(methodName), 
+                make.at(diagPos).TypeIdent(returnTypeTag), 
+                List.<JCTypeParameter>nil(), 
+                args,
+                List.<JCExpression>nil(), 
+                make.at(diagPos).Block(0L, ocMethStmts.toList()), 
+                null);
+    }
+
     private void makeOnChangedCall(JFXClassDeclaration classDecl,
                                     ListBuffer<JCStatement> stmts) {
         for (JCTree tree : classDecl.defs) {
-            if (tree.getTag() == JavafxTag.ATTRIBUTEDEF) {
-                JFXAttributeDefinition attrDef = (JFXAttributeDefinition)tree;
+            if (tree.getTag() == JavafxTag.VAR_DEF) {
+                JFXVar attrDef = (JFXVar)tree;
                 DiagnosticPosition diagPos = attrDef.pos();
                 JCIdent varIdent = make.at(diagPos).Ident(attrDef.name);
                 JCFieldAccess tmpSelect = make.at(diagPos).Select(varIdent, valueChangedName);
@@ -199,8 +244,8 @@ public class JavafxInitializationBuilder {
     
     private void addAttributeMethods(ListBuffer<JCTree> idefs, JFXClassDeclaration cdef) {
         for (JCTree tree : cdef.defs) {
-            if (tree.getTag() == JavafxTag.ATTRIBUTEDEF) {
-                JFXAttributeDefinition adef = (JFXAttributeDefinition)tree;
+            if (tree.getTag() == JavafxTag.VAR_DEF) {
+                JFXVar adef = (JFXVar)tree;
                 idefs.append(make.OperationDefinition(
                         make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT),
                         names.fromString(attributeGetMethodNamePrefix + adef.name.toString()),

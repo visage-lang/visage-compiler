@@ -73,15 +73,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-    public void visitAbstractFunction(JFXAbstractFunction that) {
-        //TODO: REMOVE ME
-    }
-    
-
-    public void visitAbstractMember(JFXAbstractMember that) {
-        //TODO: REMOVE ME
-    }
-    
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         try {
             println();
@@ -100,22 +91,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             undent();
             println();
             print("}");
-            println();
-            align();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void visitAttributeDefinition(JFXAttributeDefinition tree) {
-        try {
-            visitVarDef(tree);
-            if (tree.getInitializer() != null) {
-                print(" = ");
-                printBind(tree.getBindStatus());
-                printExpr(tree.getInitializer());
-            }
-            print(";");
             println();
             align();
         } catch (IOException e) {
@@ -343,15 +318,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-    public void visitVarIsObjectBeingInitialized(JFXVarIsObjectBeingInitialized tree) {
-        try {
-            print("var : ");
-            print(tree.getName());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized tree) {
         try {
             print("attribute : ");
@@ -430,7 +396,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitVar(JFXVar tree) {
         try {
             print(tree.getName());
-            printExpr(tree.jfxtype);
+            printExpr(tree.getJFXType());
             if (tree.getInitializer() != null) {
                 print(" = ");
                 printExpr(tree.getInitializer());
@@ -440,6 +406,73 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
+    public void visitAbstractOnChange(JFXAbstractOnChange tree) {
+        try {
+            if (tree.getIndex() != null) {
+                print(" [ ");
+                printExpr(tree.getIndex());
+                print(" ] ");
+            }
+            if (tree.getOldValue() != null) {
+                print(" ( ");
+                printExpr(tree.getOldValue());
+                print(" ) ");
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }     
+    }
+    
+    @Override
+    public void visitOnReplace(JFXOnReplace tree) {
+        try {
+            print(" on replace ");
+            visitAbstractOnChange(tree);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }      
+    }
+    
+    @Override
+    public void visitOnReplaceElement(JFXOnReplaceElement tree) {
+        try {
+            print(" on replace ");
+            visitAbstractOnChange(tree);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }      
+    }
+    
+    @Override
+    public void visitOnInsertElement(JFXOnInsertElement tree) {
+        try {
+            print(" on insert ");
+            visitAbstractOnChange(tree);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }      
+    }
+    
+    @Override
+    public void visitOnDeleteElement(JFXOnDeleteElement tree) {
+        try {
+            print(" on delete ");
+            visitAbstractOnChange(tree);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }      
+    }
+    
+    @Override
+    public void visitOnDeleteAll(JFXOnDeleteAll tree) {
+        try {
+            print(" on delete ");
+            visitAbstractOnChange(tree);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }      
+    }
+    
     @Override
     public void visitForExpression(JFXForExpression tree) {
         try {

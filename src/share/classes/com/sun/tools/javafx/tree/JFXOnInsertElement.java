@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2006 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,32 +25,25 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.tree.JCTree.JCModifiers;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
 
 /**
- * Abstract declaration of a member
+ *
+ * @author Robert Field
  */
-public abstract class JFXAbstractMember extends JFXStatement {
-    public Name name; 
-    public JCModifiers modifiers;
-    public JFXType memtype;
-    public Symbol sym;
+public class JFXOnInsertElement extends JFXAbstractOnChange {
 
-    protected JFXAbstractMember(JCModifiers mods,
-            Name name,
-            JFXType type) {
-        this.modifiers = mods;
-        this.name = name;
-        this.memtype = type;
+    public JFXOnInsertElement(JCIdent index, JCIdent oldValue, JCBlock body) {
+        super(index, oldValue, body);
     }
-    
-    public JFXType getType() {
-        return memtype;
+
+    public void accept(JavafxVisitor v) {
+        v.visitOnInsertElement(this);
     }
+
     
-    public Name getName() {
-        return name;
+    @Override
+    public int getTag() {
+        return JavafxTag.ON_INSERT_ELEMENT;
     }
 }

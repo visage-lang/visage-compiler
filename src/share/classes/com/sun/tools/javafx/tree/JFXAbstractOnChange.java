@@ -25,31 +25,32 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
 
 /**
- * An attribute declaration.
+ *
+ * @author Robert Field
  */
-public abstract class JFXAbstractAttribute extends JFXAbstractMember {
-    public JFXMemberSelector inverseOrNull;
-    public JCExpression orderingOrNull;
+public abstract class JFXAbstractOnChange extends JFXStatement {
+    private final JCIdent index;
+    private final JCIdent oldValue;
+    private final JCBlock body;
 
-    /*
-    * @param modifiers attribute modifiers
-    * @param name attribute name
-    * @param type of attribute
-    */
-    protected JFXAbstractAttribute(JCModifiers mods,
-            Name name,
-            JFXType type,
-            JFXMemberSelector inverseOrNull,
-            JCExpression orderingOrNull) {
-        super(mods, name, type);
-        this.inverseOrNull = inverseOrNull;
-        this.orderingOrNull = orderingOrNull;
+    public JFXAbstractOnChange(JCIdent index, JCIdent oldValue, JCBlock body) {
+        this.index = index;
+        this.oldValue = oldValue;
+        this.body = body;
     }
 
-    public JFXMemberSelector getInverse() { return inverseOrNull; }
-    public JCExpression getOrdering() { return orderingOrNull; }
+    public JCIdent getIndex() {
+        return index;
+    }
+    
+    public JCIdent getOldValue() {
+        return oldValue;
+    }
+    
+    public JCBlock getBody() {
+        return body;
+    }
 }

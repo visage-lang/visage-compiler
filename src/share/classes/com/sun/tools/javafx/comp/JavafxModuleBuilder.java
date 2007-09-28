@@ -91,7 +91,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
             case IMPORT:
                 topLevelDefs.append(tree);
                 break;
-            case CLASSDECL: {
+            case CLASS_DEF: {
                 JFXClassDeclaration decl = (JFXClassDeclaration)tree;   
                 Name name = decl.name;
                 checkName(tree.pos, name);
@@ -103,7 +103,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
                 }
                 break;
             }
-            case OPERATIONDEF: {
+            case FUNCTION_DEF: {
                 JFXOperationDefinition decl = null;
                 decl = (JFXOperationDefinition)tree;
                 decl.mods.flags |= STATIC;
@@ -112,7 +112,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
                 moduleClassDefs.append(tree);
                 break;
             }
-            case VARDECL:
+            case VAR_DEF:
                 checkName(tree.pos, ((JFXVar)tree).getName());
                 stats.append((JCStatement)tree);
                 break;

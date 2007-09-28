@@ -27,6 +27,7 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javafx.code.JavafxBindStatus;
@@ -37,18 +38,21 @@ import com.sun.tools.javafx.code.JavafxBindStatus;
  * @author Robert Field
  */
 public class JFXVar extends JCVariableDecl {
-    public JFXType jfxtype;
-    public JavafxBindStatus bindStatus;
+    private final JFXType jfxtype;
+    private final JavafxBindStatus bindStatus;
+    private final List<JFXAbstractOnChange> onChanges;
     
     protected JFXVar(Name name,
             JFXType jfxtype,
             JCModifiers mods,
             JCExpression init,
             JavafxBindStatus bindStat,
+            List<JFXAbstractOnChange> onChanges,
             VarSymbol sym) {
         super(mods, name, jfxtype, init, sym);
         this.jfxtype = jfxtype;
         this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
+        this.onChanges = onChanges;
         this.sym = sym;
     }
     
@@ -61,6 +65,14 @@ public class JFXVar extends JCVariableDecl {
         } else {
             v.visitVarDef(this);
         }
+    }
+
+    public JFXType getJFXType() {
+        return jfxtype;
+    }
+
+    public List<JFXAbstractOnChange> getOnChanges() {
+        return onChanges;
     }
 
     public JavafxBindStatus getBindStatus() {
@@ -84,11 +96,10 @@ public class JFXVar extends JCVariableDecl {
     }
 
     public Name getName() { return name; }
-    public JFXType getJFXType() { return jfxtype; }
 
     @Override
     public int getTag() {
-        return JavafxTag.VARDECL;
+        return JavafxTag.VAR_DEF;
     }
     
     public JCModifiers getModifiers() {

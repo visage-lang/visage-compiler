@@ -84,15 +84,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
     
     @Override
-    public void visitAttributeDefinition(JFXAttributeDefinition tree) {
-        if (tree.getOnReplaceBlock() != null) {
-            tree.getOnReplaceBlock().accept(this);
-        }
-        //TODO: handle on change
-        visitVar(tree);
-    }
-    
-    @Override
     public void visitVar(JFXVar tree) {
         boolean wasInBindContext = inBindContext;
         inBindContext |= tree.isBound();

@@ -52,6 +52,6 @@ public class JFXStringExpression extends JFXExpression {
 
     @Override
     public int getTag() {
-        return JavafxTag.STRINGEXPRESSION;
+        return JavafxTag.STRING_EXPRESSION;
     }
 }

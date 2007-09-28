@@ -43,6 +43,7 @@ tokens {
    INVERSE='inverse';
    LAST='last';
    LAZY='lazy';
+   LET='let';
    LINEAR='linear';
    MOTION='motion';
    NEW='new';
@@ -382,51 +383,28 @@ interfaces returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>(
 	  )?
 	;
 classMembers returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]
-	: ( ad1=attributeDefinition          	{ $mems.append($ad1.def); }
-	  |  fd1=functionDefinition     	{ $mems.append($fd1.def); }
-	  |  od1=operationDefinition     	{ $mems.append($od1.def); }
+	: ( ad1=variableDeclaration SEMI       	{ $mems.append($ad1.value); }
+	  |  fd1=functionDefinition     	{ $mems.append($fd1.value); }
 	  ) *   
-	  (initDefinition	     		{ $mems.append($initDefinition.def); }			
-	    ( ad2=attributeDefinition          	{ $mems.append($ad2.def); }
-	    | fd2=functionDefinition     	{ $mems.append($fd2.def); }
-	    | od2=operationDefinition     	{ $mems.append($od2.def); }
+	  (initDefinition	     		{ $mems.append($initDefinition.value); }			
+	    ( ad2=variableDeclaration SEMI	{ $mems.append($ad2.value); }
+	    | fd2=functionDefinition     	{ $mems.append($fd2.value); }
 	    ) *   
 	  )?
 	;
-attributeDefinition  returns [JFXAttributeDefinition def]
-@init { JavafxBindStatus bindStatus = JavafxBindStatus.UNBOUND; 
-	JCExpression expr = null; 
-	JFXMemberSelector inverse = null;
-}
-	: modifierFlags ATTRIBUTE name 
-	    typeReference 
-	   (EQ boundExpression 			{ bindStatus = $boundExpression.status; expr = $boundExpression.expr; }
-	   | inverseClause			{ inverse = $inverseClause.inverse; } )? 
-	   (ON REPLACE ocb=block)?
-	    SEMI        			{ $def = F.at(pos($ATTRIBUTE)).AttributeDefinition($modifierFlags.mods,
-	    						$name.value, $typeReference.type, inverse, null, 
-	    						bindStatus, expr, $ocb.value); }
-	;
-inverseClause returns [JFXMemberSelector inverse = null]
-	: INVERSE memberSelector 		{ $inverse = $memberSelector.value; } 
-	;
-functionDefinition  returns [JFXOperationDefinition def]
-	: modifierFlags FUNCTION name 
+functionDefinition  returns [JFXOperationDefinition value]
+	: modifierFlags functionLabel name 
 	    formalParameters  typeReference  
-	    blockExpression 			{ $def = F.at(pos($FUNCTION)).OperationDefinition($modifierFlags.mods,
+	    blockExpression 			{ $value = F.at($functionLabel.pos).OperationDefinition($modifierFlags.mods,
 	    						$name.value, $typeReference.type, 
 	    						$formalParameters.params.toList(), $blockExpression.expr); }
 	;
-operationDefinition  returns [JFXOperationDefinition def]
-	: modifierFlags OPERATION name 
-	    formalParameters  typeReference  
-	    blockExpression 			{ $def = F.at(pos($OPERATION)).OperationDefinition($modifierFlags.mods,
-	    						$name.value, $typeReference.type, 
-	    						$formalParameters.params.toList(), $blockExpression.expr); }
+functionLabel    returns [int pos]
+	: FUNCTION				{ $pos = pos($FUNCTION); }
+	| OPERATION				{ $pos = pos($OPERATION); }
 	;
-
-initDefinition  returns [JFXInitDefinition def]
-	: INIT block 				{ $def = F.at(pos($INIT)).InitDefinition($block.value); }
+initDefinition  returns [JFXInitDefinition value]
+	: INIT block 				{ $value = F.at(pos($INIT)).InitDefinition($block.value); }
 	;
 modifierFlags returns [JCModifiers mods]
 @init { long flags = 0; }
@@ -452,7 +430,7 @@ formalParameters returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]
 	          ( COMMA   fpn=formalParameter	{ params.append($fpn.var); } )* )?  RPAREN 
 	;
 formalParameter returns [JFXVar var]
-	: name typeReference			{ $var = F.at($name.pos).Var($name.value, $typeReference.type, F.Modifiers(Flags.PARAMETER), null, null); } 
+	: name typeReference			{ $var = F.at($name.pos).Param($name.value, $typeReference.type); } 
 	;
 block returns [JCBlock value]
 @init 		{ ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
@@ -481,8 +459,7 @@ statements [ListBuffer<JCStatement> stats]  returns [JCExpression expr = null]
 	;
 statement returns [JCStatement value]
 	: variableDeclaration SEMI		{ $value = $variableDeclaration.value; }
-	| functionDefinition			{ $value = $functionDefinition.def; }
-	| operationDefinition			{ $value = $operationDefinition.def; }
+	| functionDefinition			{ $value = $functionDefinition.value; }
 	| insertStatement SEMI			{ $value = $insertStatement.value; }
 	| deleteStatement SEMI			{ $value = $deleteStatement.value; }
         | WHILE LPAREN expression RPAREN block	{ $value = F.at(pos($WHILE)).WhileLoop($expression.expr, $block.value); }
@@ -494,11 +471,37 @@ statement returns [JCStatement value]
 	| SEMI					{ $value = F.at(pos($SEMI)).Skip(); } 
        	;
 variableDeclaration   returns [JCStatement value]
-	: VAR  name  typeReference  
-	    ( EQ boundExpression	 	{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(0L),
-	    							$boundExpression.expr, $boundExpression.status); }
-	    | 					{ $value = F.at(pos($VAR)).Var($name.value, $typeReference.type, F.Modifiers(0L), null, null); } 
-	    )   
+	: modifierFlags variableLabel  name  typeReference  eqBoundExpressionOpt onChanges
+	    					{ $value = F.at($variableLabel.pos).Var($name.value, 
+	    							$typeReference.type, 
+	    							$modifierFlags.mods,
+	    							$eqBoundExpressionOpt.expr, 
+	    							$eqBoundExpressionOpt.status, 
+	    							$onChanges.listb.toList()); }
+	;
+eqBoundExpressionOpt   returns [JavafxBindStatus status, JCExpression expr]
+	: EQ boundExpression	 		{ $expr = $boundExpression.expr; $status = $boundExpression.status; }
+	| /*nada*/		 		{ $expr = null; $status = UNBOUND; }
+	;
+onChanges   returns [ListBuffer<JFXAbstractOnChange> listb = ListBuffer.<JFXAbstractOnChange>lb()]
+	: ( onChangeClause			{ listb.append($onChangeClause.value); } )*
+	;
+onChangeClause   returns [JFXAbstractOnChange value]
+	: ON REPLACE (LPAREN old=identifier RPAREN)? block
+						{ $value = F.at(pos($ON)).OnReplace($old.expr, $block.value); }
+	| ON DELETE (LPAREN old=identifier RPAREN)? block
+						{ $value = F.at(pos($ON)).OnDeleteAll($old.expr, $block.value); }
+	| ON REPLACE LBRACKET index=identifier RBRACKET (LPAREN old=identifier RPAREN)? block
+						{ $value = F.at(pos($ON)).OnReplaceElement($index.expr, $old.expr, $block.value); }
+	| ON INSERT LBRACKET index=identifier RBRACKET (LPAREN old=identifier RPAREN)? block
+						{ $value = F.at(pos($ON)).OnInsertElement($index.expr, $old.expr, $block.value); }
+	| ON DELETE LBRACKET index=identifier RBRACKET (LPAREN old=identifier RPAREN)? block
+						{ $value = F.at(pos($ON)).OnDeleteElement($index.expr, $old.expr, $block.value); }
+	;
+variableLabel    returns [int pos]
+	: VAR					{ $pos = pos($VAR); }
+	| LET					{ $pos = pos($LET); }
+	| ATTRIBUTE				{ $pos = pos($ATTRIBUTE); }
 	;
 insertStatement   returns [JCStatement value]
 	: INSERT e1=expression  INTO e2=expression 
@@ -527,11 +530,8 @@ tryStatement   returns [JCStatement value]
 	   ) 					{ $value = F.at(pos($TRY)).Try(body, catchers.toList(), finalBlock); }
 	;
 catchClause    returns [JCCatch value]
-	: CATCH  LPAREN  name  
-	  (COLON identifier)?  
-	  RPAREN   block 			{ JCModifiers mods = F.at($name.pos).Modifiers(Flags.PARAMETER);
-	  					  JCVariableDecl formal = F.at($name.pos).VarDef(mods, $name.value, $identifier.expr, null);
-	  					  $value = F.at(pos($CATCH)).Catch(formal, $block.value); } 
+	: CATCH  LPAREN  formalParameter
+	  RPAREN   block 			{ $value = F.at(pos($CATCH)).Catch($formalParameter.var, $block.value); } 
 	;
 boundExpression   returns [JavafxBindStatus status, JCExpression expr]
 @init { boolean isLazy = false; }
@@ -559,8 +559,8 @@ forExpression   returns [JCExpression expr]
 	;
 inClause   returns [JFXForExpressionInClause value] 
 @init { JFXVar var; }
-	: name 							{ var = F.at($name.pos).Var($name.value, F.TypeUnknown(), F.Modifiers(0L), null, null); } 
-	        IN se=expression   (WHERE  we=expression)?  	{ $value = F.at(pos($IN)).InClause(var, $se.expr, $we.expr); }
+	: formalParameter IN se=expression   (WHERE  we=expression)?
+	          						{ $value = F.at(pos($IN)).InClause($formalParameter.var, $se.expr, $we.expr); }
 	;
 ifExpression  returns [JCExpression expr] 
 	: IF econd=expression   THEN  ethen=expression   
@@ -649,7 +649,7 @@ objectLiteral  returns [ListBuffer<JCStatement> parts = new ListBuffer<JCStateme
 	;
 objectLiteralPart  returns [JFXStatement value]
 	: name COLON  boundExpression (COMMA | SEMI)?	{ $value = F.at(pos($COLON)).ObjectLiteralPart($name.value, $boundExpression.expr, $boundExpression.status); }
-       	| attributeDefinition
+       	| variableDeclaration
        	| functionDefinition 
        	;
 stringExpression  returns [JCExpression expr] 

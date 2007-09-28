@@ -925,6 +925,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitVar(JFXVar tree) {
         attribType(tree.getJFXType(), env);
+        attribStats(tree.getOnChanges(), env);
 
         // Local variables have not been entered yet, so we need to do it now:
         if (env.info.scope.owner.kind == MTH) {
@@ -988,6 +989,41 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         finally {
             chk.setLint(prevLint);
         }
+    }
+    
+    public void visitAbstractOnChange(JFXAbstractOnChange tree) {
+	if (tree.getIndex() != null) {
+            attribExpr(tree.getIndex(), env);
+        }
+	if (tree.getOldValue() != null) {
+            attribExpr(tree.getOldValue(), env);  
+        }
+        attribStat(tree.getBody(), env);
+    }
+    
+    @Override
+    public void visitOnReplace(JFXOnReplace tree) {
+        visitAbstractOnChange(tree);
+    }
+    
+    @Override
+    public void visitOnReplaceElement(JFXOnReplaceElement tree) {
+        visitAbstractOnChange(tree);
+    }
+    
+    @Override
+    public void visitOnInsertElement(JFXOnInsertElement tree) {
+        visitAbstractOnChange(tree);
+    }
+    
+    @Override
+    public void visitOnDeleteElement(JFXOnDeleteElement tree) {
+        visitAbstractOnChange(tree);
+    }
+    
+    @Override
+    public void visitOnDeleteAll(JFXOnDeleteAll tree) {
+        visitAbstractOnChange(tree);
     }
     
     @Override
@@ -1589,7 +1625,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     }
                     break;
                 case JCTree.WHILELOOP:
-                case JavafxTag.FOREXPRESSION:
+                case JavafxTag.FOR_EXPRESSION:
                     if (label == null) return env1.tree;
                     break;
                 case JCTree.SWITCH:
@@ -2126,32 +2162,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
     
     @Override
-    public void visitAbstractMember(JFXAbstractMember that) {
-        that.modifiers.accept(this);
-        if (that.getType() != null) {
-            that.getType().accept((JavafxVisitor)this);
-        }
-    }
-    
-    @Override
-    public void visitAbstractFunction(JFXAbstractFunction that) {
-        visitAbstractMember(that);
-        for (JCTree param : that.getParameters()) {
-            param.accept(this);
-        }
-    }
-    
-    @Override
-    public void visitAttributeDefinition(JFXAttributeDefinition that) {
-        visitVar(that);
-
-        if (that.getOnReplaceBlock() != null) {
-            // attribute the change trigger
-            visitBlock(that.getOnReplaceBlock());
-        }
-    }
-
-    @Override
     public void visitInitDefinition(JFXInitDefinition that) {
         that.getBody().accept(this);
     }
@@ -2293,11 +2303,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         that.sym = (ClassSymbol)that.getIdentifier().sym;
         that.type = that.getIdentifier().type;
         result = that.type;
-    }
-    
-    @Override
-    public void visitVarIsObjectBeingInitialized(JFXVarIsObjectBeingInitialized that) {
-        visitVar(that);
     }
     
     @Override

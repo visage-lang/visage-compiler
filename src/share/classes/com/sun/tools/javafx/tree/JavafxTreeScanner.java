@@ -69,30 +69,6 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     }
     
     @Override
-    public void visitAbstractMember(JFXAbstractMember that) {
-        that.modifiers.accept(this);
-        if (that.getType() != null) {
-            that.getType().accept((JavafxVisitor)this);
-        }
-    }
-    
-    @Override
-    public void visitAbstractFunction(JFXAbstractFunction that) {
-        visitAbstractMember(that);
-        for (JCTree param : that.getParameters()) {
-            param.accept(this);
-        }
-    }
-    
-    @Override
-    public void visitAttributeDefinition(JFXAttributeDefinition that) {
-        visitVar(that);
-        scan(that.getOnReplaceBlock());
-        scan(that.getInverseOrNull());
-        scan(that.getOrderingOrNull());
-    }
-
-    @Override
     public void visitOperationDefinition(JFXOperationDefinition that) {
         that.getModifiers().accept(this);
         that.getJFXReturnType().accept((JavafxVisitor)this);
@@ -174,11 +150,6 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     }
     
     @Override
-    public void visitVarIsObjectBeingInitialized(JFXVarIsObjectBeingInitialized that) {
-        visitVar(that);
-    }
-    
-    @Override
     public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized that) {
     }
     
@@ -212,6 +183,37 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
         scan(tree.getJFXType());
 	scan(tree.mods);
 	scan(tree.init);
+    }
+    
+    public void visitAbstractOnChange(JFXAbstractOnChange tree) {
+	scan(tree.getIndex());
+	scan(tree.getOldValue());  
+        scan(tree.getBody());
+    }
+    
+    @Override
+    public void visitOnReplace(JFXOnReplace tree) {
+        visitAbstractOnChange(tree);
+    }
+    
+    @Override
+    public void visitOnReplaceElement(JFXOnReplaceElement tree) {
+        visitAbstractOnChange(tree);
+    }
+    
+    @Override
+    public void visitOnInsertElement(JFXOnInsertElement tree) {
+        visitAbstractOnChange(tree);
+    }
+    
+    @Override
+    public void visitOnDeleteElement(JFXOnDeleteElement tree) {
+        visitAbstractOnChange(tree);
+    }
+    
+    @Override
+    public void visitOnDeleteAll(JFXOnDeleteAll tree) {
+        visitAbstractOnChange(tree);
     }
     
     @Override

@@ -35,45 +35,45 @@ public abstract class JavafxTag extends JCTree {
     private JavafxTag() {
     }
 
-    /** Pseudo operation: Remove tree
-     */
-    public static final int PSEUDOREMOVE = LETEXPR + 1;     
-
-    /** Pseudo operation: Synthetic tree
-     */
-    public static final int PSEUDOSYNTHETIC = PSEUDOREMOVE + 1;     
-
-    /** Pseudo operation: Replace tree
-     */
-    public static final int PSEUDOREPLACE = PSEUDOSYNTHETIC + 1;     
-
     /** class declaration
      */
-    public static final int CLASSDECL = PSEUDOREPLACE + 1;     
-
-    /** attribute definition
-     */
-    public static final int ATTRIBUTEDEF = CLASSDECL + 1;     
+    public static final int CLASS_DEF = LETEXPR + 1;  
 
     /** Operation definition
      */
-    public static final int OPERATIONDEF = ATTRIBUTEDEF + 1;     
-
-    /** function definition statement
-     */
-    public static final int FUNCTIONDEFSTATEMENT = ATTRIBUTEDEF + 1;     
+    public static final int FUNCTION_DEF = CLASS_DEF + 1;      
 
     /** init definition
      */
-    public static final int INITDEF = FUNCTIONDEFSTATEMENT + 1;     
+    public static final int INIT_DEF = FUNCTION_DEF + 1;     
 
     /** any var declaration including formal params
      */
-    public static final int VARDECL = INITDEF + 1;        
+    public static final int VAR_DEF = INIT_DEF + 1;        
+
+    /** on change triggers
+     */
+    public static final int ON_REPLACE = VAR_DEF + 1;        
+
+    /** on change triggers
+     */
+    public static final int ON_REPLACE_ELEMENT = ON_REPLACE + 1;        
+
+    /** on change triggers
+     */
+    public static final int ON_INSERT_ELEMENT = ON_REPLACE_ELEMENT + 1;        
+
+    /** on change triggers
+     */
+    public static final int ON_DELETE_ELEMENT = ON_INSERT_ELEMENT + 1;        
+
+    /** on change triggers
+     */
+    public static final int ON_DELETE_ALL = ON_DELETE_ELEMENT + 1;        
 
     /** In object literal  "var: name"
      */
-    public static final int VARISOBJECTBEINGINITIALIZED = VARDECL + 1;     
+    public static final int VARISOBJECTBEINGINITIALIZED = ON_DELETE_ALL + 1;     
     
     /** In object literal  "attribute: name"
      */
@@ -81,27 +81,27 @@ public abstract class JavafxTag extends JCTree {
     
     /** In object literal  "Identifier ':' [ 'bind' 'lazy'?] expression"
      */
-    public static final int OBJECTLITERALPART = SETATTRIBUTETOOBJECTBEINGINITIALIZED + 1;     
+    public static final int OBJECT_LITERAL_PART = SETATTRIBUTETOOBJECTBEINGINITIALIZED + 1;     
     
     /** pure object literal 
      */
-    public static final int PUREOBJECTLITERAL = OBJECTLITERALPART + 1;     
+    public static final int OBJECT_LITERAL = OBJECT_LITERAL_PART + 1;     
     
     /** String expression "Hello { world() %s }"
      */
-    public static final int STRINGEXPRESSION = PUREOBJECTLITERAL + 1;     
+    public static final int STRING_EXPRESSION = OBJECT_LITERAL + 1;     
 
     /** for expression 
      */
-    public static final int FOREXPRESSION = STRINGEXPRESSION + 1;     
+    public static final int FOR_EXPRESSION = STRING_EXPRESSION + 1;     
 
     /** for expression (x in seq where cond) clause
      */
-    public static final int FOREXPRESSIONINCLAUSE = FOREXPRESSION + 1;     
+    public static final int FOR_EXPRESSION_IN_CLAUSE = FOR_EXPRESSION + 1;     
 
     /** do later statement
      */
-    public static final int DOLATER = FOREXPRESSIONINCLAUSE + 1;        
+    public static final int DOLATER = FOR_EXPRESSION_IN_CLAUSE + 1;        
 
     /** do statement
      */

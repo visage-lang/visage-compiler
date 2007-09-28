@@ -28,6 +28,7 @@ package com.sun.tools.javafx.tree;
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.code.Types;
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Context;
@@ -134,28 +135,6 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXAttributeDefinition AttributeDefinition(
-            JCModifiers modifiers,
-            Name name,
-            JFXType type,
-            JFXMemberSelector inverseOrNull,
-            JCExpression orderingOrNull, 
-            JavafxBindStatus bindStatus, 
-            JCExpression init,
-            JCBlock onChange) {
-        JFXAttributeDefinition tree = new JFXAttributeDefinition(
-                modifiers,
-                name,
-                type,
-                inverseOrNull,
-                orderingOrNull, 
-                bindStatus, 
-                init,
-                onChange);
-        tree.pos = pos;
-        return tree;
-    }
-    
     public JFXOperationDefinition OperationDefinition(
             JCModifiers modifiers,
             Name name,
@@ -248,12 +227,6 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXVarIsObjectBeingInitialized VarIsObjectBeingInitialized(Name name) {
-        JFXVarIsObjectBeingInitialized tree = new JFXVarIsObjectBeingInitialized(name, Modifiers(0L), null);
-        tree.pos = pos;
-        return tree;
-    }
-    
     public JFXSetAttributeToObjectBeingInitialized SetAttributeToObjectBeingInitialized(Name name) {
         JFXSetAttributeToObjectBeingInitialized tree = new JFXSetAttributeToObjectBeingInitialized(name, null);
         tree.pos = pos;
@@ -299,13 +272,53 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     }
     
     
+    public JFXOnReplace OnReplace(JCIdent oldValue, JCBlock body) {
+         JFXOnReplace tree = new JFXOnReplace(oldValue, body);
+        tree.pos = pos;
+        return tree;
+    }
+    
+    public JFXOnReplaceElement OnReplaceElement(JCIdent index, JCIdent oldValue, JCBlock body) {
+         JFXOnReplaceElement tree = new JFXOnReplaceElement(index, oldValue, body);
+        tree.pos = pos;
+        return tree;
+    }
+    
+    public JFXOnInsertElement OnInsertElement(JCIdent index, JCIdent oldValue, JCBlock body) {
+         JFXOnInsertElement tree = new JFXOnInsertElement(index, oldValue, body);
+        tree.pos = pos;
+        return tree;
+    }
+    
+    public JFXOnDeleteElement OnDeleteElement(JCIdent index, JCIdent oldValue, JCBlock body) {
+         JFXOnDeleteElement tree = new JFXOnDeleteElement(index, oldValue, body);
+        tree.pos = pos;
+        return tree;
+    }
+    
+    public JFXOnDeleteAll OnDeleteAll(JCIdent oldValue, JCBlock body) {
+         JFXOnDeleteAll tree = new JFXOnDeleteAll(oldValue, body);
+        tree.pos = pos;
+        return tree;
+    }
+    
     public JFXVar Var(Name name,
             JFXType type,
             JCModifiers mods,
             JCExpression initializer,
-            JavafxBindStatus bindStatus) {
+            JavafxBindStatus bindStatus,
+            List<JFXAbstractOnChange> onChanges) {
         JFXVar tree = new JFXVar(name, type, 
-                mods, initializer, bindStatus, null);
+                mods, initializer, bindStatus, onChanges, null);
+        tree.pos = pos;
+        return tree;
+    }
+    
+    public JFXVar Param(Name name,
+            JFXType type) {
+        JFXVar tree = new JFXVar(name, type, 
+                Modifiers(Flags.PARAMETER), null, JavafxBindStatus.UNBOUND, 
+                List.<JFXAbstractOnChange>nil(), null);
         tree.pos = pos;
         return tree;
     }

@@ -51,6 +51,6 @@ public class JFXForExpressionInClause extends JFXTree {
 
     @Override
     public int getTag() {
-        return JavafxTag.FOREXPRESSIONINCLAUSE;
+        return JavafxTag.FOR_EXPRESSION_IN_CLAUSE;
     }
 }

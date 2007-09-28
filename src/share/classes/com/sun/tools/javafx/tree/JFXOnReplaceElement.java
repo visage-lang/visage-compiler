@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2006 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,42 +25,25 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.tree.JCTree.*;
-
-import com.sun.tools.javac.util.List;
-
-import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
 
 /**
- * A class declaration
+ *
+ * @author Robert Field
  */
-public class JFXPureObjectLiteral extends JFXExpression {
-    public JCIdent ident;
-    public List<JCStatement> parts;
-    public ClassSymbol sym;
-    public Symbol constructor;
+public class JFXOnReplaceElement extends JFXAbstractOnChange {
 
-    protected JFXPureObjectLiteral(
-            JCExpression ident,
-            List<JCStatement> parts,
-            ClassSymbol sym) {
-        this.ident = (JCIdent)ident; // TODO: Fix the types
-        this.parts = parts;
-        this.sym = sym;
+    public JFXOnReplaceElement(JCIdent index, JCIdent oldValue, JCBlock body) {
+        super(index, oldValue, body);
     }
-    public void accept(JavafxVisitor v) { v.visitPureObjectLiteral(this); }
+
+    public void accept(JavafxVisitor v) {
+        v.visitOnReplaceElement(this);
+    }
+
     
-    /**
-     * Identifer or null
-     */
-    public JCIdent getIdentifier() { return ident; }
-    public List<JCStatement> getParts() {
-        return parts;
-    }
-
     @Override
     public int getTag() {
-        return JavafxTag.OBJECT_LITERAL;
+        return JavafxTag.ON_REPLACE_ELEMENT;
     }
 }

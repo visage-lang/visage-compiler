@@ -80,6 +80,6 @@ public class JFXOperationDefinition extends JFXStatement {
 
     @Override
     public int getTag() {
-        return JavafxTag.OPERATIONDEF;
+        return JavafxTag.FUNCTION_DEF;
     }
 }

@@ -49,6 +49,6 @@ public class JFXInitDefinition extends JFXTree {
 
     @Override
     public int getTag() {
-        return JavafxTag.INITDEF;
+        return JavafxTag.INIT_DEF;
     }
 }

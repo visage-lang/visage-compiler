@@ -48,6 +48,6 @@ public class JFXForExpression extends JFXExpression {
 
     @Override
     public int getTag() {
-        return JavafxTag.FOREXPRESSION;
+        return JavafxTag.FOR_EXPRESSION;
     }
 }

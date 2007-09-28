@@ -71,6 +71,6 @@ public class JFXObjectLiteralPart extends JFXStatement {
 
     @Override
     public int getTag() {
-        return JavafxTag.OBJECTLITERALPART;
+        return JavafxTag.OBJECT_LITERAL_PART;
     }
 }
