@@ -4,10 +4,16 @@
 <?xml-stylesheet href="docbook.css" type="text/css"?>
 <book xmlns:xi="http://www.w3.org/2001/XInclude">
 <title>JavaFX Language Specification</title>
-<xi:include href="StringLiterals.xml" parse="xml"/>
+
+<xi:include href="fxintro.xml" parse="xml"/>
+
+<!--
+
 <xi:include href="Types.xml"  parse="xml"/> 
 <xi:include href="Declarations.xml"  parse="xml"/> 
 <xi:include href="Functions.xml"  parse="xml"/> 
 <xi:include href="Expressions.xml"  parse="xml"/> 
-<xi:include href="JavaFXgrammar.xml"  parse="xml"/> 
+                                                     
+<xi:include href="JavaFXgrammar.xml"  parse="xml"/>  
+-->
 </book>
