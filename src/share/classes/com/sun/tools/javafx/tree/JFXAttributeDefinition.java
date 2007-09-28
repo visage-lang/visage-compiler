@@ -36,9 +36,9 @@ import com.sun.tools.javafx.code.JavafxBindStatus;
  */
 public class JFXAttributeDefinition extends JFXVar {
 
-    public JFXMemberSelector inverseOrNull;
-    public JCExpression orderingOrNull;
-    public JCBlock onChange;
+    private final JCBlock onReplace;
+    private final JFXMemberSelector inverseOrNull;
+    private final JCExpression orderingOrNull;
 
     protected JFXAttributeDefinition(
             JCModifiers modifiers, 
@@ -48,9 +48,9 @@ public class JFXAttributeDefinition extends JFXVar {
             JCExpression orderingOrNull, 
             JavafxBindStatus bindStatus, 
             JCExpression init,
-            JCBlock onChange) {
+            JCBlock onReplace) {
         super(name, type, modifiers, init, bindStatus, null);
-        this.onChange = onChange;
+        this.onReplace = onReplace;
         this.orderingOrNull = orderingOrNull;
         this.inverseOrNull = inverseOrNull;
     }
@@ -68,10 +68,19 @@ public class JFXAttributeDefinition extends JFXVar {
         }
     }
 
-    public JCBlock getOnChangeBlock() {
-        return onChange;
+    public JCBlock getOnReplaceBlock() {
+        return onReplace;
     }
 
+    public JFXMemberSelector getInverseOrNull() {
+        return inverseOrNull;
+        
+    }
+
+    public JCExpression getOrderingOrNull() {
+        return orderingOrNull;
+    }
+    
     @Override
     public int getTag() {
         return JavafxTag.ATTRIBUTEDEF;

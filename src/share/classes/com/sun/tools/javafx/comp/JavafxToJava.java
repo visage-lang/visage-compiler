@@ -335,7 +335,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         attrInfo.append(new TranslatedAttributeInfo(
                                 attrDef.getName(), 
                                 translateVarInit(attrDef), 
-                                translate(attrDef.onChange)));
+                                translate(attrDef.getOnReplaceBlock())));
                         translatedDefs.append(trans);
                         break;
                     }

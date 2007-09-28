@@ -85,8 +85,8 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     
     @Override
     public void visitAttributeDefinition(JFXAttributeDefinition tree) {
-        if (tree.onChange != null) {
-            tree.onChange.accept(this);
+        if (tree.getOnReplaceBlock() != null) {
+            tree.getOnReplaceBlock().accept(this);
         }
         //TODO: handle on change
         visitVar(tree);

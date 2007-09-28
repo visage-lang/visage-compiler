@@ -87,9 +87,9 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     @Override
     public void visitAttributeDefinition(JFXAttributeDefinition that) {
         visitVar(that);
-        scan(that.onChange);
-        scan(that.inverseOrNull);
-        scan(that.orderingOrNull);
+        scan(that.getOnReplaceBlock());
+        scan(that.getInverseOrNull());
+        scan(that.getOrderingOrNull());
     }
 
     @Override

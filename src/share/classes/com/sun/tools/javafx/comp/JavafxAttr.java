@@ -2145,18 +2145,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public void visitAttributeDefinition(JFXAttributeDefinition that) {
         visitVar(that);
 
-        if (that.onChange != null) {
-            JFXBlockExpression body = make.at(that.onChange.pos()).BlockExpression(0, that.onChange.stats, null);
-            JFXOperationDefinition onChangeMethod = make.at(that.pos()).OperationDefinition(
-                    make.Modifiers(0L), 
-                    Name.fromString(names, "<onChange>"), 
-                    make.TypeClass(make.Ident(Name.fromString(names, "Void")), JFXType.CARDINALITY_SINGLETON), 
-                    List.<JFXVar>nil(), 
-                    body);
-            JavafxEnv<JavafxAttrContext> locEnv = memberEnter.methodEnv(onChangeMethod, env);
+        if (that.getOnReplaceBlock() != null) {
             // attribute the change trigger
-            visitBlock(that.onChange);
-            locEnv.info.scope.leave();
+            visitBlock(that.getOnReplaceBlock());
         }
     }
 
