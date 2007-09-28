@@ -20,21 +20,23 @@ import javax.lang.model.SourceVersion;
 import javax.tools.*;
 
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.JavacFileManager;
+import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Options;
 import com.sun.tools.javafx.main.JavafxOption;
 import com.sun.tools.javafx.main.Main;
 import com.sun.tools.javafx.main.RecognizedOptions.GrumpyHelper;
 import com.sun.tools.javafx.main.RecognizedOptions;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.Locale;
 
 /**
- * The Tool API implementation for the JavaFX Script compiler.
+ * The Tool API implementation for the JavaFX Script compiler, based on the
+ * javac compiler tool implementation.
  *
- * <p><b>This is NOT part of any API supported by Sun Microsystems.
- * If you write code that depends on this, you do so at your own
- * risk.  This code and its internal interfaces are subject to change
- * or deletion without notice.</b></p>
- *
- * @author Peter von der Ah\u00e9
+ * @author Tom Ball
  */
 public final class JavafxTool implements JavafxCompiler {
     private final Context dummyContext = new Context();
@@ -70,6 +72,106 @@ public final class JavafxTool implements JavafxCompiler {
     public Set<SourceVersion> getSourceVersions() {
         return Collections.unmodifiableSet(EnumSet.range(SourceVersion.RELEASE_3,
                                                          SourceVersion.latest()));
+    }
+
+    public JavacFileManager getStandardFileManager(
+        DiagnosticListener<? super JavaFileObject> diagnosticListener,
+        Locale locale,
+        Charset charset) {
+        Context context = new Context();
+        if (diagnosticListener != null)
+            context.put(DiagnosticListener.class, diagnosticListener);
+        context.put(Log.outKey, new PrintWriter(System.err, true)); // FIXME
+        return new JavacFileManager(context, true, charset);
+    }
+
+    public JavafxTaskImpl getTask(Writer out,
+                             JavaFileManager fileManager,
+                             DiagnosticListener<? super JavaFileObject> diagnosticListener,
+                             Iterable<String> options,
+                             Iterable<String> classes,
+                             Iterable<? extends JavaFileObject> compilationUnits)
+    {
+        final String kindMsg = "All compilation units must be of SOURCE kind";
+        if (options != null)
+            for (String option : options)
+                option.getClass(); // null check
+        if (classes != null) {
+            for (String cls : classes)
+                if (!SourceVersion.isName(cls)) // implicit null check
+                    throw new IllegalArgumentException("Not a valid class name: " + cls);
+        }
+        if (compilationUnits != null) {
+            for (JavaFileObject cu : compilationUnits) {
+                if (cu.getKind() != JavaFileObject.Kind.SOURCE) // implicit null check
+                    throw new IllegalArgumentException(kindMsg);
+            }
+        }
+
+        Context context = new Context();
+
+        if (diagnosticListener != null)
+            context.put(DiagnosticListener.class, diagnosticListener);
+
+        if (out == null)
+            context.put(Log.outKey, new PrintWriter(System.err, true));
+        else
+            context.put(Log.outKey, new PrintWriter(out, true));
+
+        if (fileManager == null)
+            fileManager = getStandardFileManager(diagnosticListener, null, null);
+        context.put(JavaFileManager.class, fileManager);
+        processOptions(context, fileManager, options);
+        Main compiler = new Main("javacTask", context.get(Log.outKey));
+        return new JavafxTaskImpl(this, compiler, options, context, classes, compilationUnits);
+    }
+
+    private static void processOptions(Context context,
+                                       JavaFileManager fileManager,
+                                       Iterable<String> options)
+    {
+        if (options == null)
+            return;
+
+        Options optionTable = Options.instance(context);
+
+        JavafxOption[] recognizedOptions =
+            RecognizedOptions.getJavacToolOptions(new GrumpyHelper());
+        Iterator<String> flags = options.iterator();
+        while (flags.hasNext()) {
+            String flag = flags.next();
+            int j;
+            for (j=0; j<recognizedOptions.length; j++)
+                if (recognizedOptions[j].matches(flag))
+                    break;
+
+            if (j == recognizedOptions.length) {
+                if (fileManager.handleOption(flag, flags)) {
+                    continue;
+                } else {
+                    String msg = Main.getLocalizedString("err.invalid.flag", flag);
+                    throw new IllegalArgumentException(msg);
+                }
+            }
+
+            JavafxOption option = recognizedOptions[j];
+            if (option.hasArg()) {
+                if (!flags.hasNext()) {
+                    String msg = Main.getLocalizedString("err.req.arg", flag);
+                    throw new IllegalArgumentException(msg);
+                }
+                String operand = flags.next();
+                if (option.process(optionTable, flag, operand))
+                    // should not happen as the GrumpyHelper will throw exceptions
+                    // in case of errors
+                    throw new IllegalArgumentException(flag + " " + operand);
+            } else {
+                if (option.process(optionTable, flag))
+                    // should not happen as the GrumpyHelper will throw exceptions
+                    // in case of errors
+                    throw new IllegalArgumentException(flag);
+            }
+        }
     }
 
     @Override

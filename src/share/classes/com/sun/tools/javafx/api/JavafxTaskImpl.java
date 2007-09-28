@@ -1,0 +1,254 @@
+/*
+ * JavafxTask.java
+ *
+ * Created on Sep 28, 2007, 2:19:43 PM
+ *
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.sun.tools.javafx.api;
+
+import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.util.TaskEvent;
+import com.sun.source.util.TaskListener;
+import com.sun.tools.javac.comp.AttrContext;
+import com.sun.tools.javac.comp.Env;
+import com.sun.tools.javac.model.JavacElements;
+import com.sun.tools.javac.model.JavacTypes;
+import com.sun.tools.javac.tree.*;
+import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.util.ClientCodeException;
+import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.JavacFileManager;
+import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.ListBuffer;
+import com.sun.tools.javac.util.Options;
+import com.sun.tools.javafx.main.CommandLine;
+import com.sun.tools.javafx.main.Main;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+import javax.tools.JavaFileManager;
+import javax.tools.JavaFileObject;
+
+/**
+ * JavaFX Script implementation of a JavaFX compilation task, based on
+ * JavacTaskImpl.  This class extends JavafxTask to isolate the internal
+ * javafx and javac compiler API from the public API.
+ *
+ * @see com.sun.tools.javac.api.JavacTaskImpl
+ * @author tball
+ */
+class JavafxTaskImpl extends JavafxTask {
+
+    private JavafxTool tool;
+    private Main compilerMain;
+    private com.sun.tools.javafx.main.JavafxCompiler compiler;
+    private String[] args;
+    private Context context;
+    private List<JavaFileObject> fileObjects;
+    private Map<JavaFileObject, JCCompilationUnit> notYetEntered;
+    private ListBuffer<Env<AttrContext>> genList;
+    private TaskListener taskListener;
+    private AtomicBoolean used = new AtomicBoolean();
+    private Integer result = null;
+
+    JavafxTaskImpl(JavafxTool tool, Main compilerMain, String[] args, Context context, List<JavaFileObject> fileObjects) {
+        this.tool = tool;
+        this.compilerMain = compilerMain;
+        this.args = args;
+        this.context = context;
+        this.fileObjects = fileObjects;
+        // null checks
+        compilerMain.getClass();
+        args.getClass();
+        context.getClass();
+        fileObjects.getClass();
+    }
+
+    JavafxTaskImpl(JavafxTool tool,
+                Main compilerMain,
+                Iterable<String> flags,
+                Context context,
+                Iterable<String> classes,
+                Iterable<? extends JavaFileObject> fileObjects) {
+        this(tool, compilerMain, toArray(flags, classes), context, toList(fileObjects));
+    }
+
+    static private String[] toArray(Iterable<String> flags, Iterable<String> classes) {
+        ListBuffer<String> result = new ListBuffer<String>();
+        if (flags != null)
+            for (String flag : flags)
+                result.append(flag);
+        if (classes != null)
+            for (String cls : classes)
+                result.append(cls);
+        return result.toArray(new String[result.length()]);
+    }
+
+    static private List<JavaFileObject> toList(Iterable<? extends JavaFileObject> fileObjects) {
+        if (fileObjects == null)
+            return List.nil();
+        ListBuffer<JavaFileObject> result = new ListBuffer<JavaFileObject>();
+        for (JavaFileObject fo : fileObjects)
+            result.append(fo);
+        return result.toList();
+    }
+
+    public Boolean call() {
+        if (!used.getAndSet(true)) {
+            beginContext();
+            try {
+                result = compilerMain.compile(args, context, fileObjects);
+            } finally {
+                endContext();
+            }
+            compilerMain = null;
+            args = null;
+            context = null;
+            fileObjects = null;
+            return result == 0;
+        } else {
+            throw new IllegalStateException("multiple calls to method 'call'");
+        }
+    }
+    private boolean compilationInProgress = false;
+
+    private void prepareCompiler() throws IOException {
+        if (!used.getAndSet(true)) {
+            beginContext();
+            compilerMain.setOptions(Options.instance(context));
+            compilerMain.filenames = new ListBuffer<File>();
+            List<File> filenames = compilerMain.processArgs(CommandLine.parse(args));
+            if (!filenames.isEmpty())
+                throw new IllegalArgumentException("Malformed arguments " + filenames.toString(" "));
+            compiler = com.sun.tools.javafx.main.JavafxCompiler.instance(context);
+            compiler.keepComments = true;
+            notYetEntered = new HashMap<JavaFileObject, JCCompilationUnit>();
+            for (JavaFileObject file: fileObjects)
+                notYetEntered.put(file, null);
+            genList = new ListBuffer<Env<AttrContext>>();
+            args = null;
+        }
+    }
+
+    private void beginContext() {
+        context.put(JavafxTaskImpl.class, this);
+        if (context.get(TaskListener.class) != null) {
+            context.put(TaskListener.class, (TaskListener) null);
+        }
+        if (taskListener != null) {
+            context.put(TaskListener.class, wrap(taskListener));
+        }
+        if (compilationInProgress) {
+            throw new IllegalStateException("Compilation in progress");
+        }
+        compilationInProgress = true;
+        final JavaFileManager givenFileManager = context.get(JavaFileManager.class);
+        context.put(JavaFileManager.class, (JavaFileManager) null);
+        context.put(JavaFileManager.class, new Context.Factory<JavaFileManager>() {
+
+            public JavaFileManager make() {
+                if (givenFileManager != null) {
+                    context.put(JavaFileManager.class, givenFileManager);
+                    return givenFileManager;
+                } else {
+                    return new JavacFileManager(context, true, null);
+                }
+            }
+        });
+    }
+
+    private TaskListener wrap(final TaskListener tl) {
+        tl.getClass(); // null check
+        return new TaskListener() {
+
+            public void started(TaskEvent e) {
+                try {
+                    tl.started(e);
+                } catch (Throwable t) {
+                    throw new ClientCodeException(t);
+                }
+            }
+
+            public void finished(TaskEvent e) {
+                try {
+                    tl.finished(e);
+                } catch (Throwable t) {
+                    throw new ClientCodeException(t);
+                }
+            }
+        };
+    }
+
+    private void endContext() {
+        compilationInProgress = false;
+    }
+
+    public Iterable<? extends CompilationUnitTree> parse() throws IOException {
+        try {
+            prepareCompiler();
+            List<JCCompilationUnit> units = compiler.parseFiles(fileObjects);
+            for (JCCompilationUnit unit: units) {
+                JavaFileObject file = unit.getSourceFile();
+                if (notYetEntered.containsKey(file))
+                    notYetEntered.put(file, unit);
+            }
+            return units;
+        }
+        finally {
+            parsed = true;
+            if (compiler != null && compiler.log != null)
+                compiler.log.flush();
+        }
+    }
+
+    private boolean parsed = false;
+
+    @Override
+    public Iterable<? extends CompilationUnitTree> analyze() throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Iterable<? extends JavaFileObject> generate() throws IOException {
+        throw new AssertionError("not implemented yet");
+    }
+
+    @Override
+    public void setTaskListener(TaskListener taskListener) {
+        this.taskListener = taskListener;
+    }
+
+    @Override
+    public TypeMirror getTypeMirror(Iterable<? extends Tree> path) {
+        // TODO: Should complete attribution if necessary
+        Tree last = null;
+        for (Tree node : path) {
+            last = node;
+        }
+        return ((JCTree) last).type;
+    }
+
+    @Override
+    public JavacElements getElements() {
+        if (context == null) {
+            throw new IllegalStateException();
+        }
+        return JavacElements.instance(context);
+    }
+
+    @Override
+    public JavacTypes getTypes() {
+        if (context == null) {
+            throw new IllegalStateException();
+        }
+        return JavacTypes.instance(context);
+    }
+}
