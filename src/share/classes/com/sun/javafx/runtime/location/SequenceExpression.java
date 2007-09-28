@@ -85,62 +85,87 @@ public class SequenceExpression<T> extends AbstractLocation implements SequenceL
     }
 
 
+    @Override
     public void set(int position, T value) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void delete(int position) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void deleteAll() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void deleteValue(T value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void delete(SequencePredicate<T> sequencePredicate) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void insert(T value) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void insert(Sequence<T> values) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void insertFirst(T value) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void insertFirst(Sequence<T> values) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void insertBefore(T value, int position) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void insertBefore(T value, SequencePredicate<T> sequencePredicate) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void insertBefore(Sequence<T> values, int position) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void insertBefore(Sequence<T> values, SequencePredicate<T> sequencePredicate) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void insertAfter(T value, int position) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void insertAfter(T value, SequencePredicate<T> sequencePredicate) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void insertAfter(Sequence<T> values, int position) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void insertAfter(Sequence<T> values, SequencePredicate<T> sequencePredicate) {
         throw new UnsupportedOperationException();
     }

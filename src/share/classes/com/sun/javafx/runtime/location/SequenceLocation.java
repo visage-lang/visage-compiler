@@ -26,6 +26,10 @@ public interface SequenceLocation<T> extends Location, Iterable<T> {
 
     public void delete(int position);
 
+    public void deleteAll();
+
+    public void deleteValue(T value);
+
     public void delete(SequencePredicate<T> predicate);
 
     public void insert(T value);
