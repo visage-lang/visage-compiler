@@ -385,19 +385,41 @@ public class IntegerSequenceTest extends JavaFXTestCase {
     public void testRange() {
         // [ 0..0 ] => [ 0 ]
         assertEquals(Sequences.range(0, 0), 0);
+        // [ 0..<0 ] => [ 0 ]
+//        assertEquals(Sequences.rangeExclusive(0, 0), 0);
         // [ 0..-1 ] => [ ]
         assertEquals(Sequences.range(0, -1), EMPTY_SEQUENCE);
         // [ 0..0 STEP 3 ] => [ 0 ]
         assertEquals(Sequences.range(0, 0, 3), 0);
+        // [ 0..<0 STEP 3 ] => [ 0 ]
+//        assertEquals(Sequences.rangeExclusive(0, 0, 3), 0);
         // [ 0..1 ] => [ 0, 1 ]
         assertEquals(Sequences.range(0, 1), 0, 1);
+        // [ 0..<1 ] => [ 0 ]
+//        assertEquals(Sequences.rangeExclusive(0, 1), 0);
         // [ 0..1 STEP 2 ] => [ 0 ]
         assertEquals(Sequences.range(0, 1, 2), 0);
+        // [ 1..3 STEP 2 ] => [ 1, 3 ]
+        assertEquals(Sequences.range(1, 3, 2), 1, 3);
+        // [ 1..<3 STEP 2 ] => [ 1 ]
+//        assertEquals(Sequences.rangeExclusive(1, 3, 2), 1);
+        // [ 1..4 STEP 2 ] => [ 1, 3 ]
+        assertEquals(Sequences.range(1, 4, 2), 1, 3);
+        // [ 1..<4 STEP 2 ] => [ 1, 3 ]
+//        assertEquals(Sequences.rangeExclusive(1, 4, 2), 1, 3);
 
         // [ 5..3 ] => [ 5, 4, 3 ]
         assertEquals(Sequences.range(5, 3, -1), 5, 4, 3);
+        // [ 5..>3 ] => [ 5, 4 ]
+//        assertEquals(Sequences.rangeExclusive(5, 3, -1), 5, 4);
         // [ 5..3 STEP 2 ] => [ 5, 3 ]
         assertEquals(Sequences.range(5, 3, -2), 5, 3);
+        // [ 5..>3 STEP 2 ] => [ 5 ]
+//        assertEquals(Sequences.rangeExclusive(5, 3, -2), 5 );
+        // [ 5..2 STEP 2 ] => [ 5, 3 ]
+        assertEquals(Sequences.range(5, 2, -2), 5, 3);
+        // [ 5..>2 STEP 2 ] => [ 5, 3 ]
+//        assertEquals(Sequences.rangeExclusive(5, 2, -2), 5, 3);
     }
 
     /** Test out-of-bounds sets and gets */

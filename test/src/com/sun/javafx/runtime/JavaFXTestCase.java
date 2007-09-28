@@ -1,12 +1,10 @@
 package com.sun.javafx.runtime;
 
-import com.sun.javafx.runtime.location.DoubleLocation;
-import com.sun.javafx.runtime.location.IntLocation;
-import com.sun.javafx.runtime.location.ObjectLocation;
-import com.sun.javafx.runtime.location.SequenceLocation;
+import com.sun.javafx.runtime.location.*;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 import junit.framework.TestCase;
+import junit.framework.Assert;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -53,6 +51,16 @@ public abstract class JavaFXTestCase extends TestCase {
 
     protected <T> void assertEquals(SequenceLocation<T> sequence, T... values) {
         assertEquals(sequence.get(), values);
+    }
+
+    protected void assertEquals(HistorySequenceListener hl, String... values) {
+        assertEquals(values.length, hl.get().size());
+        for (int i=0; i<values.length; i++)
+            Assert.assertEquals(values[i], hl.get().get(i));
+    }
+
+    protected void assertEquals(HistorySequenceListener hl, String value) {
+        assertEquals(hl, new String[] { value });
     }
 
     protected void assertEquals(int value, IntLocation loc) {

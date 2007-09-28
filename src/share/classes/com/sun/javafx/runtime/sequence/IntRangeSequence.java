@@ -2,7 +2,8 @@ package com.sun.javafx.runtime.sequence;
 
 /**
  * Special case implementation for sequences that are ranges of integers, such as [1..10].  Range sequences should
- * be constructed with the Sequences.range() factory method rather than with the IntRangeSequence constructor.
+ * be constructed with the Sequences.range() factory method rather than with the IntRangeSequence constructor.  An
+ * optional "step" allows sequences to vary by more than one; [ 1..5 STEP 2 ] is [ 1, 3, 5 ].  
  * O(1) space and time construction costs.
  *
  * @author Brian Goetz

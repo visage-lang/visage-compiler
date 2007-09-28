@@ -42,48 +42,52 @@ public class SequenceExpression<T> extends AbstractLocation implements SequenceL
 
     @Override
     public String toString() {
-        return getSequence().toString(); 
+        if (!isValid()) {
+            value = expression.get();
+            setValid();
+        }
+        return value.toString();
     }
 
     @Override
     public Iterator<T> iterator() {
-        return getSequence().iterator(); 
+        if (!isValid()) {
+            value = expression.get();
+            setValid();
+        }
+        return value.iterator();
     }
 
     @Override
     public T get(int position) {
-        return getSequence().get(position);
+        if (!isValid()) {
+            value = expression.get();
+            setValid();
+        }
+        return value.get(position);
     }
     
     @Override
-    public SequenceLocation<T> get() {
-        return this;
-    }
-
-    @Override
-    public void set(SequenceLocation<T> value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Sequence<T> getSequence() {
-        if (!isValid())
-            update();
+    public Sequence<T> get() {
+        if (!isValid()) {
+            value = expression.get();
+            setValid();
+        }
         return value;
-    }
-
-    public void set(Sequence<T> value) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
     public void update() {
         if (!isValid()) {
-            value = expression.get().getSequence();
+            value = expression.get();
             setValid();
         }
     }
 
+    @Override
+    public void set(Sequence<T> value) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public void set(int position, T value) {

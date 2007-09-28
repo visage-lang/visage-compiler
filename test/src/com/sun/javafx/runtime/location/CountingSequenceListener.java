@@ -18,12 +18,12 @@ class CountingSequenceListener implements SequenceChangeListener<Integer> {
         return true;
     }
 
-    public void onInsert(Integer element) {
+    public void onInsert(int position, Integer element) {
         ++insertCount;
         inserted = inserted.insert(element);
     }
 
-    public void onDelete(Integer element) {
+    public void onDelete(int position, Integer element) {
         ++deleteCount;
         deleted = deleted.insert(element);
     }
