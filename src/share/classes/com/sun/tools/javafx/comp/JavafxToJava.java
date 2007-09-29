@@ -484,7 +484,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         if (vmi.shouldMorph()) {
             init = typeMorpher.translateDefinitionalAssignment(init, vmi, diagPos, bindStatus);
-
         }
         return init;
     }
@@ -496,13 +495,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCModifiers mods = tree.getModifiers();
         long modFlags = mods==null? 0L : mods.flags;
         VarSymbol vsym = tree.sym;
+        boolean isClassVar = vsym.owner.kind == Kinds.TYP;
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         if (vmi.shouldMorph()) {
             type = vmi.getUsedType();
 
             // local variables need to be final so they can be referenced
             // attributes cannot be final since they are initialized outside of the constructor
-            if (vsym.owner.kind == Kinds.TYP) {
+            if (isClassVar) {
                 modFlags &= ~Flags.FINAL;
             } else {
                 modFlags |= Flags.FINAL;  
@@ -510,7 +510,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         mods = make.at(diagPos).Modifiers(modFlags);
         JCExpression typeExpresion = makeTypeTree(type, diagPos);
-        result = make.at(diagPos).VarDef(mods, tree.name, typeExpresion, translateVarInit(tree));
+        
+        // for class vars, initialization happens during class init, so remove
+        // from here.  For local vars translate as definitional
+        JCExpression init = isClassVar? null : translateVarInit(tree);
+        
+        result = make.at(diagPos).VarDef(mods, tree.name, typeExpresion, init);         
     }
 
         // TOD: temp hack
