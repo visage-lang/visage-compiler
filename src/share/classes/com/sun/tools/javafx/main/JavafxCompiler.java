@@ -522,6 +522,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
 
         tree.sourcefile = filename;
+        
+        printJavafxSource(tree);
 
         javafxModuleBuilder.visitTopLevel(tree);
 
@@ -553,31 +555,44 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
     }
 
-    /** Emit plain Java source for a class.
-     *  @param env    The attribution environment of the outermost class
-     *                containing this class.
-     *  @param cdef   The class definition to be printed.
+    /** Emit Java-like source corresponding to an input file.
      */
-    JavaFileObject printSource(JavafxEnv<JavafxAttrContext> env, JCClassDecl cdef) throws IOException {
-        JavaFileObject outFile
-            = fileManager.getJavaFileForOutput(CLASS_OUTPUT,
-					       cdef == null? env.toplevel.sourcefile.toString().replace(".fx", "")
-                                                             : cdef.sym.flatname.toString(),
-					       JavaFileObject.Kind.SOURCE,
-					       null);
-        if (cdef != null && inputFiles.contains(outFile)) {
-            log.error(cdef.pos(), "source.cant.overwrite.input.file", outFile);
-            return null;
-        } else {
-            BufferedWriter out = new BufferedWriter(outFile.openWriter());
+    void printJavaSource(JavafxEnv<JavafxAttrContext> env) throws IOException {
+        String dump = options.get("dumpjava");
+        if (dump != null) {
+            String fn = env.toplevel.sourcefile.toString().replace(".fx", ".javadump");
+            File outFile = new File(dump, (new File(fn)).getName());
+            FileWriter fw = new FileWriter(outFile);
+            BufferedWriter out = new BufferedWriter(fw);
             try {
-                new BlockExprPretty(out, true).printUnit(env.toplevel, cdef);
-                if (verbose)
-                    printVerbose("wrote.file", outFile);
+                new BlockExprPretty(out, true).printUnit(env.toplevel, null);
             } finally {
                 out.close();
             }
-            return outFile;
+        }
+    }
+
+    /** Emit pretty=printed fx source corresponding to an input file.
+     */
+    void printJavafxSource(JCCompilationUnit cu) {
+        String dump = options.get("dumpfx");
+        BufferedWriter out = null;
+        if (dump != null) {
+            try {
+                try {
+                    String fn = cu.sourcefile.toString().replace(".fx", ".fxdump");
+                    File outFile = new File(dump, (new File(fn)).getName());
+                    FileWriter fw = new FileWriter(outFile);
+                    out = new BufferedWriter(fw);
+                    new JavafxPretty(out, true).printUnit(cu, null);
+                } finally {
+                    if (out != null) {
+                        out.close();
+                    }
+                }
+            } catch (Throwable ex) {
+                System.err.println("Exception thrown in pretty printing: " + ex);
+            }
         }
     }
 
@@ -811,10 +826,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     private void backEnd(List<JavafxEnv<JavafxAttrContext>> envs) throws IOException {
         ListBuffer<JCCompilationUnit> trees = lb();
         for (JavafxEnv<JavafxAttrContext> env : envs) {
-            String dump = options.get("dump");
-            if (dump != null && dump.equals("java")) {
-                printSource(env, null);
-            }
+            printJavaSource(env);
             trees.append(env.toplevel);
        }
        javafxJavaCompiler.backEnd(trees.toList());
