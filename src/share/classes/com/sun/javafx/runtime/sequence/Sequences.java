@@ -24,20 +24,6 @@ public final class Sequences {
     // Inhibit instantiation
     private Sequences() { }
 
-    // Wrappers to return SequenceLocation instead
-    
-    public static<T> SequenceLocation<T> makeLocation(Class<T> clazz, T... values) {
-        return SequenceVar.<T>make(make(clazz, values));
-    }
-    
-    public static<T> SequenceLocation<T> makeLocation(Class<T> clazz, T[] values, int size) {
-        return SequenceVar.<T>make(make(clazz, values, size));
-    }
-    
-    public static SequenceLocation<Integer> rangeLocation(int lower, int upper) {
-        return SequenceVar.<Integer>make(range(lower, upper));
-    }
-    
     /** Factory for simple sequence generation */
     public static<T> Sequence<T> make(Class<T> clazz, T... values) {
         // OPT: for small sequences, just copy the elements

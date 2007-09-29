@@ -73,10 +73,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private int syntheticNameCounter = 0;
     private ListBuffer<JCStatement> prependInFrontOfStatement = null;
     
-    private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.makeLocation";
-    private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.rangeLocation";
+    private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";
+    private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.SequenceBuilder";
-    private static final String toSequenceString = "toSequenceLocation";
+    private static final String toSequenceString = "toSequence";
     
     // for type morphing
     private final JavafxTypeMorpher typeMorpher;
@@ -256,6 +256,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         T result = translate(tree);
         bindContext = prevBindContext;
         return result;
+    }
+    
+    private  <T extends JCTree> T translateLHS(T tree) {
+        return translateLHS(tree, true);
     }
     
     private  <T extends JCTree> T translateLHS(T tree, boolean isImmediateLHS) {
@@ -804,26 +808,26 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
         result = callStatement(tree, 
-                tree.getSequence(), 
+                translateLHS( tree.getSequence() ), 
                 "insert", 
-                tree.getElement());
+                translate( tree.getElement() ));
     }
     
     @Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
         if (tree.getIndex() != null) { 
             result = callStatement(tree, 
-                tree.getSequence(), 
+                translateLHS( tree.getSequence() ), 
                 "delete", 
-                tree.getIndex());
+                translate( tree.getIndex() ));
         } else if (tree.getElement() != null) { 
             result = callStatement(tree, 
-                tree.getSequence(), 
+                translateLHS( tree.getSequence() ), 
                 "deleteValue", 
-                tree.getElement());
+                translate( tree.getElement() ));
         } else { 
             result = callStatement(tree, 
-                tree.getSequence(), 
+                translateLHS( tree.getSequence() ), 
                 "deleteAll");
         }
     }
@@ -852,8 +856,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             List<JCExpression> args) {
         DiagnosticPosition diagPos = treeForPos.pos();
         Name methodName = names.fromString(method);
-        JCFieldAccess select = make.at(diagPos).Select(translate( receiver ), methodName);
-        JCExpression apply = make.at(diagPos).Apply(null, select, translate( args ));
+        JCFieldAccess select = make.at(diagPos).Select(receiver, methodName);
+        JCExpression apply = make.at(diagPos).Apply(null, select, args);
         return make.at(diagPos).Exec(apply);
     }
     

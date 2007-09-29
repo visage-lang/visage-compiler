@@ -62,7 +62,7 @@ public class JavafxSymtab extends Symtab {
         javafx_StringType = stringType;
         javafx_BooleanType = booleanType;
         javafx_VoidType = voidType;
-        javafx_SequenceType = enterClass("com.sun.javafx.runtime.location.SequenceLocation");
+        javafx_SequenceType = enterClass("com.sun.javafx.runtime.sequence.Sequence");
         javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);
         
         enterOperators();

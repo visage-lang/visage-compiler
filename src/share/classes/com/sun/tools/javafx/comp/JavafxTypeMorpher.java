@@ -120,6 +120,10 @@ public class JavafxTypeMorpher {
             }
         }
 
+        private boolean isSequence() {
+            return types.erasure(realType) == syms.javafx_SequenceTypeErasure;
+        }
+
         public boolean shouldMorph() {
             if (!haveDeterminedMorphability()) {
                 realType = varSymbol.type;
@@ -138,17 +142,15 @@ public class JavafxTypeMorpher {
                     locationType = syms.intType;
                     typeKind = TYPE_KIND_INT;
                 }
-                if (types.erasure(realType) == syms.javafx_SequenceTypeErasure) {
-                    // realType unchanged, already a Location
-                    setUsedType(realType);
-                    typeKind = TYPE_KIND_SEQUENCE;
-                    markShouldMorph();
-                } else if (locationType != null) {
+                if (locationType != null) {
                     // External module with a Location type
                     setUsedType(realType);
                     realType = locationType;
                     markShouldMorph();
-                } else if (isBoundTo() || isAttribute()) {
+                } else if (isBoundTo() || isAttribute() || isSequence()) {
+                    // Must be a Location is bound, or a sequence,
+                    // and, at least for now if it is an attribute.
+                    //TODO: should be a Location if there is a trigger on it
                     if (realType.isPrimitive()) {
                         if (realTsym == syms.doubleType.tsym) {
                             typeKind = TYPE_KIND_DOUBLE;
@@ -161,7 +163,11 @@ public class JavafxTypeMorpher {
                             typeKind = TYPE_KIND_OBJECT;
                         }
                     } else {
-                        typeKind = TYPE_KIND_OBJECT;
+                        if (isSequence()) {
+                            typeKind = TYPE_KIND_SEQUENCE;
+                        } else {
+                            typeKind = TYPE_KIND_OBJECT;
+                        }
                     }
                     if (realType.constValue() != null) {
                         realType = realType.baseType();
@@ -355,7 +361,7 @@ public class JavafxTypeMorpher {
                 makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
         if (bindStatus.isUnidiBind()) {
             initExpr = buildExpression(vmi.varSymbol, initExpr, bindStatus);
-        } else if (!bindStatus.isBidiBind() && vmi.typeKind != TYPE_KIND_SEQUENCE) {
+        } else if (!bindStatus.isBidiBind()) {
             initExpr = makeCall(vmi, diagPos, List.of(initExpr), varLocation, makeMethodName);
         }
         return initExpr;
