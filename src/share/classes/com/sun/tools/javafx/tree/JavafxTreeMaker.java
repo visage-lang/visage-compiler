@@ -151,6 +151,18 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
+    public JFXOperationValue OperationValue(
+            JFXType restype,
+             List<JFXVar> params, 
+            JFXBlockExpression bodyExpression) {
+        JFXOperationValue tree = new JFXOperationValue(
+                restype,
+                params,
+                bodyExpression);
+        tree.pos = pos;
+        return tree;
+    }
+
     public JFXInitDefinition InitDefinition(
             JCBlock body) {
         JFXInitDefinition tree = new JFXInitDefinition(

@@ -442,7 +442,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = blockExpr1; 
     }
 
-    
     @Override
     public void visitStringExpression(JFXStringExpression tree) {
        StringBuffer sb = new StringBuffer();
@@ -651,6 +650,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = ((JavafxTreeMaker)make).at(diagPos).BlockExpression(0L, stmts.toList(), value);
     }
     
+    @Override
+    public void visitOperationValue(JFXOperationValue tree) {
+        throw new Error("unnamed function values not yet implemented");
+    }
+
     @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
         DiagnosticPosition diagPos = tree.pos();

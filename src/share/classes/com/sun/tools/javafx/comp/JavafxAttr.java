@@ -1361,6 +1361,40 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
     
     @Override
+    public void visitOperationValue(JFXOperationValue tree) {
+         attribType(tree.rettype, env);
+         //  attribBounds(tree.typarams);
+
+         // Create a new environment with local scope
+         // for attributing the method.
+         JavafxEnv<JavafxAttrContext> localEnv = null; // memberEnter.methodEnv(tree, env); // FIXME
+
+         // Enter all type parameters into the local method scope.
+         //for (List<JCTypeParameter> l = tree.typarams; l.nonEmpty(); l = l.tail)
+         //       localEnv.info.scope.enterIfAbsent(l.head.type.tsym);
+
+         // Attribute all value parameters.
+         //for (List<JCVariableDecl> l = tree.params; l.nonEmpty(); l = l.tail) {
+         //    attribStat(l.head, localEnv);
+         //}
+
+         // Check that type parameters are well-formed.
+         //chk.validateTypeParams(tree.typarams);
+
+         // Check that result type is well-formed.
+         chk.validate(tree.rettype);
+          
+         //for (List<JCExpression> l = tree.thrown; l.nonEmpty(); l = l.tail)
+          //      chk.checkType(l.head.pos(), l.head.type, syms.throwableType);
+
+
+         // Attribute method bodyExpression.
+         attribExpr(tree.bodyExpression, localEnv);
+         localEnv.info.scope.leave();
+         result = tree.type; // = m.type; // FIXME
+    }
+    
+    @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
         
         // Do not in this method translate the blockExpression into
@@ -1371,7 +1405,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // block being null should be fixed where they occur as this indicates 
         // bad code.
         
-        attribType(tree.rettype, env);
+        attribType(tree.operation.rettype, env);
 
         MethodSymbol m = tree.sym;
 
@@ -1392,16 +1426,16 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             ClassSymbol owner = env.enclClass.sym;
             if ((owner.flags() & ANNOTATION) != 0 &&
-                tree.funParams.nonEmpty())
-                log.error(tree.funParams.head.pos(),
+                tree.operation.funParams.nonEmpty())
+                log.error(tree.operation.funParams.head.pos(),
                           "intf.annotation.members.cant.have.params");
 
             // Attribute all value parameters.
-            for (List<JFXVar> l = tree.funParams; l.nonEmpty(); l = l.tail) {
+            for (List<JFXVar> l = tree.operation.funParams; l.nonEmpty(); l = l.tail) {
                 attribStat(l.head, localEnv);
             }
             
-            if (tree.bodyExpression == null) {
+            if (tree.operation.bodyExpression == null) {
                 // Empty bodies are only allowed for
                 // abstract, native, or interface methods, or for methods
                 // in a retrofit signature class.
@@ -1410,14 +1444,14 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     !relax)
                     log.error(tree.pos(), "missing.meth.body.or.decl.abstract");
             } else if ((owner.flags() & INTERFACE) != 0) {
-                log.error(tree.bodyExpression.pos(), "intf.meth.cant.have.body");
+                log.error(tree.operation.bodyExpression.pos(), "intf.meth.cant.have.body");
             } else if ((tree.mods.flags & ABSTRACT) != 0) {
                 log.error(tree.pos(), "abstract.meth.cant.have.body");
             } else if ((tree.mods.flags & NATIVE) != 0) {
                 log.error(tree.pos(), "native.meth.cant.have.body");
             } else {
                 // Attribute method bodyExpression.
-                attribExpr(tree.bodyExpression, localEnv);
+                attribExpr(tree.operation.bodyExpression, localEnv);
             }
             localEnv.info.scope.leave();
             result = tree.type = m.type;
@@ -2377,6 +2411,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             Type valtype = attribExpr(tree.value, localEnv);
              result = check(tree, valtype, VAL, pkind, pt);
         }
+        if (tree.type == null)
+            tree.type = syms.voidType;
         localEnv.info.scope.leave();
     }
 

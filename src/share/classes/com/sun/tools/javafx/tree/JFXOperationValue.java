@@ -24,58 +24,44 @@
  */
 
 package com.sun.tools.javafx.tree;
-
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.code.Symbol.MethodSymbol;
-import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
-
 import com.sun.tools.javac.tree.JCTree.*;
 
 /**
- * A function definition.
+ *
+ * @author bothner
  */
-public class JFXOperationDefinition extends JFXStatement {
-    public JCModifiers mods;
-    public Name name;
-    public JFXOperationValue operation;
-    public MethodSymbol sym;
+public class JFXOperationValue  extends JFXExpression {
+    public JFXType rettype;
+    public List<JFXVar> funParams;
+    public JFXBlockExpression bodyExpression;
 
-    protected JFXOperationDefinition(
-            JCModifiers mods, 
-            Name name, 
-            JFXType rettype, 
-            List<JFXVar> funParams, 
+    public JFXOperationValue(JFXType rettype, 
+            List<JFXVar> params, 
             JFXBlockExpression bodyExpression) {
-        this.mods = mods;
-        this.name = name;
-        this.operation = new JFXOperationValue(rettype, funParams, bodyExpression);
+        this.rettype = rettype;
+        this.funParams = params;
+        this.bodyExpression = bodyExpression;
+    }
+
+    public JFXType getJFXReturnType() { return rettype; }
+    public JFXType getType() {
+        return rettype;
     }
     
+    public List<JFXVar> getParameters() {
+        return funParams;
+    }
+
     public JFXBlockExpression getBodyExpression() {
-        return operation.bodyExpression;
-    }
-    public JCModifiers getModifiers() { return mods; }
-    public Name getName() { return name; }
-    public JFXType getJFXReturnType() { return operation.rettype; }
-    public List<JFXVar> getParameters() { return operation.funParams; }
-
-    public void accept(JavafxVisitor v) {
-        v.visitOperationDefinition(this);
+        return bodyExpression;
     }
 
-    @Override
-    public void accept(Visitor v) {
-        if (v instanceof JavafxVisitor) {
-            this.accept((JavafxVisitor)v);
-        } else {
-            assert false;
-        }
-    }
-
-    @Override
+  public void accept(JavafxVisitor v) { v.visitOperationValue(this); }
+    
+ @Override
     public int getTag() {
-        return JavafxTag.FUNCTION_DEF;
+     return JavafxTag.FUNCTIONEXPRESSION;
     }
 }

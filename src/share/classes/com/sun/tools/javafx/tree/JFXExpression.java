@@ -29,6 +29,7 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.Visitor;
 
 import com.sun.source.tree.TreeVisitor;
+import com.sun.tools.javac.tree.Pretty;
 
 /**
  * Statements.
@@ -48,6 +49,15 @@ public abstract class JFXExpression extends JCExpression {
     public void accept(Visitor v) {
         if (v instanceof JavafxVisitor) {
             this.accept((JavafxVisitor)v);
+        } else if (v instanceof Pretty) {
+            try {
+                Pretty pretty = (Pretty) v;
+                pretty.print('[');
+                pretty.print(getClass().getName());
+                //pretty.print(' ');
+                //v.visitTree(this); visit children?
+                pretty.print(']');
+            } catch (java.io.IOException ex) { throw new RuntimeException(ex); }
         } else {
             assert false : "should be seen by a non-JavaFX visitor: " + this.getClass();
             v.visitTree(this);

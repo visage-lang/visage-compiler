@@ -69,13 +69,18 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     }
     
     @Override
-    public void visitOperationDefinition(JFXOperationDefinition that) {
-        that.getModifiers().accept(this);
-        that.getJFXReturnType().accept((JavafxVisitor)this);
+    public void visitOperationValue(JFXOperationValue that) {
         for (JFXVar param : that.getParameters()) {
             param.accept((JavafxVisitor)this);
         }
         that.getBodyExpression().accept((JavafxVisitor)this);
+    }
+
+    @Override
+    public void visitOperationDefinition(JFXOperationDefinition that) {
+        that.getModifiers().accept(this);
+        that.getJFXReturnType().accept((JavafxVisitor)this);
+        visitOperationValue(that.operation);
     }
 
     @Override

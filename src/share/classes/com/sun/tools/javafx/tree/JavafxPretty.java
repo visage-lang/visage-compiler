@@ -98,6 +98,25 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
+   public void visitOperationValue(JFXOperationValue tree) {
+        try {
+            println();
+            align();
+            printDocComment(tree);
+            print(" function ");
+            print("(");
+            printExprs(tree.getParameters());
+            print(")");
+            if (tree.getType() != null) {
+                printExpr(tree.getType());
+            }
+            printExpr(tree.getBodyExpression());
+            println();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public void visitOperationDefinition(JFXOperationDefinition tree) {
         try {
             println();
@@ -109,7 +128,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             print("(");
             printExprs(tree.getParameters());
             print(")");
-            printExpr(tree.rettype);
+            printExpr(tree.operation.rettype);
             printExpr(tree.getBodyExpression());
             println();
         } catch (IOException e) {

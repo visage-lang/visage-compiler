@@ -441,6 +441,19 @@ block returns [JCBlock value]
 	  )*
 	  RBRACE				{ $value = F.at(pos($LBRACE)).Block(0L, stats.toList()); }
 	;
+functionExpression  returns [JFXOperationValue expr]
+       : FUNCTION   formalParameters   typeReference blockExpression {
+   $expr = F.at(pos($FUNCTION)).OperationValue($typeReference.type, 
+                                               $formalParameters.params.toList(),
+                                               $blockExpression.expr);
+   };
+operationExpression  returns [JFXOperationValue expr]
+       : OPERATION   formalParameters   typeReference blockExpression {
+   $expr = F.at(pos($OPERATION)).OperationValue($typeReference.type, 
+                                                $formalParameters.params.toList(),
+                                                $blockExpression.expr);
+   };
+
 blockExpression returns [JFXBlockExpression expr = null]
 @init { ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>(); }
 	: LBRACE (statements[stats])? RBRACE	{ $expr = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), 
@@ -634,6 +647,8 @@ primaryExpression  returns [JCExpression expr]
        	| bracketExpression 					{ $expr = $bracketExpression.expr; }
        	| literal 						{ $expr = $literal.expr; }
        	| blockExpression					{ $expr = $blockExpression.expr; }
+       	| functionExpression					{ $expr = $functionExpression.expr; }
+       	| operationExpression					{ $expr = $operationExpression.expr; }
        	| LPAREN expression RPAREN				{ $expr = F.at(pos($LPAREN)).Parens($expression.expr); }
        	;
 newExpression  returns [JCExpression expr] 

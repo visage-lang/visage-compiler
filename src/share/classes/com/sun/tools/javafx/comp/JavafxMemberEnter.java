@@ -639,7 +639,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
     private Type attrMethodType(JFXOperationDefinition opDef, JavafxEnv<JavafxAttrContext> lEnv) {
         Type returnType;
-
+        JFXOperationValue opVal = opDef.operation;
         // Create a new environment with local scope
         // for attributing the method.
         JavafxEnv<JavafxAttrContext> localEnv = methodEnv(opDef, env);
@@ -647,21 +647,21 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         // Attribute all value parameters.
         boolean prevIsInMethodLocalVars = isInMethodParamVars;
         isInMethodParamVars = true;
-        for (List<JFXVar> l = opDef.funParams; l.nonEmpty(); l = l.tail) {
+        for (List<JFXVar> l = opVal.funParams; l.nonEmpty(); l = l.tail) {
             attr.attribStat(l.head, localEnv);
         }
         isInMethodParamVars = prevIsInMethodLocalVars;
 
-        if (opDef.getJFXReturnType().getTag() == JavafxTag.TYPEUNKNOWN) {
-            if (opDef.bodyExpression == null) {
+        if (opVal.getJFXReturnType().getTag() == JavafxTag.TYPEUNKNOWN) {
+            if (opVal.bodyExpression == null) {
                 // no body, can't infer, assume Any
                 returnType = syms.javafx_AnyType;
             } else {
                 // infer the type from the body
-                if (opDef.bodyExpression.value == null) {
+                if (opVal.bodyExpression.value == null) {
                     returnType = syms.javafx_VoidType;
                 } else {
-                    returnType = attr.attribExpr(opDef.bodyExpression, localEnv);
+                    returnType = attr.attribExpr(opVal.bodyExpression, localEnv);
                 }
             }
             methodsToInferReturnType = methodsToInferReturnType.append(new MethodInferTypeHelper(opDef, lEnv));
@@ -678,33 +678,34 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     private void inferMethodReturnTypes() {
         if (methodsToInferReturnType != null) { 
             for (MethodInferTypeHelper methodDeclHelper : methodsToInferReturnType) {
-                if (methodDeclHelper.method.rettype.type == syms.javafx_AnyType &&
-                          methodDeclHelper.method.getBodyExpression() != null) {
+                JFXOperationValue operation = methodDeclHelper.method.operation;
+                if (operation.rettype.type == syms.javafx_AnyType &&
+                          operation.getBodyExpression() != null) {
                       Type prevMethodReturnType = methodReturnType;
                       methodReturnType = null;
-                      Type prevrettype = methodDeclHelper.method.rettype.type;
-                      methodDeclHelper.method.rettype.type = Type.noType;
+                      Type prevrettype = operation.rettype.type;
+                      operation.rettype.type = Type.noType;
                       JavafxEnv<JavafxAttrContext> prevLocalEnv = localEnv;
                       localEnv = methodDeclHelper.lEnv;
-                      memberEnter(methodDeclHelper.method.getBodyExpression(), localEnv);
+                      memberEnter(operation.getBodyExpression(), localEnv);
                       localEnv = prevLocalEnv;
                       if (methodReturnType == null) {
-                          methodDeclHelper.method.rettype.type = syms.voidType;
+                          operation.rettype.type = syms.voidType;
                           if (methodDeclHelper.method.sym != null && methodDeclHelper.method.sym.type != null &&
                               methodDeclHelper.method.sym.kind == MTH) {
                               ((MethodType)methodDeclHelper.method.sym.type).restype = syms.voidType;
                           }
                       }
                       else {
-                          methodDeclHelper.method.rettype.type = methodReturnType;
+                          operation.rettype.type = methodReturnType;
                           if (methodDeclHelper.method.sym != null && methodDeclHelper.method.sym.type != null &&
                               methodDeclHelper.method.sym.kind == MTH) {
                               ((MethodType)methodDeclHelper.method.sym.type).restype = methodReturnType;
                           }
                       }
                       
-                      if (methodDeclHelper.method.rettype.type == Type.noType) {
-                          methodDeclHelper.method.rettype.type = prevrettype;
+                      if (operation.rettype.type == Type.noType) {
+                          operation.rettype.type = prevrettype;
                       }
   
                       methodReturnType = prevMethodReturnType;
