@@ -1024,9 +1024,32 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = make.at(tree.pos).Erroneous(errs);
     }
 
+    /** Convert an expression to a statement.
+     * In general, jsut creates an JCExpressionStatement.
+     * However, JCConditional is converted to a JCIf.
+     */
+    JCStatement exprToStmt (JCExpression expr) {
+        if (expr instanceof JCConditional)
+            return condToIf((JCConditional) expr);
+        return make.at(expr.pos).Exec(expr);
+    }
+    
+    private JCIf condToIf (JCConditional cond) {
+        return make.at(cond.pos).If(cond.cond, exprToStmt(cond.truepart), exprToStmt(cond.falsepart));
+    }
+ 
     public void visitExec(JCExpressionStatement tree) {
         JCExpression expr = translate(tree.expr);
-        result = make.at(tree.pos).Exec(expr);
+        // Gen's visitConditional doesn't like void expressions.
+        // This is easy to fix (use isVoidItem on the item before load),
+        // but there are other restrictions in javac.  We'll deal with
+        // those later, but for now here is a simple rewrite that
+        // handles most of the useful cases.
+        if (tree.expr instanceof JCConditional) {
+            result = condToIf((JCConditional) tree.expr);
+            return;
+        }
+	result = make.at(tree.pos).Exec(expr);
     }
 
     public void visitForeachLoop(JCEnhancedForLoop tree) {
