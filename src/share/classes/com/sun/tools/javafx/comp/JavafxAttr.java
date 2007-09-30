@@ -2403,16 +2403,32 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (type == null) {
             type = attribType(classNameExpr, env);
         }
-        if (tree.getCardinality() == JFXType.CARDINALITY_ANY) {
-            type = sequenceType(type);
-        }
+        type = sequenceType(type, tree.getCardinality());
         tree.type = type;
         result = type;
     }
     
     @Override
     public void visitTypeFunctional(JFXTypeFunctional tree) {
-        assert false : "MUST IMPLEMENT";
+        Type rtype = attribType(tree.restype, env);
+        rtype = new WildcardType(rtype, BoundKind.EXTENDS, syms.boundClass);
+
+        ListBuffer<Type> typarams = new ListBuffer<Type>();
+        typarams.append(rtype);
+        int nargs = 0;
+        for (JFXType param : tree.params) {
+            Type ptype = attribType(param, env);
+            ptype = new WildcardType(ptype, BoundKind.SUPER, syms.boundClass);
+            typarams.append(ptype);
+            nargs++;
+        }
+        assert nargs <= syms.MAX_FIXED_PARAM_LENGTH
+                : "NOT IMPLEMENTED - functions with >"+syms.MAX_FIXED_PARAM_LENGTH+" parameters";
+        Type funtype = syms.javafx_FunctionTypes[nargs];
+        Type type = new ClassType(funtype.getEnclosingType(), typarams.toList(), funtype.tsym);
+        type = sequenceType(type, tree.getCardinality());
+        tree.type = type;
+        result = type; 
     }
     
     @Override
@@ -2435,6 +2451,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (tree.type == null)
             tree.type = syms.voidType;
         localEnv.info.scope.leave();
+    }
+
+    Type sequenceType(Type elemType, int cardinality) {
+        return cardinality == JFXType.CARDINALITY_ANY 
+                ? sequenceType(elemType)
+                : elemType;
     }
 
     Type sequenceType(Type elemType) {

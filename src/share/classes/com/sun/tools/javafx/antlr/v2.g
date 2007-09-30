@@ -720,11 +720,20 @@ assignmentOperator  returns [int optag]
 	| SLASHEQ   			{ $optag = JCTree.DIV_ASG; } 
 	| PERCENTEQ   			{ $optag = JCTree.MOD_ASG; } 
 	;
+type returns [JFXType type]
+	: typeName ccn=cardinalityConstraint		{ $type = F.TypeClass($typeName.expr, $ccn.ary); }
+
+        | FUNCTION
+          { ListBuffer<JFXType> ptypes = new ListBuffer<JFXType>(); }
+          LPAREN (pt0=type		{ ptypes.append($pt0.type); }
+	          ( COMMA ptn=type	{ ptypes.append($ptn.type); } )* )?
+          RPAREN ret=type
+          { $type = F.at(pos($FUNCTION)).TypeFunctional(ptypes.toList(), $ret.type, $ccn.ary); }
+        | STAR ccs=cardinalityConstraint 	{ $type = F.at(pos($STAR)).TypeAny($ccs.ary); } 
+        ;
 typeReference returns [JFXType type]
-	: COLON  ( typeName ccn=cardinalityConstraint		{ $type = F.TypeClass($typeName.expr, $ccn.ary); }
-                   | STAR ccs=cardinalityConstraint		{ $type = F.at(pos($STAR)).TypeAny($ccs.ary); } 
-                   ) 
-	| /*nada*/						{ $type = F.TypeUnknown(); }
+        : COLON type						{ $type = $type.type; }
+ 	| /*nada*/						{ $type = F.TypeUnknown(); }
         ;
 cardinalityConstraint returns [int ary]
 	:  LBRACKET   RBRACKET    	{ ary = JFXType.CARDINALITY_ANY; }

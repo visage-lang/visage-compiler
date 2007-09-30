@@ -34,13 +34,13 @@ import com.sun.tools.javac.util.List;
  * @author Robert Field
  */
 public class JFXTypeFunctional extends JFXType {
-    public List<JCTree> params;
+    public List<JFXType> params;
     public JFXType restype;
     
     /*
      * @param cardinality one of the cardinality constants
      */
-    protected JFXTypeFunctional(List<JCTree> params,
+    protected JFXTypeFunctional(List<JFXType> params,
             JFXType restype,
             int cardinality) {
         super(cardinality);
@@ -50,7 +50,7 @@ public class JFXTypeFunctional extends JFXType {
     public void accept(JavafxVisitor v) { v.visitTypeFunctional(this); }
     
     public JFXType getReturnType() { return restype; }
-    public List<JCTree> getParameters() {
+    public List<JFXType> getParameters() {
         return params;
     }
 

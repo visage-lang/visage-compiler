@@ -273,7 +273,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXType  TypeFunctional(List<JCTree> params,
+    public JFXType TypeFunctional(List<JFXType> params,
             JFXType restype,
             int cardinality) {
         JFXType tree = new JFXTypeFunctional(params,

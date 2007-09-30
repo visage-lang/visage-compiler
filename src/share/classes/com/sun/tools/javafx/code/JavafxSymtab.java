@@ -40,6 +40,8 @@ public class JavafxSymtab extends Symtab {
     
     public final Type javafx_SequenceType;
     public final Type javafx_SequenceTypeErasure;
+    static public final int MAX_FIXED_PARAM_LENGTH = 8;
+    public final Type[] javafx_FunctionTypes = new Type[MAX_FIXED_PARAM_LENGTH+1];
     
     public static void preRegister(final Context context) {
         context.put(symtabKey, new Context.Factory<Symtab>() {
@@ -64,6 +66,8 @@ public class JavafxSymtab extends Symtab {
         javafx_VoidType = voidType;
         javafx_SequenceType = enterClass("com.sun.javafx.runtime.sequence.Sequence");
         javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);
+        for (int i = MAX_FIXED_PARAM_LENGTH; --i >= 0;  )
+            javafx_FunctionTypes[i] = enterClass("com.sun.javafx.functions.Function"+i);
         
         enterOperators();
     }
