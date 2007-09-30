@@ -1,12 +1,7 @@
 import java.lang.System;
 import java.util.*;
 
-System.out.println([5, 6].getClass());
-System.out.println([2.5, 6].getClass());
-System.out.println(["hi", 6].getClass());
-System.out.println(["hi", 6, 7.21].getClass());
-System.out.println([new TreeMap, new HashMap]);
-var nums = [5, 7, 3, 9];
+var nums  = [5, 7, 3, 9];
 var numsb = bind nums;
 var strs = ["hi", "yo"];
 var res = foreach (a in nums) { a + 1 };

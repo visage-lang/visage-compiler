@@ -250,21 +250,25 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     private  <T extends JCTree> T boundTranslate(T tree, JavafxBindStatus bind) {
         JavafxBindStatus prevBindContext = bindContext;
+        
+        bindContext = bind;
+        /****
         if (bindContext == JavafxBindStatus.UNBOUND) {
             bindContext = bind;
         } else { // TODO
             assert bind == JavafxBindStatus.UNBOUND || bind == bindContext : "how do we handle this?";
         }
+         * ****/
         T result = translate(tree);
         bindContext = prevBindContext;
         return result;
     }
     
-    private  <T extends JCTree> T translateLHS(T tree) {
+    <T extends JCTree> T translateLHS(T tree) {
         return translateLHS(tree, true);
     }
     
-    private  <T extends JCTree> T translateLHS(T tree, boolean isImmediateLHS) {
+    <T extends JCTree> T translateLHS(T tree, boolean isImmediateLHS) {
         boolean wasInLHS = inLHS;
         inLHS = isImmediateLHS;
         T result = translate(tree);
@@ -411,11 +415,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 JFXObjectLiteralPart olpart = (JFXObjectLiteralPart)part;
                 DiagnosticPosition diagPos = olpart.pos();
                 JavafxBindStatus bindStatus = olpart.getBindStatus();
-                JCExpression init = boundTranslate(olpart.getExpression(), bindStatus);
+                JCExpression init = olpart.getExpression();
                 VarSymbol vsym = (VarSymbol)olpart.sym;
                 VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
                 if (vmi.shouldMorph()) {
-                    init = typeMorpher.translateDefinitionalAssignment(init, vmi, diagPos, bindStatus);
+                    init = translateDefinitionalAssignment(diagPos, init, bindStatus, vsym);
+                } else {
+                    init = boundTranslate(init, bindStatus);
                 }
                 JCIdent ident1 = make.at(diagPos).Ident(tmpName);
                 JCFieldAccess attr = make.at(diagPos).Select(
@@ -477,16 +483,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = make.Apply(null, formatter, values.toList());
     }
 
-    public JCExpression translateVarInit(JFXVar tree) {
-        DiagnosticPosition diagPos = tree.pos();
-        JavafxBindStatus bindStatus = tree.getBindStatus();
-        JCExpression init = boundTranslate(tree.init, bindStatus);
-        VarSymbol vsym = tree.sym;
+    private JCExpression translateDefinitionalAssignment(DiagnosticPosition diagPos,
+                    JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
+        JCExpression translatedInit = boundTranslate(init, bindStatus);
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         if (vmi.shouldMorph()) {
-            init = typeMorpher.translateDefinitionalAssignment(init, vmi, diagPos, bindStatus);
+            translatedInit = typeMorpher.buildDefinitionalAssignment(diagPos, vmi, 
+                    init, translatedInit, bindStatus);
         }
-        return init;
+        
+        return translatedInit;
+    }
+
+    public JCExpression translateVarInit(JFXVar tree) {
+        return translateDefinitionalAssignment(tree.pos(), tree.init, 
+                                                tree.getBindStatus(), tree.sym);
     }
 
     @Override
@@ -641,7 +652,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
             // Build the loop
             stmt = make.at(diagPos).ForeachLoop(
-                    translate(clause.getVar()), 
+                    // loop variable is synthetic should not be bound
+                    // even if we are in a bind context
+                    boundTranslate(clause.getVar(), JavafxBindStatus.UNBOUND), 
+                    
                     translate(clause.getSequenceExpression()),
                     stmt);
         }
@@ -1260,10 +1274,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
-        that.var = translate(that.var);
-        that.seqExpr = translate(that.seqExpr);
-        that.whereExpr = translate(that.whereExpr);
-        result = that;
+        assert false : "should be processed by parent tree";
     }
     
     protected void prettyPrint(JCTree node) {

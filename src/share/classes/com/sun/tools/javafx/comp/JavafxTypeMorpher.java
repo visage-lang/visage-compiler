@@ -48,6 +48,8 @@ import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
@@ -147,9 +149,14 @@ public class JavafxTypeMorpher {
                     setUsedType(realType);
                     realType = locationType;
                     markShouldMorph();
-                } else if (isBoundTo() || isAttribute() || isSequence()) {
+                } else if (((varSymbol.flags() & Flags.PARAMETER) == 0) && 
+                        (isBoundTo() || isAttribute() || isSequence())) {
                     // Must be a Location is bound, or a sequence,
                     // and, at least for now if it is an attribute.
+                    // However, if this is a parameter it is either synthetic
+                    // (like a loop or formal var) so we don't want to morph
+                    // or it is a function param.  If we do bound param we
+                    // will need to change this.
                     //TODO: should be a Location if there is a trigger on it
                     if (realType.isPrimitive()) {
                         if (realTsym == syms.doubleType.tsym) {
@@ -352,15 +359,14 @@ public class JavafxTypeMorpher {
         }
     }
     
-    public JCExpression translateDefinitionalAssignment(JCExpression init, 
-                                                        VarMorphInfo vmi, 
-                                                        DiagnosticPosition diagPos,
-                                                        JavafxBindStatus bindStatus) {
-        JCExpression initExpr = init != null? 
-                init : 
+    public JCExpression buildDefinitionalAssignment(DiagnosticPosition diagPos,
+                    VarMorphInfo vmi, JCExpression fxInit, JCExpression translatedInit,
+                    JavafxBindStatus bindStatus) {
+        JCExpression initExpr = translatedInit != null? 
+                translatedInit : 
                 makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
         if (bindStatus.isUnidiBind()) {
-            initExpr = buildExpression(vmi.varSymbol, initExpr, bindStatus);
+            initExpr = buildExpression(vmi.varSymbol, fxInit, initExpr, bindStatus);
         } else if (!bindStatus.isBidiBind()) {
             initExpr = makeCall(vmi, diagPos, List.of(initExpr), varLocation, makeMethodName);
         }
@@ -432,30 +438,68 @@ public class JavafxTypeMorpher {
         return make.at(diagPos).Literal(tag, value).setType(type.constType(value));
     }
     
-    public JCExpression buildExpression(VarSymbol vsym, JCExpression tree, JavafxBindStatus bindStatus) {
-        DiagnosticPosition diagPos = tree.pos();
-        final ListBuffer<JCExpression> varList = ListBuffer.<JCExpression>lb();
+    /**
+     * Build a list of dependencies for an expression.  It should include
+     * any references to variables (which are Locations) but exclude
+     * any that are defined internal to the expression.
+     * The resulting list is translated.
+     */
+    private List<JCExpression> buildDependencies(JCExpression expr) {
+        final Map<VarSymbol, JCExpression> refMap = new HashMap<VarSymbol, JCExpression>();
+        final Set<VarSymbol> internalSet = new HashSet<VarSymbol>();
         
-        TreeScanner ts = new TreeScanner() {
+        JavafxTreeScanner ts = new JavafxTreeScanner() {
             @Override
             public void visitIdent(JCIdent tree)   {
                 if (tree.sym instanceof VarSymbol) {
-                    VarSymbol vsym = (VarSymbol)tree.sym;
-                    VarMorphInfo vmi = varMorphInfo(vsym);
-                    assert vmi.shouldMorph();
-                    
-                    varList.append(tree);
+                    VarSymbol ivsym = (VarSymbol)tree.sym;
+                    VarMorphInfo vmi = varMorphInfo(ivsym);
+                    if (vmi.shouldMorph()) {
+                        refMap.put(ivsym, tree);
+                    }
+                }
+            }
+            @Override
+            public void visitSelect(JCFieldAccess tree)   {
+                super.visitSelect(tree);
+                if (tree.sym instanceof VarSymbol) {
+                    VarSymbol ivsym = (VarSymbol)tree.sym;
+                    VarMorphInfo vmi = varMorphInfo(ivsym);
+                    if (vmi.shouldMorph()) {
+                        refMap.put(ivsym, tree);
+                    }
+                }
+            }
+            @Override
+            public void visitVar(JFXVar tree)   {
+                if (tree.sym instanceof VarSymbol) {
+                    VarSymbol vvsym = tree.sym;
+                    internalSet.add(vvsym);
                 }
             }
         };
-        ts.scan(tree);
+        ts.scan(expr);
         
+        ListBuffer<JCExpression> depend = ListBuffer.<JCExpression>lb();
+        for (Map.Entry<VarSymbol, JCExpression> ref : refMap.entrySet()) {
+            if (!internalSet.contains(ref.getKey())) {
+                depend.append( toJava.translateLHS( ref.getValue() ) );
+            }
+        }
+        
+        return depend.toList();
+    }
+    
+    private JCExpression buildExpression(VarSymbol vsym, 
+            JCExpression fxInit, JCExpression translatedInit, JavafxBindStatus bindStatus) {
+        DiagnosticPosition diagPos = fxInit.pos();
         VarMorphInfo vmi = varMorphInfo(vsym);
         
         ListBuffer<JCExpression> argValues = ListBuffer.lb();
-        //TODO: this should be either JavaFX ASTs of hidden in translation field
-        JCBlock body = make.at(diagPos).Block(0, List.<JCStatement>of(make.at(diagPos).Return(tree)));
-        JCMethodDecl getMethod = make.at(tree.pos).MethodDef(
+
+        JCBlock body = make.at(diagPos).Block(0, List.<JCStatement>of(
+                            make.at(diagPos).Return(translatedInit)));
+        JCMethodDecl getMethod = make.at(diagPos).MethodDef(
                 make.at(diagPos).Modifiers(Flags.PUBLIC), 
                 getMethodName, 
                 toJava.makeTypeTree(vmi.getRealType(), diagPos), 
@@ -475,7 +519,7 @@ public class JavafxTypeMorpher {
                     make.at(diagPos).Modifiers(0), 
                     List.<JCTree>of(getMethod)));
         argValues.append(newExpr);
-        argValues.appendList(varList);
+        argValues.appendList( buildDependencies(fxInit) );
         
         Name makeName = bindStatus.isLazy()? makeLazyMethodName : makeMethodName;
         return makeCall(vmi, diagPos, argValues.toList(), exprLocation, makeName);
