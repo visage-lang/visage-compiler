@@ -25,28 +25,30 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree.JCIdent;
+import com.sun.tools.javac.code.Type;
 
 /**
  *
  * @author Robert Field
  */
 public abstract class JFXAbstractOnChange extends JFXStatement {
-    private final JCIdent index;
-    private final JCIdent oldValue;
+    private final JFXVar index;
+    private final JFXVar oldValue;
     private final JCBlock body;
+    
+    public Type elementType = null;
 
-    public JFXAbstractOnChange(JCIdent index, JCIdent oldValue, JCBlock body) {
+    public JFXAbstractOnChange(JFXVar index, JFXVar oldValue, JCBlock body) {
         this.index = index;
         this.oldValue = oldValue;
         this.body = body;
     }
 
-    public JCIdent getIndex() {
+    public JFXVar getIndex() {
         return index;
     }
     
-    public JCIdent getOldValue() {
+    public JFXVar getOldValue() {
         return oldValue;
     }
     

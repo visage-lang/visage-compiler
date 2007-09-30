@@ -925,7 +925,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitVar(JFXVar tree) {
         attribType(tree.getJFXType(), env);
-        attribStats(tree.getOnChanges(), env);
 
         // Local variables have not been entered yet, so we need to do it now:
         if (env.info.scope.owner.kind == MTH) {
@@ -974,29 +973,51 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             }
             result = tree.type = v.type;
             chk.validateAnnotations(tree.mods.annotations, v);
-
-            /****
-            // Attribute the anonimous change listener class if there is any.
-            if (tree instanceof JavafxJCVarDecl) {
-                if (((JavafxJCVarDecl)tree).getChangeListener() != null) {
-                    JavafxEnv<JavafxAttrContext> initEnv = memberEnter.initEnv(tree, env);
-                    initEnv.info.lint = lint;
-                    attribExpr(((JavafxJCVarDecl)tree).getChangeListener(), initEnv, Type.noType);
-                }
-            }
-             * *****/
         }
         finally {
             chk.setLint(prevLint);
+        }
+
+        if (tree.getOnChanges() != null) {
+            Type elemType = null;
+
+            if (types.erasure(result) == syms.javafx_SequenceTypeErasure) {
+                elemType = result.getTypeArguments().head;
+            }
+
+            for (JFXAbstractOnChange onc : tree.getOnChanges()) {
+                // OK, this is probably a tad hacky, but set the element type for the onChanges
+                onc.elementType = elemType;
+
+                if (env.info.scope.owner.kind == TYP) {
+                    // var is a static;
+                    // let the owner of the environment be a freshly
+                    // created BLOCK-method.
+                    long flags = tree.getModifiers().flags;
+                    JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup(env.info.scope.dupUnshared()));
+                    localEnv.info.scope.owner = new MethodSymbol(flags | BLOCK, names.empty, null, env.info.scope.owner);
+                    if ((flags & STATIC) != 0) {
+                        localEnv.info.staticLevel++;
+                    }
+                    attribStat(onc, localEnv);
+                } else {
+                    // Create a new local environment with a local scope.
+                    JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup(env.info.scope.dup()));
+                    attribStat(onc, localEnv);
+                    localEnv.info.scope.leave();
+                }
+            }
         }
     }
     
     public void visitAbstractOnChange(JFXAbstractOnChange tree) {
 	if (tree.getIndex() != null) {
-            attribExpr(tree.getIndex(), env);
+            attribStat(tree.getIndex(), env);
+            tree.getIndex().sym.type = syms.intType;
         }
 	if (tree.getOldValue() != null) {
-            attribExpr(tree.getOldValue(), env);  
+            attribStat(tree.getOldValue(), env);  
+            tree.getOldValue().sym.type = tree.elementType;
         }
         attribStat(tree.getBody(), env);
     }

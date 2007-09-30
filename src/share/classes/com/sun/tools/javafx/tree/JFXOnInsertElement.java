@@ -25,15 +25,13 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree.JCIdent;
-
 /**
  *
  * @author Robert Field
  */
 public class JFXOnInsertElement extends JFXAbstractOnChange {
 
-    public JFXOnInsertElement(JCIdent index, JCIdent oldValue, JCBlock body) {
+    public JFXOnInsertElement(JFXVar index, JFXVar oldValue, JCBlock body) {
         super(index, oldValue, body);
     }
 

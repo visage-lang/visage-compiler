@@ -25,15 +25,13 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree.JCIdent;
-
 /**
  *
  * @author Robert Field
  */
 public class JFXOnDeleteAll extends JFXAbstractOnChange {
 
-    public JFXOnDeleteAll(JCIdent oldValue, JCBlock body) {
+    public JFXOnDeleteAll(JFXVar oldValue, JCBlock body) {
         super(null, oldValue, body);
     }
 

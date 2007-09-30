@@ -500,16 +500,14 @@ onChanges   returns [ListBuffer<JFXAbstractOnChange> listb = ListBuffer.<JFXAbst
 	: ( onChangeClause			{ listb.append($onChangeClause.value); } )*
 	;
 onChangeClause   returns [JFXAbstractOnChange value]
-	: ON REPLACE (LPAREN old=identifier RPAREN)? block
-						{ $value = F.at(pos($ON)).OnReplace($old.expr, $block.value); }
-	| ON DELETE (LPAREN old=identifier RPAREN)? block
-						{ $value = F.at(pos($ON)).OnDeleteAll($old.expr, $block.value); }
-	| ON REPLACE LBRACKET index=identifier RBRACKET (LPAREN old=identifier RPAREN)? block
-						{ $value = F.at(pos($ON)).OnReplaceElement($index.expr, $old.expr, $block.value); }
-	| ON INSERT LBRACKET index=identifier RBRACKET (LPAREN old=identifier RPAREN)? block
-						{ $value = F.at(pos($ON)).OnInsertElement($index.expr, $old.expr, $block.value); }
-	| ON DELETE LBRACKET index=identifier RBRACKET (LPAREN old=identifier RPAREN)? block
-						{ $value = F.at(pos($ON)).OnDeleteElement($index.expr, $old.expr, $block.value); }
+	: ON REPLACE (LPAREN oldv=formalParameter RPAREN)? block
+						{ $value = F.at(pos($ON)).OnReplace($oldv.var, $block.value); }
+	| ON REPLACE LBRACKET index=formalParameter RBRACKET (LPAREN oldv=formalParameter RPAREN)? block
+						{ $value = F.at(pos($ON)).OnReplaceElement($index.var, $oldv.var, $block.value); }
+	| ON INSERT LBRACKET index=formalParameter RBRACKET (LPAREN newv=formalParameter RPAREN)? block
+						{ $value = F.at(pos($ON)).OnInsertElement($index.var, $newv.var, $block.value); }
+	| ON DELETE LBRACKET index=formalParameter RBRACKET (LPAREN oldv=formalParameter RPAREN)? block
+						{ $value = F.at(pos($ON)).OnDeleteElement($index.var, $oldv.var, $block.value); }
 	;
 variableLabel    returns [int pos]
 	: VAR					{ $pos = pos($VAR); }

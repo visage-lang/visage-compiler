@@ -25,15 +25,13 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree.JCIdent;
-
 /**
  *
  * @author Robert Field
  */
 public class JFXOnReplaceElement extends JFXAbstractOnChange {
 
-    public JFXOnReplaceElement(JCIdent index, JCIdent oldValue, JCBlock body) {
+    public JFXOnReplaceElement(JFXVar index, JFXVar oldValue, JCBlock body) {
         super(index, oldValue, body);
     }
 

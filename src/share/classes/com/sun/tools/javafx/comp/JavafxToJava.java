@@ -92,6 +92,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     protected JavafxToJava(Context context) {
+        context.put(jfxToJavaKey, this);
+
         make = JavafxTreeMaker.instance(context);
         log = Log.instance(context);
         names = Name.Table.instance(context);
@@ -517,41 +519,40 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = make.at(diagPos).VarDef(mods, tree.name, typeExpresion, init);         
     }
 
-        // TOD: temp hack
-    public void visitAbstractOnChange(JFXAbstractOnChange tree) {
-	translate(tree.getIndex());
-	translate(tree.getOldValue());  
-        translate(tree.getBody());
-    }
-    
     @Override
     public void visitOnReplace(JFXOnReplace tree) {
         result = ((JavafxTreeMaker)make).OnReplace(
-                translate(tree.getOldValue()),
+                tree.getOldValue(),
                 translate(tree.getBody()));
     }
     
     @Override
     public void visitOnReplaceElement(JFXOnReplaceElement tree) {
         result = ((JavafxTreeMaker)make).OnReplaceElement(
-                translate(tree.getIndex()),
-                translate(tree.getOldValue()),
+                tree.getIndex(),
+                tree.getOldValue(),
                 translate(tree.getBody()));
     }
     
     @Override
     public void visitOnInsertElement(JFXOnInsertElement tree) {
-        visitAbstractOnChange(tree);
+        result = ((JavafxTreeMaker)make).OnInsertElement(
+                tree.getIndex(),
+                tree.getOldValue(),  // new
+                translate(tree.getBody()));
     }
     
     @Override
     public void visitOnDeleteElement(JFXOnDeleteElement tree) {
-        visitAbstractOnChange(tree);
+        result = ((JavafxTreeMaker)make).OnDeleteElement(
+                tree.getIndex(),
+                tree.getOldValue(),
+                translate(tree.getBody()));
     }
     
     @Override
     public void visitOnDeleteAll(JFXOnDeleteAll tree) {
-        visitAbstractOnChange(tree);
+        assert false : "not yet implemented -- may not be";
     }
     
     /**

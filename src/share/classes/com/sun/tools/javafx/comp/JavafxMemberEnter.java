@@ -412,9 +412,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
      *  @param tree     The variable definition.
      *  @param env      The environment current outside of the variable definition.
      */
-// JavaFX change
-    public
-// JavaFX change
     JavafxEnv<JavafxAttrContext> initEnv(JCVariableDecl tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> localEnv = env.dupto(new JavafxAttrContextEnv(tree, env.info.dup()));
         if (tree.sym.owner.kind == TYP) {

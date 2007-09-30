@@ -284,31 +284,31 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     }
     
     
-    public JFXOnReplace OnReplace(JCIdent oldValue, JCBlock body) {
+    public JFXOnReplace OnReplace(JFXVar oldValue, JCBlock body) {
          JFXOnReplace tree = new JFXOnReplace(oldValue, body);
         tree.pos = pos;
         return tree;
     }
     
-    public JFXOnReplaceElement OnReplaceElement(JCIdent index, JCIdent oldValue, JCBlock body) {
+    public JFXOnReplaceElement OnReplaceElement(JFXVar index, JFXVar oldValue, JCBlock body) {
          JFXOnReplaceElement tree = new JFXOnReplaceElement(index, oldValue, body);
         tree.pos = pos;
         return tree;
     }
     
-    public JFXOnInsertElement OnInsertElement(JCIdent index, JCIdent oldValue, JCBlock body) {
+    public JFXOnInsertElement OnInsertElement(JFXVar index, JFXVar oldValue, JCBlock body) {
          JFXOnInsertElement tree = new JFXOnInsertElement(index, oldValue, body);
         tree.pos = pos;
         return tree;
     }
     
-    public JFXOnDeleteElement OnDeleteElement(JCIdent index, JCIdent oldValue, JCBlock body) {
+    public JFXOnDeleteElement OnDeleteElement(JFXVar index, JFXVar oldValue, JCBlock body) {
          JFXOnDeleteElement tree = new JFXOnDeleteElement(index, oldValue, body);
         tree.pos = pos;
         return tree;
     }
     
-    public JFXOnDeleteAll OnDeleteAll(JCIdent oldValue, JCBlock body) {
+    public JFXOnDeleteAll OnDeleteAll(JFXVar oldValue, JCBlock body) {
          JFXOnDeleteAll tree = new JFXOnDeleteAll(oldValue, body);
         tree.pos = pos;
         return tree;
