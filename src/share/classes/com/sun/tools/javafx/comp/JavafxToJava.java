@@ -447,7 +447,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         stats.append(exec1);
          
         JCIdent ident2 = make.Ident(tmpName);
-        JFXBlockExpression blockExpr1 = ((JavafxTreeMaker)make).BlockExpression(0, stats.toList(), ident2);
+        JFXBlockExpression blockExpr1 = makeBlockExpression(tree.pos(), stats, ident2);
         result = blockExpr1; 
     }
 
@@ -596,49 +596,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             assert tree.type.getTypeArguments().size() == 1;
             Type elemType = tree.type.getTypeArguments().get(0);
 
-            // Build the type declaration expression for the sequence builder
-            JCExpression builderTypeExpr = ((JavafxTreeMaker) make).at(diagPos).Identifier(sequenceBuilderString);
-            List<JCExpression> btargs = List.<JCExpression>of(makeTypeTree(elemType, diagPos));
-            builderTypeExpr = make.at(diagPos).TypeApply(builderTypeExpr, btargs);
-
-            // Sequence builder temp var name "sb"
-            Name sbName = getSyntheticName("sb");
-
-            // Build "sb" initializing expression -- new SequenceBuilder<T>(clazz)
-            List<JCExpression> args = List.<JCExpression>of( make.at(diagPos).Select(
-                makeTypeTree(elemType, diagPos), 
-                names._class));               
-            JCExpression newExpr = make.at(diagPos).NewClass(
-                null,                               // enclosing
-                List.<JCExpression>nil(),           // type args
-                make.at(diagPos).TypeApply(         // class name -- SequenceBuilder<elemType>
-                    ((JavafxTreeMaker)make).at(diagPos).Identifier(sequenceBuilderString), 
-                     List.<JCExpression>of(makeTypeTree(elemType, diagPos))),
-                args,                               // args
-                null                                // empty body
-                );
-        
-            // Build the sequence builder variable
-            JCStatement varDef = make.at(diagPos).VarDef( 
-                make.at(diagPos).Modifiers(0L), 
-                sbName, builderTypeExpr, newExpr);
-            stmts.append(varDef);
+            UseSequenceBuilder builder = new UseSequenceBuilder(diagPos, elemType);
+            stmts.append(builder.makeTmpVar());
         
             // Build innermost loop body
-            JCIdent varIdent = make.Ident(sbName);  
-            JCMethodInvocation addCall = make.Apply(
-                List.<JCExpression>nil(), // type arguments
-                make.at(diagPos).Select(varIdent, Name.fromString(names, "add")), 
-                List.<JCExpression>of(translate(tree.getBodyExpression())));
-            stmt = make.at(diagPos).Exec(addCall);
+            stmt = builder.makeAdd( translate( tree.getBodyExpression() ) ); 
         
             // Build the result value
-            JCIdent varIdent2 = make.Ident(sbName);  
-            value = make.Apply(
-                List.<JCExpression>nil(), // type arguments
-                make.at(diagPos).Select(varIdent2, Name.fromString(names, toSequenceString)), 
-                List.<JCExpression>nil() // arguments
-                );
+            value = builder.makeToSequence();
         } else {
             // void body
             stmt = make.at(diagPos).Exec(translate(tree.getBodyExpression()));
@@ -663,7 +628,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         stmts.append(stmt);
         
         // Build the block expression -- which is what we translate to
-        result = ((JavafxTreeMaker)make).at(diagPos).BlockExpression(0L, stmts.toList(), value);
+        result = makeBlockExpression(diagPos, stmts, value);
     }
     
     @Override
@@ -763,7 +728,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             stats.append(exec1);
 
             JCIdent ident2 = make.Ident(tmpName);
-            JFXBlockExpression blockExpr1 = ((JavafxTreeMaker) make).at(tree.pos).BlockExpression(0, stats.toList(), ident2);
+            JFXBlockExpression blockExpr1 = makeBlockExpression(tree.pos(), stats, ident2);
             result = blockExpr1;
         }
     }
@@ -800,6 +765,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
+        /*** 
+         * In cases where the components of an explicitly constructed 
+         * sequence are all singletons, we can revert to this (more 
+         * optimal) implementation.
+ 
         DiagnosticPosition diagPos = tree.pos();
         JCExpression meth = ((JavafxTreeMaker)make).at(diagPos).Identifier(sequencesMakeString);
         Type elemType = tree.type.getTypeArguments().get(0);
@@ -809,6 +779,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         args.append(make.at(diagPos).Select(makeTypeTree(elemType, diagPos), names._class));
         args.appendList( translate( tree.getItems() ) );
         result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
+         * */
+        ListBuffer<JCStatement> stmts = ListBuffer.<JCStatement>lb();
+        UseSequenceBuilder builder = new UseSequenceBuilder(tree.pos(), tree.type.getTypeArguments().head);
+        stmts.append(builder.makeTmpVar());
+        for (JCExpression item : tree.getItems()) {
+            stmts.append(builder.makeAdd( translate( item ) ) );
+        }
+        result = makeBlockExpression(tree.pos(), stmts, builder.makeToSequence());
     }
     
     @Override
@@ -945,6 +923,76 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return tree;
     }
     
+    JFXBlockExpression makeBlockExpression(DiagnosticPosition diagPos, 
+            ListBuffer<JCStatement> stmts, JCExpression value) {
+        return ((JavafxTreeMaker)make).at(diagPos).BlockExpression(0, stmts.toList(), value);
+    }
+    
+    class UseSequenceBuilder {
+        final DiagnosticPosition diagPos;
+        final Type elemType;
+        
+        Name sbName;
+        
+        UseSequenceBuilder(DiagnosticPosition diagPos, Type elemType) {
+            this.diagPos = diagPos;
+            this.elemType = elemType;
+        }
+        
+        JCStatement makeTmpVar() {
+            // Build the type declaration expression for the sequence builder
+            JCExpression builderTypeExpr = ((JavafxTreeMaker) make).at(diagPos).Identifier(sequenceBuilderString);
+            List<JCExpression> btargs = List.<JCExpression>of(makeTypeTree(elemType, diagPos));
+            builderTypeExpr = make.at(diagPos).TypeApply(builderTypeExpr, btargs);
+
+            // Sequence builder temp var name "sb"
+            sbName = getSyntheticName("sb");
+
+            // Build "sb" initializing expression -- new SequenceBuilder<T>(clazz)
+            List<JCExpression> args = List.<JCExpression>of( make.at(diagPos).Select(
+                makeTypeTree(elemType, diagPos), 
+                names._class));               
+            JCExpression newExpr = make.at(diagPos).NewClass(
+                null,                               // enclosing
+                List.<JCExpression>nil(),           // type args
+                make.at(diagPos).TypeApply(         // class name -- SequenceBuilder<elemType>
+                    ((JavafxTreeMaker)make).at(diagPos).Identifier(sequenceBuilderString), 
+                     List.<JCExpression>of(makeTypeTree(elemType, diagPos))),
+                args,                               // args
+                null                                // empty body
+                );
+        
+            // Build the sequence builder variable
+            return make.at(diagPos).VarDef( 
+                make.at(diagPos).Modifiers(0L), 
+                sbName, builderTypeExpr, newExpr);
+        }
+        
+        JCIdent makeTmpVarAccess() {
+            return make.Ident(sbName);  
+        }
+         
+        JCStatement makeAdd(JCExpression exprToAdd) {
+            JCMethodInvocation addCall = make.Apply(
+                    List.<JCExpression>nil(), 
+                    make.at(diagPos).Select(
+                        makeTmpVarAccess(), 
+                        Name.fromString(names, "add")), 
+                    List.<JCExpression>of(exprToAdd));
+            return make.at(diagPos).Exec(addCall);
+        }
+
+        JCExpression makeToSequence() {
+            return make.Apply(
+                List.<JCExpression>nil(), // type arguments
+                make.at(diagPos).Select(
+                    makeTmpVarAccess(), 
+                    Name.fromString(names, toSequenceString)),
+                List.<JCExpression>nil() // arguments
+                );
+        }
+    }
+
     JCExpression makeEmptySeuenceCreator(DiagnosticPosition diagPos, Type elemType) {
         JCExpression meth = ((JavafxTreeMaker)make).at(diagPos).Identifier(sequencesEmptyString);
         ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb();
