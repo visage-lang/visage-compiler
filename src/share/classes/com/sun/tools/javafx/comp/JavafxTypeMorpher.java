@@ -100,6 +100,7 @@ public class JavafxTypeMorpher {
         VarSymbol varSymbol;
         Type realType;
         int typeKind;
+        Type elementType = null;
         boolean shouldMorph = false;
         boolean haveDeterminedMorphability = false;
         boolean isBoundTo = false;
@@ -172,6 +173,7 @@ public class JavafxTypeMorpher {
                     } else {
                         if (isSequence()) {
                             typeKind = TYPE_KIND_SEQUENCE;
+                            elementType = realType.getTypeArguments().head;
                         } else {
                             typeKind = TYPE_KIND_OBJECT;
                         }
@@ -196,7 +198,7 @@ public class JavafxTypeMorpher {
         private void setUsedType(Type usedType) { varSymbol.type = usedType; }
         public Type getBindingExpressionType() { return generifyIfNeeded(bindingExpressionType(typeKind), this); }
         public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
-    
+        public Type getElementType() { return elementType; }
         public boolean isBoundTo() { return isBoundTo; }
         public boolean isAssignedTo() { return isAssignedTo; }
         public void markBoundTo() { this.isBoundTo = true; }
@@ -364,9 +366,9 @@ public class JavafxTypeMorpher {
                     JavafxBindStatus bindStatus) {
         JCExpression initExpr = translatedInit != null? 
                 translatedInit : 
-//                vmi.getTypeKind() == 0? 
-//                    toJava.makeEmptySeuenceCreator(diagPos, vmi.getElementType())
-                    makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
+                vmi.getTypeKind() == TYPE_KIND_SEQUENCE? 
+                      toJava.makeEmptySeuenceCreator(diagPos, vmi.getElementType())
+                    : makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
         if (bindStatus.isUnidiBind()) {
             initExpr = buildExpression(vmi.varSymbol, fxInit, initExpr, bindStatus);
         } else if (!bindStatus.isBidiBind()) {
