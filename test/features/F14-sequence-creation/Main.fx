@@ -16,11 +16,14 @@ var nums = [5, 7, 3, 9];
 var strs = ["hi", "yo"];
 var bars = [ Bar { name: "James" }, Bar { name: "Nancy" }, Bar { name: "Raymond" } ];
 var range = [11..19];
+var emptyStart : Integer[] = [];
+insert 1234 into emptyStart;
 
 System.out.println(nums);
 System.out.println(strs);
 System.out.println(bars);
 System.out.println(range);
+System.out.println(emptyStart);
 
 System.out.println(nums[3]);
 System.out.println(strs[1]);

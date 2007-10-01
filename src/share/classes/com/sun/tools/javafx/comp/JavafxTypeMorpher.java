@@ -364,7 +364,9 @@ public class JavafxTypeMorpher {
                     JavafxBindStatus bindStatus) {
         JCExpression initExpr = translatedInit != null? 
                 translatedInit : 
-                makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
+//                vmi.getTypeKind() == 0? 
+//                    toJava.makeEmptySeuenceCreator(diagPos, vmi.getElementType())
+                    makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
         if (bindStatus.isUnidiBind()) {
             initExpr = buildExpression(vmi.varSymbol, fxInit, initExpr, bindStatus);
         } else if (!bindStatus.isBidiBind()) {

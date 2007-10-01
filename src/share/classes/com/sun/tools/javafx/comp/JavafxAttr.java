@@ -2232,6 +2232,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
+        if (pt == null || types.erasure(pt) != syms.javafx_SequenceTypeErasure) {
+            log.error(tree.pos(), "array.req.but.found", pt);
+        }
+        result = check(tree, pt, VAL, pkind, pt);
     }
     
     @Override

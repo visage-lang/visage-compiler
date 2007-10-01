@@ -75,6 +75,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";
     private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
+    private static final String sequencesEmptyString = "com.sun.javafx.runtime.sequence.Sequences.emptySequence";
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.SequenceBuilder";
     private static final String toSequenceString = "toSequence";
     
@@ -822,6 +823,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
     
     @Override
+    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
+        Type elemType = tree.type.getTypeArguments().get(0);
+        result = makeEmptySeuenceCreator(tree.pos(), elemType);
+    }
+        
+    @Override
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {
         DiagnosticPosition diagPos = tree.pos();
         JCExpression seq = translateLHS(tree.getSequence(), true);  // LHS?
@@ -938,6 +945,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return tree;
     }
     
+    JCExpression makeEmptySeuenceCreator(DiagnosticPosition diagPos, Type elemType) {
+        JCExpression meth = ((JavafxTreeMaker)make).at(diagPos).Identifier(sequencesEmptyString);
+        ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb();
+        args.append(make.at(diagPos).Select(makeTypeTree(elemType, diagPos), names._class));
+        List<JCExpression> typeArgs = List.<JCExpression>of(makeTypeTree(elemType, diagPos));
+        return make.at(diagPos).Apply(typeArgs, meth, args.toList());
+    }
+        
     public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos) {
         if (t.tag == TypeTags.CLASS) {
             JCExpression texp = makeQualifiedTree(t.tsym.getQualifiedName().toString(), diagPos);
@@ -1242,10 +1257,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = that;
     }
     
-    public void visitSequenceEmpty(JFXSequenceEmpty that) {
-        result = that;
-    }
-        
     public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized that) {
         result = that;
     }
