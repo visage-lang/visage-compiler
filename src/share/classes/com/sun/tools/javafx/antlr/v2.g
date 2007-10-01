@@ -623,7 +623,7 @@ multiplicativeExpression  returns [JCExpression expr]
 	   ) * ;
 unaryExpression  returns [JCExpression expr] 
 	: postfixExpression					{ $expr = $postfixExpression.expr; }
-	| unaryOperator   postfixExpression			{ $expr = F.Unary($unaryOperator.optag, $postfixExpression.expr); }
+	| unaryOperator   e=unaryExpression			{ $expr = F.Unary($unaryOperator.optag, $e.expr); }
 	;
 postfixExpression  returns [JCExpression expr] 
 	: primaryExpression 					{ $expr = $primaryExpression.expr; }
