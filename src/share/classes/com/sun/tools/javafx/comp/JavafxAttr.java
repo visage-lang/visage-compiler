@@ -1853,11 +1853,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             rs.resolveUnaryOperator(tree.pos(), tree.getTag(), env, argtype);
 
         Type owntype = syms.errType;
-        /*** no constants or folding
         if (operator.kind == MTH) {
             owntype = (JCTree.PREINC <= tree.getTag() && tree.getTag() <= JCTree.POSTDEC)
                 ? tree.arg.type
                 : operator.type.getReturnType();
+
+        /*** no constants or folding
             int opc = ((OperatorSymbol)operator).opcode;
 
             // If the argument is constant, fold it.
@@ -1876,8 +1877,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     }
                 }
             }
-        }
          * ****/
+        }
         result = check(tree, owntype, VAL, pkind, pt);
     }
 
