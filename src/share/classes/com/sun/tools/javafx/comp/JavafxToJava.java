@@ -1176,7 +1176,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitMethodDef(JCMethodDecl tree) {
-         assert false : "should not be in JavaFX AST";
+         result = tree;
    }
 
     public void visitApply(JCMethodInvocation tree) {

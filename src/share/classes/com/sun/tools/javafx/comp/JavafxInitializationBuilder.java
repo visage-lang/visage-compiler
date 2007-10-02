@@ -320,15 +320,21 @@ public class JavafxInitializationBuilder {
             }
         }
         
-        addAttributeMethods(iDefinitions, attrInfos);
+        addInterfaceAttributeMethods(iDefinitions, attrInfos);
+        Name interfaceName = names.fromString(cDecl.name.toString() + interfaceNameSuffix);
         JCClassDecl cInterface = make.ClassDef(make.Modifiers(cDecl.mods.flags | Flags.INTERFACE),
-                names.fromString(cDecl.name.toString() + interfaceNameSuffix) , 
+                interfaceName, 
                 List.<JCTypeParameter>nil(), null, implementing.toList(), iDefinitions.toList());
+        
+        cDecl.supertypes = cDecl.supertypes.append(make.Ident(interfaceName));
+        
+        addClassAttributeMethods(cDecl, attrInfos);
+        
         ret.append(cInterface);
         return ret.toList();
     }
     
-    private void addAttributeMethods(ListBuffer<JCTree> idefs, ListBuffer<VarMorphInfo> attrInfos) {
+    private void addInterfaceAttributeMethods(ListBuffer<JCTree> idefs, ListBuffer<VarMorphInfo> attrInfos) {
         for (VarMorphInfo attrInfo : attrInfos) {            
             idefs.append(make.MethodDef(
                     make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT),
@@ -338,6 +344,28 @@ public class JavafxInitializationBuilder {
                     List.<JCVariableDecl>nil(), 
                     List.<JCExpression>nil(), 
                     (JCBlock)null, (JCExpression)null));
+        }
+    }
+
+    private void addClassAttributeMethods(JFXClassDeclaration cdef, ListBuffer<VarMorphInfo> attrInfos) {
+        for (VarMorphInfo attrInfo : attrInfos) { 
+            List<JCStatement> stats = List.<JCStatement>nil();
+            
+            // Add the return stastement for the attribute
+            JCBlock statBlock = make.Block(0L, stats);
+            
+            JCReturn returnStat = make.Return(make.Ident(attrInfo.varSymbol.name));
+            stats = stats.append(returnStat);
+            statBlock.stats = stats;
+            
+            cdef.defs = cdef.defs.append(make.MethodDef(
+                    make.Modifiers(Flags.PUBLIC),
+                    names.fromString(attributeGetMethodNamePrefix + attrInfo.varSymbol.name.toString()),
+                    toJava.makeTypeTree(attrInfo.getUsedType(), null),
+                    List.<JCTypeParameter>nil(), 
+                    List.<JCVariableDecl>nil(), 
+                    List.<JCExpression>nil(), 
+                    statBlock, (JCExpression)null));
         }
     }
 }
