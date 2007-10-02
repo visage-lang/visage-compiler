@@ -291,7 +291,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         for (JCTree def : tree.defs) {
             if (def.getTag() == JavafxTag.CLASS_DEF) {
-                List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def);
+                List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def, typeMorpher);
                 for (JCStatement retDef : ret) {
                     tdefs = tdefs.append(retDef);
                 }
@@ -319,21 +319,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCMethodDecl initMethod = null;
         Set<JCNewClass> prevVisitedNews = visitedNewClasses;
 
-        List<JCStatement> defs = List.<JCStatement>nil();
         for (JCTree def : tree.defs) {
             if (def.getTag() == JavafxTag.CLASS_DEF) {
-                List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def);
+                List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def, typeMorpher);
                 for (JCStatement retDef : ret) {
-//rgf                    defs = defs.append(retDef);
                     translatedDefs.append(retDef);
                 }
             }
         }
         
-//rgf        for (JCStatement stat : defs) {
-//rgf            tree.defs = tree.defs.append(stat);
-//rgf        }
-
         try {
             visitedNewClasses = new HashSet<JCNewClass>();
             for (JCTree def : tree.defs) {
@@ -677,7 +671,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         List<JCStatement> defs = translateStatements(tree.stats);
         for (JCTree def : tree.stats) {
             if (def.getTag() == JavafxTag.CLASS_DEF) {
-                List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def);
+                List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def, typeMorpher);
                 for (JCStatement retDef : ret) {
                     defs = defs.append(retDef);
                 }
@@ -694,7 +688,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         List<JCStatement> defs = translateStatements(tree.stats);
         for (JCTree def : tree.stats) {
             if (def.getTag() == JavafxTag.CLASS_DEF) {
-                List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def);
+                List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def, typeMorpher);
                 for (JCStatement retDef : ret) {
                     defs = defs.append(retDef);
                 }

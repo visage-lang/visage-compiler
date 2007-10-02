@@ -25,6 +25,8 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Kinds;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
@@ -38,6 +40,9 @@ import com.sun.tools.javac.util.List;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JavafxInitializationBuilder {
     protected static final Context.Key<JavafxInitializationBuilder> javafxInitializationBuilderKey =
@@ -54,6 +59,7 @@ public class JavafxInitializationBuilder {
     final Name initializerName;
     private final Name valueChangedName;
     private final Name classNameSuffix;
+    private final Name interfaceNameSuffix;
     private final String attributeGetMethodNamePrefix = "get$";
 
     public static JavafxInitializationBuilder instance(Context context) {
@@ -77,6 +83,7 @@ public class JavafxInitializationBuilder {
         initializerName = names.fromString(JavafxModuleBuilder.initMethodString);
         valueChangedName = names.fromString("valueChanged");
         classNameSuffix = names.fromString("$Impl");
+        interfaceNameSuffix = names.fromString("$Intf");
     }
     
     static class TranslatedAttributeInfo {
@@ -293,31 +300,44 @@ public class JavafxInitializationBuilder {
     }
     
 
-    List<JCStatement> createJFXClassModel(JFXClassDeclaration cDecl) {
+    
+    List<JCStatement> createJFXClassModel(JFXClassDeclaration cDecl, JavafxTypeMorpher typeMorpher) {
         ListBuffer<JCStatement> ret = new ListBuffer<JCStatement>();
         
         ListBuffer<JCExpression> implementing = new ListBuffer<JCExpression>();
         implementing.append(make.Identifier("com.sun.javafx.runtime.FXObject"));
         ListBuffer<JCTree> iDefinitions = new ListBuffer<JCTree>();
-// TODO:        addAttributeMethods(iDefinitions, cDecl);
+        Map<JFXClassDeclaration, ListBuffer<VarMorphInfo>> attrsInfoMap = new HashMap<JFXClassDeclaration, ListBuffer<VarMorphInfo>>();
+        ListBuffer<VarMorphInfo> attrInfos = new ListBuffer<VarMorphInfo>();
+        attrsInfoMap.put(cDecl, attrInfos);
+        for (JCTree def : cDecl.defs) {
+            if (def.getTag() == JavafxTag.VAR_DEF) {
+                if (((JFXVar)def).sym.owner.kind == Kinds.TYP) {
+                    VarMorphInfo vmi = typeMorpher.varMorphInfo(((JFXVar)def).sym);
+                    vmi.shouldMorph();
+                    attrInfos.append(vmi);
+                }
+            }
+        }
+        
+        addAttributeMethods(iDefinitions, attrInfos);
         JCClassDecl cInterface = make.ClassDef(make.Modifiers(cDecl.mods.flags | Flags.INTERFACE),
-                names.fromString(cDecl.name.toString() + classNameSuffix) , 
+                names.fromString(cDecl.name.toString() + interfaceNameSuffix) , 
                 List.<JCTypeParameter>nil(), null, implementing.toList(), iDefinitions.toList());
         ret.append(cInterface);
         return ret.toList();
     }
     
-    private void addAttributeMethods(ListBuffer<JCTree> idefs, JFXClassDeclaration cdef) {
-        for (JCTree tree : cdef.defs) {
-            if (tree.getTag() == JavafxTag.VAR_DEF) {
-                JFXVar adef = (JFXVar)tree;
-                idefs.append(make.OperationDefinition(
-                        make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT),
-                        names.fromString(attributeGetMethodNamePrefix + adef.name.toString()),
-                        adef.getJFXType(), 
-                        List.<JFXVar>nil(), 
-                        null));
-            }
+    private void addAttributeMethods(ListBuffer<JCTree> idefs, ListBuffer<VarMorphInfo> attrInfos) {
+        for (VarMorphInfo attrInfo : attrInfos) {            
+            idefs.append(make.MethodDef(
+                    make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT),
+                    names.fromString(attributeGetMethodNamePrefix + attrInfo.varSymbol.name.toString()),
+                    toJava.makeTypeTree(attrInfo.getUsedType(), null),
+                    List.<JCTypeParameter>nil(), 
+                    List.<JCVariableDecl>nil(), 
+                    List.<JCExpression>nil(), 
+                    (JCBlock)null, (JCExpression)null));
         }
     }
 }
