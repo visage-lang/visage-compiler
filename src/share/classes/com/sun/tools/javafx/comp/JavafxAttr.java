@@ -90,59 +90,33 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     protected static final Context.Key<JavafxAttr> javafxAttrKey =
         new Context.Key<JavafxAttr>();
 
-// JavaFX change
-    protected
-// JavaFX change
-    final Name.Table names;
-// JavaFX change
-    public
-// JavaFX change
-    final Log log;
+    /*
+     * modules imported by context
+     */
+    private final Name.Table names;
+    private final Log log;
+    private final JavafxResolve rs;
+    private final JavafxSymtab syms;
+    private final JavafxCheck chk;
+    private final JavafxMemberEnter memberEnter;
+    private final JavafxTreeMaker make;
+    private final ConstFold cfolder;
+    private final JavafxEnter enter;
+    private final Target target;
+    private final Types types;
+    private final Annotate annotate;
 
-// Javafx change
-    protected
-// Javafx change
-    final JavafxResolve rs;
-// JavaFX change
-    protected
-// JavaFX change
-    final JavafxCheck chk;
-// JavaFX change
-    protected
-// JavaFX change
-    final JavafxMemberEnter memberEnter;
-// JavaFX change
-    protected
-// JavaFX change
-    final JavafxTreeMaker make;
-// Javafx change
-    protected
-// Javafx change
-    final ConstFold cfolder;
-    final JavafxEnter enter;
-    final Target target;
-// Javafx change
-    protected
-// Javafx change
-    final Types types;
-// JavaFX change
-    private Symbol objLitSymbol;
-    
-    protected
-// JavaFX change
-    final Annotate annotate;
-
+    /*
+     * other instance information
+     */
     private final Name numberTypeName;
     private final Name integerTypeName;
     private final Name booleanTypeName;
     private final Name stringTypeName;
     private final Name voidTypeName;  // possibly temporary
 
-    private JCMethodDecl currentMethod = null;
-    private boolean attribDefDeclParams = false;
-    
-    private JavafxSymtab syms;
-    
+    private Symbol objLitSymbol;
+
     public static JavafxAttr instance(Context context) {
         JavafxAttr instance = context.get(javafxAttrKey);
         if (instance == null)
@@ -786,6 +760,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
          *  @param pt     The current prototype.
          *  @param pkind  The expected kind(s) of the Select expression.
          */
+    @SuppressWarnings("fallthrough")
         private Symbol selectSym(JCFieldAccess tree,
                                  Type site,
                                  JavafxEnv<JavafxAttrContext> env,
@@ -844,6 +819,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             case ERROR:
                 // preserve identifier names through errors
                 return new ErrorType(name, site.tsym).tsym;
+            case INT:
+            case DOUBLE:
+            case BOOLEAN:
+                if (pt.tag == METHOD || pt.tag == FORALL) {
+                    Type boxedSite = types.boxedClass(site).type;
+                    return rs.resolveQualifiedMethod(
+                        pos, env, boxedSite, name, pt.getParameterTypes(), pt.getTypeArguments());
+                } 
+                // Fall through to default
             default:
                 // The qualifier expression is of a primitive type -- only
                 // .class is allowed for these.

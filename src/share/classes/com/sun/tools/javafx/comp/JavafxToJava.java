@@ -35,6 +35,7 @@ import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Kinds;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Type;
@@ -60,32 +61,45 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     protected static final Context.Key<JavafxToJava> jfxToJavaKey =
         new Context.Key<JavafxToJava>();
 
+    /*
+     * the result of translating a tree by a visit method
+     */
     JCTree result;
 
-    private TreeMaker make;  // should be generating Java AST, explicitly cast when not
-    private Log log;
-    private Name.Table names;
+    /*
+     * modules imported by context
+     */
+    private final TreeMaker make;  // should be generating Java AST, explicitly cast when not
+    private final Log log;
+    private final Name.Table names;
+    private final Types types;
     private final Symtab syms;
-    private JavafxInitializationBuilder initBuilder;
-    private Set<JCNewClass> visitedNewClasses;
+    private final JavafxInitializationBuilder initBuilder;
+    private final JavafxTypeMorpher typeMorpher;
 
-    private final String syntheticNamePrefix = "jfx$$";
+    /*
+     * other instance information
+     */
+    private Set<JCNewClass> visitedNewClasses;
     private int syntheticNameCounter = 0;
     private ListBuffer<JCStatement> prependInFrontOfStatement = null;
     
+    // for type morphing
+    private JavafxBindStatus bindContext = JavafxBindStatus.UNBOUND;
+    private boolean inLHS = false;
+    private JavafxEnv<JavafxAttrContext> attrEnv;
+
+    /*
+     * static information
+     */
     private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";
     private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
     private static final String sequencesEmptyString = "com.sun.javafx.runtime.sequence.Sequences.emptySequence";
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.SequenceBuilder";
     private static final String toSequenceString = "toSequence";
     private static final String methodThrowsString = "java.lang.Throwable";
-    
-    // for type morphing
-    private final JavafxTypeMorpher typeMorpher;
-    private JavafxBindStatus bindContext = JavafxBindStatus.UNBOUND;
-    private boolean inLHS = false;
-    private JavafxEnv<JavafxAttrContext> attrEnv;
-    
+    private static final String syntheticNamePrefix = "jfx$$";
+        
     public static JavafxToJava instance(Context context) {
         JavafxToJava instance = context.get(jfxToJavaKey);
         if (instance == null)
@@ -99,10 +113,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         make = JavafxTreeMaker.instance(context);
         log = Log.instance(context);
         names = Name.Table.instance(context);
+        types = Types.instance(context);
         syms = Symtab.instance(context);
         typeMorpher = JavafxTypeMorpher.instance(context);
         initBuilder = JavafxInitializationBuilder.instance(context);
-        names = Name.Table.instance(context);
     }
     
     /** Visitor method: Translate a single node.
@@ -747,11 +761,22 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitSelect(JCFieldAccess tree) {
+        DiagnosticPosition diagPos = tree.pos();
+        JCExpression selected = tree.getExpression();
+        
         // this may or may not be in a LHS but in either
         // event the selector is a value expression
-        tree.selected = translateLHS(tree.selected, false);
+        JCExpression translatedSelected = translateLHS(selected, false);
         
-        result = typeMorpher.convertVariableReference(tree, tree.sym, bindContext, inLHS);
+        if (selected.type.isPrimitive()) {
+            translatedSelected = makeBox(diagPos, translatedSelected, selected.type);
+        }
+        JCFieldAccess translated = make.at(diagPos).Select(translatedSelected, tree.getIdentifier());
+        // since this tree will be morphed, we need to copy the sym info
+        translated.sym = tree.sym;
+        translated.type = tree.type;
+        
+        result = typeMorpher.convertVariableReference(translated, tree.sym, bindContext, inLHS);
     }
     
     @Override
@@ -889,6 +914,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     makeThrows(diagPos), 
                     body, 
                     null);
+    }
+    
+    JCExpression makeBox(DiagnosticPosition diagPos, JCExpression translatedExpr, Type primitiveType) {
+            return make.at(diagPos).NewClass(
+                null,                               // enclosing
+                List.<JCExpression>nil(),           // type args
+                make.at(diagPos).Ident(types.boxedClass(primitiveType)),  // primitive class name
+                List.<JCExpression>of(translatedExpr),   // args
+                null                                // empty body
+                );
     }
     
     public List<JCExpression> makeThrows(DiagnosticPosition diagPos) {
