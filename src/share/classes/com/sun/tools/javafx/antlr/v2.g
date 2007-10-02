@@ -34,7 +34,6 @@ tokens {
    IMPLEMENTS='implements';
    IMPORT='import';
    IN='in';
-   INDEX='index';
    INDEXOF='indexof';
    INIT='init';
    INSTANCEOF='instanceof';

@@ -78,6 +78,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private static final String sequencesEmptyString = "com.sun.javafx.runtime.sequence.Sequences.emptySequence";
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.SequenceBuilder";
     private static final String toSequenceString = "toSequence";
+    private static final String methodThrowsString = "java.lang.Throwable";
     
     // for type morphing
     private final JavafxTypeMorpher typeMorpher;
@@ -303,6 +304,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
+        DiagnosticPosition diagPos = tree.pos();
         JFXClassDeclaration prevEnclClass = attrEnv.enclClass;
         JavafxBindStatus prevBindContext = bindContext;
         boolean prevInLHS = inLHS;
@@ -378,10 +380,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
         if (tree.isModuleClass) {
             // Add main method...
-            translatedDefs.append(makeMainMethod());
+            translatedDefs.append(makeMainMethod(diagPos));
         }
 
-        result = make.ClassDef(tree.mods, tree.name, tree.typarams, tree.extending, tree.implementing, translatedDefs.toList());
+        result = make.at(diagPos).ClassDef(tree.mods, tree.name, tree.typarams, tree.extending, tree.implementing, translatedDefs.toList());
 
         attrEnv.enclClass = prevEnclClass;
         bindContext = prevBindContext;
@@ -666,7 +668,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 makeTypeTree(mtype.getReturnType(), diagPos), 
                 make.at(diagPos).TypeParams(mtype.getTypeArguments()), 
                 params.toList(),
-                make.at(diagPos).Types(mtype.getThrownTypes()),
+                make.at(diagPos).Types(mtype.getThrownTypes()),  // makeThrows(diagPos), //
                 body, 
                 null);
     }
@@ -792,7 +794,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSequenceRange(JFXSequenceRange tree) {
         DiagnosticPosition diagPos = tree.pos();
-        JCExpression meth = ((JavafxTreeMaker)make).at(diagPos).Identifier(sequencesRangeString);
+        JCExpression meth = makeQualifiedTree(diagPos, sequencesRangeString);
         ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb();
         List<JCExpression> typeArgs = List.<JCExpression>nil();
         args.append( translate( tree.getLower() ));
@@ -874,34 +876,38 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return Name.fromString(names, syntheticNamePrefix + syntheticNameCounter++ + kind);
     }
 
-    JCMethodDecl makeMainMethod() {
+    JCMethodDecl makeMainMethod(DiagnosticPosition diagPos) {
             List<JCExpression> emptyExpressionList = List.nil();
-            JCIdent runIdent = make.Ident(Name.fromString(names, JavafxModuleBuilder.runMethodString));
-            JCMethodInvocation runCall = make.Apply(emptyExpressionList, runIdent, emptyExpressionList);
-            List<JCStatement> mainStats = List.<JCStatement>of(make.Exec(runCall));
+            JCIdent runIdent = make.at(diagPos).Ident(Name.fromString(names, JavafxModuleBuilder.runMethodString));
+            JCMethodInvocation runCall = make.at(diagPos).Apply(emptyExpressionList, runIdent, emptyExpressionList);
+            List<JCStatement> mainStats = List.<JCStatement>of(make.at(diagPos).Exec(runCall));
             List<JCVariableDecl> paramList = List.nil();
-            paramList = paramList.append(make.VarDef(make.Modifiers(0), 
+            paramList = paramList.append(make.at(diagPos).VarDef(make.Modifiers(0), 
                     Name.fromString(names, "args"), 
-                    make.TypeArray(make.Ident(Name.fromString(names, "String"))), 
+                    make.at(diagPos).TypeArray(make.Ident(Name.fromString(names, "String"))), 
                     null));
             JCBlock body = make.Block(0, mainStats);
-            return make.MethodDef(make.Modifiers(Flags.PUBLIC | Flags.STATIC),
+            return make.at(diagPos).MethodDef(make.Modifiers(Flags.PUBLIC | Flags.STATIC),
                     Name.fromString(names, "main"), 
-                    make.TypeIdent(TypeTags.VOID), 
+                    make.at(diagPos).TypeIdent(TypeTags.VOID), 
                     List.<JCTypeParameter>nil(), 
                     paramList, 
-                    emptyExpressionList, 
+                    makeThrows(diagPos), 
                     body, 
                     null);
     }
     
+    public List<JCExpression> makeThrows(DiagnosticPosition diagPos) {
+        return List.<JCExpression>of(makeQualifiedTree(diagPos, methodThrowsString));
+    }
+    
     public JCImport makeImport(String str, DiagnosticPosition diagPos) {
-        JCExpression tree = makeQualifiedTree(str, diagPos);
+        JCExpression tree = makeQualifiedTree(diagPos, str);
         tree = make.at(diagPos).Select(tree, names.asterisk);
         return make.at(diagPos).Import(tree, false);
     }
 
-    public JCExpression makeQualifiedTree(String str, DiagnosticPosition diagPos) {
+    public JCExpression makeQualifiedTree(DiagnosticPosition diagPos, String str) {
         JCExpression tree = null;
         int inx;
         int lastInx = 0;
@@ -941,7 +947,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         JCStatement makeTmpVar() {
             // Build the type declaration expression for the sequence builder
-            JCExpression builderTypeExpr = ((JavafxTreeMaker) make).at(diagPos).Identifier(sequenceBuilderString);
+            JCExpression builderTypeExpr = makeQualifiedTree(diagPos, sequenceBuilderString);
             List<JCExpression> btargs = List.<JCExpression>of(makeTypeTree(elemType, diagPos));
             builderTypeExpr = make.at(diagPos).TypeApply(builderTypeExpr, btargs);
 
@@ -956,7 +962,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 null,                               // enclosing
                 List.<JCExpression>nil(),           // type args
                 make.at(diagPos).TypeApply(         // class name -- SequenceBuilder<elemType>
-                    ((JavafxTreeMaker)make).at(diagPos).Identifier(sequenceBuilderString), 
+                     makeQualifiedTree(diagPos, sequenceBuilderString), 
                      List.<JCExpression>of(makeTypeTree(elemType, diagPos))),
                 args,                               // args
                 null                                // empty body
@@ -994,7 +1000,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     JCExpression makeEmptySeuenceCreator(DiagnosticPosition diagPos, Type elemType) {
-        JCExpression meth = ((JavafxTreeMaker)make).at(diagPos).Identifier(sequencesEmptyString);
+        JCExpression meth = makeQualifiedTree(diagPos, sequencesEmptyString);
         ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb();
         args.append(make.at(diagPos).Select(makeTypeTree(elemType, diagPos), names._class));
         List<JCExpression> typeArgs = List.<JCExpression>of(makeTypeTree(elemType, diagPos));
@@ -1003,7 +1009,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
     public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos) {
         if (t.tag == TypeTags.CLASS) {
-            JCExpression texp = makeQualifiedTree(t.tsym.getQualifiedName().toString(), diagPos);
+            JCExpression texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString());
             // Type outer = t.getEnclosingType();
             if (!t.getTypeArguments().isEmpty()) {
                 List<JCExpression> targs = List.<JCExpression>nil();
