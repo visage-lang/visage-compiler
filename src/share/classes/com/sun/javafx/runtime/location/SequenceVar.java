@@ -65,13 +65,15 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
     @Override
     public void set(Sequence<T> value) {
         Sequence<T> oldValue = sequence;
-        this.sequence = value;
-        valueChanged();
-        if (hasSequenceListeners) {
-            for (int i=0; i<oldValue.size(); i++)
-                mutationListener.onDelete(i, oldValue.get(i));
-            for (int i=0; i<sequence.size(); i++)
-                mutationListener.onInsert(i, sequence.get(i));
+        if (!oldValue.equals(value)) {
+            this.sequence = value;
+            valueChanged();
+            if (hasSequenceListeners) {
+                for (int i=0; i<oldValue.size(); i++)
+                    mutationListener.onDelete(i, oldValue.get(i));
+                for (int i=0; i<sequence.size(); i++)
+                    mutationListener.onInsert(i, sequence.get(i));
+            }
         }
     }
 

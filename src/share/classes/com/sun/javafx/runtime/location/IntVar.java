@@ -30,8 +30,10 @@ public class IntVar extends AbstractLocation implements IntLocation, MutableLoca
     }
 
     public void set(int value) {
-        this.value = value;
-        valueChanged();
+        if (this.value != value) {
+            this.value = value;
+            valueChanged();
+        }
     }
 
     @Override

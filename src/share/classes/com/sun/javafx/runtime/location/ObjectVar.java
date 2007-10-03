@@ -26,8 +26,10 @@ public class ObjectVar<T> extends AbstractLocation implements ObjectLocation<T>,
     }
 
     public void set(T value) {
-        this.value = value;
-        valueChanged();
+        if (this.value != value) {
+            this.value = value;
+            valueChanged();
+        }
     }
 
     @Override

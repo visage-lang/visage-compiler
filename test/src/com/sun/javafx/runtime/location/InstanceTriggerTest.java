@@ -1,6 +1,8 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
+import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.runtime.sequence.Sequence;
 
 /**
  * InstanceTriggerTest
@@ -14,7 +16,22 @@ public class InstanceTriggerTest extends JavaFXTestCase {
         CountingListener cl = new CountingListener();
         v.addChangeListener(cl);
         assertEquals(0, cl.count);
-        v.set(3);
+        v.set(4);
+        assertEquals(1, cl.count);
+        v.set(4);
+        assertEquals(1, cl.count);
+    }
+
+    public void testSequenceChangeTrigger() {
+        final SequenceLocation<Integer> v = SequenceVar.make(Sequences.make(Integer.class, 1, 2, 3));
+        Sequence<Integer> otherSeq = Sequences.make(Integer.class, 1, 2, 3, 5);
+        Sequence<Integer> otherButEqualSeq = Sequences.make(Integer.class, 1, 2, 3, 5);
+        CountingListener cl = new CountingListener();
+        v.addChangeListener(cl);
+        assertEquals(0, cl.count);
+        v.set(otherSeq);
+        assertEquals(1, cl.count);
+        v.set(otherButEqualSeq);
         assertEquals(1, cl.count);
     }
 
