@@ -61,6 +61,10 @@ public class JavafxInitializationBuilder {
     private final Name classNameSuffix;
     private final Name interfaceNameSuffix;
     private final String attributeGetMethodNamePrefix = "get$";
+    private final String attributeInitMethodNamePrefix = "get$";
+    private final Name locationName;
+    private final Name setDefaultsName;
+    private final Name userInitName;
 
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
@@ -84,6 +88,9 @@ public class JavafxInitializationBuilder {
         valueChangedName = names.fromString("valueChanged");
         classNameSuffix = names.fromString("$Impl");
         interfaceNameSuffix = names.fromString("$Intf");
+        locationName = names.fromString("location");
+        setDefaultsName = names.fromString("setDefaults$");
+        userInitName = names.fromString("userInit$");
     }
     
     static class TranslatedAttributeInfo {
@@ -343,7 +350,19 @@ public class JavafxInitializationBuilder {
                     List.<JCTypeParameter>nil(), 
                     List.<JCVariableDecl>nil(), 
                     List.<JCExpression>nil(), 
-                    (JCBlock)null, (JCExpression)null));
+                    null, null));
+
+            List<JCVariableDecl> locationVarDeclList = List.<JCVariableDecl>nil();
+                locationVarDeclList = locationVarDeclList.append(make.VarDef(make.Modifiers(0L),
+                    locationName, toJava.makeTypeTree(attrInfo.getUsedType(), null), null));
+            idefs.append(make.MethodDef(
+                    make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT),
+                    names.fromString(attributeInitMethodNamePrefix + attrInfo.varSymbol.name.toString()),
+                    toJava.makeTypeTree(syms.voidType, null),
+                    List.<JCTypeParameter>nil(), 
+                    locationVarDeclList, 
+                    List.<JCExpression>nil(), 
+                    null, null));
         }
     }
 
@@ -358,15 +377,53 @@ public class JavafxInitializationBuilder {
             stats = stats.append(returnStat);
             statBlock.stats = stats;
             
+            // Add the method for this class' attributes
+            List<JCVariableDecl> locationVarDeclList = List.<JCVariableDecl>nil();
+                locationVarDeclList = locationVarDeclList.append(make.VarDef(make.Modifiers(0L),
+                    locationName, toJava.makeTypeTree(attrInfo.getUsedType(), null), null));
             cdef.defs = cdef.defs.append(make.MethodDef(
                     make.Modifiers(Flags.PUBLIC),
                     names.fromString(attributeGetMethodNamePrefix + attrInfo.varSymbol.name.toString()),
                     toJava.makeTypeTree(attrInfo.getUsedType(), null),
                     List.<JCTypeParameter>nil(), 
+                    locationVarDeclList, 
+                    List.<JCExpression>nil(), 
+                    statBlock, null));
+
+            // Add the init$ method
+            JCBlock initBlock = make.Block(0L, List.<JCStatement>nil());
+            cdef.defs = cdef.defs.append(make.MethodDef(
+                    make.Modifiers(Flags.PUBLIC),
+                    names.fromString(attributeInitMethodNamePrefix + attrInfo.varSymbol.name.toString()),
+                    toJava.makeTypeTree(syms.voidType, null),
+                    List.<JCTypeParameter>nil(), 
                     List.<JCVariableDecl>nil(), 
                     List.<JCExpression>nil(), 
-                    statBlock, (JCExpression)null));
+                    initBlock, null));
         }
+        
+        // Add the setDefaults$ method
+        JCBlock setDefBlock = make.Block(0L, List.<JCStatement>nil());
+        cdef.defs = cdef.defs.append(make.MethodDef(
+                make.Modifiers(Flags.PUBLIC),
+                setDefaultsName,
+                toJava.makeTypeTree(syms.voidType, null),
+                List.<JCTypeParameter>nil(), 
+                List.<JCVariableDecl>nil(), 
+                List.<JCExpression>nil(), 
+                setDefBlock, null));
+
+        // Add the userInit$ method
+        JCBlock userInitBlock = make.Block(0L, List.<JCStatement>nil());
+        cdef.defs = cdef.defs.append(make.MethodDef(
+                make.Modifiers(Flags.PUBLIC),
+                userInitName,
+                toJava.makeTypeTree(syms.voidType, null),
+                List.<JCTypeParameter>nil(), 
+                List.<JCVariableDecl>nil(), 
+                List.<JCExpression>nil(), 
+                userInitBlock, null));
+
     }
 }
 

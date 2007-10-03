@@ -1306,7 +1306,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitVarDef(JCVariableDecl tree) {
-        assert false : "should not be in JavaFX AST";
+        result = tree;
     }
 
     public void visitWhileLoop(JCWhileLoop tree) {
