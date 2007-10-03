@@ -1,6 +1,7 @@
 /*
  * Feature test #7 -- multiple modules
  *
+ * @test
  * @compile Moo.fx
  * @compile ModuleTestA.fx
  * @run
