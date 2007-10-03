@@ -312,7 +312,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
         }
         
-	JCExpression pid = translate(tree.pid);
+	JCExpression pid = tree.pid;  //translate(tree.pid);
         result = make.at(tree.pos).TopLevel(List.<JCAnnotation>nil(), pid, tdefs);
     }
     
