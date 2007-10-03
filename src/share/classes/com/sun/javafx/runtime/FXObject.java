@@ -11,12 +11,6 @@ import java.util.List;
  * @author Brian Goetz
  */
 public interface FXObject {
-    /** Set default values for any fields that have not already been assigned a value by the object literal.  For
-     * any defaults set, setDefaults$ should call InitHelper.addDefaulted(location) to indicate the default was used.
-     */
-    public void setDefaults$(InitHelper<?> helper);
-
-    /** Run the user-specified init { } blocks */
-    public void userInit$();
-
+    /** Set default values, set up change triggers, and run init blocks */
+    public void initialize$();
 }

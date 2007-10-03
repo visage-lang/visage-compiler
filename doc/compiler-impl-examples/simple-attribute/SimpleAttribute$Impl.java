@@ -3,6 +3,7 @@ import com.sun.javafx.runtime.InitHelper;
 import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.location.IntLocation;
 import com.sun.javafx.runtime.location.IntVar;
+import com.sun.javafx.runtime.location.Location;
 
 /**
  * SimpleAttribute
@@ -10,51 +11,60 @@ import com.sun.javafx.runtime.location.IntVar;
  * @author Brian Goetz
  */
 public class SimpleAttribute$Impl implements SimpleAttribute$Intf {
-    private IntLocation a;
+    private static final int NUM$FIELDS = 1;
 
-    private SimpleAttribute$Impl() { }
-
-    public static InitHelper<SimpleAttribute$Intf> make() {
-        return new InitHelper<SimpleAttribute$Intf>(new SimpleAttribute$Impl());
+    public static int getNumFields$() {
+        return NUM$FIELDS;
     }
 
+    private IntLocation a;
+    private InitHelper initHelper = new InitHelper(NUM$FIELDS);
+    
     public IntLocation get$a() {
         return a;
     }
 
     public void init$a(IntLocation location) {
         InitHelper.assertNonNull(a, "SimpleAttribute.a");
-        this.a = location;
+        initHelper.add(this.a = location);
     }
 
-    public void setDefaults$(InitHelper<?> helper) {
-        if (a == null) a = helper.addDefaulted(IntVar.make(3));
+    protected static void setDefaults$(final SimpleAttribute$Intf receiver) {
+        if (receiver.get$a() == null) receiver.init$a(IntVar.make(3));
 
-        a.addChangeListener(new ChangeListener() {
+        receiver.get$a().addChangeListener(new ChangeListener() {
             public boolean onChange() {
-                System.out.println("a is now " + a);
+                System.out.println("a is now " + receiver.get$a().get());
                 return true;
             }
         });
     }
 
-    public void userInit$() {
-        System.out.println("a = " + a);
+    protected static void userInit$(final SimpleAttribute$Intf receiver) {
+        System.out.println("a = " + receiver.get$a().get());
+    }
+
+    public void initialize$() {
+        setDefaults$(this);
+        userInit$(this);
+        initHelper.initialize();
+        initHelper = null;
     }
 
     public static void main(String[] args) {
-        InitHelper<SimpleAttribute$Intf> helper = SimpleAttribute$Impl.make();
-        SimpleAttribute$Intf s1 = helper.initialize();
-        System.out.println(s1.get$a().get());
+        SimpleAttribute$Impl instance = new SimpleAttribute$Impl();
+        instance.initialize$();
+        System.out.println(instance.get$a().get());
 
-        helper = SimpleAttribute$Impl.make();
-        helper.getInitTarget().init$a(helper.addDefaulted(IntVar.make(4)));
-        SimpleAttribute$Intf s2 = helper.initialize();
-        System.out.println(s2.get$a().get());
+        instance = new SimpleAttribute$Impl();
+        instance.init$a(IntVar.make(4));
+        instance.initialize$();
+        System.out.println(instance.get$a().get());
     }
 }
 
 interface SimpleAttribute$Intf extends FXObject {
     public IntLocation get$a();
+
     public void init$a(IntLocation location);
 }

@@ -6,44 +6,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Helper class for initializing JavaFX instances from object literals.  To initialize an object literal
- * Foo { a: 1 }, the client will do
- * Foo f = new Foo$Impl();
- * InitHelper helper = new InitHelper(f);
- * f.init$a(helper.addProvided(IntVar.make(1)));
- * helper.initialize();
+ * Helper class for initializing JavaFX instances from object literals.
  *
  * @author Brian Goetz
  */
-public class InitHelper<T extends FXObject> {
-    private final T object;
-    private final List<Location> providedInLiteral = new ArrayList<Location>();
-    private final List<Location> didDefaults = new ArrayList<Location>();
+public class InitHelper {
+    private final Location[] initOrder;
+    private int initIndex;
 
-    public InitHelper(T object) {
-        this.object = object;
+    public InitHelper(int numFields) {
+        this.initOrder = new Location[numFields];
     }
 
-    public T getInitTarget() { return object; }
+    public void add(Location loc) { initOrder[initIndex++] = loc; }
 
-    public <V extends Location> V addDefaulted(V loc) {
-        didDefaults.add(loc);
-        return loc;
-    }
-
-    public <V extends Location> V addProvided(V loc) {
-        providedInLiteral.add(loc);
-        return loc;
-    }
-
-    public T initialize() {
-        object.setDefaults$(this);
-        object.userInit$();
-        for (Location loc : providedInLiteral)
+    public void initialize() {
+        for (Location loc : initOrder)
             loc.valueChanged();
-        for (Location loc : didDefaults)
-            loc.valueChanged();
-        return object;
     }
 
     public static void assertNonNull(Location location, String name) {

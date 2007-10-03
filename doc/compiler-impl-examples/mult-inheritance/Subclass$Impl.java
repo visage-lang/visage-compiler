@@ -24,109 +24,122 @@ interface Subclass$Intf extends Base$Intf, OtherBase$Intf {
 
 
 class Base$Impl implements Base$Intf {
+    private static final int NUM$FIELDS = 1;
+
+    public static int getNumFields$() {
+        return NUM$FIELDS;
+    }
+
     private IntLocation a;
+    private InitHelper initHelper = new InitHelper(NUM$FIELDS);
 
-    protected Base$Impl() { }
-
-    public static InitHelper<Base$Intf> make() {
-        return new InitHelper<Base$Intf>(new Base$Impl());
-    }
-
-    public IntLocation get$a() {
-        return a;
-    }
+    public IntLocation get$a() { return a; }
 
     public void init$a(IntLocation location) {
         InitHelper.assertNonNull(a, "Base.a");
-        this.a = location;
+        initHelper.add(this.a = location);
     }
 
-    public void setDefaults$(InitHelper<?> helper) {
-        if (a == null) a = helper.addDefaulted(IntVar.make(3));
+    protected static void setDefaults$(final Base$Intf receiver) {
+        if (receiver.get$a() == null) receiver.init$a(IntVar.make(3));
     }
 
-    public void userInit$() { }
+    public static void userInit$(final Base$Intf receiver) { }
+
+    public void initialize$() {
+        setDefaults$(this);
+        userInit$(this);
+        initHelper.initialize();
+        initHelper = null;
+    }
 }
 
 class OtherBase$Impl implements OtherBase$Intf {
+    private static final int NUM$FIELDS = 1;
+
+    public static int getNumFields$() {
+        return NUM$FIELDS;
+    }
+
     private IntLocation b;
+    private InitHelper initHelper = new InitHelper(NUM$FIELDS);
 
-    protected OtherBase$Impl() { }
-
-    public static InitHelper<OtherBase$Intf> make() {
-        return new InitHelper<OtherBase$Intf>(new OtherBase$Impl());
-    }
-
-    public IntLocation get$b() {
-        return b;
-    }
+    public IntLocation get$b() { return b; }
 
     public void init$b(IntLocation location) {
         InitHelper.assertNonNull(b, "OtherBase.b");
-        this.b = location;
+        initHelper.add(this.b = location);
     }
 
-    public void setDefaults$(InitHelper<?> helper) {
-        if (b == null) b = helper.addDefaulted(IntVar.make(4));
+    protected static void setDefaults$(final OtherBase$Intf receiver) {
+        if (receiver.get$b() == null) receiver.init$b(IntVar.make(4));
     }
 
-    public void userInit$() { }
+    public static void userInit$(final OtherBase$Intf receiver) { }
+
+    public void initialize$() {
+        setDefaults$(this);
+        userInit$(this);
+        initHelper.initialize();
+        initHelper = null;
+    }
 }
 
 public class Subclass$Impl implements Subclass$Intf {
+    private static final int NUM$FIELDS = 1 + Base$Impl.getNumFields$() + OtherBase$Impl.getNumFields$();
+
+    public static int getNumFields$() {
+        return NUM$FIELDS;
+    }
+
+    private IntLocation a;
+    private IntLocation b;
     private IntLocation c;
+    private InitHelper initHelper = new InitHelper(NUM$FIELDS);
 
-    Base$Impl base = new Base$Impl();
-    OtherBase$Impl otherBase = new OtherBase$Impl();
+    public IntLocation get$a() { return a; }
+    public IntLocation get$b() { return b; }
+    public IntLocation get$c() { return c; }
 
-    protected Subclass$Impl() {
+    public void init$a(IntLocation location) {
+        InitHelper.assertNonNull(b, "Subclass.a");
+        initHelper.add(this.a = location);
     }
 
-    public static InitHelper<Subclass$Intf> make() {
-        return new InitHelper<Subclass$Intf>(new Subclass$Impl());
-    }
-
-    public IntLocation get$c() {
-        return c;
+    public void init$b(IntLocation location) {
+        InitHelper.assertNonNull(b, "Subclass.b");
+        initHelper.add(this.b = location);
     }
 
     public void init$c(IntLocation location) {
         InitHelper.assertNonNull(c, "Subclass.c");
-        this.c = location;
+        initHelper.add(this.c = location);
     }
 
-    public IntLocation get$a() {
-        return base.get$a();
+    protected static void setDefaults$(final Subclass$Intf receiver) {
+        Base$Impl.setDefaults$(receiver);
+        OtherBase$Impl.setDefaults$(receiver);
+        if (receiver.get$c() == null) receiver.init$c(IntVar.make(5));
     }
 
-    public void init$a(IntLocation location) {
-        base.init$a(location);
+    public static void userInit$(final Subclass$Intf receiver) {
+        Base$Impl.userInit$(receiver);
+        OtherBase$Impl.userInit$(receiver);
     }
 
-    public IntLocation get$b() {
-        return otherBase.get$b();
-    }
 
-    public void init$b(IntLocation location) {
-        otherBase.init$b(location);
-    }
-
-    public void setDefaults$(InitHelper<?> helper) {
-        base.setDefaults$(helper);
-        otherBase.setDefaults$(helper);
-        if (c == null) c = helper.addDefaulted(IntVar.make(5));
-    }
-
-    public void userInit$() {
-        base.userInit$();
-        otherBase.userInit$();
+    public void initialize$() {
+        setDefaults$(this);
+        userInit$(this);
+        initHelper.initialize();
+        initHelper = null;
     }
 
     public static void main(String[] args) {
-        InitHelper<Subclass$Intf> helper = Subclass$Impl.make();
-        helper.getInitTarget().init$a(helper.addDefaulted(IntVar.make(1)));
-        helper.getInitTarget().init$b(helper.addDefaulted(IntVar.make(2)));
-        Subclass$Intf var = helper.initialize();
+        Subclass$Impl instance = new Subclass$Impl();
+        instance.init$a(IntVar.make(1));
+        instance.init$b(IntVar.make(2));
+        instance.initialize$();
     }
 }
 
