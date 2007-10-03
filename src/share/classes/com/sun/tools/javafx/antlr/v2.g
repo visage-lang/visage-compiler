@@ -367,10 +367,12 @@ importDecl returns [JCTree value]
                  ( DOT STAR			{ pid = F.at(pos($STAR)).Select(pid, names.asterisk); } )? SEMI 
           					{ $value = F.at(pos($IMPORT)).Import(pid, false); } ;
 classDefinition returns [JFXClassDeclaration value]
-	: modifierFlags  CLASS name supers interfaces LBRACE classMembers RBRACE 
-	  					{ $value = F.at(pos($CLASS)).ClassDeclaration($modifierFlags.mods, $name.value,
-	                                	                $supers.ids.toList(), $interfaces.ids.toList(), 
-	                                	                $classMembers.mems.toList()); } ;
+	: classModifierFlags  CLASS name supers interfaces LBRACE classMembers RBRACE 
+	  					{ $value = F.at(pos($CLASS)).ClassDeclaration(
+	  						F.at(pos($CLASS)).Modifiers($classModifierFlags.flags),
+	  						$name.value,
+	                                	        $supers.ids.toList(), $interfaces.ids.toList(), 
+	                                	        $classMembers.mems.toList()); } ;
 supers returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>()]
 	: (EXTENDS id1=qualident           	{ $ids.append($id1.expr); }
            ( COMMA idn=qualident           	{ $ids.append($idn.expr); } )* 
@@ -392,11 +394,14 @@ classMembers returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]
 	  )?
 	;
 functionDefinition  returns [JFXOperationDefinition value]
-	: modifierFlags functionLabel name 
-	    formalParameters  typeReference  
-	    blockExpression 			{ $value = F.at($functionLabel.pos).OperationDefinition($modifierFlags.mods,
+	: mods=functionModifierFlags functionLabel name formalParameters  typeReference  
+	    ( {($mods.flags & Flags.ABSTRACT) == 0}? be=blockExpression 
+	    | {($mods.flags & Flags.ABSTRACT) != 0}? SEMI
+	    ) 
+	    					{ $value = F.at($functionLabel.pos).OperationDefinition(
+	    						F.at($functionLabel.pos).Modifiers($mods.flags),
 	    						$name.value, $typeReference.type, 
-	    						$formalParameters.params.toList(), $blockExpression.expr); }
+	    						$formalParameters.params.toList(), $be.expr); }
 	;
 functionLabel    returns [int pos]
 	: FUNCTION				{ $pos = pos($FUNCTION); }
@@ -405,22 +410,43 @@ functionLabel    returns [int pos]
 initDefinition  returns [JFXInitDefinition value]
 	: INIT block 				{ $value = F.at(pos($INIT)).InitDefinition($block.value); }
 	;
-modifierFlags returns [JCModifiers mods]
-@init { long flags = 0; }
-	: ( om1=otherModifier 			{ flags |= $om1.flags; }
-		( am1=accessModifier  		{ flags |= $am1.flags; }  )?    
-	  | am2=accessModifier 			{ flags |= $am2.flags; }
-		( om2=otherModifier  		{ flags |= $om2.flags; }  )?  
-	  ) ?         				{ $mods = F.Modifiers(flags); } 
+functionModifierFlags returns [long flags]
+	: accessModifier 		 	{ flags = $accessModifier.flag; }
+		(	 functionModifier 	{ flags |= $functionModifier.flag; } )?
+	| functionModifier 			{ flags = $functionModifier.flag; }
+		(	 accessModifier 	{ flags |= $accessModifier.flag; } )?
+	| /*nada*/				{ flags = 0; }
 	;
-accessModifier returns [long flags = 0]
-	: (PUBLIC          			{ flags |= Flags.PUBLIC; }
-	|  PRIVATE         			{ flags |= Flags.PRIVATE; }
-	|  PROTECTED       			{ flags |= Flags.PROTECTED; } ) ;
-otherModifier returns [long flags = 0]
-	: (ABSTRACT        			{ flags |= Flags.ABSTRACT; }
-	|  READONLY        			{ flags |= Flags.FINAL; } 
-	|  STATIC        			{ flags |= Flags.STATIC; } ) ;
+varModifierFlags returns [long flags]
+	: accessModifier 		 	{ flags = $accessModifier.flag; }
+		(	 varModifier 		{ flags |= $varModifier.flag; } )?
+	| varModifier	 			{ flags = $varModifier.flag; }
+		(	 accessModifier 	{ flags |= $accessModifier.flag; } )?
+	| /*nada*/				{ flags = 0; }
+	;
+classModifierFlags returns [long flags]
+	: accessModifier 		 	{ flags = $accessModifier.flag; }
+		(	 classModifier 		{ flags |= $classModifier.flag; } )?
+	| classModifier 			{ flags = $classModifier.flag; }
+		(	 accessModifier 	{ flags |= $accessModifier.flag; } )?
+	| /*nada*/				{ flags = 0; }
+	;
+accessModifier returns [long flag]
+	:  PUBLIC          			{ flag = Flags.PUBLIC; }
+	|  PRIVATE         			{ flag = Flags.PRIVATE; }
+	|  PROTECTED       			{ flag = Flags.PROTECTED; } 
+	;
+functionModifier returns [long flag]
+	:  ABSTRACT        			{ flag = Flags.ABSTRACT; }
+	|  STATIC        			{ flag = Flags.STATIC; } 
+	;
+varModifier returns [long flag]
+	:  READONLY        			{ flag = Flags.FINAL; } 
+	|  STATIC        			{ flag = Flags.STATIC; } 
+	;
+classModifier returns [long flag]
+	:  ABSTRACT        			{ flag = Flags.ABSTRACT; }
+	;
 memberSelector returns [JFXMemberSelector value]
 	: name1=name   DOT   name2=name		{ $value = F.at($name1.pos).MemberSelector($name1.value, $name2.value); } 
 	;
@@ -483,10 +509,10 @@ statement returns [JCStatement value]
 	| SEMI					{ $value = F.at(pos($SEMI)).Skip(); } 
        	;
 variableDeclaration   returns [JCStatement value]
-	: modifierFlags variableLabel  name  typeReference  eqBoundExpressionOpt onChanges
+	: varModifierFlags variableLabel  name  typeReference  eqBoundExpressionOpt onChanges
 	    					{ $value = F.at($variableLabel.pos).Var($name.value, 
 	    							$typeReference.type, 
-	    							$modifierFlags.mods,
+	    							F.at($variableLabel.pos).Modifiers($varModifierFlags.flags),
 	    							$eqBoundExpressionOpt.expr, 
 	    							$eqBoundExpressionOpt.status, 
 	    							$onChanges.listb.toList()); }

@@ -110,7 +110,9 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             if (tree.getType() != null) {
                 printExpr(tree.getType());
             }
-            printExpr(tree.getBodyExpression());
+            if (tree.getBodyExpression() != null) {
+                printExpr(tree.getBodyExpression());
+            }
             println();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -129,7 +131,9 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             printExprs(tree.getParameters());
             print(")");
             printExpr(tree.operation.rettype);
-            printExpr(tree.getBodyExpression());
+            if (tree.getBodyExpression() != null) {
+                printExpr(tree.getBodyExpression());
+            }
             println();
         } catch (IOException e) {
             throw new UncheckedIOException(e);

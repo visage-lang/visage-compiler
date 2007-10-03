@@ -650,15 +650,15 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         isInMethodParamVars = prevIsInMethodLocalVars;
 
         if (opVal.getJFXReturnType().getTag() == JavafxTag.TYPEUNKNOWN) {
-            if (opVal.bodyExpression == null) {
+            if (opVal.getBodyExpression() == null) {
                 // no body, can't infer, assume Any
                 returnType = syms.javafx_AnyType;
             } else {
                 // infer the type from the body
-                if (opVal.bodyExpression.value == null) {
+                if (opVal.getBodyExpression().value == null) {
                     returnType = syms.javafx_VoidType;
                 } else {
-                    returnType = attr.attribExpr(opVal.bodyExpression, localEnv);
+                    returnType = attr.attribExpr(opVal.getBodyExpression(), localEnv);
                 }
             }
             methodsToInferReturnType = methodsToInferReturnType.append(new MethodInferTypeHelper(opDef, lEnv));
@@ -684,7 +684,9 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                       operation.rettype.type = Type.noType;
                       JavafxEnv<JavafxAttrContext> prevLocalEnv = localEnv;
                       localEnv = methodDeclHelper.lEnv;
-                      memberEnter(operation.getBodyExpression(), localEnv);
+                      if (operation.getBodyExpression() != null) {
+                          memberEnter(operation.getBodyExpression(), localEnv);
+                      }
                       localEnv = prevLocalEnv;
                       if (methodReturnType == null) {
                           operation.rettype.type = syms.voidType;

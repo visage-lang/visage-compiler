@@ -54,7 +54,7 @@ public class JFXOperationDefinition extends JFXStatement {
     }
     
     public JFXBlockExpression getBodyExpression() {
-        return operation.bodyExpression;
+        return operation.getBodyExpression();
     }
     public JCModifiers getModifiers() { return mods; }
     public Name getName() { return name; }

@@ -1396,7 +1396,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
 
          // Attribute method bodyExpression.
-         attribExpr(tree.bodyExpression, localEnv);
+         if (tree.getBodyExpression() != null) {
+            attribExpr(tree.getBodyExpression(), localEnv);
+         }
          localEnv.info.scope.leave();
          result = tree.type; // = m.type; // FIXME
     }
@@ -1442,7 +1444,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 attribStat(l.head, localEnv);
             }
             
-            if (tree.operation.bodyExpression == null) {
+            if (tree.getBodyExpression() == null) {
                 // Empty bodies are only allowed for
                 // abstract, native, or interface methods, or for methods
                 // in a retrofit signature class.
@@ -1451,14 +1453,14 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     !relax)
                     log.error(tree.pos(), "missing.meth.body.or.decl.abstract");
             } else if ((owner.flags() & INTERFACE) != 0) {
-                log.error(tree.operation.bodyExpression.pos(), "intf.meth.cant.have.body");
+                log.error(tree.getBodyExpression().pos(), "intf.meth.cant.have.body");
             } else if ((tree.mods.flags & ABSTRACT) != 0) {
                 log.error(tree.pos(), "abstract.meth.cant.have.body");
             } else if ((tree.mods.flags & NATIVE) != 0) {
                 log.error(tree.pos(), "native.meth.cant.have.body");
             } else {
                 // Attribute method bodyExpression.
-                attribExpr(tree.operation.bodyExpression, localEnv);
+                attribExpr(tree.getBodyExpression(), localEnv);
             }
             localEnv.info.scope.leave();
             result = tree.type = m.type;
