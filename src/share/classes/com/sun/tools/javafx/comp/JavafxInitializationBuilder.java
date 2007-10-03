@@ -65,6 +65,8 @@ public class JavafxInitializationBuilder {
     private final Name locationName;
     private final Name setDefaultsName;
     private final Name userInitName;
+    private final Name receiverName;
+    private final Name initializeName;
 
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
@@ -91,6 +93,8 @@ public class JavafxInitializationBuilder {
         locationName = names.fromString("location");
         setDefaultsName = names.fromString("setDefaults$");
         userInitName = names.fromString("userInit$");
+        receiverName = names.fromString("receiver");
+        initializeName = names.fromString("initialize$");
     }
     
     static class TranslatedAttributeInfo {
@@ -403,18 +407,41 @@ public class JavafxInitializationBuilder {
         }
         
         // Add the setDefaults$ method
+        List<JCVariableDecl> receiverVarDeclList = List.<JCVariableDecl>nil();
+        receiverVarDeclList = receiverVarDeclList.append(make.VarDef(make.Modifiers(Flags.FINAL),
+                receiverName, make.Ident(names.fromString(cdef.name.toString() + interfaceNameSuffix.toString())), null));
+
         JCBlock setDefBlock = make.Block(0L, List.<JCStatement>nil());
         cdef.defs = cdef.defs.append(make.MethodDef(
-                make.Modifiers(Flags.PUBLIC),
+                make.Modifiers(Flags.PUBLIC | Flags.STATIC),
                 setDefaultsName,
                 toJava.makeTypeTree(syms.voidType, null),
                 List.<JCTypeParameter>nil(), 
-                List.<JCVariableDecl>nil(), 
+                receiverVarDeclList, 
                 List.<JCExpression>nil(), 
                 setDefBlock, null));
 
         // Add the userInit$ method
+        receiverVarDeclList = List.<JCVariableDecl>nil();
+        receiverVarDeclList = receiverVarDeclList.append(make.VarDef(make.Modifiers(Flags.FINAL),
+                receiverName, make.Ident(names.fromString(cdef.name.toString() + interfaceNameSuffix.toString())), null));
+
         JCBlock userInitBlock = make.Block(0L, List.<JCStatement>nil());
+        cdef.defs = cdef.defs.append(make.MethodDef(
+                make.Modifiers(Flags.PUBLIC | Flags.STATIC),
+                userInitName,
+                toJava.makeTypeTree(syms.voidType, null),
+                List.<JCTypeParameter>nil(), 
+                receiverVarDeclList, 
+                List.<JCExpression>nil(), 
+                userInitBlock, null));
+
+        // Add the initialize$ method
+        List<JCStatement> initializeStats = List.<JCStatement>nil();
+        initializeStats = initializeStats.append(toJava.callStatement(null, null, setDefaultsName.toString()));
+        initializeStats = initializeStats.append(toJava.callStatement(null, null, userInitName.toString()));
+        // TODO: Add init helper calls...
+        JCBlock initializeBlock = make.Block(0L, initializeStats);
         cdef.defs = cdef.defs.append(make.MethodDef(
                 make.Modifiers(Flags.PUBLIC),
                 userInitName,
@@ -422,8 +449,7 @@ public class JavafxInitializationBuilder {
                 List.<JCTypeParameter>nil(), 
                 List.<JCVariableDecl>nil(), 
                 List.<JCExpression>nil(), 
-                userInitBlock, null));
-
+                initializeBlock, null));
     }
 }
 
