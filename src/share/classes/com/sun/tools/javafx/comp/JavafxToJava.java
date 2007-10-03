@@ -1162,8 +1162,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         // but there are other restrictions in javac.  We'll deal with
         // those later, but for now here is a simple rewrite that
         // handles most of the useful cases.
-        if (tree.expr instanceof JCConditional) {
-            result = condToIf((JCConditional) tree.expr);
+        if (expr instanceof JCConditional) {
+            result = condToIf((JCConditional)expr);
             return;
         }
 	result = make.at(tree.pos).Exec(expr);
