@@ -590,8 +590,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                         out.close();
                     }
                 }
-            } catch (Throwable ex) {
-                System.err.println("Exception thrown in pretty printing: " + ex);
+            } catch (IOException ex) {
+                System.err.println("Exception thrown in JavaFX pretty printing: " + ex);
             }
         }
     }

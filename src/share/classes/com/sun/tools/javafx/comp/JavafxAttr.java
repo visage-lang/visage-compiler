@@ -1874,7 +1874,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public void visitBinary(JCBinary tree) {
         // Attribute arguments.
         Type left = chk.checkNonVoid(tree.lhs.pos(), attribExpr(tree.lhs, env));
-        Type right = chk.checkNonVoid(tree.lhs.pos(), attribExpr(tree.rhs, env));
+        Type right = chk.checkNonVoid(tree.rhs.pos(), attribExpr(tree.rhs, env));
 // Javafx change
         if (left == syms.javafx_AnyType) {
             left = setEffectiveExpressionType(tree.lhs, newTypeFromType(getEffectiveExpressionType(right)));
