@@ -438,8 +438,8 @@ public class JavafxInitializationBuilder {
 
         // Add the initialize$ method
         List<JCStatement> initializeStats = List.<JCStatement>nil();
-        initializeStats = initializeStats.append(toJava.callStatement(null, null, setDefaultsName.toString()));
-        initializeStats = initializeStats.append(toJava.callStatement(null, null, userInitName.toString()));
+// TODO:        initializeStats = initializeStats.append(toJava.callStatement(null, null, setDefaultsName.toString()));
+// TODO:        initializeStats = initializeStats.append(toJava.callStatement(null, null, userInitName.toString()));
         // TODO: Add init helper calls...
         JCBlock initializeBlock = make.Block(0L, initializeStats);
         cdef.defs = cdef.defs.append(make.MethodDef(
