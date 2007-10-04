@@ -61,7 +61,7 @@ public class JavafxInitializationBuilder {
     private final Name classNameSuffix;
     private final Name interfaceNameSuffix;
     private final String attributeGetMethodNamePrefix = "get$";
-    private final String attributeInitMethodNamePrefix = "get$";
+    private final String attributeInitMethodNamePrefix = "init$";
     private final Name locationName;
     private final Name setDefaultsName;
     private final Name userInitName;
@@ -333,7 +333,7 @@ public class JavafxInitializationBuilder {
         
         addInterfaceAttributeMethods(iDefinitions, attrInfos);
         Name interfaceName = names.fromString(cDecl.name.toString() + interfaceNameSuffix);
-        JCClassDecl cInterface = make.ClassDef(make.Modifiers(cDecl.mods.flags | Flags.INTERFACE),
+        JCClassDecl cInterface = make.ClassDef(make.Modifiers(cDecl.mods.flags | Flags.INTERFACE | Flags.ABSTRACT),
                 interfaceName, 
                 List.<JCTypeParameter>nil(), null, implementing.toList(), iDefinitions.toList());
         
