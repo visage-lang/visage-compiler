@@ -846,17 +846,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
         if (tree.getIndex() != null) { 
-            result = callStatement(tree, 
+            result = callStatement(tree.pos(), 
                 translateLHS( tree.getSequence() ), 
                 "delete", 
                 translate( tree.getIndex() ));
         } else if (tree.getElement() != null) { 
-            result = callStatement(tree, 
+            result = callStatement(tree.pos(), 
                 translateLHS( tree.getSequence() ), 
                 "deleteValue", 
                 translate( tree.getElement() ));
         } else { 
-            result = callStatement(tree, 
+            result = callStatement(tree.pos(), 
                 translateLHS( tree.getSequence() ), 
                 "deleteAll");
         }
@@ -865,29 +865,35 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     /**** utility methods ******/
     
     JCStatement callStatement(
-            JCTree treeForPos,
+            DiagnosticPosition diagPos,
             JCExpression receiver, 
             String method) {
-        return callStatement(treeForPos, receiver, method, List.<JCExpression>nil());
+        return callStatement(diagPos, receiver, method, List.<JCExpression>nil());
     }
     
     JCStatement callStatement(
-            JCTree treeForPos,
+            DiagnosticPosition diagPos,
             JCExpression receiver, 
             String method, 
             JCExpression arg) {
-        return callStatement(treeForPos, receiver, method, List.<JCExpression>of(arg));
+        return callStatement(diagPos, receiver, method, List.<JCExpression>of(arg));
     }
     
     JCStatement callStatement(
-            JCTree treeForPos,
+            DiagnosticPosition diagPos,
             JCExpression receiver, 
             String method, 
             List<JCExpression> args) {
-        DiagnosticPosition diagPos = treeForPos.pos();
         Name methodName = names.fromString(method);
-        JCFieldAccess select = make.at(diagPos).Select(receiver, methodName);
-        JCExpression apply = make.at(diagPos).Apply(null, select, args);
+        JCExpression expr = null;
+        if (receiver == null) {
+            expr = make.at(diagPos).Ident(names.fromString(method));
+        }
+        else {
+            expr = make.at(diagPos).Select(receiver, methodName);
+        }
+
+        JCExpression apply = make.at(diagPos).Apply(null, expr, args);
         return make.at(diagPos).Exec(apply);
     }
     
