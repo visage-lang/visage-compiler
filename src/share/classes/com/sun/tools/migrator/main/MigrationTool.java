@@ -83,10 +83,6 @@ public class MigrationTool {
      */
     protected Name.Table names;
 
-    /** Force a completion failure on this name
-     */
-    protected final Name completionFailureName;
-
     /** Type utilities.
      */
     protected Types types;
@@ -166,13 +162,14 @@ public class MigrationTool {
      *  @param input        The input stream to be parsed.
      */
     protected MTCompilationUnit parse(String src) {
+        MTCompilationUnit tree = make.TopLevel(null, List.<MTTree>nil());
+        try {
         File srcFile = new File(src);
         BufferedReader inputReader = 
             new BufferedReader(new FileReader(srcFile));
         int length = (int)srcFile.length();
         char[] content = new char[length];
         inputReader.read(content, 0, length);
-        MTCompilationUnit tree = make.TopLevel(null, List.<MTTree>nil());
         if (content != null) {
 	    int initialErrorCount = log.nerrors;
             {
@@ -185,7 +182,9 @@ public class MigrationTool {
                 parseErrors |= (log.nerrors > initialErrorCount);
             }
         }
-
+        } catch (IOException exc) {
+            System.err.println("Parser/Source-read failed wiht: " + exc);
+        }
         return tree;
     }
 
