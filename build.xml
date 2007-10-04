@@ -158,12 +158,12 @@
 
 
     <target name="-post-compile" depends="fx-taskdef">
-        <!--<javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"-->
-                 <!--destdir="${build.classes.dir}"-->
-                 <!--encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"-->
-                 <!--includes="**/*.fx" source="${javac.source}" sourcepath=""-->
-                 <!--srcdir="${src.classes.dir}" target="${javac.target}"-->
-                 <!--compilerclasspath="${build.classes.dir}:${javac.classpath}"/>-->
+        <javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"
+                 destdir="${build.classes.dir}"
+                 encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"
+                 includes="**/*.fx" source="${javac.source}" sourcepath=""
+                 srcdir="${src.classes.dir}" target="${javac.target}"
+                 compilerclasspath="${build.classes.dir}:${javac.classpath}"/>
     </target>
     
     <!-- jar file creation: external runtime jar contents are included to reduce classpath issues -->
