@@ -67,14 +67,6 @@ public class MigrationTool {
      */
     protected MTTreeMaker make;
 
-    /** The class reader.
-     */
-    protected ClassReader reader;
-
-    /** The class writer.
-     */
-    protected ClassWriter writer;
-
     /** The language version.
      */
     protected Source source;
@@ -82,10 +74,6 @@ public class MigrationTool {
     /** The name table.
      */
     protected Name.Table names;
-
-    /** Type utilities.
-     */
-    protected Types types;
 
 //    protected MTToJava jfxToJava;
 
@@ -102,12 +90,9 @@ public class MigrationTool {
 
         names = Name.Table.instance(context);
         log = Log.instance(context);
-        reader = ClassReader.instance(context);
         make = (MTTreeMaker)MTTreeMaker.instance(context);
-        writer = ClassWriter.instance(context);
 
         source = Source.instance(context);
-        types = Types.instance(context);
     }
 
     /* Switches:
@@ -257,11 +242,8 @@ public class MigrationTool {
     }
 
     private void close(boolean disposeNames) {
-        reader = null;
         make = null;
-        writer = null;
         source = null;
-        types = null;
 
         log.flush();
         {

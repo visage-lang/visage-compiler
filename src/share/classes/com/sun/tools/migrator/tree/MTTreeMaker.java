@@ -27,16 +27,13 @@ package com.sun.tools.migrator.tree;
 
 import com.sun.tools.migrator.tree.MTTree.*;
 
-import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Position;
 import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.util.*;
 
@@ -60,12 +57,6 @@ public class MTTreeMaker {
 
     /** The current name table. */
     protected Name.Table names;
-
-    protected Types types;
-
-    /** The current symbol table. */
-    protected Symtab syms;
-
 
     /** The context key for the tree factory. */
     protected static final Context.Key<MTTreeMaker> treeMakerKey =
@@ -96,24 +87,6 @@ public class MTTreeMaker {
         this.pos = Position.NOPOS;
         this.toplevel = null;
         this.names = Name.Table.instance(context);
-        this.syms = Symtab.instance(context);
-        this.types = Types.instance(context);
-    }
-
-    /** Create a tree maker with a given toplevel and FIRSTPOS as initial position.
-     */
-    protected MTTreeMaker(MTCompilationUnit toplevel, Name.Table names, Types types, Symtab syms) {
-        this.pos = Position.FIRSTPOS;
-        this.toplevel = toplevel;
-        this.names = names;
-        this.types = types;
-        this.syms = syms;
-    }
-
-    /** Create a new tree maker for a given toplevel.
-     */
-    public MTTreeMaker forToplevel(MTCompilationUnit toplevel) {
-        return new MTTreeMaker(toplevel, names, types, syms);
     }
 
     /** Reassign current position.
@@ -342,12 +315,6 @@ public class MTTreeMaker {
         return tree;
     }
 
-    public MTTypeBoundKind TypeBoundKind(BoundKind kind) {
-        MTTypeBoundKind tree = new MTTypeBoundKind(kind);
-        tree.pos = pos;
-        return tree;
-    }
-
     public MTAnnotation Annotation(MTTree annotationType, List<MTExpression> args) {
         MTAnnotation tree = new MTAnnotation(annotationType, args);
         tree.pos = pos;
@@ -385,194 +352,6 @@ public class MTTreeMaker {
  * Derived building blocks.
  ****************************************************************************/
 
-    /** Create an identifier from a symbol.
-     */
-    public MTIdent Ident(Symbol sym) {
-        return (MTIdent)new MTIdent((sym.name != names.empty)
-				? sym.name
-				: sym.flatName(), sym)
-            .setPos(pos)
-            .setType(sym.type);
-    }
-
-    /** Create a selection node from a qualifier tree and a symbol.
-     *  @param base   The qualifier tree.
-     */
-    public MTExpression Select(MTExpression base, Symbol sym) {
-        return new MTFieldAccess(base, sym.name, sym).setPos(pos).setType(sym.type);
-    }
-
-    /** Create a qualified identifier from a symbol, adding enough qualifications
-     *  to make the reference unique.
-     */
-    public MTExpression QualIdent(Symbol sym) {
-        return isUnqualifiable(sym)
-            ? Ident(sym)
-            : Select(QualIdent(sym.owner), sym);
-    }
-
-    /** Create an identifier that refers to the variable declared in given variable
-     *  declaration.
-     */
-    public MTExpression Ident(MTVariableDecl param) {
-        return Ident(param.sym);
-    }
-
-    /** Create a list of identifiers referring to the variables declared
-     *  in given list of variable declarations.
-     */
-    public List<MTExpression> Idents(List<MTVariableDecl> params) {
-        ListBuffer<MTExpression> ids = new ListBuffer<MTExpression>();
-        for (List<MTVariableDecl> l = params; l.nonEmpty(); l = l.tail)
-            ids.append(Ident(l.head));
-        return ids.toList();
-    }
-
-    /** Create a tree representing `this', given its type.
-     */
-    public MTExpression This(Type t) {
-        return Ident(new VarSymbol(FINAL, names._this, t, t.tsym));
-    }
-
-    /** Create a tree representing a class literal.
-     */
-    public MTExpression ClassLiteral(ClassSymbol clazz) {
-        return ClassLiteral(clazz.type);
-    }
-
-    /** Create a tree representing a class literal.
-     */
-    public MTExpression ClassLiteral(Type t) {
-        VarSymbol lit = new VarSymbol(STATIC | PUBLIC | FINAL,
-                                      names._class,
-                                      t,
-                                      t.tsym);
-        return Select(Type(t), lit);
-    }
-
-    /** Create a tree representing `super', given its type and owner.
-     */
-    public MTIdent Super(Type t, TypeSymbol owner) {
-        return Ident(new VarSymbol(FINAL, names._super, t, owner));
-    }
-
-    /**
-     * Create a method invocation from a method tree and a list of
-     * argument trees.
-     */
-    public MTMethodInvocation App(MTExpression meth, List<MTExpression> args) {
-        return Apply(null, meth, args).setType(meth.type.getReturnType());
-    }
-
-    /**
-     * Create a no-arg method invocation from a method tree
-     */
-    public MTMethodInvocation App(MTExpression meth) {
-        return Apply(null, meth, List.<MTExpression>nil()).setType(meth.type.getReturnType());
-    }
-
-    /** Create a tree representing given type.
-     */
-    public MTExpression Type(Type t) {
-        if (t == null) return null;
-        MTExpression tp;
-        switch (t.tag) {
-        case BYTE: case CHAR: case SHORT: case INT: case LONG: case FLOAT:
-        case DOUBLE: case BOOLEAN: case VOID:
-            tp = TypeIdent(t.tag);
-            break;
-        case TYPEVAR:
-            tp = Ident(t.tsym);
-            break;
-        case WILDCARD: {
-            WildcardType a = ((WildcardType) t);
-            tp = Wildcard(TypeBoundKind(a.kind), Type(a.type));
-            break;
-        }
-        case CLASS:
-            Type outer = t.getEnclosingType();
-            MTExpression clazz = outer.tag == CLASS && t.tsym.owner.kind == TYP
-                ? Select(Type(outer), t.tsym)
-                : QualIdent(t.tsym);
-            tp = t.getTypeArguments().isEmpty()
-                ? clazz
-                : TypeApply(clazz, Types(t.getTypeArguments()));
-            break;
-        case ARRAY:
-            tp = TypeArray(Type(types.elemtype(t)));
-            break;
-        case ERROR:
-            tp = TypeIdent(ERROR);
-            break;
-        default:
-            throw new AssertionError("unexpected type: " + t);
-        }
-        return tp.setType(t);
-    }
-//where
-        private MTExpression Selectors(MTExpression base, Symbol sym, Symbol limit) {
-            if (sym == limit) return base;
-            else return Select(Selectors(base, sym.owner, limit), sym);
-        }
-
-    /** Create a list of trees representing given list of types.
-     */
-    public List<MTExpression> Types(List<Type> ts) {
-        ListBuffer<MTExpression> types = new ListBuffer<MTExpression>();
-        for (List<Type> l = ts; l.nonEmpty(); l = l.tail)
-            types.append(Type(l.head));
-        return types.toList();
-    }
-
-    public MTLiteral Literal(Object value) {
-        MTLiteral result = null;
-        if (value instanceof String) {
-            result = Literal(CLASS, value).
-                setType(syms.stringType.constType(value));
-        } else if (value instanceof Integer) {
-            result = Literal(INT, value).
-                setType(syms.intType.constType(value));
-        } else if (value instanceof Long) {
-            result = Literal(LONG, value).
-                setType(syms.longType.constType(value));
-        } else if (value instanceof Byte) {
-            result = Literal(BYTE, value).
-                setType(syms.byteType.constType(value));
-        } else if (value instanceof Character) {
-            result = Literal(CHAR, value).
-                setType(syms.charType.constType(value));
-        } else if (value instanceof Double) {
-            result = Literal(DOUBLE, value).
-                setType(syms.doubleType.constType(value));
-        } else if (value instanceof Float) {
-            result = Literal(FLOAT, value).
-                setType(syms.floatType.constType(value));
-        } else if (value instanceof Short) {
-            result = Literal(SHORT, value).
-                setType(syms.shortType.constType(value));
-        } else {
-            throw new AssertionError(value);
-        }
-        return result;
-    }
-
-    /** Create a type parameter tree from its name and type.
-     */
-    public MTTypeParameter TypeParam(Name name, TypeVar tvar) {
-        return (MTTypeParameter)
-            TypeParameter(name, Types(types.getBounds(tvar))).setPos(pos).setType(tvar);
-    }
-
-    /** Create a list of type parameter trees from a list of type variables.
-     */
-    public List<MTTypeParameter> TypeParams(List<Type> typarams) {
-        ListBuffer<MTTypeParameter> tparams = new ListBuffer<MTTypeParameter>();
-        int i = 0;
-        for (List<Type> l = typarams; l.nonEmpty(); l = l.tail)
-            tparams.append(TypeParam(l.head.tsym.name, (TypeVar)l.head));
-        return tparams.toList();
-    }
-
     /** Wrap a method invocation in an expression statement or return statement,
      *  depending on whether the method invocation expression's type is void.
      */
@@ -580,61 +359,10 @@ public class MTTreeMaker {
         return apply.type.tag == VOID ? Exec(apply) : Return(apply);
     }
 
-    /** Construct an assignment from a variable symbol and a right hand side.
-     */
-    public MTStatement Assignment(Symbol v, MTExpression rhs) {
-        return Exec(Assign(Ident(v), rhs).setType(v.type));
-    }
-
-    /** Construct an index expression from a variable and an expression.
-     */
-    public MTArrayAccess Indexed(Symbol v, MTExpression index) {
-        MTArrayAccess tree = new MTArrayAccess(QualIdent(v), index);
-        tree.type = ((ArrayType)v.type).elemtype;
-        return tree;
-    }
-
-    /** Make an attributed type cast expression.
-     */
-    public MTTypeCast TypeCast(Type type, MTExpression expr) {
-        return (MTTypeCast)TypeCast(Type(type), expr).setType(type);
-    }
 
 /* ***************************************************************************
  * Helper methods.
  ****************************************************************************/
-
-    /** Can given symbol be referred to in unqualified form?
-     */
-    boolean isUnqualifiable(Symbol sym) {
-        if (sym.name == names.empty ||
-            sym.owner == null ||
-            sym.owner.kind == MTH || sym.owner.kind == VAR) {
-            return true;
-        } else if (sym.kind == TYP && toplevel != null) {
-            Scope.Entry e;
-            e = toplevel.namedImportScope.lookup(sym.name);
-            if (e.scope != null) {
-                return
-                  e.sym == sym &&
-                  e.next().scope == null;
-            }
-            e = toplevel.packge.members().lookup(sym.name);
-            if (e.scope != null) {
-                return
-                  e.sym == sym &&
-                  e.next().scope == null;
-            }
-            e = toplevel.starImportScope.lookup(sym.name);
-            if (e.scope != null) {
-                return
-                  e.sym == sym &&
-                  e.next().scope == null;
-            }
-        }
-        return false;
-    }
-
     /** The name of synthetic parameter number `i'.
      */
     public Name paramName(int i)   { return names.fromString("x" + i); }
