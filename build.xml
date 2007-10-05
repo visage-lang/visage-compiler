@@ -218,4 +218,8 @@
         <!-- Don't explicitly call fail task, so Hudson reports an UNSTABLE build instead of FAILURE -->
     </target>
 
+    <target name="runtime" depends="jar">
+        <ant dir="runtime" antfile="build.xml" target="jar" inheritall="false"/>
+    </target>
+
 </project>
