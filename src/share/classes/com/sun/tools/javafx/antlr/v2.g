@@ -623,7 +623,7 @@ orExpression  returns [JCExpression expr]
 	   (   OR   e2=instanceOfExpression			{ $expr = F.at(pos($OR)).Binary(JCTree.OR, $expr, $e2.expr); }    ) * ;
 instanceOfExpression  returns [JCExpression expr] 
 	: e1=relationalExpression				{ $expr = $e1.expr; }
-	   (   INSTANCEOF identifier				{ $expr = F.at(pos($INSTANCEOF)).TypeTest($expr, $identifier.expr); }   ) ? 
+	   (   INSTANCEOF qualident				{ $expr = F.at(pos($INSTANCEOF)).TypeTest($expr, $qualident.expr); }   ) ? 
 	;
 relationalExpression  returns [JCExpression expr] 
 	: e1=additiveExpression					{ $expr = $e1.expr; }
