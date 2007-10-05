@@ -77,12 +77,12 @@
     <target name="all" depends="prepare,junit,ant,docbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura,svnstat"/>
 
     <target name="ant" depends="prepare">
-        <get src="${ant.url}" dest="${ant.zipfile}"/>
+        <!-- <get src="${ant.url}" dest="${ant.zipfile}"/>
         <unzip src="${ant.zipfile}" dest="${ant.dir}">
             <patternset includes="**/ant.jar"/>
             <mapper type="flatten"/>
         </unzip>
-        <delete file="${ant.zipfile}" />
+        <delete file="${ant.zipfile}" /> -->
     </target>
 
     <target name="junit" depends="prepare">
