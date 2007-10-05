@@ -40,5 +40,5 @@ if [ ! -x "$JAVA_CMD" ] ; then
   exit 1
 fi
 
-$JAVA_CMD -Xbootclasspath/p:$HOME/javafx.jar com.sun.tools.javafx.Main $*
+$JAVA_CMD -Xbootclasspath/p:$HOME/javafxc.jar:$HOME/javafxrt.jar com.sun.tools.javafx.Main $*
 

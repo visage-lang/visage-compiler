@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<project name="JavaFX_Runtime" default="default" basedir=".">
+    <description>Builds, tests, and runs the project JavaFX Runtime.</description>
+    <import file="nbproject/build-impl.xml"/>
+
+    <available property="ant.jar" value="${ant.home}/lib/ant.jar" file="${ant.home}/lib/ant.jar"/>
+    <!-- if the previous location is not correct than find the ant.jar from the java.class.path value -->
+    <pathconvert property="ant.jar">
+        <mapper type="regexp" from="${path.separator}([^${path.separator}]*ant.jar)${path.separator}" to="\1"/>
+        <path location="${path.separator}${java.class.path}${path.separator}"/>
+    </pathconvert>
+
+    <target name="init" depends="-pre-init,-init-private,-init-user,-init-project,-do-init,-post-init,-init-check,-init-macrodef-property,-init-macrodef-javac,-init-macrodef-junit,-init-macrodef-nbjpda,-init-macrodef-debug,-init-macrodef-java,-init-presetdef-jar">
+        <fail message="Ant version 1.7.0 or later is required to build JavaFX.">
+            <condition>
+                <not>
+                    <antversion atleast="1.7.0"/>
+                </not>
+            </condition>
+        </fail>
+        <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask">
+            <classpath>
+                <pathelement location="${ant.jar}"/>
+                <pathelement location="../${build.classes.dir}"/>
+                <pathelement path="${javac.classpath}"/>
+            </classpath>
+        </taskdef>
+    </target>
+
+    <target name="-post-compile" if="have.sources" depends="init,deps-jar,-pre-pre-compile,-pre-compile">
+        <javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"
+                 destdir="${build.classes.dir}"
+                 encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"
+                 includes="**/*.fx" source="${javac.source}" sourcepath=""
+                 srcdir="${src.classes.dir}" target="${javac.target}"
+                 classpath="${build.classes.dir}:${javac.classpath}"
+                 compilerclasspath="${build.classes.dir}:${javac.classpath}"/>
+    </target>
+    
+    <target name="jar" description="Build JAR." depends="init,compile">
+        <jar compress="${jar.compress}" destfile="${dist.jar}">
+            <fileset dir="${build.classes.dir}"/>
+            <zipfileset src="${file.reference.javafxc.jar}" includes="com/sun/javafx/**"/>
+            <zipfileset src="${file.reference.swing-layout.jar}" excludes="META-INF/**/"/>
+        </jar>
+    </target>
+
+    <target depends="init" name="-do-clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.jar}"/>
+    </target>
+</project>

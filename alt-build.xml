@@ -20,7 +20,7 @@
     <property name="publish.findbugs.dir" value="${publish.dir}/findbugs"/>
     <property name="src.fx.dir" value="${base.dir}/src/share/classes"/>
     <property name="src.java.dir" value="${base.dir}/src/share/classes"/>
-    <property name="jar.file" value="${dist.dir}/javafx.jar"/>
+    <property name="jar.file" value="${dist.dir}/javafxc.jar"/>
     <property name="cobertura.file" value="cobertura.ser"/>
 
     <import file="tools-defs.xml"/>

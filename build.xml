@@ -11,69 +11,6 @@
     <property name="antlr.grammar" value="v2" />
 
     <import file="nbproject/build-impl.xml"/>
-    <!--<property file="nbproject/project.properties" />-->
-
-    <!--
-
-    There exist several targets which are by default empty and which can be 
-    used for execution of your tasks. These targets are usually executed 
-    before and after some main targets. They are: 
-
-      -pre-init:                 called before initialization of project properties
-      -post-init:                called after initialization of project properties
-      -pre-compile:              called before javac compilation
-      -post-compile:             called after javac compilation
-      -pre-compile-single:       called before javac compilation of single file
-      -post-compile-single:      called after javac compilation of single file
-      -pre-compile-test:         called before javac compilation of JUnit tests
-      -post-compile-test:        called after javac compilation of JUnit tests
-      -pre-compile-test-single:  called before javac compilation of single JUnit test
-      -post-compile-test-single: called after javac compilation of single JUunit test
-      -pre-jar:                  called before JAR building
-      -post-jar:                 called after JAR building
-      -post-clean:               called after cleaning build products
-
-    (Targets beginning with '-' are not intended to be called on their own.)
-
-    Example of inserting an obfuscator after compilation could look like this:
-
-        <target name="-post-compile">
-            <obfuscate>
-                <fileset dir="${build.classes.dir}"/>
-            </obfuscate>
-    </target>
-
-    For list of available properties check the imported 
-    nbproject/build-impl.xml file. 
-
-
-    Another way to customize the build is by overriding existing main targets.
-    The targets of interest are: 
-
-      -init-macrodef-javac:     defines macro for javac compilation
-      -init-macrodef-junit:     defines macro for junit execution
-      -init-macrodef-debug:     defines macro for class debugging
-      -init-macrodef-java:      defines macro for class execution
-      -do-jar-with-manifest:    JAR building (if you are using a manifest)
-      -do-jar-without-manifest: JAR building (if you are not using a manifest)
-      run:                      execution of project 
-      -javadoc-build:           Javadoc generation
-      test-report:              JUnit report generation
-
-    An example of overriding the target for project execution could look like this:
-
-        <target name="run" depends="JavaFX-impl.jar">
-            <exec dir="bin" executable="launcher.exe">
-                <arg file="${dist.jar}"/>
-            </exec>
-    </target>
-
-    Notice that the overridden target depends on the jar target and not only on 
-    the compile target as the regular run target does. Again, for a list of available 
-    properties which you can use, check the target you are overriding in the
-    nbproject/build-impl.xml file. 
-
-    -->
 
     <target name="default" depends="jar"
             description="Build javafxc compiler."/>
@@ -134,61 +71,37 @@
         <ant antfile="bootstrap.xml" target="all"/>
     </target>
 
-    <target name="fx-taskdef">
-        <taskdef resource="javafxc-ant-task.properties">
-            <classpath>
-                <pathelement location="${ant.jar}"/>
-                <pathelement location="${build.classes.dir}"/>
-                <pathelement path="${javac.classpath}"/>
-            </classpath>
-        </taskdef>
-    </target>
-
     <target name="-pre-init" depends="check-ant,check-jdk-1.6,do-bootstrap,tool-paths">
         <fail unless="has-jdk-1.6">You need JDK 1.6 or higher to build JavaFX.</fail>
         <echo message="JDK version ${java.version}"/>
         <echo message="Ant version ${ant.version}"/>
     </target>
 
-    <target name="-post-init">
-        <condition property="antlr.uptodate" >
-            <uptodate srcfile="${antlr.src.dir}/${antlr.grammar}.g" targetfile="${antlr.generated.dir}/${antlr.grammar}Parser.java" />
-        </condition>
-    </target>
-
-
-    <target name="-post-compile" depends="fx-taskdef">
-        <javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"
-                 destdir="${build.classes.dir}"
-                 encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"
-                 includes="**/*.fx" source="${javac.source}" sourcepath=""
-                 srcdir="${src.classes.dir}" target="${javac.target}"
-                 classpath="${build.classes.dir}:${javac.classpath}"
-                 compilerclasspath="${build.classes.dir}:${javac.classpath}"/>
-    </target>
-    
     <!-- jar file creation: external runtime jar contents are included to reduce classpath issues -->
     <target depends="init,compile,-pre-pre-jar,-pre-jar" if="manifest.available+main.class+mkdist.available" name="-do-jar-with-libraries">
         <jar compress="${jar.compress}" destfile="${dist.jar}" manifest="${manifest.file}">
             <fileset dir="${build.classes.dir}"/>
-            <zipfileset src="${file.reference.javac.jar}" excludes="META-INF/**/,com/sun/tools/javac/resources/javac.properties,com/sun/tools/javac/resources/version.properties"/> 
+            <zipfileset src="${file.reference.javac.jar}" excludes="META-INF/**/,com/sun/tools/javac/resources/javac.properties,com/sun/tools/javac/resources/version.properties"/>
+ 
             <zipfileset src="${antlr-runtime.class.path}" excludes="META-INF/**/"/>
             <manifest>
                 <attribute name="Main-Class" value="${main.class}"/>
             </manifest>
         </jar>
-        <echo>To run this application from the command line without Ant, try:</echo>
-        <property location="${dist.jar}" name="dist.jar.resolved"/>
-        <echo>java -jar "${dist.jar.resolved}"</echo>
     </target>
     
-    <target name="antlr" unless="antlr.uptodate">
+    
+    <target name="check-parser">
+        <uptodate property="parser.uptodate" srcfile="${antlr.src.dir}/${antlr.grammar}.g" targetfile="${antlr.generated.dir}/${antlr.grammar}Parser.java" />
+    </target>
+
+    <target name="generate-parser" unless="parser.uptodate">
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
             <arg value="${antlr.src.dir}/${antlr.grammar}.g" />
         </java>
     </target>
 
-    <target name="-pre-compile" depends="antlr" />
+    <target name="-pre-compile" depends="check-parser,generate-parser"/>
 
     <!-- Stuff dealing with adding coverage to JUnit execution -->
 
