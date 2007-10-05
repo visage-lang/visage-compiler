@@ -10,6 +10,6 @@ package javafx.ui;
 public class ShadowedBorder extends Border  {
     
     public function getBorder():javax.swing.border.Border {
-        return new net.java.javafx.ui.ShadowedBorder();
+        return new JShadowedBorder();
     }
 }
