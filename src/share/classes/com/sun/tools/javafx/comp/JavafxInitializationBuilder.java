@@ -26,6 +26,8 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
+import com.sun.tools.javac.code.Symbol.ClassSymbol;
+import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.code.Type;
@@ -42,7 +44,9 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class JavafxInitializationBuilder {
     protected static final Context.Key<JavafxInitializationBuilder> javafxInitializationBuilderKey =
@@ -67,6 +71,8 @@ public class JavafxInitializationBuilder {
     private final Name userInitName;
     private final Name receiverName;
     private final Name initializeName;
+    
+    private Map<ClassSymbol, JFXClassDeclaration> fxClasses;
 
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
@@ -310,9 +316,25 @@ public class JavafxInitializationBuilder {
         }
     }
     
-
-    
     List<JCStatement> createJFXClassModel(JFXClassDeclaration cDecl, JavafxTypeMorpher typeMorpher) {
+        Set<String> visitedClasses = new HashSet<String>();
+        Map<String, VarSymbol> collectedAttributes = new HashMap<String, VarSymbol>();
+        Map<String, MethodSymbol> collectedMethods = new HashMap<String, MethodSymbol>();
+        java.util.List<VarSymbol> attributes = new java.util.ArrayList<VarSymbol>();
+        java.util.List<MethodSymbol> methods = new java.util.ArrayList<MethodSymbol>();
+        java.util.List<ClassSymbol> baseClasses = new java.util.ArrayList<ClassSymbol>();
+        java.util.List<ClassSymbol> classesToVisit = new java.util.ArrayList<ClassSymbol>();
+        
+        classesToVisit.add(cDecl.sym);
+        
+        collectAttributesAndMethods(visitedClasses,
+                                    collectedAttributes,
+                                    collectedMethods,
+                                    attributes,
+                                    methods,
+                                    baseClasses,
+                                    classesToVisit);
+        
         ListBuffer<JCStatement> ret = new ListBuffer<JCStatement>();
         
         ListBuffer<JCExpression> implementing = new ListBuffer<JCExpression>();
@@ -342,6 +364,9 @@ public class JavafxInitializationBuilder {
         addClassAttributeMethods(cDecl, attrInfos);
         
         ret.append(cInterface);
+        
+        fxClasses = null;
+        
         return ret.toList();
     }
     
@@ -454,6 +479,64 @@ public class JavafxInitializationBuilder {
                 List.<JCVariableDecl>nil(), 
                 List.<JCExpression>nil(), 
                 initializeBlock, null));
+    }
+
+    private void collectAttributesAndMethods(Set<String> visitedClasses,
+                                             Map<String, VarSymbol> collectedAttributes,
+                                             Map<String, MethodSymbol> collectedMethods,
+                                             java.util.List<VarSymbol> attributes,
+                                             java.util.List<MethodSymbol> methods,
+                                             java.util.List<ClassSymbol> baseClasses,
+                                             java.util.List<ClassSymbol> classesToVisit) {
+        while(!classesToVisit.isEmpty()) {
+            ClassSymbol cSym = classesToVisit.get(0);
+            classesToVisit.remove(0);
+            
+            if (visitedClasses.contains(cSym.fullname.toString())) {
+                if (isJFXClass(cSym)) {
+                    if ((cSym.flags_field & Flags.INTERFACE) != 0) {
+                        // TODO: Add the fields/methods based on XXLocation get$<fieldName>() method
+                        // TODO: Add all the base interfaces to the classesToVisit List
+                        visitedClasses.add(cSym.fullname.toString());
+                    }
+                    else {
+                        JFXClassDeclaration cDecl = fxClasses.get(cSym);
+                        if (cDecl != null) {
+                            // TODO: Add the fields/methods of this class to the lists/maps
+                            // TODO: Add all the base classes/interfaces to the classesToVisit List
+                            visitedClasses.add(cSym.fullname.toString());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private boolean isJFXClass(ClassSymbol cSym) {
+        if ((cSym.flags_field & Flags.INTERFACE) != 0) {
+            for (List<Type> intfs = cSym.getInterfaces(); intfs.nonEmpty(); intfs = intfs.tail) {
+                if (intfs.head.tsym.type == syms.javafx_FXObjectType) {
+                    return true;
+                }
+            }
+        }
+        else {
+            if (fxClasses != null) {
+                if (fxClasses.containsKey(cSym)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    void addFxClass(ClassSymbol csym, JFXClassDeclaration cdecl) {
+        if (fxClasses == null) {
+            fxClasses = new HashMap<ClassSymbol, JFXClassDeclaration>();
+        }
+        
+        fxClasses.put(csym, cdecl);
     }
 }
 

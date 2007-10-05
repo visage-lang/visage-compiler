@@ -105,6 +105,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     private final Target target;
     private final Types types;
     private final Annotate annotate;
+    private JavafxInitializationBuilder initBuilder;
 
     /*
      * other instance information
@@ -139,6 +140,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         target = Target.instance(context);
         types = Types.instance(context);
         annotate = Annotate.instance(context);
+        initBuilder = JavafxInitializationBuilder.instance(context);
 
         Options options = Options.instance(context);
 
@@ -2203,6 +2205,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             attribClass(tree.pos(), c);
             result = tree.type = c.type;
         }
+        
+        initBuilder.addFxClass(c, tree);
     }
     
     @Override
