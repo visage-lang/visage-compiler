@@ -1105,16 +1105,3 @@ Index: src/share/classes/com/sun/tools/javac/util/BaseFileObject.java
          else if (n.endsWith(HTML.extension))
              return HTML;
          else
-Index: com/sun/tools/javac/resources/javac.properties
-===================================================================
---- com/sun/tools/javac/resources/javac.properties	(revision 252)
-+++ com/sun/tools/javac/resources/javac.properties	(working copy)
-@@ -190,7 +190,7 @@
- 	
- javac.msg.bug=\
- An exception has occurred in the compiler ({0}). \
--Please file a bug at the Java Developer Connection (http://java.sun.com/webapps/bugreport)  \
-+Please file a bug at the OpenJFX Compiler Project (http://openjfx-compiler.dev.java.net/servlets/ProjectIssues) \
- after checking the Bug Parade for duplicates. \
- Include your program and the following diagnostic in your report.  Thank you.
- 
