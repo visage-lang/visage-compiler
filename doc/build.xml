@@ -49,10 +49,6 @@
               dir="${doc.build.dir}/html" failonerror="true">
             <classpath refid="doc.build.class.path" />
             <arg value="${doc.xml}"/>
-            <sysproperty key="http.proxyHost" value="webcache.east.sun.com" />
-            <sysproperty key="http.proxyPort" value="8080" />
-            <sysproperty key="ftp.proxyHost" value="webcache.east.sun.com" />
-            <sysproperty key="ftp.proxyPort" value="8080" />
             <redirector output="${doc.build.dir}/tmp/${doc.name}-xi-tmp.xml" />
         </java>
 
