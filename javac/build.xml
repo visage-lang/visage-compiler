@@ -15,29 +15,10 @@
        http://openjdk.java.net/groups/compiler/
     
     -->
-    <target name="-pre-init">
-        <tstamp>
-            <format property="build.time" pattern="MM/dd/yyyy hh:mm aa"/>
-            <format property="build.fullversion.time" pattern="MM/dd/yyyy_HH_mm"
-/>
-        </tstamp>
-        <property file="build.properties"/>
-        <copy file="${src.classes}/com/sun/tools/javac/resources/version-templat
-e.properties"
-            tofile="${build.classes}/com/sun/tools/javac/resources/version.prope
-rties">
-            <filterset begintoken="$(" endtoken=")">
-                <filter token="JDK_VERSION"  value="${build.jdk.version}"/>
-                <filter token="RELEASE"      value="${build.release}"/>
-                <filter token="FULL_VERSION" value="${build.full.version}"/>
-            </filterset>
-        </copy>
-    </target>
     
     <target name="-post-init">
         <fail unless="file.reference.share-classes">Must set file.reference.share-classes</fail>
     </target>
-
 
     <target depends="init" name="-do-clean">
         <delete dir="${build.dir}"/>
