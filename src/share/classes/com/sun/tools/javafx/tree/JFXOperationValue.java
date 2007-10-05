@@ -26,6 +26,7 @@
 package com.sun.tools.javafx.tree;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.JCTree.*;
 
 /**
@@ -60,6 +61,17 @@ public class JFXOperationValue  extends JFXExpression {
 
   public void accept(JavafxVisitor v) { v.visitOperationValue(this); }
     
+    @Override
+    public void accept(Visitor v) {
+        if (v instanceof JavafxVisitor) {
+            this.accept((JavafxVisitor)v);
+        } else if (v instanceof Pretty) {
+            JavafxPretty.visitOperationValue((Pretty) v, this);
+        } else {
+            assert false;
+        }
+    }
+
  @Override
     public int getTag() {
      return JavafxTag.FUNCTIONEXPRESSION;

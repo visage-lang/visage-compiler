@@ -98,46 +98,55 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-   public void visitOperationValue(JFXOperationValue tree) {
+     public static void visitOperationValue(Pretty pretty, JFXOperationValue tree) {
         try {
-            println();
-            align();
-            printDocComment(tree);
-            print(" function ");
-            print("(");
-            printExprs(tree.getParameters());
-            print(")");
+            pretty.println();
+            pretty.align();
+            pretty.printDocComment(tree);
+            pretty.print(" function ");
+            pretty.print("(");
+            pretty.printExprs(tree.getParameters());
+            pretty.print(")");
             if (tree.getType() != null) {
-                printExpr(tree.getType());
+                pretty.printExpr(tree.getType());
             }
-            if (tree.getBodyExpression() != null) {
-                printExpr(tree.getBodyExpression());
+            JFXBlockExpression body = tree.getBodyExpression();
+            if (body != null) {
+                pretty.printExpr(body);
             }
-            println();
+            pretty.println();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public void visitOperationDefinition(JFXOperationDefinition tree) {
+  public void visitOperationValue(JFXOperationValue tree) {
+          visitOperationValue(this, tree);
+    }
+
+    public static void visitOperationDefinition(Pretty pretty, JFXOperationDefinition tree) {
         try {
-            println();
-            align();
-            printDocComment(tree);
-            printExpr(tree.mods);
-            print(" operation ");
-            print(tree.name);
-            print("(");
-            printExprs(tree.getParameters());
-            print(")");
-            printExpr(tree.operation.rettype);
-            if (tree.getBodyExpression() != null) {
-                printExpr(tree.getBodyExpression());
-            }
-            println();
+            pretty.println();
+            pretty.align();
+            pretty.printDocComment(tree);
+            pretty.printExpr(tree.mods);
+            pretty.print(" operation ");
+            pretty.print(tree.name);
+            pretty.print("(");
+            pretty.printExprs(tree.getParameters());
+            pretty.print(")");
+            pretty.printExpr(tree.operation.rettype);
+            JFXBlockExpression body = tree.getBodyExpression();
+            if (body != null)
+                pretty.printExpr(body);
+            pretty.println();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+    
+    public void visitOperationDefinition(JFXOperationDefinition tree) {
+        visitOperationDefinition(this, tree);
     }
 
     public void visitInitDefinition(JFXInitDefinition tree) {

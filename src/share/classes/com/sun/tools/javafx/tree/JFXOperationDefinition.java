@@ -30,7 +30,7 @@ import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
-
+import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.JCTree.*;
 
 /**
@@ -69,6 +69,8 @@ public class JFXOperationDefinition extends JFXStatement {
     public void accept(Visitor v) {
         if (v instanceof JavafxVisitor) {
             this.accept((JavafxVisitor)v);
+        } else if (v instanceof Pretty) {
+            JavafxPretty.visitOperationDefinition((Pretty) v, this);
         } else {
             assert false;
         }
