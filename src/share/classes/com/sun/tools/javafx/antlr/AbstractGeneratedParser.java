@@ -73,6 +73,26 @@ public abstract class AbstractGeneratedParser extends Parser {
         super(input);
     }
     
+    public String getErrorMessage(RecognitionException e, String[] tokenNames) {
+        java.util.List stack = getRuleInvocationStack(e, this.getClass().getName());
+        String msg = null;
+        if (e instanceof NoViableAltException) {
+            NoViableAltException nvae = (NoViableAltException) e;
+            msg = " no viable alt; token=" + e.token + " (decision=" 
+                    + nvae.decisionNumber + " state " + nvae.stateNumber + ")" 
+                    + " decision=<<" + nvae.grammarDecisionDescription + ">>";
+        } else {
+            msg = super.getErrorMessage(e, tokenNames);
+        }
+        return stack + " " + msg;
+    }
+
+/**
+    public String getTokenErrorDisplay(Token t) {
+        return t.toString();
+    }
+**/
+
     public abstract JCCompilationUnit module() throws RecognitionException;
     
     /** What is the error header, normally line/character position information? */

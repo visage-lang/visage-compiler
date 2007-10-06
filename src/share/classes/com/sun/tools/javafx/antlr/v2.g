@@ -3,20 +3,58 @@ grammar v2;
 options { superClass = AbstractGeneratedParser; }
  
 tokens {
+   // these tokens can start a statement/definition -- can insert semi-colons before
+   SEMI_INSERT_START;
    ABSTRACT='abstract';
-   AFTER='after';
-   AND='and';
-   AS='as';
    ASSERT='assert';
    ATTRIBUTE='attribute';
-   BEFORE='before';
    BIND='bind';
    BREAK='break';
-   BY='by';
-   CATCH='catch';
    CLASS='class';
    CONTINUE='continue';
    DELETE='delete';
+   FALSE='false';
+   FOREACH='foreach';
+   FUNCTION='function';
+   IF='if';
+   IMPORT='import';
+   INIT='init';
+   INSERT='insert';
+   LET='let';
+   NEW='new';
+   NOT='not';
+   NULL='null';
+   OPERATION='operation';
+   PACKAGE='package';
+   PRIVATE='private';
+   PROTECTED='protected';
+   PUBLIC='public';
+   READONLY='readonly';
+   RETURN='return';
+   SUPER='super';
+   SIZEOF='sizeof';
+   STATIC='static';
+   THIS='this';
+   THROW='throw';
+   TRY='try';
+   TRUE='true';
+   VAR='var';
+   WHILE='while';
+   
+   POUND='#';
+   LPAREN='(';
+   LBRACKET='[';
+   PLUSPLUS='++';
+   SUBSUB='--';
+   SEMI_INSERT_END;
+
+   // cannot start a statement
+   AFTER='after';
+   AND='and';
+   AS='as';
+   BEFORE='before';
+   BY='by';
+   CATCH='catch';
    DO='do';
    DUR='dur';
    EASEBOTH='easeboth';
@@ -24,66 +62,31 @@ tokens {
    EASEOUT='easeout';
    ELSE='else';
    EXTENDS='extends';
-   FALSE='false';
    FINALLY='finally';
    FIRST='first';
-   FOREACH='foreach';
    FROM='from';
-   FUNCTION='function';
-   IF='if';
    IMPLEMENTS='implements';
-   IMPORT='import';
    IN='in';
    INDEXOF='indexof';
-   INIT='init';
    INSTANCEOF='instanceof';
-   INSERT='insert';
    INTO='into';
    INVERSE='inverse';
    LAST='last';
    LAZY='lazy';
-   LET='let';
    LINEAR='linear';
    MOTION='motion';
-   NEW='new';
-   NOT='not';
-   NULL='null';
-   OPERATION='operation';
    ON='on';
    OR='or';
    ORDER='order';
-   PACKAGE='package';
-   PRIVATE='private';
-   PROTECTED='protected';
-   PUBLIC='public';
-   READONLY='readonly';
-   RETURN='return';
    REPLACE='replace';
    REVERSE='reverse';
-   SELECT='select';
-   SUPER='super';
-   SIZEOF='sizeof';
-   STAYS='stays';
-   STATIC='static';
    THEN='then';
-   THIS='this';
-   THROW='throw';
-   TIE='tie';
-   TRY='try';
-   TRUE='true';
-   TYPE='type';  
    TYPEOF='typeof';
-   VAR='var';
    WITH='with';
-   WHILE='while';
    WHERE='where';
    
-   BAR='|';
-   POUND='#';
    DOTDOT='..';
-   LPAREN='(';
    RPAREN=')';
-   LBRACKET='[';
    RBRACKET=']';
    SEMI=';';
    COMMA=',';
@@ -96,9 +99,7 @@ tokens {
    LTEQ='<=';
    GTEQ='>=';
    PLUS='+';
-   PLUSPLUS='++';
    SUB='-';
-   SUBSUB='--';
    STAR='*';
    SLASH='/';
    PERCENT='%';
@@ -109,6 +110,8 @@ tokens {
    PERCENTEQ='%=';
    COLON=':';
    QUES='?';
+
+
 }
 
 @lexer::header {
@@ -143,20 +146,60 @@ import org.antlr.runtime.*;
 }
 
 @lexer::members {
+    static final byte NO_INSERT_SEMI = 0; // default
+    static final byte INSERT_SEMI = 1; 
+    static final byte IGNORE_FOR_SEMI = 2; 
+    static final byte[] semiKind = new byte[LAST_TOKEN];
+    { 
+      for (int i = SEMI_INSERT_START; i < SEMI_INSERT_END; ++i) {
+          semiKind[i] = INSERT_SEMI;
+      }
+      semiKind[RBRACE] = INSERT_SEMI;
+      semiKind[STRING_LITERAL] = INSERT_SEMI;
+      semiKind[QUOTE_LBRACE_STRING_LITERAL] = INSERT_SEMI;
+      semiKind[QUOTED_IDENTIFIER] = INSERT_SEMI;
+      semiKind[INTEGER_LITERAL] = INSERT_SEMI;
+      semiKind[FLOATING_POINT_LITERAL] = INSERT_SEMI;
+      semiKind[IDENTIFIER] = INSERT_SEMI;
+      
+      semiKind[WS] = IGNORE_FOR_SEMI;
+      semiKind[COMMENT] = IGNORE_FOR_SEMI;
+      semiKind[LINE_COMMENT] = IGNORE_FOR_SEMI;
+    }
+      
+    int previousTokenType = -1;
+    final Token syntheticSemi = new CommonToken(SEMI);
+    List tokens = new ArrayList();
+    
     /** Allow emitting more than one token from a lexer rule
      */
-    List tokens = new ArrayList();
     public void emit(Token token) {
+        int ttype = token.getType();
+        //System.err.println("::: " + ttype + " --- " + token.getText());
+        if (previousTokenType == RBRACE && (ttype == EOF || semiKind[ttype] == INSERT_SEMI)) {
+            this.token = syntheticSemi;
+            tokens.add(syntheticSemi);
+            //System.err.println("INSERTING in front of: " + ttype);
+        } else {
             this.token = token;
-        	tokens.add(token);
+        }
+    	tokens.add(token);
+
+        if (ttype != EOF && semiKind[ttype] != IGNORE_FOR_SEMI) {
+            previousTokenType = ttype;
+        }
     }
     public Token nextToken() {
+        if ( tokens.size() > 0 ) {
+            return (Token)tokens.remove(0);
+        }
     	super.nextToken();
         if ( tokens.size()==0 ) {
-            return Token.EOF_TOKEN;
+            emit(Token.EOF_TOKEN);
         }
-        return (Token)tokens.remove(0);
-    }
+        Token cur = (Token)tokens.remove(0);
+        return cur;
+    }    
     
     /** Track "He{"l{"l"}o"} world" quotes
      */
@@ -344,6 +387,10 @@ LINE_COMMENT
     : '//' ~('\n'|'\r')* '\r'? '\n' {$channel=HIDDEN;}
     ;
 
+LAST_TOKEN
+    :	'~~~~~~~~' {false}? '~~~~~~~~'
+    ;
+    	
 /*------------------------------------------------------------------
  * PARSER RULES
  *------------------------------------------------------------------*/
@@ -355,8 +402,8 @@ packageDecl returns [JCExpression value]
 moduleItems returns [ListBuffer<JCTree> items = new ListBuffer<JCTree>()]
        	: (moduleItem                   	{ items.append($moduleItem.value); } )*  ;
 moduleItem returns [JCTree value]
-       : importDecl				{ $value = $importDecl.value; }
-       | classDefinition 			{ $value = $classDefinition.value; }
+       : importDecl SEMI			{ $value = $importDecl.value; }
+       | classDefinition SEMI			{ $value = $classDefinition.value; }
        | statement      			{ $value = $statement.value; } 
        | expression SEMI			{ $value = F.Exec($expression.expr); } 
        ;
@@ -364,10 +411,10 @@ importDecl returns [JCTree value]
 @init { JCExpression pid = null; }
         : IMPORT  identifier			{ pid = $identifier.expr; }
                  ( DOT name			{ pid = F.at($name.pos).Select(pid, $name.value); } )* 
-                 ( DOT STAR			{ pid = F.at(pos($STAR)).Select(pid, names.asterisk); } )? SEMI 
+                 ( DOT STAR			{ pid = F.at(pos($STAR)).Select(pid, names.asterisk); } )?  
           					{ $value = F.at(pos($IMPORT)).Import(pid, false); } ;
 classDefinition returns [JFXClassDeclaration value]
-	: classModifierFlags  CLASS name supers interfaces LBRACE classMembers RBRACE 
+	: classModifierFlags  CLASS name supers interfaces LBRACE classMembers RBRACE
 	  					{ $value = F.at(pos($CLASS)).ClassDeclaration(
 	  						F.at(pos($CLASS)).Modifiers($classModifierFlags.flags),
 	  						$name.value,
@@ -385,18 +432,20 @@ interfaces returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>(
 	;
 classMembers returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]
 	: ( ad1=variableDeclaration SEMI       	{ $mems.append($ad1.value); }
-	  |  fd1=functionDefinition     	{ $mems.append($fd1.value); }
+	  |  fd1=functionDefinition SEMI    	{ $mems.append($fd1.value); }
+	  | SEMI
 	  ) *   
-	  (initDefinition	     		{ $mems.append($initDefinition.value); }			
+	  (initDefinition SEMI	     		{ $mems.append($initDefinition.value); }			
 	    ( ad2=variableDeclaration SEMI	{ $mems.append($ad2.value); }
-	    | fd2=functionDefinition     	{ $mems.append($fd2.value); }
+	    | fd2=functionDefinition SEMI    	{ $mems.append($fd2.value); }
+	    | SEMI
 	    ) *   
 	  )?
 	;
 functionDefinition  returns [JFXOperationDefinition value]
 	: mods=functionModifierFlags functionLabel name formalParameters  typeReference  
 	    ( {($mods.flags & Flags.ABSTRACT) == 0}? be=blockExpression 
-	    | {($mods.flags & Flags.ABSTRACT) != 0}? SEMI
+	    | {($mods.flags & Flags.ABSTRACT) != 0}? 
 	    ) 
 	    					{ $value = F.at($functionLabel.pos).OperationDefinition(
 	    						F.at($functionLabel.pos).Modifiers($mods.flags),
@@ -497,15 +546,16 @@ statements [ListBuffer<JCStatement> stats]  returns [JCExpression expr = null]
 	;
 statement returns [JCStatement value]
 	: variableDeclaration SEMI		{ $value = $variableDeclaration.value; }
-	| functionDefinition			{ $value = $functionDefinition.value; }
+	| functionDefinition SEMI		{ $value = $functionDefinition.value; }
 	| insertStatement SEMI			{ $value = $insertStatement.value; }
 	| deleteStatement SEMI			{ $value = $deleteStatement.value; }
-        | WHILE LPAREN expression RPAREN block	{ $value = F.at(pos($WHILE)).WhileLoop($expression.expr, $block.value); }
+        | WHILE LPAREN expression RPAREN block	SEMI
+        					{ $value = F.at(pos($WHILE)).WhileLoop($expression.expr, $block.value); }
 	| BREAK SEMI   				{ $value = F.at(pos($BREAK)).Break(null); }
 	| CONTINUE  SEMI 	 		{ $value = F.at(pos($CONTINUE)).Continue(null); }
        	| THROW expression SEMI	   		{ $value = F.at(pos($THROW)).Throw($expression.expr); } 
        	| returnStatement SEMI			{ $value = $returnStatement.value; }
-       	| tryStatement				{ $value = $tryStatement.value; } 
+       	| tryStatement	SEMI			{ $value = $tryStatement.value; } 
 	| SEMI					{ $value = F.at(pos($SEMI)).Skip(); } 
        	;
 variableDeclaration   returns [JCStatement value]
@@ -581,7 +631,8 @@ boundExpression   returns [JavafxBindStatus status, JCExpression expr]
 	| e2=expression				{ $expr = $e2.expr; $status = UNBOUND; }
 	;
 expression returns [JCExpression expr] 
-       	: ifExpression   					{ $expr = $ifExpression.expr; }  
+       	: blockExpression					{ $expr = $blockExpression.expr; }
+       	| ifExpression   					{ $expr = $ifExpression.expr; }  
        	| forExpression   					{ $expr = $forExpression.expr; }  
        	| suffixedExpression					{ $expr = $suffixedExpression.expr; }  
 //     	| LPAREN  typeName  RPAREN   suffixedExpression     //FIXME: CAST
@@ -669,8 +720,7 @@ primaryExpression  returns [JCExpression expr]
        	| stringExpression 					{ $expr = $stringExpression.expr; }
        	| bracketExpression 					{ $expr = $bracketExpression.expr; }
        	| literal 						{ $expr = $literal.expr; }
-       	| blockExpression					{ $expr = $blockExpression.expr; }
-       	| functionExpression					{ $expr = $functionExpression.expr; }
+      	| functionExpression					{ $expr = $functionExpression.expr; }
        	| operationExpression					{ $expr = $operationExpression.expr; }
        	| LPAREN expression RPAREN				{ $expr = F.at(pos($LPAREN)).Parens($expression.expr); }
        	;

@@ -38,8 +38,8 @@ System.out.println(
      "x: {x} y: {y} x+y: {x+y}"}});
 
 System.out.println("x+y: {
-  {var x : Integer = f3(11); 100+x }
-  + {var x : Integer = f3(12); 100+x }}");
+  ({var x : Integer = f3(11); 100+x })
+  + ({var x : Integer = f3(12); 100+x })}");
 function f4() {
   {  
     var x = "f4-nested ";
