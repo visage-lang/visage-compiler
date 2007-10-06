@@ -2001,32 +2001,9 @@
             </sect1>
 
             <sect1>
-              <title>Extents and Enumerations</title>
+              <title>Enumerations</title>
 
-              <para>In JavaFX, the <emphasis>extent</emphasis> of a
-              <code>class</code>, i.e. the set of all instances of that
-              <code>class</code>, can be obtained with the following
-              syntax:</para>
-
-              <programlisting>              *:<emphasis>ClassName</emphasis>
-</programlisting>
-
-              <para>For example, the following code prints out all instances
-              of class <code>String</code>.</para>
-
-              <programlisting>              import java.lang.System;
-
-              for (i in *:String) {
-                  System.out.println(i);
-              }
-</programlisting>
-
-              <para>
-                <emphasis>Note: this is an optional feature and is disabled by
-                default.</emphasis>
-              </para>
-
-              <para>JavaFX also provides the capability to declare named
+              <para>JavaFX provides the capability to declare named
               instances of a class with the following syntax:</para>
 
               <programlisting>
