@@ -26,18 +26,20 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.*;
+
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 
 import com.sun.tools.javac.util.List;
 
-import com.sun.tools.javac.code.Symbol.*;
 
 /**
  * A class declaration
  */
 public class JFXPureObjectLiteral extends JFXExpression {
-    public JCIdent ident;
-    public List<JCStatement> parts;
+    private JCExpression ident;
+    private List<JCStatement> parts;
     public ClassSymbol sym;
     public Symbol constructor;
 
@@ -45,16 +47,30 @@ public class JFXPureObjectLiteral extends JFXExpression {
             JCExpression ident,
             List<JCStatement> parts,
             ClassSymbol sym) {
-        this.ident = (JCIdent)ident; // TODO: Fix the types
+        this.ident = ident;
         this.parts = parts;
         this.sym = sym;
     }
-    public void accept(JavafxVisitor v) { v.visitPureObjectLiteral(this); }
     
-    /**
-     * Identifer or null
-     */
-    public JCIdent getIdentifier() { return ident; }
+    public void accept(JavafxVisitor v) {
+        v.visitPureObjectLiteral(this);
+    }
+
+    public JCExpression getIdentifier() {
+        return ident;
+    }
+
+    public Symbol getIdentifierSym() {
+        switch (ident.getTag()) {
+            case JCTree.IDENT:
+                return ((JCIdent) ident).sym;
+            case JCTree.SELECT:
+                return ((JCFieldAccess) ident).sym;
+        }
+        assert false;
+        return null;
+    }
+
     public List<JCStatement> getParts() {
         return parts;
     }

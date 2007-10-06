@@ -659,7 +659,8 @@ expression returns [JCExpression expr]
        	: blockExpression					{ $expr = $blockExpression.expr; }
        	| ifExpression   					{ $expr = $ifExpression.expr; }  
        	| forExpression   					{ $expr = $forExpression.expr; }  
-       	| assignmentExpression					{ $expr = $assignmentExpression.expr; }  
+       	| newExpression 					{ $expr = $newExpression.expr; }
+	| assignmentExpression					{ $expr = $assignmentExpression.expr; }  
 //     	| LPAREN  typeName  RPAREN   suffixedExpression     //FIXME: CAST
       	;
 forExpression   returns [JCExpression expr] 
@@ -736,18 +737,17 @@ postfixExpression  returns [JCExpression expr]
 	: primaryExpression 					{ $expr = $primaryExpression.expr; }
 	   ( DOT ( CLASS   					//TODO
 	         | name   					{ $expr = F.at(pos($DOT)).Select($expr, $name.value); }
-	            ( LPAREN expressionListOpt RPAREN   	{ $expr = F.at(pos($LPAREN)).Apply(null, $expr, $expressionListOpt.args.toList()); } ) *
 	         )   
+	   | LPAREN expressionListOpt RPAREN   			{ $expr = F.at(pos($LPAREN)).Apply(null, $expr, $expressionListOpt.args.toList()); } 
 	   | LBRACKET expression  RBRACKET			{ $expr = F.at(pos($LBRACKET)).SequenceIndexed($expr, $expression.expr); }
 	   ) * 
 	;
 primaryExpression  returns [JCExpression expr] 
-	: newExpression 					{ $expr = $newExpression.expr; }
-	| identifier LBRACE  objectLiteral RBRACE 		{ $expr = F.at(pos($LBRACE)).PureObjectLiteral($identifier.expr, $objectLiteral.parts.toList()); } 
+	: qualident						{ $expr = $qualident.expr; }
+		( LBRACE  objectLiteral RBRACE 			{ $expr = F.at(pos($LBRACE)).PureObjectLiteral($expr, $objectLiteral.parts.toList()); } 
+		)?
        	| THIS							{ $expr = F.at(pos($THIS)).Identifier(names._this); }
        	| SUPER							{ $expr = F.at(pos($SUPER)).Identifier(names._super); }
-       	| identifier 						{ $expr = $identifier.expr; }
-       		( LPAREN   expressionListOpt   RPAREN   	{ $expr = F.at(pos($LPAREN)).Apply(null, $expr, $expressionListOpt.args.toList()); } )*
        	| stringExpression 					{ $expr = $stringExpression.expr; }
        	| bracketExpression 					{ $expr = $bracketExpression.expr; }
        	| literal 						{ $expr = $literal.expr; }
@@ -758,7 +758,8 @@ primaryExpression  returns [JCExpression expr]
 newExpression  returns [JCExpression expr] 
 @init { ListBuffer<JCExpression> args = null; }
 	: NEW  qualident  
-		( LPAREN   expressionListOpt   RPAREN 		{ args = $expressionListOpt.args; } )?
+		( (LPAREN)=>LPAREN expressionListOpt  RPAREN 	{ args = $expressionListOpt.args; } 
+		)?
 								{ $expr = F.at(pos($NEW)).Instanciate(null, null, $qualident.expr, 
 												(args==null? new ListBuffer<JCExpression>() : args).toList(), null); }
 		   //TODO: need anonymous subclasses
@@ -862,7 +863,7 @@ typeName  returns [JCExpression expr]
        ;
 qualident returns [JCExpression expr]
        : identifier            		{ $expr = $identifier.expr; }
-         ( DOT name     		{ $expr = F.at($name.pos).Select($expr, $name.value); } 
+         ( (DOT)=> DOT name     	{ $expr = F.at($name.pos).Select($expr, $name.value); } 
          ) *  ;
 identifier  returns [JCIdent expr]
 	: name              		{ $expr = F.at($name.pos).Ident($name.value); } 

@@ -406,7 +406,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitPureObjectLiteral(JFXPureObjectLiteral tree) {
         Name tmpName = getSyntheticName("objlit");
-        JCIdent clazz = tree.getIdentifier();
+        JCExpression clazz = tree.getIdentifier();
         ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
         JCNewClass newClass = 
                 make.NewClass(null, null, clazz, List.<JCExpression>nil(), null);

@@ -2386,7 +2386,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         attribType(that.getIdentifier(), env);
         Symbol prevObjLitSymbol = objLitSymbol;
         try {
-            objLitSymbol = that.getIdentifier().sym;
+            objLitSymbol = that.getIdentifierSym();
             for (JCStatement part : that.getParts()) {
                 if (part != null) {
                     part.accept(this);
@@ -2398,7 +2398,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
         
         that.constructor = rs.findMethod(env, that.getIdentifier().type, names.init, List.<Type>nil(), List.<Type>nil(), false, false, false);
-        that.sym = (ClassSymbol)that.getIdentifier().sym;
+        that.sym = (ClassSymbol)that.getIdentifierSym();
         that.type = that.getIdentifier().type;
         result = that.type;
     }
