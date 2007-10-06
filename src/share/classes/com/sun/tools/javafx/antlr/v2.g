@@ -158,7 +158,9 @@ import org.antlr.runtime.*;
       semiKind[STRING_LITERAL] = INSERT_SEMI;
       semiKind[QUOTE_LBRACE_STRING_LITERAL] = INSERT_SEMI;
       semiKind[QUOTED_IDENTIFIER] = INSERT_SEMI;
-      semiKind[INTEGER_LITERAL] = INSERT_SEMI;
+      semiKind[DECIMAL_LITERAL] = INSERT_SEMI;
+      semiKind[OCTAL_LITERAL] = INSERT_SEMI;
+      semiKind[HEX_LITERAL] = INSERT_SEMI;
       semiKind[FLOATING_POINT_LITERAL] = INSERT_SEMI;
       semiKind[IDENTIFIER] = INSERT_SEMI;
       
@@ -310,12 +312,26 @@ FORMAT_STRING_LITERAL		: 				{ BraceQuoteTracker.percentIsFormat() }?=>
 QUOTED_IDENTIFIER 
 		:	'<<' (~'>'| '>' ~'>')* '>'* '>>'   	{ setText(getText().substring(2, getText().length()-2)); };
  
-INTEGER_LITERAL : Digits ;
+DECIMAL_LITERAL : ('0' | '1'..'9' '0'..'9'*) ;
+
+OCTAL_LITERAL : '0' ('0'..'7')+ ;
+
+HEX_LITERAL : '0' ('x'|'X') HexDigit+    			{ setText(getText().substring(2, getText().length())); };
+
+fragment
+HexDigit : ('0'..'9'|'a'..'f'|'A'..'F') ;
 
 FLOATING_POINT_LITERAL
-    :     d=Digits RangeDots
+    :     d=DECIMAL_LITERAL RangeDots
     	  	{
-    	  		$d.setType(INTEGER_LITERAL);
+    	  		$d.setType(DECIMAL_LITERAL);
+    	  		emit($d);
+          		$RangeDots.setType(DOTDOT);
+    	  		emit($RangeDots);
+    	  	}
+    |     d=OCTAL_LITERAL RangeDots
+    	  	{
+    	  		$d.setType(OCTAL_LITERAL);
     	  		emit($d);
           		$RangeDots.setType(DOTDOT);
     	  		emit($RangeDots);
@@ -399,13 +415,19 @@ module returns [JCCompilationUnit result]
        : packageDecl? moduleItems EOF 		{ $result = F.TopLevel(noJCAnnotations(), $packageDecl.value, $moduleItems.items.toList()); };
 packageDecl returns [JCExpression value]
        : PACKAGE qualident SEMI         	{ $value = $qualident.expr; };
-moduleItems returns [ListBuffer<JCTree> items = new ListBuffer<JCTree>()]
-       	: (moduleItem                   	{ items.append($moduleItem.value); } )*  ;
+moduleItems       returns [ListBuffer<JCTree> items = new ListBuffer<JCTree>()]
+	:    ( mi1=moduleItem     		{ items.append($mi1.value); }
+	     ) ?
+	  (SEMI
+	     ( mi2=moduleItem     		{ items.append($mi2.value); }
+	     ) ?
+	  ) *
+	;
 moduleItem returns [JCTree value]
-       : importDecl SEMI			{ $value = $importDecl.value; }
-       | classDefinition SEMI			{ $value = $classDefinition.value; }
+       : importDecl 				{ $value = $importDecl.value; }
+       | classDefinition 			{ $value = $classDefinition.value; }
        | statement      			{ $value = $statement.value; } 
-       | expression SEMI			{ $value = F.Exec($expression.expr); } 
+       | expression 				{ $value = F.Exec($expression.expr); } 
        ;
 importDecl returns [JCTree value]
 @init { JCExpression pid = null; }
@@ -431,16 +453,17 @@ interfaces returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>(
 	  )?
 	;
 classMembers returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]
-	: ( ad1=variableDeclaration SEMI       	{ $mems.append($ad1.value); }
-	  |  fd1=functionDefinition SEMI    	{ $mems.append($fd1.value); }
-	  | SEMI
-	  ) *   
-	  (initDefinition SEMI	     		{ $mems.append($initDefinition.value); }			
-	    ( ad2=variableDeclaration SEMI	{ $mems.append($ad2.value); }
-	    | fd2=functionDefinition SEMI    	{ $mems.append($fd2.value); }
-	    | SEMI
-	    ) *   
-	  )?
+@init { boolean initSeen = false; }
+	:    ( id1=initDefinition		{ initSeen = true; $mems.append($id1.value); }			
+	     | vd1=variableDeclaration 		{ $mems.append($vd1.value); }
+	     | fd1=functionDefinition     	{ $mems.append($fd1.value); }
+	     ) ?
+	  (SEMI
+	     ( {!initSeen}? id2=initDefinition	{ initSeen = true; $mems.append($id2.value); }			
+	     | vd2=variableDeclaration 		{ $mems.append($vd2.value); }
+	     | fd2=functionDefinition     	{ $mems.append($fd2.value); }
+	     ) ?
+	  ) *
 	;
 functionDefinition  returns [JFXOperationDefinition value]
 	: mods=functionModifierFlags functionLabel name formalParameters  typeReference  
@@ -507,12 +530,16 @@ formalParameter returns [JFXVar var]
 	: name typeReference			{ $var = F.at($name.pos).Param($name.value, $typeReference.type); } 
 	;
 block returns [JCBlock value]
-@init 		{ ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
-	 	}
+@init { ListBuffer<JCStatement> stats = ListBuffer.<JCStatement>lb(); }
 	: LBRACE
-	  (    statement			{ stats.append($statement.value); } 
-	  |    expression SEMI			{ stats.append(F.Exec($expression.expr)); } 
-	  )*
+	     ( st1=statement			{ stats.append($st1.value); }			
+	     | ex1=expression     		{ stats.append(F.Exec($ex1.expr)); }
+	     ) ?
+	  (SEMI
+	     ( st2=statement 			{ stats.append($st2.value); }
+	     | ex2=expression     		{ stats.append(F.Exec($ex2.expr)); }
+	     ) ?
+	  ) *
 	  RBRACE				{ $value = F.at(pos($LBRACE)).Block(0L, stats.toList()); }
 	;
 functionExpression  returns [JFXOperationValue expr]
@@ -526,37 +553,34 @@ operationExpression  returns [JFXOperationValue expr]
    $expr = F.at(pos($OPERATION)).OperationValue($typeReference.type, 
                                                 $formalParameters.params.toList(),
                                                 $blockExpression.expr);
-   };
-
-blockExpression returns [JFXBlockExpression expr = null]
-@init { ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>(); }
-	: LBRACE (statements[stats])? RBRACE	{ $expr = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), 
-						 					     $statements.expr); }
-	;
-statements [ListBuffer<JCStatement> stats]  returns [JCExpression expr = null]
-	: statement				{ stats.append($statement.value); }
-		(sts1=statements[stats]		{ $expr = $sts1.expr; } )?
-	| expression
-	        (SEMI  (			{ stats.append(F.Exec($expression.expr)); }
-	         	 stsn=statements[stats]	{ $expr = $stsn.expr; }
-		       | /*no_statements*/	{ $expr = $expression.expr; }
-		      )
-		 | /*no_semi*/			{ $expr = $expression.expr; }
-		 )
+   }
+   ;
+blockExpression returns [JFXBlockExpression expr]
+@init { ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>(); JCExpression val = null; }
+	: LBRACE
+	     ( st1=statement			{ stats.append($st1.value); }			
+	     | ex1=expression     		{ val = $ex1.expr; }
+	     ) ?
+	  (SEMI
+	     ( st2=statement 			{ if (val != null) { stats.append(F.Exec(val)); val = null; }
+	     					  stats.append($st2.value); }
+	     | ex2=expression     		{ if (val != null) { stats.append(F.Exec(val)); }
+	     					  val = $ex2.expr; }
+	     ) ?
+	  ) *
+	  RBRACE				{ $expr = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), val); }
 	;
 statement returns [JCStatement value]
-	: variableDeclaration SEMI		{ $value = $variableDeclaration.value; }
-	| functionDefinition SEMI		{ $value = $functionDefinition.value; }
-	| insertStatement SEMI			{ $value = $insertStatement.value; }
-	| deleteStatement SEMI			{ $value = $deleteStatement.value; }
-        | WHILE LPAREN expression RPAREN block	SEMI
-        					{ $value = F.at(pos($WHILE)).WhileLoop($expression.expr, $block.value); }
-	| BREAK SEMI   				{ $value = F.at(pos($BREAK)).Break(null); }
-	| CONTINUE  SEMI 	 		{ $value = F.at(pos($CONTINUE)).Continue(null); }
-       	| THROW expression SEMI	   		{ $value = F.at(pos($THROW)).Throw($expression.expr); } 
-       	| returnStatement SEMI			{ $value = $returnStatement.value; }
-       	| tryStatement	SEMI			{ $value = $tryStatement.value; } 
-	| SEMI					{ $value = F.at(pos($SEMI)).Skip(); } 
+	: variableDeclaration			{ $value = $variableDeclaration.value; }
+	| functionDefinition 			{ $value = $functionDefinition.value; }
+	| insertStatement 			{ $value = $insertStatement.value; }
+	| deleteStatement 			{ $value = $deleteStatement.value; }
+        | WHILE LPAREN expression RPAREN block	{ $value = F.at(pos($WHILE)).WhileLoop($expression.expr, $block.value); }
+	| BREAK    				{ $value = F.at(pos($BREAK)).Break(null); }
+	| CONTINUE  	 	 		{ $value = F.at(pos($CONTINUE)).Continue(null); }
+       	| THROW expression 	   		{ $value = F.at(pos($THROW)).Throw($expression.expr); } 
+       	| returnStatement 			{ $value = $returnStatement.value; }
+       	| tryStatement				{ $value = $tryStatement.value; } 
        	;
 variableDeclaration   returns [JCStatement value]
 	: varModifierFlags variableLabel  name  typeReference  eqBoundExpressionOpt onChanges
@@ -816,7 +840,9 @@ cardinalityConstraint returns [int ary]
 	;
 literal  returns [JCExpression expr]
 	: t=STRING_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.CLASS, $t.text); }
-	| t=INTEGER_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 10)); }
+	| t=DECIMAL_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 10)); }
+	| t=OCTAL_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 8)); }
+	| t=HEX_LITERAL			{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 16)); }
 	| t=FLOATING_POINT_LITERAL 	{ $expr = F.at(pos($t)).Literal(TypeTags.DOUBLE, Double.valueOf($t.text)); }
 	| t=TRUE   			{ $expr = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 1); }
 	| t=FALSE   			{ $expr = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 0); }
