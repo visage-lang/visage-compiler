@@ -27,5 +27,5 @@ var ok =
 	c1.equals(goldc) and 
 	c2.equals(goldc) ;
 
-System.out.println(if ok then "PASS!" else "FAIL!");
+System.out.println(if (ok) "PASS!" else "FAIL!");
 	

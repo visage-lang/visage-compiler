@@ -629,15 +629,16 @@ returnStatement   returns [JCStatement value]
 	   					{ $value = F.at(pos($RETURN)).Return(expr); } 
 	;
 tryStatement   returns [JCStatement value]
-@init	{	JCBlock body;
-		ListBuffer<JCCatch> catchers = new ListBuffer<JCCatch>();
+@init	{	ListBuffer<JCCatch> catchers = new ListBuffer<JCCatch>();
 		JCBlock finalBlock = null;
 	}
-	: TRY   tb=block 			{ body = $tb.value; }
+	: TRY   tb=block 			
 	   ( FINALLY   fb1=block		{ finalBlock = $fb1.value; } 
-	   |    (catchClause 			{ catchers.append($catchClause.value); } )+   
-	        (FINALLY  fb2=block		{ finalBlock = $fb2.value; } )?   
-	   ) 					{ $value = F.at(pos($TRY)).Try(body, catchers.toList(), finalBlock); }
+	   |    (catchClause 			{ catchers.append($catchClause.value); } 
+	   	)+   
+	        (FINALLY  fb2=block		{ finalBlock = $fb2.value; } 
+	        )?   
+	   ) 					{ $value = F.at(pos($TRY)).Try($tb.value, catchers.toList(), finalBlock); }
 	;
 catchClause    returns [JCCatch value]
 	: CATCH  LPAREN  formalParameter
@@ -658,7 +659,7 @@ expression returns [JCExpression expr]
        	: blockExpression					{ $expr = $blockExpression.expr; }
        	| ifExpression   					{ $expr = $ifExpression.expr; }  
        	| forExpression   					{ $expr = $forExpression.expr; }  
-       	| suffixedExpression					{ $expr = $suffixedExpression.expr; }  
+       	| assignmentExpression					{ $expr = $assignmentExpression.expr; }  
 //     	| LPAREN  typeName  RPAREN   suffixedExpression     //FIXME: CAST
       	;
 forExpression   returns [JCExpression expr] 
@@ -670,26 +671,28 @@ forExpression   returns [JCExpression expr]
 	;
 inClause   returns [JFXForExpressionInClause value] 
 @init { JFXVar var; }
-	: formalParameter IN se=expression   (WHERE  we=expression)?
-	          						{ $value = F.at(pos($IN)).InClause($formalParameter.var, $se.expr, $we.expr); }
+	: formalParameter IN se=expression 
+	          	  (WHERE  we=expression)?		{ $value = F.at(pos($IN)).InClause($formalParameter.var, $se.expr, $we.expr); }
 	;
 ifExpression  returns [JCExpression expr] 
-	: IF econd=expression   THEN  ethen=expression   
-	  (ELSE  eelse=expression)?				{ JCExpression elsepart = $eelse.expr;
-	  							  if (elsepart == null) elsepart = F.at(pos($IF)).Literal(TypeTags.BOT, null);
-	  							  $expr = F.at(pos($IF)).Conditional($econd.expr, $ethen.expr, elsepart); }
+	: IF LPAREN econd=expression  RPAREN 
+		THEN?  ethen=expression  elseClause 		{ $expr = F.at(pos($IF)).Conditional($econd.expr, $ethen.expr, $elseClause.expr); }
 	;
-suffixedExpression  returns [JCExpression expr] 
-	: e1=assignmentExpression				{ $expr = $e1.expr; }
-	   (PLUSPLUS | SUBSUB) ?   //TODO
+elseClause  returns [JCExpression expr] 
+	: (ELSE)=>  ELSE  expression				{ $expr = $expression.expr; }
+	| /*nada*/ 						{ $expr = F.Literal(TypeTags.BOT, null); }
 	;
 assignmentExpression  returns [JCExpression expr] 
-	: e1=assignmentOpExpression				{ $expr = $e1.expr; }
-	   (   EQ   e2=assignmentOpExpression			{ $expr = F.at(pos($EQ)).Assign($expr, $e2.expr); }   ) ? ;
+	: e1=assignmentOpExpression assignmentClause[$e1.expr]	{ $expr = $assignmentClause.expr; }
+	;
+assignmentClause [JCExpression lhs] returns [JCExpression expr] 
+	: (EQ)=>   EQ  expression				{ $expr = F.at(pos($EQ)).Assign($lhs, $expression.expr); } 
+	|							{ $expr = $lhs; } 
+	;
 assignmentOpExpression  returns [JCExpression expr] 
 	: e1=andExpression					{ $expr = $e1.expr; }
-	   (   assignmentOperator   e2=andExpression		{ $expr = F.Assignop($assignmentOperator.optag,
-	   													$expr, $e2.expr); }   ) ? ;
+	   (   assignmentOperator   e2=expression		{ $expr = F.Assignop($assignmentOperator.optag, $expr, $e2.expr); }   ) ? 
+	;
 andExpression  returns [JCExpression expr] 
 	: e1=orExpression					{ $expr = $e1.expr; }
 	   (   AND   e2=orExpression				{ $expr = F.at(pos($AND)).Binary(JCTree.AND, $expr, $e2.expr); }   ) * ;
@@ -722,8 +725,12 @@ multiplicativeExpression  returns [JCExpression expr]
 	   |   PERCENT e=unaryExpression			{ $expr = F.at(pos($PERCENT)).Binary(JCTree.MOD  , $expr, $e.expr); }   
 	   ) * ;
 unaryExpression  returns [JCExpression expr] 
-	: postfixExpression					{ $expr = $postfixExpression.expr; }
+	: suffixedExpression					{ $expr = $suffixedExpression.expr; }
 	| unaryOperator   e=unaryExpression			{ $expr = F.Unary($unaryOperator.optag, $e.expr); }
+	;
+suffixedExpression  returns [JCExpression expr] 
+	: e1=postfixExpression					{ $expr = $e1.expr; }
+	   (PLUSPLUS | SUBSUB) ?   				//TODO
 	;
 postfixExpression  returns [JCExpression expr] 
 	: primaryExpression 					{ $expr = $primaryExpression.expr; }
@@ -820,22 +827,24 @@ assignmentOperator  returns [int optag]
 	| PERCENTEQ   			{ $optag = JCTree.MOD_ASG; } 
 	;
 type returns [JFXType type]
-	: typeName ccn=cardinalityConstraint		{ $type = F.TypeClass($typeName.expr, $ccn.ary); }
-
-        | FUNCTION
-          { ListBuffer<JFXType> ptypes = new ListBuffer<JFXType>(); }
-          LPAREN (pt0=type		{ ptypes.append($pt0.type); }
-	          ( COMMA ptn=type	{ ptypes.append($ptn.type); } )* )?
-          RPAREN ret=type
-          { $type = F.at(pos($FUNCTION)).TypeFunctional(ptypes.toList(), $ret.type, $ccn.ary); }
-        | STAR ccs=cardinalityConstraint 	{ $type = F.at(pos($STAR)).TypeAny($ccs.ary); } 
+	: typeName cardinality		{ $type = F.TypeClass($typeName.expr, $cardinality.ary); }
+        | FUNCTION LPAREN tal=typeArgList?
+          	   RPAREN ret=type	//TODO: it is unclear why the type syntax is different 
+          	   	cardinality	//TODO: this introduces an ambiguity: return cardinality vs type cardinality
+          	   			{ $type = F.at(pos($FUNCTION)).TypeFunctional($tal.ptypes.toList(), $ret.type, $cardinality.ary); }
+        | STAR cardinality		{ $type = F.at(pos($STAR)).TypeAny($cardinality.ary); } 
         ;
+typeArgList   returns [ListBuffer<JFXType> ptypes = ListBuffer.<JFXType>lb(); ]
+        : pt0=type			{ ptypes.append($pt0.type); }
+	          ( COMMA ptn=type	{ ptypes.append($ptn.type); } 
+	          )* 
+	;
 typeReference returns [JFXType type]
-        : COLON type						{ $type = $type.type; }
- 	| /*nada*/						{ $type = F.TypeUnknown(); }
+        : COLON type			{ $type = $type.type; }
+ 	| /*nada*/			{ $type = F.TypeUnknown(); }
         ;
-cardinalityConstraint returns [int ary]
-	:  LBRACKET   RBRACKET    	{ ary = JFXType.CARDINALITY_ANY; }
+cardinality returns [int ary]
+	: (LBRACKET)=>LBRACKET RBRACKET { ary = JFXType.CARDINALITY_ANY; }
 	|                         	{ ary = JFXType.CARDINALITY_SINGLETON; } 
 	;
 literal  returns [JCExpression expr]

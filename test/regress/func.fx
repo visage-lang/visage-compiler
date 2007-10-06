@@ -11,7 +11,7 @@ import java.lang.System;
 class Alpha {
   function myop(x : Integer) {
     System.out.println("Alpha: Value={x}");
-     if x > 7 then "blither" else "be";
+     if (x > 7) "blither" else "be";
   }
 }
 
@@ -19,7 +19,7 @@ class Beta extends Alpha {
   function myop(x : Integer)  {
     System.out.println("Beta: Value={(x)}");
     System.out.println(super.myop(x));
-    if x > 7 then "blather" else {var str="bop"; str}
+    if (x > 7) "blather" else {var str="bop"; str}
   }
 }
 

@@ -6,7 +6,7 @@
 import java.lang.*;
 
 var v1 = {var v0 = 15;
- if v0>3 then {v0+10} else v0+20 };
+ if (v0>3) {v0+10} else v0+20 };
 
 System.out.println("v1: {v1}");
 function f1 (x : Integer) : Integer
@@ -23,7 +23,7 @@ function f2 (x : Integer) : Integer
 System.out.println("f2(1): {f2(1)}");
 function f3 (x : Integer) : Integer
 {
-  if (x > 5) then {
+  if (x > 5) {
     var two : Integer = 2;
     x+two
   } else
