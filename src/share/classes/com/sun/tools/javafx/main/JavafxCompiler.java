@@ -263,7 +263,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     protected JavafxModuleBuilder javafxModuleBuilder;
     protected JavafxVarUsageAnalysis varUsageAnalysis;
     protected JavafxToJava jfxToJava;
-// Javafx change
     /**
      * Flag set if any implicit source files read.
      **/
@@ -279,16 +278,13 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         
         // if fileManager not already set, register the JavacFileManager to be used
         if (context.get(JavaFileManager.class) == null)
-// javafx modification            JavacFileManager.preRegister(context);
         com.sun.tools.javafx.util.JavafxFileManager.preRegister(context);
-// Javafx modification end
-// Javafx change // TODO: Javafx change...
         javafxJavaCompiler = JavafxJavaCompiler.instance(context);
 
         com.sun.tools.javafx.tree.JavafxTreeMaker.preRegister(context);
         com.sun.tools.javafx.tree.JavafxTreeInfo.preRegister(context);
         com.sun.tools.javafx.code.JavafxSymtab.preRegister(context);
-// Javafx change
+        com.sun.tools.javafx.comp.JavafxClassReader.preRegister(context);
         names = Name.Table.instance(context);
         options = Options.instance(context);
         log = Log.instance(context);
@@ -300,7 +296,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
         fileManager = context.get(JavaFileManager.class);
 
-// Javafx change
         javafxModuleBuilder = JavafxModuleBuilder.instance(context);
         varUsageAnalysis = JavafxVarUsageAnalysis.instance(context);
         jfxToJava = JavafxToJava.instance(context);
@@ -308,7 +303,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         
         // Add the javafx message resource bundle
         Messages.instance(context).add(javafxErrorsKey);
-// Javafx change
         try {
             // catch completion problems with predefineds
             syms = (JavafxSymtab)JavafxSymtab.instance(context);

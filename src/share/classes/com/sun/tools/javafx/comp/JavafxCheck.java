@@ -368,25 +368,30 @@ public class JavafxCheck {
  * Type Checking
  **************************************************************************/
 
+    private Type deLocationize(Type external) {
+	if (external.tag == CLASS) {
+            if (types.erasure(external) == typeMorpher.declLocation[TYPE_KIND_OBJECT].type) {
+                return ((ClassType)external).getTypeArguments().head;
+            } else if (external == typeMorpher.declLocation[TYPE_KIND_BOOLEAN].type) {
+                return syms.booleanType;
+            } else if (external == typeMorpher.declLocation[TYPE_KIND_DOUBLE].type) {
+                return syms.doubleType;
+            } else if (external == typeMorpher.declLocation[TYPE_KIND_INT].type) {
+                return syms.intType;
+            }
+        }
+        return external;
+    }
+    
     /** Check that a given type is assignable to a given proto-type.
      *  If it is, return the type, otherwise return errType.
      *  @param pos        Position to be used for error reporting.
      *  @param found      The type that was found.
      *  @param req        The type that was required.
      */
-    Type checkType(DiagnosticPosition pos, Type found, Type required) {
-        Type req = required;
-	if (req.tag == CLASS) {
-            if (req.tsym == typeMorpher.declLocation[TYPE_KIND_OBJECT].sym) {
-                req = ((ClassType)req).typarams_field.head;
-            } else if (req.tsym == typeMorpher.declLocation[TYPE_KIND_BOOLEAN].sym) {
-                req = syms.booleanType;
-            } else if (req.tsym == typeMorpher.declLocation[TYPE_KIND_DOUBLE].sym) {
-                req = syms.doubleType;
-            } else if (req.tsym == typeMorpher.declLocation[TYPE_KIND_INT].sym) {
-                req = syms.intType;
-            }
-        }
+    Type checkType(DiagnosticPosition pos, Type foundRaw, Type reqRaw) {
+        Type req = deLocationize(reqRaw);
+        Type found = deLocationize(foundRaw);
 	if (req.tag == ERROR)
 	    return req;
 	if (found.tag == FORALL)

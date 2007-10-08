@@ -114,13 +114,19 @@ public class JavafxTypeMorpher {
             Symbol owner = varSymbol.owner;
             if (owner.kind == Kinds.MTH) {
                 return false; // local var
-            } else {
+            } else if (owner.kind == Kinds.TYP) {
                 if (varSymbol instanceof JavafxVarSymbol) {
                     return true; // we made it, soassume it is from a JavaFX class
-                } else {
-                    return false;
+                } else if (!varSymbol.toString().equals("super") && !varSymbol.toString().equals("this")) {
+                    //TODO: temp hack until the MI init code is in place
+                    ClassSymbol klass = (ClassSymbol)owner;
+                    String source = klass.sourcefile.getName();
+                    String extension = source.substring(source.length()-3);
+                    return extension.equals(".fx");
                 }
             }
+            // what is this?
+            return false;
         }
 
         private boolean isSequence() {
@@ -131,6 +137,7 @@ public class JavafxTypeMorpher {
             if (!haveDeterminedMorphability()) {
                 realType = varSymbol.type;
                 TypeSymbol realTsym = realType.tsym;
+                //check if symbol is already a Location, needed for source class
                 Type locationType = null;
                 if (realTsym == declLocation[TYPE_KIND_OBJECT].sym) {
                     locationType = ((ClassType) realType).typarams_field.head;
@@ -184,6 +191,7 @@ public class JavafxTypeMorpher {
                     // must be called AFTER typeKind and realType are set in vsym
                     setUsedType(generifyIfNeeded(declLocationType(typeKind), this));
                     markShouldMorph();
+                    //System.err.println("Will morph: " + varSymbol);
                 }
                 markDeterminedMorphability();
             }
