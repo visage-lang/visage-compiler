@@ -287,6 +287,19 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
      /** Queue processing of an attribute default value. */
      void annotateDefaultValueLater(final JCExpression defaultValue,
                                     final Env<AttrContext> localEnv,
+Index: com/sun/tools/javac/comp/Flow.java
+===================================================================
+--- com/sun/tools/javac/comp/Flow.java	(revision 254)
++++ com/sun/tools/javac/comp/Flow.java	(working copy)
+@@ -295,7 +295,7 @@
+ 
+     /** Complain that pending exceptions are not caught.
+      */
+-    void errorUncaught() {
++    protected void errorUncaught() {
+ 	for (PendingExit exit = pendingExits.next();
+ 	     exit != null;
+ 	     exit = pendingExits.next()) {
 Index: com/sun/tools/javac/comp/Attr.java
 ===================================================================
 --- com/sun/tools/javac/comp/Attr.java	(revision 254)
