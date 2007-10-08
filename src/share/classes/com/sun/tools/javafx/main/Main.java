@@ -294,13 +294,17 @@ public class Main {
     public int compile(String[] args) {
         Context backEndContext = new Context();
 
-        BlockExprSymtab.preRegister(backEndContext);
+        
+        com.sun.tools.javafx.comp.JavafxFlow.preRegister(backEndContext);
+
+        com.sun.tools.javafx.code.BlockExprSymtab.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprAttr.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprEnter.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprMemberEnter.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprLower.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprTransTypes.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprGen.preRegister(backEndContext);
+        
         JavacFileManager.preRegister(backEndContext); 
         
         // Sequencing requires that we get the name table from the fully initialized back-end
