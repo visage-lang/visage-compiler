@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<?xml-stylesheet href="docbook.css" type="text/css"?>
+<chapter id="Overview">
+<title>Overview</title>
+<sect1 id="over"><title>JavaFX Product Overview</title>
+<para>
+<emphasis>This describes the several parts of the JavaFX product.</emphasis>
+</para>
+<para><emphasis>This describes how JavaFX Script ties together all the parts of the JavaFX product, and connects to the JRE and anything else that a developer would normally access. </emphasis></para>
+</sect1>
+
+
+<sect1 id="script"><title>JavaFX Script Introduction</title>
+<para>
+<emphasis>JavaFX Script is part of the product. We need to explain how to use JFX script to manage other parts of the JavaFX product package. We will discuss language syntax, types, expressions, operations and other details in later Chapters.</emphasis>
+</para>
+
+
+  <sect2 id="topcopy">
+    <title>Top Copy </title>
+
+    <para>The JavaFX Script™ (hereinafter referred to as JavaFX) language is a
+    declarative and statically typed programming language. It has first-class
+    functions, declarative syntax, list-comprehensions, and incremental
+    dependency-based evaluation. The JavaFX Script language makes intensive
+    use of the Java2D swing GUI components and allows for easy creation of
+    GUIs.</para>
+
+    <para>This document gives an informal description of the JavaFX Script
+    programming language.</para>
+
+</sect2>
+
+
+<sect1 id="install"><title>Installing JavaFX Script</title>
+<para>
+<emphasis>List the stuff we need to install, configure and write a basic script, including the JRE, a browser, the JavaFX Script jar file, NetBeans (with the JFX plugin) and whatever else should be part of a typical desktop installation.
+</emphasis>
+</para>
+
+<para> How do we introduce and explain the javaui.fx library? It looks like we can't call just any Java class -- only those classes supported by an 'fx library, and we only have Swing classes. </para>
+
+<para>
+We <emphasis>
+should also discuss configuration and testing here.
+</emphasis>
+</para>
+
+</sect1>
+
+<sect1 id="first"><title>Your First Program </title>
+<para>
+This<emphasis> could be a quick start section. </emphasis></para>
+</sect1>
+</sect1>
+
+</chapter>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<?xml-stylesheet href="docbook.css" type="text/css"?>
+<chapter id="Quickstart">
+<title>QuickStart</title>
+<sect1 id="quick"><title>QuickStart Overview</title>
+<para>
+<emphasis>This quickstart section walks thorugh a hands' on install process from initial download, to writing, saving, building, testing and running a example program. It probably does not cover deployment.  </emphasis>
+</para>
+
+<para>
+<emphasis>This chapter includes screenshots, procedures and could include links to runnable applications.  </emphasis>
+</para>
+
+<para>
+<emphasis>QUESTIONS: </emphasis></para> 
+
+
+<itemizedlist>
+
+<listitem>
+<para>Should we present a programming model using NetBeans, or present a model using command line tools? </para>
+</listitem>
+
+<listitem>
+<para>Briefly list and identify command line tools anyway. </para>
+</listitem>
+
+</itemizedlist>
+
+<!--
+<itemizedlist mark='opencircle'>
+<listitem>
+<para>TeX and LaTeX
+</para>
+</listitem>
+<listitem override='bullet'>
+<para>Troff
+</para>
+</listitem>
+<listitem>
+<para>Lout
+</para>
+</listitem>
+</itemizedlist>
+
+</article>
+
+
+
+</para>
+-->
+
+
+</sect1>
+
+
+
+<sect2 id="quick2"><title>Another Second-level Section Here</title>
+<para>
+<emphasis>This is an empty Section.  </emphasis>
+</para>
+</sect2>
+
+
+<!--
+
+
+<sect2 id="quick3"><title>Another Second-level Section Here</title>
+<para>
+<emphasis>This is an empty Section.  </emphasis>
+</para>
+
+</sect2>
+
+
+<sect1 id="quick4"><title>Another Top-level Section Here</title>
+<para>
+<emphasis>This is an empty Section.  </emphasis>
+</para>
+</sect1>
+
+</sect1>
+<sect1 id="quick5"><title>Another Section Here</title>
+<para>
+<emphasis>This is an empty Section.  </emphasis>
+</para>
+</sect1> 
+
+-->
+
+</chapter>

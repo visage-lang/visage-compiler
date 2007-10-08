@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<?xml-stylesheet href="docbook.css" type="text/css"?>
+<chapter id="Exceptions">
+<title>Exceptions</title>
+
+
+<sect1 id="except"><title>Exceptions Overview</title>
+
+<para>
+<emphasis>
+This Chapter will list and explain JavaFX Script exception handling. 
+</emphasis>
+
+</para>
+</sect1>
+
+
+</chapter>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<?xml-stylesheet href="docbook.css" type="text/css"?>
+<chapter id="Declarative">
+<title>Declarative Programming</title>
+<sect1 id="declare"><title>Declarative Programming Overview</title>
+
+<para>
+<emphasis>Declarative programming is a new topic for many readers. We need to explain how JavaFX Script relates to Java and how Declarative Programming simplifies this relationship. </emphasis>
+</para>
+
+
+
+<sect2 id="dquestions"><title>Questions</title>
+<para>
+<emphasis>A chapter on Declarative programming should probably describe how JavaFX Script calls into the JRE to access Java classes, and which classes it can access. </emphasis></para>
+
+<para>
+<emphasis>Can JavaFX Script and Java code be mixed in the same scipt? How? Under what conditions? How does it work? </emphasis></para>
+
+<para>
+<emphasis>We probably need a block diagram that shows how the JavaFX Script product ties into its wrapper libraries to access Java Swing classes in the JRE via JavaPlayer.  </emphasis></para>
+
+<para>
+<emphasis>How do I put a JavaFX sript into a browser?  How do I put a JavaFX Script on my local desktop as a stand-alone application? How do I write a JavaFX applet? </emphasis></para>
+
+<para>
+<emphasis>Can JavaFX Script instantiate a Java class? Yes; and we need to explain how and when we do this; and how JavaFX accesses the JRE) </emphasis></para>
+
+<para>
+<emphasis>Can Java instantiate a JavaFX Script class? (I don't know, but I imagine it is possible. When would we do this?  My general question:  Can we mix JavaFX and Java source in the same file? How? Why? </emphasis></para>
+
+
+
+
+</sect2>
+
+</sect1>
+
+</chapter>

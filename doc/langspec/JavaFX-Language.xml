@@ -1,19 +1,29 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <?xml-stylesheet href="docbook.css" type="text/css"?>
+
 <book xmlns:xi="http://www.w3.org/2001/XInclude">
-<title>JavaFX Language Specification</title>
+  <title>JavaFX Script Language Specification</title>
 
-<xi:include href="fxintro.xml" parse="xml"/>
-
-<!--
-
-<xi:include href="Types.xml"  parse="xml"/> 
-<xi:include href="Declarations.xml"  parse="xml"/> 
-<xi:include href="Functions.xml"  parse="xml"/> 
-<xi:include href="Expressions.xml"  parse="xml"/> 
-                                                     
-<xi:include href="JavaFXgrammar.xml"  parse="xml"/>  
+  <!--
+<xi:include href="fxintro.xml" parse="xml"/>  
 -->
+
+<!-- -->
+<xi:include href="fx01overview.xml"  parse="xml"/> 
+<xi:include href="fx02quickstart.xml"  parse="xml"/> 
+<xi:include href="fx03declprog.xml"  parse="xml"/> 
+<xi:include href="fx04syntax.xml"  parse="xml"/>  
+<xi:include href="fx05expr.xml"  parse="xml"/> 
+<xi:include href="fx06logic.xml"  parse="xml"/> 
+<xi:include href="fx07arrays.xml"  parse="xml"/>
+<xi:include href="fx08objects.xml"  parse="xml"/>
+<xi:include href="fx09exceptions.xml"  parse="xml"/>
+<xi:include href="fx10reflection.xml"  parse="xml"/>  
+
+
+
+
 </book>
+

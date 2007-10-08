@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<?xml-stylesheet href="docbook.css" type="text/css"?>
+<chapter id="Syntax">
+<title>Syntax</title>
+<sect1 id="syn"><title>Syntax Overview</title>
+<para>
+<emphasis>
+This Chapter will hold all the details. formats, syntax, reserved words, operators, best practices.   Lots of stuff, short of object-oriented programming, logical expressions, functions, operations. 
+
+</emphasis>
+</para>
+
+
+
+
+
+
+
+
+<para>
+<title>Lexical Structure</title>
+<emphasis>
+
+<itemizedlist>
+<listitem><para><emphasis>
+Character set, whitespace? </emphasis></para></listitem>
+
+<listitem><para><emphasis>Comments?</emphasis></para></listitem>
+
+<listitem><para><emphasis>Reserved Words? </emphasis></para></listitem>
+
+<listitem><para><emphasis>Identifiers? </emphasis></para></listitem>
+
+<listitem><para><emphasis>Literals? </emphasis></para></listitem>
+
+<listitem><para><emphasis>Punctuation?</emphasis></para></listitem>
+
+<listitem><para><emphasis>How do we support other Java primitive types?</emphasis></para></listitem>
+
+
+
+</itemizedlist>
+
+</emphasis>
+</para>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</sect1>
+
+
+   <sect1 id="types">
+      <title>Basic Types</title>
+
+      <para>The JavaFX programming language provides four primitive types: <code>
+      String, Boolean, Number,</code> and <code>Integer.</code> These types correspond to Java
+      types as follows:</para>
+
+
+    
+    <table cellpadding="5" cellspacing="5"
+                 style="border: medium groove ;">
+            <tbody>
+              <tr>
+                <th style="text-decoration: underline;">JavaFX</th>
+
+                <th style="text-decoration: underline;">Java</th>
+
+               
+              </tr>
+
+              <tr>
+                <td>
+                  <code>String</code>
+                </td>
+             
+                <td>
+                  <code>java.lang.String</code>
+                </td>
+
+            
+              </tr>                  
+
+              <tr>
+                <td>
+                  <code>Boolean</code>
+                </td>
+		
+		<td>
+                  <code>java.lang.boolean</code>
+                </td>
+		</tr>
+		
+		<tr>
+
+                <td><code>Number</code></td>
+
+                <td> <code>java.lang.Number</code> </td>
+              </tr>
+    
+	      		<tr>
+
+                <td><code>Integer</code></td>
+
+                <td>
+                  <code>byte,short,int,long,BigInteger</code>
+                </td>
+              </tr>
+    
+                </tbody>
+          </table>
+    
+    
+    
+      <emphasis role="bold">Example:</emphasis>
+
+      <programlisting>        var s = "Hello";
+        s.toUpperCase(); // yields "HELLO";
+        s.substring(1);  // yields "ello";
+        var n = 1.5;
+        n.intValue();    // yields 1
+        (1.5).intValue();    // yields 1
+        s.substring(n);  // yields "ello"
+        var b = true;
+        b instanceof Boolean; // yields true
+</programlisting>
+
+      <para>Coercions are automatically performed on numeric types when
+      passing arguments or return values to/from Java methods. In addition,
+      implicit truncating coercions are performed when converting Numbers to
+      Integers.</para>
+    </sect1>
+
+    
+ <!-- **********  Variables, functions, operations, arrays ******* -->
+   
+    
+    
+    <sect1 id="vars">
+      <title>Variables</title>
+
+      <para>In JavaFX, the var keyword introduces a new variable. You may
+      specify the type of a variable in its declaration. However, that's
+      optional in JavaFX. If you don't specify the type, the JavaFX
+      interpreter infers the variable's type from its use. A variable
+      declaration takes the form</para>
+
+      <programlisting>        var variableName : typeName [?,+,*] = initializer;
+</programlisting>
+
+      <para>You may use one of the ?, +, or * operators to denote the
+      cardinality of the variable, as follows:</para>
+
+      <programlisting>Operator   Meaning
+   ?       Optional (i.e, may be null)
+   +       One or more
+   *       Zero or more
+</programlisting>
+
+      <para>Example:</para>
+
+      <programlisting>        var nums:Number* = [1,2,3];	
+</programlisting>
+
+      <para>The above example declares a new variable named nums whose value
+      is defined to consist of zero or more instances of type Number and whose
+      initial value is [1,2,3].</para>
+
+      <para>The :typeName, [?,+,*], and = initializer portions of the
+      declaration are optional, so the following is equivalent to the
+      above:</para>
+
+      <programlisting>        var nums = [1,2,3];
+</programlisting>
+    </sect1>
+
+    <sect1 id="funct">
+      <title>Functions, Arrays, Expressions, and Operations</title>
+
+      <para>JavaFX <code>function</code>s represent a pure functional subset
+      of the JavaFX programming language. The body of a <code>function</code>
+      may only contain a series of variable declarations and a return
+      statement. JavaFX also provides procedures (called
+      <code>operation</code>s, see below) which may contain any number of
+      statements including conditional statements, looping statements,
+      try/catch, etc.</para>
+
+      <para>The order in which the functions are given is not in general
+      significant. Following is a very simple example of a functional
+      program:</para>
+
+      <programlisting>function z(a,b) {
+           var x = a + b;
+           var y = a - b;
+           return sq(x) / sq (y);
+        }
+
+        function sq(n) {return n * n;}
+
+        function main() {
+           return z(5, 10);
+        }
+</programlisting>
+
+      <para>There are no mandatory type declarations, although the language is
+      statically typed (see more details later).</para>
+
+      <para>The most commonly used data structure is the array, which in
+      JavaFX is written with square brackets and commas, e.g.:</para>
+
+      <programlisting>var week_days = ["Mon","Tue","Wed","Thur","Fri"];
+        var days = [week_days, ["Sat","Sun"]];
+</programlisting>
+
+      <para>Arrays represent sequences of objects. In JavaFX arrays are not
+      themselves objects, however, and do not nest. Expressions that produce
+      nested arrays (as in the initialization of "days" above) are
+      automaticallly flattened, i.e:</para>
+
+      <programlisting>days == ["Mon","Tue","Wed","Thur","Fri","Sat","Sun"]; // returns true
+</programlisting>
+
+      <para>The size of an array may be determined with the JavaFX
+      <code>sizeof</code> operator:</para>
+
+      <programlisting>         var n = sizeof days; // n = 7
+</programlisting>
+
+      <para>There is a shorthand notation using "<code>..</code>" for arrays
+      whose elements form an arithmetic series. Here for example are
+      definitions of the factorial function, and of a number "result" which is
+      the sum of the odd numbers between 1 and 100</para>
+
+      <programlisting>function fac(n) {return product([1..n]);}
+        var result = sum([1,3..100]);
+</programlisting>
+
+      <para>The elements of an array must all be of the same type.</para>
+
+      <para>Arrays may be indexed as in Java:</para>
+
+      <programlisting>        var wednesday = days[2];
+</programlisting>
+
+      <para>In JavaFX the <code>[]</code> operator also expresses selection
+      (similar to its use in XPath). In this case, the expression contained in
+      the <code>[]</code> is a boolean expression. Such an expression returns
+      a new array containing only those elements that satisfy the predicate
+      contained in the <code>[]</code>.</para>
+
+      <para>As in XPath, within the predicate contained inside the
+      <code>[]</code> operator, the context object may be accessed with the
+      dot operator, for example:</para>
+
+      <programlisting>	var nums = [1,2,3,4];
+	var numsGreaterThanTwo = nums[. &gt; 2]; // yields [3, 4]
+</programlisting>
+
+      <para>Alternatively a variable may be declared for the context object.
+      For example, this is equivalent to the above statement:</para>
+
+      <programlisting>	numsGreaterThanTwo = nums[n|n &gt; 2];
+</programlisting>
+
+      <para>The JavaFX <code>indexof</code> operator returns the ordinal
+      position of an element within an array (like the <code>position()</code>
+      function in XPath).</para>
+
+      <para>The <code>car</code> and <code>cdr</code> of a list may be
+      expressed using selection expressions like this:</para>
+
+      <programlisting>	function car(list) {return list[indexof . == 0];}
+	function cdr(list) {return list[indexof . &gt; 0];}
+</programlisting>
+
+      <para>Of course <code>car</code> can be expressed more succinctly as
+      simply:</para>
+
+      <programlisting>	function car(list) {return list[0];}
+</programlisting>
+
+      <para>Examples:</para>
+
+      <programlisting>	var list = [1..10];
+	car(list); // yields 1
+	cdr(list); // yields [2,3,4,5,6,7,8,9,10]
+</programlisting>
+
+      <para>In JavaFX, the empty array <code>[]</code> and <code>null</code>
+      are synonymous, i.e:</para>
+
+      <programlisting>        [] == null // yields true
+        sizeof null // yields 0
+</programlisting>
+    </sect1>
+
+<!-- **********  Variables, functions, operations, arrays ******* -->
+
+
+	
+        <sect1 id="strings">
+          <title>String Literals and String Expressions</title>
+
+          <para>In JavaFX, a literal character string is specified with single
+          quotes, e.g.</para>
+
+          <programlisting>        var s = 'Hello';
+</programlisting>
+
+          <para>or with double quotes:</para>
+
+          <programlisting>        var s = "Hello";
+</programlisting>
+
+          <para>In the latter case, JavaFX expressions may be embedded using
+          <code>{}</code>, e.g</para>
+
+          <programlisting>        var name = 'Joe';
+        var s = "Hello {name}"; // s = 'Hello Joe'
+</programlisting>
+
+          <para>The embedded expression may itself contain quoted strings
+          (which, in turn, may contain further embedded expressions),
+          e.g</para>
+
+          <programlisting>        var answer = true;
+        var s = "The answer is {if answer then "Yes" else "No"}"; // s = 'The answer is Yes'
+</programlisting>
+
+          <para>Unlike in Java, JavaFX double-quoted String literals
+          <emphasis>can</emphasis> contain newlines:</para>
+
+          <programlisting>        var s = "This
+                 contains
+                 new lines";
+</programlisting>
+        </sect1>
+
+        <sect1 id="quote">
+          <title>Quoted Identifiers</title>
+
+          <para>In JavaFX, any sequence of characters (including whitespace)
+          contained in french quotes <code>&lt;&lt;&gt;&gt;</code> is treated
+          as an identifier. This allows you to use JavaFX keywords (or other
+          normally illegal identifiers) as class, variable, function, or
+          attribute names, e.g.</para>
+
+          <programlisting>        var &lt;&lt;while&gt;&gt; = 100;
+</programlisting>
+
+          <para>It also makes it possible to call Java methods whose names are
+          the same as JavaFX keywords, for example:</para>
+
+          <programlisting>        import javax.swing.JTextArea;
+
+        var textArea = new JTextArea();
+        textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);
+</programlisting>
+        </sect1>
+
+        <sect1 id="range">
+          <title>Range Expression</title>
+
+          <para>As mentioned above you can define an array of numeric values
+          that form an arithmetic series using the following syntax:</para>
+
+          <programlisting>            [<emphasis>number1</emphasis>..<emphasis>number2</emphasis>]
+</programlisting>
+
+          <para>Such an expression defines an array whose elements consist of
+          the integers from <emphasis>number1</emphasis> to
+          <emphasis>number2</emphasis> (inclusive).</para>
+
+          <para>For example:</para>
+
+          <programlisting>            var nums = [0..3];
+            System.out.println(nums == [0,1,2,3]); // prints true
+</programlisting>
+
+          <para>By default the interval between the values is <code>1</code>
+          but it's also possible to specify a different interval by including
+          the next number in the sequence after <emphasis>number1</emphasis>
+          separated by a comma. For example, the following expression defines
+          an array consisting of the odd numbers between <code>1</code> and
+          <code>10</code>:</para>
+
+          <programlisting>            [1,3..10]
+</programlisting>
+
+          <para>If <code>number1</code> is greater than <code>number2</code> a
+          descending series is created:</para>
+
+          <programlisting>            var nums = [3..0];
+            System.out.println(nums == [3,2,1,0]); // prints true
+</programlisting>
+        </sect1>
+
+        <sect1 id="sformatting">
+          <title>String, Number, and Date Formatting</title>
+
+          <para>JavaFX has a built-in String formatting operator (<code>format
+          as</code>), which has the following syntax:</para>
+
+          <programlisting>        <emphasis>expr</emphasis> format as <emphasis>directive</emphasis>
+</programlisting>
+
+          <para>The <code>format as </code>operator supports
+          <code>java.text.DecimalFormat</code>,
+          <code>java.text.SimpleDateFormat</code>, and
+          <code>java.util.Formatter</code> formatting directives. If the
+          formatting directive starts with <code>%</code>, then
+          <code>java.util.Formatter</code> is used, otherwise if <code>
+              <emphasis>expr</emphasis>
+            </code> is of type <code>Number</code> then
+          <code>java.text.DecimalFormat</code> is used, otherwise if <code>
+              <emphasis>expr</emphasis>
+            </code> is of type <code>java.util.Date</code> then
+          <code>java.text.SimpleDateFormat</code> is used. The <code>
+              <emphasis>directive</emphasis>
+            </code> operand is syntactically an identifier, not an expression.
+          This allows the content of <code>
+              <emphasis>directive</emphasis>
+            </code> to be statically checked for correctness at compile
+          time.</para>
+
+          <para>Examples:</para>
+
+          <programlisting>        import java.util.Date;
+
+        100.896 format as &lt;&lt;%f&gt;&gt;; // yields '100.896000'
+        31.intValue() format as &lt;&lt;%02X&gt;&gt;; // yields '1F'
+        var d = new Date();
+        d format as &lt;&lt;yyyy-MM-dd'T'HH:mm:ss.SSSZ&gt;&gt;; // yields '2005-10-31T08:04:31.323-0800'
+        0.00123 format as &lt;&lt;00.###E0&gt;&gt;; // yields '12.3E-4'
+</programlisting>
+        </sect1>
+
+
+
+</chapter>
