@@ -26,6 +26,7 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
+import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
@@ -39,9 +40,11 @@ import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
+import com.sun.tools.javafx.code.JavafxMethodSymbol;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -492,7 +495,7 @@ public class JavafxInitializationBuilder {
             ClassSymbol cSym = classesToVisit.get(0);
             classesToVisit.remove(0);
             
-            if (visitedClasses.contains(cSym.fullname.toString())) {
+            if (!visitedClasses.contains(cSym.fullname.toString())) {
                 if (isJFXClass(cSym)) {
                     if ((cSym.flags_field & Flags.INTERFACE) != 0) {
                         // TODO: Add the fields/methods based on XXLocation get$<fieldName>() method
@@ -501,9 +504,53 @@ public class JavafxInitializationBuilder {
                     }
                     else {
                         JFXClassDeclaration cDecl = fxClasses.get(cSym);
-                        if (cDecl != null) {
-                            // TODO: Add the fields/methods of this class to the lists/maps
+
+                        if (cDecl != null && cSym.members() != null) {
+                            for (Scope.Entry e=cSym.members().elems; e != null && e.sym != null; e=e.sibling) {
+                                if (e.sym.kind == Kinds.MTH &&
+                                    e.sym instanceof JavafxMethodSymbol) {
+                                    MethodSymbol meth = (MethodSymbol)e.sym;
+                                    StringBuilder nameSigBld = new StringBuilder();
+                                    nameSigBld.append(meth.name.toString());
+                                    nameSigBld.append(":");
+                                    nameSigBld.append(meth.getReturnType().toString());
+                                    nameSigBld.append(":");
+                                    for (VarSymbol param : meth.getParameters()) {
+                                        nameSigBld.append(param.type.toString());
+                                        nameSigBld.append(":");
+                                    }
+                                    
+                                    String nameSig = nameSigBld.toString();
+                                    if (collectedMethods.containsKey(nameSig)) {
+                                        continue;
+                                    }
+                                    
+                                    collectedMethods.put(nameSig, meth);
+                                    methods.add(meth);
+                                }
+                                else if (e.sym.kind == Kinds.VAR &&
+                                    e.sym instanceof JavafxVarSymbol) {
+                                    VarSymbol var = (VarSymbol)e.sym;
+                                    
+                                    String name = var.name.toString();
+                                    
+                                    if (collectedAttributes.containsKey(name)) {
+                                        continue;
+                                    }
+                                    
+                                    collectedAttributes.put(name, var);
+                                    attributes.add(var);
+                                }
+                            }
+
+                            for (JCExpression supertype : cDecl.supertypes) {
+                                if (supertype.type != null && supertype.type.tsym != null && supertype.type.tsym.kind == Kinds.TYP) {
+                                    classesToVisit.add((ClassSymbol)supertype.type.tsym);
+                                }
+                            }
+                            
                             // TODO: Add all the base classes/interfaces to the classesToVisit List
+                            
                             visitedClasses.add(cSym.fullname.toString());
                         }
                     }
