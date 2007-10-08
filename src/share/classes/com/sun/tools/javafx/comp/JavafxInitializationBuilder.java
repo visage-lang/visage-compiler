@@ -463,12 +463,12 @@ public class JavafxInitializationBuilder {
 
         // Add the initialize$ method
         List<JCStatement> initializeStats = List.<JCStatement>nil();
-// TODO: Disable for now..
-// Ambiguity for the setDefault$ method if a class extends another class and there is a setDefasults$ in both classes        
-//        initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(cdef.name)/*TODO: Add the class suffix*/, 
-//            setDefaultsName.toString(), make.Ident(names._this)));
-//        initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(cdef.name)/*TODO: Add the class suffix*/, 
-//            userInitName.toString(), make.Ident(names._this)));
+
+        // Add calls to do the the default value initialization and user init code (validation for example.)
+        initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(cdef.name)/*TODO: Add the class suffix*/, 
+            setDefaultsName.toString(), make.TypeCast(make.Ident(names.fromString(cdef.name.toString() + interfaceNameSuffix)), make.Ident(names._this))));
+        initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(cdef.name)/*TODO: Add the class suffix*/, 
+            userInitName.toString(), make.TypeCast(make.Ident(names.fromString(cdef.name.toString() + interfaceNameSuffix)), make.Ident(names._this))));
         // TODO: Add init helper calls...
         JCBlock initializeBlock = make.Block(0L, initializeStats);
         cdef.defs = cdef.defs.append(make.MethodDef(
