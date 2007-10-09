@@ -1507,10 +1507,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public void visitConditional(JCConditional tree) {
         attribExpr(tree.cond, env, syms.booleanType);
         attribExpr(tree.truepart, env);
-        attribExpr(tree.falsepart, env);
+        Type falsepartType;
+        if (tree.falsepart == null) {
+            falsepartType = tree.truepart.type;
+        } else {
+            falsepartType = attribExpr(tree.falsepart, env);
+        }
         result = check(tree,
                        capture(condType(tree.pos(), tree.cond.type,
-                                        tree.truepart.type, tree.falsepart.type)),
+                                        tree.truepart.type, falsepartType)),
                        VAL, pkind, pt);
     }
     //where
@@ -2487,12 +2492,14 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 env.info.dup(env.info.scope.dup()));
         for (List<JCStatement> l = tree.stats; l.nonEmpty(); l = l.tail)
             attribStat(l.head, localEnv);
+        Type owntype = null;
         if (tree.value != null) {
-            Type valtype = attribExpr(tree.value, localEnv);
-             result = check(tree, valtype, VAL, pkind, pt);
+            owntype = attribExpr(tree.value, localEnv);
         }
-        if (tree.type == null)
-            tree.type = syms.voidType;
+        if (owntype == null) {
+            owntype = syms.voidType;
+        }
+        result = check(tree, owntype, VAL, pkind, pt);
         localEnv.info.scope.leave();
     }
 

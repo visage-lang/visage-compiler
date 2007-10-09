@@ -681,7 +681,7 @@ ifExpression  returns [JCExpression expr]
 	;
 elseClause  returns [JCExpression expr] 
 	: (ELSE)=>  ELSE  expression				{ $expr = $expression.expr; }
-	| /*nada*/ 						{ $expr = F.Literal(TypeTags.BOT, null); }
+	| /*nada*/ 						{ $expr = null; }
 	;
 assignmentExpression  returns [JCExpression expr] 
 	: e1=assignmentOpExpression assignmentClause[$e1.expr]	{ $expr = $assignmentClause.expr; }

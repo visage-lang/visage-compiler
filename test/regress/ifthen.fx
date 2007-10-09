@@ -20,6 +20,15 @@ pass = if (x == 77) pass else false;
 System.out.println("{pass} Expect 77: {x}");
 pass = if ((if (bool) "yo").equals("yo")) pass else false;
 System.out.println("{pass} Expect yo: {if (bool) "yo"}");
+var z = if (bool) 888;
+pass = if (z == 888) pass else false;
+System.out.println("{pass} Expect 888: {z}");
+z = if (not bool) 888;
+pass = if (z == 0) pass else false;
+System.out.println("{pass} Expect 0: {z}");
 
 System.out.println(if (pass) "Pass" else "FAIL!");
+if (not pass) {
+    System.out.println("FAILURE.")
+}
 
