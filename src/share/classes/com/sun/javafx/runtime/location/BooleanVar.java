@@ -29,11 +29,12 @@ public class BooleanVar extends AbstractLocation implements BooleanLocation, Mut
         return value;
     }
 
-    public void set(boolean value) {
+    public boolean set(boolean value) {
         if (this.value != value) {
             this.value = value;
             valueChanged();
         }
+        return value;
     }
 
     @Override

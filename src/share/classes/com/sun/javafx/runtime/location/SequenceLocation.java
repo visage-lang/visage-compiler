@@ -16,7 +16,7 @@ public interface SequenceLocation<T> extends Location, Iterable<T> {
 
     Sequence<T> get();
 
-    void set(Sequence<T> value);
+    Sequence<T> set(Sequence<T> value);
 
     public void set(int position, T value);
 

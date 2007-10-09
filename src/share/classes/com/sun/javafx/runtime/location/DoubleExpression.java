@@ -41,7 +41,7 @@ public class DoubleExpression extends AbstractLocation implements DoubleLocation
         return value;
     }
 
-    public void set(double value) {
+    public double set(double value) {
         throw new UnsupportedOperationException();
     }
 

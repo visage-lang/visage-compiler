@@ -41,7 +41,7 @@ public class IntExpression extends AbstractLocation implements IntLocation {
         return value;
     }
 
-    public void set(int value) {
+    public int set(int value) {
         throw new UnsupportedOperationException();
     }
 

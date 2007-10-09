@@ -63,7 +63,7 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
     }
 
     @Override
-    public void set(Sequence<T> value) {
+    public Sequence<T> set(Sequence<T> value) {
         Sequence<T> oldValue = sequence;
         if (!oldValue.equals(value)) {
             this.sequence = value;
@@ -75,6 +75,7 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
                     mutationListener.onInsert(i, sequence.get(i));
             }
         }
+        return value;
     }
 
     @Override

@@ -85,7 +85,7 @@ public class SequenceExpression<T> extends AbstractLocation implements SequenceL
     }
 
     @Override
-    public void set(Sequence<T> value) {
+    public Sequence<T> set(Sequence<T> value) {
         throw new UnsupportedOperationException();
     }
 

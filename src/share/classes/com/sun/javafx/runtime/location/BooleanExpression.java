@@ -41,7 +41,7 @@ public class BooleanExpression extends AbstractLocation implements BooleanLocati
         return value;
     }
 
-    public void set(boolean value) {
+    public boolean set(boolean value) {
         throw new UnsupportedOperationException();
     }
 

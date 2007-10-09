@@ -10,7 +10,7 @@ public interface IntLocation extends Location {
     public int get();
 
     /** Set the current value of this location, recomputing if necessary */
-    public void set(int value);
+    public int set(int value);
 
     /** Get a reference to an ObjectLocation<Integer> that describes the same location */
     public ObjectLocation<Integer> asIntegerLocation();

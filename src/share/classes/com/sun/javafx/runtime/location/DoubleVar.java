@@ -29,11 +29,12 @@ public class DoubleVar extends AbstractLocation implements DoubleLocation, Mutab
         return value;
     }
 
-    public void set(double value) {
+    public double set(double value) {
         if (this.value != value) {
             this.value = value;
             valueChanged();
         }
+        return value;
     }
 
     @Override

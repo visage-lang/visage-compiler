@@ -10,7 +10,7 @@ public interface DoubleLocation extends Location {
     double get();
 
     /** Set the current value of this location, recomputing if necessary */
-    void set(double value);
+    double set(double value);
 
     /** Get a reference to an ObjectLocation<Double> that describes the same location */
     public ObjectLocation<Double> asDoubleLocation();

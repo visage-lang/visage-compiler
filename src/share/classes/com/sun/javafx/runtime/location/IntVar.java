@@ -29,11 +29,12 @@ public class IntVar extends AbstractLocation implements IntLocation, MutableLoca
         return value;
     }
 
-    public void set(int value) {
+    public int set(int value) {
         if (this.value != value) {
             this.value = value;
             valueChanged();
         }
+        return value;
     }
 
     @Override

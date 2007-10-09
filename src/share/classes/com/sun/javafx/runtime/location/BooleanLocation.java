@@ -10,7 +10,7 @@ public interface BooleanLocation extends Location {
     boolean get();
 
     /** Set the current value of this location, recomputing if necessary */
-    void set(boolean value);
+    boolean set(boolean value);
 
     /** Get a reference to an ObjectLocation<Boolean> that describes the same location */
     public ObjectLocation<Boolean> asBooleanLocation();
