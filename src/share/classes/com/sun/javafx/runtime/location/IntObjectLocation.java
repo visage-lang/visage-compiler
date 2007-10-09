@@ -18,8 +18,8 @@ class IntObjectLocation implements ObjectLocation<Integer>, ViewLocation {
         return location.get();
     }
 
-    public void set(Integer value) {
-        location.set(value);
+    public Integer set(Integer value) {
+        return location.set(value);
     }
 
     public boolean isValid() {

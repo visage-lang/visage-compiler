@@ -10,5 +10,5 @@ public interface ObjectLocation<T> extends Location {
     T get();
 
     /** Modify the value associated with this Location */
-    void set(T value);
+    T set(T value);
 }

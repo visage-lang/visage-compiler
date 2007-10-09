@@ -18,8 +18,8 @@ class BooleanObjectLocation implements ObjectLocation<Boolean>, ViewLocation {
         return location.get();
     }
 
-    public void set(Boolean value) {
-        location.set(value);
+    public Boolean set(Boolean value) {
+        return location.set(value);
     }
 
     public boolean isValid() {

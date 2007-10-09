@@ -18,8 +18,8 @@ class DoubleObjectLocation implements ObjectLocation<Double>, ViewLocation {
         return location.get();
     }
 
-    public void set(Double value) {
-        location.set(value);
+    public Double set(Double value) {
+        return location.set(value);
     }
 
     public boolean isValid() {

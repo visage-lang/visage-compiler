@@ -41,7 +41,7 @@ public class ObjectExpression<T> extends AbstractLocation implements ObjectLocat
         return value;
     }
 
-    public void set(T value) {
+    public T set(T value) {
         throw new UnsupportedOperationException();
     }
 
