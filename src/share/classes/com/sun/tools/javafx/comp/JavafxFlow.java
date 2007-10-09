@@ -26,6 +26,8 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.comp.Flow;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Context;
 
 /**
@@ -55,4 +57,9 @@ public class JavafxFlow extends Flow {
 	/* nada */
     }
 
+    /** Perform definite assignment/unassignment analysis on a tree.
+     */
+    public void analyzeTree(JCTree tree, TreeMaker make) {
+        // Do not do anything here for now. JavaFX doesn't need assignment/unassignment, reachability and checked exceptions analysis
+    }
 }
