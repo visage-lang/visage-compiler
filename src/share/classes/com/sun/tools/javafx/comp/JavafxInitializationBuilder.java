@@ -27,6 +27,7 @@ package com.sun.tools.javafx.comp;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Scope;
+import com.sun.tools.javac.code.Scope.Entry;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
@@ -40,6 +41,7 @@ import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.Position;
 import com.sun.tools.javafx.code.JavafxMethodSymbol;
 
 import com.sun.tools.javafx.tree.*;
@@ -368,8 +370,6 @@ public class JavafxInitializationBuilder {
         
         ret.append(cInterface);
         
-        fxClasses = null;
-        
         return ret.toList();
     }
     
@@ -498,17 +498,9 @@ public class JavafxInitializationBuilder {
             if (!visitedClasses.contains(cSym.fullname.toString())) {
                 if (isJFXClass(cSym)) {
                     if ((cSym.flags_field & Flags.INTERFACE) != 0) {
-                        // TODO: Add the fields/methods based on XXLocation get$<fieldName>() method
-                        // TODO: Add all the base interfaces to the classesToVisit List
-                        visitedClasses.add(cSym.fullname.toString());
-                    }
-                    else {
-                        JFXClassDeclaration cDecl = fxClasses.get(cSym);
-
-                        if (cDecl != null && cSym.members() != null) {
-                            for (Scope.Entry e=cSym.members().elems; e != null && e.sym != null; e=e.sibling) {
-                                if (e.sym.kind == Kinds.MTH &&
-                                    e.sym instanceof JavafxMethodSymbol) {
+                        if (cSym != null && cSym.members() != null) {
+                            for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
+                                if (e.sym.kind == Kinds.MTH) {
                                     MethodSymbol meth = (MethodSymbol)e.sym;
                                     StringBuilder nameSigBld = new StringBuilder();
                                     nameSigBld.append(meth.name.toString());
@@ -528,9 +520,69 @@ public class JavafxInitializationBuilder {
                                     collectedMethods.put(nameSig, meth);
                                     methods.add(meth);
                                 }
-                                else if (e.sym.kind == Kinds.VAR &&
-                                    e.sym instanceof JavafxVarSymbol) {
+                                else if (e.sym.kind == Kinds.VAR) {
                                     VarSymbol var = (VarSymbol)e.sym;
+                                    
+                                    if (var.owner.kind != Kinds.TYP) {
+                                        continue;
+                                    }
+                                    
+                                    String name = var.name.toString();
+                                    
+                                    if (!name.startsWith(attributeGetMethodNamePrefix)) {
+                                        continue;
+                                    }
+                                    
+                                    if (collectedAttributes.containsKey(name)) {
+                                        continue;
+                                    }
+                                    
+                                    collectedAttributes.put(name, var);
+                                    attributes.add(var);
+                                }
+                            }
+
+                            for (Type supertype : cSym.getInterfaces()) {
+                                if (supertype != null && supertype.tsym != null && supertype.tsym.kind == Kinds.TYP) {
+                                    classesToVisit.add((ClassSymbol)supertype.tsym);
+                                    baseClasses.add((ClassSymbol)supertype.tsym);
+                                }
+                            }
+
+                            visitedClasses.add(cSym.fullname.toString());
+                        }
+                    }
+                    else {
+                        JFXClassDeclaration cDecl = fxClasses.get(cSym);
+
+                        if (cDecl != null && cDecl.defs != null) {
+                            for (JCTree def : cDecl.defs) {
+                                if (def.getTag() == JavafxTag.FUNCTION_DEF) {
+                                    MethodSymbol meth = (MethodSymbol)((JFXOperationDefinition)def).sym;
+                                    StringBuilder nameSigBld = new StringBuilder();
+                                    nameSigBld.append(meth.name.toString());
+                                    nameSigBld.append(":");
+                                    nameSigBld.append(meth.getReturnType().toString());
+                                    nameSigBld.append(":");
+                                    for (VarSymbol param : meth.getParameters()) {
+                                        nameSigBld.append(param.type.toString());
+                                        nameSigBld.append(":");
+                                    }
+                                    
+                                    String nameSig = nameSigBld.toString();
+                                    if (def.pos == Position.NOPOS || collectedMethods.containsKey(nameSig)) {
+                                        continue;
+                                    }
+                                    
+                                    collectedMethods.put(nameSig, meth);
+                                    methods.add(meth);
+                                }
+                                else if (def.getTag() == JavafxTag.VAR_DEF) {
+                                    VarSymbol var = (VarSymbol)((JFXVar)def).sym;
+                                    
+                                    if (def.pos == Position.NOPOS || var.owner.kind != Kinds.TYP) {
+                                        continue;
+                                    }
                                     
                                     String name = var.name.toString();
                                     
@@ -546,10 +598,9 @@ public class JavafxInitializationBuilder {
                             for (JCExpression supertype : cDecl.supertypes) {
                                 if (supertype.type != null && supertype.type.tsym != null && supertype.type.tsym.kind == Kinds.TYP) {
                                     classesToVisit.add((ClassSymbol)supertype.type.tsym);
+                                    baseClasses.add((ClassSymbol)supertype.type.tsym);
                                 }
                             }
-                            
-                            // TODO: Add all the base classes/interfaces to the classesToVisit List
                             
                             visitedClasses.add(cSym.fullname.toString());
                         }
@@ -584,6 +635,10 @@ public class JavafxInitializationBuilder {
         }
         
         fxClasses.put(csym, cdecl);
+    }
+    
+    public void clearCaches() {
+        fxClasses = null;
     }
 }
 
