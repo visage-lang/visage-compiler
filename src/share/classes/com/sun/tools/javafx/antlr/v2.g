@@ -443,13 +443,13 @@ classDefinition returns [JFXClassDeclaration value]
 	                                	        $supers.ids.toList(), $interfaces.ids.toList(), 
 	                                	        $classMembers.mems.toList()); } ;
 supers returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>()]
-	: (EXTENDS id1=qualident           	{ $ids.append($id1.expr); }
-           ( COMMA idn=qualident           	{ $ids.append($idn.expr); } )* 
+	: (EXTENDS id1=typeName           	{ $ids.append($id1.expr); }
+           ( COMMA idn=typeName           	{ $ids.append($idn.expr); } )* 
 	  )?
 	;
 interfaces returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>()]
-	: (IMPLEMENTS id1=qualident           	{ $ids.append($id1.expr); }
-           ( COMMA idn=qualident         	{ $ids.append($idn.expr); } )* 
+	: (IMPLEMENTS id1=typeName           	{ $ids.append($id1.expr); }
+           ( COMMA idn=typeName         	{ $ids.append($idn.expr); } )* 
 	  )?
 	;
 classMembers returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]
@@ -746,8 +746,8 @@ primaryExpression  returns [JCExpression expr]
 	: qualident						{ $expr = $qualident.expr; }
 		( LBRACE  objectLiteral RBRACE 			{ $expr = F.at(pos($LBRACE)).PureObjectLiteral($expr, $objectLiteral.parts.toList()); } 
 		)?
-       	| THIS							{ $expr = F.at(pos($THIS)).Identifier(names._this); }
-       	| SUPER							{ $expr = F.at(pos($SUPER)).Identifier(names._super); }
+       	| THIS							{ $expr = F.at(pos($THIS)).Ident(names._this); }
+       	| SUPER							{ $expr = F.at(pos($SUPER)).Ident(names._super); }
        	| stringExpression 					{ $expr = $stringExpression.expr; }
        	| bracketExpression 					{ $expr = $bracketExpression.expr; }
        	| literal 						{ $expr = $literal.expr; }
@@ -757,10 +757,10 @@ primaryExpression  returns [JCExpression expr]
        	;
 newExpression  returns [JCExpression expr] 
 @init { ListBuffer<JCExpression> args = null; }
-	: NEW  qualident  
+	: NEW  typeName  
 		( (LPAREN)=>LPAREN expressionListOpt  RPAREN 	{ args = $expressionListOpt.args; } 
 		)?
-								{ $expr = F.at(pos($NEW)).Instanciate(null, null, $qualident.expr, 
+								{ $expr = F.at(pos($NEW)).Instanciate(null, null, $typeName.expr, 
 												(args==null? new ListBuffer<JCExpression>() : args).toList(), null); }
 		   //TODO: need anonymous subclasses
 	;
@@ -858,16 +858,49 @@ literal  returns [JCExpression expr]
 	| t=FALSE   			{ $expr = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 0); }
 	| t=NULL 			{ $expr = F.at(pos($t)).Literal(TypeTags.BOT, null); } 
 	;
+	
 typeName  returns [JCExpression expr]
-       : qualident            		{ $expr = $qualident.expr; } 
-       ;
+	: qualident 			{ $expr = $qualident.expr; }
+		(typeArguments		{ $expr = F.TypeApply($expr, $typeArguments.exprbuff.toList()); }
+		)?
+	;
+
+typeArguments  returns [ListBuffer<JCExpression> exprbuff = ListBuffer.<JCExpression>lb()]
+	: LT ta0=typeArgument 		{ $exprbuff.append($ta0.expr); }
+	     (COMMA tan=typeArgument	{ $exprbuff.append($tan.expr); }
+	     )* 
+	  GT
+	;
+	
+typeArgument  returns [JCExpression expr]
+@init { BoundKind bk = BoundKind.UNBOUND; JCExpression texpr = null; }
+	: typeName			{ $expr = $typeName.expr; }
+	| QUES (  ( EXTENDS 		{ bk = BoundKind.EXTENDS; }
+		  | SUPER		{ bk = BoundKind.SUPER; }
+		  ) 
+		 typeName		{ texpr = $typeName.expr; }
+	       )?			{ $expr = F.at(pos($QUES)).Wildcard(
+	       					F.TypeBoundKind(bk), texpr); }
+	;
+	
 qualident returns [JCExpression expr]
-       : identifier            		{ $expr = $identifier.expr; }
-         ( (DOT)=> DOT name     	{ $expr = F.at($name.pos).Select($expr, $name.value); } 
-         ) *  ;
+       : n0=plainName            	{ $expr = F.at($n0.pos).Ident($n0.value); } 
+         ( (DOT)=> DOT nn=plainName     { $expr = F.at($nn.pos).Select($expr, $nn.value); } 
+         ) *  
+       | frenchName			{ $expr = F.at($frenchName.pos).Identifier($frenchName.value); }
+         ( (DOT)=> DOT nn=plainName     { $expr = F.at($nn.pos).Select($expr, $nn.value); } 
+         ) *  
+       ;
 identifier  returns [JCIdent expr]
 	: name              		{ $expr = F.at($name.pos).Ident($name.value); } 
 	;
 name returns [Name value, int pos]
-	: tokid=( QUOTED_IDENTIFIER | IDENTIFIER ) { $value = Name.fromString(names, $tokid.text); $pos = pos($tokid); } 
+	: plainName			{ $value = $plainName.value; $pos = $plainName.pos; }
+	| frenchName			{ $value = $frenchName.value; $pos = $frenchName.pos; }
+	;
+plainName returns [Name value, int pos]
+	: IDENTIFIER			{ $value = Name.fromString(names, $IDENTIFIER.text); $pos = pos($IDENTIFIER); } 
+	;
+frenchName returns [Name value, int pos]
+	: QUOTED_IDENTIFIER		{ $value = Name.fromString(names, $QUOTED_IDENTIFIER.text); $pos = pos($QUOTED_IDENTIFIER); } 
 	;
