@@ -26,10 +26,10 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
-import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Scope.Entry;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.code.Type;
@@ -42,11 +42,9 @@ import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Position;
-import com.sun.tools.javafx.code.JavafxMethodSymbol;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxSymtab;
-import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,6 +74,7 @@ public class JavafxInitializationBuilder {
     private final Name userInitName;
     private final Name receiverName;
     private final Name initializeName;
+    private final Name numberFieldsName;
     
     private Map<ClassSymbol, JFXClassDeclaration> fxClasses;
 
@@ -106,6 +105,7 @@ public class JavafxInitializationBuilder {
         userInitName = names.fromString("userInit$");
         receiverName = names.fromString("receiver");
         initializeName = names.fromString("initialize$");
+        numberFieldsName = names.fromString("NUM$FIELDS");
     }
     
     static class TranslatedAttributeInfo {
@@ -344,6 +344,22 @@ public class JavafxInitializationBuilder {
         
         ListBuffer<JCExpression> implementing = new ListBuffer<JCExpression>();
         implementing.append(make.Identifier("com.sun.javafx.runtime.FXObject"));
+
+        for (ClassSymbol baseClass : baseClasses) {
+            implementing.append(make.Ident(names.fromString(baseClass.name.toString() + interfaceNameSuffix)));
+        }
+        
+        JCExpression intIdent = make.TypeIdent(TypeTags.INT);
+        
+        JCVariableDecl numFieldsVar = make.VarDef(
+                make.Modifiers(Flags.PRIVATE | Flags.STATIC | Flags.FINAL), numberFieldsName, intIdent, make.Literal(new Integer(attributes.size())));
+        
+        VarSymbol numFieldsVarSym = new VarSymbol(numFieldsVar.mods.flags, numberFieldsName, intIdent.type, cDecl.sym);
+        numFieldsVar.sym = numFieldsVarSym;
+        numFieldsVarSym.type = intIdent.type;
+        
+        cDecl.defs = cDecl.defs.append(numFieldsVar);
+
         ListBuffer<JCTree> iDefinitions = new ListBuffer<JCTree>();
         Map<JFXClassDeclaration, ListBuffer<VarMorphInfo>> attrsInfoMap = new HashMap<JFXClassDeclaration, ListBuffer<VarMorphInfo>>();
         ListBuffer<VarMorphInfo> attrInfos = new ListBuffer<VarMorphInfo>();
@@ -360,11 +376,12 @@ public class JavafxInitializationBuilder {
         
         addInterfaceAttributeMethods(iDefinitions, attrInfos);
         Name interfaceName = names.fromString(cDecl.name.toString() + interfaceNameSuffix);
-        JCClassDecl cInterface = make.ClassDef(make.Modifiers(cDecl.mods.flags | Flags.INTERFACE | Flags.ABSTRACT),
+        JCClassDecl cInterface = make.ClassDef(make.Modifiers((cDecl.mods.flags & (~Flags.STATIC)) | Flags.INTERFACE),
                 interfaceName, 
                 List.<JCTypeParameter>nil(), null, implementing.toList(), iDefinitions.toList());
         
         cDecl.implementing = cDecl.implementing.append(make.Ident(interfaceName));
+// TODO: Enable this code when methods are handled.        cDecl.extending = null;
         
         addClassAttributeMethods(cDecl, attrInfos);
         
@@ -641,4 +658,5 @@ public class JavafxInitializationBuilder {
         fxClasses = null;
     }
 }
+
 
