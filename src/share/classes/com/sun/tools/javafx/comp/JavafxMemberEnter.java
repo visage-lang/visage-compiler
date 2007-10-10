@@ -474,27 +474,27 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
     @Override
     public void visitImport(JCImport tree) {
+        JCTree imp = tree.qualid;
+        Name name = TreeInfo.name(imp);
+        TypeSymbol p;
+
         if (!tree.isStatic()) {
             if (tree.qualid.getTag() == SELECT) {
-                if (((JCFieldAccess)tree.qualid).name == names.fromString("Integer")) { // TODO: use the constant in the new NameTable when available.
+                if (name == names.fromString("Integer")) { // TODO: use the constant in the new NameTable when available.
                     log.error(tree.pos, "javafx.can.not.import.integer.primitive.type");
                 }
-                else if (((JCFieldAccess)tree.qualid).name == names.fromString("Number")) { // TODO: use the constant in the new NameTable when available.
+                else if (name == names.fromString("Number")) { // TODO: use the constant in the new NameTable when available.
                     log.error(tree.pos, "javafx.can.not.import.number.primitive.type");
                 }
-                else if (((JCFieldAccess)tree.qualid).name == names.fromString("Boolean")) { // TODO: use the constant in the new NameTable when available.
+                else if (name == names.fromString("Boolean")) { // TODO: use the constant in the new NameTable when available.
                     log.error(tree.pos, "javafx.can.not.import.boolean.primitive.type");
                 }
-                else if (((JCFieldAccess)tree.qualid).name == names.fromString("String")) { // TODO: use the constant in the new NameTable when available.
+                else if (name == names.fromString("String")) { // TODO: use the constant in the new NameTable when available.
                     log.error(tree.pos, "javafx.can.not.import.string.primitive.type");
                 }
             }
         }
         
-        JCTree imp = tree.qualid;
-        Name name = TreeInfo.name(imp);
-        TypeSymbol p;
-
         // Create a local environment pointing to this tree to disable
         // effects of other imports in Resolve.findGlobalType
         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree);
@@ -566,7 +566,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
         Scope enclScope = enter.enterScope(env);
         VarSymbol v = new JavafxVarSymbol(0, tree.name, tree.getJFXType().type, 
-                    tree.isBound(), tree.isLazy(), enclScope.owner);
+                                     enclScope.owner);
 
         v.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, v, tree);
         tree.sym = v;

@@ -31,18 +31,11 @@ import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.util.Name;
 
 /**
- *
+ * Marker wrapper on class: this is a JavaFX var
+ * 
  * @author llitchev
  */
 public class JavafxVarSymbol extends VarSymbol {
-    private final boolean isBound;
-    private final boolean isLazy;
-    private Type realType;
-    private boolean shouldMorph = false;
-    private boolean haveDeterminedMorphability = false;
-    private boolean isBoundTo = false;
-    private boolean isAssignedTo = false;
-    
     public static final int TYPE_KIND_OBJECT = 0;
     public static final int TYPE_KIND_DOUBLE = 1;
     public static final int TYPE_KIND_BOOLEAN = 2;
@@ -50,38 +43,11 @@ public class JavafxVarSymbol extends VarSymbol {
     public static final int TYPE_KIND_SEQUENCE = 4;
     public static final int TYPE_KIND_COUNT = 5;
     
-    private int typeKind;
-    
     /** Creates a new instance of JavafxVarSymbol */
     public JavafxVarSymbol(long flags,
             Name name,
             Type type,
-            boolean isBound,
-            boolean isLazy,
             Symbol owner) {
         super(flags, name, type, owner);
-        this.isBound = isBound;
-        this.isLazy = isLazy;
-        this.realType = type;
     }
-    
-    public boolean isBound() { return isBound; }
-    public boolean isLazy() { return isLazy; }
-    public void markShouldMorph() { shouldMorph = true; }
-    public void markDeterminedMorphability() { haveDeterminedMorphability = true; }
-    public boolean shouldMorph() { return shouldMorph; }
-    public boolean haveDeterminedMorphability() { return haveDeterminedMorphability; }
-    public Type getRealType() { return realType; }
-    public void setRealType(Type t) { realType = t; }
-    public Type getUsedType() { return type; }
-    public void setUsedType(Type usedType) { type = usedType; }
-    
-    public boolean isBoundTo() { return isBoundTo; }
-    public boolean isAssignedTo() { return isAssignedTo; }
-    public void markBoundTo() { this.isBoundTo = true; }
-    public void markAssignedTo() { this.isAssignedTo = true; }
-
-    public int getTypeKind() { return typeKind; }
-    public void setTypeKind(int typeKind) { this.typeKind = typeKind; }
-    
 }
