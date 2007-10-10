@@ -71,12 +71,18 @@ public class JavafxInitializationBuilder {
     private final Name interfaceNameSuffix;
     private final String attributeGetMethodNamePrefix = "get$";
     private final String attributeInitMethodNamePrefix = "init$";
+    private final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
     private final Name locationName;
     private final Name setDefaultsName;
     private final Name userInitName;
     private final Name receiverName;
     private final Name initializeName;
     private final Name numberFieldsName;
+    private final Name getNumFieldsName;
+    private final Name initHelperName;
+    private final String assertNonNullName = "assertNonNull";
+    private final String addName = "add";
+    private final Name initializeNonSyntheticName;
     
     private Map<ClassSymbol, JFXClassDeclaration> fxClasses;
 
@@ -108,6 +114,9 @@ public class JavafxInitializationBuilder {
         receiverName = names.fromString("receiver");
         initializeName = names.fromString("initialize$");
         numberFieldsName = names.fromString("NUM$FIELDS");
+        getNumFieldsName = names.fromString("getNumFields$");
+        initHelperName = names.fromString("initHelper$");
+        initializeNonSyntheticName = names.fromString("initialize");
     }
     
     static class TranslatedAttributeInfo {
@@ -447,7 +456,21 @@ public class JavafxInitializationBuilder {
                     statBlock, null));
 
             // Add the init$ method
-            JCBlock initBlock = make.Block(0L, List.<JCStatement>nil());
+            // Add the InitHelper.assertNonNull(...) call
+            List<JCStatement> initBlockStats = List.<JCStatement>nil();
+            List<JCExpression> initAssertArgs = List.<JCExpression>nil();
+            initAssertArgs = initAssertArgs.append(make.Ident(attrInfo.name));
+            initAssertArgs = initAssertArgs.append(make.Literal(new String(cdef.name.toString() + "." + attrInfo.name.toString())));
+            
+            initBlockStats = initBlockStats.append(toJava.callStatement(cdef.pos(), make.Identifier(initHelperClassName), assertNonNullName, initAssertArgs));
+
+            // Add the initHelper$.add(...) call
+            List<JCExpression> initAddArgs = List.<JCExpression>nil();
+            initAddArgs = initAddArgs.append(make.Assign(make.Ident(attrInfo.name), make.Ident(locationName)));
+            
+            initBlockStats = initBlockStats.append(toJava.callStatement(cdef.pos(), make.Ident(initHelperName), addName, initAddArgs));
+            
+            JCBlock initBlock = make.Block(0L, initBlockStats);
             List<JCVariableDecl> locationVarDeclList = List.<JCVariableDecl>nil();
             locationVarDeclList = locationVarDeclList.append(make.VarDef(make.Modifiers(0L),
                     locationName, toJava.makeTypeTree(attrInfo.type, null), null));
@@ -460,6 +483,29 @@ public class JavafxInitializationBuilder {
                     List.<JCExpression>nil(), 
                     initBlock, null));
         }
+        
+        // Add the getNumFields$ method
+        List<JCStatement> numFieldsStats = List.<JCStatement>nil();
+        numFieldsStats = numFieldsStats.append(make.Return(make.Ident(numberFieldsName)));
+        
+        JCBlock numFieldsBlock = make.Block(0L, numFieldsStats);
+        cdef.defs = cdef.defs.append(make.MethodDef(
+                make.Modifiers(Flags.PUBLIC | Flags.STATIC),
+                getNumFieldsName,
+                toJava.makeTypeTree(syms.intType, null),
+                List.<JCTypeParameter>nil(), 
+                List.<JCVariableDecl>nil(), 
+                List.<JCExpression>nil(), 
+                numFieldsBlock, null));
+
+        // Add the InitHelper field
+        List<JCExpression> ncArgs = List.<JCExpression>nil();
+        ncArgs = ncArgs.append(make.Ident(numberFieldsName));
+        
+        JCNewClass newIHClass = make.NewClass(null, List.<JCExpression>nil(), make.Identifier(initHelperClassName), ncArgs, null);
+        
+        cdef.defs = cdef.defs.append(make.VarDef(make.Modifiers(Flags.PRIVATE),
+                initHelperName, make.Identifier(initHelperClassName), newIHClass));
         
         // Add the setDefaults$ method
         List<JCVariableDecl> receiverVarDeclList = List.<JCVariableDecl>nil();
@@ -499,7 +545,14 @@ public class JavafxInitializationBuilder {
             setDefaultsName.toString(), make.TypeCast(make.Ident(names.fromString(cdef.name.toString() + interfaceNameSuffix)), make.Ident(names._this))));
         initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(cdef.name)/*TODO: Add the class suffix*/, 
             userInitName.toString(), make.TypeCast(make.Ident(names.fromString(cdef.name.toString() + interfaceNameSuffix)), make.Ident(names._this))));
-        // TODO: Add init helper calls...
+        
+        // Add a call to initialize the attributes using the initHelper$.initialize();
+        initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(initHelperName), 
+            initializeNonSyntheticName.toString()));
+        
+        // Set the initHelper = null;
+        initializeStats = initializeStats.append(make.Exec(make.Assign(make.Ident(initHelperName), make.Literal(TypeTags.BOT, null))));
+        
         JCBlock initializeBlock = make.Block(0L, initializeStats);
         cdef.defs = cdef.defs.append(make.MethodDef(
                 make.Modifiers(Flags.PUBLIC),
