@@ -219,7 +219,9 @@
     </target>
 
     <target name="runtime" depends="jar">
-        <ant dir="runtime" antfile="build.xml" target="jar" inheritall="false"/>
+        <ant dir="runtime" antfile="build.xml" target="jar" inheritall="false">
+            <property name="junit.class.path" value="${junit.class.path}" />
+        </ant>
     </target>
 
 </project>
