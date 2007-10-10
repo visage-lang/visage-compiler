@@ -869,7 +869,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         JavafxEnv<JavafxAttrContext> dupEnv = env.dup(tree);
         owntype = attribTree(tree.lhs, dupEnv, VAR, Type.noType);
         boolean hasLhsType = false;
-        if (owntype == null || owntype == syms.javafx_AnyType) {
+        if (owntype == null || owntype == syms.javafx_UnspecifiedType) {
             owntype = attribExpr(tree.rhs, env, Type.noType);
             hasLhsType = false;
         }
@@ -1884,10 +1884,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         Type left = chk.checkNonVoid(tree.lhs.pos(), attribExpr(tree.lhs, env));
         Type right = chk.checkNonVoid(tree.rhs.pos(), attribExpr(tree.rhs, env));
 // Javafx change
-        if (left == syms.javafx_AnyType) {
+        if (left == syms.javafx_UnspecifiedType) {
             left = setEffectiveExpressionType(tree.lhs, newTypeFromType(getEffectiveExpressionType(right)));
         }
-        else if (right == syms.javafx_AnyType) {
+        else if (right == syms.javafx_UnspecifiedType) {
             right = setEffectiveExpressionType(tree.rhs, newTypeFromType(getEffectiveExpressionType(left)));
         }
  // Javafx change
@@ -2289,9 +2289,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                      || (itemType == syms.javafx_NumberType && elemType == syms.javafx_IntegerType)) {
                         elemType = syms.javafx_NumberType; // number and int go to number
                     } else if (itemType.isPrimitive() || elemType.isPrimitive()) {
-                        elemType = syms.objectType; // only place to go is to Object
+                        elemType = syms.javafx_AnyType; // only place to go is to Object
                     } else {
-                        elemType = syms.objectType; //TODO: punt for now
+                        elemType = syms.javafx_AnyType; //TODO: punt for now
                     }
                 }
             }
@@ -2482,7 +2482,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitTypeUnknown(JFXTypeUnknown tree) {
-        result = tree.type = syms.javafx_AnyType;
+        result = tree.type = syms.javafx_UnspecifiedType;
     }
     
     @Override

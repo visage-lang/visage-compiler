@@ -61,7 +61,8 @@ public class JavafxSymtab extends Symtab {
         
         javafx_IntegerType = intType;
         javafx_NumberType = doubleType;
-        javafx_AnyType = unknownType;
+        javafx_AnyType = objectType;
+        javafx_UnspecifiedType = unknownType;
         javafx_StringType = stringType;
         javafx_BooleanType = booleanType;
         javafx_VoidType = voidType;
@@ -79,6 +80,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_IntegerType;
     public final Type javafx_NumberType;
     public final Type javafx_AnyType;
+    public final Type javafx_UnspecifiedType;
     public final Type javafx_StringType;
     public final Type javafx_BooleanType;
     public final Type javafx_VoidType;

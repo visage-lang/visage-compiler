@@ -573,7 +573,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
         tree.sym = v;
         
-        if (owntype == syms.javafx_AnyType) {
+        if (owntype == syms.javafx_UnspecifiedType) {
             // the type isn't declared
             if (tree.init == null) {
                 owntype = syms.objectType;  // nothing to go on, so we assume Object
@@ -662,7 +662,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             } else {
                 // infer the type from the body
                 if (opVal.getBodyExpression().value == null) {
-                    returnType = syms.javafx_VoidType;
+                    returnType = syms.javafx_VoidType;  //TODO: this is wrong if there is a return statement
                 } else {
                     returnType = attr.attribExpr(opVal.getBodyExpression(), localEnv);
                 }
@@ -682,7 +682,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         if (methodsToInferReturnType != null) { 
             for (MethodInferTypeHelper methodDeclHelper : methodsToInferReturnType) {
                 JFXOperationValue operation = methodDeclHelper.method.operation;
-                if (operation.rettype.type == syms.javafx_AnyType &&
+                if (operation.rettype.type == syms.javafx_UnspecifiedType &&
                           operation.getBodyExpression() != null) {
                       Type prevMethodReturnType = methodReturnType;
                       methodReturnType = null;
