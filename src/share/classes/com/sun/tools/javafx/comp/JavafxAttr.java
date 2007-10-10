@@ -51,6 +51,7 @@ import java.util.*;
 import java.util.Set;
 import javax.lang.model.element.ElementKind;
 import javax.tools.JavaFileObject;
+import com.sun.tools.javafx.code.FunctionType;
 
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.jvm.*;
@@ -2458,8 +2459,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitTypeFunctional(JFXTypeFunctional tree) {
-        Type rtype = attribType(tree.restype, env);
-        rtype = new WildcardType(rtype, BoundKind.EXTENDS, syms.boundClass);
+        Type restype = attribType(tree.restype, env);
+        Type rtype = new WildcardType(restype, BoundKind.EXTENDS, syms.boundClass);
 
         ListBuffer<Type> typarams = new ListBuffer<Type>();
         typarams.append(rtype);
@@ -2473,7 +2474,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         assert nargs <= syms.MAX_FIXED_PARAM_LENGTH
                 : "NOT IMPLEMENTED - functions with >"+syms.MAX_FIXED_PARAM_LENGTH+" parameters";
         Type funtype = syms.javafx_FunctionTypes[nargs];
-        Type type = new ClassType(funtype.getEnclosingType(), typarams.toList(), funtype.tsym);
+        Type type = new FunctionType(funtype.getEnclosingType(), typarams.toList(), funtype.tsym, restype);
         type = sequenceType(type, tree.getCardinality());
         tree.type = type;
         result = type; 
@@ -3113,10 +3114,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 log.warning(TreeInfo.diagnosticPositionFor(svuid, tree), "constant.SVUID", c);
         }
 
-// JavaFX change
-    protected
-// JavaFX change
-    /*private*/ Type capture(Type type) {
-        return types.capture(type);
+    protected Type capture(Type type) {
+        Type ctype = types.capture(type);
+        if (type instanceof FunctionType) {
+            ctype = new FunctionType(type.getEnclosingType(), ((ClassType) type).typarams_field,
+                    type.tsym, type.getReturnType());
+        }
+        return ctype;
     }
 }

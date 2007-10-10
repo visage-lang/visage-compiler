@@ -44,7 +44,7 @@ import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-
+import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxBindStatus;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedAttributeInfo;
@@ -1284,6 +1284,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     public void visitApply(JCMethodInvocation tree) {
         List<JCExpression> typeargs = translate(tree.typeargs);
         JCExpression meth = translate(tree.meth);
+        Type mtype = meth.type;
+        if (mtype instanceof FunctionType) {
+            Name invoke = Name.fromString(names, "invoke");
+            Scope.Entry e = mtype.tsym.members().lookup(invoke);
+            meth = make.Select(meth, e.sym);
+        }
         List<JCExpression> args = translate(tree.args);
         result = make.at(tree.pos).Apply(typeargs, meth, args);
     }
