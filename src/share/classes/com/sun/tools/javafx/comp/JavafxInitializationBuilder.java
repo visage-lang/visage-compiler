@@ -27,12 +27,14 @@ package com.sun.tools.javafx.comp;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Scope.Entry;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
@@ -323,9 +325,9 @@ public class JavafxInitializationBuilder {
     
     List<JCStatement> createJFXClassModel(JFXClassDeclaration cDecl, JavafxTypeMorpher typeMorpher) {
         Set<String> visitedClasses = new HashSet<String>();
-        Map<String, VarSymbol> collectedAttributes = new HashMap<String, VarSymbol>();
+        Map<String, Symbol> collectedAttributes = new HashMap<String, Symbol>();
         Map<String, MethodSymbol> collectedMethods = new HashMap<String, MethodSymbol>();
-        java.util.List<VarSymbol> attributes = new java.util.ArrayList<VarSymbol>();
+        java.util.List<Symbol> attributes = new java.util.ArrayList<Symbol>();
         java.util.List<MethodSymbol> methods = new java.util.ArrayList<MethodSymbol>();
         java.util.List<ClassSymbol> baseClasses = new java.util.ArrayList<ClassSymbol>();
         java.util.List<ClassSymbol> classesToVisit = new java.util.ArrayList<ClassSymbol>();
@@ -361,16 +363,22 @@ public class JavafxInitializationBuilder {
         cDecl.defs = cDecl.defs.append(numFieldsVar);
 
         ListBuffer<JCTree> iDefinitions = new ListBuffer<JCTree>();
-        Map<JFXClassDeclaration, ListBuffer<VarMorphInfo>> attrsInfoMap = new HashMap<JFXClassDeclaration, ListBuffer<VarMorphInfo>>();
-        ListBuffer<VarMorphInfo> attrInfos = new ListBuffer<VarMorphInfo>();
-        attrsInfoMap.put(cDecl, attrInfos);
-        for (JCTree def : cDecl.defs) {
-            if (def.getTag() == JavafxTag.VAR_DEF) {
-                if (((JFXVar)def).sym.owner.kind == Kinds.TYP) {
-                    VarMorphInfo vmi = typeMorpher.varMorphInfo(((JFXVar)def).sym);
-                    vmi.shouldMorph();
-                    attrInfos.append(vmi);
+        ListBuffer<AttributeWrapper> attrInfos = new ListBuffer<AttributeWrapper>();
+        for (Symbol attrSym : attributes) {
+            if (attrSym.kind == Kinds.VAR) {
+                VarSymbol varSym = (VarSymbol)attrSym;
+                VarMorphInfo vmi = typeMorpher.varMorphInfo(varSym);
+                vmi.shouldMorph();
+                attrInfos.append(new AttributeWrapper(varSym, vmi.getUsedType(), varSym.name));
+            }
+            else {
+                if (attrSym.kind != Kinds.MTH) {
+                    throw new AssertionError("Invalid attribute type collected");
                 }
+                
+                MethodSymbol methodSym = (MethodSymbol)attrSym;
+                attrInfos.append(new AttributeWrapper(null, ((MethodType)methodSym.type).restype,
+                        names.fromString(methodSym.name.toString().substring(attributeGetMethodNamePrefix.length()))));
             }
         }
         
@@ -390,12 +398,12 @@ public class JavafxInitializationBuilder {
         return ret.toList();
     }
     
-    private void addInterfaceAttributeMethods(ListBuffer<JCTree> idefs, ListBuffer<VarMorphInfo> attrInfos) {
-        for (VarMorphInfo attrInfo : attrInfos) {            
+    private void addInterfaceAttributeMethods(ListBuffer<JCTree> idefs, ListBuffer<AttributeWrapper> attrInfos) {
+        for (AttributeWrapper attrInfo : attrInfos) {            
             idefs.append(make.MethodDef(
                     make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT),
-                    names.fromString(attributeGetMethodNamePrefix + attrInfo.varSymbol.name.toString()),
-                    toJava.makeTypeTree(attrInfo.getUsedType(), null),
+                    names.fromString(attributeGetMethodNamePrefix + attrInfo.name.toString()),
+                    toJava.makeTypeTree(attrInfo.type, null),
                     List.<JCTypeParameter>nil(), 
                     List.<JCVariableDecl>nil(), 
                     List.<JCExpression>nil(), 
@@ -403,10 +411,11 @@ public class JavafxInitializationBuilder {
 
             List<JCVariableDecl> locationVarDeclList = List.<JCVariableDecl>nil();
                 locationVarDeclList = locationVarDeclList.append(make.VarDef(make.Modifiers(0L),
-                    locationName, toJava.makeTypeTree(attrInfo.getUsedType(), null), null));
+                    locationName, toJava.makeTypeTree(attrInfo.type, null), null));
+                
             idefs.append(make.MethodDef(
                     make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT),
-                    names.fromString(attributeInitMethodNamePrefix + attrInfo.varSymbol.name.toString()),
+                    names.fromString(attributeInitMethodNamePrefix + attrInfo.name.toString()),
                     toJava.makeTypeTree(syms.voidType, null),
                     List.<JCTypeParameter>nil(), 
                     locationVarDeclList, 
@@ -415,22 +424,23 @@ public class JavafxInitializationBuilder {
         }
     }
 
-    private void addClassAttributeMethods(JFXClassDeclaration cdef, ListBuffer<VarMorphInfo> attrInfos) {
-        for (VarMorphInfo attrInfo : attrInfos) { 
+    private void addClassAttributeMethods(JFXClassDeclaration cdef, ListBuffer<AttributeWrapper> attrInfos) {
+        for (AttributeWrapper attrInfo : attrInfos) { 
+// TODO: Add attributes gotten from interface introspection.
             List<JCStatement> stats = List.<JCStatement>nil();
             
             // Add the return stastement for the attribute
             JCBlock statBlock = make.Block(0L, stats);
             
-            JCReturn returnStat = make.Return(make.Ident(attrInfo.varSymbol.name));
+            JCReturn returnStat = make.Return(make.Ident(attrInfo.name));
             stats = stats.append(returnStat);
             statBlock.stats = stats;
             
             // Add the method for this class' attributes
             cdef.defs = cdef.defs.append(make.MethodDef(
                     make.Modifiers(Flags.PUBLIC),
-                    names.fromString(attributeGetMethodNamePrefix + attrInfo.varSymbol.name.toString()),
-                    toJava.makeTypeTree(attrInfo.getUsedType(), null),
+                    names.fromString(attributeGetMethodNamePrefix + attrInfo.name.toString()),
+                    toJava.makeTypeTree(attrInfo.type, null),
                     List.<JCTypeParameter>nil(), 
                     List.<JCVariableDecl>nil(), 
                     List.<JCExpression>nil(), 
@@ -439,11 +449,11 @@ public class JavafxInitializationBuilder {
             // Add the init$ method
             JCBlock initBlock = make.Block(0L, List.<JCStatement>nil());
             List<JCVariableDecl> locationVarDeclList = List.<JCVariableDecl>nil();
-                locationVarDeclList = locationVarDeclList.append(make.VarDef(make.Modifiers(0L),
-                    locationName, toJava.makeTypeTree(attrInfo.getUsedType(), null), null));
+            locationVarDeclList = locationVarDeclList.append(make.VarDef(make.Modifiers(0L),
+                    locationName, toJava.makeTypeTree(attrInfo.type, null), null));
             cdef.defs = cdef.defs.append(make.MethodDef(
                     make.Modifiers(Flags.PUBLIC),
-                    names.fromString(attributeInitMethodNamePrefix + attrInfo.varSymbol.name.toString()),
+                    names.fromString(attributeInitMethodNamePrefix + attrInfo.name.toString()),
                     toJava.makeTypeTree(syms.voidType, null),
                     List.<JCTypeParameter>nil(), 
                     locationVarDeclList, 
@@ -502,9 +512,9 @@ public class JavafxInitializationBuilder {
     }
 
     private void collectAttributesAndMethods(Set<String> visitedClasses,
-                                             Map<String, VarSymbol> collectedAttributes,
+                                             Map<String, Symbol> collectedAttributes,
                                              Map<String, MethodSymbol> collectedMethods,
-                                             java.util.List<VarSymbol> attributes,
+                                             java.util.List<Symbol> attributes,
                                              java.util.List<MethodSymbol> methods,
                                              java.util.List<ClassSymbol> baseClasses,
                                              java.util.List<ClassSymbol> classesToVisit) {
@@ -519,23 +529,35 @@ public class JavafxInitializationBuilder {
                             for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
                                 if (e.sym.kind == Kinds.MTH) {
                                     MethodSymbol meth = (MethodSymbol)e.sym;
-                                    StringBuilder nameSigBld = new StringBuilder();
-                                    nameSigBld.append(meth.name.toString());
-                                    nameSigBld.append(":");
-                                    nameSigBld.append(meth.getReturnType().toString());
-                                    nameSigBld.append(":");
-                                    for (VarSymbol param : meth.getParameters()) {
-                                        nameSigBld.append(param.type.toString());
+                                    String methName = meth.name.toString();
+                                    if (!methName.startsWith(attributeGetMethodNamePrefix)) {
+                                        StringBuilder nameSigBld = new StringBuilder();
+                                        nameSigBld.append(methName.toString());
                                         nameSigBld.append(":");
+                                        nameSigBld.append(meth.getReturnType().toString());
+                                        nameSigBld.append(":");
+                                        for (VarSymbol param : meth.getParameters()) {
+                                            nameSigBld.append(param.type.toString());
+                                            nameSigBld.append(":");
+                                        }
+
+                                        String nameSig = nameSigBld.toString();
+                                        if (collectedMethods.containsKey(nameSig)) {
+                                            continue;
+                                        }
+
+                                        collectedMethods.put(nameSig, meth);
+                                        methods.add(meth);
                                     }
-                                    
-                                    String nameSig = nameSigBld.toString();
-                                    if (collectedMethods.containsKey(nameSig)) {
-                                        continue;
+                                    else {
+                                        String nameSig = methName.substring(attributeGetMethodNamePrefix.length());
+                                        if (collectedAttributes.containsKey(nameSig)) {
+                                            continue;
+                                        }
+
+                                        collectedAttributes.put(nameSig, meth);
+                                        attributes.add(meth);
                                     }
-                                    
-                                    collectedMethods.put(nameSig, meth);
-                                    methods.add(meth);
                                 }
                                 else if (e.sym.kind == Kinds.VAR) {
                                     VarSymbol var = (VarSymbol)e.sym;
@@ -657,6 +679,16 @@ public class JavafxInitializationBuilder {
     public void clearCaches() {
         fxClasses = null;
     }
+    
+    static class AttributeWrapper {
+        VarSymbol var;
+        Type type;
+        Name name;
+        
+        AttributeWrapper(VarSymbol var, Type type, Name name) {
+            this.var = var;
+            this.type = type;
+            this.name = name;
+        }
+    }
 }
-
-
