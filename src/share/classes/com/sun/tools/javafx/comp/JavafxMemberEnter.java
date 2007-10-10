@@ -562,22 +562,28 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             localEnv = env.dup(tree, env.info.dup());
             localEnv.info.staticLevel++;
         }
-        attr.attribType(tree.getJFXType(), localEnv);
+        Type owntype = attr.attribType(tree.getJFXType(), localEnv);
 
         Scope enclScope = enter.enterScope(env);
-        VarSymbol v = new JavafxVarSymbol(0, tree.name, tree.getJFXType().type, 
-                                     enclScope.owner);
+        VarSymbol v = new JavafxVarSymbol(0, tree.name, owntype, enclScope.owner);
 
         v.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, v, tree);
-        tree.sym = v;
         if (tree.init != null) {
             v.flags_field |= HASINIT;
-            if (tree.getJFXType().type == syms.javafx_AnyType) {
+        }
+        tree.sym = v;
+        
+        if (owntype == syms.javafx_AnyType) {
+            // the type isn't declared
+            if (tree.init == null) {
+                owntype = syms.objectType;  // nothing to go on, so we assume Object
+            } else {
                 JavafxEnv<JavafxAttrContext> initEnv = initEnv(tree, env);
-                tree.getJFXType().type = attr.attribExpr(tree.init, initEnv, Type.noType);
-                tree.sym.type = tree.getJFXType().type;
+                owntype = attr.attribExpr(tree.init, initEnv, Type.noType);
             }
         }
+        v.type = owntype;
+
         if (chk.checkUnique(tree.pos(), v, enclScope)) {
             chk.checkTransparentVar(tree.pos(), v, enclScope);
             enclScope.enter(v);

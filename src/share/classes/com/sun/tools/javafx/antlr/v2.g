@@ -723,11 +723,13 @@ andExpression  returns [JCExpression expr]
 	: e1=orExpression					{ $expr = $e1.expr; }
 	   (   AND   e2=orExpression				{ $expr = F.at(pos($AND)).Binary(JCTree.AND, $expr, $e2.expr); }   ) * ;
 orExpression  returns [JCExpression expr] 
-	: e1=instanceOfExpression				{ $expr = $e1.expr; }
-	   (   OR   e2=instanceOfExpression			{ $expr = F.at(pos($OR)).Binary(JCTree.OR, $expr, $e2.expr); }    ) * ;
-instanceOfExpression  returns [JCExpression expr] 
+	: e1=typeExpression				{ $expr = $e1.expr; }
+	   (   OR   e2=typeExpression			{ $expr = F.at(pos($OR)).Binary(JCTree.OR, $expr, $e2.expr); }    ) * ;
+typeExpression  returns [JCExpression expr] 
 	: e1=relationalExpression				{ $expr = $e1.expr; }
-	   (   INSTANCEOF qualident				{ $expr = F.at(pos($INSTANCEOF)).TypeTest($expr, $qualident.expr); }   ) ? 
+	   (   INSTANCEOF itn=typeName				{ $expr = F.at(pos($INSTANCEOF)).TypeTest($expr, $itn.expr); }
+	   |   AS atn=typeName					{ $expr = F.at(pos($AS)).TypeCast($atn.expr, $expr); }   
+	   ) ? 
 	;
 relationalExpression  returns [JCExpression expr] 
 	: e1=additiveExpression					{ $expr = $e1.expr; }

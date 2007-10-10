@@ -2289,9 +2289,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                      || (itemType == syms.javafx_NumberType && elemType == syms.javafx_IntegerType)) {
                         elemType = syms.javafx_NumberType; // number and int go to number
                     } else if (itemType.isPrimitive() || elemType.isPrimitive()) {
-                        elemType = syms.javafx_AnyType; // only place to go is to Object
+                        elemType = syms.objectType; // only place to go is to Object
                     } else {
-                        elemType = syms.javafx_AnyType; //TODO: punt for now
+                        elemType = syms.objectType; //TODO: punt for now
                     }
                 }
             }
