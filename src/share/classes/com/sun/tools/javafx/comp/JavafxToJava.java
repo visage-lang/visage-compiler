@@ -583,6 +583,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
+        // Made all the operations public. Per Brian's spec.
+        // If they are left package level it interfere with Multiple Inheritance
+        // The interface methods cannot be package level and an error is reported.
+        {
+            tree.mods.flags &= ~Flags.PROTECTED;
+            tree.mods.flags &= ~Flags.PRIVATE;
+            tree.mods.flags |= Flags.PUBLIC;
+        }
+        
         DiagnosticPosition diagPos = tree.pos();
         MethodType mtype = (MethodType)tree.type;
         JFXBlockExpression bexpr = tree.getBodyExpression();

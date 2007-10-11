@@ -392,6 +392,11 @@ public class JavafxInitializationBuilder {
         }
         
         addInterfaceAttributeMethods(iDefinitions, attrInfos);
+        addClassAttributeMethods(cDecl, attrInfos);
+
+        addInterfaceeMethods(iDefinitions, methods, cDecl);
+        addClassMethods(cDecl, methods);
+        
         Name interfaceName = names.fromString(cDecl.name.toString() + interfaceNameSuffix);
         JCClassDecl cInterface = make.ClassDef(make.Modifiers((cDecl.mods.flags & (~Flags.STATIC)) | Flags.INTERFACE),
                 interfaceName, 
@@ -399,12 +404,34 @@ public class JavafxInitializationBuilder {
         
         cDecl.implementing = cDecl.implementing.append(make.Ident(interfaceName));
 // TODO: Enable this code when methods are handled.        cDecl.extending = null;
-        
-        addClassAttributeMethods(cDecl, attrInfos);
-        
+
         ret.append(cInterface);
         
         return ret.toList();
+    }
+    
+    private void addInterfaceeMethods(ListBuffer<JCTree> iDefinitions, java.util.List<MethodSymbol> methods, JFXClassDeclaration cdecl) {
+        for (MethodSymbol mth : methods) {
+            // Add the non-abstract and non-synthetic JavaFX methods to the class' inetrface
+            if (((mth.flags_field & Flags.ABSTRACT) == 0) &&
+                    ((mth.flags_field & Flags.STATIC) == 0)) {
+                JCMethodDecl methodDecl = make.MethodDef(mth, null);
+                // Made all the operations public. Per Brian's spec.
+                // If they are left package level it interfere with Multiple Inheritance
+                // The interface methods cannot be package level and an error is reported.
+                {
+                    methodDecl.mods.flags &= ~Flags.PROTECTED;
+                    methodDecl.mods.flags &= ~Flags.PRIVATE;
+                    methodDecl.mods.flags |= Flags.PUBLIC;
+                }
+
+                iDefinitions = iDefinitions.append(methodDecl);
+            }
+        }
+    }
+    
+    private void addClassMethods(JFXClassDeclaration cDecl, java.util.List<MethodSymbol> methods) {
+        // TODO:
     }
     
     private void addInterfaceAttributeMethods(ListBuffer<JCTree> idefs, ListBuffer<AttributeWrapper> attrInfos) {
