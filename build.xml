@@ -6,6 +6,7 @@
     <description>Builds, tests, and runs the project JavaFX.</description>
 
     <property name="tools.dir" value="${basedir}/tools"/>
+    <property name="runtime.dir" value="${basedir}/runtime"/>
     <property environment="env" />
     <import file="tools-defs.xml"/>
     <property name="antlr.grammar" value="v2" />
