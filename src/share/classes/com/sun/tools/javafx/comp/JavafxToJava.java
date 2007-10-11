@@ -818,6 +818,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             JCExpression receiver, 
             String method, 
             List<JCExpression> args) {
+        return make.at(diagPos).Exec(callExpression(diagPos, receiver, method, args));
+    }
+    
+    JCExpression callExpression(
+            DiagnosticPosition diagPos,
+            JCExpression receiver, 
+            String method, 
+            List<JCExpression> args) {
         Name methodName = names.fromString(method);
         JCExpression expr = null;
         if (receiver == null) {
@@ -827,10 +835,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             expr = make.at(diagPos).Select(receiver, methodName);
         }
 
-        JCExpression apply = make.at(diagPos).Apply(null, expr, args);
-        return make.at(diagPos).Exec(apply);
+        return make.at(diagPos).Apply(null, expr, args);
     }
-    
+
     private Name getSyntheticName(String kind) {
         return Name.fromString(names, syntheticNamePrefix + syntheticNameCounter++ + kind);
     }

@@ -394,10 +394,10 @@ public class JavafxInitializationBuilder {
         addInterfaceAttributeMethods(iDefinitions, attrInfos);
         addClassAttributeMethods(cDecl, attrInfos);
 
-        addInterfaceeMethods(iDefinitions, methods, cDecl);
-        addClassMethods(cDecl, methods);
-        
         Name interfaceName = names.fromString(cDecl.name.toString() + interfaceNameSuffix);
+        addInterfaceeMethods(iDefinitions, methods, cDecl);
+        addClassMethods(cDecl, methods, interfaceName);
+        
         JCClassDecl cInterface = make.ClassDef(make.Modifiers((cDecl.mods.flags & (~Flags.STATIC)) | Flags.INTERFACE),
                 interfaceName, 
                 List.<JCTypeParameter>nil(), null, implementing.toList(), iDefinitions.toList());
@@ -412,8 +412,9 @@ public class JavafxInitializationBuilder {
     
     private void addInterfaceeMethods(ListBuffer<JCTree> iDefinitions, java.util.List<MethodSymbol> methods, JFXClassDeclaration cdecl) {
         for (MethodSymbol mth : methods) {
-            // Add the non-abstract and non-synthetic JavaFX methods to the class' inetrface
-            if (((mth.flags_field & Flags.ABSTRACT) == 0) &&
+            // Add the non-abstract, non-static, and non-synthetic JavaFX methods to the class' interface
+            if (mth.owner == cdecl.sym &&
+                    ((mth.flags_field & Flags.ABSTRACT) == 0) &&
                     ((mth.flags_field & Flags.STATIC) == 0)) {
                 JCMethodDecl methodDecl = make.MethodDef(mth, null);
                 // Made all the operations public. Per Brian's spec.
@@ -430,7 +431,46 @@ public class JavafxInitializationBuilder {
         }
     }
     
-    private void addClassMethods(JFXClassDeclaration cDecl, java.util.List<MethodSymbol> methods) {
+    private void addClassMethods(JFXClassDeclaration cdecl, java.util.List<MethodSymbol> methods, Name intfName) {
+        for (MethodSymbol mth : methods) {
+            // Add the static methods for all the non-abstract, non-static, and non-synthetic JavaFX methods for cDecl
+            if (mth.owner == cdecl.sym &&
+                    ((mth.flags_field & Flags.ABSTRACT) == 0) &&
+                    ((mth.flags_field & Flags.STATIC) == 0)) {
+                JCMethodDecl methodDecl = make.MethodDef(mth, null);
+                // Made all the operations public. Per Brian's spec.
+                // If they are left package level it interfere with Multiple Inheritance
+                // The interface methods cannot be package level and an error is reported.
+                {
+                    methodDecl.mods.flags &= ~Flags.PUBLIC;
+                    methodDecl.mods.flags &= ~Flags.PRIVATE;
+                    methodDecl.mods.flags |= Flags.PROTECTED | Flags.STATIC;
+                }
+
+                // Create the parameter list for the body statements TODO: This will change... Need to be swaped with the non static method
+                List<JCStatement> staticMethodStats = List.<JCStatement>nil();
+                List<JCExpression> statBodyArgs = List.<JCExpression>nil();
+                
+                if (((MethodType)methodDecl.sym.type).restype != syms.voidType) {
+                    for (JCVariableDecl var : methodDecl.params) {
+                        statBodyArgs = statBodyArgs.append(make.Ident(var.name));
+                    }
+
+                    staticMethodStats = staticMethodStats.append(make.Return(toJava.callExpression(cdecl.pos(),
+                            make.Ident(receiverName), methodDecl.name.toString(), statBodyArgs)));
+                }
+                
+                // Add the extra receiver parameter
+                methodDecl.params = methodDecl.params.prepend(make.VarDef(make.Modifiers(0L), receiverName, make.Ident(intfName), null));
+                
+                // Add the static method body. TODO: Need to swap the body with the non-static method.
+                methodDecl.body = make.Block(0L, staticMethodStats);
+                
+                cdecl.defs = cdecl.defs.append(methodDecl);
+            }
+        }
+        
+        // TODO: Add all of the parent classes methods -- the non static ones
         // TODO:
     }
     
