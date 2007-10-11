@@ -392,7 +392,7 @@ public class JavafxInitializationBuilder {
         }
         
         addInterfaceAttributeMethods(iDefinitions, attrInfos);
-        addClassAttributeMethods(cDecl, attrInfos);
+        addClassAttributeMethods(cDecl, attrInfos, baseClasses);
 
         Name interfaceName = names.fromString(cDecl.name.toString() + interfaceNameSuffix);
         addInterfaceeMethods(iDefinitions, methods, cDecl);
@@ -500,7 +500,7 @@ public class JavafxInitializationBuilder {
         }
     }
 
-    private void addClassAttributeMethods(JFXClassDeclaration cdef, ListBuffer<AttributeWrapper> attrInfos) {
+    private void addClassAttributeMethods(JFXClassDeclaration cdef, ListBuffer<AttributeWrapper> attrInfos, java.util.List<ClassSymbol> baseClasses) {
         for (AttributeWrapper attrInfo : attrInfos) { 
 // TODO: Add attributes gotten from interface introspection.
             List<JCStatement> stats = List.<JCStatement>nil();
@@ -579,7 +579,39 @@ public class JavafxInitializationBuilder {
         receiverVarDeclList = receiverVarDeclList.append(make.VarDef(make.Modifiers(Flags.FINAL),
                 receiverName, make.Ident(names.fromString(cdef.name.toString() + interfaceNameSuffix.toString())), null));
 
-        JCBlock setDefBlock = make.Block(0L, List.<JCStatement>nil());
+        List<JCStatement> setDefStats = List.<JCStatement>nil();
+        
+        for (ClassSymbol csym : baseClasses) {
+            if (isJFXClass(csym)) {
+                String className = csym.fullname.toString();
+                if (className.endsWith(interfaceNameSuffix.toString())) {
+                    className = className.substring(0, className.length() - interfaceNameSuffix.toString().length());
+                }
+                
+                List<JCExpression> args1 = List.<JCExpression>nil();
+                args1 = args1.append(make.Ident(receiverName));
+                setDefStats = setDefStats.append(toJava.callStatement(cdef.pos(), make.Identifier(className), setDefaultsName.toString(), args1));
+            }
+        }
+        
+        // Add the initialization of this class' attributes
+        for (JCTree tree : cdef.defs) {
+            if (tree.getTag() == JavafxTag.VAR_DEF && tree.pos != Position.NOPOS) {
+                JCVariableDecl aw = (JCVariableDecl)tree;
+                if (aw.sym != null && aw.sym.owner == cdef.sym) {
+                    JCExpression getAttrCall = toJava.callExpression(cdef.pos(), make.Ident(receiverName),
+                            attributeGetMethodNamePrefix + aw.name.toString(), List.<JCExpression>nil());
+
+                    JCExpression cond = make.Binary(JCTree.EQ, getAttrCall, make.Literal(TypeTags.BOT, null));
+                    
+                    JCStatement thenStat = toJava.callStatement(cdef.pos(), make.Ident(receiverName), attributeInitMethodNamePrefix + aw.name.toString(), aw.init);
+// TODO: Reenable this when figuring out how to morph the init expression.                    setDefStats = setDefStats.append(make.If(cond, thenStat, null));
+                }
+            }
+        }
+        
+        JCBlock setDefBlock = make.Block(0L, setDefStats);
+        
         cdef.defs = cdef.defs.append(make.MethodDef(
                 make.Modifiers(Flags.PUBLIC | Flags.STATIC),
                 setDefaultsName,
