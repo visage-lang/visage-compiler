@@ -150,10 +150,11 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         super.visitClassDeclaration(tree);
+        List<JCStatement> initStats = List.<JCStatement>nil();
         tree.defs = tree.defs.prepend(makeMethod(
                 initMethodString, 
                 false, 
-                List.<JCStatement>nil()));
+                initStats));
     }
 
     private JFXOperationDefinition makeMethod(String name, boolean isStatic, List<JCStatement> stats) {

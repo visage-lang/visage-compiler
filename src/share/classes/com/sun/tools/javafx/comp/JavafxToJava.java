@@ -44,6 +44,7 @@ import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxBindStatus;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
@@ -521,11 +522,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 }
                 
                 List<JCExpression> newArgsList = List.<JCExpression>nil();
-// TODO: Reenable this when all the jfx attributes are replaced to be receiver.get$X method calls
-//                newArgsList = newArgsList.append(translatedInit);
-//                ((JCMethodInvocation)((JCExpressionStatement)((JCIf)defInitStat).thenpart).expr).args = newArgsList;
-                ((JCIf)defInitStat).thenpart = make.Skip();
-// TODO: end
+                newArgsList = newArgsList.append(translatedInit);
+                ((JCMethodInvocation)((JCExpressionStatement)((JCIf)defInitStat).thenpart).expr).args = newArgsList;
+
                 defaultsToSet.remove(vsym);
             }
         }
@@ -1321,7 +1320,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitMethodDef(JCMethodDecl tree) {
-         result = tree;
+        if (tree.name == initBuilder.setDefaultsName) {
+            processSetDefaultAttributeReferences(tree);
+        }
+
+        result = tree;
    }
 
     public void visitApply(JCMethodInvocation tree) {
@@ -1488,6 +1491,49 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
     }
 
+    private void processSetDefaultAttributeReferences(JCMethodDecl methodDecl) {
+        TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder.receiverName);
+        
+        treeScanner.translate(methodDecl);
+    }
+    
+    class AttributeReferenceReplaceTranslator extends TreeTranslator {
+        Name receiverName = null;
+        
+        AttributeReferenceReplaceTranslator(Name receiverName) {
+            this.receiverName = receiverName;
+        }
+        
+        @Override
+        public void visitSelect(JCFieldAccess tree) {
+            super.visitSelect(tree);
+            result = transformTreeIfNeeded(tree, tree.sym);
+        }
+
+        @Override
+        public void visitIdent(JCIdent tree) {
+            super.visitIdent(tree);
+            result = transformTreeIfNeeded(tree, tree.sym);
+        }
+
+        private JCExpression transformTreeIfNeeded(JCExpression tree, Symbol sym) {
+// TODO: Enable the code below when the javafx$init method is removed. The setDefault$ and javafx$init share statements
+// and they can't be transformed until javafx$init is in use.
+            if (true) {
+                return tree;
+            }
+// TODO: end
+            if (sym != null &&
+                sym.kind == Kinds.VAR &&
+                sym.owner != null &&
+                sym.owner.kind == Kinds.TYP) {
+                if (initBuilder.isJFXClass((ClassSymbol)sym.owner)) {
+                    return callExpression(tree.pos(), make.Ident(receiverName),
+                            initBuilder.attributeGetMethodNamePrefix + sym.name.toString(), List.<JCExpression>nil());
+                }
+            }
+            
+            return tree;
+        }
+    };
 }
-
-

@@ -69,13 +69,13 @@ public class JavafxInitializationBuilder {
     private final Name valueChangedName;
     private final Name classNameSuffix;
     private final Name interfaceNameSuffix;
-    private final String attributeGetMethodNamePrefix = "get$";
+    final String attributeGetMethodNamePrefix = "get$";
     private final String attributeInitMethodNamePrefix = "init$";
     private final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
     private final Name locationName;
-    private final Name setDefaultsName;
+    final Name setDefaultsName;
     private final Name userInitName;
-    private final Name receiverName;
+    final Name receiverName;
     private final Name initializeName;
     private final Name numberFieldsName;
     private final Name getNumFieldsName;
@@ -146,7 +146,7 @@ public class JavafxInitializationBuilder {
             List<TranslatedAttributeInfo> attrInfo, 
             List<JCBlock> initBlocks) {
         ListBuffer<JCStatement> stmts = ListBuffer.<JCStatement>lb();
- 
+        
         // Initialize the default values for the atttributes.
         for (TranslatedAttributeInfo info : attrInfo) {
             if (info.initExpr != null) { // if there is an attribute initializer
@@ -599,15 +599,17 @@ public class JavafxInitializationBuilder {
             if (tree.getTag() == JavafxTag.VAR_DEF && tree.pos != Position.NOPOS) {
                 JCVariableDecl aw = (JCVariableDecl)tree;
                 if (aw.sym != null && aw.sym.owner == cdef.sym) {
-                    JCExpression getAttrCall = toJava.callExpression(cdef.pos(), make.Ident(receiverName),
-                            attributeGetMethodNamePrefix + aw.name.toString(), List.<JCExpression>nil());
-
-                    JCExpression cond = make.Binary(JCTree.EQ, getAttrCall, make.Literal(TypeTags.BOT, null));
-                    
-                    JCStatement thenStat = toJava.callStatement(cdef.pos(), make.Ident(receiverName), attributeInitMethodNamePrefix + aw.name.toString(), aw.init);
-                    JCIf defInitIf = make.If(cond, thenStat, null);
-                    toJava.defaultsToSet.put(aw.sym, defInitIf);
-                    setDefStats = setDefStats.append(defInitIf);
+// TODO: Re-enable this when the javafx$init and the old initialization model is removed. The setDefaults$ interferes with the javafs$initmethod
+//                    JCExpression getAttrCall = toJava.callExpression(cdef.pos(), make.Ident(receiverName),
+//                            attributeGetMethodNamePrefix + aw.name.toString(), List.<JCExpression>nil());
+//
+//                    JCExpression cond = make.Binary(JCTree.EQ, getAttrCall, make.Literal(TypeTags.BOT, null));
+//                    
+//                    JCStatement thenStat = toJava.callStatement(cdef.pos(), make.Ident(receiverName), attributeInitMethodNamePrefix + aw.name.toString(), aw.init);
+//                    JCIf defInitIf = make.If(cond, thenStat, null);
+//                    toJava.defaultsToSet.put(aw.sym, defInitIf);
+//                    setDefStats = setDefStats.append(defInitIf);
+// TODO: End\
                 }
             }
         }
@@ -803,7 +805,7 @@ public class JavafxInitializationBuilder {
         }
     }
     
-    private boolean isJFXClass(ClassSymbol cSym) {
+    boolean isJFXClass(ClassSymbol cSym) {
         if ((cSym.flags_field & Flags.INTERFACE) != 0) {
             for (List<Type> intfs = cSym.getInterfaces(); intfs.nonEmpty(); intfs = intfs.tail) {
                 if (intfs.head.tsym.type == syms.javafx_FXObjectType) {
