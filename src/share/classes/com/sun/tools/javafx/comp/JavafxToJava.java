@@ -55,6 +55,8 @@ import com.sun.tools.javafx.tree.JavafxTreeMaker; // only for BlockExpression
 import java.util.HashSet;
 import java.util.Set;
 import java.io.OutputStreamWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
@@ -76,6 +78,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private final Symtab syms;
     private final JavafxInitializationBuilder initBuilder;
     private final JavafxTypeMorpher typeMorpher;
+
+    Map<VarSymbol, JCIf> defaultsToSet = new HashMap<VarSymbol, JCIf>();
 
     /*
      * other instance information
@@ -501,6 +505,29 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (vmi.shouldMorph()) {
             translatedInit = typeMorpher.buildDefinitionalAssignment(diagPos, vmi, 
                     init, translatedInit, bindStatus);
+
+            JCIf defInitStat = defaultsToSet.get(vsym);
+            if (defInitStat != null) {
+                if (defInitStat.getTag() != JCTree.IF) {
+                    throw new AssertionError("Invalid State - 0!!! defaultsToSet in JavafxToJava should contain only If with then - Exec with an Apply as values!");
+                }
+
+                if (((JCIf)defInitStat).thenpart.getTag() != JCTree.EXEC) {
+                    throw new AssertionError("Invalid State - 1!!! defaultsToSet in JavafxToJava should contain only If with then - Exec with an Apply as values!");
+                }
+                
+                if (((JCExpressionStatement)((JCIf)defInitStat).thenpart).expr.getTag() != JCTree.APPLY) {
+                    throw new AssertionError("Invalid State - 2!!! defaultsToSet in JavafxToJava should contain only If with then - Exec with an Apply as values!");
+                }
+                
+                List<JCExpression> newArgsList = List.<JCExpression>nil();
+// TODO: Reenable this when all the jfx attributes are replaced to be receiver.get$X method calls
+//                newArgsList = newArgsList.append(translatedInit);
+//                ((JCMethodInvocation)((JCExpressionStatement)((JCIf)defInitStat).thenpart).expr).args = newArgsList;
+                ((JCIf)defInitStat).thenpart = make.Skip();
+// TODO: end
+                defaultsToSet.remove(vsym);
+            }
         }
         
         return translatedInit;

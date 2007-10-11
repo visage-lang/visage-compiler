@@ -605,7 +605,9 @@ public class JavafxInitializationBuilder {
                     JCExpression cond = make.Binary(JCTree.EQ, getAttrCall, make.Literal(TypeTags.BOT, null));
                     
                     JCStatement thenStat = toJava.callStatement(cdef.pos(), make.Ident(receiverName), attributeInitMethodNamePrefix + aw.name.toString(), aw.init);
-// TODO: Reenable this when figuring out how to morph the init expression.                    setDefStats = setDefStats.append(make.If(cond, thenStat, null));
+                    JCIf defInitIf = make.If(cond, thenStat, null);
+                    toJava.defaultsToSet.put(aw.sym, defInitIf);
+                    setDefStats = setDefStats.append(defInitIf);
                 }
             }
         }
