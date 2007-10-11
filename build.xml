@@ -101,7 +101,26 @@
         </java>
     </target>
 
+    <target name="compile-runtime-fx">
+        <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask">
+            <classpath>
+                <pathelement location="${ant.jar}"/>
+                <pathelement location="${build.classes.dir}"/>
+                <pathelement path="${javac.classpath}"/>
+            </classpath>
+        </taskdef>
+
+        <javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"
+                 destdir="${build.classes.dir}"
+                 encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"
+                 includes="**/*.fx" source="${javac.source}" sourcepath=""
+                 srcdir="${src.classes.dir}" target="${javac.target}"
+                 classpath="${build.classes.dir}:${javac.test.classpath}"
+                 compilerclasspath="${build.classes.dir}:${javac.classpath}"/>
+    </target>
+
     <target name="-pre-compile" depends="check-parser,generate-parser"/>
+    <target name="-post-compile" depends="compile-runtime-fx" />
 
     <!-- Stuff dealing with adding coverage to JUnit execution -->
 
@@ -153,7 +172,7 @@
     <target name="-post-clean" description="Delete ANTLR-generated files">
         <delete dir="src/share/classes/com/sun/tools/javafx"
                 includes="**/v2*.*" excludes="**/v2.g"/>
-    </target>        
+    </target>
 
     <target name="spec" description="Build JavaFX Script specification.">
         <ant antfile="doc/build.xml" target="spec" inheritAll="false"/>
@@ -219,9 +238,7 @@
     </target>
 
     <target name="runtime" depends="jar">
-        <ant dir="runtime" antfile="build.xml" target="jar" inheritall="false">
-            <property name="junit.class.path" value="${junit.class.path}" />
-        </ant>
+        <ant dir="${runtime.dir}" antfile="build.xml" target="jar" inheritall="false" />
     </target>
 
 </project>
