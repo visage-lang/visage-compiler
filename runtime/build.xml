@@ -21,6 +21,9 @@
                 </not>
             </condition>
         </fail>
+    </target>
+
+    <target name="-post-compile" if="have.sources" depends="init,deps-jar,-pre-pre-compile,-pre-compile">
         <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
@@ -28,9 +31,6 @@
                 <pathelement path="${javac.classpath}"/>
             </classpath>
         </taskdef>
-    </target>
-
-    <target name="-post-compile" if="have.sources" depends="init,deps-jar,-pre-pre-compile,-pre-compile">
         <javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"
                  destdir="${build.classes.dir}"
                  encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"
