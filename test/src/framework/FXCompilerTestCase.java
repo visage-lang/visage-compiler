@@ -35,6 +35,7 @@ import org.apache.tools.ant.types.CommandlineJava;
 import org.apache.tools.ant.types.Path;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -49,8 +50,7 @@ public class FXCompilerTestCase extends TestCase {
     private String className;
     private final List<String> auxFiles;
 
-    private static final ServiceLoader<JavafxCompiler> compilerLoader =
-            ServiceLoader.load(JavafxCompiler.class);
+    private static final JavafxCompiler compiler = compilerLocator();
 
     public static final String TEST_ROOT = "test";
     public static final String BUILD_ROOT = "build/test";
@@ -67,7 +67,6 @@ public class FXCompilerTestCase extends TestCase {
 
     @Override
     protected void runTest() throws Throwable {
-        assertTrue("compiler not found", compilerLoader.iterator().hasNext());
         className = test.getName();
         assertTrue(className.endsWith(".fx"));
         String outputFileName = buildDir + File.separator + className + ".OUTPUT";
@@ -85,11 +84,12 @@ public class FXCompilerTestCase extends TestCase {
         if (!buildRoot.exists())
             fail("no " + BUILD_ROOT + " directory in " + new File(".").getAbsolutePath());
 
-        JavafxCompiler compiler = compilerLoader.iterator().next();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
         buildDir.mkdirs();
         List<String> args = new ArrayList<String>();
+        args.add("-target");
+        args.add("1.5");
         args.add("-d");
         args.add(buildDir.getPath());
         args.add(test.getPath());
@@ -177,4 +177,49 @@ public class FXCompilerTestCase extends TestCase {
         }
     }
 
+    private static JavafxCompiler compilerLocator() {
+        Iterator<?> iterator;
+        Class<?> loaderClass;
+        String loadMethodName;
+        boolean usingServiceLoader;
+
+        try {
+            loaderClass = Class.forName("java.util.ServiceLoader");
+            loadMethodName = "load";
+            usingServiceLoader = true;
+        } catch (ClassNotFoundException cnfe) {
+            try {
+                loaderClass = Class.forName("sun.misc.Service");
+                loadMethodName = "providers";
+                usingServiceLoader = false;
+            } catch (ClassNotFoundException cnfe2) {
+                throw new AssertionError("Failed discovering ServiceLoader");
+            }
+        }
+
+        try {
+            // java.util.ServiceLoader.load or sun.misc.Service.providers
+            Method loadMethod = loaderClass.getMethod(loadMethodName,
+                                                      Class.class,
+                                                      ClassLoader.class);
+            ClassLoader cl = FXCompilerTestCase.class.getClassLoader();
+            Object result = loadMethod.invoke(null, JavafxCompiler.class, cl);
+
+            // For java.util.ServiceLoader, we have to call another
+            // method to get the iterator.
+            if (usingServiceLoader) {
+                Method m = loaderClass.getMethod("iterator");
+                result = m.invoke(result); // serviceLoader.iterator();
+            }
+
+            iterator = (Iterator<?>) result;
+        } catch (Throwable t) {
+            t.printStackTrace();
+            throw new AssertionError("Failed accessing ServiceLoader: " + t);
+        }
+
+        if (!iterator.hasNext())
+            throw new AssertionError("No JavaFX Script compiler found");
+        return (JavafxCompiler)iterator.next();
+    }
 }

@@ -63,7 +63,6 @@ public class FXCompilerTest extends TestSuite {
 
     private static void findTests(File dir, List<Test> tests) {
         File[] children = dir.listFiles(new FileFilter() {
-            @Override
             public boolean accept(File f) {
                 String name = f.getName();
                 if (f.isDirectory())

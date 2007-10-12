@@ -42,8 +42,8 @@
         </fail>
     </target>
 
-    <target name="check-jdk-1.6">
-        <available property="has-jdk-1.6" classname="javax.script.ScriptEngine"/>
+    <target name="check-jdk-1.5">
+        <available property="has-jdk-1.5" classname="java.lang.Appendable"/>
     </target>
     
     <target name="check-bootstrap">
@@ -75,8 +75,8 @@
         <ant antfile="bootstrap.xml" target="all"/>
     </target>
 
-    <target name="-pre-init" depends="check-ant,check-jdk-1.6,do-bootstrap,tool-paths">
-        <fail unless="has-jdk-1.6">You need JDK 1.6 or higher to build JavaFX.</fail>
+    <target name="-pre-init" depends="check-ant,check-jdk-1.5,do-bootstrap,tool-paths">
+        <fail unless="has-jdk-1.5">You need JDK 1.5 or higher to build JavaFX.</fail>
         <echo message="JDK version ${java.version}"/>
         <echo message="Ant version ${ant.version}"/>
     </target>
@@ -103,6 +103,22 @@
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
             <arg value="${antlr.src.dir}/${antlr.grammar}.g" />
         </java>
+    </target>
+
+    <target name="-do-compile" depends="init,deps-jar,-pre-pre-compile,-pre-compile" if="have.sources">
+        <javac compiler="modern" fork="true"
+               srcdir="${src.classes.dir}" destdir="${build.classes.dir}" 
+               debug="${javac.debug}" deprecation="${javac.deprecation}" 
+               source="${javac.source}" target="${javac.target}" includeantruntime="false">
+            <classpath>
+                <path path="${javac.classpath}"/>
+            </classpath>
+            <compilerarg value="-J-Xbootclasspath/p:${basedir}${file.separator}lib${file.separator}javac.jar"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.classes.dir}" excludes="${build.classes.excludes}"/>
+        </copy>
     </target>
 
     <target name="compile-runtime-fx">
