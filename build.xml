@@ -113,7 +113,7 @@
 
         <javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"
                  destdir="${build.classes.dir}"
-                 encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"
+                 excludes="${excludes}" includeantruntime="false"
                  includes="**/*.fx" source="${javac.source}" sourcepath=""
                  srcdir="${src.classes.dir}" target="${javac.target}"
                  classpath="${build.classes.dir}:${javac.test.classpath}"
@@ -155,11 +155,13 @@
         <cobertura-report format="xml" srcdir="${src.classes.dir}" destdir="${build.dir}"/>
     </target>
 
-    <target name="-pre-test-hook" depends="conditional-instrument,conditional-clean-instrument">
+    <target depends="init,conditional-instrument,conditional-clean-instrument" if="have.tests" name="-pre-test-run">
         <mkdir dir="${build.test.results.dir}"/>
     </target>
 
-    <target name="-post-test-hook" depends="conditional-coverage-report"/>
+    <target depends="init,compile-test,-pre-test-run,-do-test-run,conditional-coverage-report" if="have.tests" name="-post-test-run">
+        <!-- Don't explicitly call fail task, so Hudson reports an UNSTABLE build instead of FAILURE -->
+    </target>
 
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
@@ -231,11 +233,6 @@
         <copy todir="${export.dir}/docroot/current-build">
             <fileset dir="${dist.dir}"/>
         </copy>
-    </target>
-
-    <target depends="init,compile-test,-pre-test-run,-do-test-run,-post-test-hook" if="have.tests"
-            name="-post-test-run">
-        <!-- Don't explicitly call fail task, so Hudson reports an UNSTABLE build instead of FAILURE -->
     </target>
 
     <target name="runtime" depends="jar">
