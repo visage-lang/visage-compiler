@@ -401,6 +401,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         attrEnv.enclClass = prevEnclClass;
         bindContext = prevBindContext;
         inLHS = prevInLHS;
+        
+        processJFXAttributeReferences((JCClassDecl)result);
     }
     
     @Override
@@ -1492,16 +1494,18 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     private void processSetDefaultAttributeReferences(JCMethodDecl methodDecl) {
-        TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder.receiverName);
+        TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder.receiverName, false);
         
         treeScanner.translate(methodDecl);
     }
     
     class AttributeReferenceReplaceTranslator extends TreeTranslator {
-        Name receiverName = null;
+        private Name receiverName = null;
+        private boolean doTransform;
         
-        AttributeReferenceReplaceTranslator(Name receiverName) {
+        AttributeReferenceReplaceTranslator(Name receiverName, boolean doTransform) {
             this.receiverName = receiverName;
+            this.doTransform = doTransform;
         }
         
         @Override
@@ -1515,20 +1519,42 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             super.visitIdent(tree);
             result = transformTreeIfNeeded(tree, tree.sym);
         }
-
+        
         private JCExpression transformTreeIfNeeded(JCExpression tree, Symbol sym) {
 // TODO: Enable the code below when the javafx$init method is removed. The setDefault$ and javafx$init share statements
 // and they can't be transformed until javafx$init is in use.
-            if (true) {
+            if (!doTransform) {
                 return tree;
             }
 // TODO: end
             if (sym != null &&
+                ((sym.flags_field & Flags.STATIC) == 0L) &&
+                sym.name != names._this &&
+                sym.name != names._super &&
                 sym.kind == Kinds.VAR &&
                 sym.owner != null &&
                 sym.owner.kind == Kinds.TYP) {
                 if (initBuilder.isJFXClass((ClassSymbol)sym.owner)) {
-                    return callExpression(tree.pos(), make.Ident(receiverName),
+                    JCExpression receiver = null;
+                    if (tree.getTag() == JCTree.SELECT) {
+                        if (receiverName != null) {
+                            receiver = make.Select(((JCFieldAccess)tree).selected, receiverName);
+                        }
+                        else {
+                            receiver = ((JCFieldAccess)tree).selected;
+                        }
+                    }
+                    else {
+                        if (tree.getTag() != JCTree.IDENT) {
+                            throw new AssertionError("Expected tree type in transformTreeIfNeeded is JCIdent");
+                        }
+                        
+                        if (receiverName != null) {
+                            receiver = make.Ident(receiverName);
+                        }
+                    }
+                    
+                    return callExpression(tree.pos(), receiver,
                             initBuilder.attributeGetMethodNamePrefix + sym.name.toString(), List.<JCExpression>nil());
                 }
             }
@@ -1536,4 +1562,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             return tree;
         }
     };
+
+    private void processJFXAttributeReferences(JCClassDecl classDecl) {
+        TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(null, true);
+        
+        treeScanner.translate(classDecl);
+    }
 }
