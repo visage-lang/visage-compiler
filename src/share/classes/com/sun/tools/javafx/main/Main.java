@@ -294,6 +294,16 @@ public class Main {
     public int compile(String[] args) {
         Context backEndContext = new Context();
 
+        // add flags to backEndContext
+        options = Options.instance(backEndContext);
+        filenames = new ListBuffer<File>();
+        try {
+            processArgs(CommandLine.parse(args));
+        } catch (IOException e) {
+            // ignore, will be reported later
+        }
+        options = null;
+        filenames = null;
         
         com.sun.tools.javafx.comp.JavafxFlow.preRegister(backEndContext);
 
