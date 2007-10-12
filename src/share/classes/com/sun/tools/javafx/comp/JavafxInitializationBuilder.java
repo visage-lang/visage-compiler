@@ -332,7 +332,7 @@ public class JavafxInitializationBuilder {
         }
     }
     
-    List<JCStatement> createJFXClassModel(JFXClassDeclaration cDecl, JavafxTypeMorpher typeMorpher) {
+    List<JCStatement> createJFXClassModel(JCClassDecl cDecl, JavafxTypeMorpher typeMorpher) {
         Set<String> visitedClasses = new HashSet<String>();
         Map<String, Symbol> collectedAttributes = new HashMap<String, Symbol>();
         Map<String, MethodSymbol> collectedMethods = new HashMap<String, MethodSymbol>();
@@ -410,7 +410,7 @@ public class JavafxInitializationBuilder {
         return ret.toList();
     }
     
-    private void addInterfaceeMethods(ListBuffer<JCTree> iDefinitions, java.util.List<MethodSymbol> methods, JFXClassDeclaration cdecl) {
+    private void addInterfaceeMethods(ListBuffer<JCTree> iDefinitions, java.util.List<MethodSymbol> methods, JCClassDecl cdecl) {
         for (MethodSymbol mth : methods) {
             // Add the non-abstract, non-static, and non-synthetic JavaFX methods to the class' interface
             if (mth.owner == cdecl.sym &&
@@ -431,7 +431,7 @@ public class JavafxInitializationBuilder {
         }
     }
     
-    private void addClassMethods(JFXClassDeclaration cdecl, java.util.List<MethodSymbol> methods, Name intfName) {
+    private void addClassMethods(JCClassDecl cdecl, java.util.List<MethodSymbol> methods, Name intfName) {
         for (MethodSymbol mth : methods) {
             // Add the static methods for all the non-abstract, non-static, and non-synthetic JavaFX methods for cDecl
             if (mth.owner == cdecl.sym &&
@@ -500,7 +500,7 @@ public class JavafxInitializationBuilder {
         }
     }
 
-    private void addClassAttributeMethods(JFXClassDeclaration cdef, ListBuffer<AttributeWrapper> attrInfos, java.util.List<ClassSymbol> baseClasses) {
+    private void addClassAttributeMethods(JCClassDecl cdef, ListBuffer<AttributeWrapper> attrInfos, java.util.List<ClassSymbol> baseClasses) {
         for (AttributeWrapper attrInfo : attrInfos) { 
 // TODO: Add attributes gotten from interface introspection.
             List<JCStatement> stats = List.<JCStatement>nil();

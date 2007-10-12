@@ -306,19 +306,20 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitTopLevel(JCCompilationUnit tree) {
-	List<JCTree> tdefs = translate(tree.defs);
-        
+     
         for (JCTree def : tree.defs) {
             if (def.getTag() == JavafxTag.CLASS_DEF) {
-                List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def, typeMorpher);
+                initBuilder.addFxClass(((JFXClassDeclaration)def).sym, (JFXClassDeclaration)def); // Add the class to the map of FX classes. The class doesn't exists when JavafxAttr is run (it used to exists.)
+                List<JCStatement> ret = initBuilder.createJFXClassModel((JCClassDecl)def, typeMorpher);
                 for (JCStatement retDef : ret) {
-                    tdefs = tdefs.append(retDef);
+                    tree.defs = tree.defs.append(retDef);
                 }
             }
         }
-        
+
+        List<JCTree> defs = translate(tree.defs);
 	JCExpression pid = tree.pid;  //translate(tree.pid);
-        result = make.at(tree.pos).TopLevel(List.<JCAnnotation>nil(), pid, tdefs);
+        result = make.at(tree.pos).TopLevel(List.<JCAnnotation>nil(), pid, defs);
     }
     
     @Override
@@ -396,7 +397,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             translatedDefs.append(makeMainMethod(diagPos));
         }
 
-        result = make.at(diagPos).ClassDef(tree.mods, tree.name, tree.typarams, tree.extending, tree.implementing, translatedDefs.toList());
+        JCClassDecl res = make.at(diagPos).ClassDef(tree.mods, tree.name, tree.typarams, tree.extending, tree.implementing, translatedDefs.toList());
+        res.sym = tree.sym;
+        res.type = tree.type;
+        result = res;
 
         attrEnv.enclClass = prevEnclClass;
         bindContext = prevBindContext;
@@ -1093,7 +1097,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitClassDef(JCClassDecl tree) {
-        assert false : "should not be in JavaFX AST";
+        result = tree;
     }
 
     
