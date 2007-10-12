@@ -68,7 +68,7 @@ public class JavafxInitializationBuilder {
     final Name initializerName;
     private final Name valueChangedName;
     private final Name classNameSuffix;
-    private final Name interfaceNameSuffix;
+    final Name interfaceNameSuffix;
     final String attributeGetMethodNamePrefix = "get$";
     private final String attributeInitMethodNamePrefix = "init$";
     private final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
@@ -333,10 +333,7 @@ public class JavafxInitializationBuilder {
     }
     
     List<JCStatement> createJFXClassModel(JCClassDecl cDecl, JavafxTypeMorpher typeMorpher) {
-// TODO: Fixing broken runtime build... There is problem with the MI design, related to importing classes from another packages. The base interface from another package is not found.
-        if (true) 
-            return List.<JCStatement>nil();
-// TODO: end
+
         Set<String> visitedClasses = new HashSet<String>();
         Map<String, Symbol> collectedAttributes = new HashMap<String, Symbol>();
         Map<String, MethodSymbol> collectedMethods = new HashMap<String, MethodSymbol>();

@@ -315,6 +315,22 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     tree.defs = tree.defs.append(retDef);
                 }
             }
+            else if (def.getTag() == JCTree.IMPORT) {
+                if (!((JCImport)def).isStatic()) {
+                    if (((JCImport)def).getQualifiedIdentifier().getTag() == JCTree.SELECT) {
+                        JCFieldAccess select = (JCFieldAccess)((JCImport)def).getQualifiedIdentifier();
+                        if (select.name != names.asterisk) {
+                            tree.defs = tree.defs.append(make.Import(make.Select(select.selected, names.fromString(select.name.toString() + initBuilder.interfaceNameSuffix)), false));
+                        }
+                    }
+                    else if (((JCImport)def).getQualifiedIdentifier().getTag() == JCTree.IDENT) {
+                        JCIdent ident = (JCIdent)((JCImport)def).getQualifiedIdentifier();
+                        if (ident.name != names.asterisk) {
+                            tree.defs = tree.defs.append(make.Import(make.Ident(names.fromString(ident.name.toString() + initBuilder.interfaceNameSuffix)), false));
+                        }
+                    }
+                }
+            }
         }
 
         List<JCTree> defs = translate(tree.defs);
@@ -1568,10 +1584,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     };
 
     private void processJFXAttributeReferences(JCClassDecl classDecl) {
-// TODO: Fixing broken runtime build... There is problem with the MI design, related to importing classes from another packages. The base interface from another package is not found.
-        if (true) 
-            return;
-// TODO: end
         TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(null, true);
         
         treeScanner.translate(classDecl);

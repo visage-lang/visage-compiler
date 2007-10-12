@@ -25,10 +25,14 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.comp.AttrContext;
+import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javafx.tree.JFXBlockExpression;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.comp.MemberEnter;
+import com.sun.tools.javac.tree.JCTree;
 
 
 import static com.sun.tools.javac.tree.JCTree.*;
@@ -43,9 +47,7 @@ import static com.sun.tools.javac.tree.JCTree.*;
  *  deletion without notice.</b>
  */
 public class BlockExprMemberEnter extends MemberEnter {
-    
-
-    
+    boolean resolvingImport = false;
     public static MemberEnter instance0(Context context) {
         MemberEnter instance = context.get(memberEnterKey);
         if (instance == null)
@@ -70,5 +72,19 @@ public class BlockExprMemberEnter extends MemberEnter {
             stmt.accept(this);
         }
         tree.value.accept(this);
+    }
+
+    public Type attribImportType(JCTree tree, Env<AttrContext> env) {
+        assert completionEnabled;
+        try {
+            // To prevent deep recursion, suppress completion of some
+            // types.
+            completionEnabled = false;
+            resolvingImport = true;
+            return attr.attribType(tree, env);
+        } finally {
+            completionEnabled = true;
+            resolvingImport = false;
+        }
     }
 }

@@ -311,6 +311,7 @@ public class Main {
         com.sun.tools.javafx.comp.BlockExprAttr.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprEnter.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprMemberEnter.preRegister(backEndContext);
+        com.sun.tools.javafx.comp.BlockExprResolve.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprLower.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprTransTypes.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprGen.preRegister(backEndContext);
