@@ -281,17 +281,45 @@ FORMAT_STRING_LITERAL		: 				{ BraceQuoteTracker.percentIsFormat() }?=>
 QUOTED_IDENTIFIER 
 	:	'<<' (~'>'| '>' ~'>')* '>'* '>>'   { setText(getText().substring(2, getText().length()-2)); };
  
-INTEGER_LITERAL : ('0' | '1'..'9' '0'..'9'*) ;
+DECIMAL_LITERAL : ('0' | '1'..'9' '0'..'9'*) ;
 
-FLOATING_POINT_LITERAL
-    :   ('0'..'9')+ '.' ('0'..'9')* Exponent? 
-    |   '.' ('0'..'9')+ Exponent? 
-    |   ('0'..'9')+ Exponent 
-	;
+OCTAL_LITERAL : '0' ('0'..'7')+ ;
+
+HEX_LITERAL : '0' ('x'|'X') HexDigit+    			{ setText(getText().substring(2, getText().length())); };
 
 fragment
-Exponent : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
+HexDigit : ('0'..'9'|'a'..'f'|'A'..'F') ;
 
+FLOATING_POINT_LITERAL
+    :     d=DECIMAL_LITERAL RangeDots
+    	  	{
+    	  		$d.setType(DECIMAL_LITERAL);
+    	  		emit($d);
+          		$RangeDots.setType(DOTDOT);
+    	  		emit($RangeDots);
+    	  	}
+    |     d=OCTAL_LITERAL RangeDots
+    	  	{
+    	  		$d.setType(OCTAL_LITERAL);
+    	  		emit($d);
+          		$RangeDots.setType(DOTDOT);
+    	  		emit($RangeDots);
+    	  	}
+    |	  Digits '.' (Digits)? (Exponent)? 
+    | '.' Digits (Exponent)? 
+    |     Digits Exponent
+    ;
+
+fragment
+RangeDots 
+	:	'..'
+	;
+fragment
+Digits	:	('0'..'9')+ 
+        ;
+fragment
+Exponent : 	('e'|'E') ('+'|'-')? Digits
+        ;
 IDENTIFIER 
     :   Letter (Letter|JavaIDDigit)*
     ;
@@ -494,10 +522,14 @@ bindOpt   returns [JavafxBindStatus status = UNBOUND]
 	  | TIE					{ $status = BIDIBIND; }
 	      (LAZY				{ $status = LAZY_BIDIBIND; } )?
 	  )? ;
-backgroundStatement   // TODO remove?
-	: DO   block ;
-laterStatement       // TODO remove?
-	: DO   LATER   block ;
+backgroundStatement   
+	: DO   block 
+						{ assert false : "not implemented"; }
+	;
+laterStatement      
+	: DO   LATER   block 
+						{ assert false : "not implemented"; }
+	;
 ifStatement   returns [MTStatement value]
 @init { MTStatement elsepart = null; }
 	: IF   LPAREN   expression   RPAREN   s1=block (ELSE  s2=block { elsepart = $s2.value; }) ? 
@@ -505,7 +537,11 @@ ifStatement   returns [MTStatement value]
 insertStatement   returns [MTStatement value = null]
 	: INSERT   (   DISTINCT   expression   INTO   expression   |   expression   (   (   (   AS   (   FIRST   |   LAST   )   ) ?   INTO   expression   )   |   AFTER   expression   |   BEFORE   expression   )   )     SEMI ;
 deleteStatement   returns [MTStatement value = null]
-	: DELETE   expression   SEMI ;
+	: DELETE  e1=expression  
+	   ( FROM e2=expression 		{ $value = F.at(pos($DELETE)).SequenceDelete($e2.expr,$e1.expr); } 
+	   | /* indexed and whole cases */	{ $value = F.at(pos($DELETE)).SequenceDelete($e1.expr); } 
+	   )
+	;
 throwStatement   returns [MTStatement value = null]
 	: THROW   expression   SEMI ;
 returnStatement   returns [MTStatement value]
@@ -514,21 +550,40 @@ returnStatement   returns [MTStatement value]
 						{ $value = F.at(pos($RETURN)).Return(expr); } 
 	;
 localTriggerStatement   returns [MTStatement value = null]
-	: TRIGGER   ON    ( localTriggerCondition | LPAREN   localTriggerCondition   RPAREN)  block ;
+	: TRIGGER   ON    ( localTriggerCondition | LPAREN   localTriggerCondition   RPAREN)  block 
+						{ assert false : "not implemented"; }
+	;
 localTriggerCondition   returns [MTStatement value = null]
 	: name   (   LBRACKET   name   RBRACKET   ) ?   EQ   expression 
        | INSERT   name   INTO   ( name   EQ ) /*?*/   expression 
        | DELETE   name   FROM   ( name   EQ ) /*?*/   expression ;
 forAlphaStatement   returns [MTStatement value = null]
-	: FOR   LPAREN   alphaExpression   RPAREN   block ;
+	: FOR   LPAREN   alphaExpression   RPAREN   block
+						{ assert false : "not implemented"; }
+	;
 alphaExpression : UNITINTERVAL   IN   DUR   expression   (   FPS   expression   ) ?   (   WHILE   expression   ) ?   (   CONTINUE   IF   expression   ) ? ;
 forJoinStatement   returns [MTStatement value = null]
 	: FOR   LPAREN   joinClause   RPAREN   (   LPAREN   durClause   RPAREN   ) ?   block ;
 joinClause : name   IN   expression   (   COMMA   name   IN   expression   ) *   (   WHERE   expression   ) ? ;
 durClause : DUR   expression   (   LINEAR   |   EASEIN   |   EASEOUT   |   EASEBOTH   |   MOTION   expression   ) ?   (   FPS   expression ) ?   (   WHILE   expression   ) ?   (   CONTINUE   IF   expression   ) ? ;
-tryStatement   returns [MTStatement value = null]
-	: TRY   block   (   FINALLY   block   |     catchClause +   (   FINALLY   block   ) ?   ) ;
-catchClause : CATCH   LPAREN   name   typeReference ?   (   IF   expression   ) ?   RPAREN   block ;
+tryStatement   returns [MTStatement value]
+@init	{	ListBuffer<MTCatch> catchers = new ListBuffer<MTCatch>();
+		MTBlock finalBlock = null;
+	}
+	: TRY   tb=block 			
+	   ( FINALLY   fb1=block		{ finalBlock = $fb1.value; } 
+	   |    (catchClause 			{ catchers.append($catchClause.value); } 
+	   	)+   
+	        (FINALLY  fb2=block		{ finalBlock = $fb2.value; } 
+	        )?   
+	   ) 					{ $value = F.at(pos($TRY)).Try($tb.value, catchers.toList(), finalBlock); }
+	;
+catchClause    returns [MTCatch value]
+	: CATCH  LPAREN  formalParameter
+	    (   IF   expression   		{ assert false : "if clause not implemented"; }
+	    ) ? 
+	  RPAREN   block 			{ $value = F.at(pos($CATCH)).Catch($formalParameter.var, $block.value); } 
+	;
 expression returns [MTExpression expr] 
 	: foreach 
        	| functionExpression 
@@ -538,7 +593,18 @@ expression returns [MTExpression expr]
        	| selectExpression 
        	| LPAREN   /*MT:typeSpec*/ typeName  RPAREN   suffixedExpression   
        	| suffixedExpression		{ $expr = $suffixedExpression.expr; }  ;
-foreach : FOREACH   LPAREN   name   IN   expression   (   COMMA   name   IN   expression   ) *   (   WHERE   expression   ) ?   RPAREN   expression ;
+foreach   returns [MTExpression expr] 
+@init { ListBuffer<MTForExpressionInClause> clauses = ListBuffer.lb(); }
+	: FOREACH   LPAREN  
+		in1=inClause					{ clauses.append($in1.value); }	       
+		( COMMA in2=inClause				{ clauses.append($in2.value); } )*	       
+	        RPAREN be=expression 				{ $expr = F.at(pos($FOREACH)).ForExpression(clauses.toList(), $be.expr); }
+	;
+inClause   returns [MTForExpressionInClause value] 
+@init { MTVar var; }
+	: formalParameter IN se=expression 
+	          	  (WHERE  we=expression)?		{ $value = F.at(pos($IN)).InClause($formalParameter.var, $se.expr, $we.expr); }
+	;
 functionExpression : FUNCTION   formalParameters   typeReference ?   functionBody ;
 operationExpression : OPERATION   formalParameters   typeReference ?   block ;
 ifExpression : IF   expression   THEN   expression   ELSE   expression ;
@@ -705,7 +771,9 @@ cardinalityConstraint returns [int ary]
 	;
 literal  returns [MTExpression expr]
 	: t=STRING_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.CLASS, $t.text); }
-	| t=INTEGER_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 10)); }
+	| t=DECIMAL_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 10)); }
+	| t=OCTAL_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 8)); }
+	| t=HEX_LITERAL			{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 16)); }
 	| t=FLOATING_POINT_LITERAL 	{ $expr = F.at(pos($t)).Literal(TypeTags.DOUBLE, Double.valueOf($t.text)); }
 	| t=TRUE   			{ $expr = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 1); }
 	| t=FALSE   			{ $expr = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 0); }
