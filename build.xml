@@ -172,7 +172,8 @@
         <chmod dir="dist/bin" perm="755" includes="**/javafxc*"/>
     </target>
     
-    <target name="-post-clean" description="Delete ANTLR-generated files">
+    <target name="-post-clean" depends="runtime-clean" 
+           description="Delete ANTLR-generated files">
         <delete dir="src/share/classes/com/sun/tools/javafx"
                 includes="**/v2*.*" excludes="**/v2.g"/>
     </target>
@@ -237,6 +238,10 @@
 
     <target name="runtime" depends="jar">
         <ant dir="${runtime.dir}" antfile="build.xml" target="jar" inheritall="false" />
+    </target>
+
+    <target name="runtime-clean" >
+        <ant dir="${runtime.dir}" antfile="build.xml" target="clean" inheritall="false" />
     </target>
 
 </project>
