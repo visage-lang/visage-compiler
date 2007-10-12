@@ -333,6 +333,10 @@ public class JavafxInitializationBuilder {
     }
     
     List<JCStatement> createJFXClassModel(JCClassDecl cDecl, JavafxTypeMorpher typeMorpher) {
+// TODO: Fixing broken runtime build... There is problem with the MI design, related to importing classes from another packages. The base interface from another package is not found.
+        if (true) 
+            return List.<JCStatement>nil();
+// TODO: end
         Set<String> visitedClasses = new HashSet<String>();
         Map<String, Symbol> collectedAttributes = new HashMap<String, Symbol>();
         Map<String, MethodSymbol> collectedMethods = new HashMap<String, MethodSymbol>();

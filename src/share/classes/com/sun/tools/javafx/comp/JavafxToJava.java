@@ -1568,6 +1568,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     };
 
     private void processJFXAttributeReferences(JCClassDecl classDecl) {
+// TODO: Fixing broken runtime build... There is problem with the MI design, related to importing classes from another packages. The base interface from another package is not found.
+        if (true) 
+            return;
+// TODO: end
         TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(null, true);
         
         treeScanner.translate(classDecl);
