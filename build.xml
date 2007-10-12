@@ -16,10 +16,13 @@
     <target name="default" depends="jar"
             description="Build javafxc compiler."/>
 
-    <target name="all" depends="jar, spec, javadoc, test, findbugs, hudson"
+    <target name="all" depends="jar, spec, javadoc, test, findbugs"
             description="Build and test all project artifacts"/>
 
-    <target name="all-with-coverage" depends="coverage, all"
+    <target name="hudson-all" depends="coverage, all, runtime, coverage-report, hudson-post-build"
+            description="Build and test all project artifacts"/>
+
+    <target name="all-with-coverage" depends="coverage, all, coverage-report"
             description="Build and test all project artifacts with coverage"/>
 
     <available property="ant.jar" value="${ant.home}/lib/ant.jar" file="${ant.home}/lib/ant.jar"/>
@@ -159,9 +162,11 @@
         <mkdir dir="${build.test.results.dir}"/>
     </target>
 
-    <target depends="init,compile-test,-pre-test-run,-do-test-run,conditional-coverage-report" if="have.tests" name="-post-test-run">
+    <target depends="init,compile-test,-pre-test-run,-do-test-run" if="have.tests" name="-post-test-run">
         <!-- Don't explicitly call fail task, so Hudson reports an UNSTABLE build instead of FAILURE -->
     </target>
+
+    <target depends="conditional-coverage-report" name="coverage-report" />
 
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
@@ -172,10 +177,9 @@
         <chmod dir="dist/bin" perm="755" includes="**/javafxc*"/>
     </target>
     
-    <target name="-post-clean" depends="runtime-clean" 
-           description="Delete ANTLR-generated files">
-        <delete dir="src/share/classes/com/sun/tools/javafx"
-                includes="**/v2*.*" excludes="**/v2.g"/>
+    <target name="-post-clean" depends="runtime-clean">
+        <!-- Delete ANTLR-generated files -->
+        <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v2*.*" excludes="**/v2.g"/>
     </target>
 
     <target name="spec" description="Build JavaFX Script specification.">
@@ -220,7 +224,7 @@
          Depends on Hudson environment params JOB_NAME and SVN_REVISION.
          Publishes result of findbugs analysis, where it can later be combined into
          a multi-version bug database. -->
-    <target name="hudson" depends="init" if="export.dir">
+    <target name="hudson-post-build" depends="init" if="export.dir">
         <property environment="env"/>
         <mkdir dir="${export.dir}/findbugs"/>
         <exec executable="sh">
