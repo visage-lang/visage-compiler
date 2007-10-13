@@ -39,6 +39,8 @@ import java.util.HashSet;
  * @author Brian Goetz
  */
 public abstract class JavaFXTestCase extends TestCase {
+    private static final double EPSILON = 0.00000001;
+
     /**
      * Helper method for asserting that a sequence contains a specific set of values; tests via Object.equals(),
      * equality of toString(), by iterating the elements, and by toArray
@@ -67,6 +69,15 @@ public abstract class JavaFXTestCase extends TestCase {
         assertEquals(array.length, values.length);
         for (int i = 0; i < array.length; i++)
             assertEquals(array[i], values[i]);
+    }
+
+    protected void assertEquals(Sequence<Double> sequence, Double... values) {
+        assertEquals(sequence.size(), values.length);
+        int index = 0;
+        for (Double t : sequence) {
+            Double value = values[index++];
+            assertTrue(value + " !~ " + t, Math.abs(t - value) < EPSILON);
+        }
     }
 
     protected <T> void assertEquals(Sequence<T> sequence, T value) {
