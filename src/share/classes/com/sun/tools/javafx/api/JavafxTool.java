@@ -89,6 +89,7 @@ public final class JavafxTool implements JavafxCompiler {
                                                          SourceVersion.latest()));
     }
 
+    @Override
     public JavacFileManager getStandardFileManager(
         DiagnosticListener<? super JavaFileObject> diagnosticListener,
         Locale locale,
@@ -100,7 +101,8 @@ public final class JavafxTool implements JavafxCompiler {
         return new JavacFileManager(context, true, charset);
     }
 
-    public JavafxTaskImpl getTask(Writer out,
+    @Override
+    public JavafxTask getTask(Writer out,
                              JavaFileManager fileManager,
                              DiagnosticListener<? super JavaFileObject> diagnosticListener,
                              Iterable<String> options,
