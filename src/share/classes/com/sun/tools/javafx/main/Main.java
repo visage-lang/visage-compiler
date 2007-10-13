@@ -496,7 +496,7 @@ public class Main {
         try {
             if (messages == null)
                 messages = new Messages(javacBundleName);
-            return messages.getLocalizedString("javac" + key, args);
+            return messages.getLocalizedString("javac." + key, args);
         }
         catch (MissingResourceException e) {
             throw new Error("Fatal Error: Resource for javac is missing", e);
