@@ -1,0 +1,3 @@
+class ExtendsJava extends JavaClass {
+
+}

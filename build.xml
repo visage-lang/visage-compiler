@@ -53,6 +53,7 @@
                 <available file="${junit.dir}"/>
                 <available file="${docbook.dir}"/>
                 <available file="${antlr.dir}"/>
+                <available file="${antlrworks.dir}/antlrworks-${antlrworks.ver}.jar"/>
                 <available file="${antlr.dir}/antlr-2.7.7.jar"/>
             </and>
         </condition>
@@ -81,6 +82,10 @@
         <echo message="Ant version ${ant.version}"/>
     </target>
 
+    <target name="-post-init">
+        <property name="antlr.grammar.file" value="${antlr.src.dir}/${antlr.grammar}.g" />
+    </target>
+
     <!-- jar file creation: external runtime jar contents are included to reduce classpath issues -->
     <target depends="init,compile,-pre-pre-jar,-pre-jar" if="manifest.available+main.class+mkdist.available" name="-do-jar-with-libraries">
         <jar compress="${jar.compress}" destfile="${dist.jar}" manifest="${manifest.file}">
@@ -95,12 +100,30 @@
     
     
     <target name="check-parser">
-        <uptodate property="parser.uptodate" srcfile="${antlr.src.dir}/${antlr.grammar}.g" targetfile="${antlr.generated.dir}/${antlr.grammar}Parser.java" />
+        <uptodate property="parser.uptodate" srcfile="${antlr.grammar.file}" targetfile="${antlr.generated.dir}/${antlr.grammar}Parser.java" />
     </target>
 
     <target name="generate-parser" unless="parser.uptodate">
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
-            <arg value="${antlr.src.dir}/${antlr.grammar}.g" />
+            <arg value="${antlr.grammar.file}" />
+        </java>
+        <antcall target="syntax-diagrams" />
+    </target>
+
+    <target name="syntax-diagrams">
+        <mkdir dir="${syntax.diagrams.dir}"/>
+        <java classname="org.antlr.works.Console">
+            <classpath>
+                <pathelement path="${java.class.path}" />
+                <path refid="antlr.class.path" />
+                <path refid="antlrworks.class.path" />
+            </classpath>
+            <arg value="-f" />
+            <arg value="${antlr.grammar.file}" />
+            <arg value="-sd" />
+            <arg value="png" />
+            <arg value="-o" />
+            <arg value="${syntax.diagrams.dir}" />
         </java>
     </target>
 
@@ -195,9 +218,10 @@
     <target name="-post-clean" depends="runtime-clean">
         <!-- Delete ANTLR-generated files -->
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v2*.*" excludes="**/v2.g"/>
+        <delete dir="${syntax.diagrams.dir}" />
     </target>
 
-    <target name="spec" description="Build JavaFX Script specification.">
+    <target name="spec" depends="syntax-diagrams" description="Build JavaFX Script specification.">
         <ant antfile="doc/build.xml" target="spec" inheritAll="false"/>
         <copy todir="dist/doc">
             <fileset dir="build/doc/html"/>
