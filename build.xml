@@ -103,16 +103,16 @@
         <uptodate property="parser.uptodate" srcfile="${antlr.grammar.file}" targetfile="${antlr.generated.dir}/${antlr.grammar}Parser.java" />
     </target>
 
-    <target name="generate-parser" unless="parser.uptodate">
+    <target name="generate-parser" unless="parser.uptodate" depends="init">
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
             <arg value="${antlr.grammar.file}" />
         </java>
         <antcall target="syntax-diagrams" />
     </target>
 
-    <target name="syntax-diagrams">
+    <target name="syntax-diagrams" depends="init">
         <mkdir dir="${syntax.diagrams.dir}"/>
-        <java classname="org.antlr.works.Console">
+        <java classname="org.antlr.works.Console" fork="true">
             <classpath>
                 <pathelement path="${java.class.path}" />
                 <path refid="antlr.class.path" />
