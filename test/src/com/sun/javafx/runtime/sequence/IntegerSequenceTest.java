@@ -271,8 +271,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         emptyHelper(new ArraySequence<Integer>(Integer.class, EMPTY_SEQUENCE));
         emptyHelper(new ArraySequence<Integer>(Integer.class, new Integer[0]));
 
-        emptyHelper(new IntRangeSequence(0, -1));
-        emptyHelper(Sequences.range(0, -1));
+        emptyHelper(Sequences.rangeExclusive(0, 0));
 
         emptyHelper(new CompositeSequence<Integer>(Integer.class));
         emptyHelper(new CompositeSequence<Integer>(Integer.class, EMPTY_SEQUENCE));
@@ -412,7 +411,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         // [ 0..<0 ] => [ 0 ]
         assertEquals(Sequences.rangeExclusive(0, 0), EMPTY_SEQUENCE);
         // [ 0..-1 ] => [ ]
-        assertEquals(Sequences.range(0, -1), EMPTY_SEQUENCE);
+        assertEquals(Sequences.range(0, -1), 0, -1);
         // [ 0..0 STEP 3 ] => [ 0 ]
         assertEquals(Sequences.range(0, 0, 3), 0);
         // [ 0..<0 STEP 3 ] => [ 0 ]

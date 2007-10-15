@@ -64,11 +64,11 @@ class IntRangeSequence extends AbstractSequence<Integer> implements Sequence<Int
     }
 
     public IntRangeSequence(int start, int bound) {
-        this(start, bound, 1, false);
+        this(start, bound, (start < bound) ? 1 : -1, false);
     }
 
     public IntRangeSequence(int start, int bound, boolean exclusive) {
-        this(start, bound, 1, exclusive);
+        this(start, bound, (start < bound) ? 1 : -1, exclusive);
     }
 
     @Override
