@@ -1,93 +1,74 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <?xml-stylesheet href="docbook.css" type="text/css"?>
 <chapter id="Quickstart">
-<title>QuickStart</title>
-<sect1 id="quick"><title>QuickStart Overview</title>
-<para>
-<emphasis>This quickstart section walks thorugh a hands' on install process from initial download, to writing, saving, building, testing and running a example program. It probably does not cover deployment.  </emphasis>
-</para>
+  <title>QuickStart</title>
 
-<para>
-<emphasis>This chapter includes screenshots, procedures and could include links to runnable applications.  </emphasis>
-</para>
+  <sect1 id="quick">
+    <title>QuickStart Overview</title>
 
-<para>
-<emphasis>QUESTIONS: </emphasis></para> 
+    <para><emphasis>This quickstart section walks thorugh a simple hands' on install
+    process from initial download, to writing, saving, building, testing and
+    running a example program. It probably does not cover deployment.
+    </emphasis></para>
 
+    <para><emphasis>This chapter includes screenshots, procedures and could
+    include links to runnable applications. </emphasis></para>
 
-<itemizedlist>
+    <sect2 id="qsquestions">
+      <title>Quick Start Questions</title>
 
-<listitem>
-<para>Should we present a programming model using NetBeans, or present a model using command line tools? </para>
-</listitem>
+      <para><emphasis>This is a running list of questions about the QS
+      Chapter.</emphasis></para>
 
-<listitem>
-<para>Briefly list and identify command line tools anyway. </para>
-</listitem>
+      <itemizedlist>
+        <listitem>
+          <para>Should we present a programming model using NetBeans, or
+          present a model using command line tools?</para>
+        </listitem>
 
-</itemizedlist>
+        <listitem>
+          <para>Briefly list and identify command line tools anyway.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
 
-<!--
-<itemizedlist mark='opencircle'>
-<listitem>
-<para>TeX and LaTeX
-</para>
-</listitem>
-<listitem override='bullet'>
-<para>Troff
-</para>
-</listitem>
-<listitem>
-<para>Lout
-</para>
-</listitem>
-</itemizedlist>
+    <sect2>
+      <title>Setting Up Your Development Environment</title>
 
-</article>
+      <para>Download, install and test the JavaFX Script download bundle. </para>
 
+      <para>List items in the JFX Download bundle and where to get them. </para>
+      
+      <para>Put these items into a JavaFX development directory named <emphasis><code>development_directory_name.</code></emphasis> </para>
+      
+       <para>Set some environment variables. Add <emphasis><code>development_directory_name</code></emphasis> to your path. </para>
+      
+    </sect2>
 
+    <sect2>
+      <title>Write Your First JavaFX Script</title>
 
-</para>
--->
+      <para>Open a text editor, write a script, save it. </para>
+      
+       <para>Open a terminal window. </para>
 
+      <para>From the terminal window, use <emphasis><code>jfx command</code></emphasis> to compile the script. It
+      calls wrapper packages, links to the JRE, and generates an output class.
+      </para>
+      
+      </sect2>
+      
+      <sect2 id="runscript"><title>Run your first JavaFX Script</title>
 
-</sect1>
-
-
-
-<sect2 id="quick2"><title>Another Second-level Section Here</title>
-<para>
-<emphasis>This is an empty Section.  </emphasis>
-</para>
-</sect2>
-
-
-<!--
-
-
-<sect2 id="quick3"><title>Another Second-level Section Here</title>
-<para>
-<emphasis>This is an empty Section.  </emphasis>
-</para>
-
-</sect2>
-
-
-<sect1 id="quick4"><title>Another Top-level Section Here</title>
-<para>
-<emphasis>This is an empty Section.  </emphasis>
-</para>
-</sect1>
-
-</sect1>
-<sect1 id="quick5"><title>Another Section Here</title>
-<para>
-<emphasis>This is an empty Section.  </emphasis>
-</para>
-</sect1> 
-
--->
-
+      <para>Use  <emphasis><code>jfx command</code></emphasis> to run this script on your desktop. </para>
+      
+      <para>Here is what the script looks like.</para>
+      
+      <para><emphasis>Add a pic of the script app window here.</emphasis></para>
+      
+      
+    </sect2>
+  </sect1>
 </chapter>
