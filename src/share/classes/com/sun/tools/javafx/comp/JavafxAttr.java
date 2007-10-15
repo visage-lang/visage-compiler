@@ -1939,7 +1939,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     public void visitLiteral(JCLiteral tree) {
         result = check(
-            tree, litType(tree.typetag).constType(tree.value), VAL, pkind, pt);
+            tree, litType(tree.typetag), VAL, pkind, pt);
     }
     //where
     /** Return the type of a literal with given type tag.
@@ -2243,9 +2243,32 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitSequenceRange(JFXSequenceRange tree) {
-        attribExpr(tree.getLower(), env, syms.intType);        
-        attribExpr(tree.getUpper(), env, syms.intType);
-        Type owntype = sequenceType(syms.intType);
+        Type lowerType =  attribExpr(tree.getLower(), env);        
+        Type upperType = attribExpr(tree.getUpper(), env);
+        Type stepType = tree.getStepOrNull() == null? syms.javafx_IntegerType : attribExpr(tree.getStepOrNull(), env);
+        boolean allInt = true;
+        if (lowerType != syms.javafx_IntegerType) {
+            allInt = false;
+            if (lowerType != syms.javafx_NumberType) {
+                log.error(tree.getLower().pos(), "range.start.int.or.number"); 
+            }
+        }
+        if (upperType != syms.javafx_IntegerType) {
+            allInt = false;
+            if (upperType != syms.javafx_NumberType) {
+                log.error(tree.getLower().pos(), "range.end.int.or.number"); 
+            }
+        }
+        if (stepType != syms.javafx_IntegerType) {
+            allInt = false;
+            if (stepType != syms.javafx_NumberType) {
+                log.error(tree.getUpper().pos(), "range.step.int.or.number"); 
+            }
+        }
+        if (!allInt && tree.getStepOrNull() == null) {
+            log.error(tree.pos(), "range.step.required.number"); 
+        }
+        Type owntype = sequenceType(allInt? syms.javafx_IntegerType : syms.javafx_NumberType);
         Type constraintType;
         if (isSequence(pt)) {
             constraintType = pt;
@@ -2647,8 +2670,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
                 // If the variable is a constant, record constant value in
                 // computed type.
-                if (v.getConstValue() != null && isStaticReference(tree))
-                    owntype = owntype.constType(v.getConstValue());
+                //if (v.getConstValue() != null && isStaticReference(tree))
+                //    owntype = owntype.constType(v.getConstValue());
 
                 if (pkind == VAL) {
                     owntype = capture(owntype); // capture "names as expressions"

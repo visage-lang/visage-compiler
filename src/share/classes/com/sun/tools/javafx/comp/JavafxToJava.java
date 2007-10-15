@@ -99,6 +99,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      */
     private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";
     private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
+    private static final String sequencesRangeExclusiveString = "com.sun.javafx.runtime.sequence.Sequences.rangeExclusive";
     private static final String sequencesEmptyString = "com.sun.javafx.runtime.sequence.Sequences.emptySequence";
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.SequenceBuilder";
     private static final String toSequenceString = "toSequence";
@@ -795,11 +796,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSequenceRange(JFXSequenceRange tree) {
         DiagnosticPosition diagPos = tree.pos();
-        JCExpression meth = makeQualifiedTree(diagPos, sequencesRangeString);
+        JCExpression meth = makeQualifiedTree(
+                diagPos, tree.isExclusive()? 
+                    sequencesRangeExclusiveString : 
+                    sequencesRangeString);
         ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb();
         List<JCExpression> typeArgs = List.<JCExpression>nil();
         args.append( translate( tree.getLower() ));
         args.append( translate( tree.getUpper() ));
+        if (tree.getStepOrNull() != null) {
+            args.append( translate( tree.getStepOrNull() ));
+        }
         result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
     }
     

@@ -190,8 +190,8 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXSequenceRange RangeSequence(JCExpression lower, JCExpression upper) {
-        JFXSequenceRange tree = new JFXSequenceRange(lower, upper);
+    public JFXSequenceRange RangeSequence(JCExpression lower, JCExpression upper, JCExpression stepOrNull, boolean exclusive) {
+        JFXSequenceRange tree = new JFXSequenceRange(lower, upper,  stepOrNull,  exclusive);
         tree.pos = pos;
         return tree;
     }

@@ -86,6 +86,7 @@ tokens {
    EASEIN='easein';
    EASEOUT='easeout';
    ELSE='else';
+   EXCLUSIVE='exclusive';
    EXTENDS='extends';
    FINALLY='finally';
    FIRST='first';
@@ -105,6 +106,7 @@ tokens {
    ORDER='order';
    REPLACE='replace';
    REVERSE='reverse';
+   STEP='step';
    THEN='then';
    TYPEOF='typeof';
    WITH='with';
@@ -816,7 +818,7 @@ stringFormat  returns [JCExpression expr]
 	| /* no formar */			{ $expr = F.             Literal(TypeTags.CLASS, ""); }
 	;
 bracketExpression   returns [JFXAbstractSequenceCreator expr]
-@init { ListBuffer<JCExpression> exps = new ListBuffer<JCExpression>(); }
+@init { ListBuffer<JCExpression> exps = new ListBuffer<JCExpression>(); JCExpression step = null; boolean exclusive = false; }
 	: LBRACKET   
 	    ( /*nada*/				{ $expr = F.at(pos($LBRACKET)).EmptySequence(); }
 	    | e1=expression 			{ exps.append($e1.expr); }
@@ -828,7 +830,12 @@ bracketExpression   returns [JFXAbstractSequenceCreator expr]
 	     	      (COMMA  en=expression	{ exps.append($en.expr); } )*
 	     	    				{ $expr = F.at(pos($LBRACKET)).ExplicitSequence(exps.toList()); }
 	     	    )
-	     	| DOTDOT   dd=expression	{ $expr = F.at(pos($LBRACKET)).RangeSequence($e1.expr, $dd.expr); }
+	     	| DOTDOT   dd=expression	
+	     	    ( STEP st=expression	{ step = $st.expr; }
+	     	    )?
+	     	    ( EXCLUSIVE			{ exclusive = true; }
+	     	    )?
+	     					{ $expr = F.at(pos($LBRACKET)).RangeSequence($e1.expr, $dd.expr, step, exclusive); }
 	     	)   
 	    )
 	  RBRACKET 

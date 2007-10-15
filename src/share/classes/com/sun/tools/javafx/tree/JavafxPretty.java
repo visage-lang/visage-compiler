@@ -242,6 +242,13 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             printExpr(that.getLower());
             print("..");
             printExpr(that.getUpper());
+            if (that.getStepOrNull() != null) {
+                print("step ");
+                printExpr(that.getStepOrNull());
+            }
+            if (that.isExclusive()) {
+                print(" exclusive");
+            }
             print("]");
         } catch (IOException e) {
             throw new UncheckedIOException(e);

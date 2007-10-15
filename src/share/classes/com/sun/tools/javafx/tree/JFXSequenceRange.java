@@ -34,10 +34,14 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
 public class JFXSequenceRange extends JFXAbstractSequenceCreator {
     private final JCExpression lower;
     private final JCExpression upper;
+    private final JCExpression stepOrNull;
+    private final boolean exclusive;
 
-    public JFXSequenceRange(JCExpression lower, JCExpression upper) {
+    public JFXSequenceRange(JCExpression lower, JCExpression upper, JCExpression stepOrNull, boolean exclusive) {
         this.lower = lower;
         this.upper = upper;
+        this.stepOrNull = stepOrNull;
+        this.exclusive = exclusive;
     }
 
     public void accept(JavafxVisitor v) {
@@ -50,6 +54,14 @@ public class JFXSequenceRange extends JFXAbstractSequenceCreator {
     
     public JCExpression getUpper() {
         return upper;
+    }
+    
+    public JCExpression getStepOrNull() {
+        return stepOrNull;
+    }
+    
+    public boolean isExclusive() {
+        return exclusive;
     }
     
     @Override

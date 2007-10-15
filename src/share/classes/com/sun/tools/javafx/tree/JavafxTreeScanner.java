@@ -105,15 +105,14 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     
     @Override
     public void visitSequenceRange(JFXSequenceRange that) {
-        that.getLower().accept(this);
-        that.getUpper().accept(this);
+        scan( that.getLower() );
+        scan( that.getUpper() );
+        scan( that.getStepOrNull() );
     }
     
     @Override
     public void visitSequenceExplicit(JFXSequenceExplicit that) {
-        for (JCExpression expr : that.getItems()) {
-            expr.accept(this);
-        }
+        scan( that.getItems() );
     }
 
     @Override
