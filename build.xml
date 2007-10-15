@@ -163,6 +163,15 @@
 
     <target name="-pre-compile" depends="check-parser,generate-parser"/>
     <target name="-post-compile" depends="compile-runtime-fx" />
+    <target depends="init" name="-javadoc-build">
+        <mkdir dir="${dist.javadoc.dir}"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" destdir="${dist.javadoc.dir}" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}"
+                packagenames="${javadoc.pkgs}" sourcepath="${src.classes.dir}">
+            <classpath>
+                <path path="${javac.classpath}"/>
+            </classpath>
+        </javadoc>
+    </target>
 
     <!-- Stuff dealing with adding coverage to JUnit execution -->
 
