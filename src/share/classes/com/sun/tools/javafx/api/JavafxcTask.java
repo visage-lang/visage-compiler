@@ -42,7 +42,7 @@ import javax.tools.JavaFileObject;
  * @see com.sun.source.util.JavacTask
  * @author Tom Ball
  */
-public abstract class JavafxTask implements CompilationTask {
+public abstract class JavafxcTask implements CompilationTask {
 
     /**
      * Parse the specified files returning a list of abstract syntax trees.

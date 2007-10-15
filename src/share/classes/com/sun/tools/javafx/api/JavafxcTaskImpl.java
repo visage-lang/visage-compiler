@@ -61,9 +61,9 @@ import javax.tools.JavaFileObject;
  * @see com.sun.tools.javac.api.JavacTaskImpl
  * @author tball
  */
-class JavafxTaskImpl extends JavafxTask {
+class JavafxcTaskImpl extends JavafxcTask {
 
-    private JavafxTool tool;
+    private JavafxcTool tool;
     private Main compilerMain;
     private com.sun.tools.javafx.main.JavafxCompiler compiler;
     private String[] args;
@@ -75,7 +75,7 @@ class JavafxTaskImpl extends JavafxTask {
     private AtomicBoolean used = new AtomicBoolean();
     private Integer result = null;
 
-    JavafxTaskImpl(JavafxTool tool, Main compilerMain, String[] args, Context context, List<JavaFileObject> fileObjects) {
+    JavafxcTaskImpl(JavafxcTool tool, Main compilerMain, String[] args, Context context, List<JavaFileObject> fileObjects) {
         this.tool = tool;
         this.compilerMain = compilerMain;
         this.args = args;
@@ -88,7 +88,7 @@ class JavafxTaskImpl extends JavafxTask {
         fileObjects.getClass();
     }
 
-    JavafxTaskImpl(JavafxTool tool,
+    JavafxcTaskImpl(JavafxcTool tool,
                 Main compilerMain,
                 Iterable<String> flags,
                 Context context,
@@ -155,7 +155,7 @@ class JavafxTaskImpl extends JavafxTask {
     }
 
     private void beginContext() {
-        context.put(JavafxTaskImpl.class, this);
+        context.put(JavafxcTaskImpl.class, this);
         if (context.get(TaskListener.class) != null) {
             context.put(TaskListener.class, (TaskListener) null);
         }

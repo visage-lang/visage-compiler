@@ -46,13 +46,13 @@ import static org.junit.Assert.*;
 /**
  * Unit test for JavafxTool.
  */
-public class JavafxToolTest {
+public class JavafxcToolTest {
     private static File tmpDirectory;
 
     @Test
     public void create() {
-        Object result = JavafxTool.create();
-        assertTrue(result instanceof JavafxTool);
+        Object result = JavafxcTool.create();
+        assertTrue(result instanceof JavafxcTool);
     }
     
     @BeforeClass
@@ -67,7 +67,7 @@ public class JavafxToolTest {
         InputStream in = null;   // use System.in
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
-        JavafxTool instance = new JavafxTool();
+        JavafxcTool instance = JavafxcTool.create();
         int errors = instance.run(in, out, err, "-d", tmpDirectory.getPath(), 
                                   "test/src/com/sun/tools/javafx/api/Hello.fx");
         if (errors > 0) {
@@ -84,7 +84,7 @@ public class JavafxToolTest {
 
     @Test
     public void getSourceVersions() {
-        JavafxTool instance = new JavafxTool();
+        JavafxcTool instance = new JavafxcTool();
         Set<SourceVersion> expResult = EnumSet.range(SourceVersion.RELEASE_3,
                                                      SourceVersion.latest());
         Set<SourceVersion> result = instance.getSourceVersions();
@@ -93,7 +93,7 @@ public class JavafxToolTest {
 
     @Test
     public void getStandardFileManager() {
-        JavafxTool instance = new JavafxTool();
+        JavafxcTool instance = new JavafxcTool();
         Object result = instance.getStandardFileManager(null, null, null);
         assertTrue(result instanceof JavacFileManager);
     }
@@ -108,7 +108,7 @@ public class JavafxToolTest {
         };
         Locale locale = Locale.getDefault();
         Charset charset = Charset.defaultCharset();
-        JavafxTool instance = new JavafxTool();
+        JavafxcTool instance = new JavafxcTool();
         Object result = instance.getStandardFileManager(diagnosticListener, locale, charset);
         assertTrue(result instanceof JavacFileManager);
     }
@@ -121,14 +121,14 @@ public class JavafxToolTest {
         Iterable<String> options = null;
         Iterable<String> classes = null;
         Iterable<? extends JavaFileObject> compilationUnits = null;
-        JavafxTool instance = new JavafxTool();
+        JavafxcTool instance = new JavafxcTool();
         Object result = instance.getTask(out, fileManager, diagnosticListener, options, classes, compilationUnits);
-        assertTrue(result instanceof JavafxTask);
+        assertTrue(result instanceof JavafxcTask);
     }
 
     @Test
     public void isSupportedOption() {
-        JavafxTool instance = new JavafxTool();
+        JavafxcTool instance = new JavafxcTool();
         int result = instance.isSupportedOption("");
         assertTrue(result == -1);
         result = instance.isSupportedOption("-invalidOption");

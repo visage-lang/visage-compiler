@@ -53,7 +53,7 @@ import java.util.Locale;
  *
  * @author Tom Ball
  */
-public final class JavafxTool implements JavafxCompiler {
+public final class JavafxcTool implements JavafxCompiler {
     private final Context dummyContext = new Context();
 
     private final PrintWriter silent = new PrintWriter(new OutputStream(){
@@ -70,8 +70,8 @@ public final class JavafxTool implements JavafxCompiler {
      * Static factory method for creating new instances of this tool.
      * @return new instance of this tool
      */
-    public static JavafxTool create() {
-        return new JavafxTool();
+    public static JavafxcTool create() {
+        return new JavafxcTool();
     }
 
     @Override
@@ -102,7 +102,7 @@ public final class JavafxTool implements JavafxCompiler {
     }
 
     @Override
-    public JavafxTask getTask(Writer out,
+    public JavafxcTask getTask(Writer out,
                              JavaFileManager fileManager,
                              DiagnosticListener<? super JavaFileObject> diagnosticListener,
                              Iterable<String> options,
@@ -140,7 +140,7 @@ public final class JavafxTool implements JavafxCompiler {
         context.put(JavaFileManager.class, fileManager);
         processOptions(context, fileManager, options);
         Main compiler = new Main("javacTask", context.get(Log.outKey));
-        return new JavafxTaskImpl(this, compiler, options, context, classes, compilationUnits);
+        return new JavafxcTaskImpl(this, compiler, options, context, classes, compilationUnits);
     }
 
     private static void processOptions(Context context,
