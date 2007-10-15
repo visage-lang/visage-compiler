@@ -41,6 +41,7 @@ import com.sun.tools.javac.util.JavacFileManager;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Options;
+import com.sun.tools.javac.util.Pair;
 import com.sun.tools.javafx.main.CommandLine;
 import com.sun.tools.javafx.main.Main;
 import java.io.File;
@@ -48,7 +49,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -70,6 +70,7 @@ class JavafxcTaskImpl extends JavafxcTask {
     private Context context;
     private List<JavaFileObject> fileObjects;
     private Map<JavaFileObject, JCCompilationUnit> notYetEntered;
+    private List<JCCompilationUnit> units;
     private ListBuffer<Env<AttrContext>> genList;
     private TaskListener taskListener;
     private AtomicBoolean used = new AtomicBoolean();
@@ -117,6 +118,7 @@ class JavafxcTaskImpl extends JavafxcTask {
         return result.toList();
     }
 
+    @Override
     public Boolean call() {
         if (!used.getAndSet(true)) {
             beginContext();
@@ -210,7 +212,7 @@ class JavafxcTaskImpl extends JavafxcTask {
     public Iterable<? extends CompilationUnitTree> parse() throws IOException {
         try {
             prepareCompiler();
-            List<JCCompilationUnit> units = compiler.parseFiles(fileObjects);
+            units = compiler.parseFiles(fileObjects);
             for (JCCompilationUnit unit: units) {
                 JavaFileObject file = unit.getSourceFile();
                 if (notYetEntered.containsKey(file))
@@ -227,16 +229,54 @@ class JavafxcTaskImpl extends JavafxcTask {
 
     private boolean parsed = false;
 
+    private void enter() throws IOException {
+        prepareCompiler();
+
+        ListBuffer<JCCompilationUnit> roots = null;
+
+        if (notYetEntered.size() > 0) {
+            if (!parsed)
+                parse();
+            for (JavaFileObject file: fileObjects) {
+                JCCompilationUnit unit = notYetEntered.remove(file);
+                if (unit != null) {
+                    if (roots == null)
+                        roots = new ListBuffer<JCCompilationUnit>();
+                    roots.append(unit);
+                }
+            }
+            notYetEntered.clear();
+        }
+
+        if (roots != null)
+            try {
+                compiler.enterTrees(roots.toList());
+            }
+            finally {
+                if (compiler != null && compiler.log != null)
+                    compiler.log.flush();
+            }
+    }
+
     @Override
     public Iterable<? extends CompilationUnitTree> analyze() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        try {
+            enter();
+            compiler.attribute();
+            return units;
+        } finally {
+            if (compiler != null && compiler.log != null)
+                compiler.log.flush();
+        }
     }
 
     @Override
     public Iterable<? extends JavaFileObject> generate() throws IOException {
-        throw new AssertionError("not implemented yet");
+        final ListBuffer<JavaFileObject> results = new ListBuffer<JavaFileObject>();
+        compiler.generate(results);
+        return results;
     }
-
+    
     @Override
     public void setTaskListener(TaskListener taskListener) {
         this.taskListener = taskListener;
@@ -244,7 +284,6 @@ class JavafxcTaskImpl extends JavafxcTask {
 
     @Override
     public TypeMirror getTypeMirror(Iterable<? extends Tree> path) {
-        // TODO: Should complete attribution if necessary
         Tree last = null;
         for (Tree node : path) {
             last = node;

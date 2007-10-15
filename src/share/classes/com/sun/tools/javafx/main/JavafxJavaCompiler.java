@@ -25,7 +25,10 @@
 
 package com.sun.tools.javafx.main;
 
+import com.sun.tools.javac.comp.AttrContext;
+import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.main.*;
+import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.*;
 import java.io.IOException;
@@ -54,14 +57,25 @@ public class JavafxJavaCompiler extends JavaCompiler {
         super(context);
     }
 
-    public void backEnd(List<JCCompilationUnit> externalModules) throws IOException {
+    public void backEnd(List<JCCompilationUnit> externalModules, ListBuffer<JavaFileObject> results) throws IOException {
         modules = externalModules;
+        this.results = results;
         compile(null, List.<String>nil(), null);
+        results = null;
     }
     
     public Name.Table getNames() {
         return names;
     }
+    
+    /**
+     * Override of JavaCompiler.generate() to catch list of generated class files.
+     * Do not call directly.
+     */
+    public void generate(List<Pair<Env<AttrContext>, JCClassDecl>> list) {
+        generate(list, results);
+    }
+    ListBuffer<JavaFileObject> results = null;
 
     @Override
     public List<JCCompilationUnit> parseFiles(List<JavaFileObject> fileObjects) throws IOException {

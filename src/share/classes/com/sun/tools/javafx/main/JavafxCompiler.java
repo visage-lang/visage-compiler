@@ -692,7 +692,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             // These method calls must be chained to avoid memory leaks
             enterTrees(cus);
             
-            compile2();
+            compile2(null);
             close();
         } catch (Abort ex) {
             if (devVerbose)
@@ -770,7 +770,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * The phases following annotation processing: attribution,
      * desugar, and finally code generation.
      */
-    private void compile2() throws IOException {
+    private void compile2(ListBuffer<JavaFileObject> results) throws IOException {
         try {
             switch (compilePolicy) {
             case ATTR_ONLY:
@@ -778,25 +778,25 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 break;
 
             case CHECK_ONLY:
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo)))));
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo)))), results);
                 break;
 
             case SIMPLE:
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo)))));
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo)))), results);
                 break;
 
             case BY_FILE: {
                 ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
                 for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(varAnalysis(attribute(todo)))).values())
                     envbuff.appendList(prepForBackEnd(list));
-                backEnd(envbuff.toList());
+                backEnd(envbuff.toList(), results);
                 break;
             }
             case BY_TODO: {
                 ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
                 while (todo.nonEmpty())
                     envbuff.appendList(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo.next())))));
-                backEnd(envbuff.toList());
+                backEnd(envbuff.toList(), results);
                 break;
             }
             default:
@@ -824,13 +824,20 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
     }
     
-    private void backEnd(List<JavafxEnv<JavafxAttrContext>> envs) throws IOException {
+    /**
+     * Generate any files on the todo list.  Called by JavafxcTaskImpl.
+     */
+    public void generate(ListBuffer<JavaFileObject> results) throws IOException {
+        compile2(results);
+    }
+    
+    private void backEnd(List<JavafxEnv<JavafxAttrContext>> envs, ListBuffer<JavaFileObject> results) throws IOException {
         ListBuffer<JCCompilationUnit> trees = lb();
         for (JavafxEnv<JavafxAttrContext> env : envs) {
             printJavaSource(env);
             trees.append(env.toplevel);
        }
-       javafxJavaCompiler.backEnd(trees.toList());
+       javafxJavaCompiler.backEnd(trees.toList(), results);
     }
 
     /**
@@ -884,6 +891,13 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             }
         }
         return roots;
+    }
+    
+    /**
+     * Attribute the existing JavafxTodo list.  Called by JavafxTaskImpl.
+     */
+    public void attribute() {
+        attribute(todo);
     }
 
     /**
