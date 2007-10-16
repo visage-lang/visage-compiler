@@ -203,4 +203,76 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         v.set(0);
         assertEquals(0, ((AbstractLocation) v).getListenerCount());
     }
+
+    public void testIncrementalUpdates() {
+        final IntLocation a = IntVar.make(0);
+        final IntLocation b = IntVar.make(0);
+        final IntLocation c = IntVar.make(0);
+        final IntLocation d = IntVar.make(0);
+        final IntLocation x = IntExpression.make(new IntBindingExpression() {
+            public int get() {
+                return a.get() + b.get();
+            }
+        }, a, b);
+        final IntLocation y = IntExpression.make(new IntBindingExpression() {
+            public int get() {
+                return c.get() + d.get();
+            }
+        }, c, d);
+        final IntLocation z = IntExpression.make(new IntBindingExpression() {
+            public int get() {
+                return x.get() + y.get();
+            }
+        }, x, y);
+        CountingListener aCounter = new CountingListener();
+        CountingListener bCounter = new CountingListener();
+        CountingListener cCounter = new CountingListener();
+        CountingListener dCounter = new CountingListener();
+        CountingListener xCounter = new CountingListener();
+        CountingListener yCounter = new CountingListener();
+        CountingListener zCounter = new CountingListener();
+        a.addChangeListener(aCounter);
+        b.addChangeListener(bCounter);
+        c.addChangeListener(cCounter);
+        d.addChangeListener(dCounter);
+        x.addChangeListener(xCounter);
+        y.addChangeListener(yCounter);
+        z.addChangeListener(zCounter);
+
+        a.set(1);
+        assertEquals(x.get(), 1);
+        assertEquals(y.get(), 0);
+        assertEquals(z.get(), 1);
+        assertEquals(1, aCounter.count);
+        assertEquals(0, bCounter.count);
+        assertEquals(0, cCounter.count);
+        assertEquals(0, dCounter.count);
+        assertEquals(1, xCounter.count);
+        assertEquals(0, yCounter.count);
+        assertEquals(1, zCounter.count);
+
+        a.set(1);
+        assertEquals(x.get(), 1);
+        assertEquals(y.get(), 0);
+        assertEquals(z.get(), 1);
+        assertEquals(1, aCounter.count);
+        assertEquals(0, bCounter.count);
+        assertEquals(0, cCounter.count);
+        assertEquals(0, dCounter.count);
+        assertEquals(1, xCounter.count);
+        assertEquals(0, yCounter.count);
+        assertEquals(1, zCounter.count);
+
+        b.set(1);
+        assertEquals(x.get(), 2);
+        assertEquals(y.get(), 0);
+        assertEquals(z.get(), 2);
+        assertEquals(1, aCounter.count);
+        assertEquals(1, bCounter.count);
+        assertEquals(0, cCounter.count);
+        assertEquals(0, dCounter.count);
+        assertEquals(2, xCounter.count);
+        assertEquals(0, yCounter.count);
+        assertEquals(2, zCounter.count);
+    }
 }
