@@ -228,6 +228,8 @@
         <!-- Delete ANTLR-generated files -->
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v2*.*" excludes="**/v2.g"/>
         <delete dir="${syntax.diagrams.dir}" />
+        <delete dir="${build.instrumented.dir}"/>
+        <delete file="cobertura.ser" />
     </target>
 
     <target name="spec" depends="syntax-diagrams" description="Build JavaFX Script specification.">
