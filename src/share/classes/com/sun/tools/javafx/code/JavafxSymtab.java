@@ -38,6 +38,14 @@ import static com.sun.tools.javac.jvm.ByteCodes.*;
  */
 public class JavafxSymtab extends Symtab {
     
+    // Javafx types
+    public final Type javafx_IntegerType;
+    public final Type javafx_NumberType;
+    public final Type javafx_AnyType;
+    public final Type javafx_UnspecifiedType;
+    public final Type javafx_StringType;
+    public final Type javafx_BooleanType;
+    public final Type javafx_VoidType;
     public final Type javafx_SequenceType;
     public final Type javafx_SequenceTypeErasure;
     static public final int MAX_FIXED_PARAM_LENGTH = 8;
@@ -76,15 +84,6 @@ public class JavafxSymtab extends Symtab {
         enterOperators();
     }
     
-    // Javafx types
-    public final Type javafx_IntegerType;
-    public final Type javafx_NumberType;
-    public final Type javafx_AnyType;
-    public final Type javafx_UnspecifiedType;
-    public final Type javafx_StringType;
-    public final Type javafx_BooleanType;
-    public final Type javafx_VoidType;
-    
     public void enterOperators() {
         super.enterOperators();
         
@@ -99,6 +98,8 @@ public class JavafxSymtab extends Symtab {
         enterBinop("or", booleanType, booleanType, booleanType, bool_or);
         
         // Enter JavaFX operators.
+        enterUnop("sizeof", javafx_SequenceType, javafx_IntegerType, 0);
+        
         enterUnop("lazy", doubleType, doubleType, 0);
         enterUnop("lazy", intType, intType, 0);
         enterUnop("lazy", booleanType, booleanType, 0);

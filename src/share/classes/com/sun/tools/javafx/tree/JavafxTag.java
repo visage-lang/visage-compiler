@@ -183,10 +183,14 @@ public abstract class JavafxTag extends JCTree {
      */
     public static final int XOR = TYPEUNKNOWN + 1;        
     public static final int JFX_OP_FIRST = XOR;        
+    
+    /** sizeof operator
+     */
+    public static final int SIZEOF = XOR + 1;
 
     /** internal bind unary operator
      */
-    public static final int BINDOP = XOR + 1;        
+    public static final int BINDOP = SIZEOF + 1;        
 
     /** internal lazy bind unary operator
      */

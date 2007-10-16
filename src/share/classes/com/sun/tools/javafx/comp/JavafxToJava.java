@@ -40,11 +40,12 @@ import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.*;
-import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.tree.TreeTranslator;
+
+import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxBindStatus;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
@@ -76,7 +77,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private final Log log;
     private final Name.Table names;
     private final Types types;
-    private final Symtab syms;
+    private final JavafxSymtab syms;
     private final JavafxInitializationBuilder initBuilder;
     private final JavafxTypeMorpher typeMorpher;
 
@@ -120,7 +121,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         log = Log.instance(context);
         names = Name.Table.instance(context);
         types = Types.instance(context);
-        syms = Symtab.instance(context);
+        syms = (JavafxSymtab)JavafxSymtab.instance(context);
         typeMorpher = JavafxTypeMorpher.instance(context);
         initBuilder = JavafxInitializationBuilder.instance(context);
     }
@@ -1445,8 +1446,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitUnary(JCUnary tree) {
-        JCExpression arg = translate(tree.arg);
-        result = make.at(tree.pos).Unary(tree.getTag(), arg);
+        if (tree.getTag() == JavafxTag.SIZEOF) {
+            if (isSequence(tree.arg.type)) {
+                result = callExpression(tree, translate(tree.arg), "size", List.<JCExpression>nil());
+            } else {
+                // not a sequence, virtually promote to a sequence of length one
+                result = make.at(tree).Literal(TypeTags.INT, 1);
+            }
+        } else {
+            result = make.at(tree.pos).Unary(tree.getTag(), translate(tree.arg));
+        }
     }
 
     public void visitVarDef(JCVariableDecl tree) {
@@ -1513,6 +1522,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         assert false : "should be processed by parent tree";
+    }
+    
+    boolean isSequence(Type type) {
+        return type != Type.noType && type != null 
+                && type.tag != TypeTags.ERROR 
+                && type.tag != TypeTags.METHOD && type.tag != TypeTags.FORALL
+                && types.erasure(type) == syms.javafx_SequenceTypeErasure;
     }
     
     protected void prettyPrint(JCTree node) {

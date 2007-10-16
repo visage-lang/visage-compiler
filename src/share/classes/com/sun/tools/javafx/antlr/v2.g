@@ -848,7 +848,7 @@ unaryOperator  returns [int optag]
 	| QUES   			{ $optag = 0; } //TODO
 	| SUB   			{ $optag = JCTree.NEG; } 
 	| NOT   			{ $optag = JCTree.NOT; } 
-	| SIZEOF   			{ $optag = 0; } //TODO
+	| SIZEOF   			{ $optag = JavafxTag.SIZEOF; } //TODO
 	| TYPEOF   			{ $optag = 0; } //TODO
 	| REVERSE   			{ $optag = 0; } //TODO
 	| PLUSPLUS   			{ $optag = 0; } //TODO

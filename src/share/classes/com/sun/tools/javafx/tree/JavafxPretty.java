@@ -542,6 +542,21 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         assert false : "should not reach here";
     }
+    
+    @Override
+    public void visitUnary(JCUnary tree) {
+        try {
+           if (tree.getTag() == JavafxTag.SIZEOF) {
+               print("(sizeof ");
+               printExpr(tree.arg);
+               print(")");
+           } else {
+               super.visitUnary(tree);
+           }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
     public void visitTree(JCTree tree) {
         assert false : "Should not be here!!!";
