@@ -372,34 +372,39 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     }
     
     public JCExpression Identifier(String str) {
+        return Identifier(str, false);
+    }
+    
+    private JCExpression Identifier(String str, boolean ltParse) {
         JCExpression tree = null;
         int inx;
         int lastInx = 0;
+        int ltInx = str.indexOf('<', lastInx);
         do {
             inx = str.indexOf('.', lastInx);
-            int endInx;
-            if (inx < 0) {
-                endInx = str.length();
-                int ltInx = str.indexOf('<', lastInx);
-                if (ltInx >= 0) {
-                    // proof of concept only
-                    String part = str.substring(lastInx, ltInx);
-                    Name partName = Name.fromString(names, part);
-                    tree = tree==null? Ident(partName) : Select(tree, partName);
-                    tree.pos = pos;
-                    ListBuffer<JCExpression> generic = ListBuffer.lb();
-                    int gtInx = str.indexOf('>', ltInx);
-                    String tpart = str.substring(ltInx+1, gtInx);
-                    Name tpartName = Name.fromString(names, tpart);
-                    JCExpression texp = Ident(tpartName);
-                    generic.append(texp);
-                    tree = TypeApply(tree, generic.toList());
-                    tree.pos = pos;
-                    break;
-                }
-            } else {
-                endInx = inx;
+            if (ltInx >=0 && ltInx < inx) {
+                // terminate the current tree.
+                String part = str.substring(lastInx, ltInx);
+                Name partName = Name.fromString(names, part);
+                tree = tree==null? Ident(partName) : Select(tree, partName);
+
+                // proof of concept only
+                JCExpression tParamExpr = Identifier(str.substring(ltInx + 1), true);
+                inx = str.indexOf('>', lastInx) + 1;
+                ListBuffer<JCExpression> generic = ListBuffer.lb();
+                generic.append(tParamExpr);
+                tree = TypeApply(tree, generic.toList());
+                return tree;
             }
+            int endInx = inx;
+            
+            if (endInx == -1) {
+                endInx = str.length();                
+                if (ltParse) {
+                    endInx -= 1;
+                }
+            }
+            
             String part = str.substring(lastInx, endInx);
             Name partName = Name.fromString(names, part);
             tree = tree==null? Ident(partName) : Select(tree, partName);
