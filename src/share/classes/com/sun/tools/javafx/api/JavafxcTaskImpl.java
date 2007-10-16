@@ -269,6 +269,18 @@ class JavafxcTaskImpl extends JavafxcTask {
                 compiler.log.flush();
         }
     }
+    
+    @Override
+    public int errorCheck() throws IOException {
+        try {
+            enter();
+            compiler.errorCheck();
+        } finally {
+            if (compiler != null && compiler.log != null)
+                compiler.log.flush();
+        }
+        return compiler.errorCount();
+    }
 
     @Override
     public Iterable<? extends JavaFileObject> generate() throws IOException {

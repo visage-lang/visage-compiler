@@ -52,6 +52,14 @@ public abstract class JavafxcTask implements CompilationTask {
      */
     public abstract Iterable<? extends CompilationUnitTree> parse()
         throws IOException;
+    
+    /**
+     * Check the specified files for errors.
+     * 
+     * @return the number of compilation errors found
+     * @throws IOException if an unhandled I/O error occurred in the compiler.
+     */
+    public abstract int errorCheck() throws IOException;
 
     /**
      * Complete all analysis prior to conversion of the JavaFX Script compiler 

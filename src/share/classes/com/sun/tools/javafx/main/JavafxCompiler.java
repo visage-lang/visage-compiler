@@ -892,6 +892,13 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
         return roots;
     }
+
+    /**
+     * Check for errors -- called by JavafxTaskImpl.
+     */
+    public void errorCheck() throws IOException {
+        backEnd(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo)))), null);
+    }
     
     /**
      * Attribute the existing JavafxTodo list.  Called by JavafxTaskImpl.
