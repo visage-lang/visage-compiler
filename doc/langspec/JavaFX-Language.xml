@@ -4,7 +4,7 @@
 <?xml-stylesheet href="docbook.css" type="text/css"?>
 
 <book xmlns:xi="http://www.w3.org/2001/XInclude">
-  <title>JavaFX Script Language Specification</title>
+  <title>JavaFX Script Language User's Guide</title>
 
   <!--
 <xi:include href="fxintro.xml" parse="xml"/>  
