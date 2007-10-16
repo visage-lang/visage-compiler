@@ -423,7 +423,6 @@ public class JavafxInitializationBuilder {
         for (MethodSymbol mth : methods) {
             // Add the non-abstract, non-static, and non-synthetic JavaFX methods to the class' interface
             if (mth.owner == cdecl.sym &&
-                    ((mth.flags_field & Flags.ABSTRACT) == 0) &&
                     ((mth.flags_field & Flags.STATIC) == 0)) {
                 JCMethodDecl methodDecl = make.MethodDef(mth, null);
                 // Made all the operations public. Per Brian's spec.
