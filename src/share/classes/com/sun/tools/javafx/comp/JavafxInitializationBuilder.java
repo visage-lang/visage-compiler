@@ -38,6 +38,7 @@ import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
+import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
@@ -83,8 +84,11 @@ public class JavafxInitializationBuilder {
     private final String assertNonNullName = "assertNonNull";
     private final String addName = "add";
     private final Name initializeNonSyntheticName;
+    private final Name oldValueName;
+    private final String fullLocationName = "com.sun.javafx.runtime.location.Location";
     
     private Map<ClassSymbol, JFXClassDeclaration> fxClasses;
+    Map<ClassSymbol, java.util.List<Symbol>> fxClassAttributes;
 
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
@@ -117,6 +121,7 @@ public class JavafxInitializationBuilder {
         getNumFieldsName = names.fromString("getNumFields$");
         initHelperName = names.fromString("initHelper$");
         initializeNonSyntheticName = names.fromString("initialize");
+        oldValueName = names.fromString("oldValue");
     }
     
     static class TranslatedAttributeInfo {
@@ -215,11 +220,13 @@ public class JavafxInitializationBuilder {
         }
        
         // If there are any listenere, we need to build this, even if empty
+        List<JCVariableDecl> onChangeArgs = List.<JCVariableDecl>nil();
+        onChangeArgs = onChangeArgs.append(make.VarDef(make.Modifiers(0L), oldValueName, make.Identifier(fullLocationName), null));
         defs.append(makeChangeListenerMethod(
                         diagPos,
                         onReplace, 
                         "onChange",
-                        List.<JCVariableDecl>nil(),
+                        onChangeArgs,
                         TypeTags.BOOLEAN));
         
         JCExpression changeListener = make.at(diagPos).Identifier(changeListenerInterfaceName);
@@ -351,7 +358,8 @@ public class JavafxInitializationBuilder {
                                     methods,
                                     baseClasses,
                                     classesToVisit);
-        
+
+        addFxClassAttributes(cDecl.sym, attributes);
         ListBuffer<JCStatement> ret = new ListBuffer<JCStatement>();
         
         ListBuffer<JCExpression> implementing = new ListBuffer<JCExpression>();
@@ -432,13 +440,77 @@ public class JavafxInitializationBuilder {
         }
     }
     
-    private void addClassMethods(JCClassDecl cdecl, java.util.List<MethodSymbol> methods, Name intfName) {
-        for (MethodSymbol mth : methods) {
-            // Add the static methods for all the non-abstract, non-static, and non-synthetic JavaFX methods for cDecl
-            if (mth.owner == cdecl.sym &&
-                    ((mth.flags_field & Flags.ABSTRACT) == 0) &&
-                    ((mth.flags_field & Flags.STATIC) == 0)) {
-                JCMethodDecl methodDecl = make.MethodDef(mth, null);
+    private void makeStaticStatements(final JCClassDecl cdecl, JCBlock block) {
+        class MakeStaticStatement extends TreeTranslator {
+            private JCMethodInvocation currentApply;
+            @Override
+            public void visitIdent(JCIdent tree) {
+                if (tree.sym == null ||
+                        (tree.sym.flags_field & Flags.STATIC) != 0 ||
+                        (tree.sym.owner != null && tree.sym.owner.kind != Kinds.TYP)) {
+                    result = tree;
+                    tree.sym = null;
+                }
+                else if (tree.name == names._this) {
+                    tree.name = receiverName;
+                    result = tree;
+                    tree.sym = null;
+                }
+                else if (tree.name == names._super) {
+                    List<JCExpression> newArgs = List.<JCExpression>nil(); 
+                    newArgs = newArgs.append(make.Ident(receiverName));
+                    for (JCExpression argExpr : currentApply.args) {
+                        newArgs = newArgs.append(argExpr);
+                    }
+                    
+                    currentApply.args = newArgs;
+                    
+                    result = make.Ident(tree.type.tsym.name);
+                    tree.sym = null;
+                }
+                else {
+                    tree.sym = null;
+                    result = make.Select(make.Ident(receiverName), tree.name);
+                }
+            }
+
+            @Override
+            public void visitSelect(JCFieldAccess tree) {
+                super.visitSelect(tree);
+                tree.sym = null;
+            }
+            
+            @Override
+            public void visitApply(JCMethodInvocation tree) {
+                JCMethodInvocation prevMethodInvocation = currentApply;
+
+                currentApply = tree;
+                try {
+                    super.visitApply(tree);
+                    if (tree.meth == null) {
+                        tree.meth = make.Ident(receiverName);
+                    }
+
+                    result = tree;
+                }
+                finally {
+                    currentApply = prevMethodInvocation;
+                }
+            }
+        };
+        
+        new MakeStaticStatement().translate(block);
+    }
+    
+    void processCDeclMethods(JCClassDecl cdecl, Name intfName) {
+        for (JCTree meth : cdecl.defs) {
+            if (meth.getTag() == JCTree.METHODDEF &&
+                    meth.pos != Position.NOPOS &&
+                    ((JCMethodDecl)meth).sym != null &&
+                    ((((JCMethodDecl)meth).mods.flags & Flags.ABSTRACT) == 0) &&
+                    ((((JCMethodDecl)meth).mods.flags & Flags.STATIC) == 0)) { // TODO: Deal with static and abstarct. The design doesn't say anything about that.
+
+                JCMethodDecl methodDecl = make.MethodDef(((JCMethodDecl)meth).sym, null);
                 // Made all the operations public. Per Brian's spec.
                 // If they are left package level it interfere with Multiple Inheritance
                 // The interface methods cannot be package level and an error is reported.
@@ -448,31 +520,78 @@ public class JavafxInitializationBuilder {
                     methodDecl.mods.flags |= Flags.PROTECTED | Flags.STATIC;
                 }
 
-                // Create the parameter list for the body statements TODO: This will change... Need to be swaped with the non static method
-                List<JCStatement> staticMethodStats = List.<JCStatement>nil();
+                // Create the parameter list for the body statements
+                List<JCStatement> methodStats = List.<JCStatement>nil();
                 List<JCExpression> statBodyArgs = List.<JCExpression>nil();
                 
-                if (((MethodType)methodDecl.sym.type).restype != syms.voidType) {
-                    for (JCVariableDecl var : methodDecl.params) {
-                        statBodyArgs = statBodyArgs.append(make.Ident(var.name));
-                    }
+                statBodyArgs = statBodyArgs.append(make.Ident(names._this));
 
-                    staticMethodStats = staticMethodStats.append(make.Return(toJava.callExpression(cdecl.pos(),
-                            make.Ident(receiverName), methodDecl.name.toString(), statBodyArgs)));
+                for (JCVariableDecl var : methodDecl.params) {
+                    statBodyArgs = statBodyArgs.append(make.Ident(var.name));
                 }
+
+                JCStatement methStatement = null;
+                JCExpression methExpr = toJava.callExpression(cdecl.pos(),
+                        make.Ident(cdecl.name), methodDecl.name.toString(), statBodyArgs);
+                if (((MethodType)methodDecl.sym.type).restype == syms.voidType) {
+                    methStatement = make.Exec(methExpr);
+                }
+                else {
+                    methStatement = make.Return(methExpr);
+                }
+                methodStats = methodStats.append(methStatement);
                 
+                makeStaticStatements(cdecl, ((JCMethodDecl)meth).body);
                 // Add the extra receiver parameter
                 methodDecl.params = methodDecl.params.prepend(make.VarDef(make.Modifiers(0L), receiverName, make.Ident(intfName), null));
+                methodDecl.body = ((JCMethodDecl)meth).body;
                 
-                // Add the static method body. TODO: Need to swap the body with the non-static method.
-                methodDecl.body = make.Block(0L, staticMethodStats);
-                
+                // Add the call-to-static method body.
+                ((JCMethodDecl)meth).body = make.Block(0L, methodStats);
+                                
                 cdecl.defs = cdecl.defs.append(methodDecl);
             }
         }
-        
-        // TODO: Add all of the parent classes methods -- the non static ones
-        // TODO:
+    }
+    
+    private void addClassMethods(JCClassDecl cdecl, java.util.List<MethodSymbol> methods, Name intfName) {
+        for (MethodSymbol mth : methods) {
+            if (mth.owner != cdecl.sym &&
+                ((mth.flags_field & Flags.ABSTRACT) == 0) &&
+                ((mth.flags_field & Flags.STATIC) == 0)) { // TODO: Deal with static and abstarct. The design doesn't say anything about that.
+
+                List<JCStatement> newMthStats = List.<JCStatement>nil();
+                List<JCExpression> args = List.<JCExpression>nil();
+                // Add the this argument, so the static method is invoked
+                args = args.append(make.Ident(names._this));
+                for (VarSymbol var : mth.params) {
+                    args = args.append(make.Ident(var.name));
+                }
+
+                String receiver = mth.owner.name.toString();
+
+                JCExpression expr = toJava.callExpression(cdecl.pos(), make.Identifier(receiver), mth.name.toString(), args);
+                if (((MethodType)mth.type).restype == syms.voidType) {
+                    newMthStats = newMthStats.append(make.Exec(expr));
+                }
+                else {
+                    newMthStats = newMthStats.append(make.Return(expr));
+                }
+
+                JCBlock mthBody = make.Block(0L, newMthStats);
+                JCMethodDecl newMethod = make.MethodDef(mth, mthBody);
+                // Made all the operations public. Per Brian's spec.
+                // If they are left package level it interfere with Multiple Inheritance
+                // The interface methods cannot be package level and an error is reported.
+                {
+                    newMethod.mods.flags &= ~Flags.PROTECTED;
+                    newMethod.mods.flags &= ~Flags.PRIVATE;
+                    newMethod.mods.flags |= Flags.PUBLIC;
+                }
+
+                cdecl.defs = cdecl.defs.append(newMethod);
+            }
+        }
     }
     
     private void addInterfaceAttributeMethods(ListBuffer<JCTree> idefs, ListBuffer<AttributeWrapper> attrInfos) {
@@ -755,12 +874,15 @@ public class JavafxInitializationBuilder {
                             for (JCTree def : cDecl.defs) {
                                 if (def.getTag() == JavafxTag.FUNCTION_DEF) {
                                     MethodSymbol meth = (MethodSymbol)((JFXOperationDefinition)def).sym;
+                                    List<JFXVar> pars = ((JFXOperationDefinition)def).getParameters();
                                     StringBuilder nameSigBld = new StringBuilder();
                                     nameSigBld.append(meth.name.toString());
                                     nameSigBld.append(":");
                                     nameSigBld.append(meth.getReturnType().toString());
                                     nameSigBld.append(":");
                                     for (VarSymbol param : meth.getParameters()) {
+                                        param.name = pars.head.name;
+                                        pars = pars.tail;
                                         nameSigBld.append(param.type.toString());
                                         nameSigBld.append(":");
                                     }
@@ -832,9 +954,18 @@ public class JavafxInitializationBuilder {
         
         fxClasses.put(csym, cdecl);
     }
-    
+
+    void addFxClassAttributes(ClassSymbol csym, java.util.List<Symbol> attrs) {
+        if (fxClassAttributes == null) {
+            fxClassAttributes = new HashMap<ClassSymbol, java.util.List<Symbol>>();
+        }
+        
+        fxClassAttributes.put(csym, attrs);
+    }
+
     public void clearCaches() {
         fxClasses = null;
+        fxClassAttributes = null;
     }
     
     static class AttributeWrapper {

@@ -424,6 +424,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         inLHS = prevInLHS;
         
         processJFXAttributeReferences((JCClassDecl)result);
+        addBaseAttributes(tree.sym, (JCClassDecl)result);
+        // Add the static methods for all the non-abstract, non-static, and non-synthetic JavaFX methods for cDecl
+        Name interfaceName = names.fromString(tree.name.toString() + initBuilder.interfaceNameSuffix);
+        initBuilder.processCDeclMethods((JCClassDecl)result, interfaceName);
     }
     
     @Override
@@ -661,6 +665,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 make.at(diagPos).Types(mtype.getThrownTypes()),  // makeThrows(diagPos), //
                 body, 
                 null);
+        ((JCMethodDecl)result).sym = tree.sym;
+        result.type = tree.type;
     }
 
     public void visitBlockExpression(JFXBlockExpression tree) {
@@ -876,7 +882,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return make.at(diagPos).Exec(callExpression(diagPos, receiver, method, args));
     }
     
-    JCExpression callExpression(
+    JCMethodInvocation callExpression(
             DiagnosticPosition diagPos,
             JCExpression receiver, 
             String method, 
@@ -1581,18 +1587,62 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         }
                     }
                     
-                    return callExpression(tree.pos(), receiver,
+                    JCMethodInvocation ret = callExpression(tree.pos(), receiver,
                             initBuilder.attributeGetMethodNamePrefix + sym.name.toString(), List.<JCExpression>nil());
+                    if (ret.meth != null) {
+                        if (ret.meth.getTag() == JCTree.IDENT) {
+                            ((JCIdent)ret.meth).sym = sym;
+                        }
+                        else if (ret.meth.getTag() == JCTree.SELECT) {
+                            ((JCFieldAccess)ret.meth).sym = sym;
+                        }
+                    }
+                    
+                    return ret;
                 }
             }
             
             return tree;
+        }
+        
+        @Override
+        public void visitClassDef(JCClassDecl tree) {
+            // Skip all the immer classes. They should be visited separately.
+            result = tree;
         }
     };
 
     private void processJFXAttributeReferences(JCClassDecl classDecl) {
         TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(null, true);
         
-        treeScanner.translate(classDecl);
+        treeScanner.translate(classDecl.defs);
+    }
+    
+    private void addBaseAttributes(ClassSymbol sym, JCClassDecl result) {
+        java.util.List<Symbol> attrSyms = initBuilder.fxClassAttributes.get(sym);
+        if (attrSyms != null) {
+            for (Symbol attrSym : attrSyms) {
+                if (attrSym.kind == Kinds.MTH) {
+                    result.defs = result.defs.append(make.VarDef(make.Modifiers(0L), 
+                            names.fromString(attrSym.name.toString().substring(initBuilder.attributeGetMethodNamePrefix.length())),
+                            make.Ident(attrSym.type.tsym), null));
+                }
+                else if (attrSym.kind == Kinds.VAR && attrSym.owner != sym) {
+                    JCVariableDecl var = make.VarDef((VarSymbol)attrSym, null);
+                    // Made all the operations public. Per Brian's spec.
+                    // If they are left package level it interfere with Multiple Inheritance
+                    // The interface methods cannot be package level and an error is reported.
+                    {
+                        var.mods.flags &= ~Flags.PROTECTED;
+                        var.mods.flags &= ~Flags.PUBLIC;
+                        var.mods.flags |= Flags.PRIVATE;
+                    }
+                    VarMorphInfo vmi = typeMorpher.varMorphInfo((VarSymbol)attrSym);
+                    vmi.shouldMorph();
+                    var.vartype = ((JavafxTreeMaker)make).Identifier(vmi.getUsedType().toString());
+                    result.defs = result.defs.append(var);
+                }
+            }
+        }
     }
 }
