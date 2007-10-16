@@ -29,8 +29,6 @@ import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.util.TaskEvent;
 import com.sun.source.util.TaskListener;
-import com.sun.tools.javac.comp.AttrContext;
-import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.model.JavacElements;
 import com.sun.tools.javac.model.JavacTypes;
 import com.sun.tools.javac.tree.*;
@@ -41,7 +39,6 @@ import com.sun.tools.javac.util.JavacFileManager;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Options;
-import com.sun.tools.javac.util.Pair;
 import com.sun.tools.javafx.main.CommandLine;
 import com.sun.tools.javafx.main.Main;
 import java.io.File;
@@ -63,7 +60,6 @@ import javax.tools.JavaFileObject;
  */
 class JavafxcTaskImpl extends JavafxcTask {
 
-    private JavafxcTool tool;
     private Main compilerMain;
     private com.sun.tools.javafx.main.JavafxCompiler compiler;
     private String[] args;
@@ -71,13 +67,11 @@ class JavafxcTaskImpl extends JavafxcTask {
     private List<JavaFileObject> fileObjects;
     private Map<JavaFileObject, JCCompilationUnit> notYetEntered;
     private List<JCCompilationUnit> units;
-    private ListBuffer<Env<AttrContext>> genList;
     private TaskListener taskListener;
     private AtomicBoolean used = new AtomicBoolean();
     private Integer result = null;
 
     JavafxcTaskImpl(JavafxcTool tool, Main compilerMain, String[] args, Context context, List<JavaFileObject> fileObjects) {
-        this.tool = tool;
         this.compilerMain = compilerMain;
         this.args = args;
         this.context = context;
@@ -151,7 +145,6 @@ class JavafxcTaskImpl extends JavafxcTask {
             notYetEntered = new HashMap<JavaFileObject, JCCompilationUnit>();
             for (JavaFileObject file: fileObjects)
                 notYetEntered.put(file, null);
-            genList = new ListBuffer<Env<AttrContext>>();
             args = null;
         }
     }
