@@ -37,7 +37,7 @@ package com.sun.javafx.runtime.location;
 public class BooleanExpression extends AbstractLocation implements BooleanLocation {
 
     private final BooleanBindingExpression expression;
-    private boolean value;
+    private boolean value, previousValue;
 
     /** Create an BooleanExpression with the specified expression and dependencies. */
     public static BooleanExpression make(BooleanBindingExpression exp, Location... dependencies) {
@@ -66,6 +66,10 @@ public class BooleanExpression extends AbstractLocation implements BooleanLocati
         return value;
     }
 
+    public boolean getPreviousValue() {
+        return previousValue;
+    }
+
     public boolean set(boolean value) {
         throw new UnsupportedOperationException();
     }
@@ -76,6 +80,13 @@ public class BooleanExpression extends AbstractLocation implements BooleanLocati
             value = expression.get();
             setValid();
         }
+    }
+
+    @Override
+    public void invalidate() {
+        if (isValid())
+            previousValue = value;
+        super.invalidate();
     }
 
     public ObjectLocation<Boolean> asBooleanLocation() {

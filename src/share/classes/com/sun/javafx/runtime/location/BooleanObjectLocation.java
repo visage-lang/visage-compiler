@@ -43,6 +43,10 @@ class BooleanObjectLocation implements ObjectLocation<Boolean>, ViewLocation {
         return location.get();
     }
 
+    public Boolean getPreviousValue() {
+        return location.getPreviousValue();
+    }
+
     public Boolean set(Boolean value) {
         return location.set(value);
     }

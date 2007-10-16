@@ -37,7 +37,7 @@ package com.sun.javafx.runtime.location;
 public class ObjectExpression<T> extends AbstractLocation implements ObjectLocation<T> {
 
     private final ObjectBindingExpression<T> expression;
-    private T value;
+    private T value, previousValue;
 
     /** Create an ObjectExpression with the specified expression and dependencies. */
     public static<T> ObjectLocation<T> make(ObjectBindingExpression<T> exp, Location... dependencies) {
@@ -66,6 +66,10 @@ public class ObjectExpression<T> extends AbstractLocation implements ObjectLocat
         return value;
     }
 
+    public T getPreviousValue() {
+        return previousValue;
+    }
+
     public T set(T value) {
         throw new UnsupportedOperationException();
     }
@@ -74,7 +78,15 @@ public class ObjectExpression<T> extends AbstractLocation implements ObjectLocat
     public void update() {
         if (!isValid()) {
             value = expression.get();
+            previousValue = null;
             setValid();
         }
+    }
+
+    @Override
+    public void invalidate() {
+        if (isValid())
+            previousValue = value;
+        super.invalidate();
     }
 }

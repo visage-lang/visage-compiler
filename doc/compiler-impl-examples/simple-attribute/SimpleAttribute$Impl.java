@@ -33,7 +33,7 @@ public class SimpleAttribute$Impl implements SimpleAttribute$Intf {
         if (receiver.get$a() == null) receiver.init$a(IntVar.make(3));
 
         receiver.get$a().addChangeListener(new ChangeListener() {
-            public boolean onChange() {
+            public boolean onChange(Location location) {
                 System.out.println("a is now " + receiver.get$a().get());
                 return true;
             }

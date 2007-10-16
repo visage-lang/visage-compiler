@@ -34,6 +34,9 @@ public interface IntLocation extends Location {
     /** Retrieve the current value of this location, recomputing if necessary */
     public int get();
 
+    /** Retrieve the previous value of this location; only defined while change listeners are being notified */
+    public int getPreviousValue();
+
     /** Set the current value of this location, recomputing if necessary */
     public int set(int value);
 

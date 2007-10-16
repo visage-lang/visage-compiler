@@ -32,7 +32,7 @@ package com.sun.javafx.runtime.location;
  * @author Brian Goetz
  */
 public class BooleanVar extends AbstractLocation implements BooleanLocation, MutableLocation {
-    private boolean value;
+    private boolean value, previousValue;
 
 
     public static BooleanLocation make() {
@@ -54,8 +54,13 @@ public class BooleanVar extends AbstractLocation implements BooleanLocation, Mut
         return value;
     }
 
+    public boolean getPreviousValue() {
+        return previousValue;
+    }
+
     public boolean set(boolean value) {
         if (this.value != value) {
+            previousValue = this.value;
             this.value = value;
             valueChanged();
         }

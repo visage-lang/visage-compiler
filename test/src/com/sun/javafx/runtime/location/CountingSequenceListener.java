@@ -37,7 +37,7 @@ class CountingSequenceListener implements SequenceChangeListener<Integer> {
     Sequence<Integer> inserted = Sequences.emptySequence(Integer.class);
     Sequence<Integer> deleted = Sequences.emptySequence(Integer.class);
 
-    public boolean onChange() {
+    public boolean onChange(Location location) {
         ++changeCount;
         return true;
     }

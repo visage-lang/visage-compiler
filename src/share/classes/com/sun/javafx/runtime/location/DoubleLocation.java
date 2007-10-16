@@ -34,6 +34,9 @@ public interface DoubleLocation extends Location {
     /** Retrieve the current value of this location, recomputing if necessary */
     double get();
 
+    /** Retrieve the previous value of this location; only defined while change listeners are being notified */
+    public double getPreviousValue();
+
     /** Set the current value of this location, recomputing if necessary */
     double set(double value);
 

@@ -37,7 +37,7 @@ package com.sun.javafx.runtime.location;
 public class IntExpression extends AbstractLocation implements IntLocation {
 
     private final IntBindingExpression expression;
-    private int value;
+    private int value, previousValue;
 
     /** Create an IntExpression with the specified expression and dependencies. */
     public static IntLocation make(IntBindingExpression exp, Location... dependencies) {
@@ -66,6 +66,10 @@ public class IntExpression extends AbstractLocation implements IntLocation {
         return value;
     }
 
+    public int getPreviousValue() {
+        return previousValue;
+    }
+
     public int set(int value) {
         throw new UnsupportedOperationException();
     }
@@ -76,6 +80,13 @@ public class IntExpression extends AbstractLocation implements IntLocation {
             value = expression.get();
             setValid();
         }
+    }
+
+    @Override
+    public void invalidate() {
+        if (isValid())
+            previousValue = value;
+        super.invalidate();
     }
 
     public ObjectLocation<Integer> asIntegerLocation() {

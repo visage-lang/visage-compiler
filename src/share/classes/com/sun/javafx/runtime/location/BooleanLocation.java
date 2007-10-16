@@ -34,6 +34,9 @@ public interface BooleanLocation extends Location {
     /** Retrieve the current value of this location, recomputing if necessary */
     boolean get();
 
+    /** Retrieve the previous value of this location; only defined while change listeners are being notified */
+    public boolean getPreviousValue();
+
     /** Set the current value of this location, recomputing if necessary */
     boolean set(boolean value);
 

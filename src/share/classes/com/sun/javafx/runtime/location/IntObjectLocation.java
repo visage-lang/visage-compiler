@@ -43,6 +43,10 @@ class IntObjectLocation implements ObjectLocation<Integer>, ViewLocation {
         return location.get();
     }
 
+    public Integer getPreviousValue() {
+        return location.getPreviousValue();
+    }
+
     public Integer set(Integer value) {
         return location.set(value);
     }

@@ -24,8 +24,6 @@
  */
 package com.sun.javafx.runtime.location;
 
-import junit.framework.Assert;
-
 import java.util.List;
 import java.util.ArrayList;
 
@@ -53,7 +51,7 @@ public class HistorySequenceListener<T> implements SequenceChangeListener<T> {
 
     public void clear() { elements.clear(); }
 
-    public boolean onChange() {
+    public boolean onChange(Location location) {
         elements.clear();
         return true;
     }

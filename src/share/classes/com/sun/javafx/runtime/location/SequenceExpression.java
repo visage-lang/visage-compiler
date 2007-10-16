@@ -42,7 +42,7 @@ import java.util.Iterator;
 public class SequenceExpression<T> extends AbstractLocation implements SequenceLocation<T> {
 
     private final SequenceBindingExpression<T> expression;
-    private Sequence<T> value;
+    private Sequence<T> value, previousValue;
 
     /** Create an SequenceExpression with the specified expression and dependencies. */
     public static<T> SequenceLocation<T> make(SequenceBindingExpression<T> exp, Location... dependencies) {
@@ -101,12 +101,24 @@ public class SequenceExpression<T> extends AbstractLocation implements SequenceL
         return value;
     }
 
+    public Sequence<T> getPreviousValue() {
+        return previousValue;
+    }
+
     @Override
     public void update() {
         if (!isValid()) {
             value = expression.get();
+            previousValue = null;
             setValid();
         }
+    }
+
+    @Override
+    public void invalidate() {
+        if (isValid())
+            previousValue = value;
+        super.invalidate();
     }
 
     @Override

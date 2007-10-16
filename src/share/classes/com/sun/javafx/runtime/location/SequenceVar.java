@@ -41,7 +41,7 @@ import java.util.Iterator;
  */
 public class SequenceVar<T> extends AbstractLocation implements SequenceLocation<T>, MutableLocation {
 
-    private Sequence<T> sequence;
+    private Sequence<T> sequence, previousValue;
     private boolean hasSequenceListeners;
     private final SequenceMutator.Listener<T> mutationListener = new MutationListener();
 
@@ -87,10 +87,15 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
         return sequence;
     }
 
+    public Sequence<T> getPreviousValue() {
+        return previousValue;
+    }
+
     @Override
     public Sequence<T> set(Sequence<T> value) {
         Sequence<T> oldValue = sequence;
         if (!oldValue.equals(value)) {
+            previousValue = this.sequence;
             this.sequence = value;
             valueChanged();
             if (hasSequenceListeners) {
@@ -99,6 +104,7 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
                 for (int i=0; i<sequence.size(); i++)
                     mutationListener.onInsert(i, sequence.get(i));
             }
+            previousValue = null;
         }
         return value;
     }

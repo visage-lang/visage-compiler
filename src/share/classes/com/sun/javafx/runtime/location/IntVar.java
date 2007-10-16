@@ -32,7 +32,7 @@ package com.sun.javafx.runtime.location;
  * @author Brian Goetz
  */
 public class IntVar extends AbstractLocation implements IntLocation, MutableLocation {
-    private int value;
+    private int value, previousValue;
 
 
     public static IntLocation make() {
@@ -54,8 +54,13 @@ public class IntVar extends AbstractLocation implements IntLocation, MutableLoca
         return value;
     }
 
+    public int getPreviousValue() {
+        return previousValue;
+    }
+
     public int set(int value) {
         if (this.value != value) {
+            previousValue = this.value;
             this.value = value;
             valueChanged();
         }

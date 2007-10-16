@@ -45,7 +45,7 @@
     <target name="check-jdk-1.5">
         <available property="has-jdk-1.5" classname="java.lang.Appendable"/>
     </target>
-    
+
     <target name="check-bootstrap">
         <condition property="has-bootstrap-dirs">
             <and>
@@ -58,7 +58,7 @@
             </and>
         </condition>
     </target>
-    
+
     <target name="tool-paths">
         <!-- Define actual properties for the known paths so they can be used in the properties file -->
         <property name="ant.class.path" refid="ant.class.path"/>
@@ -71,7 +71,7 @@
         <property name="antlrworks.class.path" refid="antlrworks.class.path"/>
         <property name="cobertura.class.path" refid="cobertura.class.path"/>
     </target>
-    
+
     <target name="do-bootstrap" depends="check-bootstrap" unless="has-bootstrap-dirs">
         <ant antfile="bootstrap.xml" target="all"/>
     </target>
@@ -84,6 +84,7 @@
 
     <target name="-post-init">
         <property name="antlr.grammar.file" value="${antlr.src.dir}/${antlr.grammar}.g" />
+        <uptodate property="parser.uptodate" srcfile="${antlr.grammar.file}" targetfile="${antlr.generated.dir}/${antlr.grammar}Parser.java" />
     </target>
 
     <!-- jar file creation: external runtime jar contents are included to reduce classpath issues -->
@@ -97,20 +98,15 @@
             </manifest>
         </jar>
     </target>
-    
-    
-    <target name="check-parser">
-        <uptodate property="parser.uptodate" srcfile="${antlr.grammar.file}" targetfile="${antlr.generated.dir}/${antlr.grammar}Parser.java" />
-    </target>
 
-    <target name="generate-parser" unless="parser.uptodate" depends="init">
+    <target name="generate-parser" unless="parser.uptodate" >
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
             <arg value="${antlr.grammar.file}" />
         </java>
         <antcall target="syntax-diagrams" />
     </target>
 
-    <target name="syntax-diagrams" depends="init">
+    <target name="syntax-diagrams">
         <mkdir dir="${syntax.diagrams.dir}"/>
         <java classname="org.antlr.works.Console" fork="true">
             <classpath>
@@ -129,8 +125,8 @@
 
     <target name="-do-compile" depends="init,deps-jar,-pre-pre-compile,-pre-compile" if="have.sources">
         <javac compiler="modern" fork="true"
-               srcdir="${src.classes.dir}" destdir="${build.classes.dir}" 
-               debug="${javac.debug}" deprecation="${javac.deprecation}" 
+               srcdir="${src.classes.dir}" destdir="${build.classes.dir}"
+               debug="${javac.debug}" deprecation="${javac.deprecation}"
                source="${javac.source}" target="${javac.target}" includeantruntime="false">
             <classpath>
                 <path path="${javac.classpath}"/>
@@ -161,7 +157,7 @@
                  compilerclasspath="${build.classes.dir}:${javac.classpath}"/>
     </target>
 
-    <target name="-pre-compile" depends="check-parser,generate-parser"/>
+    <target name="-pre-compile" depends="generate-parser"/>
     <target name="-post-compile" depends="compile-runtime-fx" />
     <target depends="init" name="-javadoc-build">
         <mkdir dir="${dist.javadoc.dir}"/>
@@ -178,7 +174,7 @@
     <target name="coverage" description="Enables coverage for junit test targets">
         <property name="do.coverage" value="true"/>
     </target>
-    
+
     <target name="cobertura-taskdefs">
         <taskdef classpathref="cobertura.class.path" resource="tasks.properties"/>
     </target>
@@ -223,7 +219,7 @@
         </copy>
         <chmod dir="dist/bin" perm="755" includes="**/javafxc*"/>
     </target>
-    
+
     <target name="-post-clean" depends="runtime-clean">
         <!-- Delete ANTLR-generated files -->
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v2*.*" excludes="**/v2.g"/>

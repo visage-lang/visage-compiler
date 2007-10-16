@@ -43,6 +43,10 @@ class DoubleObjectLocation implements ObjectLocation<Double>, ViewLocation {
         return location.get();
     }
 
+    public Double getPreviousValue() {
+        return location.getPreviousValue();
+    }
+
     public Double set(Double value) {
         return location.set(value);
     }

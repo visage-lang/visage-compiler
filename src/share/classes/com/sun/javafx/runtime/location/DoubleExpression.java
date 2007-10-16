@@ -37,7 +37,7 @@ package com.sun.javafx.runtime.location;
 public class DoubleExpression extends AbstractLocation implements DoubleLocation {
 
     private final DoubleBindingExpression expression;
-    private double value;
+    private double value, previousValue;
 
     /** Create an DoubleExpression with the specified expression and dependencies. */
     public static DoubleLocation make(DoubleBindingExpression exp, Location... dependencies) {
@@ -66,6 +66,10 @@ public class DoubleExpression extends AbstractLocation implements DoubleLocation
         return value;
     }
 
+    public double getPreviousValue() {
+        return previousValue;
+    }
+
     public double set(double value) {
         throw new UnsupportedOperationException();
     }
@@ -76,6 +80,13 @@ public class DoubleExpression extends AbstractLocation implements DoubleLocation
             value = expression.get();
             setValid();
         }
+    }
+
+    @Override
+    public void invalidate() {
+        if (isValid())
+            previousValue = value;
+        super.invalidate();
     }
 
     public ObjectLocation<Double> asDoubleLocation() {

@@ -41,6 +41,9 @@ public interface SequenceLocation<T> extends Location, Iterable<T> {
 
     Sequence<T> get();
 
+    /** Retrieve the previous value of this location; only defined while change listeners are being notified */
+    public Sequence<T> getPreviousValue();
+
     Sequence<T> set(Sequence<T> value);
 
     public void set(int position, T value);

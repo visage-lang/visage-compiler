@@ -36,7 +36,8 @@ public interface ChangeListener {
      *
      * @return a boolean value indicating whether this listener is still valid.  Returning false will cause the
      * listener to be removed from the listener list.  For listeners that do their own weak reference management,
-     * they should return false when the relevant weak references have been reported as cleared.  
+     * they should return false when the relevant weak references have been reported as cleared.
+     * @param location
      */
-    public boolean onChange();
+    public boolean onChange(Location location);
 }

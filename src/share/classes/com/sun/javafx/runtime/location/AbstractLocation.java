@@ -66,7 +66,7 @@ public abstract class AbstractLocation implements Location {
         if (listeners != null) {
             for (Iterator<ChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
                 ChangeListener listener = iterator.next();
-                if (!listener.onChange())
+                if (!listener.onChange(this))
                     iterator.remove();
             }
         }
@@ -101,7 +101,7 @@ public abstract class AbstractLocation implements Location {
             super(referent);
         }
 
-        public boolean onChange() {
+        public boolean onChange(Location location) {
             Location loc = get();
             if (loc == null)
                 return false;
@@ -118,9 +118,9 @@ public abstract class AbstractLocation implements Location {
             super(referent);
         }
 
-        public boolean onChange() {
+        public boolean onChange(Location location) {
             ChangeListener listener = get();
-            return listener == null ? false : listener.onChange();
+            return listener == null ? false : listener.onChange(location);
         }
     }
 

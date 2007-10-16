@@ -32,7 +32,7 @@ package com.sun.javafx.runtime.location;
  * @author Brian Goetz
  */
 public class DoubleVar extends AbstractLocation implements DoubleLocation, MutableLocation {
-    private double value;
+    private double value, previousValue;
 
 
     public static DoubleLocation make() {
@@ -54,8 +54,13 @@ public class DoubleVar extends AbstractLocation implements DoubleLocation, Mutab
         return value;
     }
 
+    public double getPreviousValue() {
+        return previousValue;
+    }
+
     public double set(double value) {
         if (this.value != value) {
+            previousValue = this.value;
             this.value = value;
             valueChanged();
         }
