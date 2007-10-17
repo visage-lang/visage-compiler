@@ -103,7 +103,6 @@
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
             <arg value="${antlr.grammar.file}" />
         </java>
-        <antcall target="syntax-diagrams" />
     </target>
 
     <target name="syntax-diagrams">
