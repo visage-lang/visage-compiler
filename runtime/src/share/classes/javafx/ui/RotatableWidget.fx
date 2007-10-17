@@ -27,7 +27,7 @@ package javafx.ui;
 
 
 abstract class RotatableWidget {
-    public abstract function setRotation(n:Number);
+    public abstract function setRotation(n:Number) : Void;
     
     attribute rotation: Number
         on replace { setRotation(rotation); };
