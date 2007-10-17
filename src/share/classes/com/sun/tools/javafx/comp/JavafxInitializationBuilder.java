@@ -75,7 +75,7 @@ public class JavafxInitializationBuilder {
     private final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
     private final Name locationName;
     final Name setDefaultsName;
-    private final Name userInitName;
+    final Name userInitName;
     final Name receiverName;
     private final Name initializeName;
     private final Name numberFieldsName;
@@ -159,9 +159,7 @@ public class JavafxInitializationBuilder {
             }
         }
 
-        for (JCBlock init : initBlocks) {
-            stmts.append(init);   // insert the init blocks directly
-        }
+        stmts.append(toJava.callStatement(classDecl.pos(), null, userInitName.toString(), make.Ident(receiverName)));
 
         // Now do the on change blocks
         for (TranslatedAttributeInfo info : attrInfo) {

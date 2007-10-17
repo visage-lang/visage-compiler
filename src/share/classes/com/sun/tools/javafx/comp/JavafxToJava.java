@@ -354,7 +354,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         ListBuffer<JCBlock> translatedInitBlocks = ListBuffer.<JCBlock>lb();
         ListBuffer<JCTree> translatedDefs = ListBuffer.<JCTree>lb();
         ListBuffer<TranslatedAttributeInfo> attrInfo = ListBuffer.<TranslatedAttributeInfo>lb();
+        // TODO: Remove the initMethod all together.
         JCMethodDecl initMethod = null;
+        JCMethodDecl userInitMethod = null;
         Set<JCNewClass> prevVisitedNews = visitedNewClasses;
 
         for (JCTree def : tree.defs) {
@@ -388,8 +390,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     case JavafxTag.FUNCTION_DEF: {
                         JCMethodDecl method = (JCMethodDecl)translate(def);
                         translatedDefs.append(method);
+                        // TODO: Remove the initMethod all-together.
                         if (method.getName() == initBuilder.initializerName) {
                             initMethod = method;
+                        }
+                        break;
+                    }
+                    case JCTree.METHODDEF : {
+                        JCMethodDecl method = (JCMethodDecl)translate(def);
+                        translatedDefs.append(method);
+                        if (method.getName() == initBuilder.userInitName) {
+                            userInitMethod = method;
                         }
                         break;
                     }
@@ -404,10 +415,22 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         
         // add the class instance initializer method
+        // TODO: Remove all the references to initMethod all together.
         if (initMethod != null) {
-            initMethod.body.stats = initBuilder.initializerMethodBody(tree, attrInfo.toList(), translatedInitBlocks.toList());
+            initMethod.body.stats = initBuilder.initializerMethodBody(tree, attrInfo.toList(), translatedInitBlocks.toList()); // TODO: When deleting the initMethod code make sure this statements are gotten below.
         } else {
-            assert false : "should always be an init method";
+            throw new AssertionError("should always be an init method");
+        }
+        if (userInitMethod != null) {
+            ListBuffer<JCStatement> stmts = ListBuffer.<JCStatement>lb();
+            for (JCBlock init : translatedInitBlocks.toList()) {
+                stmts.append(init);   // insert the init blocks directly
+            }
+
+            userInitMethod.body.stats = stmts.toList();
+            processUserInitAttributeReferences(userInitMethod);            
+        } else {
+            throw new AssertionError("should always be an userInit method");
         }
 
         if (tree.isModuleClass) {
@@ -482,6 +505,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         List<JCExpression> typeargs = List.nil();
         List<JCExpression> args = List.nil();
+        
+        // TODO: Use this for the userInit$ method only
+        args = args.append(make.Ident(tmpName));
         
         JCIdent ident3 = make.Ident(tmpName);   
         JCFieldAccess select1 = make.Select(ident3, initBuilder.initializerName);
@@ -719,11 +745,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             JCVariableDecl tmpVar = make.at(tree.pos).VarDef(make.Modifiers(0), tmpName, tree.clazz, tree);
             stats.append(tmpVar);
 
-            List<JCExpression> emptyArgs = List.nil();
+            List<JCExpression> args1 = List.nil();
+        
+            // TODO: Use this for the userInit$ method only
+            args1 = args1.append(make.Ident(tmpName));
 
             JCIdent ident3 = make.Ident(tmpName);
             JCFieldAccess select1 = make.at(tree.pos).Select(ident3, initBuilder.initializerName);
-            JCMethodInvocation apply1 = make.at(tree.pos).Apply(emptyTypeArgs, select1, emptyArgs);
+            JCMethodInvocation apply1 = make.at(tree.pos).Apply(emptyTypeArgs, select1, args1);
             JCExpressionStatement exec1 = make.at(tree.pos).Exec(apply1);
             stats.append(exec1);
 
@@ -1543,7 +1572,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     private void processSetDefaultAttributeReferences(JCMethodDecl methodDecl) {
-        TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder.receiverName, false);
+        TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder.receiverName, false, false); // TODO: Enable this when the javafs$init$ method is removed
+        
+        treeScanner.translate(methodDecl);
+    }
+
+    private void processUserInitAttributeReferences(JCMethodDecl methodDecl) {
+        TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder.receiverName, true, false);
         
         treeScanner.translate(methodDecl);
     }
@@ -1551,10 +1586,26 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     class AttributeReferenceReplaceTranslator extends TreeTranslator {
         private Name receiverName = null;
         private boolean doTransform;
+        private boolean skipKnownMethods;
         
-        AttributeReferenceReplaceTranslator(Name receiverName, boolean doTransform) {
+        AttributeReferenceReplaceTranslator(Name receiverName, boolean doTransform, boolean skipKnownMethods) {
             this.receiverName = receiverName;
             this.doTransform = doTransform;
+            this.skipKnownMethods = skipKnownMethods;
+        }
+        
+        // make sure we don't normalized twice the setDefault$, javafx$init$ and userInit$ methods 
+        // TODO: Take out the javafx$init$ when the old wtyle initialization is removed.
+        @Override
+        public void visitMethodDef(JCMethodDecl tree) {
+            if (skipKnownMethods && (tree.name == initBuilder.initializerName ||
+                tree.name == initBuilder.setDefaultsName ||
+                tree.name == initBuilder.userInitName)) {
+            }
+            else {
+                super.visitMethodDef(tree);
+            }
+            result = tree;
         }
         
         @Override
@@ -1629,7 +1680,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     };
 
     private void processJFXAttributeReferences(JCClassDecl classDecl) {
-        TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(null, true);
+        TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(null, true, true);
         
         treeScanner.translate(classDecl.defs);
     }
