@@ -47,6 +47,7 @@ import static com.sun.tools.javac.code.TypeTags.*;
 
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
+import com.sun.tools.javafx.code.JavafxSymtab;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -66,7 +67,7 @@ public class JavafxCheck {
 
     private final Name.Table names;
     private final Log log;
-    private final Symtab syms;
+    private final JavafxSymtab syms;
     private final Infer infer;
     private final Target target;
     private final Source source;
@@ -96,7 +97,7 @@ public class JavafxCheck {
 
 	names = Name.Table.instance(context);
 	log = Log.instance(context);
-	syms = Symtab.instance(context);
+	syms = (JavafxSymtab) Symtab.instance(context);
 	infer = Infer.instance(context);
 	this.types = Types.instance(context);
 	Options options = Options.instance(context);
@@ -396,7 +397,7 @@ public class JavafxCheck {
 	    return req;
 	if (found.tag == FORALL)
 	    return instantiatePoly(pos, (ForAll)found, req, convertWarner(pos, found, req));
-	if (req.tag == NONE)
+	if (req.tag == NONE || req == syms.javafx_UnspecifiedType)
 	    return found;
 	if (types.isAssignable(found, req, convertWarner(pos, found, req)))
 	    return found;
@@ -1492,6 +1493,7 @@ public
 	    TypeSymbol c = t.tsym;
 	    Scope.Entry e = c.members().lookup(m.name);
 	    while (e.scope != null) {
+                e.sym.complete();
 		if (m.overrides(e.sym, origin, types, false))
 		    checkOverride(tree, m, (MethodSymbol)e.sym, origin);
 		e = e.next();
@@ -2153,11 +2155,12 @@ public
 	    return true;
 	if (sym.owner.name == names.any) return false;
 	for (Scope.Entry e = s.lookup(sym.name); e.scope == s; e = e.next()) {
+            sym.complete();
 	    if (sym != e.sym &&
 		sym.kind == e.sym.kind &&
 		sym.name != names.error &&
-		(sym.kind != MTH || types.overrideEquivalent(sym.type, e.sym.type))) {
-		if ((sym.flags() & VARARGS) != (e.sym.flags() & VARARGS))
+                (sym.kind != MTH || types.overrideEquivalent(sym.type, e.sym.type))) {
+                    if ((sym.flags() & VARARGS) != (e.sym.flags() & VARARGS))
 		    varargsDuplicateError(pos, sym, e.sym);
 		else 
 		    duplicateError(pos, e.sym);

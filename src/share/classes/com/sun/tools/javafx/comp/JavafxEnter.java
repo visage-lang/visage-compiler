@@ -144,7 +144,7 @@ public class JavafxEnter extends JavafxTreeScanner {
      *	@param tree	The class definition.
      *	@param env	The environment current outside of the class definition.
      */
-    public JavafxEnv<JavafxAttrContext> classEnv(JFXClassDeclaration tree, JavafxEnv<JavafxAttrContext> env) {
+    public static JavafxEnv<JavafxAttrContext> classEnv(JFXClassDeclaration tree, JavafxEnv<JavafxAttrContext> env) {
 	JavafxEnv<JavafxAttrContext> localEnv =
 	    env.dup(tree, env.info.dup(new Scope(tree.sym)));
 	localEnv.enclClass = tree;
@@ -174,7 +174,7 @@ public class JavafxEnter extends JavafxTreeScanner {
      *	where the local scope is for type variables, and the this and super symbol
      *	only, and members go into the class member scope.
      */
-    public Scope enterScope(JavafxEnv<JavafxAttrContext> env) {
+    public static Scope enterScope(JavafxEnv<JavafxAttrContext> env) {
 	return (env.tree.getTag() == JCTree.CLASSDEF ||
                 env.tree.getTag() == JavafxTag.CLASS_DEF)
 	    ? ((JCClassDecl) env.tree).sym.members_field
@@ -204,7 +204,7 @@ public class JavafxEnter extends JavafxTreeScanner {
      */
     Type classEnter(JCTree tree, JavafxEnv<JavafxAttrContext> env) {
 	JavafxEnv<JavafxAttrContext> prevEnv = this.env;
-	try {
+        try {
 	    this.env = env;
 	    tree.accept(this);
 	    return result;
@@ -353,8 +353,6 @@ public class JavafxEnter extends JavafxTreeScanner {
         // Add non-local class to uncompleted, to make sure it will be
         // completed later.
         if (!c.isLocal() && uncompleted != null) uncompleted.append(c);
-//	System.err.println("entering " + c.fullname + " in " + c.owner);//DEBUG
-
         // Recursively enter all member classes.
         classEnter(tree.defs, localEnv);
 

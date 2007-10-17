@@ -286,6 +286,7 @@ public class JavafxResolve {
                         Warner warn)
         throws Infer.NoInstanceException {
         if (useVarargs && (m.flags() & VARARGS) == 0) return null;
+        m.complete();
         Type mt = types.memberType(site, m);
 
         // tvars is the list of formal type variables for which type arguments
@@ -751,7 +752,7 @@ public class JavafxResolve {
             for (Scope.Entry e = c.members().lookup(name);
                  e.scope != null;
                  e = e.next()) {
-                //- System.out.println(" e " + e.sym);
+                //System.out.println(" e " + e.sym);
                 if (e.sym.kind == MTH &&
                     (e.sym.flags_field & SYNTHETIC) == 0) {
                     bestSoFar = selectBest(env, site, argtypes, typeargtypes,

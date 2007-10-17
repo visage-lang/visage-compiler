@@ -83,8 +83,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     private final Target target;
 
     private final boolean skipAnnotations;
-    private boolean isInMethodParamVars;
-    private boolean isVarArgs;
     private List<MethodInferTypeHelper> methodsToInferReturnType;
     private Type methodReturnType;
     private JavafxEnv<JavafxAttrContext> localEnv;
@@ -357,23 +355,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             env.toplevel.namedImportScope.enter(tsym, tsym.owner.members());
     }
 
-    private Type signature(List<JFXVar> params,
-                   Type restype,
-                   JavafxEnv<JavafxAttrContext> env) {
-        // Enter and attribute value parameters.
-        ListBuffer<Type> argbuf = new ListBuffer<Type>();
-        for (List<JFXVar> l = params; l.nonEmpty(); l = l.tail) {
-            memberEnter(l.head, env);
-            argbuf.append(l.head.getJFXType().type);
-        }
-
-        Type mtype = new MethodType(argbuf.toList(),
-                                    restype,
-                                    List.<Type>nil(),
-                                    syms.methodClass);
-        return mtype;
-    }
-
 /* ********************************************************************
  * Visitor methods for member enter
  *********************************************************************/
@@ -555,6 +536,14 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     }
     
     @Override
+    public void visitBlockExpression(JFXBlockExpression tree) {
+    }
+    
+    @Override
+    public void visitForExpression(JFXForExpression tree) {
+    }
+
+    @Override
     public void visitVar(JFXVar tree) {
         JavafxEnv<JavafxAttrContext> localEnv = env;
         if ((tree.mods.flags & STATIC) != 0 ||
@@ -563,24 +552,19 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             localEnv.info.staticLevel++;
         }
         Type owntype = attr.attribType(tree.getJFXType(), localEnv);
-
+        
         Scope enclScope = enter.enterScope(env);
         VarSymbol v = new JavafxVarSymbol(0, tree.name, owntype, enclScope.owner);
+        tree.sym = v;
+        SymbolCompleter completer = new SymbolCompleter();
+            completer.env = env;
+            completer.tree = tree;
+            completer.attr = attr;
+            v.completer = completer;
 
         v.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, v, tree);
         if (tree.init != null) {
             v.flags_field |= HASINIT;
-        }
-        tree.sym = v;
-        
-        if (owntype == syms.javafx_UnspecifiedType) {
-            // the type isn't declared
-            if (tree.init == null) {
-                owntype = syms.objectType;  // nothing to go on, so we assume Object
-            } else {
-                JavafxEnv<JavafxAttrContext> initEnv = initEnv(tree, env);
-                owntype = attr.attribExpr(tree.init, initEnv, Type.noType);
-            }
         }
         v.type = owntype;
 
@@ -596,34 +580,31 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         assert false;
     }
     
+    static class SymbolCompleter implements Completer {
+        JavafxEnv<JavafxAttrContext> env;
+        JCTree tree;
+        JavafxAttr attr;
+
+        public void complete(Symbol m) throws CompletionFailure {
+            if (tree instanceof JFXOperationDefinition)
+                attr.finishOperationDefinition((JFXOperationDefinition) tree, env);
+            else
+                attr.finishVar((JFXVar) tree, env);
+        }
+    }
+    
     @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
             Scope enclScope = enter.enterScope(env);
             MethodSymbol m = new MethodSymbol(0, tree.name, null, enclScope.owner);
             m.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, m, tree);
             tree.sym = m;
-            JavafxEnv<JavafxAttrContext> localEnv = methodEnv(tree, env);
-
-            m.type = attrMethodType(tree, localEnv);
-        
-            // If types were not set, set them to syms.javafx_AnyType
-            // TODO: Can we do some type inference in here?
-            if (m != null && m.type != null && ((MethodType)m.type).argtypes != null) {
-                for (List<Type> mTypes = ((MethodType)m.type).argtypes; mTypes.nonEmpty(); mTypes = mTypes.tail) {
-                    if (mTypes.head == null) {
-                        mTypes.head = syms.javafx_AnyType;
-                    } 
-                }
-            }
-
-            // mark the method varargs, if necessary
-            if (isVarArgs)
-                m.flags_field |= Flags.VARARGS;
-
-            localEnv.info.scope.leave();
-            if (chk.checkUnique(tree.pos(), m, enclScope)) {
-                enclScope.enter(m);
-            }
+            enclScope.enter(m);
+            SymbolCompleter completer = new SymbolCompleter();
+            completer.env = env;
+            completer.tree = tree;
+            completer.attr = attr;
+            m.completer = completer;
     }
 
     @Override
@@ -638,44 +619,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 methodReturnType = tree.expr.type;
             }
         }
-    }
-
-    private Type attrMethodType(JFXOperationDefinition opDef, JavafxEnv<JavafxAttrContext> lEnv) {
-        Type returnType;
-        JFXOperationValue opVal = opDef.operation;
-        // Create a new environment with local scope
-        // for attributing the method.
-        JavafxEnv<JavafxAttrContext> localEnv = methodEnv(opDef, env);
-
-        // Attribute all value parameters.
-        boolean prevIsInMethodLocalVars = isInMethodParamVars;
-        isInMethodParamVars = true;
-        for (List<JFXVar> l = opVal.funParams; l.nonEmpty(); l = l.tail) {
-            attr.attribStat(l.head, localEnv);
-        }
-        isInMethodParamVars = prevIsInMethodLocalVars;
-
-        if (opVal.getJFXReturnType().getTag() == JavafxTag.TYPEUNKNOWN) {
-            if (opVal.getBodyExpression() == null) {
-                // no body, can't infer, assume Any
-                returnType = syms.javafx_AnyType;
-            } else {
-                // infer the type from the body
-                if (opVal.getBodyExpression().value == null) {
-                    returnType = syms.javafx_VoidType;  //TODO: this is wrong if there is a return statement
-                } else {
-                    returnType = attr.attribExpr(opVal.getBodyExpression(), localEnv);
-                }
-            }
-            methodsToInferReturnType = methodsToInferReturnType.append(new MethodInferTypeHelper(opDef, lEnv));
-        } else {
-            returnType = attr.attribType(opDef.getJFXReturnType(), localEnv);
-        }
-        localEnv.info.scope.leave();
-
-        Type methType = signature(opDef.getParameters(), returnType, lEnv);
-
-        return methType;
     }
 
     private void inferMethodReturnTypes() {
