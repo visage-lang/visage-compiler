@@ -87,19 +87,15 @@ class JavafxcTaskImpl extends JavafxcTask {
                 Main compilerMain,
                 Iterable<String> flags,
                 Context context,
-                Iterable<String> classes,
                 Iterable<? extends JavaFileObject> fileObjects) {
-        this(tool, compilerMain, toArray(flags, classes), context, toList(fileObjects));
+        this(tool, compilerMain, toArray(flags), context, toList(fileObjects));
     }
 
-    static private String[] toArray(Iterable<String> flags, Iterable<String> classes) {
+    static private String[] toArray(Iterable<String> flags) {
         ListBuffer<String> result = new ListBuffer<String>();
         if (flags != null)
             for (String flag : flags)
                 result.append(flag);
-        if (classes != null)
-            for (String cls : classes)
-                result.append(cls);
         return result.toArray(new String[result.length()]);
     }
 
@@ -277,6 +273,7 @@ class JavafxcTaskImpl extends JavafxcTask {
 
     @Override
     public Iterable<? extends JavaFileObject> generate() throws IOException {
+        analyze();
         final ListBuffer<JavaFileObject> results = new ListBuffer<JavaFileObject>();
         compiler.generate(results);
         return results;
@@ -289,6 +286,8 @@ class JavafxcTaskImpl extends JavafxcTask {
 
     @Override
     public TypeMirror getTypeMirror(Iterable<? extends Tree> path) {
+        if (path == null)
+            return null;
         Tree last = null;
         for (Tree node : path) {
             last = node;

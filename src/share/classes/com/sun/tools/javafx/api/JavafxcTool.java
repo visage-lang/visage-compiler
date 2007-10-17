@@ -106,18 +106,12 @@ public final class JavafxcTool implements JavafxCompiler {
                              JavaFileManager fileManager,
                              DiagnosticListener<? super JavaFileObject> diagnosticListener,
                              Iterable<String> options,
-                             Iterable<String> classes,
                              Iterable<? extends JavaFileObject> compilationUnits)
     {
         final String kindMsg = "All compilation units must be of SOURCE kind";
         if (options != null)
             for (String option : options)
                 option.getClass(); // null check
-        if (classes != null) {
-            for (String cls : classes)
-                if (!SourceVersion.isName(cls)) // implicit null check
-                    throw new IllegalArgumentException("Not a valid class name: " + cls);
-        }
         if (compilationUnits != null) {
             for (JavaFileObject cu : compilationUnits) {
                 if (cu.getKind() != JavaFileObject.Kind.SOURCE) // implicit null check
@@ -140,7 +134,7 @@ public final class JavafxcTool implements JavafxCompiler {
         context.put(JavaFileManager.class, fileManager);
         processOptions(context, fileManager, options);
         Main compiler = new Main("javacTask", context.get(Log.outKey));
-        return new JavafxcTaskImpl(this, compiler, options, context, classes, compilationUnits);
+        return new JavafxcTaskImpl(this, compiler, options, context, compilationUnits);
     }
 
     private static void processOptions(Context context,

@@ -281,12 +281,12 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         // if fileManager not already set, register the JavacFileManager to be used
         if (context.get(JavaFileManager.class) == null)
         com.sun.tools.javafx.util.JavafxFileManager.preRegister(context);
-        javafxJavaCompiler = JavafxJavaCompiler.instance(context);
-
         com.sun.tools.javafx.tree.JavafxTreeMaker.preRegister(context);
         com.sun.tools.javafx.tree.JavafxTreeInfo.preRegister(context);
         com.sun.tools.javafx.code.JavafxSymtab.preRegister(context);
         com.sun.tools.javafx.comp.JavafxClassReader.preRegister(context);
+        
+        javafxJavaCompiler = JavafxJavaCompiler.instance(context);
         names = Name.Table.instance(context);
         options = Options.instance(context);
         log = Log.instance(context);

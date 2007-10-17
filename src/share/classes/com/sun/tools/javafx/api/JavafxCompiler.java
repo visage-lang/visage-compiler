@@ -62,8 +62,6 @@ public interface JavafxCompiler extends Tool, OptionChecker {
      * null} use the compiler's default method for reporting
      * diagnostics
      * @param options compiler options, {@code null} means no options
-     * @param classes class names (for annotation processing), {@code
-     * null} means no class names
      * @param compilationUnits the compilation units to compile, {@code
      * null} means no compilation units
      * @return an object representing the compilation
@@ -75,12 +73,11 @@ public interface JavafxCompiler extends Tool, OptionChecker {
      * compilation units are of other kind than
      * {@linkplain JavaFileObject.Kind#SOURCE source}
      */
-    CompilationTask getTask(Writer out,
-                            JavaFileManager fileManager,
-                            DiagnosticListener<? super JavaFileObject> diagnosticListener,
-                            Iterable<String> options,
-                            Iterable<String> classes,
-                            Iterable<? extends JavaFileObject> compilationUnits);
+    JavafxcTask getTask(Writer out,
+                        JavaFileManager fileManager,
+                        DiagnosticListener<? super JavaFileObject> diagnosticListener,
+                        Iterable<String> options,
+                        Iterable<? extends JavaFileObject> compilationUnits);
 
     /**
      * Gets a new instance of the standard file manager implementation

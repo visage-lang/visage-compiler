@@ -122,7 +122,7 @@ public class JavafxcToolTest {
         Iterable<String> classes = null;
         Iterable<? extends JavaFileObject> compilationUnits = null;
         JavafxcTool instance = new JavafxcTool();
-        Object result = instance.getTask(out, fileManager, diagnosticListener, options, classes, compilationUnits);
+        Object result = instance.getTask(out, fileManager, diagnosticListener, options, compilationUnits);
         assertTrue(result instanceof JavafxcTask);
     }
 
