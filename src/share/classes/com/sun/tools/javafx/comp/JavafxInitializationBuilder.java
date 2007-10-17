@@ -152,6 +152,8 @@ public class JavafxInitializationBuilder {
             List<JCBlock> initBlocks) {
         ListBuffer<JCStatement> stmts = ListBuffer.<JCStatement>lb();
         
+// TODO:        stmts.append(toJava.callStatement(classDecl.pos(), null, setDefaultsName.toString(), make.Ident(receiverName)));
+
         // Initialize the default values for the atttributes.
         for (TranslatedAttributeInfo info : attrInfo) {
             if (info.initExpr != null) { // if there is an attribute initializer
@@ -192,7 +194,7 @@ public class JavafxInitializationBuilder {
     /**
      * Non-destructive creation of "on change" change listener set-up call.
      */
-    private JCStatement makeChangeListenerCall(TranslatedAttributeInfo info) {
+    JCStatement makeChangeListenerCall(TranslatedAttributeInfo info) {
         JFXOnReplace onReplace = null;
         JFXOnReplaceElement onReplaceElement = null;
         JFXOnInsertElement onInsertElement = null;
@@ -267,6 +269,7 @@ public class JavafxInitializationBuilder {
                 make.at(diagPos).AnonymousClassDef(make.Modifiers(0L), defs.toList()));
 
         JCIdent varIdent = make.at(diagPos).Ident(info.name());
+        varIdent.sym = info.attribute.sym;
         JCFieldAccess tmpSelect = make.at(diagPos).Select(varIdent, addChangeListenerName);
 
         List<JCExpression> args = List.<JCExpression>of(anonymousChangeListener);
@@ -710,27 +713,7 @@ public class JavafxInitializationBuilder {
                 setDefStats = setDefStats.append(toJava.callStatement(cdef.pos(), make.Identifier(className), setDefaultsName.toString(), args1));
             }
         }
-        
-        // Add the initialization of this class' attributes
-        for (JCTree tree : cdef.defs) {
-            if (tree.getTag() == JavafxTag.VAR_DEF && tree.pos != Position.NOPOS) {
-                JCVariableDecl aw = (JCVariableDecl)tree;
-                if (aw.sym != null && aw.sym.owner == cdef.sym) {
-// TODO: Re-enable this when the javafx$init and the old initialization model is removed. The setDefaults$ interferes with the javafs$initmethod
-//                    JCExpression getAttrCall = toJava.callExpression(cdef.pos(), make.Ident(receiverName),
-//                            attributeGetMethodNamePrefix + aw.name.toString(), List.<JCExpression>nil());
-//
-//                    JCExpression cond = make.Binary(JCTree.EQ, getAttrCall, make.Literal(TypeTags.BOT, null));
-//                    
-//                    JCStatement thenStat = toJava.callStatement(cdef.pos(), make.Ident(receiverName), attributeInitMethodNamePrefix + aw.name.toString(), aw.init);
-//                    JCIf defInitIf = make.If(cond, thenStat, null);
-//                    toJava.defaultsToSet.put(aw.sym, defInitIf);
-//                    setDefStats = setDefStats.append(defInitIf);
-// TODO: End\
-                }
-            }
-        }
-        
+                
         JCBlock setDefBlock = make.Block(0L, setDefStats);
         
         cdef.defs = cdef.defs.append(make.MethodDef(
@@ -784,6 +767,26 @@ public class JavafxInitializationBuilder {
                 initializeBlock, null));
     }
 
+    // Add the initialization of this class' attributes
+    List<JCStatement> addSetDefaultAttributeInitialization(ListBuffer<TranslatedAttributeInfo> attrInfo, JCClassDecl cdef) {
+        List<JCStatement> ret = List.<JCStatement>nil();
+        for (TranslatedAttributeInfo tai : attrInfo) {
+            if (tai.attribute != null && tai.attribute.getTag() == JavafxTag.VAR_DEF && tai.attribute.pos != Position.NOPOS) {
+                if (tai.attribute.sym != null && tai.attribute.sym.owner == cdef.sym) {
+                    JCExpression getAttrCall = toJava.callExpression(cdef.pos(), make.Ident(receiverName),
+                            attributeGetMethodNamePrefix + tai.attribute.name.toString(), List.<JCExpression>nil());
+
+                    JCExpression cond = make.Binary(JCTree.EQ, getAttrCall, make.Literal(TypeTags.BOT, null));
+                    
+                    JCStatement thenStat = toJava.callStatement(cdef.pos(), make.Ident(receiverName), attributeInitMethodNamePrefix + tai.attribute.name.toString(), tai.initExpr);
+                    JCIf defInitIf = make.If(cond, thenStat, null);
+                    ret = ret.prepend(defInitIf);
+                }
+            }
+        }
+        return ret;
+    }
+    
     private void collectAttributesAndMethods(Set<String> visitedClasses,
                                              Map<String, Symbol> collectedAttributes,
                                              Map<String, MethodSymbol> collectedMethods,
