@@ -1285,7 +1285,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     /** Convert an expression to a statement.
-     * In general, jsut creates an JCExpressionStatement.
+     * In general, just creates an JCExpressionStatement.
      * However, JCConditional is converted to a JCIf.
      */
     private JCStatement exprToTranslatedStatement(JCExpression expr, boolean asReturn) {
@@ -1331,7 +1331,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitReturn(JCReturn tree) {
-        result = exprToTranslatedStatement(tree.getExpression(), true);
+        JCExpression exp = tree.getExpression();
+        if (exp == null)
+            result = null;
+        else
+            result = exprToTranslatedStatement(exp, true);
     }
 
     public void visitExec(JCExpressionStatement tree) {
