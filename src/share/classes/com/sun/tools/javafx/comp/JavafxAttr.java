@@ -3073,13 +3073,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         chk.validate(tree.extending);
         chk.validate(tree.implementing);
 
-        // If this is a non-abstract class, check that it has no abstract
-        // methods or unimplemented methods of an implemented interface.
-        if ((c.flags() & (ABSTRACT | INTERFACE)) == 0) {
-            if (!relax)
-                chk.checkAllDefined(tree.pos(), c);
-        }
-
         if ((c.flags() & ANNOTATION) != 0) {
             if (tree.implementing.nonEmpty())
                 log.error(tree.implementing.head.pos(),
@@ -3112,10 +3105,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (!c.type.allparams().isEmpty() && types.isSubtype(c.type, syms.throwableType))
             log.error(tree.extending.pos(), "generic.throwable");
 
-        // Check that all methods which implement some
-        // method conform to the method they implement.
-        chk.checkImplementations(tree);
-
         for (List<JCTree> l = tree.defs; l.nonEmpty(); l = l.tail) {
             // Attribute declaration
             attribStat(l.head, env);
@@ -3132,6 +3121,17 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     log.error(l.head.pos(), "icls.cant.have.static.decl");
             }
         }
+
+        // If this is a non-abstract class, check that it has no abstract
+        // methods or unimplemented methods of an implemented interface.
+        if ((c.flags() & (ABSTRACT | INTERFACE)) == 0) {
+            if (!relax)
+                chk.checkAllDefined(tree.pos(), c);
+        }
+
+        // Check that all methods which implement some
+        // method conform to the method they implement.
+        chk.checkImplementations(tree);
 
         Scope enclScope = enter.enterScope(env);
         for (List<JCTree> l = tree.defs; l.nonEmpty(); l = l.tail) {
