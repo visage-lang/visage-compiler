@@ -1465,7 +1465,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     !relax)
                     log.error(tree.pos(), "missing.meth.body.or.decl.abstract");
                 else if (returnType == null)
-                    log.error(tree.pos(), "(missing method type)"); // FIXME?
+                    // no body, can't infer, assume Any
+                    // FIXME Should this be Void or an error?
+                    returnType = syms.javafx_AnyType;
             } else if ((owner.flags() & INTERFACE) != 0) {
                 log.error(tree.getBodyExpression().pos(), "intf.meth.cant.have.body");
             } else if ((tree.mods.flags & ABSTRACT) != 0) {
