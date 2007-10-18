@@ -41,5 +41,5 @@ public interface BooleanLocation extends Location {
     boolean set(boolean value);
 
     /** Get a reference to an ObjectLocation<Boolean> that describes the same location */
-    public ObjectLocation<Boolean> asBooleanLocation();
+    public ObjectLocation<Boolean> asObjectLocation();
 }

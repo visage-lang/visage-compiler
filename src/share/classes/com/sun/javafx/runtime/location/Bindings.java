@@ -55,32 +55,32 @@ public class Bindings {
 
     /** Convenience method for bijection between IntLocation and IntLocation */
     public static void bijectiveBind(IntLocation a, IntLocation b, Bijection<Integer, Integer> mapper) {
-        new BijectiveBinding<Integer, Integer>(a.asIntegerLocation(), b.asIntegerLocation(), mapper);
+        new BijectiveBinding<Integer, Integer>(a.asObjectLocation(), b.asObjectLocation(), mapper);
     }
 
     /** Convenience method for bijection between IntLocation and ObjectLocation */
     public static<T> void bijectiveBind(IntLocation a, ObjectLocation<T> b, Bijection<Integer, T> mapper) {
-        new BijectiveBinding<Integer, T>(a.asIntegerLocation(), b, mapper);
+        new BijectiveBinding<Integer, T>(a.asObjectLocation(), b, mapper);
     }
 
     /** Convenience method for bijection between IntLocation and ObjectLocation */
     public static<T> void bijectiveBind(ObjectLocation<T> a, IntLocation b, Bijection<T, Integer> mapper) {
-        new BijectiveBinding<T, Integer>(a, b.asIntegerLocation(), mapper);
+        new BijectiveBinding<T, Integer>(a, b.asObjectLocation(), mapper);
     }
 
     /** Convenience method for bijection between DoubleLocation and DoubleLocation */
     public static void bijectiveBind(DoubleLocation a, DoubleLocation b, Bijection<Double, Double> mapper) {
-        new BijectiveBinding<Double, Double>(a.asDoubleLocation(), b.asDoubleLocation(), mapper);
+        new BijectiveBinding<Double, Double>(a.asObjectLocation(), b.asObjectLocation(), mapper);
     }
 
     /** Convenience method for bijection between DoubleLocation and ObjectLocation */
     public static<T> void bijectiveBind(DoubleLocation a, ObjectLocation<T> b, Bijection<Double, T> mapper) {
-        new BijectiveBinding<Double, T>(a.asDoubleLocation(), b, mapper);
+        new BijectiveBinding<Double, T>(a.asObjectLocation(), b, mapper);
     }
 
     /** Convenience method for bijection between DoubleLocation and ObjectLocation */
     public static<T> void bijectiveBind(ObjectLocation<T> a, DoubleLocation b, Bijection<T, Double> mapper) {
-        new BijectiveBinding<T, Double>(a, b.asDoubleLocation(), mapper);
+        new BijectiveBinding<T, Double>(a, b.asObjectLocation(), mapper);
     }
 
     /** Return the set of locations that are "peered" with this one through a chain of bidirectional bindings */

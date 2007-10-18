@@ -72,7 +72,7 @@ public class BooleanVar extends AbstractLocation implements BooleanLocation, Mut
         throw new UnsupportedOperationException();
     }
 
-    public ObjectLocation<Boolean> asBooleanLocation() {
-        return new BooleanObjectMutableLocation(this);
+    public ObjectLocation<Boolean> asObjectLocation() {
+        return Locations.asMutableObjectLocation(this);
     }
 }

@@ -89,7 +89,7 @@ public class IntExpression extends AbstractLocation implements IntLocation {
         super.invalidate();
     }
 
-    public ObjectLocation<Integer> asIntegerLocation() {
-        return new IntObjectLocation(this);
+    public ObjectLocation<Integer> asObjectLocation() {
+        return Locations.asObjectLocation(this);
     }
 }

@@ -89,7 +89,7 @@ public class BooleanExpression extends AbstractLocation implements BooleanLocati
         super.invalidate();
     }
 
-    public ObjectLocation<Boolean> asBooleanLocation() {
-        return new BooleanObjectLocation(this);
+    public ObjectLocation<Boolean> asObjectLocation() {
+        return Locations.asObjectLocation(this);
     }
 }

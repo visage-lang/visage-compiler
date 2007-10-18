@@ -89,7 +89,7 @@ public class DoubleExpression extends AbstractLocation implements DoubleLocation
         super.invalidate();
     }
 
-    public ObjectLocation<Double> asDoubleLocation() {
-        return new DoubleObjectLocation(this);
+    public ObjectLocation<Double> asObjectLocation() {
+        return Locations.asObjectLocation(this);
     }
 }
