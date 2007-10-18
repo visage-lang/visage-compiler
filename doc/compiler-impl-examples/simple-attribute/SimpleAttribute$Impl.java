@@ -31,6 +31,7 @@ public class SimpleAttribute$Impl implements SimpleAttribute$Intf {
 
     protected static void setDefaults$(final SimpleAttribute$Intf receiver) {
         if (receiver.get$a() == null) receiver.init$a(IntVar.make(3));
+        // @@@ FIXME: need to set up bindings and then set up dependencies
 
         receiver.get$a().addChangeListener(new ChangeListener() {
             public boolean onChange(Location location) {
