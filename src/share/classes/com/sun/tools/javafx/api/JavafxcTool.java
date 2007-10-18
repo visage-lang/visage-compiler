@@ -42,6 +42,7 @@ import com.sun.tools.javafx.main.JavafxOption;
 import com.sun.tools.javafx.main.Main;
 import com.sun.tools.javafx.main.RecognizedOptions.GrumpyHelper;
 import com.sun.tools.javafx.main.RecognizedOptions;
+import com.sun.tools.javafx.util.JavafxFileManager;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Iterator;
@@ -98,7 +99,7 @@ public final class JavafxcTool implements JavafxCompiler {
         if (diagnosticListener != null)
             context.put(DiagnosticListener.class, diagnosticListener);
         context.put(Log.outKey, new PrintWriter(System.err, true)); // FIXME
-        return new JavacFileManager(context, true, charset);
+        return new JavafxFileManager(context, true, charset);
     }
 
     @Override

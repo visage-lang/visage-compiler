@@ -35,12 +35,12 @@ import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.ClientCodeException;
 import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.JavacFileManager;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Options;
 import com.sun.tools.javafx.main.CommandLine;
 import com.sun.tools.javafx.main.Main;
+import com.sun.tools.javafx.util.JavafxFileManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -166,7 +166,7 @@ class JavafxcTaskImpl extends JavafxcTask {
                     context.put(JavaFileManager.class, givenFileManager);
                     return givenFileManager;
                 } else {
-                    return new JavacFileManager(context, true, null);
+                    return new JavafxFileManager(context, true, null);
                 }
             }
         });

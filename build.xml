@@ -16,10 +16,10 @@
     <target name="default" depends="jar"
             description="Build javafxc compiler."/>
 
-    <target name="all" depends="jar, spec, javadoc, test, findbugs"
+    <target name="all" depends="jar, runtime, spec, javadoc, test, findbugs"
             description="Build and test all project artifacts"/>
 
-    <target name="hudson-all" depends="coverage, all, runtime, coverage-report, hudson-post-build"
+    <target name="hudson-all" depends="coverage, all, coverage-report, hudson-post-build"
             description="Build and test all project artifacts"/>
 
     <target name="all-with-coverage" depends="coverage, all, coverage-report"

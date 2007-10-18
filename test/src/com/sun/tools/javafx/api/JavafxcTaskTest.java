@@ -27,23 +27,45 @@ package com.sun.tools.javafx.api;
 
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
-import com.sun.source.util.TaskListener;
-import java.io.Writer;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
-import javax.tools.JavaFileManager;
+import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import javax.tools.StandardJavaFileManager;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static javax.tools.JavaFileObject.Kind.*;
+import static javax.tools.StandardLocation.*;
 
 /**
  * Unit test for JavafxcTask interface and its JavafxcTaskImpl implementation.
  */
 public class JavafxcTaskTest {
+    private static final String testSrc = System.getProperty("test.src.dir", ".");
+    private static final String testClasses = System.getProperty("build.test.classes.dir");
+    
+    @Test
+    public void parseSingleSource() throws Exception {
+        JavafxcTool instance = new JavafxcTool();
+        DiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
+        StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
+        List<String> options = 
+                Arrays.asList("-d", ".", "-sourcepath", testSrc, "-classpath", testClasses);
+        File file = new File(testSrc, "HelloWorld.fx");
+	Iterable<? extends JavaFileObject> files = fm.getJavaFileObjects(file);
+        JavafxcTask task = instance.getTask(null, fm, dl, null, files);
+        assertNotNull(task);
+        Iterable<? extends CompilationUnitTree> result = task.parse();
+        assertTrue(result.iterator().hasNext());
+    }
+
     
     @Test
     public void parseNullSourceList() throws Exception {
@@ -78,7 +100,7 @@ public class JavafxcTaskTest {
     }
 
     @Test
-    public void getTypeMirror() {
+    public void getTypeMirrorNullPath() {
         Iterable<? extends Tree> path = null;
         JavafxcTool instance = new JavafxcTool();
         JavafxcTask task = instance.getTask(null, null, null, null, null);
@@ -101,5 +123,13 @@ public class JavafxcTaskTest {
         Types result = task.getTypes();
         assertNotNull(result);
     }
-    
+
+    static class MockDiagnosticListener<T> implements DiagnosticListener<T> {
+	public void report(Diagnostic<? extends T> d) {
+	    diagCodes.add(d.getCode());
+	    System.err.println(d);
+	}
+
+	List<String> diagCodes = new ArrayList<String>();
+    }
 }
