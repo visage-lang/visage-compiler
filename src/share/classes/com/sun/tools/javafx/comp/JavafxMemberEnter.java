@@ -83,8 +83,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     private final Target target;
 
     private final boolean skipAnnotations;
-    private List<MethodInferTypeHelper> methodsToInferReturnType;
-    private Type methodReturnType;
     private JavafxEnv<JavafxAttrContext> localEnv;
     
     public static JavafxMemberEnter instance(Context context) {
@@ -506,16 +504,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             }
         }
     }
-    
-    protected void finishClass(JCClassDecl tree, JavafxEnv<JavafxAttrContext> env) {
-        List<MethodInferTypeHelper> prevMethodsToInferReturnType;
-        prevMethodsToInferReturnType = methodsToInferReturnType;
-        methodsToInferReturnType = List.nil();
-        //JavaFX remove
-        memberEnter(tree.defs, env);
-        inferMethodReturnTypes();
-        methodsToInferReturnType = prevMethodsToInferReturnType;
-    }
 
     /** Create a fresh environment for method bodies.
      *  @param tree     The method definition.
@@ -612,64 +600,9 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         super.visitReturn(tree);
         if (localEnv != null) {
             attr.attribStat(tree, localEnv);
-            if (tree.expr == null) {
-                methodReturnType = syms.voidType;
-            }
-            else {
-                methodReturnType = tree.expr.type;
-            }
         }
     }
 
-    private void inferMethodReturnTypes() {
-        if (methodsToInferReturnType != null) { 
-            for (MethodInferTypeHelper methodDeclHelper : methodsToInferReturnType) {
-                JFXOperationValue operation = methodDeclHelper.method.operation;
-                if (operation.rettype.type == syms.javafx_UnspecifiedType &&
-                          operation.getBodyExpression() != null) {
-                      Type prevMethodReturnType = methodReturnType;
-                      methodReturnType = null;
-                      Type prevrettype = operation.rettype.type;
-                      operation.rettype.type = Type.noType;
-                      JavafxEnv<JavafxAttrContext> prevLocalEnv = localEnv;
-                      localEnv = methodDeclHelper.lEnv;
-                      if (operation.getBodyExpression() != null) {
-                          memberEnter(operation.getBodyExpression(), localEnv);
-                      }
-                      localEnv = prevLocalEnv;
-                      if (methodReturnType == null) {
-                          operation.rettype.type = syms.voidType;
-                          if (methodDeclHelper.method.sym != null && methodDeclHelper.method.sym.type != null &&
-                              methodDeclHelper.method.sym.kind == MTH) {
-                              ((MethodType)methodDeclHelper.method.sym.type).restype = syms.voidType;
-                          }
-                      }
-                      else {
-                          operation.rettype.type = methodReturnType;
-                          if (methodDeclHelper.method.sym != null && methodDeclHelper.method.sym.type != null &&
-                              methodDeclHelper.method.sym.kind == MTH) {
-                              ((MethodType)methodDeclHelper.method.sym.type).restype = methodReturnType;
-                          }
-                      }
-                      
-                      if (operation.rettype.type == Type.noType) {
-                          operation.rettype.type = prevrettype;
-                      }
-  
-                      methodReturnType = prevMethodReturnType;
-                }
-            }
-        }
-    }
-
-    static class MethodInferTypeHelper {
-        JFXOperationDefinition method;
-        JavafxEnv<JavafxAttrContext> lEnv;
-        MethodInferTypeHelper(JFXOperationDefinition method,  JavafxEnv<JavafxAttrContext> lEnv) {
-            this.method = method;
-            this.lEnv = lEnv;
-        }
-    }
 // Javafx modification
     // Begin JavaFX trees
     @Override
@@ -976,7 +909,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
         try {
             JCClassDecl tree = (JCClassDecl)env.tree;
-            finishClass(tree, env);
+            memberEnter(tree.defs, env);
         } finally {
             log.useSource(prev);
         }
