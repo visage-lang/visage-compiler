@@ -863,16 +863,16 @@ assignmentOperator  returns [int optag]
 	;
 type returns [JFXType type]
 	: typeName cardinality		{ $type = F.TypeClass($typeName.expr, $cardinality.ary); }
-        | FUNCTION LPAREN tal=typeArgList?
-          	   RPAREN ret=type	//TODO: it is unclear why the type syntax is different 
+        | FUNCTION LPAREN tal=typeArgList
+          	   RPAREN ret=type 
           	   	cardinality	//TODO: this introduces an ambiguity: return cardinality vs type cardinality
           	   			{ $type = F.at(pos($FUNCTION)).TypeFunctional($tal.ptypes.toList(), $ret.type, $cardinality.ary); }
         | STAR cardinality		{ $type = F.at(pos($STAR)).TypeAny($cardinality.ary); } 
         ;
 typeArgList   returns [ListBuffer<JFXType> ptypes = ListBuffer.<JFXType>lb(); ]
-        : pt0=type			{ ptypes.append($pt0.type); }
+        : (pt0=type			{ ptypes.append($pt0.type); }
 	          ( COMMA ptn=type	{ ptypes.append($ptn.type); } 
-	          )* 
+	          )* )?
 	;
 typeReference returns [JFXType type]
         : COLON type			{ $type = $type.type; }
