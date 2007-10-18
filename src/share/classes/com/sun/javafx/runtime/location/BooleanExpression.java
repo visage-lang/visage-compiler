@@ -40,7 +40,7 @@ public class BooleanExpression extends AbstractLocation implements BooleanLocati
     private boolean value, previousValue;
 
     /** Create an BooleanExpression with the specified expression and dependencies. */
-    public static BooleanExpression make(BooleanBindingExpression exp, Location... dependencies) {
+    public static BooleanLocation make(BooleanBindingExpression exp, Location... dependencies) {
         BooleanExpression loc = new BooleanExpression(false, exp);
         for (Location dep : dependencies)
             dep.addChangeListener(loc.getWeakChangeListener());
@@ -48,7 +48,7 @@ public class BooleanExpression extends AbstractLocation implements BooleanLocati
     }
 
     /** Create a lazy BooleanExpression with the specified expression and dependencies. */
-    public static BooleanExpression makeLazy(BooleanBindingExpression exp, Location... dependencies) {
+    public static BooleanLocation makeLazy(BooleanBindingExpression exp, Location... dependencies) {
         BooleanExpression loc = new BooleanExpression(true, exp);
         for (Location dep : dependencies)
             dep.addChangeListener(loc.getWeakChangeListener());
