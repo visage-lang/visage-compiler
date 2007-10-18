@@ -332,7 +332,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-    public void visitPureObjectLiteral(JFXPureObjectLiteral tree) {
+    public void visitInstanciate(JFXInstanciate tree) {
         try {
             JCExpression id = tree.getIdentifier();
             if (id != null) {
@@ -340,12 +340,12 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             }
             print(" {");
             indent();
-            List<JCStatement> mems = tree.getParts();
-            for (JCStatement mem : mems) {
+            for (JFXObjectLiteralPart mem : tree.getParts()) {
                 println();
                 align();
                 printExpr(mem);
             }
+            //TODO: add defs
             undent();
             println();
             align();
@@ -414,11 +414,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    @Override
-    public void visitInstanciate(JFXInstanciate that) {
-        visitNewClass(that);
     }
 
     String ary(JFXType tree) {

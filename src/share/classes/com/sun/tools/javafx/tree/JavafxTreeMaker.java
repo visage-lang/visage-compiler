@@ -42,7 +42,7 @@ import com.sun.tools.javafx.code.JavafxBindStatus;
 /* JavaFX version of tree maker
  */
 public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
-    /** Get the JavafxTreeMaker instance.
+     /** Get the JavafxTreeMaker instance.
      */
     public static TreeMaker instance(Context context) {
         TreeMaker instance = context.get(treeMakerKey);
@@ -232,9 +232,29 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXPureObjectLiteral PureObjectLiteral(JCExpression ident,
-            List<JCStatement> parts) {
-        JFXPureObjectLiteral tree = new JFXPureObjectLiteral(ident, parts, null);
+    public JFXInstanciate Instanciate(JCExpression ident,
+            List<JCExpression> args,
+            List<JCTree> defs) {
+        ListBuffer<JFXObjectLiteralPart> partsBuffer = ListBuffer.<JFXObjectLiteralPart>lb();
+        ListBuffer<JCTree> defsBuffer = ListBuffer.<JCTree>lb();
+        if (defs != null) {
+            for (JCTree def : defs) {
+                if (def instanceof JFXObjectLiteralPart) {
+                    partsBuffer.append((JFXObjectLiteralPart) def);
+                } else {
+                    defsBuffer.append(def);
+                }
+            }
+        }
+        JFXClassDeclaration klass = null;
+        if (defsBuffer.size() > 0) {
+            JCExpression id = ident;
+            while (id instanceof JCFieldAccess) id = ((JCFieldAccess)id).getExpression();
+            Name cname = syntheticClassName(((JCIdent)id).getName());
+            klass = this.ClassDeclaration(this.Modifiers(0L), cname, List.<JCExpression>of(ident), defsBuffer.toList());
+        }
+        
+        JFXInstanciate tree = new JFXInstanciate(ident, klass, args==null? List.<JCExpression>nil() : args, partsBuffer.toList(), null);
         tree.pos = pos;
         return tree;
     }
@@ -352,17 +372,6 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXInstanciate Instanciate(JCExpression encl,
-                             List<JCExpression> typeargs,
-                             JCExpression clazz,
-                             List<JCExpression> args,
-                             JCClassDecl def)
-    {
-        JFXInstanciate tree = new JFXInstanciate(encl, typeargs, clazz, args, def);
-        tree.pos = pos;
-        return tree;
-    }
-
     public JCExpression Identifier(Name name) {
         String str = name.toString();
         if (str.indexOf('.') < 0 && str.indexOf('<') < 0) {
@@ -412,5 +421,12 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
             lastInx = endInx + 1;
         } while (inx >= 0);
         return tree;
+    }
+
+   
+    private int syntheticClassNumber = 0;
+    
+    Name syntheticClassName(Name superclass) {
+        return Name.fromString(names, superclass.toString() + "$anon" + ++syntheticClassNumber);
     }
 }

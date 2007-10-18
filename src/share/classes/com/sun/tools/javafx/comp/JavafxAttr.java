@@ -117,8 +117,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     private final Name stringTypeName;
     private final Name voidTypeName;  // possibly temporary
 
-    private Symbol objLitSymbol;
-
     public static JavafxAttr instance(Context context) {
         JavafxAttr instance = context.get(javafxAttrKey);
         if (instance == null)
@@ -1158,12 +1156,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
 
     
-    @Override
-    public void visitInstanciate(JFXInstanciate that) {
-        visitNewClass(that);
-    }
-
     public void visitNewClass(JCNewClass tree) {
+        assert false : "remove me"; 
+    }
+    
+    @Override
+    public void visitInstanciate(JFXInstanciate tree) {
         Type owntype = syms.errType;
 
         // The local environment of a class creation is
@@ -1172,11 +1170,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         // The anonymous inner class definition of the new expression,
         // if one is defined by it.
-        JCClassDecl cdef = tree.def;
+        JFXClassDeclaration cdef = tree.getClassBody();
 
         // If enclosing class is given, attribute it, and
         // complete class name to be fully qualified
-        JCExpression clazz = tree.clazz; // Class field following new
+        JCExpression clazz = tree.getIdentifier(); // Class field following new
         JCExpression clazzid =          // Identifier in class field
             (clazz.getTag() == JCTree.TYPEAPPLY)
             ? ((JCTypeApply) clazz).clazz
@@ -1184,65 +1182,22 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         JCExpression clazzid1 = clazzid; // The same in fully qualified form
 
-        if (tree.encl != null) {
-            // We are seeing a qualified new, of the form
-            //    <expr>.new C <...> (...) ...
-            // In this case, we let clazz stand for the name of the
-            // allocated class C prefixed with the type of the qualifier
-            // expression, so that we can
-            // resolve it with standard techniques later. I.e., if
-            // <expr> has type T, then <expr>.new C <...> (...)
-            // yields a clazz T.C.
-            Type encltype = chk.checkRefType(tree.encl.pos(),
-                                             attribExpr(tree.encl, env));
-            clazzid1 = make.at(clazz.pos).Select(make.Type(encltype),
-                                                 ((JCIdent) clazzid).name);
-            if (clazz.getTag() == JCTree.TYPEAPPLY)
-                clazz = make.at(tree.pos).
-                    TypeApply(clazzid1,
-                              ((JCTypeApply) clazz).arguments);
-            else
-                clazz = clazzid1;
-//          System.out.println(clazz + " generated.");//DEBUG
-        }
-
         // Attribute clazz expression and store
         // symbol + type back into the attributed tree.
         Type clazztype = chk.checkClassType(
-            tree.clazz.pos(), attribType(clazz, env), true);
+            clazz.pos(), attribType(clazz, env), true);
         chk.validate(clazz);
-        if (tree.encl != null) {
-            // We have to work in this case to store
-            // symbol + type back into the attributed tree.
-            tree.clazz.type = clazztype;
-            TreeInfo.setSymbol(clazzid, TreeInfo.symbol(clazzid1));
-            clazzid.type = ((JCIdent) clazzid).sym.type;
-            if (!clazztype.isErroneous()) {
-                if (cdef != null && clazztype.tsym.isInterface()) {
-                    log.error(tree.encl.pos(), "anon.class.impl.intf.no.qual.for.new");
-                } else if (clazztype.tsym.isStatic()) {
-                    log.error(tree.encl.pos(), "qualified.new.of.static.class", clazztype.tsym);
-                }
-            }
-        } else if (!clazztype.tsym.isInterface() &&
+        if (!clazztype.tsym.isInterface() &&
                    clazztype.getEnclosingType().tag == CLASS) {
             // Check for the existence of an apropos outer instance
             rs.resolveImplicitThis(tree.pos(), env, clazztype);
         }
 
         // Attribute constructor arguments.
-        List<Type> argtypes = attribArgs(tree.args, localEnv);
-        List<Type> typeargtypes = attribTypes(tree.typeargs, localEnv);
+        List<Type> argtypes = attribArgs(tree.getArguments(), localEnv);
 
         // If we have made no mistakes in the class type...
         if (clazztype.tag == CLASS) {
-            // Enums may not be instantiated except implicitly
-            if (allowEnums &&
-                (clazztype.tsym.flags_field&Flags.ENUM) != 0 &&
-                (env.tree.getTag() != JCTree.VARDEF ||
-                 (((JCVariableDecl) env.tree).mods.flags&Flags.ENUM) == 0 ||
-                 ((JCVariableDecl) env.tree).init != tree))
-                log.error(tree.pos(), "enum.cant.be.instantiated");
             // Check that class is not abstract
             if (cdef == null &&
                 (clazztype.tsym.flags() & (ABSTRACT | INTERFACE)) != 0) {
@@ -1252,14 +1207,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 // Check that no constructor arguments are given to
                 // anonymous classes implementing an interface
                 if (!argtypes.isEmpty())
-                    log.error(tree.args.head.pos(), "anon.class.impl.intf.no.args");
+                    log.error(tree.getArguments().head.pos(), "anon.class.impl.intf.no.args");
 
-                if (!typeargtypes.isEmpty())
-                    log.error(tree.typeargs.head.pos(), "anon.class.impl.intf.no.typeargs");
 
                 // Error recovery: pretend no arguments were supplied.
                 argtypes = List.nil();
-                typeargtypes = List.nil();
             }
 
             // Resolve the called constructor under the assumption
@@ -1268,19 +1220,22 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             else {
                 localEnv.info.selectSuper = cdef != null;
                 localEnv.info.varArgs = false;
-                /***
+
+                /**
+                List<Type> emptyTypeargtypes = List.<Type>nil();
                 tree.constructor = rs.resolveConstructor(
-                    tree.pos(), localEnv, clazztype, argtypes, typeargtypes);
+                    tree.pos(), localEnv, clazztype, argtypes, emptyTypeargtypes);
                 Type ctorType = checkMethod(clazztype,
                                             tree.constructor,
                                             localEnv,
-                                            tree.args,
+                                            tree.getArguments(),
                                             argtypes,
-                                            typeargtypes,
+                                            emptyTypeargtypes,
                                             localEnv.info.varArgs);
                 if (localEnv.info.varArgs)
-                    assert ctorType.isErroneous() || tree.varargsElement != null;
+                    assert ctorType.isErroneous();
                  * ***/
+
             }
 
             if (cdef != null) {
@@ -1316,7 +1271,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 //       }
                 //       ...
                 //     }
-                if (JavafxResolve.isStatic(env)) cdef.mods.flags |= STATIC;
+//               if (JavafxResolve.isStatic(env)) cdef.mods.flags |= STATIC;
+                
+                // always need to be static, because they will have generated static members
+                cdef.mods.flags |= STATIC;
 
                 if (clazztype.tsym.isInterface()) {
                     cdef.implementing = List.of(clazz);
@@ -1325,30 +1283,32 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 }
 
                 attribStat(cdef, localEnv);
-
-                // If an outer instance is given,
-                // prefix it to the constructor arguments
-                // and delete it from the new expression
-                if (tree.encl != null && !clazztype.tsym.isInterface()) {
-                    tree.args = tree.args.prepend(makeNullCheck(tree.encl));
-                    argtypes = argtypes.prepend(tree.encl.type);
-                    tree.encl = null;
-                }
+                attribClass(cdef.pos(), cdef.sym);  //Lubo: I added this
 
                 // Reassign clazztype and recompute constructor.
                 clazztype = cdef.sym.type;
                 Symbol sym = rs.resolveConstructor(
                     tree.pos(), localEnv, clazztype, argtypes,
-                    typeargtypes, true, tree.varargsElement != null);
-                assert sym.kind < AMBIGUOUS || tree.constructor.type.isErroneous();
+                    List.<Type>nil(), true, false);
+                
                 tree.constructor = sym;
             }
 
-//            if (tree.constructor != null && tree.constructor.kind == MTH)
-                owntype = clazztype;
+//         if (tree.constructor != null && tree.constructor.kind == MTH)
+              owntype = clazz.type;  // this give declared type, where clazztype would give anon type
         }
+
+        //Scope members = owntype.tsym.members();  //TODO: should see new members
+        Scope members = clazz.type.tsym.members();
+        for (JFXObjectLiteralPart part : tree.getParts()) {
+            Symbol memberSym = members.lookup(part.name).sym;
+            memberSym = rs.access(memberSym, part.pos(), owntype, part.name, true);
+            attribExpr(part.getExpression(), localEnv, memberSym.type);
+            part.type = memberSym.type;
+            part.sym = memberSym;
+        }
+
         result = check(tree, owntype, VAL, pkind, pt);
-        chk.validate(tree.typeargs);
     }
 
     /** Make an attributed null check tree.
@@ -2465,42 +2425,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
     
     @Override
-    public void visitPureObjectLiteral(JFXPureObjectLiteral that) {
-        attribType(that.getIdentifier(), env);
-        Symbol prevObjLitSymbol = objLitSymbol;
-        try {
-            objLitSymbol = that.getIdentifierSym();
-            for (JCStatement part : that.getParts()) {
-                if (part != null) {
-                    part.accept(this);
-                }
-            }
-        }
-        finally {
-            objLitSymbol = prevObjLitSymbol;
-        }
-        
-        that.constructor = rs.findMethod(env, that.getIdentifier().type, names.init, List.<Type>nil(), List.<Type>nil(), false, false, false);
-        that.sym = (ClassSymbol)that.getIdentifierSym();
-        that.type = that.getIdentifier().type;
-        result = that.type;
-    }
-    
-    @Override
     public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized that) {
     }
     
     @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
-        Symbol memberSym = objLitSymbol.members().lookup(that.name).sym; // TODO: Do the method calls if needed...
-        
-        // Report an error
-        memberSym = rs.access(memberSym, that.pos(), result, that.name, true);
-        
-        attribExpr(that.getExpression(), env, memberSym.type);
-        that.type = memberSym.type;
-        that.sym = memberSym;
-        result = that.type;
+        assert false : "should not reach here";
+        result = syms.errType;
     }  
     
     @Override

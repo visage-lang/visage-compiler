@@ -690,7 +690,7 @@ public class JavafxCheck {
 	case TYP:
 	    if (sym.isLocal()) {
 		mask = LocalClassFlags;
-                if (sym.name.len == 0) { // Anonymous class
+                if (sym.name.len == 0 || true /*allow for all inner classes since they have to be static*/) { // Anonymous class
                     // Anonymous classes in static methods are themselves static;
                     // that's why we admit STATIC here.
                     mask |= STATIC;

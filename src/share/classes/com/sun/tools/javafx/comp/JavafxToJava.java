@@ -301,18 +301,19 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         this.attrEnv = attrEnv;
         syntheticNameCounter = 0;
         
-        translate(attrEnv.toplevel);
+        attrEnv.toplevel = translate(attrEnv.toplevel);
     }
     
     @Override
     public void visitTopLevel(JCCompilationUnit tree) {
+        ListBuffer<JCTree> tdefs= ListBuffer.<JCTree>lb();
      
         for (JCTree def : tree.defs) {
             if (def.getTag() == JavafxTag.CLASS_DEF) {
                 initBuilder.addFxClass(((JFXClassDeclaration)def).sym, (JFXClassDeclaration)def); // Add the class to the map of FX classes. The class doesn't exists when JavafxAttr is run (it used to exists.)
                 List<JCStatement> ret = initBuilder.createJFXClassModel((JCClassDecl)def, typeMorpher);
                 for (JCStatement retDef : ret) {
-                    tree.defs = tree.defs.append(retDef);
+                   tdefs.append(retDef);
                 }
             }
             else if (def.getTag() == JCTree.IMPORT) {
@@ -320,23 +321,28 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     if (((JCImport)def).getQualifiedIdentifier().getTag() == JCTree.SELECT) {
                         JCFieldAccess select = (JCFieldAccess)((JCImport)def).getQualifiedIdentifier();
                         if (select.name != names.asterisk) {
-                            tree.defs = tree.defs.append(make.Import(make.Select(select.selected, names.fromString(select.name.toString() + initBuilder.interfaceNameSuffix)), false));
+                            tdefs.append(make.Import(make.Select(select.selected, names.fromString(select.name.toString() + initBuilder.interfaceNameSuffix)), false));
                         }
                     }
                     else if (((JCImport)def).getQualifiedIdentifier().getTag() == JCTree.IDENT) {
                         JCIdent ident = (JCIdent)((JCImport)def).getQualifiedIdentifier();
                         if (ident.name != names.asterisk) {
-                            tree.defs = tree.defs.append(make.Import(make.Ident(names.fromString(ident.name.toString() + initBuilder.interfaceNameSuffix)), false));
+                            tdefs.append(make.Import(make.Ident(names.fromString(ident.name.toString() + initBuilder.interfaceNameSuffix)), false));
                         }
                     }
                 }
             }
         }
 
-        List<JCTree> defs = translate(tree.defs);
-	JCExpression pid = tree.pid;  //translate(tree.pid);
-        result = make.at(tree.pos).TopLevel(List.<JCAnnotation>nil(), pid, defs);
-    }
+        tdefs.appendList( translate(tree.defs) );
+ 	JCExpression pid = tree.pid;  //translate(tree.pid);
+        JCCompilationUnit translated = make.at(tree.pos).TopLevel(List.<JCAnnotation>nil(), pid, tdefs.toList());
+        translated.sourcefile = tree.sourcefile;
+        translated.docComments = tree.docComments;
+        translated.lineMap = tree.lineMap;
+        translated.flags = tree.flags;
+        result = translated;
+   }
     
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
@@ -452,6 +458,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             // Add main method...
             translatedDefs.append(makeMainMethod(diagPos));
         }
+        
+        for (JCTree prependTree : tree.translatedPrepends) {
+            translatedDefs.prepend(prependTree);
+        }    
+        tree.translatedPrepends = null;
 
         JCClassDecl res = make.at(diagPos).ClassDef(tree.mods, tree.name, tree.typarams, tree.extending, tree.implementing, translatedDefs.toList());
         res.sym = tree.sym;
@@ -488,64 +499,65 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
-    public void visitPureObjectLiteral(JFXPureObjectLiteral tree) {
+    public void visitInstanciate(JFXInstanciate tree) {
         Name tmpName = getSyntheticName("objlit");
-        JCExpression clazz = tree.getIdentifier();
-        ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
+        JCExpression clazz;
+
+        ListBuffer<JCStatement> stats = ListBuffer.<JCStatement>lb();
+        if (tree.getClassBody() == null) {
+            clazz = makeTypeTree(tree.type, tree);
+        } else {
+            JFXClassDeclaration cdef = tree.getClassBody();
+            List<JCStatement> ret = initBuilder.createJFXClassModel(cdef, typeMorpher);
+            for (JCStatement retDef : ret) {
+                attrEnv.enclClass.translatedPrepends = attrEnv.enclClass.translatedPrepends.append(retDef);
+            }
+            attrEnv.enclClass.translatedPrepends = attrEnv.enclClass.translatedPrepends.append( translate( cdef ) );
+            clazz = makeTypeTree(cdef.type, tree);
+         }
+
         JCNewClass newClass = 
-                make.NewClass(null, null, clazz, List.<JCExpression>nil(), null);
+                make.NewClass(null, null, clazz,
+                                                translate( tree.getArguments() ),
+                                                null);
         
         // We added this. The call to javafx$init$ is done below. We should not convert this to a BlockExpression.
         visitedNewClasses.add(newClass);
         
-        JCVariableDecl tmpVar = make. VarDef(make.Modifiers(0), tmpName, clazz, newClass);
-        stats.append(tmpVar);
-        JCStatement lastStatement = null;
-        for (JCStatement part : tree.getParts()) {
-            if (part == null) {
-                continue;
-            }
-            
-            if (part instanceof JFXObjectLiteralPart) {
-                JFXObjectLiteralPart olpart = (JFXObjectLiteralPart)part;
+        if (getJavafxInitializerSymbol(tree) != null) {
+            // it is a JavaFX class, initializa it properly
+            JCVariableDecl tmpVar = make.VarDef(make.Modifiers(0), tmpName, clazz, newClass);
+            stats.append(tmpVar);
+            for (JFXObjectLiteralPart olpart : tree.getParts()) {
                 DiagnosticPosition diagPos = olpart.pos();
                 JavafxBindStatus bindStatus = olpart.getBindStatus();
                 JCExpression init = olpart.getExpression();
-                VarSymbol vsym = (VarSymbol)olpart.sym;
+                VarSymbol vsym = (VarSymbol) olpart.sym;
                 VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
                 if (vmi.shouldMorph()) {
                     init = translateDefinitionalAssignment(diagPos, init, bindStatus, vsym);
                 } else {
                     init = boundTranslate(init, bindStatus);
                 }
-                JCIdent ident1 = make.at(diagPos).Ident(tmpName);
-                JCFieldAccess attr = make.at(diagPos).Select(
-                        ident1,
-                        olpart.getName());
-                JCAssign assign1 = make.at(diagPos).Assign(attr,init);
-                lastStatement = make.at(diagPos).Exec(assign1);
-                stats.append(lastStatement); 
-            } else {
-                log.error(tree.pos, "compiler.err.javafx.not.yet.implemented",
-                        part.getClass().getName() + " in object literal");
+                JCFieldAccess attr = make.at(diagPos).Select(make.at(diagPos).Ident(tmpName), olpart.getName());
+                stats.append(make.at(diagPos).Exec(make.at(diagPos).Assign(attr, init)));
             }
-        }
-        
-        List<JCExpression> typeargs = List.nil();
-        List<JCExpression> args = List.nil();
-        
-        // TODO: Use this for the userInit$ method only
-        args = args.append(make.Ident(tmpName));
-        
-        JCIdent ident3 = make.Ident(tmpName);   
-        JCFieldAccess select1 = make.Select(ident3, initBuilder.initializerName);
-        JCMethodInvocation apply1 = make.Apply(typeargs, select1, args);
-        JCExpressionStatement exec1 = make.Exec(apply1);
-        stats.append(exec1);
-         
-        JCIdent ident2 = make.Ident(tmpName);
-        JFXBlockExpression blockExpr1 = makeBlockExpression(tree.pos(), stats, ident2);
-        result = blockExpr1; 
+
+            List<JCExpression> emptyTypeArgs = List.nil();
+            List<JCExpression> args = List.<JCExpression>of(make.Ident(tmpName));
+            JCIdent ident3 = make.Ident(tmpName);
+            JCFieldAccess select1 = make.Select(ident3, initBuilder.initializerName);
+            JCMethodInvocation apply1 = make.Apply(emptyTypeArgs, select1, args);
+            JCExpressionStatement exec1 = make.Exec(apply1);
+            stats.append(exec1);
+
+            JCIdent ident2 = make.Ident(tmpName);
+            JFXBlockExpression blockExpr1 = makeBlockExpression(tree.pos(), stats, ident2);
+            result = blockExpr1;
+       } else {
+            // this is a Java class, just instanciate it
+            result = newClass;
+       }
     }
 
     @Override
@@ -734,41 +746,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 	result = make.at(tree.pos).Block(tree.flags, defs);
     }
 
-    @Override
-    public void visitInstanciate(JFXInstanciate tree) {
-        List<JCExpression> emptyTypeArgs = List.nil();
-
-        JCExpression encl = translate(tree.encl);
-	JCExpression clazz = translate(tree.clazz);
-	List<JCExpression> args = translate(tree.args);
-	JCClassDecl def = null; assert tree.def == null : "until we clone Instanciate, must be null";
-	result = make.NewClass(encl, emptyTypeArgs, clazz, args, def);
-
-        Symbol initSym = getJavafxInitializerSymbol(tree);
-        if (initSym != null) {
-            Name tmpName = getSyntheticName("init");
-            ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
-
-            JCVariableDecl tmpVar = make.at(tree.pos).VarDef(make.Modifiers(0), tmpName, tree.clazz, tree);
-            stats.append(tmpVar);
-
-            List<JCExpression> args1 = List.nil();
-        
-            // TODO: Use this for the userInit$ method only
-            args1 = args1.append(make.Ident(tmpName));
-
-            JCIdent ident3 = make.Ident(tmpName);
-            JCFieldAccess select1 = make.at(tree.pos).Select(ident3, initBuilder.initializerName);
-            JCMethodInvocation apply1 = make.at(tree.pos).Apply(emptyTypeArgs, select1, args1);
-            JCExpressionStatement exec1 = make.at(tree.pos).Exec(apply1);
-            stats.append(exec1);
-
-            JCIdent ident2 = make.Ident(tmpName);
-            JFXBlockExpression blockExpr1 = makeBlockExpression(tree.pos(), stats, ident2);
-            result = blockExpr1;
-        }
-    }
-    
     @Override
     public void visitAssign(JCAssign tree) {
         DiagnosticPosition diagPos = tree.pos();
@@ -1098,7 +1075,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
     }
     
-    private Symbol getJavafxInitializerSymbol(JCNewClass newClass) {
+    private Symbol getJavafxInitializerSymbol(JCTree newClass) {
         if (newClass.type == null) {
             return null;
         }
@@ -1330,7 +1307,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     private JCBlock blockExpressionToBlock(JFXBlockExpression bexpr, boolean asReturn) {
         DiagnosticPosition diagPos = bexpr.pos();
-        List<JCStatement> stats = translate(bexpr.stats);
+        List<JCStatement> stats = translateStatements(bexpr.stats);
         if (bexpr.value != null) {
             stats = stats.append( exprToTranslatedStatement(bexpr.value, asReturn) );
         }

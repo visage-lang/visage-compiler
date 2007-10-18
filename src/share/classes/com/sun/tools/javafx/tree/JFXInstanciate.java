@@ -25,31 +25,66 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.ListBuffer;
 
 /**
- * Marker wrapper class for NewClass created by JavaFX code
+ * A class declaration
  */
-public class JFXInstanciate extends JCNewClass {
+public class JFXInstanciate extends JFXExpression {
 
-        protected JFXInstanciate(
-                           JCExpression encl,
-			   List<JCExpression> typeargs,
-			   JCExpression clazz,
-			   List<JCExpression> args,
-			   JCClassDecl def) {
-        super(encl, typeargs, clazz, args, def);
+    private final JCExpression clazz;
+    private final JFXClassDeclaration def;
+    private final List<JCExpression> args;
+    private final List<JFXObjectLiteralPart> parts;
+    public ClassSymbol sym;
+    public Symbol constructor;
+
+    protected JFXInstanciate(JCExpression clazz, JFXClassDeclaration def, List<JCExpression> args, List<JFXObjectLiteralPart> parts, ClassSymbol sym) {
+        this.clazz = clazz;
+        this.def = def;
+        this.args = args;
+        this.parts = parts;
+        this.sym = sym;
     }
-    public void accept(JavafxVisitor v) { v.visitInstanciate(this); }
-    
-    @Override
-    public void accept(Visitor v) {
-        if (v instanceof JavafxVisitor) {
-            this.accept((JavafxVisitor)v);
-        } else {
-            super.accept(v);
+
+    public void accept(JavafxVisitor v) {
+        v.visitInstanciate(this);
+    }
+
+    public JCExpression getIdentifier() {
+        return clazz;
+    }
+
+    public List<JCExpression> getArguments() {
+        return args;
+    }
+
+    public Symbol getIdentifierSym() {
+        switch (clazz.getTag()) {
+            case JCTree.IDENT:
+                return ((JCIdent) clazz).sym;
+            case JCTree.SELECT:
+                return ((JCFieldAccess) clazz).sym;
         }
+        assert false;
+        return null;
     }
-    
+
+    public List<JFXObjectLiteralPart> getParts() {
+        return parts;
+    }
+
+    public JFXClassDeclaration getClassBody() {
+        return def;
+    }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.OBJECT_LITERAL;
+    }
 }

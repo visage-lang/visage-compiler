@@ -41,6 +41,8 @@ public class JFXClassDeclaration extends JCClassDecl {
     public List<JCExpression> supertypes; 
     public boolean isModuleClass = false;
     
+    public List<JCTree> translatedPrepends = List.<JCTree>nil();
+    
     protected JFXClassDeclaration(JCModifiers mods,
             Name name,
             List<JCExpression> supertypes,

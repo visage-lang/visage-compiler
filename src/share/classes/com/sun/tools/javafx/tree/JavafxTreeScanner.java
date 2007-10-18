@@ -146,13 +146,10 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     }
     
     @Override
-    public void visitPureObjectLiteral(JFXPureObjectLiteral that) {
-        that.getIdentifier().accept(this);
-        for (JCStatement part : that.getParts()) {
-            if (part != null) {
-                part.accept(this);
-            }
-        }
+    public void visitInstanciate(JFXInstanciate tree) {
+        tree.getIdentifier().accept(this);
+       scan( tree.getParts() );
+       scan( tree.getClassBody() );
     }
     
     @Override
@@ -239,11 +236,6 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
         }
     }
     
-    @Override
-    public void visitInstanciate(JFXInstanciate that) {
-        visitNewClass(that);
-    }
-        
     @Override
     public void visitBlockExpression(JFXBlockExpression that) {
         scan(that.stats);

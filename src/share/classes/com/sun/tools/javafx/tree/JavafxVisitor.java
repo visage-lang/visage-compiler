@@ -34,7 +34,7 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitMemberSelector(JFXMemberSelector tree);
     public void visitDoLater(JFXDoLater tree);
     public void visitStringExpression(JFXStringExpression tree);
-    public void visitPureObjectLiteral(JFXPureObjectLiteral tree);
+    public void visitInstanciate(JFXInstanciate tree);
     public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized tree);
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree);
     public void visitTypeAny(JFXTypeAny tree);
@@ -57,5 +57,4 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitSequenceDelete(JFXSequenceDelete tree);
     public void visitForExpression(JFXForExpression tree);
     public void visitForExpressionInClause(JFXForExpressionInClause tree);
-    public void visitInstanciate(JFXInstanciate tree);
 }

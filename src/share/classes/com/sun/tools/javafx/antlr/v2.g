@@ -773,7 +773,7 @@ postfixExpression  returns [JCExpression expr]
 	;
 primaryExpression  returns [JCExpression expr] 
 	: qualident						{ $expr = $qualident.expr; }
-		( LBRACE  objectLiteral RBRACE 			{ $expr = F.at(pos($LBRACE)).PureObjectLiteral($expr, $objectLiteral.parts.toList()); } 
+		( LBRACE  objectLiteral RBRACE 			{ $expr = F.at(pos($LBRACE)).Instanciate($expr, null, $objectLiteral.parts.toList()); } 
 		)?
        	| THIS							{ $expr = F.at(pos($THIS)).Ident(names._this); }
        	| SUPER							{ $expr = F.at(pos($SUPER)).Ident(names._super); }
@@ -785,21 +785,20 @@ primaryExpression  returns [JCExpression expr]
        	| LPAREN expression RPAREN				{ $expr = F.at(pos($LPAREN)).Parens($expression.expr); }
        	;
 newExpression  returns [JCExpression expr] 
-@init { ListBuffer<JCExpression> args = null; }
+@init { ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb(); }
 	: NEW  typeName  
 		( (LPAREN)=>LPAREN expressionListOpt  RPAREN 	{ args = $expressionListOpt.args; } 
 		)?
-								{ $expr = F.at(pos($NEW)).Instanciate(null, null, $typeName.expr, 
-												(args==null? new ListBuffer<JCExpression>() : args).toList(), null); }
+								{ $expr = F.at(pos($NEW)).Instanciate($typeName.expr, args.toList(), null); }
 		   //TODO: need anonymous subclasses
 	;
-objectLiteral  returns [ListBuffer<JCStatement> parts = new ListBuffer<JCStatement>()]
+objectLiteral  returns [ListBuffer<JCTree> parts = ListBuffer.<JCTree>lb()]
 	: ( objectLiteralPart  					{ $parts.append($objectLiteralPart.value); } ) * 
 	;
-objectLiteralPart  returns [JFXStatement value]
-	: name COLON  boundExpression (COMMA | SEMI)?	{ $value = F.at(pos($COLON)).ObjectLiteralPart($name.value, $boundExpression.expr, $boundExpression.status); }
-       	| variableDeclaration
-       	| functionDefinition 
+objectLiteralPart  returns [JCTree value]
+	: name COLON  boundExpression (COMMA | SEMI)?		{ $value = F.at(pos($COLON)).ObjectLiteralPart($name.value, $boundExpression.expr, $boundExpression.status); }
+       	| variableDeclaration	(COMMA | SEMI)?			{ $value = $variableDeclaration.value; }
+       	| functionDefinition 	(COMMA | SEMI)?			{ $value = $functionDefinition.value; }
        	;
 stringExpression  returns [JCExpression expr] 
 @init { ListBuffer<JCExpression> strexp = new ListBuffer<JCExpression>(); }
