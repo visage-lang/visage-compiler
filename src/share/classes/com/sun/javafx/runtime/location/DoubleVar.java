@@ -43,6 +43,10 @@ public class DoubleVar extends AbstractLocation implements DoubleLocation, Mutab
         return new DoubleVar(value);
     }
 
+    public static DoubleLocation makeUnmodifiable(double value) {
+        return Locations.unmodifiableLocation(new DoubleVar(value));
+    }
+
 
     private DoubleVar(double value) {
         super(true, false);

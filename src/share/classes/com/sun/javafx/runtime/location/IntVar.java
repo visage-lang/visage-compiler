@@ -43,6 +43,10 @@ public class IntVar extends AbstractLocation implements IntLocation, MutableLoca
         return new IntVar(value);
     }
 
+    public static IntLocation makeUnmodifiable(int value) {
+        return Locations.unmodifiableLocation(new IntVar(value));
+    }
+
 
     private IntVar(int value) {
         super(true, false);

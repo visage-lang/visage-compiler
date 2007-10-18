@@ -43,6 +43,10 @@ public class BooleanVar extends AbstractLocation implements BooleanLocation, Mut
         return new BooleanVar(value);
     }
 
+    public static BooleanLocation makeUnmodifiable(boolean value) {
+        return Locations.unmodifiableLocation(new BooleanVar(value));
+    }
+
 
     private BooleanVar(boolean value) {
         super(true, false);

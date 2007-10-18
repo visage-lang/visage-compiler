@@ -39,6 +39,10 @@ public class ObjectVar<T> extends AbstractLocation implements ObjectLocation<T>,
         return new ObjectVar<T>(value);
     }
 
+    public static<T> ObjectLocation<T> makeUnmodifiable(T value) {
+        return Locations.unmodifiableLocation(new ObjectVar<T>(value));
+    }
+
 
     private ObjectVar(T value) {
         super(true, false);

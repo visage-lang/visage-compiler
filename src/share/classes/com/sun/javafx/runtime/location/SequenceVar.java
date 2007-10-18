@@ -26,9 +26,9 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.SequenceMutator;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 import com.sun.javafx.runtime.sequence.Sequences;
-import com.sun.javafx.runtime.sequence.SequenceMutator;
 
 import java.util.Iterator;
 
@@ -47,6 +47,10 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
 
     public static <T> SequenceVar<T> make(Sequence<T> value) {
         return new SequenceVar<T>(value);
+    }
+
+    public static <T> SequenceLocation<T> makeUnmodifiable(Sequence<T> value) {
+        return Locations.unmodifiableLocation(new SequenceVar<T>(value));
     }
 
     private SequenceVar(Sequence<T> value) {
