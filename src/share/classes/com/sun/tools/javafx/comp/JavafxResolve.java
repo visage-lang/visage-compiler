@@ -465,43 +465,35 @@ public class JavafxResolve {
      *  @param env     The current environment.
      *  @param name    The name of the variable or field.
      */
-    Symbol findVar(JavafxEnv<JavafxAttrContext> env, Name name) {
+    Symbol findVar(JavafxEnv<JavafxAttrContext> env, Name name, int kind, Type expected) {
         Symbol bestSoFar = varNotFound;
         Symbol sym;
         JavafxEnv<JavafxAttrContext> env1 = env;
         boolean staticOnly = false;
-        while (env1.outer != null) {
-            if (isStatic(env1)) staticOnly = true;
-            Scope.Entry e = env1.info.scope.lookup(name);
-            while (e.scope != null &&
-                   (e.sym.kind != VAR ||
-                    (e.sym.flags_field & SYNTHETIC) != 0))
-                e = e.next();
-            sym = (e.scope != null)
-                ? e.sym
-                : findField(
-                    env1, env1.enclClass.sym.type, name, env1.enclClass.sym);
-            if (sym.exists()) {
-                if (staticOnly &&
-                    sym.kind == VAR &&
-                    sym.owner.kind == TYP &&
-                    (sym.flags() & STATIC) == 0)
-                    return new StaticError(sym);
-                else
-                    return sym;
-            } else if (sym.kind < bestSoFar.kind) {
-                bestSoFar = sym;
+        Type envClass = null;
+        while (env1 != null) {
+            if (env1.outer != null && isStatic(env1)) staticOnly = true;
+            if (envClass != null) {
+                sym = findMethod(env1, envClass, name,
+                        expected.getParameterTypes(), expected.getTypeArguments(),
+                        true, false, false);
+                if (sym.exists())
+                        return sym;
+            } else {
+                Scope sc = env1.info.scope;
+                for (Scope.Entry e = sc.lookup(name); e.scope != null; e = e.next()) {
+                    if ((e.sym.flags_field & SYNTHETIC) != 0)
+                        continue;
+                    if ((e.sym.kind & (MTH|VAR)) != 0) {
+                        return e.sym;
+                    }
+                }
             }
 
             if ((env1.enclClass.sym.flags() & STATIC) != 0) staticOnly = true;
+            envClass = env1.enclClass.sym.type;
             env1 = env1.outer;
         }
-
-        sym = findField(env, syms.predefClass.type, name, syms.predefClass);
-        if (sym.exists())
-            return sym;
-        if (bestSoFar.exists())
-            return bestSoFar;
 
         Scope.Entry e = env.toplevel.namedImportScope.lookup(name);
         for (; e.scope != null; e = e.next()) {
@@ -710,9 +702,7 @@ public class JavafxResolve {
      *  @param allowBoxing Allow boxing conversions of arguments.
      *  @param useVarargs Box trailing arguments into an array for varargs.
      */
-// Javafx change
-    public
-// Javafx change
+
     Symbol findMethod(JavafxEnv<JavafxAttrContext> env,
                       Type site,
                       Name name,
@@ -752,7 +742,6 @@ public class JavafxResolve {
             for (Scope.Entry e = c.members().lookup(name);
                  e.scope != null;
                  e = e.next()) {
-                //System.out.println(" e " + e.sym);
                 if (e.sym.kind == MTH &&
                     (e.sym.flags_field & SYNTHETIC) == 0) {
                     bestSoFar = selectBest(env, site, argtypes, typeargtypes,
@@ -761,8 +750,9 @@ public class JavafxResolve {
                                            useVarargs,
                                            operator);
                 }
+                else if (e.sym.kind == VAR && bestSoFar == methodNotFound)
+                    return e.sym;
             }
-            //- System.out.println(" - " + bestSoFar);
             if (abstractok) {
                 Symbol concrete = methodNotFound;
                 if ((bestSoFar.flags() & ABSTRACT) == 0)
@@ -997,12 +987,11 @@ public class JavafxResolve {
      *  @param kind      Indicates the possible symbol kinds
      *                   (a subset of VAL, TYP, PCK).
      */
-    Symbol findIdent(JavafxEnv<JavafxAttrContext> env, Name name, int kind) {
+    Symbol findIdent(JavafxEnv<JavafxAttrContext> env, Name name, int kind, Type expected) {
         Symbol bestSoFar = typeNotFound;
         Symbol sym;
-
-        if ((kind & VAR) != 0) {
-            sym = findVar(env, name);
+        if ((kind & (VAR|MTH)) != 0) {
+            sym = findVar(env, name, kind, expected);
             if (sym.exists()) return sym;
             else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
         }
@@ -1054,7 +1043,7 @@ public class JavafxResolve {
                            Name name, int kind) {
         Symbol bestSoFar = typeNotFound;
         Symbol sym;
-        if ((kind & VAR) != 0) {
+        if ((kind & (VAR|MTH)) != 0) {
             sym = findField(env, site, name, site.tsym);
             if (sym.exists()) return sym;
             else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
@@ -1184,15 +1173,16 @@ public class JavafxResolve {
      *  @param env       The environment current at the identifier use.
      *  @param name      The identifier's name.
      *  @param kind      The set of admissible symbol kinds for the identifier.
+     *  @param pt        The expected type.
      */
     Symbol resolveIdent(DiagnosticPosition pos, JavafxEnv<JavafxAttrContext> env,
-                        Name name, int kind) {
+                        Name name, int kind, Type pt) {
         return access(
-            findIdent(env, name, kind),
+            findIdent(env, name, kind, pt),
             pos, env.enclClass.sym.type, name, false);
     }
 
-    /** Resolve an unqualified method identifier.
+    /** Resolve an unqualified method/function application.
      *  @param pos       The position to use for error reporting.
      *  @param env       The environment current at the method invocation.
      *  @param name      The identifier's name.

@@ -1382,8 +1382,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     public void visitApply(JCMethodInvocation tree) {
         List<JCExpression> typeargs = translate(tree.typeargs);
-        JCExpression meth = translate(tree.meth);
+        JCExpression meth = tree.meth;
         Type mtype = meth.type;
+        meth = translate(meth);
         if (mtype instanceof FunctionType) {
             Name invoke = Name.fromString(names, "invoke");
             Scope.Entry e = mtype.tsym.members().lookup(invoke);

@@ -565,16 +565,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         boolean varArgs = false;
 
         // Find symbol
-        if (pt.tag == METHOD || pt.tag == FORALL) {
-            // If we are looking for a method, the prototype `pt' will be a
-            // method type with the type of the call's arguments as parameters.
-            env.info.varArgs = false;
-            sym = rs.resolveMethod(tree.pos(), env, tree.name, pt.getParameterTypes(), pt.getTypeArguments());
-            varArgs = env.info.varArgs;
-        } else if (tree.sym != null && tree.sym.kind != VAR) {
+        if (tree.sym != null && tree.sym.kind != VAR) {
             sym = tree.sym;
         } else {
-            sym = rs.resolveIdent(tree.pos(), env, tree.name, pkind);
+            sym = rs.resolveIdent(tree.pos(), env, tree.name, pkind, pt);
         }
         tree.sym = sym;
         sym.complete();
@@ -991,6 +985,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     // created BLOCK-method.
                     long flags = tree.getModifiers().flags;
                     JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup(env.info.scope.dupUnshared()));
+                    localEnv.outer = env;
                     localEnv.info.scope.owner = new MethodSymbol(flags | BLOCK, names.empty, null, env.info.scope.owner);
                     if ((flags & STATIC) != 0) {
                         localEnv.info.staticLevel++;
@@ -1464,7 +1459,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             // If we override any other methods, check that we do so properly.
             // JLS ???
-            chk.checkOverride(tree, m);
+            if (m.owner instanceof ClassSymbol)
+                chk.checkOverride(tree, m);
         }
         finally {
             chk.setLint(prevLint);
