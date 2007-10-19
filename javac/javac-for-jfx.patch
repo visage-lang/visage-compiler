@@ -130,6 +130,33 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
  
      /** Force a completion failure on this name
       */
+@@ -281,7 +281,7 @@
+ 
+     /** Read a character.
+      */
+-    char nextChar() {
++    protected char nextChar() {
+         return (char)(((buf[bp++] & 0xFF) << 8) + (buf[bp++] & 0xFF));
+     }
+ 
+@@ -455,7 +455,7 @@
+ 
+     /** Read signature and convert to type.
+      */
+-    Type readType(int i) {
++    protected Type readType(int i) {
+         int index = poolIdx[i];
+         return sigToType(buf, index + 3, getChar(index + 1));
+     }
+@@ -491,7 +491,7 @@
+ 
+     /** Read name.
+      */
+-    Name readName(int i) {
++    protected Name readName(int i) {
+         return (Name) (readPool(i));
+     }
+ 
 @@ -502,8 +502,8 @@
      /** The unread portion of the currently read type is
       *  signature[sigp..siglimit-1].
@@ -165,6 +192,42 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
          List<Type> head = List.of(null);
          List<Type> tail = head;
          while (signature[sigp] != terminator)
+@@ -836,7 +836,7 @@
+ 
+     /** Read member attribute.
+      */
+-    void readMemberAttr(Symbol sym, Name attrName, int attrLen) {
++    protected void readMemberAttr(Symbol sym, Name attrName, int attrLen) {
+         //- System.err.println(" z " + sym + ", " + attrName + ", " + attrLen);
+         if (attrName == names.ConstantValue) {
+             Object v = readPool(nextChar());
+@@ -1033,7 +1033,7 @@
+ 
+     /** Read member attributes.
+      */
+-    void readMemberAttrs(Symbol sym) {
++    protected void readMemberAttrs(Symbol sym) {
+         char ac = nextChar();
+         for (int i = 0; i < ac; i++) {
+             Name attrName = readName(nextChar());
+@@ -1483,7 +1483,7 @@
+ 
+     /** Read a method.
+      */
+-    MethodSymbol readMethod() {
++    protected MethodSymbol readMethod() {
+         long flags = adjustMethodFlags(nextChar());
+         Name name = readName(nextChar());
+         Type type = readType(nextChar());
+@@ -1679,7 +1679,7 @@
+     long adjustFieldFlags(long flags) {
+         return flags;
+     }
+-    long adjustMethodFlags(long flags) {
++    protected long adjustMethodFlags(long flags) {
+         if ((flags & ACC_BRIDGE) != 0) {
+             flags &= ~ACC_BRIDGE;
+             flags |= BRIDGE;
 Index: com/sun/tools/javac/jvm/Gen.java
 ===================================================================
 --- com/sun/tools/javac/jvm/Gen.java	(revision 256)
