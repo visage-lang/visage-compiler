@@ -8,7 +8,7 @@
 
 <para>
 <emphasis>
-This Chapter will hold all the details. formats, syntax, reserved words, operators, best coding practices.   Lots of stuff, short of object-oriented programming, logical expressions, functions and operations. 
+This Chapter will hold all the details. formats, syntax, reserved words, operators, best coding practices.  Any detail short of object-oriented programming, logical expressions, functions and operations. 
 </emphasis>
 
 </para>
@@ -16,16 +16,11 @@ This Chapter will hold all the details. formats, syntax, reserved words, operato
 
 
 
-<sect1 id="equests"><title>Expressions Questions</title>
+<sect2 id="equests"><title>Expressions Questions</title>
 
-<para>
-<emphasis>
-Questions: 
-</emphasis>
+<para><emphasis>
 
-</para>
-
-How much detail on operators do we need? Does JavaFX Script support all Java operators? Do we need to repeat Java operators here? Does JavaFX Script Add any operators? Operator summary could go here
+How much detail on operators do we need? Does JavaFX Script support all Java operators? Do we need to repeat Java operators here? Does JavaFX Script Add any operators? Operator summary could go here </emphasis></para>
 
 
 <itemizedlist>
@@ -74,17 +69,16 @@ Any other operators?  What about the (*, :, and ?) var operators?
 
 </itemizedlist>
 
-</sect1>
-
-
-
+</sect2>
 
 
 
  <sect1>
           <title>Expressions</title>
+	  
+	  <para><emphasis>Is this expressions table still complete?</emphasis></para>
 
-          <para>JavaFX supports the following operators:</para>
+          <para>JavaFX Script supports the following operators:</para>
 
           <table cellpadding="5" cellspacing="5"
                  style="border: medium groove ;">
@@ -647,26 +641,24 @@ Any other operators?  What about the (*, :, and ?) var operators?
          x = 10;
          System.out.println(x); // prints 10
 </programlisting>
+
         </sect1>
-
-
-
-
-
-
-
 
 
             <sect1 id="triggers">       
               <title>Update Triggers</title>
 	      
-	      <para><emphasis>Where do we discuss BIND? Where do we discuss other JavaFX mechanisms like TRIGGER and BIND? </emphasis></para>
+	      <para><emphasis> I wonder if Update Triggers belongs here. </emphasis></para>
+	      
+	      <para><emphasis> Are there other language mechanisms like this? We need to collect all of them into the same top-level section if there are. </emphasis></para>
+	      
+	      <para><emphasis>Where do we discuss BIND? Where do we discuss other JavaFX Script mechanisms like TRIGGER and BIND? </emphasis></para>
 	      
 	      <para>&nbsp;</para>
 
-              <para>JavaFX <code>class</code>es don't have constructors, and
-              JavaFX <code>attribute</code>s don't have "setters" like Java
-              bean properties. Instead, JavaFX provides SQL-like
+              <para>JavaFX Script <code>class</code>es don't have constructors, and
+              JavaFX Script <code>attribute</code>s don't have "setters" like Java
+              bean properties. Instead, JavaFX Script provides SQL-like
               <code>trigger</code>s that allow you to handle data modification
               events.</para>
 
@@ -688,7 +680,7 @@ Any other operators?  What about the (*, :, and ?) var operators?
               <title>Creation Triggers</title>
 
               <para>You can perform an action in the context of a newly
-              created object by specifying a creation "trigger", like
+              created object by specifying a creation trigger, like
               this:</para>
 
               <programlisting>          import java.lang.System;
@@ -805,7 +797,7 @@ Any other operators?  What about the (*, :, and ?) var operators?
          x.num = null;  // prints X.num: just replaced 3 with null
          </programlisting>
 
-              <para>In the above examples, "oldValue" and "newValue" are the
+              <para>In the above examples, <code>oldValue</code> and <code>newValue</code> are the
               names of variables that contain references to the previous and
               current values of the element being replaced (you can name the
               variables whatever you like). The context index of the variable
@@ -820,7 +812,7 @@ Any other operators?  What about the (*, :, and ?) var operators?
             <sect1 id="lazy">
               <title>Incremental and Lazy Evaluation</title>
 
-              <para>In JavaFX, attribute initializers can be specified to be
+              <para>In JavaFX Script, you can specify attribute initializers  to be
               lazily and/or incrementally evaluated with the <code>bind</code>
               operator. Attributes initialized with <code>bind</code> are akin
               to cells in a spreadsheet that contain formulas rather than
@@ -871,15 +863,15 @@ Any other operators?  What about the (*, :, and ?) var operators?
         System.out.println(x2.c); // prints 5
          </programlisting>
 
-              <para>In the above example, the b and c attributes of x2 are
-              bound to the b and c attributes of x1. This means that whenever
-              x1's b or c attribute is updated the b and c attributes of x2
-              will be correspondingly updated. The difference between x2.b and
-              x2.c is that the former's value is immediately updated in its
+              <para>In the above example, the <code>b</code> and <code>c</code> attributes of <code>x2</code> are
+              bound to the <code>b</code> and <code>c</code> attributes of <code>x1</code>. This means that whenever
+              <code>x1</code>'s <code>b</code> or <code>c</code> attribute is updated the <code>b</code> and <code>c</code> attributes of <code>x2</code>
+              will be correspondingly updated. The difference between <code>x2.b</code> and
+              <code>x2.c</code> is that the former's value is immediately updated in its
               attribute initializer whereas the latter's binding is not
               evaluated until its value is accessed the first time.</para>
 
-              <para>Note: the body of a <code>function</code> is always
+              <para>Note that the body of a <code>function</code> is always
               incrementally evaluated without requiring the <code>bind</code>
               operator, however the body of an <code>operation</code> is not.
               Unlike a function, inside an <code>operation</code> changes to
@@ -895,18 +887,15 @@ Any other operators?  What about the (*, :, and ?) var operators?
               that operation or method will be made and a new value
               returned.</para>
 
-              <para>By contrast, <code>function</code>'s are only called once
+             <para>By contrast, <code>function</code>s are only called once
               and the result of the evaluation is incorporated into the
-              callers evaluation tree.</para>
+              caller's evaluation tree.</para>
 
-              <para>Incremental evaluation is one of JavaFX's main
-              distinguishing features that makes it possible to define complex
-              dynamic GUI's declaratively. The lazy evaluation feature is
+              <para>Incremental evaluation is one of JavaFX Script's main
+              distinguishing features. Incremental evaluation makes it possible to define complex
+              dynamic GUI's declaratively. The lazy evaluation feature is also 
               needed to handle recursive data structures like trees and
-              graphs.</para>
-            </sect1>
-
-            
-	    
-
-</chapter>
+              graphs.</para>  
+	      
+</sect1></chapter>
+           

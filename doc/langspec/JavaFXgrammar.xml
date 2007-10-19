@@ -5,7 +5,7 @@
 <appendix id="Grammar">
 <title>JavaFX Grammar: Version 0.04</title>
 <para><emphasis>
-This grammar matches more-or-less the current compiler,
+This grammar matches  the current compiler,
 rather than the language being defined in this specification.
 Over time, this divergence will be fixed, by updating the compiler,
 and by fleshing out this specification.
