@@ -539,10 +539,9 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             localEnv = env.dup(tree, env.info.dup());
             localEnv.info.staticLevel++;
         }
-        Type owntype = attr.attribType(tree.getJFXType(), localEnv);
         
         Scope enclScope = enter.enterScope(env);
-        VarSymbol v = new JavafxVarSymbol(0, tree.name, owntype, enclScope.owner);
+        VarSymbol v = new JavafxVarSymbol(0, tree.name, null, enclScope.owner);
         tree.sym = v;
         SymbolCompleter completer = new SymbolCompleter();
             completer.env = env;
@@ -554,7 +553,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         if (tree.init != null) {
             v.flags_field |= HASINIT;
         }
-        v.type = owntype;
 
         if (chk.checkUnique(tree.pos(), v, enclScope)) {
             chk.checkTransparentVar(tree.pos(), v, enclScope);

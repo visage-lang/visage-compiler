@@ -928,13 +928,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void finishVar(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
-        attribType(tree.getJFXType(), env);
-        Type declType = tree.getJFXType().type;
+        VarSymbol v = tree.sym;
+        Type declType = attribType(tree.getJFXType(), env);
+        if (declType != syms.javafx_UnspecifiedType)
+            result = tree.type = v.type = declType;
 
         // Check that the variable's declared type is well-formed.
 //        chk.validate(tree.vartype);
-
-        VarSymbol v = tree.sym;
 
         // The info.lint field in the envs stored in enter.typeEnvs is deliberately uninitialized,
         // because the annotations were not available at the time the env was created. Therefore,
@@ -961,14 +961,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     // declaration position to maximal possible value, effectively
                     // marking the variable as undefined.
                     v.pos = Position.MAXPOS;
-                    initType = attribExpr(tree.init, initEnv, v.type);
+                    initType = attribExpr(tree.init, initEnv, declType);
                     chk.checkType(tree.pos(), initType, declType);
             }
             else
                 initType = syms.objectType;  // nothing to go on, so we assume Object
             if (declType == syms.javafx_UnspecifiedType)
-                tree.getJFXType().type = v.type = initType;
-            result = tree.type = v.type;
+                result = tree.type = v.type = initType;
             chk.validateAnnotations(tree.mods.annotations, v);
         }
         finally {
@@ -1310,6 +1309,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         for (JFXObjectLiteralPart part : tree.getParts()) {
             Symbol memberSym = members.lookup(part.name).sym;
             memberSym = rs.access(memberSym, part.pos(), owntype, part.name, true);
+            memberSym.complete();
             attribExpr(part.getExpression(), localEnv, memberSym.type);
             part.type = memberSym.type;
             part.sym = memberSym;
