@@ -1,7 +1,7 @@
 /*
  * Regression test: attributes and functions in "new"
  *
- * @test
+ * @TODO:test
  * @run
  */
 

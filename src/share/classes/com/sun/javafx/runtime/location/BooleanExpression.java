@@ -55,6 +55,11 @@ public class BooleanExpression extends AbstractLocation implements BooleanLocati
         return loc;
     }
 
+    public void addDependencies(Location... dependencies) {
+        for (Location dep : dependencies)
+            dep.addChangeListener(getWeakChangeListener());
+    }
+
     private BooleanExpression(boolean lazy, BooleanBindingExpression expression) {
         super(false, lazy);
         this.expression = expression;

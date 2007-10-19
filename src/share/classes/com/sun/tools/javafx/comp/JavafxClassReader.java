@@ -70,6 +70,9 @@ import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 public class JavafxClassReader extends ClassReader {
 
     private final JavafxTypeMorpher typeMorpher;
+    private Name currentMethodName;
+    private JavafxInitializationBuilder initBuilder;
+    
 
     public static void preRegister(final Context context) {
         context.put(classReaderKey, new Context.Factory<ClassReader>() {
@@ -85,6 +88,7 @@ public class JavafxClassReader extends ClassReader {
     protected JavafxClassReader(Context context, boolean definitive) {
         super(context, definitive);
         typeMorpher = JavafxTypeMorpher.instance(context);
+        initBuilder = JavafxInitializationBuilder.instance(context);
     }
 
     /** Convert class signature to type, where signature is implicit.
@@ -105,12 +109,14 @@ public class JavafxClassReader extends ClassReader {
                 ClassSymbol t = enterClass(names.fromUtf(signatureBuffer,
                                                          startSbp,
                                                          sbp - startSbp));
-                if (t == typeMorpher.declLocation[TYPE_KIND_BOOLEAN].sym) {
-                    return syms.booleanType;
-                } else if (t == typeMorpher.declLocation[TYPE_KIND_DOUBLE].sym) {
-                    return syms.doubleType;
-                } else if (t == typeMorpher.declLocation[TYPE_KIND_INT].sym) {
-                    return syms.intType;
+                if (!keepClassFileSignatures()) {
+                    if (t == typeMorpher.declLocation[TYPE_KIND_BOOLEAN].sym) {
+                        return syms.booleanType;
+                    } else if (t == typeMorpher.declLocation[TYPE_KIND_DOUBLE].sym) {
+                        return syms.doubleType;
+                    } else if (t == typeMorpher.declLocation[TYPE_KIND_INT].sym) {
+                        return syms.intType;
+                    }
                 }
                 if (outer == Type.noType)
                     outer = t.erasure(types);
@@ -125,8 +131,10 @@ public class JavafxClassReader extends ClassReader {
                                                          startSbp,
                                                          sbp - startSbp));
                 List<Type> genericArgs = sigToTypes('>');
-                if (types.erasure(t.type).tsym == typeMorpher.declLocation[TYPE_KIND_OBJECT].sym) {
-                    return genericArgs.head;
+                if (!keepClassFileSignatures()) {
+                    if (types.erasure(t.type).tsym == typeMorpher.declLocation[TYPE_KIND_OBJECT].sym) {
+                        return genericArgs.head;
+                    }
                 }
                 outer = new ClassType(outer, genericArgs, t) {
                         boolean completed = false;
@@ -194,5 +202,51 @@ public class JavafxClassReader extends ClassReader {
                 continue;
             }
         }
+    }
+
+    /** Read a method.
+     */
+    protected MethodSymbol readMethod() {
+        Name prevMethodName = currentMethodName;
+        try {
+            long flags = adjustMethodFlags(nextChar());
+            Name name = readName(nextChar());
+            currentMethodName = name;
+            Type type = readType(nextChar());
+            if (name == names.init && currentOwner.hasOuterInstance()) {
+                // Sometimes anonymous classes don't have an outer
+                // instance, however, there is no reliable way to tell so
+                // we never strip this$n
+                if (currentOwner.name.len != 0)
+                    type = new MethodType(type.getParameterTypes().tail,
+                                          type.getReturnType(),
+                                          type.getThrownTypes(),
+                                          syms.methodClass);
+            }
+            MethodSymbol m = new MethodSymbol(flags, name, type, currentOwner);
+            Symbol prevOwner = currentOwner;
+            currentOwner = m;
+            try {
+                readMemberAttrs(m);
+            } finally {
+                currentOwner = prevOwner;
+            }
+            return m;
+        }
+        finally {
+            currentMethodName = prevMethodName;
+        }
+    }
+
+    private boolean keepClassFileSignatures() {
+        if (currentMethodName != null) {
+            String currMethodName = currentMethodName.toString();
+            if (currMethodName.startsWith(initBuilder.attributeGetMethodNamePrefix) ||
+                    currMethodName.startsWith(initBuilder.attributeInitMethodNamePrefix)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }

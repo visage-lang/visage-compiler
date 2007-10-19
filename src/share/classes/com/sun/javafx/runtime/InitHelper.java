@@ -46,8 +46,11 @@ public class InitHelper {
     public void add(Location loc) { initOrder[initIndex++] = loc; }
 
     public void initialize() {
-        for (Location loc : initOrder)
-            loc.valueChanged();
+        for (Location loc : initOrder) {
+            if (loc != null) {
+                loc.valueChanged();
+            }
+        }
     }
 
     public static void assertNonNull(Location location, String name) {

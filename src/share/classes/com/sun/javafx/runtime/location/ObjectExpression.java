@@ -55,6 +55,11 @@ public class ObjectExpression<T> extends AbstractLocation implements ObjectLocat
         return loc;
     }
 
+    public void addDependencies(Location... dependencies) {
+        for (Location dep : dependencies)
+            dep.addChangeListener(getWeakChangeListener());
+    }
+
     private ObjectExpression(boolean lazy, ObjectBindingExpression<T> expression) {
         super(false, lazy);
         this.expression = expression;

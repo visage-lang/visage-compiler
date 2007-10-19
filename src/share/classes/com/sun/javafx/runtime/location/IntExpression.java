@@ -55,6 +55,11 @@ public class IntExpression extends AbstractLocation implements IntLocation {
         return loc;
     }
 
+    public void addDependencies(Location... dependencies) {
+        for (Location dep : dependencies)
+            dep.addChangeListener(getWeakChangeListener());
+    }
+
     private IntExpression(boolean lazy, IntBindingExpression expression) {
         super(false, lazy);
         this.expression = expression;

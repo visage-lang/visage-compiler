@@ -130,6 +130,11 @@ public class Locations {
         public Location getUnderlyingLocation() {
             return location;
         }
+
+        public void addDependencies(Location... dependencies) {
+            for (Location dep : dependencies)
+                dep.addChangeListener(getWeakChangeListener());
+        }
     }
 
     /**
@@ -174,6 +179,11 @@ public class Locations {
         public void invalidate() {
             throw new UnsupportedOperationException();
         }
+
+        public void addDependencies(Location... dependencies) {
+            for (Location dep : dependencies)
+                dep.addChangeListener(getWeakChangeListener());
+        }
     }
 
 
@@ -205,6 +215,11 @@ public class Locations {
 
         public Location getUnderlyingLocation() {
             return location;
+        }
+
+        public void addDependencies(Location... dependencies) {
+            for (Location dep : dependencies)
+                dep.addChangeListener(getWeakChangeListener());
         }
     }
 
@@ -250,6 +265,11 @@ public class Locations {
         public void invalidate() {
             throw new UnsupportedOperationException();
         }
+
+        public void addDependencies(Location... dependencies) {
+            for (Location dep : dependencies)
+                dep.addChangeListener(getWeakChangeListener());
+        }
     }
 
 
@@ -281,6 +301,11 @@ public class Locations {
 
         public Location getUnderlyingLocation() {
             return location;
+        }
+
+        public void addDependencies(Location... dependencies) {
+            for (Location dep : dependencies)
+                dep.addChangeListener(getWeakChangeListener());
         }
     }
 
@@ -326,6 +351,11 @@ public class Locations {
         public void invalidate() {
             throw new UnsupportedOperationException();
         }
+
+        public void addDependencies(Location... dependencies) {
+            for (Location dep : dependencies)
+                dep.addChangeListener(getWeakChangeListener());
+        }
     }
 
     /**
@@ -356,6 +386,11 @@ public class Locations {
 
         public void invalidate() {
             throw new UnsupportedOperationException();
+        }
+
+        public void addDependencies(Location... dependencies) {
+            for (Location dep : dependencies)
+                dep.addChangeListener(getWeakChangeListener());
         }
     }
 
@@ -464,6 +499,11 @@ public class Locations {
 
         public void insertAfter(Sequence<T> values, SequencePredicate<T> sequencePredicate) {
             throw new UnsupportedOperationException();
+        }
+
+        public void addDependencies(Location... dependencies) {
+            for (Location dep : dependencies)
+                dep.addChangeListener(getWeakChangeListener());
         }
     }
 }

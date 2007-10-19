@@ -51,12 +51,10 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         new Context.Key<JavafxModuleBuilder>();
 
     public static final String runMethodString = "javafx$run$";
-    public static final String initMethodString = "javafx$init$";
     private Table names;
     private JavafxTreeMaker make;
     private Log log;
     private Set<Name> topLevelNamesSet;
-    private JavafxInitializationBuilder initBuilder;
 
     public static JavafxModuleBuilder instance(Context context) {
         JavafxModuleBuilder instance = context.get(javafxModuleBuilderKey);
@@ -69,7 +67,6 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         names = Table.instance(context);
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         log = Log.instance(context);
-        initBuilder = JavafxInitializationBuilder.instance(context); // TODO: Remove when the initMethodString is deleted.
     }
 
    @Override
@@ -153,15 +150,6 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         super.visitClassDeclaration(tree);
-        List<JCStatement> initStats = List.<JCStatement>nil();
-// TODO: Delete this when userInit$ method starts to be used.
-        List<JFXVar> params = List.<JFXVar>nil();
-        params = params.append(make.Var(initBuilder.receiverName, make.TypeClass(make.Ident(tree.name), JFXType.CARDINALITY_SINGLETON),
-                make.Modifiers(Flags.FINAL), null, JavafxBindStatus.UNBOUND, List.<JFXAbstractOnChange>nil()));
-        tree.defs = tree.defs.prepend(makeMethod(
-                initMethodString, 
-                false, 
-                initStats, params));
     }
 
     private JFXOperationDefinition makeMethod(String name, boolean isStatic, List<JCStatement> stats) {

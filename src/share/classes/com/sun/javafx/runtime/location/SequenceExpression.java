@@ -60,6 +60,11 @@ public class SequenceExpression<T> extends AbstractLocation implements SequenceL
         return loc;
     }
 
+    public void addDependencies(Location... dependencies) {
+        for (Location dep : dependencies)
+            dep.addChangeListener(getWeakChangeListener());
+    }
+
     private SequenceExpression(boolean lazy, SequenceBindingExpression<T> expression) {
         super(false, lazy);
         this.expression = expression;

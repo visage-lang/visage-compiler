@@ -128,5 +128,10 @@ public abstract class AbstractLocation implements Location {
     int getListenerCount() {
         return listeners == null ? 0 : listeners.size();
     }
+
+    public void addDependencies(Location... dependencies) {
+        for (Location dep : dependencies)
+            dep.addChangeListener(getWeakChangeListener());
+    }
 }
 

@@ -79,4 +79,6 @@ public interface Location {
      * and is also used at object initialization time to defer notification of changes until the values provided
      * in the object literal are all set. */
     public void valueChanged();
+
+    public void addDependencies(com.sun.javafx.runtime.location.Location... location);
 }

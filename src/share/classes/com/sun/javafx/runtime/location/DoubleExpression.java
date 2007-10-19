@@ -55,6 +55,12 @@ public class DoubleExpression extends AbstractLocation implements DoubleLocation
         return loc;
     }
 
+    public void addDependencies(Location... dependencies) {
+        for (Location dep : dependencies)
+            dep.addChangeListener(getWeakChangeListener());
+    }
+
+
     private DoubleExpression(boolean lazy, DoubleBindingExpression expression) {
         super(false, lazy);
         this.expression = expression;

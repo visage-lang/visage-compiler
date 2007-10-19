@@ -60,7 +60,8 @@ public class JavafxEnter extends JavafxTreeScanner {
     private final Lint lint;
     private final JavaFileManager fileManager;
     private final JavafxTodo todo;
-
+    private JavafxInitializationBuilder initBuilder;
+    
     public static JavafxEnter instance(Context context) {
 	JavafxEnter instance = context.get(javafxEnterKey);
 	if (instance == null)
@@ -86,6 +87,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 	predefClassDef.sym = syms.predefClass;
 	todo = JavafxTodo.instance(context);
         fileManager = context.get(JavaFileManager.class);
+        initBuilder = JavafxInitializationBuilder.instance(context);
     }
 
     /** A hashtable mapping classes and packages to the environments current
@@ -356,6 +358,7 @@ public class JavafxEnter extends JavafxTreeScanner {
         // Recursively enter all member classes.
         classEnter(tree.defs, localEnv);
 
+        initBuilder.addFxClass(c, tree);
         result = c.type;
     }
 

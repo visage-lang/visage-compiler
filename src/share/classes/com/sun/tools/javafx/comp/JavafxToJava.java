@@ -43,6 +43,7 @@ import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.TreeTranslator;
 
 import com.sun.tools.javafx.code.JavafxSymtab;
@@ -358,8 +359,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         ListBuffer<JCBlock> translatedInitBlocks = ListBuffer.<JCBlock>lb();
         ListBuffer<JCTree> translatedDefs = ListBuffer.<JCTree>lb();
         ListBuffer<TranslatedAttributeInfo> attrInfo = ListBuffer.<TranslatedAttributeInfo>lb();
-        // TODO: Remove the initMethod all together.
-        JCMethodDecl initMethod = null;
         JCMethodDecl userInitMethod = null;
         JCMethodDecl setDefaultsMethod = null;
         Set<JCNewClass> prevVisitedNews = visitedNewClasses;
@@ -385,9 +384,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     case JavafxTag.VAR_DEF: {
                         JFXVar attrDef = (JFXVar) def;
                         JCTree trans = translate(attrDef);
+                        JCExpressionTupple exprTupple = translateVarInit(attrDef, true);
                         attrInfo.append(new TranslatedAttributeInfo(
                                 attrDef, 
-                                translateVarInit(attrDef), 
+                                exprTupple.first,
+                                exprTupple.args,
                                 translate(attrDef.getOnChanges())));
                         translatedDefs.append(trans);
                         break;
@@ -395,10 +396,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     case JavafxTag.FUNCTION_DEF: {
                         JCMethodDecl method = (JCMethodDecl)translate(def);
                         translatedDefs.append(method);
-                        // TODO: Remove the initMethod all-together.
-                        if (method.getName() == initBuilder.initializerName) {
-                            initMethod = method;
-                        }
                         break;
                     }
                     case JCTree.METHODDEF : {
@@ -422,14 +419,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             visitedNewClasses = prevVisitedNews;
         }
         
-        // add the class instance initializer method
-        // TODO: Remove all the references to initMethod all together.
-        if (initMethod != null) {
-            initMethod.body.stats = initBuilder.initializerMethodBody(tree, attrInfo.toList(), translatedInitBlocks.toList()); // TODO: When deleting the initMethod code make sure this statements are gotten below.
-        } else {
-            throw new AssertionError("should always be an init method");
-        }
-        
         if (userInitMethod != null) {
             ListBuffer<JCStatement> stmts = ListBuffer.<JCStatement>lb();
             for (JCBlock init : translatedInitBlocks.toList()) {
@@ -441,11 +430,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         } else {
             throw new AssertionError("should always be an userInit method");
         }
-/* TODO:
+
         if (setDefaultsMethod != null) {
             List<JCStatement> setDefStats = initBuilder.addSetDefaultAttributeInitialization(attrInfo, tree);            
             if (setDefStats.nonEmpty()) {
-                AttributeReferenceReplaceTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder, make, names, this,initBuilder.receiverName, true, false);
+                setDefStats = setDefStats.appendList(initBuilder.addSetDefaultAttributeDependencies(attrInfo, tree));
+                AttributeReferenceReplaceTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder, make, names, this,initBuilder.receiverName, false);
                 treeScanner.visitInnerClasses = true;
                 treeScanner.translate(setDefStats);
                 setDefaultsMethod.body.stats = setDefaultsMethod.body.stats.prependList(setDefStats);
@@ -453,7 +443,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         } else {
             throw new AssertionError("should always be an setDefaults$ method");
         }
-  TODO: end*/      
+
         if (tree.isModuleClass) {
             // Add main method...
             translatedDefs.append(makeMainMethod(diagPos));
@@ -481,16 +471,19 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
         List<JCStatement> changeTriggerStats = List.<JCStatement>nil();
         for (TranslatedAttributeInfo info : attrInfo.toList()) {
-            changeTriggerStats = changeTriggerStats.append(initBuilder.makeChangeListenerCall(info));
+            JCStatement stat = initBuilder.makeChangeListenerCall(info);
+            if (stat != null) {
+                changeTriggerStats = changeTriggerStats.append(initBuilder.makeChangeListenerCall(info));
+            }
         }
-        
-// TODO: Add the statements        if (setDefaultsMethod != null && changeTriggerStats.nonEmpty()) {
-// TODO: Add the statements            AttributeReferenceReplaceTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder.receiverName, true, false);
-// TODO: Add the statements            treeScanner.visitInnerClasses = true;
-// TODO: Add the statements            treeScanner.translate(changeTriggerStats);
+
+        if (setDefaultsMethod != null && changeTriggerStats.nonEmpty()) {
+            AttributeReferenceReplaceTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder, make, names, this, initBuilder.receiverName, false);
+            treeScanner.visitInnerClasses = true;
+            treeScanner.translate(changeTriggerStats);
             
-// TODO: Add the statements            setDefaultsMethod.body.stats = setDefaultsMethod.body.stats.appendList(changeTriggerStats);
-// TODO: Add the statements        }
+            setDefaultsMethod.body.stats = setDefaultsMethod.body.stats.appendList(changeTriggerStats);
+        }
     }
     
     @Override
@@ -521,39 +514,48 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                                 translate( tree.getArguments() ),
                                                 null);
         
-        // We added this. The call to javafx$init$ is done below. We should not convert this to a BlockExpression.
+        // We added this. The call to initialize$ is done below. We should not convert this to a BlockExpression.
         visitedNewClasses.add(newClass);
         
-        if (getJavafxInitializerSymbol(tree) != null) {
-            // it is a JavaFX class, initializa it properly
-            JCVariableDecl tmpVar = make.VarDef(make.Modifiers(0), tmpName, clazz, newClass);
-            stats.append(tmpVar);
-            for (JFXObjectLiteralPart olpart : tree.getParts()) {
-                DiagnosticPosition diagPos = olpart.pos();
-                JavafxBindStatus bindStatus = olpart.getBindStatus();
-                JCExpression init = olpart.getExpression();
-                VarSymbol vsym = (VarSymbol) olpart.sym;
-                VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-                if (vmi.shouldMorph()) {
-                    init = translateDefinitionalAssignment(diagPos, init, bindStatus, vsym);
-                } else {
-                    init = boundTranslate(init, bindStatus);
+        if (tree != null && tree.getIdentifier() != null) {
+            Symbol sym = TreeInfo.symbol(tree.getIdentifier());
+        
+            if (sym != null &&
+                sym.kind == Kinds.TYP && (sym instanceof ClassSymbol) &&
+                initBuilder.isJFXClass((ClassSymbol)sym)) {
+                // it is a JavaFX class, initializa it properly
+                JCVariableDecl tmpVar = make.VarDef(make.Modifiers(0), tmpName, clazz, newClass);
+                stats.append(tmpVar);
+                for (JFXObjectLiteralPart olpart : tree.getParts()) {
+                    DiagnosticPosition diagPos = olpart.pos();
+                    JavafxBindStatus bindStatus = olpart.getBindStatus();
+                    JCExpression init = olpart.getExpression();
+                    VarSymbol vsym = (VarSymbol) olpart.sym;
+                    VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+                    if (vmi.shouldMorph()) {
+                        init = translateDefinitionalAssignment(diagPos, init, bindStatus, vsym, false).first;
+                    } else {
+                        init = boundTranslate(init, bindStatus);
+                    }
+
+                    JCIdent ident1 = make.at(diagPos).Ident(tmpName);
+                    JCStatement lastStatement = callStatement(diagPos, ident1, initBuilder.attributeInitMethodNamePrefix + olpart.getName().toString(), init);
+                    stats.append(lastStatement); 
+
                 }
-                JCFieldAccess attr = make.at(diagPos).Select(make.at(diagPos).Ident(tmpName), olpart.getName());
-                stats.append(make.at(diagPos).Exec(make.at(diagPos).Assign(attr, init)));
+
+                JCIdent ident3 = make.Ident(tmpName);   
+                JCStatement applyExec = callStatement(tree.pos(), ident3, initBuilder.initializeName.toString());
+                stats.append(applyExec);
+
+                JCIdent ident2 = make.Ident(tmpName);
+                JFXBlockExpression blockExpr1 = makeBlockExpression(tree.pos(), stats, ident2);
+                result = blockExpr1; 
             }
-
-            List<JCExpression> emptyTypeArgs = List.nil();
-            List<JCExpression> args = List.<JCExpression>of(make.Ident(tmpName));
-            JCIdent ident3 = make.Ident(tmpName);
-            JCFieldAccess select1 = make.Select(ident3, initBuilder.initializerName);
-            JCMethodInvocation apply1 = make.Apply(emptyTypeArgs, select1, args);
-            JCExpressionStatement exec1 = make.Exec(apply1);
-            stats.append(exec1);
-
-            JCIdent ident2 = make.Ident(tmpName);
-            JFXBlockExpression blockExpr1 = makeBlockExpression(tree.pos(), stats, ident2);
-            result = blockExpr1;
+            else {
+                // this is a Java class, just instanciate it
+                result = newClass;
+            }
        } else {
             // this is a Java class, just instanciate it
             result = newClass;
@@ -593,21 +595,22 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = make.Apply(null, formatter, values.toList());
     }
 
-    private JCExpression translateDefinitionalAssignment(DiagnosticPosition diagPos,
-                    JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
+    private JCExpressionTupple translateDefinitionalAssignment(DiagnosticPosition diagPos,
+                    JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, boolean isAttribute) {
         JCExpression translatedInit = boundTranslate(init, bindStatus);
+        JCExpressionTupple translatedInitTupple = new JCExpressionTupple(translatedInit, null);
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         if (vmi.shouldMorph()) {
-            translatedInit = typeMorpher.buildDefinitionalAssignment(diagPos, vmi, 
-                    init, translatedInit, bindStatus);
+            translatedInitTupple = typeMorpher.buildDefinitionalAssignment(diagPos, vmi, 
+                    init, translatedInit, bindStatus, isAttribute);
         }
         
-        return translatedInit;
+        return translatedInitTupple;
     }
 
-    public JCExpression translateVarInit(JFXVar tree) {
+    public JCExpressionTupple translateVarInit(JFXVar tree, boolean isAttribute) {
         return translateDefinitionalAssignment(tree.pos(), tree.init, 
-                                                tree.getBindStatus(), tree.sym);
+                                                tree.getBindStatus(), tree.sym, isAttribute);
     }
 
     @Override
@@ -635,7 +638,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         // for class vars, initialization happens during class init, so remove
         // from here.  For local vars translate as definitional
-        JCExpression init = isClassVar? null : translateVarInit(tree);
+        JCExpression init = isClassVar? null : translateVarInit(tree, false).first;
         
         result = make.at(diagPos).VarDef(mods, tree.name, typeExpresion, init);         
     }
@@ -1075,26 +1078,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
     }
     
-    private Symbol getJavafxInitializerSymbol(JCTree newClass) {
-        if (newClass.type == null) {
-            return null;
-        }
-        
-        Symbol sym = newClass.type.tsym;
-        if (sym == null ||
-                sym.members() == null || 
-                !(sym instanceof TypeSymbol)) {
-            return null;
-        }
-
-        Scope.Entry entry = ((TypeSymbol)sym).members().lookup(initBuilder.initializerName);
-        if (entry.sym == null) {
-            return null;
-        }
-
-        return entry.sym;
-    }
-
     /**
      * JCTrees which can just be copied and trees which sjould not occur 
      * */
@@ -1361,6 +1344,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     public void visitTypeTest(JCInstanceOf tree) {
         JCExpression expr = translate(tree.expr);
         JCTree clazz = translate(tree.clazz);
+        if (clazz != null && clazz.type.tsym != null &&
+                clazz.type.tsym instanceof ClassSymbol && initBuilder.isJFXClass((ClassSymbol)clazz.type.tsym)) {
+            clazz = ((JavafxTreeMaker)make).Identifier(clazz.type.tsym.name.toString() + initBuilder.interfaceNameSuffix.toString());
+        }
         result = make.at(tree.pos).TypeTest(expr, clazz);
     }
 
@@ -1561,20 +1548,19 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     private void processSetDefaultAttributeReferences(JCMethodDecl methodDecl) {
-        AttributeReferenceReplaceTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder, make, names, this,initBuilder.receiverName, true, false);
+        AttributeReferenceReplaceTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder, make, names, this,initBuilder.receiverName, false);
         treeScanner.visitInnerClasses = true;
         treeScanner.translate(methodDecl);
     }
 
     private void processUserInitAttributeReferences(JCMethodDecl methodDecl) {
-        TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder, make, names, this,initBuilder.receiverName, true, false);
+        TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder, make, names, this, initBuilder.receiverName, false);
         
         treeScanner.translate(methodDecl);
     }
     
     static class AttributeReferenceReplaceTranslator extends TreeTranslator {
         private Name receiverName = null;
-        private boolean doTransform;
         private boolean skipKnownMethods;
         boolean visitInnerClasses = false;
         JavafxInitializationBuilder initBuilder;
@@ -1583,9 +1569,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JavafxToJava toJava;
                 
         AttributeReferenceReplaceTranslator(JavafxInitializationBuilder initBuilder, TreeMaker make, Name.Table names,
-                JavafxToJava toJava, Name receiverName, boolean doTransform, boolean skipKnownMethods) {
+                JavafxToJava toJava, Name receiverName, boolean skipKnownMethods) {
             this.receiverName = receiverName;
-            this.doTransform = doTransform;
             this.skipKnownMethods = skipKnownMethods;
             this.initBuilder = initBuilder;
             this.make = make;
@@ -1594,11 +1579,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         
         // make sure we don't normalized twice the setDefault$, javafx$init$ and userInit$ methods 
-        // TODO: Take out the javafx$init$ when the old wtyle initialization is removed.
         @Override
         public void visitMethodDef(JCMethodDecl tree) {
-            if (skipKnownMethods && (tree.name == initBuilder.initializerName ||
-                tree.name == initBuilder.setDefaultsName ||
+            if (skipKnownMethods && (tree.name == initBuilder.setDefaultsName ||
                 tree.name == initBuilder.userInitName)) {
             }
             else {
@@ -1620,19 +1603,20 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         
         private JCExpression transformTreeIfNeeded(JCExpression tree, Symbol sym) {
-// TODO: Enable the code below when the javafx$init method is removed. The setDefault$ and javafx$init share statements
-// and they can't be transformed until javafx$init is in use.
-            if (!doTransform) {
-                return tree;
-            }
-// TODO: end
             if (sym != null &&
                 ((sym.flags_field & Flags.STATIC) == 0L) &&
                 sym.name != names._this &&
                 sym.name != names._super &&
-                sym.kind == Kinds.VAR &&
+                (sym.kind == Kinds.VAR || sym.kind == Kinds.MTH) &&
                 sym.owner != null &&
                 sym.owner.kind == Kinds.TYP) {
+                
+                if (sym.kind == Kinds.MTH) {
+                    if (TreeInfo.name(tree) == null || receiverName == null) {
+                        return tree;
+                    }
+                }
+                
                 if (initBuilder.isJFXClass((ClassSymbol)sym.owner)) {
                     JCExpression receiver = null;
                     if (tree.getTag() == JCTree.SELECT) {
@@ -1653,15 +1637,25 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         }
                     }
                     
-                    JCMethodInvocation ret = toJava.callExpression(tree.pos(), receiver,
-                            initBuilder.attributeGetMethodNamePrefix + sym.name.toString(), List.<JCExpression>nil());
-                    if (ret.meth != null) {
-                        if (ret.meth.getTag() == JCTree.IDENT) {
-                            ((JCIdent)ret.meth).sym = sym;
+                    JCExpression ret;
+                    if (sym.kind == Kinds.VAR) {
+                        ret = toJava.callExpression(tree.pos(), receiver,
+                                 initBuilder.attributeGetMethodNamePrefix + sym.name.toString(), List.<JCExpression>nil());
+                        if (((JCMethodInvocation)ret).meth != null) {
+                            if (((JCMethodInvocation)ret).meth.getTag() == JCTree.IDENT) {
+                                ((JCIdent)((JCMethodInvocation)ret).meth).sym = sym;
+                            }
+                            else if (((JCMethodInvocation)ret).meth.getTag() == JCTree.SELECT) {
+                                ((JCFieldAccess)((JCMethodInvocation)ret).meth).sym = sym;
+                            }
                         }
-                        else if (ret.meth.getTag() == JCTree.SELECT) {
-                            ((JCFieldAccess)ret.meth).sym = sym;
-                        }
+                    }
+                    else if (sym.kind == Kinds.MTH) {
+                        ret = make.Select(make.Ident(receiverName), TreeInfo.name(tree));
+                        ((JCFieldAccess)ret).sym = sym;
+                    }
+                    else {
+                        throw new AssertionError("Unexpected sym.kind!");
                     }
                     
                     return ret;
@@ -1682,7 +1676,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     };
 
     private void processJFXAttributeReferences(JCClassDecl classDecl) {
-        TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder, make, names, this, null, true, true);
+        TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder, make, names, this, null, true);
         
         treeScanner.translate(classDecl.defs);
     }
@@ -1692,9 +1686,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (attrSyms != null) {
             for (Symbol attrSym : attrSyms) {
                 if (attrSym.kind == Kinds.MTH) {
+                    VarSymbol varSym = new VarSymbol(0L, attrSym.name, ((MethodType)attrSym.type).restype, attrSym.owner);
+                    VarMorphInfo vmi = typeMorpher.varMorphInfo(varSym);
+                    vmi.shouldMorph();
                     result.defs = result.defs.append(make.VarDef(make.Modifiers(0L), 
                             names.fromString(attrSym.name.toString().substring(initBuilder.attributeGetMethodNamePrefix.length())),
-                            make.Ident(attrSym.type.tsym), null));
+                            ((JavafxTreeMaker)make).Identifier(vmi.getUsedType().toString()), null));
                 }
                 else if (attrSym.kind == Kinds.VAR && attrSym.owner != sym) {
                     JCVariableDecl var = make.VarDef((VarSymbol)attrSym, null);
@@ -1712,6 +1709,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     result.defs = result.defs.append(var);
                 }
             }
+        }
+    }
+    
+    static class JCExpressionTupple {
+        JCExpression first;
+        List<JCExpression> args;
+        
+        JCExpressionTupple(JCExpression first, List<JCExpression> args) {
+            this.first = first;
+            this.args = args;
         }
     }
 }

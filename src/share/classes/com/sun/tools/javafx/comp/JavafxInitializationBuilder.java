@@ -66,18 +66,17 @@ public class JavafxInitializationBuilder {
     private final Name addChangeListenerName;
     private final Name changeListenerInterfaceName;
     private final Name sequenceChangeListenerInterfaceName;
-    final Name initializerName;
     private final Name valueChangedName;
     private final Name classNameSuffix;
     final Name interfaceNameSuffix;
     final String attributeGetMethodNamePrefix = "get$";
-    private final String attributeInitMethodNamePrefix = "init$";
+    final String attributeInitMethodNamePrefix = "init$";
     private final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
     private final Name locationName;
     final Name setDefaultsName;
     final Name userInitName;
     final Name receiverName;
-    private final Name initializeName;
+    final Name initializeName;
     private final Name numberFieldsName;
     private final Name getNumFieldsName;
     private final Name initHelperName;
@@ -86,6 +85,8 @@ public class JavafxInitializationBuilder {
     private final Name initializeNonSyntheticName;
     private final Name oldValueName;
     private final String fullLocationName = "com.sun.javafx.runtime.location.Location";
+    private final String addDependenciesName = "addDependencies";
+    private final String fxObjectName = "com.sun.javafx.runtime.FXObject";
     
     private Map<ClassSymbol, JFXClassDeclaration> fxClasses;
     Map<ClassSymbol, java.util.List<Symbol>> fxClassAttributes;
@@ -108,7 +109,6 @@ public class JavafxInitializationBuilder {
         addChangeListenerName = names.fromString("addChangeListener");
         changeListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "ChangeListener");
         sequenceChangeListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "SequenceChangeListener");
-        initializerName = names.fromString(JavafxModuleBuilder.initMethodString);
         valueChangedName = names.fromString("valueChanged");
         classNameSuffix = names.fromString("$Impl");
         interfaceNameSuffix = names.fromString("$Intf");
@@ -129,12 +129,15 @@ public class JavafxInitializationBuilder {
         private final Type elemType;
         final JCExpression initExpr;
         final List<JFXAbstractOnChange> onChanges;
-        TranslatedAttributeInfo(JFXVar attribute, JCExpression initExpr, List<JFXAbstractOnChange> onChanges) {
+        final List<JCExpression> args;
+        TranslatedAttributeInfo(JFXVar attribute, JCExpression initExpr, final List<JCExpression> args, List<JFXAbstractOnChange> onChanges) {
             this.attribute = attribute;
             this.initExpr = initExpr;
             this.onChanges = onChanges;
             this.elemType = attribute.type.getTypeArguments().head;
+           this.args = args;
         }
+        
         Name name() { return attribute.getName(); }
         Type type() { return attribute.type; }
         Type elemType() { return elemType; }
@@ -151,29 +154,7 @@ public class JavafxInitializationBuilder {
             List<TranslatedAttributeInfo> attrInfo, 
             List<JCBlock> initBlocks) {
         ListBuffer<JCStatement> stmts = ListBuffer.<JCStatement>lb();
-        
-// TODO:        stmts.append(toJava.callStatement(classDecl.pos(), null, setDefaultsName.toString(), make.Ident(receiverName)));
-
-        // Initialize the default values for the atttributes.
-        for (TranslatedAttributeInfo info : attrInfo) {
-            if (info.initExpr != null) { // if there is an attribute initializer
-                stmts.append(makeAttributeInitialization(info));
-            }
-        }
-
-        stmts.append(toJava.callStatement(classDecl.pos(), null, userInitName.toString(), make.Ident(receiverName)));
-
-        // Now do the on change blocks
-        for (TranslatedAttributeInfo info : attrInfo) {
-            if (info.onChanges.length() > 0) { // if there is an on change clause
-               stmts.append(makeChangeListenerCall(info));
-            }
-        }
-        
-        // Now add a call to notify changes for all attribute, so dependents 
-        // initial values will be set
-        makeOnChangedCall(classDecl, stmts);
-
+        stmts.append(toJava.callStatement(classDecl.pos(), null, initializeName.toString()));
         return stmts.toList();
     }  
     
@@ -202,6 +183,10 @@ public class JavafxInitializationBuilder {
         DiagnosticPosition diagPos = info.diagPos();
         ListBuffer<JCTree> defs = ListBuffer.<JCTree>lb();
         
+        if (!info.onChanges.nonEmpty()) {
+            return null;
+        } 
+        
         for (JFXAbstractOnChange onc : info.onChanges) {
             switch (onc.getTag()) {
                 case JavafxTag.ON_REPLACE:
@@ -219,7 +204,7 @@ public class JavafxInitializationBuilder {
             }
         }
        
-        // If there are any listenere, we need to build this, even if empty
+        // If there are any listeners, we need to build this, even if empty
         List<JCVariableDecl> onChangeArgs = List.<JCVariableDecl>nil();
         onChangeArgs = onChangeArgs.append(make.VarDef(make.Modifiers(0L), oldValueName, make.Identifier(fullLocationName), null));
         defs.append(makeChangeListenerMethod(
@@ -364,10 +349,12 @@ public class JavafxInitializationBuilder {
         ListBuffer<JCStatement> ret = new ListBuffer<JCStatement>();
         
         ListBuffer<JCExpression> implementing = new ListBuffer<JCExpression>();
-        implementing.append(make.Identifier("com.sun.javafx.runtime.FXObject"));
+        implementing.append(make.Identifier(fxObjectName));
 
         for (ClassSymbol baseClass : baseClasses) {
-            implementing.append(make.Ident(names.fromString(baseClass.name.toString() + interfaceNameSuffix)));
+            if (!baseClass.name.endsWith(interfaceNameSuffix) && baseClass.fullname != names.fromString(fxObjectName)) {
+                implementing = implementing.append(make.Ident(names.fromString(baseClass.name.toString() + interfaceNameSuffix)));
+            }
         }
         
         JCExpression intIdent = make.TypeIdent(TypeTags.INT);
@@ -413,8 +400,8 @@ public class JavafxInitializationBuilder {
                 List.<JCTypeParameter>nil(), null, implementing.toList(), iDefinitions.toList());
         
         cDecl.implementing = cDecl.implementing.append(make.Ident(interfaceName));
-// TODO: Enable this code when methods are handled.        cDecl.extending = null;
-
+        cDecl.implementing = cDecl.implementing.append(make.Identifier(fxObjectName));
+        cDecl.extending = null;
         ret.append(cInterface);
         
         return ret.toList();
@@ -780,13 +767,29 @@ public class JavafxInitializationBuilder {
                     
                     JCStatement thenStat = toJava.callStatement(cdef.pos(), make.Ident(receiverName), attributeInitMethodNamePrefix + tai.attribute.name.toString(), tai.initExpr);
                     JCIf defInitIf = make.If(cond, thenStat, null);
-                    ret = ret.prepend(defInitIf);
+                    ret = ret.append(defInitIf);
                 }
             }
         }
         return ret;
     }
-    
+
+    // Add the initialization of this class' attributes
+    List<JCStatement> addSetDefaultAttributeDependencies(ListBuffer<TranslatedAttributeInfo> attrInfo, JCClassDecl cdef) {
+        List<JCStatement> ret = List.<JCStatement>nil();
+        for (TranslatedAttributeInfo tai : attrInfo) {
+            if (tai.attribute != null && tai.attribute.getTag() == JavafxTag.VAR_DEF && tai.attribute.pos != Position.NOPOS &&
+                    tai.args != null) {
+                if (tai.attribute.sym != null && tai.attribute.sym.owner == cdef.sym) {
+                    ret = ret.append(toJava.callStatement(cdef.pos(), 
+                            toJava.callExpression(cdef.pos(), make.Ident(receiverName), attributeGetMethodNamePrefix + tai.attribute.name.toString(), List.<JCExpression>nil()),
+                            addDependenciesName, tai.args));
+                }
+            }
+        }
+        return ret;
+    }
+
     private void collectAttributesAndMethods(Set<String> visitedClasses,
                                              Map<String, Symbol> collectedAttributes,
                                              Map<String, MethodSymbol> collectedMethods,
@@ -800,12 +803,21 @@ public class JavafxInitializationBuilder {
             
             if (!visitedClasses.contains(cSym.fullname.toString())) {
                 if (isJFXClass(cSym)) {
-                    if ((cSym.flags_field & Flags.INTERFACE) != 0) {
+                    if (((cSym.flags_field & Flags.INTERFACE) != 0 || fxClasses.get(cSym) == null)) {
                         if (cSym != null && cSym.members() != null) {
                             for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
                                 if (e.sym.kind == Kinds.MTH) {
                                     MethodSymbol meth = (MethodSymbol)e.sym;
                                     String methName = meth.name.toString();
+                                    if (meth.name == initializeName ||
+                                            meth.name == setDefaultsName ||
+                                            meth.name == userInitName ||
+                                            meth.name == names.init ||
+                                            meth.name == names.clinit ||
+                                            methName.equals(JavafxModuleBuilder.runMethodString)) {
+                                        continue;
+                                    }
+                                    
                                     if (!methName.startsWith(attributeGetMethodNamePrefix)) {
                                         StringBuilder nameSigBld = new StringBuilder();
                                         nameSigBld.append(methName.toString());
@@ -822,9 +834,10 @@ public class JavafxInitializationBuilder {
                                             continue;
                                         }
 
-                                        collectedMethods.put(nameSig, meth);
-                                        methods.add(meth);
-                                    }
+                                        if (!methName.startsWith(attributeInitMethodNamePrefix)) {
+                                            collectedMethods.put(nameSig, meth);
+                                            methods.add(meth);
+                                        }                                                                            }
                                     else {
                                         String nameSig = methName.substring(attributeGetMethodNamePrefix.length());
                                         if (collectedAttributes.containsKey(nameSig)) {
@@ -940,6 +953,12 @@ public class JavafxInitializationBuilder {
             if (fxClasses != null) {
                 if (fxClasses.containsKey(cSym)) {
                     return true;
+                }
+                
+                for (List<Type> intfs = cSym.getInterfaces(); intfs.nonEmpty(); intfs = intfs.tail) {
+                    if (intfs.head.tsym.type == syms.javafx_FXObjectType) {
+                        return true;
+                    }
                 }
             }
         }
