@@ -251,6 +251,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     static boolean isType(Symbol sym) {
         return sym != null && sym.kind == TYP;
     }
+    
+    public Type boxIfNeeded(Type elemType) {
+        if (elemType.isPrimitive())
+            return types.boxedClass(elemType).type;
+        else
+            return elemType;
+    }
 
     /** The current `this' symbol.
      *  @param env    The current environment.
@@ -1594,10 +1601,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             // Those were all the cases that could result in a primitive
             if (allowBoxing) {
-                if (thentype.isPrimitive())
-                    thentype = types.boxedClass(thentype).type;
-                if (elsetype.isPrimitive())
-                    elsetype = types.boxedClass(elsetype).type;
+                thentype = boxIfNeeded(thentype);
+                elsetype = boxIfNeeded(elsetype);
             }
 
             if (types.isSubtype(thentype, elsetype))
@@ -2468,13 +2473,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitTypeFunctional(JFXTypeFunctional tree) {
         Type restype = attribType(tree.restype, env);
-        Type rtype = new WildcardType(restype, BoundKind.EXTENDS, syms.boundClass);
+        Type rtype = new WildcardType(boxIfNeeded(restype), BoundKind.EXTENDS, syms.boundClass);
 
         ListBuffer<Type> typarams = new ListBuffer<Type>();
         typarams.append(rtype);
         int nargs = 0;
         for (JFXType param : tree.params) {
-            Type ptype = attribType(param, env);
+            Type ptype = boxIfNeeded(attribType(param, env));
             ptype = new WildcardType(ptype, BoundKind.SUPER, syms.boundClass);
             typarams.append(ptype);
             nargs++;
