@@ -2486,8 +2486,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public void visitBlockExpression(JFXBlockExpression tree) {
         // Create a new local environment with a local scope.
         JavafxEnv<JavafxAttrContext> localEnv =
-                env.dup(tree,
-                env.info.dup(env.info.scope.dup()));
+                env.dup(tree, env.info.dup(env.info.scope.dup()));
+        localEnv.outer = env;
         memberEnter.memberEnter(tree.stats, localEnv);
         for (List<JCStatement> l = tree.stats; l.nonEmpty(); l = l.tail)
             attribStat(l.head, localEnv);
