@@ -1,5 +1,6 @@
 /* Feature test #10 -- function values
  * @test
+ * @run
  */
 import java.lang.*;
 
@@ -10,14 +11,26 @@ function call3 (f : function(Integer)String, prefix) {
   System.err.println("{prefix}: 1->{f(1)} 2->{f(2)} 3->{f(3)}");
 }
 
+var action1 : function(String)String
+   = function(x:String):String { System.out.println("button pressed"); x };
+System.out.println(action1("action1 called"));
+
 class Cl1 {
   attribute fvar : function(String)String;
   attribute xvar : String;
 };
 var cl = new Cl1();
-cl.fvar(cl.xvar);
+cl.xvar = "cl.fvar called";
+cl.fvar = action1;
+System.out.println(cl.fvar(cl.xvar));
 
 /* FIXME - not yet working
+Expected output:
+call named plus10: 1->11 2->12 3->13
+call anonymous x+5: 1->6 2->7 3->8
+call plus10 assigned to ff: 1->11 2->12 3->13
+call anonymous x+2 assigned to ff: 1->3 2->4 3->5
+
 call3(plus10, "call named plus10");
 call3(function(x : Integer) :Integer {x+5}, "call anonymous x+5");
 
