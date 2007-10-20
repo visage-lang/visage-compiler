@@ -83,13 +83,11 @@ public abstract class AbstractLocation implements Location {
     }
 
     public void addDependencies(Location... dependencies) {
-        for (Location dep : dependencies)
-            dep.addChangeListener(getWeakChangeListener());
-    }
-
-    public ChangeListener getWeakChangeListener() {
-        // @@@ OPT: cache this and reuse it
-        return new WeakLocationListener(this);
+        if (dependencies.length > 0) {
+            WeakLocationListener listener = new WeakLocationListener(this);
+            for (Location dep : dependencies)
+                dep.addChangeListener(listener);
+        }
     }
 
     public Collection<ChangeListener> getListeners() {

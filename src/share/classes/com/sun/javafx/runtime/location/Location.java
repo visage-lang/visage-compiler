@@ -67,11 +67,6 @@ public interface Location {
      */
     public void addWeakListener(ChangeListener listener);
 
-    /** Return a change listener that holds a weak reference to this Location, so that maintenance of the change
-     * listener in a listener list will not pin this object in memory.
-     */
-    public ChangeListener getWeakChangeListener();
-
     /** Return the collection of change listeners */
     public Collection<ChangeListener> getListeners();
 

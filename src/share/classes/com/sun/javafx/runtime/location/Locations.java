@@ -88,10 +88,6 @@ public class Locations {
             getLocation().addWeakListener(listener);
         }
 
-        public ChangeListener getWeakChangeListener() {
-            return getLocation().getWeakChangeListener();
-        }
-
         public Collection<ChangeListener> getListeners() {
             return getLocation().getListeners();
         }
