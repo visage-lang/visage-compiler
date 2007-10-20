@@ -42,22 +42,15 @@ public class BooleanExpression extends AbstractLocation implements BooleanLocati
     /** Create an BooleanExpression with the specified expression and dependencies. */
     public static BooleanLocation make(BooleanBindingExpression exp, Location... dependencies) {
         BooleanExpression loc = new BooleanExpression(false, exp);
-        for (Location dep : dependencies)
-            dep.addChangeListener(loc.getWeakChangeListener());
+        loc.addDependencies(dependencies);
         return loc;
     }
 
     /** Create a lazy BooleanExpression with the specified expression and dependencies. */
     public static BooleanLocation makeLazy(BooleanBindingExpression exp, Location... dependencies) {
         BooleanExpression loc = new BooleanExpression(true, exp);
-        for (Location dep : dependencies)
-            dep.addChangeListener(loc.getWeakChangeListener());
+        loc.addDependencies(dependencies);
         return loc;
-    }
-
-    public void addDependencies(Location... dependencies) {
-        for (Location dep : dependencies)
-            dep.addChangeListener(getWeakChangeListener());
     }
 
     private BooleanExpression(boolean lazy, BooleanBindingExpression expression) {

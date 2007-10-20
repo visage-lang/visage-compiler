@@ -42,22 +42,15 @@ public class IntExpression extends AbstractLocation implements IntLocation {
     /** Create an IntExpression with the specified expression and dependencies. */
     public static IntLocation make(IntBindingExpression exp, Location... dependencies) {
         IntExpression loc = new IntExpression(false, exp);
-        for (Location dep : dependencies)
-            dep.addChangeListener(loc.getWeakChangeListener());
+        loc.addDependencies(dependencies);
         return loc;
     }
 
     /** Create a lazy IntExpression with the specified expression and dependencies. */
     public static IntLocation makeLazy(IntBindingExpression exp, Location... dependencies) {
         IntExpression loc = new IntExpression(true, exp);
-        for (Location dep : dependencies)
-            dep.addChangeListener(loc.getWeakChangeListener());
+        loc.addDependencies(dependencies);
         return loc;
-    }
-
-    public void addDependencies(Location... dependencies) {
-        for (Location dep : dependencies)
-            dep.addChangeListener(getWeakChangeListener());
     }
 
     private IntExpression(boolean lazy, IntBindingExpression expression) {

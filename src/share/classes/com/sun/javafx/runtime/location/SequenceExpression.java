@@ -47,22 +47,15 @@ public class SequenceExpression<T> extends AbstractLocation implements SequenceL
     /** Create an SequenceExpression with the specified expression and dependencies. */
     public static<T> SequenceLocation<T> make(SequenceBindingExpression<T> exp, Location... dependencies) {
         SequenceExpression<T> loc = new SequenceExpression<T>(false, exp);
-        for (Location dep : dependencies)
-            dep.addChangeListener(loc.getWeakChangeListener());
+        loc.addDependencies(dependencies);
         return loc;
     }
 
     /** Create a lazy SequenceExpression with the specified expression and dependencies. */
     public static<T> SequenceLocation<T> makeLazy(SequenceBindingExpression<T> exp, Location... dependencies) {
         SequenceExpression<T> loc = new SequenceExpression<T>(true, exp);
-        for (Location dep : dependencies)
-            dep.addChangeListener(loc.getWeakChangeListener());
+        loc.addDependencies(dependencies);
         return loc;
-    }
-
-    public void addDependencies(Location... dependencies) {
-        for (Location dep : dependencies)
-            dep.addChangeListener(getWeakChangeListener());
     }
 
     private SequenceExpression(boolean lazy, SequenceBindingExpression<T> expression) {

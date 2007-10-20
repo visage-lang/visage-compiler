@@ -80,5 +80,6 @@ public interface Location {
      * in the object literal are all set. */
     public void valueChanged();
 
-    public void addDependencies(com.sun.javafx.runtime.location.Location... location);
+    /** Add this location as a dependency of zero or more other Locations */
+    public void addDependencies(Location... location);
 }

@@ -82,7 +82,13 @@ public abstract class AbstractLocation implements Location {
         addChangeListener(new WeakListener(listener));
     }
 
+    public void addDependencies(Location... dependencies) {
+        for (Location dep : dependencies)
+            dep.addChangeListener(getWeakChangeListener());
+    }
+
     public ChangeListener getWeakChangeListener() {
+        // @@@ OPT: cache this and reuse it
         return new WeakLocationListener(this);
     }
 
@@ -127,11 +133,6 @@ public abstract class AbstractLocation implements Location {
     // For testing
     int getListenerCount() {
         return listeners == null ? 0 : listeners.size();
-    }
-
-    public void addDependencies(Location... dependencies) {
-        for (Location dep : dependencies)
-            dep.addChangeListener(getWeakChangeListener());
     }
 }
 
