@@ -673,14 +673,31 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 tree.getOldValue(),
                 translate(tree.getBody()));
     }
-    
+
     @Override
     public void visitOnDeleteAll(JFXOnDeleteAll tree) {
         assert false : "not yet implemented -- may not be";
     }
+
     @Override
     public void visitOperationValue(JFXOperationValue tree) {
-        throw new Error("unnamed function values not yet implemented");
+        JFXOperationDefinition def = tree.definition;
+        ListBuffer<JCTree> members = new ListBuffer<JCTree>();
+        members.append(translate(def));
+        JCClassDecl cl = make.AnonymousClassDef(make.Modifiers(0), members.toList());
+        JCExpression encl = null;
+        List<JCExpression> args = List.<JCExpression>nil();
+        //FunctionType ftype = (FunctionType) tree.type;
+        MethodType mtype = (MethodType) def.type;
+        int nargs = mtype.argtypes.size();
+        Type ftype = syms.javafx_FunctionTypes[nargs];
+        JCExpression t = makeQualifiedTree(null, ftype.tsym.getQualifiedName().toString());
+        ListBuffer<JCExpression> typeargs = new ListBuffer<JCExpression>();
+        typeargs.append(makeQualifiedTree(null, mtype.restype.tsym.getQualifiedName().toString()));
+        for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail)
+            typeargs.append(makeQualifiedTree(null, l.head.tsym.getQualifiedName().toString()));
+        result = make.NewClass(encl, args, make.TypeApply(t, typeargs.toList()), args, cl);
+        result.type = tree.type;
     }
     
     @Override

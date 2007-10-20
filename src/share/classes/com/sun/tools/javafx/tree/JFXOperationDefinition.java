@@ -42,6 +42,15 @@ public class JFXOperationDefinition extends JFXStatement {
     public JFXOperationValue operation;
     public MethodSymbol sym;
 
+    public JFXOperationDefinition(
+            JCModifiers mods, 
+            Name name,
+            JFXOperationValue operation) {
+        this.mods = mods;
+        this.name = name;
+        this.operation = operation;
+    }
+
     protected JFXOperationDefinition(
             JCModifiers mods, 
             Name name, 

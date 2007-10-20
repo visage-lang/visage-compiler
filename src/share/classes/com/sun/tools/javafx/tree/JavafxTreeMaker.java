@@ -147,10 +147,11 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                 restype,
                 params,
                 bodyExpression);
+        tree.operation.definition = tree;
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXOperationValue OperationValue(
             JFXType restype,
              List<JFXVar> params, 

@@ -37,6 +37,7 @@ public class JFXOperationValue  extends JFXExpression {
     public JFXType rettype;
     public List<JFXVar> funParams;
     public JFXBlockExpression bodyExpression;
+    public JFXOperationDefinition definition;
 
     public JFXOperationValue(JFXType rettype, 
             List<JFXVar> params, 

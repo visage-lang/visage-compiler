@@ -116,6 +116,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     private final Name booleanTypeName;
     private final Name stringTypeName;
     private final Name voidTypeName;  // possibly temporary
+    private final Name invokeName;
 
     public static JavafxAttr instance(Context context) {
         JavafxAttr instance = context.get(javafxAttrKey);
@@ -159,6 +160,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         booleanTypeName = names.fromString("Boolean");
         stringTypeName = names.fromString("String");
         voidTypeName = names.fromString("Void");
+        invokeName = names.fromString("invoke");
     }
     /** Switch: relax some constraints for retrofit mode.
      */
@@ -1337,38 +1339,19 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitOperationValue(JFXOperationValue tree) {
-         attribType(tree.rettype, env);
-         //  attribBounds(tree.typarams);
-
-         // Create a new environment with local scope
-         // for attributing the method.
-         JavafxEnv<JavafxAttrContext> localEnv = null; // memberEnter.methodEnv(tree, env); // FIXME
-
-         // Enter all type parameters into the local method scope.
-         //for (List<JCTypeParameter> l = tree.typarams; l.nonEmpty(); l = l.tail)
-         //       localEnv.info.scope.enterIfAbsent(l.head.type.tsym);
-
-         // Attribute all value parameters.
-         //for (List<JCVariableDecl> l = tree.params; l.nonEmpty(); l = l.tail) {
-         //    attribStat(l.head, localEnv);
-         //}
-
-         // Check that type parameters are well-formed.
-         //chk.validateTypeParams(tree.typarams);
-
-         // Check that result type is well-formed.
-         chk.validate(tree.rettype);
-          
-         //for (List<JCExpression> l = tree.thrown; l.nonEmpty(); l = l.tail)
-          //      chk.checkType(l.head.pos(), l.head.type, syms.throwableType);
-
-
-         // Attribute method bodyExpression.
-         if (tree.getBodyExpression() != null) {
-            attribExpr(tree.getBodyExpression(), localEnv);
-         }
-         localEnv.info.scope.leave();
-         result = tree.type; // = m.type; // FIXME
+        Scope enclScope = enter.enterScope(env);
+        JFXOperationDefinition def = new JFXOperationDefinition(make.Modifiers(0), invokeName, tree);
+        tree.definition = def;
+        MethodSymbol m = new MethodSymbol(0, def.name, null, enclScope.owner);
+        // m.flags_field = chk.checkFlags(def.pos(), def.mods.flags, m, def);
+        def.sym = m;
+        finishOperationDefinition(def, env);
+        MethodType mtype = (MethodType) def.type;
+        Type rtype = mtype.restype;
+        ListBuffer<Type> typarams = new ListBuffer<Type>();
+        typarams.append(rtype);
+        typarams.appendList(mtype.argtypes);
+        result = tree.type = makeFunctionType(typarams, rtype);
     }
     
     @Override
@@ -1376,12 +1359,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         MethodSymbol m = tree.sym;
         m.complete();
     }
-    
+
     public void finishOperationDefinition(JFXOperationDefinition tree, JavafxEnv<JavafxAttrContext> env) {
         MethodSymbol m = tree.sym;
+        JFXOperationValue opVal = tree.operation;
         JavafxEnv<JavafxAttrContext> localEnv = memberEnter.methodEnv(tree, env);
         Type returnType;
-        JFXOperationValue opVal = tree.operation;
         // Create a new environment with local scope
         // for attributing the method.
 
@@ -2480,13 +2463,18 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             typarams.append(ptype);
             nargs++;
         }
-        assert nargs <= syms.MAX_FIXED_PARAM_LENGTH
-                : "NOT IMPLEMENTED - functions with >"+syms.MAX_FIXED_PARAM_LENGTH+" parameters";
-        Type funtype = syms.javafx_FunctionTypes[nargs];
-        Type type = new FunctionType(funtype.getEnclosingType(), typarams.toList(), funtype.tsym, restype);
+        Type type = makeFunctionType(typarams, restype);
         type = sequenceType(type, tree.getCardinality());
         tree.type = type;
         result = type; 
+    }
+    
+    FunctionType makeFunctionType(ListBuffer<Type> typarams, Type restype) {
+        int nargs = typarams.size()-1;
+        assert nargs <= syms.MAX_FIXED_PARAM_LENGTH
+                : "NOT IMPLEMENTED - functions with >"+syms.MAX_FIXED_PARAM_LENGTH+" parameters";
+        Type funtype = syms.javafx_FunctionTypes[nargs];
+        return new FunctionType(funtype.getEnclosingType(), typarams.toList(), funtype.tsym, restype);
     }
     
     @Override
