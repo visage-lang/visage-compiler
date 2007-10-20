@@ -18,11 +18,14 @@ System.out.println(action1("action1 called"));
 class Cl1 {
   attribute fvar : function(String)String;
   attribute xvar : String;
+  attribute concat = function (y : String) { "{xvar}-{y}" };
 };
 var cl = new Cl1();
 cl.xvar = "cl.fvar called";
 cl.fvar = action1;
 System.out.println(cl.fvar(cl.xvar));
+cl.xvar = "reset cl.xvar";
+System.out.println(cl.concat("Cl1.concat called"));
 
 /* FIXME - not yet working
 Expected output:

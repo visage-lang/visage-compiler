@@ -2,3 +2,4 @@ button pressed
 action1 called
 button pressed
 cl.fvar called
+reset cl.xvar-Cl1.concat called
