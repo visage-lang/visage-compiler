@@ -694,8 +694,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCExpression t = makeQualifiedTree(null, ftype.tsym.getQualifiedName().toString());
         ListBuffer<JCExpression> typeargs = new ListBuffer<JCExpression>();
         typeargs.append(makeQualifiedTree(null, mtype.restype.tsym.getQualifiedName().toString()));
-        for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail)
-            typeargs.append(makeQualifiedTree(null, l.head.tsym.getQualifiedName().toString()));
+        for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail) {
+            Type ptype = l.head;
+            if (ptype.isPrimitive())
+                ptype = types.boxedClass(ptype).type;
+            typeargs.append(makeQualifiedTree(null, ptype.tsym.getQualifiedName().toString()));
+        }
         result = make.NewClass(encl, args, make.TypeApply(t, typeargs.toList()), args, cl);
         result.type = tree.type;
     }
