@@ -48,31 +48,32 @@ import static javax.tools.StandardLocation.*;
  * Unit test for JavafxcTask interface and its JavafxcTaskImpl implementation.
  */
 public class JavafxcTaskTest {
-    private static final String testSrc = System.getProperty("test.src.dir", ".");
+    private static final String testSrc = System.getProperty("test.src.dir", "test/src");
     private static final String testClasses = System.getProperty("build.test.classes.dir");
     
     @Test
     public void parseSingleSource() throws Exception {
         JavafxcTool instance = new JavafxcTool();
-        DiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
+        MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
         StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
         List<String> options = 
                 Arrays.asList("-d", ".", "-sourcepath", testSrc, "-classpath", testClasses);
-        File file = new File(testSrc, "HelloWorld.fx");
+        File file = new File(testSrc + "/com/sun/tools/javafx/api", "Hello.fx");
+        System.out.println(file.getAbsolutePath());
 	Iterable<? extends JavaFileObject> files = fm.getJavaFileObjects(file);
         JavafxcTask task = instance.getTask(null, fm, dl, null, files);
-        assertNotNull(task);
+        assertNotNull("no task returned", task);
         Iterable<? extends CompilationUnitTree> result = task.parse();
-        assertTrue(result.iterator().hasNext());
+        assertEquals("parse error(s)", 0, dl.errors());
+        assertTrue("no compilation units returned", result.iterator().hasNext());
     }
-
     
     @Test
     public void parseNullSourceList() throws Exception {
         JavafxcTool instance = new JavafxcTool();
         JavafxcTask task = instance.getTask(null, null, null, null, null);
         Iterable<? extends CompilationUnitTree> result = task.parse();
-        assertFalse(result.iterator().hasNext());
+        assertFalse("unexpected compilation units returned", result.iterator().hasNext());
     }
 
     @Test
@@ -88,7 +89,7 @@ public class JavafxcTaskTest {
         JavafxcTool instance = new JavafxcTool();
         JavafxcTask task = instance.getTask(null, null, null, null, null);
         Iterable<? extends CompilationUnitTree> result = task.analyze();
-        assertNull(result);
+        assertNull("unexpected compilation units returned", result);
     }
 
     @Test
@@ -96,7 +97,7 @@ public class JavafxcTaskTest {
         JavafxcTool instance = new JavafxcTool();
         JavafxcTask task = instance.getTask(null, null, null, null, null);
         Iterable<? extends JavaFileObject> result = task.generate();
-        assertFalse(result.iterator().hasNext());
+        assertFalse("unexpected file objects returned", result.iterator().hasNext());
     }
 
     @Test
@@ -105,7 +106,7 @@ public class JavafxcTaskTest {
         JavafxcTool instance = new JavafxcTool();
         JavafxcTask task = instance.getTask(null, null, null, null, null);
         TypeMirror result = task.getTypeMirror(path);
-        assertNull(result);
+        assertNull("unexpected TypeMirror returned", result);
     }
 
     @Test
@@ -113,7 +114,7 @@ public class JavafxcTaskTest {
         JavafxcTool instance = new JavafxcTool();
         JavafxcTask task = instance.getTask(null, null, null, null, null);
         Elements result = task.getElements();
-        assertNotNull(result);
+        assertNotNull("unexpected Elements instance returned", result);
     }
 
     @Test
@@ -121,7 +122,7 @@ public class JavafxcTaskTest {
         JavafxcTool instance = new JavafxcTool();
         JavafxcTask task = instance.getTask(null, null, null, null, null);
         Types result = task.getTypes();
-        assertNotNull(result);
+        assertNotNull("unexpected Types instance returned", result);
     }
 
     static class MockDiagnosticListener<T> implements DiagnosticListener<T> {
@@ -130,6 +131,9 @@ public class JavafxcTaskTest {
 	    System.err.println(d);
 	}
 
-	List<String> diagCodes = new ArrayList<String>();
+	public List<String> diagCodes = new ArrayList<String>();
+        public int errors() {
+            return diagCodes.size();
+        }
     }
 }
