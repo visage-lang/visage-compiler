@@ -138,46 +138,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 	    return (T)result; // XXX cast
 	}
     }
-    
-    /**  Visitor method: translate a list of variable definitions.
-     */
-    public List<JCVariableDecl> translateVarDefs(List<JCVariableDecl> trees) {
-	for (List<JCVariableDecl> l = trees; l.nonEmpty(); l = l.tail)
-	    l.head = translate(l.head);
-	return trees;
-    }
-
-    /**  Visitor method: translate a list of type parameters.
-     */
-    public List<JCTypeParameter> translateTypeParams(List<JCTypeParameter> trees) {
-	for (List<JCTypeParameter> l = trees; l.nonEmpty(); l = l.tail)
-	    l.head = translate(l.head);
-	return trees;
-    }
-
-    /**  Visitor method: translate a list of case parts of switch statements.
-     */
-    public List<JCCase> translateCases(List<JCCase> trees) {
-	for (List<JCCase> l = trees; l.nonEmpty(); l = l.tail)
-	    l.head = translate(l.head);
-	return trees;
-    }
-
-    /**  Visitor method: translate a list of catch clauses in try statements.
-     */
-    public List<JCCatch> translateCatchers(List<JCCatch> trees) {
-	for (List<JCCatch> l = trees; l.nonEmpty(); l = l.tail)
-	    l.head = translate(l.head);
-	return trees;
-    }
-
-    /**  Visitor method: translate a list of catch clauses in try statements.
-     */
-    public List<JCAnnotation> translateAnnotations(List<JCAnnotation> trees) {
-	for (List<JCAnnotation> l = trees; l.nonEmpty(); l = l.tail)
-	    l.head = translate(l.head);
-	return trees;
-    }
 
     /** Visitor method: translate a list of nodes.
      */
@@ -225,14 +185,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 	return trees;
     }
 
-    /**  Visitor method: translate a list of variable definitions.
-     */
-    public List<JFXVar> translateJFXVarDefs(List<JFXVar> trees) {
-	for (List<JFXVar> l = trees; l.nonEmpty(); l = l.tail)
-	    l.head = translate(l.head);
-	return trees;
-    }
-    
     private List<JCStatement> translateStatements(List<JCStatement> stats) {
         if (stats != null)  {
             List<JCStatement> prev = null;
@@ -829,10 +781,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
          * */
         ListBuffer<JCStatement> stmts = ListBuffer.<JCStatement>lb();
-        UseSequenceBuilder builder = new UseSequenceBuilder(tree.pos(), tree.type.getTypeArguments().head);
+        Type elemType = tree.type.getTypeArguments().head;
+        UseSequenceBuilder builder = new UseSequenceBuilder(tree.pos(), elemType);
         stmts.append(builder.makeTmpVar());
         for (JCExpression item : tree.getItems()) {
-            stmts.append(builder.makeAdd( translate( item ) ) );
+            stmts.append(builder.makeAdd( item ) );
         }
         result = makeBlockExpression(tree.pos(), stmts, builder.makeToSequence());
     }
@@ -1054,12 +1007,27 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
          
         JCStatement makeAdd(JCExpression exprToAdd) {
+            JCExpression expr = translate(exprToAdd);
+            Type exprType = exprToAdd.type;
+            if (exprType != elemType) {
+                Type unboxedElemType = types.unboxedType(elemType);
+                if (unboxedElemType != Type.noType) {
+                    Type unboxedExprType = types.unboxedType(exprType);
+                    if (unboxedExprType != Type.noType) {
+                            expr = make.at(diagPos).TypeCast(unboxedExprType, expr);
+                            exprType = unboxedExprType;
+                    }
+                    if (exprType.tag == TypeTags.INT && unboxedElemType.tag == TypeTags.DOUBLE) {
+                        expr = make.at(diagPos).TypeCast(unboxedElemType, expr);
+                    }
+                } 
+             }
             JCMethodInvocation addCall = make.Apply(
                     List.<JCExpression>nil(), 
                     make.at(diagPos).Select(
                         makeTmpVarAccess(), 
                         Name.fromString(names, "add")), 
-                    List.<JCExpression>of(exprToAdd));
+                    List.<JCExpression>of(expr));
             return make.at(diagPos).Exec(addCall);
         }
 
@@ -1176,13 +1144,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
             // Compute the element type from the sequence type
             assert tree.type.getTypeArguments().size() == 1;
-            Type elemType = tree.type.getTypeArguments().get(0);
+            Type elemType = tree.type.getTypeArguments().head;
 
             UseSequenceBuilder builder = new UseSequenceBuilder(diagPos, elemType);
             stmts.append(builder.makeTmpVar());
 
             // Build innermost loop body
-            stmt = builder.makeAdd(translate(tree.getBodyExpression()));
+            stmt = builder.makeAdd( tree.getBodyExpression() );
 
             // Build the result value
             value = builder.makeToSequence();
