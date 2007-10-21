@@ -29,7 +29,7 @@ package javafx.ui;
  * Provides enumerated values for component alignment and text position
  */
 public class VerticalAlignment {
-    public attribute id: Number;
+    attribute id: Number;
     public attribute name: String;
     
     public static attribute TOP = VerticalAlignment {
@@ -43,6 +43,7 @@ public class VerticalAlignment {
         name: "MIDDLE"
     };
 
+    // TODO: can't we just standardize on CENTER?
     public static attribute CENTER = MIDDLE;
 
     public static attribute BOTTOM = VerticalAlignment {
