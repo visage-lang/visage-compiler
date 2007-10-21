@@ -294,13 +294,16 @@ public class Main {
     public int compile(String[] args) {
         Context backEndContext = new Context();
 
-        // add flags to backEndContext
+        // add -target flag to backEndContext, if specified
         options = Options.instance(backEndContext);
-        filenames = new ListBuffer<File>();
         try {
-            processArgs(CommandLine.parse(args));
+            String[] allArgs = CommandLine.parse(args);
+            for (int i = 0; i < allArgs.length; i++) {
+                if (allArgs[i].endsWith("-target") && ++i < allArgs.length)
+                    options.put("-target", allArgs[i]);
+            }
         } catch (IOException e) {
-            // ignore, will be reported later
+            // ignore: will be caught and reported on second command line parse.
         }
         options = null;
         filenames = null;
