@@ -391,6 +391,9 @@ public class JavafxCheck {
      *  @param req        The type that was required.
      */
     Type checkType(DiagnosticPosition pos, Type foundRaw, Type reqRaw) {
+        foundRaw = unMorphType(foundRaw);
+        reqRaw = unMorphType(reqRaw);
+
         Type req = deLocationize(reqRaw);
         Type found = deLocationize(foundRaw);
 	if (req.tag == ERROR)
@@ -2274,4 +2277,24 @@ public
 	return new ConversionWarner(pos, "unchecked.assign", found, expected);
     }
 
+    private Type unMorphType(Type type) {
+        if (type.tsym == typeMorpher.declLocation[TYPE_KIND_BOOLEAN].sym) {
+            return syms.booleanType;
+        } else if (type.tsym == typeMorpher.declLocation[TYPE_KIND_DOUBLE].sym) {
+            return syms.doubleType;
+        } else if (type.tsym == typeMorpher.declLocation[TYPE_KIND_INT].sym) {
+            return syms.intType;
+        }
+        else if (types.erasure(type) != type) {
+           if (types.erasure(type).tsym == typeMorpher.declLocation[TYPE_KIND_OBJECT].sym) {
+               if (type instanceof ClassType) {
+                   if (((ClassType)type).typarams_field.nonEmpty()) {
+                      return ((ClassType)type).typarams_field.head; 
+                   }
+               }
+            }
+        }
+
+        return type;
+    }
 }
