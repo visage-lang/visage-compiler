@@ -139,9 +139,8 @@ public class JavafxFileManager extends JavacFileManager {
             return isFXSourceFile ? JavaFileObject.Kind.SOURCE : delegate.getKind();
         }
 
+        @Override
         public boolean isNameCompatible(String simpleName, Kind kind) {
-            if (kind == JavaFileObject.Kind.SOURCE && isFXSourceFile)
-                return true;
             return delegate.isNameCompatible(simpleName, kind);
         }
 
@@ -159,7 +158,6 @@ public class JavafxFileManager extends JavacFileManager {
             return delegate.toUri();
         }
 
-        @Override
         public String getName() {
             return delegate.getName();
         }
