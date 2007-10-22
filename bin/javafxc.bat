@@ -10,11 +10,12 @@ set _JAVAFXC_HOME=%~dp0..
 if "%JAVA_HOME%" == "" goto noJavaHome
 if not exist "%JAVA_HOME%\bin\java.exe" goto noJavaHome
 if "%_JAVACMD%" == "" set _JAVACMD=%JAVA_HOME%\bin\java.exe
-goto runCompiler
+goto setArguments
 
 :noJavaHome
 if "%_JAVACMD%" == "" set _JAVACMD=java.exe
 
+:setArguments
 set _CMD_LINE_ARGS=%1
 if ""%1""=="""" goto runCompiler
 shift
