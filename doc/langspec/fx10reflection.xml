@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
   "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+
 <?xml-stylesheet href="docbook.css" type="text/css"?>
 <chapter id="Reflection">
 <title>Reflection</title>
@@ -13,7 +14,7 @@
 <sect1 id="refintro"><title>Reflection Introduction</title>
 <para>
 <emphasis>
-This Chapter will list and explain JavaFX Script exception handling. 
+This Chapter will list and explain JavaFX Script reflection mechanisms. 
 </emphasis>
 
 </para>
@@ -21,10 +22,7 @@ This Chapter will list and explain JavaFX Script exception handling.
 
 <sect2 id="rquestions"><title>Questions</title>
 <para>
-<emphasis>
-We need a complete briefing that covers the way JavaFX handles exceptions, how JFX handles Java exceptions, and what the keywords syntactical forms and programming mechanisms are.  
-</emphasis>
-
+Questions will go here.
 </para></sect2>
 </sect1>
 
