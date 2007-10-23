@@ -32,6 +32,8 @@ public class MouseEvent {
     public attribute x: Number;
     public attribute y: Number;
     
+    //TODO JFXC-39 and JFXC-40
+    //private function containsModifier(mod:KeyModifier):Boolean {
     public function containsModifier(mod:KeyModifier):Boolean {
         //TODO this used to be mod in Modifiers, do this until and if
         // an alternative is implemented
