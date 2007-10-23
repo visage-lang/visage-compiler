@@ -27,6 +27,6 @@ package javafx.ui;
 import java.io.File;
 
 public class FileFilter {
-    public attribute filter: function(File)Boolean;
+    public attribute filter: function(:File):Boolean;
     public attribute description: String;
 }
