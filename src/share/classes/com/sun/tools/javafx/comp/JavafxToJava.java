@@ -586,13 +586,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
         }
         mods = make.at(diagPos).Modifiers(modFlags);
-        JCExpression typeExpresion = makeTypeTree(type, diagPos);
+        JCExpression typeExpression = makeTypeTree(type, diagPos);
+        
+        // Make all the JFX ckass types to be the type$Intf symbol.
+        // The JFX classes don't extend it's base classes anymore. They implement the base class' $Intf interface.
+        if (type != null && type.tsym != null &&
+                (type.tsym.flags_field & Flags.INTERFACE) == 0L &&
+                type.tsym.kind == Kinds.TYP && initBuilder.isJFXClass((ClassSymbol)type.tsym)) {
+            typeExpression = ((JavafxTreeMaker)make).Identifier(typeExpression.toString() + initBuilder.interfaceNameSuffix);
+        }
         
         // for class vars, initialization happens during class init, so remove
         // from here.  For local vars translate as definitional
         JCExpression init = isClassVar? null : translateVarInit(tree, false).first;
         
-        result = make.at(diagPos).VarDef(mods, tree.name, typeExpresion, init);         
+        result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);         
     }
 
     @Override
