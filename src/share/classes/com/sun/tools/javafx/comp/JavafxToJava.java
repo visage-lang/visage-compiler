@@ -567,6 +567,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitVar(JFXVar tree) {
+        // Fix for JFXC-69
+        if (tree.type == syms.javafx_StringType && tree.init == null) {
+            tree.init = make.Literal("");
+        }
+
         DiagnosticPosition diagPos = tree.pos();
         Type type = tree.type;
         JCModifiers mods = tree.getModifiers();
