@@ -1059,8 +1059,23 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
         
     public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos) {
+        return makeTypeTree(t, diagPos, false);
+    }
+    
+    public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos, boolean makeIntf) {
         if (t.tag == TypeTags.CLASS) {
+// TODO: Enable the code below when Completion order is resolved
             JCExpression texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString());
+//            JCExpression texp = null;
+
+//            if (makeIntf && t.tsym instanceof ClassSymbol && initBuilder.isJFXClass((ClassSymbol)t.tsym) &&
+//                    !t.tsym.getQualifiedName().toString().endsWith(initBuilder.interfaceNameSuffix.toString())) {
+//                 texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString() + initBuilder.interfaceNameSuffix.toString());
+//            }
+//            else {
+//                texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString());
+//            }
+// TODO: end
             // Type outer = t.getEnclosingType();
             if (!t.getTypeArguments().isEmpty()) {
                 List<JCExpression> targs = List.<JCExpression>nil();

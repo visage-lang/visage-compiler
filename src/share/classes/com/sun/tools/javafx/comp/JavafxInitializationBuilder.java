@@ -38,6 +38,7 @@ import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.ListBuffer;
@@ -115,7 +116,7 @@ public class JavafxInitializationBuilder {
         locationName = names.fromString("location");
         setDefaultsName = names.fromString("setDefaults$");
         userInitName = names.fromString("userInit$");
-        receiverName = names.fromString("receiver");
+        receiverName = names.fromString("receiver$");
         initializeName = names.fromString("initialize$");
         numberFieldsName = names.fromString("NUM$FIELDS");
         getNumFieldsName = names.fromString("getNumFields$");
@@ -421,6 +422,24 @@ public class JavafxInitializationBuilder {
                     methodDecl.mods.flags &= ~Flags.PRIVATE;
                     methodDecl.mods.flags |= Flags.PUBLIC;
                 }
+                
+                if (methodDecl.restype != null && TreeInfo.symbol(methodDecl.restype) != null) {
+                    Symbol s = TreeInfo.symbol(methodDecl.restype);
+                    if (s != null && s.kind == Kinds.TYP) {
+                        if (isJFXClass((ClassSymbol)TreeInfo.symbol(methodDecl.restype))) {
+                            methodDecl.restype = make.Identifier(methodDecl.restype.toString() + interfaceNameSuffix.toString());
+                        }
+                    }
+                }
+                
+                for (JCVariableDecl varDecl : methodDecl.params) {
+                    Symbol s = TreeInfo.symbol(varDecl.vartype);
+                    if (s != null && s.kind == Kinds.TYP) {
+                        if (isJFXClass((ClassSymbol)TreeInfo.symbol(varDecl.vartype))) {
+                            varDecl.vartype = make.Identifier(varDecl.vartype.toString() + interfaceNameSuffix.toString());
+                        }
+                    }                    
+                }
 
                 iDefinitions = iDefinitions.append(methodDecl);
             }
@@ -498,6 +517,7 @@ public class JavafxInitializationBuilder {
                     ((((JCMethodDecl)meth).mods.flags & Flags.STATIC) == 0)) { // TODO: Deal with static and abstarct. The design doesn't say anything about that.
 
                 JCMethodDecl methodDecl = make.MethodDef(((JCMethodDecl)meth).sym, null);
+                
                 // Made all the operations public. Per Brian's spec.
                 // If they are left package level it interfere with Multiple Inheritance
                 // The interface methods cannot be package level and an error is reported.
@@ -506,13 +526,42 @@ public class JavafxInitializationBuilder {
                     methodDecl.mods.flags &= ~Flags.PRIVATE;
                     methodDecl.mods.flags |= Flags.PROTECTED | Flags.STATIC;
                 }
+// TODO: Enable the below when completion order is resolved
+//                if (((JCMethodDecl)meth).restype != null && ((MethodType)((JCMethodDecl)meth).type) != null &&
+//                        ((MethodType)((JCMethodDecl)meth).type).restype != null && ((MethodType)((JCMethodDecl)meth).type).restype.tsym != null) {
+//                    Symbol s = ((MethodType)((JCMethodDecl)meth).type).restype.tsym;
+//                    if (s != null && s.kind == Kinds.TYP) {
+//                        if (isJFXClass((ClassSymbol)s)) {
+//                            ((JCMethodDecl)meth).restype = make.Identifier(((JCMethodDecl)meth).restype.toString() + interfaceNameSuffix.toString());
+//                        }
+//                    }
+//                }
+// TODO: end
+
+                if (methodDecl.restype != null && TreeInfo.symbol(methodDecl.restype) != null) {
+                    Symbol s = TreeInfo.symbol(methodDecl.restype);
+                    if (s != null && s.kind == Kinds.TYP) {
+                        if (isJFXClass((ClassSymbol)TreeInfo.symbol(methodDecl.restype))) {
+                            methodDecl.restype = make.Identifier(methodDecl.restype.toString() + interfaceNameSuffix.toString());
+                        }
+                    }
+                }
+
+                for (JCVariableDecl varDecl : methodDecl.params) {
+                    Symbol s = TreeInfo.symbol(varDecl.vartype);
+                    if (s != null && s.kind == Kinds.TYP) {
+                        if (isJFXClass((ClassSymbol)TreeInfo.symbol(varDecl.vartype))) {
+                            varDecl.vartype = make.Identifier(varDecl.vartype.toString() + interfaceNameSuffix.toString());
+                        }
+                    }                    
+                }
+
 
                 // Create the parameter list for the body statements
                 List<JCStatement> methodStats = List.<JCStatement>nil();
                 List<JCExpression> statBodyArgs = List.<JCExpression>nil();
                 
                 statBodyArgs = statBodyArgs.append(make.Ident(names._this));
-
                 for (JCVariableDecl var : methodDecl.params) {
                     statBodyArgs = statBodyArgs.append(make.Ident(var.name));
                 }
@@ -567,6 +616,7 @@ public class JavafxInitializationBuilder {
 
                 JCBlock mthBody = make.Block(0L, newMthStats);
                 JCMethodDecl newMethod = make.MethodDef(mth, mthBody);
+                newMethod.pos = Position.NOPOS;
                 // Made all the operations public. Per Brian's spec.
                 // If they are left package level it interfere with Multiple Inheritance
                 // The interface methods cannot be package level and an error is reported.
@@ -574,6 +624,23 @@ public class JavafxInitializationBuilder {
                     newMethod.mods.flags &= ~Flags.PROTECTED;
                     newMethod.mods.flags &= ~Flags.PRIVATE;
                     newMethod.mods.flags |= Flags.PUBLIC;
+                }
+                if (newMethod.restype != null && TreeInfo.symbol(newMethod.restype) != null) {
+                    Symbol s = TreeInfo.symbol(newMethod.restype);
+                    if (s != null && s.kind == Kinds.TYP) {
+                        if (isJFXClass((ClassSymbol)TreeInfo.symbol(newMethod.restype))) {
+                            newMethod.restype = make.Identifier(newMethod.restype.toString() + interfaceNameSuffix.toString());
+                        }
+                    }
+                }
+                
+                for (JCVariableDecl varDecl : newMethod.params) {
+                    Symbol s = TreeInfo.symbol(varDecl.vartype);
+                    if (s != null && s.kind == Kinds.TYP) {
+                        if (isJFXClass((ClassSymbol)TreeInfo.symbol(varDecl.vartype))) {
+                            varDecl.vartype = make.Identifier(varDecl.vartype.toString() + interfaceNameSuffix.toString());
+                        }
+                    }                    
                 }
 
                 cdecl.defs = cdecl.defs.append(newMethod);

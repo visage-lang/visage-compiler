@@ -322,7 +322,26 @@ public class JavafxTypeMorpher {
                   vmi.getRealType().getTypeArguments()
                 : List.of(vmi.getRealType());
             Type clazzOuter = declLocationType(vmi.getTypeKind()).getEnclosingType();
+// TODO: Enable the below when completionorder is resolved
+//            List<Type> newActuals = List.<Type>nil();
+//            actualsLabel: for (Type t : actuals) {
+//                if ((t.tsym instanceof ClassSymbol) &&
+//                        initBuilder.isJFXClass((ClassSymbol)t.tsym)) {
+//                    String str = t.tsym.flatName().toString().replace("$", ".");
+//                    String strLookFor = str + initBuilder.interfaceNameSuffix.toString();
+//                    Type tp = reader.enterClass(names.fromString(strLookFor)).type;
+//                    if (tp != null) {
+//                        newActuals = newActuals.append(tp);
+//                        break actualsLabel;
+//                    }
+//                }
+//                
+//                newActuals = newActuals.append(t);
+//            }
+// 
+//            newType = new ClassType(clazzOuter, newActuals, aLocationType.tsym);
             newType = new ClassType(clazzOuter, actuals, aLocationType.tsym);
+// TODO: end
         } else {
             newType = aLocationType;
         }
@@ -587,7 +606,7 @@ public class JavafxTypeMorpher {
         JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, makeName);
         List<JCExpression> typeArgs = null;
         if (vmi.getTypeKind() == TYPE_KIND_OBJECT) {
-            typeArgs = List.of(toJava.makeTypeTree(vmi.getRealType(), diagPos));
+            typeArgs = List.of(toJava.makeTypeTree(vmi.getRealType(), diagPos, true));
         }
         return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
     }
