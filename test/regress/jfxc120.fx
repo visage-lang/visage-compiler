@@ -1,7 +1,7 @@
 /*
  * Regression test: attributes and functions in "new"
  *
- * @TODO:test
+ * @test
  * @run
  */
 
@@ -12,7 +12,7 @@ public abstract class X {
 }
 
 
-var xx = X {
+var xx : X = X {
    attribute whistle = 77;
    function blah() { whistle * 2 }
 };
