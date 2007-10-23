@@ -32,9 +32,6 @@ public class MouseEvent {
     public attribute x: Number;
     public attribute y: Number;
     
-    //TODO JXFC-142 - fix private translation to interface
-    //private function containsModifier(mod:KeyModifier):Boolean {
-    /***
     public function containsModifier(mod:KeyModifier):Boolean {
         //TODO this used to be mod in Modifiers, do this until and if
         // an alternative is implemented
@@ -47,51 +44,18 @@ public class MouseEvent {
         };
         return rc;
     }
-     * ***/
     
     public function isControlDown():Boolean {
-        //this.containsModifier(KeyModifier.CTRL);
-        var rc = false;
-        foreach( m in modifiers) {
-            if(m == KeyModifier.CTRL) {
-                rc = true;
-                break;
-            }
-        };
-        return rc;
+        return this.containsModifier(KeyModifier.CTRL);
     }
     public function isAltDown():Boolean {
-        ///this.containsModifier(KeyModifier.ALT);
-        var rc = false;
-        foreach( m in modifiers) {
-            if(m == KeyModifier.ALT) {
-                rc = true;
-                break;
-            }
-        };
-        return rc;
+        return this.containsModifier(KeyModifier.ALT);
     }
     public function isShiftDown():Boolean {
-        //this.containsModifier(KeyModifier.SHIFT);
-        var rc = false;
-        foreach( m in modifiers) {
-            if(m == KeyModifier.SHIFT) {
-                rc = true;
-                break;
-            }
-        };
-        return rc;
+        return this.containsModifier(KeyModifier.SHIFT);
     }
     public function isMetaDown():Boolean {
-        //this.containsModifier(KeyModifier.META);
-        var rc = false;
-        foreach( m in modifiers) {
-            if(m == KeyModifier.META) {
-                rc = true;
-                break;
-            }
-        };
-        return rc;
+        return this.containsModifier(KeyModifier.META);
     }
     public function isPopupTrigger():Boolean{
         this.source.isPopupTrigger();
