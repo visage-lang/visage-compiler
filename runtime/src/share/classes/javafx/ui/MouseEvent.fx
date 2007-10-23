@@ -31,22 +31,11 @@ public class MouseEvent {
     public attribute button: Number;
     public attribute x: Number;
     public attribute y: Number;
-    public function isControlDown():Boolean {
-        return containsModifier(KeyModifier.CTRL);
-    }
-    public function isAltDown():Boolean{
-        return containsModifier(KeyModifier.ALT);
-    }
-    public function isShiftDown():Boolean{
-        return containsModifier(KeyModifier.SHIFT);
-    }
-    public function isMetaDown():Boolean{
-        return containsModifier(KeyModifier.META);
-    }
-    public function isPopupTrigger():Boolean{
-        return source.isPopupTrigger();
-    }
-    private function containsModifier(mod:KeyModifier):Boolean {
+    
+    //TODO JXFC-142 - fix private translation to interface
+    //private function containsModifier(mod:KeyModifier):Boolean {
+    /***
+    public function containsModifier(mod:KeyModifier):Boolean {
         //TODO this used to be mod in Modifiers, do this until and if
         // an alternative is implemented
         var rc = false;
@@ -55,9 +44,59 @@ public class MouseEvent {
                 rc = true;
                 break;
             }
-        }
+        };
         return rc;
     }
+     * ***/
+    
+    public function isControlDown():Boolean {
+        //this.containsModifier(KeyModifier.CTRL);
+        var rc = false;
+        foreach( m in modifiers) {
+            if(m == KeyModifier.CTRL) {
+                rc = true;
+                break;
+            }
+        };
+        return rc;
+    }
+    public function isAltDown():Boolean {
+        ///this.containsModifier(KeyModifier.ALT);
+        var rc = false;
+        foreach( m in modifiers) {
+            if(m == KeyModifier.ALT) {
+                rc = true;
+                break;
+            }
+        };
+        return rc;
+    }
+    public function isShiftDown():Boolean {
+        //this.containsModifier(KeyModifier.SHIFT);
+        var rc = false;
+        foreach( m in modifiers) {
+            if(m == KeyModifier.SHIFT) {
+                rc = true;
+                break;
+            }
+        };
+        return rc;
+    }
+    public function isMetaDown():Boolean {
+        //this.containsModifier(KeyModifier.META);
+        var rc = false;
+        foreach( m in modifiers) {
+            if(m == KeyModifier.META) {
+                rc = true;
+                break;
+            }
+        };
+        return rc;
+    }
+    public function isPopupTrigger():Boolean{
+        this.source.isPopupTrigger();
+    }
+
     public attribute source: java.awt.event.MouseEvent;
 }
 
