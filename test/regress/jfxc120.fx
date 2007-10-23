@@ -12,7 +12,7 @@ public abstract class X {
 }
 
 
-var xx : X = X {
+var xx = X {
    attribute whistle = 77;
    function blah() { whistle * 2 }
 };
