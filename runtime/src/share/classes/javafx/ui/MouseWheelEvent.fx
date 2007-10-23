@@ -25,10 +25,7 @@
 
 package javafx.ui;
 
-//TODO JXFC-141 Compiler Exception
-//public class MouseWheelEvent extends MouseEvent {
-public class MouseWheelEvent  {
-    
+public class MouseWheelEvent extends MouseEvent {
      public attribute scrollType: MouseWheelScrollType;
      public attribute wheelRotation: Number;
      public attribute scrollAmount: Number;
