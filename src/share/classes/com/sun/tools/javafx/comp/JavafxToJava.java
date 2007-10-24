@@ -1637,7 +1637,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 if (initBuilder.isJFXClass((ClassSymbol)sym.owner)) {
                     JCExpression receiver = null;
                     if (tree.getTag() == JCTree.SELECT) {
-                        if (receiverName != null) {
+                        if (receiverName != null && ((JCFieldAccess)tree).selected.getTag() != JCTree.APPLY) {
                             receiver = make.Select(((JCFieldAccess)tree).selected, receiverName);
                         }
                         else {
