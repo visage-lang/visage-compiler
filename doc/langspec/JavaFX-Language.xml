@@ -24,10 +24,10 @@
 <xi:include href="fx09exceptions.xml"  parse="xml"/>
 <xi:include href="fx10reflection.xml"  parse="xml"/>  
 
-
+<!-- files not committed to repository
 <xi:include href="fx11java.xml"  parse="xml"/>
 <xi:include href="fx12libraries.xml"  parse="xml"/>  
-  
+-->  
 
 
 </book>
