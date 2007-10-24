@@ -23,7 +23,7 @@
  * have any questions.
  */
 
-package com.sun.tools.javafx.api;
+package com.sun.javafx.api;
 
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;

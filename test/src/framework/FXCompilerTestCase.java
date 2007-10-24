@@ -25,7 +25,7 @@
 
 package framework;
 
-import com.sun.tools.javafx.api.JavafxCompiler;
+import com.sun.javafx.api.JavafxCompiler;
 import junit.framework.TestCase;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.filters.StringInputStream;

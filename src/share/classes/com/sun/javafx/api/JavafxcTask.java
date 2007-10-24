@@ -23,12 +23,12 @@
  * have any questions.
  */
 
-package com.sun.tools.javafx.api;
+package com.sun.javafx.api;
 
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.util.TaskListener;
-import com.sun.tools.javafx.api.JavafxCompiler.CompilationTask;
+import com.sun.javafx.api.JavafxCompiler.CompilationTask;
 import java.io.IOException;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
