@@ -215,11 +215,14 @@ public class FXCompilerTestCase extends TestCase {
             iterator = (Iterator<?>) result;
         } catch (Throwable t) {
             t.printStackTrace();
-            throw new AssertionError("Failed accessing ServiceLoader: " + t);
+            fail("Failed accessing ServiceLoader: " + t);
+            throw new AssertionError(); // not executed
         }
 
-        if (!iterator.hasNext())
-            throw new AssertionError("No JavaFX Script compiler found");
+        if (!iterator.hasNext()) {
+            fail("No JavaFX Script compiler found");
+            throw new AssertionError(); // not executed
+        }
         return (JavafxCompiler)iterator.next();
     }
 }
