@@ -1,7 +1,7 @@
 /*
  * Regression test: translation within if
  *
- * @TODO:test
+ * @test
  */
 
 class Cursor {}

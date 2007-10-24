@@ -61,7 +61,7 @@ public class JavafxTypeMorpher {
             new Context.Key<JavafxTypeMorpher>();
     
     private final Name.Table names;
-    private final ClassReader reader;
+    final ClassReader reader;
     private final TreeMaker make;
     private final JavafxSymtab syms;
     private final Log log;
@@ -322,26 +322,25 @@ public class JavafxTypeMorpher {
                   vmi.getRealType().getTypeArguments()
                 : List.of(vmi.getRealType());
             Type clazzOuter = declLocationType(vmi.getTypeKind()).getEnclosingType();
-// TODO: Enable the below when completionorder is resolved
-//            List<Type> newActuals = List.<Type>nil();
-//            actualsLabel: for (Type t : actuals) {
-//                if ((t.tsym instanceof ClassSymbol) &&
-//                        initBuilder.isJFXClass((ClassSymbol)t.tsym)) {
-//                    String str = t.tsym.flatName().toString().replace("$", ".");
-//                    String strLookFor = str + initBuilder.interfaceNameSuffix.toString();
-//                    Type tp = reader.enterClass(names.fromString(strLookFor)).type;
-//                    if (tp != null) {
-//                        newActuals = newActuals.append(tp);
-//                        break actualsLabel;
-//                    }
-//                }
-//                
-//                newActuals = newActuals.append(t);
-//            }
-// 
-//            newType = new ClassType(clazzOuter, newActuals, aLocationType.tsym);
-            newType = new ClassType(clazzOuter, actuals, aLocationType.tsym);
-// TODO: end
+
+            List<Type> newActuals = List.<Type>nil();
+            actualsLabel: for (Type t : actuals) {
+                if ((t.tsym instanceof ClassSymbol) &&
+                        initBuilder.isJFXClass((ClassSymbol)t.tsym)) {
+                    String str = t.tsym.flatName().toString().replace("$", ".");
+                    String strLookFor = str + initBuilder.interfaceNameSuffix.toString();
+                    Type tp = reader.enterClass(names.fromString(strLookFor)).type;
+                    tp.tsym.completer = null;
+                    if (tp != null) {
+                        newActuals = newActuals.append(tp);
+                        break actualsLabel;
+                    }
+                }
+                
+                newActuals = newActuals.append(t);
+            }
+ 
+            newType = new ClassType(clazzOuter, newActuals, aLocationType.tsym);
         } else {
             newType = aLocationType;
         }
@@ -571,7 +570,7 @@ public class JavafxTypeMorpher {
         JCMethodDecl getMethod = make.at(diagPos).MethodDef(
                 make.at(diagPos).Modifiers(Flags.PUBLIC), 
                 getMethodName, 
-                toJava.makeTypeTree(vmi.getRealType(), diagPos), 
+                toJava.makeTypeTree(vmi.getRealType(), diagPos, true), 
                 List.<JCTypeParameter>nil(), 
                 List.<JCVariableDecl>nil(), 
                 List.<JCExpression>nil(), 

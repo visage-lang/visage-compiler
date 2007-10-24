@@ -71,6 +71,7 @@ public class JavafxCheck {
     private final Infer infer;
     private final Target target;
     private final Source source;
+    private final JavafxInitializationBuilder initBuilder;
 // JavaFX change
     public
 // JavaFX change
@@ -105,6 +106,7 @@ public class JavafxCheck {
         source = Source.instance(context);
 	lint = Lint.instance(context);
         treeinfo = (JavafxTreeInfo)JavafxTreeInfo.instance(context);
+        initBuilder = JavafxInitializationBuilder.instance(context);
 
 	Source source = Source.instance(context);
 	allowGenerics = source.allowGenerics();
@@ -2289,12 +2291,18 @@ public
            if (types.erasure(type).tsym == typeMorpher.declLocation[TYPE_KIND_OBJECT].sym) {
                if (type instanceof ClassType) {
                    if (((ClassType)type).typarams_field.nonEmpty()) {
-                      return ((ClassType)type).typarams_field.head; 
+                       type = ((ClassType)type).typarams_field.head; 
                    }
                }
             }
         }
 
+        if (type.tsym != null && type.tsym.kind == Kinds.TYP && (type.tsym instanceof ClassSymbol)) {
+            if (type.toString().endsWith(initBuilder.interfaceNameSuffix.toString())) {
+                type = initBuilder.getClassFromIntfType(type);
+            }
+        }
+        
         return type;
     }
 }

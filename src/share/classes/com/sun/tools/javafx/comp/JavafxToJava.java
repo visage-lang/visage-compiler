@@ -80,7 +80,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private final Types types;
     private final JavafxSymtab syms;
     private final JavafxInitializationBuilder initBuilder;
-    private final JavafxTypeMorpher typeMorpher;
+    final JavafxTypeMorpher typeMorpher;
 
     /*
      * other instance information
@@ -591,16 +591,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
         }
         mods = make.at(diagPos).Modifiers(modFlags);
-        JCExpression typeExpression = makeTypeTree(type, diagPos);
-        
-        // Make all the JFX ckass types to be the type$Intf symbol.
-        // The JFX classes don't extend it's base classes anymore. They implement the base class' $Intf interface.
-        if (type != null && type.tsym != null &&
-                (type.tsym.flags_field & Flags.INTERFACE) == 0L &&
-                type.tsym.kind == Kinds.TYP && initBuilder.isJFXClass((ClassSymbol)type.tsym)) {
-            typeExpression = ((JavafxTreeMaker)make).Identifier(typeExpression.toString() + initBuilder.interfaceNameSuffix);
-        }
-        
+        JCExpression typeExpression = makeTypeTree(type, diagPos, true);
+
         // for class vars, initialization happens during class init, so remove
         // from here.  For local vars translate as definitional
         JCExpression init = isClassVar? null : translateVarInit(tree, false).first;
@@ -977,7 +969,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     class UseSequenceBuilder {
         final DiagnosticPosition diagPos;
-        final Type elemType;
+        Type elemType;
         
         Name sbName;
         
@@ -988,6 +980,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         JCStatement makeTmpVar() {
             // Build the type declaration expression for the sequence builder
+            if (elemType.tsym != null &&
+                    elemType.tsym instanceof ClassSymbol &&
+                    initBuilder.isJFXClass((ClassSymbol)elemType.tsym)) {
+                String str = elemType.tsym.flatName().toString().replace("$", ".");
+                String strLookFor = str + initBuilder.interfaceNameSuffix.toString();
+                elemType = typeMorpher.reader.enterClass(names.fromString(strLookFor)).type;
+
+            }
+
             JCExpression builderTypeExpr = makeQualifiedTree(diagPos, sequenceBuilderString);
             List<JCExpression> btargs = List.<JCExpression>of(makeTypeTree(elemType, diagPos));
             builderTypeExpr = make.at(diagPos).TypeApply(builderTypeExpr, btargs);
@@ -999,6 +1000,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             List<JCExpression> args = List.<JCExpression>of( make.at(diagPos).Select(
                 makeTypeTree(elemType, diagPos), 
                 names._class));               
+
             JCExpression newExpr = make.at(diagPos).NewClass(
                 null,                               // enclosing
                 List.<JCExpression>nil(),           // type args
@@ -1058,8 +1060,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     JCExpression makeEmptySeuenceCreator(DiagnosticPosition diagPos, Type elemType) {
         JCExpression meth = makeQualifiedTree(diagPos, sequencesEmptyString);
         ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb();
-        args.append(make.at(diagPos).Select(makeTypeTree(elemType, diagPos), names._class));
-        List<JCExpression> typeArgs = List.<JCExpression>of(makeTypeTree(elemType, diagPos));
+        args.append(make.at(diagPos).Select(makeTypeTree(elemType, diagPos, true), names._class));
+        List<JCExpression> typeArgs = List.<JCExpression>of(makeTypeTree(elemType, diagPos, true));
         return make.at(diagPos).Apply(typeArgs, meth, args.toList());
     }
         
@@ -1069,23 +1071,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos, boolean makeIntf) {
         if (t.tag == TypeTags.CLASS) {
-// TODO: Enable the code below when Completion order is resolved
-            JCExpression texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString());
-//            JCExpression texp = null;
+            JCExpression texp = null;
 
-//            if (makeIntf && t.tsym instanceof ClassSymbol && initBuilder.isJFXClass((ClassSymbol)t.tsym) &&
-//                    !t.tsym.getQualifiedName().toString().endsWith(initBuilder.interfaceNameSuffix.toString())) {
-//                 texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString() + initBuilder.interfaceNameSuffix.toString());
-//            }
-//            else {
-//                texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString());
-//            }
-// TODO: end
+            if (makeIntf && t.tsym instanceof ClassSymbol && initBuilder.isJFXClass((ClassSymbol)t.tsym) &&
+                    !t.tsym.getQualifiedName().toString().endsWith(initBuilder.interfaceNameSuffix.toString())) {
+                 texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString() + initBuilder.interfaceNameSuffix.toString());
+            }
+            else {
+                texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString());
+            }
+
             // Type outer = t.getEnclosingType();
             if (!t.getTypeArguments().isEmpty()) {
                 List<JCExpression> targs = List.<JCExpression>nil();
                 for (Type ta : t.getTypeArguments()) {
-                    targs = targs.append(makeTypeTree(ta, diagPos));
+                    targs = targs.append(makeTypeTree(ta, diagPos, makeIntf ? true: false));
                 }
                 texp = make.at(diagPos).TypeApply(texp, targs);
             }

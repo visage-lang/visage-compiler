@@ -526,17 +526,16 @@ public class JavafxInitializationBuilder {
                     methodDecl.mods.flags &= ~Flags.PRIVATE;
                     methodDecl.mods.flags |= Flags.PROTECTED | Flags.STATIC;
                 }
-// TODO: Enable the below when completion order is resolved
-//                if (((JCMethodDecl)meth).restype != null && ((MethodType)((JCMethodDecl)meth).type) != null &&
-//                        ((MethodType)((JCMethodDecl)meth).type).restype != null && ((MethodType)((JCMethodDecl)meth).type).restype.tsym != null) {
-//                    Symbol s = ((MethodType)((JCMethodDecl)meth).type).restype.tsym;
-//                    if (s != null && s.kind == Kinds.TYP) {
-//                        if (isJFXClass((ClassSymbol)s)) {
-//                            ((JCMethodDecl)meth).restype = make.Identifier(((JCMethodDecl)meth).restype.toString() + interfaceNameSuffix.toString());
-//                        }
-//                    }
-//                }
-// TODO: end
+
+                if (((JCMethodDecl)meth).restype != null && ((MethodType)((JCMethodDecl)meth).type) != null &&
+                        ((MethodType)((JCMethodDecl)meth).type).restype != null && ((MethodType)((JCMethodDecl)meth).type).restype.tsym != null) {
+                    Symbol s = ((MethodType)((JCMethodDecl)meth).type).restype.tsym;
+                    if (s != null && s.kind == Kinds.TYP) {
+                        if (isJFXClass((ClassSymbol)s)) {
+                            ((JCMethodDecl)meth).restype = make.Identifier(((JCMethodDecl)meth).restype.toString() + interfaceNameSuffix.toString());
+                        }
+                    }
+                }
 
                 if (methodDecl.restype != null && TreeInfo.symbol(methodDecl.restype) != null) {
                     Symbol s = TreeInfo.symbol(methodDecl.restype);
@@ -1064,5 +1063,20 @@ public class JavafxInitializationBuilder {
             this.type = type;
             this.name = name;
         }
+    }
+    
+    Type getClassFromIntfType(Type type) {
+        if (type != null && type.tsym != null &&
+                type.tsym.kind == Kinds.TYP) {
+            String str = type.tsym.flatName().toString();
+            String intfNameStr = interfaceNameSuffix.toString();
+            if (str.endsWith(intfNameStr)) {
+                String strLookFor = str.substring(0,str.length() - intfNameStr.length());
+                strLookFor = strLookFor.replace("$", ".");
+                type = toJava.typeMorpher.reader.enterClass(names.fromString(strLookFor)).type;
+                type.tsym.completer = null;
+            }
+        }
+        return type;
     }
 }
