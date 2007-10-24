@@ -1064,19 +1064,4 @@ public class JavafxInitializationBuilder {
             this.name = name;
         }
     }
-    
-    Type getClassFromIntfType(Type type) {
-        if (type != null && type.tsym != null &&
-                type.tsym.kind == Kinds.TYP) {
-            String str = type.tsym.flatName().toString();
-            String intfNameStr = interfaceNameSuffix.toString();
-            if (str.endsWith(intfNameStr)) {
-                String strLookFor = str.substring(0,str.length() - intfNameStr.length());
-                strLookFor = strLookFor.replace("$", ".");
-                type = toJava.typeMorpher.reader.enterClass(names.fromString(strLookFor)).type;
-                type.tsym.completer = null;
-            }
-        }
-        return type;
-    }
 }

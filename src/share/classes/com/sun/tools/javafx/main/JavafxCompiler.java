@@ -794,9 +794,11 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             }
             case BY_TODO: {
                 ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
-                while (todo.nonEmpty())
-                    envbuff.appendList(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo.next())))));
-                backEnd(envbuff.toList(), results);
+                while (todo.nonEmpty()) {
+                    envbuff.append(attribute(todo.next()));
+                }
+                
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(envbuff.toList()))), results);
                 break;
             }
             default:
