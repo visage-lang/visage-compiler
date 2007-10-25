@@ -63,10 +63,8 @@ public static function __EASEOUT(t:Number):Number {
     return 0.1; //TODO WORKAROUND
 }
 
-//TODO FUNCTION 
-/***************
-public static function __EASE(a:Object[], t:Number, f(t:Number):Number, 
-    interpolate(value1:Object, value2:Object. t:Number):Object) : Object {
+public static function __EASE(a:Object[], t:Number, f: function(:Number):Number, 
+    interpolate: function(:Object, :Object, :Number):Object) : Object {
     
     t = f(t);
     var off = t * (sizeof a-1);
@@ -78,7 +76,6 @@ public static function __EASE(a:Object[], t:Number, f(t:Number):Number,
     var value2 = a[i+1];
     return interpolate(value1, value2, off-i);
 }
- * **************/
 
 public static function __INTERPOLATE_NUM(value1:Number, value2: Number, t:Number):Number {
     return value1 + (value2-value1)*t;
