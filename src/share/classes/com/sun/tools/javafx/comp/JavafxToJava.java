@@ -43,6 +43,7 @@ import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.TreeTranslator;
 
@@ -93,6 +94,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private JavafxBindStatus bindContext = JavafxBindStatus.UNBOUND;
     private boolean inLHS = false;
     private JavafxEnv<JavafxAttrContext> attrEnv;
+    private Target target;
+    private JavafxResolve rs;
 
     /*
      * static information
@@ -123,6 +126,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         typeMorpher = JavafxTypeMorpher.instance(context);
         initBuilder = JavafxInitializationBuilder.instance(context);
+        target = Target.instance(context);
+        rs = JavafxResolve.instance(context);
     }
     
     /** Visitor method: Translate a single node.
@@ -747,13 +752,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     public void visitSelect(JCFieldAccess tree) {
         DiagnosticPosition diagPos = tree.pos();
         JCExpression selected = tree.getExpression();
+        Type selectedType = selected.type;
         
         // this may or may not be in a LHS but in either
         // event the selector is a value expression
         JCExpression translatedSelected = translateLHS(selected, false);
         
-        if (selected.type != null && selected.type.isPrimitive()) { // selecetd.type is null for package symbols.
-            translatedSelected = makeBox(diagPos, translatedSelected, selected.type);
+        if (selectedType != null && selectedType.isPrimitive()) { // selecetd.type is null for package symbols.
+            translatedSelected = makeBox(diagPos, translatedSelected, selectedType);
         }
         JCFieldAccess translated = make.at(diagPos).Select(translatedSelected, tree.getIdentifier());
         // since this tree will be morphed, we need to copy the sym info
@@ -919,15 +925,46 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     body, 
                     null);
     }
-    
+
+    /** Equivalent to make.at(pos.getStartPosition()) with side effect of caching
+     *  pos as make_pos, for use in diagnostics.
+     **/
+    TreeMaker make_at(DiagnosticPosition pos) {
+        return make.at(pos);
+    }
+
+    /** Look up a method in a given scope.
+     */
+    private MethodSymbol lookupMethod(DiagnosticPosition pos, Name name, Type qual, List<Type> args) {
+	return rs.resolveInternalMethod(pos, attrEnv, qual, name, args, null);
+    }
+
+    /** Look up a constructor.
+     */
+    private MethodSymbol lookupConstructor(DiagnosticPosition pos, Type qual, List<Type> args) {
+	return rs.resolveInternalConstructor(pos, attrEnv, qual, args, null);
+    }
+
+    /** Box up a single primitive expression. */
     JCExpression makeBox(DiagnosticPosition diagPos, JCExpression translatedExpr, Type primitiveType) {
-            return make.at(diagPos).NewClass(
-                null,                               // enclosing
-                List.<JCExpression>nil(),           // type args
-                make.at(diagPos).Ident(types.boxedClass(primitiveType)),  // primitive class name
-                List.<JCExpression>of(translatedExpr),   // args
-                null                                // empty body
-                );
+	make_at(translatedExpr.pos());
+        if (target.boxWithConstructors()) {
+            Symbol ctor = lookupConstructor(translatedExpr.pos(),
+                                            types.boxedClass(primitiveType).type,
+                                            List.<Type>nil()
+                                            .prepend(primitiveType));
+            return make.Create(ctor, List.of(translatedExpr));
+        } else {
+            Symbol valueOfSym = lookupMethod(translatedExpr.pos(),
+                                             names.valueOf,
+                                             types.boxedClass(primitiveType).type,
+                                             List.<Type>nil()
+                                             .prepend(primitiveType));
+            JCExpression meth = ((JavafxTreeMaker)make).Identifier(valueOfSym.owner.type.toString() + "." + valueOfSym.name.toString());
+            TreeInfo.setSymbol(meth, valueOfSym);
+            meth.type = valueOfSym.type;
+            return make.App(meth, List.of(translatedExpr));
+        }
     }
     
     public List<JCExpression> makeThrows(DiagnosticPosition diagPos) {
