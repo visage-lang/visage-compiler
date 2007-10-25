@@ -67,7 +67,7 @@ public class FunctionType extends Type.ClassType {
                 s.append(l.head);
             }
         }
-        s.append(')');
+        s.append("):");
         s.append(restype);
         return s.toString();
     }
