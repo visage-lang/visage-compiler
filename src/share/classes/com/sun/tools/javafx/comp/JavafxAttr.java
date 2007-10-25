@@ -235,6 +235,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     Type check(JCTree tree, Type owntype, int ownkind, int pkind, Type pt) {
         if (owntype != null && owntype != syms.javafx_UnspecifiedType && owntype.tag != ERROR && pt.tag != METHOD && pt.tag != FORALL) {
 //        if (owntype.tag != ERROR && pt.tag != METHOD && pt.tag != FORALL) {
+            if ((pkind & VAL) != 0 && ownkind == MTH) {
+                ownkind = VAL;
+                if (owntype instanceof MethodType)
+                    owntype = makeFunctionType((MethodType) owntype);
+                }
             if ((ownkind & ~pkind) == 0) {
                 owntype = chk.checkType(tree.pos(), owntype, pt);
             } else {
@@ -1346,12 +1351,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // m.flags_field = chk.checkFlags(def.pos(), def.mods.flags, m, def);
         def.sym = m;
         finishOperationDefinition(def, env);
-        MethodType mtype = (MethodType) def.type;
-        Type rtype = mtype.restype;
-        ListBuffer<Type> typarams = new ListBuffer<Type>();
-        typarams.append(rtype);
-        typarams.appendList(mtype.argtypes);
-        result = tree.type = makeFunctionType(typarams, rtype);
+        result = tree.type = makeFunctionType((MethodType) def.type);
     }
     
     @Override
@@ -2455,20 +2455,35 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         Type rtype = new WildcardType(boxIfNeeded(restype), BoundKind.EXTENDS, syms.boundClass);
 
         ListBuffer<Type> typarams = new ListBuffer<Type>();
+        ListBuffer<Type> argtypes = new ListBuffer<Type>();
         typarams.append(rtype);
         int nargs = 0;
         for (JFXType param : tree.params) {
-            Type ptype = boxIfNeeded(attribType(param, env));
+            Type argtype = attribType(param, env);
+            argtypes.append(argtype);
+            Type ptype = boxIfNeeded(argtype);
             ptype = new WildcardType(ptype, BoundKind.SUPER, syms.boundClass);
             typarams.append(ptype);
             nargs++;
         }
-        Type type = makeFunctionType(typarams, restype);
-        type = sequenceType(type, tree.getCardinality());
+        MethodType mtype = new MethodType(argtypes.toList(), restype, null, syms.methodClass);
+        FunctionType ftype = makeFunctionType(typarams, restype);
+        ftype.mtype = mtype;
+        Type type = sequenceType(ftype, tree.getCardinality());
         tree.type = type;
         result = type; 
     }
-    
+
+    public FunctionType makeFunctionType(MethodType mtype) {
+        Type rtype = mtype.restype;
+        ListBuffer<Type> typarams = new ListBuffer<Type>();
+        typarams.append(rtype);
+        typarams.appendList(mtype.argtypes);
+        FunctionType ftype = makeFunctionType(typarams, rtype);
+        ftype.mtype = mtype;
+        return ftype;
+    }
+
     FunctionType makeFunctionType(ListBuffer<Type> typarams, Type restype) {
         int nargs = typarams.size()-1;
         assert nargs <= syms.MAX_FIXED_PARAM_LENGTH
@@ -3120,10 +3135,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
     protected Type capture(Type type) {
         Type ctype = types.capture(type);
-        if (type instanceof FunctionType) {
-            ctype = new FunctionType(type.getEnclosingType(), ((ClassType) type).typarams_field,
-                    type.tsym, type.getReturnType());
-        }
+        if (type instanceof FunctionType)
+            ctype = new FunctionType((FunctionType) type);
         return ctype;
     }
 }

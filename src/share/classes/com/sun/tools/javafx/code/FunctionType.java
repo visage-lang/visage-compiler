@@ -36,11 +36,39 @@ import com.sun.tools.javac.code.Symbol.TypeSymbol;
 public class FunctionType extends Type.ClassType {
 
     Type restype;
+    public MethodType mtype;
     
     public FunctionType(Type outer, List<Type> typarams, TypeSymbol tsym, Type restype) {
         super(outer, typarams, tsym);
         this.restype = restype;
     }
 
+    /** Copy constructor. */
+    public FunctionType(FunctionType orig) {
+        this(orig.getEnclosingType(), orig.typarams_field, orig.tsym, orig.restype);
+        mtype = orig.mtype;
+    }
+
     public Type              getReturnType()     { return restype; }
+    
+    public MethodType asMethodType () { return mtype; }
+    
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append("function(");
+        if (mtype == null)
+            s.append("???");
+        else {
+            List<Type> args = mtype.argtypes;
+            for (List<Type> l = args; l.nonEmpty(); l = l.tail) {
+                if (l != args)
+                    s.append(',');
+                s.append(':');
+                s.append(l.head);
+            }
+        }
+        s.append(')');
+        s.append(restype);
+        return s.toString();
+    }
 }
