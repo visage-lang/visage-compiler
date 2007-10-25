@@ -59,9 +59,9 @@ function fun2b (fparg : function(:java.lang.Number, :Integer):java.lang.Double) 
 /* These should be compile-time errors:, but we don't support
  * error tests yet. FIXME
 function fun0c (fparg : function():java.lang.Number) : Void {
-  var gparg : function()java.lang.Double = fparg;
+  var gparg : function():java.lang.Double = fparg;
 }
 function fun2c (fparg : function(:java.lang.Double, :Integer):java.lang.Double) : Void {
-  var gparg : function(java.lang.Number, Integer)java.lang.Double = fparg;
+  var gparg : function(:java.lang.Number, :Integer):java.lang.Double = fparg;
 }
 */
