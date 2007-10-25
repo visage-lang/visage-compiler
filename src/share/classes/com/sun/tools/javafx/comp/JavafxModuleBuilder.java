@@ -26,6 +26,7 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Type;
 import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.TypeTags.BOT;
 import static com.sun.tools.javac.code.TypeTags.VOID;
@@ -37,7 +38,7 @@ import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Name.Table;
-import com.sun.tools.javafx.code.JavafxBindStatus;
+import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.tree.JavafxTag.*;
 
@@ -54,6 +55,8 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     private Table names;
     private JavafxTreeMaker make;
     private Log log;
+    private JavafxSymtab syms;
+    Name tmpRunReturnName;
     private Set<Name> topLevelNamesSet;
 
     public static JavafxModuleBuilder instance(Context context) {
@@ -67,6 +70,8 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         names = Table.instance(context);
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         log = Log.instance(context);
+        syms = (JavafxSymtab)JavafxSymtab.instance(context);
+        tmpRunReturnName = names.fromString("run$return$");
     }
 
    @Override
@@ -124,7 +129,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         }
                 
         // Add run() method... If the class can be a module class.
-        moduleClassDefs.prepend(makeMethod(runMethodString, true, stats.toList()));
+        moduleClassDefs.prepend(makeMethod(runMethodString, true, stats.toList(), syms.objectType));
 
         if (moduleClass == null) {
             moduleClass =  make.ClassDeclaration(
@@ -152,17 +157,19 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         super.visitClassDeclaration(tree);
     }
 
-    private JFXOperationDefinition makeMethod(String name, boolean isStatic, List<JCStatement> stats) {
+    private JFXOperationDefinition makeMethod(String name, boolean isStatic, List<JCStatement> stats, Type returnType) {
         List<JFXVar> emptyVarList = List.nil();
-        return makeMethod(name, isStatic, stats, emptyVarList);
+        return makeMethod(name, isStatic, stats, returnType, emptyVarList);
     }
     
-    private JFXOperationDefinition makeMethod(String name, boolean isStatic, List<JCStatement> stats, List<JFXVar> params) {
+    private JFXOperationDefinition makeMethod(String name, boolean isStatic, List<JCStatement> stats, Type returnType, List<JFXVar> params) {
         JFXBlockExpression body = make.BlockExpression(0, stats, null);
+        JCExpression rettree = make.Identifier(returnType.toString());
+        rettree.type = returnType;
         return make.OperationDefinition(
                 make.Modifiers(isStatic? PUBLIC | STATIC : PUBLIC), 
                 Name.fromString(names, name), 
-                make.TypeClass(make.Ident(Name.fromString(names, "Void")), JFXType.CARDINALITY_SINGLETON),
+                make.TypeClass(rettree, JFXType.CARDINALITY_SINGLETON),
                 params, 
                 body);        
     }

@@ -82,6 +82,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private final JavafxSymtab syms;
     private final JavafxInitializationBuilder initBuilder;
     final JavafxTypeMorpher typeMorpher;
+    final private JavafxModuleBuilder moduleBuilder;
 
     /*
      * other instance information
@@ -128,6 +129,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         initBuilder = JavafxInitializationBuilder.instance(context);
         target = Target.instance(context);
         rs = JavafxResolve.instance(context);
+        moduleBuilder = JavafxModuleBuilder.instance(context);
     }
     
     /** Visitor method: Translate a single node.
@@ -675,6 +677,45 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             tree.mods.flags &= ~Flags.PROTECTED;
             tree.mods.flags &= ~Flags.PRIVATE;
             tree.mods.flags |= Flags.PUBLIC;
+        }
+        
+        if (tree.name.toString().equals(moduleBuilder.runMethodString)) {
+            JCExpression vartype = ((JavafxTreeMaker)make).Identifier(syms.objectType.toString());
+            if (vartype.getTag() == JCTree.IDENT) {
+                ((JCIdent)vartype).sym = syms.objectType.tsym;
+            }
+            else if (vartype.getTag() == JCTree.SELECT) {
+                ((JCFieldAccess)vartype).sym = syms.objectType.tsym;
+            }
+            
+            vartype.type = syms.objectType;
+            JCVariableDecl tmpVar = make.VarDef(make.Modifiers(0), moduleBuilder.tmpRunReturnName, vartype, make.Literal(TypeTags.BOT, null));
+            tmpVar.type = syms.objectType;
+            tmpVar.sym = new VarSymbol(0L, moduleBuilder.tmpRunReturnName, vartype.type, tree.sym);
+            tree.operation.bodyExpression.stats = tree.operation.bodyExpression.stats.prepend(tmpVar);
+            JCIdent value = make.Ident(moduleBuilder.tmpRunReturnName);
+            value.type = tmpVar.type;
+            value.sym = tmpVar.sym;
+            tree.operation.bodyExpression.value = value;
+            
+            JCStatement lastStat = tree.operation.bodyExpression.stats.last();
+            if (lastStat.getTag() == JCTree.EXEC) {
+                JCExpression lastStatExpr = ((JCExpressionStatement)lastStat).expr;
+                Type lastStatType = TreeInfo.types(List.<JCTree>of(lastStatExpr)).head;
+                if (lastStatType != null && lastStatType != syms.voidType) {
+                    if (lastStatType.isPrimitive()) {
+                        lastStatExpr = makeBox(lastStatExpr.pos(), lastStatExpr, lastStatType);
+                    }
+                    
+                    JCIdent lhs = make.Ident(moduleBuilder.tmpRunReturnName);
+                    lhs.type = tmpVar.type;
+                    lhs.sym = tmpVar.sym;
+                    
+                    JCExpression assign = make.Assign(lhs, lastStatExpr);
+                    assign.type = syms.objectType;
+                    ((JCExpressionStatement)lastStat).expr = assign;
+                }
+            }
         }
         
         DiagnosticPosition diagPos = tree.pos();
