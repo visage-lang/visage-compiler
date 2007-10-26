@@ -177,9 +177,8 @@ public class JavafxEnter extends JavafxTreeScanner {
      *	only, and members go into the class member scope.
      */
     public static Scope enterScope(JavafxEnv<JavafxAttrContext> env) {
-	return (env.tree.getTag() == JCTree.CLASSDEF ||
-                env.tree.getTag() == JavafxTag.CLASS_DEF)
-	    ? ((JCClassDecl) env.tree).sym.members_field
+	return (env.tree.getTag() == JavafxTag.CLASS_DEF)
+	    ? ((JFXClassDeclaration) env.tree).sym.members_field
 	    : env.info.scope;
     }
 

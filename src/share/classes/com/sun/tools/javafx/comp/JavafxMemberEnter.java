@@ -745,7 +745,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         ClassSymbol c = (ClassSymbol)sym;
         ClassType ct = (ClassType)c.type;
         JavafxEnv<JavafxAttrContext> env = enter.typeEnvs.get(c);
-        JCClassDecl tree = (JCClassDecl)env.tree;
+        JFXClassDeclaration tree = (JFXClassDeclaration)env.tree;
         boolean wasFirst = isFirst;
         isFirst = false;
 
@@ -772,7 +772,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
             // Determine supertype.
             Type supertype =
-                (tree.extending != null)
+                (tree.extending != null) // (false/*nothing really extends now*/ && tree.extending != null)  //TODO: when/if we extend Java classes, this should change
                 ? attr.attribBase(tree.extending, baseEnv, true, false, true)
                 : ((tree.mods.flags & Flags.ENUM) != 0 && !target.compilerBootstrap(c))
                 ? attr.attribBase(enumBase(tree.pos, c), baseEnv,
@@ -882,7 +882,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
     }
 
-        private JavafxEnv<JavafxAttrContext> baseEnv(JCClassDecl tree, JavafxEnv<JavafxAttrContext> env) {
+        private JavafxEnv<JavafxAttrContext> baseEnv(JFXClassDeclaration tree, JavafxEnv<JavafxAttrContext> env) {
         Scope typaramScope = new Scope(tree.sym);
         if (tree.typarams != null)
             for (List<JCTypeParameter> typarams = tree.typarams;
@@ -903,7 +903,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     private void finish(JavafxEnv<JavafxAttrContext> env) {
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
         try {
-            JCClassDecl tree = (JCClassDecl)env.tree;
+            JFXClassDeclaration tree = (JFXClassDeclaration)env.tree;
             memberEnter(tree.defs, env);
         } finally {
             log.useSource(prev);

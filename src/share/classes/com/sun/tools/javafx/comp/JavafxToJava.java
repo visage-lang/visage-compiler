@@ -272,7 +272,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         for (JCTree def : tree.defs) {
             if (def.getTag() == JavafxTag.CLASS_DEF) {
                 initBuilder.addFxClass(((JFXClassDeclaration)def).sym, (JFXClassDeclaration)def); // Add the class to the map of FX classes. The class doesn't exists when JavafxAttr is run (it used to exists.)
-                List<JCStatement> ret = initBuilder.createJFXClassModel((JCClassDecl)def, typeMorpher);
+                List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def, typeMorpher);
                 for (JCStatement retDef : ret) {
                    tdefs.append(retDef);
                 }

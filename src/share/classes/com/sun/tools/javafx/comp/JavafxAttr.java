@@ -3023,7 +3023,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
     /** Finish the attribution of a class. */
     public void attribClassBody(JavafxEnv<JavafxAttrContext> env, ClassSymbol c) {
-        JCClassDecl tree = (JCClassDecl)env.tree;
+        JFXClassDeclaration tree = (JFXClassDeclaration)env.tree;
         assert c == tree.sym;
 
         // Validate annotations
@@ -3128,7 +3128,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
 
         /** Check that an appropriate serialVersionUID member is defined. */
-        private void checkSerialVersionUID(JCClassDecl tree, ClassSymbol c) {
+        private void checkSerialVersionUID(JFXClassDeclaration tree, ClassSymbol c) {
 
             // check for presence of serialVersionUID
             Scope.Entry e = c.members().lookup(names.serialVersionUID);

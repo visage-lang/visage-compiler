@@ -27,7 +27,6 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.comp.*;
 import com.sun.tools.javac.util.*;
-import com.sun.tools.javafx.code.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.jvm.*;
@@ -35,12 +34,14 @@ import com.sun.tools.javac.tree.*;
 
 import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.tree.JCTree.*;
 
 import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.Kinds.*;
 import static com.sun.tools.javac.code.TypeTags.*;
 import javax.lang.model.element.ElementVisitor;
+
+import com.sun.tools.javafx.code.*;
+import com.sun.tools.javafx.tree.*;
 
 /** Helper class for name resolution, used mostly by the attribution phase.
  *
@@ -959,7 +960,7 @@ public class JavafxResolve {
             else if (sym.exists()) return sym;
             else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
 
-            JCClassDecl encl = env1.baseClause ? (JCClassDecl)env1.tree : env1.enclClass;
+            JFXClassDeclaration encl = env1.baseClause ? (JFXClassDeclaration)env1.tree : env1.enclClass;
             if ((encl.sym.flags() & STATIC) != 0)
                 staticOnly = true;
         }

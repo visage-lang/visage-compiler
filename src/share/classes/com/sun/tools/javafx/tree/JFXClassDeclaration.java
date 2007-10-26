@@ -37,9 +37,19 @@ import com.sun.tools.javac.code.Symbol.*;
 /**
  * A class declaration
  */
-public class JFXClassDeclaration extends JCClassDecl {
+public class JFXClassDeclaration extends JFXStatement {
     public List<JCExpression> supertypes; 
     public boolean isModuleClass = false;
+    
+        
+        public JCModifiers mods;
+        public Name name;
+        public List<JCTypeParameter> typarams;
+        public JCTree extending;
+        public List<JCExpression> implementing;
+        public List<JCTree> defs;
+        public ClassSymbol sym;
+
     
     public List<JCTree> translatedPrepends = List.<JCTree>nil();
     
@@ -49,18 +59,32 @@ public class JFXClassDeclaration extends JCClassDecl {
             List<JCExpression> implementedInterfaces,
             List<JCTree> declarations,
             ClassSymbol sym) {
-        super(mods, 
-                name, 
-                List.<JCTypeParameter>nil(), 
-                supertypes.head,     //TODO: hack.  Won't work when we have multiple inheritiance
-                implementedInterfaces, 
-                declarations, 
-                sym);
+            this.mods = mods;
+            this.name = name;
+            this.typarams = List.<JCTypeParameter>nil();
+            this.extending = supertypes.head;     //TODO: hack.  Won't work when we have multiple inheritiance
+            this.implementing = implementedInterfaces;
+            this.defs = declarations;
+            this.sym = sym;
+            
         this.supertypes = supertypes;
     }
     public void accept(JavafxVisitor v) { v.visitClassDeclaration(this); }
     public List<JCExpression> getSupertypes() { return supertypes; }
 
+
+        public JCModifiers getModifiers() { return mods; }
+        public Name getSimpleName() { return name; }
+        public List<JCTypeParameter> getTypeParameters() {
+            return typarams;
+        }
+        public JCTree getExtendsClause() { return extending; }
+        public List<JCExpression> getImplementsClause() {
+            return implementing;
+        }
+        public List<JCTree> getMembers() {
+            return defs;
+        }
 
     @Override
     public int getTag() {

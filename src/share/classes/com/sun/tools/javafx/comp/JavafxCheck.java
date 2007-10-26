@@ -798,7 +798,7 @@ public class JavafxCheck {
         }
 
         SpecialTreeVisitor sts = new SpecialTreeVisitor();
-        JCClassDecl cdef = (JCClassDecl) tree;
+        JFXClassDeclaration cdef = (JFXClassDeclaration) tree;
         for (JCTree defs: cdef.defs) {
             defs.accept(sts);
             if (sts.specialized) return 0;
@@ -1656,14 +1656,14 @@ public
 // JavaFX change
     public
 // JavaFX change
-    void checkImplementations(JCClassDecl tree) {
+    void checkImplementations(JFXClassDeclaration tree) {
 	checkImplementations(tree, tree.sym);
     }
 //where
         /** Check that all methods which implement some
 	 *  method in `ic' conform to the method they implement.
 	 */
-	void checkImplementations(JCClassDecl tree, ClassSymbol ic) {
+	void checkImplementations(JFXClassDeclaration tree, ClassSymbol ic) {
 	    ClassSymbol origin = tree.sym;
 	    for (List<Type> l = types.closure(ic.type); l.nonEmpty(); l = l.tail) {
 		ClassSymbol lc = (ClassSymbol)l.head.tsym;
@@ -1977,7 +1977,7 @@ public
 // JavaFX change
     public
 // JavaFX change
-    void checkNonCyclicElements(JCClassDecl tree) {
+    void checkNonCyclicElements(JFXClassDeclaration tree) {
         if ((tree.sym.flags_field & ANNOTATION) == 0) return;
         assert (tree.sym.flags_field & LOCKED) == 0;
         try {
@@ -2038,7 +2038,7 @@ public
 // JavaFX change
     public
 // JavaFX change
-    void checkCyclicConstructors(JCClassDecl tree) {
+    void checkCyclicConstructors(JFXClassDeclaration tree) {
 	Map<Symbol,Symbol> callMap = new HashMap<Symbol, Symbol>();
 
 	// enter each constructor this-call into the map
@@ -2064,7 +2064,7 @@ public
     /** Look in the map to see if the given constructor is part of a
      *  call cycle.
      */
-    private void checkCyclicConstructor(JCClassDecl tree, Symbol ctor,
+    private void checkCyclicConstructor(JFXClassDeclaration tree, Symbol ctor,
 					Map<Symbol,Symbol> callMap) {
 	if (ctor != null && (ctor.flags_field & ACYCLIC) == 0) {
 	    if ((ctor.flags_field & LOCKED) != 0) {
