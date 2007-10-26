@@ -1733,10 +1733,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             super.visitSelect(tree);
             result = transformTreeIfNeeded(tree, tree.sym);
         }
-// TODO: Deal with super... And this also!
+
         @Override
         public void visitIdent(JCIdent tree) {
-            if (tree.name == names._this &&
+            if ((tree.name == names._this || tree.name == names._super) &&
                     receiverName != null) {
                 JCIdent res = make.Ident(receiverName);
                 res.sym = tree.sym;

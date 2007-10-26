@@ -984,6 +984,22 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 // OK, this is probably a tad hacky, but set the element type for the onChanges
                 onc.elementType = elemType;
 
+                if (onc != null && onc.getOldValue() != null) {
+                    if (onc.getOldValue().getJFXType() instanceof JFXTypeUnknown) {
+                        onc.getOldValue().setJFXType(tree.getJFXType());
+                    }
+                    
+                    if (onc.getOldValue().type == null) {
+                        onc.getOldValue().type = tree.type;
+                    }
+                    
+                    if (onc.getOldValue().sym != null) {
+                        if (onc.getOldValue().sym != null && onc.getOldValue().sym.type == null) {
+                            onc.getOldValue().sym.type = tree.sym.type;
+                        }
+                    }
+                }
+
                 if (env.info.scope.owner.kind == TYP) {
                     // var is a static;
                     // let the owner of the environment be a freshly
@@ -1013,7 +1029,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
 	if (tree.getOldValue() != null) {
             attribVar(tree.getOldValue(), env);  
-            tree.getOldValue().sym.type = tree.elementType;
+            if (tree.elementType != null) {
+                tree.getOldValue().sym.type = tree.elementType;
+            }
         }
         attribStat(tree.getBody(), env);
     }

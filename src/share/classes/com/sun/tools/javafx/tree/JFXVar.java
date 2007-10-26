@@ -38,7 +38,7 @@ import com.sun.tools.javafx.code.JavafxBindStatus;
  * @author Robert Field
  */
 public class JFXVar extends JCVariableDecl {
-    private final JFXType jfxtype;
+    private JFXType jfxtype;
     private final JavafxBindStatus bindStatus;
     private final List<JFXAbstractOnChange> onChanges;
     
@@ -69,6 +69,10 @@ public class JFXVar extends JCVariableDecl {
 
     public JFXType getJFXType() {
         return jfxtype;
+    }
+
+    public void setJFXType(JFXType type) {
+        jfxtype = type;
     }
 
     public List<JFXAbstractOnChange> getOnChanges() {
