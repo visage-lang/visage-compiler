@@ -98,7 +98,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
                 break;
             case CLASS_DEF: {
                 JFXClassDeclaration decl = (JFXClassDeclaration)tree;   
-                Name name = decl.name;
+                Name name = decl.getName();
                 checkName(tree.pos, name);
                 if (name == moduleClassName) {
                     moduleClass = decl;
@@ -138,7 +138,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
                 List.<JCExpression>nil(),             // no supertypes
                 moduleClassDefs.toList());
         } else {
-            moduleClass.defs = moduleClass.defs.appendList(moduleClassDefs);
+            moduleClass.appendToMembers(moduleClassDefs);
         }
         moduleClass.accept((JavafxVisitor)this);
         moduleClass.isModuleClass = true;

@@ -3030,8 +3030,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         chk.validateAnnotations(tree.mods.annotations, c);
 
         // Validate type parameters, supertype and interfaces.
-        attribBounds(tree.typarams);
-        chk.validateTypeParams(tree.typarams);
+        attribBounds(tree.getEmptyTypeParameters());
+        chk.validateTypeParams(tree.getEmptyTypeParameters());
         chk.validate(tree.extending);
         chk.validate(tree.implementing);
 
@@ -3039,8 +3039,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             if (tree.implementing.nonEmpty())
                 log.error(tree.implementing.head.pos(),
                           "cant.extend.intf.annotation");
-            if (tree.typarams.nonEmpty())
-                log.error(tree.typarams.head.pos(),
+            if (tree.getEmptyTypeParameters().nonEmpty())
+                log.error(tree.getEmptyTypeParameters().head.pos(),
                           "intf.annotation.cant.have.type.params");
         } else {
             // Check that all extended classes and interfaces
@@ -3058,7 +3058,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         boolean assertsEnabled = false;
         assert assertsEnabled = true;
         if (assertsEnabled) {
-            for (List<JCTypeParameter> l = tree.typarams;
+            for (List<JCTypeParameter> l = tree.getEmptyTypeParameters();
                  l.nonEmpty(); l = l.tail)
                 assert env.info.scope.lookup(l.head.name).scope != null;
         }
@@ -3067,7 +3067,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (!c.type.allparams().isEmpty() && types.isSubtype(c.type, syms.throwableType))
             log.error(tree.extending.pos(), "generic.throwable");
 
-        for (List<JCTree> l = tree.defs; l.nonEmpty(); l = l.tail) {
+        for (List<JCTree> l = tree.getMembers(); l.nonEmpty(); l = l.tail) {
             // Attribute declaration
             attribStat(l.head, env);
             // Check that declarations in inner classes are not static (JLS 8.1.2)
@@ -3096,7 +3096,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         chk.checkImplementations(tree);
 
         Scope enclScope = enter.enterScope(env);
-        for (List<JCTree> l = tree.defs; l.nonEmpty(); l = l.tail) {
+        for (List<JCTree> l = tree.getMembers(); l.nonEmpty(); l = l.tail) {
             if (l.head instanceof JFXOperationDefinition)
                 chk.checkUnique(l.head.pos(), ((JFXOperationDefinition) l.head).sym, enclScope);
         }

@@ -323,7 +323,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCMethodDecl setDefaultsMethod = null;
         Set<JCNewClass> prevVisitedNews = visitedNewClasses;
 
-        for (JCTree def : tree.defs) {
+        for (JCTree def : tree.getMembers()) {
             if (def.getTag() == JavafxTag.CLASS_DEF) {
                 List<JCStatement> ret = initBuilder.createJFXClassModel((JFXClassDeclaration)def, typeMorpher);
                 for (JCStatement retDef : ret) {
@@ -334,7 +334,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         try {
             visitedNewClasses = new HashSet<JCNewClass>();
-            for (JCTree def : tree.defs) {
+            for (JCTree def : tree.getMembers()) {
                 switch(def.getTag()) {
                     case JavafxTag.INIT_DEF: {
                         JFXInitDefinition initDef = (JFXInitDefinition) def;
@@ -414,7 +414,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }    
         tree.translatedPrepends = null;
 
-        JCClassDecl res = make.at(diagPos).ClassDef(tree.mods, tree.name, tree.typarams, tree.extending, tree.implementing, translatedDefs.toList());
+        JCClassDecl res = make.at(diagPos).ClassDef(tree.mods,tree.getName(),tree.getEmptyTypeParameters(), tree.extending, tree.implementing, translatedDefs.toList());
         res.sym = tree.sym;
         res.type = tree.type;
         result = res;
@@ -426,7 +426,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         processJFXAttributeReferences((JCClassDecl)result);
         addBaseAttributes(tree.sym, (JCClassDecl)result);
         // Add the static methods for all the non-abstract, non-static, and non-synthetic JavaFX methods for cDecl
-        Name interfaceName = names.fromString(tree.name.toString() + initBuilder.interfaceNameSuffix);
+        Name interfaceName = names.fromString(tree.getName().toString() + initBuilder.interfaceNameSuffix);
         initBuilder.processCDeclMethods((JCClassDecl)result, interfaceName);
 
         List<JCStatement> changeTriggerStats = List.<JCStatement>nil();

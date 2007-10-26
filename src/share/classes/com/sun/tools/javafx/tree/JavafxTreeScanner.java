@@ -63,7 +63,7 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     @Override
     public void visitClassDeclaration(JFXClassDeclaration that) {
         that.mods.accept(this);
-        for (JCTree member : that.defs) {
+        for (JCTree member : that.getMembers()) {
             member.accept(this);
         }
     }

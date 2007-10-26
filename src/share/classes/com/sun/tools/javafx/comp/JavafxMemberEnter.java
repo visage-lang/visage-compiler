@@ -830,7 +830,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 c.flags_field |= DEPRECATED;
             annotateLater(tree.mods.annotations, baseEnv, c);
 
-            attr.attribTypeVariables(tree.typarams, baseEnv);
+            attr.attribTypeVariables(tree.getEmptyTypeParameters(), baseEnv);
 
             chk.checkNonCyclic(tree.pos(), c.type);
 
@@ -884,8 +884,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
         private JavafxEnv<JavafxAttrContext> baseEnv(JFXClassDeclaration tree, JavafxEnv<JavafxAttrContext> env) {
         Scope typaramScope = new Scope(tree.sym);
-        if (tree.typarams != null)
-            for (List<JCTypeParameter> typarams = tree.typarams;
+        if (tree.getEmptyTypeParameters() != null)
+            for (List<JCTypeParameter> typarams = tree.getEmptyTypeParameters();
                  typarams.nonEmpty();
                  typarams = typarams.tail)
                 typaramScope.enter(typarams.head.type.tsym);
@@ -904,7 +904,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
         try {
             JFXClassDeclaration tree = (JFXClassDeclaration)env.tree;
-            memberEnter(tree.defs, env);
+            memberEnter(tree.getMembers(), env);
         } finally {
             log.useSource(prev);
         }

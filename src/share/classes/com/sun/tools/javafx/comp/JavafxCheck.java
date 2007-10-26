@@ -799,7 +799,7 @@ public class JavafxCheck {
 
         SpecialTreeVisitor sts = new SpecialTreeVisitor();
         JFXClassDeclaration cdef = (JFXClassDeclaration) tree;
-        for (JCTree defs: cdef.defs) {
+        for (JCTree defs: cdef.getMembers()) {
             defs.accept(sts);
             if (sts.specialized) return 0;
         }
@@ -1982,7 +1982,7 @@ public
         assert (tree.sym.flags_field & LOCKED) == 0;
         try {
             tree.sym.flags_field |= LOCKED;
-            for (JCTree def : tree.defs) {
+            for (JCTree def : tree.getMembers()) {
                 if (def.getTag() != JCTree.METHODDEF) continue;
                 JCMethodDecl meth = (JCMethodDecl)def;
                 checkAnnotationResType(meth.pos(), meth.restype.type);
@@ -2042,7 +2042,7 @@ public
 	Map<Symbol,Symbol> callMap = new HashMap<Symbol, Symbol>();
 
 	// enter each constructor this-call into the map
-	for (List<JCTree> l = tree.defs; l.nonEmpty(); l = l.tail) {
+	for (List<JCTree> l = tree.getMembers(); l.nonEmpty(); l = l.tail) {
 	    JCMethodInvocation app = JavafxTreeInfo.firstConstructorCall(l.head);
 	    if (app == null) continue;
 	    JCMethodDecl meth = (JCMethodDecl) l.head;

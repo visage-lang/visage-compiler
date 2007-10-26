@@ -30,6 +30,7 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 
 import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
 
 import com.sun.tools.javac.code.Symbol.*;
@@ -38,19 +39,15 @@ import com.sun.tools.javac.code.Symbol.*;
  * A class declaration
  */
 public class JFXClassDeclaration extends JFXStatement {
-    public List<JCExpression> supertypes; 
+    public JCModifiers mods;
+    private Name name;
+    public JCTree extending;
+    public List<JCExpression> implementing;
+    private List<JCTree> defs;
+    public ClassSymbol sym;
+    
+    public List<JCExpression> supertypes;
     public boolean isModuleClass = false;
-    
-        
-        public JCModifiers mods;
-        public Name name;
-        public List<JCTypeParameter> typarams;
-        public JCTree extending;
-        public List<JCExpression> implementing;
-        public List<JCTree> defs;
-        public ClassSymbol sym;
-
-    
     public List<JCTree> translatedPrepends = List.<JCTree>nil();
     
     protected JFXClassDeclaration(JCModifiers mods,
@@ -59,38 +56,53 @@ public class JFXClassDeclaration extends JFXStatement {
             List<JCExpression> implementedInterfaces,
             List<JCTree> declarations,
             ClassSymbol sym) {
-            this.mods = mods;
-            this.name = name;
-            this.typarams = List.<JCTypeParameter>nil();
-            this.extending = supertypes.head;     //TODO: hack.  Won't work when we have multiple inheritiance
-            this.implementing = implementedInterfaces;
-            this.defs = declarations;
-            this.sym = sym;
+        this.mods = mods;
+        this.name = name;
+        this.extending = supertypes.head; //TODO: hack.  Won't work when we have multiple inheritiance
+        this.implementing = implementedInterfaces;
+        this.defs = declarations;
+        this.sym = sym;
             
         this.supertypes = supertypes;
     }
-    public void accept(JavafxVisitor v) { v.visitClassDeclaration(this); }
-    public List<JCExpression> getSupertypes() { return supertypes; }
 
+    public List<JCExpression> getSupertypes() {
+        return supertypes;
+    }
 
-        public JCModifiers getModifiers() { return mods; }
-        public Name getSimpleName() { return name; }
-        public List<JCTypeParameter> getTypeParameters() {
-            return typarams;
-        }
-        public JCTree getExtendsClause() { return extending; }
-        public List<JCExpression> getImplementsClause() {
-            return implementing;
-        }
-        public List<JCTree> getMembers() {
-            return defs;
-        }
+    public JCModifiers getModifiers() {
+        return mods;
+    }
+
+    public Name getName() {
+        return name;
+    }
+
+    public JCTree getExtendsClause() {
+        return extending;
+    }
+
+    public List<JCTypeParameter> getEmptyTypeParameters() {
+        return List.<JCTypeParameter>nil();
+    }
+    
+    public void hackAppendToMembers(JCTree member) {
+        defs = getMembers().append(member);
+    }
+
+    public void appendToMembers(ListBuffer<JCTree> members) {
+        defs = getMembers().appendList(members);
+    }
 
     @Override
     public int getTag() {
         return JavafxTag.CLASS_DEF;
     }
     
+    public void accept(JavafxVisitor v) {
+        v.visitClassDeclaration(this);
+    }
+
     @Override
     public void accept(Visitor v) {
         if (v instanceof JavafxVisitor) {
@@ -109,5 +121,9 @@ public class JFXClassDeclaration extends JFXStatement {
     @Override
     public <R,D> R accept(TreeVisitor<R,D> v, D d) {
         throw new InternalError("not implemented");
+    }
+
+    public List<JCTree> getMembers() {
+        return defs;
     }
 }

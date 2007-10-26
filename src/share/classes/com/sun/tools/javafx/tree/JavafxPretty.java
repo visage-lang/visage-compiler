@@ -80,11 +80,11 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             printDocComment(tree);
             print("class ");
             print(" ");
-            print(tree.name);
+            print(tree.getName());
             print(" {");
             println();
             indent();
-            for (JCTree mem : tree.defs) {
+            for (JCTree mem : tree.getMembers()) {
                 align();
                 printExpr(mem);
             }

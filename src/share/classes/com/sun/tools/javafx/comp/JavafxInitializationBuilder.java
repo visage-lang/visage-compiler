@@ -312,7 +312,7 @@ public class JavafxInitializationBuilder {
 
     private void makeOnChangedCall(JFXClassDeclaration classDecl,
                                     ListBuffer<JCStatement> stmts) {
-        for (JCTree tree : classDecl.defs) {
+        for (JCTree tree : classDecl.getMembers()) {
             if (tree.getTag() == JavafxTag.VAR_DEF) {
                 JFXVar attrDef = (JFXVar)tree;
                 DiagnosticPosition diagPos = attrDef.pos();
@@ -367,7 +367,7 @@ public class JavafxInitializationBuilder {
         numFieldsVar.sym = numFieldsVarSym;
         numFieldsVarSym.type = intIdent.type;
         
-        cDecl.defs = cDecl.defs.append(numFieldsVar);
+        cDecl.hackAppendToMembers(numFieldsVar);
 
         ListBuffer<JCTree> iDefinitions = new ListBuffer<JCTree>();
         ListBuffer<AttributeWrapper> attrInfos = new ListBuffer<AttributeWrapper>();
@@ -392,7 +392,7 @@ public class JavafxInitializationBuilder {
         addInterfaceAttributeMethods(iDefinitions, attrInfos);
         addClassAttributeMethods(cDecl, attrInfos, baseClasses);
 
-        Name interfaceName = names.fromString(cDecl.name.toString() + interfaceNameSuffix);
+        Name interfaceName = names.fromString(cDecl.getName().toString() + interfaceNameSuffix);
         addInterfaceeMethods(iDefinitions, methods, cDecl);
         addClassMethods(cDecl, methods, interfaceName);
 
@@ -644,7 +644,7 @@ public class JavafxInitializationBuilder {
                     }                    
                 }
 
-                cdecl.defs = cdecl.defs.append(newMethod);
+                cdecl.hackAppendToMembers(newMethod);
             }
         }
     }
@@ -688,7 +688,7 @@ public class JavafxInitializationBuilder {
             statBlock.stats = stats;
             
             // Add the method for this class' attributes
-            cdef.defs = cdef.defs.append(make.MethodDef(
+            cdef.hackAppendToMembers(make.MethodDef(
                     make.Modifiers(Flags.PUBLIC),
                     names.fromString(attributeGetMethodNamePrefix + attrInfo.name.toString()),
                     toJava.makeTypeTree(attrInfo.type, null),
@@ -702,7 +702,7 @@ public class JavafxInitializationBuilder {
             List<JCStatement> initBlockStats = List.<JCStatement>nil();
             List<JCExpression> initAssertArgs = List.<JCExpression>nil();
             initAssertArgs = initAssertArgs.append(make.Ident(attrInfo.name));
-            initAssertArgs = initAssertArgs.append(make.Literal(new String(cdef.name.toString() + "." + attrInfo.name.toString())));
+            initAssertArgs = initAssertArgs.append(make.Literal(new String(cdef.getName().toString() + "." + attrInfo.name.toString())));
             
             initBlockStats = initBlockStats.append(toJava.callStatement(cdef.pos(), make.Identifier(initHelperClassName), assertNonNullName, initAssertArgs));
 
@@ -716,7 +716,7 @@ public class JavafxInitializationBuilder {
             List<JCVariableDecl> locationVarDeclList = List.<JCVariableDecl>nil();
             locationVarDeclList = locationVarDeclList.append(make.VarDef(make.Modifiers(0L),
                     locationName, toJava.makeTypeTree(attrInfo.type, null), null));
-            cdef.defs = cdef.defs.append(make.MethodDef(
+            cdef.hackAppendToMembers(make.MethodDef(
                     make.Modifiers(Flags.PUBLIC),
                     names.fromString(attributeInitMethodNamePrefix + attrInfo.name.toString()),
                     toJava.makeTypeTree(syms.voidType, null),
@@ -731,7 +731,7 @@ public class JavafxInitializationBuilder {
         numFieldsStats = numFieldsStats.append(make.Return(make.Ident(numberFieldsName)));
         
         JCBlock numFieldsBlock = make.Block(0L, numFieldsStats);
-        cdef.defs = cdef.defs.append(make.MethodDef(
+        cdef.hackAppendToMembers(make.MethodDef(
                 make.Modifiers(Flags.PUBLIC | Flags.STATIC),
                 getNumFieldsName,
                 toJava.makeTypeTree(syms.intType, null),
@@ -746,13 +746,13 @@ public class JavafxInitializationBuilder {
         
         JCNewClass newIHClass = make.NewClass(null, List.<JCExpression>nil(), make.Identifier(initHelperClassName), ncArgs, null);
         
-        cdef.defs = cdef.defs.append(make.VarDef(make.Modifiers(Flags.PRIVATE),
+        cdef.hackAppendToMembers(make.VarDef(make.Modifiers(Flags.PRIVATE),
                 initHelperName, make.Identifier(initHelperClassName), newIHClass));
         
         // Add the setDefaults$ method
         List<JCVariableDecl> receiverVarDeclList = List.<JCVariableDecl>nil();
         receiverVarDeclList = receiverVarDeclList.append(make.VarDef(make.Modifiers(Flags.FINAL),
-                receiverName, make.Ident(names.fromString(cdef.name.toString() + interfaceNameSuffix.toString())), null));
+                receiverName, make.Ident(names.fromString(cdef.getName().toString() + interfaceNameSuffix.toString())), null));
 
         List<JCStatement> setDefStats = List.<JCStatement>nil();
         
@@ -771,7 +771,7 @@ public class JavafxInitializationBuilder {
                 
         JCBlock setDefBlock = make.Block(0L, setDefStats);
         
-        cdef.defs = cdef.defs.append(make.MethodDef(
+        cdef.hackAppendToMembers(make.MethodDef(
                 make.Modifiers(Flags.PUBLIC | Flags.STATIC),
                 setDefaultsName,
                 toJava.makeTypeTree(syms.voidType, null),
@@ -783,10 +783,10 @@ public class JavafxInitializationBuilder {
         // Add the userInit$ method
         receiverVarDeclList = List.<JCVariableDecl>nil();
         receiverVarDeclList = receiverVarDeclList.append(make.VarDef(make.Modifiers(Flags.FINAL),
-                receiverName, make.Ident(names.fromString(cdef.name.toString() + interfaceNameSuffix.toString())), null));
+                receiverName, make.Ident(names.fromString(cdef.getName().toString() + interfaceNameSuffix.toString())), null));
 
         JCBlock userInitBlock = make.Block(0L, List.<JCStatement>nil());
-        cdef.defs = cdef.defs.append(make.MethodDef(
+        cdef.hackAppendToMembers(make.MethodDef(
                 make.Modifiers(Flags.PUBLIC | Flags.STATIC),
                 userInitName,
                 toJava.makeTypeTree(syms.voidType, null),
@@ -799,10 +799,10 @@ public class JavafxInitializationBuilder {
         List<JCStatement> initializeStats = List.<JCStatement>nil();
 
         // Add calls to do the the default value initialization and user init code (validation for example.)
-        initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(cdef.name)/*TODO: Add the class suffix*/, 
-            setDefaultsName.toString(), make.TypeCast(make.Ident(names.fromString(cdef.name.toString() + interfaceNameSuffix)), make.Ident(names._this))));
-        initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(cdef.name)/*TODO: Add the class suffix*/, 
-            userInitName.toString(), make.TypeCast(make.Ident(names.fromString(cdef.name.toString() + interfaceNameSuffix)), make.Ident(names._this))));
+        initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(cdef.getName())/*TODO: Add the class suffix*/, 
+            setDefaultsName.toString(), make.TypeCast(make.Ident(names.fromString(cdef.getName().toString() + interfaceNameSuffix)), make.Ident(names._this))));
+        initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(cdef.getName())/*TODO: Add the class suffix*/, 
+            userInitName.toString(), make.TypeCast(make.Ident(names.fromString(cdef.getName().toString() + interfaceNameSuffix)), make.Ident(names._this))));
         
         // Add a call to initialize the attributes using the initHelper$.initialize();
         initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(initHelperName), 
@@ -812,7 +812,7 @@ public class JavafxInitializationBuilder {
         initializeStats = initializeStats.append(make.Exec(make.Assign(make.Ident(initHelperName), make.Literal(TypeTags.BOT, null))));
         
         JCBlock initializeBlock = make.Block(0L, initializeStats);
-        cdef.defs = cdef.defs.append(make.MethodDef(
+        cdef.hackAppendToMembers(make.MethodDef(
                 make.Modifiers(Flags.PUBLIC),
                 initializeName,
                 toJava.makeTypeTree(syms.voidType, null),
@@ -951,8 +951,8 @@ public class JavafxInitializationBuilder {
                     else {
                         JFXClassDeclaration cDecl = fxClasses.get(cSym);
 
-                        if (cDecl != null && cDecl.defs != null) {
-                            for (JCTree def : cDecl.defs) {
+                        if (cDecl != null && cDecl.getMembers() != null) {
+                            for (JCTree def : cDecl.getMembers()) {
                                 if (def.getTag() == JavafxTag.FUNCTION_DEF) {
                                     MethodSymbol meth = (MethodSymbol)((JFXOperationDefinition)def).sym;
                                     List<JFXVar> pars = ((JFXOperationDefinition)def).getParameters();

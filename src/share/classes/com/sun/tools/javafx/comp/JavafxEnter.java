@@ -287,23 +287,23 @@ public class JavafxEnter extends JavafxTreeScanner {
             PackageSymbol packge = (PackageSymbol) owner;
             for (Symbol q = packge; q != null && q.kind == PCK; q = q.owner)
                 q.flags_field |= EXISTS;
-            c = reader.enterClass(tree.name, packge);
+            c = reader.enterClass(tree.getName(), packge);
             packge.members().enterIfAbsent(c);
         } else {
-            if (tree.name.len != 0 &&
-                    !chk.checkUniqueClassName(tree.pos(), tree.name, enclScope)) {
+            if (tree.getName().len != 0 &&
+                    !chk.checkUniqueClassName(tree.pos(), tree.getName(), enclScope)) {
                 result = null;
                 return;
             }
             if (owner.kind == TYP) {
                 // We are seeing a member class.
-                c = reader.enterClass(tree.name, (TypeSymbol) owner);
+                c = reader.enterClass(tree.getName(), (TypeSymbol) owner);
                 if ((owner.flags_field & INTERFACE) != 0) {
                     tree.mods.flags |= PUBLIC | STATIC;
                 }
             } else {
                 // We are seeing a local class.
-                c = reader.defineClass(tree.name, owner);
+                c = reader.defineClass(tree.getName(), owner);
                 c.flatname = chk.localClassName(c);
                 if (c.name.len != 0)
                     chk.checkTransparentClass(tree.pos(), c, env.info.scope);
@@ -314,7 +314,7 @@ public class JavafxEnter extends JavafxTreeScanner {
         // Enter class into `compiled' table and enclosing scope.
         if (chk.compiled.get(c.flatname) != null) {
             duplicateClass(tree.pos(), c);
-            result = new ErrorType(tree.name, (TypeSymbol) owner);
+            result = new ErrorType(tree.getName(), (TypeSymbol) owner);
             tree.sym = (ClassSymbol) result.tsym;
             return;
         }
@@ -349,13 +349,13 @@ public class JavafxEnter extends JavafxTreeScanner {
         }
 
         // Enter type parameters.
-        ct.typarams_field = classEnter(tree.typarams, localEnv);
+        ct.typarams_field = classEnter(tree.getEmptyTypeParameters(), localEnv);
 
         // Add non-local class to uncompleted, to make sure it will be
         // completed later.
         if (!c.isLocal() && uncompleted != null) uncompleted.append(c);
         // Recursively enter all member classes.
-        classEnter(tree.defs, localEnv);
+        classEnter(tree.getMembers(), localEnv);
 
         initBuilder.addFxClass(c, tree);
         result = c.type;
