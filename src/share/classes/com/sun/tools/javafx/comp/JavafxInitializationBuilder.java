@@ -395,7 +395,9 @@ public class JavafxInitializationBuilder {
         Name interfaceName = names.fromString(cDecl.name.toString() + interfaceNameSuffix);
         addInterfaceeMethods(iDefinitions, methods, cDecl);
         addClassMethods(cDecl, methods, interfaceName);
-        
+
+        implementing.appendList(cDecl.implementing);
+
         JCClassDecl cInterface = make.ClassDef(make.Modifiers((cDecl.mods.flags & (~Flags.STATIC)) | Flags.INTERFACE),
                 interfaceName, 
                 List.<JCTypeParameter>nil(), null, implementing.toList(), iDefinitions.toList());

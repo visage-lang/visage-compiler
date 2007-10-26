@@ -1690,9 +1690,18 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             super.visitSelect(tree);
             result = transformTreeIfNeeded(tree, tree.sym);
         }
-
+// TODO: Deal with super... And this also!
         @Override
         public void visitIdent(JCIdent tree) {
+            if (tree.name == names._this &&
+                    receiverName != null) {
+                JCIdent res = make.Ident(receiverName);
+                res.sym = tree.sym;
+                res.type = tree.type;
+                result = res;
+                return;
+            }
+            
             super.visitIdent(tree);
             result = transformTreeIfNeeded(tree, tree.sym);
         }
