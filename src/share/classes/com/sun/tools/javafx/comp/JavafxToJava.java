@@ -55,12 +55,13 @@ import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedAttribute
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.JavafxTreeMaker; // only for BlockExpression
-
+import static com.sun.tools.javac.code.Flags.*;
 import java.util.HashSet;
 import java.util.Set;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
+import sun.awt.image.OffScreenImage;
 
 
 public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
@@ -75,7 +76,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     /*
      * modules imported by context
      */
-    private final TreeMaker make;  // should be generating Java AST, explicitly cast when not
+    private final JavafxTreeMaker make;  // should be generating Java AST, explicitly cast when not
     private final Log log;
     private final Name.Table names;
     private final Types types;
@@ -120,7 +121,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     protected JavafxToJava(Context context) {
         context.put(jfxToJavaKey, this);
 
-        make = JavafxTreeMaker.instance(context);
+        make = (JavafxTreeMaker) JavafxTreeMaker.instance(context);
         log = Log.instance(context);
         names = Name.Table.instance(context);
         types = Types.instance(context);
@@ -647,23 +648,53 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     public void visitOperationValue(JFXOperationValue tree) {
         JFXOperationDefinition def = tree.definition;
         ListBuffer<JCTree> members = new ListBuffer<JCTree>();
+        DiagnosticPosition diagPos = tree.pos();
         members.append(translate(def));
-        JCClassDecl cl = make.AnonymousClassDef(make.Modifiers(0), members.toList());
         JCExpression encl = null;
         List<JCExpression> args = List.<JCExpression>nil();
-        //FunctionType ftype = (FunctionType) tree.type;
         MethodType mtype = (MethodType) def.type;
         int nargs = mtype.argtypes.size();
         Type ftype = syms.javafx_FunctionTypes[nargs];
         JCExpression t = makeQualifiedTree(null, ftype.tsym.getQualifiedName().toString());
         ListBuffer<JCExpression> typeargs = new ListBuffer<JCExpression>();
-        typeargs.append(makeQualifiedTree(null, mtype.restype.tsym.getQualifiedName().toString()));
-        for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail) {
-            Type ptype = l.head;
-            if (ptype.isPrimitive())
-                ptype = types.boxedClass(ptype).type;
-            typeargs.append(makeQualifiedTree(null, ptype.tsym.getQualifiedName().toString()));
+        typeargs.append(makeTypeTree(syms.objectType, diagPos));
+        ListBuffer<JCVariableDecl> params = new ListBuffer<JCVariableDecl>();
+        ListBuffer<JCExpression> margs = new ListBuffer<JCExpression>();
+        int i = 0;
+        for (List<Type> l = mtype.argtypes;  l.nonEmpty();  l = l.tail) {
+            Name pname = make.paramName(i++);
+            JCVariableDecl param = make.VarDef(make.Modifiers(0), pname,
+                    makeTypeTree(syms.objectType, diagPos), null);
+            params.append(param);
+            JCExpression marg = make.Ident(pname);
+            margs.append(castFromObject(marg, l.head));
+            typeargs.append(makeTypeTree(syms.objectType, diagPos));
         }
+        // The backend's Attr skips SYNTHETIC methods when looking for a matching method.
+        long flags = PUBLIC | BRIDGE; // | SYNTHETIC;
+        Name mname = make.lambdaName; // or real method when bridge to named method.
+        JCExpression call = make.Apply(null, make.Ident(mname), margs.toList());
+
+        List<JCStatement> stats;
+        if (mtype.restype == syms.voidType)
+            stats = List.<JCStatement>of(make.Exec(call), make.Return(make.Literal(TypeTags.BOT, null)));
+        else {
+            if (mtype.restype.isPrimitive())
+                call = makeBox(diagPos, call, mtype.restype);
+            stats = List.<JCStatement>of(make.Return(call));
+        }
+       JCMethodDecl bridgeDef = make.at(diagPos).MethodDef(
+                make.Modifiers(flags),
+                make.invokeName, 
+                makeTypeTree(syms.objectType, diagPos), 
+                List.<JCTypeParameter>nil(), 
+                params.toList(),
+                make.at(diagPos).Types(mtype.getThrownTypes()),
+                make.Block(0, stats), 
+                null);
+
+        members.append(bridgeDef);
+        JCClassDecl cl = make.AnonymousClassDef(make.Modifiers(0), members.toList());
         result = make.NewClass(encl, args, make.TypeApply(t, typeargs.toList()), args, cl);
         result.type = tree.type;
     }
@@ -1163,7 +1194,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             if (!t.getTypeArguments().isEmpty()) {
                 List<JCExpression> targs = List.<JCExpression>nil();
                 for (Type ta : t.getTypeArguments()) {
-                    targs = targs.append(makeTypeTree(ta, diagPos, makeIntf ? true: false));
+                    // Kludge - we convert FunctionType generic parameters to Object,
+                    // since otherwise the backend complains about our bridge methods.
+                    targs = targs.append(makeTypeTree(t instanceof FunctionType ? syms.objectType : ta,
+                            diagPos, makeIntf ? true: false));
                 }
                 texp = make.at(diagPos).TypeApply(texp, targs);
             }
@@ -1173,6 +1207,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
     }
     
+   JCExpression castFromObject (JCExpression arg, Type castType) {
+        if (castType.isPrimitive())
+            castType = types.boxedClass(castType).type;
+         return make.TypeCast(makeTypeTree(castType, arg.pos()), arg);
+    }
+
     /**
      * JCTrees which can just be copied and trees which sjould not occur 
      * */
@@ -1460,20 +1500,23 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
 
         result = tree;
-   }
+    }
 
     public void visitApply(JCMethodInvocation tree) {
         List<JCExpression> typeargs = translate(tree.typeargs);
         JCExpression meth = tree.meth;
         Type mtype = meth.type;
         meth = translate(meth);
-        if (mtype instanceof FunctionType) {
-            Name invoke = Name.fromString(names, "invoke");
-            Scope.Entry e = mtype.tsym.members().lookup(invoke);
+        boolean useInvoke = mtype instanceof FunctionType;
+        if (useInvoke) {
+            Scope.Entry e = mtype.tsym.members().lookup(make.invokeName);
             meth = make.Select(meth, e.sym);
         }
         List<JCExpression> args = translate(tree.args);
-        result = make.at(tree.pos).Apply(typeargs, meth, args);
+        JCExpression fresult = make.at(tree.pos).Apply(typeargs, meth, args);
+        if (useInvoke && tree.type.tag != TypeTags.VOID)
+            fresult = castFromObject(fresult, tree.type);
+        result = fresult;
     }
 
     public void visitModifiers(JCModifiers tree) {

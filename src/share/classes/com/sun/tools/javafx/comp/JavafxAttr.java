@@ -116,7 +116,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     private final Name booleanTypeName;
     private final Name stringTypeName;
     private final Name voidTypeName;  // possibly temporary
-    private final Name invokeName;
 
     public static JavafxAttr instance(Context context) {
         JavafxAttr instance = context.get(javafxAttrKey);
@@ -160,7 +159,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         booleanTypeName = names.fromString("Boolean");
         stringTypeName = names.fromString("String");
         voidTypeName = names.fromString("Void");
-        invokeName = names.fromString("invoke");
     }
     /** Switch: relax some constraints for retrofit mode.
      */
@@ -1345,7 +1343,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitOperationValue(JFXOperationValue tree) {
         Scope enclScope = enter.enterScope(env);
-        JFXOperationDefinition def = new JFXOperationDefinition(make.Modifiers(0), invokeName, tree);
+        JFXOperationDefinition def = new JFXOperationDefinition(make.Modifiers(0), make.lambdaName, tree);
         tree.definition = def;
         MethodSymbol m = new MethodSymbol(0, def.name, null, enclScope.owner);
         // m.flags_field = chk.checkFlags(def.pos(), def.mods.flags, m, def);
@@ -2452,7 +2450,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitTypeFunctional(JFXTypeFunctional tree) {
         Type restype = attribType(tree.restype, env);
-        Type rtype = new WildcardType(boxIfNeeded(restype), BoundKind.EXTENDS, syms.boundClass);
+        Type robjtype = restype == syms.voidType ? syms.objectType : boxIfNeeded(restype);
+        Type rtype = new WildcardType(robjtype, BoundKind.EXTENDS, syms.boundClass);
 
         ListBuffer<Type> typarams = new ListBuffer<Type>();
         ListBuffer<Type> argtypes = new ListBuffer<Type>();
@@ -2477,8 +2476,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public FunctionType makeFunctionType(MethodType mtype) {
         Type rtype = mtype.restype;
         ListBuffer<Type> typarams = new ListBuffer<Type>();
-        typarams.append(rtype);
-        typarams.appendList(mtype.argtypes);
+        Type robjtype = rtype == syms.voidType ? syms.objectType : boxIfNeeded(rtype);
+        typarams.append(robjtype);
+        for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail) {
+            typarams.append(boxIfNeeded(l.head));
+        }
         FunctionType ftype = makeFunctionType(typarams, rtype);
         ftype.mtype = mtype;
         return ftype;
