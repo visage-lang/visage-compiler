@@ -27,6 +27,13 @@ System.out.println(cl.fvar(cl.xvar));
 cl.xvar = "reset cl.xvar";
 System.out.println(cl.concat("Cl1.concat called"));
 
+var fv2 : function(x:Integer):Integer =
+  function (x: Integer):Integer { x + 100 };
+System.out.println("fv2(12) = {fv2(12)}");
+var fv3 : function(x:Number):Void =
+  function (x: Number):Void { System.out.println("void fv3({x})") };
+fv3(13.5);
+
 /* FIXME - not yet working
 Expected output:
 call named plus10: 1->11 2->12 3->13
