@@ -112,22 +112,24 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         JFXClassDeclaration tree = new JFXClassDeclaration(mods,
                 name,
                 supertypes,
-                List.<JCExpression>nil(),
                 declarations,
                 null);
         tree.pos = pos;
         return tree;
     }
 
+        //TODO: remove this method as soon as the grammar is changed
     public JFXClassDeclaration ClassDeclaration(JCModifiers mods,
             Name name,
             List<JCExpression> supertypes,
             List<JCExpression> implementedInterfaces,
             List<JCTree> declarations) {
+        ListBuffer<JCExpression> supers = ListBuffer.<JCExpression>lb();
+        supers.appendList(supertypes);
+        supers.appendList(implementedInterfaces);
         JFXClassDeclaration tree = new JFXClassDeclaration(mods,
                 name,
-                supertypes,
-                implementedInterfaces,
+                supers.toList(),
                 declarations,
                 null);
         tree.pos = pos;

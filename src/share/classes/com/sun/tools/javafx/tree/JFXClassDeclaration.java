@@ -40,34 +40,29 @@ import com.sun.tools.javac.code.Symbol.*;
  */
 public class JFXClassDeclaration extends JFXStatement {
     public JCModifiers mods;
-    private Name name;
-    public JCTree extending;
-    public List<JCExpression> implementing;
+    private final Name name;
+    private List<JCExpression> extending = null;
+    private List<JCExpression> implementing = null;
     private List<JCTree> defs;
-    public ClassSymbol sym;
-    
-    public List<JCExpression> supertypes;
+    private final List<JCExpression> supertypes;
+
+    public ClassSymbol sym;   
+
     public boolean isModuleClass = false;
     public List<JCTree> translatedPrepends = List.<JCTree>nil();
+    public List<JCExpression> translatedAdditionalImplementing = List.<JCExpression>nil();
     
     protected JFXClassDeclaration(JCModifiers mods,
             Name name,
             List<JCExpression> supertypes,
-            List<JCExpression> implementedInterfaces,
             List<JCTree> declarations,
             ClassSymbol sym) {
         this.mods = mods;
         this.name = name;
-        this.extending = supertypes.head; //TODO: hack.  Won't work when we have multiple inheritiance
-        this.implementing = implementedInterfaces;
         this.defs = declarations;
         this.sym = sym;
             
         this.supertypes = supertypes;
-    }
-
-    public List<JCExpression> getSupertypes() {
-        return supertypes;
     }
 
     public JCModifiers getModifiers() {
@@ -78,20 +73,46 @@ public class JFXClassDeclaration extends JFXStatement {
         return name;
     }
 
-    public JCTree getExtendsClause() {
+    public List<JCExpression> getSupertypes() {
+        return supertypes;
+    }
+
+    public List<JCTree> getMembers() {
+        return defs;
+    }
+
+    public List<JCExpression> getImplementing() {
+        return implementing;
+    }
+
+    public List<JCExpression> getExtending() {
         return extending;
     }
 
+    //TODO: remove this method and all references to it.
+    /**
+     * Because of multiple inheritance, we may extend many classes.
+     * This is a hack to work around assumptions that we only extend a single class.
+     * */
+    public JCTree getFirstExtendingHack() {
+        return extending.size() == 0? null : extending.head;
+    }
+
+    public void setDifferentiatedExtendingImplementing(List<JCExpression> extending, List<JCExpression> implementing) {
+        this.extending = extending;
+        this.implementing = implementing;
+    }
+    
     public List<JCTypeParameter> getEmptyTypeParameters() {
         return List.<JCTypeParameter>nil();
     }
     
     public void hackAppendToMembers(JCTree member) {
-        defs = getMembers().append(member);
+        defs = defs.append(member);
     }
 
     public void appendToMembers(ListBuffer<JCTree> members) {
-        defs = getMembers().appendList(members);
+        defs = defs.appendList(members);
     }
 
     @Override
@@ -121,9 +142,5 @@ public class JFXClassDeclaration extends JFXStatement {
     @Override
     public <R,D> R accept(TreeVisitor<R,D> v, D d) {
         throw new InternalError("not implemented");
-    }
-
-    public List<JCTree> getMembers() {
-        return defs;
     }
 }

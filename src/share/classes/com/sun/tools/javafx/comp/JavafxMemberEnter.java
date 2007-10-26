@@ -770,10 +770,23 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             // create an environment for evaluating the base clauses
             JavafxEnv<JavafxAttrContext> baseEnv = baseEnv(tree, env);
 
+            {
+                ListBuffer<JCExpression> extending = ListBuffer.<JCExpression>lb();
+                ListBuffer<JCExpression> implementing = ListBuffer.<JCExpression>lb();
+                for (JCExpression supertype : tree.getSupertypes()) {
+                    if (attr.attribType(supertype, env).isInterface()) {
+                        implementing.append(supertype);
+                    } else {
+                        extending.append(supertype);                        
+                    }
+                }
+                tree.setDifferentiatedExtendingImplementing(extending.toList(), implementing.toList());
+            }
+            
             // Determine supertype.
             Type supertype =
-                (tree.extending != null) // (false/*nothing really extends now*/ && tree.extending != null)  //TODO: when/if we extend Java classes, this should change
-                ? attr.attribBase(tree.extending, baseEnv, true, false, true)
+               (tree.getFirstExtendingHack() != null)  //TODO: we may extend more than one class
+                ? attr.attribBase(tree.getFirstExtendingHack(), baseEnv, true, false, true)
                 : ((tree.mods.flags & Flags.ENUM) != 0 && !target.compilerBootstrap(c))
                 ? attr.attribBase(enumBase(tree.pos, c), baseEnv,
                                   true, false, false)
@@ -785,7 +798,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             // Determine interfaces.
             ListBuffer<Type> interfaces = new ListBuffer<Type>();
             Set<Type> interfaceSet = new HashSet<Type>();
-            List<JCExpression> interfaceTrees = tree.implementing;
+            List<JCExpression> interfaceTrees = tree.getImplementing();
             if ((tree.mods.flags & Flags.ENUM) != 0 && target.compilerBootstrap(c)) {
                 // add interface Comparable<T>
                 interfaceTrees =
@@ -809,13 +822,13 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 ct.interfaces_field = interfaces.toList();
 
             if (c.fullname == names.java_lang_Object) {
-                if (tree.extending != null) {
-                    chk.checkNonCyclic(tree.extending.pos(),
+                if (tree.getFirstExtendingHack() != null) {
+                    chk.checkNonCyclic(tree.getFirstExtendingHack().pos(),
                                        supertype);
                     ct.supertype_field = Type.noType;
                 }
-                else if (tree.implementing.nonEmpty()) {
-                    chk.checkNonCyclic(tree.implementing.head.pos(),
+                else if (tree.getImplementing().nonEmpty()) {
+                    chk.checkNonCyclic(tree.getImplementing().head.pos(),
                                        ct.interfaces_field.head);
                     ct.interfaces_field = List.nil();
                 }

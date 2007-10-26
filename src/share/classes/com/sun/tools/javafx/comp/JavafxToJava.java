@@ -414,7 +414,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }    
         tree.translatedPrepends = null;
 
-        JCClassDecl res = make.at(diagPos).ClassDef(tree.mods,tree.getName(),tree.getEmptyTypeParameters(), tree.extending, tree.implementing, translatedDefs.toList());
+        ListBuffer<JCExpression> implementing =  ListBuffer.<JCExpression>lb();
+        implementing.appendList(tree.getImplementing());
+        implementing.appendList(tree.translatedAdditionalImplementing);
+        JCClassDecl res = make.at(diagPos).ClassDef(
+                tree.mods,
+                tree.getName(),
+                tree.getEmptyTypeParameters(), 
+                null,  // no classes are extended, they have become interfaces -- change if we implement single Java class extension
+                implementing.toList(), 
+                translatedDefs.toList());
         res.sym = tree.sym;
         res.type = tree.type;
         result = res;

@@ -1300,11 +1300,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 // always need to be static, because they will have generated static members
                 cdef.mods.flags |= STATIC;
 
-                if (clazztype.tsym.isInterface()) {
-                    cdef.implementing = List.of(clazz);
-                } else {
-                    cdef.extending = clazz;
-                }
+//              now handled in class processing                
+//                if (clazztype.tsym.isInterface()) {
+//                    cdef.implementing = List.of(clazz);
+//                } else {
+//                    cdef.extending = clazz;
+//                }
 
                 attribStat(cdef, localEnv);
                 attribClass(cdef.pos(), cdef.sym);
@@ -2219,7 +2220,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             }
             attribClass(tree.pos(), c);
 
-            for (JCExpression superClass : tree.supertypes) {
+            for (JCExpression superClass : tree.getSupertypes()) {
                 attribType(superClass, env);
             }
 
@@ -3032,12 +3033,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // Validate type parameters, supertype and interfaces.
         attribBounds(tree.getEmptyTypeParameters());
         chk.validateTypeParams(tree.getEmptyTypeParameters());
-        chk.validate(tree.extending);
-        chk.validate(tree.implementing);
+        chk.validate(tree.getSupertypes());
 
         if ((c.flags() & ANNOTATION) != 0) {
-            if (tree.implementing.nonEmpty())
-                log.error(tree.implementing.head.pos(),
+            if (tree.getImplementing().nonEmpty())
+                log.error(tree.getImplementing().head.pos(),
                           "cant.extend.intf.annotation");
             if (tree.getEmptyTypeParameters().nonEmpty())
                 log.error(tree.getEmptyTypeParameters().head.pos(),
@@ -3065,7 +3065,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         // Check that a generic class doesn't extend Throwable
         if (!c.type.allparams().isEmpty() && types.isSubtype(c.type, syms.throwableType))
-            log.error(tree.extending.pos(), "generic.throwable");
+            log.error(tree.getFirstExtendingHack().pos(), "generic.throwable");
 
         for (List<JCTree> l = tree.getMembers(); l.nonEmpty(); l = l.tail) {
             // Attribute declaration

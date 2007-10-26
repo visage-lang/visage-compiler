@@ -353,8 +353,10 @@ public class JavafxInitializationBuilder {
         implementing.append(make.Identifier(fxObjectName));
 
         for (ClassSymbol baseClass : baseClasses) {
-            if (!baseClass.name.endsWith(interfaceNameSuffix) && baseClass.fullname != names.fromString(fxObjectName)) {
-                implementing = implementing.append(make.Ident(names.fromString(baseClass.name.toString() + interfaceNameSuffix)));
+            if (!baseClass.name.endsWith(interfaceNameSuffix) && 
+                    baseClass.fullname != names.fromString(fxObjectName) &&
+                    isJFXClass(baseClass)) {
+                implementing.append(make.Ident(names.fromString(baseClass.name.toString() + interfaceNameSuffix)));
             }
         }
         
@@ -396,15 +398,15 @@ public class JavafxInitializationBuilder {
         addInterfaceeMethods(iDefinitions, methods, cDecl);
         addClassMethods(cDecl, methods, interfaceName);
 
-        implementing.appendList(cDecl.implementing);
+        implementing.appendList(cDecl.getImplementing());
 
         JCClassDecl cInterface = make.ClassDef(make.Modifiers((cDecl.mods.flags & (~Flags.STATIC)) | Flags.INTERFACE),
                 interfaceName, 
                 List.<JCTypeParameter>nil(), null, implementing.toList(), iDefinitions.toList());
         
-        cDecl.implementing = cDecl.implementing.append(make.Ident(interfaceName));
-        cDecl.implementing = cDecl.implementing.append(make.Identifier(fxObjectName));
-        cDecl.extending = null;
+        cDecl.translatedAdditionalImplementing = List.<JCExpression>of(
+                make.Ident(interfaceName),
+                make.Identifier(fxObjectName));
         ret.append(cInterface);
         
         return ret.toList();
@@ -994,7 +996,7 @@ public class JavafxInitializationBuilder {
                                 }
                             }
 
-                            for (JCExpression supertype : cDecl.supertypes) {
+                            for (JCExpression supertype : cDecl.getSupertypes()) {
                                 if (supertype.type != null && supertype.type.tsym != null && supertype.type.tsym.kind == Kinds.TYP) {
                                     classesToVisit.add((ClassSymbol)supertype.type.tsym);
                                     baseClasses.add((ClassSymbol)supertype.type.tsym);
