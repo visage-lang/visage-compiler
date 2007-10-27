@@ -91,7 +91,6 @@ tokens {
    FINALLY='finally';
    FIRST='first';
    FROM='from';
-   IMPLEMENTS='implements';
    IN='in';
    INDEXOF='indexof';
    INSTANCEOF='instanceof';
@@ -463,20 +462,15 @@ importDecl returns [JCTree value]
                  ( DOT STAR			{ pid = F.at(pos($STAR)).Select(pid, names.asterisk); } )?  
           					{ $value = F.at(pos($IMPORT)).Import(pid, false); } ;
 classDefinition returns [JFXClassDeclaration value]
-	: classModifierFlags  CLASS name supers interfaces LBRACE classMembers RBRACE
+	: classModifierFlags  CLASS name supers LBRACE classMembers RBRACE
 	  					{ $value = F.at(pos($CLASS)).ClassDeclaration(
 	  						F.at(pos($CLASS)).Modifiers($classModifierFlags.flags),
 	  						$name.value,
-	                                	        $supers.ids.toList(), $interfaces.ids.toList(), 
+	                                	        $supers.ids.toList(), 
 	                                	        $classMembers.mems.toList()); } ;
 supers returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>()]
 	: (EXTENDS id1=typeName           	{ $ids.append($id1.expr); }
            ( COMMA idn=typeName           	{ $ids.append($idn.expr); } )* 
-	  )?
-	;
-interfaces returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>()]
-	: (IMPLEMENTS id1=typeName           	{ $ids.append($id1.expr); }
-           ( COMMA idn=typeName         	{ $ids.append($idn.expr); } )* 
 	  )?
 	;
 classMembers returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]

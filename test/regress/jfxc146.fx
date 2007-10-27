@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.*; 
 import java.awt.event.*; 
 
-public class Frame implements ComponentListener { 
+public class Frame extends ComponentListener { 
     private attribute jlabel: JLabel = new JLabel(); 
     private attribute jframe: JFrame = new JFrame(); 
 
