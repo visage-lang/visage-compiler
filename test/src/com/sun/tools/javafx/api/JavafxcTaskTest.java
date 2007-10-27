@@ -61,7 +61,6 @@ public class JavafxcTaskTest {
         List<String> options = 
                 Arrays.asList("-d", ".", "-sourcepath", testSrc, "-classpath", testClasses);
         File file = new File(testSrc + "/com/sun/tools/javafx/api", "Hello.fx");
-        System.out.println(file.getAbsolutePath());
 	Iterable<? extends JavaFileObject> files = fm.getJavaFileObjects(file);
         JavafxcTask task = instance.getTask(null, fm, dl, null, files);
         assertNotNull("no task returned", task);
