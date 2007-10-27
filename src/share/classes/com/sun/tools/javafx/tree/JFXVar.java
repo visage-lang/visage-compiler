@@ -25,19 +25,23 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.OnChangeTree;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
-import com.sun.tools.javafx.code.JavafxBindStatus;
+import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.javafx.api.tree.JavaFXVariableTree;
 
 /**
  * Variable declaration.
  *
  * @author Robert Field
  */
-public class JFXVar extends JCVariableDecl {
+public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
     private JFXType jfxtype;
     private final JavafxBindStatus bindStatus;
     private final List<JFXAbstractOnChange> onChanges;
@@ -75,6 +79,10 @@ public class JFXVar extends JCVariableDecl {
         jfxtype = type;
     }
 
+    public java.util.List<OnChangeTree> getOnChangeTrees() {
+        return JFXTree.convertList(OnChangeTree.class, onChanges);
+    }
+
     public List<JFXAbstractOnChange> getOnChanges() {
         return onChanges;
     }
@@ -99,8 +107,6 @@ public class JFXVar extends JCVariableDecl {
         return bindStatus.isLazy;
     }
 
-    public Name getName() { return name; }
-
     @Override
     public int getTag() {
         return JavafxTag.VAR_DEF;
@@ -108,5 +114,13 @@ public class JFXVar extends JCVariableDecl {
     
     public JCModifiers getModifiers() {
         return mods;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

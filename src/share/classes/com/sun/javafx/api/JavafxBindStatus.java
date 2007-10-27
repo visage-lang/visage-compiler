@@ -23,7 +23,7 @@
  * have any questions.
  */
 
-package com.sun.tools.javafx.code;
+package com.sun.javafx.api;
 
 /**
  * Effectively an enum for the possible bind status values

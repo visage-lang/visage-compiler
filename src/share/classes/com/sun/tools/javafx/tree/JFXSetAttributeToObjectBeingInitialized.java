@@ -25,6 +25,9 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.SetAttributeToObjectTree;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.Name;
 
@@ -33,7 +36,7 @@ import com.sun.tools.javac.util.Name;
  *
  * @author Robert Field
  */
-public class JFXSetAttributeToObjectBeingInitialized extends JFXStatement {
+public class JFXSetAttributeToObjectBeingInitialized extends JFXStatement implements SetAttributeToObjectTree {
     private final Name name; // TODO: Tools might need position information. Make this an ident.
     VarSymbol sym;
     
@@ -45,10 +48,18 @@ public class JFXSetAttributeToObjectBeingInitialized extends JFXStatement {
     
     public void accept(JavafxVisitor v) { v.visitSetAttributeToObjectBeingInitialized(this); }
     
-    public Name getAttributeName() { return name; }
+    public javax.lang.model.element.Name getAttributeName() { return name; }
 
     @Override
     public int getTag() {
         return JavafxTag.SETATTRIBUTETOOBJECTBEINGINITIALIZED;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.SET_ATTRIBUTE_TO_OBJECT;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitSetAttributeToObject(this, data);
     }
 }

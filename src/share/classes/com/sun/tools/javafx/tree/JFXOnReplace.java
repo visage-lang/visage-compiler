@@ -25,11 +25,15 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.OnReplaceTree;
+
 /**
  *
  * @author Robert Field
  */
-public class JFXOnReplace extends JFXAbstractOnChange {
+public class JFXOnReplace extends JFXAbstractOnChange implements OnReplaceTree {
 
     public JFXOnReplace( JFXVar oldValue, JCBlock body) {
         super(null, oldValue, body);
@@ -43,5 +47,13 @@ public class JFXOnReplace extends JFXAbstractOnChange {
     @Override
     public int getTag() {
         return JavafxTag.ON_REPLACE;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.ON_REPLACE;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitOnReplace(this, data);
     }
 }

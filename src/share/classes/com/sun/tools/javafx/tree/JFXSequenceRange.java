@@ -25,13 +25,16 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.SequenceRangeTree;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 
 /**
  *
  * @author Robert Field
  */
-public class JFXSequenceRange extends JFXAbstractSequenceCreator {
+public class JFXSequenceRange extends JFXAbstractSequenceCreator implements SequenceRangeTree {
     private final JCExpression lower;
     private final JCExpression upper;
     private final JCExpression stepOrNull;
@@ -67,5 +70,13 @@ public class JFXSequenceRange extends JFXAbstractSequenceCreator {
     @Override
     public int getTag() {
         return JavafxTag.SEQUENCE_RANGE;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.SEQUENCE_RANGE;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitSequenceRange(this, data);
     }
 }

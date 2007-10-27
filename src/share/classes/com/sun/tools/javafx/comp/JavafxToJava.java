@@ -49,7 +49,7 @@ import com.sun.tools.javac.tree.TreeTranslator;
 
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.FunctionType;
-import com.sun.tools.javafx.code.JavafxBindStatus;
+import com.sun.javafx.api.JavafxBindStatus;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedAttributeInfo;
 import com.sun.tools.javafx.tree.*;
@@ -338,7 +338,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     switch(def.getTag()) {
                         case JavafxTag.INIT_DEF: {
                             JFXInitDefinition initDef = (JFXInitDefinition) def;
-                            translatedInitBlocks.append(translate(initDef.getBody()));
+                            translatedInitBlocks.append(translate((JCBlock)initDef.getBody()));
                             break;
                         }
                         case JavafxTag.VAR_DEF: {
@@ -484,7 +484,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
         JCNewClass newClass = 
                 make.NewClass(null, null, clazz,
-                                                translate( tree.getArguments() ),
+                                                translate( tree.getArgs() ),
                                                 null);
         
         // We added this. The call to initialize$ is done below. We should not convert this to a BlockExpression.
@@ -1328,7 +1328,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private JCStatement wrapWithInClause(JFXForExpression tree, JCStatement coreStmt) {
         JCStatement stmt = coreStmt;
         for (int inx = tree.getInClauses().size() - 1; inx >= 0; --inx) {
-            JFXForExpressionInClause clause = tree.getInClauses().get(inx);
+            JFXForExpressionInClause clause = (JFXForExpressionInClause)tree.getInClauses().get(inx);
             if (clause.getWhereExpression() != null) {
                 stmt = make.at(clause).If(clause.getWhereExpression(), stmt, null);
             }
@@ -1667,7 +1667,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
     
     public void visitTypeFunctional(JFXTypeFunctional that) {
-        that.params = translate(that.params);
+        that.params = (List<JFXType>)translate((List<JFXType>)that.params);
         that.restype = translate(that.restype);
         result = that;
     }

@@ -12,8 +12,8 @@ import com.sun.tools.migrator.tree.*;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.util.*;
 import static com.sun.tools.javac.util.ListBuffer.lb;
-import com.sun.tools.javafx.code.JavafxBindStatus;
-import static com.sun.tools.javafx.code.JavafxBindStatus.*;
+import com.sun.javafx.api.JavafxBindStatus;
+import static com.sun.javafx.api.JavafxBindStatus.*;
 
 import org.antlr.runtime.*;
 

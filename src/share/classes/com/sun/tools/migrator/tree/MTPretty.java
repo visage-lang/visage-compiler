@@ -32,7 +32,7 @@ import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.migrator.tree.MTTree.*;
-import com.sun.tools.javafx.code.JavafxBindStatus;
+import com.sun.javafx.api.JavafxBindStatus;
 import static com.sun.tools.javac.code.Flags.*;
 
 /** Prints out a tree as an indented Java source program.

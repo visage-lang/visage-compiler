@@ -154,12 +154,13 @@ import java.io.OutputStreamWriter;
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javafx.tree.*;
+import com.sun.javafx.api.tree.*;
 
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.util.*;
 import static com.sun.tools.javac.util.ListBuffer.lb;
-import com.sun.tools.javafx.code.JavafxBindStatus;
-import static com.sun.tools.javafx.code.JavafxBindStatus.*;
+import com.sun.javafx.api.JavafxBindStatus;
+import static com.sun.javafx.api.JavafxBindStatus.*;
 
 import org.antlr.runtime.*;
 }
@@ -876,9 +877,9 @@ typeReference returns [JFXType type]
         : COLON type			{ $type = $type.type; }
  	| /*nada*/			{ $type = F.TypeUnknown(); }
         ;
-cardinality returns [int ary]
-	: (LBRACKET)=>LBRACKET RBRACKET { ary = JFXType.CARDINALITY_ANY; }
-	|                         	{ ary = JFXType.CARDINALITY_SINGLETON; } 
+cardinality returns [TypeTree.Cardinality ary]
+	: (LBRACKET)=>LBRACKET RBRACKET { ary = TypeTree.Cardinality.ANY; }
+	|                         	{ ary = TypeTree.Cardinality.SINGLETON; } 
 	;
 literal  returns [JCExpression expr]
 	: t=STRING_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.CLASS, $t.text); }

@@ -25,6 +25,7 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.Visitor;
 
@@ -35,7 +36,7 @@ import com.sun.source.tree.TreeVisitor;
  * well... except for things like statement which (at least for now) have to be subclassed
  * off other parts of the JCTree.
  */
-public abstract class JFXTree extends JCTree {
+public abstract class JFXTree extends JCTree implements JavaFXTree {
     
     /** Initialize tree with given tag.
      */
@@ -62,5 +63,14 @@ public abstract class JFXTree extends JCTree {
     @Override
     public <R,D> R accept(TreeVisitor<R,D> v, D d) {
         throw new InternalError("not implemented");
-    }  
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static <T> java.util.List<T> convertList(Class<T> klass, com.sun.tools.javac.util.List<?> list) {
+	if (list == null)
+	    return null;
+	for (Object o : list)
+	    klass.cast(o);
+        return (java.util.List<T>)list;
+    }
 }

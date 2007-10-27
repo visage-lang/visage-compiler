@@ -24,7 +24,11 @@
  */
 
 package com.sun.tools.javafx.tree;
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.OperationValueTree;
+import com.sun.source.tree.TreeVisitor;
+import com.sun.source.tree.VariableTree;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.JCTree.*;
@@ -33,7 +37,7 @@ import com.sun.tools.javac.tree.JCTree.*;
  *
  * @author bothner
  */
-public class JFXOperationValue  extends JFXExpression {
+public class JFXOperationValue extends JFXExpression implements OperationValueTree {
     public JFXType rettype;
     public List<JFXVar> funParams;
     public JFXBlockExpression bodyExpression;
@@ -52,15 +56,19 @@ public class JFXOperationValue  extends JFXExpression {
         return rettype;
     }
     
-    public List<JFXVar> getParameters() {
+    public List<JFXVar> getParams() {
         return funParams;
+    }
+    
+    public java.util.List<? extends VariableTree> getParameters() {
+        return (java.util.List)funParams;
     }
 
     public JFXBlockExpression getBodyExpression() {
         return bodyExpression;
     }
 
-  public void accept(JavafxVisitor v) { v.visitOperationValue(this); }
+    public void accept(JavafxVisitor v) { v.visitOperationValue(this); }
     
     @Override
     public void accept(Visitor v) {
@@ -73,8 +81,16 @@ public class JFXOperationValue  extends JFXExpression {
         }
     }
 
- @Override
+    @Override
     public int getTag() {
      return JavafxTag.FUNCTIONEXPRESSION;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitOperationValue(this, data);
     }
 }

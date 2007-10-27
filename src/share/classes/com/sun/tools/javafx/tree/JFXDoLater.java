@@ -25,14 +25,15 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.DoLaterTree;
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
 import com.sun.tools.javac.tree.JCTree.*;
-
-import com.sun.source.tree.TreeVisitor;
 
 /**
  * A do later statement
  */
-public  class JFXDoLater extends JFXStatement {
+public class JFXDoLater extends JFXStatement implements DoLaterTree {
     public JCBlock body;
     protected JFXDoLater(JCBlock body) {
         this.body = body;
@@ -42,6 +43,14 @@ public  class JFXDoLater extends JFXStatement {
     @Override
     public int getTag() {
         return JavafxTag.DOLATER;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.DO_LATER;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitDoLater(this, data);
     }
 }
 

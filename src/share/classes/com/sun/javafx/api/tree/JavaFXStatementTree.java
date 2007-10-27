@@ -1,0 +1,71 @@
+/*
+ * Copyright 2005-2006 Sun Microsystems, Inc.  All Rights Reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ * CA 95054 USA or visit www.sun.com if you need additional information or
+ * have any questions.
+ */
+
+package com.sun.javafx.api.tree;
+
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.source.tree.StatementTree;
+import com.sun.source.tree.Tree.Kind;
+
+/**
+ * Common interface for statement nodes in an abstract syntax tree for the 
+ * JavaFX Script language.
+ *
+ * <p><b>WARNING:</b> This interface and its sub-interfaces are 
+ * subject to change as the JavaFX Script programming language evolves.
+ * These interfaces are implemented by Sun's JavaFX Script compiler (javafxc) 
+ * and should not be implemented either directly or indirectly by 
+ * other applications.
+ *
+ * @author Tom Ball
+ */
+public interface JavaFXStatementTree extends StatementTree, JavaFXTree {
+    
+    /**
+     * Gets the com.sun.source.tree.Tree.Kind of this tree.  Because
+     * Tree kinds cannot be extended, Kind.OTHER is always returned for
+     * any instance of JavaFXTree.  Use <code>getJavaFXKind</code> to
+     * get the JavaFX kind.
+     *
+     * @return Kind.OTHER
+     */
+    Kind getKind();
+    
+    /**
+     * Gets the JavaFX kind of this tree.
+     *
+     * @return the kind of this tree.
+     */
+    JavaFXKind getJavaFXKind();
+    
+    /**
+     * Accept method used to implement the visitor pattern.  The
+     * visitor pattern is used to implement operations on trees.
+     *
+     * @param <R> result type of this operation.
+     * @param <D> type of additonal data.
+     */
+    <R,D> R accept(JavaFXTreeVisitor<R,D> visitor, D data);
+}

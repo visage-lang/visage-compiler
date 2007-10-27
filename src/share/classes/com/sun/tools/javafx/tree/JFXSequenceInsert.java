@@ -25,13 +25,16 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.SequenceInsertTree;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 
 /**
  *
  * @author Robert Field
  */
-public class JFXSequenceInsert extends JFXStatement {
+public class JFXSequenceInsert extends JFXStatement implements SequenceInsertTree {
     private final JCExpression element;
     private final JCExpression sequence;
 
@@ -55,5 +58,13 @@ public class JFXSequenceInsert extends JFXStatement {
     @Override
     public int getTag() {
         return JavafxTag.INSERT;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.SEQUENCE_INSERT;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitSequenceInsert(this, data);
     }
 }

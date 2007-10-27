@@ -25,11 +25,15 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.SequenceEmptyTree;
+
 /**
  *
  * @author Robert Field
  */
-public class JFXSequenceEmpty extends JFXAbstractSequenceCreator {
+public class JFXSequenceEmpty extends JFXAbstractSequenceCreator implements SequenceEmptyTree {
 
     public JFXSequenceEmpty() {
     }
@@ -41,5 +45,13 @@ public class JFXSequenceEmpty extends JFXAbstractSequenceCreator {
     @Override
     public int getTag() {
         return JavafxTag.SEQUENCE_EMPTY;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.SEQUENCE_EMPTY;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitSequenceEmpty(this, data);
     }
 }

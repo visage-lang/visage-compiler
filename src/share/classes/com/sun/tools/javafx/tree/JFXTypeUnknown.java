@@ -25,20 +25,35 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree;
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.TypeUnknownTree;
+
 /**
  * Type not specified
  *
  * @author Robert Field
  */
-public class JFXTypeUnknown extends JFXType {
+public class JFXTypeUnknown extends JFXType implements TypeUnknownTree {
 
     protected JFXTypeUnknown() {
-        super(CARDINALITY_UNKNOWN);
+        super(Cardinality.UNKNOWN);
     }
     public void accept(JavafxVisitor v) { v.visitTypeUnknown(this); }
 
     @Override
     public int getTag() {
         return JavafxTag.TYPEUNKNOWN;
+    }
+
+    @Override
+    public <R,D> R accept(JavaFXTreeVisitor<R,D> v, D d) {
+        return v.visitTypeUnknown(this, d);
+    }
+
+    @Override
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXTree.JavaFXKind.TYPE_UNKNOWN;
     }
 }

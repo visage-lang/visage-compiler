@@ -27,13 +27,15 @@ package com.sun.tools.javafx.tree;
 
 import java.io.*;
 import java.util.*;
+import com.sun.javafx.api.tree.TypeTree;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javafx.code.JavafxBindStatus;
+import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.tools.javac.tree.Pretty;
 import static com.sun.tools.javac.code.Flags.*;
 
@@ -105,7 +107,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             pretty.printDocComment(tree);
             pretty.print(" function ");
             pretty.print("(");
-            pretty.printExprs(tree.getParameters());
+            pretty.printExprs(tree.getParams());
             pretty.print(")");
             if (tree.getType() != null) {
                 pretty.printExpr(tree.getType());
@@ -399,9 +401,9 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitTypeFunctional(JFXTypeFunctional tree) {
         try {
             print(" : (");
-            printExprs(tree.getParameters());
+            printExprs(tree.getParams());
             print(")");
-            printExpr(tree.getReturnType());
+            printExpr((JFXType)tree.getReturnType());
             print(ary(tree));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -419,9 +421,9 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     String ary(JFXType tree) {
         String show;
         switch (tree.getCardinality()) {
-            case JFXType.CARDINALITY_ANY:
+            case ANY:
                 return "[]";
-            case JFXType.CARDINALITY_SINGLETON:
+            case SINGLETON:
                 return " ";
         }
         return "";
@@ -512,7 +514,8 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         try {
             boolean first = true;
             print("for (");
-            for (JFXForExpressionInClause clause : tree.getInClauses()) {
+            for (ForExpressionInClauseTree cl : tree.getInClauses()) {
+                JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
                 if (first) {
                     first = false;
                 } else {

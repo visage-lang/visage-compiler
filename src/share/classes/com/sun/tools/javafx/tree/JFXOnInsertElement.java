@@ -25,11 +25,15 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.OnInsertElementTree;
+
 /**
  *
  * @author Robert Field
  */
-public class JFXOnInsertElement extends JFXAbstractOnChange {
+public class JFXOnInsertElement extends JFXAbstractOnChange implements OnInsertElementTree {
 
     public JFXOnInsertElement(JFXVar index, JFXVar oldValue, JCBlock body) {
         super(index, oldValue, body);
@@ -43,5 +47,13 @@ public class JFXOnInsertElement extends JFXAbstractOnChange {
     @Override
     public int getTag() {
         return JavafxTag.ON_INSERT_ELEMENT;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.ON_INSERT_ELEMENT;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitOnInsertElement(this, data);
     }
 }

@@ -31,7 +31,7 @@ import com.sun.tools.javac.util.Name;
 
 import com.sun.tools.javac.code.Symbol;
 
-import com.sun.tools.javafx.code.JavafxBindStatus;
+import com.sun.javafx.api.JavafxBindStatus;
 
 /**
  * In object literal  "Identifier ':' [ 'bind' 'lazy'?] expression"

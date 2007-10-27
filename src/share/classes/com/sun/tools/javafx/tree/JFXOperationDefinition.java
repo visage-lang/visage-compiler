@@ -25,7 +25,11 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.OperationDefinitionTree;
+import com.sun.source.tree.Tree.Kind;
+import com.sun.source.tree.TreeVisitor;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.util.List;
@@ -36,7 +40,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 /**
  * A function definition.
  */
-public class JFXOperationDefinition extends JFXStatement {
+public class JFXOperationDefinition extends JFXStatement implements OperationDefinitionTree {
     public JCModifiers mods;
     public Name name;
     public JFXOperationValue operation;
@@ -88,5 +92,13 @@ public class JFXOperationDefinition extends JFXStatement {
     @Override
     public int getTag() {
         return JavafxTag.FUNCTION_DEF;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.OPERATION_DEFINITION;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitOperationDefinition(this, data);
     }
 }

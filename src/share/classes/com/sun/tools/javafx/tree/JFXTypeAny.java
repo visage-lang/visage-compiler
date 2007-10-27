@@ -25,16 +25,20 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.TypeAnyTree;
+
 /**
  * Any Type
  *
  * @author Robert Field
  */
-public class JFXTypeAny extends JFXType {
+public class JFXTypeAny extends JFXType implements TypeAnyTree {
     /*
      * @param cardinality one of the cardinality constants
      */
-    protected JFXTypeAny(int cardinality) {
+    protected JFXTypeAny(Cardinality cardinality) {
         super(cardinality);
     }
     public void accept(JavafxVisitor v) { v.visitTypeAny(this); }
@@ -42,5 +46,15 @@ public class JFXTypeAny extends JFXType {
     @Override
     public int getTag() {
         return JavafxTag.TYPEANY;
+    }
+
+    @Override
+    public <R,D> R accept(JavaFXTreeVisitor<R,D> v, D d) {
+        return v.visitTypeAny(this, d);
+    }
+
+    @Override
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXTree.JavaFXKind.TYPE_ANY;
     }
 }

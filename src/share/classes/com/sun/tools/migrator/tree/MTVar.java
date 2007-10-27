@@ -29,7 +29,7 @@ import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.migrator.tree.MTTree.*;
-import com.sun.tools.javafx.code.JavafxBindStatus;
+import com.sun.javafx.api.JavafxBindStatus;
 
 /**
  * Variable declaration.

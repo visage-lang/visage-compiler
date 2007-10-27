@@ -25,12 +25,15 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.MemberSelectorTree;
 import com.sun.tools.javac.util.Name;
 
 /**
  * Abstract definition of a member
  */
-public class JFXMemberSelector extends JFXTree {
+public class JFXMemberSelector extends JFXTree implements MemberSelectorTree {
     public Name className; // TODO: Make this an Ident. Tools may need position info.
     public Name name; // TODO: Make this an Ident. Tools may need position info.
 
@@ -46,11 +49,19 @@ public class JFXMemberSelector extends JFXTree {
     }
     public void accept(JavafxVisitor v) { v.visitMemberSelector(this); }
     
-    public Name getClassName() { return className; }
-    public Name getName() { return name; }
+    public javax.lang.model.element.Name getClassName() { return className; }
+    public javax.lang.model.element.Name getName() { return name; }
 
     @Override
     public int getTag() {
         return JavafxTag.MEMBERSELECTOR;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.MEMBER_SELECTOR;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitMemberSelector(this, data);
     }
 }

@@ -25,9 +25,12 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.source.tree.Tree;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 
@@ -54,6 +57,14 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
 	    scan(l.head);
     }
 
+    /** Visitor method: scan a list of nodes.
+     */
+    public void scan(java.util.List<? extends Tree> trees) {
+	if (trees != null)
+            for (Tree t : trees)
+                scan((JCTree)t);
+    }
+
 
 /* ***************************************************************************
  * Visitor methods
@@ -63,14 +74,14 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     @Override
     public void visitClassDeclaration(JFXClassDeclaration that) {
         that.mods.accept(this);
-        for (JCTree member : that.getMembers()) {
-            member.accept(this);
+        for (Tree member : that.getMembers()) {
+            ((JCTree)member).accept(this);
         }
     }
     
     @Override
     public void visitOperationValue(JFXOperationValue tree) {
-        for (JFXVar param : tree.getParameters()) {
+        for (JFXVar param : tree.getParams()) {
             param.accept((JavafxVisitor)this);
         }
         if (tree.getBodyExpression() != null) {
@@ -87,7 +98,7 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
 
     @Override
     public void visitInitDefinition(JFXInitDefinition that) {
-        that.getBody().accept(this);
+        ((JCBlock)that.getBody()).accept(this);
     }
 
     @Override
@@ -147,7 +158,7 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     
     @Override
     public void visitInstanciate(JFXInstanciate tree) {
-        tree.getIdentifier().accept(this);
+       tree.getIdentifier().accept(this);
        scan( tree.getParts() );
        scan( tree.getClassBody() );
     }
@@ -171,10 +182,11 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     
     @Override
     public void visitTypeFunctional(JFXTypeFunctional that) {
-        for (JCTree param : that.getParameters()) {
+        for (JCTree param : (List<JFXType>)that.getParameters()) {
             param.accept(this);
         }
-        that.getReturnType().accept((JavafxVisitor)this);
+        JFXType type = (JFXType)that.getReturnType();
+        type.accept((JavafxVisitor)this);
     }
     
     @Override
@@ -221,7 +233,8 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     
     @Override
     public void visitForExpression(JFXForExpression that) {
-        for (JFXForExpressionInClause clause : that.getInClauses()) {
+        for (ForExpressionInClauseTree cl : that.getInClauses()) {
+            JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
             clause.accept((JavafxVisitor)this);
         }
         that.getBodyExpression().accept(this);

@@ -41,7 +41,7 @@ import static com.sun.tools.javac.code.TypeTags.*;
 import static com.sun.tools.javac.tree.JCTree.SELECT;
 
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javafx.code.JavafxBindStatus;
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;

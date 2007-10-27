@@ -25,11 +25,15 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.OnDeleteElementTree;
+
 /**
  *
  * @author Robert Field
  */
-public class JFXOnDeleteElement extends JFXAbstractOnChange {
+public class JFXOnDeleteElement extends JFXAbstractOnChange implements OnDeleteElementTree {
 
     public JFXOnDeleteElement(JFXVar index, JFXVar oldValue, JCBlock body) {
         super(index, oldValue, body);
@@ -43,5 +47,13 @@ public class JFXOnDeleteElement extends JFXAbstractOnChange {
     @Override
     public int getTag() {
         return JavafxTag.ON_DELETE_ELEMENT;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.ON_DELETE_ELEMENT;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitOnDeleteElement(this, data);
     }
 }

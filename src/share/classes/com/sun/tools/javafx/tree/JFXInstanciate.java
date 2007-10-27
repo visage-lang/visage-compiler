@@ -25,17 +25,21 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.InstantiateTree;
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.ObjectLiteralPartTree;
+import com.sun.source.tree.ExpressionTree;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
 
 /**
  * A class declaration
  */
-public class JFXInstanciate extends JFXExpression {
+public class JFXInstanciate extends JFXExpression implements InstantiateTree {
 
     private final JCExpression clazz;
     private final JFXClassDeclaration def;
@@ -59,9 +63,13 @@ public class JFXInstanciate extends JFXExpression {
     public JCExpression getIdentifier() {
         return clazz;
     }
-
-    public List<JCExpression> getArguments() {
+    
+    public List<JCExpression> getArgs() {
         return args;
+    }
+
+    public java.util.List<ExpressionTree> getArguments() {
+        return JFXTree.convertList(ExpressionTree.class, args);
     }
 
     public Symbol getIdentifierSym() {
@@ -79,6 +87,10 @@ public class JFXInstanciate extends JFXExpression {
         return parts;
     }
 
+    public java.util.List<ObjectLiteralPartTree> getLiteralParts() {
+        return JFXTree.convertList(ObjectLiteralPartTree.class, parts);
+    }
+
     public JFXClassDeclaration getClassBody() {
         return def;
     }
@@ -86,5 +98,13 @@ public class JFXInstanciate extends JFXExpression {
     @Override
     public int getTag() {
         return JavafxTag.OBJECT_LITERAL;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.INSTANTIATE;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitInstantiate(this, data);
     }
 }

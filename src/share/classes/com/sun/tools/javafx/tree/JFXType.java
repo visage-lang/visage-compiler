@@ -25,26 +25,23 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.TypeTree;
+import com.sun.source.tree.TreeVisitor;
+
 /**
  * Abstract base for types
  *
  * @author Robert Field
  */
-public abstract class JFXType extends JFXExpression {
-//    public static final int CARDINALITY_OPTIONAL  = 0;  // default: zero or one
-    public static final int CARDINALITY_SINGLETON = 1;  // one
-//    public static final int CARDINALITY_SOME      = 2;  // '+' one or more
-    public static final int CARDINALITY_ANY       = 3;  // '[]' zero or more
-    public static final int CARDINALITY_UNKNOWN   = 4;  // user didn't specify type info
-    
-    private final int cardinality;
+public abstract class JFXType extends JFXExpression implements TypeTree {    
+    private final Cardinality cardinality;
     
     /*
      * @param cardinality one of the cardinality constants
      */
-    protected JFXType(int cardinality) {
+    protected JFXType(Cardinality cardinality) {
         this.cardinality = cardinality;
     }
     
-    public int getCardinality() { return cardinality; }
+    public Cardinality getCardinality() { return cardinality; }
 }

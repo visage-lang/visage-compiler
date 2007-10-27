@@ -25,6 +25,7 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.code.Types;
@@ -37,7 +38,7 @@ import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.Position;
 import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javafx.code.JavafxBindStatus;
+import com.sun.javafx.api.JavafxBindStatus;
 
 /* JavaFX version of tree maker
  */
@@ -265,7 +266,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXType  TypeAny(int cardinality) {
+    public JFXType  TypeAny(Cardinality cardinality) {
         JFXType tree = new JFXTypeAny(cardinality);
         tree.pos = pos;
         return tree;
@@ -277,7 +278,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXType  TypeClass(JCExpression className,int cardinality) {
+    public JFXType  TypeClass(JCExpression className,Cardinality cardinality) {
         JFXType tree = new JFXTypeClass(className, cardinality, null);
         tree.pos = pos;
         return tree;
@@ -285,7 +286,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     
     public JFXType TypeFunctional(List<JFXType> params,
             JFXType restype,
-            int cardinality) {
+            Cardinality cardinality) {
         JFXType tree = new JFXTypeFunctional(params,
                 restype,
                 cardinality);

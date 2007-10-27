@@ -25,6 +25,10 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.StringExpressionTree;
+import com.sun.source.tree.ExpressionTree;
 import com.sun.tools.javac.util.List;
 
 import com.sun.tools.javac.tree.JCTree.JCExpression;
@@ -33,7 +37,7 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
  * 
  * @author Robert Field
  */
-public class JFXStringExpression extends JFXExpression {
+public class JFXStringExpression extends JFXExpression implements StringExpressionTree {
     public List<JCExpression> parts;
 
     JFXStringExpression(List<JCExpression> parts) {
@@ -50,8 +54,20 @@ public class JFXStringExpression extends JFXExpression {
         return parts;
     }
 
+    public java.util.List<ExpressionTree> getPartList() {
+        return JFXTree.convertList(ExpressionTree.class, parts);
+    }
+
     @Override
     public int getTag() {
         return JavafxTag.STRING_EXPRESSION;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.STRING_EXPRESSION;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitStringExpression(this, data);
     }
 }

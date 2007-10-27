@@ -25,13 +25,16 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.SequenceDeleteTree;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 
 /**
  *
  * @author Robert Field
  */
-public class JFXSequenceDelete extends JFXStatement {
+public class JFXSequenceDelete extends JFXStatement implements SequenceDeleteTree {
     private JCExpression sequence;
     private final JCExpression element;
     
@@ -67,5 +70,13 @@ public class JFXSequenceDelete extends JFXStatement {
     @Override
     public int getTag() {
         return JavafxTag.DELETE;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.SEQUENCE_DELETE;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitSequenceDelete(this, data);
     }
 }

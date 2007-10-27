@@ -25,6 +25,7 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXExpressionTree;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.Visitor;
 
@@ -36,7 +37,7 @@ import com.sun.tools.javac.tree.Pretty;
  * Should be a subclass of JFXTree (but can't for now)
  * @see JFXTree
  */
-public abstract class JFXExpression extends JCExpression {
+public abstract class JFXExpression extends JCExpression implements JavaFXExpressionTree {
     
     /** Initialize tree with given tag.
      */
@@ -63,16 +64,14 @@ public abstract class JFXExpression extends JCExpression {
             v.visitTree(this);
         }
     }
-    
-    // stuff to ignore
-    
+
     @Override
-    public Kind getKind()  {
-        throw new InternalError("not implemented");
+    public final Kind getKind() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     @Override
-    public <R,D> R accept(TreeVisitor<R,D> v, D d) {
-        throw new InternalError("not implemented");
-    }  
+    public final <R, D> R accept(TreeVisitor<R, D> v, D d) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

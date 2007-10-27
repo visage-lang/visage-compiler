@@ -25,7 +25,11 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.source.tree.TreeVisitor;
+import com.sun.javafx.api.tree.ClassDeclarationTree;
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.source.tree.ExpressionTree;
+import com.sun.source.tree.Tree;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 
@@ -38,7 +42,7 @@ import com.sun.tools.javac.code.Symbol.*;
 /**
  * A class declaration
  */
-public class JFXClassDeclaration extends JFXStatement {
+public class JFXClassDeclaration extends JFXStatement implements ClassDeclarationTree {
     public JCModifiers mods;
     private final Name name;
     private List<JCExpression> extending = null;
@@ -63,6 +67,10 @@ public class JFXClassDeclaration extends JFXStatement {
         this.sym = sym;
             
         this.supertypes = supertypes;
+    }
+
+    public java.util.List<ExpressionTree> getSupertypeList() {
+        return JFXTree.convertList(ExpressionTree.class, supertypes);
     }
 
     public JCModifiers getModifiers() {
@@ -112,7 +120,7 @@ public class JFXClassDeclaration extends JFXStatement {
     }
 
     public void appendToMembers(ListBuffer<JCTree> members) {
-        defs = defs.appendList(members);
+        defs = defs.appendList(members.toList());
     }
 
     @Override
@@ -133,14 +141,35 @@ public class JFXClassDeclaration extends JFXStatement {
         }
     }
     
-    // stuff to ignore
-    
-    public Kind getKind()  {
-        throw new InternalError("not implemented");
+    public java.util.List<Tree> getMemberTrees() {
+        return JFXTree.convertList(Tree.class, defs);
     }
-    
-    @Override
-    public <R,D> R accept(TreeVisitor<R,D> v, D d) {
-        throw new InternalError("not implemented");
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.CLASS_DECLARATION;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitClassDeclaration(this, data);
+    }
+
+    public javax.lang.model.element.Name getSimpleName() {
+        return (javax.lang.model.element.Name)name;
+    }
+
+    public java.util.List<ExpressionTree> getSupers() {
+        return JFXTree.convertList(ExpressionTree.class, supertypes);
+    }
+
+    public java.util.List<ExpressionTree> getImplements() {
+        return JFXTree.convertList(ExpressionTree.class, implementing);
+    }
+
+    public java.util.List<Tree> getClassMembers() {
+        return JFXTree.convertList(Tree.class, defs);
+    }
+
+    public java.util.List<ExpressionTree> getExtends() {
+        return JFXTree.convertList(ExpressionTree.class, extending);
     }
 }

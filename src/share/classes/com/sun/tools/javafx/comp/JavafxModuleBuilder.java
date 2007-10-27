@@ -25,6 +25,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.tree.TypeTree;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Type;
 import static com.sun.tools.javac.code.Flags.*;
@@ -169,7 +170,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         return make.OperationDefinition(
                 make.Modifiers(isStatic? PUBLIC | STATIC : PUBLIC), 
                 Name.fromString(names, name), 
-                make.TypeClass(rettree, JFXType.CARDINALITY_SINGLETON),
+                make.TypeClass(rettree, JFXType.Cardinality.SINGLETON),
                 params, 
                 body);        
     }

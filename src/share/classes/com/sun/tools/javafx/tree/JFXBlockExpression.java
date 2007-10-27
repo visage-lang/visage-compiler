@@ -25,6 +25,10 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.BlockExpressionTree;
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.tree.*;
@@ -37,7 +41,7 @@ import com.sun.tools.javafx.comp.*;
  *
  * @author bothner
  */
-public class JFXBlockExpression extends JFXExpression {
+public class JFXBlockExpression extends JFXExpression implements BlockExpressionTree {
     public long flags;
     public List<JCStatement> stats;
     public JCExpression value;
@@ -86,6 +90,15 @@ public class JFXBlockExpression extends JFXExpression {
     @Override
     public int getTag() {
         return JavafxTag.BLOCK_EXPRESSION;
+    }
+
+    @Override
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+        return v.visitBlockExpression(this, d);
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.BLOCK_EXPRESSION;
     }
 
 }

@@ -25,6 +25,10 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.javafx.api.tree.ObjectLiteralPartTree;
+import com.sun.javafx.api.tree.OnChangeTree;
+import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.comp.*;
 import static com.sun.tools.javac.code.Flags.FINAL;
@@ -1066,10 +1070,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         JavafxEnv<JavafxAttrContext> forExprEnv =
             env.dup(tree, env.info.dup(env.info.scope.dup()));
         
-        for (JFXForExpressionInClause clause : tree.getInClauses()) {
+        for (ForExpressionInClauseTree cl : tree.getInClauses()) {
+            JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
             attribVar(clause.getVar(), forExprEnv);
-            Type exprType = types.upperBound(attribExpr(clause.getSequenceExpression(), forExprEnv));
-            chk.checkNonVoid(clause.pos(), exprType);
+            Type exprType = types.upperBound(attribExpr((JCExpression)clause.getSequenceExpression(), forExprEnv));
+            chk.checkNonVoid(((JCTree)clause).pos(), exprType);
             Type elemtype;
             // must implement Sequence<T>?
             Type base = types.asSuper(exprType, syms.javafx_SequenceType.tsym);
@@ -1085,7 +1090,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 }
             }
             if (elemtype == syms.errType) {
-                log.error(clause.getSequenceExpression().pos(), "foreach.not.applicable.to.type");
+                log.error(((JCTree)(clause.getSequenceExpression())).pos(), "foreach.not.applicable.to.type");
             } else {
                 // if it is a primitive type, unbox it
                 Type unboxed = types.unboxedType(elemtype);
@@ -1218,7 +1223,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
 
         // Attribute constructor arguments.
-        List<Type> argtypes = attribArgs(tree.getArguments(), localEnv);
+        List<Type> argtypes = attribArgs(tree.getArgs(), localEnv);
 
         // If we have made no mistakes in the class type...
         if (clazztype.tag == CLASS) {
@@ -1231,7 +1236,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 // Check that no constructor arguments are given to
                 // anonymous classes implementing an interface
                 if (!argtypes.isEmpty())
-                    log.error(tree.getArguments().head.pos(), "anon.class.impl.intf.no.args");
+                    log.error(tree.getArgs().head.pos(), "anon.class.impl.intf.no.args");
 
 
                 // Error recovery: pretend no arguments were supplied.
@@ -1325,7 +1330,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         //Scope members = owntype.tsym.members();  //TODO: should see new members
         Scope members = clazz.type.tsym.members();
-        for (JFXObjectLiteralPart part : tree.getParts()) {
+        for (ObjectLiteralPartTree pt : tree.getParts()) {
+            JFXObjectLiteralPart part = (JFXObjectLiteralPart)pt;
             Symbol memberSym = members.lookup(part.name).sym;
             memberSym = rs.access(memberSym, part.pos(), owntype, part.name, true);
             memberSym.complete();
@@ -2232,7 +2238,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitInitDefinition(JFXInitDefinition that) {
-        that.getBody().accept(this);
+        ((JCBlock)that.getBody()).accept(this);
     }
 
     @Override
@@ -2476,7 +2482,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         ListBuffer<Type> argtypes = new ListBuffer<Type>();
         typarams.append(rtype);
         int nargs = 0;
-        for (JFXType param : tree.params) {
+        for (JFXType param : (List<JFXType>)tree.params) {
             Type argtype = attribType(param, env);
             argtypes.append(argtype);
             Type ptype = boxIfNeeded(argtype);
@@ -2554,8 +2560,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         return elemType;
     }
     
-    Type sequenceType(Type elemType, int cardinality) {
-        return cardinality == JFXType.CARDINALITY_ANY 
+    Type sequenceType(Type elemType, Cardinality cardinality) {
+        return cardinality == cardinality.ANY 
                 ? sequenceType(elemType)
                 : elemType;
     }

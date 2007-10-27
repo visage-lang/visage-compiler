@@ -25,12 +25,16 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.JavaFXVariableTree;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 
 /**
  * for (name in seqExpr where whereExpr) bodyExpr
  */
-public class JFXForExpressionInClause extends JFXTree {
+public class JFXForExpressionInClause extends JFXTree implements ForExpressionInClauseTree {
     public JFXVar var; 
     public JCExpression seqExpr;
     public JCExpression whereExpr;
@@ -46,11 +50,20 @@ public class JFXForExpressionInClause extends JFXTree {
     public void accept(JavafxVisitor v) { v.visitForExpressionInClause(this); }
     
     public JFXVar getVar() { return var; }
+    public JavaFXVariableTree getVariable() { return var; }
     public JCExpression getSequenceExpression() { return seqExpr; }
     public JCExpression getWhereExpression() { return whereExpr; }
 
     @Override
     public int getTag() {
         return JavafxTag.FOR_EXPRESSION_IN_CLAUSE;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.FOR_EXPRESSION_IN_CLAUSE;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+        return v.visitForExpressionInClause(this, d);
     }
 }

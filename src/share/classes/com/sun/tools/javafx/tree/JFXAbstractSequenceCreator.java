@@ -25,10 +25,12 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.SequenceCreatorTree;
+
 /**
  *
  * @author Robert Field
  */
-public abstract class JFXAbstractSequenceCreator extends JFXExpression {
+public abstract class JFXAbstractSequenceCreator extends JFXExpression implements SequenceCreatorTree {
 
 }
