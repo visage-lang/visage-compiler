@@ -92,19 +92,19 @@ public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
     }
 
     public boolean isBound() {
-        return bindStatus.isBound;
+        return bindStatus.isBound();
     }
 
     public boolean isUnidiBind() {
-        return bindStatus.isUnidiBind;
+        return bindStatus.isUnidiBind();
     }
 
     public boolean isBidiBind() {
-        return bindStatus.isBidiBind;
+        return bindStatus.isBidiBind();
     }
 
     public boolean isLazy() {
-        return bindStatus.isLazy;
+        return bindStatus.isLazy();
     }
 
     @Override

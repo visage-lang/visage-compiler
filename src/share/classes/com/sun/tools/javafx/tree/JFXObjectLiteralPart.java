@@ -64,10 +64,10 @@ public class JFXObjectLiteralPart extends JFXStatement implements ObjectLiteralP
     public void setTranslationInit(JCExpression tra) { translationInit = tra; }
     public JCExpression getTranslationInit() { assert false : "currently not being used"; return translationInit; }
     public JavafxBindStatus getBindStatus() { return bindStatus; }
-    public boolean isBound()     { return bindStatus.isBound; }
-    public boolean isUnidiBind() { return bindStatus.isUnidiBind; }
-    public boolean isBidiBind()  { return bindStatus.isBidiBind; }
-    public boolean isLazy()      { return bindStatus.isLazy; }
+    public boolean isBound()     { return bindStatus.isBound(); }
+    public boolean isUnidiBind() { return bindStatus.isUnidiBind(); }
+    public boolean isBidiBind()  { return bindStatus.isBidiBind(); }
+    public boolean isLazy()      { return bindStatus.isLazy(); }
 
     @Override
     public int getTag() {
