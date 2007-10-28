@@ -172,8 +172,7 @@ public class JavafxAnnotate {
 						      env,
 						      a.type,
 						      left.name,
-						      List.<Type>nil(),
-						      null);
+						      rs.newMethTemplate(List.<Type>nil(), null));
 	    left.sym = method;
 	    left.type = method.type;
 	    if (method.owner != a.type.tsym)

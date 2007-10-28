@@ -793,8 +793,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             case ARRAY:
             case CLASS:
                 if (pt.tag == METHOD || pt.tag == FORALL) {
-                    return rs.resolveQualifiedMethod(
-                        pos, env, site, name, pt.getParameterTypes(), pt.getTypeArguments());
+                    return rs.resolveQualifiedMethod(pos, env, site, name, pt);
                 } else if (name == names._this || name == names._super) {
                     return rs.resolveSelf(pos, env, site.tsym, name);
                 } else if (name == names._class) {
@@ -840,8 +839,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             case BOOLEAN:
                 if (pt.tag == METHOD || pt.tag == FORALL) {
                     Type boxedSite = types.boxedClass(site).type;
-                    return rs.resolveQualifiedMethod(
-                        pos, env, boxedSite, name, pt.getParameterTypes(), pt.getTypeArguments());
+                    return rs.resolveQualifiedMethod(pos, env, boxedSite, name, pt);
                 } 
                 // Fall through to default
             default:
@@ -1412,7 +1410,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             ListBuffer<Type> argbuf = new ListBuffer<Type>();
             for (List<JFXVar> l = tree.getParameters(); l.nonEmpty(); l = l.tail) {
                 attribVar(l.head, localEnv);
-                argbuf.append(l.head.getJFXType().type);
+                argbuf.append(l.head.sym.type);
             }
             returnType = null;
             if (opVal.getJFXReturnType().getTag() != JavafxTag.TYPEUNKNOWN) {
@@ -1754,15 +1752,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // a new environment nested in the current one.
         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup());
 
+        {
         // The types of the actual method arguments.
         List<Type> argtypes;
 
         // The types of the actual method type arguments.
-        List<Type> typeargtypes = null;
+        List<Type> typeargtypes;
 
         Name methName = JavafxTreeInfo.name(tree.meth);
-        
-        {
+
             // Otherwise, we are seeing a regular method call.
             // Attribute the arguments, yielding list of argument types, ...
             argtypes = attribArgs(tree.args, localEnv);
@@ -1771,7 +1769,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             // ... and attribute the method using as a prototype a methodtype
             // whose formal argument types is exactly the list of actual
             // arguments (this will also set the method symbol).
-            Type mpt = newMethTemplate(argtypes, typeargtypes);
+            Type mpt = new MethodType(argtypes, pt, null, syms.methodClass);
+            if (typeargtypes.nonEmpty()) mpt = new ForAll(typeargtypes, mpt);
             localEnv.info.varArgs = false;
             Type mtype = attribExpr(tree.meth, localEnv, mpt);
             if (localEnv.info.varArgs)
@@ -2695,10 +2694,16 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 }
                 break;
             case MTH: {
-                JCMethodInvocation app = (JCMethodInvocation)env.tree;
-                owntype = checkMethod(site, sym, env, app.args,
+                owntype = sym.type;
+                // This is probably wrong now that we have function expressions.
+                // Instead, we should checkMethod in visitApply.
+                // In that case we should also handle FunctionType. FIXME.
+                if (pt instanceof MethodType || pt instanceof ForAll) {
+                    JCMethodInvocation app = (JCMethodInvocation)env.tree;
+                    owntype = checkMethod(site, sym, env, app.args,
                                       pt.getParameterTypes(), pt.getTypeArguments(),
                                       env.info.varArgs);
+                }
                 break;
             }
             case PCK: case ERR:
@@ -3013,16 +3018,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                                      + " formal: " + formal);
         }
     }
-
-    // Javafx change
-        protected
-// Javafx change
-        /** Obtain a method type with given argument types.
-         */
-        Type newMethTemplate(List<Type> argtypes, List<Type> typeargtypes) {
-            MethodType mt = new MethodType(argtypes, null, null, syms.methodClass);
-            return (typeargtypes == null) ? mt : (Type)new ForAll(typeargtypes, mt);
-        }
 
     public void visitImport(JCImport tree) {
         // nothing to do

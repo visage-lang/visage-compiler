@@ -663,12 +663,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitOperationValue(JFXOperationValue tree) {
         JFXOperationDefinition def = tree.definition;
+        result = makeFunctionValue(make.Ident(make.lambdaName), tree.definition, tree.pos(), (MethodType) def.type);
+        result.type = tree.type;
+    }
+    
+    
+   JCExpression makeFunctionValue (JCExpression meth, JFXOperationDefinition def, DiagnosticPosition diagPos, MethodType mtype) {
         ListBuffer<JCTree> members = new ListBuffer<JCTree>();
-        DiagnosticPosition diagPos = tree.pos();
-        members.append(translate(def));
+        if (def != null)
+            members.append(translate(def));
         JCExpression encl = null;
         List<JCExpression> args = List.<JCExpression>nil();
-        MethodType mtype = (MethodType) def.type;
         int nargs = mtype.argtypes.size();
         Type ftype = syms.javafx_FunctionTypes[nargs];
         JCExpression t = makeQualifiedTree(null, ftype.tsym.getQualifiedName().toString());
@@ -688,8 +693,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         // The backend's Attr skips SYNTHETIC methods when looking for a matching method.
         long flags = PUBLIC | BRIDGE; // | SYNTHETIC;
-        Name mname = make.lambdaName; // or real method when bridge to named method.
-        JCExpression call = make.Apply(null, make.Ident(mname), margs.toList());
+
+        JCExpression call = make.Apply(null, meth, margs.toList());
 
         List<JCStatement> stats;
         if (mtype.restype == syms.voidType)
@@ -711,8 +716,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
         members.append(bridgeDef);
         JCClassDecl cl = make.AnonymousClassDef(make.Modifiers(0), members.toList());
-        result = make.NewClass(encl, args, make.TypeApply(t, typeargs.toList()), args, cl);
-        result.type = tree.type;
+        return make.NewClass(encl, args, make.TypeApply(t, typeargs.toList()), args, cl);
     }
     
     @Override
@@ -845,8 +849,27 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         // this may or may not be in a LHS but in either
         // event the selector is a value expression
         JCExpression translatedSelected = translateLHS(selected, false);
-        
-        if (selectedType != null && selectedType.isPrimitive()) { // selecetd.type is null for package symbols.
+     
+        if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
+            MethodType mtype = (MethodType) tree.sym.type;
+            JCVariableDecl selectedTmp = null;
+            
+            Name selectedTmpName = getSyntheticName("tg");
+            JCVariableDecl selectedTmpDecl =
+                make.VarDef(make.Modifiers(FINAL/*|SYNTHETIC*/), selectedTmpName,
+                    makeTypeTree(selectedType, diagPos, true),
+                    translatedSelected);
+            JCExpression translated = make.at(diagPos).Select(make.Ident(selectedTmpName), tree.getIdentifier());
+            translated = makeFunctionValue(translated, null, tree.pos(), mtype);
+            //result = make.LetExpr(selectedTmp, translated);
+            result = make.BlockExpression(
+                0L,
+                List.<JCStatement>of(selectedTmpDecl), 
+                translated);
+           return;
+        }
+
+       if (selectedType != null && selectedType.isPrimitive()) { // selecetd.type is null for package symbols.
             translatedSelected = makeBox(diagPos, translatedSelected, selectedType);
         }
         JCFieldAccess translated = make.at(diagPos).Select(translatedSelected, tree.getIdentifier());
@@ -859,6 +882,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitIdent(JCIdent tree)   {
+        if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
+            MethodType mtype = (MethodType) tree.sym.type;
+            DiagnosticPosition diagPos = tree.pos();
+            JCExpression meth = tree;
+            JFXOperationDefinition def = null; // FIXME
+            result = makeFunctionValue(meth, def, tree.pos(), mtype);
+            return;
+        }
         result = typeMorpher.convertVariableReference(tree, tree.sym, bindContext, inLHS);
     }
 

@@ -421,12 +421,19 @@ public class JavafxResolve {
         Symbol sym;
         Scope.Entry e = c.members().lookup(name);
         while (e.scope != null) {
-            if (e.sym.kind == VAR && (e.sym.flags_field & SYNTHETIC) == 0) {
-                return isAccessible(env, site, e.sym)
+            if ((e.sym.kind & (VAR|MTH)) != 0 && (e.sym.flags_field & SYNTHETIC) == 0) {
+                sym = isAccessible(env, site, e.sym)
                     ? e.sym : new AccessError(env, site, e.sym);
+                if (bestSoFar.kind < AMBIGUOUS && sym.kind < AMBIGUOUS &&
+                    sym.owner != bestSoFar.owner)
+                    bestSoFar = new AmbiguityError(bestSoFar, sym);
+                else if (sym.kind < bestSoFar.kind)
+                    bestSoFar = sym;
             }
             e = e.next();
         }
+        if (bestSoFar != varNotFound)
+            return bestSoFar;
         Type st = types.supertype(c.type);
         if (st != null && st.tag == CLASS) {
             sym = findField(env, site, name, st.tsym);
@@ -471,12 +478,13 @@ public class JavafxResolve {
         Symbol sym;
         JavafxEnv<JavafxAttrContext> env1 = env;
         boolean staticOnly = false;
+        
         Type envClass = null;
         while (env1 != null) {
             if (env1.outer != null && isStatic(env1)) staticOnly = true;
             if (envClass != null) {
                 sym = findMethod(env1, envClass, name,
-                        expected.getParameterTypes(), expected.getTypeArguments(),
+                        expected,
                         true, false, false);
                 if (sym.exists())
                         return sym;
@@ -544,8 +552,7 @@ public class JavafxResolve {
      */
     Symbol selectBest(JavafxEnv<JavafxAttrContext> env,
                       Type site,
-                      List<Type> argtypes,
-                      List<Type> typeargtypes,
+                      Type expected,
                       Symbol sym,
                       Symbol bestSoFar,
                       boolean allowBoxing,
@@ -554,6 +561,8 @@ public class JavafxResolve {
         if (sym.kind == ERR) return bestSoFar;
         if (!sym.isInheritedIn(site.tsym, types)) return bestSoFar;
         assert sym.kind < AMBIGUOUS;
+        List<Type> argtypes = expected.getParameterTypes();
+        List<Type> typeargtypes = expected.getTypeArguments();
         try {
             if (rawInstantiate(env, site, sym, argtypes, typeargtypes,
                                allowBoxing, useVarargs, Warner.noWarnings) == null) {
@@ -715,8 +724,26 @@ public class JavafxResolve {
         return findMethod(env,
                           site,
                           name,
-                          argtypes,
-                          typeargtypes,
+                          newMethTemplate(argtypes, typeargtypes),
+                          site.tsym.type,
+                          true,
+                          methodNotFound,
+                          allowBoxing,
+                          useVarargs,
+                          operator);
+    }
+
+    Symbol findMethod(JavafxEnv<JavafxAttrContext> env,
+                      Type site,
+                      Name name,
+                      Type expected,
+                      boolean allowBoxing,
+                      boolean useVarargs,
+                      boolean operator) {
+        return findMethod(env,
+                          site,
+                          name,
+                          expected,
                           site.tsym.type,
                           true,
                           methodNotFound,
@@ -725,17 +752,20 @@ public class JavafxResolve {
                           operator);
     }
     // where
-    private Symbol findMethod(JavafxEnv<JavafxAttrContext> env,
+             private Symbol findMethod(JavafxEnv<JavafxAttrContext> env,
                               Type site,
                               Name name,
-                              List<Type> argtypes,
-                              List<Type> typeargtypes,
+                              Type expected,
                               Type intype,
                               boolean abstractok,
                               Symbol bestSoFar,
                               boolean allowBoxing,
                               boolean useVarargs,
                               boolean operator) {
+        Type mtype = expected;
+        if (mtype instanceof FunctionType)
+            mtype = mtype.asMethodType();
+        boolean checkArgs = mtype instanceof MethodType || mtype instanceof ForAll;
         for (Type ct = intype; ct.tag == CLASS; ct = types.supertype(ct)) {
             ClassSymbol c = (ClassSymbol)ct.tsym;
             if ((c.flags() & (ABSTRACT | INTERFACE)) == 0)
@@ -743,16 +773,29 @@ public class JavafxResolve {
             for (Scope.Entry e = c.members().lookup(name);
                  e.scope != null;
                  e = e.next()) {
-                if (e.sym.kind == MTH &&
-                    (e.sym.flags_field & SYNTHETIC) == 0) {
-                    bestSoFar = selectBest(env, site, argtypes, typeargtypes,
+                if ((e.sym.kind & (VAR|MTH)) == 0 ||
+                        (e.sym.flags_field & SYNTHETIC) != 0)
+                    continue;
+                if (! checkArgs) {
+                    // No argument list to disambiguate.
+                    if (bestSoFar.kind == ABSENT_VAR || bestSoFar.kind == ABSENT_MTH)
+                        bestSoFar = e.sym;
+                    else
+                        bestSoFar = new AmbiguityError(bestSoFar, e.sym);
+                }
+                else if (e.sym.kind == MTH) {
+                    bestSoFar = selectBest(env, site, mtype,
                                            e.sym, bestSoFar,
                                            allowBoxing,
                                            useVarargs,
                                            operator);
                 }
-                else if (e.sym.kind == VAR && bestSoFar == methodNotFound)
+                else if ((e.sym.kind & (VAR|MTH)) != 0 && bestSoFar == methodNotFound)
                     return e.sym;
+            }
+            if (! checkArgs &&
+                bestSoFar.kind != ABSENT_VAR && bestSoFar.kind != ABSENT_MTH) {
+                return bestSoFar;
             }
             if (abstractok) {
                 Symbol concrete = methodNotFound;
@@ -761,8 +804,7 @@ public class JavafxResolve {
                 for (List<Type> l = types.interfaces(c.type);
                      l.nonEmpty();
                      l = l.tail) {
-                    bestSoFar = findMethod(env, site, name, argtypes,
-                                           typeargtypes,
+                    bestSoFar = findMethod(env, site, name, expected,
                                            l.head, abstractok, bestSoFar,
                                            allowBoxing, useVarargs, operator);
                 }
@@ -775,7 +817,12 @@ public class JavafxResolve {
         return bestSoFar;
     }
 
-    /** Find unqualified method matching given name, type and value arguments.
+    Type newMethTemplate(List<Type> argtypes, List<Type> typeargtypes) {
+        MethodType mt = new MethodType(argtypes, null, null, syms.methodClass);
+        return (typeargtypes == null) ? mt : (Type)new ForAll(typeargtypes, mt);
+    }
+         
+   /** Find unqualified method matching given name, type and value arguments.
      *  @param env       The current environment.
      *  @param name      The method's name.
      *  @param argtypes  The method's value arguments.
@@ -784,8 +831,7 @@ public class JavafxResolve {
      *  @param useVarargs Box trailing arguments into an array for varargs.
      */
     Symbol findFun(JavafxEnv<JavafxAttrContext> env, Name name,
-                   List<Type> argtypes, List<Type> typeargtypes,
-                   boolean allowBoxing, boolean useVarargs) {
+                   Type expected, boolean allowBoxing, boolean useVarargs) {
         Symbol bestSoFar = methodNotFound;
         Symbol sym;
         JavafxEnv<JavafxAttrContext> env1 = env;
@@ -793,7 +839,7 @@ public class JavafxResolve {
         while (env1.outer != null) {
             if (isStatic(env1)) staticOnly = true;
             sym = findMethod(
-                env1, env1.enclClass.sym.type, name, argtypes, typeargtypes,
+                env1, env1.enclClass.sym.type, name, expected,
                 allowBoxing, useVarargs, false);
             if (sym.exists()) {
                 if (staticOnly &&
@@ -808,8 +854,8 @@ public class JavafxResolve {
             env1 = env1.outer;
         }
 
-        sym = findMethod(env, syms.predefClass.type, name, argtypes,
-                         typeargtypes, allowBoxing, useVarargs, false);
+        sym = findMethod(env, syms.predefClass.type, name, expected,
+                         allowBoxing, useVarargs, false);
         if (sym.exists())
             return sym;
 
@@ -822,8 +868,7 @@ public class JavafxResolve {
                     sym = sym.clone(e.getOrigin().owner);
                 if (!isAccessible(env, origin, sym))
                     sym = new AccessError(env, origin, sym);
-                bestSoFar = selectBest(env, origin,
-                                       argtypes, typeargtypes,
+                bestSoFar = selectBest(env, origin, expected,
                                        sym, bestSoFar,
                                        allowBoxing, useVarargs, false);
             }
@@ -840,8 +885,7 @@ public class JavafxResolve {
                     sym = sym.clone(e.getOrigin().owner);
                 if (!isAccessible(env, origin, sym))
                     sym = new AccessError(env, origin, sym);
-                bestSoFar = selectBest(env, origin,
-                                       argtypes, typeargtypes,
+                bestSoFar = selectBest(env, origin, expected,
                                        sym, bestSoFar,
                                        allowBoxing, useVarargs, false);
             }
@@ -1103,6 +1147,14 @@ public class JavafxResolve {
         return sym;
     }
 
+    Symbol access(Symbol sym,
+                  DiagnosticPosition pos,
+                  Type site,
+                  Name name,
+                  boolean qualified,
+                  Type expected) {
+        return access(sym, pos, site, name, qualified, expected.getParameterTypes(), expected.getTypeArguments());
+    }
     /** Same as above, but without type arguments and arguments.
      */
 // Javafx change
@@ -1193,17 +1245,16 @@ public class JavafxResolve {
     Symbol resolveMethod(DiagnosticPosition pos,
                          JavafxEnv<JavafxAttrContext> env,
                          Name name,
-                         List<Type> argtypes,
-                         List<Type> typeargtypes) {
-        Symbol sym = findFun(env, name, argtypes, typeargtypes, false, env.info.varArgs=false);
+                         Type expected) {
+        Symbol sym = findFun(env, name, expected, false, env.info.varArgs=false);
         if (varargsEnabled && sym.kind >= WRONG_MTHS) {
-            sym = findFun(env, name, argtypes, typeargtypes, true, false);
+            sym = findFun(env, name, expected, true, false);
             if (sym.kind >= WRONG_MTHS)
-                sym = findFun(env, name, argtypes, typeargtypes, true, env.info.varArgs=true);
+                sym = findFun(env, name, expected, true, env.info.varArgs=true);
         }
         if (sym.kind >= AMBIGUOUS) {
             sym = access(
-                sym, pos, env.enclClass.sym.type, name, false, argtypes, typeargtypes);
+                sym, pos, env.enclClass.sym.type, name, false, expected);
         }
         return sym;
     }
@@ -1218,19 +1269,18 @@ public class JavafxResolve {
      *  @param typeargtypes  The types of the invocation's type arguments.
      */
     Symbol resolveQualifiedMethod(DiagnosticPosition pos, JavafxEnv<JavafxAttrContext> env,
-                                  Type site, Name name, List<Type> argtypes,
-                                  List<Type> typeargtypes) {
-        Symbol sym = findMethod(env, site, name, argtypes, typeargtypes, false,
+                                  Type site, Name name, Type expected) {
+        Symbol sym = findMethod(env, site, name, expected, false,
                                 env.info.varArgs=false, false);
         if (varargsEnabled && sym.kind >= WRONG_MTHS) {
-            sym = findMethod(env, site, name, argtypes, typeargtypes, true,
+            sym = findMethod(env, site, name, expected, true,
                              false, false);
             if (sym.kind >= WRONG_MTHS)
-                sym = findMethod(env, site, name, argtypes, typeargtypes, true,
+                sym = findMethod(env, site, name, expected, true,
                                  env.info.varArgs=true, false);
         }
         if (sym.kind >= AMBIGUOUS) {
-            sym = access(sym, pos, site, name, true, argtypes, typeargtypes);
+            sym = access(sym, pos, site, name, true, expected);
         }
         return sym;
     }
@@ -1250,7 +1300,7 @@ public class JavafxResolve {
                                         List<Type> argtypes,
                                         List<Type> typeargtypes) {
         Symbol sym = resolveQualifiedMethod(
-            pos, env, site, name, argtypes, typeargtypes);
+            pos, env, site, name, newMethTemplate(argtypes, typeargtypes));
         if (sym.kind == MTH) return (MethodSymbol)sym;
         else throw new FatalError(
                  JCDiagnostic.fragment("fatal.err.cant.locate.meth",
