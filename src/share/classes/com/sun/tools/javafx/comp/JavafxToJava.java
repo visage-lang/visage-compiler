@@ -306,6 +306,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         JFXClassDeclaration prevClass = currentClass;
         currentClass = tree;
+
+        new ForEachInClauseOwnerFixer().scan(tree);
+
         try {
             DiagnosticPosition diagPos = tree.pos();
             JFXClassDeclaration prevEnclClass = attrEnv.enclClass;
@@ -1782,12 +1785,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 if (initBuilder.isJFXClass((ClassSymbol)sym.owner)) {
                     JCExpression receiver = null;
                     if (tree.getTag() == JCTree.SELECT) {
-                        if (receiverName != null && ((JCFieldAccess)tree).selected.getTag() != JCTree.APPLY) {
-                            receiver = make.Select(((JCFieldAccess)tree).selected, receiverName);
-                        }
-                        else {
-                            receiver = ((JCFieldAccess)tree).selected;
-                        }
+                        receiver = ((JCFieldAccess)tree).selected;
                     }
                     else {
                         if (tree.getTag() != JCTree.IDENT) {
@@ -1885,4 +1883,92 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             this.args = args;
         }
     }
+
+    // Fix up the owner of the ForeachInClause.var JFXVar symbol. When it is created it is set to be 
+    // the outer ClassDeclaration and therefor is treated as an attribute instead of local var.
+    static class ForEachInClauseOwnerFixer extends JavafxTreeScanner {
+        Symbol currentSymbol;
+        
+        @Override
+        public void visitVar(JFXVar tree) {
+            Symbol prevSymbol = currentSymbol;
+            try {
+                currentSymbol = tree.sym;
+                super.visitVar(tree);
+            }
+            finally {
+                currentSymbol = prevSymbol;
+            }
+        }
+        
+        @Override
+        public void visitOperationDefinition(JFXOperationDefinition tree) {
+            Symbol prevSymbol = currentSymbol;
+            try {
+                currentSymbol = tree.sym;
+                super.visitOperationDefinition(tree);
+            }
+            finally {
+                currentSymbol = prevSymbol;
+            }
+        }
+        
+        @Override
+        public void visitClassDeclaration(JFXClassDeclaration tree) {
+            Symbol prevSymbol = currentSymbol;
+            try {
+                currentSymbol = tree.sym;
+                super.visitClassDeclaration(tree);
+            }
+            finally {
+                currentSymbol = prevSymbol;
+            }
+        }
+        
+        @Override
+        public void visitVarDef(JCVariableDecl tree) {
+            Symbol prevSymbol = currentSymbol;
+            try {
+                currentSymbol = tree.sym;
+                super.visitVarDef(tree);
+            }
+            finally {
+                currentSymbol = prevSymbol;
+            }
+        }
+        
+        @Override
+        public void visitMethodDef(JCMethodDecl tree) {
+            Symbol prevSymbol = currentSymbol;
+            try {
+                currentSymbol = tree.sym;
+                super.visitMethodDef(tree);
+            }
+            finally {
+                currentSymbol = prevSymbol;
+            }
+        }
+                        
+        @Override
+        public void visitClassDef(JCClassDecl tree) {
+            Symbol prevSymbol = currentSymbol;
+            try {
+                currentSymbol = tree.sym;
+                super.visitClassDef(tree);
+            }
+            finally {
+                currentSymbol = prevSymbol;
+            }
+        }
+                
+        @Override
+        public void visitForExpressionInClause(JFXForExpressionInClause tree) {
+            if (tree.var != null) {
+                tree.var.sym.owner = currentSymbol;
+            }
+            super.visitForExpressionInClause(tree);
+        }
+
+    }
+// Lubo
 }
