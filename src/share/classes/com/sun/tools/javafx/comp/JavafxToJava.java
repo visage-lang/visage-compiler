@@ -275,16 +275,19 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 }
             }
             else if (def.getTag() == JCTree.IMPORT) {
-                if (!((JCImport)def).isStatic()) {
+                 if (!((JCImport)def).isStatic()) {
                     if (((JCImport)def).getQualifiedIdentifier().getTag() == JCTree.SELECT) {
                         JCFieldAccess select = (JCFieldAccess)((JCImport)def).getQualifiedIdentifier();
-                        if (select.name != names.asterisk) {
-                            tdefs.append(make.Import(make.Select(select.selected, names.fromString(select.name.toString() + initBuilder.interfaceNameSuffix)), false));
+                        if (select.name != names.asterisk && 
+                                ((select.sym) instanceof ClassSymbol) &&
+                                initBuilder.isJFXClass((ClassSymbol)(select.sym))) {
+                           tdefs.append(make.Import(make.Select(select.selected, names.fromString(select.name.toString() + initBuilder.interfaceNameSuffix)), false));
                         }
-                    }
-                    else if (((JCImport)def).getQualifiedIdentifier().getTag() == JCTree.IDENT) {
+                    }  else if (((JCImport)def).getQualifiedIdentifier().getTag() == JCTree.IDENT) {
                         JCIdent ident = (JCIdent)((JCImport)def).getQualifiedIdentifier();
-                        if (ident.name != names.asterisk) {
+                        if (ident.name != names.asterisk && 
+                                ((ident.sym) instanceof ClassSymbol) &&
+                                initBuilder.isJFXClass((ClassSymbol)(ident.sym))) {
                             tdefs.append(make.Import(make.Ident(names.fromString(ident.name.toString() + initBuilder.interfaceNameSuffix)), false));
                         }
                     }
