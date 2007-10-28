@@ -575,7 +575,10 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 attr.finishVar((JFXVar) tree, env);
         }
     }
-    
+    @Override
+    public void visitOperationValue(JFXOperationValue tree) {
+    }
+
     @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
             Scope enclScope = enter.enterScope(env);
