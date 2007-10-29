@@ -161,43 +161,50 @@ public class JavafxTypeMorpher {
                     markShouldMorph();
                 } else if (((varSymbol.flags() & Flags.PARAMETER) == 0) && 
                         (isBoundTo() || isAttribute() || isSequence())) {
-                    // Must be a Location is bound, or a sequence,
+                    // Must be a Location if it is bound, or a sequence,
                     // and, at least for now if it is an attribute.
                     // However, if this is a parameter it is either synthetic
                     // (like a loop or formal var) so we don't want to morph
                     // or it is a function param.  If we do bound param we
                     // will need to change this.
                     //TODO: should be a Location if there is a trigger on it
-                    if (realType.isPrimitive()) {
-                        if (realTsym == syms.doubleType.tsym) {
-                            typeKind = TYPE_KIND_DOUBLE;
-                        } else if (realTsym == syms.intType.tsym) {
-                            typeKind = TYPE_KIND_INT;
-                        } else if (realTsym == syms.booleanType.tsym) {
-                            typeKind = TYPE_KIND_BOOLEAN;
-                        } else {
-                            assert false : "should not reach here";
-                            typeKind = TYPE_KIND_OBJECT;
-                        }
-                    } else {
-                        if (isSequence()) {
-                            typeKind = TYPE_KIND_SEQUENCE;
-                            elementType = realType.getTypeArguments().head;
-                        } else {
-                            typeKind = TYPE_KIND_OBJECT;
-                        }
-                    }
-                    if (realType.constValue() != null) {
-                        realType = realType.baseType();
-                    }
-                    // must be called AFTER typeKind and realType are set in vsym
-                    setUsedType(generifyIfNeeded(declLocationType(typeKind), this));
-                    markShouldMorph();
                     //System.err.println("Will morph: " + varSymbol);
-                }
+                    typeMorph();
+                    markShouldMorph();
+               }
                 markDeterminedMorphability();
             }
             return shouldMorph;
+        }
+        
+        public Type typeMorph() {
+            TypeSymbol realTsym = realType.tsym;
+            if (realType.isPrimitive()) {
+                if (realTsym == syms.doubleType.tsym) {
+                    typeKind = TYPE_KIND_DOUBLE;
+                } else if (realTsym == syms.intType.tsym) {
+                    typeKind = TYPE_KIND_INT;
+                } else if (realTsym == syms.booleanType.tsym) {
+                    typeKind = TYPE_KIND_BOOLEAN;
+                } else {
+                    assert false : "should not reach here";
+                    typeKind = TYPE_KIND_OBJECT;
+                }
+            } else {
+                if (isSequence()) {
+                    typeKind = TYPE_KIND_SEQUENCE;
+                    elementType = realType.getTypeArguments().head;
+                } else {
+                    typeKind = TYPE_KIND_OBJECT;
+                }
+            }
+            if (realType.constValue() != null) {
+                realType = realType.baseType();
+            }
+            // must be called AFTER typeKind and realType are set in vsym
+            setUsedType(generifyIfNeeded(declLocationType(typeKind), this));
+ 
+            return getUsedType();
         }
 
         private void markShouldMorph() { shouldMorph = true; }

@@ -63,6 +63,7 @@ public class JavafxInitializationBuilder {
     private final Name.Table names;
     private final JavafxToJava toJava;
     private final JavafxSymtab syms;
+    private final JavafxTypeMorpher typeMorpher;
     
     private final Name addChangeListenerName;
     private final Name changeListenerInterfaceName;
@@ -81,10 +82,11 @@ public class JavafxInitializationBuilder {
     private final Name numberFieldsName;
     private final Name getNumFieldsName;
     private final Name initHelperName;
+    private final Name getPreviousValueName;
     private final String assertNonNullName = "assertNonNull";
     private final String addName = "add";
     private final Name initializeNonSyntheticName;
-    private final Name oldValueName;
+    private final Name onChangeArgName;
     private final String fullLocationName = "com.sun.javafx.runtime.location.Location";
     private final String addDependenciesName = "addDependencies";
     private final String fxObjectName = "com.sun.javafx.runtime.FXObject";
@@ -106,6 +108,7 @@ public class JavafxInitializationBuilder {
         names = Name.Table.instance(context);
         toJava = JavafxToJava.instance(context);
         syms = (JavafxSymtab)(JavafxSymtab.instance(context));
+        typeMorpher = JavafxTypeMorpher.instance(context);
         
         addChangeListenerName = names.fromString("addChangeListener");
         changeListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "ChangeListener");
@@ -121,8 +124,9 @@ public class JavafxInitializationBuilder {
         numberFieldsName = names.fromString("NUM$FIELDS");
         getNumFieldsName = names.fromString("getNumFields$");
         initHelperName = names.fromString("initHelper$");
+        getPreviousValueName = names.fromString("getPreviousValue");
         initializeNonSyntheticName = names.fromString("initialize");
-        oldValueName = names.fromString("oldValue");
+        onChangeArgName = names.fromString("$location");
     }
     
     static class TranslatedAttributeInfo {
@@ -206,14 +210,9 @@ public class JavafxInitializationBuilder {
         }
        
         // If there are any listeners, we need to build this, even if empty
-        List<JCVariableDecl> onChangeArgs = List.<JCVariableDecl>nil();
-        onChangeArgs = onChangeArgs.append(make.VarDef(make.Modifiers(0L), oldValueName, make.Identifier(fullLocationName), null));
-        defs.append(makeChangeListenerMethod(
+        defs.append(makeOnReplaceChangeListenerMethod(
                         diagPos,
-                        onReplace, 
-                        "onChange",
-                        onChangeArgs,
-                        TypeTags.BOOLEAN));
+                        onReplace));
         
         JCExpression changeListener = make.at(diagPos).Identifier(changeListenerInterfaceName);
         List<JCExpression> emptyTypeArgs = List.nil();
@@ -221,7 +220,7 @@ public class JavafxInitializationBuilder {
             changeListener = make.at(diagPos).Identifier(sequenceChangeListenerInterfaceName);
             changeListener = make.at(diagPos).TypeApply(changeListener, 
                     List.<JCExpression>of(toJava.makeTypeTree(info.elemType(), diagPos)));
-            defs.append(makeChangeListenerMethod(
+            defs.append(makeSequenceChangeListenerMethod(
                     diagPos, 
                     onReplaceElement, 
                     "onReplace", 
@@ -230,7 +229,7 @@ public class JavafxInitializationBuilder {
                         makeParam(diagPos, info.elemType(), onReplaceElement.getOldValue(), "$oldVallue$"), 
                         makeParam(diagPos, info.elemType(), null, "$newValue$")), 
                     TypeTags.VOID));
-            defs.append(makeChangeListenerMethod(
+            defs.append(makeSequenceChangeListenerMethod(
                     diagPos, 
                     onInsertElement, 
                     "onInsert", 
@@ -238,7 +237,7 @@ public class JavafxInitializationBuilder {
                         makeParam(diagPos, syms.intType, onInsertElement.getIndex(), "$index$"), 
                         makeParam(diagPos, info.elemType(), onInsertElement.getOldValue(), "$newValue$")), 
                     TypeTags.VOID));
-            defs.append(makeChangeListenerMethod(
+            defs.append(makeSequenceChangeListenerMethod(
                     diagPos, 
                     onDeleteElement, 
                     "onDelete", 
@@ -279,6 +278,67 @@ public class JavafxInitializationBuilder {
     }
     
     /**
+     * construct a change listener method for sequence triggers.  Insert in a listener anon class.
+     *   void onInsert(...);
+     *   void on Delete(...); ...
+     */
+    private JCMethodDecl makeSequenceChangeListenerMethod(
+            DiagnosticPosition diagPos,
+            JFXAbstractOnChange onChange, 
+            String methodName, 
+            List<JCVariableDecl> args, 
+            int returnTypeTag) {
+        return makeChangeListenerMethod(
+             diagPos,
+             onChange, 
+             ListBuffer.<JCStatement>lb(),
+             methodName, 
+             args, 
+             returnTypeTag);
+    }
+    
+    /**
+     * construct a change listener method for insertion in a listener anon class.
+     *   void onReplace(...); ...
+     */
+    private JCMethodDecl makeOnReplaceChangeListenerMethod(
+            DiagnosticPosition diagPos,
+            JFXOnReplace onReplace) {
+        List<JCVariableDecl> onChangeArgs = List.<JCVariableDecl>nil();
+        onChangeArgs = onChangeArgs.append(make.VarDef(make.Modifiers(0L), onChangeArgName, make.Identifier(fullLocationName), null));
+        ListBuffer<JCStatement> setUpStmts = ListBuffer.<JCStatement>lb();
+        if (onReplace != null && onReplace.getOldValue() != null) {
+            // an oldValue variable was specificied, create it.  For example:
+            //   int oldValue = ((IntLocation) location).getPreviousValue();
+            JFXVar oldValue = onReplace.getOldValue();
+            VarMorphInfo vmi = typeMorpher.varMorphInfo(oldValue.sym);
+            Type locationType = vmi.typeMorph();
+
+            setUpStmts.append( 
+                    make.at(diagPos).VarDef(
+                        make.Modifiers(0L), 
+                        oldValue.getName(), 
+                        toJava.makeTypeTree(vmi.getRealType(), diagPos, false), 
+                        make.at(diagPos).Apply(
+                            List.<JCExpression>nil(),       // no type args
+                            make.at(diagPos).Select(
+                                make.at(diagPos).TypeCast(   // cast to the specific Location type -- eg: (IntLocation) $location
+                                    toJava.makeTypeTree(locationType, diagPos, false), 
+                                    make.at(diagPos).Ident(onChangeArgName)),
+                                getPreviousValueName),
+                            List.<JCExpression>nil()        // no args
+                            )));
+        }
+         return makeChangeListenerMethod(
+             diagPos,
+             onReplace, 
+             setUpStmts,
+             "onChange", 
+             onChangeArgs, 
+             TypeTags.BOOLEAN);
+    }
+    
+    /**
      * construct a change listener method for insertion in a listener anon class.
      *   boolean onChange();
      *   void onInsert(...);
@@ -287,10 +347,12 @@ public class JavafxInitializationBuilder {
     private JCMethodDecl makeChangeListenerMethod(
             DiagnosticPosition diagPos,
             JFXAbstractOnChange onChange, 
+            ListBuffer<JCStatement> prefixStmts,
             String methodName, 
             List<JCVariableDecl> args, 
             int returnTypeTag) {
         ListBuffer<JCStatement> ocMethStmts = ListBuffer.<JCStatement>lb();
+        ocMethStmts.appendList(prefixStmts);
         if (onChange != null) {
             diagPos = onChange.pos();
             ocMethStmts.appendList(onChange.getBody().getStatements());
