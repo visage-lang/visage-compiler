@@ -48,6 +48,7 @@ import static com.sun.tools.javac.code.TypeTags.*;
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.comp.JavafxAttr.Sequenceness;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -390,17 +391,29 @@ public class JavafxCheck {
      *  @param found      The type that was found.
      *  @param req        The type that was required.
      */
-    Type checkType(DiagnosticPosition pos, Type foundRaw, Type reqRaw) {
+    Type checkType(DiagnosticPosition pos, Type foundRaw, Type reqRaw, Sequenceness pSequenceness) {
         Type req = deLocationize(reqRaw);
         Type found = deLocationize(foundRaw);
+        Type realFound = found;
 	if (req.tag == ERROR)
 	    return req;
 	if (found.tag == FORALL)
 	    return instantiatePoly(pos, (ForAll)found, req, convertWarner(pos, found, req));
 	if (req.tag == NONE || req == syms.javafx_UnspecifiedType)
 	    return found;
+        if (isSequence(req)) {  
+            req = elementType(req);
+            pSequenceness = Sequenceness.REQUIRED;
+        }
+        if (isSequence(found)) {  
+            if (pSequenceness != Sequenceness.DISALLOWED) {
+                found = elementType(found);
+            } else {
+                return typeError(pos, JCDiagnostic.fragment("incompatible.types"), found, req);
+            }
+        }
 	if (types.isAssignable(found, req, convertWarner(pos, found, req)))
-	    return found;
+	    return realFound;
 	if (found.tag <= DOUBLE && req.tag <= DOUBLE)
 	    return typeError(pos, JCDiagnostic.fragment("possible.loss.of.precision"), found, req);
 	if (found.isSuperBound()) {
@@ -413,6 +426,23 @@ public class JavafxCheck {
 	}
 	return typeError(pos, JCDiagnostic.fragment("incompatible.types"), found, req);
     }
+
+    boolean isSequence(Type type) {
+        return type != Type.noType && type != null 
+                && type.tag != ERROR 
+                && type.tag != METHOD && type.tag != FORALL
+                && types.erasure(type) == syms.javafx_SequenceTypeErasure;
+    }
+    
+    Type elementType(Type seqType) {
+        Type elemType =seqType.getTypeArguments().head;
+        Type unboxed = types.unboxedType(elemType);
+        if (unboxed.tag != NONE) {
+            elemType = unboxed;
+        }
+        return elemType;
+    }
+    
 
     /** Instantiate polymorphic type to some prototype, unless
      *  prototype is `anyPoly' in which case polymorphic type

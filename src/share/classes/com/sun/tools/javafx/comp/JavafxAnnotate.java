@@ -30,7 +30,9 @@ import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.tree.JCTree.*;
+
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
+import com.sun.tools.javafx.comp.JavafxAttr.Sequenceness;
 
 /** Enter annotations on symbols.  Annotations accumulate in a queue,
  *  which is processed at the top level of any set of recursive calls
@@ -140,7 +142,7 @@ public class JavafxAnnotate {
 	// need to do it again.
 	Type at = (a.annotationType.type != null ? a.annotationType.type
 		  : attr.attribType(a.annotationType, env));
-	a.type = chk.checkType(a.annotationType.pos(), at, expected);
+	a.type = chk.checkType(a.annotationType.pos(), at, expected, Sequenceness.DISALLOWED);
 	if (a.type.isErroneous())
 	    return new Attribute.Compound(a.type, List.<Pair<MethodSymbol,Attribute>>nil());
 	if ((a.type.tsym.flags() & Flags.ANNOTATION) == 0) {

@@ -219,6 +219,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
      * RFE: 6425594
      */
     boolean useBeforeDeclarationWarning;
+    
+    public enum Sequenceness {
+        DISALLOWED,
+        PERMITTED, 
+        REQUIRED
+    }
 
     /** Check kind and type of given tree against protokind and prototype.
      *  If check succeeds, store type in tree and return it.
@@ -234,7 +240,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
      *  @param pt       The expected type (or: prototype) of the tree
      */
     protected
-    Type check(JCTree tree, Type owntype, int ownkind, int pkind, Type pt) {
+    Type check(JCTree tree, Type owntype, int ownkind, int pkind, Type pt, Sequenceness pSequenceness) {
         if (owntype != null && owntype != syms.javafx_UnspecifiedType && owntype.tag != ERROR && pt.tag != METHOD && pt.tag != FORALL) {
 //        if (owntype.tag != ERROR && pt.tag != METHOD && pt.tag != FORALL) {
             if ((pkind & VAL) != 0 && ownkind == MTH) {
@@ -243,7 +249,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     owntype = makeFunctionType((MethodType) owntype);
                 }
             if ((ownkind & ~pkind) == 0) {
-                owntype = chk.checkType(tree.pos(), owntype, pt);
+                owntype = chk.checkType(tree.pos(), owntype, pt, pSequenceness);
             } else {
                 log.error(tree.pos(), "unexpected.type",
                           Resolve.kindNames(pkind),
@@ -303,7 +309,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
     /** Visitor argument: is a sequence permitted
      */
-    boolean pSequencePermitted;
+    Sequenceness pSequenceness;
 
     /** Visitor result: the computed type.
      */
@@ -318,19 +324,19 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
      *  @param pt      The prototype visitor argument.
      */
     Type attribTree(JCTree tree, JavafxEnv<JavafxAttrContext> env, int pkind, Type pt) {
-        return attribTree(tree, env, pkind, pt, pSequencePermitted);
+        return attribTree(tree, env, pkind, pt, pSequenceness);
     }
     
-    Type attribTree(JCTree tree, JavafxEnv<JavafxAttrContext> env, int pkind, Type pt, boolean pSequencePermitted) {
+    Type attribTree(JCTree tree, JavafxEnv<JavafxAttrContext> env, int pkind, Type pt, Sequenceness pSequenceness) {
         JavafxEnv<JavafxAttrContext> prevEnv = this.env;
         int prevPkind = this.pkind;
         Type prevPt = this.pt;
-        boolean prevSequencePermitted = this.pSequencePermitted;
+        Sequenceness prevSequenceness = this.pSequenceness;
         try {
             this.env = env;
             this.pkind = pkind;
             this.pt = pt;
-            this.pSequencePermitted = pSequencePermitted;
+            this.pSequenceness = pSequenceness;
             tree.accept(this);
             if (tree == breakTree)
                 throw new BreakAttr(env);
@@ -342,14 +348,14 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             this.env = prevEnv;
             this.pkind = prevPkind;
             this.pt = prevPt;
-            this.pSequencePermitted = prevSequencePermitted;
+            this.pSequenceness = prevSequenceness;
         }
     }
 
     /** Derived visitor method: attribute an expression tree.
      */
-    public Type attribExpr(JCTree tree, JavafxEnv<JavafxAttrContext> env, Type pt, boolean pSequencePermitted) {
-        return attribTree(tree, env, VAL, pt.tag != ERROR ? pt : Type.noType, pt.tag != ERROR ? pSequencePermitted : true);
+    public Type attribExpr(JCTree tree, JavafxEnv<JavafxAttrContext> env, Type pt, Sequenceness pSequenceness) {
+        return attribTree(tree, env, VAL, pt.tag != ERROR ? pt : Type.noType, pt.tag != ERROR ? pSequenceness : Sequenceness.PERMITTED);
     }
 
     /** Derived visitor method: attribute an expression tree.  
@@ -357,32 +363,35 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
      *  or the proto-type is an error.
      */
     public Type attribExpr(JCTree tree, JavafxEnv<JavafxAttrContext> env, Type pt) {
-        return attribTree(tree, env, VAL, pt.tag != ERROR ? pt : Type.noType, pt.tag == ERROR || pt == Type.noType || isSequence(pt));
+        return attribTree(tree, env, VAL, pt.tag != ERROR ? pt : Type.noType, 
+                (pt.tag == ERROR || pt == Type.noType)? 
+                        Sequenceness.PERMITTED :  
+                        isSequence(pt)? Sequenceness.REQUIRED : Sequenceness.DISALLOWED);
     }
 
     /** Derived visitor method: attribute an expression tree with
      *  no constraints on the computed type.
      */
     Type attribExpr(JCTree tree, JavafxEnv<JavafxAttrContext> env) {
-        return attribTree(tree, env, VAL, Type.noType, true);
+        return attribTree(tree, env, VAL, Type.noType, Sequenceness.PERMITTED);
     }
 
     /** Derived visitor method: attribute a type tree.
      */
     Type attribType(JCTree tree, JavafxEnv<JavafxAttrContext> env) {
-        Type result = attribTree(tree, env, TYP, Type.noType, false);
+        Type result = attribTree(tree, env, TYP, Type.noType, Sequenceness.DISALLOWED);
         return result;
     }
 
     /** Derived visitor method: attribute a statement or definition tree.
      */
     public Type attribStat(JCTree tree, JavafxEnv<JavafxAttrContext> env) {
-        return attribTree(tree, env, NIL, Type.noType, false);
+        return attribTree(tree, env, NIL, Type.noType, Sequenceness.DISALLOWED);
     }
     
     public Type attribVar(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
         memberEnter.memberEnter(tree, env);
-        return attribTree(tree, env, NIL, Type.noType, false);
+        return attribTree(tree, env, NIL, Type.noType, Sequenceness.DISALLOWED);
     }
 
     /** Attribute a list of expressions, returning a list of types.
@@ -544,7 +553,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         Type owntype = chk.checkCastable(tree.expr.pos(), exprtype, clazztype);
         if (exprtype.constValue() != null)
             owntype = cfolder.coerce(exprtype, owntype);
-        result = check(tree, capture(owntype), VAL, pkind, pt);
+        result = check(tree, capture(owntype), VAL, pkind, pt, Sequenceness.DISALLOWED);
     }
 
     public void visitTypeTest(JCInstanceOf tree) {
@@ -553,19 +562,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         Type clazztype = chk.checkReifiableReferenceType(
             tree.clazz.pos(), attribType(tree.clazz, env));
         chk.checkCastable(tree.expr.pos(), exprtype, clazztype);
-        result = check(tree, syms.booleanType, VAL, pkind, pt);
+        result = check(tree, syms.booleanType, VAL, pkind, pt, Sequenceness.DISALLOWED);
     }
 
     public void visitIndexed(JCArrayAccess tree) {
-        Type owntype = syms.errType;
-        Type atype = attribExpr(tree.indexed, env);
-        attribExpr(tree.index, env, syms.intType);
-        if (types.isArray(atype))
-            owntype = types.elemtype(atype);
-        else if (atype.tag != ERROR)
-            log.error(tree.pos(), "array.req.but.found", atype);
-        if ((pkind & VAR) == 0) owntype = capture(owntype);
-        result = check(tree, owntype, VAR, pkind, pt);
+        assert false : "This tree should not exist";
     }
 
     @Override
@@ -642,7 +643,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 	    while (env1.outer != null && !rs.isAccessible(env, env1.enclClass.sym.type, sym))
 		env1 = env1.outer;
 	}
-        result = checkId(tree, env1.enclClass.sym.type, sym, env, pkind, pt, varArgs);
+        result = checkId(tree, env1.enclClass.sym.type, sym, env, pkind, pt, pSequenceness, varArgs);
     }
     
     public void visitSelect(JCFieldAccess tree) {
@@ -724,7 +725,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // Disallow selecting a type from an expression
         if (isType(sym) && (sitesym==null || (sitesym.kind&(TYP|PCK)) == 0)) {
             tree.type = check(tree.selected, pt,
-                              sitesym == null ? VAL : sitesym.kind, TYP|PCK, pt);
+                              sitesym == null ? VAL : sitesym.kind, TYP|PCK, pt, pSequenceness);
         }
 
         if (isType(sitesym)) {
@@ -760,7 +761,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
 
         env.info.selectSuper = selectSuperPrev;
-        result = checkId(tree, site, sym, env, pkind, pt, varArgs);
+        result = checkId(tree, site, sym, env, pkind, pt, pSequenceness, varArgs);
         env.info.tvars = List.nil();
     }
     //where
@@ -859,7 +860,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
     public void visitParens(JCParens tree) {
         Type owntype = attribTree(tree.expr, env, pkind, pt);
-        result = check(tree, owntype, pkind, pkind, pt);
+        result = check(tree, owntype, pkind, pkind, pt, pSequenceness);
         Symbol sym = TreeInfo.symbol(tree);
         if (sym != null && (sym.kind&(TYP|PCK)) != 0)
             log.error(tree.pos(), "illegal.start.of.type");
@@ -904,7 +905,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             lhsSym.type = owntype;
         }
         lhsSym.flags_field |= JavafxFlags.ASSIGNED_TO;        
-        result = check(tree, capturedType, VAL, pkind, pt);
+        result = check(tree, capturedType, VAL, pkind, pt, pSequenceness);
     }
     
     @Override
@@ -953,7 +954,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     // marking the variable as undefined.
                     v.pos = Position.MAXPOS;
                     initType = attribExpr(tree.init, initEnv, declType);
-                    chk.checkType(tree.pos(), initType, declType);
+                    chk.checkType(tree.pos(), initType, declType, Sequenceness.DISALLOWED);
             }
             else
                 initType = syms.objectType;  // nothing to go on, so we assume Object
@@ -968,7 +969,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (tree.getOnChanges() != null) {
             Type elemType = null;
 
-            if (types.erasure(result) == syms.javafx_SequenceTypeErasure) {
+            if (isSequence(result)) {
                 elemType = result.getTypeArguments().head;
             }
 
@@ -1090,7 +1091,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             clause.getVar().type = elemtype;
             clause.getVar().sym.type = elemtype;
 
-            chk.checkType(clause.getSequenceExpression().pos(), elemtype, clause.var.sym.type);
+            chk.checkType(clause.getSequenceExpression().pos(), elemtype, clause.var.sym.type, Sequenceness.DISALLOWED);
 
             if (clause.getWhereExpression() != null) {
                 attribExpr(clause.getWhereExpression(), env, syms.booleanType);
@@ -1106,7 +1107,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             sequenceType(bodyType);
 
         forExprEnv.info.scope.leave();
-        result = check(tree, owntype, VAL, pkind, pt);
+        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
     
     @Override
@@ -1328,7 +1329,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             part.sym = memberSym;
         }
 
-        result = check(tree, owntype, VAL, pkind, pt);
+        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
 
     /** Make an attributed null check tree.
@@ -1441,7 +1442,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     if (returnType == null)
                         returnType = bodyType;
                     else if (returnType != syms.javafx_VoidType)
-                        chk.checkType(tree.pos(), bodyType, returnType);       
+                        chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.DISALLOWED);       
                 }
             }
             localEnv.info.scope.leave();
@@ -1518,7 +1519,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         result = check(tree,
                        capture(condType(tree.pos(), tree.cond.type,
                                         tree.truepart.type, falsepartType)),
-                       VAL, pkind, pt);
+                       VAL, pkind, pt, pSequenceness);
     }
     //where
         /** Compute the type of a conditional expression, after
@@ -1802,7 +1803,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 // Javafx change
             // Check that value of resulting type is admissible in the
             // current context.  Also, capture the return type
-                result = check(tree, capture(restype), VAL, pkind, pt);
+                result = check(tree, capture(restype), VAL, pkind, pt, pSequenceness);
             }
         }
         chk.validate(tree.typeargs);
@@ -1827,7 +1828,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 // String assignment; make sure the lhs is a string
                 chk.checkType(tree.lhs.pos(),
                               owntype,
-                              syms.stringType);
+                              syms.stringType, Sequenceness.DISALLOWED);
             } else {
                 chk.checkDivZero(tree.rhs.pos(), operator, operand);
                 chk.checkCastable(tree.rhs.pos(),
@@ -1837,13 +1838,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
         if (tree.lhs instanceof JCIdent)
             ((JCIdent) (tree.lhs)).sym.flags_field |= JavafxFlags.ASSIGNED_TO;
-        result = check(tree, owntype, VAL, pkind, pt);
+        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
 
     public void visitUnary(JCUnary tree) {
         if (tree.getTag() == JavafxTag.SIZEOF) {
              Type argtype = chk.checkNonVoid(tree.arg.pos(), attribExpr(tree.arg, env));
-             result = check(tree, syms.javafx_IntegerType, VAL, pkind, pt);
+             result = check(tree, syms.javafx_IntegerType, VAL, pkind, pt, pSequenceness);
              return;
         }
         // Attribute arguments.
@@ -1882,7 +1883,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             }
          * ****/
         }
-        result = check(tree, owntype, VAL, pkind, pt);
+        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
 
     @Override
@@ -1941,12 +1942,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             chk.checkDivZero(tree.rhs.pos(), operator, right);
         }
-        result = check(tree, owntype, VAL, pkind, pt);
+        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
     
     public void visitLiteral(JCLiteral tree) {
         result = check(
-            tree, litType(tree.typetag), VAL, pkind, pt);
+            tree, litType(tree.typetag), VAL, pkind, pt, pSequenceness);
     }
     //where
     /** Return the type of a literal with given type tag.
@@ -1956,13 +1957,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitTypeIdent(JCPrimitiveTypeTree tree) {
-        result = check(tree, syms.typeOfTag[tree.typetag], TYP, pkind, pt);
+        result = check(tree, syms.typeOfTag[tree.typetag], TYP, pkind, pt, pSequenceness);
     }
 
     public void visitTypeArray(JCArrayTypeTree tree) {
-        Type etype = attribType(tree.elemtype, env);
-        Type type = new ArrayType(etype, syms.arrayClass);
-        result = check(tree, type, TYP, pkind, pt);
+         assert false : "This tree should not exist";
     }
 
     /** Visitor method for parameterized types.
@@ -2017,7 +2016,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 owntype = syms.errType;
             }
         }
-        result = check(tree, owntype, TYP, pkind, pt);
+        result = check(tree, owntype, TYP, pkind, pt, pSequenceness);
     }
 
     public void visitTypeParameter(JCTypeParameter tree) {
@@ -2244,12 +2243,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         boolean isSeq = false;
-        if (pt.tag != NONE && !(isSeq = isSequence(pt)) && !pSequencePermitted) {
+        if (pt.tag != NONE && !(isSeq = isSequence(pt)) && pSequenceness == Sequenceness.DISALLOWED) {
             log.error(tree.pos(), "array.req.but.found", pt); //TODO: msg
             result = syms.errType;
         } else {
             Type owntype = pt.tag == NONE? pt : isSeq? pt : sequenceType(pt);
-            result = check(tree, owntype, VAL, pkind, Type.noType);
+            result = check(tree, owntype, VAL, pkind, Type.noType, pSequenceness);
         }
     }
     
@@ -2281,33 +2280,16 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             log.error(tree.pos(), "range.step.required.number"); 
         }
         Type owntype = sequenceType(allInt? syms.javafx_IntegerType : syms.javafx_NumberType);
-        Type constraintType;
-        if (isSequence(pt)) {
-            constraintType = pt;
-        } else if (pt.tag == NONE) {
-            constraintType = pt;
-        } else {
-            // pt is a specified type, but not a sequence
-            if (pSequencePermitted) {
-                constraintType = sequenceType(pt);
-            } else {
-                // error -- check will generate error
-                constraintType = pt;
-            }
-        }
-        result = check(tree, owntype, VAL, pkind, constraintType);
+        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
     
     @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
         // atrribute the items, and determine least upper bound of type
         Type elemType = null;
-        Type constraintType;
         if (isSequence(pt)) {
-            constraintType = pt;
             elemType = elementType(pt);
         } else if (pt.tag == NONE || pt == syms.javafx_UnspecifiedType) {
-            constraintType = pt;
             // we don't know what type we are supposed to be, try to infer it
             for (JCExpression expr : tree.getItems()) {
                 Type itemType = attribExpr(expr, env);
@@ -2332,21 +2314,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             }
         } else {
             // pt is a specified type, but not a sequence
-            if (pSequencePermitted) {
-                constraintType = sequenceType(pt);
-                elemType = pt;  
-            } else {
-                // error
-                constraintType = Type.noType;
-            }
+            elemType = pt;  
         }
         if (elemType != null) {
             // attribute the items
            for (JCExpression expr : tree.getItems()) {
-                chk.checkNonVoid(expr.pos(), attribExpr(expr, env, elemType, true));
+                chk.checkNonVoid(expr.pos(), attribExpr(expr, env, elemType, Sequenceness.PERMITTED));
            }
            Type owntype = sequenceType(elemType);
-           result = check(tree, owntype, VAL, pkind, constraintType);
+           result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
         } else {
             // because of nested sequences, we can't test here
             // log.error(tree.pos(), "array.req.but.found", pt); //TODO: msg
@@ -2364,12 +2340,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (unboxed != Type.noType) {
             owntype = unboxed;
         }
-        result = check(tree, owntype, VAR, pkind, pt);
+        result = check(tree, owntype, VAR, pkind, pt, pSequenceness);
     }
     
     @Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
-        Type seqType = attribTree(tree.getSequence(), env, VAR, syms.javafx_SequenceTypeErasure); 
+        Type seqType = attribTree(tree.getSequence(), env, VAR, Type.noType, Sequenceness.REQUIRED); 
         Type elemType = seqType.getTypeArguments().head;
         Type unboxed = types.unboxedType(elemType);
         if (unboxed != Type.noType) {
@@ -2388,14 +2364,14 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 JCExpression seq = seqInd.getSequence();
                 JCExpression index = seqInd.getIndex();
                 tree.resetSequenceAndIndex(seq, index);
-                attribTree(tree.getSequence(), env, VAR, syms.javafx_SequenceTypeErasure); 
+                attribTree(tree.getSequence(), env, VAR, Type.noType, Sequenceness.REQUIRED); 
                 attribExpr(index, env, syms.javafx_IntegerType);
             } else {
                 // delete seq;   // that is, all the elements
-                attribTree(tree.getSequence(), env, VAR, syms.javafx_SequenceTypeErasure); 
+                attribTree(tree.getSequence(), env, VAR, Type.noType, Sequenceness.REQUIRED); 
             }
         } else {
-            Type seqType = attribTree(tree.getSequence(), env, VAR, syms.javafx_SequenceTypeErasure); 
+            Type seqType = attribTree(tree.getSequence(), env, VAR, Type.noType, Sequenceness.REQUIRED); 
             Type elemType = seqType.getTypeArguments().head;
             Type unboxed = types.unboxedType(elemType);
             if (unboxed != Type.noType) {
@@ -2419,7 +2395,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             attribExpr(parts.head, env, syms.javafx_StringType);
             parts = parts.tail;
         }
-        result = check(tree, syms.javafx_StringType, VAL, pkind, pt);
+        result = check(tree, syms.javafx_StringType, VAL, pkind, pt, pSequenceness);
     }
     
     @Override
@@ -2531,7 +2507,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (owntype == null) {
             owntype = syms.voidType;
         }
-        result = check(tree, owntype, VAL, pkind, pt);
+        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
         localEnv.info.scope.leave();
     }
 
@@ -2567,9 +2543,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         return new ClassType(clazzOuter, actuals, seqtype.tsym);
     }
     
-    // Javafx change
-        protected
-// Javafx change
         /** Determine type of identifier or select expression and check that
          *  (1) the referenced symbol is not deprecated
          *  (2) the symbol's type is safe (@see checkSafe)
@@ -2600,6 +2573,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                      JavafxEnv<JavafxAttrContext> env,
                      int pkind,
                      Type pt,
+                     Sequenceness pSequenceness,
                      boolean useVarargs) {
             if (pt.isErroneous()) return syms.errType;
             Type owntype; // The computed type of this identifier occurrence.
@@ -2720,7 +2694,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             // Test (3): if symbol is a variable, check that its type and
             // kind are compatible with the prototype and protokind.
-            return check(tree, owntype, sym.kind, pkind, pt);
+            return check(tree, owntype, sym.kind, pkind, pt, pSequenceness);
         }
 
         /** Check that variable is initialized and evaluate the variable's
