@@ -24,25 +24,17 @@
  */
 
 package com.sun.tools.javafx.code;
-
+import com.sun.tools.javac.code.Flags;
 /**
  *
  * @author llitchev
  */
 public class JavafxFlags {
-    // Traslatable to VariableDecl
-    public static final int SIMPLE_JAVA = 0;
-    public static final int VARIABLE = SIMPLE_JAVA + 1;
-    public static final int ATTRIBUTE = VARIABLE + 1;
-    public static final int LOCAL_ATTRIBUTE = ATTRIBUTE + 1;
-    
-    // Translatable to MethodDecl
-    public static final int OPERATION = SIMPLE_JAVA + 1;
-    public static final int FUNCTION = OPERATION + 1;
-    public static final int LOCAL_OPERATION = FUNCTION + 1;
-    public static final int LOCAL_FUNCTION = LOCAL_OPERATION +1;
-    public static final int TRIGGERNEW = LOCAL_FUNCTION + 1;
-    public static final int TRIGGERREPLACE = TRIGGERNEW + 1; // This represents the trigger body.
-    public static final int TRIGGER = TRIGGERREPLACE + 1; // This represents the trigger body.
-    // TODO: Do we need local triggers??? I don't think so. But meybe we do.
+    private JavafxFlags() {}
+
+    // FIXME - should in Flags.java
+    protected static final long LAST_JAVA_FLAG = Flags.PROPRIETARY;
+
+    public static final long ASSIGNED_TO = LAST_JAVA_FLAG << 1;
+    public static final long INNER_ACCESS = LAST_JAVA_FLAG << 2;
 }

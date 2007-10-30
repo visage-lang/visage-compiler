@@ -342,6 +342,26 @@ public class JavafxTreeInfo extends TreeInfo {
             return null;
         }
     }
+    /** If this tree is an identifier or a field, return its symbol,
+     *  otherwise return null.
+     */
+    public static Symbol symbol(JCTree tree) {
+	tree = skipParens(tree);
+	switch (tree.getTag()) {
+	case JCTree.IDENT:
+	    return ((JCIdent) tree).sym;
+	case JCTree.SELECT:
+	    return ((JCFieldAccess) tree).sym;
+	case JCTree.TYPEAPPLY:
+	    return symbol(((JCTypeApply) tree).clazz);
+        case JCTree.INDEXED:
+            return symbol(((JCArrayAccess) tree).indexed);
+        case JavafxTag.SEQUENCE_INDEXED:
+            return symbol(((JFXSequenceIndexed) tree).getSequence());
+	default:
+	    return null;
+	}
+    }
 }
 
 

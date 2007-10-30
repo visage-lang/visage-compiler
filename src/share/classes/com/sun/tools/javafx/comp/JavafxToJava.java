@@ -47,6 +47,7 @@ import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.TreeTranslator;
 
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.javafx.api.JavafxBindStatus;
@@ -606,6 +607,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         VarSymbol vsym = tree.sym;
         boolean isClassVar = vsym.owner.kind == Kinds.TYP;
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+
+        if (! isClassVar && (vsym.flags_field & JavafxFlags.INNER_ACCESS) != 0) {
+            if ((vsym.flags_field & JavafxFlags.ASSIGNED_TO) == 0)
+                modFlags |= Flags.FINAL;
+            else
+                vmi.markBoundTo();
+        }
         if (vmi.shouldMorph()) {
             type = vmi.getUsedType();
 

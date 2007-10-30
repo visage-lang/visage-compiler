@@ -615,12 +615,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             // If symbol is a local variable accessed from an embedded
             // inner class check that it is final.
-            if (v.owner.kind == MTH &&
-                v.owner != env.info.scope.owner &&
-                (v.flags_field & FINAL) == 0) {
-                log.error(tree.pos(),
-                          "local.var.accessed.from.icls.needs.final",
-                          v);
+            if (v.owner.kind == MTH && v.owner != env.info.scope.owner) {
+                v.flags_field |= JavafxFlags.INNER_ACCESS;
             }
 
             // If we are expecting a variable (as opposed to a value), check
@@ -888,6 +884,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             hasLhsType = true;
         }
         
+        Symbol lhsSym = JavafxTreeInfo.symbol(tree.lhs);
         Type capturedType = capture(owntype);
         
         if (hasLhsType) {
@@ -897,23 +894,16 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             if (tree.lhs.getTag() == JCTree.SELECT) {
                 JCFieldAccess fa = (JCFieldAccess)tree.lhs;
                 fa.type = owntype;
-                if (fa.sym != null) {
-                    fa.sym.type = owntype;
-                }
             }
             else if (tree.lhs.getTag() == JCTree.IDENT) {
                 JCIdent id = (JCIdent)tree.lhs;
                 id.type = owntype;
-                if (id.sym != null) {
-                    id.sym.type = owntype;
-                }
             }
             
             attribTree(tree.lhs, dupEnv, VAR, owntype);
-            Symbol lhsSym = JavafxTreeInfo.symbol(tree.lhs);
             lhsSym.type = owntype;
         }
-                
+        lhsSym.flags_field |= JavafxFlags.ASSIGNED_TO;        
         result = check(tree, capturedType, VAL, pkind, pt);
     }
     
@@ -1845,6 +1835,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                                   owntype);
             }
         }
+        if (tree.lhs instanceof JCIdent)
+            ((JCIdent) (tree.lhs)).sym.flags_field |= JavafxFlags.ASSIGNED_TO;
         result = check(tree, owntype, VAL, pkind, pt);
     }
 
