@@ -69,3 +69,9 @@ function fun2c (fparg : function(:java.lang.Double, :Integer):java.lang.Double) 
 function f4 (x : String):String  { "x:{x}" };
 var vf4 : function(:String):String = f4;
 System.out.println(vf4("test-f4"));
+
+function f5(x:Integer) {
+    var y: Integer = x+10;
+    y = y + 2;
+    function(z:Integer){x+y+z}}
+System.out.println("f5(1)(5)={f5(1)(5)}");
