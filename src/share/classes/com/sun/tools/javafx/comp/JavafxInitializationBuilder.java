@@ -225,8 +225,10 @@ public class JavafxInitializationBuilder {
                     onReplaceElement, 
                     "onReplace", 
                     List.<JCVariableDecl>of(
-                        makeParam(diagPos, syms.intType, onReplaceElement.getIndex(), "$index$"), 
-                        makeParam(diagPos, info.elemType(), onReplaceElement.getOldValue(), "$oldVallue$"), 
+                        makeIndexParam(diagPos, onReplaceElement), 
+                        makeParam(diagPos, info.elemType(),
+                                  onReplaceElement == null ? null : onReplaceElement.getOldValue(),
+                                  "$oldVallue$"), 
                         makeParam(diagPos, info.elemType(), null, "$newValue$")), 
                     TypeTags.VOID));
             defs.append(makeSequenceChangeListenerMethod(
@@ -234,16 +236,20 @@ public class JavafxInitializationBuilder {
                     onInsertElement, 
                     "onInsert", 
                     List.<JCVariableDecl>of(
-                        makeParam(diagPos, syms.intType, onInsertElement.getIndex(), "$index$"), 
-                        makeParam(diagPos, info.elemType(), onInsertElement.getOldValue(), "$newValue$")), 
+                        makeIndexParam(diagPos, onInsertElement), 
+                        makeParam(diagPos, info.elemType(),
+                                  onInsertElement == null ? null : onInsertElement.getOldValue(),
+                                  "$newValue$")), 
                     TypeTags.VOID));
             defs.append(makeSequenceChangeListenerMethod(
                     diagPos, 
                     onDeleteElement, 
                     "onDelete", 
                     List.<JCVariableDecl>of(
-                        makeParam(diagPos, syms.intType, onDeleteElement.getIndex(), "$index$"), 
-                        makeParam(diagPos, info.elemType(), onDeleteElement.getOldValue(), "$oldVallue$")), 
+                        makeIndexParam(diagPos, onDeleteElement), 
+                        makeParam(diagPos, info.elemType(),
+                                  onDeleteElement == null ? null : onDeleteElement.getOldValue(),
+                                  "$oldVallue$")), 
                     TypeTags.VOID));
         }
         JCNewClass anonymousChangeListener = make.NewClass(
@@ -276,7 +282,11 @@ public class JavafxInitializationBuilder {
                 null);
         
     }
-    
+
+    private JCVariableDecl makeIndexParam(DiagnosticPosition diagPos, JFXAbstractOnChange onChange) {
+        return makeParam(diagPos, syms.intType, onChange == null ? null : onChange.getIndex(), "$index$");
+    }
+
     /**
      * construct a change listener method for sequence triggers.  Insert in a listener anon class.
      *   void onInsert(...);
