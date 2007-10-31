@@ -958,7 +958,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             }
             else
                 initType = syms.objectType;  // nothing to go on, so we assume Object
-            if (declType == syms.javafx_UnspecifiedType)
+            if (declType == syms.javafx_UnspecifiedType && v.type == null)
                 result = tree.type = v.type = initType;
             chk.validateAnnotations(tree.mods.annotations, v);
         }
@@ -1130,15 +1130,38 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 new MethodSymbol(tree.flags | BLOCK, names.empty, null,
                                  env.info.scope.owner);
             if ((tree.flags & STATIC) != 0) localEnv.info.staticLevel++;
+            memberEnter.memberEnter(tree.stats, localEnv);
             attribStats(tree.stats, localEnv);
         } else {
             // Create a new local environment with a local scope.
             JavafxEnv<JavafxAttrContext> localEnv =
                 env.dup(tree, env.info.dup(env.info.scope.dup()));
+            localEnv.outer = env;
+            memberEnter.memberEnter(tree.stats, localEnv);
             attribStats(tree.stats, localEnv);
             localEnv.info.scope.leave();
         }
         result = null;
+    }
+
+    @Override
+    public void visitBlockExpression(JFXBlockExpression tree) {
+        // Create a new local environment with a local scope.
+        JavafxEnv<JavafxAttrContext> localEnv =
+                env.dup(tree, env.info.dup(env.info.scope.dup()));
+        localEnv.outer = env;
+        memberEnter.memberEnter(tree.stats, localEnv);
+        for (List<JCStatement> l = tree.stats; l.nonEmpty(); l = l.tail)
+            attribStat(l.head, localEnv);
+        Type owntype = null;
+        if (tree.value != null) {
+            owntype = attribExpr(tree.value, localEnv);
+        }
+        if (owntype == null) {
+            owntype = syms.voidType;
+        }
+        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
+        localEnv.info.scope.leave();
     }
 
     public void visitDoLoop(JCDoWhileLoop tree) {
@@ -1490,7 +1513,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             JCCatch c = l.head;
             JavafxEnv<JavafxAttrContext> catchEnv =
                 env.dup(c, env.info.dup(env.info.scope.dup()));
-            Type ctype = attribStat(c.param, catchEnv);
+            memberEnter.memberEnter(c.param, env);
+            if (c.param.type == null)
+                c.param.sym.type = c.param.type = syms.throwableType;
+            Type ctype = attribStat((JFXVar) c.param, catchEnv);
             if (c.param.type.tsym.kind == Kinds.VAR) {
                 c.param.sym.setData(ElementKind.EXCEPTION_PARAMETER);
             }
@@ -2489,26 +2515,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitTypeUnknown(JFXTypeUnknown tree) {
         result = tree.type = syms.javafx_UnspecifiedType;
-    }
-    
-    @Override
-    public void visitBlockExpression(JFXBlockExpression tree) {
-        // Create a new local environment with a local scope.
-        JavafxEnv<JavafxAttrContext> localEnv =
-                env.dup(tree, env.info.dup(env.info.scope.dup()));
-        localEnv.outer = env;
-        memberEnter.memberEnter(tree.stats, localEnv);
-        for (List<JCStatement> l = tree.stats; l.nonEmpty(); l = l.tail)
-            attribStat(l.head, localEnv);
-        Type owntype = null;
-        if (tree.value != null) {
-            owntype = attribExpr(tree.value, localEnv);
-        }
-        if (owntype == null) {
-            owntype = syms.voidType;
-        }
-        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
-        localEnv.info.scope.leave();
     }
 
     boolean isSequence(Type type) {

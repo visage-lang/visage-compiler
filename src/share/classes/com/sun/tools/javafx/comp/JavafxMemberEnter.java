@@ -535,7 +535,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             localEnv = env.dup(tree, env.info.dup());
             localEnv.info.staticLevel++;
         }
-        
+
         Scope enclScope = enter.enterScope(env);
         VarSymbol v = new JavafxVarSymbol(0, tree.name, null, enclScope.owner);
         tree.sym = v;
@@ -576,6 +576,10 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     }
     @Override
     public void visitOperationValue(JFXOperationValue tree) {
+    }
+
+    @Override
+    public void visitTry(JCTry tree) {
     }
 
     @Override
