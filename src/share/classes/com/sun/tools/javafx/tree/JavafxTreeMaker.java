@@ -69,6 +69,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                 Types.instance(context),
                 Symtab.instance(context)
                 );
+        context.put(treeMakerKey, this);
         this.pos = Position.NOPOS;
     }
     
