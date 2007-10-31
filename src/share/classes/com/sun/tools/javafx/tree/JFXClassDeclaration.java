@@ -119,6 +119,10 @@ public class JFXClassDeclaration extends JFXStatement implements ClassDeclaratio
         defs = defs.append(member);
     }
 
+    public void prependToMembers(JCTree member) {
+        defs = defs.append(member);
+    }
+
     public void appendToMembers(ListBuffer<JCTree> members) {
         defs = defs.appendList(members.toList());
     }

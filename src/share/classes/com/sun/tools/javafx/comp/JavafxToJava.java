@@ -37,7 +37,6 @@ import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.code.TypeTags;
@@ -108,7 +107,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private static final String methodThrowsString = "java.lang.Throwable";
     private static final String syntheticNamePrefix = "jfx$$";
     private JFXClassDeclaration currentClass;
-        
+    Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
+
     public static JavafxToJava instance(Context context) {
         JavafxToJava instance = context.get(jfxToJavaKey);
         if (instance == null)
@@ -265,6 +265,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitTopLevel(JCCompilationUnit tree) {
+        // add to the hasOuters set the clas symbols for classes that need a reference to the outer class
+        fillClassesWithOuters(tree);
+        
         ListBuffer<JCTree> tdefs= ListBuffer.<JCTree>lb();
      
         for (JCTree def : tree.defs) {
@@ -489,10 +492,20 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             clazz = makeTypeTree(cdef.type, tree);
          }
 
+        List<JCExpression> newClassArgs = translate( tree.getArgs());
+        if (tree.getClassBody() != null &&
+            tree.getClassBody().sym != null && hasOuters.contains(tree.getClassBody().sym)) {
+            JCIdent thisIdent = make.Ident(names._this);
+            thisIdent.sym = tree.getClassBody().sym.owner;
+            thisIdent.type = tree.getClassBody().sym.owner.type;
+            
+            newClassArgs = newClassArgs.prepend(thisIdent);
+        }
+
         JCNewClass newClass = 
                 make.NewClass(null, null, clazz,
-                                                translate( tree.getArgs() ),
-                                                null);
+                              newClassArgs,
+                              null);
         
         // We added this. The call to initialize$ is done below. We should not convert this to a BlockExpression.
         visitedNewClasses.add(newClass);
@@ -1028,7 +1041,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             expr = make.at(diagPos).Select(receiver, methodName);
         }
 
-        return make.at(diagPos).Apply(null, expr, args);
+        return make.at(diagPos).Apply(List.<JCExpression>nil(), expr, args);
     }
 
     private Name getSyntheticName(String kind) {
@@ -1791,6 +1804,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         @Override
         public void visitSelect(JCFieldAccess tree) {
             super.visitSelect(tree);
+            // Don't abstract the outer field... No special dispatch for this one.
+            if (tree.name == initBuilder.outerAccessorFieldName) {
+                result = tree;
+                return;
+            }
+
             result = transformTreeIfNeeded(tree, tree.sym);
         }
 
@@ -1806,6 +1825,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
             
             super.visitIdent(tree);
+
+            // Don't abstract the outer field... No special dispatch for this one.
+            if (tree.name == initBuilder.outerAccessorFieldName) {
+                result = tree;
+                return;
+            }
             result = transformTreeIfNeeded(tree, tree.sym);
         }
         
@@ -1838,11 +1863,23 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                             receiver = make.Ident(receiverName);
                         }
                     }
-                    
+
+                    boolean isOutermember = isOuterMember(TreeInfo.symbol(tree), ownerClass);
+
                     JCExpression ret = tree;
                     if (sym.kind == Kinds.VAR) {
+                        if (isOutermember) { 
+                            JCExpression outerExpr = getOuterAccessorAST(tree.pos(), initBuilder.receiverName, TreeInfo.symbol(tree), ownerClass);
+                            if (outerExpr != null) {
+                                receiver = outerExpr;
+                            }
+                        }
+
                         ret = toJava.callExpression(tree.pos(), receiver,
                                  initBuilder.attributeGetMethodNamePrefix + sym.name.toString(), List.<JCExpression>nil());
+
+                        TreeInfo.setSymbol(((JCMethodInvocation)ret).meth, TreeInfo.symbol(tree));
+
                         if (((JCMethodInvocation)ret).meth != null) {
                             if (((JCMethodInvocation)ret).meth.getTag() == JCTree.IDENT) {
                                 ((JCIdent)((JCMethodInvocation)ret).meth).sym = sym;
@@ -1854,7 +1891,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     }
                     else if (sym.kind == Kinds.MTH) {
                         if (ownerClass == null || sym.owner == ownerClass) {
-                            ret = make.Select(make.Ident(receiverName), TreeInfo.name(tree));
+                            if (isOutermember) {
+                                // TODO: Take care of multi-level of outer access
+                                JCExpression outerExpr = getOuterAccessorAST(tree.pos(), receiverName, TreeInfo.symbol(tree), ownerClass);
+                                if (outerExpr != null) {
+                                    ((JCFieldAccess)((JCMethodInvocation)ret).meth).selected = outerExpr;
+                                }
+
+                            } else {
+                                ret = make.Select(make.Ident(receiverName), TreeInfo.name(tree));
+                            }
                             ((JCFieldAccess)ret).sym = sym;
                         }
                     }
@@ -1868,7 +1914,27 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             
             return tree;
         }
-        
+
+        // Build the AST for accessing the outer member. The accessors might be chained if the member accessed is more than one level upper in the outer chain.
+        private JCExpression getOuterAccessorAST(DiagnosticPosition pos, Name receiverName, Symbol treeSym, Symbol siteOwner) {
+            JCExpression ret = null;
+            if (treeSym != null && siteOwner != null) {
+                ret = toJava.callExpression(pos, make.Ident(receiverName),
+                                     initBuilder.outerAccessorName.toString(), List.<JCExpression>nil());
+                ret.type = siteOwner.type;
+
+                siteOwner = siteOwner.owner;
+
+                while (treeSym.owner != siteOwner && siteOwner.kind == Kinds.TYP) {
+                    ret = toJava.callExpression(pos, ret,
+                                     initBuilder.outerAccessorName.toString(), List.<JCExpression>nil());
+                    ret.type = siteOwner.type;
+                    siteOwner = siteOwner.owner;
+                }
+            }
+            return ret;
+        }
+
         @Override
         public void visitClassDef(JCClassDecl tree) {
             if (visitInnerClasses) {
@@ -1878,6 +1944,23 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             result = tree;
         }
     };
+
+    // Is the referenced symbol an outer member.
+    static boolean isOuterMember(Symbol sym, Symbol ownerSym) {
+        if (sym != null && ownerSym != null) {
+            Symbol symOwner = sym.owner;
+            Symbol ownerSymOwner = ownerSym.owner;
+            while (ownerSymOwner != null && ownerSymOwner.kind == Kinds.TYP) {
+                if (ownerSymOwner == symOwner) {
+                    return true;
+                }
+
+                ownerSymOwner = ownerSymOwner.owner;
+            }
+        }
+
+        return false;
+    }
 
     private void processJFXAttributeReferences(JCClassDecl classDecl) {
         TreeTranslator treeScanner = new AttributeReferenceReplaceTranslator(initBuilder, make, names, this, null, true, classDecl.sym);
@@ -2012,5 +2095,62 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
 
     }
-// Lubo
+
+    private void fillClassesWithOuters(JCCompilationUnit tree) {
+        class FillClassesWithOuters extends JavafxTreeScanner {
+            JFXClassDeclaration currentClass;
+            
+            @Override
+            public void visitClassDeclaration(JFXClassDeclaration tree) {
+                JFXClassDeclaration prevClass = currentClass;
+                try {
+                    currentClass = tree;
+                    super.visitClassDeclaration(tree);
+                }
+                finally {
+                    currentClass = prevClass;
+                }
+            }
+            
+            @Override
+            public void visitIdent(JCIdent tree) {
+                super.visitIdent(tree);
+                if (currentClass != null && tree.sym.kind != Kinds.TYP && isOuterMember(tree.sym, currentClass.sym)) {
+                    addOutersForOuterAccess(tree.sym, currentClass.sym);
+                }
+            }
+            
+            @Override
+            public void visitSelect(JCFieldAccess tree) {
+                super.visitSelect(tree);
+                if (currentClass != null && tree.sym.kind != Kinds.TYP && isOuterMember(tree.sym, currentClass.sym)) {
+                    addOutersForOuterAccess(tree.sym, currentClass.sym);
+                }
+            }
+
+            private void addOutersForOuterAccess(Symbol sym, Symbol ownerSymbol) {
+                if (sym != null && ownerSymbol != null) {
+                    Symbol symOwner = sym.owner;
+                    Symbol ownerSymOwner = ownerSymbol;
+                    ListBuffer<ClassSymbol> potentialOuters = new ListBuffer<ClassSymbol>();
+                    while (symOwner != null &&  
+                            ownerSymOwner != symOwner) {
+                        if (ownerSymOwner.kind == Kinds.TYP) {
+                            potentialOuters.append((ClassSymbol)ownerSymOwner);
+                        }
+
+                        ownerSymOwner = ownerSymOwner.owner;
+                    }
+                    
+                    if (ownerSymOwner == symOwner) {
+                        for (ClassSymbol cs : potentialOuters) {
+                            hasOuters.add(cs);
+                        }
+                    }
+                }
+            }
+        }
+        
+        new FillClassesWithOuters().scan(tree);
+    }
 }

@@ -90,6 +90,8 @@ public class JavafxInitializationBuilder {
     private final String fullLocationName = "com.sun.javafx.runtime.location.Location";
     private final String addDependenciesName = "addDependencies";
     private final String fxObjectName = "com.sun.javafx.runtime.FXObject";
+    Name outerAccessorName;
+    Name outerAccessorFieldName;
     
     private Map<ClassSymbol, JFXClassDeclaration> fxClasses;
     Map<ClassSymbol, java.util.List<Symbol>> fxClassAttributes;
@@ -127,6 +129,8 @@ public class JavafxInitializationBuilder {
         getPreviousValueName = names.fromString("getPreviousValue");
         initializeNonSyntheticName = names.fromString("initialize");
         onChangeArgName = names.fromString("$location");
+        outerAccessorName = names.fromString("accessOuter$");
+        outerAccessorFieldName = names.fromString("accessOuterField$");
     }
     
     static class TranslatedAttributeInfo {
@@ -468,7 +472,10 @@ public class JavafxInitializationBuilder {
 
         Name interfaceName = names.fromString(cDecl.getName().toString() + interfaceNameSuffix);
         addInterfaceeMethods(iDefinitions, methods, cDecl);
+        addInterfaceOuterAccessorMethod(iDefinitions, cDecl, typeMorpher);
+
         addClassMethods(cDecl, methods, interfaceName);
+        addClassOuterAccessorMethod(iDefinitions, cDecl, typeMorpher);
 
         implementing.appendList(cDecl.getImplementing());
 
@@ -483,7 +490,88 @@ public class JavafxInitializationBuilder {
         
         return ret.toList();
     }
+
+    // Add the methods and field for accessing the outer members. Also add a constructor with an extra parameter to handle the instantiation of the classes that access outer members
+    private void addClassOuterAccessorMethod(ListBuffer<JCTree> iDefinitions, JFXClassDeclaration cdecl, JavafxTypeMorpher typeMorpher) {
+        if (cdecl.sym != null && toJava.hasOuters.contains(cdecl.sym)) {
+            ClassSymbol returnSym = typeMorpher.reader.enterClass(names.fromString(cdecl.sym.owner.type.toString() + interfaceNameSuffix.toString()));
+            // Create the field to store the outer instance reference
+            JCVariableDecl accessorField = make.VarDef(make.Modifiers(Flags.PUBLIC), outerAccessorFieldName, make.Ident(returnSym), null);
+            VarSymbol vs = new VarSymbol(Flags.PUBLIC, outerAccessorFieldName, returnSym.type, cdecl.sym);
+            accessorField.type = returnSym.type;
+            accessorField.sym = vs;
+            
+            // Create the interface method with it's type(s) and symbol(s)
+            ListBuffer<JCStatement> mStats = new ListBuffer<JCStatement>();
+            JCIdent retIdent = make.Ident(vs);
+            JCReturn retRet = make.Return(retIdent);
+            retRet.type = vs.type;
+            mStats.append(retRet);
+            
+            JCMethodDecl accessorMethod = make.MethodDef(make.Modifiers(Flags.PUBLIC), outerAccessorName, make.Ident(returnSym), List.<JCTypeParameter>nil(), List.<JCVariableDecl>nil(),
+                    List.<JCExpression>nil(), make.Block(0L, mStats.toList()), null);
+            
+            MethodType mt = new MethodType(List.<Type>nil(), returnSym.type, List.<Type>nil(), returnSym);
+            accessorMethod.type = mt;
+            MethodSymbol ms = new MethodSymbol(Flags.PUBLIC, outerAccessorName, returnSym.type, returnSym);
+            accessorMethod.sym = ms;
+            cdecl.prependToMembers(accessorMethod);
+            cdecl.prependToMembers(accessorField);
+            
+            // Now add the construcotr taking the outer instance reference
+            JCVariableDecl accessorParam = make.VarDef(make.Modifiers(0L), outerAccessorFieldName, make.Ident(returnSym), null);
+            VarSymbol vs1 = new VarSymbol(0L, outerAccessorFieldName, returnSym.type, cdecl.sym);
+            accessorParam.type = returnSym.type;
+            accessorParam.sym = vs1;
     
+            ListBuffer<JCStatement> cStats = new ListBuffer<JCStatement>();
+            JCIdent cSelected = make.Ident(names._this);
+            cSelected.type = returnSym.type;
+            cSelected.sym = returnSym;
+            
+            JCFieldAccess cSelect = make.Select(cSelected, outerAccessorFieldName);
+            cSelect.sym = accessorField.sym;
+            cSelect.type = accessorField.type;
+            
+            JCIdent paramIdent = make.Ident(outerAccessorFieldName);
+            paramIdent.type = accessorParam.type;
+            paramIdent.sym = accessorParam.sym;
+
+            JCAssign assignStat = make.Assign(cSelect, paramIdent);
+            assignStat.type = returnSym.type;
+            
+            JCStatement assignWrapper = make.Exec(assignStat);
+            assignWrapper.type = assignStat.type;
+            
+            cStats.append(assignWrapper);
+            
+            JCMethodDecl ctor = make.MethodDef(make.Modifiers(Flags.PUBLIC), names.init, make.TypeIdent(TypeTags.VOID), List.<JCTypeParameter>nil(), List.<JCVariableDecl>of(accessorParam),
+                    List.<JCExpression>nil(), make.Block(0L, cStats.toList()), null);
+            
+            MethodType ct = new MethodType(List.<Type>of(accessorParam.type), returnSym.type, List.<Type>nil(), returnSym);
+            accessorMethod.type = ct;
+            MethodSymbol cs = new MethodSymbol(Flags.PUBLIC, outerAccessorName, returnSym.type, returnSym);
+            accessorMethod.sym = cs;
+            cdecl.prependToMembers(ctor);
+        }
+    }
+
+    // Add the methods for accessing the outer members.
+    private void addInterfaceOuterAccessorMethod(ListBuffer<JCTree> iDefinitions, JFXClassDeclaration cdecl, JavafxTypeMorpher typeMorpher) {
+        if (cdecl.sym != null && toJava.hasOuters.contains(cdecl.sym)) {
+            ClassSymbol returnSym = typeMorpher.reader.enterClass(names.fromString(cdecl.sym.owner.type.toString() + interfaceNameSuffix.toString()));
+            JCMethodDecl accessorMethod = make.MethodDef(make.Modifiers(Flags.PUBLIC), outerAccessorName, make.Ident(returnSym), List.<JCTypeParameter>nil(), List.<JCVariableDecl>nil(),
+                    List.<JCExpression>nil(), null, null);
+            
+            MethodType mt = new MethodType(List.<Type>nil(), returnSym.type, List.<Type>nil(), returnSym);
+            accessorMethod.type = mt;
+            MethodSymbol ms = new MethodSymbol(Flags.PUBLIC, outerAccessorName, returnSym.type, returnSym);
+            accessorMethod.sym = ms;
+            
+            iDefinitions = iDefinitions.append(accessorMethod);
+        }
+    }
+
     private void addInterfaceeMethods(ListBuffer<JCTree> iDefinitions, java.util.List<MethodSymbol> methods, JFXClassDeclaration cdecl) {
         for (MethodSymbol mth : methods) {
             // Add the non-abstract, non-static, and non-synthetic JavaFX methods to the class' interface
@@ -548,18 +636,20 @@ public class JavafxInitializationBuilder {
                     currentApply.args = newArgs;
                     
                     result = make.Ident(tree.type.tsym.name);
-                    tree.sym = null;
                 }
                 else {
-                    tree.sym = null;
-                    result = make.Select(make.Ident(receiverName), tree.name);
+                    if (JavafxToJava.isOuterMember(tree.sym, cdecl.sym)) {
+                        result = tree;
+                    }
+                    else {
+                        result = make.Select(make.Ident(receiverName), tree.name);
+                    }
                 }
             }
 
             @Override
             public void visitSelect(JCFieldAccess tree) {
                 super.visitSelect(tree);
-                tree.sym = null;
             }
             
             @Override

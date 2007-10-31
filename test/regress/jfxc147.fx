@@ -1,8 +1,8 @@
 /*
  * Regression test: implement an interface with an object literal
  *
- * @//TODO:test
- * @//TODO:run
+ * @test
+ * // do not run this testcase. It brings up UI and appers to hang while running regtests. 
  */
 
 import javax.swing.*;
