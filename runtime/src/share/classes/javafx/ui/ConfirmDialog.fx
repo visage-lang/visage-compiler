@@ -41,7 +41,6 @@ public class ConfirmDialog {
         if (visible) {
             //TODO DO LATER
             // do later {
-                //TODO JXFC-158
                 var result = JOptionPane.showConfirmDialog(
                       owner.getWindow(),
                       message,
