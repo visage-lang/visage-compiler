@@ -913,12 +913,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         assert false : "SHOULD NOT REACH HERE";
     }
 
-    @Override
-    public void visitVar(JFXVar tree) {
-        Symbol sym = tree.sym;
-        sym.complete();
-    }
-
     public void finishVar(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
         VarSymbol v = tree.sym;
         Type declType = attribType(tree.getJFXType(), env);
@@ -965,7 +959,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         finally {
             chk.setLint(prevLint);
         }
-
+    }
+        
+    @Override
+    public void visitVar(JFXVar tree) {
+        Symbol sym = tree.sym;
+        sym.complete();
+ 
         if (tree.getOnChanges() != null) {
             Type elemType = null;
 
@@ -1795,7 +1795,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             // Compute the result type.
             Type restype = mtype.getReturnType();
-            assert restype.tag != WILDCARD : mtype;
 
             // as a special case, array.clone() has a result that is
             // the same as static type of the array being cloned
