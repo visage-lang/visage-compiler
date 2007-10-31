@@ -582,6 +582,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
         tree.sym = sym;
         sym.complete();
+        if (sym.type == null) {
+            log.error(tree.pos(), "javafx.type.infer.cycle", tree.name);
+            sym.type = syms.objectType;
+        }
 
         // (1) Also find the environment current for the class where
         //     sym is defined (`symEnv').
