@@ -1950,7 +1950,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (sym != null && ownerSym != null) {
             Symbol symOwner = sym.owner;
             Symbol ownerSymOwner = ownerSym.owner;
-            while (ownerSymOwner != null && ownerSymOwner.kind == Kinds.TYP) {
+            while (ownerSymOwner != null && ownerSymOwner.kind != Kinds.PCK) {
                 if (ownerSymOwner == symOwner) {
                     return true;
                 }
