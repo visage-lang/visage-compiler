@@ -1319,10 +1319,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         //Scope members = owntype.tsym.members();  //TODO: should see new members
         Scope members = clazz.type.tsym.members();
-        for (ObjectLiteralPartTree pt : tree.getParts()) {
+        for (JFXObjectLiteralPart pt : tree.getParts()) {
             JFXObjectLiteralPart part = (JFXObjectLiteralPart)pt;
-            Symbol memberSym = members.lookup(part.name).sym;
-            memberSym = rs.access(memberSym, part.pos(), owntype, part.name, true);
+            Symbol memberSym = rs.findIdentInType(env, clazz.type, part.name, VAR);
+            memberSym = rs.access(memberSym, pt.pos(), clazz.type, part.name, true);
             memberSym.complete();
             attribExpr(part.getExpression(), localEnv, memberSym.type);
             part.type = memberSym.type;

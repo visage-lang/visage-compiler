@@ -791,7 +791,7 @@ objectLiteral  returns [ListBuffer<JCTree> parts = ListBuffer.<JCTree>lb()]
 	: ( objectLiteralPart  					{ $parts.append($objectLiteralPart.value); } ) * 
 	;
 objectLiteralPart  returns [JCTree value]
-	: name COLON  boundExpression (COMMA | SEMI)?		{ $value = F.at(pos($COLON)).ObjectLiteralPart($name.value, $boundExpression.expr, $boundExpression.status); }
+	: name COLON  boundExpression (COMMA | SEMI)?		{ $value = F.at($name.pos).ObjectLiteralPart($name.value, $boundExpression.expr, $boundExpression.status); }
        	| variableDeclaration	(COMMA | SEMI)?			{ $value = $variableDeclaration.value; }
        	| functionDefinition 	(COMMA | SEMI)?			{ $value = $functionDefinition.value; }
        	;
