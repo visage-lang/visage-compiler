@@ -26,9 +26,7 @@
 package com.sun.javafx.runtime;
 
 import com.sun.javafx.runtime.location.Location;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.sun.javafx.runtime.location.MutableLocation;
 
 /**
  * Helper class for initializing JavaFX instances from object literals.
@@ -48,7 +46,10 @@ public class InitHelper {
     public void initialize() {
         for (Location loc : initOrder) {
             if (loc != null) {
-                loc.valueChanged();
+                if (loc instanceof MutableLocation)
+                    loc.valueChanged();
+                else if (!loc.isLazy())
+                    loc.update();
             }
         }
     }

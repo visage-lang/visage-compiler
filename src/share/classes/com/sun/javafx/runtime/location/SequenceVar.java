@@ -30,8 +30,6 @@ import com.sun.javafx.runtime.sequence.SequenceMutator;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 import com.sun.javafx.runtime.sequence.Sequences;
 
-import java.util.Iterator;
-
 /**
  * SequenceVar represents a sequence-valued variable as a Location.
  * New SequenceVars are constructed with the make() factory
@@ -39,10 +37,8 @@ import java.util.Iterator;
  *
  * @author Brian Goetz
  */
-public class SequenceVar<T> extends AbstractLocation implements SequenceLocation<T>, MutableLocation {
+public class SequenceVar<T> extends AbstractSequenceLocation<T> implements SequenceLocation<T>, MutableLocation {
 
-    private Sequence<T> sequence, previousValue;
-    private boolean hasSequenceListeners;
     private final SequenceMutator.Listener<T> mutationListener = new MutationListener();
 
     public static <T> SequenceVar<T> make(Sequence<T> value) {
@@ -55,7 +51,9 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
 
     private SequenceVar(Sequence<T> value) {
         super(true, false);
-        this.sequence = value;
+        if (value == null)
+            throw new NullPointerException();
+        this.value = value;
     }
 
     @Override
@@ -63,77 +61,29 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
         throw new UnsupportedOperationException();
     }
 
-
-    @Override
-    public void addChangeListener(ChangeListener listener) {
-        if (listener instanceof SequenceChangeListener)
-            hasSequenceListeners = true;
-        super.addChangeListener(listener);
-    }
-
-    @Override
-    public String toString() {
-        return sequence.toString();
-    }
-
-    @Override
-    public Iterator<T> iterator() {
-        return sequence.iterator();
-    }
-
-    @Override
-    public T get(int position) {
-        return sequence.get(position);
-    }
-    
-    @Override
-    public Sequence<T> get() {
-        return sequence;
-    }
-
-    public Sequence<T> getPreviousValue() {
-        return previousValue;
-    }
-
     @Override
     public Sequence<T> set(Sequence<T> value) {
-        Sequence<T> oldValue = sequence;
-        if (!oldValue.equals(value)) {
-            previousValue = this.sequence;
-            this.sequence = value;
-            valueChanged();
-            if (hasSequenceListeners) {
-                for (int i=0; i<oldValue.size(); i++)
-                    mutationListener.onDelete(i, oldValue.get(i));
-                for (int i=0; i<sequence.size(); i++)
-                    mutationListener.onInsert(i, sequence.get(i));
-            }
-            previousValue = null;
-        }
-        return value;
+        return replaceValue(value);
     }
 
     @Override
     public void set(int position, T newValue) {
-        SequenceMutator.set(sequence, mutationListener, position, newValue);
+        SequenceMutator.set(value, mutationListener, position, newValue);
     }
 
     @Override
     public void delete(int position) {
-        SequenceMutator.delete(sequence, mutationListener, position);
+        SequenceMutator.delete(value, mutationListener, position);
     }
 
     @Override
     public void delete(SequencePredicate<T> sequencePredicate) {
-        SequenceMutator.delete(sequence, mutationListener, sequencePredicate);
+        SequenceMutator.delete(value, mutationListener, sequencePredicate);
     }
 
     @Override
     public void deleteAll() {
-        Sequence<T> deletedElements = sequence;
-        sequence = Sequences.emptySequence(sequence.getElementType());
-        for (int i=0; i<deletedElements.size(); i++)
-            mutationListener.onDelete(i, deletedElements.get(i));
+        set(Sequences.emptySequence(value.getElementType()));
     }
 
     @Override
@@ -147,97 +97,80 @@ public class SequenceVar<T> extends AbstractLocation implements SequenceLocation
 
     @Override
     public void insert(T value) {
-        SequenceMutator.insert(sequence, mutationListener, value);
+        SequenceMutator.insert(this.value, mutationListener, value);
     }
 
     @Override
     public void insert(Sequence<T> values) {
-        SequenceMutator.insert(sequence, mutationListener, values);
+        SequenceMutator.insert(value, mutationListener, values);
     }
 
     public void insertFirst(T value) {
-        SequenceMutator.insertFirst(sequence, mutationListener, value);
+        SequenceMutator.insertFirst(this.value, mutationListener, value);
     }
 
     @Override
     public void insertFirst(Sequence<T> values) {
-        SequenceMutator.insertFirst(sequence, mutationListener, values);
+        SequenceMutator.insertFirst(value, mutationListener, values);
     }
 
     @Override
     public void insertBefore(T value, int position) {
-        SequenceMutator.insertBefore(sequence, mutationListener, value, position);
+        SequenceMutator.insertBefore(this.value, mutationListener, value, position);
     }
 
     @Override
     public void insertBefore(T value, SequencePredicate<T> sequencePredicate) {
-        SequenceMutator.insertBefore(sequence, mutationListener, value, sequencePredicate);
+        SequenceMutator.insertBefore(this.value, mutationListener, value, sequencePredicate);
     }
 
     @Override
     public void insertBefore(Sequence<T> values, int position) {
-        SequenceMutator.insertBefore(sequence, mutationListener, values, position);
+        SequenceMutator.insertBefore(value, mutationListener, values, position);
     }
 
     @Override
     public void insertBefore(Sequence<T> values, SequencePredicate<T> sequencePredicate) {
-        SequenceMutator.insertBefore(sequence, mutationListener, values, sequencePredicate);
+        SequenceMutator.insertBefore(value, mutationListener, values, sequencePredicate);
     }
 
     @Override
     public void insertAfter(T value, int position) {
-        SequenceMutator.insertAfter(sequence, mutationListener, value, position);
+        SequenceMutator.insertAfter(this.value, mutationListener, value, position);
     }
 
     @Override
     public void insertAfter(T value, SequencePredicate<T> sequencePredicate) {
-        SequenceMutator.insertAfter(sequence, mutationListener, value, sequencePredicate);
+        SequenceMutator.insertAfter(this.value, mutationListener, value, sequencePredicate);
     }
 
     @Override
     public void insertAfter(Sequence<T> values, int position) {
-        SequenceMutator.insertAfter(sequence, mutationListener, values, position);
+        SequenceMutator.insertAfter(value, mutationListener, values, position);
     }
 
     @Override
     public void insertAfter(Sequence<T> values, SequencePredicate<T> sequencePredicate) {
-        SequenceMutator.insertAfter(sequence, mutationListener, values, sequencePredicate);
+        SequenceMutator.insertAfter(value, mutationListener, values, sequencePredicate);
     }
 
     private class MutationListener implements SequenceMutator.Listener<T> {
         public void onReplaceSequence(Sequence<T> newSeq) {
-            sequence = newSeq;
+            value = newSeq;
             valueChanged();
         }
 
         public void onInsert(int position, T element) {
-            if (listeners != null && hasSequenceListeners) {
-                for (ChangeListener listener : listeners) {
-                    if (listener instanceof SequenceChangeListener) {
-                        ((SequenceChangeListener<T>) listener).onInsert(position, element);
-                    }
-                }
-            }
+            SequenceVar.this.onInsert(position, element);
         }
 
         public void onDelete(int position, T element) {
-            if (listeners != null && hasSequenceListeners) {
-                for (ChangeListener listener : listeners) {
-                    if (listener instanceof SequenceChangeListener) {
-                        ((SequenceChangeListener<T>) listener).onDelete(position, element);
-                    }
-                }
-            }
+            SequenceVar.this.onDelete(position, element);
         }
 
         public void onReplaceElement(int position, T oldValue, T newValue) {
-            if (listeners != null && hasSequenceListeners) {
-                for (ChangeListener listener : listeners) {
-                    if (listener instanceof SequenceChangeListener) {
-                        ((SequenceChangeListener<T>) listener).onReplace(position, oldValue, newValue);
-                    }
-                }
-            }
+            SequenceVar.this.onReplaceElement(position, oldValue, newValue);
         }
+
     }
 }

@@ -36,7 +36,12 @@ import java.util.*;
 public abstract class AbstractLocation implements Location {
     private boolean isValid;
     private final boolean isLazy;
+
+    // We separate listeners from dependent locations because updating of dependent locations is split into an
+    // invalidation phase and an update phase (this is to support lazy locations.)  So there are times when we want
+    // to invalidate downstream locations but not yet invoke their change listeners.
     protected List<ChangeListener> listeners;
+    protected List<WeakReference<Location>> dependentLocations;
 
     protected AbstractLocation(boolean valid, boolean lazy) {
         isValid = valid;
@@ -51,18 +56,38 @@ public abstract class AbstractLocation implements Location {
         return isLazy;
     }
 
-    protected void setValid() {
+    protected void setValid(boolean changed) {
         isValid = true;
+        if (changed)
+            notifyChangeListeners();
     }
 
     public void invalidate() {
         isValid = false;
+        invalidateDependencies();
         if (!isLazy())
             update();
-        valueChanged();
     }
 
     public void valueChanged() {
+        notifyChangeListeners();
+        invalidateDependencies();
+    }
+
+    private void invalidateDependencies() {
+        if (dependentLocations != null) {
+            for (Iterator<WeakReference<Location>> iterator = dependentLocations.iterator(); iterator.hasNext();) {
+                WeakReference<Location> locationRef = iterator.next();
+                Location loc = locationRef.get();
+                if (loc == null)
+                    iterator.remove();
+                else
+                    loc.invalidate();
+            }
+        }
+    }
+
+    private void notifyChangeListeners() {
         if (listeners != null) {
             for (Iterator<ChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
                 ChangeListener listener = iterator.next();
@@ -72,9 +97,15 @@ public abstract class AbstractLocation implements Location {
         }
     }
 
+    public void addDependentLocation(WeakReference<Location> location) {
+        if (dependentLocations == null)
+            dependentLocations = new ArrayList<WeakReference<Location>>();
+        dependentLocations.add(location);
+    }
+
     public void addChangeListener(ChangeListener listener) {
         if (listeners == null)
-            listeners = new LinkedList<ChangeListener>();
+            listeners = new ArrayList<ChangeListener>();
         listeners.add(listener);
     }
 
@@ -84,9 +115,9 @@ public abstract class AbstractLocation implements Location {
 
     public void addDependencies(Location... dependencies) {
         if (dependencies.length > 0) {
-            WeakLocationListener listener = new WeakLocationListener(this);
+            WeakReference<Location> wr = new WeakReference<Location>(this);
             for (Location dep : dependencies)
-                dep.addChangeListener(listener);
+                dep.addDependentLocation(wr);
         }
     }
 
@@ -98,22 +129,6 @@ public abstract class AbstractLocation implements Location {
     }
 
     public void update() {
-    }
-
-    private static class WeakLocationListener extends WeakReference<Location> implements ChangeListener {
-        public WeakLocationListener(Location referent) {
-            super(referent);
-        }
-
-        public boolean onChange(Location location) {
-            Location loc = get();
-            if (loc == null)
-                return false;
-            else {
-                loc.invalidate();
-                return true;
-            }
-        }
     }
 
     private static class WeakListener extends WeakReference<ChangeListener> implements ChangeListener {
@@ -128,9 +143,14 @@ public abstract class AbstractLocation implements Location {
         }
     }
 
-    // For testing
+    protected static boolean equals(Object a, Object b) {
+        return ((a == null) && (b == null)) || ((a != null) && a.equals(b));
+    }
+
+    // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
     int getListenerCount() {
-        return listeners == null ? 0 : listeners.size();
+        return (listeners == null ? 0 : listeners.size())
+                + (dependentLocations == null ? 0 : dependentLocations.size());
     }
 }
 

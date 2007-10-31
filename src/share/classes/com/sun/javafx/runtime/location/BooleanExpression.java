@@ -76,7 +76,7 @@ public class BooleanExpression extends AbstractLocation implements BooleanLocati
     public void update() {
         if (!isValid()) {
             value = expression.get();
-            setValid();
+            setValid(previousValue != value);
         }
     }
 

@@ -76,8 +76,8 @@ public class ObjectExpression<T> extends AbstractLocation implements ObjectLocat
     public void update() {
         if (!isValid()) {
             value = expression.get();
+            setValid(!equals(value, previousValue));
             previousValue = null;
-            setValid();
         }
     }
 

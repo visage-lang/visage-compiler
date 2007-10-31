@@ -39,20 +39,22 @@ import java.util.Iterator;
  *
  * @author Brian Goetz
  */
-public class SequenceExpression<T> extends AbstractLocation implements SequenceLocation<T> {
-
+public class SequenceExpression<T> extends AbstractSequenceLocation<T> implements SequenceLocation<T> {
     private final SequenceBindingExpression<T> expression;
-    private Sequence<T> value, previousValue;
 
-    /** Create an SequenceExpression with the specified expression and dependencies. */
-    public static<T> SequenceLocation<T> make(SequenceBindingExpression<T> exp, Location... dependencies) {
+    /**
+     * Create an SequenceExpression with the specified expression and dependencies.
+     */
+    public static <T> SequenceLocation<T> make(SequenceBindingExpression<T> exp, Location... dependencies) {
         SequenceExpression<T> loc = new SequenceExpression<T>(false, exp);
         loc.addDependencies(dependencies);
         return loc;
     }
 
-    /** Create a lazy SequenceExpression with the specified expression and dependencies. */
-    public static<T> SequenceLocation<T> makeLazy(SequenceBindingExpression<T> exp, Location... dependencies) {
+    /**
+     * Create a lazy SequenceExpression with the specified expression and dependencies.
+     */
+    public static <T> SequenceLocation<T> makeLazy(SequenceBindingExpression<T> exp, Location... dependencies) {
         SequenceExpression<T> loc = new SequenceExpression<T>(true, exp);
         loc.addDependencies(dependencies);
         return loc;
@@ -63,52 +65,43 @@ public class SequenceExpression<T> extends AbstractLocation implements SequenceL
         this.expression = expression;
     }
 
+    private void ensureValid() {
+        if (!isValid())
+            update();
+    }
+
     @Override
     public String toString() {
-        if (!isValid()) {
-            value = expression.get();
-            setValid();
-        }
-        return value.toString();
+        ensureValid();
+        return super.toString();
     }
 
     @Override
     public Iterator<T> iterator() {
-        if (!isValid()) {
-            value = expression.get();
-            setValid();
-        }
-        return value.iterator();
+        ensureValid();
+        return super.iterator();
     }
 
     @Override
     public T get(int position) {
-        if (!isValid()) {
-            value = expression.get();
-            setValid();
-        }
-        return value.get(position);
-    }
-    
-    @Override
-    public Sequence<T> get() {
-        if (!isValid()) {
-            value = expression.get();
-            setValid();
-        }
-        return value;
+        ensureValid();
+        return super.get(position);
     }
 
-    public Sequence<T> getPreviousValue() {
-        return previousValue;
+    @Override
+    public Sequence<T> get() {
+        ensureValid();
+        return super.get();
     }
 
     @Override
     public void update() {
         if (!isValid()) {
-            value = expression.get();
+            Sequence<T> v = expression.get();
+            if (!equals(v, previousValue))
+                replaceValue(v);
+            setValid(false);
             previousValue = null;
-            setValid();
         }
     }
 

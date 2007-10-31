@@ -3,6 +3,7 @@ package com.sun.javafx.runtime.location;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 
+import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -98,6 +99,10 @@ public class Locations {
 
         public void addDependencies(Location... location) {
             getLocation().addDependencies(location);
+        }
+
+        public void addDependentLocation(WeakReference<Location> location) {
+            getLocation().addDependentLocation(location);
         }
     }
 

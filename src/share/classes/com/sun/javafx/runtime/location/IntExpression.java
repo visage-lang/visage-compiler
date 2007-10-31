@@ -76,7 +76,7 @@ public class IntExpression extends AbstractLocation implements IntLocation {
     public void update() {
         if (!isValid()) {
             value = expression.get();
-            setValid();
+            setValid(previousValue != value);
         }
     }
 

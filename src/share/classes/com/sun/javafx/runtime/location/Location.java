@@ -25,6 +25,7 @@
 
 package com.sun.javafx.runtime.location;
 
+import java.lang.ref.WeakReference;
 import java.util.Collection;
 
 /**
@@ -66,6 +67,9 @@ public interface Location {
      * could be collected.
      */
     public void addWeakListener(ChangeListener listener);
+
+    /** Record a location as depending on this location */
+    public void addDependentLocation(WeakReference<Location> location);
 
     /** Return the collection of change listeners */
     public Collection<ChangeListener> getListeners();

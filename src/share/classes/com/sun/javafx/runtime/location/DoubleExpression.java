@@ -77,7 +77,7 @@ public class DoubleExpression extends AbstractLocation implements DoubleLocation
     public void update() {
         if (!isValid()) {
             value = expression.get();
-            setValid();
+            setValid(previousValue != value);
         }
     }
 

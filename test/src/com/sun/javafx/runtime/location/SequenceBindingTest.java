@@ -24,10 +24,10 @@
  */
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.JavaFXTestCase;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 import com.sun.javafx.runtime.sequence.Sequences;
-import com.sun.javafx.runtime.JavaFXTestCase;
 
 /**
  * SequenceBindingTest
@@ -44,12 +44,14 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
 
     public void testUnbound() {
-       Sequence<Integer> seq = Sequences.range(1, 100);
+        Sequence<Integer> seq = Sequences.range(1, 100);
         SequenceVar<Integer> loc = SequenceVar.make(seq);
         assertEquals(seq, loc.get());
-   }
+    }
 
-    /** bind first = seq[0] */
+    /**
+     * bind first = seq[0]
+     */
     public void testElementBind() {
         final SequenceVar<Integer> seq = SequenceVar.make(Sequences.range(1, 3));
         IntLocation firstValue = IntExpression.make(new IntBindingExpression() {
@@ -67,10 +69,10 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(3, firstValue);
         assertEquals(1, cl.changeCount);
         assertEquals(1, cl.replaceCount);
-   }
+    }
 
     public void testSequenceListener() {
-       final SequenceVar<Integer> seq = SequenceVar.make(Sequences.range(1, 3));
+        final SequenceVar<Integer> seq = SequenceVar.make(Sequences.range(1, 3));
         CountingSequenceListener cl = new CountingSequenceListener();
         HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
         seq.addChangeListener(cl);
@@ -163,7 +165,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(1, cl.deleteCount);
         assertEquals(cl.deleted, 9);
         assertEquals(cl.changeCount, 11);
-        assertEquals(hl, new String[] {});
+        assertEquals(hl, new String[]{});
 
         hl.clear();
         seq.delete(100); // no effect
@@ -171,7 +173,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(1, cl.deleteCount);
         assertEquals(cl.deleted, 9);
         assertEquals(cl.changeCount, 11);
-        assertEquals(hl, new String[] {});
+        assertEquals(hl, new String[]{});
 
         seq.delete(3);
         assertEquals(seq, 1, 9, 1, 3, 8, 1, 2, 3, 10, 2, 3, 1, 2, 3, 4, 9, 1, 9, 1, 2, 3, 8, 2, 1, 2, 3, 10, 3, 9, 1, 9, 1, 2, 3, 2, 3);
@@ -203,7 +205,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testSequenceExpression() {
-       // oneToN = bind 1..n
+        // oneToN = bind 1..n
         final IntLocation n = IntVar.make(0);
         final SequenceLocation<Integer> oneToN = SequenceExpression.make(new SequenceBindingExpression<Integer>() {
             public Sequence<Integer> get() {
@@ -219,7 +221,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(oneToN.get(), 1, 0, -1);
 
         // oddN = bind select t from v where t % 2 == 1
-       final SequenceLocation<Integer> v = SequenceVar.make(Sequences.range(1, 8));
+        final SequenceLocation<Integer> v = SequenceVar.make(Sequences.range(1, 8));
         final SequenceLocation<Integer> oddN = SequenceExpression.make(new SequenceBindingExpression<Integer>() {
             public Sequence<Integer> get() {
                 return v.get().get(new SequencePredicate<Integer>() {
@@ -259,6 +261,31 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(evenN.get(), 2, 4, 6, 8, 10);
         n.set(-1);
         assertEquals(evenN.get(), 0);
+    }
+
+    public void testDependentTrigger() {
+        final SequenceLocation<Integer> v = SequenceVar.make(Sequences.make(Integer.class, 1, 2, 3));
+        final SequenceLocation<Integer> b = SequenceExpression.make(new SequenceBindingExpression<Integer>() {
+            public Sequence<Integer> get() {
+                return v.get();
+            }
+        }, v);
+        HistorySequenceListener<Integer> vh = new HistorySequenceListener<Integer>();
+        HistorySequenceListener<Integer> bh = new HistorySequenceListener<Integer>();
+        v.addChangeListener(vh);
+        b.addChangeListener(bh);
+
+        assertEquals(v, 1, 2, 3);
+        assertEquals(b, 1, 2, 3);
+        assertEquals(vh);
+        assertEquals(bh, "i-0-1", "i-1-2", "i-2-3");
+        bh.clear();
+
+        v.set(Sequences.make(Integer.class, 1, 2));
+        assertEquals(v, 1, 2);
+        assertEquals(b, 1, 2);
+        assertEquals(vh, "d-0-1", "d-1-2", "d-2-3", "i-0-1", "i-1-2");
+        assertEquals(bh, "d-0-1", "d-1-2", "d-2-3", "i-0-1", "i-1-2");
     }
 }
 
