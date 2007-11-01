@@ -25,13 +25,14 @@
 
 package framework;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
-import junit.framework.*;
 
 /**
  * Simple JUnit test suite for the JavaFX script compiler.
@@ -80,6 +81,7 @@ public class FXCompilerTest extends TestSuite {
 
                 Scanner scanner = null;
                 List<String> auxFiles = new ArrayList<String>();
+                List<String> separateFiles = new ArrayList<String>();
                 boolean inComment = false;
                 try {
                     scanner = new Scanner(f);
@@ -94,6 +96,8 @@ public class FXCompilerTest extends TestSuite {
                             isTest = true;
                         else if (inComment && token.equals("@run"))
                             shouldRun = true;
+                        else if (inComment && token.equals("@compilefirst"))
+                            separateFiles.add(scanner.next());
                         else if (inComment && token.equals("@compile"))
                             auxFiles.add(scanner.next());
                     }
@@ -104,7 +108,7 @@ public class FXCompilerTest extends TestSuite {
                         scanner.close();
                 }
                 if (isTest)
-                    tests.add(new FXCompilerTestCase(f, name, shouldRun, auxFiles));
+                    tests.add(new FXCompilerTestCase(f, name, shouldRun, auxFiles, separateFiles));
             }
         }
     }

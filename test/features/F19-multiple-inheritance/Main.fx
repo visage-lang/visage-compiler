@@ -2,8 +2,8 @@
  * Feature test #19 -- multiple inheritance
  *
  * @ test
- * @ compile Base1.fx
- * @ compile Base2.fx
+ * @ compilefirst Base1.fx
+ * @ compilefirst Base2.fx
  * @ compile Subclass.fx
  */
 

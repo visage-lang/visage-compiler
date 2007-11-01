@@ -49,6 +49,7 @@ public class FXCompilerTestCase extends TestCase {
     private final boolean shouldRun;
     private String className;
     private final List<String> auxFiles;
+    private final List<String> separateFiles;
 
     private static final JavafxCompiler compiler = compilerLocator();
 
@@ -56,13 +57,14 @@ public class FXCompilerTestCase extends TestCase {
     public static final String BUILD_ROOT = "build/test";
     public static final String TEST_PREFIX = TEST_ROOT + File.separator;
 
-    public FXCompilerTestCase(File test, String name, boolean shouldRun, Collection<String> auxFiles) {
+    public FXCompilerTestCase(File test, String name, boolean shouldRun, Collection<String> auxFiles, Collection<String> separateFiles) {
         super(name);
         this.test = test;
         this.shouldRun = shouldRun;
         assertTrue("path not a relative pathname", test.getPath().startsWith(TEST_PREFIX));
         this.buildDir = new File(BUILD_ROOT + File.separator + test.getParent().substring(TEST_PREFIX.length()));
         this.auxFiles = new LinkedList<String>(auxFiles);
+        this.separateFiles = new LinkedList<String>(separateFiles);
     }
 
     @Override
@@ -80,23 +82,41 @@ public class FXCompilerTestCase extends TestCase {
     }
 
     private void compile() throws IOException {
+        ByteArrayOutputStream out;
+        ByteArrayOutputStream err;
+
         File buildRoot = new File(BUILD_ROOT);
         if (!buildRoot.exists())
             fail("no " + BUILD_ROOT + " directory in " + new File(".").getAbsolutePath());
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ByteArrayOutputStream err = new ByteArrayOutputStream();
         buildDir.mkdirs();
-        List<String> args = new ArrayList<String>();
-        args.add("-target");
-        args.add("1.5");
-        args.add("-d");
-        args.add(buildDir.getPath());
-        args.add(test.getPath());
+
+        for (String f : separateFiles) {
+            out = new ByteArrayOutputStream();
+            err = new ByteArrayOutputStream();
+            List<String> files = new ArrayList<String>();
+            files.add(new File(test.getParent(), f).getPath());
+            System.out.println("Compiling " + f);
+            int errors = doCompile(buildDir.getPath(), files, out, err);
+            if (errors != 0) {
+                dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output");
+                System.out.println("--");
+                StringBuilder sb = new StringBuilder();
+                sb.append(errors).append(" error");
+                if (errors > 1)
+                    sb.append('s');
+                sb.append(" compiling ").append(f);
+                fail(sb.toString());
+            }
+        }
+
+        out = new ByteArrayOutputStream();
+        err = new ByteArrayOutputStream();
+        List<String> files = new ArrayList<String>();
+        files.add(test.getPath());
         for (String f : auxFiles)
-            args.add(new File(test.getParent(), f).getPath());
+            files.add(new File(test.getParent(), f).getPath());
         System.out.println("Compiling " + test);
-        int errors = compiler.run(null, out, err, args.toArray(new String[0]));
+        int errors = doCompile(buildDir.getPath(), files, out, err);
         if (errors != 0) {
             dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output");
             System.out.println("--");
@@ -107,6 +127,17 @@ public class FXCompilerTestCase extends TestCase {
             sb.append(" compiling ").append(test);
             fail(sb.toString());
         }
+    }
+
+    private static int doCompile(String dir, List<String> files, OutputStream out, OutputStream err) {
+        List<String> args = new ArrayList<String>();
+        args.add("-target");
+        args.add("1.5");
+        args.add("-d");
+        args.add(dir);
+        for (String f : files)
+            args.add(f);
+        return compiler.run(null, out, err, args.toArray(new String[args.size()]));
     }
 
     private void execute(String outputFileName, String errorFileName) throws IOException {
