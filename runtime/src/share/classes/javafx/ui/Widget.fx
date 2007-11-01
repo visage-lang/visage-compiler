@@ -59,7 +59,7 @@ public class KeyboardAction {
     public attribute action: function():Void;
 }
 
-public class Widget extends GroupElement, UIElement {  
+public abstract class Widget extends GroupElement, UIElement {  
     private attribute inBoundsListener: Boolean;
 
     private function makeKeyEvent(e:java.awt.event.KeyEvent):KeyEvent {
