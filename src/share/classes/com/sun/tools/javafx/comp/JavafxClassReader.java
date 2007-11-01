@@ -72,7 +72,8 @@ public class JavafxClassReader extends ClassReader {
     private final JavafxTypeMorpher typeMorpher;
     private Name currentMethodName;
     private JavafxInitializationBuilder initBuilder;
-    
+    private String intfNameStr;
+    private int intfNameLen;
 
     public static void preRegister(final Context context) {
         context.put(classReaderKey, new Context.Factory<ClassReader>() {
@@ -89,6 +90,8 @@ public class JavafxClassReader extends ClassReader {
         super(context, definitive);
         typeMorpher = JavafxTypeMorpher.instance(context);
         initBuilder = JavafxInitializationBuilder.instance(context);
+        intfNameStr = initBuilder.interfaceNameSuffix.toString();
+        intfNameLen = intfNameStr.length();    
     }
 
     /** Convert class signature to type, where signature is implicit.
@@ -106,9 +109,11 @@ public class JavafxClassReader extends ClassReader {
             switch (c) {
 
             case ';': {         // end
-                ClassSymbol t = enterClass(names.fromUtf(signatureBuffer,
+                Name className = names.fromUtf(signatureBuffer,
                                                          startSbp,
-                                                         sbp - startSbp));
+                                                         sbp - startSbp);
+                className = removeIntfPart(className);
+                ClassSymbol t = enterClass(className);
                 if (!keepClassFileSignatures()) {
                     if (t == typeMorpher.declLocation[TYPE_KIND_BOOLEAN].sym) {
                         return syms.booleanType;
@@ -127,9 +132,11 @@ public class JavafxClassReader extends ClassReader {
             }
 
             case '<':           // generic arguments
-                ClassSymbol t = enterClass(names.fromUtf(signatureBuffer,
+                Name className = names.fromUtf(signatureBuffer,
                                                          startSbp,
-                                                         sbp - startSbp));
+                                                         sbp - startSbp);
+                className = removeIntfPart(className);
+                ClassSymbol t = enterClass(className);
                 List<Type> genericArgs = sigToTypes('>');
                 if (!keepClassFileSignatures()) {
                     if (types.erasure(t.type).tsym == typeMorpher.declLocation[TYPE_KIND_OBJECT].sym) {
@@ -248,5 +255,14 @@ public class JavafxClassReader extends ClassReader {
         }
         
         return false;
+    }
+
+    private Name removeIntfPart(Name className) {
+        if (className.endsWith(initBuilder.interfaceNameSuffix)) {
+            String classNameStr = className.toString();
+            return names.fromString(classNameStr.substring(0, classNameStr.length() - intfNameLen));
+        }
+
+        return className;
     }
 }
