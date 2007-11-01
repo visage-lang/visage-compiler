@@ -1043,6 +1043,7 @@ public class JavafxInitializationBuilder {
                                              java.util.List<MethodSymbol> methods,
                                              java.util.List<ClassSymbol> baseClasses,
                                              java.util.List<ClassSymbol> classesToVisit) {
+        Set<ClassSymbol> addedBaseClasses = new HashSet<ClassSymbol>();
         while(!classesToVisit.isEmpty()) {
             ClassSymbol cSym = classesToVisit.get(0);
             classesToVisit.remove(0);
@@ -1117,7 +1118,8 @@ public class JavafxInitializationBuilder {
                             }
 
                             for (Type supertype : cSym.getInterfaces()) {
-                                if (supertype != null && supertype.tsym != null && supertype.tsym.kind == Kinds.TYP) {
+                                if (supertype != null && supertype.tsym != null && supertype.tsym.kind == Kinds.TYP && !addedBaseClasses.contains((ClassSymbol)supertype.tsym)) {
+                                    addedBaseClasses.add((ClassSymbol)supertype.tsym);
                                     classesToVisit.add((ClassSymbol)supertype.tsym);
                                     baseClasses.add((ClassSymbol)supertype.tsym);
                                 }
@@ -1173,7 +1175,8 @@ public class JavafxInitializationBuilder {
                             }
 
                             for (JCExpression supertype : cDecl.getSupertypes()) {
-                                if (supertype.type != null && supertype.type.tsym != null && supertype.type.tsym.kind == Kinds.TYP) {
+                                if (supertype.type != null && supertype.type.tsym != null && supertype.type.tsym.kind == Kinds.TYP && !addedBaseClasses.contains((ClassSymbol)supertype.type.tsym)) {
+                                    addedBaseClasses.add((ClassSymbol)supertype.type.tsym);
                                     classesToVisit.add((ClassSymbol)supertype.type.tsym);
                                     baseClasses.add((ClassSymbol)supertype.type.tsym);
                                 }
