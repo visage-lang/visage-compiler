@@ -244,8 +244,10 @@ public class Widget extends GroupElement, UIElement {
             var c = this.getNonScrollPaneComponent();
             var inputMap = c.getInputMap();
             var actionMap = c.getActionMap();
-            var k = newValue.keyStroke;
-            var a = newValue.action;
+            //TODO JXFC-180
+            var zz = newValue as Widget.KeyboardAction;
+            var k = zz.keyStroke;
+            var a = zz.action;
             var j = javax.swing.KeyStroke.getKeyStroke(k.id, 0);
             inputMap.put(j, newValue);
             actionMap.put(newValue as Object, javax.swing.AbstractAction {
@@ -264,10 +266,12 @@ public class Widget extends GroupElement, UIElement {
             var c = this.getNonScrollPaneComponent();
             var inputMap = c.getInputMap();
             var actionMap = c.getActionMap();
-            var k = oldValue.keyStroke;
+            //TODO JXFC-180
+            var zz = oldValue as Widget.KeyboardAction; 
+            var k = zz.keyStroke;
             var j = javax.swing.KeyStroke.getKeyStroke(k.id, 0);
             inputMap.remove(j);
-            actionMap.remove(oldValue);
+            actionMap.remove(zz);
         }
         on replace [indx] (oldValue) {
             var c = this.getNonScrollPaneComponent();
