@@ -623,9 +623,7 @@ public class Widget extends GroupElement, UIElement {
     };        
     
     /** factory method to create the underlying Swing component*/
-    protected function createComponent():javax.swing.JComponent {
-        null; // DEFAULT
-    }
+    protected abstract function createComponent():javax.swing.JComponent;
     
     public function getComponent():javax.swing.JComponent {
         if (component == null) {
