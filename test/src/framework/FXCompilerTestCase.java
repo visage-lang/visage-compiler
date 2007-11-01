@@ -89,6 +89,9 @@ public class FXCompilerTestCase extends TestCase {
         if (!buildRoot.exists())
             fail("no " + BUILD_ROOT + " directory in " + new File(".").getAbsolutePath());
         buildDir.mkdirs();
+        Path classpath = new CommandlineJava().createClasspath(new Project());
+        classpath.createPathElement().setPath(System.getProperty("java.class.path"));
+        classpath.createPathElement().setPath(buildDir.getPath());
 
         for (String f : separateFiles) {
             out = new ByteArrayOutputStream();
@@ -96,7 +99,7 @@ public class FXCompilerTestCase extends TestCase {
             List<String> files = new ArrayList<String>();
             files.add(new File(test.getParent(), f).getPath());
             System.out.println("Compiling " + f);
-            int errors = doCompile(buildDir.getPath(), files, out, err);
+            int errors = doCompile(buildDir.getPath(), classpath.toString(), files, out, err);
             if (errors != 0) {
                 dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output");
                 System.out.println("--");
@@ -116,7 +119,7 @@ public class FXCompilerTestCase extends TestCase {
         for (String f : auxFiles)
             files.add(new File(test.getParent(), f).getPath());
         System.out.println("Compiling " + test);
-        int errors = doCompile(buildDir.getPath(), files, out, err);
+        int errors = doCompile(buildDir.getPath(), classpath.toString(), files, out, err);
         if (errors != 0) {
             dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output");
             System.out.println("--");
@@ -129,12 +132,14 @@ public class FXCompilerTestCase extends TestCase {
         }
     }
 
-    private static int doCompile(String dir, List<String> files, OutputStream out, OutputStream err) {
+    private static int doCompile(String dir, String classpath, List<String> files, OutputStream out, OutputStream err) {
         List<String> args = new ArrayList<String>();
         args.add("-target");
         args.add("1.5");
         args.add("-d");
         args.add(dir);
+        args.add("-cp");
+        args.add(classpath);
         for (String f : files)
             args.add(f);
         return compiler.run(null, out, err, args.toArray(new String[args.size()]));
