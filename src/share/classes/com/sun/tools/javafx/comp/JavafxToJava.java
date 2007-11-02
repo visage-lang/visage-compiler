@@ -1869,7 +1869,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     JCExpression ret = tree;
                     if (sym.kind == Kinds.VAR) {
                         if (isOutermember) { 
-                            JCExpression outerExpr = getOuterAccessorAST(tree.pos(), initBuilder.receiverName, TreeInfo.symbol(tree), ownerClass);
+                            JCExpression outerExpr = toJava.getOuterAccessorAST(tree.pos(), initBuilder.receiverName, TreeInfo.symbol(tree), ownerClass);
                             if (outerExpr != null) {
                                 receiver = outerExpr;
                             }
@@ -1892,8 +1892,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     else if (sym.kind == Kinds.MTH) {
                         if (ownerClass == null || sym.owner == ownerClass) {
                             if (isOutermember) {
-                                // TODO: Take care of multi-level of outer access
-                                JCExpression outerExpr = getOuterAccessorAST(tree.pos(), receiverName, TreeInfo.symbol(tree), ownerClass);
+                                JCExpression outerExpr = toJava.getOuterAccessorAST(tree.pos(), receiverName, TreeInfo.symbol(tree), ownerClass);
                                 if (outerExpr != null) {
                                     ((JCFieldAccess)((JCMethodInvocation)ret).meth).selected = outerExpr;
                                 }
@@ -1915,26 +1914,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             return tree;
         }
 
-        // Build the AST for accessing the outer member. The accessors might be chained if the member accessed is more than one level upper in the outer chain.
-        private JCExpression getOuterAccessorAST(DiagnosticPosition pos, Name receiverName, Symbol treeSym, Symbol siteOwner) {
-            JCExpression ret = null;
-            if (treeSym != null && siteOwner != null) {
-                ret = toJava.callExpression(pos, make.Ident(receiverName),
-                                     initBuilder.outerAccessorName.toString(), List.<JCExpression>nil());
-                ret.type = siteOwner.type;
-
-                siteOwner = siteOwner.owner;
-
-                while (treeSym.owner != siteOwner && siteOwner.kind == Kinds.TYP) {
-                    ret = toJava.callExpression(pos, ret,
-                                     initBuilder.outerAccessorName.toString(), List.<JCExpression>nil());
-                    ret.type = siteOwner.type;
-                    siteOwner = siteOwner.owner;
-                }
-            }
-            return ret;
-        }
-
         @Override
         public void visitClassDef(JCClassDecl tree) {
             if (visitInnerClasses) {
@@ -1944,6 +1923,26 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             result = tree;
         }
     };
+
+    // Build the AST for accessing the outer member. The accessors might be chained if the member accessed is more than one level upper in the outer chain.
+    JCExpression getOuterAccessorAST(DiagnosticPosition pos, Name receiverName, Symbol treeSym, Symbol siteOwner) {
+        JCExpression ret = null;
+        if (treeSym != null && siteOwner != null) {
+            ret = callExpression(pos, make.Ident(receiverName),
+                                 initBuilder.outerAccessorName.toString(), List.<JCExpression>nil());
+            ret.type = siteOwner.type;
+
+            siteOwner = siteOwner.owner;
+
+            while (treeSym.owner != siteOwner && siteOwner.kind == Kinds.TYP) {
+                ret = callExpression(pos, ret,
+                                 initBuilder.outerAccessorName.toString(), List.<JCExpression>nil());
+                ret.type = siteOwner.type;
+                siteOwner = siteOwner.owner;
+            }
+        }
+        return ret;
+    }
 
     // Is the referenced symbol an outer member.
     static boolean isOuterMember(Symbol sym, Symbol ownerSym) {

@@ -653,10 +653,20 @@ public class JavafxInitializationBuilder {
                 }
                 else {
                     if (JavafxToJava.isOuterMember(tree.sym, cdecl.sym)) {
-                        result = tree;
+                        JCExpression outerExpr = toJava.getOuterAccessorAST(tree.pos(), receiverName, TreeInfo.symbol(tree), (Symbol)cdecl.sym);
+                        if (outerExpr != null) {
+                            result = make.Select(outerExpr, tree.name);
+                            result.type = tree.type;
+                            TreeInfo.setSymbol(result, tree.sym);
+                        }
+                        else {
+                            result = tree;
+                        }
                     }
                     else {
                         result = make.Select(make.Ident(receiverName), tree.name);
+                        result.type = tree.type;
+                        TreeInfo.setSymbol(result, tree.sym);
                     }
                 }
             }
