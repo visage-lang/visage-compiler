@@ -82,29 +82,24 @@ public abstract class Widget extends GroupElement, UIElement {
         if (mouseListener == null) {
             mouseListener = MouseListener {
                     public function mouseEntered(e:java.awt.event.MouseEvent):Void {
-                        //TODO JXFC-175
-                        //if(onMouseEntered <> null)
-                        //    onMouseEntered(makeMouseEvent(e));
+                        if(onMouseEntered <> null)
+                            onMouseEntered(makeMouseEvent(e));
                     }
                     public function mouseExited(e:java.awt.event.MouseEvent):Void {
-                        //TODO JXFC-175
-                        //if(onMouseExited <> null)
-                        //    onMouseExited(makeMouseEvent(e));
+                        if(onMouseExited <> null)
+                            onMouseExited(makeMouseEvent(e));
                     }
                     public function mouseClicked(e:java.awt.event.MouseEvent):Void {
-                        //TODO JXFC-175
-                        //if(onMouseClicked <> null)
-                        //    onMouseClicked(makeMouseEvent(e));
+                        if(onMouseClicked <> null)
+                            onMouseClicked(makeMouseEvent(e));
                     }
                     public function mouseReleased(e:java.awt.event.MouseEvent):Void {
-                        //TODO JXFC-175
-                        //if(onMouseReleased <> null)
-                        //    onMouseReleased(makeMouseEvent(e));
+                        if(onMouseReleased <> null)
+                            onMouseReleased(makeMouseEvent(e));
                     }
                     public function mousePressed(e:java.awt.event.MouseEvent):Void {
-                        //TODO JXFC-175
-                        //if(onMousePressed <> null)
-                        //    onMousePressed(makeMouseEvent(e));
+                        if(onMousePressed <> null)
+                            onMousePressed(makeMouseEvent(e));
                     }
                 };
             if (component <> null) {
@@ -117,9 +112,8 @@ public abstract class Widget extends GroupElement, UIElement {
             mouseWheelListener = MouseWheelListener {
                     public function mouseWheelMoved(e:java.awt.event.MouseWheelEvent):Void {
     //println("mouse wheel {e}");
-                        //TODO JXFC-175
-                        //if(onMouseWheelMoved <> null)
-                        //    (onMouseWheelMoved)(makeMouseWheelEvent(e));
+                        if(onMouseWheelMoved <> null)
+                            (onMouseWheelMoved)(makeMouseWheelEvent(e));
                     }
                 };
             //println("created mouse wheel listener");
@@ -133,14 +127,12 @@ public abstract class Widget extends GroupElement, UIElement {
         if (mouseMotionListener == null) {
             mouseMotionListener = MouseMotionListener {
                     public function mouseMoved(e:java.awt.event.MouseEvent):Void {
-                        //TODO JXFC-175
-                        //if(onMouseMoved <> null)
-                        //    onMouseMoved(makeMouseEvent(e));
+                        if(onMouseMoved <> null)
+                            onMouseMoved(makeMouseEvent(e));
                     }
                     public function mouseDragged(e:java.awt.event.MouseEvent):Void {
-                        //TODO JXFC-175
-                        //if(onMouseDragged <> null)
-                        //    onMouseDragged(makeMouseEvent(e));
+                        if(onMouseDragged <> null)
+                            onMouseDragged(makeMouseEvent(e));
                     }
                 };
             if (component <> null) {
@@ -659,12 +651,10 @@ public abstract class Widget extends GroupElement, UIElement {
             }
             focusListener = FocusListener {
                     public function focusGained(e:java.awt.event.FocusEvent):Void {
-                        //TODO JXFC-175
-                        //focused = true;
+                        focused = true;
                     }
                     public function focusLost(e:java.awt.event.FocusEvent):Void {
-                        //TODO JXFC-175
-                        //focused = false;
+                        focused = false;
                     }
                };
             c.addFocusListener(focusListener);
@@ -915,19 +905,16 @@ public abstract class Widget extends GroupElement, UIElement {
         if (keyListener == null) {
             keyListener = KeyListener {
                     public function keyTyped(e:java.awt.event.KeyEvent):Void {
-                        //TODO JFXC- 175
-                        //if(onKeyTyped <> null) 
-                        //    onKeyTyped(makeKeyEvent(e));
+                        if(onKeyTyped <> null) 
+                            onKeyTyped(makeKeyEvent(e));
                     }
                     public function keyPressed(e:java.awt.event.KeyEvent):Void {
-                        //TODO JFXC- 175
-                        //if(onKeyDown <> null) 
-                        //    onKeyDown(makeKeyEvent(e));
+                        if(onKeyDown <> null) 
+                            onKeyDown(makeKeyEvent(e));
                     }
                     public function keyReleased(e:java.awt.event.KeyEvent):Void {
-                        //TODO JFXC- 175
-                        //if(onKeyUp <> null) 
-                        //    onKeyUp(makeKeyEvent(e));
+                        if(onKeyUp <> null) 
+                            onKeyUp(makeKeyEvent(e));
                     }
                 };
             if (component <> null) {
