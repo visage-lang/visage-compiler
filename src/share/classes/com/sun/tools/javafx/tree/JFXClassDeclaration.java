@@ -38,6 +38,11 @@ import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
 
 import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.javac.tree.Pretty;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A class declaration
@@ -140,6 +145,14 @@ public class JFXClassDeclaration extends JFXStatement implements ClassDeclaratio
     public void accept(Visitor v) {
         if (v instanceof JavafxVisitor) {
             this.accept((JavafxVisitor)v);
+        } else if (v instanceof Pretty) {
+            try {
+                StringWriter out = new StringWriter();
+                new JavafxPretty(out, true).visitClassDeclaration(this);
+                ((Pretty) v).print(out.toString());
+            } catch (IOException ex) {
+                Logger.getLogger(JFXClassDeclaration.class.getName()).log(Level.SEVERE, null, ex);
+            }
         } else {
             v.visitTree(this);
         }

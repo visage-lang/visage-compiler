@@ -7,6 +7,7 @@ package com.sun.tools.javafx.api;
 
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.javafx.api.JavafxcTool;
+import com.sun.source.tree.CompilationUnitTree;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,8 +42,8 @@ public class JFXC143Test extends TestCase {
             File file = new File("test/src/com/sun/tools/javafx/api/Hello.fx");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
             JavafxcTask javafxTask = tool.getTask(null, fileManager, dl, null, fileObjects);
-            List treeList = (List)javafxTask.parse();
-            System.out.println("CompilationUnitTrees: " + treeList.size());
+            List<? extends CompilationUnitTree> treeList = (List)javafxTask.parse();
+            assertTrue(treeList.size() == 1);
         } finally {
             Thread.currentThread().setContextClassLoader(orig);
         }
