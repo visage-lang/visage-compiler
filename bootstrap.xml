@@ -110,6 +110,8 @@
         <unzip src="${wysiwygdocbook.zipfile}" dest="${wysiwygdocbook.dir}">
             <mapper type="glob" from="wysiwygdocbook${wysiwygdocbook.ver}/*" to="*"/>
         </unzip>
+        <echo file="doc/langspec/docbook.css">@import "../../tools/${wysiwygdocbook.reldir}/driver.css";
+</echo>
         <delete file="${wysiwygdocbook.zipfile}" />
     </target>
 
