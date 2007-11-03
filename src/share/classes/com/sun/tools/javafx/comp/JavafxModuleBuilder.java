@@ -45,8 +45,11 @@ import static com.sun.tools.javafx.tree.JavafxTag.*;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
+import javax.tools.FileObject;
 
 public class JavafxModuleBuilder extends JavafxTreeScanner {
     protected static final Context.Key<JavafxModuleBuilder> javafxModuleBuilderKey =
@@ -178,14 +181,14 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     private Name moduleName(JCCompilationUnit tree) {
         String fileObjName = null;
 
-        try {
-            fileObjName = new File(tree.getSourceFile().toUri().toURL().getFile()).getName();
-            int lastDotIdx = fileObjName.lastIndexOf('.');
-            if (lastDotIdx != -1) {
-                fileObjName = fileObjName.substring(0, lastDotIdx);
-            }
-        } catch (MalformedURLException e) {
-            assert false : "URL Exception!!!";
+        FileObject fo = tree.getSourceFile();
+        URI uri = fo.toUri();
+        String path = uri.getPath();
+        int i = path.lastIndexOf('/') + 1;
+        fileObjName = path.substring(i);
+        int lastDotIdx = fileObjName.lastIndexOf('.');
+        if (lastDotIdx != -1) {
+            fileObjName = fileObjName.substring(0, lastDotIdx);
         }
 
         return Name.fromString(names, fileObjName);
