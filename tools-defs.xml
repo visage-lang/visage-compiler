@@ -13,6 +13,9 @@
     <property name="docbook.ver" value="1.73.1"/>
     <property name="docbook.dir" value="${tools.dir}/docbook-xsl-${docbook.ver}"/>
 
+    <property name="wysiwygdocbook.ver" value="1.02"/>
+    <property name="wysiwygdocbook.dir" value="${tools.dir}/wysiwygdocbook-${wysiwygdocbook.ver}"/>
+
     <property name="findbugs.ver" value="1.2.1"/>
     <property name="findbugs.dir" value="${tools.dir}/findbugs-${findbugs.ver}"/>
 

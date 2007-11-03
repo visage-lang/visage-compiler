@@ -20,6 +20,9 @@
     <property name="docbook.tgzfile" value="${bootstrap.dir}/docbook-xsl-${docbook.ver}.tar.gz"/>
     <property name="docbook.tarfile" value="${bootstrap.dir}/docbook-xsl-${docbook.ver}.tar"/>
 
+    <property name="wysiwygdocbook.url" value="http://www.informatik.fh-wiesbaden.de/~werntges/proj/dbkcss102/wysiwygdocbook1.02.zip"/>
+    <property name="wysiwygdocbook.zipfile" value="${bootstrap.dir}/wysiwygdocbook${wysiwygdocbook.ver}.zip"/>
+
     <property name="findbugs.url"
               value="http://prdownloads.sourceforge.net/findbugs/findbugs-${findbugs.ver}.zip?download"/>
     <property name="findbugs.zipfile" value="${bootstrap.dir}/findbugs.zip"/>
@@ -52,6 +55,7 @@
         <mkdir dir="${findbugs.dir}"/>
         <mkdir dir="${junit.dir}"/>
         <mkdir dir="${docbook.dir}"/>
+        <mkdir dir="${wysiwygdocbook.dir}"/>
         <mkdir dir="${saxon.dir}"/>
         <mkdir dir="${xincluder.dir}"/>
         <mkdir dir="${antlr.dir}"/>
@@ -66,6 +70,7 @@
         <delete dir="${findbugs.dir}"/>
         <delete dir="${junit.dir}"/>
         <delete dir="${docbook.dir}"/>
+        <delete dir="${wysiwygdocbook.dir}"/>
         <delete dir="${saxon.dir}"/>
         <delete dir="${xincluder.dir}"/>
         <delete dir="${antlr.dir}"/>
@@ -74,8 +79,8 @@
         <delete dir="${svnstat.dir}"/>
     </target>
 
-    <target name="all" depends="prepare,junit,ant,docbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura,svnstat"/>
-
+    <target name="all" depends="prepare,junit,ant,docbook,wysiwygdocbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura,svnstat"/>
+ 
     <target name="ant" depends="prepare">
         <get src="${ant.url}" dest="${ant.zipfile}"/>
         <unzip src="${ant.zipfile}" dest="${ant.dir}">
@@ -92,12 +97,20 @@
 
     <target name="docbook" depends="prepare">
         <get src="${docbook.url}" dest="${docbook.tgzfile}"/>
-        <gunzip src="${docbook.tgzfile}" dest="${docbook.tarfile}"/>
+        <gunzip src="${docbook.tgzfile}" dest="${bootstrap.dir}"/>
         <untar src="${docbook.tarfile}" dest="${docbook.dir}">
             <mapper type="glob" from="docbook-xsl-${docbook.ver}/*" to="*"/>
         </untar>
         <delete file="${docbook.tarfile}" />
         <delete file="${docbook.tgzfile}" />
+    </target>
+
+    <target name="wysiwygdocbook" depends="prepare">
+        <get src="${wysiwygdocbook.url}" dest="${wysiwygdocbook.zipfile}"/>
+        <unzip src="${wysiwygdocbook.zipfile}" dest="${wysiwygdocbook.dir}">
+            <mapper type="glob" from="wysiwygdocbook${wysiwygdocbook.ver}/*" to="*"/>
+        </unzip>
+        <delete file="${wysiwygdocbook.zipfile}" />
     </target>
 
     <target name="findbugs" depends="prepare">
