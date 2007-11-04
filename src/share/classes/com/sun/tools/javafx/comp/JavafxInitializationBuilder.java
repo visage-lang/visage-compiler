@@ -325,7 +325,7 @@ public class JavafxInitializationBuilder {
             //   int oldValue = ((IntLocation) location).getPreviousValue();
             JFXVar oldValue = onReplace.getOldValue();
             VarMorphInfo vmi = typeMorpher.varMorphInfo(oldValue.sym);
-            Type locationType = vmi.typeMorph();
+            Type locationType = vmi.getMorphedType();
 
             setUpStmts.append( 
                     make.at(diagPos).VarDef(
@@ -485,8 +485,8 @@ public class JavafxInitializationBuilder {
             if (attrSym.kind == Kinds.VAR) {
                 VarSymbol varSym = (VarSymbol)attrSym;
                 VarMorphInfo vmi = typeMorpher.varMorphInfo(varSym);
-                vmi.shouldMorph();
-                attrInfos.append(new AttributeWrapper(varSym, vmi.getUsedType(), varSym.name));
+                vmi.mustMorph();
+                attrInfos.append(new AttributeWrapper(varSym, vmi.getMorphedType(), varSym.name));
             }
             else {
                 if (attrSym.kind != Kinds.MTH) {

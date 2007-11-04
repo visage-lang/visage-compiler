@@ -107,6 +107,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private static final String methodThrowsString = "java.lang.Throwable";
     private static final String syntheticNamePrefix = "jfx$$";
     private static final String staticFunctionSuffix = "$static";
+    private static final String boundFunctionSuffix = "$bound";
     private JFXClassDeclaration currentClass;  //TODO: this is redundant with attrEnv.enclClass
     Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
 
@@ -279,6 +280,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                             translatedDefs.append(trans);
                             break;
                         }
+                       case JavafxTag.FUNCTION_DEF : {
+                           JFXOperationDefinition funcDef = (JFXOperationDefinition)def;
+                            translatedDefs.append(  translate(funcDef) );
+ //                           if ((funcDef.sym.flags() & Flags.SYNTHETIC) == 0) {
+ //                               translatedDefs.append(  boundTranslate(funcDef, JavafxBindStatus.UNIDIBIND) );
+ //                            }
+                            break;
+                        }
                        case JCTree.METHODDEF : {
                             assert false : "translated method should never appear in an FX class";
                             break;
@@ -401,7 +410,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     JCExpression init = olpart.getExpression();
                     VarSymbol vsym = (VarSymbol) olpart.sym;
                     VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-                    if (vmi.shouldMorph()) {
+                    if (vmi.mustMorph()) {
                         init = translateDefinitionalAssignment(diagPos, init, bindStatus, vsym, false).first;
                     } else {
                         init = boundTranslate(init, bindStatus);
@@ -469,7 +478,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCExpression translatedInit = boundTranslate(init, bindStatus);
         JCExpressionTupple translatedInitTupple = new JCExpressionTupple(translatedInit, null);
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        if (vmi.shouldMorph()) {
+        if (vmi.mustMorph()) {
             translatedInitTupple = typeMorpher.buildDefinitionalAssignment(diagPos, vmi, 
                     init, translatedInit, bindStatus, isAttribute);
         }
@@ -496,6 +505,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         VarSymbol vsym = tree.sym;
         boolean isClassVar = vsym.owner.kind == Kinds.TYP;
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+        boolean forceTypeMorph = this.bindContext.isBound();
 
         if (! isClassVar && (vsym.flags_field & JavafxFlags.INNER_ACCESS) != 0) {
             if ((vsym.flags_field & JavafxFlags.ASSIGNED_TO) == 0)
@@ -503,17 +513,18 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             else
                 vmi.markBoundTo();
         }
-        if (vmi.shouldMorph()) {
-            type = vmi.getUsedType();
+        if (vmi.mustMorph() || forceTypeMorph) {
+            type = vmi.getMorphedType();
 
             // local variables need to be final so they can be referenced
             // attributes cannot be final since they are initialized outside of the constructor
             if (isClassVar) {
                 modFlags &= ~Flags.FINAL;
             } else {
-                modFlags |= Flags.FINAL;  
+                modFlags |= Flags.FINAL;
             }
         }
+        
         mods = make.at(diagPos).Modifiers(modFlags);
         JCExpression typeExpression = makeTypeTree(type, diagPos, true);
 
@@ -638,10 +649,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             flags |= Flags.STATIC;
         }
         flags &= ~Flags.SYNTHETIC;
-        
         JCModifiers mods = make.Modifiers(flags);     
+        
         DiagnosticPosition diagPos = tree.pos();
+        boolean isBound = bindContext.isBound();
         MethodType mtype = (MethodType)tree.type;
+        
         JFXBlockExpression bexpr = tree.getBodyExpression();
         JCBlock body = null; // stays null if no block expression
         if (bexpr != null) {
@@ -667,7 +680,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         result = make.at(diagPos).MethodDef(
                 mods,
-                functionName(tree.sym), 
+                functionName(tree.sym, isBound), 
                 makeTypeTree(mtype.getReturnType(), diagPos), 
                 make.at(diagPos).TypeParams(mtype.getTypeArguments()), 
                 params.toList(),
@@ -1733,11 +1746,18 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     Name functionName(MethodSymbol sym) {
-        Name name = sym.name;
+        return functionName(sym, false);
+    }
+
+    Name functionName(MethodSymbol sym, boolean bound) {
+        String full = sym.name.toString();
         if (sym.isStatic() && (sym.owner.kind != Kinds.TYP || initBuilder.isJFXClass((ClassSymbol) sym.owner)) && !isRunMethod(sym)) {
-            name = names.fromString(name.toString() + staticFunctionSuffix);
+            full = full  + staticFunctionSuffix;
         }
-        return name;
+        if (bound) {
+            full = full  + boundFunctionSuffix;
+        }    
+        return names.fromString(full);
     }
 
 // Is the referenced symbol an outer member.
@@ -1765,10 +1785,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 if (attrSym.kind == Kinds.MTH) {
                     VarSymbol varSym = new VarSymbol(0L, attrSym.name, ((MethodType)attrSym.type).restype, attrSym.owner);
                     VarMorphInfo vmi = typeMorpher.varMorphInfo(varSym);
-                    vmi.shouldMorph();
+                    vmi.mustMorph();
                     result.defs = result.defs.append(make.VarDef(make.Modifiers(0L), 
                             names.fromString(attrSym.name.toString().substring(initBuilder.attributeGetMethodNamePrefix.length())),
-                           makeIdentifier(vmi.getUsedType().toString()), null));
+                           makeIdentifier(vmi.getMorphedType().toString()), null));
                 }
                 else if (attrSym.kind == Kinds.VAR && attrSym.owner != sym) {
                     JCVariableDecl var = make.VarDef((VarSymbol)attrSym, null);
@@ -1781,8 +1801,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         var.mods.flags |= Flags.PRIVATE;
                     }
                     VarMorphInfo vmi = typeMorpher.varMorphInfo((VarSymbol)attrSym);
-                    vmi.shouldMorph();
-                    var.vartype = makeIdentifier(vmi.getUsedType().toString());
+                    vmi.mustMorph();
+                    var.vartype = makeIdentifier(vmi.getMorphedType().toString());
                     result.defs = result.defs.append(var);
                 }
             }

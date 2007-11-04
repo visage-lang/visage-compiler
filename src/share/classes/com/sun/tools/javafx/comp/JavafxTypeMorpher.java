@@ -99,17 +99,66 @@ public class JavafxTypeMorpher {
     private Map<VarSymbol, VarMorphInfo> vmiMap = new HashMap<VarSymbol, VarMorphInfo>();
     
     class VarMorphInfo {
-        VarSymbol varSymbol;
-        Type realType;
+        final VarSymbol varSymbol;
+        final Type realType;
+        final Type morphedType;
         int typeKind;
         Type elementType = null;
-        boolean shouldMorph = false;
-        boolean haveDeterminedMorphability = false;
-        boolean isBoundTo = false;
-        boolean isAssignedTo = false;
+        private boolean mustMorph = false;
+        private boolean haveDeterminedMorphability = false;
+        private boolean isBoundTo = false;
+        private boolean isAssignedTo = false;
         
         VarMorphInfo(VarSymbol varSymbol) {
             this.varSymbol = varSymbol;
+            Type symType = varSymbol.type;
+            TypeSymbol realTsym = symType.tsym;
+            //check if symbol is already a Location, needed for source class
+            Type locationType = null;
+            if (realTsym == declLocation[TYPE_KIND_OBJECT].sym) {
+                locationType = ((ClassType) symType).typarams_field.head;
+                typeKind = TYPE_KIND_OBJECT;
+            } else if (realTsym == declLocation[TYPE_KIND_BOOLEAN].sym) {
+                locationType = syms.booleanType;
+                typeKind = TYPE_KIND_BOOLEAN;
+            } else if (realTsym == declLocation[TYPE_KIND_DOUBLE].sym) {
+                locationType = syms.doubleType;
+                typeKind = TYPE_KIND_DOUBLE;
+            } else if (realTsym == declLocation[TYPE_KIND_INT].sym) {
+                locationType = syms.intType;
+                typeKind = TYPE_KIND_INT;
+            }
+            if (locationType != null) {
+                // External module with a Location type
+                this.morphedType = symType;
+                this.realType = locationType;
+                markMustMorph();
+            } else {
+                this.realType = symType;
+
+                if (symType.isPrimitive()) {
+                    if (realTsym == syms.doubleType.tsym) {
+                        typeKind = TYPE_KIND_DOUBLE;
+                    } else if (realTsym == syms.intType.tsym) {
+                        typeKind = TYPE_KIND_INT;
+                    } else if (realTsym == syms.booleanType.tsym) {
+                        typeKind = TYPE_KIND_BOOLEAN;
+                    } else {
+                        assert false : "should not reach here";
+                        typeKind = TYPE_KIND_OBJECT;
+                    }
+                } else {
+                    if (isSequence()) {
+                        typeKind = TYPE_KIND_SEQUENCE;
+                        elementType = symType.getTypeArguments().head;
+                    } else {
+                        typeKind = TYPE_KIND_OBJECT;
+                    }
+                }
+
+                // must be called AFTER typeKind and realType are set in vsym
+                this.morphedType = generifyIfNeeded(declLocationType(typeKind), this);
+            }
         }
         
         private boolean isAttribute() {
@@ -135,32 +184,9 @@ public class JavafxTypeMorpher {
             return types.erasure(realType) == syms.javafx_SequenceTypeErasure;
         }
 
-        public boolean shouldMorph() {
+        public boolean mustMorph() {
             if (!haveDeterminedMorphability()) {
-                realType = varSymbol.type;
-                TypeSymbol realTsym = realType.tsym;
-                //check if symbol is already a Location, needed for source class
-                Type locationType = null;
-                if (realTsym == declLocation[TYPE_KIND_OBJECT].sym) {
-                    locationType = ((ClassType) realType).typarams_field.head;
-                    typeKind = TYPE_KIND_OBJECT;
-                } else if (realTsym == declLocation[TYPE_KIND_BOOLEAN].sym) {
-                    locationType = syms.booleanType;
-                    typeKind = TYPE_KIND_BOOLEAN;
-                } else if (realTsym == declLocation[TYPE_KIND_DOUBLE].sym) {
-                    locationType = syms.doubleType;
-                    typeKind = TYPE_KIND_DOUBLE;
-                } else if (realTsym == declLocation[TYPE_KIND_INT].sym) {
-                    locationType = syms.intType;
-                    typeKind = TYPE_KIND_INT;
-                }
-                if (locationType != null) {
-                    // External module with a Location type
-                    setUsedType(realType);
-                    realType = locationType;
-                    markShouldMorph();
-                } else if (((varSymbol.flags() & Flags.PARAMETER) == 0) && 
-                        (isBoundTo() || isAttribute() || isSequence())) {
+                if (((varSymbol.flags() & Flags.PARAMETER) == 0) && (isBoundTo() || isAttribute() || isSequence())) {
                     // Must be a Location if it is bound, or a sequence,
                     // and, at least for now if it is an attribute.
                     // However, if this is a parameter it is either synthetic
@@ -169,56 +195,24 @@ public class JavafxTypeMorpher {
                     // will need to change this.
                     //TODO: should be a Location if there is a trigger on it
                     //System.err.println("Will morph: " + varSymbol);
-                    typeMorph();
-                    markShouldMorph();
-               }
+                    markMustMorph();
+                }
                 markDeterminedMorphability();
             }
-            return shouldMorph;
+            return mustMorph;
         }
         
-        public Type typeMorph() {
-            TypeSymbol realTsym = realType.tsym;
-            if (realType.isPrimitive()) {
-                if (realTsym == syms.doubleType.tsym) {
-                    typeKind = TYPE_KIND_DOUBLE;
-                } else if (realTsym == syms.intType.tsym) {
-                    typeKind = TYPE_KIND_INT;
-                } else if (realTsym == syms.booleanType.tsym) {
-                    typeKind = TYPE_KIND_BOOLEAN;
-                } else {
-                    assert false : "should not reach here";
-                    typeKind = TYPE_KIND_OBJECT;
-                }
-            } else {
-                if (isSequence()) {
-                    typeKind = TYPE_KIND_SEQUENCE;
-                    elementType = realType.getTypeArguments().head;
-                } else {
-                    typeKind = TYPE_KIND_OBJECT;
-                }
-            }
-            if (realType.constValue() != null) {
-                realType = realType.baseType();
-            }
-            // must be called AFTER typeKind and realType are set in vsym
-            setUsedType(generifyIfNeeded(declLocationType(typeKind), this));
- 
-            return getUsedType();
-        }
-
-        private void markShouldMorph() { shouldMorph = true; }
+        private void markMustMorph() { mustMorph = true; }
         private void markDeterminedMorphability() { haveDeterminedMorphability = true; }
         private boolean haveDeterminedMorphability() { return haveDeterminedMorphability; }
         public Type getRealType() { return realType; }
-        public Type getUsedType() { return varSymbol.type; }
-        private void setUsedType(Type usedType) { varSymbol.type = usedType; }
+        public Type getMorphedType() { return morphedType; }
         public Type getBindingExpressionType() { return generifyIfNeeded(bindingExpressionType(typeKind), this); }
         public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
         public Type getElementType() { return elementType; }
         public boolean isBoundTo() { return isBoundTo; }
         public boolean isAssignedTo() { return isAssignedTo; }
-        public void markBoundTo() { this.isBoundTo = true; }
+        public void markBoundTo() { this.isBoundTo = true; haveDeterminedMorphability = false; }
         public void markAssignedTo() { this.isAssignedTo = true; }
 
         public int getTypeKind() { return typeKind; }
@@ -362,7 +356,7 @@ public class JavafxTypeMorpher {
         if (sym instanceof VarSymbol) {
              VarSymbol vsym = (VarSymbol) sym;
             VarMorphInfo vmi = varMorphInfo(vsym);
-            if (vmi.shouldMorph()) {
+            if (vmi.mustMorph()) {
                 if (sym.owner.kind == Kinds.TYP && !staticReference) {
                     // this is a non-static reference to an attribute, use the get$ form
                     assert varRef.getTag() == JCTree.SELECT : "attribute must be accessed through receiver";
@@ -372,7 +366,6 @@ public class JavafxTypeMorpher {
                     List<JCExpression> emptyArgs = List.nil();
                     expr = make.Apply(null, select, emptyArgs);
                 }   
-                varRef.setType(vmi.getUsedType());
                 if (bindContext.isBidiBind()) {
                     // already in correct form-- leave it
                 } else if (inLHS) {
@@ -438,7 +431,7 @@ public class JavafxTypeMorpher {
     public JCExpression morphAssign(DiagnosticPosition diagPos, VarSymbol vsym, JCExpression lhs, JCExpression rhs) {
         if (vsym != null) {
             VarMorphInfo vmi = varMorphInfo(vsym);
-            if (vmi.shouldMorph()) {     
+            if (vmi.mustMorph()) {     
                 JCFieldAccess setSelect = make.Select(lhs, setMethodName);
                 List<JCExpression> setArgs = List.of(rhs);
                 return make.at(diagPos).Apply(null, setSelect, setArgs);
@@ -502,7 +495,7 @@ public class JavafxTypeMorpher {
                 if (tree.sym instanceof VarSymbol) {
                     VarSymbol ivsym = (VarSymbol)tree.sym;
                     VarMorphInfo vmi = varMorphInfo(ivsym);
-                    if (vmi.shouldMorph()) {
+                    if (vmi.mustMorph()) {
                         refMap.put(ivsym, tree);
                     }
                 }
@@ -513,7 +506,7 @@ public class JavafxTypeMorpher {
                 if (tree.sym instanceof VarSymbol) {
                     VarSymbol ivsym = (VarSymbol)tree.sym;
                     VarMorphInfo vmi = varMorphInfo(ivsym);
-                    if (vmi.shouldMorph()) {
+                    if (vmi.mustMorph()) {
                         refMap.put(ivsym, tree);
                     }
                 }
