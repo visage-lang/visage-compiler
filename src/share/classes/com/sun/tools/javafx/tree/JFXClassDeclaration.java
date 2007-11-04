@@ -58,8 +58,6 @@ public class JFXClassDeclaration extends JFXStatement implements ClassDeclaratio
     public ClassSymbol sym;   
 
     public boolean isModuleClass = false;
-    public List<JCTree> translatedPrepends = List.<JCTree>nil();
-    public List<JCExpression> translatedAdditionalImplementing = List.<JCExpression>nil();
     
     protected JFXClassDeclaration(JCModifiers mods,
             Name name,
@@ -120,14 +118,6 @@ public class JFXClassDeclaration extends JFXStatement implements ClassDeclaratio
         return List.<JCTypeParameter>nil();
     }
     
-    public void hackAppendToMembers(JCTree member) {
-        defs = defs.append(member);
-    }
-
-    public void prependToMembers(JCTree member) {
-        defs = defs.append(member);
-    }
-
     public void appendToMembers(ListBuffer<JCTree> members) {
         defs = defs.appendList(members.toList());
     }

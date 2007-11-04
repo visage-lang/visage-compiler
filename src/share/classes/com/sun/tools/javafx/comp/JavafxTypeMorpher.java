@@ -354,10 +354,13 @@ public class JavafxTypeMorpher {
         return newType;
     }
         
-    public JCExpression convertVariableReference(JCExpression varRef, Symbol sym, JavafxBindStatus bindContext, boolean inLHS) {
+    public JCExpression convertVariableReference(JCExpression varRef, Symbol sym, boolean staticReference, 
+                                                                                            JavafxBindStatus bindContext, boolean inLHS) {
+        
         JCExpression expr = varRef;
 
         // Deal with static references
+        /***
         if (sym != null && (sym.flags_field & Flags.STATIC) != 0L &&
                 sym.owner != null && sym.owner != null &&
                 sym.owner.kind == Kinds.TYP && (sym.owner instanceof ClassSymbol) &&
@@ -388,28 +391,46 @@ public class JavafxTypeMorpher {
                 expr = newFA;
             }
         }
+         * ***/
 
         if (sym instanceof VarSymbol) {
-            VarSymbol vsym = (VarSymbol) sym;
-
+             VarSymbol vsym = (VarSymbol) sym;
             VarMorphInfo vmi = varMorphInfo(vsym);
             if (vmi.shouldMorph()) {
+                if (sym.owner.kind == Kinds.TYP && !staticReference) {
+                    // this is a non-static reference to an attribute, use the get$ form
+                    assert varRef.getTag() == JCTree.SELECT : "attribute must be accessed through receiver";
+                    JCFieldAccess select = (JCFieldAccess) varRef;
+                    Name attrAccessName = names.fromString(initBuilder.attributeGetMethodNamePrefix + select.name.toString());
+                    select = make.Select(select.getExpression(), attrAccessName);
+                    List<JCExpression> emptyArgs = List.nil();
+                    expr = make.Apply(null, select, emptyArgs);
+                }   
                 varRef.setType(vmi.getUsedType());
                 if (bindContext.isBidiBind()) {
                     // already in correct form-- leave it
-                    expr = varRef;
                 } else if (inLHS) {
                     // immediate left-hand side -- leave it
-                    expr = varRef;
                 } else {
                     // non-bind context -- want v1.get()
-                    JCFieldAccess getSelect = make.Select(varRef, getMethodName);
+                    JCFieldAccess getSelect = make.Select(expr, getMethodName);
                     List<JCExpression> getArgs = List.nil();
                     expr = make.Apply(null, getSelect, getArgs);
                 }
             }
+        } else if (sym instanceof MethodSymbol) {
+            if (staticReference) {
+                Name name = toJava.functionName((MethodSymbol)sym);
+                if (expr.getTag() == JCTree.SELECT) {
+                    JCFieldAccess select = (JCFieldAccess) expr;
+                    expr = make.Select(select.getExpression(), name);
+                } else if (expr.getTag() == JCTree.IDENT) {
+                    JCIdent ident = (JCIdent) expr;
+                    expr = make.Ident(name);
+                }
+            }
         }
-        return expr;
+         return expr;
     }
     
     private void pretty(JCTree tree) {
@@ -448,21 +469,7 @@ public class JavafxTypeMorpher {
         return ret;
     }
     
-    public JCExpression morphAssign(DiagnosticPosition diagPos, JCExpression lhs, JCExpression rhs) {
-        Symbol sym = null;
-        // TODO other cases
-        if (lhs instanceof JCIdent) {
-            JCIdent varid = (JCIdent)lhs;
-            sym = varid.sym;
-        } else if (lhs instanceof JCFieldAccess) {
-            JCFieldAccess varaccess = (JCFieldAccess)lhs;
-            sym = varaccess.sym;
-        }
-        VarSymbol vsym = null;
-        if (sym != null && (sym instanceof VarSymbol)) {
-            vsym = (VarSymbol)sym;
-        }
-        
+    public JCExpression morphAssign(DiagnosticPosition diagPos, VarSymbol vsym, JCExpression lhs, JCExpression rhs) {
         if (vsym != null) {
             VarMorphInfo vmi = varMorphInfo(vsym);
             if (vmi.shouldMorph()) {     

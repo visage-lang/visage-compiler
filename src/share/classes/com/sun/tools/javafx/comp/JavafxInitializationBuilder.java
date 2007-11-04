@@ -89,7 +89,7 @@ public class JavafxInitializationBuilder {
     private final Name onChangeArgName;
     private final String fullLocationName = "com.sun.javafx.runtime.location.Location";
     private final String addDependenciesName = "addDependencies";
-    private final String fxObjectName = "com.sun.javafx.runtime.FXObject";
+    final String fxObjectName = "com.sun.javafx.runtime.FXObject";
     Name outerAccessorName;
     Name outerAccessorFieldName;
     
@@ -402,8 +402,42 @@ public class JavafxInitializationBuilder {
         }
     }
     
-    List<JCStatement> createJFXClassModel(JFXClassDeclaration cDecl, JavafxTypeMorpher typeMorpher) {
+    /**
+     * Return the generated interface name corresponding to the class
+     * */
+    Name interfaceName(JFXClassDeclaration cDecl) {
+        return names.fromString(cDecl.getName().toString() + interfaceNameSuffix);
+    }
+    
+    /**
+     * Hold the result of analyzing the class.
+     * */
+    static class JavafxClassModel {
+        final Name interfaceName;
+        final JCClassDecl correspondingInterface;
+        final List<JCTree> additionalClassMembers;
+        
+        JavafxClassModel(
+                Name interfaceName,
+                JCClassDecl correspondingInterface,
+                ListBuffer<JCTree> addedClassMembers) {
+            this.interfaceName = interfaceName;
+            this.correspondingInterface = correspondingInterface;
+            this.additionalClassMembers = addedClassMembers.toList();
+        }
+    }
 
+    /**
+     * Analyze the class.
+     * 
+     * Determine what methods will be needed to access attributes.
+     * Determine what methods will be needed to proxy to the static implementations of functions.
+     * Determine what other misc fields and methods will be needed.
+     * Create the corresponding interface.
+     * 
+     * Return all this as a JavafxClassModel for use in translation.
+     * */
+    JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl) {
         Set<String> visitedClasses = new HashSet<String>();
         Map<String, Symbol> collectedAttributes = new HashMap<String, Symbol>();
         Map<String, MethodSymbol> collectedMethods = new HashMap<String, MethodSymbol>();
@@ -423,7 +457,6 @@ public class JavafxInitializationBuilder {
                                     classesToVisit);
 
         addFxClassAttributes(cDecl.sym, attributes);
-        ListBuffer<JCStatement> ret = new ListBuffer<JCStatement>();
         
         ListBuffer<JCExpression> implementing = new ListBuffer<JCExpression>();
         implementing.append(make.Identifier(fxObjectName));
@@ -442,10 +475,9 @@ public class JavafxInitializationBuilder {
                 make.Modifiers(Flags.PRIVATE | Flags.STATIC | Flags.FINAL), numberFieldsName, intIdent, make.Literal(new Integer(attributes.size())));
         
         VarSymbol numFieldsVarSym = new VarSymbol(numFieldsVar.mods.flags, numberFieldsName, intIdent.type, cDecl.sym);
-        numFieldsVar.sym = numFieldsVarSym;
-        numFieldsVarSym.type = intIdent.type;
         
-        cDecl.hackAppendToMembers(numFieldsVar);
+        ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
+        cDefinitions.append(numFieldsVar);
 
         ListBuffer<JCTree> iDefinitions = new ListBuffer<JCTree>();
         ListBuffer<AttributeWrapper> attrInfos = new ListBuffer<AttributeWrapper>();
@@ -468,31 +500,37 @@ public class JavafxInitializationBuilder {
         }
         
         addInterfaceAttributeMethods(iDefinitions, attrInfos);
-        addClassAttributeMethods(cDecl, attrInfos, baseClasses);
+        addClassAttributeMethods(cDecl, attrInfos, baseClasses, cDefinitions);
 
-        Name interfaceName = names.fromString(cDecl.getName().toString() + interfaceNameSuffix);
-        addInterfaceeMethods(iDefinitions, methods, cDecl);
-        addInterfaceOuterAccessorMethod(iDefinitions, cDecl, typeMorpher);
+        Name interfaceName = interfaceName(cDecl);
 
-        addClassMethods(cDecl, methods, interfaceName);
-        addClassOuterAccessorMethod(iDefinitions, cDecl, typeMorpher);
+        for (MethodSymbol mth : methods) {
+            if ((mth.flags() & Flags.SYNTHETIC) == 0) { // ignore synthetics, like the run method 
+                if (mth.owner == cDecl.sym) {
+                    // add interface methods for each method defined in this class
+                    iDefinitions.append( makeMethod(cDecl, mth, null) );
+                }
+                 if ((mth.flags() & Flags.ABSTRACT) == 0) { 
+                     // add proxies which redirect to the static implementation for every concrete method
+                     cDefinitions.append( makeMethod(cDecl, mth, makeProxyBody(cDecl, mth)) );
+                 }
+            }
+        }
+
+        addInterfaceOuterAccessorMethod(iDefinitions, cDecl);
+        addClassOuterAccessorMethod(cDefinitions, cDecl);
 
         implementing.appendList(cDecl.getImplementing());
 
-        JCClassDecl cInterface = make.ClassDef(make.Modifiers((cDecl.mods.flags & (~Flags.STATIC)) | Flags.INTERFACE),
+        JCClassDecl cInterface = make.ClassDef(make.Modifiers(Flags.PUBLIC | Flags.INTERFACE),
                 interfaceName, 
                 List.<JCTypeParameter>nil(), null, implementing.toList(), iDefinitions.toList());
         
-        cDecl.translatedAdditionalImplementing = List.<JCExpression>of(
-                make.Ident(interfaceName),
-                make.Identifier(fxObjectName));
-        ret.append(cInterface);
-        
-        return ret.toList();
+        return new JavafxClassModel(interfaceName, cInterface, cDefinitions);
     }
-
+    
     // Add the methods and field for accessing the outer members. Also add a constructor with an extra parameter to handle the instantiation of the classes that access outer members
-    private void addClassOuterAccessorMethod(ListBuffer<JCTree> iDefinitions, JFXClassDeclaration cdecl, JavafxTypeMorpher typeMorpher) {
+    private void addClassOuterAccessorMethod( ListBuffer<JCTree> members, JFXClassDeclaration cdecl) {
         if (cdecl.sym != null && toJava.hasOuters.contains(cdecl.sym)) {
             Symbol typeOwner = cdecl.sym.owner;
             while (typeOwner != null && typeOwner.kind != Kinds.TYP) {
@@ -521,8 +559,8 @@ public class JavafxInitializationBuilder {
                 accessorMethod.type = mt;
                 MethodSymbol ms = new MethodSymbol(Flags.PUBLIC, outerAccessorName, returnSym.type, returnSym);
                 accessorMethod.sym = ms;
-                cdecl.prependToMembers(accessorMethod);
-                cdecl.prependToMembers(accessorField);
+                members.append(accessorMethod);
+                members.append(accessorField);
 
                 // Now add the construcotr taking the outer instance reference
                 JCVariableDecl accessorParam = make.VarDef(make.Modifiers(0L), outerAccessorFieldName, make.Ident(returnSym), null);
@@ -558,13 +596,13 @@ public class JavafxInitializationBuilder {
                 accessorMethod.type = ct;
                 MethodSymbol cs = new MethodSymbol(Flags.PUBLIC, outerAccessorName, returnSym.type, returnSym);
                 accessorMethod.sym = cs;
-                cdecl.prependToMembers(ctor);
+                members.append(ctor);
             }
         }
     }
 
     // Add the methods for accessing the outer members.
-    private void addInterfaceOuterAccessorMethod(ListBuffer<JCTree> iDefinitions, JFXClassDeclaration cdecl, JavafxTypeMorpher typeMorpher) {
+    private void addInterfaceOuterAccessorMethod(ListBuffer<JCTree> iDefinitions, JFXClassDeclaration cdecl) {
         if (cdecl.sym != null && toJava.hasOuters.contains(cdecl.sym)) {
             Symbol typeOwner = cdecl.sym.owner;
             while (typeOwner != null && typeOwner.kind != Kinds.TYP) {
@@ -586,256 +624,50 @@ public class JavafxInitializationBuilder {
         }
     }
 
-    private void addInterfaceeMethods(ListBuffer<JCTree> iDefinitions, java.util.List<MethodSymbol> methods, JFXClassDeclaration cdecl) {
-        for (MethodSymbol mth : methods) {
-            // Add the non-abstract, non-static, and non-synthetic JavaFX methods to the class' interface
-            if (mth.owner == cdecl.sym &&
-                    ((mth.flags_field & Flags.STATIC) == 0)) {
-                JCMethodDecl methodDecl = make.MethodDef(mth, null);
-                // Made all the operations public. Per Brian's spec.
-                // If they are left package level it interfere with Multiple Inheritance
-                // The interface methods cannot be package level and an error is reported.
-                {
-                    methodDecl.mods.flags &= ~Flags.PROTECTED;
-                    methodDecl.mods.flags &= ~Flags.PRIVATE;
-                    methodDecl.mods.flags |= Flags.PUBLIC;
-                }
-                
-                if (methodDecl.restype != null && TreeInfo.symbol(methodDecl.restype) != null) {
-                    Symbol s = TreeInfo.symbol(methodDecl.restype);
-                    if (s != null && s.kind == Kinds.TYP) {
-                        if (isJFXClass((ClassSymbol)TreeInfo.symbol(methodDecl.restype))) {
-                            methodDecl.restype = make.Identifier(methodDecl.restype.toString() + interfaceNameSuffix.toString());
-                        }
-                    }
-                }
-                
-                for (JCVariableDecl varDecl : methodDecl.params) {
-                    Symbol s = TreeInfo.symbol(varDecl.vartype);
-                    if (s != null && s.kind == Kinds.TYP) {
-                        if (isJFXClass((ClassSymbol)TreeInfo.symbol(varDecl.vartype))) {
-                            varDecl.vartype = make.Identifier(varDecl.vartype.toString() + interfaceNameSuffix.toString());
-                        }
-                    }                    
-                }
-
-                iDefinitions = iDefinitions.append(methodDecl);
-            }
+    /**
+     * Make a method from a MethodSymbol and an optional method body
+     */
+    private JCMethodDecl makeMethod(DiagnosticPosition diagPos, MethodSymbol mth, JCBlock mthBody) {
+        // build the parameter list
+        ListBuffer<JCVariableDecl> params = ListBuffer.lb();
+        for (VarSymbol vsym : mth.getParameters()) {
+            params.append(make.VarDef(
+                    make.Modifiers(0L), 
+                    vsym.name, 
+                    toJava.makeTypeTree(vsym.asType(), diagPos), 
+                    null // no initial value
+                    ));
         }
+
+        // make the method
+        return make.MethodDef(
+                        make.Modifiers(Flags.PUBLIC | (mth.flags() & Flags.ABSTRACT)), 
+                        mth.getSimpleName(), 
+                        toJava.makeTypeTree(mth.getReturnType(), diagPos), 
+                        List.<JCTypeParameter>nil(), 
+                        params.toList(), 
+                        List.<JCExpression>nil(), 
+                        mthBody, 
+                        null);
     }
     
-    private void makeStaticStatements(final JCClassDecl cdecl, JCBlock block) {
-        class MakeStaticStatement extends TreeTranslator {
-            private JCMethodInvocation currentApply;
-            @Override
-            public void visitIdent(JCIdent tree) {
-                if (tree.sym == null ||
-                        (tree.sym.flags_field & Flags.STATIC) != 0 ||
-                        (tree.sym.owner != null && tree.sym.owner.kind != Kinds.TYP)) {
-                    result = tree;
-                    tree.sym = null;
-                }
-                else if (tree.name == names._this) {
-                    tree.name = receiverName;
-                    result = tree;
-                    tree.sym = null;
-                }
-                else if (tree.name == names._super) {
-                    List<JCExpression> newArgs = List.<JCExpression>nil(); 
-                    newArgs = newArgs.append(make.Ident(receiverName));
-                    for (JCExpression argExpr : currentApply.args) {
-                        newArgs = newArgs.append(argExpr);
-                    }
-                    
-                    currentApply.args = newArgs;
-                    
-                    result = make.Ident(tree.type.tsym.name);
-                }
-                else {
-                    if (JavafxToJava.isOuterMember(tree.sym, cdecl.sym)) {
-                        JCExpression outerExpr = toJava.getOuterAccessorAST(tree.pos(), receiverName, TreeInfo.symbol(tree), (Symbol)cdecl.sym);
-                        if (outerExpr != null) {
-                            result = make.Select(outerExpr, tree.name);
-                            result.type = tree.type;
-                            TreeInfo.setSymbol(result, tree.sym);
-                        }
-                        else {
-                            result = tree;
-                        }
-                    }
-                    else {
-                        result = make.Select(make.Ident(receiverName), tree.name);
-                        result.type = tree.type;
-                        TreeInfo.setSymbol(result, tree.sym);
-                    }
-                }
-            }
-
-            @Override
-            public void visitSelect(JCFieldAccess tree) {
-                super.visitSelect(tree);
-            }
-            
-            @Override
-            public void visitApply(JCMethodInvocation tree) {
-                JCMethodInvocation prevMethodInvocation = currentApply;
-
-                currentApply = tree;
-                try {
-                    super.visitApply(tree);
-                    if (tree.meth == null) {
-                        tree.meth = make.Ident(receiverName);
-                    }
-
-                    result = tree;
-                }
-                finally {
-                    currentApply = prevMethodInvocation;
-                }
-            }
-        };
-        
-        new MakeStaticStatement().translate(block);
-    }
-    
-    void processCDeclMethods(JCClassDecl cdecl, Name intfName) {
-        for (JCTree meth : cdecl.defs) {
-            if (meth.getTag() == JCTree.METHODDEF &&
-                    meth.pos != Position.NOPOS &&
-                    ((JCMethodDecl)meth).sym != null &&
-                    ((((JCMethodDecl)meth).mods.flags & Flags.ABSTRACT) == 0) &&
-                    ((((JCMethodDecl)meth).mods.flags & Flags.STATIC) == 0)) { // TODO: Deal with static and abstarct. The design doesn't say anything about that.
-
-                JCMethodDecl methodDecl = make.MethodDef(((JCMethodDecl)meth).sym, null);
-                
-                // Made all the operations public. Per Brian's spec.
-                // If they are left package level it interfere with Multiple Inheritance
-                // The interface methods cannot be package level and an error is reported.
-                {
-                    methodDecl.mods.flags &= ~Flags.PUBLIC;
-                    methodDecl.mods.flags &= ~Flags.PRIVATE;
-                    methodDecl.mods.flags |= Flags.PROTECTED | Flags.STATIC;
-                }
-
-                if (((JCMethodDecl)meth).restype != null && ((MethodType)((JCMethodDecl)meth).type) != null &&
-                        ((MethodType)((JCMethodDecl)meth).type).restype != null && ((MethodType)((JCMethodDecl)meth).type).restype.tsym != null) {
-                    Symbol s = ((MethodType)((JCMethodDecl)meth).type).restype.tsym;
-                    if (s != null && s.kind == Kinds.TYP) {
-                        if (isJFXClass((ClassSymbol)s)) {
-                            ((JCMethodDecl)meth).restype = make.Identifier(((JCMethodDecl)meth).restype.toString() + interfaceNameSuffix.toString());
-                        }
-                    }
-                }
-
-                if (methodDecl.restype != null && TreeInfo.symbol(methodDecl.restype) != null) {
-                    Symbol s = TreeInfo.symbol(methodDecl.restype);
-                    if (s != null && s.kind == Kinds.TYP) {
-                        if (isJFXClass((ClassSymbol)TreeInfo.symbol(methodDecl.restype))) {
-                            methodDecl.restype = make.Identifier(methodDecl.restype.toString() + interfaceNameSuffix.toString());
-                        }
-                    }
-                }
-
-                for (JCVariableDecl varDecl : methodDecl.params) {
-                    Symbol s = TreeInfo.symbol(varDecl.vartype);
-                    if (s != null && s.kind == Kinds.TYP) {
-                        if (isJFXClass((ClassSymbol)TreeInfo.symbol(varDecl.vartype))) {
-                            varDecl.vartype = make.Identifier(varDecl.vartype.toString() + interfaceNameSuffix.toString());
-                        }
-                    }                    
-                }
-
-
-                // Create the parameter list for the body statements
-                List<JCStatement> methodStats = List.<JCStatement>nil();
-                List<JCExpression> statBodyArgs = List.<JCExpression>nil();
-                
-                statBodyArgs = statBodyArgs.append(make.Ident(names._this));
-                for (JCVariableDecl var : methodDecl.params) {
-                    statBodyArgs = statBodyArgs.append(make.Ident(var.name));
-                }
-
-                JCStatement methStatement = null;
-                JCExpression methExpr = toJava.callExpression(cdecl.pos(),
-                        make.Ident(cdecl.name), methodDecl.name.toString(), statBodyArgs);
-                if (((MethodType)methodDecl.sym.type).restype == syms.voidType) {
-                    methStatement = make.Exec(methExpr);
-                }
-                else {
-                    methStatement = make.Return(methExpr);
-                }
-                methodStats = methodStats.append(methStatement);
-                
-                makeStaticStatements(cdecl, ((JCMethodDecl)meth).body);
-                // Add the extra receiver parameter
-                methodDecl.params = methodDecl.params.prepend(make.VarDef(make.Modifiers(0L), receiverName, make.Ident(intfName), null));
-                methodDecl.body = ((JCMethodDecl)meth).body;
-                
-                // Add the call-to-static method body.
-                ((JCMethodDecl)meth).body = make.Block(0L, methodStats);
-                                
-                cdecl.defs = cdecl.defs.append(methodDecl);
-            }
+    /**
+     * Make a method body which redirects to the actual implementation in a static method of the defining class.
+     */
+    private JCBlock makeProxyBody(DiagnosticPosition diagPos, MethodSymbol mth) {
+        ListBuffer<JCExpression> args = ListBuffer.lb();
+        if (!mth.isStatic()) {
+            // Add the this argument, so the static implementation method is invoked
+            args.append(make.Ident(names._this));
         }
-    }
-    
-    private void addClassMethods(JFXClassDeclaration cdecl, java.util.List<MethodSymbol> methods, Name intfName) {
-        for (MethodSymbol mth : methods) {
-            if (mth.owner != cdecl.sym &&
-                ((mth.flags_field & Flags.ABSTRACT) == 0) &&
-                ((mth.flags_field & Flags.STATIC) == 0)) { // TODO: Deal with static and abstarct. The design doesn't say anything about that.
-
-                List<JCStatement> newMthStats = List.<JCStatement>nil();
-                List<JCExpression> args = List.<JCExpression>nil();
-                // Add the this argument, so the static method is invoked
-                args = args.append(make.Ident(names._this));
-                for (VarSymbol var : mth.params) {
-                    args = args.append(make.Ident(var.name));
-                }
-
-                String receiver = mth.owner.name.toString();
-
-                JCExpression expr = toJava.callExpression(cdecl.pos(), make.Identifier(receiver), mth.name.toString(), args);
-                if (((MethodType)mth.type).restype == syms.voidType) {
-                    newMthStats = newMthStats.append(make.Exec(expr));
-                }
-                else {
-                    newMthStats = newMthStats.append(make.Return(expr));
-                }
-
-                JCBlock mthBody = make.Block(0L, newMthStats);
-                JCMethodDecl newMethod = make.MethodDef(mth, mthBody);
-                newMethod.pos = Position.NOPOS;
-                // Made all the operations public. Per Brian's spec.
-                // If they are left package level it interfere with Multiple Inheritance
-                // The interface methods cannot be package level and an error is reported.
-                {
-                    newMethod.mods.flags &= ~Flags.PROTECTED;
-                    newMethod.mods.flags &= ~Flags.PRIVATE;
-                    newMethod.mods.flags |= Flags.PUBLIC;
-                }
-                if (newMethod.restype != null && TreeInfo.symbol(newMethod.restype) != null) {
-                    Symbol s = TreeInfo.symbol(newMethod.restype);
-                    if (s != null && s.kind == Kinds.TYP) {
-                        if (isJFXClass((ClassSymbol)TreeInfo.symbol(newMethod.restype))) {
-                            newMethod.restype = make.Identifier(newMethod.restype.toString() + interfaceNameSuffix.toString());
-                        }
-                    }
-                }
-                
-                for (JCVariableDecl varDecl : newMethod.params) {
-                    Symbol s = TreeInfo.symbol(varDecl.vartype);
-                    if (s != null && s.kind == Kinds.TYP) {
-                        if (isJFXClass((ClassSymbol)TreeInfo.symbol(varDecl.vartype))) {
-                            varDecl.vartype = make.Identifier(varDecl.vartype.toString() + interfaceNameSuffix.toString());
-                        }
-                    }                    
-                }
-
-                cdecl.hackAppendToMembers(newMethod);
-            }
+        for (VarSymbol var : mth.params) {
+            args.append(make.Ident(var.name));
         }
-    }
+        String receiver = mth.owner.name.toString();
+        JCExpression expr = toJava.callExpression(diagPos, make.Identifier(receiver), toJava.functionName(mth).toString(), args.toList());
+        JCStatement statement = (mth.getReturnType() == syms.voidType) ? make.Exec(expr) : make.Return(expr);
+        return make.Block(0L, List.<JCStatement>of(statement));
+     }
     
     private void addInterfaceAttributeMethods(ListBuffer<JCTree> idefs, ListBuffer<AttributeWrapper> attrInfos) {
         for (AttributeWrapper attrInfo : attrInfos) {            
@@ -863,7 +695,8 @@ public class JavafxInitializationBuilder {
         }
     }
 
-    private void addClassAttributeMethods(JFXClassDeclaration cdef, ListBuffer<AttributeWrapper> attrInfos, java.util.List<ClassSymbol> baseClasses) {
+    private void addClassAttributeMethods(JFXClassDeclaration cdef, ListBuffer<AttributeWrapper> attrInfos, 
+                                                                               java.util.List<ClassSymbol> baseClasses, ListBuffer<JCTree> members) {
         for (AttributeWrapper attrInfo : attrInfos) { 
 // TODO: Add attributes gotten from interface introspection.
             List<JCStatement> stats = List.<JCStatement>nil();
@@ -876,7 +709,7 @@ public class JavafxInitializationBuilder {
             statBlock.stats = stats;
             
             // Add the method for this class' attributes
-            cdef.hackAppendToMembers(make.MethodDef(
+            members.append(make.MethodDef(
                     make.Modifiers(Flags.PUBLIC),
                     names.fromString(attributeGetMethodNamePrefix + attrInfo.name.toString()),
                     toJava.makeTypeTree(attrInfo.type, null),
@@ -904,7 +737,7 @@ public class JavafxInitializationBuilder {
             List<JCVariableDecl> locationVarDeclList = List.<JCVariableDecl>nil();
             locationVarDeclList = locationVarDeclList.append(make.VarDef(make.Modifiers(0L),
                     locationName, toJava.makeTypeTree(attrInfo.type, null), null));
-            cdef.hackAppendToMembers(make.MethodDef(
+            members.append(make.MethodDef(
                     make.Modifiers(Flags.PUBLIC),
                     names.fromString(attributeInitMethodNamePrefix + attrInfo.name.toString()),
                     toJava.makeTypeTree(syms.voidType, null),
@@ -919,7 +752,7 @@ public class JavafxInitializationBuilder {
         numFieldsStats = numFieldsStats.append(make.Return(make.Ident(numberFieldsName)));
         
         JCBlock numFieldsBlock = make.Block(0L, numFieldsStats);
-        cdef.hackAppendToMembers(make.MethodDef(
+        members.append(make.MethodDef(
                 make.Modifiers(Flags.PUBLIC | Flags.STATIC),
                 getNumFieldsName,
                 toJava.makeTypeTree(syms.intType, null),
@@ -934,7 +767,7 @@ public class JavafxInitializationBuilder {
         
         JCNewClass newIHClass = make.NewClass(null, List.<JCExpression>nil(), make.Identifier(initHelperClassName), ncArgs, null);
         
-        cdef.hackAppendToMembers(make.VarDef(make.Modifiers(Flags.PRIVATE),
+        members.append(make.VarDef(make.Modifiers(Flags.PRIVATE),
                 initHelperName, make.Identifier(initHelperClassName), newIHClass));
         
         // Add the setDefaults$ method
@@ -959,7 +792,7 @@ public class JavafxInitializationBuilder {
                 
         JCBlock setDefBlock = make.Block(0L, setDefStats);
         
-        cdef.hackAppendToMembers(make.MethodDef(
+        members.append(make.MethodDef(
                 make.Modifiers(Flags.PUBLIC | Flags.STATIC),
                 setDefaultsName,
                 toJava.makeTypeTree(syms.voidType, null),
@@ -967,21 +800,6 @@ public class JavafxInitializationBuilder {
                 receiverVarDeclList, 
                 List.<JCExpression>nil(), 
                 setDefBlock, null));
-
-        // Add the userInit$ method
-        receiverVarDeclList = List.<JCVariableDecl>nil();
-        receiverVarDeclList = receiverVarDeclList.append(make.VarDef(make.Modifiers(Flags.FINAL),
-                receiverName, make.Ident(names.fromString(cdef.getName().toString() + interfaceNameSuffix.toString())), null));
-
-        JCBlock userInitBlock = make.Block(0L, List.<JCStatement>nil());
-        cdef.hackAppendToMembers(make.MethodDef(
-                make.Modifiers(Flags.PUBLIC | Flags.STATIC),
-                userInitName,
-                toJava.makeTypeTree(syms.voidType, null),
-                List.<JCTypeParameter>nil(), 
-                receiverVarDeclList, 
-                List.<JCExpression>nil(), 
-                userInitBlock, null));
 
         // Add the initialize$ method
         List<JCStatement> initializeStats = List.<JCStatement>nil();
@@ -1000,7 +818,7 @@ public class JavafxInitializationBuilder {
         initializeStats = initializeStats.append(make.Exec(make.Assign(make.Ident(initHelperName), make.Literal(TypeTags.BOT, null))));
         
         JCBlock initializeBlock = make.Block(0L, initializeStats);
-        cdef.hackAppendToMembers(make.MethodDef(
+        members.append(make.MethodDef(
                 make.Modifiers(Flags.PUBLIC),
                 initializeName,
                 toJava.makeTypeTree(syms.voidType, null),

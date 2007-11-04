@@ -1384,7 +1384,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitOperationValue(JFXOperationValue tree) {
         Scope enclScope = enter.enterScope(env);
-        JFXOperationDefinition def = new JFXOperationDefinition(make.Modifiers(0), make.lambdaName, tree);
+        JFXOperationDefinition def = new JFXOperationDefinition(make.Modifiers(Flags.SYNTHETIC), make.lambdaName, tree);
         tree.definition = def;
         MethodSymbol m = new MethodSymbol(0, def.name, null, enclScope.owner);
         // m.flags_field = chk.checkFlags(def.pos(), def.mods.flags, m, def);

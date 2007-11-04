@@ -133,7 +133,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         }
                 
         // Add run() method... If the class can be a module class.
-        moduleClassDefs.prepend(makeMethod(runMethodString, true, stats.toList(), syms.objectType));
+        moduleClassDefs.prepend(makeMethod(runMethodString, stats.toList(), syms.objectType));
 
         if (moduleClass == null) {
             moduleClass =  make.ClassDeclaration(
@@ -161,20 +161,16 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         super.visitClassDeclaration(tree);
     }
 
-    private JFXOperationDefinition makeMethod(String name, boolean isStatic, List<JCStatement> stats, Type returnType) {
+    private JFXOperationDefinition makeMethod(String name, List<JCStatement> stats, Type returnType) {
         List<JFXVar> emptyVarList = List.nil();
-        return makeMethod(name, isStatic, stats, returnType, emptyVarList);
-    }
-    
-    private JFXOperationDefinition makeMethod(String name, boolean isStatic, List<JCStatement> stats, Type returnType, List<JFXVar> params) {
         JFXBlockExpression body = make.BlockExpression(0, stats, null);
         JCExpression rettree = make.Identifier(returnType.toString());
         rettree.type = returnType;
         return make.OperationDefinition(
-                make.Modifiers(isStatic? PUBLIC | STATIC : PUBLIC), 
+                make.Modifiers(PUBLIC | STATIC | SYNTHETIC), 
                 Name.fromString(names, name), 
                 make.TypeClass(rettree, JFXType.Cardinality.SINGLETON),
-                params, 
+                emptyVarList, 
                 body);        
     }
     
