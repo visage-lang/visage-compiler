@@ -359,40 +359,6 @@ public class JavafxTypeMorpher {
         
         JCExpression expr = varRef;
 
-        // Deal with static references
-        /***
-        if (sym != null && (sym.flags_field & Flags.STATIC) != 0L &&
-                sym.owner != null && sym.owner != null &&
-                sym.owner.kind == Kinds.TYP && (sym.owner instanceof ClassSymbol) &&
-                initBuilder.isJFXClass((ClassSymbol)sym.owner)) {
-            if (expr.getTag() == JCTree.SELECT) {
-                JCExpression newSel = ((JavafxTreeMaker)make).Identifier(sym.owner.type.tsym.toString());
-                ((JCFieldAccess)expr).selected = newSel;
-                if (newSel.getTag() == JCTree.SELECT) {
-                    ((JCFieldAccess)((JCFieldAccess)expr).selected).sym = sym.owner;
-                    ((JCFieldAccess)((JCFieldAccess)expr).selected).type = sym.owner.type;
-                }
-                else if (newSel.getTag() == JCTree.IDENT) {
-                    ((JCIdent)((JCFieldAccess)expr).selected).sym = sym.owner;
-                    ((JCIdent)((JCFieldAccess)expr).selected).type = sym.owner.type;
-                }
-            }
-            else if (expr.getTag() == JCTree.IDENT) {
-                JCExpression newSel = ((JavafxTreeMaker)make).Identifier(sym.owner.type.tsym.toString());
-                if (newSel.getTag() == JCTree.SELECT) {
-                    ((JCFieldAccess)((JCFieldAccess)newSel)).sym = sym.owner;
-                    ((JCFieldAccess)((JCFieldAccess)newSel)).type = sym.owner.type;
-                }
-                else if (newSel.getTag() == JCTree.IDENT) {
-                    ((JCIdent)newSel).sym = sym.owner;
-                    ((JCIdent)newSel).type = sym.owner.type;
-                }
-                JCExpression newFA = make.Select(newSel, sym);
-                expr = newFA;
-            }
-        }
-         * ***/
-
         if (sym instanceof VarSymbol) {
              VarSymbol vsym = (VarSymbol) sym;
             VarMorphInfo vmi = varMorphInfo(vsym);

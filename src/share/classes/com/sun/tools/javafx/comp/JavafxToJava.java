@@ -254,7 +254,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             ListBuffer<JCStatement> translatedInitBlocks = ListBuffer.<JCStatement>lb();
             ListBuffer<JCTree> translatedDefs = ListBuffer.<JCTree>lb();
             ListBuffer<TranslatedAttributeInfo> attrInfo = ListBuffer.<TranslatedAttributeInfo>lb();
-           JCMethodDecl setDefaultsMethod = null;
 
            // translate all the definitions that make up the class.
            // collect any prepended definitions, and prepend then to the tranlations
@@ -297,7 +296,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             translatedDefs = prependInFrontOfDef.appendList(translatedDefs);
             prependInFrontOfDef = prevPrependInFrontOfDef;
 
-            JavafxClassModel model = initBuilder.createJFXClassModel(tree);
+            JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList());
             prependInFrontOfDef(model.correspondingInterface);
             translatedDefs.appendList(model.additionalClassMembers);
 
@@ -319,33 +318,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         null));
             }
  
-            // Add stuff to the SetDefaults method
-            //TODO: this should all be done will the method is being constructed
-            for (JCTree def : translatedDefs) {
-                if (def.getTag() == JCTree.METHODDEF) {
-                    JCMethodDecl method = (JCMethodDecl) def;
-                    if (method.getName() == initBuilder.setDefaultsName) {
-                        setDefaultsMethod = method;
-                    }
-                }
-            }
-            if (setDefaultsMethod != null) {
-                List<JCStatement> setDefStats = initBuilder.addSetDefaultAttributeInitialization(attrInfo, tree);            
-                if (setDefStats.nonEmpty()) {
-                    setDefStats = setDefStats.appendList(initBuilder.addSetDefaultAttributeDependencies(attrInfo, tree));
-                    setDefaultsMethod.body.stats = setDefaultsMethod.body.stats.prependList(setDefStats);
-                }
-
-                for (TranslatedAttributeInfo info : attrInfo.toList()) {
-                    JCStatement stat = initBuilder.makeChangeListenerCall(info);
-                    if (stat != null) {
-                        setDefaultsMethod.body.stats = setDefaultsMethod.body.stats.append(stat);
-                    }
-                }
-            } else {
-                throw new AssertionError("should always be an setDefaults$ method");
-            }
-
             if (tree.isModuleClass) {
                 // Add main method...
                 translatedDefs.append(makeMainMethod(diagPos));
@@ -688,7 +660,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         ListBuffer<JCVariableDecl> params = ListBuffer.<JCVariableDecl>lb();
         if ((originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) {
             // if we are converting a standard instance function (to a static method), the first parameter becomes a reference to the receiver
-            params.prepend(make.VarDef(make.Modifiers(0L), initBuilder.receiverName, make.Ident(initBuilder.interfaceName(currentClass)), null));
+            params.prepend(makeReceiverParam(currentClass));
         }
         for (JFXVar fxVar : tree.getParameters()) {
             params.append(translate(fxVar));
@@ -926,6 +898,29 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     /**** utility methods ******/
     
+    /**
+     * For an attribute "attr" make an access to it via the receiver and getter  
+     *      "receiver$.get$attr()"
+     * */
+   JCExpression makeAttributeAccess(DiagnosticPosition diagPos, JFXVar attrib) {
+       return callExpression(diagPos, 
+                make.Ident(initBuilder.receiverName),
+                initBuilder.attributeGetMethodNamePrefix + attrib.getName().toString(), 
+                List.<JCExpression>nil());
+   }
+   
+   /**
+    * Make a receiver parameter. 
+    * Its type is that of the corresponding interface and it is a final parameter.
+    * */
+    JCVariableDecl makeReceiverParam(JFXClassDeclaration cDecl) {
+        return make.VarDef(
+                make.Modifiers(Flags.FINAL | Flags.PARAMETER), 
+                initBuilder.receiverName, 
+                make.Ident(initBuilder.interfaceName(cDecl)), 
+                null);
+    }
+    
     JCStatement callStatement(
             DiagnosticPosition diagPos,
             JCExpression receiver, 
@@ -954,15 +949,20 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             JCExpression receiver, 
             String method, 
             List<JCExpression> args) {
-        Name methodName = names.fromString(method);
+        return callExpression(diagPos, receiver, names.fromString(method), args);
+    }
+    
+    JCMethodInvocation callExpression(
+            DiagnosticPosition diagPos,
+            JCExpression receiver, 
+             Name methodName, 
+            List<JCExpression> args) {
         JCExpression expr = null;
         if (receiver == null) {
-            expr = make.at(diagPos).Ident(names.fromString(method));
-        }
-        else {
+            expr = make.at(diagPos).Ident(methodName);
+        } else {
             expr = make.at(diagPos).Select(receiver, methodName);
         }
-
         return make.at(diagPos).Apply(List.<JCExpression>nil(), expr, args);
     }
 
@@ -1707,7 +1707,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCExpression ret = null;
         if (treeSym != null && siteOwner != null) {
             List<JCExpression> emptyArgs = List.<JCExpression>nil();
-            String outerAccessor = initBuilder.outerAccessorName.toString();
             
             ret = make.Ident(initBuilder.receiverName);
             ret.type = siteOwner.type;
@@ -1723,7 +1722,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 siteCursor = siteOwner;
                 while (treeSym.owner != siteCursor) {
                     if (siteCursor.kind == Kinds.TYP) {
-                        ret = callExpression(pos, ret, outerAccessor, emptyArgs);
+                        ret = callExpression(pos, ret, initBuilder.outerAccessorName, emptyArgs);
                         ret.type = siteCursor.type;
                     }
                     siteCursor = siteCursor.owner;
@@ -1741,27 +1740,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return name;
     }
 
-    //TODO: remove or merge this
-       // Build the AST for accessing the outer member. The accessors might be chained if the member accessed is more than one level upper in the outer chain.
-   JCExpression getOuterAccessorAST(DiagnosticPosition pos, Name receiverName, Symbol treeSym, Symbol siteOwner) {
-       JCExpression ret = null;
-       if (treeSym != null && siteOwner != null) {
-           ret = callExpression(pos, make.Ident(receiverName),
-                                initBuilder.outerAccessorName.toString(), List.<JCExpression>nil());
-           ret.type = siteOwner.type;
-
-           siteOwner = siteOwner.owner;
-
-           while (treeSym.owner != siteOwner && siteOwner.kind == Kinds.TYP) {
-               ret = callExpression(pos, ret,
-                                initBuilder.outerAccessorName.toString(), List.<JCExpression>nil());
-               ret.type = siteOwner.type;
-               siteOwner = siteOwner.owner;
-           }
-       }
-       return ret;
-   }
-   
 // Is the referenced symbol an outer member.
     static boolean isOuterMember(Symbol sym, Symbol ownerSym) {
         if (sym != null && ownerSym != null) {
