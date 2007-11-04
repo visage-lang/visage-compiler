@@ -265,7 +265,8 @@ public class JavafxInitializationBuilder {
 
         JCIdent varIdent = make.at(diagPos).Ident(info.name());
         varIdent.sym = info.attribute.sym;
-        JCFieldAccess tmpSelect = make.at(diagPos).Select(varIdent, addChangeListenerName);
+        JCExpression attrRef = toJava.translateLHS(varIdent);
+        JCFieldAccess tmpSelect = make.at(diagPos).Select(attrRef, addChangeListenerName);
 
         List<JCExpression> args = List.<JCExpression>of(anonymousChangeListener);
         return make.at(diagPos).Exec(make.at(diagPos).Apply(emptyTypeArgs, tmpSelect, args));
