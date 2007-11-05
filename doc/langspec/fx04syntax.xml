@@ -2,46 +2,113 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <?xml-stylesheet href="docbook.css" type="text/css"?>
-<chapter id="Syntax">
-  <title>Syntax</title>
+<chapter id="types">
+  <title>Types</title>
 
-  <sect1 id="syn">
-    <title>Syntax Overview</title>
+  <sect1 id="types">
+    <title>Types Overview</title>
 
-    <para><emphasis> This Chapter will hold all the details. formats, syntax,
-    reserved words, operators, best practices. Lots of stuff, short of
-    object-oriented programming, logical expressions, functions, operations.
+    <para><emphasis> This Chapter describes syntax for lexical structure, types, variables, functions and operations, strings and string formatting.
+    
     </emphasis></para>
+    
+    </sect1>
+    
+    <!-- VERY SIMPLE INTRODUCTORY DEFINITIONS 
+    
+      ... these are meant to quickly define terms the reader should
+      already know, before introducing syntax and presenting snippets.
+    
+      
+     
+      
+      Syntax:  software language rules which determine what is and is
+      not acceptable to the compiler. In jfxScript, 'syntax' is the
+      literal text that invokes those rules.
+      
+      
+     
+    
+    (not good enough for jfx).
+    A variable is a name that refers to a value. 
+    A variable is a memory location. 
+    
+   
+    
+    A statement is an instruction that the interpreter can execute. 
 
-    <para>Lexical Structure<emphasis>
+    When you type a statement on the command line, the interpreter
+    executes it and displays the result. 
+
+    A script usually contains a sequence of statements. If there is
+    more than one statement, the results appear one at a time as the
+    statements execute.
+    
+  
+    
+    
+    An expression is a combination of values, variables, and
+    operators. If you type an expression on the command line, the
+    interpreter evaluates it and displays the result.
+    
+    The evaluation of an expression produces a value, which is why
+    expressions can appear on the right hand side of assignment
+    statements. 
+    
+     
+    
+    Operators are symbols that represent computations like addition
+    and multiplication. The values the operator uses are called
+    operands. They can be data values, variables, objects or other
+    carefully defined program elements. 
+    
+    In JavaFX Script, an operator can also be a keyword that defines a
+    computation, a relationship between two data elements, or a
+    reference to an object. 
+    
+    Operators specify a computation the interpreter performs on one or
+    more operands. Operators are usually part of a statement or method
+    that returns the result of a computation
+    
+     
+    
+    more here. 
+    
+    -->
+
+    <sect1 id="lex"><title>Lexical Structure</title>
         <itemizedlist>
           <listitem>
             <para>
               <emphasis>Character set, whitespace?</emphasis>
             </para>
-          </listitem>
-
-          <listitem>
-            <para>
-              <emphasis>Comments?</emphasis>
+	    
+	    <para>
+              <emphasis>(No whitespace discussion yet)</emphasis>
             </para>
           </listitem>
 
           <listitem>
             <para>
-              <emphasis>Reserved Words?</emphasis>
+              <emphasis>Comments (like Java comments)</emphasis>
             </para>
           </listitem>
 
           <listitem>
             <para>
-              <emphasis>Identifiers?</emphasis>
+              <emphasis>Reserved Words (elsewhere)</emphasis>
             </para>
           </listitem>
 
           <listitem>
             <para>
-              <emphasis>Literals?</emphasis>
+              <emphasis>Identifiers (partly done)</emphasis>
+            </para>
+          </listitem>
+
+          <listitem>
+            <para>
+              <emphasis>Literals (partly done)</emphasis>
             </para>
           </listitem>
 
@@ -49,24 +116,29 @@
             <para>
               <emphasis>Punctuation?</emphasis>
             </para>
+	    
+	    <para>
+              <emphasis>(Use of punctuation as tokens. We define two groups of punctuation:  Operators and separators)</emphasis>
+            </para>
           </listitem>
 
           <listitem>
             <para>
-              <emphasis>How do we support other Java primitive
+              <emphasis>How do we support other Java basic
               types?</emphasis>
             </para>
           </listitem>
         </itemizedlist>
-      </emphasis></para>
+      
   </sect1>
 
   <sect1 id="types">
     <title>Basic Types</title>
 
-    <para>The JavaFX Script programming language (TM) defines four primitive
-    types: <code> String, Boolean, Number,</code> and <code>Integer.</code>
-    These types correspond to Java types as follows:</para>
+    <para>The JavaFX Script programming language (TM) defines four basic types: <code> String, Boolean, Number,</code> and <code>Integer.</code></para> JavaFX Script also supports complex types such as classes, interfaces. <para>
+    
+    
+    <para>JavaFX Script types to correspond to the Java programming language (TM) types listed on the table below:</para>
 
     <table cellpadding="5" cellspacing="5" style="border: medium groove ;">
       <tbody>
@@ -131,24 +203,27 @@
         b instanceof Boolean; // yields true
 </programlisting>
 
-    <para>JFX Script automatically performs coercions on numeric types when
-    passing arguments or return values to or from Java methods. JFX Script
+    <para>JavaFX Script automatically performs coercions on numeric types when
+    passing arguments or return values to or from Java methods. JavaFX Script
     also performs implicit truncating coercions when converting Numbers to
     Integers.</para>
     
+    <!--
     <para><emphasis>How does JavaFX Script perform coercions?</emphasis></para>
+    -->
     
-    
-  </sect1>
+  </para></sect1>
 
   <!-- **********  Variables, functions, operations, arrays ******* -->
 
   <sect1 id="vars">
     <title>Variables</title>
     
+    <!--
     <para><emphasis>We need to have discussed keywords before this point, because var is a keyword. </emphasis></para>
+-->
 
-    <para>In JavaFX, the <code>var</code> keyword introduces a new variable. You can optionally 
+    <para>In JavaFX Script, the <code>var</code> keyword introduces a new variable. You can optionally 
     specify the type of a variable in its declaration.  If you do not specify the type, the interpreter
     infers the variable type from its use. A variable declaration takes the
     form</para>
@@ -173,9 +248,9 @@
     <para>This example declares a new variable named <code>nums</code> , holding a value 
     defined to consist of zero or more instances of type <code>Number</code> and holding an
     initial value of <code>[1,2,3].</code></para>
-    
+    <!--
     <para><emphasis>Why does JFX Script support this [?+*] feature? </emphasis></para>
-    
+    --> 
     <para><emphasis>I'm sure that this syntax simplifies coding for some
     applications. Can we provide an example or two here?  String handling? Returning tables from a database? </emphasis></para>
 
@@ -190,24 +265,25 @@
   <sect1 id="funct">
     <title>Functions, Arrays, Expressions, and Operations</title>
 
-    <para>JavaFX <code>functions</code> represent a pure functional subset of
-    the JavaFX programming language. The body of a <code>function</code> may
-    only contain a series of variable declarations and a return statement.</para>
+    <para>JavaFX Script <code>functions</code> represent a pure functional subset of the JavaFX programming language. The body of a <code>function</code> can contain only a series of variable declarations and a return statement. Functions can appear in any order within a JFX Script file.  </para>
     
     <para>
-    JavaFX also provides procedures (called <code>operations</code>s, see
-    below) which may contain any number of statements including conditional
-    statements, looping statements, try/catch, etc.</para>
+    JavaFX Script also provides procedures (called <code>operations</code>). Operations can contain any number of statements of any type. <!-- including conditional
+    statements, looping statements, try/catch, etc. --> </para>
     
-    <para><emphasis>
-    This isn't quite clear to me. What is the difference between a function and an operation?  How do functions and operations compare to Java methods?  Why do we have this feature in the language -- when should developers use a function and when should they use an operation? 
-</emphasis></para>
-
-
-    <para>Functions can appear in any order within a JFX Script file.  Following is a simple example of a functional
-    program:</para>
+    <para><emphasis role="bold">Example:</emphasis></para>
     
-    <para><emphasis> Can functions appear in any order within a JFX Script program that spans several files?  Is this an issue with Java?</emphasis></para>
+  
+<!-- What is the difference between a function and an operation?  
+
+How do functions and operations compare to Java methods?  
+
+When should developers use functions and when should they use
+operations? 
+
+-->
+
+    
 
     <programlisting>function z(a,b) {
            var x = a + b;
@@ -222,17 +298,21 @@
         }
 </programlisting>
 
-    <para>The JavaFX Script programming language does not require type declarations, although the language is
-    statically typed (see more details later).</para>
+    <para>JavaFX Script does not require type declarations, although the language is
+    statically typed.
+    
+<!-- ( chris see more details later) we need details. -->
+ 
+<sect2 id="functarray"><title>Arrays</title>
 
-    <para>The <code>array</code> is the most commonly used data structure. A JavaFX Script array 
-    is written with square brackets and commas:</para>
+
+    <para>The <code>array</code> is the most commonly used data structure. A JavaFX Script array is written with square brackets and commas:</para>
 
     <programlisting>var week_days = ["Mon","Tue","Wed","Thur","Fri"];
         var days = [week_days, ["Sat","Sun"]];
 </programlisting>
 
-    <para>Arrays represent sequences of objects. In JavaFX arrays are not
+    <para>Arrays represent sequences of objects. In JavaFX Script  arrays are not
     themselves objects and do not nest. Expressions that produce
     nested arrays (as in the initialization of "days" above) are
     automaticallly flattened:</para>
@@ -246,7 +326,7 @@
     <programlisting>         var n = sizeof days; // n = 7
 </programlisting>
 
-    <para>JavaFX Script supports a shorthand notation using "<code>..</code>" for arrays
+    <para>JavaFX Script supports a shorthand notation using the double-dot operator (<code>..</code>) for arrays
     whose elements form an arithmetic series. For example; this factorial function returns the number <code>result</code> which is the sum of
     the odd numbers between 1 and 100. </para>
 
@@ -261,7 +341,7 @@
     <programlisting>        var wednesday = days[2];
 </programlisting>
 
-    <para>In JavaFX the <code>[ ]</code> operator also expresses selection
+    <para>In JavaFX Script  the <code>[ ]</code> operator also expresses selection
     (similar to its use in XPath). In this case, the expression contained in
     the <code>[ ]</code> is a boolean expression which returns a
     new array containing only those elements that satisfy the predicate
@@ -269,7 +349,9 @@
 
     <para>Within the predicate contained inside the
     <code>[ ]</code> operator, the context object may be accessed with the dot
-    operator as it can in XPath. For example:</para>
+    operator as it can in XPath. </para>
+    
+    <para><emphasis role="bold">Example:</emphasis></para>
 
     <programlisting>	var nums = [1,2,3,4];
 	var numsGreaterThanTwo = nums[. &gt; 2]; // yields [3, 4]
@@ -305,147 +387,17 @@
 	cdr(list); // yields [2,3,4,5,6,7,8,9,10]
 </programlisting>
 
-    <para>In JavaFX, the empty array <code>[]</code> and <code>null</code> are
+    <para>In JavaFX Script , the empty array <code>[]</code> and <code>null</code> are
     synonymous, i.e:</para>
 
     <programlisting>        [] == null // yields true
         sizeof null // yields 0
 </programlisting>
-  </sect1>
+
+</sect2></para></sect1>
 
 
 
-  <sect1 id="strings">
-    <title>String Literals and String Expressions</title>
 
-    <para>JavaFX Script specifies a literal character string either with single
-    quotes:</para>
 
-    <programlisting>        var s = 'Hello';
-</programlisting>
-
-    <para>or with double quotes:</para>
-
-    <programlisting>        var s = "Hello";
-</programlisting>
-
-    <para>When using double quotes, you can embed JavaFX Script expressions using
-    <code>{}</code>:</para>
-
-    <programlisting>        var name = 'Joe';
-        var s = "Hello {name}"; // s = 'Hello Joe'
-</programlisting>
-
-    <para>The embedded expression may itself contain quoted strings (which, in
-    turn, can contain further embedded expressions):</para>
-
-    <programlisting>        var answer = true;
-        var s = "The answer is {if answer then "Yes" else "No"}"; // s = 'The answer is Yes'
-</programlisting>
-
-    <para>Unlike in Java, JavaFX Script double-quoted String literals
-    <emphasis>can</emphasis> contain newlines:</para>
-
-    <programlisting>        var s = "This
-                 contains
-                 new lines";
-</programlisting>
-  </sect1>
-
-  <sect1 id="quote">
-    <title>Quoted Identifiers</title>
-
-    <para>In JavaFX Script, any sequence of characters (including whitespace)
-    contained in french quotes <code>&lt;&lt;&gt;&gt;</code> is treated as an
-    identifier. This allows you to use JavaFX Script keywords (or other normally
-    illegal identifiers) as class, variable, function, or attribute names,
-    e.g.</para>
-
-    <programlisting>        var &lt;&lt;while&gt;&gt; = 100;
-</programlisting>
-
-    <para>By overloading a keyword, you can call Java methods whose names are the
-    same as JavaFX Script keywords, for example:</para>
-
-    <programlisting>        import javax.swing.JTextArea;
-
-        var textArea = new JTextArea();
-        textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);
-</programlisting>
-  </sect1>
-
-  <sect1 id="range">
-    <title>Range Expression</title>
-
-    <para>You can define an array of numeric values that
-    form an arithmetic series using the following syntax:</para>
-
-    <programlisting>            [<emphasis>number1</emphasis>..<emphasis>number2</emphasis>]
-</programlisting>
-
-    <para>This expression defines an array whose elements consist of the
-    integers from <emphasis>number1</emphasis> to <emphasis>number2</emphasis>
-    (inclusive).</para>
-
-    <para><emphasis role="bold">For example:</emphasis></para>
-
-    <programlisting>            var nums = [0..3];
-            System.out.println(nums == [0,1,2,3]); // prints true
-</programlisting>
-
-    <para>By default the interval between the values is <code>1</code> but
-    it's also possible to specify a different interval by including the next
-    number in the sequence after <emphasis>number1</emphasis>, separated by a
-    comma. For example, the following expression defines an array consisting
-    of the odd numbers between <code>1</code> and <code>10</code>:</para>
-
-    <programlisting>            [1,3..10]
-</programlisting>
-
-    <para>If <code>number1</code> is greater than <code>number2</code> a
-    descending series is created:</para>
-
-    <programlisting>            var nums = [3..0];
-            System.out.println(nums == [3,2,1,0]); // prints true
-</programlisting>
-  </sect1>
-
-  <sect1 id="sformatting">
-    <title>String, Number, and Date Formatting</title>
-
-    <para>JavaFX has a built-in String formatting operator (<code>format
-    as</code>), which has the following syntax:</para>
-
-    <programlisting>        <emphasis>expr</emphasis> format as <emphasis>directive</emphasis>
-</programlisting>
-
-    <para>The <code>format as </code>operator supports
-    <code>java.text.DecimalFormat</code>,
-    <code>java.text.SimpleDateFormat</code>, and
-    <code>java.util.Formatter</code> formatting directives. If the formatting
-    directive starts with <code>%</code>, then
-    <code>java.util.Formatter</code> is used, otherwise if <code>
-        <emphasis>expr</emphasis>
-      </code> is of type <code>Number</code> then
-    <code>java.text.DecimalFormat</code> is used, otherwise if <code>
-        <emphasis>expr</emphasis>
-      </code> is of type <code>java.util.Date</code> then
-    <code>java.text.SimpleDateFormat</code> is used. The <code>
-        <emphasis>directive</emphasis>
-      </code> operand is syntactically an identifier, not an expression. This
-    allows the content of <code>
-        <emphasis>directive</emphasis>
-      </code> to be statically checked for correctness at compile time.</para>
-
-    <para><emphasis role="bold">Examples:</emphasis></para>
-
-    <programlisting>        import java.util.Date;
-
-        100.896 format as &lt;&lt;%f&gt;&gt;; // yields '100.896000'
-        31.intValue() format as &lt;&lt;%02X&gt;&gt;; // yields '1F'
-        var d = new Date();
-        d format as &lt;&lt;yyyy-MM-dd'T'HH:mm:ss.SSSZ&gt;&gt;; // yields '2005-10-31T08:04:31.323-0800'
-        0.00123 format as &lt;&lt;00.###E0&gt;&gt;; // yields '12.3E-4'
-</programlisting>
-  </sect1>
 </chapter>

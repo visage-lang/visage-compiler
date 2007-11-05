@@ -3,16 +3,16 @@
   "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <?xml-stylesheet href="docbook.css" type="text/css"?>
 <chapter id="Logic">
-<title>Logic</title>
+<title>Statements and Logical Expressions</title>
 
 
-<sect1 id="log"><title>Logic Overview </title>
+<sect1 id="log"><title>Overview </title>
 <para>
-<emphasis>This Chapter explains statements, logic constructs, methods operations and functions, and other JavaFX Script programming mechanisms. 
+<emphasis>This Chapter explains operations and functions, statements, general expressions and logical expressions. 
 </emphasis>  
 </para>
 
-
+<!--
 <sect2 id="lquestions"><title>Questions</title>
 <para>
 <emphasis>We need to explain all statement forms, starting with expression statements. Control flow statement section should follow a general intro and a brief bulleted list of other statement forms.
@@ -24,17 +24,17 @@
 <para><emphasis>Where should we discuss packages, JavaFX Script file structure, and how to call my own custom Java classes? </emphasis></para>
 
 
-</sect2>
+</sect2>  -->
 
 </sect1>
 
         <sect1 id="operations">
-          <title>Operations</title>
-	  
+          <title>Operations and Functions</title>
+<!--	  
 	  <para><emphasis role="bold">An operation is NOT an expression (below)</emphasis></para>
 	  
 	  <para><emphasis>This section really should discuss methods, functions and operations. </emphasis></para>
-
+-->
           <para>In JavaFX, procedures are declared with the
           <code>operation</code> keyword. For example:</para>
 
@@ -58,20 +58,22 @@
           <code>delete</code>, and <code>insert</code> statements mentioned
           above, the following statements are possible inside the body of an
           operation :</para>
+	  
+</sect1>
        
 	 
-	    <sect2 id="statem">
+<sect1 id="statem">
           <title>Statements</title>
 	  
 	  <para><emphasis>Introduction to Statements. </emphasis></para>
 
          
-        </sect2>
+        
 	  
-	  
+</sect1>
 	 
-       <sect2 id="express">
-          <title>Expression Statements</title>
+<sect1 id="express">
+          <title>Expressions </title>
 	  
 	  <para><emphasis role="bold">An expression is NOT an operation (above)</emphasis></para>
 
@@ -80,20 +82,21 @@
 
           <programlisting>       System.out.println("Hello World!");
 </programlisting>
-        </sect2>
+        
+</sect1>
 
 	 
-
+<sect1 id="logical"><title>Logical Expressions</title>
 	
         <sect2 id="if">
           <title>If Statement</title>
 
-          <para>The JavaFX <code>if</code> statement is like Java's except
+          <para>The JavaFX Script <code>if</code> statement is like Java's except
           that curly braces are always required around the then and else
           clauses, unless the the else clause is another <code>if</code>
           statement.</para>
 
-          <para>Example:</para>
+          <para><emphasis role="bold">Example:</emphasis></para>
 
           <programlisting>       if (condition1) {
            System.out.println("Condition 1");
@@ -103,18 +106,17 @@
            System.out.println("not Condition 1 or Condition 2");
        }
 </programlisting>
-        </sect2>
+        
+</sect2>
 	
 	
-
-	
-        <sect2 id="while">
+<sect2 id="while">
           <title>While Statement</title>
 
-          <para>The JavaFX <code>while</code> statement is like Java's except
+          <para>The JavaFX Script <code>while</code> statement is like Java's except
           that curly braces are always required around the body.</para>
 
-          <para>Example:</para>
+          <para><emphasis role="bold">Example:</emphasis></para>
 
           <programlisting>       var i = 0;
        while (i &lt; 10) {
@@ -125,17 +127,19 @@
            i += 1;
        }
 </programlisting>
-        </sect2>
+        
+</sect2>
 
-        <sect2 id="try">
+
+<sect2 id="try">
           <title>Try Statement</title>
 
-          <para>The JavaFX <code>try</code> statement is like Java's but with
-          JavaFX variable declaration syntax. Note: in JavaFX any object can
+          <para>The JavaFX Script <code>try</code> statement is like Java's but with
+          JavaFX Script variable declaration syntax. Note: in JavaFX Script any object can
           be thrown and caught, not just those that extend
           <code>java.lang.Throwable</code>.</para>
 
-          <para>Example:</para>
+          <para><emphasis role="bold">Example:</emphasis></para>
 
           <programlisting>       try {
           throw "Hello";
@@ -152,12 +156,13 @@
         <sect2 id="for">
           <title>For Statement</title>
 
-          <para>The header of the JavaFX <code>for</code> statement uses the
-          same syntax as the <code>foreach</code> list comprehension operator.
+          <para>The header of the JavaFX Script <code>for</code> statement uses the
+          same syntax as the <code>foreach</code> list comprehension operator.<!-- This needs to be linked to the list comprehension discussion in the Arrays chapter -->
           However, in this case the body of the statement is executed for each
           element generated by the list comprehension.</para>
+	  
 
-          <para>Examples:</para>
+          <para><emphasis role="bold">Examples:</emphasis></para>
 
           <programlisting>        for (i in [0..10]) {
              System.out.println("i = {i}");
@@ -180,15 +185,16 @@
         }
 
 </programlisting>
-        </sect2>
 
-        <sect2 id="return">
+</sect2>
+
+<sect2 id="return">
           <title>Return Statement</title>
 
-          <para>The JavaFX <code>return</code> statement is like
+          <para>The JavaFX Script <code>return</code> statement is like
           Java's:</para>
 
-          <para>Example:</para>
+          <para><emphasis role="bold">Example:</emphasis></para>
 
           <programlisting>       operation add(x, y) {
            return x + y;
@@ -199,7 +205,7 @@
           <sect2 id="throw">
             <title>Throw Statement</title>
 
-            <para>The JavaFX <code>throw</code> statement is like Java's.
+            <para>The JavaFX Script <code>throw</code> statement is like Java's.
             However, any object may be thrown, not just those that extend
             <code>java.lang.Throwable</code>.</para>
 
@@ -220,13 +226,13 @@
           <sect2 id="break">
             <title>Break and Continue Statements</title>
 
-            <para>The JavaFX <code>break</code> and <code>continue</code>
+            <para>The JavaFX Script <code>break</code> and <code>continue</code>
             statements are like Java's, however labels are not supported. As
             in Java, <code>break</code> and <code>continue</code> must appear
             inside the body of a <code>while</code> or <code>for</code>
             statement.</para>
 
-            <para>Examples:</para>
+            <para><emphasis role="bold">Examples:</emphasis></para>
 
             <programlisting>       operation foo() {
           for (i in [0..10]) {
@@ -259,19 +265,19 @@
           <sect2 id="do">
             <title>Do Statement</title>
 
-            <para>The JavaFX <code>do</code> statement allows you to execute a
-            block of JavaFX code in a background thread while allowing the AWT
+            <para>The JavaFX Script <code>do</code> statement allows you to execute a
+            block of JavaFX Script code in a background thread while allowing the AWT
             Event Dispatch Thread to continue processing events, thereby
             preventing the UI from appearing to hang. Currently, this is
             implemented by using <code>java.awt.EventQueue</code> to pump
             events while the background thread is executing. Normally, all
-            JavaFX code executes in the AWT Event Dispatch Thread. Only code
+            JavaFX Script code executes in the AWT Event Dispatch Thread. Only code
             contained in the body of a <code>do</code> statement is allowed to
             execute in another thread. Such code must only access Java objects
             (and those objects must handle their own thread synchronization,
             if necessary).</para>
 
-            <para>Example:</para>
+            <para><emphasis role="bold">Example:</emphasis></para>
 
             <programlisting>        import java.net.URL;
         import java.lang.StringBuffer;
