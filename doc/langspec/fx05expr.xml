@@ -617,7 +617,7 @@ Any other operators?  What about the (*, :, and ?) var operators?
             </tbody>
           </table>
 
-          <para><empahasis role="bold"> Examples:</empahasis></para>
+          <para><emphasis role="bold"> Examples:</emphasis></para>
 
           <programlisting>         import java.lang.System;
          import java.lang.Math;

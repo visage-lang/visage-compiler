@@ -106,7 +106,7 @@
             attributes, functions, and operations that each end in a
             semicolon, and a closing curly brace.</para>
 
-            <para><empahasis role="bold">Example:</empahasis></para>
+            <para><emphasis role="bold">Example:</emphasis></para>
 
             <programlisting>        class Person {
            attribute name: String;
