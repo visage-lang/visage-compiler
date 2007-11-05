@@ -485,7 +485,6 @@ public class JavafxInitializationBuilder {
             if (attrSym.kind == Kinds.VAR) {
                 VarSymbol varSym = (VarSymbol)attrSym;
                 VarMorphInfo vmi = typeMorpher.varMorphInfo(varSym);
-                vmi.mustMorph();
                 attrInfos.append(new AttributeWrapper(varSym, vmi.getMorphedType(), varSym.name));
             }
             else {

@@ -356,7 +356,7 @@ public class JavafxTypeMorpher {
         if (sym instanceof VarSymbol) {
              VarSymbol vsym = (VarSymbol) sym;
             VarMorphInfo vmi = varMorphInfo(vsym);
-            if (vmi.mustMorph()) {
+            if (toJava.shouldMorph(vmi)) {
                 if (sym.owner.kind == Kinds.TYP && !staticReference) {
                     // this is a non-static reference to an attribute, use the get$ form
                     assert varRef.getTag() == JCTree.SELECT : "attribute must be accessed through receiver";
@@ -413,7 +413,7 @@ public class JavafxTypeMorpher {
                     VarMorphInfo vmi, JCExpression fxInit, JCExpression translatedInit,
                     JavafxBindStatus bindStatus, boolean isAttribute) {
         JCExpressionTupple ret;
-        JCExpression initExpr = translatedInit != null? 
+        JCExpression initExpr = (translatedInit != null)? 
                 translatedInit : 
                 vmi.getTypeKind() == TYPE_KIND_SEQUENCE? 
                       toJava.makeEmptySeuenceCreator(diagPos, vmi.getElementType())
@@ -431,7 +431,7 @@ public class JavafxTypeMorpher {
     public JCExpression morphAssign(DiagnosticPosition diagPos, VarSymbol vsym, JCExpression lhs, JCExpression rhs) {
         if (vsym != null) {
             VarMorphInfo vmi = varMorphInfo(vsym);
-            if (vmi.mustMorph()) {     
+            if (toJava.shouldMorph(vmi)) {     
                 JCFieldAccess setSelect = make.Select(lhs, setMethodName);
                 List<JCExpression> setArgs = List.of(rhs);
                 return make.at(diagPos).Apply(null, setSelect, setArgs);
@@ -495,7 +495,7 @@ public class JavafxTypeMorpher {
                 if (tree.sym instanceof VarSymbol) {
                     VarSymbol ivsym = (VarSymbol)tree.sym;
                     VarMorphInfo vmi = varMorphInfo(ivsym);
-                    if (vmi.mustMorph()) {
+                    if (toJava.shouldMorph(vmi)) {
                         refMap.put(ivsym, tree);
                     }
                 }
@@ -506,7 +506,7 @@ public class JavafxTypeMorpher {
                 if (tree.sym instanceof VarSymbol) {
                     VarSymbol ivsym = (VarSymbol)tree.sym;
                     VarMorphInfo vmi = varMorphInfo(ivsym);
-                    if (vmi.mustMorph()) {
+                    if (toJava.shouldMorph(vmi)) {
                         refMap.put(ivsym, tree);
                     }
                 }

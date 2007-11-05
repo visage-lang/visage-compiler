@@ -283,9 +283,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                        case JavafxTag.FUNCTION_DEF : {
                            JFXOperationDefinition funcDef = (JFXOperationDefinition)def;
                             translatedDefs.append(  translate(funcDef) );
- //                           if ((funcDef.sym.flags() & Flags.SYNTHETIC) == 0) {
- //                               translatedDefs.append(  boundTranslate(funcDef, JavafxBindStatus.UNIDIBIND) );
- //                            }
+//                            if ((funcDef.sym.flags() & Flags.SYNTHETIC) == 0) {
+//                                translatedDefs.append(  boundTranslate(funcDef, JavafxBindStatus.UNIDIBIND) );
+//                            }
                             break;
                         }
                        case JCTree.METHODDEF : {
@@ -410,7 +410,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     JCExpression init = olpart.getExpression();
                     VarSymbol vsym = (VarSymbol) olpart.sym;
                     VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-                    if (vmi.mustMorph()) {
+                    if (shouldMorph(vmi)) {
                         init = translateDefinitionalAssignment(diagPos, init, bindStatus, vsym, false).first;
                     } else {
                         init = boundTranslate(init, bindStatus);
@@ -478,7 +478,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCExpression translatedInit = boundTranslate(init, bindStatus);
         JCExpressionTupple translatedInitTupple = new JCExpressionTupple(translatedInit, null);
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        if (vmi.mustMorph()) {
+        if (shouldMorph(vmi)) {
             translatedInitTupple = typeMorpher.buildDefinitionalAssignment(diagPos, vmi, 
                     init, translatedInit, bindStatus, isAttribute);
         }
@@ -505,15 +505,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         VarSymbol vsym = tree.sym;
         boolean isClassVar = vsym.owner.kind == Kinds.TYP;
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        boolean forceTypeMorph = this.bindContext.isBound();
+        boolean forceTypeMorph = false;;
 
-        if (! isClassVar && (vsym.flags_field & JavafxFlags.INNER_ACCESS) != 0) {
-            if ((vsym.flags_field & JavafxFlags.ASSIGNED_TO) == 0)
+        if (!isClassVar && (vsym.flags_field & JavafxFlags.INNER_ACCESS) != 0) {
+            if ((vsym.flags_field & JavafxFlags.ASSIGNED_TO) == 0) {
                 modFlags |= Flags.FINAL;
-            else
+            } else {
                 vmi.markBoundTo();
+                forceTypeMorph = true;
+            }
         }
-        if (vmi.mustMorph() || forceTypeMorph) {
+        if (shouldMorph(vmi) || forceTypeMorph) {
             type = vmi.getMorphedType();
 
             // local variables need to be final so they can be referenced
@@ -530,7 +532,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
         // for class vars, initialization happens during class init, so remove
         // from here.  For local vars translate as definitional
-        JCExpression init = isClassVar? null : translateVarInit(tree, false).first;
+        JCExpression init = (isClassVar || ((vsym.flags() & Flags.PARAMETER) != 0))? null : translateVarInit(tree, false).first;
         
         result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);         
     }
@@ -1682,6 +1684,22 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         assert false : "should be processed by parent tree";
     }
     
+    boolean shouldMorph(VarMorphInfo vmi) {
+        if ( vmi.mustMorph() ) {
+            return true;
+        } else if (bindContext.isBound()) {
+            Symbol owner = vmi.varSymbol.owner;
+            if (owner.kind == Kinds.TYP) {
+                ClassSymbol owningClass = (ClassSymbol)owner;
+                return initBuilder.isJFXClass(owningClass);
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+    
     JCExpression makeIdentifier(String s) {
         return ((JavafxTreeMaker)make).Identifier(s);
     }
@@ -1785,7 +1803,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 if (attrSym.kind == Kinds.MTH) {
                     VarSymbol varSym = new VarSymbol(0L, attrSym.name, ((MethodType)attrSym.type).restype, attrSym.owner);
                     VarMorphInfo vmi = typeMorpher.varMorphInfo(varSym);
-                    vmi.mustMorph();
                     result.defs = result.defs.append(make.VarDef(make.Modifiers(0L), 
                             names.fromString(attrSym.name.toString().substring(initBuilder.attributeGetMethodNamePrefix.length())),
                            makeIdentifier(vmi.getMorphedType().toString()), null));
@@ -1801,7 +1818,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         var.mods.flags |= Flags.PRIVATE;
                     }
                     VarMorphInfo vmi = typeMorpher.varMorphInfo((VarSymbol)attrSym);
-                    vmi.mustMorph();
                     var.vartype = makeIdentifier(vmi.getMorphedType().toString());
                     result.defs = result.defs.append(var);
                 }
