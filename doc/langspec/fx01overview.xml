@@ -1,59 +1,432 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
-<?xml-stylesheet href="docbook.css" type="text/css"?>
-<chapter id="Overview">
-<title>Overview</title>
-<sect1 id="over"><title>JavaFX Product Overview</title>
-<para>
-<emphasis>This describes the several parts of the JavaFX product.</emphasis>
-</para>
-<para><emphasis>This describes how JavaFX Script ties together all the parts of the JavaFX product, and connects to the JRE and anything else that a developer would normally access. </emphasis></para>
-</sect1>
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:svg="http://www.w3.org/2000/svg"
+         xmlns:mml="http://www.w3.org/1998/Math/MathML"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:db="http://docbook.org/ns/docbook">
+  <title>Introducing the JavaFX Script Programming Language</title>
+
+  <section>
+    <title>Overview</title>
+
+    <para>This chapter provides an overview of the
+    JavaFX<trademark></trademark> Script programming language. It describes --
+    at a high level -- its main features, saving detailed coverage of specific
+    constructs for subsequent chapters. This book is intended for designers
+    and developers of rich Internet client applications and elements, which
+    run in web pages, as Java Web Start software, or as traditional desktop
+    applications. It assumes the reader to be familiar with JavaScript and/or
+    the Java programming language. While this book does not define a formal
+    language specification, it can be considered a complete reference for all
+    currently supported language features.</para>
+
+    <para>The JavaFX Script programming language:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Uses a declarative syntax for specifying Graphical User
+        Interface (GUI) components, allowing a developer's code to closely
+        match the actual layout of the GUI.</para>
+      </listitem>
+
+      <listitem>
+        <para>Uses declarative data binding and incremental evaluation, making
+        it possible to easily create and configure individual components.
+        Application data and GUI components are automatically
+        synchronized.</para>
+      </listitem>
+
+      <listitem>
+        <para>Is statically typed, having most of the same code structuring,
+        reuse, and encapsulation features that make it possible to create and
+        maintain very large programs in the Java programming language.</para>
+      </listitem>
+
+      <listitem>
+        <para>Works with all major IDEs, including the NetBeans IDE, the
+        reference implementation IDE for software development with the Java
+        programming language.</para>
+      </listitem>
+
+      <listitem>
+        <para>Is capable of supporting GUIs of any size or complexity.</para>
+      </listitem>
+
+      <listitem>
+        <para>Makes it easier to use Swing.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>The best way to learn any new language is to start programming in
+    it. The following short tutorial illustrates GUI creation from object
+    literals and easy data binding.</para>
+  </section>
+
+  <section>
+    <title>A Quick Tutorial</title>
+
+    <para>This section presents a brief demo application that gathers a
+    customer's contact information. Its GUI consists of simple text labels,
+    text fields, and buttons. The JavaFX Script programming language is
+    capable of generating sophisticated "flash-like" animations, but our goal
+    in this section is only introduce you to the new language syntax; the
+    layout is therefore intentionally kept basic. We will discuss GUI design
+    recommendations in a separate document.</para>
+
+    <para></para>
+
+    <screenshot>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="figure1.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </screenshot>
+
+    <para>Figure One: Customer Contact Information Screen<informalfigure>
+        <para></para>
+      </informalfigure>Figure one shows the first screen of this application.
+    The<code> javafx.u</code>i package provides a number of classes that
+    encapsulate the standard Swing components; in this simple example we have
+    instantiated the <code>Frame</code>, <code>SimpleLabel</code>,
+    <code>TextField</code>, and <code>Button</code> classes. The syntax for
+    <code>package</code> and <code>import</code> statements is the same as it
+    is in the Java programming language:</para>
+
+    <para></para>
+
+    <programlisting>package ch1demo;
+
+import javafx.ui.Frame;
+import javafx.ui.SimpleLabel;
+import javafx.ui.TextField;
+import javafx.ui.Button;
+</programlisting>
+
+    <para></para>
+
+    <para>Creating an object, however, is quite different. In the JavaFX
+    Script programming language, the recommended way to instantiate a class is
+    by using an <emphasis>object literal.</emphasis> The following code uses
+    an object literal to instantiate the <code>javafx.ui.Frame</code> class,
+    setting its title, width, height, and visibility:</para>
+
+    <para></para>
+
+    <programlisting>// Create a Frame object
+Frame {
+    title: "Ch1 Demo"
+    width: 300
+    height: 250
+    visible: true
+}</programlisting>
+
+    <para></para>
+
+    <para>If needed, the object reference can be assigned to a variable using
+    the <code>var</code> keyword:</para>
+
+    <para></para>
+
+    <para><programlisting>// Create a Frame object and assign it to variable myFrame
+var myFrame = Frame {
+    title: "Ch1 Demo"
+    width: 300
+    height: 250
+    visible: true
+}; // Note the use of semicolon when ending this statement</programlisting></para>
+
+    <para>We say that <code>title</code>, <code>width</code>,
+    <code>height</code>, and <code>visible</code> are all
+    <emphasis>attributes</emphasis> of the <code>Frame</code> class. The
+    attributes shown here accept primitive type values (TBD: provide link here
+    to the section describing the primitive types), but you can nest object
+    literals if the expected type is something more complex. For example, many
+    of the GUI classes contain an attribute called <code>"content"
+    </code>whose type is <code>Widget</code> (the bass class of all
+    <code>javafx.ui</code> GUI components.) It is possible to assign an
+    instance of any <code>Widget</code> subclass to <code>content</code> using
+    the same object literal syntax:</para>
+
+    <para></para>
+
+    <para><programlisting>Frame {
+    title: "Ch1 Demo"
+    width: 300
+    height: 250
+    visible: true
+    content: Label { // Create a Label
+        text: "I am a Label added to the Frame."
+    }
+}</programlisting></para>
+
+    <para>You will find that this pattern of nested object literals repeats
+    over and over again. The API documentation for the <code>javafx.ui</code>
+    package (TBD: insert hyperlink to the API docs for the javafx.* packages)
+    makes it possible to determine the type of any attribute. As you might
+    expect, lines of code can wrap according to your own programming style.
+    The following lines of code are identical to the above:</para>
+
+    <para></para>
+
+    <programlisting>Frame {
+    title: "Ch1 Demo"
+    width: 300
+    height: 250
+    visible: true
+    content: Label{ text: "I am a Label added to the Frame." }
+}
+
+Frame {
+    title: "Ch1 Demo"
+    width: 300
+    height: 250
+    visible: true
+    content: 
+    Label { 
+        text: "I am a Label added to the Frame."
+    }
+}
+</programlisting>
+
+    <para></para>
+
+    <para>The JavaFX Script programming language also supports easy data
+    binding with the <code>bind</code> operator. <emphasis>Data
+    binding</emphasis> makes it possible to express relationships between data
+    that are automatically updated when items involved in the relationship
+    change. For example, consider a scenario in which there is a
+    <code>String</code> object called <code>firstName</code>, a
+    <code>TextField</code> object called <code>firstNameTF</code>, and a
+    <code>Label</code> object called <code>firstNameLabel</code> (the string
+    variable holds the person's first name, the text field allows the user to
+    enter their first name, and the label is how the GUI displays this name.)
+    In traditional Swing programming, keeping these three objects in sync
+    requires a certain amount of boilerplate model-view-controller (MVC)
+    code:</para>
+
+    <para></para>
+
+    <para><programlisting>// SWING EXAMPLE
+
+// Declare Variables
+private String firstName; // holds the name data; not a part of the GUI
+private JTextField firstNameTF; // GUI text field; user enters data here to set the first name
+private JLabel firstNameLabel;  // GUI label, diaplays first name; must be in sync with firstName string
+
+...
+
+// Register Action Listener
+firstNameTF.addActionListener(new java.awt.event.ActionListener() {
+    public void actionPerformed(java.awt.event.ActionEvent evt) {
+       firstName = firstNameTF.getText();
+       firstNameLabel.setText(firstName);       
+    }
+});
 
 
-<sect1 id="script"><title>JavaFX Script Introduction</title>
-<para>
-<emphasis>JavaFX Script is part of the product. We need to explain how to use JFX script to manage other parts of the JavaFX product package. We will discuss language syntax, types, expressions, operations and other details in later Chapters.</emphasis>
-</para>
+...</programlisting></para>
 
+    <para></para>
 
-  <sect2 id="topcopy">
-    <title>Top Copy </title>
+    <para>In this scenario the user enters a first name into the text field; a
+    registered action listener detects this activity and sets the value of
+    both the string and the label. But in a real application this code might
+    become even more complex; it might, for example, use JavaBeans
+    PropertyChangeEvents to notify other objects of any state change in the
+    firstName string, requiring even more boilerplate event listener code. But
+    in the JavaFX Script programming language, this is all accomplished with
+    the <code>bind</code> operator:</para>
 
-    <para>The JavaFX Script™ (hereinafter referred to as JavaFX) language is a
-    declarative and statically typed programming language. It has first-class
-    functions, declarative syntax, list-comprehensions, and incremental
-    dependency-based evaluation. The JavaFX Script language makes intensive
-    use of the Java2D swing GUI components and allows for easy creation of
-    GUIs.</para>
+    <para></para>
 
-    <para>This document gives an informal description of the JavaFX Script
-    programming language.</para>
+    <para><programlisting>// Easy data binding
+var firstName = "";
+var firstNameTF = TextField {value: bind firstName};
+var firstNameLabel = SimpleLabel {text: bind firstName};</programlisting></para>
 
-</sect2>
+    <para></para>
 
+    <para>In three lines of code, the objects are now bound to each other.
+    Typing a new value in the text field will change the value of the other
+    two objects. Likewise, changing the value of the <code>firstName</code>
+    string will also change the content of the text field and the label. We
+    use this technique in the customer contact demo: the user enters their
+    information into the text fields of screen #1; this sets the values of the
+    internal <code>String</code> variables (<code>firstName</code>,
+    <code>lastName</code> etc.); because the GUI text labels are also bound to
+    those variables, each label will automatically display the correct text
+    when the user arrives at the confirmation page: </para>
 
-<sect1 id="install"><title>Installing JavaFX Script</title>
-<para>
-<emphasis>List the stuff we need to install, configure and write a basic script, including the JRE, a browser, the JavaFX Script jar file, NetBeans (with the JFX plugin) and whatever else should be part of a typical desktop installation.
-</emphasis>
-</para>
+    <para><code></code></para>
 
-<para> How do we introduce and explain the javaui.fx library? It looks like we can't call just any Java class -- only those classes supported by an 'fx library, and we only have Swing classes. </para>
+    <screenshot>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="figure2.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </screenshot>
 
-<para>
-We <emphasis>
-should also discuss configuration and testing here.
-</emphasis>
-</para>
+    <para><code> </code> Figure Two: Customer Contact Confirmation Page</para>
 
-</sect1>
+    <para></para>
 
-<sect1 id="first"><title>Your First Program </title>
-<para>
-This<emphasis> could be a quick start section. </emphasis></para>
-</sect1>
-</sect1>
+    <para>The following code listing shows the customer contact application in
+    its entirety. Even with only this brief introduction to the language, you
+    already know enough to understand this code.</para>
 
+    <para><programlisting>package ch1demo;
+
+import javafx.ui.*;
+import java.lang.Thread;
+
+////////////////////////
+// State Information ///
+////////////////////////
+var firstName = "";
+var lastName = "";
+var streetAddress = "";
+var city = "";
+var state = "";
+var zip = "";
+var workPhone = "";
+var homePhone = "";
+var email = "";
+var currScreen = 0;
+
+////////////////////
+// GUI Components //
+////////////////////
+var customerContactLabel = SimpleLabel{text: "Customer Contact Information" font: Font{size:14}};
+var confirmationLabel = SimpleLabel{text: "Confirmation Page" font: Font{size:14}};
+var firstNameLabel = SimpleLabel{text:"First Name: "};
+var firstNameTextField = TextField{columns:30 value: bind firstName};
+var lastNameLabel = SimpleLabel{text:"Last Name: "};
+var lastNameTextField = TextField{columns:30 value: bind lastName};
+var streetAddressLabel = SimpleLabel{text:"Street Address: "};
+var streetAddressTextField = TextField{columns:30 value: bind streetAddress};
+var cityLabel = SimpleLabel{text:"City: "};
+var cityTextField = TextField{columns:30 value: bind city};
+var stateLabel = SimpleLabel{text:"State: "};
+var stateTextField = TextField{columns:30 value: bind state};
+var zipLabel = SimpleLabel{text:"Zip Code: "};
+var zipTextField = TextField{columns:30 value: bind zip};
+var workPhoneLabel = SimpleLabel{text:"Work Phone: "};
+var workPhoneTextField = TextField{columns:30 value: bind workPhone};
+var homePhoneLabel = SimpleLabel{text:"Home Phone: "};
+var homePhoneTextField = TextField{columns:30 value: bind homePhone};
+var emailLabel = SimpleLabel{text:"Email: "};
+var emailTextField = TextField{columns:30 value: bind email};
+var screen1SubmitButton = Button {text:"Submit" action: operation(){currScreen = 1;}};
+var screen1ResetButton = Button {text:"Reset" action: operation(){ 
+    firstName = "";
+    lastName = "";
+    streetAddress = "";
+    city = "";
+    state = "";
+    zip = "";
+    workPhone = ""; 
+    homePhone = ""; 
+    email = "";
+}};
+
+/////////////////////////////
+// GUI SCREEN 1 /////////////
+/////////////////////////////
+var screen1Row1 = FlowPanel {content: customerContactLabel};
+var screen1Row2 = FlowPanel {alignment: Alignment{name:"left"} content: [firstNameLabel,firstNameTextField]};
+var screen1Row3 = FlowPanel {alignment: Alignment{name:"left"} content: [lastNameLabel,lastNameTextField]};                                                 
+var screen1Row4 = FlowPanel {alignment: Alignment{name:"left"} content: [streetAddressLabel,streetAddressTextField]};
+var screen1Row5 = FlowPanel {alignment: Alignment{name:"left"} content: [cityLabel,cityTextField]}; 
+var screen1Row6 = FlowPanel {alignment: Alignment{name:"left"} content: [stateLabel,stateTextField]};
+var screen1Row7 = FlowPanel {alignment: Alignment{name:"left"} content: [zipLabel,zipTextField]};
+var screen1Row8 = FlowPanel {alignment: Alignment{name:"left"} content: [workPhoneLabel,workPhoneTextField]};                              
+var screen1Row9 = FlowPanel {alignment: Alignment{name:"left"} content: [homePhoneLabel,homePhoneTextField]};
+var screen1Row10 = FlowPanel {alignment: Alignment{name:"left"} content: [emailLabel,emailTextField]};
+var screen1Row11 = FlowPanel{content: [screen1SubmitButton,screen1ResetButton]};
+var screen1 = GridPanel{rows: 11 columns: 1 cells: [screen1Row1,screen1Row2,screen1Row3,screen1Row4,screen1Row5,
+                            screen1Row6,screen1Row7,screen1Row8,screen1Row9,screen1Row10,screen1Row11]};
+
+/////////////////////////////
+// GUI SCREEN 2 /////////////
+/////////////////////////////
+var screen2Row1 = FlowPanel {content: confirmationLabel}; 
+
+var screen2Row2 = FlowPanel {alignment: Alignment{name:"left"}
+                             content: [SimpleLabel{text:"First Name: "},SimpleLabel{text: bind firstName}]};
+                               
+var screen2Row3 = FlowPanel {alignment: Alignment{name:"left"} 
+                      content: [SimpleLabel{text:"Last Name: "},
+                                SimpleLabel{text: bind lastName}]};
+                                
+var screen2Row4 = FlowPanel {alignment: Alignment{name:"left"}
+                      content: [SimpleLabel{text:"Street Address: "},
+                                SimpleLabel{text: bind streetAddress}]};
+                                
+var screen2Row5 = FlowPanel {alignment: Alignment{name:"left"} 
+                      content: [SimpleLabel{text:"City: "},
+                                SimpleLabel{text: bind city}]};
+                                
+var screen2Row6 = FlowPanel {alignment: Alignment{name:"left"} 
+                      content: [SimpleLabel{text:"State: "},
+                                SimpleLabel{text: bind state}]};
+                                
+var screen2Row7 = FlowPanel {alignment: Alignment{name:"left"} 
+                      content: [SimpleLabel{text:"Zip Code: "},
+                                SimpleLabel{text: bind zip}]};                               
+                                        
+var screen2Row8 = FlowPanel {alignment: Alignment{name:"left"} 
+                      content: [SimpleLabel{text:"Work Phone: "},
+                                SimpleLabel{text: bind workPhone}]};
+                                
+var screen2Row9 = FlowPanel {alignment: Alignment{name:"left"} 
+                      content: [SimpleLabel{text:"Home Phone: "},
+                                SimpleLabel{text: bind homePhone}]};                                                               
+
+var screen2Row10 = FlowPanel {alignment: Alignment{name:"left"} 
+                      content: [SimpleLabel{text:"Email: "},
+                                SimpleLabel{text: bind email}]};                                     
+  
+var screen2Row11 = FlowPanel {
+    content: [Button{text:"Submit" action: operation(){
+             currScreen=2;
+             wait(1000);
+             currScreen=0;
+             firstName = "";
+             lastName = "";
+             streetAddress = "";
+             city = "";
+             state = "";
+             zip = "";
+             workPhone = ""; 
+             homePhone = ""; 
+             email = "";
+    }},Button{text:"Back" action: operation(){currScreen = 0;}}
+    ]};                          
+                                
+var screen2 = GridPanel{rows: 11 columns: 1 cells: [screen2Row1,screen2Row2,screen2Row3,screen2Row4,
+screen2Row5,screen2Row6,screen2Row7,screen2Row8,screen2Row9,screen2Row10,screen2Row11]};
+
+var screen3 = FlowPanel{content: SimpleLabel{font: Font{size:14} text:"Thank You!"}};
+
+// Application Frame and CardPanel
+
+var cardPanel = CardPanel {
+    cards: [screen1,screen2,screen3]
+    selection: bind currScreen
+};
+
+Frame {
+    title: "Ch1 Demo"
+    content: cardPanel
+    visible: true
+}
+
+operation wait(millis:Number) {
+    do {Thread.currentThread().sleep(millis);}
+}</programlisting></para>
+  </section>
 </chapter>

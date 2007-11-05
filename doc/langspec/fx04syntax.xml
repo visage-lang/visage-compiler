@@ -16,18 +16,27 @@
     
     <!-- VERY SIMPLE INTRODUCTORY DEFINITIONS 
     
-      ... these are meant to quickly define terms the reader should
-      already know, before introducing syntax and presenting snippets.
     
+    
+    ... these are meant to quickly define terms the reader should
+    already know, before introducing syntax and presenting snippets.
+    
+    
+    Syntax:  software language rules which determine what is and is
+    not acceptable to the compiler. In jfxScript, 'syntax' is the
+    literal text that invokes those rules.
       
-     
-      
-      Syntax:  software language rules which determine what is and is
-      not acceptable to the compiler. In jfxScript, 'syntax' is the
-      literal text that invokes those rules.
-      
-      
-     
+    bind: to associate a name with a value. 
+    
+    
+    trigger:  an event that makes a transition eligible to fire. 
+    A transition is a relationship between two states in a state
+    machine, like a running software application.
+    
+    
+    type:  A declared classifier that the value of a variable,
+    parameter or attribute must hold. The actual value must be an
+    instance of that type or one of its descendants.
     
     (not good enough for jfx).
     A variable is a name that refers to a value. 
@@ -135,8 +144,11 @@
   <sect1 id="types">
     <title>Basic Types</title>
 
-    <para>The JavaFX Script programming language (TM) defines four basic types: <code> String, Boolean, Number,</code> and <code>Integer.</code></para> JavaFX Script also supports complex types such as classes, interfaces. <para>
+    <para>The JavaFX Script programming language (TM) defines four basic types: <code> String, Boolean, Number,</code> and <code>Integer.</code> JavaFX Script also supports complex types such as classes and interfaces. <para>
     
+    <para>You can use types to declare new variables. In the JavaFX Script programming language, <code>var</code> is a keyword used to introduce a new variable declaration. </para>
+    
+   
     
     <para>JavaFX Script types to correspond to the Java programming language (TM) types listed on the table below:</para>
 
@@ -189,19 +201,49 @@
         </tr>
       </tbody>
     </table>
-
-    <emphasis role="bold">Example:</emphasis>
-
-    <programlisting>        var s = "Hello";
-        s.toUpperCase(); // yields "HELLO";
-        s.substring(1);  // yields "ello";
-        var n = 1.5;
-        n.intValue();    // yields 1
-        (1.5).intValue();    // yields 1
-        s.substring(n);  // yields "ello"
-        var b = true;
-        b instanceof Boolean; // yields true
-</programlisting>
+    
+    
+     <para>The complete syntax for creating a new variable is: </para>
+    
+    <programlisting> var <emphasis>variableName</emphasis> : typename [?, +, *] = <emphasis>initial value </emphasis> </programlisting>
+    
+    <para><emphasis role="bold">NOTE:&nbsp;&nbsp;</emphasis> If you do not specify type using the syntax <code>: typeName, </code> the interpreter infers the type of the variable from its use. </para>
+    
+    <!-- QUESTIONS: 
+    What interpreter? Should we now say 'compiler? 
+    Does the compiler behave the same way the interpreter does? 
+    Will the interpreter go away once the compiler comes online?
+    
+    -->
+    
+    <para><emphasis role="bold">Example:</emphasis></para>
+    
+    <programlisting>var s : String = "Hello": // type explicitly stated
+    var s = "hello";      // type inferred
+    s.toUpperCase();      // yields HELLO
+    s.substring(1);       //  yields  ello
+    
+    var n : Number = 1.5; //type explicitly stated
+    var n = 1/5;          //type inferred
+    n.intValue; //yields 1</programlisting>
+    
+    <!-- QUESTIONS
+    
+    Is it OK to use calls to toUpperCase(), substring(), intValue() 
+    at this point when we haven'ty talked about functions or calling 
+    Java classes and methods from JavaFX Script itself:
+    
+    -->
+    
+    <programlisting>var b :boolean = true;  // type explicitly stated
+    var b = true;           //type inferred
+    b instanceof Boolian    // yields true </programlisting>
+    
+    <!-- QUESTIONS
+    
+    This content on coercions will be moved to the section on methods and argument passing. Makes no sense here. 
+   
+    -->
 
     <para>JavaFX Script automatically performs coercions on numeric types when
     passing arguments or return values to or from Java methods. JavaFX Script
@@ -212,7 +254,7 @@
     <para><emphasis>How does JavaFX Script perform coercions?</emphasis></para>
     -->
     
-  </para></sect1>
+  
 
   <!-- **********  Variables, functions, operations, arrays ******* -->
 
@@ -231,11 +273,11 @@
     <programlisting>        var variableName : typeName [?,+,*] = initializer;
 </programlisting>
 
-    <para>You may use one of the ?, +, or * operators to denote the
+    <para>You may use one of the <code> ?, +, </code> or <code> * </code> operators to denote the
     cardinality of the variable, as follows:</para>
 
     <programlisting>Operator   Meaning
-   ?       Optional (i.e, may be null)
+   ?       Optional (can be null)
    +       One or more
    *       Zero or more
 </programlisting>
@@ -274,7 +316,9 @@
     <para><emphasis role="bold">Example:</emphasis></para>
     
   
-<!-- What is the difference between a function and an operation?  
+<!-- QUESTIONS 
+
+What is the difference between a function and an operation?  
 
 How do functions and operations compare to Java methods?  
 
@@ -295,11 +339,10 @@ operations?
 
         function main() {
            return z(5, 10);
-        }
-</programlisting>
+        } </programlisting>
 
     <para>JavaFX Script does not require type declarations, although the language is
-    statically typed.
+    statically typed. </para></sect1>
     
 <!-- ( chris see more details later) we need details. -->
  
@@ -394,10 +437,7 @@ operations?
         sizeof null // yields 0
 </programlisting>
 
-</sect2></para></sect1>
-
-
-
+</sect2></para></para></sect1>
 
 
 </chapter>
