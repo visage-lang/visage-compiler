@@ -459,16 +459,22 @@ public class JavafxInitializationBuilder {
 
         Name interfaceName = interfaceName(cDecl);
 
-        for (MethodSymbol mth : methods) {
-            if ((mth.flags() & Flags.SYNTHETIC) == 0) { // ignore synthetics, like the run method 
-                if (mth.owner == cDecl.sym) {
-                    // add interface methods for each method defined in this class
-                    iDefinitions.append( makeMethod(cDecl, mth, null) );
+        for (boolean bound = toJava.generateBoundFunctions;  ; bound = false) {
+            for (MethodSymbol mth : methods) {
+                if ((mth.flags() & Flags.SYNTHETIC) == 0) {
+                    // ignore synthetics, like the run method
+                    if (mth.owner == cDecl.sym) {
+                        // add interface methods for each method defined in this class
+                        iDefinitions.append(makeMethod(cDecl, mth, null, bound));
+                    }
+                    if ((mth.flags() & Flags.ABSTRACT) == 0) {
+                        // add proxies which redirect to the static implementation for every concrete method
+                        cDefinitions.append(makeMethod(cDecl, mth, makeProxyBody(cDecl, mth, bound), bound));
+                    }
                 }
-                 if ((mth.flags() & Flags.ABSTRACT) == 0) { 
-                     // add proxies which redirect to the static implementation for every concrete method
-                     cDefinitions.append( makeMethod(cDecl, mth, makeProxyBody(cDecl, mth)) );
-                 }
+            }
+            if (!bound) {
+                break;
             }
         }
 
@@ -582,22 +588,27 @@ public class JavafxInitializationBuilder {
     /**
      * Make a method from a MethodSymbol and an optional method body
      */
-    private JCMethodDecl makeMethod(DiagnosticPosition diagPos, MethodSymbol mth, JCBlock mthBody) {
+    private JCMethodDecl makeMethod(DiagnosticPosition diagPos, MethodSymbol mth, JCBlock mthBody, boolean isBound) {
         // build the parameter list
         ListBuffer<JCVariableDecl> params = ListBuffer.lb();
         for (VarSymbol vsym : mth.getParameters()) {
+            Type vtype = vsym.asType();
+            if (isBound) {
+                VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+                vtype = vmi.getMorphedType();
+            }
             params.append(make.VarDef(
                     make.Modifiers(0L), 
                     vsym.name, 
-                    toJava.makeTypeTree(vsym.asType(), diagPos), 
+                    toJava.makeTypeTree(vtype, diagPos), 
                     null // no initial value
                     ));
         }
 
         // make the method
-        return make.MethodDef(
+        return make.at(diagPos).MethodDef(
                         make.Modifiers(Flags.PUBLIC | (mth.flags() & Flags.ABSTRACT)), 
-                        mth.getSimpleName(), 
+                        toJava.functionInterfaceName(mth, isBound), 
                         toJava.makeTypeTree(mth.getReturnType(), diagPos), 
                         List.<JCTypeParameter>nil(), 
                         params.toList(), 
@@ -609,7 +620,7 @@ public class JavafxInitializationBuilder {
     /**
      * Make a method body which redirects to the actual implementation in a static method of the defining class.
      */
-    private JCBlock makeProxyBody(DiagnosticPosition diagPos, MethodSymbol mth) {
+    private JCBlock makeProxyBody(DiagnosticPosition diagPos, MethodSymbol mth, boolean isBound) {
         ListBuffer<JCExpression> args = ListBuffer.lb();
         if (!mth.isStatic()) {
             // Add the this argument, so the static implementation method is invoked
@@ -619,9 +630,9 @@ public class JavafxInitializationBuilder {
             args.append(make.Ident(var.name));
         }
         String receiver = mth.owner.name.toString();
-        JCExpression expr = toJava.callExpression(diagPos, make.Identifier(receiver), toJava.functionName(mth), args.toList());
+        JCExpression expr = toJava.callExpression(diagPos, make.Identifier(receiver), toJava.functionName(mth, isBound), args.toList());
         JCStatement statement = (mth.getReturnType() == syms.voidType) ? make.Exec(expr) : make.Return(expr);
-        return make.Block(0L, List.<JCStatement>of(statement));
+        return make.at(diagPos).Block(0L, List.<JCStatement>of(statement));
      }
     
     private void addInterfaceAttributeMethods(ListBuffer<JCTree> idefs, ListBuffer<AttributeWrapper> attrInfos) {

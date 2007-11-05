@@ -98,6 +98,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     /*
      * static information
      */
+    static final boolean generateBoundFunctions = false;
+    
     private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";
     private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
     private static final String sequencesRangeExclusiveString = "com.sun.javafx.runtime.sequence.Sequences.rangeExclusive";
@@ -283,9 +285,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                        case JavafxTag.FUNCTION_DEF : {
                            JFXOperationDefinition funcDef = (JFXOperationDefinition)def;
                             translatedDefs.append(  translate(funcDef) );
-//                            if ((funcDef.sym.flags() & Flags.SYNTHETIC) == 0) {
-//                                translatedDefs.append(  boundTranslate(funcDef, JavafxBindStatus.UNIDIBIND) );
-//                            }
+                            if (generateBoundFunctions) {
+                                if ((funcDef.sym.flags() & Flags.SYNTHETIC) == 0) {
+                                    translatedDefs.append(boundTranslate(funcDef, JavafxBindStatus.UNIDIBIND));
+                                }
+                            }
                             break;
                         }
                        case JCTree.METHODDEF : {
@@ -1763,12 +1767,25 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return functionName(sym, false);
     }
 
-    Name functionName(MethodSymbol sym, boolean bound) {
+    Name functionName(MethodSymbol sym, boolean isBound) {
+        return functionName(sym, 
+                sym.isStatic() && (sym.owner.kind != Kinds.TYP || initBuilder.isJFXClass((ClassSymbol) sym.owner)) && !isRunMethod(sym), 
+                isBound);
+    }
+
+    Name functionInterfaceName(MethodSymbol sym, boolean isBound) {
+        return functionName(sym, false, isBound);
+    }
+
+    Name functionName(MethodSymbol sym, boolean isStatic, boolean isBound) {
+        if (!isStatic && !isBound) {
+            return sym.name;
+        }
         String full = sym.name.toString();
-        if (sym.isStatic() && (sym.owner.kind != Kinds.TYP || initBuilder.isJFXClass((ClassSymbol) sym.owner)) && !isRunMethod(sym)) {
+        if (isStatic) {
             full = full  + staticFunctionSuffix;
         }
-        if (bound) {
+        if (isBound) {
             full = full  + boundFunctionSuffix;
         }    
         return names.fromString(full);
