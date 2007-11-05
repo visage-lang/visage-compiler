@@ -1254,9 +1254,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
    public void visitCase(JCCase tree) {
-        JCExpression pat = translate(tree.pat);
-        List<JCStatement> stats = translate(tree.stats);
-        result = make.at(tree.pos).Case(pat, stats);
+        assert false : "should not be in JavaFX AST";
     }
 
     public void visitCatch(JCCatch tree) {
@@ -1266,7 +1264,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitClassDef(JCClassDecl tree) {
-        result = tree;
+        assert false : "should not be in JavaFX AST";
     }
 
     
@@ -1554,9 +1552,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitSwitch(JCSwitch tree) {
-        JCExpression selector = translate(tree.selector);
-        List<JCCase> cases = translate(tree.cases);
-        result = make.at(tree.pos).Switch(selector, cases);
+        assert false : "should not be in JavaFX AST";
     }
 
     public void visitSynchronized(JCSynchronized tree) {
@@ -1619,7 +1615,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitVarDef(JCVariableDecl tree) {
-        result = tree;
+        assert false : "should not be in JavaFX AST";
     }
 
     public void visitWhileLoop(JCWhileLoop tree) {
@@ -1878,38 +1874,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         @Override
         public void visitVarDef(JCVariableDecl tree) {
-            Symbol prevSymbol = currentSymbol;
-            try {
-                currentSymbol = tree.sym;
-                super.visitVarDef(tree);
-            }
-            finally {
-                currentSymbol = prevSymbol;
-            }
+            assert false : "should not be in JavaFX AST";
         }
         
         @Override
         public void visitMethodDef(JCMethodDecl tree) {
-            Symbol prevSymbol = currentSymbol;
-            try {
-                currentSymbol = tree.sym;
-                super.visitMethodDef(tree);
-            }
-            finally {
-                currentSymbol = prevSymbol;
-            }
+            assert false : "should not be in JavaFX AST";
         }
                         
         @Override
         public void visitClassDef(JCClassDecl tree) {
-            Symbol prevSymbol = currentSymbol;
-            try {
-                currentSymbol = tree.sym;
-                super.visitClassDef(tree);
-            }
-            finally {
-                currentSymbol = prevSymbol;
-            }
+            assert false : "should not be in JavaFX AST";
         }
                 
         @Override

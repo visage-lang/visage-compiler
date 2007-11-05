@@ -154,34 +154,6 @@ public class JavafxInitializationBuilder {
     }
   
     /**
-     * Non-destructively build the statements to fill-in the 
-     * body of a translated class initializer method.
-     * Incoming info MUST be translated into Java ASTs already
-     */
-    List<JCStatement> initializerMethodBody(
-            JFXClassDeclaration classDecl,
-            List<TranslatedAttributeInfo> attrInfo, 
-            List<JCBlock> initBlocks) {
-        ListBuffer<JCStatement> stmts = ListBuffer.<JCStatement>lb();
-        stmts.append(toJava.callStatement(classDecl.pos(), null, initializeName.toString()));
-        return stmts.toList();
-    }  
-    
-    /**
-     * Non-destructive creation of initialization code for an attribute
-     */
-    private JCStatement makeAttributeInitialization(TranslatedAttributeInfo info) {
-        JCLiteral nullValue = make.Literal(TypeTags.BOT, null);
-        JCIdent lhsIdent = make.Ident(info.name());
-        JCBinary cond = make.Binary(JCTree.EQ, lhsIdent, nullValue);
-
-        JCIdent lhsAssignIdent = make.Ident(info.name());
-        JCAssign defValAssign = make.Assign(lhsAssignIdent, info.initExpr);
-        JCExpressionStatement defAttrValue = make.Exec(defValAssign);
-        return make.If(cond, defAttrValue, null);
-    }
-    
-    /**
      * Non-destructive creation of "on change" change listener set-up call.
      */
     JCStatement makeChangeListenerCall(TranslatedAttributeInfo info) {
@@ -385,22 +357,6 @@ public class JavafxInitializationBuilder {
                 null);
     }
 
-    private void makeOnChangedCall(JFXClassDeclaration classDecl,
-                                    ListBuffer<JCStatement> stmts) {
-        for (JCTree tree : classDecl.getMembers()) {
-            if (tree.getTag() == JavafxTag.VAR_DEF) {
-                JFXVar attrDef = (JFXVar)tree;
-                DiagnosticPosition diagPos = attrDef.pos();
-                JCIdent varIdent = make.at(diagPos).Ident(attrDef.name);
-                JCFieldAccess tmpSelect = make.at(diagPos).Select(varIdent, valueChangedName);
-
-                List<JCExpression> typeargs = List.nil();
-                List<JCExpression> args = List.<JCExpression>nil();
-                stmts = stmts.append(make.at(diagPos).Exec(make.at(diagPos).Apply(typeargs, tmpSelect, args)));
-            }
-        }
-    }
-    
     /**
      * Return the generated interface name corresponding to the class
      * */
