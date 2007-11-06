@@ -40,14 +40,12 @@ import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Options;
 import com.sun.tools.javafx.main.CommandLine;
 import com.sun.tools.javafx.main.Main;
-import com.sun.tools.javafx.util.JavafxFileManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.lang.model.type.TypeMirror;
-import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 
 /**
@@ -157,19 +155,6 @@ class JavafxcTaskImpl extends JavafxcTask {
             throw new IllegalStateException("Compilation in progress");
         }
         compilationInProgress = true;
-        final JavaFileManager givenFileManager = context.get(JavaFileManager.class);
-        context.put(JavaFileManager.class, (JavaFileManager) null);
-        context.put(JavaFileManager.class, new Context.Factory<JavaFileManager>() {
-
-            public JavaFileManager make() {
-                if (givenFileManager != null) {
-                    context.put(JavaFileManager.class, givenFileManager);
-                    return givenFileManager;
-                } else {
-                    return new JavafxFileManager(context, true, null);
-                }
-            }
-        });
     }
 
     private TaskListener wrap(final TaskListener tl) {

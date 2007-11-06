@@ -292,6 +292,16 @@ public class Main {
      * @param args    The command line parameters.
      */
     public int compile(String[] args) {
+        Context context = new Context();
+        int result = compile(args, context, List.<JavaFileObject>nil());
+        if (fileManager instanceof JavacFileManager) {
+            // A fresh context was created above, so jfm must be a JavacFileManager
+            ((JavacFileManager)fileManager).close();
+        }
+        return result;
+    }
+    
+    public void registerServices(Context context, String[] args) {
         Context backEndContext = new Context();
 
         // add -target flag to backEndContext, if specified
@@ -319,32 +329,27 @@ public class Main {
         com.sun.tools.javafx.comp.BlockExprTransTypes.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprGen.preRegister(backEndContext);
         
-        JavacFileManager.preRegister(backEndContext); 
+        JavaFileManager currentFileManager = context.get(JavaFileManager.class);
+        if (currentFileManager == null)
+            JavacFileManager.preRegister(backEndContext); 
+        else
+            backEndContext.put(JavaFileManager.class, currentFileManager);
         
         // Sequencing requires that we get the name table from the fully initialized back-end
         // rather than send the compleated one.
         JavafxJavaCompiler javafxJavaCompiler = JavafxJavaCompiler.instance(backEndContext);
         
-        Context context = new Context();
         context.put(JavafxJavaCompiler.javafxJavaCompilerKey, javafxJavaCompiler);
         
         // Tranfer the name table -- must be done before any initialization
         context.put(Name.Table.namesKey, backEndContext.get(Name.Table.namesKey));
 
         // Tranfer the options -- must be done before any initialization
+        context.put(Options.optionsKey, (Options)null);  // remove any old value
         context.put(Options.optionsKey, backEndContext.get(Options.optionsKey));
         
-        JavafxFileManager.preRegister(context); // can't create it until Log has been set up
-        int result = compile(args, context);
-        if (fileManager instanceof JavacFileManager) {
-            // A fresh context was created above, so jfm must be a JavacFileManager
-            ((JavacFileManager)fileManager).close();
-        }
-        return result;
-    }
-
-    public int compile(String[] args, Context context) {
-        return compile(args, context, List.<JavaFileObject>nil());
+        if (currentFileManager == null)
+            JavafxFileManager.preRegister(context); // can't create it until Log has been set up
     }
 
     /** Programmatic interface for main function.
@@ -354,6 +359,7 @@ public class Main {
                        Context context,
                        List<JavaFileObject> fileObjects)
     {
+        registerServices(context, args);
         if (options == null)
             options = Options.instance(context); // creates a new one
 
