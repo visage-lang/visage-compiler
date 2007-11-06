@@ -586,7 +586,8 @@ public class JavafxInitializationBuilder {
     }
 
     /**
-     * Make a method from a MethodSymbol and an optional method body
+     * Make a method from a MethodSymbol and an optional method body.
+     * Make a bound version if "isBound" is set.
      */
     private JCMethodDecl makeMethod(DiagnosticPosition diagPos, MethodSymbol mth, JCBlock mthBody, boolean isBound) {
         // build the parameter list
@@ -604,12 +605,12 @@ public class JavafxInitializationBuilder {
                     null // no initial value
                     ));
         }
-
+        
         // make the method
         return make.at(diagPos).MethodDef(
                         make.Modifiers(Flags.PUBLIC | (mth.flags() & Flags.ABSTRACT)), 
                         toJava.functionInterfaceName(mth, isBound), 
-                        toJava.makeTypeTree(mth.getReturnType(), diagPos), 
+                        toJava.makeReturnTypeTree(diagPos, mth, isBound), 
                         List.<JCTypeParameter>nil(), 
                         params.toList(), 
                         List.<JCExpression>nil(), 

@@ -31,6 +31,7 @@ import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javac.code.Type.ClassType;
+import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.tree.JCTree.*;
@@ -96,22 +97,29 @@ public class JavafxTypeMorpher {
         }
     }
     
-    private Map<VarSymbol, VarMorphInfo> vmiMap = new HashMap<VarSymbol, VarMorphInfo>();
+    private Map<Symbol, VarMorphInfo> vmiMap = new HashMap<Symbol, VarMorphInfo>();
     
     class VarMorphInfo {
-        final VarSymbol varSymbol;
+        private final Symbol sym;
         final Type realType;
         final Type morphedType;
         int typeKind;
         Type elementType = null;
+        private final boolean isMethod;
         private boolean mustMorph = false;
         private boolean haveDeterminedMorphability = false;
         private boolean isBoundTo = false;
         private boolean isAssignedTo = false;
         
-        VarMorphInfo(VarSymbol varSymbol) {
-            this.varSymbol = varSymbol;
-            Type symType = varSymbol.type;
+        VarMorphInfo(Symbol sym) {
+            this.sym = sym;
+            this.isMethod = (sym.kind == Kinds.MTH);
+            Type symType;
+            if (isMethod) {
+                 symType = ((MethodType)sym.type).getReturnType();
+            } else {
+                symType = sym.type;
+            }
             TypeSymbol realTsym = symType.tsym;
             //check if symbol is already a Location, needed for source class
             Type locationType = null;
@@ -162,13 +170,16 @@ public class JavafxTypeMorpher {
         }
         
         private boolean isAttribute() {
-            Symbol owner = varSymbol.owner;
+            if (isMethod) {
+                return false;
+            }
+            Symbol owner = getSymbol().owner;
             if (owner.kind == Kinds.MTH) {
                 return false; // local var
             } else if (owner.kind == Kinds.TYP) {
-                if (varSymbol instanceof JavafxVarSymbol) {
+                if (getSymbol() instanceof JavafxVarSymbol) {
                     return true; // we made it, soassume it is from a JavaFX class
-                } else if (!varSymbol.toString().equals("super") && !varSymbol.toString().equals("this")) {
+                } else if (!sym.toString().equals("super") && !sym.toString().equals("this")) {
                     //TODO: temp hack until the MI init code is in place
                     ClassSymbol klass = (ClassSymbol)owner;
                     String source = klass.sourcefile.getName();
@@ -186,7 +197,7 @@ public class JavafxTypeMorpher {
 
         public boolean mustMorph() {
             if (!haveDeterminedMorphability()) {
-                if (((varSymbol.flags() & Flags.PARAMETER) == 0) && (isBoundTo() || isAttribute() || isSequence())) {
+                if (((getSymbol().flags() & Flags.PARAMETER) == 0) && (isBoundTo() || isAttribute() || isSequence())) {
                     // Must be a Location if it is bound, or a sequence,
                     // and, at least for now if it is an attribute.
                     // However, if this is a parameter it is either synthetic
@@ -216,9 +227,13 @@ public class JavafxTypeMorpher {
         public void markAssignedTo() { this.isAssignedTo = true; }
 
         public int getTypeKind() { return typeKind; }
+
+        public Symbol getSymbol() {
+            return sym;
+        }
     }
     
-    VarMorphInfo varMorphInfo(VarSymbol sym) {
+    VarMorphInfo varMorphInfo(Symbol sym) {
         VarMorphInfo vmi = vmiMap.get(sym);
         if (vmi == null) {
             vmi = new VarMorphInfo(sym);
@@ -420,7 +435,7 @@ public class JavafxTypeMorpher {
                     : makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
         ret = new JCExpressionTupple(initExpr, null);
         if (bindStatus.isUnidiBind()) {
-            ret = buildExpression(vmi.varSymbol, fxInit, initExpr, bindStatus, isAttribute);
+            ret = buildExpression(vmi.getSymbol(), fxInit, initExpr, bindStatus, isAttribute);
         } else if (!bindStatus.isBidiBind()) {
             initExpr = makeCall(vmi, diagPos, List.of(initExpr), varLocation, makeMethodName);
             ret = new JCExpressionTupple(initExpr, null);
@@ -531,7 +546,7 @@ public class JavafxTypeMorpher {
         return depend.toList();
     }
     
-    private JCExpressionTupple buildExpression(VarSymbol vsym, 
+    private JCExpressionTupple buildExpression(Symbol vsym, 
             JCExpression fxInit, JCExpression translatedInit, JavafxBindStatus bindStatus, boolean isAttribute) {
         DiagnosticPosition diagPos = fxInit.pos();
         VarMorphInfo vmi = varMorphInfo(vsym);

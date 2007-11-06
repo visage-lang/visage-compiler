@@ -687,7 +687,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = make.at(diagPos).MethodDef(
                 mods,
                 functionName(tree.sym, isBound), 
-                makeTypeTree(mtype.getReturnType(), diagPos), 
+                makeReturnTypeTree(diagPos, tree.sym, isBound), 
                 make.at(diagPos).TypeParams(mtype.getTypeArguments()), 
                 params.toList(),
                 make.at(diagPos).Types(mtype.getThrownTypes()),  // makeThrows(diagPos), //
@@ -1185,11 +1185,32 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         List<JCExpression> typeArgs = List.<JCExpression>of(makeTypeTree(elemType, diagPos, true));
         return make.at(diagPos).Apply(typeArgs, meth, args.toList());
     }
-        
+  
+    /**
+     * Build a Java AST representing the return type of a function.
+     * Generate the return type as a Location if "isBound" is set.
+     * */
+    public JCExpression makeReturnTypeTree(DiagnosticPosition diagPos, MethodSymbol mth, boolean isBound) {
+        Type returnType = mth.getReturnType();
+        if (isBound) {
+            VarMorphInfo vmi = typeMorpher.varMorphInfo(mth);
+            returnType = vmi.getMorphedType();
+        }
+        return makeTypeTree(returnType, diagPos);
+    }
+ 
+    /**
+     * Build a Java AST representing the specified type.
+     * Convert JavaFX class references to interface references.
+     * */
     public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos) {
         return makeTypeTree(t, diagPos, true);
     }
     
+    /**
+     * Build a Java AST representing the specified type.
+     * If "makeIntf" is set, convert JavaFX class references to interface references.
+     * */
     public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos, boolean makeIntf) {
         if (t.tag == TypeTags.CLASS) {
             JCExpression texp = null;
@@ -1688,7 +1709,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if ( vmi.mustMorph() ) {
             return true;
         } else if (bindContext.isBound()) {
-            Symbol owner = vmi.varSymbol.owner;
+            Symbol owner = vmi.getSymbol().owner;
             if (owner.kind == Kinds.TYP) {
                 ClassSymbol owningClass = (ClassSymbol)owner;
                 return initBuilder.isJFXClass(owningClass);
