@@ -86,7 +86,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      * other instance information
      */
     private int syntheticNameCounter = 0;
-    private ListBuffer<JCTree> prependInFrontOfDef = null;
+    
+    /*
+     * Buffers holding definitions waiting to be prepended to the current list of definitions.
+     * At class or top-level these are the same.  
+     * Within a method (or block) prependToStatements is split off.
+     * They need to be different because anonymous classes need to be declared in the scope of the method,
+     * but interfaces can't be declared here.
+     */
+    private ListBuffer<JCStatement> prependToDefinitions = null;
+    private ListBuffer<JCStatement> prependToStatements = null;
     
     // for type morphing
     private JavafxBindStatus bindContext = JavafxBindStatus.UNBOUND;
@@ -162,6 +171,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
 	return translated.toList();
     }
+    
+    /**
+     * Translate a list of statements, 
+     * The purpose of this method is to prepend an anonymous class definition in the correct
+     * scope.  However, that is currently disabled since generated classes define static members
+     * and that isn't allowed by an (unmodified) javac back-end.
+     * */
+    private List<JCStatement> translateStatements(List<JCStatement> stats) {
+//        ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
+//        prependToStatements = ListBuffer.lb();
+        List<JCStatement> translatedStats = translate(stats);
+//        translatedStats = translatedStats.prependList(prependToStatements.toList());
+//        prependToStatements = prevPrependToStatements;
+        return translatedStats;
+    }
 
     private  <T extends JCTree> T boundTranslate(T tree, JavafxBindStatus bind) {
         JavafxBindStatus prevBindContext = bindContext;
@@ -196,9 +220,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         // add to the hasOuters set the clas symbols for classes that need a reference to the outer class
         fillClassesWithOuters(tree);
         
-       ListBuffer<JCTree> tdefs= ListBuffer.<JCTree>lb();
+       ListBuffer<JCTree> translatedDefinitions= ListBuffer.<JCTree>lb();
        ListBuffer<JCTree> imports= ListBuffer.<JCTree>lb();
-       prependInFrontOfDef = ListBuffer.lb();
+       prependToStatements = prependToDefinitions = ListBuffer.lb();
        for (JCTree def : tree.defs) {
             if (def.getTag() == JCTree.IMPORT) {
                 imports.append(def);
@@ -220,16 +244,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     }
                 }
             } else {
-                // anything but an import, just translate it
-                tdefs.append( translate(def) );
+                // anything but an import
+                translatedDefinitions.append( translate(def) );
             }
         }
-       // order is imports, any prepends, then the translated definitions
-       tdefs = imports.appendList(prependInFrontOfDef).appendList(tdefs);
-        prependInFrontOfDef = null; // shouldn't be used again until the next top level
+        // order is imports, any prepends, then the translated non-imports
+        for (JCTree prepend : prependToDefinitions) {
+            translatedDefinitions.prepend(prepend);
+        }
+        for (JCTree prepend : imports) {
+            translatedDefinitions.prepend(prepend);
+        }
+        prependToStatements = prependToDefinitions = null; // shouldn't be used again until the next top level
 
  	JCExpression pid = tree.pid;  //translate(tree.pid);
-        JCCompilationUnit translated = make.at(tree.pos).TopLevel(List.<JCAnnotation>nil(), pid, tdefs.toList());
+        JCCompilationUnit translated = make.at(tree.pos).TopLevel(List.<JCAnnotation>nil(), pid, translatedDefinitions.toList());
         translated.sourcefile = tree.sourcefile;
         translated.docComments = tree.docComments;
         translated.lineMap = tree.lineMap;
@@ -260,8 +289,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
            // translate all the definitions that make up the class.
            // collect any prepended definitions, and prepend then to the tranlations
-            ListBuffer<JCTree> prevPrependInFrontOfDef = prependInFrontOfDef;
-            prependInFrontOfDef = ListBuffer.lb();
+            ListBuffer<JCStatement> prevPrependToDefinitions = prependToDefinitions;
+            ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
+            prependToStatements = prependToDefinitions = ListBuffer.lb();
             {
                 for (JCTree def : tree.getMembers()) {
                     switch(def.getTag()) {
@@ -306,11 +336,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     }
                 }
             }
-            translatedDefs = prependInFrontOfDef.appendList(translatedDefs);
-            prependInFrontOfDef = prevPrependInFrontOfDef;
-
+            // the translated defs have prepends in front
+            for (JCTree prepend : prependToDefinitions) {
+                translatedDefs.prepend(prepend);
+            }
+            prependToDefinitions = prevPrependToDefinitions ;
+            prependToStatements = prevPrependToStatements;
+           // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
+            
             JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList());
-            prependInFrontOfDef(model.correspondingInterface);
+            prependToDefinitions.append( model.correspondingInterface );  // prepend to the enclosing class or top-level
             translatedDefs.appendList(model.additionalClassMembers);
 
             {
@@ -380,7 +415,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             clazz = makeTypeTree(tree.type, tree, false);
         } else {
             JFXClassDeclaration cdef = tree.getClassBody();
-            prependInFrontOfDef( translate( cdef ) );
+            prependToStatements.append( translate( cdef ) );  // prepend to the enclosing statements, class or top-level
             clazz = makeTypeTree(cdef.type, tree, false);
          }
 
@@ -584,10 +619,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result.type = tree.type;
     }
     
-    private void prependInFrontOfDef(JCStatement toPrepend) {
-        prependInFrontOfDef.append(toPrepend);
-    }
-    
    JCExpression makeFunctionValue (JCExpression meth, JFXOperationDefinition def, DiagnosticPosition diagPos, MethodType mtype) {
         ListBuffer<JCTree> members = new ListBuffer<JCTree>();
         if (def != null)
@@ -699,7 +730,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     public void visitBlockExpression(JFXBlockExpression tree) {
         assert (tree.type != syms.voidType) : "void block expressions should all have been folded away";
-        List<JCStatement> defs = translate(tree.stats);
+        List<JCStatement> defs = translateStatements(tree.stats);
 	result = ((JavafxTreeMaker)make).at(tree.pos).BlockExpression(
                 tree.flags, 
                 defs, 
@@ -708,7 +739,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
  
     @Override
     public void visitBlock(JCBlock tree) {
-        List<JCStatement> defs = translate(tree.stats);
+        List<JCStatement> defs = translateStatements(tree.stats);
 	result = make.at(tree.pos).Block(tree.flags, defs);
     }
 
@@ -1456,7 +1487,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
    JCBlock blockExpressionToBlock(JFXBlockExpression bexpr, boolean asReturn) {
         DiagnosticPosition diagPos = bexpr.pos();
-        List<JCStatement> stats = translate(bexpr.stats);
+        List<JCStatement> stats = translateStatements(bexpr.stats);
         if (bexpr.value != null) {
             stats = stats.append( exprToTranslatedStatement(bexpr.value, asReturn) );
         }
