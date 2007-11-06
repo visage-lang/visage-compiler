@@ -631,7 +631,7 @@ public class JavafxInitializationBuilder {
             args.append(make.Ident(var.name));
         }
         String receiver = mth.owner.name.toString();
-        JCExpression expr = toJava.callExpression(diagPos, make.Identifier(receiver), toJava.functionName(mth, isBound), args.toList());
+        JCExpression expr = toJava.callExpression(diagPos, make.Identifier(receiver), toJava.functionName(mth, isBound), args);
         JCStatement statement = (mth.getReturnType() == syms.voidType) ? make.Exec(expr) : make.Return(expr);
         return make.at(diagPos).Block(0L, List.<JCStatement>of(statement));
      }
@@ -741,14 +741,20 @@ public class JavafxInitializationBuilder {
         List<JCStatement> initializeStats = List.<JCStatement>nil();
 
         // Add calls to do the the default value initialization and user init code (validation for example.)
-        initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(cdef.getName())/*TODO: Add the class suffix*/, 
-            setDefaultsName.toString(), make.TypeCast(make.Ident(names.fromString(cdef.getName().toString() + interfaceNameSuffix)), make.Ident(names._this))));
-        initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(cdef.getName())/*TODO: Add the class suffix*/, 
-            userInitName.toString(), make.TypeCast(make.Ident(names.fromString(cdef.getName().toString() + interfaceNameSuffix)), make.Ident(names._this))));
+        initializeStats = initializeStats.append(toJava.callStatement(
+                cdef.pos(), 
+                make.Ident(cdef.getName())/*TODO: Add the class suffix*/,
+                setDefaultsName, 
+                make.TypeCast(make.Ident(names.fromString(cdef.getName().toString() + interfaceNameSuffix)), make.Ident(names._this))));
+        initializeStats = initializeStats.append(toJava.callStatement(
+                cdef.pos(), 
+                make.Ident(cdef.getName())/*TODO: Add the class suffix*/,
+                userInitName, 
+                make.TypeCast(make.Ident(names.fromString(cdef.getName().toString() + interfaceNameSuffix)), make.Ident(names._this))));
         
         // Add a call to initialize the attributes using the initHelper$.initialize();
         initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(initHelperName), 
-            initializeNonSyntheticName.toString()));
+            initializeNonSyntheticName));
         
         // Set the initHelper = null;
         initializeStats = initializeStats.append(make.Exec(make.Assign(make.Ident(initHelperName), make.Literal(TypeTags.BOT, null))));
@@ -785,7 +791,7 @@ public class JavafxInitializationBuilder {
                 
                 List<JCExpression> args1 = List.<JCExpression>nil();
                 args1 = args1.append(make.Ident(receiverName));
-                setDefStats = setDefStats.append(toJava.callStatement(cdef.pos(), make.Identifier(className), setDefaultsName.toString(), args1));
+                setDefStats = setDefStats.append(toJava.callStatement(cdef.pos(), make.Identifier(className), setDefaultsName, args1));
             }
         }
         

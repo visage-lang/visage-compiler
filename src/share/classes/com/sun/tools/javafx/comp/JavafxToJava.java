@@ -462,7 +462,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 }
 
                 JCIdent ident3 = make.Ident(tmpName);   
-                JCStatement applyExec = callStatement(tree.pos(), ident3, initBuilder.initializeName.toString());
+                JCStatement applyExec = callStatement(tree.pos(), ident3, initBuilder.initializeName);
                 stats.append(applyExec);
 
                 JCIdent ident2 = make.Ident(tmpName);
@@ -966,8 +966,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
    JCExpression makeAttributeAccess(DiagnosticPosition diagPos, JFXVar attrib) {
        return callExpression(diagPos, 
                 make.Ident(initBuilder.receiverName),
-                initBuilder.attributeGetMethodNamePrefix + attrib.getName().toString(), 
-                List.<JCExpression>nil());
+                initBuilder.attributeGetMethodNamePrefix + attrib.getName());
    }
    
    /**
@@ -986,30 +985,51 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             DiagnosticPosition diagPos,
             JCExpression receiver, 
             String method) {
-        return callStatement(diagPos, receiver, method, List.<JCExpression>nil());
+        return callStatement(diagPos, receiver, method, null);
+    }
+    
+    JCStatement callStatement(
+            DiagnosticPosition diagPos,
+            JCExpression receiver, 
+             Name methodName) {
+        return callStatement(diagPos, receiver, methodName, null);
     }
     
     JCStatement callStatement(
             DiagnosticPosition diagPos,
             JCExpression receiver, 
             String method, 
-            JCExpression arg) {
-        return callStatement(diagPos, receiver, method, List.<JCExpression>of(arg));
-    }
-    
-    JCStatement callStatement(
-            DiagnosticPosition diagPos,
-            JCExpression receiver, 
-            String method, 
-            List<JCExpression> args) {
+            Object args) {
         return make.at(diagPos).Exec(callExpression(diagPos, receiver, method, args));
+    }
+    
+    JCStatement callStatement(
+            DiagnosticPosition diagPos,
+            JCExpression receiver, 
+             Name methodName, 
+            Object args) {
+        return make.at(diagPos).Exec(callExpression(diagPos, receiver, methodName, args));
+    }
+    
+    JCMethodInvocation callExpression(
+            DiagnosticPosition diagPos,
+            JCExpression receiver, 
+            String method) {
+        return callExpression(diagPos, receiver, method, null);
+    }
+    
+    JCMethodInvocation callExpression(
+            DiagnosticPosition diagPos,
+            JCExpression receiver, 
+            Name methodName) {
+        return callExpression(diagPos, receiver, methodName, null);
     }
     
     JCMethodInvocation callExpression(
             DiagnosticPosition diagPos,
             JCExpression receiver, 
             String method, 
-            List<JCExpression> args) {
+            Object args) {
         return callExpression(diagPos, receiver, names.fromString(method), args);
     }
     
@@ -1017,14 +1037,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             DiagnosticPosition diagPos,
             JCExpression receiver, 
              Name methodName, 
-            List<JCExpression> args) {
+            Object args) {
         JCExpression expr = null;
         if (receiver == null) {
             expr = make.at(diagPos).Ident(methodName);
         } else {
             expr = make.at(diagPos).Select(receiver, methodName);
         }
-        return make.at(diagPos).Apply(List.<JCExpression>nil(), expr, args);
+        return make.at(diagPos).Apply(List.<JCExpression>nil(), expr, 
+                (args == null)? List.<JCExpression>nil() :
+                (args instanceof List)? (List<JCExpression>)args :
+                (args instanceof ListBuffer)? ((ListBuffer<JCExpression>)args).toList() :
+                (args instanceof JCExpression)?   List.<JCExpression>of((JCExpression)args) :
+                    null /* error */
+                );    
+                    
     }
 
     private Name getSyntheticName(String kind) {
@@ -1671,7 +1698,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     public void visitUnary(JCUnary tree) {
         if (tree.getTag() == JavafxTag.SIZEOF) {
             if (isSequence(tree.arg.type)) {
-                result = callExpression(tree, translate(tree.arg), "size", List.<JCExpression>nil());
+                result = callExpression(tree, translate(tree.arg), "size");
             } else {
                 // not a sequence, virtually promote to a sequence of length one
                 result = make.at(tree).Literal(TypeTags.INT, 1);
@@ -1800,7 +1827,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private JCExpression makeReceiver(DiagnosticPosition pos, Symbol treeSym, Symbol siteOwner) {
         JCExpression ret = null;
         if (treeSym != null && siteOwner != null) {
-            List<JCExpression> emptyArgs = List.<JCExpression>nil();
             
             ret = make.Ident(initBuilder.receiverName);
             ret.type = siteOwner.type;
@@ -1816,7 +1842,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 siteCursor = siteOwner;
                 while (treeSym.owner != siteCursor) {
                     if (siteCursor.kind == Kinds.TYP) {
-                        ret = callExpression(pos, ret, initBuilder.outerAccessorName, emptyArgs);
+                        ret = callExpression(pos, ret, initBuilder.outerAccessorName);
                         ret.type = siteCursor.type;
                     }
                     siteCursor = siteCursor.owner;
