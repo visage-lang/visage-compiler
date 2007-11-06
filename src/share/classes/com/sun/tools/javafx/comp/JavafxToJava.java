@@ -695,7 +695,18 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JFXBlockExpression bexpr = tree.getBodyExpression();
         JCBlock body = null; // stays null if no block expression
         if (bexpr != null) {
-            body = blockExpressionToBlock(bexpr, mtype.getReturnType() != syms.voidType);
+            boolean isVoidReturn = mtype.getReturnType() == syms.voidType;
+            if (isBound && !isVoidReturn) {
+                body = make.at(diagPos).Block(0L, List.<JCStatement>of(make.at(diagPos).Return(
+                        typeMorpher.buildDefinitionalAssignment(diagPos, 
+                            typeMorpher.varMorphInfo(tree.sym),
+                            bexpr, 
+                            translate( bexpr ), 
+                            bindContext, 
+                            false).first)));
+            } else {
+                body = blockExpressionToBlock(bexpr, !isVoidReturn);
+            }
         }
 
         // if this is the synthetic run method, make sure it ends with a return

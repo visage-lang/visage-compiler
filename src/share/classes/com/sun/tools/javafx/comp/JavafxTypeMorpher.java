@@ -509,9 +509,11 @@ public class JavafxTypeMorpher {
             public void visitIdent(JCIdent tree)   {
                 if (tree.sym instanceof VarSymbol) {
                     VarSymbol ivsym = (VarSymbol)tree.sym;
-                    VarMorphInfo vmi = varMorphInfo(ivsym);
-                    if (toJava.shouldMorph(vmi)) {
-                        refMap.put(ivsym, tree);
+                    if (ivsym.name != names._this && ivsym.name != names._super) {
+                        VarMorphInfo vmi = varMorphInfo(ivsym);
+                        if (toJava.shouldMorph(vmi)) {
+                            refMap.put(ivsym, tree);
+                        }
                     }
                 }
             }
