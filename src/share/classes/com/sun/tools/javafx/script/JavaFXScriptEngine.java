@@ -41,11 +41,14 @@ import javax.tools.JavaFileObject;
  * A. Sundararajan.
  */
 public class JavaFXScriptEngine extends AbstractScriptEngine 
-        implements Compilable {
+        implements Compilable, Invocable {
     private static final String SCRIPT_CONTEXT_NAME = "javafx$ctx";
     
     // Java compiler
     private JavaFXScriptCompiler compiler;
+    
+    // Scripts parsed by this engine
+    private LinkedList<Class> scripts = new LinkedList<Class>();
 
     public JavaFXScriptEngine() {
         compiler = new JavaFXScriptCompiler();
@@ -76,7 +79,8 @@ public class JavaFXScriptEngine extends AbstractScriptEngine
     }
 
     public CompiledScript compile(String script) throws ScriptException {
-        Class clazz = parse(script, context); 
+        Class clazz = parse(script, context);
+        scripts.addFirst(clazz);  // most recent scripts get referenced first
         return new JavafxScriptCompiledScript(clazz);
     }
 
@@ -87,6 +91,7 @@ public class JavaFXScriptEngine extends AbstractScriptEngine
     public Object eval(String str, ScriptContext ctx) 
                        throws ScriptException {	
         Class clazz = parse(str, ctx);
+        scripts.addFirst(clazz);  // most recent scripts get referenced first
         return evalClass(clazz, ctx);
     }
 
@@ -354,5 +359,128 @@ public class JavaFXScriptEngine extends AbstractScriptEngine
         }
         
         return sb.toString();
+    }
+
+    public Object invokeMethod(Object thiz, String name, Object... args) throws ScriptException, NoSuchMethodException {
+        if (thiz == null)
+            throw new ScriptException("target object not specified");
+        if (name == null)
+            throw new ScriptException("method name not specified");
+        Method method = findMethod(thiz.getClass(), name, args);
+        if (method == null)
+            throw new ScriptException(new NoSuchMethodException());
+        try {
+            method.setAccessible(true);
+            return method.invoke(thiz, args);
+        } catch (Exception e) {
+            throw new ScriptException(e);
+        }
+    }
+
+    public Object invokeFunction(String name, Object... args) throws ScriptException, NoSuchMethodException {
+        if (name == null)
+            throw new ScriptException("method name not specified");
+        for (Class script : scripts) {
+            Method method = findMethod(script, name, args);
+            if (method != null) {
+                try {
+                    Constructor cons = findDefaultConstructor(script);
+                    cons.setAccessible(true);
+                    Object instance = cons.newInstance();
+                    method.setAccessible(true);
+                    return method.invoke(instance, args);
+                } catch (Exception e) {
+                    throw new ScriptException(e);
+                }
+                
+            }
+        }
+        throw new ScriptException(new NoSuchMethodException(name));
+    }
+
+    private static Method findMethod(Class clazz, String name, Object[] args) {
+        Class[] argTypes = new Class[args.length];
+        for (int i = 0; i < args.length; i++)
+            argTypes[i] = args[i].getClass();
+        
+        try {
+            return clazz.getMethod(name, argTypes);
+        } catch (NoSuchMethodException e) {
+            // fall-through
+        }
+
+        for (Method m : clazz.getMethods()) {
+            if (m.getName().equals(name)) {
+                if (m.isVarArgs())
+                    return m;
+                Class[] parameters = m.getParameterTypes();
+                if (args.length != parameters.length)
+                    continue;
+                if (argsMatch(argTypes, parameters))
+                    return m;
+            }
+        }
+        return null;
+    }
+    
+    private Constructor findDefaultConstructor(Class script) throws NoSuchMethodException {
+        Constructor[] cs = script.getDeclaredConstructors();
+        for (Constructor c : cs)
+            if (c.getParameterTypes().length == 0)
+                return c;
+        throw new NoSuchMethodException("default constructor");        
+    }
+    
+    private static boolean argsMatch(Class[] argTypes, Class[] parameterTypes) {
+        for (int i = 0; i < argTypes.length; i++) {
+            Class arg = argTypes[i];
+            Class param = parameterTypes[i];
+            if (param.isPrimitive())
+                param = wrappers.get(param);
+            if (param == null || !(arg.isAssignableFrom(param)))
+                return false;
+        }
+        return true;
+    }
+
+    private static Map<Class,Class> wrappers = new HashMap<Class,Class>();
+    static {
+        wrappers.put(boolean.class, Boolean.class);
+        wrappers.put(byte.class, Byte.class);
+        wrappers.put(char.class, Character.class);
+        wrappers.put(double.class, Double.class);
+        wrappers.put(float.class, Float.class);
+        wrappers.put(int.class, Integer.class);
+        wrappers.put(long.class, Long.class);
+        wrappers.put(short.class, Short.class);
+    }
+
+    public <T> T getInterface(Class<T> clazz) {
+        return makeInterface(null, clazz);
+    }
+
+    public <T> T getInterface(Object thiz, Class<T> clazz) {
+        if (thiz == null) {
+            throw new IllegalArgumentException("script object is null");
+        }
+        return makeInterface(thiz, clazz);
+    }
+
+    private <T> T makeInterface(Object obj, Class<T> clazz) {
+        final Object thiz = obj;
+        if (clazz == null || !clazz.isInterface()) {
+            throw new IllegalArgumentException("interface Class expected");
+        }
+        return (T) Proxy.newProxyInstance(
+            clazz.getClassLoader(),
+            new Class[] { clazz },
+            new InvocationHandler() {
+                public Object invoke(Object proxy, Method m, Object[] args)
+                                     throws Throwable {
+                    if (thiz == null)
+                        return invokeFunction(m.getName(), args);
+                    return invokeMethod(thiz, m.getName(), args);
+                }
+            });
     }
 }

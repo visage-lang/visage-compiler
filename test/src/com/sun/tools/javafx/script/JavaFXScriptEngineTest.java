@@ -110,6 +110,29 @@ public class JavaFXScriptEngineTest {
         }
     }
     
+    @Test
+    public void invokeFunction() throws Exception {
+        ((Compilable)engine).compile(
+            "function add(a:Integer, b:Integer):Integer { return a + b; }");
+        Object ret = ((Invocable)engine).invokeFunction("add", 1, 2);
+        assertNotNull(ret);
+        assertEquals(((Number)ret).intValue(), 3);        
+    }
+    
+    @Test
+    public void invokeMethod() throws Exception {
+        String script =
+            "class Test{ function hello():String {return \"Hello, world\";}}\n" +
+            "function create():Test { return new Test(); }";
+
+        ((Compilable)engine).compile(script);
+        Object test = ((Invocable)engine).invokeFunction("create");
+        assertNotNull(test);
+        Object ret = ((Invocable)engine).invokeMethod(test, "hello");
+        assertNotNull(ret);
+        assertEquals("Hello, world", ret.toString());
+    }
+    
     private String getOutput() {
         stdout.flush();
         String output = out.toString();
