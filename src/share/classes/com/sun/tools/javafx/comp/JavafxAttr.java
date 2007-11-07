@@ -578,7 +578,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (tree.sym != null && tree.sym.kind != VAR) {
             sym = tree.sym;
         } else {
-            sym = rs.resolveIdent(tree.pos(), env, tree.name, pkind, pt);
+            if (rs.newValueSym != null && tree.sym == rs.newValueSym) {
+                sym = tree.sym;
+            }
+            else {
+                sym = rs.resolveIdent(tree.pos(), env, tree.name, pkind, pt);
+            }
         }
         tree.sym = sym;
         sym.complete();
@@ -644,8 +649,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 	    // If the found symbol is inaccessible, then it is
 	    // accessed through an enclosing instance.  Locate this
 	    // enclosing instance:
-	    while (env1.outer != null && !rs.isAccessible(env, env1.enclClass.sym.type, sym))
+	    while (env1.outer != null && !rs.isAccessible(env, env1.enclClass.sym.type, sym)) {
+                if (rs.newValueSym != null && sym == rs.newValueSym) {
+                    break;
+                }
 		env1 = env1.outer;
+            }
 	}
         result = checkId(tree, env1.enclClass.sym.type, sym, env, pkind, pt, pSequenceness, varArgs);
     }
@@ -1025,12 +1034,27 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             tree.getIndex().sym.type = syms.intType;
         }
 	if (tree.getOldValue() != null) {
+            tree.getOldValue().mods.flags |= Flags.FINAL;
             attribVar(tree.getOldValue(), env);  
             if (tree.elementType != null) {
                 tree.getOldValue().sym.type = tree.elementType;
             }
         }
-        attribStat(tree.getBody(), env);
+
+        Symbol prevNewValueSym = rs.newValueSym;
+        try {
+            if (tree != null && tree.getOldValue() != null) {
+                rs.newValueSym = tree.getOldValue().sym;
+            }
+            else {
+                rs.newValueSym = null;
+            }
+
+            attribStat(tree.getBody(), env);
+        }
+        finally {
+            rs.newValueSym = prevNewValueSym;
+        }
     }
     
     @Override
