@@ -35,7 +35,7 @@ public class JavaFXScriptEngineTest {
     @Before
     public void setUp() {
         ScriptEngineManager manager = new ScriptEngineManager();
-        engine = manager.getEngineByExtension("fx");
+        engine = manager.getEngineByExtension("javafx");
         out = new ByteArrayOutputStream();
         stdout = new PrintStream(out);
     }

@@ -151,8 +151,9 @@ public class JavaFXScriptEngineFactory implements ScriptEngineFactory {
     static {
         names = new ArrayList<String>(1);
         names.add("fx");
+        extensions = Collections.unmodifiableList(names);
+        names.add("javafx");  // preferred engine name
         names = Collections.unmodifiableList(names);
-        extensions = names;
         mimeTypes = new ArrayList<String>(0);
         mimeTypes.add("application/x-javafx-source");
         mimeTypes = Collections.unmodifiableList(mimeTypes);

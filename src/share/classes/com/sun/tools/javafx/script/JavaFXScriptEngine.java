@@ -332,24 +332,25 @@ public class JavaFXScriptEngine extends AbstractScriptEngine
         for (String attr : attrs) {
             sb.append("var ");
             sb.append(attr);
-/* FIXME:  add type declaration when casts are supported
+            String type = null;
             Object value = ctx.getAttribute(attr);
-            String type = value.getClass().getCanonicalName();
-            if (type != null) {
-                sb.append(':');
-                sb.append(type);
+            if (value != null) { // true when compiling scripts
+                type = value.getClass().getCanonicalName();
+                if (type != null) {
+                    sb.append(':');
+                    sb.append(type);
+                }
             }
- */
             sb.append(" = ");
-/* FIXME:  see above.
-            sb.append('(');
-            sb.append(type);
-            sb.append(')');
- */
             sb.append(SCRIPT_CONTEXT_NAME);
             sb.append(".getAttribute(\"");
             sb.append(attr);
-            sb.append("\");\n");
+            sb.append("\")");
+            if (value != null) {
+                sb.append(" as ");
+                sb.append(type);
+            }
+            sb.append(";\n");
         }
         
         return sb.toString();
