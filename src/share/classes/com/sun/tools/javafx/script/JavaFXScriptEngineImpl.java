@@ -25,6 +25,7 @@
 
 package com.sun.tools.javafx.script;
 
+import com.sun.javafx.api.JavaFXScriptEngine;
 import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javafx.comp.JavafxModuleBuilder;
 import java.io.*;
@@ -40,8 +41,8 @@ import javax.tools.JavaFileObject;
  * the https://scripting.dev.java.net Java language script engine by
  * A. Sundararajan.
  */
-public class JavaFXScriptEngine extends AbstractScriptEngine 
-        implements Compilable, Invocable {
+public class JavaFXScriptEngineImpl extends AbstractScriptEngine 
+        implements JavaFXScriptEngine {
     private static final String SCRIPT_CONTEXT_NAME = "javafx$ctx";
     
     // Java compiler
@@ -50,7 +51,7 @@ public class JavaFXScriptEngine extends AbstractScriptEngine
     // Scripts parsed by this engine
     private LinkedList<Class> scripts = new LinkedList<Class>();
 
-    public JavaFXScriptEngine() {
+    public JavaFXScriptEngineImpl() {
         compiler = new JavaFXScriptCompiler();
     }
 
@@ -66,7 +67,7 @@ public class JavaFXScriptEngine extends AbstractScriptEngine
         }
 
         public ScriptEngine getEngine() {
-            return JavaFXScriptEngine.this;
+            return JavaFXScriptEngineImpl.this;
         }
 
         public Object eval(ScriptContext ctx) throws ScriptException {

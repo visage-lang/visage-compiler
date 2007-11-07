@@ -5,6 +5,7 @@
 
 package com.sun.tools.javafx.script;
 
+import com.sun.javafx.api.JavaFXScriptEngine;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import javax.script.*;
@@ -22,7 +23,7 @@ import static org.junit.Assert.*;
  * @author Tom Ball
  */
 public class JavaFXScriptEngineTest {
-    private ScriptEngine engine;
+    private JavaFXScriptEngine engine;
     private ByteArrayOutputStream out;
     private PrintStream stdout;
     private static PrintStream originalOut;
@@ -35,7 +36,9 @@ public class JavaFXScriptEngineTest {
     @Before
     public void setUp() {
         ScriptEngineManager manager = new ScriptEngineManager();
-        engine = manager.getEngineByExtension("javafx");
+        ScriptEngine scrEng = manager.getEngineByExtension("javafx");
+        assertTrue(scrEng instanceof JavaFXScriptEngine);
+        engine = (JavaFXScriptEngine)scrEng;
         out = new ByteArrayOutputStream();
         stdout = new PrintStream(out);
     }
@@ -77,7 +80,7 @@ public class JavaFXScriptEngineTest {
     public void compiledScript() throws Exception {
         try {
             System.setOut(stdout);
-            CompiledScript script = ((Compilable)engine).compile(
+            CompiledScript script = engine.compile(
                     "java.lang.System.out.println(\"Hello, {who}\");");
             Bindings bindings = new SimpleBindings();
             bindings.put("who", "world");
@@ -92,7 +95,7 @@ public class JavaFXScriptEngineTest {
     public void verifyGlobalBindings() throws Exception {
         ScriptEngineManager manager = new ScriptEngineManager();
         manager.put("greeting", "Hello");
-        engine = manager.getEngineByExtension("javafx");
+        engine = (JavaFXScriptEngine)manager.getEngineByExtension("javafx");
         String script = "java.lang.System.out.println(\"{greeting}, {who}\");";
 
         try {
@@ -112,7 +115,7 @@ public class JavaFXScriptEngineTest {
     
     @Test
     public void invokeFunction() throws Exception {
-        ((Compilable)engine).compile(
+        engine.compile(
             "function add(a:Integer, b:Integer):Integer { return a + b; }");
         Object ret = ((Invocable)engine).invokeFunction("add", 1, 2);
         assertNotNull(ret);
@@ -125,10 +128,10 @@ public class JavaFXScriptEngineTest {
             "class Test{ function hello():String {return \"Hello, world\";}}\n" +
             "function create():Test { return new Test(); }";
 
-        ((Compilable)engine).compile(script);
-        Object test = ((Invocable)engine).invokeFunction("create");
+        engine.compile(script);
+        Object test = engine.invokeFunction("create");
         assertNotNull(test);
-        Object ret = ((Invocable)engine).invokeMethod(test, "hello");
+        Object ret = engine.invokeMethod(test, "hello");
         assertNotNull(ret);
         assertEquals("Hello, world", ret.toString());
     }

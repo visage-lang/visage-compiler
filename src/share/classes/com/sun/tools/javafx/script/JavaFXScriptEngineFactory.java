@@ -129,7 +129,7 @@ public class JavaFXScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public ScriptEngine getScriptEngine() {
-        JavaFXScriptEngine engine = new JavaFXScriptEngine();
+        JavaFXScriptEngineImpl engine = new JavaFXScriptEngineImpl();
         engine.setFactory(this);
         return engine;
     }
