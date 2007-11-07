@@ -393,6 +393,7 @@ public class JavafxInitializationBuilder {
      * Return all this as a JavafxClassModel for use in translation.
      * */
     JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl, List<TranslatedAttributeInfo> translatedAttrInfo) {
+        boolean classIsFinal =(cDecl.getModifiers().flags & Flags.FINAL) != 0;
         Set<String> visitedClasses = new HashSet<String>();
         Map<String, Symbol> collectedAttributes = new HashMap<String, Symbol>();
         Map<String, MethodSymbol> collectedMethods = new HashMap<String, MethodSymbol>();
@@ -424,12 +425,13 @@ public class JavafxInitializationBuilder {
             }
         }
         
-        JCExpression intIdent = make.TypeIdent(TypeTags.INT);
-        
         JCVariableDecl numFieldsVar = make.VarDef(
-                make.Modifiers(Flags.PRIVATE | Flags.STATIC | Flags.FINAL), numberFieldsName, intIdent, make.Literal(new Integer(attributes.size())));
+                make.Modifiers(classIsFinal? Flags.PRIVATE | Flags.FINAL : Flags.PRIVATE | Flags.FINAL | Flags.STATIC), 
+                numberFieldsName, 
+                make.TypeIdent(TypeTags.INT), 
+                make.Literal(new Integer(attributes.size())));
         
-        VarSymbol numFieldsVarSym = new VarSymbol(numFieldsVar.mods.flags, numberFieldsName, intIdent.type, cDecl.sym);
+        VarSymbol numFieldsVarSym = new VarSymbol(numFieldsVar.mods.flags, numberFieldsName, syms.intType, cDecl.sym);
         
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
         cDefinitions.append(numFieldsVar);
@@ -467,7 +469,7 @@ public class JavafxInitializationBuilder {
                         // add interface methods for each method defined in this class
                         iDefinitions.append(makeMethod(cDecl, mth, null, bound));
                     }
-                    if ((mth.flags() & Flags.ABSTRACT) == 0) {
+                    if ((mth.flags() & Flags.ABSTRACT) == 0 && (!classIsFinal || mth.owner != cDecl.sym)) {
                         // add proxies which redirect to the static implementation for every concrete method
                         cDefinitions.append(makeMethod(cDecl, mth, makeProxyBody(cDecl, mth, bound), bound));
                     }
@@ -662,8 +664,9 @@ public class JavafxInitializationBuilder {
         }
     }
 
-    private void addClassAttributeMethods(JFXClassDeclaration cdef, ListBuffer<AttributeWrapper> attrInfos, 
+    private void addClassAttributeMethods(JFXClassDeclaration cDecl, ListBuffer<AttributeWrapper> attrInfos, 
                                                                                java.util.List<ClassSymbol> baseClasses, ListBuffer<JCTree> members) {
+        boolean classIsFinal = (cDecl.getModifiers().flags & Flags.FINAL) != 0;
         for (AttributeWrapper attrInfo : attrInfos) { 
 // TODO: Add attributes gotten from interface introspection.
             List<JCStatement> stats = List.<JCStatement>nil();
@@ -690,15 +693,15 @@ public class JavafxInitializationBuilder {
             List<JCStatement> initBlockStats = List.<JCStatement>nil();
             List<JCExpression> initAssertArgs = List.<JCExpression>nil();
             initAssertArgs = initAssertArgs.append(make.Ident(attrInfo.name));
-            initAssertArgs = initAssertArgs.append(make.Literal(new String(cdef.getName().toString() + "." + attrInfo.name.toString())));
+            initAssertArgs = initAssertArgs.append(make.Literal(new String(cDecl.getName().toString() + "." + attrInfo.name.toString())));
             
-            initBlockStats = initBlockStats.append(toJava.callStatement(cdef.pos(), make.Identifier(initHelperClassName), assertNonNullName, initAssertArgs));
+            initBlockStats = initBlockStats.append(toJava.callStatement(cDecl.pos(), make.Identifier(initHelperClassName), assertNonNullName, initAssertArgs));
 
             // Add the initHelper$.add(...) call
             List<JCExpression> initAddArgs = List.<JCExpression>nil();
             initAddArgs = initAddArgs.append(make.Assign(make.Ident(attrInfo.name), make.Ident(locationName)));
             
-            initBlockStats = initBlockStats.append(toJava.callStatement(cdef.pos(), make.Ident(initHelperName), addName, initAddArgs));
+            initBlockStats = initBlockStats.append(toJava.callStatement(cDecl.pos(), make.Ident(initHelperName), addName, initAddArgs));
             
             JCBlock initBlock = make.Block(0L, initBlockStats);
             List<JCVariableDecl> locationVarDeclList = List.<JCVariableDecl>nil();
@@ -720,7 +723,7 @@ public class JavafxInitializationBuilder {
         
         JCBlock numFieldsBlock = make.Block(0L, numFieldsStats);
         members.append(make.MethodDef(
-                make.Modifiers(Flags.PUBLIC | Flags.STATIC),
+                make.Modifiers(classIsFinal? Flags.PUBLIC  : Flags.PUBLIC | Flags.STATIC),
                 getNumFieldsName,
                 toJava.makeTypeTree(syms.intType, null),
                 List.<JCTypeParameter>nil(), 
@@ -730,7 +733,8 @@ public class JavafxInitializationBuilder {
 
         // Add the InitHelper field
         List<JCExpression> ncArgs = List.<JCExpression>nil();
-        ncArgs = ncArgs.append(make.Ident(numberFieldsName));
+        // ncArgs = ncArgs.append(make.Ident(numberFieldsName));  // getting forward reference error
+        ncArgs = ncArgs.append( make.Literal(new Integer(attrInfos.size())) );
         
         JCNewClass newIHClass = make.NewClass(null, List.<JCExpression>nil(), make.Identifier(initHelperClassName), ncArgs, null);
         
@@ -742,18 +746,18 @@ public class JavafxInitializationBuilder {
 
         // Add calls to do the the default value initialization and user init code (validation for example.)
         initializeStats = initializeStats.append(toJava.callStatement(
-                cdef.pos(), 
-                make.Ident(cdef.getName())/*TODO: Add the class suffix*/,
+                cDecl.pos(), 
+                make.Ident(classIsFinal? names._this : cDecl.getName()),
                 setDefaultsName, 
-                make.TypeCast(make.Ident(names.fromString(cdef.getName().toString() + interfaceNameSuffix)), make.Ident(names._this))));
+                make.TypeCast(make.Ident(names.fromString(cDecl.getName().toString() + interfaceNameSuffix)), make.Ident(names._this))));
         initializeStats = initializeStats.append(toJava.callStatement(
-                cdef.pos(), 
-                make.Ident(cdef.getName())/*TODO: Add the class suffix*/,
+                cDecl.pos(), 
+                make.Ident(classIsFinal? names._this : cDecl.getName()),
                 userInitName, 
-                make.TypeCast(make.Ident(names.fromString(cdef.getName().toString() + interfaceNameSuffix)), make.Ident(names._this))));
+                make.TypeCast(make.Ident(names.fromString(cDecl.getName().toString() + interfaceNameSuffix)), make.Ident(names._this))));
         
         // Add a call to initialize the attributes using the initHelper$.initialize();
-        initializeStats = initializeStats.append(toJava.callStatement(cdef.pos(), make.Ident(initHelperName), 
+        initializeStats = initializeStats.append(toJava.callStatement(cDecl.pos(), make.Ident(initHelperName), 
             initializeNonSyntheticName));
         
         // Set the initHelper = null;
@@ -773,12 +777,13 @@ public class JavafxInitializationBuilder {
     /**
      * Construct the SetDefaults method
      * */
-    private JCMethodDecl makeSetDefaultsMethod(JFXClassDeclaration cdef, java.util.List<ClassSymbol> baseClasses, 
+    private JCMethodDecl makeSetDefaultsMethod(JFXClassDeclaration cDecl, java.util.List<ClassSymbol> baseClasses, 
                                                                                             List<TranslatedAttributeInfo> translatedAttrInfo) {
+        boolean classIsFinal =(cDecl.getModifiers().flags & Flags.FINAL) != 0;
         // Add the initialization of this class' attributes
-        List<JCStatement> setDefStats = addSetDefaultAttributeInitialization(translatedAttrInfo, cdef);
+        List<JCStatement> setDefStats = addSetDefaultAttributeInitialization(translatedAttrInfo, cDecl);
         if (setDefStats.nonEmpty()) {
-            setDefStats = setDefStats.appendList(addSetDefaultAttributeDependencies(translatedAttrInfo, cdef));
+            setDefStats = setDefStats.appendList(addSetDefaultAttributeDependencies(translatedAttrInfo, cDecl));
         }
         
         // call the superclasses SetDefaults
@@ -791,7 +796,7 @@ public class JavafxInitializationBuilder {
                 
                 List<JCExpression> args1 = List.<JCExpression>nil();
                 args1 = args1.append(make.Ident(receiverName));
-                setDefStats = setDefStats.append(toJava.callStatement(cdef.pos(), make.Identifier(className), setDefaultsName, args1));
+                setDefStats = setDefStats.append(toJava.callStatement(cDecl.pos(), make.Identifier(className), setDefaultsName, args1));
             }
         }
         
@@ -804,11 +809,11 @@ public class JavafxInitializationBuilder {
         }
                 
         return make.MethodDef(
-                make.Modifiers(Flags.PUBLIC | Flags.STATIC),
+                make.Modifiers(classIsFinal? Flags.PUBLIC  : Flags.PUBLIC | Flags.STATIC),
                 setDefaultsName,
                 toJava.makeTypeTree(syms.voidType, null),
                 List.<JCTypeParameter>nil(), 
-                List.<JCVariableDecl>of( toJava.makeReceiverParam(cdef) ), 
+                List.<JCVariableDecl>of( toJava.makeReceiverParam(cDecl) ), 
                 List.<JCExpression>nil(), 
                 make.Block(0L, setDefStats), 
                 null);

@@ -350,13 +350,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
             {
                 // Add the userInit$ method
-                List<JCVariableDecl> receiverVarDeclList = List.<JCVariableDecl>of(make.VarDef(
-                        make.Modifiers(Flags.FINAL), 
-                        initBuilder.receiverName, 
-                        make.Ident(names.fromString(tree.getName().toString() + initBuilder.interfaceNameSuffix.toString())), null));
+                boolean classIsFinal = (tree.getModifiers().flags & Flags.FINAL) != 0;
+                List<JCVariableDecl> receiverVarDeclList = List.<JCVariableDecl>of(makeReceiverParam(tree));
                 JCBlock userInitBlock = make.Block(0L, translatedInitBlocks.toList());
                 translatedDefs.append(make.MethodDef(
-                        make.Modifiers(Flags.PUBLIC | Flags.STATIC), 
+                        make.Modifiers(classIsFinal? Flags.PUBLIC  : Flags.PUBLIC | Flags.STATIC), 
                         initBuilder.userInitName, 
                         makeTypeTree(syms.voidType, null), 
                         List.<JCTypeParameter>nil(), 
@@ -675,14 +673,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     * */
    @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
-        // Made all the operations public. Per Brian's spec.
+         boolean classIsFinal =(currentClass.getModifiers().flags & Flags.FINAL) != 0;
+       // Made all the operations public. Per Brian's spec.
         // If they are left package level it interfere with Multiple Inheritance
         // The interface methods cannot be package level and an error is reported.
         long flags = tree.mods.flags;
         long originalFlags = flags;
         flags &= ~(Flags.PROTECTED | Flags.PRIVATE);
         flags |=  Flags.PUBLIC;
-        if ((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) {
+        if (((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) && !classIsFinal) {
             flags |= Flags.STATIC;
         }
         flags &= ~Flags.SYNTHETIC;
@@ -720,8 +719,18 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
              
         ListBuffer<JCVariableDecl> params = ListBuffer.<JCVariableDecl>lb();
         if ((originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) {
-            // if we are converting a standard instance function (to a static method), the first parameter becomes a reference to the receiver
-            params.prepend(makeReceiverParam(currentClass));
+            if (classIsFinal) {
+                body.stats = body.stats.prepend(
+                        make.at(diagPos).VarDef(
+                            make.at(diagPos).Modifiers(Flags.FINAL), 
+                            initBuilder.receiverName, 
+                            make.Ident(initBuilder.interfaceName(currentClass)), 
+                            make.at(diagPos).Ident(names._this))
+                        );
+            } else {
+                // if we are converting a standard instance function (to a static method), the first parameter becomes a reference to the receiver
+                params.prepend(makeReceiverParam(currentClass));
+            }
         }
         for (JFXVar fxVar : tree.getParameters()) {
             params.append(translate(fxVar));

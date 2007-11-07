@@ -243,7 +243,8 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
             JCExpression id = ident;
             while (id instanceof JCFieldAccess) id = ((JCFieldAccess)id).getExpression();
             Name cname = syntheticClassName(((JCIdent)id).getName());
-            klass = this.ClassDeclaration(this.Modifiers(0L), cname, List.<JCExpression>of(ident), defsBuffer.toList());
+            long innerClassFlags = 0L; // to enable, change to Flags.FINAL
+            klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<JCExpression>of(ident), defsBuffer.toList());
         }
         
         JFXInstanciate tree = new JFXInstanciate(ident, klass, args==null? List.<JCExpression>nil() : args, partsBuffer.toList(), null);
