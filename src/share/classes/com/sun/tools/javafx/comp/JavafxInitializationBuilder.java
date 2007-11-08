@@ -463,7 +463,9 @@ public class JavafxInitializationBuilder {
 
         for (boolean bound = toJava.generateBoundFunctions;  ; bound = false) {
             for (MethodSymbol mth : methods) {
-                if ((mth.flags() & Flags.SYNTHETIC) == 0) {
+                if ((mth.flags() & Flags.SYNTHETIC) == 0
+                        // Kludge.  FIXME when we can make getNumFields$ synthetic.
+                        && mth.name != getNumFieldsName) {
                     // ignore synthetics, like the run method
                     if (mth.owner == cDecl.sym) {
                         // add interface methods for each method defined in this class
