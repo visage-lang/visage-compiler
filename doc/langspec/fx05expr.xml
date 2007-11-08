@@ -562,7 +562,7 @@
 
         <tr>
           <td>
-            <code>[<emphasis>number1</emphasis>,<emphasis>next</emphasis>..<emphasis>number2</emphasis>]<!--</code--></code>
+            <code>[<emphasis>number1</emphasis>,<emphasis>next</emphasis>..<emphasis>number2</emphasis>]</code>
           </td>
 
           <td>numeric range</td>
@@ -621,7 +621,7 @@
   
    <para>This section describes the following operators:</para>
 
-    <itemizedlist>
+<itemizedlist>
       <listitem>sizeof</listitem>
 
       <listitem>indexof</listitem>
@@ -630,19 +630,19 @@
 
       <listitem>select</listitem>
       
-       <listitem>foreach</listitem>
+      <listitem>foreach</listitem>
        
-        <listitem>format as</listitem>
+      <listitem>format as</listitem>
+      <listitem>reverse</listitem>
+      <listitem>string expression</listitem>
+	  
+      <listitem>eager initialization</listitem>
+	 
+      <listitem>quoted identifiers</listitem>
 	
-	 <listitem>reverse</listitem>
-	 
-	 <listitem>quoted identifiers</listitem>
-	 
-	 <listitem>range expression</listitem>
+      <listitem>range expression</listitem>
     </itemizedlist>
 
-   
-  
     
    <!-- sections on some selected operators -->
    
@@ -706,7 +706,25 @@
   <para>&nbsp;</para>
   
   </sect2>
+  
+     <!-- This is a curly bracket {} operator -->
+  
+  <sect2 id="strexp"><title>The string expression operator</title>
+  
+  <para>&nbsp;</para>
+  
+  </sect2>
+  
+      <!-- This is a colon (:) operator -->
+  
+  <sect2 id="eager"><title>Eager initalization operator</title>
+  
+  <para>&nbsp;</para>
+  
+  </sect2>
 
+  
+  
   <!-- keep quoted identifiers and Range operator here 
      because they are operators -->
 
