@@ -15,11 +15,29 @@
     </sect1>
     
     <!-- VERY SIMPLE INTRODUCTORY DEFINITIONS 
-    
-    
-    
+ 
     ... these are meant to quickly define terms the reader should
     already know, before introducing syntax and presenting snippets.
+    
+    
+    Expression:  A combination of keywords, operators, variables, and literals that yield a string, number, or object. An expression can perform a calculation, manipulate characters, call a function, or test data.
+    
+    An expression in a programming language is a combination of values, variables, operators, and functions that are interpreted (evaluated) according to the particular rules of precedence and of association for a particular programming language, which computes and then produces (returns, in a stateful environment) another value. 
+    
+    
+    Statement: 
+    
+    An entity in a programming language which is typically the smallest indivisible unit of execution.
+    
+    An instruction to carry out some action; a single step within a program.
+    
+    In computer programming a statement can be thought of as the smallest standalone element of an imperative programming language. A program is formed by a sequence of one or more statements. A statement will have internal components (eg, expressions).
+    
+    Many languages (eg, C) make a distinction between statements and definitions, with a statement only containing executable code and a definition declaring an identifier.
+    
+    In most languages statements contrast with expressions in that statements do not return results and are executed solely for their side effects, while expressions always return a result and often do not have side effects at all. Among imperative programming languages, Algol 68 is one of the few in which a statement can return a result. In languages which mix imperative and functional styles, such as the Lisp family, the distinction between expressions and statements is not made: even expressions executed in sequential contexts solely for their side effects and whose return values are not used are considered 'expressions'.
+    
+    The syntax and semantics of statements is specified by the definition of the programming language.
     
     
     Syntax:  software language rules which determine what is and is

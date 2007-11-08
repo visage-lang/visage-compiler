@@ -8,10 +8,10 @@
   <sect1 id="expr">
     <title>Expressions and Operators Overview</title>
 
-    <para>
-      <emphasis>This Chapter will describe expressions, statements and
-      operators, including the trigger and bind mechanisms.</emphasis>
-    </para>
+<para>
+<emphasis>This Chapter describes statements, expressions, and operators, including the trigger and bind mechanisms, and logical expressions.</emphasis>
+</para>
+
   </sect1>
 
   <sect1>
@@ -22,7 +22,7 @@
     expression on the command line, the interpreter evaluates it and displays
     the result.</para>
 
-    <para>Expressions use operators to associate entities of some type, and
+    <para>Expressions use operators to associate entities of some type in order to 
     produce the resulting value.</para>
   </sect1>
 
@@ -33,8 +33,7 @@
     multiplication. The values the operator uses are called operands. They can
     be data values, variables, objects or other carefully defined program
     elements. Operators tend to be associated with the type of the operands
-    being evaluated (see Chapter Two, "Types") but are often overloaded to act
-    on closely related types.</para>
+    being evaluated (see <emphasis>Types</emphasis>) but some operators can be overloaded to handle closely related types.</para>
 
     <para>In JavaFX Script, an operator can also be a keyword that defines a
     computation, a relationship between two data elements, or a reference to
@@ -612,6 +611,101 @@
          System.out.println(x); // prints 10
 </programlisting>
   </sect1>
+  
+  <!-- sections on some selected operators -->
+  
+  
+  <sect1 id="selectedops"><title>JavaFX Script Operators</title>
+  
+  <para><emphasis>This section defines operators provided in JavaFX Script, but not in the Java programming language</emphasis></para>
+  
+   <para>This section describes the following operators:</para>
+
+    <itemizedlist>
+      <listitem>sizeof</listitem>
+
+      <listitem>indexof</listitem>
+
+      <listitem>instanceof</listitem>
+
+      <listitem>select</listitem>
+      
+       <listitem>foreach</listitem>
+       
+        <listitem>format as</listitem>
+	
+	 <listitem>reverse</listitem>
+	 
+	 <listitem>quoted identifiers</listitem>
+	 
+	 <listitem>range expression</listitem>
+    </itemizedlist>
+
+   
+  
+    
+   <!-- sections on some selected operators -->
+   
+   
+   <sect2 id="xxx"><title>The <code>sizeof</code> operator</title>
+  
+  <para>&nbsp;</para>
+  
+  </sect2>
+  
+  
+   <!-- sections on some selected operators -->
+  
+  <sect2 id="indexof"><title>The <code>indexof</code> operator</title>
+  
+  <para>&nbsp;</para>
+  
+  </sect2>
+  
+  
+   <!-- sections on some selected operators -->
+  
+  <sect2 id="select"><title>The <code>select</code> operator</title>
+  
+  <para>&nbsp;</para>
+  
+  </sect2>
+  
+  
+   <!-- sections on some selected operators -->
+  
+  <sect2 id="foreach"><title>The <code>foreach</code> operator</title>
+  
+  <para>&nbsp;</para>
+  
+  </sect2>
+  
+  
+   <!-- sections on some selected operators -->
+  
+  <sect2 id="instanceof"><title>The <code>instanceof</code> operator</title>
+  
+  <para>&nbsp;</para>
+  
+  </sect2>
+  
+  
+  
+   <!-- sections on some selected operators -->
+  
+  <sect2 id="formatas"><title>The <code>format as</code> operator</title>
+  
+  <para>&nbsp;</para>
+  
+  </sect2>
+  
+   <!-- sections on some selected operators -->
+  
+  <sect2 id="reverse"><title>The <code>reverse</code> operator</title>
+  
+  <para>&nbsp;</para>
+  
+  </sect2>
 
   <!-- keep quoted identifiers and Range operator here 
      because they are operators -->
@@ -1084,5 +1178,5 @@ Any other operators?  What about the (*, :, and ?) var operators?
 
 </sect2>
 -->
-  </sect1>
+  </sect1> </sect1>
 </chapter>
