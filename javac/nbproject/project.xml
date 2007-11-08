@@ -19,14 +19,14 @@
             </folders>
             <ide-actions>
                 <action name="build">
-                    <target>build</target>
+                    <target>all</target>
                 </action>
                 <action name="clean">
                     <target>clean</target>
                 </action>
                 <action name="rebuild">
                     <target>clean</target>
-                    <target>build</target>
+                    <target>all</target>
                 </action>
             </ide-actions>
             <view>

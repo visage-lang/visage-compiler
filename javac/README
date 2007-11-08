@@ -9,12 +9,12 @@ compiler project's build.
 
 Initializing This Project
 
-This project requires the full "langtools" source, tag jdk7-b21, to be in 
+This project requires the full "langtools" source, tag jdk7-b23, to be in 
 langtools/.  There are two ways to set this up:
 
 1.  Use Subversion (preferred):
 
-svn checkout https://jdk-jrl-sources.dev.java.net/svn/jdk-jrl-sources/jdk7/tags/jdk7-b21/langtools --username 
+svn checkout https://jdk-jrl-sources.dev.java.net/svn/jdk-jrl-sources/jdk7/tags/jdk7-b23/langtools --username 
 
 2.  If you already have a local copy of the OpenJDK source base, link or
 copy it to langtools/ from this directory:
