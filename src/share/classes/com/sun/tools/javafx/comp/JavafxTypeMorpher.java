@@ -126,6 +126,9 @@ public class JavafxTypeMorpher {
             if (realTsym == declLocation[TYPE_KIND_OBJECT].sym) {
                 locationType = ((ClassType) symType).typarams_field.head;
                 typeKind = TYPE_KIND_OBJECT;
+            } else if (realTsym == declLocation[TYPE_KIND_SEQUENCE].sym) {
+                locationType = ((ClassType) symType).typarams_field.head;
+                typeKind = TYPE_KIND_SEQUENCE;
             } else if (realTsym == declLocation[TYPE_KIND_BOOLEAN].sym) {
                 locationType = syms.booleanType;
                 typeKind = TYPE_KIND_BOOLEAN;
