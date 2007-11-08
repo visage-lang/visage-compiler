@@ -1,21 +1,1034 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <?xml-stylesheet href="docbook.css" type="text/css"?>
 <chapter id="Expressions">
-<title>Expressions and Operators</title>
-<sect1 id="expr"><title>Expressions and Operators Overview</title>
+  <title>Expressions and Operators</title>
 
-<para>
-<emphasis>
-This Chapter will describe expressions, statements and operators, including the trigger and bind mechanisms. 
-</emphasis>
+  <sect1 id="expr">
+    <title>Expressions and Operators Overview</title>
 
-</para>
-</sect1>
+    <para>
+      <emphasis>This Chapter will describe expressions, statements and
+      operators, including the trigger and bind mechanisms.</emphasis>
+    </para>
+  </sect1>
 
+  <sect1>
+    <title>Expressions</title>
 
-<!--
+    <para>An expression is a combination of values, variables, and operators.
+    The evaluation of an expression produces a value. If you type an
+    expression on the command line, the interpreter evaluates it and displays
+    the result.</para>
+
+    <para>Expressions use operators to associate entities of some type, and
+    produce the resulting value.</para>
+  </sect1>
+
+  <sect1 id="oper">
+    <title>Operators</title>
+
+    <para>Operators are symbols that represent computations like addition and
+    multiplication. The values the operator uses are called operands. They can
+    be data values, variables, objects or other carefully defined program
+    elements. Operators tend to be associated with the type of the operands
+    being evaluated (see Chapter Two, "Types") but are often overloaded to act
+    on closely related types.</para>
+
+    <para>In JavaFX Script, an operator can also be a keyword that defines a
+    computation, a relationship between two data elements, or a reference to
+    an object.</para>
+
+    <!--	  
+	  <para><emphasis>Is this operators table still complete?</emphasis></para>
+	  
+	    <para><emphasis> We need to know more about the 'other operators' listed below... expecially bind, format as, and 'reverse.'</emphasis></para>
+-->
+
+    <para>JavaFX Script supports the following operators, grouped according to
+    function and data type:</para>
+
+    <table cellpadding="5" cellspacing="5" style="border: medium groove ;">
+      <tbody>
+        <tr>
+          <th style="text-decoration: underline;">Operator</th>
+
+          <th style="text-decoration: underline;">Meaning</th>
+
+          <th style="text-decoration: underline;">Java Equivalent</th>
+        </tr>
+
+        <tr>
+          <th />
+        </tr>
+
+        <tr>
+          <td colspan="2">
+            <emphasis>Relational Operators</emphasis>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>==</code>
+          </td>
+
+          <td>equality</td>
+
+          <td>
+            <code>==</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>&lt;&gt;</code>
+          </td>
+
+          <td>inequality</td>
+
+          <td>
+            <code>!=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>&lt;</code>
+          </td>
+
+          <td>less than</td>
+
+          <td>
+            <code>&lt;</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>&gt;</code>
+          </td>
+
+          <td>greater than</td>
+
+          <td>
+            <code>&gt;</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>&lt;=</code>
+          </td>
+
+          <td>less than or equal</td>
+
+          <td>
+            <code>&lt;=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>&gt;=</code>
+          </td>
+
+          <td>greater than or equal</td>
+
+          <td>
+            <code>&gt;=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <th />
+        </tr>
+
+        <tr>
+          <td colspan="2">
+            <emphasis>Boolean Operators</emphasis>
+          </td>
+
+          <td />
+        </tr>
+
+        <tr>
+          <td>
+            <code>and</code>
+          </td>
+
+          <td>logical and</td>
+
+          <td>
+            <code>&amp;&amp;</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>or</code>
+          </td>
+
+          <td>logical or</td>
+
+          <td>
+            <code>||</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>not</code>
+          </td>
+
+          <td>logical negation</td>
+
+          <td>
+            <code>!</code>
+          </td>
+        </tr>
+
+        <tr>
+          <th />
+        </tr>
+
+        <tr>
+          <td colspan="2">
+            <emphasis>Arithmetic Operators</emphasis>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>+</code>
+          </td>
+
+          <td>addition</td>
+
+          <td>
+            <code>+</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>-</code>
+          </td>
+
+          <td>subtraction; unary negation</td>
+
+          <td>
+            <code>-</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>*</code>
+          </td>
+
+          <td>multiplication</td>
+
+          <td>
+            <code>*</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>/</code>
+          </td>
+
+          <td>division</td>
+
+          <td>
+            <code>/</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>%</code>
+          </td>
+
+          <td>remainder</td>
+
+          <td>
+            <code>%</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>+=</code>
+          </td>
+
+          <td>add and assign</td>
+
+          <td>
+            <code>+=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>-=</code>
+          </td>
+
+          <td>subtract and assign</td>
+
+          <td>
+            <code>-=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>*=</code>
+          </td>
+
+          <td>multiply and assign</td>
+
+          <td>
+            <code>*=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>/=</code>
+          </td>
+
+          <td>divide and assign</td>
+
+          <td>
+            <code>/=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>%=</code>
+          </td>
+
+          <td>remainder and assign</td>
+
+          <td>
+            <code>%=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <th />
+        </tr>
+
+        <tr>
+          <td colspan="2">
+            <emphasis>Other Operators</emphasis>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>sizeof</code>
+          </td>
+
+          <td>array length</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>indexof</code>
+          </td>
+
+          <td>ordinal position</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>if <emphasis>e1</emphasis> then <emphasis>e2</emphasis> else
+            <emphasis>e3</emphasis></code>
+          </td>
+
+          <td>conditional expression</td>
+
+          <td>
+            <code><emphasis>e1</emphasis> ? <emphasis>e2</emphasis> :
+            <emphasis>e3</emphasis></code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>select</code>
+          </td>
+
+          <td>list comprehension</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>foreach</code>
+          </td>
+
+          <td>list comprehension</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>new</code>
+          </td>
+
+          <td>allocation</td>
+
+          <td>
+            <code>new</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code><emphasis>op</emphasis>()</code>
+          </td>
+
+          <td>function/operation call</td>
+
+          <td>
+            <code>
+              <emphasis>n/a</emphasis>
+            </code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code><emphasis>x</emphasis>.<emphasis>op</emphasis>()</code>
+          </td>
+
+          <td>member function/operation call</td>
+
+          <td>
+            <code><emphasis>x</emphasis>.<emphasis>op</emphasis>()</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>instanceof</code>
+          </td>
+
+          <td>type check</td>
+
+          <td>
+            <code>instanceof</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>this</code>
+          </td>
+
+          <td>self access</td>
+
+          <td>
+            <code>this</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>.</code>
+          </td>
+
+          <td>attribute access, context access</td>
+
+          <td>
+            <code>., n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>bind [lazy]</code>
+          </td>
+
+          <td>incremental [lazy] evaluation</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>:</code>
+          </td>
+
+          <td>eager initialization</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>[]</code>
+          </td>
+
+          <td>array selection</td>
+
+          <td>
+            <code>[]</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>format as</code>
+          </td>
+
+          <td>String formatting</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>&lt;&lt;&gt;&gt;</code>
+          </td>
+
+          <td>Identifier quotes</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>{}</code>
+          </td>
+
+          <td>String expression</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>(<emphasis>expr</emphasis>)</code>
+          </td>
+
+          <td>grouping</td>
+
+          <td>
+            <code>(<emphasis>expr</emphasis>)</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>reverse</code>
+          </td>
+
+          <td>reverses a list</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>[<emphasis>number1</emphasis>,<emphasis>next</emphasis>..<emphasis>number2</emphasis>]<!--</code--></code>
+          </td>
+
+          <td>numeric range</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <para>
+      <emphasis role="bold">Examples:</emphasis>
+    </para>
+
+    <programlisting>         import java.lang.System;
+         import java.lang.Math;
+
+         var x = 2;
+         var y = 4;
+         var a = true;
+         var b = false;
+         System.out.println(x == y);  // prints false
+         System.out.println(x &lt;&gt; y);  // prints true
+         System.out.println(x &lt; y);   // prints true
+         System.out.println(x &gt; y);   // prints true
+         System.out.println(x &gt;= y);  // prints false
+         System.out.println(x &lt;= y);  // prints true
+         System.out.println(x + y);   // prints  6
+         System.out.println(x - y);   // prints  -2
+         System.out.println(x * y);   // prints  8
+         System.out.println(x / y);   // prints  0.5
+         System.out.println(x % y);   // prints  2
+         System.out.println(a and b); // prints  false
+         System.out.println(a or b);  // prints  true
+         System.out.println(not a);   // prints  false
+         System.out.println(sizeof [x,y]);   // prints  2
+         System.out.println([x,y][indexof . == 0]);   // prints  2
+         System.out.println(if a then x else y); // prints 2
+         System.out.println(select q from q in [x, y] where q &gt; 3); // prints 4
+         System.out.println(foreach(q in [x, y] where q &lt; 3) q); // prints 2
+         System.out.println(Math.max(x, y)); // prints 4
+         System.out.println("abc".toUpperCase()); // prints ABC
+         System.out.println(x instanceof Number); // prints true
+         x = 10;
+         System.out.println(x); // prints 10
+</programlisting>
+  </sect1>
+
+  <!-- keep quoted identifiers and Range operator here 
+     because they are operators -->
+
+  <sect2 id="quote">
+    <title>Quoted Identifiers</title>
+
+    <para>In JavaFX Script, any sequence of characters (including whitespace)
+    contained in french quotes <code>&lt;&lt;&gt;&gt;</code> is treated as an
+    identifier. This lets you use JavaFX Script keywords (or other normally
+    illegal identifiers) as class, variable, function, or attribute
+    names.</para>
+
+    <para>
+      <emphasis role="bold">Example:</emphasis>
+    </para>
+
+    <programlisting>        var &lt;&lt;while&gt;&gt; = 100;
+</programlisting>
+
+    <para>By overloading a keyword, you can call Java methods whose names are
+    the same as JavaFX Script keywords, for example:</para>
+
+    <programlisting>        import javax.swing.JTextArea;
+
+        var textArea = new JTextArea();
+        textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);
+</programlisting>
+  </sect2>
+
+  <sect2 id="range">
+    <title>Range Expression</title>
+
+    <para>You can define an array of numeric values that form an arithmetic
+    series using the following syntax:</para>
+
+    <programlisting>            [<emphasis>number1</emphasis>..<emphasis>number2</emphasis>]
+</programlisting>
+
+    <para>This expression defines an array whose elements consist of the
+    integers from <emphasis>number1</emphasis> to <emphasis>number2</emphasis>
+    (inclusive).</para>
+
+    <para>
+      <emphasis role="bold">For example:</emphasis>
+    </para>
+
+    <programlisting>            var nums = [0..3];
+            System.out.println(nums == [0,1,2,3]); // prints true
+</programlisting>
+
+    <para>By default the interval between the values is <code>1</code> but
+    it's also possible to specify a different interval by including the next
+    number in the sequence after <emphasis>number1</emphasis>, separated by a
+    comma. For example, the following expression defines an array consisting
+    of the odd numbers between <code>1</code> and <code>10</code>:</para>
+
+    <programlisting>            [1,3..10]
+</programlisting>
+
+    <para>If <code>number1</code> is greater than <code>number2</code> a
+    descending series is created:</para>
+
+    <programlisting>            var nums = [3..0];
+            System.out.println(nums == [3,2,1,0]); // prints true
+</programlisting>
+  </sect2>
+
+  <sect1 id="bind">
+    <title>The Bind Operator</title>
+
+    <para>
+      The <eee>bind</eee> operator associates a current value with a target value. When the target value changes, the system changes the current value to match. 
+    </para>
+     <para>
+        <emphasis role="bold">Syntax:</emphasis>
+      </para>
+
+      <programlisting>a: bind <emphasis>target</emphasis>  </programlisting>
+
+      <para>Where <emphasis>target</emphasis> is the value of the target.</para>
+    
+    
+    
+
+    <sect2 id="lazy">
+      <title>Incremental and Lazy Evaluation</title>
+
+      <para>In JavaFX Script, you can specify attribute initializers to be
+      lazily and/or incrementally evaluated with the <code>bind</code>
+      operator. Attributes initialized with <code>bind</code> are akin to
+      cells in a spreadsheet that contain formulas rather than literal values.
+      During the lifetime of the object containg the attribute, whenever any
+      of the objects referenced by the right hand side of the initializer
+      expression changes the left hand side (the attribute's value) is
+      automatically updated. Here is an example:</para>
+
+      <programlisting>         import java.lang.System;
+
+         class X {
+               attribute a: Number;
+               attribute b: Number;
+               attribute c: Number;
+         }
+
+         trigger on X.b = newValue {
+               System.out.println("X.b is now {newValue}");
+         }
+
+         trigger on X.c = newValue {
+               System.out.println("X.c is now {newValue}");
+         }
+
+         var x1 = X {
+              a: 1
+              b: 2   // X.b is now 2 is printed
+              c: 3   // X.c is now 3 is printed
+         };
+
+         var x2 = X {
+              a:  x1.a       // eager, non-incremental
+              b:  bind x1.b // eager, incremental (X.b is now 2 is printed)
+              c:  bind lazy x1.c  // lazy, incremental (nothing is printed yet)
+         };
+
+        System.out.println(x2.a); // prints 1
+        System.out.println(x2.b); // prints 2
+        System.out.println(x2.c); // prints X.c is now 3, then prints 3
+
+        x1.a = 5;
+        x1.b = 5; // prints X.b is now 5, twice
+        x1.c = 5; // prints X.c is now 5, twice
+
+        System.out.println(x2.a); // prints 1
+        System.out.println(x2.b); // prints 5
+        System.out.println(x2.c); // prints 5
+         </programlisting>
+
+      <para>In the above example, the <code>b</code> and <code>c</code>
+      attributes of <code>x2</code> are bound to the <code>b</code> and
+      <code>c</code> attributes of <code>x1</code>. This means that whenever
+      <code>x1</code>'s <code>b</code> or <code>c</code> attribute is updated
+      the <code>b</code> and <code>c</code> attributes of <code>x2</code> will
+      be correspondingly updated. The difference between <code>x2.b</code> and
+      <code>x2.c</code> is that the former's value is immediately updated in
+      its attribute initializer whereas the latter's binding is not evaluated
+      until its value is accessed the first time.</para>
+
+      <para>Note that the body of a <code>function</code> is always
+      incrementally evaluated without requiring the <code>bind</code>
+      operator, however the body of an <code>operation</code> is not. Unlike a
+      function, inside an <code>operation</code> changes to local variables do
+      not trigger incremental evaluation. Incremental evaluation is not
+      performed inside the body of an <code>operation</code> except for
+      expressions explicitly prefixed by <code>bind</code>.</para>
+
+      <para>Nevertheless when you call an <code>operation</code> (or a Java
+      method) from an incremental evaluation context the call itself is
+      incrementally evaluated. This means that if the values of any of the
+      arguments to the call change a new fresh call to that operation or
+      method will be made and a new value returned.</para>
+
+      <para>By contrast, <code>function</code>s are only called once and the
+      result of the evaluation is incorporated into the caller's evaluation
+      tree.</para>
+
+      <para>Incremental evaluation is one of JavaFX Script's main
+      distinguishing features. Incremental evaluation makes it possible to
+      define complex dynamic GUI's declaratively. The lazy evaluation feature
+      is also needed to handle recursive data structures like trees and
+      graphs.</para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="triggers">
+    <title>The Trigger Operator</title>
+
+    <para>A trigger operator executes a block of code whenever a particular
+    condition occurs. This is similar to the <code>bind</code> operator, but
+    the <code>bind</code> operator changes a value and doesn't execute
+    code.</para>
+
+    <para>By using <code>trigger</code> and <code>bind</code> together, you
+    can easily execute code upon encountering a change in value.</para>
+
+    <para><emphasis role="bold">Note:  </emphasis> JavaFX Script
+    <code>class</code>es don't have constructors, and JavaFX Script
+    <code>attribute</code>s don't have setter methods like Java bean
+    properties. Instead, JavaFX Script provides the SQL-like
+    <code>trigger</code> mechanism that lets you handle data modification
+    events.</para>
+
+    <para>Triggers are introduced with the <code>trigger</code>
+    keyword.</para>
+
+    <para>A trigger consists of a header and a body. The header specifies the
+    type of event the <code>trigger</code> applies to. The body of the
+    <code>trigger</code> is a procedure that executes whenever the specified
+    event occurs. Inside the body you can use any of the statements available
+    inside the body of an operation. Triggers also behave like member
+    functions/operations, in that the context object is accessible inside the
+    body via the <code>this</code> keyword.</para>
+
+    <para>Java FX Script supports four trigger actions:</para>
+
+    <itemizedlist>
+      <listitem>Create triggers</listitem>
+
+      <listitem>Insert triggers</listitem>
+
+      <listitem>Delete triggers</listitem>
+
+      <listitem>Replace triggers</listitem>
+    </itemizedlist>
+
+    <para>
+      <emphasis role="bold">Syntax:</emphasis>
+    </para>
+
+    <programlisting>trigger on <emphasis>expr1</emphasis> [on|to|from|from] <emphasis>expr2</emphasis> </programlisting>
+
+    <para>where <emphasis>expr1</emphasis> is a value or the creation of an
+    object and <emphasis>expr2</emphasis> is a list or array of objects of
+    that type.</para>
+
+    <!--		<para><emphasis>Example of trigger mechanism goes here: </emphasis></para> -->
+
+    <!--	    <sect2 id="update">
+              <title>Update Triggers</title>
+
+	      <para><emphasis> Are there other language mechanisms like this? We need to collect all of them into the same top-level section if there are. </emphasis></para>
+	      
+	      <para><emphasis>Where do we discuss BIND? Where do we discuss other JavaFX Script mechanisms like TRIGGER and BIND? </emphasis></para> 
+	      
+	      <para>&nbsp;</para>
+-->
+
+    <sect2 id="creation">
+      <title>Creation Triggers</title>
+
+      <para>You can perform an action in the context of a newly created object
+      by specifying a creation trigger.</para>
+
+      <para>
+        <emphasis role="bold">Syntax:</emphasis>
+      </para>
+
+      <programlisting>trigger on <emphasis>expr</emphasis> </programlisting>
+
+      <para>where <emphasis>expr</emphasis> is the creation of an
+      object.</para>
+
+      <para>This example defines a trigger that will be executed whenever a
+      new instance of the <code>X</code> class is created. In this case it
+      just assigns an initial value to the <code>nums</code> attribute.</para>
+
+      <para>
+        <emphasis role="bold">Example:</emphasis>
+      </para>
+
+      <programlisting>          import java.lang.System;
+
+         class X {
+              attribute nums: Number*;
+         }
+
+         trigger on new X {
+              insert [3,4] into this.nums;
+         }
+
+         var x = new X();
+         System.out.println(x.nums == [3,4]); // prints true         </programlisting>
+    </sect2>
+
+    <sect2 id="insert">
+      <title>Insert Triggers</title>
+
+      <para>You can perform an action whenever an element is inserted into a
+      multi-valued attribute by specifying an insert trigger.</para>
+
+      <para>
+        <emphasis role="bold">Syntax:</emphasis>
+      </para>
+
+      <programlisting>trigger on insert <emphasis>expr1</emphasis> into <emphasis>expr2</emphasis> </programlisting>
+
+      <para>Where <emphasis>expr1</emphasis> is the value of an element, and
+      <emphasis>expr2</emphasis> is a list or array containing elements of
+      that type.</para>
+
+      <para>In this example, <code>num</code> is the name of a variable that
+      contains a reference to the element being inserted (you can name the
+      variable whatever you like). The context index of the variable (returned
+      by the <code>indexof</code> operator) corresponds to the insertion
+      point.</para>
+
+      <para>
+        <emphasis role="bold">Example:</emphasis>
+      </para>
+
+      <programlisting>         import java.lang.System;
+
+         class X {
+              attribute nums: Number*;
+         }
+
+         trigger on insert num into X.nums {
+              System.out.println("just inserted {num} into X.nums at position {indexof num}");
+         }
+         var x = new X();
+         insert 12 into x.nums; // prints just inserted 12 into X.nums at position 0
+         insert 13 into x.nums; // prints just inserted 13 into X.nums at position 1
+</programlisting>
+    </sect2>
+
+    <sect2 id="delete">
+      <title>Delete Triggers</title>
+
+      <para>You can perform a <code>trigger</code> action whenever an element
+      is deleted from a multi-valued attribute by specifying a
+      <code>delete</code> trigger.</para>
+
+      <para>
+        <emphasis role="bold">Syntax:</emphasis>
+      </para>
+
+      <programlisting>trigger on delete <emphasis>expr1</emphasis> from <emphasis>expr2</emphasis> </programlisting>
+
+      <para>Where <emphasis>expr1</emphasis> is the value of an element, and
+      <emphasis>expr2</emphasis> is a list or array containing elements of
+      that type.</para>
+
+      <para>In this example, <code>num</code> is the name of a variable that
+      will contain a reference to the element being deleted (you can name the
+      variable whatever you like). The context index of the variable (returned
+      by the <code>indexof</code> operator) corresponds to the deletion
+      point.</para>
+
+      <para>
+        <emphasis role="bold">Example:</emphasis>
+      </para>
+
+      <programlisting>         import java.lang.System;
+
+         class X {
+              attribute nums: Number*;
+         }
+
+         trigger on delete num from X.nums {
+              System.out.println("just deleted {num} from X.nums at position {indexof num}");
+         }
+
+         var x = X {
+              nums: [12, 13]
+         };
+
+         delete x.nums[1]; // prints just deleted 13 from X.nums at position 1
+         delete x.nums[0]; // prints just deleted 12 from X.nums at position 0
+</programlisting>
+    </sect2>
+
+    <sect2 id="replace">
+      <title>Replace Triggers</title>
+
+      <para>You can perform an action whenever the value of a single-valued
+      attribute or an element of a multi-valued attribute is replaced.</para>
+
+      <para>
+        <emphasis role="bold">Syntax:</emphasis>
+      </para>
+
+      <programlisting>trigger on <emphasis>attribute[expr1]</emphasis> =  <emphasis>expr2</emphasis> </programlisting>
+
+      <para>Where <emphasis>attribute[expr1]</emphasis> is the value of a
+      multi-valued attribute like a list, array or String,
+      <emphasis>expr1</emphasis> is the value to replace, and
+      <emphasis>expr2</emphasis> is the new value to be inserted into the
+      attribute at the <emphasis>expr1</emphasis> location.</para>
+
+      <para>In the example below, the variables <code>oldValue</code> and
+      <code>newValue</code> contain references to the previous and current
+      values of the element being replaced (you can name the variables
+      whatever you like). The context index of the variable (returned by the
+      <code>indexof</code> operator) corresponds to the ordinal position of
+      the element being replaced.</para>
+
+      <para>
+        <emphasis role="bold">Example:</emphasis>
+      </para>
+
+      <programlisting>         import java.lang.System;
+
+         class X {
+              attribute nums: Number*;
+              attribute num: Number?;
+         }
+
+         trigger on X.nums[oldValue] = newValue {
+              System.out.println("just replaced {oldValue} with {newValue} at position {indexof newValue} in X.nums");
+         }
+
+         trigger on X.num[oldValue] = newValue {
+              System.out.println("X.num: just replaced {oldValue} with {newValue}");
+         }
+
+         var x = X {
+              nums: [12, 13]
+              num: 100
+         };
+         x.nums[1] = 5; // prints just replaced 13 with 5 at position 1 in X.nums
+         x.num = 3; // prints X.num: just replaced 100 with 3
+         x.num = null;  // prints X.num: just replaced 3 with null
+         </programlisting>
+    </sect2>
+
+    <!-- COMMENTED OUT QUESTIONS SECTION FOR NOW
+
 <sect2 id="equests"><title>Expressions Questions</title>
 
 <para><emphasis>
@@ -71,948 +1084,5 @@ Any other operators?  What about the (*, :, and ?) var operators?
 
 </sect2>
 -->
-
-
- <sect1>
-          <title>Expressions</title>
-	  
-	  <para><emphasis>Nothing yet.</emphasis></para>
-	  
-	  </sect1>
-	  
-	  <sect1 id="oper"><title>Operators</title>
-	  
-	  <para><emphasis>This section defines JavaFX Script operators and compares JavaFX Script operators to Java operators.  </emphasis></para>
-<!--	  
-	  <para><emphasis>Is this operators table still complete?</emphasis></para>
-	  
-	    <para><emphasis> We need to know more about the 'other operators' listed below... expecially bind, format as, and 'reverse.'</emphasis></para>
--->
-          <para>JavaFX Script supports the following operators, grouped according to function and data type:</para>
-
-          <table cellpadding="5" cellspacing="5"
-                 style="border: medium groove ;">
-            <tbody>
-              <tr>
-                <th style="text-decoration: underline;">Operator</th>
-
-                <th style="text-decoration: underline;">Meaning</th>
-
-                <th style="text-decoration: underline;">Java Equivalent</th>
-              </tr>
-
-              <tr>
-                <th />
-              </tr>
-
-              <tr>
-                <td colspan="2">
-                  <emphasis>Relational Operators</emphasis>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>==</code>
-                </td>
-
-                <td>equality</td>
-
-                <td>
-                  <code>==</code>
-                </td>
-              </tr>                  
-
-              <tr>
-                <td>
-                  <code>&lt;&gt;</code>
-                </td>
-
-                <td>inequality</td>
-
-                <td>
-                  <code>!=</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>&lt;</code>
-                </td>
-
-                <td>less than</td>
-
-                <td>
-                  <code>&lt;</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>&gt;</code>
-                </td>
-
-                <td>greater than</td>
-
-                <td>
-                  <code>&gt;</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>&lt;=</code>
-                </td>
-
-                <td>less than or equal</td>
-
-                <td>
-                  <code>&lt;=</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>&gt;=</code>
-                </td>
-
-                <td>greater than or equal</td>
-
-                <td>
-                  <code>&gt;=</code>
-                </td>
-              </tr>
-
-              <tr>
-                <th />
-              </tr>
-
-              <tr>
-                <td colspan="2">
-                  <emphasis>Boolean Operators</emphasis>
-                </td>
-
-                <td />
-              </tr>
-
-              <tr>
-                <td>
-                  <code>and</code>
-                </td>
-
-                <td>logical and</td>
-
-                <td>
-                  <code>&amp;&amp;</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>or</code>
-                </td>
-
-                <td>logical or</td>
-
-                <td>
-                  <code>||</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>not</code>
-                </td>
-
-                <td>logical negation</td>
-
-                <td>
-                  <code>!</code>
-                </td>
-              </tr>
-
-              <tr>
-                <th />
-              </tr>
-
-              <tr>
-                <td colspan="2">
-                  <emphasis>Arithmetic Operators</emphasis>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>+</code>
-                </td>
-
-                <td>addition</td>
-
-                <td>
-                  <code>+</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>-</code>
-                </td>
-
-                <td>subtraction; unary negation</td>
-
-                <td>
-                  <code>-</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>*</code>
-                </td>
-
-                <td>multiplication</td>
-
-                <td>
-                  <code>*</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>/</code>
-                </td>
-
-                <td>division</td>
-
-                <td>
-                  <code>/</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>%</code>
-                </td>
-
-                <td>remainder</td>
-
-                <td>
-                  <code>%</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>+=</code>
-                </td>
-
-                <td>add and assign</td>
-
-                <td>
-                  <code>+=</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>-=</code>
-                </td>
-
-                <td>subtract and assign</td>
-
-                <td>
-                  <code>-=</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>*=</code>
-                </td>
-
-                <td>multiply and assign</td>
-
-                <td>
-                  <code>*=</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>/=</code>
-                </td>
-
-                <td>divide and assign</td>
-
-                <td>
-                  <code>/=</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>%=</code>
-                </td>
-
-                <td>remainder and assign</td>
-
-                <td>
-                  <code>%=</code>
-                </td>
-              </tr>
-
-              <tr>
-                <th />
-              </tr>
-
-              <tr>
-                <td colspan="2">
-                  <emphasis>Other Operators</emphasis>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>sizeof</code>
-                </td>
-
-                <td>array length</td>
-
-                <td>
-                  <code>n/a</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>indexof</code>
-                </td>
-
-                <td>ordinal position</td>
-
-                <td>
-                  <code>n/a</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>if <emphasis>e1</emphasis> then
-                  <emphasis>e2</emphasis> else <emphasis>e3</emphasis></code>
-                </td>
-
-                <td>conditional expression</td>
-
-                <td>
-                  <code><emphasis>e1</emphasis> ? <emphasis>e2</emphasis> :
-                  <emphasis>e3</emphasis></code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>select</code>
-                </td>
-
-                <td>list comprehension</td>
-
-                <td>
-                  <code>n/a</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>foreach</code>
-                </td>
-
-                <td>list comprehension</td>
-
-                <td>
-                  <code>n/a</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>new</code>
-                </td>
-
-                <td>allocation</td>
-
-                <td>
-                  <code>new</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code><emphasis>op</emphasis>()</code>
-                </td>
-
-                <td>function/operation call</td>
-
-                <td>
-                  <code>
-                    <emphasis>n/a</emphasis>
-                  </code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code><emphasis>x</emphasis>.<emphasis>op</emphasis>()</code>
-                </td>
-
-                <td>member function/operation call</td>
-
-                <td>
-                  <code><emphasis>x</emphasis>.<emphasis>op</emphasis>()</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>instanceof</code>
-                </td>
-
-                <td>type check</td>
-
-                <td>
-                  <code>instanceof</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>this</code>
-                </td>
-
-                <td>self access</td>
-
-                <td>
-                  <code>this</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>.</code>
-                </td>
-
-                <td>attribute access, context access</td>
-
-                <td>
-                  <code>., n/a</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>bind [lazy]</code>
-                </td>
-
-                <td>incremental [lazy] evaluation</td>
-
-                <td>
-                  <code>n/a</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>:</code>
-                </td>
-
-                <td>eager initialization</td>
-
-                <td>
-                  <code>n/a</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>[]</code>
-                </td>
-
-                <td>array selection</td>
-
-                <td>
-                  <code>[]</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>format as</code>
-                </td>
-
-                <td>String formatting</td>
-
-                <td>
-                  <code>n/a</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>&lt;&lt;&gt;&gt;</code>
-                </td>
-
-                <td>Identifier quotes</td>
-
-                <td>
-                  <code>n/a</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>{}</code>
-                </td>
-
-                <td>String expression</td>
-
-                <td>
-                  <code>n/a</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>(<emphasis>expr</emphasis>)</code>
-                </td>
-
-                <td>grouping</td>
-
-                <td>
-                  <code>(<emphasis>expr</emphasis>)</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>reverse</code>
-                </td>
-
-                <td>reverses a list</td>
-
-                <td>
-                  <code>n/a</code>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <code>[<emphasis>number1</emphasis>,<emphasis>next</emphasis>..<emphasis>number2</emphasis>]<!--</code--></code>
-                </td>
-
-                <td>numeric range</td>
-
-                <td>
-                  <code>n/a</code>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <para><emphasis role="bold"> Examples:</emphasis></para>
-
-          <programlisting>         import java.lang.System;
-         import java.lang.Math;
-
-         var x = 2;
-         var y = 4;
-         var a = true;
-         var b = false;
-         System.out.println(x == y);  // prints false
-         System.out.println(x &lt;&gt; y);  // prints true
-         System.out.println(x &lt; y);   // prints true
-         System.out.println(x &gt; y);   // prints true
-         System.out.println(x &gt;= y);  // prints false
-         System.out.println(x &lt;= y);  // prints true
-         System.out.println(x + y);   // prints  6
-         System.out.println(x - y);   // prints  -2
-         System.out.println(x * y);   // prints  8
-         System.out.println(x / y);   // prints  0.5
-         System.out.println(x % y);   // prints  2
-         System.out.println(a and b); // prints  false
-         System.out.println(a or b);  // prints  true
-         System.out.println(not a);   // prints  false
-         System.out.println(sizeof [x,y]);   // prints  2
-         System.out.println([x,y][indexof . == 0]);   // prints  2
-         System.out.println(if a then x else y); // prints 2
-         System.out.println(select q from q in [x, y] where q &gt; 3); // prints 4
-         System.out.println(foreach(q in [x, y] where q &lt; 3) q); // prints 2
-         System.out.println(Math.max(x, y)); // prints 4
-         System.out.println("abc".toUpperCase()); // prints ABC
-         System.out.println(x instanceof Number); // prints true
-         x = 10;
-         System.out.println(x); // prints 10
-</programlisting>
-
-        </sect1>
-	
-	
-<!-- keep quoted identifiers and Range operator here 
-     because they are operators -->
-
-  <sect2 id="quote">
-    <title>Quoted Identifiers</title>
-
-    <para>In JavaFX Script, any sequence of characters (including whitespace)
-    contained in french quotes <code>&lt;&lt;&gt;&gt;</code> is treated as an
-    identifier. This lets you use JavaFX Script keywords (or other normally
-    illegal identifiers) as class, variable, function, or attribute names.</para>
-    
-    <para><emphasis role="bold">Example:</emphasis></para>
-
-    <programlisting>        var &lt;&lt;while&gt;&gt; = 100;
-</programlisting>
-
-    <para>By overloading a keyword, you can call Java methods whose names are the
-    same as JavaFX Script keywords, for example:</para>
-
-    <programlisting>        import javax.swing.JTextArea;
-
-        var textArea = new JTextArea();
-        textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);
-</programlisting>
-  </sect2>
-
-  <sect2 id="range">
-    <title>Range Expression</title>
-
-    <para>You can define an array of numeric values that
-    form an arithmetic series using the following syntax:</para>
-
-    <programlisting>            [<emphasis>number1</emphasis>..<emphasis>number2</emphasis>]
-</programlisting>
-
-    <para>This expression defines an array whose elements consist of the
-    integers from <emphasis>number1</emphasis> to <emphasis>number2</emphasis>
-    (inclusive).</para>
-
-    <para><emphasis role="bold">For example:</emphasis></para>
-
-    <programlisting>            var nums = [0..3];
-            System.out.println(nums == [0,1,2,3]); // prints true
-</programlisting>
-
-    <para>By default the interval between the values is <code>1</code> but
-    it's also possible to specify a different interval by including the next
-    number in the sequence after <emphasis>number1</emphasis>, separated by a
-    comma. For example, the following expression defines an array consisting
-    of the odd numbers between <code>1</code> and <code>10</code>:</para>
-
-    <programlisting>            [1,3..10]
-</programlisting>
-
-    <para>If <code>number1</code> is greater than <code>number2</code> a
-    descending series is created:</para>
-
-    <programlisting>            var nums = [3..0];
-            System.out.println(nums == [3,2,1,0]); // prints true
-</programlisting>
-  </sect2>
-	
-	
-	
-	<sect1 id="bind">       
-              <title>The Bind Operator</title>
-	      
-	      <para><emphasis>No general intro yet.  </emphasis></para>
-	      
-	      
-	      
-	      
-	      
-	
-            <sect2 id="lazy">
-              <title>Incremental and Lazy Evaluation</title>
-
-              <para>In JavaFX Script, you can specify attribute initializers  to be
-              lazily and/or incrementally evaluated with the <code>bind</code>
-              operator. Attributes initialized with <code>bind</code> are akin
-              to cells in a spreadsheet that contain formulas rather than
-              literal values. During the lifetime of the object containg the
-              attribute, whenever any of the objects referenced by the right
-              hand side of the initializer expression changes the left hand
-              side (the attribute's value) is automatically updated. Here is
-              an example:</para>
-
-              <programlisting>         import java.lang.System;
-
-         class X {
-               attribute a: Number;
-               attribute b: Number;
-               attribute c: Number;
-         }
-
-         trigger on X.b = newValue {
-               System.out.println("X.b is now {newValue}");
-         }
-
-         trigger on X.c = newValue {
-               System.out.println("X.c is now {newValue}");
-         }
-
-         var x1 = X {
-              a: 1
-              b: 2   // X.b is now 2 is printed
-              c: 3   // X.c is now 3 is printed
-         };
-
-         var x2 = X {
-              a:  x1.a       // eager, non-incremental
-              b:  bind x1.b // eager, incremental (X.b is now 2 is printed)
-              c:  bind lazy x1.c  // lazy, incremental (nothing is printed yet)
-         };
-
-        System.out.println(x2.a); // prints 1
-        System.out.println(x2.b); // prints 2
-        System.out.println(x2.c); // prints X.c is now 3, then prints 3
-
-        x1.a = 5;
-        x1.b = 5; // prints X.b is now 5, twice
-        x1.c = 5; // prints X.c is now 5, twice
-
-        System.out.println(x2.a); // prints 1
-        System.out.println(x2.b); // prints 5
-        System.out.println(x2.c); // prints 5
-         </programlisting>
-
-              <para>In the above example, the <code>b</code> and <code>c</code> attributes of <code>x2</code> are
-              bound to the <code>b</code> and <code>c</code> attributes of <code>x1</code>. This means that whenever
-              <code>x1</code>'s <code>b</code> or <code>c</code> attribute is updated the <code>b</code> and <code>c</code> attributes of <code>x2</code>
-              will be correspondingly updated. The difference between <code>x2.b</code> and
-              <code>x2.c</code> is that the former's value is immediately updated in its
-              attribute initializer whereas the latter's binding is not
-              evaluated until its value is accessed the first time.</para>
-
-              <para>Note that the body of a <code>function</code> is always
-              incrementally evaluated without requiring the <code>bind</code>
-              operator, however the body of an <code>operation</code> is not.
-              Unlike a function, inside an <code>operation</code> changes to
-              local variables do not trigger incremental evaluation.
-              Incremental evaluation is not performed inside the body of an
-              <code>operation</code> except for expressions explicitly
-              prefixed by <code>bind</code>.</para>
-
-              <para>Nevertheless when you call an <code>operation</code> (or a
-              Java method) from an incremental evaluation context the call
-              itself is incrementally evaluated. This means that if the values
-              of any of the arguments to the call change a new fresh call to
-              that operation or method will be made and a new value
-              returned.</para>
-
-             <para>By contrast, <code>function</code>s are only called once
-              and the result of the evaluation is incorporated into the
-              caller's evaluation tree.</para>
-
-              <para>Incremental evaluation is one of JavaFX Script's main
-              distinguishing features. Incremental evaluation makes it possible to define complex
-              dynamic GUI's declaratively. The lazy evaluation feature is also 
-              needed to handle recursive data structures like trees and
-              graphs.</para>  
-	      
-</sect2>      
-	      
-	      
-	      
-	      
-	      
-	      
-	      
-	      
-	      
-	      </sect1>
-
-
-            <sect1 id="triggers">       
-	    <title>The Trigger Operator</title>
-	    
-	     <para><emphasis>Trigger definition goes here. </emphasis></para>
-	     
-	   
-	    
-	    <para><emphasis>Java FX Script supports four trigger actions: </emphasis></para>
-	    
-	    
-	    <itemizedlist>
-	      <listitem>Update triggers</listitem>
-	      <listitem>Create triggers</listitem>
-	      <listitem>Insert triggers</listitem>
-	      <listitem>Delete triggers</listitem>
-	      <listitem>Replace triggers</listitem>
-	    </itemizedlist>
-	    
-		<para><emphasis>Example of trigger mechanism goes here: </emphasis></para>
-	    
-	    <sect2 id="update">
-              <title>Update Triggers</title>
-	      
-	<!--
-	      
-	      <para><emphasis> Are there other language mechanisms like this? We need to collect all of them into the same top-level section if there are. </emphasis></para>
-	      
-	      <para><emphasis>Where do we discuss BIND? Where do we discuss other JavaFX Script mechanisms like TRIGGER and BIND? </emphasis></para> -->
-	      
-	      <para>&nbsp;</para>
-
-              <para>JavaFX Script <code>class</code>es don't have constructors, and
-              JavaFX Script <code>attribute</code>s don't have setter methods like Java
-              bean properties. Instead, JavaFX Script provides the SQL-like
-              <code>trigger</code> mechanism that lets you handle data modification
-              events.</para>
-
-              <para>Triggers are introduced with the <code>trigger</code>
-              keyword.</para>
-
-              <para>A trigger consists of a header and a body. The header
-              specifies the type of event the <code>trigger</code> applies to.
-              The body of the <code>trigger</code> is a procedure that
-              executes whenever the specified event occurs. Inside the body
-              you can use any of the statements available inside the body of
-              an operation. Triggers also behave like member
-              functions/operations, in that the context object is accessible
-              inside the body via the <code>this</code> keyword.</para>
-
-	      </sect2>
-
-
-            <sect2 id="creation">
-              <title>Creation Triggers</title>
-
-              <para>You can perform an action in the context of a newly
-              created object by specifying a creation trigger, like
-              this:</para>
-
-              <programlisting>          import java.lang.System;
-
-         class X {
-              attribute nums: Number*;
-         }
-
-         trigger on new X {
-              insert [3,4] into this.nums;
-         }
-
-         var x = new X();
-         System.out.println(x.nums == [3,4]); // prints true         </programlisting>
-
-              <para>This example defines a trigger that will be executed
-              whenever a new instance of the <code>X</code> class is created.
-              In this case it just assigns an initial value to the
-              <code>nums</code> attribute.</para>
-            </sect2>
-	    
-	   
-	    
-
-
-            <sect2 id="insert">
-              <title>Insert Triggers</title>
-
-              <para>You can perform an action whenever an element is inserted
-              into a multi-valued attribute by specifying an insert trigger,
-              like this:</para>
-
-              <programlisting>         import java.lang.System;
-
-         class X {
-              attribute nums: Number*;
-         }
-
-         trigger on insert num into X.nums {
-              System.out.println("just inserted {num} into X.nums at position {indexof num}");
-         }
-         var x = new X();
-         insert 12 into x.nums; // prints just inserted 12 into X.nums at position 0
-         insert 13 into x.nums; // prints just inserted 13 into X.nums at position 1
-         </programlisting>
-
-              <para>In the above example, <code>num</code> is the name of a variable that
-              contains a reference to the element being inserted (you can
-              name the variable whatever you like). The context index of the
-              variable (returned by the <code>indexof</code> operator)
-              corresponds to the insertion point.</para>
-            </sect2>
-
-            <sect2 id="delete">
-              <title>Delete Triggers</title>
-
-              <para>You can perform an action whenever an element is deleted
-              from a multi-valued attribute by specifying a delete trigger,
-              like this:</para>
-
-              <programlisting>         import java.lang.System;
-
-         class X {
-              attribute nums: Number*;
-         }
-
-         trigger on delete num from X.nums {
-              System.out.println("just deleted {num} from X.nums at position {indexof num}");
-         }
-
-         var x = X {
-              nums: [12, 13]
-         };
-
-         delete x.nums[1]; // prints just deleted 13 from X.nums at position 1
-         delete x.nums[0]; // prints just deleted 12 from X.nums at position 0
-         </programlisting>
-
-              <para>In the above example, "num" is the name of a variable that
-              will contain a reference to the element being deleted (you can
-              name the variable whatever you like). The context index of the
-              variable (returned by the <code>indexof</code> operator)
-              corresponds to the deletion point.</para>
-            </sect2>
-
-            <sect2 id="replace">
-              <title>Replace Triggers</title>
-
-              <para>You can perform an action whenever the value of a
-              single-valued attribute or an element of a multi-valued
-              attribute is replaced, like this:</para>
-
-              <programlisting>         import java.lang.System;
-
-         class X {
-              attribute nums: Number*;
-              attribute num: Number?;
-         }
-
-         trigger on X.nums[oldValue] = newValue {
-              System.out.println("just replaced {oldValue} with {newValue} at position {indexof newValue} in X.nums");
-         }
-
-         trigger on X.num[oldValue] = newValue {
-              System.out.println("X.num: just replaced {oldValue} with {newValue}");
-         }
-
-         var x = X {
-              nums: [12, 13]
-              num: 100
-         };
-         x.nums[1] = 5; // prints just replaced 13 with 5 at position 1 in X.nums
-         x.num = 3; // prints X.num: just replaced 100 with 3
-         x.num = null;  // prints X.num: just replaced 3 with null
-         </programlisting>
-
-              <para>In the above examples, <code>oldValue</code> and <code>newValue</code> are the
-              names of variables that contain references to the previous and
-              current values of the element being replaced (you can name the
-              variables whatever you like). The context index of the variable
-              (returned by the <code>indexof</code> operator) corresponds to
-              the ordinal position of the element being replaced.</para>
-            </sect2>
-
-
-
-</sect1>
+  </sect1>
 </chapter>
-           
