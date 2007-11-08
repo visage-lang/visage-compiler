@@ -1916,7 +1916,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     VarMorphInfo vmi = typeMorpher.varMorphInfo(varSym);
                     result.defs = result.defs.append(make.VarDef(make.Modifiers(0L), 
                             names.fromString(attrSym.name.toString().substring(initBuilder.attributeGetMethodNamePrefix.length())),
-                           makeIdentifier(vmi.getMorphedType().toString()), null));
+                           makeTypeTree(vmi.getMorphedType(), result), null));
                 }
                 else if (attrSym.kind == Kinds.VAR && attrSym.owner != sym) {
                     JCVariableDecl var = make.VarDef((VarSymbol)attrSym, null);
