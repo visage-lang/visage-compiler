@@ -1,26 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="javac" default="jar" basedir=".">
-    <description>Builds the javac project.</description>
-    <import file="nbproject/build-impl.xml"/>
-    <!--
-
-    This project builds an external directory with the javac source so it can be
-    used by the JavaFX compiler project.  To use, add the following property
-    to the nbproject/private/private.properties file:
+    <description>Builds the OpenJDK javac compiler.</description>
+    <property file="nbproject/project.properties"/>
+    <property environment="env"/>
     
-       file.reference.share-classes=<javac-source-path>
-       
-    The javac source is available from the OpenJDK project:
+    <property name="langtools.build.xml" value="${jdk.langtools.dir}/make/build.xml"/>
+    <property name="langtools.dist.lib.dir" value="${jdk.langtools.dir}/dist/lib"/>
     
-       http://openjdk.java.net/groups/compiler/
-    
-    -->
-    
-    <target name="-post-init">
-        <fail unless="file.reference.share-classes">Must set file.reference.share-classes</fail>
+    <target name="check-langtools-dir">
+        <fail unless="jdk.langtools.dir" 
+              message="jdk.langtools.dir property not set in private/project.properties"/>
+        <condition property="has-langtools-dir">
+            <available file="${jdk.langtools.dir}"/>
+        </condition>
     </target>
-
-    <target depends="init" name="-do-clean">
-        <delete dir="${build.dir}"/>
+    
+    <target name="init" depends="check-langtools-dir">
+        <fail unless="has-langtools-dir" message="OpenJDK langtools directory not found"/>
     </target>
+    
+    <target name="jar" depends="init" description="Builds the javac.jar file.">
+        <ant antfile="${langtools.build.xml}" target="build-javac" inheritall="false">
+            <property name="boot.java.home" value="${env.JAVA_HOME}"/>
+            <property name="javac.target" value="1.5"/>
+        </ant>
+        <copy file="${langtools.dist.lib.dir}/javac.jar" todir="../lib"/>
+    </target>
+    
+    <target name="clean" depends="init" description="Deletes all generated files and directories.">
+        <ant antfile="${langtools.build.xml}" target="clean" inheritall="false"/>
+    </target>
+    
 </project>
