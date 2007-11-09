@@ -484,14 +484,13 @@ public class JavafxResolve {
         while (env1 != null) {
             if (env1.outer != null && isStatic(env1)) staticOnly = true;
             if (envClass != null) {
-                if (newValueSym != null) {
-                    Scope sc = env1.info.scope;
-                    for (Scope.Entry e = sc.lookup(name); e.scope != null; e = e.next()) {
-                        if ((e.sym.flags_field & SYNTHETIC) != 0)
-                            continue;
-                        if ((e.sym.kind & (MTH|VAR)) != 0) {
-                            return e.sym;
-                        }
+                // Change for Javafx. Next 8 lines added.
+                Scope sc = env1.info.scope;
+                for (Scope.Entry e = sc.lookup(name); e.scope != null; e = e.next()) {
+                    if ((e.sym.flags_field & SYNTHETIC) != 0)
+                        continue;
+                    if ((e.sym.kind & (MTH|VAR)) != 0) {
+                        return e.sym;
                     }
                 }
 
