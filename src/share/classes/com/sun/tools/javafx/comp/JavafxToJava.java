@@ -179,11 +179,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      * and that isn't allowed by an (unmodified) javac back-end.
      * */
     private List<JCStatement> translateStatements(List<JCStatement> stats) {
-//        ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
-//        prependToStatements = ListBuffer.lb();
+        ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
+        prependToStatements = ListBuffer.lb();
         List<JCStatement> translatedStats = translate(stats);
-//        translatedStats = translatedStats.prependList(prependToStatements.toList());
-//        prependToStatements = prevPrependToStatements;
+        translatedStats = translatedStats.prependList(prependToStatements.toList());
+        prependToStatements = prevPrependToStatements;
         return translatedStats;
     }
 

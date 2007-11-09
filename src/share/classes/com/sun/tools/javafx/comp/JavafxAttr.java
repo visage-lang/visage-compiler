@@ -982,8 +982,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (tree.getOnChanges() != null) {
             Type elemType = null;
 
-            if (isSequence(result)) {
-                elemType = result.getTypeArguments().head;
+            if (isSequence(tree.type)) {
+                elemType = tree.type.getTypeArguments().head;
             }
 
             for (JFXAbstractOnChange onc : tree.getOnChanges()) {
@@ -3072,16 +3072,17 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             attribStat(l.head, env);
             // Check that declarations in inner classes are not static (JLS 8.1.2)
             // Make an exception for static constants.
-            if (c.owner.kind != PCK &&
-                ((c.flags() & STATIC) == 0 || c.name == names.empty) &&
-                (TreeInfo.flags(l.head) & (STATIC | INTERFACE)) != 0) {
-                Symbol sym = null;
-                if (l.head.getTag() == JCTree.VARDEF) sym = ((JCVariableDecl) l.head).sym;
-                if (sym == null ||
-                    sym.kind != VAR ||
-                    ((VarSymbol) sym).getConstValue() == null)
-                    log.error(l.head.pos(), "icls.cant.have.static.decl");
-            }
+            // Javafx allows that.
+//            if (c.owner.kind != PCK &&
+//                ((c.flags() & STATIC) == 0 || c.name == names.empty) &&
+//                (TreeInfo.flags(l.head) & (STATIC | INTERFACE)) != 0) {
+//                Symbol sym = null;
+//                if (l.head.getTag() == JCTree.VARDEF) sym = ((JCVariableDecl) l.head).sym;
+//                if (sym == null ||
+//                    sym.kind != VAR ||
+//                    ((VarSymbol) sym).getConstValue() == null)
+//                    log.error(l.head.pos(), "icls.cant.have.static.decl");
+//            }
         }
 
         // If this is a non-abstract class, check that it has no abstract

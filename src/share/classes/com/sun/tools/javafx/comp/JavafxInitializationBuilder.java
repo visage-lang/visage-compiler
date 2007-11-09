@@ -250,8 +250,12 @@ public class JavafxInitializationBuilder {
         } else {
             name = names.fromString(nameDefault);
         }
+        long flags = Flags.PARAMETER;
+        if (var != null && var.mods != null) {
+            flags |= var.mods.flags;
+        }
         return make.at(diagPos).VarDef(
-                make.Modifiers(Flags.PARAMETER),
+                make.Modifiers(flags),
                 name,
                 toJava.makeTypeTree(type, diagPos),
                 null);
@@ -259,7 +263,9 @@ public class JavafxInitializationBuilder {
     }
 
     private JCVariableDecl makeIndexParam(DiagnosticPosition diagPos, JFXAbstractOnChange onChange) {
-        return makeParam(diagPos, syms.intType, onChange == null ? null : onChange.getIndex(), "$index$");
+        JCVariableDecl ret = makeParam(diagPos, syms.intType, onChange == null ? null : onChange.getIndex(), "$index$");
+        ret.mods.flags |= Flags.FINAL;
+        return ret;
     }
 
     /**

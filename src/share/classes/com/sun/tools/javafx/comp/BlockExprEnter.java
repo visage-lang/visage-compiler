@@ -25,6 +25,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
@@ -136,7 +137,12 @@ public class BlockExprEnter extends Enter {
 
 	// Fill out class fields.
 	c.completer = memberEnter;
-	c.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, c, tree);
+        boolean wasStatic = (tree.mods.flags | Flags.STATIC) != 0L;
+	c.flags_field = chk.checkFlags(tree.pos(), (tree.mods.flags & ~(Flags.STATIC)), c, tree);
+        if (wasStatic) {
+            c.flags_field |= Flags.STATIC;
+        }
+        
 	c.sourcefile = env.toplevel.sourcefile;
 	c.members_field = new Scope(c);
 
