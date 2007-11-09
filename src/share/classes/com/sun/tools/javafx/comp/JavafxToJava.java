@@ -1595,6 +1595,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = make.at(tree.pos).TypeTest(expr, clazz);
     }
 
+    @Override
+    public void visitTypeCast(JCTypeCast tree) {
+        JCTree clazz = translate(tree.clazz);
+        JCExpression expr = translate(tree.expr);
+        if (clazz != null && clazz.type.tsym != null &&
+                clazz.type.tsym instanceof ClassSymbol && initBuilder.isJFXClass((ClassSymbol)clazz.type.tsym)) {
+            clazz = makeIdentifier(clazz.type.tsym.name.toString() + initBuilder.interfaceNameSuffix.toString());
+        }
+        result = make.at(tree.pos).TypeCast(clazz, expr);
+    }
+    
     public void visitLabelled(JCLabeledStatement tree) {
         assert false : "should not be in JavaFX AST";
     }
@@ -1687,12 +1698,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitTypeBoundKind(TypeBoundKind tree) {
         assert false : "should not be in JavaFX AST";
-    }
-
-    public void visitTypeCast(JCTypeCast tree) {
-        JCTree clazz = translate(tree.clazz);
-        JCExpression expr = translate(tree.expr);
-        result = make.at(tree.pos).TypeCast(clazz, expr);
     }
 
     public void visitTypeIdent(JCPrimitiveTypeTree tree) {
