@@ -239,13 +239,11 @@ public abstract class Widget extends GroupElement, UIElement {
             inputMap.put(j, newValue);
             actionMap.put(newValue as Object, javax.swing.AbstractAction {
                     public function isEnabled():Boolean {
-                        //TODO JXFC-175
-                        //return newValue.enabled;
+                        return newValue.enabled;
                         return true;
                     }
                     public function actionPerformed(e:java.awt.event.ActionEvent):Void {
-                        //TODO JXFC-175
-                        //newValue.action();
+                        newValue.action();
                     }
                 } as javax.swing.Action);
         }
@@ -269,12 +267,12 @@ public abstract class Widget extends GroupElement, UIElement {
             actionMap.remove(oldValue);
             actionMap.put(newValue as Object, javax.swing.AbstractAction {
                     public function isEnabled():Boolean {
-                        //TODO JXFC-175
+                        //TODO JFXC-175
                         //return newValue.enabled;
                         return true;
                     }
                     public function actionPerformed(e:java.awt.event.ActionEvent):Void {
-                        //TODO JXFC-175
+                        //TODO JFXXFC-175
                         //newValue.action();
                     }
                 } as javax.swing.Action);
@@ -746,10 +744,10 @@ public abstract class Widget extends GroupElement, UIElement {
             comp.addComponentListener(java.awt.event.ComponentAdapter {
                   public function componentResized(e:java.awt.event.ComponentEvent):Void {
                       //TODO JXFC-175
-                      //inBoundsListener = true;
+                      inBoundsListener = true;
                       //height = comp.getHeight();
                       //width = comp.getWidth();
-                      //inBoundsListener = false;
+                      inBoundsListener = false;
                   }
             } as java.awt.event.ComponentListener);
             if (focused) {
