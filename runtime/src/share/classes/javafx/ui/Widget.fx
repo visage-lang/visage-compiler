@@ -156,8 +156,6 @@ public abstract class Widget extends GroupElement, UIElement {
         };
     }
     private function makeMouseWheelEvent(e:java.awt.event.MouseWheelEvent):MouseEvent {
-        //TODO JXFC-179
-        /**********
         MouseWheelEvent {
             //TODO JFXC-157
             //modifiers: [if (e.isAltDown() ) KeyModifier.ALT else null,
@@ -181,9 +179,8 @@ public abstract class Widget extends GroupElement, UIElement {
            //TODO JXFC-178
            // source: e
         } as MouseEvent;
-         * ********/
-        MouseEvent{};
     }
+
     protected attribute mouseListener: MouseListener;
     protected attribute mouseWheelListener: MouseWheelListener;
     private attribute focusListener: FocusListener;
