@@ -25,6 +25,7 @@
 
 package javafx.ui;
 
+import com.sun.javafx.api.ui.JShadowedBorder;
 
 public class ShadowedBorder extends Border  {
     
