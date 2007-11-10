@@ -32,7 +32,7 @@ import java.awt.Insets;
 import javax.swing.border.Border;
 
 
-class JShadowedBorder implements Border {
+public class JShadowedBorder implements Border {
    private Insets insets;
 
    public JShadowedBorder() {
