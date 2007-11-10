@@ -240,7 +240,6 @@ public abstract class Widget extends GroupElement, UIElement {
             actionMap.put(newValue as Object, javax.swing.AbstractAction {
                     public function isEnabled():Boolean {
                         return newValue.enabled;
-                        return true;
                     }
                     public function actionPerformed(e:java.awt.event.ActionEvent):Void {
                         newValue.action();
