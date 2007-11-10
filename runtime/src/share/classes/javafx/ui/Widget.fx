@@ -750,11 +750,12 @@ public abstract class Widget extends GroupElement, UIElement {
                   }
             } as java.awt.event.ComponentListener);
             if (focused) {
-                //TODO DO LATER
-                //do later {
-                    requestFocus();
-                //TODO DO LATER
-                //}
+                //TODO DO LATER - this is a work around until a more permanent solution is provided
+                javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                          public function run():Void {
+                               requestFocus();
+                          }
+                });
             }
             if (name <> null) {    
                 comp.setName(name);
