@@ -395,6 +395,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         if ((tree.mods.flags & STATIC) != 0 ||
             (env.enclClass.sym.flags() & INTERFACE) != 0)
             localEnv.info.staticLevel++;
+        localEnv.outer = env;
         return localEnv;
     }
 

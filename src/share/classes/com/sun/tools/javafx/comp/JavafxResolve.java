@@ -65,7 +65,6 @@ public class JavafxResolve {
     public final boolean boxingEnabled; // = source.allowBoxing();
     public final boolean varargsEnabled; // = source.allowVarargs();
     private final boolean debugResolve;
-    Symbol newValueSym;
 
     public static JavafxResolve instance(Context context) {
         JavafxResolve instance = context.get(javafxResolveKey);
@@ -483,17 +482,7 @@ public class JavafxResolve {
         Type envClass = null;
         while (env1 != null) {
             if (env1.outer != null && isStatic(env1)) staticOnly = true;
-            if (envClass != null) {
-                // Change for Javafx. Next 8 lines added.
-                Scope sc = env1.info.scope;
-                for (Scope.Entry e = sc.lookup(name); e.scope != null; e = e.next()) {
-                    if ((e.sym.flags_field & SYNTHETIC) != 0)
-                        continue;
-                    if ((e.sym.kind & (MTH|VAR)) != 0) {
-                        return e.sym;
-                    }
-                }
-
+            if (envClass != null && env1.tree instanceof JFXClassDeclaration) {
                 sym = findMethod(env1, envClass, name,
                         expected,
                         true, false, false);
@@ -1145,8 +1134,9 @@ public class JavafxResolve {
 //          printscopes(site.tsym.members());//DEBUG
             if (!site.isErroneous() &&
                 !Type.isErroneous(argtypes) &&
-                (typeargtypes==null || !Type.isErroneous(typeargtypes)))
+                (typeargtypes==null || !Type.isErroneous(typeargtypes))) {
                 ((ResolveError)sym).report(log, pos, site, name, argtypes, typeargtypes);
+            }
             do {
                 sym = ((ResolveError)sym).sym;
             } while (sym.kind >= AMBIGUOUS);

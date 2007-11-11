@@ -113,19 +113,23 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
                 break;
             }
             case FUNCTION_DEF: {
-                JFXOperationDefinition decl = null;
-                decl = (JFXOperationDefinition)tree;
+                JFXOperationDefinition decl =
+                    (JFXOperationDefinition)tree;
                 decl.mods.flags |= STATIC;
                 Name name = decl.name;
                 checkName(tree.pos, name);
                 moduleClassDefs.append(tree);
+                //stats.append(decl);
                 break;
             }
-            case VAR_DEF:
-                checkName(tree.pos, ((JFXVar)tree).getName());
-                stats.append((JCStatement)tree);
+            case VAR_DEF: {
+                JFXVar decl = (JFXVar) tree;
+                //decl.mods.flags |= STATIC;
+                checkName(tree.pos, decl.getName());
+                stats.append(decl);
+                //moduleClassDefs.append(tree);
                 break;
-
+            }
             default:
                 stats.append((JCStatement)tree);
                 break;

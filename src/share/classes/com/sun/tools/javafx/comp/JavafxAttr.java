@@ -578,12 +578,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (tree.sym != null && tree.sym.kind != VAR) {
             sym = tree.sym;
         } else {
-            if (rs.newValueSym != null && tree.sym == rs.newValueSym) {
-                sym = tree.sym;
-            }
-            else {
-                sym = rs.resolveIdent(tree.pos(), env, tree.name, pkind, pt);
-            }
+            sym = rs.resolveIdent(tree.pos(), env, tree.name, pkind, pt);
         }
         tree.sym = sym;
         sym.complete();
@@ -649,12 +644,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 	    // If the found symbol is inaccessible, then it is
 	    // accessed through an enclosing instance.  Locate this
 	    // enclosing instance:
-	    while (env1.outer != null && !rs.isAccessible(env, env1.enclClass.sym.type, sym)) {
-                if (rs.newValueSym != null && sym == rs.newValueSym) {
-                    break;
-                }
+	    while (env1.outer != null && !rs.isAccessible(env, env1.enclClass.sym.type, sym))
 		env1 = env1.outer;
-            }
 	}
         result = checkId(tree, env1.enclClass.sym.type, sym, env, pkind, pt, pSequenceness, varArgs);
     }
@@ -888,6 +879,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         
         Type owntype = null;
         JavafxEnv<JavafxAttrContext> dupEnv = env.dup(tree);
+        dupEnv.outer = env;
         owntype = attribTree(tree.lhs, dupEnv, VAR, Type.noType);
         boolean hasLhsType = false;
         if (owntype == null || owntype == syms.javafx_UnspecifiedType) {
@@ -945,7 +937,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             lintEnv = lintEnv.next;
         Lint lint = lintEnv.info.lint.augment(v.attributes_field, v.flags());
         Lint prevLint = chk.setLint(lint);
-
+        JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
+              
         try {
             chk.checkDeprecatedAnnotation(tree.pos(), v);
 
@@ -971,6 +964,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
         finally {
             chk.setLint(prevLint);
+            log.useSource(prev);
         }
     }
         
@@ -1030,6 +1024,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     public void visitAbstractOnChange(JFXAbstractOnChange tree) {
 	if (tree.getIndex() != null) {
+            tree.getIndex().mods.flags |= Flags.FINAL;
             attribVar(tree.getIndex(), env);
             tree.getIndex().sym.type = syms.intType;
         }
@@ -1040,21 +1035,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 tree.getOldValue().sym.type = tree.elementType;
             }
         }
-
-        Symbol prevNewValueSym = rs.newValueSym;
-        try {
-            if (tree != null && tree.getOldValue() != null) {
-                rs.newValueSym = tree.getOldValue().sym;
-            }
-            else {
-                rs.newValueSym = null;
-            }
-
-            attribStat(tree.getBody(), env);
-        }
-        finally {
-            rs.newValueSym = prevNewValueSym;
-        }
+        attribStat(tree.getBody(), env);
     }
     
     @Override
@@ -1154,6 +1135,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             // created BLOCK-method.
             JavafxEnv<JavafxAttrContext> localEnv =
                 env.dup(tree, env.info.dup(env.info.scope.dupUnshared()));
+            localEnv.outer = env;
             localEnv.info.scope.owner =
                 new MethodSymbol(tree.flags | BLOCK, names.empty, null,
                                  env.info.scope.owner);
@@ -1435,6 +1417,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         while (lintEnv.info.lint == null)
             lintEnv = lintEnv.next;
 
+        JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
         Lint lint = lintEnv.info.lint.augment(m.attributes_field, m.flags());
         Lint prevLint = chk.setLint(lint);
         try {
@@ -1510,6 +1493,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
         finally {
             chk.setLint(prevLint);
+            log.useSource(prev);
         }
 
         // mark the method varargs, if necessary
@@ -1754,10 +1738,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitReturn(JCReturn tree) {
-        // Check that there is an enclosing method which is
-        // nested within than the enclosing class.
-        if (env.enclMethod == null ||
-            env.enclMethod.sym.owner != env.enclClass.sym) {
+        if (env.enclMethod == null) {
             log.error(tree.pos(), "ret.outside.meth");
 
         } else {
