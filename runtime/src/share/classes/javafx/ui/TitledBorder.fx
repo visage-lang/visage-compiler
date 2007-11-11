@@ -37,8 +37,8 @@ public class TitledBorder extends Border {
     public function getBorder():javax.swing.border.Border {
         return new javax.swing.border.TitledBorder(border.getBorder(),
                                                        title,
-                                                       titleJustification.id,
-                                                       titlePosition.id,
+                                                       titleJustification.id.intValue(),
+                                                       titlePosition.id.intValue(),
                                                        titleFont.getFont(),
                                                        titleColor.getColor());
   
