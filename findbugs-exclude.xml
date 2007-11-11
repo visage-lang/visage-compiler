@@ -2,6 +2,10 @@
     <Match>
         <Package name="com.sun.tools.javafx.antlr"/>
     </Match>
+    <Match>    
+        <!-- runtime.awt is a copy of the 1.6 AWT classes we use, but don't modify -->
+        <Package name="com.sun.javafx.runtime.awt"/>
+    </Match>
     <Match>
         <Class name="com.sun.tools.javafx.tree.JavafxTreeMaker" />
         <Bug  pattern="NM_METHOD_NAMING_CONVENTION" />

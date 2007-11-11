@@ -125,7 +125,7 @@ public class JavafxFileManager extends JavacFileManager {
     private final Set<JavaFileObject.Kind> sourceOrClass =
         EnumSet.of(JavaFileObject.Kind.SOURCE, JavaFileObject.Kind.CLASS);
     
-    private class DelegateJavaFileObject extends BaseFileObject {
+    private static class DelegateJavaFileObject extends BaseFileObject {
         JavaFileObject delegate;
         boolean isFXSourceFile;
         

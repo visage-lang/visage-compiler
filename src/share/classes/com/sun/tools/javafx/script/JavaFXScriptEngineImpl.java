@@ -102,10 +102,8 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
     }
 
     public ScriptEngineFactory getFactory() {
-	synchronized (this) {
-	    if (factory == null) {
-	    	factory = new JavaFXScriptEngineFactory();
-	    }
+        if (factory == null) {
+            factory = new JavaFXScriptEngineFactory();
         }
 	return factory;
     }
