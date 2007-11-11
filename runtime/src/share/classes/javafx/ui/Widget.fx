@@ -28,8 +28,7 @@ package javafx.ui;
 import javafx.ui.Color;
 import java.lang.Object;
 
-//TODO JXFC-157
-//import javafx.ui.Font;
+import javafx.ui.Font;
 import javafx.ui.Cursor;
 import java.awt.Dimension;
 import java.awt.ComponentOrientation;
@@ -406,18 +405,14 @@ public abstract class Widget extends GroupElement, UIElement {
     /**
      * Sets the <code>Font</code> of this object.
      */
-//TODO JXFC-157    
-    //public attribute font: Font;
+    public attribute font: Font;
     
-//TODO JXFC-157  
-    /*********
     protected attribute awtFont: java.awt.Font = bind font.getFont() on replace {
         if (component <> null) {
             var c = this.getNonScrollPaneComponent();
             c.setFont(awtFont);
         }
     };
-    *********/
 
     
     /**
@@ -630,12 +625,9 @@ public abstract class Widget extends GroupElement, UIElement {
             if (foreground <> null) {
                 c.setForeground(foreground.getColor());
             }
-//TODO JXFC-157
-            /********
             if (awtFont <> null) {
                 c.setFont(awtFont);
             }
-             ***********/
             if (focusable <> c.isFocusable()) {
                c.setFocusable(focusable);
             }
