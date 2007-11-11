@@ -29,38 +29,29 @@ package javafx.ui;
 import java.lang.Object;
 import java.lang.Throwable;
 import java.lang.System;
-// Default Animation Functions
-// TODO Animation changes 
+import java.lang.Math;
+import java.awt.Toolkit;
+import com.sun.javafx.api.ui.UIContext;
+import com.sun.javafx.api.ui.UIContextImpl;
 
 public static function __EASEBOTH(t:Number):Number {
-    //TODO Animation timer
-    /******
-    var timer = TimerImpl{startTime:0, duration:1000, to:1000};
+    var timer = TimerImpl{startTime:0, duration:1000, to:1000.0};
+
     timer.setEaseBoth();
     var timeDiff = t * 1000;
-    return timer.calcNextValue(timeDiff, 0)/1000;
-    *******/
-    return 0.1; //TODO WORKAROUND
+    return timer.calcNextValue(timeDiff.intValue(), 0).doubleValue()/1000.0;
 }
 public static function __EASEIN(t:Number):Number {
-    //TODO Animation timer
-    /******
     var timer = TimerImpl{startTime:0, duration:1000, to:1000};
     timer.setEaseIn();
     var timeDiff = t * 1000;
-    return timer.calcNextValue(timeDiff, 0)/1000;
-    *******/
-    return 0.1; //TODO WORKAROUND
+    return timer.calcNextValue(timeDiff.intValue(), 0).doubleValue()/1000.0;
 }
 public static function __EASEOUT(t:Number):Number {
-    //TODO Animation timer
-    /******
     var timer = TimerImpl{startTime:0, duration:1000, to:1000};
     timer.setEaseOut();
     var timeDiff = t * 1000;
-    return timer.calcNextValue(timeDiff, 0)/1000;
-    *******/
-    return 0.1; //TODO WORKAROUND
+    return timer.calcNextValue(timeDiff.intValue(), 0).doubleValue()/1000.0;
 }
 
 public static function __EASE(a:Object[], t:Number, f: function(:Number):Number, 
@@ -82,27 +73,62 @@ public static function __INTERPOLATE_NUM(value1:Number, value2: Number, t:Number
 }
 
 public static function EASEBOTH(a:Number[], t:Number):Number {
-    //TODO Animation timer
+    //TODO JXFC-195
     //return __EASE(a, t, __EASEBOTH, __INTERPOLATE_NUM);
-    return 0.1; //TODO WORKAROUND
+    //TODO JXFC-195 WORKAROUND
+    t = __EASEBOTH(t);
+    var off = t * (sizeof a-1);
+    var i = off.intValue();
+    var value1 = a[i];
+    if (i + 1 == sizeof a) then {
+        return value1;
+    };
+    var value2 = a[i+1];
+    return __INTERPOLATE_NUM(value1, value2, off-i);
 };
 
 public static function EASEIN(a:Number[], t:Number):Number {
-    //TODO Animation timer
+    //TODO JXFC-195
     //return __EASE(a, t, __EASEIN, __INTERPOLATE_NUM);
-    return 0.1; //TODO WORKAROUND
+    //TODO JXFC-195 WORKAROUND
+    t = __EASEIN(t);
+    var off = t * (sizeof a-1);
+    var i = off.intValue();
+    var value1 = a[i];
+    if (i + 1 == sizeof a) then {
+        return value1;
+    };
+    var value2 = a[i+1];
+    return __INTERPOLATE_NUM(value1, value2, off-i);
 };
 
 public static function EASEOUT(a:Number[], t:Number):Number {
-    //TODO Animation timer
+    //TODO JXFC-195
     //return __EASE(a, t, __EASEOUT, __INTERPOLATE_NUM);
-    return 0.1; //TODO WORKAROUND
+    //TODO JXFC-195 WORKAROUND
+    t = __EASEOUT(t);
+    var off = t * (sizeof a-1);
+    var i = off.intValue();
+    var value1 = a[i];
+    if (i + 1 == sizeof a) then {
+        return value1;
+    };
+    var value2 = a[i+1];
+    return __INTERPOLATE_NUM(value1, value2, off-i);
 };
 
 public static function LINEAR(a:Number[], t:Number):Number {
-    //TODO Animation timer
+    //TODO JXFC-195
     //return __EASE(a, t, function(t:Number) {return t;}, __INTERPOLATE_NUM);
-    return 0.1; //TODO WORKAROUND
+    //TODO JXFC-195 WORKAROUND
+    var off = t * (sizeof a-1);
+    var i = off.intValue();
+    var value1 = a[i];
+    if (i + 1 == sizeof a) then {
+        return value1;
+    };
+    var value2 = a[i+1];
+    return __INTERPOLATE_NUM(value1, value2, off-i);
 };
 
 public static function DISCRETE(a:Number[], t:Number):Number {
@@ -134,7 +160,23 @@ try {
 
 *****************/
 
+public function getScreenResolution():Integer {
+    Toolkit.getDefaultToolkit().getScreenResolution();
+}
 
+public function cmToPixel(cm:Number):Number {
+     Math.round(cm * getScreenResolution() * 100 / 254);
+}
+public function mmToPixel(mm:Number):Number {
+     Math.round(mm * getScreenResolution() * 10 / 254);
+}
+public function inchToPixel(inch:Number):Number{ 
+     Math.round(inch * getScreenResolution());
+}
+
+public function pointToPixel(pt:Integer):Number{
+     Math.round(pt * getScreenResolution() / 72);
+}
 
 public class UIElement {
     // Not abstract this is the default implementation
@@ -144,21 +186,12 @@ public class UIElement {
             javax.swing.UIManager.setLookAndFeel(lookAndFeel);
             javax.swing.SwingUtilities.updateComponentTreeUI(getWindow());
     };
-    //TODO UIContext
-    /****
-    public static attribute context:net.java.javafx.ui.UIContext = 
-        new net.java.javafx.ui.UIContextImpl();
-    public static function cmToPixel(n:Number):Number{ return context.centimeterToPixel(n);}
-    public static function mmToPixel(n:Number):Number{ return context.millimeterToPixel(n);}
-    public static function inchToPixel(n:Number):Number{ return context.inchToPixel(n);}
-    public static function pointToPixel(n:Integer):Number{ return context.pointToPixel(n);}
+    public static attribute context:UIContext = UIContextImpl{};
     init {
-        context.getModule().disableUndo();
-        context.getModule().disableExtent();
-        //context.getModule().enableExtent();
-        //context.debugFocus();        
+        //TODO ?????? - Does this make sense in the compiler?
+        //context.getModule().disableUndo();
+        //context.getModule().disableExtent();
         }
-     *********/
 }
 
 
