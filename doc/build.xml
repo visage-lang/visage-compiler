@@ -34,6 +34,7 @@
     <target name="spec"
      description="Build language specification using Ant">
         <antcall target="chunk-html"/>
+        <antcall target="copy-figures"/>
     </target>
 
     <target name="clean" description="Deletes all generated documentation.">
@@ -65,5 +66,10 @@
         </java>
     </target>
 
+    <target name="copy-figures">
+        <copy todir="${doc.build.dir}/html" failonerror="true">
+            <fileset dir="${doc.src.dir}" includes="*.png"/>
+        </copy>
+    </target>
 
 </project>
