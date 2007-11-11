@@ -63,17 +63,15 @@ public abstract class Widget extends GroupElement, UIElement {
 
     private function makeKeyEvent(e:java.awt.event.KeyEvent):KeyEvent {
         var modifiers:KeyStroke[] = [
-        //TODO JFXC-157
-            //if (e.isControlDown() ) KeyStroke.CONTROL else null, 
-            //if (e.isShiftDown()) KeyStroke.SHIFT else null,
-            //if (e.isMetaDown()) KeyStroke.META else
-            //if (e.isAltDown()) KeyStroke.ALT else null
+            if (e.isControlDown() ) KeyStroke.CONTROL else null, 
+            if (e.isShiftDown()) KeyStroke.SHIFT else null,
+            if (e.isMetaDown()) KeyStroke.META else
+            if (e.isAltDown()) KeyStroke.ALT else null
             ];
         return KeyEvent {
             source: e
             keyStroke: KeyStroke.KEYBOARD.getKeyStroke(e.getKeyCode())
-            //TODO JFXC-157
-           // modifiers: modifiers
+            modifiers: modifiers
             keyChar: if (e.getID() == java.awt.event.KeyEvent.KEY_TYPED) "{e.getKeyChar()}" else null
         };
     }    
@@ -141,11 +139,10 @@ public abstract class Widget extends GroupElement, UIElement {
     }
     private function makeMouseEvent(e:java.awt.event.MouseEvent):MouseEvent {
         return MouseEvent {
-            //TODO JFXC-157
-            //modifiers: [if (e.isAltDown() ) KeyModifier.ALT else null,
-           //             if (e.isControlDown() ) KeyModifier.CTRL else null, 
-           //             if (e.isMetaDown() ) KeyModifier.META else null,
-           //             if (e.isShiftDown() ) KeyModifier.SHIFT else null]
+            modifiers: [if (e.isAltDown() ) KeyModifier.ALT else null,
+                        if (e.isControlDown() ) KeyModifier.CTRL else null, 
+                        if (e.isMetaDown() ) KeyModifier.META else null,
+                        if (e.isShiftDown() ) KeyModifier.SHIFT else null]
             clickCount: e.getClickCount()
             button: if (SwingUtilities.isLeftMouseButton(e)) 1 else 
                 if (SwingUtilities.isRightMouseButton(e)) 3 else 2
@@ -156,11 +153,10 @@ public abstract class Widget extends GroupElement, UIElement {
     }
     private function makeMouseWheelEvent(e:java.awt.event.MouseWheelEvent):MouseEvent {
         MouseWheelEvent {
-            //TODO JFXC-157
-            //modifiers: [if (e.isAltDown() ) KeyModifier.ALT else null,
-            //            if (e.isControlDown() ) KeyModifier.CTRL else null, 
-            //            if (e.isMetaDown() ) KeyModifier.META else null,
-            //            if (e.isShiftDown() ) KeyModifier.SHIFT else null]
+            modifiers: [if (e.isAltDown() ) KeyModifier.ALT else null,
+                        if (e.isControlDown() ) KeyModifier.CTRL else null, 
+                        if (e.isMetaDown() ) KeyModifier.META else null,
+                        if (e.isShiftDown() ) KeyModifier.SHIFT else null]
             //TODO JXFC-178
             //clickCount: e.getClickCount()
             //TODO JXFC-178
