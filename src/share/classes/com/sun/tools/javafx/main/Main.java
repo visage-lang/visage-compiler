@@ -40,6 +40,7 @@ import com.sun.tools.javafx.main.RecognizedOptions.OptionHelper;
 import com.sun.tools.javafx.util.JavafxFileManager;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
+import javax.tools.DiagnosticListener;
 
 /** This class provides a commandline interface to the GJC compiler.
  *
@@ -303,7 +304,11 @@ public class Main {
     
     public void registerServices(Context context, String[] args) {
         Context backEndContext = new Context();
-
+	DiagnosticListener diagnosticListener = 
+	    (DiagnosticListener)context.get(DiagnosticListener.class);
+        if (diagnosticListener != null) {
+            backEndContext.put(DiagnosticListener.class, diagnosticListener);
+	}
         // add -target flag to backEndContext, if specified
         options = Options.instance(backEndContext);
         try {
