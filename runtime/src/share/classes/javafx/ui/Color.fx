@@ -260,37 +260,71 @@ public class Color extends AbstractColor, UIElement{
     public static attribute YELLOWGREEN:Color= rgb(0x9A, 0xCD, 0x32);
 
 
-    //TODO JXFC-157
-    /*****************
     public static function __INTERPOLATE_COLOR(color1:Color, color2:Color, t:Number):Color {
         return color1.interpolate(color2, t);
     }
-    **************/
     
-    //TODO FUNCTION (UIELEMENT)
-    /*****************
     public static function EASEBOTH(a:Color[], t:Number):Color {
-         return __EASE(a, t, __EASEBOTH, __INTERPOLATE_COLOR);
+         //TODO JXFC-195
+        //return __EASE(a, t, __EASEBOTH, __INTERPOLATE_COLOR);
+        t = UIElement.__EASEBOTH(t);
+        var off = t * (sizeof a-1);
+        var i = off.intValue();
+        var value1 = a[i];
+        if (i + 1 == sizeof a) then {
+            return value1;
+        };
+        var value2 = a[i+1];
+        //return __INTERPOLATE_COLOR(value1, value2, off-i);
+        return value1.interpolate(value2, off-i);
     };
 
     public static function EASEIN(a:Color[], t:Number):Color {
-         return __EASE(a, t, __EASEIN, __INTERPOLATE_COLOR);
+         //TODO JXFC-195
+        //return __EASE(a, t, __EASEIN, __INTERPOLATE_COLOR);
+        t = UIElement.__EASEIN(t);
+        var off = t * (sizeof a-1);
+        var i = off.intValue();
+        var value1 = a[i];
+        if (i + 1 == sizeof a) then {
+            return value1;
+        };
+        var value2 = a[i+1];
+        //return __INTERPOLATE_COLOR(value1, value2, off-i);
+        return value1.interpolate(value2, off-i);
     };
 
     public static function EASEOUT(a:Color[], t:Number):Color {
-         return __EASE(a, t, __EASEOUT, __INTERPOLATE_COLOR);
+        //TODO JXFC-195
+        //return __EASE(a, t, __EASEOUT, __INTERPOLATE_COLOR);
+        t = UIElement.__EASEOUT(t);
+        var off = t * (sizeof a-1);
+        var i = off.intValue();
+        var value1 = a[i];
+        if (i + 1 == sizeof a) then {
+            return value1;
+        };
+        var value2 = a[i+1];
+        //return __INTERPOLATE_COLOR(value1, value2, off-i);
+        return value1.interpolate(value2, off-i);
     };
 
     public static function LINEAR(a:Color[], t:Number):Color {
-            return __EASE(a, t, function(t:Number) {return t;}, __INTERPOLATE_COLOR);
+        //TODO JXFC-195
+        //return __EASE(a, t, function(t:Number) {return t;}, __INTERPOLATE_COLOR);
+        var off = t * (sizeof a-1);
+        var i = off.intValue();
+        var value1 = a[i];
+        if (i + 1 == sizeof a) then {
+            return value1;
+        };
+        var value2 = a[i+1];
+        //return __INTERPOLATE_COLOR(value1, value2, off-i);
+        return value1.interpolate(value2, off-i);
     };
-    **********/
      
-    //TODO JXFC-157
-    /*****************
     public static function DISCRETE(a:Color[], t:Number):Color {
-        a[t.intValue()*(sizeof a -1)];
+        return a[t.intValue()*(sizeof a -1)];
     }
-     **************/
 
 }
