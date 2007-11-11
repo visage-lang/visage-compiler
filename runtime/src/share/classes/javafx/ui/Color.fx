@@ -258,7 +258,15 @@ public class Color extends AbstractColor, UIElement{
     public static attribute WHITESMOKE:Color= rgb(0xF5, 0xF5, 0xF5);
     public static attribute YELLOW:Color= rgb(0xFF, 0xFF, 0x00);
     public static attribute YELLOWGREEN:Color= rgb(0x9A, 0xCD, 0x32);
+    public static attribute lightGray:Color = fromAWTColor(java.awt.Color.lightGray);
 
+    public static function fromAWTColor(c:java.awt.Color):Color {
+        Color {red: c.getRed()/255, green: c.getGreen()/255, 
+            blue: c.getBlue()/ 255, opacity: c.getAlpha()/255};
+    }
+    public static function transparent (c:Color, opacity:Number):Color {
+        Color { red:c.red, green:c.green, blue:c.blue, opacity: opacity};
+    }
 
     public static function __INTERPOLATE_COLOR(color1:Color, color2:Color, t:Number):Color {
         return color1.interpolate(color2, t);
