@@ -26,16 +26,40 @@
 package com.sun.javafx.api.ui;
 
 import javax.swing.JPanel;
+import java.awt.Font;
 
 /**
- *
- * @author jclarke
+ * Interface for accessing undelying Java components and utilities
  */
 public interface UIContext {
 
+    /**
+     * Create a panel for a javafx component
+     *
+     * @return a panel
+     */
     public JPanel createPanel();
     
+    /**
+     * Create a button for a javafx component
+     *
+     * @return a button
+     */
     public XButton createButton();
+
+    /**
+     * Get a Font
+     *
+     * @return a font
+     */
+    public Font getFont(String url, int style, int size);
+
+
+    public boolean isBitSet(int a, int b);
+
+    public int setBit(int a, int b);
+
+    public int clearBit(int a, int b);
 
 
 }

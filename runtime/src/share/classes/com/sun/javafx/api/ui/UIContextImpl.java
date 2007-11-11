@@ -26,7 +26,12 @@
 package com.sun.javafx.api.ui;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Rectangle;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
@@ -73,6 +78,34 @@ public class UIContextImpl implements UIContext {
     public XButton createButton() {
         return new XButton();
     }
-        
+
+    protected Map<String, Font> mFontMap = Collections.synchronizedMap(new HashMap<String, Font>());
+
+    public Font getFont(String url, int style, int size) {
+        Font f = mFontMap.get(url);
+        if (f == null) {
+            try {
+                f = Font.createFont(Font.TRUETYPE_FONT,
+                                    new URL(url).openStream());
+                mFontMap.put(url, f);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return f.deriveFont(style, size);
+    }
+
+    public boolean isBitSet(int a, int b) {
+        return (a & b) != 0;
+    }
+
+    public int setBit(int a, int b) {
+        return a | b;
+    }
+
+    public int clearBit(int a, int b) {
+        return a & ~b;
+    }
+
 
 }
