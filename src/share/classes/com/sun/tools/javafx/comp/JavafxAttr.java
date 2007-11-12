@@ -1467,6 +1467,20 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 log.error(tree.pos(), "native.meth.cant.have.body");
             } else {
                 JFXBlockExpression body = opVal.getBodyExpression();
+                if (body.value == null && returnType == null) {
+                    JCStatement last = body.stats.last();
+                    if (last instanceof JCReturn) {
+                        ListBuffer<JCStatement> rstats =
+                                new ListBuffer<JCStatement>();
+                        for (List<JCStatement> l = body.stats;
+                             l.tail.tail != null;
+                             l = l.tail) {
+                            rstats.append(l.head);
+                        }
+                        body.stats = rstats.toList();
+                        body.value = ((JCReturn) last).expr;  
+                    }
+                }
                 // Attribute method bodyExpression
                 Type bodyType = attribExpr(body, localEnv);
                 if (body.value == null) {
@@ -1745,7 +1759,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             // Attribute return expression, if it exists, and check that
             // it conforms to result type of enclosing method.
             Symbol m = env.enclMethod.sym;
-                if (m.type.getReturnType().tag == VOID) {
+            Type rtype = m.type.getReturnType();
+            if (rtype == null)
+                log.error(tree.pos(), "javafx.cannot.infer.return.type");
+            else if (rtype.tag == VOID) {
                     if (tree.expr != null)
                         log.error(tree.expr.pos(),
                                   "cant.ret.val.from.meth.decl.void");
