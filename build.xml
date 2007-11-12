@@ -50,6 +50,7 @@
         <condition property="has-bootstrap-dirs">
             <and>
                 <available file="${ant.dir}"/>
+                <available file="${scenario.dir}"/>
                 <available file="${junit.dir}"/>
                 <available file="${docbook.dir}"/>
                 <available file="${antlr.dir}"/>
@@ -62,6 +63,7 @@
     <target name="tool-paths">
         <!-- Define actual properties for the known paths so they can be used in the properties file -->
         <property name="ant.class.path" refid="ant.class.path"/>
+        <property name="scenario.class.path" refid="scenario.class.path"/>
         <property name="junit.class.path" refid="junit.class.path"/>
         <property name="findbugs.class.path" refid="findbugs.class.path"/>
         <property name="saxon.class.path" refid="saxon.class.path"/>
