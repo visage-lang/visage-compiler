@@ -204,7 +204,6 @@ public class Frame extends AbstractFrame {
      * You must explicitly assign <code>true</code> to this attribute to make the frame
      * visible on the screen.
      */
-/*JFXC-227
     public attribute visible: Boolean = false on replace {
         if (not inListener) {
             if (visible) {
@@ -225,7 +224,6 @@ public class Frame extends AbstractFrame {
             }
         }
     }
- */
 
     /**
      * This field indicates whether the frame is resizable.
