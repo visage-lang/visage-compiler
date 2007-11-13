@@ -44,7 +44,6 @@ import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javac.tree.TreeInfo;
-import com.sun.tools.javac.tree.TreeTranslator;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
@@ -1977,8 +1976,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     // The interface methods cannot be package level and an error is reported.
                     {
                         var.mods.flags &= ~Flags.PROTECTED;
-                        var.mods.flags &= ~Flags.PUBLIC;
-                        var.mods.flags |= Flags.PRIVATE;
+                        var.mods.flags &= ~Flags.PRIVATE;
+                        var.mods.flags |= Flags.PUBLIC;
                     }
                     VarMorphInfo vmi = typeMorpher.varMorphInfo((VarSymbol)attrSym);
                     var.vartype = makeTypeTree(vmi.getMorphedType(), result);
