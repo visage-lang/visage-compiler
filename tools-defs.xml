@@ -7,8 +7,8 @@
     <property name="ant.ver" value="1.7.0"/>
     <property name="ant.dir" value="${tools.dir}/ant-${ant.ver}"/>
     
-    <property name="scenario.ver" value="0.3"/>
-    <property name="scenario.dir" value="${tools.dir}/Scenario-${scenario.ver}"/>
+    <property name="scenegraph.ver" value="0.3"/>
+    <property name="scenegraph.dir" value="${tools.dir}/scenegraph-${scenegraph.ver}"/>
 
     <property name="junit.ver" value="4.4"/>
     <property name="junit.dir" value="${tools.dir}/junit-${junit.ver}"/>
@@ -45,8 +45,8 @@
         <fileset dir="${ant.dir}" includes="**/*.jar" />
     </path>
 
-    <path id="scenario.class.path">
-        <fileset dir="${scenario.dir}" includes="**/*.jar" />
+    <path id="scenegraph.class.path">
+        <fileset dir="${scenegraph.dir}" includes="**/*.jar" />
     </path>
 
     <path id="junit.class.path">

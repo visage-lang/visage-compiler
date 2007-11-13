@@ -12,8 +12,8 @@
     <property name="ant.url" value="http://www.apache.org/dist/ant/binaries/apache-ant-${ant.ver}-bin.zip"/>
     <property name="ant.zipfile" value="${bootstrap.dir}/ant.zip"/>
 
-    <property name="scenario.url" value="http://openjfx.java.sun.com/ea/Scenario-0.3/Scenario.jar"/>
-    <property name="scenario.file" value="${scenario.dir}/Scenario.jar"/>
+    <property name="scenegraph.url" value="http://openjfx.java.sun.com/ea/scenegraph-0.3/scenegraph.jar"/>
+    <property name="scenegraph.file" value="${scenegraph.dir}/scenegraph.jar"/>
 
     <property name="junit.url" value="http://downloads.sourceforge.net/junit/junit-${junit.ver}.jar"/>
     <property name="junit.jarfile" value="${bootstrap.dir}/junit.jar"/>
@@ -55,7 +55,7 @@
         <mkdir dir="${bootstrap.dir}"/>
         <mkdir dir="${tools.dir}"/>
         <mkdir dir="${ant.dir}"/>
-        <mkdir dir="${scenario.dir}"/>
+        <mkdir dir="${scenegraph.dir}"/>
         <mkdir dir="${findbugs.dir}"/>
         <mkdir dir="${junit.dir}"/>
         <mkdir dir="${docbook.dir}"/>
@@ -71,7 +71,7 @@
     <target name="clean">
         <delete dir="${bootstrap.dir}"/>
         <delete dir="${ant.dir}"/>
-        <delete dir="${scenario.dir}"/>
+        <delete dir="${scenegraph.dir}"/>
         <delete dir="${findbugs.dir}"/>
         <delete dir="${junit.dir}"/>
         <delete dir="${docbook.dir}"/>
@@ -84,7 +84,7 @@
         <delete dir="${svnstat.dir}"/>
     </target>
 
-    <target name="all" depends="prepare,junit,ant,scenario,docbook,wysiwygdocbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura,svnstat"/>
+    <target name="all" depends="prepare,junit,ant,scenegraph,docbook,wysiwygdocbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura,svnstat"/>
  
     <target name="ant" depends="prepare">
         <get src="${ant.url}" dest="${ant.zipfile}"/>
@@ -100,9 +100,9 @@
         <get src="${junit.url}" dest="${junit.file}"/>
     </target>
 
-    <target name="scenario" depends="prepare">
-        <mkdir dir="${scenario.dir}"/>
-        <get src="${scenario.url}" dest="${scenario.file}"/>
+    <target name="scenegraph" depends="prepare">
+        <mkdir dir="${scenegraph.dir}"/>
+        <get src="${scenegraph.url}" dest="${scenegraph.file}"/>
     </target>
 
     <target name="docbook" depends="prepare">
