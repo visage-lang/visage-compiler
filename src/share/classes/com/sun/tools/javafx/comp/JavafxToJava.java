@@ -121,6 +121,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private static final String boundFunctionSuffix = "$bound";
     private JFXClassDeclaration currentClass;  //TODO: this is redundant with attrEnv.enclClass
     Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
+    
+    private boolean inOperationDef = false;
 
     public static JavafxToJava instance(Context context) {
         JavafxToJava instance = context.get(jfxToJavaKey);
@@ -413,7 +415,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             clazz = makeTypeTree(tree.type, tree, false);
         } else {
             JFXClassDeclaration cdef = tree.getClassBody();
-            prependToStatements.append( translate( cdef ) );  // prepend to the enclosing statements, class or top-level
+            if (!inOperationDef) {
+                prependToStatements.append( translate( cdef ) );  // prepend to the enclosing statements, class or top-level
+            }
+            else {
+                stats = stats.append(translate(cdef));
+            }
+
             clazz = makeTypeTree(cdef.type, tree, false);
          }
 
@@ -437,7 +445,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
             if (sym != null &&
                 sym.kind == Kinds.TYP && (sym instanceof ClassSymbol) &&
-                initBuilder.isJFXClass((ClassSymbol)sym)) {
+                (initBuilder.isJFXClass((ClassSymbol)sym) ||
+                tree.getClassBody() != null)) {
                 // it is a JavaFX class, initializa it properly
                 JCVariableDecl tmpVar = make.VarDef(make.Modifiers(0), tmpName, clazz, newClass);
                 stats.append(tmpVar);
@@ -673,79 +682,86 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     * */
    @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
-         boolean classIsFinal =(currentClass.getModifiers().flags & Flags.FINAL) != 0;
-       // Made all the operations public. Per Brian's spec.
-        // If they are left package level it interfere with Multiple Inheritance
-        // The interface methods cannot be package level and an error is reported.
-        long flags = tree.mods.flags;
-        long originalFlags = flags;
-        flags &= ~(Flags.PROTECTED | Flags.PRIVATE);
-        flags |=  Flags.PUBLIC;
-        if (((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) && !classIsFinal) {
-            flags |= Flags.STATIC;
-        }
-        flags &= ~Flags.SYNTHETIC;
-        JCModifiers mods = make.Modifiers(flags);     
-        
-        DiagnosticPosition diagPos = tree.pos();
-        boolean isBound = bindContext.isBound();
-        MethodType mtype = (MethodType)tree.type;
-        
-        JFXBlockExpression bexpr = tree.getBodyExpression();
-        JCBlock body = null; // stays null if no block expression
-        if (bexpr != null) {
-            boolean isVoidReturn = mtype.getReturnType() == syms.voidType;
-            if (isBound && !isVoidReturn) {
-                body = make.at(diagPos).Block(0L, List.<JCStatement>of(make.at(diagPos).Return(
-                        typeMorpher.buildDefinitionalAssignment(diagPos, 
-                            typeMorpher.varMorphInfo(tree.sym),
-                            bexpr, 
-                            translate( bexpr ), 
-                            bindContext, 
-                            false).first)));
-            } else {
-                body = blockExpressionToBlock(bexpr, !isVoidReturn);
+        boolean prevInOperDef = inOperationDef;
+        inOperationDef = true;
+        try {
+            boolean classIsFinal =(currentClass.getModifiers().flags & Flags.FINAL) != 0;
+            // Made all the operations public. Per Brian's spec.
+            // If they are left package level it interfere with Multiple Inheritance
+            // The interface methods cannot be package level and an error is reported.
+            long flags = tree.mods.flags;
+            long originalFlags = flags;
+            flags &= ~(Flags.PROTECTED | Flags.PRIVATE);
+            flags |=  Flags.PUBLIC;
+            if (((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) && !classIsFinal) {
+                flags |= Flags.STATIC;
             }
-        }
+            flags &= ~Flags.SYNTHETIC;
+            JCModifiers mods = make.Modifiers(flags);     
 
-        // if this is the synthetic run method, make sure it ends with a return
-        boolean isRunMethod = isRunMethod(tree.sym);
-        if (isRunMethod) {
-            JCStatement lastStat = body.stats.last();
-            if (lastStat == null || lastStat.getTag() != JCTree.RETURN) {
-                body.stats = body.stats.append(make.Return(make.Literal(TypeTags.BOT, null)));
+            DiagnosticPosition diagPos = tree.pos();
+            boolean isBound = bindContext.isBound();
+            MethodType mtype = (MethodType)tree.type;
+
+            JFXBlockExpression bexpr = tree.getBodyExpression();
+            JCBlock body = null; // stays null if no block expression
+            if (bexpr != null) {
+                boolean isVoidReturn = mtype.getReturnType() == syms.voidType;
+                if (isBound && !isVoidReturn) {
+                    body = make.at(diagPos).Block(0L, List.<JCStatement>of(make.at(diagPos).Return(
+                            typeMorpher.buildDefinitionalAssignment(diagPos, 
+                                typeMorpher.varMorphInfo(tree.sym),
+                                bexpr, 
+                                translate( bexpr ), 
+                                bindContext, 
+                                false).first)));
+                } else {
+                    body = blockExpressionToBlock(bexpr, !isVoidReturn);
+                }
             }
-        }
-             
-        ListBuffer<JCVariableDecl> params = ListBuffer.<JCVariableDecl>lb();
-        if ((originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) {
-            if (classIsFinal) {
-                body.stats = body.stats.prepend(
-                        make.at(diagPos).VarDef(
-                            make.at(diagPos).Modifiers(Flags.FINAL), 
-                            initBuilder.receiverName, 
-                            make.Ident(initBuilder.interfaceName(currentClass)), 
-                            make.at(diagPos).Ident(names._this))
-                        );
-            } else {
-                // if we are converting a standard instance function (to a static method), the first parameter becomes a reference to the receiver
-                params.prepend(makeReceiverParam(currentClass));
+
+            // if this is the synthetic run method, make sure it ends with a return
+            boolean isRunMethod = isRunMethod(tree.sym);
+            if (isRunMethod) {
+                JCStatement lastStat = body.stats.last();
+                if (lastStat == null || lastStat.getTag() != JCTree.RETURN) {
+                    body.stats = body.stats.append(make.Return(make.Literal(TypeTags.BOT, null)));
+                }
             }
+
+            ListBuffer<JCVariableDecl> params = ListBuffer.<JCVariableDecl>lb();
+            if ((originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) {
+                if (classIsFinal) {
+                    body.stats = body.stats.prepend(
+                            make.at(diagPos).VarDef(
+                                make.at(diagPos).Modifiers(Flags.FINAL), 
+                                initBuilder.receiverName, 
+                                make.Ident(initBuilder.interfaceName(currentClass)), 
+                                make.at(diagPos).Ident(names._this))
+                            );
+                } else {
+                    // if we are converting a standard instance function (to a static method), the first parameter becomes a reference to the receiver
+                    params.prepend(makeReceiverParam(currentClass));
+                }
+            }
+            for (JFXVar fxVar : tree.getParameters()) {
+                params.append(translate(fxVar));
+            }
+            result = make.at(diagPos).MethodDef(
+                    mods,
+                    functionName(tree.sym, isBound), 
+                    makeReturnTypeTree(diagPos, tree.sym, isBound), 
+                    make.at(diagPos).TypeParams(mtype.getTypeArguments()), 
+                    params.toList(),
+                    make.at(diagPos).Types(mtype.getThrownTypes()),  // makeThrows(diagPos), //
+                    body, 
+                    null);
+            ((JCMethodDecl)result).sym = tree.sym;
+            result.type = tree.type;
         }
-        for (JFXVar fxVar : tree.getParameters()) {
-            params.append(translate(fxVar));
+        finally {
+            inOperationDef = prevInOperDef;
         }
-        result = make.at(diagPos).MethodDef(
-                mods,
-                functionName(tree.sym, isBound), 
-                makeReturnTypeTree(diagPos, tree.sym, isBound), 
-                make.at(diagPos).TypeParams(mtype.getTypeArguments()), 
-                params.toList(),
-                make.at(diagPos).Types(mtype.getThrownTypes()),  // makeThrows(diagPos), //
-                body, 
-                null);
-        ((JCMethodDecl)result).sym = tree.sym;
-        result.type = tree.type;
     }
 
     public void visitBlockExpression(JFXBlockExpression tree) {
