@@ -261,13 +261,10 @@ public abstract class Widget extends GroupElement, UIElement {
             actionMap.remove(oldValue);
             actionMap.put(newValue as Object, javax.swing.AbstractAction {
                     public function isEnabled():Boolean {
-                        //TODO JFXC-175
-                        //return newValue.enabled;
-                        return true;
+                        return newValue.enabled;
                     }
                     public function actionPerformed(e:java.awt.event.ActionEvent):Void {
-                        //TODO JFXXFC-175
-                        //newValue.action();
+                        newValue.action();
                     }
                 } as javax.swing.Action);
         };
@@ -673,13 +670,10 @@ public abstract class Widget extends GroupElement, UIElement {
                     inputMap.put(j, i);
                     actionMap.put(i, javax.swing.AbstractAction {
                             public function isEnabled():Boolean {
-                                //TODO JXFC-175
-                                //return i.enabled;
-                                return true;
+                                return i.enabled;
                             }
                             public function actionPerformed(e:java.awt.event.ActionEvent):Void {
-                                //TODO JXFC-175
-                                //i.action();
+                                i.action();
                             }
                         } as javax.swing.Action);
                 }
@@ -730,10 +724,9 @@ public abstract class Widget extends GroupElement, UIElement {
             inBoundsListener = false;
             comp.addComponentListener(java.awt.event.ComponentAdapter {
                   public function componentResized(e:java.awt.event.ComponentEvent):Void {
-                      //TODO JXFC-175
                       inBoundsListener = true;
-                      //height = comp.getHeight();
-                      //width = comp.getWidth();
+                      height = comp.getHeight();
+                      width = comp.getWidth();
                       inBoundsListener = false;
                   }
             } as java.awt.event.ComponentListener);
