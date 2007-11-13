@@ -2265,12 +2265,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             {
                 c.flags_field |= NOOUTERTHIS;
             }
-            attribClass(tree.pos(), c);
 
             for (JCExpression superClass : tree.getSupertypes()) {
                 attribType(superClass, env);
             }
 
+            attribClass(tree.pos(), c);
+            
             result = tree.type = c.type;
         }
         

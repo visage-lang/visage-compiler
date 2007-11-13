@@ -278,7 +278,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
         new ForEachInClauseOwnerFixer().scan(tree);
 
+        boolean prevInOper = inOperationDef;
         try {
+            inOperationDef = false;
             DiagnosticPosition diagPos = tree.pos();
 
             attrEnv.enclClass = tree;
@@ -397,6 +399,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             inLHS = prevInLHS;
 
             currentClass = prevClass;
+            inOperationDef = prevInOper;
         }
     }
     
@@ -585,33 +588,61 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitOnReplace(JFXOnReplace tree) {
-        result = ((JavafxTreeMaker)make).OnReplace(
+        boolean prev = inOperationDef;
+        try {
+            inOperationDef = true;
+            result = ((JavafxTreeMaker)make).OnReplace(
                 tree.getOldValue(),
                 translate(tree.getBody()));
+        }
+        finally {
+            inOperationDef = prev;
+        }
     }
     
     @Override
     public void visitOnReplaceElement(JFXOnReplaceElement tree) {
-        result = ((JavafxTreeMaker)make).OnReplaceElement(
+        boolean prev = inOperationDef;
+        try {
+            inOperationDef = true;
+            result = ((JavafxTreeMaker)make).OnReplaceElement(
                 tree.getIndex(),
                 tree.getOldValue(),
                 translate(tree.getBody()));
+        }
+        finally {
+            inOperationDef = prev;
+        }
     }
     
     @Override
     public void visitOnInsertElement(JFXOnInsertElement tree) {
-        result = ((JavafxTreeMaker)make).OnInsertElement(
+        boolean prev = inOperationDef;
+        try {
+            inOperationDef = true;
+            result = ((JavafxTreeMaker)make).OnInsertElement(
                 tree.getIndex(),
                 tree.getOldValue(),  // new
                 translate(tree.getBody()));
+        }
+        finally {
+            inOperationDef = prev;
+        }
     }
     
     @Override
     public void visitOnDeleteElement(JFXOnDeleteElement tree) {
-        result = ((JavafxTreeMaker)make).OnDeleteElement(
+        boolean prev = inOperationDef;
+        try {
+            inOperationDef = true;
+            result = ((JavafxTreeMaker)make).OnDeleteElement(
                 tree.getIndex(),
                 tree.getOldValue(),
                 translate(tree.getBody()));
+        }
+        finally {
+            inOperationDef = prev;
+        }
     }
 
     @Override
