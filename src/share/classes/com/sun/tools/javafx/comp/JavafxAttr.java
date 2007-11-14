@@ -1607,6 +1607,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             if (types.isSameType(thentype, elsetype))
                 return thentype.baseType();
 
+            if (thentype.tag == VOID || elsetype.tag == VOID)
+                return syms.voidType;
+     
             Type thenUnboxed = (!allowBoxing || thentype.isPrimitive())
                 ? thentype : types.unboxedType(thentype);
             Type elseUnboxed = (!allowBoxing || elsetype.isPrimitive())
@@ -1646,7 +1649,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             if (types.isSubtype(elsetype, thentype))
                 return thentype.baseType();
 
-            if (!allowBoxing || thentype.tag == VOID || elsetype.tag == VOID) {
+            if (!allowBoxing) {
                 log.error(pos, "neither.conditional.subtype",
                           thentype, elsetype);
                 return thentype.baseType();
