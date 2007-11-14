@@ -2262,8 +2262,20 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 c.flags_field |= NOOUTERTHIS;
             }
 
+            JavafxClassSymbol javafxClassSymbol = null;
+            if (c instanceof JavafxClassSymbol) {
+                javafxClassSymbol = (JavafxClassSymbol)c;
+            }
+
             for (JCExpression superClass : tree.getSupertypes()) {
-                attribType(superClass, env);
+                // TODO: Report error if we are extending more than one Java clss. (JFXC-222)
+                // TODO: Make sure we allow only one Java class to be extended. (JFXC-222)
+                // This class type should be assigned to thye classSymbol.supertype member.
+                // Noany special, but the default Java code gen should be used for members of this class.
+                Type supType = attribType(superClass, env);
+                if (supType != null && javafxClassSymbol != null) {
+                    javafxClassSymbol.addSuperType(supType);
+                }
             }
 
             attribClass(tree.pos(), c);
