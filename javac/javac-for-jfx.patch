@@ -130,6 +130,15 @@ Index: share/classes/com/sun/tools/javac/jvm/ClassReader.java
  
      /** Force a completion failure on this name
       */
+@@ -140,7 +140,7 @@
+     /** A hashtable containing the encountered top-level and member classes,
+      *  indexed by flat names. The table does not contain local classes.
+      */
+-    private Map<Name,ClassSymbol> classes;
++    protected Map<Name,ClassSymbol> classes;
+ 
+     /** A hashtable containing the encountered packages.
+      */
 @@ -281,7 +281,7 @@
  
      /** Read a character.
