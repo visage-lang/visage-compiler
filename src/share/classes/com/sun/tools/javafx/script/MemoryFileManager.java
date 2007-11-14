@@ -31,10 +31,12 @@ import java.net.URI;
 import java.nio.CharBuffer;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 import javax.lang.model.element.NestingKind;
 import javax.tools.*;
 import javax.tools.JavaFileObject.Kind;
-import org.apache.tools.ant.util.TeeOutputStream;
+import java.net.URL;
+import java.net.URI;
 
 /**
  * JavaFileManager that keeps compiled .class bytes in memory.
@@ -42,15 +44,17 @@ import org.apache.tools.ant.util.TeeOutputStream;
  * @author A. Sundararajan
  */
 public final class MemoryFileManager extends ForwardingJavaFileManager {                 
+    private ClassLoader parentClassLoader;
 
     /** JavaFX Script source file extension. */
     private final static String EXT = ".fx";
 
     private Map<String, byte[]> classBytes;
     
-    public MemoryFileManager(JavaFileManager fileManager) {
+    public MemoryFileManager(JavaFileManager fileManager, ClassLoader cl) {
         super(fileManager);
         classBytes = new HashMap<String, byte[]>();
+	parentClassLoader = cl;
     }
 
     public Map<String, byte[]> getClassBytes() {
@@ -64,6 +68,30 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
 
     @Override
     public void flush() throws IOException {
+    }
+
+    /**
+     * A file object used to represent a Java class coming from the parent class loader
+     */
+    private static class ClassResource extends SimpleJavaFileObject {
+	String className;
+	URL url;
+	static URI toURI(URL u) {
+	    try {
+		return u.toURI();
+	    } catch (Exception e) {
+		throw new RuntimeException(e);
+	    }
+	}
+	public ClassResource(String className, URL u) {
+	    super(toURI(u), Kind.CLASS);
+	    this.className = className;
+	    this.url = u;
+	}
+
+        public InputStream openInputStream() throws IOException {
+            return url.openStream();
+        }
     }
 
     /**
@@ -152,7 +180,38 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
             };
         }
     }
+    @Override
+    public FileObject getFileForInput(Location location,
+				      String packageName,
+				      String relativeName) throws IOException {
+	
+	return super.getFileForInput(location, packageName, relativeName);
+    }
+
+    @Override
+    public FileObject getFileForOutput(Location location,
+				       String packageName,
+				       String relativeName,
+				       FileObject sibling) throws IOException {
+	
+	return super.getFileForOutput(location, packageName, relativeName, sibling);
+    }
     
+    @Override
+    public JavaFileObject getJavaFileForInput(JavaFileManager.Location location,
+					      String className,
+					      Kind kind) throws IOException {
+	if (kind == Kind.CLASS) {
+	    URL res = 
+		parentClassLoader.getResource(className.replace('.', '/') + ".class");
+	    if (res != null) {
+		System.out.println("creating class resource "+className);
+		return new ClassResource(className, res);
+	    }
+	}
+	return super.getJavaFileForInput(location, className, kind);
+    }
+
     @Override
     public JavaFileObject getJavaFileForOutput(JavaFileManager.Location location,
                                     String className,
@@ -164,7 +223,16 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
             return super.getJavaFileForOutput(location, className, kind, sibling);
         }
     }
-
+    @Override
+    public Iterable list(JavaFileManager.Location location,
+			 String packageName,
+			 Set kinds,
+			 boolean recurse)
+        throws IOException
+    {
+	return super.list(location, packageName, kinds, recurse);
+    }
+    
     JavaFileObject makeStringSource(String name, String code) {
         return new StringInputBuffer(name, code);
     }

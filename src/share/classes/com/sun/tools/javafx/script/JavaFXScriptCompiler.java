@@ -33,7 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.tools.*;
-
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.io.File;
 /**
  * Simple interface to the JavaFX Script compiler using JSR 199 Compiler API, 
  * based on https://scripting.dev.java.net's JavaCompiler by A. Sundararajan.
@@ -41,10 +43,11 @@ import javax.tools.*;
 public class JavaFXScriptCompiler {    
     private JavafxcTool tool;
     private StandardJavaFileManager stdManager;
+    private ClassLoader parentClassLoader;
 
-    public JavaFXScriptCompiler() {
+    public JavaFXScriptCompiler(ClassLoader parent) {
+	parentClassLoader = parent;
         tool = JavafxcTool.create();
-        stdManager = tool.getStandardFileManager(null, null, null);
     }
 
     public Map<String, byte[]> compile(String source, String fileName) {
@@ -82,11 +85,14 @@ public class JavaFXScriptCompiler {
      */
     public Map<String, byte[]> compile(String fileName, String source, 
                     Writer err, String sourcePath, String classPath,
-                    DiagnosticCollector<JavaFileObject> diagnostics,
+                    DiagnosticListener<JavaFileObject> diagnostics,
                     boolean printDiagnostics) {
 
         // create a new memory JavaFileManager
-        MemoryFileManager manager = new MemoryFileManager(stdManager);
+	if (stdManager == null) {
+	    stdManager = tool.getStandardFileManager(diagnostics, null, null);
+	}
+        MemoryFileManager manager = new MemoryFileManager(stdManager, parentClassLoader);
 
         // prepare the compilation unit
         List<JavaFileObject> compUnits = new ArrayList<JavaFileObject>(1);
@@ -101,7 +107,6 @@ public class JavaFXScriptCompiler {
             options.add("-sourcepath");
             options.add(sourcePath);
         }
-
         if (classPath != null) {
             options.add("-classpath");
             options.add(classPath);
@@ -116,7 +121,9 @@ public class JavaFXScriptCompiler {
 
         if (task.call() == false) {
             if (printDiagnostics) {
-                printDiagnostics(diagnostics, err);
+		if (diagnostics instanceof DiagnosticCollector) {
+		    printDiagnostics((DiagnosticCollector)diagnostics, err);
+		}
             }
             return null;
         }

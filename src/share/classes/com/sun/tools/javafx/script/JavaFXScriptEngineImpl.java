@@ -34,6 +34,7 @@ import java.util.*;
 import javax.script.*;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
+import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 
 /**
@@ -43,6 +44,7 @@ import javax.tools.JavaFileObject;
  */
 public class JavaFXScriptEngineImpl extends AbstractScriptEngine 
         implements JavaFXScriptEngine {
+
     private static final String SCRIPT_CONTEXT_NAME = "javafx$ctx";
     
     // Java compiler
@@ -52,11 +54,30 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
     private LinkedList<Class> scripts = new LinkedList<Class>();
 
     public JavaFXScriptEngineImpl() {
-        compiler = new JavaFXScriptCompiler();
+	ClassLoader cl = Thread.currentThread().getContextClassLoader();
+	if (cl != null) {
+	    parentClassLoader = cl;
+	}
+        compiler = new JavaFXScriptCompiler(parentClassLoader);
     }
 
     // my factory, may be null
     private ScriptEngineFactory factory;
+
+    private DiagnosticCollector<JavaFileObject> diagnostics;
+
+    private ClassLoader parentClassLoader = getClass().getClassLoader();
+
+    DiagnosticListener<JavaFileObject> 
+	diagnosticListener = new DiagnosticListener<JavaFileObject>() {
+	public void report(Diagnostic<? extends JavaFileObject> rep) {
+	    diagnostics.report(rep);
+	}
+    };
+
+    public List<Diagnostic<? extends JavaFileObject>> getLastDiagnostics() {
+	return diagnostics == null ? null : diagnostics.getDiagnostics();
+    }
 
     // my implementation for CompiledScript
     private class JavafxScriptCompiledScript extends CompiledScript {
@@ -124,26 +145,28 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         String classPath = getClassPath(ctx);
         String binding = makeBindingStatement(ctx);
         String script = binding + str;
-        DiagnosticCollector<JavaFileObject> diagnostics = 
-            new DiagnosticCollector<JavaFileObject>();
+	diagnostics = new DiagnosticCollector<JavaFileObject>();
 
         Map<String, byte[]> classBytes = compiler.compile(fileName, script,
                             ctx.getErrorWriter(), sourcePath, classPath, 
-                            diagnostics, false);
+							  diagnosticListener, 
+							  true);
         
-        if (classBytes == null) {
+        if (diagnostics.getDiagnostics().size() > 0) {
             // check for unresolved variables, add to context, and retry
             boolean recompile = false;
-            for (Diagnostic d : diagnostics.getDiagnostics()) {
-                if (d.getCode().equals("compiler.err.cant.resolve.location")) {
-                    Object[] args = ((JCDiagnostic)d).getArgs();
-                    if (args.length >= 2 && args[1] instanceof String) {
-                        ctx.setAttribute((String)args[1], null, 
-                                         ScriptContext.ENGINE_SCOPE);
-                        recompile = true;
-                    }
-                }
-            }
+	    if (false) {
+		for (Diagnostic d : diagnostics.getDiagnostics()) {
+		    if (d.getCode().equals("compiler.err.cant.resolve.location")) {
+			Object[] args = ((JCDiagnostic)d).getArgs();
+			if (args.length >= 2 && args[1] instanceof String) {
+			    ctx.setAttribute((String)args[1], null, 
+					     ScriptContext.ENGINE_SCOPE);
+			    recompile = true;
+			}
+		    }
+		}
+	    }
             if (recompile) {
                 binding = makeBindingStatement(ctx);
                 script = binding + str;
@@ -160,7 +183,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
 
         // create a ClassLoader to load classes from MemoryJavaFileManager
         MemoryClassLoader loader = new MemoryClassLoader(classBytes, classPath,
-                                            getClass().getClassLoader());
+							 parentClassLoader);
 
         Iterable<Class> classes;
         try {
@@ -318,19 +341,22 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         // Merge attribute names from all scopes in context into single set.
         Set<String> attrs = new HashSet<String>();
         for (int scope : ctx.getScopes()) {
-            attrs.addAll(ctx.getBindings(scope).keySet());
+	    Map map = ctx.getBindings(scope);
+	    if (map != null) {
+		attrs.addAll(map.keySet());
+	    }
         }
-        if (attrs.isEmpty())
+        if (true || attrs.isEmpty())
             return "";
 
         // Define ScriptContext variable.
         StringBuilder sb = new StringBuilder();
-        sb.append("var ");
-        sb.append(SCRIPT_CONTEXT_NAME);
-        sb.append(":javax.script.ScriptContext = \n");
-        sb.append("com.sun.tools.javafx.script.ScriptContextManager.getContext(\"");
-        sb.append(getScriptKey(ctx));
-        sb.append("\");\n");
+	sb.append("var ");
+	sb.append(SCRIPT_CONTEXT_NAME);
+	sb.append(":javax.script.ScriptContext = \n");
+	sb.append("com.sun.tools.javafx.script.ScriptContextManager.getContext(\"");
+	sb.append(getScriptKey(ctx));
+	sb.append("\");\n");
         
         // Define attributes as module variables.
         for (String attr : attrs) {
