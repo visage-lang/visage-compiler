@@ -439,6 +439,23 @@ public class JavafxResolve {
             sym = findField(env, site, name, st.tsym);
             if (sym.kind < bestSoFar.kind) bestSoFar = sym;
         }
+
+        // We failed to find the field in the single Java class supertype of the 
+        // Javafx class.
+        // Now try to find the filed in all of the Javafx supertypes.
+        if (bestSoFar.kind > AMBIGUOUS && c instanceof JavafxClassSymbol) {
+            List<Type> supertypes = ((JavafxClassSymbol)c).getSuperTypes();
+            for (Type tp : supertypes) {
+                if (tp != null && tp.tag == CLASS) {
+                    sym = findField(env, site, name, st.tsym);
+                    if (sym.kind < bestSoFar.kind) bestSoFar = sym;
+                    if (bestSoFar.kind < AMBIGUOUS) {
+                        break;
+                    }
+                }
+            }
+        }
+
         for (List<Type> l = types.interfaces(c.type);
              bestSoFar.kind != AMBIGUOUS && l.nonEmpty();
              l = l.tail) {
@@ -814,6 +831,64 @@ public class JavafxResolve {
                     bestSoFar = concrete;
             }
         }
+
+        // We failed to find the field in the single Java class supertype of the 
+        // Javafx class.
+        // Now try to find the filed in all of the Javafx supertypes.
+        if (bestSoFar.kind > AMBIGUOUS && intype.tsym instanceof JavafxClassSymbol) {
+            List<Type> supertypes = ((JavafxClassSymbol)intype.tsym).getSuperTypes();
+            for (Type tp : supertypes) {
+                for (Type ct = tp; ct.tag == CLASS; ct = types.supertype(ct)) {
+                    ClassSymbol c = (ClassSymbol)ct.tsym;
+                    if ((c.flags() & (ABSTRACT | INTERFACE)) == 0)
+                        abstractok = false;
+                    for (Scope.Entry e = c.members().lookup(name);
+                         e.scope != null;
+                         e = e.next()) {
+                        if ((e.sym.kind & (VAR|MTH)) == 0 ||
+                                (e.sym.flags_field & SYNTHETIC) != 0)
+                            continue;
+                        if (! checkArgs) {
+                            // No argument list to disambiguate.
+                            if (bestSoFar.kind == ABSENT_VAR || bestSoFar.kind == ABSENT_MTH)
+                                bestSoFar = e.sym;
+                            else
+                                bestSoFar = new AmbiguityError(bestSoFar, e.sym);
+                        }
+                        else if (e.sym.kind == MTH) {
+                            return e.sym;
+                        }
+                        else if ((e.sym.kind & (VAR|MTH)) != 0 && bestSoFar == methodNotFound)
+                            return e.sym;
+                    }
+                    if (! checkArgs &&
+                        bestSoFar.kind != ABSENT_VAR && bestSoFar.kind != ABSENT_MTH) {
+                        return bestSoFar;
+                    }
+                    if (abstractok) {
+                        Symbol concrete = methodNotFound;
+                        if ((bestSoFar.flags() & ABSTRACT) == 0)
+                            concrete = bestSoFar;
+                        for (List<Type> l = types.interfaces(c.type);
+                             l.nonEmpty();
+                             l = l.tail) {
+                            bestSoFar = findMethod(env, site, name, expected,
+                                                   l.head, abstractok, bestSoFar,
+                                                   allowBoxing, useVarargs, operator);
+                        }
+                        if (concrete != bestSoFar &&
+                            concrete.kind < ERR  && bestSoFar.kind < ERR &&
+                            types.isSubSignature(concrete.type, bestSoFar.type))
+                            bestSoFar = concrete;
+                    }
+                }
+                
+                if (bestSoFar.kind < AMBIGUOUS) {
+                    break;
+                }
+            }
+        }
+
         return bestSoFar;
     }
 
@@ -941,6 +1016,23 @@ public class JavafxResolve {
             sym = findMemberType(env, site, name, st.tsym);
             if (sym.kind < bestSoFar.kind) bestSoFar = sym;
         }
+
+        // We failed to find the field in the single Java class supertype of the 
+        // Javafx class.
+        // Now try to find the filed in all of the Javafx supertypes.
+        if (bestSoFar.kind > AMBIGUOUS && c instanceof JavafxClassSymbol) {
+            List<Type> supertypes = ((JavafxClassSymbol)c).getSuperTypes();
+            for (Type tp : supertypes) {
+                if (tp != null && tp.tag == CLASS) {
+                    sym = findField(env, site, name, st.tsym);
+                    if (sym.kind < bestSoFar.kind) bestSoFar = sym;
+                    if (bestSoFar.kind < AMBIGUOUS) {
+                        break;
+                    }
+                }
+            }
+        }
+
         for (List<Type> l = types.interfaces(c.type);
              bestSoFar.kind != AMBIGUOUS && l.nonEmpty();
              l = l.tail) {

@@ -51,6 +51,7 @@ import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.Kinds.*;
 import static com.sun.tools.javac.code.TypeTags.*;
 import com.sun.tools.javac.jvm.ClassFile.NameAndType;
+import com.sun.tools.javafx.code.JavafxClassSymbol;
 import javax.tools.JavaFileManager.Location;
 import static javax.tools.StandardLocation.*;
 
@@ -264,5 +265,15 @@ public class JavafxClassReader extends ClassReader {
         }
 
         return className;
+    }
+
+    /** Define a new class given its name and owner.
+     */
+    public ClassSymbol defineClass(Name name, Symbol owner) {
+        ClassSymbol c = new JavafxClassSymbol(0, name, owner);
+        if (owner.kind == PCK)
+            assert classes.get(c.flatname) == null : c;
+        c.completer = this;
+        return c;
     }
 }
