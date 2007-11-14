@@ -324,7 +324,7 @@ public class Main {
         filenames = null;
         
         com.sun.tools.javafx.comp.JavafxFlow.preRegister(backEndContext);
-
+        com.sun.tools.javafx.code.JavafxLint.preRegister(backEndContext);
         com.sun.tools.javafx.code.BlockExprSymtab.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprAttr.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprEnter.preRegister(backEndContext);
@@ -355,6 +355,7 @@ public class Main {
         
         if (currentFileManager == null)
             JavafxFileManager.preRegister(context); // can't create it until Log has been set up
+        com.sun.tools.javafx.code.JavafxLint.preRegister(context);
     }
 
     /** Programmatic interface for main function.
