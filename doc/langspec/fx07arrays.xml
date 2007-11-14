@@ -5,26 +5,27 @@
 <chapter id="Arrays">
   <title>Sequences</title>
 
-  <sect1 id="aintro">
+  <sect1 id="seqintro">
     <title>Introduction</title>
 
     <para><emphasis> This Chapter describes JavaFX Script Sequences.
     </emphasis></para>
   </sect1>
 
-  <sect1 id="array">
+  <sect1 id="sequence">
     <title>Overview</title>
 
     <para>A sequence is a data structure that holds a set of data items of the
     same type, and in a definite order, similar to an array. In JavaFX Script,
     sequences can hold basic types or object references to JavaFX Script
-    objects, but can not hold object references to Java objects, or objects
-    that hold other sequence objects (you can't nest sequences).</para>
+    objects, but can not hold object references to Java objects, or to objects
+    that hold other sequence objects (you can not nest sequences).</para>
 
     <para>JFX Script provides several operators and syntactical forms which
-    let you create, copy and delete arrays, to read and write data stored in
-    an array, to insert, change or delete data at any array position, and to
-    select data based on value or on array position.</para>
+    let you create, copy, insert and delete elements in a sequence, to read
+    and write data stored in an sequence, to insert, change or delete data at
+    any sequence position, and to select data based on value or on sequence
+    position.</para>
 
     <!--  Can I explicitly resize a jfx array? 
       
@@ -42,9 +43,9 @@
     <para>Sequences have some similarities with Java Arrays but a number of
     differences also.</para>
 
-    <para>Arrays represent sequences of objects. In JavaFX Script, arrays are
-    not themselves objects, however, and do not nest. Expressions that produce
-    nested arrays (as in the initialization of "days" above) are
+    <para>Arrays represent sequences of objects. In JavaFX Script, sequences
+    are not themselves objects, however, and do not nest. Expressions that
+    produce nested sequences (as in the initialization of <code> days </code> above) are
     automaticallly flattened:</para>
 
     <programlisting>days == ["Mon","Tue","Wed","Thur","Fri","Sat","Sun"]; // returns true
@@ -60,8 +61,8 @@
     <para>As such, a single object may be used anywhere a sequence is
     expected.</para>
 
-    <para>Sequence types are declared with the<code> []
-    </code>annotation:</para>
+    <para>Sequence types are declared with the bracket (<code> []
+    </code> ) operator. </para>
 
     <para><emphasis role="bold">Example:</emphasis></para>
 
@@ -90,7 +91,7 @@
 
     <programlisting>        var wednesday = days[2];</programlisting>
 
-    <para>In JavaFX script the bracket ( <code>[] ) </code>operator also
+    <para>In JavaFX script the bracket (<code> [ ] </code>) operator also
     expresses selection in the form of predicates. Predicates take the
     form:</para>
 
@@ -150,7 +151,7 @@
 </programlisting> <para>You can also declare a variable for the context
     object. For example, the statement below is equivalent to the above
     statement:</para> <programlisting>	numsGreaterThanTwo = nums[n|n &gt; 2];
-</programlisting> <para>The JavaFX Script <code>indexof</code> operator
+</programlisting> <para>The <code>indexof</code> operator
     returns the ordinal position of an element within an array (similar to the
     <code>position()</code> function in XPath).</para> <para>The
     <code>car</code> and <code>cdr</code> of a list may be expressed using
@@ -174,13 +175,13 @@
 --> </para></para>
   </sect1>
 
-  <sect1 id="arraymod">
+  <sect1 id="seqmod">
     <title>Modifying Sequences</title>
 
     <para>In addition to the assignment operator (<code>=</code>), JavaFX
-    Script provides the data modification operators (<code>insert</code> and
-    <code>delete</code>) <!-- similar in syntax and semantics to those in the
-      draft XQuery-Update specification as follows --> :</para>
+    Script provides the data modification operators <code>insert</code> and
+    <code>delete</code>. <!-- similar in syntax and semantics to those in the
+      draft XQuery-Update specification as follows --> </para>
 
     <sect2 id="insert">
       <title>Insert Statement</title>
@@ -198,7 +199,7 @@
         </code> into the location indicated by remainder of the statement as
       follows:</para>
 
-      <sect2 id="into">
+      <sect3 id="into">
         <title>into</title>
 
         <para><code>
@@ -227,9 +228,9 @@
         insert 10 as first into x; // yields [10,1,2,3,12]
         insert [99,100] as last into x; // yields [10,1,2,3,12,99,100]
 </programlisting>
-      </sect2>
+      </sect3>
 
-      <sect2 id="before">
+      <sect3 id="before">
         <title>before, after</title>
 
         <para><code>
@@ -249,7 +250,7 @@
         insert 12 before x[1]; // yields [1,12,2,3,10]
         insert 13 after x[. == 2]; // yields [1, 12, 2, 13, 3, 10];
 </programlisting>
-      </sect2>
+      </sect3>
 
       <sect2 id="delete">
         <title>delete</title>
@@ -283,7 +284,7 @@
       </sect2>
 
       <sect1 id="query">
-        <title>Querying Arrays</title>
+        <title>Querying Sequences</title>
 
         <para>Sequence objects support list comprehensions <!--as in functional languages like Miranda and Haskell, -->
         but use <code>select</code> and <code>for each</code> operators. This
