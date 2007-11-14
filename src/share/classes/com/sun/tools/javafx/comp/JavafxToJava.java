@@ -652,7 +652,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitOperationValue(JFXOperationValue tree) {
         JFXOperationDefinition def = tree.definition;
-        result = makeFunctionValue(make.Ident(((JavafxTreeMaker)make).lambdaName), tree.definition, tree.pos(), (MethodType) def.type);
+        result = makeFunctionValue(make.Ident(((JavafxTreeMaker)make).lambdaName), def, tree.pos(), (MethodType) def.type);
         result.type = tree.type;
     }
     
@@ -707,15 +707,44 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return make.NewClass(encl, args, make.TypeApply(t, typeargs.toList()), args, cl);
     }
     
+   boolean isInnerFunction (MethodSymbol sym) {
+       return sym.owner != null && sym.owner.kind != Kinds.TYP
+                && (sym.flags() & Flags.SYNTHETIC) == 0;
+   }
+           
    /**
     * Translate JavaFX a class definition into a Java static implementation method.
-    * */
+    */
    @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
+        if (isInnerFunction(tree.sym)) {
+            // If tree's context is not a class, then translate:
+            //   function foo(args) { body }
+            // to: final var foo = function(args) { body };
+            // A probably cleaner and possibly more efficient solution would
+            // be to create an anonymous class containing the function as
+            // a method; closed-over local variables become fields.
+            // That would have the advantage that calling the function directly
+            // translates into a direct method call, rather than going via
+            // Function's invoke method, which implies extra cats, possibly
+            // boxing, etc.  FIXME
+            DiagnosticPosition diagPos = tree.pos();
+            MethodType mtype = (MethodType) tree.type;
+            JCExpression typeExpression = makeTypeTree(syms.makeFunctionType(mtype), diagPos, true);
+            JFXOperationDefinition def = new JFXOperationDefinition(make.Modifiers(Flags.SYNTHETIC), tree.name, tree.operation);
+            def.type = mtype;
+            MethodSymbol m = new MethodSymbol(0, def.name, mtype, tree.sym.owner.owner);
+            def.sym = m;
+            JCExpression init =
+               makeFunctionValue(make.Ident(tree.name), def, tree.pos(), mtype);
+            JCModifiers mods = make.at(diagPos).Modifiers(Flags.FINAL);
+            result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
+            return;
+        }
         boolean prevInOperDef = inOperationDef;
         inOperationDef = true;
         try {
-            boolean classIsFinal =(currentClass.getModifiers().flags & Flags.FINAL) != 0;
+            boolean classIsFinal = (currentClass.getModifiers().flags & Flags.FINAL) != 0;
             // Made all the operations public. Per Brian's spec.
             // If they are left package level it interfere with Multiple Inheritance
             // The interface methods cannot be package level and an error is reported.
@@ -1668,10 +1697,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCExpression meth = tree.meth;
         Type mtype = meth.type;
         meth = meth==null? make.Ident(initBuilder.receiverName) :  translate(meth);
-        boolean useInvoke = mtype instanceof FunctionType;
+        boolean useInvoke = mtype instanceof FunctionType
+                || (meth instanceof JCIdent && ((JCIdent) meth).sym instanceof MethodSymbol
+                    && isInnerFunction((MethodSymbol) ((JCIdent) meth).sym));
         if (useInvoke) {
-            Scope.Entry e = mtype.tsym.members().lookup(((JavafxTreeMaker)make).invokeName);
-            meth = make.Select(meth, e.sym);
+            meth = make.Select(meth, ((JavafxTreeMaker)make).invokeName);
         }
         
         List<JCExpression> args = translate(tree.args);

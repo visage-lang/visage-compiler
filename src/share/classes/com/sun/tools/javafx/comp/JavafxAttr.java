@@ -246,7 +246,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             if ((pkind & VAL) != 0 && ownkind == MTH) {
                 ownkind = VAL;
                 if (owntype instanceof MethodType)
-                    owntype = makeFunctionType((MethodType) owntype);
+                    owntype = syms.makeFunctionType((MethodType) owntype);
                 }
             if ((ownkind & ~pkind) == 0) {
                 owntype = chk.checkType(tree.pos(), owntype, pt, pSequenceness);
@@ -267,13 +267,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         return sym != null && sym.kind == TYP;
     }
     
-    public Type boxIfNeeded(Type elemType) {
-        if (elemType.isPrimitive())
-            return types.boxedClass(elemType).type;
-        else
-            return elemType;
-    }
-
     /** The current `this' symbol.
      *  @param env    The current environment.
      */
@@ -1392,11 +1385,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         Scope enclScope = enter.enterScope(env);
         JFXOperationDefinition def = new JFXOperationDefinition(make.Modifiers(Flags.SYNTHETIC), make.lambdaName, tree);
         tree.definition = def;
-        MethodSymbol m = new MethodSymbol(0, def.name, null, enclScope.owner);
+        MethodSymbol m = new MethodSymbol(SYNTHETIC, def.name, null, enclScope.owner);
         // m.flags_field = chk.checkFlags(def.pos(), def.mods.flags, m, def);
         def.sym = m;
         finishOperationDefinition(def, env);
-        result = tree.type = makeFunctionType((MethodType) def.type);
+        result = tree.type = syms.makeFunctionType((MethodType) def.type);
     }
     
     @Override
@@ -1644,8 +1637,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             // Those were all the cases that could result in a primitive
             if (allowBoxing) {
-                thentype = boxIfNeeded(thentype);
-                elsetype = boxIfNeeded(elsetype);
+                thentype = syms.boxIfNeeded(thentype);
+                elsetype = syms.boxIfNeeded(elsetype);
             }
 
             if (types.isSubtype(thentype, elsetype))
@@ -2494,7 +2487,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitTypeFunctional(JFXTypeFunctional tree) {
         Type restype = attribType(tree.restype, env);
-        Type robjtype = restype == syms.voidType ? syms.objectType : boxIfNeeded(restype);
+        Type robjtype = restype == syms.voidType ? syms.objectType : syms.boxIfNeeded(restype);
         Type rtype = new WildcardType(robjtype, BoundKind.EXTENDS, syms.boundClass);
 
         ListBuffer<Type> typarams = new ListBuffer<Type>();
@@ -2504,38 +2497,17 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         for (JFXType param : (List<JFXType>)tree.params) {
             Type argtype = attribType(param, env);
             argtypes.append(argtype);
-            Type ptype = boxIfNeeded(argtype);
+            Type ptype = syms.boxIfNeeded(argtype);
             ptype = new WildcardType(ptype, BoundKind.SUPER, syms.boundClass);
             typarams.append(ptype);
             nargs++;
         }
         MethodType mtype = new MethodType(argtypes.toList(), restype, null, syms.methodClass);
-        FunctionType ftype = makeFunctionType(typarams, restype);
+        FunctionType ftype = syms.makeFunctionType(typarams, restype);
         ftype.mtype = mtype;
         Type type = sequenceType(ftype, tree.getCardinality());
         tree.type = type;
         result = type; 
-    }
-
-    public FunctionType makeFunctionType(MethodType mtype) {
-        Type rtype = mtype.restype;
-        ListBuffer<Type> typarams = new ListBuffer<Type>();
-        Type robjtype = rtype == syms.voidType ? syms.objectType : boxIfNeeded(rtype);
-        typarams.append(robjtype);
-        for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail) {
-            typarams.append(boxIfNeeded(l.head));
-        }
-        FunctionType ftype = makeFunctionType(typarams, rtype);
-        ftype.mtype = mtype;
-        return ftype;
-    }
-
-    FunctionType makeFunctionType(ListBuffer<Type> typarams, Type restype) {
-        int nargs = typarams.size()-1;
-        assert nargs <= syms.MAX_FIXED_PARAM_LENGTH
-                : "NOT IMPLEMENTED - functions with >"+syms.MAX_FIXED_PARAM_LENGTH+" parameters";
-        Type funtype = syms.javafx_FunctionTypes[nargs];
-        return new FunctionType(funtype.getEnclosingType(), typarams.toList(), funtype.tsym, restype);
     }
     
     @Override

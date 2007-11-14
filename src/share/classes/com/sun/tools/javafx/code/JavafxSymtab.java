@@ -29,8 +29,10 @@ import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.util.Context;
-
+import com.sun.tools.javac.code.Type.MethodType;
 import static com.sun.tools.javac.jvm.ByteCodes.*;
+import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.ListBuffer;
 
 /**
  *
@@ -52,6 +54,8 @@ public class JavafxSymtab extends Symtab {
     public final Type[] javafx_FunctionTypes = new Type[MAX_FIXED_PARAM_LENGTH+1];
     public final Type javafx_FXObjectType;
     
+    private Types types;
+    
     public static void preRegister(final Context context) {
         context.put(symtabKey, new Context.Factory<Symtab>() {
             public Symtab make() {
@@ -64,8 +68,7 @@ public class JavafxSymtab extends Symtab {
     JavafxSymtab(Context context) {
         super(context);
 
-        // used only with constructor
-        Types types = Types.instance(context);
+        types = Types.instance(context);
         
         javafx_IntegerType = intType;
         javafx_NumberType = doubleType;
@@ -109,5 +112,35 @@ public class JavafxSymtab extends Symtab {
         enterUnop("bind", intType, intType, 0);
         enterUnop("bind", booleanType, booleanType, 0);
         enterUnop("bind", objectType, objectType, 0);
+    }
+
+    public Type boxIfNeeded(Type elemType) {
+        if (elemType.isPrimitive())
+            return types.boxedClass(elemType).type;
+        else
+            return elemType;
+    }
+
+    public FunctionType makeFunctionType(ListBuffer<Type> typarams, Type restype) {
+        int nargs = typarams.size()-1;
+        assert nargs <= MAX_FIXED_PARAM_LENGTH
+                : "NOT IMPLEMENTED - functions with >"+MAX_FIXED_PARAM_LENGTH+" parameters";
+        Type funtype = javafx_FunctionTypes[nargs];
+        return new FunctionType(funtype.getEnclosingType(), typarams.toList(), funtype.tsym, restype);
+    }
+
+    /** Given a MethodType, create the corresponding FunctionType.
+     */
+    public FunctionType makeFunctionType(MethodType mtype) {
+        Type rtype = mtype.restype;
+        ListBuffer<Type> typarams = new ListBuffer<Type>();
+        Type robjtype = rtype == voidType ? objectType : boxIfNeeded(rtype);
+        typarams.append(robjtype);
+        for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail) {
+            typarams.append(boxIfNeeded(l.head));
+        }
+        FunctionType ftype = makeFunctionType(typarams, rtype);
+        ftype.mtype = mtype;
+        return ftype;
     }
 }
