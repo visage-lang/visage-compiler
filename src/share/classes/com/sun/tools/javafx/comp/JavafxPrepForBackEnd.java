@@ -42,6 +42,7 @@ import java.util.Set;
 public class JavafxPrepForBackEnd extends TreeScanner {
     
     private Set<JCTree> seen = new HashSet<JCTree>();
+    private String sourceName = "";
     
     protected static final Context.Key<JavafxPrepForBackEnd> prepForBackEndKey =
         new Context.Key<JavafxPrepForBackEnd>();
@@ -63,14 +64,15 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     private void assertUnique(JCTree that) {
         boolean added = seen.add(that);
         if (!added) {
-            added = false;
+            System.err.println("Node " + that + " already encountered -- unclean " + that.getClass() + " tree in " + sourceName);
         }
-        assert added : "Node " + that + " already encountered -- unclean " + that.getClass() + " tree";
+//        assert added : "Node " + that + " already encountered -- unclean " + that.getClass() + " tree in " + sourceName;
     }
 
     @Override
     public void visitTopLevel(JCCompilationUnit that) {
         super.visitTopLevel(that);
+        sourceName = that.sourcefile.getName();
         assertUnique(that);
         that.type = null;
         that.packge = null;
