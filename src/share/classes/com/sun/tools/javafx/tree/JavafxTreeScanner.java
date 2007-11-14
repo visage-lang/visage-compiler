@@ -198,6 +198,7 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
         scan(tree.getJFXType());
 	scan(tree.mods);
 	scan(tree.init);
+        scan(tree.getOnChanges());
     }
     
     public void visitAbstractOnChange(JFXAbstractOnChange tree) {
