@@ -454,7 +454,7 @@ moduleItem returns [JCTree value]
        : importDecl 				{ $value = $importDecl.value; }
        | classDefinition 			{ $value = $classDefinition.value; }
        | statement      			{ $value = $statement.value; } 
-       | expression 				{ $value = F.Exec($expression.expr); } 
+       | expression 				{ $value = $expression.expr; } 
        ;
 importDecl returns [JCTree value]
 @init { JCExpression pid = null; }

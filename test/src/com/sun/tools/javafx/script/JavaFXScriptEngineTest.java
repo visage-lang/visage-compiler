@@ -68,7 +68,6 @@ public class JavaFXScriptEngineTest {
         }
     }
     
-    @Ignore("script return values not implemented yet")
     @Test
     public void scriptResult() throws Exception {
         Object ret = engine.eval("var a = 1; a + 2;");

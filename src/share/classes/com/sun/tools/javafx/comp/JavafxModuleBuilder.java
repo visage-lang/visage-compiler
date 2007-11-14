@@ -95,7 +95,12 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         ListBuffer<JCTree> moduleClassDefs = new ListBuffer<JCTree>();
         ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();    
         JFXClassDeclaration moduleClass = null;
+        JCExpression value = null;
         for (JCTree tree : module.defs) {
+            if (value != null) {
+                stats.append( make.Exec(value) );
+                value = null;
+            }
             switch (tree.getTag()) {
             case IMPORT:
                 topLevelDefs.append(tree);
@@ -131,13 +136,17 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
                 break;
             }
             default:
-                stats.append((JCStatement)tree);
+                if (tree instanceof JCExpression) {
+                    value = (JCExpression)tree;
+                } else {
+                    stats.append((JCStatement)tree);
+                }
                 break;
             }
         }
                 
         // Add run() method... If the class can be a module class.
-        moduleClassDefs.prepend(makeMethod(runMethodString, stats.toList(), syms.objectType));
+        moduleClassDefs.prepend(makeMethod(runMethodString, stats.toList(), value, syms.objectType));
 
         if (moduleClass == null) {
             moduleClass =  make.ClassDeclaration(
@@ -165,9 +174,9 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         super.visitClassDeclaration(tree);
     }
 
-    private JFXOperationDefinition makeMethod(String name, List<JCStatement> stats, Type returnType) {
+    private JFXOperationDefinition makeMethod(String name, List<JCStatement> stats, JCExpression value, Type returnType) {
         List<JFXVar> emptyVarList = List.nil();
-        JFXBlockExpression body = make.BlockExpression(0, stats, null);
+        JFXBlockExpression body = make.BlockExpression(0, stats, value);
         JCExpression rettree = make.Identifier(returnType.toString());
         rettree.type = returnType;
         return make.OperationDefinition(

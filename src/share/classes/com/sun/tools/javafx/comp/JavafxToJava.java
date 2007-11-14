@@ -733,11 +733,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             boolean isBound = bindContext.isBound();
             MethodType mtype = (MethodType)tree.type;
 
-            JFXBlockExpression bexpr = tree.getBodyExpression();
-            JCBlock body = null; // stays null if no block expression
-            if (bexpr != null) {
+           // construct the body of the translated function
+             JFXBlockExpression bexpr = tree.getBodyExpression();
+            JCBlock body; 
+            if (bexpr == null) {
+                body = null; // null if no block expression
+            } else {
                 boolean isVoidReturn = mtype.getReturnType() == syms.voidType;
                 if (isBound && !isVoidReturn) {
+                    // bound function return value
                     body = make.at(diagPos).Block(0L, List.<JCStatement>of(make.at(diagPos).Return(
                             typeMorpher.buildDefinitionalAssignment(diagPos, 
                                 typeMorpher.varMorphInfo(tree.sym),
@@ -745,17 +749,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                 translate( bexpr ), 
                                 bindContext, 
                                 false).first)));
+                } else if (isRunMethod(tree.sym)) {
+                    // it is a module level run method, do special translation
+                    body = runMethodBody( bexpr );
                 } else {
+                    // the "normal" case
                     body = blockExpressionToBlock(bexpr, !isVoidReturn);
-                }
-            }
-
-            // if this is the synthetic run method, make sure it ends with a return
-            boolean isRunMethod = isRunMethod(tree.sym);
-            if (isRunMethod) {
-                JCStatement lastStat = body.stats.last();
-                if (lastStat == null || lastStat.getTag() != JCTree.RETURN) {
-                    body.stats = body.stats.append(make.Return(make.Literal(TypeTags.BOT, null)));
                 }
             }
 
@@ -1832,6 +1831,33 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         assert false : "should be processed by parent tree";
+    }
+    
+    private JCBlock runMethodBody(JFXBlockExpression bexpr) {
+        DiagnosticPosition diagPos = bexpr.pos();
+        List<JCStatement> stats = translateStatements(bexpr.stats);
+        boolean nullReturnNeeded = true;
+        if (bexpr.value != null) {
+            Type valueType = bexpr.value.type;
+            if (valueType == syms.voidType) {
+                // convert the void typed expression to a statement, still return null
+                stats = stats.append( exprToTranslatedStatement(bexpr.value, false) );
+            } else {
+                // the returned value will be the trailing expression, box if needed
+                //TODO: handle cases of single legged if, etc
+                if (valueType.isPrimitive()) {
+                    JCExpression boxedExpr = makeBox(diagPos, translate(bexpr.value), valueType);
+                    stats = stats.append( make.Return( boxedExpr ) );
+                } else {
+                    stats = stats.append( exprToTranslatedStatement(bexpr.value, true) );
+                }
+                nullReturnNeeded = false;
+            }
+        }
+        if (nullReturnNeeded) {
+            stats = stats.append( make.Return(make.Literal(TypeTags.BOT, null)) );
+        }
+        return make.at(diagPos).Block(0L, stats);
     }
     
     boolean shouldMorph(VarMorphInfo vmi) {

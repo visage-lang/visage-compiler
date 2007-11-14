@@ -1489,7 +1489,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 } else {
                     if (returnType == null)
                         returnType = bodyType;
-                    else if (returnType != syms.javafx_VoidType)
+                    else if (returnType != syms.javafx_VoidType && !tree.getName().toString().equals(JavafxModuleBuilder.runMethodString))
                         chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.DISALLOWED);       
                 }
             }
