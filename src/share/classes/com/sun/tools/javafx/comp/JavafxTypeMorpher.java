@@ -168,7 +168,7 @@ public class JavafxTypeMorpher {
                 }
 
                 // must be called AFTER typeKind and realType are set in vsym
-                this.morphedType = generifyIfNeeded(declLocationType(typeKind), this);
+                this.morphedType = symType == syms.voidType? symType : generifyIfNeeded(declLocationType(typeKind), this);
             }
         }
         
@@ -366,7 +366,8 @@ public class JavafxTypeMorpher {
         return newType;
     }
         
-    public JCExpression convertVariableReference(JCExpression varRef, Symbol sym, boolean staticReference, 
+    public JCExpression convertVariableReference(DiagnosticPosition diagPos,
+                                                                                            JCExpression varRef, Symbol sym, boolean staticReference,
                                                                                             JavafxBindStatus bindContext, boolean inLHS) {
         
         JCExpression expr = varRef;
@@ -380,9 +381,9 @@ public class JavafxTypeMorpher {
                     assert varRef.getTag() == JCTree.SELECT : "attribute must be accessed through receiver";
                     JCFieldAccess select = (JCFieldAccess) varRef;
                     Name attrAccessName = names.fromString(initBuilder.attributeGetMethodNamePrefix + select.name.toString());
-                    select = make.Select(select.getExpression(), attrAccessName);
+                    select = make.at(diagPos).Select(select.getExpression(), attrAccessName);
                     List<JCExpression> emptyArgs = List.nil();
-                    expr = make.Apply(null, select, emptyArgs);
+                    expr = make.at(diagPos).Apply(null, select, emptyArgs);
                 }   
                 if (bindContext.isBidiBind()) {
                     // already in correct form-- leave it
@@ -392,7 +393,7 @@ public class JavafxTypeMorpher {
                     // non-bind context -- want v1.get()
                     JCFieldAccess getSelect = make.Select(expr, getMethodName);
                     List<JCExpression> getArgs = List.nil();
-                    expr = make.Apply(null, getSelect, getArgs);
+                    expr = make.at(diagPos).Apply(null, getSelect, getArgs);
                 }
             }
         } else if (sym instanceof MethodSymbol) {
@@ -400,10 +401,10 @@ public class JavafxTypeMorpher {
                 Name name = toJava.functionName((MethodSymbol)sym);
                 if (expr.getTag() == JCTree.SELECT) {
                     JCFieldAccess select = (JCFieldAccess) expr;
-                    expr = make.Select(select.getExpression(), name);
+                    expr = make.at(diagPos).Select(select.getExpression(), name);
                 } else if (expr.getTag() == JCTree.IDENT) {
                     JCIdent ident = (JCIdent) expr;
-                    expr = make.Ident(name);
+                    expr = make.at(diagPos).Ident(name);
                 }
             }
         }
@@ -554,12 +555,19 @@ public class JavafxTypeMorpher {
     private JCExpressionTupple buildExpression(Symbol vsym, 
             JCExpression fxInit, JCExpression translatedInit, JavafxBindStatus bindStatus, boolean isAttribute) {
         DiagnosticPosition diagPos = fxInit.pos();
-        VarMorphInfo vmi = varMorphInfo(vsym);
+        JCStatement stmt = make.at(diagPos).Return(translatedInit);
         
-        ListBuffer<JCExpression> argValues = ListBuffer.lb();
+        return buildExpression(vsym, fxInit, stmt,  bindStatus, isAttribute);
+    }
+    
+    JCExpressionTupple buildExpression(Symbol vsym, 
+            JCExpression fxInit, JCStatement stmt, JavafxBindStatus bindStatus, boolean isAttribute) {
+        DiagnosticPosition diagPos = fxInit.pos();
+        VarMorphInfo vmi = varMorphInfo(vsym);
 
-        JCBlock body = make.at(diagPos).Block(0, List.<JCStatement>of(
-                            make.at(diagPos).Return(translatedInit)));
+        JCBlock body = stmt.getTag() == JavafxTag.BLOCK? 
+            (JCBlock)stmt :
+            make.at(diagPos).Block(0, List.<JCStatement>of(stmt));
         JCMethodDecl getMethod = make.at(diagPos).MethodDef(
                 make.at(diagPos).Modifiers(Flags.PUBLIC), 
                 getMethodName, 
@@ -569,7 +577,7 @@ public class JavafxTypeMorpher {
                 List.<JCExpression>nil(), 
                 body, 
                 null); 
-        ;
+        
         JCExpression newExpr = make.at(diagPos).NewClass(
                 null,                       // enclosing
                 List.<JCExpression>nil(),   // type args
@@ -579,6 +587,8 @@ public class JavafxTypeMorpher {
                 make.at(diagPos).AnonymousClassDef(
                     make.at(diagPos).Modifiers(0), 
                     List.<JCTree>of(getMethod)));
+        
+        ListBuffer<JCExpression> argValues = ListBuffer.lb();
         argValues.append(newExpr);
         List<JCExpression> dependencies = buildDependencies(fxInit);
         if (!isAttribute) {

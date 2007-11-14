@@ -29,6 +29,8 @@ import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javafx.tree.JFXBlockExpression;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Remove symbol and type information.
@@ -38,6 +40,8 @@ import com.sun.tools.javafx.tree.JFXBlockExpression;
  * @author Robert Field
  */
 public class JavafxPrepForBackEnd extends TreeScanner {
+    
+    private Set<JCTree> seen = new HashSet<JCTree>();
     
     protected static final Context.Key<JavafxPrepForBackEnd> prepForBackEndKey =
         new Context.Key<JavafxPrepForBackEnd>();
@@ -55,10 +59,19 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     public void prep(JavafxEnv<JavafxAttrContext> attrEnv) {
         scan(attrEnv.toplevel);
     }
+    
+    private void assertUnique(JCTree that) {
+        boolean added = seen.add(that);
+        if (!added) {
+            added = false;
+        }
+        assert added : "Node " + that + " already encountered -- unclean " + that.getClass() + " tree";
+    }
 
     @Override
     public void visitTopLevel(JCCompilationUnit that) {
         super.visitTopLevel(that);
+        assertUnique(that);
         that.type = null;
         that.packge = null;
         that.starImportScope = null;
@@ -68,12 +81,14 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     @Override
     public void visitImport(JCImport that) {
         super.visitImport(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitClassDef(JCClassDecl that) {
         super.visitClassDef(that);
+        assertUnique(that);
         that.type = null;
         that.sym = null;
     }
@@ -81,6 +96,7 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     @Override
     public void visitMethodDef(JCMethodDecl that) {
         super.visitMethodDef(that);
+        assertUnique(that);
         that.type = null;
         that.sym = null;
     }
@@ -88,6 +104,7 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     @Override
     public void visitVarDef(JCVariableDecl that) {
         super.visitVarDef(that);
+        assertUnique(that);
         that.type = null;
         that.sym = null;
     }
@@ -95,157 +112,185 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     @Override
     public void visitSkip(JCSkip that) {
         super.visitSkip(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitBlock(JCBlock that) {
         super.visitBlock(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitDoLoop(JCDoWhileLoop that) {
         super.visitDoLoop(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitWhileLoop(JCWhileLoop that) {
         super.visitWhileLoop(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitForLoop(JCForLoop that) {
         super.visitForLoop(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitForeachLoop(JCEnhancedForLoop that) {
         super.visitForeachLoop(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitLabelled(JCLabeledStatement that) {
         super.visitLabelled(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitSwitch(JCSwitch that) {
         super.visitSwitch(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitCase(JCCase that) {
         super.visitCase(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitSynchronized(JCSynchronized that) {
          super.visitSynchronized(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitTry(JCTry that) {
         super.visitTry(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitCatch(JCCatch that) {
          super.visitCatch(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitConditional(JCConditional that) {
         super.visitConditional(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitIf(JCIf that) {
         super.visitIf(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitExec(JCExpressionStatement that) {
          super.visitExec(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitBreak(JCBreak that) {
          super.visitBreak(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitContinue(JCContinue that) {
         super.visitContinue(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitReturn(JCReturn that) {
         super.visitReturn(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitThrow(JCThrow that) {
         super.visitThrow(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitAssert(JCAssert that) {
         super.visitAssert(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitApply(JCMethodInvocation that) {
         super.visitApply(that);
+        assertUnique(that);
         that.type = null;
+        that.varargsElement = null;
     }
     
     @Override
     public void visitNewClass(JCNewClass that) {
         super.visitNewClass(that);
+        assertUnique(that);
         that.type = null;
         that.constructor = null;
+        that.varargsElement = null;
     }
     
     @Override
     public void visitNewArray(JCNewArray that) {
          super.visitNewArray(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitParens(JCParens that) {
         super.visitParens(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitAssign(JCAssign that) {
         super.visitAssign(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitAssignop(JCAssignOp that) {
         super.visitAssignop(that);
+        assertUnique(that);
         that.type = null;
         that.operator = null;
     }
@@ -253,6 +298,7 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     @Override
     public void visitUnary(JCUnary that) {
         super.visitUnary(that);
+        assertUnique(that);
         that.type = null;
         that.operator = null;
     }
@@ -260,6 +306,7 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     @Override
     public void visitBinary(JCBinary that) {
         super.visitBinary(that);
+        assertUnique(that);
         that.type = null;
         that.operator = null;
     }
@@ -267,24 +314,28 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     @Override
     public void visitTypeCast(JCTypeCast that) {
         super.visitTypeCast(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitTypeTest(JCInstanceOf that) {
         super.visitTypeTest(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitIndexed(JCArrayAccess that) {
          super.visitIndexed(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitSelect(JCFieldAccess that) {
         super.visitSelect(that);
+        assertUnique(that);
         that.type = null;
         that.sym = null;
     }
@@ -292,6 +343,7 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     @Override
     public void visitIdent(JCIdent that) {
         super.visitIdent(that);
+        assertUnique(that);
         that.type = null;
         that.sym = null;
     }
@@ -299,71 +351,84 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     @Override
     public void visitLiteral(JCLiteral that) {
         super.visitLiteral(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitTypeIdent(JCPrimitiveTypeTree that) {
         super.visitTypeIdent(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitTypeArray(JCArrayTypeTree that) {
         super.visitTypeArray(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitTypeApply(JCTypeApply that) {
         super.visitTypeApply(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitTypeParameter(JCTypeParameter that) {
         super.visitTypeParameter(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitWildcard(JCWildcard that) {
         super.visitWildcard(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitTypeBoundKind(TypeBoundKind that) {
          super.visitTypeBoundKind(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitAnnotation(JCAnnotation that) {
         super.visitAnnotation(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitModifiers(JCModifiers that) {
         super.visitModifiers(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitErroneous(JCErroneous that) {
         super.visitErroneous(that);
+        assertUnique(that);
         that.type = null;
     }
     
     @Override
     public void visitLetExpr(LetExpr that) {
         super.visitLetExpr(that);
+        assertUnique(that);
         that.type = null;
     }
 
     public void visitBlockExpression(JFXBlockExpression that) {
+        assertUnique(that);
         scan(that.stats);
         scan(that.value);
+        that.type = null;
     }
 }
