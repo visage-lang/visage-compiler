@@ -751,11 +751,12 @@ multiplicativeExpression  returns [JCExpression expr]
 	   ) * ;
 unaryExpression  returns [JCExpression expr] 
 	: suffixedExpression					{ $expr = $suffixedExpression.expr; }
-	| unaryOperator   e=unaryExpression			{ $expr = F.Unary($unaryOperator.optag, $e.expr); }
+	| prefixUnaryOperator   e=unaryExpression		{ $expr = F.Unary($prefixUnaryOperator.optag, $e.expr); }
 	;
 suffixedExpression  returns [JCExpression expr] 
 	: e1=postfixExpression					{ $expr = $e1.expr; }
-	   (PLUSPLUS | SUBSUB) ?   				//TODO
+//TODO:		( PLUSPLUS					{ $expr = F.at(pos($PLUSPLUS)).Unary(JCTree.POSTINC, $expr); } )?
+//		( SUBSUB					{ $expr = F.at(pos($SUBSUB)).Unary(JCTree.POSTDEC, $expr); } )?
 	;
 postfixExpression  returns [JCExpression expr] 
 	: primaryExpression 					{ $expr = $primaryExpression.expr; }
@@ -837,16 +838,16 @@ bracketExpression   returns [JFXAbstractSequenceCreator expr]
 expressionListOpt  returns [ListBuffer<JCExpression> args = new ListBuffer<JCExpression>()] 
 	: ( e1=expression		{ $args.append($e1.expr); }
 	    (COMMA   e=expression	{ $args.append($e.expr); }  )* )? ;
-unaryOperator  returns [int optag]
-	: POUND				{ $optag = 0; } //TODO
-	| QUES   			{ $optag = 0; } //TODO
-	| SUB   			{ $optag = JCTree.NEG; } 
+prefixUnaryOperator  returns [int optag]
+//	: POUND				{ $optag = 0; } //TODO
+//	| QUES   			{ $optag = 0; } //TODO
+	: SUB   			{ $optag = JCTree.NEG; } 
 	| NOT   			{ $optag = JCTree.NOT; } 
 	| SIZEOF   			{ $optag = JavafxTag.SIZEOF; } //TODO
-	| TYPEOF   			{ $optag = 0; } //TODO
-	| REVERSE   			{ $optag = 0; } //TODO
-	| PLUSPLUS   			{ $optag = 0; } //TODO
-	| SUBSUB 			{ $optag = 0; } //TODO
+//	| TYPEOF   			{ $optag = 0; } //TODO
+//	| REVERSE   			{ $optag = 0; } //TODO
+//	| PLUSPLUS   			{ $optag = JCTree.PREINC; }  //TODO
+//	| SUBSUB 			{ $optag = JCTree.PREDEC; }   //TODO
 	;
 assignmentOperator  returns [int optag]
 	: PLUSEQ   			{ $optag = JCTree.PLUS_ASG; } 

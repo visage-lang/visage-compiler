@@ -2,8 +2,8 @@
  * regression test: fix for one of the bugs in JFXC-175. The isssue is that the synthetic
  * class of a local ObjLit was generated at the top of the enclosing method and there was 
  * no access to any subsequent locall var declarations.
- * @test
- * @run
+ * !test  //TODO: temporarily disable -- until ++ is worked around
+ * !run
  */
 class Bar {
 	attribute a : Integer;
