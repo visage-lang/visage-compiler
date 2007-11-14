@@ -37,7 +37,7 @@ public class CompoundBorder  extends Border {
         //var numBorders = sizeof borders - 1;
         //WORK AROUND
         var numBorders = 0;
-        foreach(b in borders) numBorders++;
+        foreach(b in borders) numBorders = numBorders + 1;  //TODO: revert to ++ when that works
         // END WORK AROUND
         if(numBorders > 2) {
             foreach (i in [2..numBorders exclusive]) {
