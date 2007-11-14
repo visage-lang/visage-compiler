@@ -729,7 +729,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             // a method; closed-over local variables become fields.
             // That would have the advantage that calling the function directly
             // translates into a direct method call, rather than going via
-            // Function's invoke method, which implies extra cats, possibly
+            // Function's invoke method, which implies extra casts, possibly
             // boxing, etc.  FIXME
             DiagnosticPosition diagPos = tree.pos();
             MethodType mtype = (MethodType) tree.type;
