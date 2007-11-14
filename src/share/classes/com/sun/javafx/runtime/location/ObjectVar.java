@@ -58,8 +58,30 @@ public class ObjectVar<T> extends AbstractLocation implements ObjectLocation<T>,
         return previousValue;
     }
 
+    boolean valueType(Object obj) {
+	return obj instanceof String ||
+	    obj instanceof Number ||
+	    obj instanceof Boolean ||
+	    obj instanceof Character;
+    }
+
+    boolean changed(T oldValue, T newValue) {
+	if (oldValue == null) {
+	    if (newValue == null) {
+		return false;
+	    } else {
+		return true;
+	    }
+	} else {
+	    if (valueType(oldValue)) {
+		return !oldValue.equals(newValue);
+	    }
+	}
+	return oldValue == newValue;
+    }
+
     public T set(T value) {
-        if (this.value != value) {
+        if (changed(this.value, value)) {
             previousValue = this.value;
             this.value = value;
             valueChanged();
