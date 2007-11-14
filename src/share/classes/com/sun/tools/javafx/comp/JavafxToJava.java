@@ -269,6 +269,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
+        // prevent multiple translations
+        if (tree.hasBeenTranslated) {
+            result = null;
+            return;
+        }
+        tree.hasBeenTranslated = true;
+        
         JFXClassDeclaration prevClass = currentClass;
         JFXClassDeclaration prevEnclClass = attrEnv.enclClass;
         JavafxBindStatus prevBindContext = bindContext;
@@ -380,7 +387,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             
             // make the Java class corresponding to this FX class, and return it
             JCClassDecl res = make.at(diagPos).ClassDef(
-                    tree.mods,
+                    translate( tree.mods ),
                     tree.getName(),
                     tree.getEmptyTypeParameters(), 
                     null,  // no classes are extended, they have become interfaces -- change if we implement single Java class extension

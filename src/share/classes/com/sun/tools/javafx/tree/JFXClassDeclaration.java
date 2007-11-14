@@ -58,6 +58,7 @@ public class JFXClassDeclaration extends JFXStatement implements ClassDeclaratio
     public ClassSymbol sym;   
 
     public boolean isModuleClass = false;
+    public boolean hasBeenTranslated = false; // prevent multiple translations
     
     protected JFXClassDeclaration(JCModifiers mods,
             Name name,
