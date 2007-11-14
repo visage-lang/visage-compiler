@@ -3,37 +3,27 @@
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <?xml-stylesheet href="docbook.css" type="text/css"?>
 <chapter id="Expressions">
-  <title>Expressions and Operators</title>
+  <title>Operators</title>
 
-  <sect1 id="expr">
-    <title>Expressions and Operators Overview</title>
+  <sect1 id="exintro">
+    <title>Introduction</title>
 
 <para>
-<emphasis>This Chapter describes statements, expressions, and operators, including the trigger and bind mechanisms, and logical expressions.</emphasis>
+<emphasis>This Chapter describes  operators, including the <code>trigger</code> and <code>bind</code> mechanisms.</emphasis> <!-- ... and logical expressions. --> 
 </para>
 
   </sect1>
 
-  <sect1>
-    <title>Expressions</title>
-
-    <para>An expression is a combination of values, variables, and operators.
-    The evaluation of an expression produces a value. If you type an
-    expression on the command line, the interpreter evaluates it and displays
-    the result.</para>
-
-    <para>Expressions use operators to associate entities of some type in order to 
-    produce the resulting value.</para>
-  </sect1>
 
   <sect1 id="oper">
     <title>Operators</title>
 
-    <para>Operators are symbols that represent computations like addition and
-    multiplication. The values the operator uses are called operands. They can
-    be data values, variables, objects or other carefully defined program
-    elements. Operators tend to be associated with the type of the operands
-    being evaluated (see <emphasis>Types</emphasis>) but some operators can be overloaded to handle closely related types.</para>
+    <para>An operators specifies a computational activity involving one or more operands. Operands can
+    be data values, variables, objects or other program
+    elements. </para>
+    
+    <para>Operators are usually associated with the data type of the operands
+    being evaluated (see <emphasis>Types</emphasis>) but some operators can be overloaded to handle closely related types. For example; addition and multiplication operate only on data of type  <code>integer</code> or <code>number</code>, but not <code>boolean</code> or <code>string</code>.</para> 
 
     <para>In JavaFX Script, an operator can also be a keyword that defines a
     computation, a relationship between two data elements, or a reference to
@@ -407,7 +397,7 @@
             <code><emphasis>op</emphasis>()</code>
           </td>
 
-          <td>function/operation call</td>
+          <td>function call</td>
 
           <td>
             <code>
@@ -796,15 +786,20 @@
     <title>The Bind Operator</title>
 
     <para>
-      The <eee>bind</eee> operator associates a current value with a target value. When the target value changes, the system changes the current value to match. 
+      The <code>bind</code> operator associates a current value of a target attribute with the value of a remote value, property, condition or object. When the remote value changes, the system automatically changes the target value to match. 
     </para>
+    
+    <para><emphasis role="bold">Note:&nbsp;</emphasis>
+      <code>bind</code> is closely related to <code>trigger</code>.  Where <code>bind</code> changes a local value to match a remote value; <code>trigger</code> can respond to the change that has taken place and execute a block of code. </para>
+    
+    <para>Note that by automatically changing a target value to match a remote value, <code>bind</code> can replace some Swing event-handling code.
      <para>
         <emphasis role="bold">Syntax:</emphasis>
       </para>
 
-      <programlisting>a: bind <emphasis>target</emphasis>  </programlisting>
+      <programlisting>a: bind <emphasis>remote</emphasis>  </programlisting>
 
-      <para>Where <emphasis>target</emphasis> is the value of the target.</para>
+      <para>Where <emphasis>a:</emphasis> is the value of an attribute and <emphasis>remote</emphasis> is the changing value of the remote data object defined and declared earlier in the script.</para>
     
     
     
@@ -812,14 +807,18 @@
     <sect2 id="lazy">
       <title>Incremental and Lazy Evaluation</title>
 
-      <para>In JavaFX Script, you can specify attribute initializers to be
-      lazily and/or incrementally evaluated with the <code>bind</code>
-      operator. Attributes initialized with <code>bind</code> are akin to
+      <para><code>bind</code> lets you specify attribute initializers to be
+      lazily and/or incrementally evaluated. <code>bind</code> Attributes behave like 
       cells in a spreadsheet that contain formulas rather than literal values.
-      During the lifetime of the object containg the attribute, whenever any
+      During the lifetime of the object containng the attribute, whenever any
       of the objects referenced by the right hand side of the initializer
-      expression changes the left hand side (the attribute's value) is
-      automatically updated. Here is an example:</para>
+      expression changes the left hand side (the attribute's value) 
+      automatically updates.</para>
+      
+      <!-- this code example introduces trigger before it uses bind.
+      This is going to be confusing to a new reader. -->
+      
+      <para><emphasis role="bold">Example:</emphasis></para>
 
       <programlisting>         import java.lang.System;
 
@@ -890,12 +889,12 @@
       result of the evaluation is incorporated into the caller's evaluation
       tree.</para>
 
-      <para>Incremental evaluation is one of JavaFX Script's main
-      distinguishing features. Incremental evaluation makes it possible to
-      define complex dynamic GUI's declaratively. The lazy evaluation feature
-      is also needed to handle recursive data structures like trees and
-      graphs.</para>
-    </sect2>
+      <para><!-- Incremental evaluation is one of JavaFX Script's main
+      distinguishing features.--> Incremental evaluation makes it
+      possible to define complex dynamic GUI's declaratively. 
+      The lazy evaluation feature is also needed to handle recursive
+      data structures like trees and graphs.</para> 
+    </sect2></para>
   </sect1>
 
   <sect1 id="triggers">
@@ -1101,7 +1100,7 @@
       multi-valued attribute like a list, array or String,
       <emphasis>expr1</emphasis> is the value to replace, and
       <emphasis>expr2</emphasis> is the new value to be inserted into the
-      attribute at the <emphasis>expr1</emphasis> location.</para>
+      list or array at the <emphasis>expr1</emphasis> location.</para>
 
       <para>In the example below, the variables <code>oldValue</code> and
       <code>newValue</code> contain references to the previous and current

@@ -1,259 +1,247 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <?xml-stylesheet href="docbook.css" type="text/css"?>
 <chapter id="Arrays">
-<title>Arrays and Strings</title>
+  <title>Sequences</title>
 
+  <sect1 id="aintro">
+    <title>Introduction</title>
 
-<sect1 id="arrays"><title>Arrays and Strings Overview</title>
+    <para><emphasis> This Chapter describes JavaFX Script Sequences.
+    </emphasis></para>
+  </sect1>
 
-<para>
-   <emphasis>
-      This Chapter describes JavaFX Strings and Arrays. 
-   </emphasis>
+  <sect1 id="array">
+    <title>Overview</title>
 
-</para>
+    <para>A sequence is a data structure that holds a set of data items of the
+    same type, and in a definite order, similar to an array. In JavaFX Script,
+    sequences can hold basic types or object references to JavaFX Script
+    objects, but can not hold object references to Java objects, or objects
+    that hold other sequence objects (you can't nest sequences).</para>
 
-</sect1>
+    <para>JFX Script provides several operators and syntactical forms which
+    let you create, copy and delete arrays, to read and write data stored in
+    an array, to insert, change or delete data at any array position, and to
+    select data based on value or on array position.</para>
 
-
-	<sect1 id="stringsintro"><title>Strings Introduction</title>
-	
-	<para><emphasis>Introduction to come </emphasis></para>
-	</sect1>
-	
-	
-  <sect2 id="strings">
-    <title>String Literals and String Expressions</title>
-
-    <para>JavaFX Script specifies a literal character string with either single or double quotes: 
-    </para>
-
-    <programlisting>        var s = 'Hello';
-       var s = "Hello"; // equivalent statement
-</programlisting>
-
-    <para>When using double quotes, you can embed JavaFX Script expressions using curly bracket operators:
-    <code>{}</code>:</para>
-
-    <programlisting>        var name = 'Joe';
-        var s = "Hello {name}"; // s = 'Hello Joe'
-</programlisting>
-
-    <para>You can nest quoted strings. Your embedded expression can itself contain quoted strings (which, in
-    turn, can contain further embedded expressions):</para>
-
-    <programlisting>        var answer = true;
-        var s = "The answer is {if answer then "Yes" else "No"}"; // s = 'The answer is Yes'
-</programlisting>
-
-    <para>Unlike Java, JavaFX Script double-quoted String literals
-    <emphasis>can</emphasis> contain newlines:</para>
-
-    <programlisting>        var s = "This
-                 contains
-                 new lines";
-</programlisting>
-  </sect2>
-  
-  
-   <sect2 id="sformatting">
-    <title>String, Number, and Date Formatting</title>
-
-    <para>JavaFX Script  has a built-in String formatting operator (<code>format as</code>), which has the following syntax:</para>
-
-    <programlisting>        <emphasis>expr</emphasis> format as <emphasis>directive</emphasis>
-</programlisting>
-
-    <para>The <code>format as </code>operator supports
-    <code>java.text.DecimalFormat</code>,
-    <code>java.text.SimpleDateFormat</code>, and
-    <code>java.util.Formatter</code> formatting directives. If the formatting
-    directive starts with <code>%</code>, then
-    <code>java.util.Formatter</code> is used, otherwise if <code>
-        <emphasis>expr</emphasis>
-      </code> is of type <code>Number</code> then
-    <code>java.text.DecimalFormat</code> is used, otherwise if <code>
-        <emphasis>expr</emphasis>
-      </code> is of type <code>java.util.Date</code> then
-    <code>java.text.SimpleDateFormat</code> is used. The <code>
-        <emphasis>directive</emphasis>
-      </code> operand is syntactically an identifier, not an expression. This
-    allows the content of <code>
-        <emphasis>directive</emphasis>
-      </code> to be statically checked for correctness at compile time.</para>
-
-    <para><emphasis role="bold">Examples:</emphasis></para>
-
-    <programlisting>        import java.util.Date;
-
-        100.896 format as &lt;&lt;%f&gt;&gt;; // yields '100.896000'
-        31.intValue() format as &lt;&lt;%02X&gt;&gt;; // yields '1F'
-        var d = new Date();
-        d format as &lt;&lt;yyyy-MM-dd'T'HH:mm:ss.SSSZ&gt;&gt;; // yields '2005-10-31T08:04:31.323-0800'
-        0.00123 format as &lt;&lt;00.###E0&gt;&gt;; // yields '12.3E-4'
-</programlisting>
-
-</sect2>
-
-
-<sect1 id="array1"><title>Arrays Introduction</title>
-
-      <para>
-      
-      <!-- An Array is a data structure that holds a set of data 
-      items of the same type, and in a definite sequence. In JavaFX
-      Script, arrays can hold basic types or object references to
-      JavaFX Script objects, but can not hold object references to
-      Java objects, or objects that hold other array objects (you
-      can't nest arrays).
-      
-      JFX Script provides several operators and syntactical forms
-      which let you create, copy and delete arrays, to read and 
-      write data stored in an array, to insert, change or delete 
-      data at any array  position, and to select data based on 
-      value or on array position.
-      
-      Can I explicitly resize a jfx array? 
+    <!--  Can I explicitly resize a jfx array? 
       
       -->
-      
-      Arrays represent sequences of objects. In JavaFX Script,  arrays are not
-      themselves objects, however, and do not nest. Expressions that produce
-      nested arrays (as in the initialization of "days" above) are
-      automaticallly flattened:</para>
 
-      <programlisting>days == ["Mon","Tue","Wed","Thur","Fri","Sat","Sun"]; // returns true
+    <para>The sequence is initialized with square brackets and commas:</para>
+
+    <para><emphasis role="bold">Example:</emphasis></para>
+
+    <programlisting>
+
+        var week_days = ["Mon","Tue","Wed","Thur","Fri"];
+        var days = [week_days, ["Sat","Sun"]]; </programlisting>
+
+    <para>Sequences have some similarities with Java Arrays but a number of
+    differences also.</para>
+
+    <para>Arrays represent sequences of objects. In JavaFX Script, arrays are
+    not themselves objects, however, and do not nest. Expressions that produce
+    nested arrays (as in the initialization of "days" above) are
+    automaticallly flattened:</para>
+
+    <programlisting>days == ["Mon","Tue","Wed","Thur","Fri","Sat","Sun"]; // returns true
 </programlisting>
 
-      <para>Use the <code>sizeof</code> operator to determine the size of an array:</para>
+    <!-- ********************************************************** -->
 
-      <programlisting>         var n = sizeof days; // n = 7
-</programlisting>
+    <para>In addition, a single object is equivalent to a sequence of one
+    object:</para>
 
+    <programlisting>        1 == [1]; // returns true </programlisting>
+
+    <para>As such, a single object may be used anywhere a sequence is
+    expected.</para>
+
+    <para>Sequence types are declared with the<code> []
+    </code>annotation:</para>
+
+    <para><emphasis role="bold">Example:</emphasis></para>
+
+    <programlisting>      var xs:Number[]; // sequence of Number
+        var strs:String[]; // sequence of String;</programlisting>
+
+    <!-- ********************************************************** -->
+
+    <para>Use the <code> sizeof </code> operator to determine the size of a
+    sequence:</para>
+
+    <programlisting>        var n = sizeof [1,2,3]; // n = 3 </programlisting>
+
+    <para>Use the JavaFX Script double-dot operator (<code> .. </code>) to
+    query sequences containing elements which form an arithmetic series. For
+    example; here are definitions of the factorial function, and of a number
+    <emphasis>result</emphasis> which is the sum of the odd numbers between 1
+    and 100</para>
+
+    <programlisting>        function fac(n:Number[]) {return product([1..n]);}
+        var result = sum([1,3..100]); </programlisting>
+
+    <para>The elements of a sequence must have a common type.</para>
+
+    <para>Sequences can be indexed like Java arrays:</para>
+
+    <programlisting>        var wednesday = days[2];</programlisting>
+
+    <para>In JavaFX script the bracket ( <code>[] ) </code>operator also
+    expresses selection in the form of predicates. Predicates take the
+    form:</para>
+
+    <programlisting>       sequence[variableName| booleanExp]</programlisting>
+
+    <para><emphasis role="bold">Example:</emphasis></para>
+
+    <programlisting>	var nums = [1,2,3,4];
+	var numsGreaterThanTwo = nums[n|n &gt; 2];</programlisting>
+
+    <para>This expression returns a new sequence containing those elements of
+    the original sequence that satisfy the predicate.</para>
+
+    <para>The <code> indexof </code> operator returns the ordinal position of
+    an element within a sequence:<para>
+        <programlisting>	var nums = [1,2,3,4];
+	var numsExceptTheFirstTwo = nums[n|indexof n &gt; 1];</programlisting>
+
+        <para>An empty sequence<code> [] </code> and <code> null </code> are
+        synonymous.</para>
+
+        <programlisting>       [] == null // yields true
+        sizeof null // yields 0</programlisting>
+
+        <para>or, put another way:</para>
+
+        <programlisting>        1 is to [1]</programlisting>
+
+        <para>as</para>
+
+        <programlisting>        null is to []</programlisting>
+      </para> <!-- ********************************************************* -->
+    <!--
       <para>There is a shorthand notation using "<code>..</code>" for arrays
       whose elements form an arithmetic series. For example, here is a factorial function that uses the double-dot notation. It returns  <code>result</code>, which is 
       the sum of the odd numbers between 1 and 100</para>
 
       <programlisting>function fac(n) {return product([1..n]);}
         var result = sum([1,3..100]);
-</programlisting>
+</programlisting> 
 
-      <para>The elements of an array must all be of the same type.</para>
-
-      <para>Arrays may be indexed as they are in Java:</para>
-
-      <programlisting>        var wednesday = days[2];
-</programlisting>
-
-      <para>In JavaFX Script the <code>[]</code> operator also expresses selection
+--> <para>The elements of a sequence must all be of the same type.</para>
+    <para>Sequences can be indexed as they are in Java:</para>
+    <programlisting>        var wednesday = days[2];
+</programlisting> <!--
+      <para>In JavaFX Script the <code>[ ]</code> operator also expresses selection
       (similar to its use in XPath). In this case, the expression contained in
       the <code>[]</code> is a boolean expression. This expression returns
       a new array containing only those elements which satisfy the predicate
       contained in the <code>[]</code>.</para>
-
-      <para>Within the predicate contained inside the
-      <code>[ ]</code> operator, you can access the context object with the dot operator.  This is similar to the<code> XPath</code> function. 
-      
-<para><emphasis role="bold">Example:</emphasis></para>
-
-      <programlisting>	var nums = [1,2,3,4];
+  --> <para>Within the predicate contained inside the <code>[ ]</code>
+    operator, you can access the context object with the dot operator. This is
+    similar to the<code> XPath</code> function. <para>
+        <emphasis role="bold">Example:</emphasis>
+      </para> <programlisting>	var nums = [1,2,3,4];
 	var numsGreaterThanTwo = nums[. &gt; 2]; // yields [3, 4]
-</programlisting>
-
-      <para>Alternately, you can declare a variable for the context object.
-      For example, the statement below is equivalent to the above statement:</para>
-
-      <programlisting>	numsGreaterThanTwo = nums[n|n &gt; 2];
-</programlisting>
-
-      <para>The JavaFX Script <code>indexof</code> operator returns the ordinal
-      position of an element within an array (similar to the <code>position()</code>
-      function in XPath).</para>
-
-      <para>The <code>car</code> and <code>cdr</code> of a list may be
-      expressed using selection expressions like this:</para>
-
-      <programlisting>	function car(list) {return list[indexof . == 0];}
+</programlisting> <para>You can also declare a variable for the context
+    object. For example, the statement below is equivalent to the above
+    statement:</para> <programlisting>	numsGreaterThanTwo = nums[n|n &gt; 2];
+</programlisting> <para>The JavaFX Script <code>indexof</code> operator
+    returns the ordinal position of an element within an array (similar to the
+    <code>position()</code> function in XPath).</para> <para>The
+    <code>car</code> and <code>cdr</code> of a list may be expressed using
+    selection expressions like this:</para> <programlisting>	function car(list) {return list[indexof . == 0];}
 	function cdr(list) {return list[indexof . &gt; 0];}
-</programlisting>
-
-      <para>Of course <code>car</code> can be expressed more succinctly as
-      simply:</para>
-
-      <programlisting>	function car(list) {return list[0];}
-</programlisting>
-
-      <para><emphasis role="bold">Examples:</emphasis></para>
-
-      <programlisting>	var list = [1..10];
+</programlisting> <para><code>car</code> can be expressed more succinctly as
+    simply:</para> <programlisting>	function car(list) {return list[0];}
+</programlisting> <para>
+        <emphasis role="bold">Examples:</emphasis>
+      </para> <programlisting>	var list = [1..10];
 	car(list); // yields 1
 	cdr(list); // yields [2,3,4,5,6,7,8,9,10]
-</programlisting>
-
+</programlisting> <!--
       <para>In JavaFX Script, the empty array <code>[]</code> and <code>null</code>
       are synonymous:</para>
 
       <programlisting>        [] == null // yields true
-        sizeof null // yields 0
+        sizeof null // yields 0!
 </programlisting>
-    </para></sect1>
 
-    <sect1 id="arraymod">
-      <title>Modifying Arrays</title>
+--> </para></para>
+  </sect1>
 
-      <para>In addition to the assignment operator (<code>=</code>), JavaFX Script 
-      provides the data modification operators (<code>insert</code> and
-      <code>delete</code>) <!-- similar in syntax and semantics to those in the
+  <sect1 id="arraymod">
+    <title>Modifying Sequences</title>
+
+    <para>In addition to the assignment operator (<code>=</code>), JavaFX
+    Script provides the data modification operators (<code>insert</code> and
+    <code>delete</code>) <!-- similar in syntax and semantics to those in the
       draft XQuery-Update specification as follows --> :</para>
 
-      <sect2 id="insert">
-        <title>Insert Statement</title>
+    <sect2 id="insert">
+      <title>Insert Statement</title>
 
-        <para>The insert statement can take any of the following forms:</para>
+      <para>The insert statement can take any of the following forms:</para>
 
-        <programlisting>        insert Expression1 [as first | as last] into Expression2
-        insert Expression1 before Expression2
-        insert Expression1 after Expression2
+      <programlisting>        insert <emphasis>Expression1</emphasis> [as first | as last] into <emphasis>Expression2</emphasis>
+        insert <emphasis>Expression1</emphasis> before <emphasis>Expression2</emphasis>
+        insert <emphasis>Expression1</emphasis> after <emphasis>Expression2</emphasis>
 </programlisting>
 
-        <para>The <code>insert</code> statement inserts the items returned by
-        evaluating <code>Expression1</code> into the location indicated by remainder of the
-        statement as follows:</para>
+      <para>The <code>insert</code> statement inserts the items returned by
+      evaluating <code>
+          <emphasis>Expression1</emphasis>
+        </code> into the location indicated by remainder of the statement as
+      follows:</para>
 
-        <sect2 id="into"><title>into</title>
+      <sect2 id="into">
+        <title>into</title>
 
-        <para><code>Expression2</code> must refer to an attribute or variable. If
-        <code>Expression2</code> refers to a single valued attribute then the effect of the
+        <para><code>
+            <emphasis>Expression2</emphasis>
+          </code> must refer to an attribute or variable. If <code>
+            <emphasis>Expression2</emphasis>
+          </code> refers to a single valued attribute then the effect of the
         insert is the same as if the assignment operator were used.</para>
 
         <para>If you specify <code>as first</code>, the insertion location is
-        before the first element of the list indicated by <code>Expression2</code>. If you specify 
-        <code>as last</code>, the insertion location is after the
-        last element of the list indicated by <code>Expression2</code>. If you do not explicitly specify either <code>as
-        first</code> nor <code>as last</code>, then
-        <code>as last</code> is used as the default.</para>
+        before the first element of the list indicated by <code>
+            <emphasis>Expression2</emphasis>
+          </code>. If you specify <code>as last</code>, the insertion location
+        is after the last element of the list indicated by <code>
+            <emphasis>Expression2</emphasis>
+          </code>. If you do not explicitly specify either <code>as
+        first</code> nor <code>as last</code>, then <code>as last</code> is
+        used as the default.</para>
 
-        <para><emphasis role="bold">Examples:</emphasis></para>
+        <para>
+          <emphasis role="bold">Examples:</emphasis>
+        </para>
 
         <programlisting>        var x = [1,2,3];
         insert 12 into x; // yields [1,2,3,12]
         insert 10 as first into x; // yields [10,1,2,3,12]
         insert [99,100] as last into x; // yields [10,1,2,3,12,99,100]
 </programlisting>
+      </sect2>
 
-</sect2>
+      <sect2 id="before">
+        <title>before, after</title>
 
-        <sect2 id="before">
-	<title>before, after</title>
-
-        <para><code>Expression2</code> must be a selection expression over an attribute or
+        <para><code>
+            <emphasis>Expression2</emphasis>
+          </code> must be a selection expression over an attribute or
         variable. If you specify <code>before</code>, the insertion location
         is before the selected elements. If you specify <code>after</code>,
         the insertion location is after the selected elements.</para>
 
-        <para><emphasis role="bold">Examples:</emphasis></para>
+        <para>
+          <emphasis role="bold">Examples:</emphasis>
+        </para>
 
         <programlisting>
         var x = [1,2,3];
@@ -261,27 +249,29 @@
         insert 12 before x[1]; // yields [1,12,2,3,10]
         insert 13 after x[. == 2]; // yields [1, 12, 2, 13, 3, 10];
 </programlisting>
-</sect2>
+      </sect2>
 
-        <sect2 id="delete">
-          <title>delete</title>
+      <sect2 id="delete">
+        <title>delete</title>
 
-          <para>The Delete statement takes one of the following forms:</para>
+        <para>The Delete statement takes one of the following forms:</para>
 
-<programlisting>        delete variable
+        <programlisting>        delete variable
         delete Expression.attribute
         delete variable[predicate]
         delete Expression.attribute[predicate]
 </programlisting>
 
-          <para>The first two forms remove all elements from a variable or
-          attribute - which is equivalent to assigning <code>[]</code> or
-          <code>null</code> to the variable or attribute. The latter two forms
-          remove only those elements that match the predicate.</para>
+        <para>The first two forms remove all elements from a variable or
+        attribute - which is equivalent to assigning <code>[]</code> or
+        <code>null</code> to the variable or attribute. The latter two forms
+        remove only those elements that match the predicate.</para>
 
-          <para><emphasis role="bold">Examples:</emphasis></para>
+        <para>
+          <emphasis role="bold">Examples:</emphasis>
+        </para>
 
-<programlisting>        var x = [1,2,3];
+        <programlisting>        var x = [1,2,3];
         insert 10 into x; // yields [1,2,3,10]
         insert 12 before x[1]; // yields [1,12,2,3,10]
         delete x[. == 12]; // yields [1,2,3,10]
@@ -290,20 +280,20 @@
         insert 13 as first into x; // yields [13, 1, 5, 2];
         delete x; // yields []
 </programlisting>
+      </sect2>
 
-</sect2>
+      <sect1 id="query">
+        <title>Querying Arrays</title>
 
-<sect1 id="query">
-<title>Querying Arrays</title>
+        <para>Sequence objects support list comprehensions <!--as in functional languages like Miranda and Haskell, -->
+        but use <code>select</code> and <code>for each</code> operators. This
+        is a clearer, simpler syntax form that is easier to understand.</para>
 
-<para>JavaFX Script supports list comprehensions 
-<!--as in functional languages like Miranda and Haskell, --> 
+        <para>
+          <emphasis role="bold">Example:</emphasis>
+        </para>
 
-but uses <code>select</code> and <code>for each</code> operators. This is a clearer, simpler syntax form that is easier for Java programmers to understand.</para>
-
-<para><emphasis role="bold">Example:</emphasis></para>
-
-<programlisting>        class Album {
+        <programlisting>        class Album {
             attribute title: String;
             attribute artist: String;
             attribute tracks: String*;
@@ -357,42 +347,37 @@ but uses <code>select</code> and <code>for each</code> operators. This is a clea
 
 </programlisting>
 
-          <para>A list comprehension consists of one or more input lists, an
-          optional filter, and a generator expression. Each source list is
-          associated with a variable.</para>
-	  
-	  <para> The result of the list comprehension is
-          a new list which is the result of applying the generator to 
-	  a subset of the cartesian product of the source lists' elements that satisfy the filter.</para>
+        <para>A list comprehension consists of one or more input lists, an
+        optional filter, and a generator expression. Each source list is
+        associated with a variable.</para>
 
-          <para>List comprehensions provide a concise syntax for a  general class of iterations over lists.</para>
+        <para>The result of the list comprehension is a new list which is the
+        result of applying the generator to a subset of the cartesian product
+        of the source lists' elements that satisfy the filter.</para>
 
-          <para><emphasis role="bold">Example:</emphasis></para>
+        <para>List comprehensions provide a concise syntax for a general class
+        of iterations over lists.</para>
 
-          <programlisting>        select n*n from n in [1..100]
+        <para>
+          <emphasis role="bold">Example:</emphasis>
+        </para>
+
+        <programlisting>        select n*n from n in [1..100]
 </programlisting>
 
-          <para>This list contains the squares of all the
-          numbers from 1 to 100, in order. Note that <code>n</code> is a local variable of the
-          above expression.</para>
+        <para>This list contains the squares of all the numbers from 1 to 100,
+        in order. Note that <code>n</code> is a local variable of the above
+        expression.</para>
 
-          <para>The use of a filter is shown by the following definition of a
-          function which takes a number and returns a list of all its
-          factors:</para>
+        <para>The use of a filter is shown by the following definition of a
+        function which takes a number and returns a list of all its
+        factors:</para>
 
-          <programlisting>        function factors(n) {
+        <programlisting>        function factors(n) {
             return select i from i in [1..n/2] where n % i == 0;
         }
 </programlisting>
-        </sect1>
-	
-
-
-</sect2></sect1></chapter>
-
-
-
-
-
-
-
+      </sect1>
+    </sect2>
+  </sect1>
+</chapter>

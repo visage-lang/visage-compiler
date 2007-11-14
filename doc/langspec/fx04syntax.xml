@@ -458,4 +458,102 @@ operations?
 </sect2></para></para></sect1>
 
 
+
+
+
+
+	<sect1 id="stringsintro"><title>Strings Introduction</title>
+	
+	<para><emphasis>Introduction to come </emphasis></para>
+	</sect1>
+	
+	
+  <sect2 id="strings">
+    <title>String Literals and String Expressions</title>
+
+    <para>JavaFX Script specifies a literal character string with either single or double quotes: 
+    </para>
+
+    <programlisting>        var s = 'Hello';
+       var s = "Hello"; // equivalent statement
+</programlisting>
+
+    <para>When using double quotes, you can embed JavaFX Script expressions using curly bracket operators:
+    <code>{}</code>:</para>
+
+    <programlisting>        var name = 'Joe';
+        var s = "Hello {name}"; // s = 'Hello Joe'
+</programlisting>
+
+    <para>You can nest quoted strings. Your embedded expression can itself contain quoted strings (which, in
+    turn, can contain further embedded expressions):</para>
+
+    <programlisting>        var answer = true;
+        var s = "The answer is {if answer then "Yes" else "No"}"; // s = 'The answer is Yes'
+</programlisting>
+
+    <para>Unlike Java, JavaFX Script double-quoted String literals
+    <emphasis>can</emphasis> contain newlines:</para>
+
+    <programlisting>        var s = "This
+                 contains
+                 new lines";
+</programlisting>
+  </sect2>
+  
+  
+   <sect2 id="sformatting">
+    <title>String, Number, and Date Formatting</title>
+
+    <para>JavaFX Script  has a built-in String formatting operator (<code>format as</code>), which has the following syntax:</para>
+
+    <programlisting>        <emphasis>expr</emphasis> format as <emphasis>directive</emphasis>
+</programlisting>
+
+    <para>The <code>format as </code>operator supports
+    <code>java.text.DecimalFormat</code>,
+    <code>java.text.SimpleDateFormat</code>, and
+    <code>java.util.Formatter</code> formatting directives. If the formatting
+    directive starts with <code>%</code>, then
+    <code>java.util.Formatter</code> is used, otherwise if <code>
+        <emphasis>expr</emphasis>
+      </code> is of type <code>Number</code> then
+    <code>java.text.DecimalFormat</code> is used, otherwise if <code>
+        <emphasis>expr</emphasis>
+      </code> is of type <code>java.util.Date</code> then
+    <code>java.text.SimpleDateFormat</code> is used. The <code>
+        <emphasis>directive</emphasis>
+      </code> operand is syntactically an identifier, not an expression. This
+    allows the content of <code>
+        <emphasis>directive</emphasis>
+      </code> to be statically checked for correctness at compile time.</para>
+
+    <para><emphasis role="bold">Examples:</emphasis></para>
+
+    <programlisting>        import java.util.Date;
+
+        100.896 format as &lt;&lt;%f&gt;&gt;; // yields '100.896000'
+        31.intValue() format as &lt;&lt;%02X&gt;&gt;; // yields '1F'
+        var d = new Date();
+        d format as &lt;&lt;yyyy-MM-dd'T'HH:mm:ss.SSSZ&gt;&gt;; // yields '2005-10-31T08:04:31.323-0800'
+        0.00123 format as &lt;&lt;00.###E0&gt;&gt;; // yields '12.3E-4'
+</programlisting>
+
+</sect2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </chapter>

@@ -6,7 +6,7 @@
 <book xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>JavaFX Script Language Reference</title>
 
-  <!--
+<!--
 <xi:include href="fxintro.xml" parse="xml"/>  
 -->
 

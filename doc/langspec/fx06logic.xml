@@ -3,12 +3,12 @@
   "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <?xml-stylesheet href="docbook.css" type="text/css"?>
 <chapter id="Logic">
-<title>Statements and Logical Expressions</title>
+<title>Expressions</title>
 
 
-<sect1 id="log"><title>Overview </title>
+<sect1 id="lintro"><title>Introduction</title>
 <para>
-<emphasis>This Chapter explains operations and functions, statements, general expressions and logical expressions. 
+<emphasis>This Chapter explains general expressions and logical expressions. 
 </emphasis>  
 </para>
 
@@ -27,14 +27,14 @@
 </sect2>  -->
 
 </sect1>
-
+<!--
         <sect1 id="operations">
           <title>Operations and Functions</title>
-<!--	  
+	  
 	  <para><emphasis role="bold">An operation is NOT an expression (below)</emphasis></para>
 	  
 	  <para><emphasis>This section really should discuss methods, functions and operations. </emphasis></para>
--->
+
           <para>In JavaFX, procedures are declared with the
           <code>operation</code> keyword. For example:</para>
 
@@ -71,27 +71,72 @@
         
 	  
 </sect1>
-	 
-<sect1 id="express">
-          <title>Expressions </title>
-	  
-	  <para><emphasis role="bold">An expression is NOT an operation (above)</emphasis></para>
+	 -->
 
-          <para>A primary expression may be used as a statement, for
-          example:</para>
+  <sect1 id="expr">
+    <title>Overview</title>
+
+    <para>An expression is a combination of values, variables, and operators that returns a value. If you type an
+    expression on the command line, the interpreter evaluates it and displays
+    the result.</para>
+
+    <para>Expressions use operators to associate entities of some type in order to 
+    produce the resulting value.</para>
+
+          <para>Note that a primary expression may be used as a statement. </para>
+	  
+	  <para><emphasis role="bold">
+          Example:</emphasis></para>
 
           <programlisting>       System.out.println("Hello World!");
 </programlisting>
-        
+
+
 </sect1>
 
-	 
+
+<!-- 
+
+
+Block Expression
+
+A block expression consists of a list of expressions surrounded by curly braces and separated by semicolons. The value of a block expression is the value of its last expression. So, the above example could also be written like this, in JavaFX script:
+
+        import java.lang.Math;
+
+        var rand = (Math.random() * 100).intValue();
+        var s:String =
+           if (rand % 1 == 0) {
+              "rand is odd";
+           } else {
+              "rand is even";
+           };
+        System.out.println(s);
+
+Or, alternatively the braces can be omitted:
+
+        import java.lang.Math;
+
+        var rand = (Math.random() * 100).intValue();
+        var s:String = if (rand % 1 == 0) "rand is odd" else "rand is even";
+        System.out.println(s);
+
+In Java, we have both an "if" statement, and a conditional expression, e.g, a < b ? a : b. As you can see, thanks to block expressions, the JavaFX "if" expression takes the place of both.
+
+
+
+-->
+
+
+
 <sect1 id="logical"><title>Logical Expressions</title>
+
+<para>This section lists and defines the logical expressions available in JavaFX Script. </para>
 	
         <sect2 id="if">
           <title>If Statement</title>
 
-          <para>The JavaFX Script <code>if</code> statement is like Java's except
+          <para>The JavaFX Script <code>if</code> statement is like the statement in the Java programming language, except
           that curly braces are always required around the then and else
           clauses, unless the the else clause is another <code>if</code>
           statement.</para>
@@ -113,7 +158,7 @@
 <sect2 id="while">
           <title>While Statement</title>
 
-          <para>The JavaFX Script <code>while</code> statement is like Java's except
+          <para>The JavaFX Script <code>while</code> statement is like the statement in the Java Programming language, except
           that curly braces are always required around the body.</para>
 
           <para><emphasis role="bold">Example:</emphasis></para>
@@ -134,7 +179,7 @@
 <sect2 id="try">
           <title>Try Statement</title>
 
-          <para>The JavaFX Script <code>try</code> statement is like Java's but with
+          <para>The JavaFX Script <code>try</code> statement is like the statement in the Java Programming language, but with
           JavaFX Script variable declaration syntax. Note: in JavaFX Script any object can
           be thrown and caught, not just those that extend
           <code>java.lang.Throwable</code>.</para>
@@ -158,7 +203,7 @@
 
           <para>The header of the JavaFX Script <code>for</code> statement uses the
           same syntax as the <code>foreach</code> list comprehension operator.<!-- This needs to be linked to the list comprehension discussion in the Arrays chapter -->
-          However, in this case the body of the statement is executed for each
+          However; in this case the body of the statement is executed for each
           element generated by the list comprehension.</para>
 	  
 
@@ -192,7 +237,7 @@
           <title>Return Statement</title>
 
           <para>The JavaFX Script <code>return</code> statement is like
-          Java's:</para>
+          the statement in the Java Programming language:</para>
 
           <para><emphasis role="bold">Example:</emphasis></para>
 
@@ -205,8 +250,8 @@
           <sect2 id="throw">
             <title>Throw Statement</title>
 
-            <para>The JavaFX Script <code>throw</code> statement is like Java's.
-            However, any object may be thrown, not just those that extend
+            <para>The JavaFX Script <code>throw</code> statement is like the statement in the Java Programming language.
+            However; any object may be thrown, not just those that extend
             <code>java.lang.Throwable</code>.</para>
 
             <para>Examples:</para>
@@ -227,7 +272,7 @@
             <title>Break and Continue Statements</title>
 
             <para>The JavaFX Script <code>break</code> and <code>continue</code>
-            statements are like Java's, however labels are not supported. As
+            statements are like the statement in the Java Programming language; however labels are not supported. As
             in Java, <code>break</code> and <code>continue</code> must appear
             inside the body of a <code>while</code> or <code>for</code>
             statement.</para>
@@ -315,11 +360,11 @@
             the <code>do</code> statement (the red code). However, a new event
             dispatch loop is created on the stack while waiting for the
             background thread to complete. As a result, GUI events continue to
-            be processed while the <code>do</code> statement is executing.
-            <emphasis>Unfortunately, this isn't a perfect solution, however,
-            since it can cause multiple event dispatch loops to build up on
+            be processed while the <code>do</code> statement is executing.</para>
+	    
+            <para><emphasis role="bold">Note:&nbsp;&nbsp;</emphasis>Unfortunately, this isn't a perfect solution. It can cause multiple event dispatch loops to build up on
             the stack - in the degenerate case causing a stack overflow
-            exception</emphasis>.</para>
+            exception.</para>
           </sect2>
 
           <sect2 id="dolater">
