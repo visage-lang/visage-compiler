@@ -86,7 +86,6 @@
 
     <target name="-post-init">
         <property name="antlr.grammar.file" value="${antlr.src.dir}/${antlr.grammar}.g" />
-        <uptodate property="parser.uptodate" srcfile="${antlr.grammar.file}" targetfile="${antlr.generated.dir}/${antlr.grammar}Parser.java" />
     </target>
 
     <!-- jar file creation: external runtime jar contents are included to reduce classpath issues -->
@@ -158,6 +157,10 @@
                  compilerclasspath="${build.classes.dir}:${javac.classpath}"/>
     </target>
 
+    <target depends="init,deps-jar" name="-pre-pre-compile">
+        <mkdir dir="${build.classes.dir}"/>
+        <uptodate property="parser.uptodate" srcfile="${antlr.grammar.file}" targetfile="${antlr.generated.dir}/${antlr.grammar}Parser.java" />
+    </target>
     <target name="-pre-compile" depends="generate-parser"/>
     <target name="-post-compile" depends="compile-runtime-fx" />
     <target depends="init" name="-javadoc-build">
@@ -295,4 +298,11 @@
         <ant dir="${runtime.dir}" antfile="build.xml" target="clean" inheritall="false" />
     </target>
 
+    <target name="real-clean">
+        <!-- suppress automatic bootstrapping -->
+        <property name="has-bootstrap-dirs" value="true"/>
+        <ant antfile="bootstrap.xml" target="prepare"/>
+        <antcall target="clean"/>
+        <ant antfile="bootstrap.xml" target="clean"/>
+    </target>        
 </project>

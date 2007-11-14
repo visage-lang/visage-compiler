@@ -82,6 +82,7 @@
         <delete dir="${antlrworks.dir}"/>
         <delete dir="${cobertura.dir}"/>
         <delete dir="${svnstat.dir}"/>
+        <delete dir="${tools.dir}"/>
     </target>
 
     <target name="all" depends="prepare,junit,ant,scenegraph,docbook,wysiwygdocbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura,svnstat"/>
