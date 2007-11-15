@@ -2502,6 +2502,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitTypeFunctional(JFXTypeFunctional tree) {
         Type restype = attribType(tree.restype, env);
+        if (restype == syms.unknownType)
+            restype = syms.voidType;
         Type robjtype = restype == syms.voidType ? syms.objectType : syms.boxIfNeeded(restype);
         Type rtype = new WildcardType(robjtype, BoundKind.EXTENDS, syms.boundClass);
 
