@@ -10,5 +10,5 @@ import java.lang.System;
  */
 
 var v = Subclass { a: 1 }
-System.out.println("a={v.a}, b={v.b}, d={v.d}");
+System.out.println("a={v.a}, b={v.b}, c={v.c}, d={v.d}");
 System.out.println("foo={v.foo()}, moo={v.moo()}, bark={v.bark()}, wahoo={v.wahoo()}");

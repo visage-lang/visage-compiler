@@ -37,23 +37,9 @@ import java.util.Iterator;
  */
 public abstract class AbstractSequence<T> implements Sequence<T> {
     protected final Class<T> clazz;
-    protected final T nullValue;
 
     protected AbstractSequence(Class<T> clazz) {
         this.clazz = clazz;
-        nullValue = nullValue(clazz);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static<T> T nullValue(Class<T> clazz) {
-        if (clazz == Integer.class)
-            return (T) Sequences.INTEGER_ZERO;
-        else if (clazz == Double.class)
-            return (T) Sequences.DOUBLE_ZERO;
-        else if (clazz == Boolean.class)
-            return (T) Sequences.BOOLEAN_ZERO;
-        else
-            return null;
     }
 
     public abstract int size();

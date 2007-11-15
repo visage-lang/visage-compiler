@@ -57,7 +57,7 @@ class SubSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     @Override
     public T get(int position) {
         if (position < 0 || position + start >= end)
-            return nullValue;
+            throw new IndexOutOfBoundsException(Integer.toString(position));
         else
             return sequence.get(position + start);
     }

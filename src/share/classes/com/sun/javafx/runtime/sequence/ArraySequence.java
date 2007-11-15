@@ -81,7 +81,10 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
     @Override
     public T get(int position) {
-        return (position < 0 || position >= array.length) ? nullValue : array[position];
+        if (position < 0 || position >= array.length)
+            throw new IndexOutOfBoundsException(Integer.toString(position));
+        else 
+            return array[position];
     }
 
 

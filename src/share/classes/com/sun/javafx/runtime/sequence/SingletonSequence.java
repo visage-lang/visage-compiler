@@ -46,6 +46,9 @@ class SingletonSequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
     @Override
     public T get(int position) {
-        return (position == 0) ? value : nullValue;
+        if (position == 0)
+            return value;
+        else
+            throw new IndexOutOfBoundsException(Integer.toString(position));
     }
 }

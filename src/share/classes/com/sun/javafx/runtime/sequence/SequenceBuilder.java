@@ -25,8 +25,6 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.location.SequenceLocation;
-
 /**
  * Helper classes for building sequences, much like StringBuilder assists in building Strings.  SequenceBuilder
  * stores the sequence building built in an array, which is automatically resized as needed.  It can be converted
@@ -92,7 +90,7 @@ public class SequenceBuilder<T> {
     /** Get the nth element of the sequence being constructed, returning the null sequence value if n is out of range */
     public T get(int n) {
         if (n < 0 || n >= size)
-            return AbstractSequence.nullValue(clazz);
+            throw new IndexOutOfBoundsException(Integer.toString(n));
         else
             return array[n];
     }

@@ -78,9 +78,10 @@ class IntRangeSequence extends AbstractSequence<Integer> implements Sequence<Int
 
     @Override
     public Integer get(int position) {
-        return (position < 0 || position >= size)
-                ? nullValue
-                : (start + position * step);
+        if (position < 0 || position >= size)
+            throw new IndexOutOfBoundsException(Integer.toString(position));
+        else 
+            return (start + position * step);
     }
 
     @Override

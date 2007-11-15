@@ -84,14 +84,23 @@ public class IntegerSequenceTest extends JavaFXTestCase {
     /**
      * Assert various properties of a supposedly empty sequence
      */
-    private void assertEmpty(Sequence<Integer> seq) {
+    private void assertEmpty(final Sequence<Integer> seq) {
         assertEquals(0, seq.size());
         assertTrue(seq.isEmpty());
         assertEquals(seq, seq);
         assertEquals(0, seq.hashCode());
-        assertEquals(Sequences.INTEGER_ZERO, seq.get(-1));
-        assertEquals(Sequences.INTEGER_ZERO, seq.get(0));
-        assertEquals(Sequences.INTEGER_ZERO, seq.get(1));
+        assertThrows(IndexOutOfBoundsException.class,
+                new VoidCallable() { public void call() throws Exception {
+                    seq.get(-1);
+                } });
+        assertThrows(IndexOutOfBoundsException.class,
+                new VoidCallable() { public void call() throws Exception {
+                    seq.get(0);
+                } });
+        assertThrows(IndexOutOfBoundsException.class,
+                new VoidCallable() { public void call() throws Exception {
+                    seq.get(1);
+                } });
         assertEquals("[ ]", seq.toString());
         assertEquals(seq, EMPTY_SEQUENCE);
         assertEquals(seq, seq.get(nullMatcher));
@@ -104,15 +113,21 @@ public class IntegerSequenceTest extends JavaFXTestCase {
     /**
      * Assert various properties of a supposedly single-element sequence
      */
-    private void assertOneElement(Sequence<Integer> seq, int value) {
+    private void assertOneElement(final Sequence<Integer> seq, int value) {
         assertEquals(1, seq.size());
         assertFalse(seq.isEmpty());
         assertEquals(seq, seq);
         assertEquals(value, seq.hashCode());
         assertEquals("[ " + value + " ]", seq.toString());
-        assertEquals(Sequences.INTEGER_ZERO, seq.get(-1));
+        assertThrows(IndexOutOfBoundsException.class,
+                new VoidCallable() { public void call() throws Exception {
+                    seq.get(-1);
+                } });
         assertEquals(new Integer(value), seq.get(0));
-        assertEquals(Sequences.INTEGER_ZERO, seq.get(1));
+        assertThrows(IndexOutOfBoundsException.class,
+                new VoidCallable() { public void call() throws Exception {
+                    seq.get(1);
+                } });
         assertEmpty(seq.get(nullMatcher));
         assertEquals(seq, seq.get(firstMatcher));
         assertEquals(seq, seq.get(lastMatcher));
@@ -123,16 +138,22 @@ public class IntegerSequenceTest extends JavaFXTestCase {
     /**
      * Assert various properties of a supposedly two-element sequence
      */
-    private void assertTwoElements(Sequence<Integer> seq, Integer a, Integer b) {
+    private void assertTwoElements(final Sequence<Integer> seq, Integer a, Integer b) {
         assertEquals(2, seq.size());
         assertFalse(seq.isEmpty());
         assertEquals(seq, seq);
         assertEquals(seq, new ArraySequence<Integer>(Integer.class, seq.get(0), seq.get(1)));
         assertEquals("[ " + a + ", " + b + " ]", seq.toString());
-        assertEquals(Sequences.INTEGER_ZERO, seq.get(-1));
+        assertThrows(IndexOutOfBoundsException.class,
+                new VoidCallable() { public void call() throws Exception {
+                    seq.get(-1);
+                } });
         assertEquals(a, seq.get(0));
         assertEquals(b, seq.get(1));
-        assertEquals(Sequences.INTEGER_ZERO, seq.get(2));
+        assertThrows(IndexOutOfBoundsException.class,
+                new VoidCallable() { public void call() throws Exception {
+                    seq.get(2);
+                } });
         assertEmpty(seq.get(nullMatcher));
         assertEquals(seq, seq.get(allMatcher));
         assertOneElement(seq.get(firstMatcher), a);
@@ -145,7 +166,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
     /**
      * Helper method that tests mutation methods of supposedly empty sequences
      */
-    private void emptyHelper(Sequence<Integer> seq) {
+    private void emptyHelper(final Sequence<Integer> seq) {
         assertEmpty(seq);
         assertEmpty(seq.get(allMatcher));
 
@@ -389,7 +410,9 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(ten.subsequence(1, 9), 1, 2, 3, 4, 5, 6, 7, 8);
     }
 
-    /** Test setting individual elements */
+    /**
+     * Test setting individual elements
+     */
     public void testSet() {
         assertEquals(TWO_SEQUENCE.set(0, C), C, B);
         assertEquals(TWO_SEQUENCE.set(1, C), A, C);
@@ -404,7 +427,9 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(five.set(6, C), 0, 1, 2, 3, 4, 5);
     }
 
-    /** Test ranges, including skip ranges and backwards ranges */
+    /**
+     * Test ranges, including skip ranges and backwards ranges
+     */
     public void testRange() {
         // [ 0..0 ] => [ 0 ]
         assertEquals(Sequences.range(0, 0), 0);
@@ -438,19 +463,30 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         // [ 5..3 STEP 2 ] => [ 5, 3 ]
         assertEquals(Sequences.range(5, 3, -2), 5, 3);
         // [ 5..>3 STEP 2 ] => [ 5 ]
-        assertEquals(Sequences.rangeExclusive(5, 3, -2), 5 );
+        assertEquals(Sequences.rangeExclusive(5, 3, -2), 5);
         // [ 5..2 STEP 2 ] => [ 5, 3 ]
         assertEquals(Sequences.range(5, 2, -2), 5, 3);
         // [ 5..>2 STEP 2 ] => [ 5, 3 ]
         assertEquals(Sequences.rangeExclusive(5, 2, -2), 5, 3);
     }
 
-    /** Test out-of-bounds sets and gets */
+    /**
+     * Test out-of-bounds sets and gets
+     */
     public void testOutOfBounds() {
-        assertEquals(EMPTY_SEQUENCE.get(-1), Sequences.INTEGER_ZERO);
+        assertThrows(IndexOutOfBoundsException.class,
+                new VoidCallable() { public void call() throws Exception {
+                    EMPTY_SEQUENCE.get(-1);
+                } });
         assertEquals(EMPTY_SEQUENCE.set(0, 1), EMPTY_SEQUENCE);
-        assertEquals(TWO_SEQUENCE.get(-1), Sequences.INTEGER_ZERO);
-        assertEquals(TWO_SEQUENCE.get(200), Sequences.INTEGER_ZERO);
+        assertThrows(IndexOutOfBoundsException.class,
+                new VoidCallable() { public void call() throws Exception {
+                    TWO_SEQUENCE.get(-1);
+                } });
+        assertThrows(IndexOutOfBoundsException.class,
+                new VoidCallable() { public void call() throws Exception {
+                    TWO_SEQUENCE.get(100);
+                } });
         assertEquals(TWO_SEQUENCE.set(-1, 400), TWO_SEQUENCE);
         assertEquals(TWO_SEQUENCE.set(200, 400), TWO_SEQUENCE);
     }

@@ -71,9 +71,10 @@ class NumberRangeSequence extends AbstractSequence<Double> implements Sequence<D
 
     @Override
     public Double get(int position) {
-        return (position < 0 || position >= size)
-                ? nullValue
-                : (start + position * step);
+        if (position < 0 || position >= size)
+            throw new IndexOutOfBoundsException(Integer.toString(position));
+        else
+            return (start + position * step);
     }
 
     @Override
