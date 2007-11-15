@@ -189,7 +189,6 @@ public abstract class JavaFXTestCase extends TestCase {
                         int pos = rest.indexOf(';');
                         charIndex = pos;
                         String className = rest.substring(0, pos);
-                        System.out.println(className);
                         try {
                             classes[paramIndex] = Class.forName(className);
                         } catch (ClassNotFoundException e) {

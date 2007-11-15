@@ -13,7 +13,7 @@ class Foo {
  attribute b : String ;
  attribute c : String ;
  function bleep() : String;
- operation mud() : Integer;
+ function mud() : Integer;
 }
 
 attribute Foo.b = bind a;
@@ -22,7 +22,7 @@ function Foo.bleep() {
   return "roll";
 }
 
-operation Foo.mud() {
+function Foo.mud() {
   System.out.println(this.a);
   return 0;
 }

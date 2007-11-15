@@ -91,7 +91,7 @@ public class Dialog extends AbstractFrame {
             hide();
          }
     };
-    public operation show() {
+    public function show() {
         var win = owner.getWindow();
         if (win instanceof java.awt.Dialog) {
             jdialog = new javax.swing.JDialog(win as java.awt.Dialog);
@@ -100,7 +100,7 @@ public class Dialog extends AbstractFrame {
         }
         jdialog.setContentPane(p);
         win.addWindowListener(java.awt.event.WindowAdapter   {
-                  public operation windowClosing(e:java.awt.event.WindowEvent):Void {
+                  public function windowClosing(e:java.awt.event.WindowEvent):Void {
                       var root = jdialog.getRootPane();
                       var but = root.getClientProperty("net.java.javafx.ui.defaultClose") as javax.swing.JButton;
                       if (but <> null) {
@@ -130,11 +130,11 @@ public class Dialog extends AbstractFrame {
         jdialog.show();
     }
 
-    public operation showDialog(w:UIElement){
+    public function showDialog(w:UIElement){
         owner = w;  
         this.show();
     }
-    public operation hide():Void {
+    public function hide():Void {
         jdialog.dispose();
         jdialog = null;
     }

@@ -7,7 +7,7 @@ public class Bar {
 	private attribute b : Integer;
 //	function f1(x, y, z);    //TODO reinstate
 	public function f2(a : Integer, b: Number, c : Object) : Boolean;
-	operation op();
+	function op();
 }
 
 var tt = 9;
@@ -16,7 +16,7 @@ attribute Bar.a = 3;
 attribute Bar.b = bind a * 10;
 //function Bar.f1(x, y, z) { return x - y; }    //TODO reinstate
 function Bar.f2(a : Integer, b: Number, c : Object) : Boolean { return a + b <> 6; }
-operation Bar.op() { 
+function Bar.op() {
 	if (not (a > 2 and a < 10) or a % 2 == 0) {
 		System.out.println("operation"); 
 		return;

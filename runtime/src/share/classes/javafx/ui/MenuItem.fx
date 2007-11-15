@@ -34,7 +34,7 @@ import javafx.ui.AbstractMenuItem;
 
 public class MenuItem extends AbstractMenuItem {
     protected attribute jmenuitem:javax.swing.JMenuItem;
-    protected operation createMenuItem():javax.swing.JMenuItem{
+    protected function createMenuItem():javax.swing.JMenuItem{
         var menuItem = new javax.swing.JMenuItem();
         //TODO Widget  UIContext
         //menuItem.setIcon(new javax.swing.ImageIcon(context.getTransparentImage(13, 13)));

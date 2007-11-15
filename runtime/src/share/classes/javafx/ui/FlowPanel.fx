@@ -28,7 +28,7 @@ package javafx.ui;
 public class FlowPanel extends Widget {
     private attribute panel: com.sun.javafx.api.ui.ScrollablePanel;
     private attribute layout: java.awt.FlowLayout;
-    protected operation createLayout():com.sun.javafx.api.ui.ScrollablePanel {
+    protected function createLayout():com.sun.javafx.api.ui.ScrollablePanel {
         foreach (i in [0..panel.getComponentCount() exclusive]) {
             panel.remove(0);
         }
@@ -85,7 +85,7 @@ public class FlowPanel extends Widget {
             }
         };
 
-    public operation createComponent():javax.swing.JComponent {
+    public function createComponent():javax.swing.JComponent {
         panel = com.sun.javafx.api.ui.ScrollablePanel{};
         panel.setScrollableTracksViewportWidth(true);
         panel.setScrollableTracksViewportHeight(false);

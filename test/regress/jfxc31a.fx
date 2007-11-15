@@ -8,11 +8,11 @@ class Cursor {}
 
 class FXCursor {
     protected attribute awtCursor:  Cursor;
-    public operation getCursor():  Cursor  {
+    public function getCursor():  Cursor  {
     	if (awtCursor == null) then {
        	     awtCursor = createCursor();
    	 };
     	return awtCursor;
 	}
-    protected operation createCursor(): Cursor {null }
+    protected function createCursor(): Cursor {null }
 }

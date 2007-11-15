@@ -38,7 +38,7 @@ public class CheckBoxMenuItem extends MenuItem {
     }
     public attribute onChange:function(newValue:Boolean):Void;
 
-    protected operation createMenuItem():javax.swing.JMenuItem  {
+    protected function createMenuItem():javax.swing.JMenuItem  {
         jcheckboxmenuitem = new javax.swing.JCheckBoxMenuItem();
         jcheckboxmenuitem.setSelected(selected);
         jcheckboxmenuitem.addChangeListener(javax.swing.event.ChangeListener {

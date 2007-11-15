@@ -30,7 +30,7 @@ on replace {jframe.setLocation(new Point(screenX, screenY)); update();};
     public attribute visible: Boolean = false 
 on replace {jframe.setVisible(visible); update();}; 
 
-    private operation update(): Void { 
+    private function update(): Void { 
 jlabel.setText("{screenX} {screenY} {width} {height}"); 
     } 
 

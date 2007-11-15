@@ -49,7 +49,7 @@ public class Box extends Widget {
             box.repaint();
         };    
     
-    public operation createComponent():javax.swing.JComponent {
+    public function createComponent():javax.swing.JComponent {
         box = UIElement.context.createPanel();
         box.setOpaque(false);
         if (orientation <> Orientation.VERTICAL) {

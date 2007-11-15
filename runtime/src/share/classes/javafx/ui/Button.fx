@@ -270,7 +270,7 @@ public class Button extends Widget,  RotatableWidget, ActionWidget {
         enabled = true;
         button.setOpaque(true);
         button.addActionListener(java.awt.event.ActionListener {
-                         public operation actionPerformed(e:java.awt.event.ActionEvent) {
+                         public function actionPerformed(e:java.awt.event.ActionEvent) {
                             //TODO JXFC-211
                             /********
                             if(action <> null) {

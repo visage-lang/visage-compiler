@@ -2,7 +2,7 @@ import java.lang.System;
 
 class B {
 	attribute a : A;
-	operation op() : Void { a.x = 4; }
+	function op() : Void { a.x = 4; }
 }
 
 var b = B { a: new A };

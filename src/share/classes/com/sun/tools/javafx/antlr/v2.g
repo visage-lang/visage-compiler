@@ -49,7 +49,6 @@ tokens {
    NEW='new';
    NOT='not';
    NULL='null';
-   OPERATION='operation';
    PACKAGE='package';
    PRIVATE='private';
    PROTECTED='protected';
@@ -499,7 +498,6 @@ functionDefinition  returns [JFXOperationDefinition value]
 	;
 functionLabel    returns [int pos]
 	: FUNCTION				{ $pos = pos($FUNCTION); }
-	| OPERATION				{ $pos = pos($OPERATION); }
 	;
 initDefinition  returns [JFXInitDefinition value]
 	: INIT block 				{ $value = F.at(pos($INIT)).InitDefinition($block.value); }
@@ -570,13 +568,6 @@ functionExpression  returns [JFXOperationValue expr]
                                                $formalParameters.params.toList(),
                                                $blockExpression.expr);
    };
-operationExpression  returns [JFXOperationValue expr]
-       : OPERATION   formalParameters   typeReference blockExpression {
-   $expr = F.at(pos($OPERATION)).OperationValue($typeReference.type, 
-                                                $formalParameters.params.toList(),
-                                                $blockExpression.expr);
-   }
-   ;
 blockExpression returns [JFXBlockExpression expr]
 @init { ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>(); JCExpression val = null; }
 	: LBRACE
@@ -777,7 +768,6 @@ primaryExpression  returns [JCExpression expr]
        	| bracketExpression 					{ $expr = $bracketExpression.expr; }
        	| literal 						{ $expr = $literal.expr; }
       	| functionExpression					{ $expr = $functionExpression.expr; }
-       	| operationExpression					{ $expr = $operationExpression.expr; }
        	| LPAREN expression RPAREN				{ $expr = F.at(pos($LPAREN)).Parens($expression.expr); }
        	;
 newExpression  returns [JCExpression expr] 

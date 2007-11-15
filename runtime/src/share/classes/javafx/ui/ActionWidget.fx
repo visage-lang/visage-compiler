@@ -31,7 +31,7 @@ package javafx.ui;
 
 public abstract class ActionWidget {
     /**
-     * Operation or function which implements this widget's action.
+     * Function which implements this widget's action.
      */
     public attribute action: function():Void;
 }

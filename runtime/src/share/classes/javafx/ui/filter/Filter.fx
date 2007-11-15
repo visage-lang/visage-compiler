@@ -10,12 +10,12 @@ import java.awt.image.BufferedImageOp;
 
 public abstract class Filter {
     protected attribute bufferedImageOp: BufferedImageOp;
-    public operation getFilter(): BufferedImageOp {
+    public function getFilter(): BufferedImageOp {
         if (bufferedImageOp == null) {
             bufferedImageOp = this.createFilter();
         }
         return bufferedImageOp;
     }
-    protected abstract operation createFilter(): BufferedImageOp;
+    protected abstract function createFilter(): BufferedImageOp;
 }
 

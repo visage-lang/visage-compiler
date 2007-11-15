@@ -1,7 +1,7 @@
 class Test {
     static attribute a : Integer = 14;
     attribute b : Integer = 55;
-    static operation doublea() { a + a }
+    static function doublea() { a + a }
 }
 
 var ah = new Test;

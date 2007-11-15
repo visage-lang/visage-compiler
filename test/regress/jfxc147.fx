@@ -25,7 +25,7 @@ public class Frame {
 
     public attribute visible: Boolean = false on replace {jframe.setVisible(visible); update()}
 
-    private operation update(): Void { jlabel.setText("{screenX} {screenY} {width} {height}") }
+    private function update(): Void { jlabel.setText("{screenX} {screenY} {width} {height}") }
 
     attribute componentListener:ComponentListener = ComponentListener {
 

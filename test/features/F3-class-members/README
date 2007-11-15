@@ -1,7 +1,7 @@
 JavaFX compiler feature test #3
 
 Demonstrated:
- - FX class with attributes, functions, and operations
+ - FX class with attributes and functions
  - Attribute initializers
  - Binding of attributes to attribute-valued expressions
 
