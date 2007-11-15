@@ -233,7 +233,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         if (select.name != names.asterisk && 
                                 ((select.sym) instanceof ClassSymbol) &&
                                 initBuilder.isJFXClass((ClassSymbol)(select.sym))) {
-                           imports.append(make.Import(make.Select(select.selected, names.fromString(select.name.toString() + initBuilder.interfaceNameSuffix)), false));
+                           imports.append(make.Import(make.Select(
+                                        translate( select.selected ), 
+                                        names.fromString(select.name.toString() + initBuilder.interfaceNameSuffix)), 
+                                   false));
                         }
                     }  else if (((JCImport)def).getQualifiedIdentifier().getTag() == JCTree.IDENT) {
                         JCIdent ident = (JCIdent)((JCImport)def).getQualifiedIdentifier();
