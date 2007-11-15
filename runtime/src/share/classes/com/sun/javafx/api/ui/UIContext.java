@@ -54,6 +54,7 @@ public interface UIContext {
     public XButton createButton();
 
     public JLabel createSimpleLabel();
+    public XLabel createLabel();
 
     public boolean isBitSet(int a, int b);
 

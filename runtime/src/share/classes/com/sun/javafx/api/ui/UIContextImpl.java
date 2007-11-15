@@ -25,6 +25,7 @@
 
 package com.sun.javafx.api.ui;
 
+import com.sun.javafx.api.ui.UIContextImpl.InvisibleCaret;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -34,6 +35,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -56,6 +58,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.JApplet;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -64,7 +67,10 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
+import javax.swing.ToolTipManager;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.plaf.TabbedPaneUI;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.Document;
@@ -78,6 +84,8 @@ import javax.swing.text.html.StyleSheet;
 import javax.swing.text.Element;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultCaret;
+import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.HTML;
@@ -618,6 +626,96 @@ public class UIContextImpl implements UIContext {
 
     }
 
+    class XLabelImpl extends XLabel {
+        boolean mPreloadImages;
+
+        public void setPreloadImages(boolean value) {
+            mPreloadImages = value;
+        }
+
+        public boolean getPreloadImages() {
+            return mPreloadImages;
+        }
+
+        @Override
+        public void setText(String text) {
+            if (text != null && text.startsWith("<html>")) {
+                if (mPreloadImages) {
+                    if (getEditorKit() != mSyncHtmlKit) {
+                        setEditorKit(mSyncHtmlKit);
+                    }
+                } else {
+                    if (getEditorKit() != mHtmlKit) {
+                        setEditorKit(mHtmlKit);
+                    }
+                }
+            } else if (text != null && text.length() > 0) {
+                setContentType("text/plain");
+            }
+            super.setText(text);
+        }
+
+        @Override
+        public void setFocusable(boolean value) {
+            if (value) {
+                setCaret(new DefaultCaret());
+            } else {
+                InvisibleCaret c = new InvisibleCaret();
+                c.setUpdatePolicy(InvisibleCaret.NEVER_UPDATE);
+                setCaret(c);
+            }
+            super.setFocusable(value);
+        }
+
+        public XLabelImpl() {
+            setEditorKit(mHtmlKit);
+            setEditable(false);
+            setFocusable(false);
+            setMargin(new Insets(0, 0, 0, 0));
+            setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
+            putClientProperty(HONOR_DISPLAY_PROPERTIES,
+                              Boolean.TRUE);
+            addHyperlinkListener(new HyperlinkListener() {
+                    public void hyperlinkUpdate(HyperlinkEvent e) {
+                        HyperlinkEvent.EventType type = e.getEventType();
+                        if (type == HyperlinkEvent.EventType.ACTIVATED) {
+                            String link = e.getDescription();
+                            if (link.startsWith("object:")) {
+                                //TODO what is this????
+                                //mModule.call(link);
+                            } else {
+                                JApplet applet = getApplet();
+                                if (applet != null) {
+                                    try {
+                                        applet.getAppletContext().showDocument(new URL(link));
+                                    } catch (MalformedURLException exc) {
+                                        exc.printStackTrace();
+                                    }
+                                }
+                            }
+                        } else if (type == HyperlinkEvent.EventType.ENTERED) {
+                        }
+                    }
+
+                });
+            ToolTipManager.sharedInstance().registerComponent(this);
+        }
+
+    }
+
+    static class InvisibleCaret extends DefaultCaret {
+
+        @Override
+        public void install(JTextComponent comp) {
+            // nothing
+        }
+
+        @Override
+        public void paint(Graphics g) {
+            // nothing
+        }
+    }
+
     HTMLEditorKit mSyncHtmlKit;
 
     public class XSimpleLabel extends JLabel {
@@ -698,7 +796,9 @@ public class UIContextImpl implements UIContext {
             return super.getText();
         }
     }
-
+    public XLabel createLabel() {
+        return new XLabelImpl();
+    }
 
     HashTableWrapper mImageCache;
     HashTableWrapper mSyncImageCache;
