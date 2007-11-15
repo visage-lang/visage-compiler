@@ -185,9 +185,11 @@ public class JavafxTypeMorpher {
                 } else if (!sym.toString().equals("super") && !sym.toString().equals("this")) {
                     //TODO: temp hack until the MI init code is in place
                     ClassSymbol klass = (ClassSymbol)owner;
-                    String source = klass.sourcefile.getName();
-                    String extension = source.substring(source.length()-3);
-                    return extension.equals(".fx");
+		    if (klass.sourcefile != null) {
+			String source = klass.sourcefile.getName();
+			String extension = source.substring(source.length()-3);
+			return extension.equals(".fx");
+		    }
                 }
             }
             // what is this?
