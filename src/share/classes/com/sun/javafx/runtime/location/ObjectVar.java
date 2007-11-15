@@ -35,11 +35,11 @@ public class ObjectVar<T> extends AbstractLocation implements ObjectLocation<T>,
     private T value, previousValue;
 
 
-    public static<T> ObjectLocation<T> make(T value) {
+    public static <T> ObjectLocation<T> make(T value) {
         return new ObjectVar<T>(value);
     }
 
-    public static<T> ObjectLocation<T> makeUnmodifiable(T value) {
+    public static <T> ObjectLocation<T> makeUnmodifiable(T value) {
         return Locations.unmodifiableLocation(new ObjectVar<T>(value));
     }
 
@@ -58,26 +58,11 @@ public class ObjectVar<T> extends AbstractLocation implements ObjectLocation<T>,
         return previousValue;
     }
 
-    boolean valueType(Object obj) {
-	return obj instanceof String ||
-	    obj instanceof Number ||
-	    obj instanceof Boolean ||
-	    obj instanceof Character;
-    }
-
     boolean changed(T oldValue, T newValue) {
-	if (oldValue == null) {
-	    if (newValue == null) {
-		return false;
-	    } else {
-		return true;
-	    }
-	} else {
-	    if (valueType(oldValue)) {
-		return !oldValue.equals(newValue);
-	    }
-	}
-	return oldValue == newValue;
+        if (oldValue == null) {
+            return newValue != null;
+        } else
+            return !oldValue.equals(newValue);
     }
 
     public T set(T value) {
