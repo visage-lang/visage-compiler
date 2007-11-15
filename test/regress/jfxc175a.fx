@@ -2,8 +2,10 @@
  * regression test: fix for one of the bugs in JFXC-175. The isssue is that the synthetic
  * class of a local ObjLit was generated at the top of the enclosing method and there was 
  * no access to any subsequent locall var declarations.
- * !test  //TODO: temporarily disable -- until ++ is worked around
- * !run
+ * This tests is intended to verify that access from object literal to enclosing method
+ * local variables is resolved correctly.
+ * @test
+ * @run
  */
 class Bar {
 	attribute a : Integer;
@@ -17,17 +19,17 @@ class FooBar {
 		var barFoo : FooBar = new FooBar;
 		Bar {
 			function fooBar() : Void {
-				methodFooBar++;
-				bar1.a++;
+				methodFooBar = methodFooBar + 1;
+				bar1.a = bar1.a + 1;
 				bar1.getA();
 			}
 		};
 		var aaa = 0;
 
 		if (barFoo == this) {
-			aaa++;
+			aaa = aaa + 1;
 		}
 
-		aaa++;
+		aaa = aaa + 1;
 	}
 }
