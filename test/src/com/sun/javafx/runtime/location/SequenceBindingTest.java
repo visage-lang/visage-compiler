@@ -244,16 +244,16 @@ public class SequenceBindingTest extends JavaFXTestCase {
             }
         });
 
-        // Commented out pending dealing manually with unboxing conversions (foo(Integer) doesn't match foo(int))
-//        assertUOE(seq, "deleteAll");
-//        assertUOE(seq, "deleteValue", new Integer(1));
-//        assertUOE(seq, "delete", new Integer(0));
-//        assertUOE(seq, "set", 0, 0);
-//        assertUOE(seq, "set", Sequences.emptySequence(Integer.class));
-//        assertUOE(seq, "insert", new Integer(0));
-//        assertUOE(seq, "insert", Sequences.emptySequence(Integer.class));
-//        assertUOE(seq, "insertFirst", new Integer(0));
-//        assertUOE(seq, "insertFirst", Sequences.emptySequence(Integer.class));
+        assertUOE(seq, "deleteAll");
+        assertUOE(seq, "deleteValue(T)", new Integer(1));
+        assertUOE(seq, "delete(I)", new Integer(0));
+        assertUOE(seq, "set(IT)", 0, 0);
+        assertUOE(seq, "set(Lcom.sun.javafx.runtime.sequence.Sequence;)", Sequences.emptySequence(Integer.class));
+        assertUOE(seq, "insert(T)", new Integer(0));
+        assertUOE(seq, "insert(Lcom.sun.javafx.runtime.sequence.Sequence;)", Sequences.emptySequence(Integer.class));
+        assertUOE(seq, "insertFirst(T)", new Integer(0));
+        assertUOE(seq, "insertFirst(Lcom.sun.javafx.runtime.sequence.Sequence;)", Sequences.emptySequence(Integer.class));
+        // Also insertBefore/After 
     }
 
     public void testNestedSequenceBinding() {

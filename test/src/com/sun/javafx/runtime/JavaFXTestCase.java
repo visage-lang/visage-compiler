@@ -34,6 +34,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * JavaFXTestCase
@@ -42,6 +44,7 @@ import java.util.HashSet;
  */
 public abstract class JavaFXTestCase extends TestCase {
     private static final double EPSILON = 0.00000001;
+    private final Pattern methodWithQualifiers = Pattern.compile("(.*)\\((.*)\\)");
 
     /**
      * Helper method for asserting that a sequence contains a specific set of values; tests via Object.equals(),
@@ -155,15 +158,58 @@ public abstract class JavaFXTestCase extends TestCase {
         }
     }
 
-    protected void assertUOE(Object target, String method, Object... arguments) {
+    /**
+     * Assert that invoking the named method reflectively on the specified target with the specified arguments throws UOE.
+     * Because we try and guess the the signature from the arguments, and Class.getMethod() is picky, the methodName string
+     * can also take the form name(xxx), where each x is a one-character code for the formal type of the corresponding parameter, derived
+     * from the classfile format: B=byte, C=char, D=double, F=float, I=int, J=long, L=Object, S=short, Z=boolean, T=Object,
+     * or a sequence of the form Lpackage.classname;
+     * (for convenience, T is used for type parameters that erase to Object)
+     */
+    protected void assertUOE(Object target, String methodName, Object... arguments) {
         Class[] classes = new Class[arguments.length];
         for (int i=0; i<arguments.length; i++)
             classes[i] = arguments[i].getClass();
+
+        Matcher matcher = methodWithQualifiers.matcher(methodName);
+        if (matcher.matches()) {
+            methodName = matcher.group(1);
+            String types = matcher.group(2);
+            for (int charIndex=0, paramIndex=0; charIndex<types.length(); charIndex++, paramIndex++) {
+                char ch = types.charAt(charIndex);
+                switch (ch) {
+                    case 'B' : classes[paramIndex] = Byte.TYPE; break;
+                    case 'C' : classes[paramIndex] = Character.TYPE; break;
+                    case 'D' : classes[paramIndex] = Double.TYPE; break;
+                    case 'F' : classes[paramIndex] = Float.TYPE; break;
+                    case 'I' : classes[paramIndex] = Integer.TYPE; break;
+                    case 'J' : classes[paramIndex] = Long.TYPE; break;
+                    case 'L' : {
+                        String rest = types.substring(charIndex+1);
+                        int pos = rest.indexOf(';');
+                        charIndex = pos;
+                        String className = rest.substring(0, pos);
+                        System.out.println(className);
+                        try {
+                            classes[paramIndex] = Class.forName(className);
+                        } catch (ClassNotFoundException e) {
+                            fail("No such class " + className);
+                        }
+                        break;
+                    }
+                    case 'T' : classes[paramIndex] = Object.class; break;
+                    case 'S' : classes[paramIndex] = Short.TYPE; break;
+                    case 'Z' : classes[paramIndex] = Boolean.TYPE; break;
+                    default: break;
+                }
+            }
+        }
+        
         Method m = null;
         try {
-            m = target.getClass().getMethod(method, classes);
+            m = target.getClass().getMethod(methodName, classes);
         } catch (NoSuchMethodException e) {
-            fail("No such method " + method);
+            fail("No such method " + methodName);
         }
         try {
             m.invoke(target, arguments);
