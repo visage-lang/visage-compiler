@@ -236,6 +236,26 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(oddN.get(), 3, 5, 7, 9, 11);
     }
 
+    /** Ensure that mutative methods on sequence expressions throw UOE */
+    public void testUOE() {
+        final SequenceLocation<Integer> seq = SequenceExpression.make(new SequenceBindingExpression<Integer>() {
+            public Sequence<Integer> get() {
+                return Sequences.range(1, 10);
+            }
+        });
+
+        // Commented out pending dealing manually with unboxing conversions (foo(Integer) doesn't match foo(int))
+//        assertUOE(seq, "deleteAll");
+//        assertUOE(seq, "deleteValue", new Integer(1));
+//        assertUOE(seq, "delete", new Integer(0));
+//        assertUOE(seq, "set", 0, 0);
+//        assertUOE(seq, "set", Sequences.emptySequence(Integer.class));
+//        assertUOE(seq, "insert", new Integer(0));
+//        assertUOE(seq, "insert", Sequences.emptySequence(Integer.class));
+//        assertUOE(seq, "insertFirst", new Integer(0));
+//        assertUOE(seq, "insertFirst", Sequences.emptySequence(Integer.class));
+    }
+
     public void testNestedSequenceBinding() {
         // oneToN = bind 1..n
         // evenN = bind select x from oneToN where x % 2 == 0

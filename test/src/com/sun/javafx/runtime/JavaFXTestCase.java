@@ -27,9 +27,11 @@ package com.sun.javafx.runtime;
 import com.sun.javafx.runtime.location.*;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
-import junit.framework.TestCase;
 import junit.framework.Assert;
+import junit.framework.TestCase;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -148,10 +150,31 @@ public abstract class JavaFXTestCase extends TestCase {
             fail("Expected exception " + exceptionClass.getCanonicalName());
         }
         catch (Exception e) {
-            if (exceptionClass.isInstance(e))
-                return;
-            else
+            if (!exceptionClass.isInstance(e))
                 throw new RuntimeException("Expecting exception " + exceptionClass.getCanonicalName() + "; found exception " + e.getClass().getCanonicalName(), e);
+        }
+    }
+
+    protected void assertUOE(Object target, String method, Object... arguments) {
+        Class[] classes = new Class[arguments.length];
+        for (int i=0; i<arguments.length; i++)
+            classes[i] = arguments[i].getClass();
+        Method m = null;
+        try {
+            m = target.getClass().getMethod(method, classes);
+        } catch (NoSuchMethodException e) {
+            fail("No such method " + method);
+        }
+        try {
+            m.invoke(target, arguments);
+            fail("Expected UOE");
+        }
+        catch (InvocationTargetException e) {
+            if (!e.getCause().getClass().getName().equals("java.lang.UnsupportedOperationException"))
+                fail("Expected UOE, got " + e.getCause().toString());
+        }
+        catch (Exception e) {
+            fail("Unexpected exception in invoke: " + e.toString());
         }
     }
 

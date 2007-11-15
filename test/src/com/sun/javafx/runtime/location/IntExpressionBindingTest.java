@@ -43,12 +43,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         assertEquals(3, loc);
         loc.set(5);
         assertEquals(5, loc);
-        assertThrows(UnsupportedOperationException.class,
-                new VoidCallable() {
-                    public void call() throws Exception {
-                        loc.invalidate();
-                    }
-                });
+        assertUOE(loc, "invalidate");
     }
 
     /**
