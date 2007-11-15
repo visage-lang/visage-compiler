@@ -121,6 +121,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private JFXClassDeclaration currentClass;  //TODO: this is redundant with attrEnv.enclClass
     Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
     
+    private Set<VarSymbol> locallyBound = null;
+    
     private boolean inOperationDef = false;
 
     public static JavafxToJava instance(Context context) {
@@ -272,13 +274,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
-        // prevent multiple translations
-        if (tree.hasBeenTranslated) {
-            result = null;
-            return;
-        }
-        tree.hasBeenTranslated = true;
-        
         JFXClassDeclaration prevClass = currentClass;
         JFXClassDeclaration prevEnclClass = attrEnv.enclClass;
         JavafxBindStatus prevBindContext = bindContext;
@@ -358,7 +353,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
            // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
             
             JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList());
-            prependToDefinitions.append( model.correspondingInterface );  // prepend to the enclosing class or top-level
+            
+            // include the interface only once
+            if (!tree.hasBeenTranslated) {
+                prependToDefinitions.append(model.correspondingInterface); // prepend to the enclosing class or top-level
+                tree.hasBeenTranslated = true;
+            }
+            
             translatedDefs.appendList(model.additionalClassMembers);
 
             {
@@ -753,6 +754,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         boolean prevInOperDef = inOperationDef;
         inOperationDef = true;
+
+        boolean isBound = bindContext.isBound();
+        JavafxBindStatus prevBindContext = bindContext;
+        bindContext = JavafxBindStatus.UNBOUND;
+
         try {
             boolean classIsFinal = (currentClass.getModifiers().flags & Flags.FINAL) != 0;
             // Made all the operations public. Per Brian's spec.
@@ -769,8 +775,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             JCModifiers mods = make.Modifiers(flags);     
 
             DiagnosticPosition diagPos = tree.pos();
-            boolean isBound = bindContext.isBound();
             MethodType mtype = (MethodType)tree.type;
+            
+            if (isBound) {
+                locallyBound = new HashSet<VarSymbol>();
+                for (JFXVar fxVar : tree.getParameters()) {
+                    locallyBound.add(fxVar.sym);
+                }
+            }
 
            // construct the body of the translated function
              JFXBlockExpression bexpr = tree.getBodyExpression();
@@ -822,6 +834,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             result.type = tree.type;
         }
         finally {
+            bindContext = prevBindContext;
             inOperationDef = prevInOperDef;
         }
     }
@@ -1887,12 +1900,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private JCBlock boundMethodBody(DiagnosticPosition diagPos, JFXBlockExpression bexpr, JFXOperationDefinition func) {
         return make.at(diagPos).Block(0L, List.<JCStatement>of(make.at(diagPos).Return(
                 typeMorpher.buildExpression(
-                                func.sym,
-                                bexpr, 
-                                this.exprToTranslatedStatement(bexpr, true), 
-                                bindContext, 
+                    func.sym, 
+                    bexpr, 
+                    this.exprToTranslatedStatement(bexpr, true), 
+                    bindContext,
                                 false).first)));
-    }
+        }
     
     private JCBlock runMethodBody(JFXBlockExpression bexpr) {
         DiagnosticPosition diagPos = bexpr.pos();
@@ -1924,14 +1937,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     boolean shouldMorph(VarMorphInfo vmi) {
         if ( vmi.mustMorph() ) {
             return true;
-        } else if (bindContext.isBound()) {
-            Symbol owner = vmi.getSymbol().owner;
-            if (owner.kind == Kinds.TYP) {
-                ClassSymbol owningClass = (ClassSymbol)owner;
-                return initBuilder.isJFXClass(owningClass);
-            } else {
-                return true;
-            }
+        } else if (locallyBound != null) {
+            return locallyBound.contains(vmi.getSymbol());
         } else {
             return false;
         }
