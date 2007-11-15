@@ -27,6 +27,13 @@ package com.sun.javafx.api.ui;
 
 import javax.swing.JPanel;
 import java.awt.Font;
+import java.awt.Image;
+import java.awt.Window;
+import java.net.MalformedURLException;
+import java.net.URL;
+import javax.swing.JApplet;
+import javax.swing.JFileChooser;
+import javax.swing.JTabbedPane;
 
 /**
  * Interface for accessing undelying Java components and utilities
@@ -60,6 +67,23 @@ public interface UIContext {
     public int setBit(int a, int b);
 
     public int clearBit(int a, int b);
+
+   public JTabbedPane createTabbedPane();
+
+    public Image getImage(String url);
+
+    public Image getLoadedImage(String url);
+    public URL getImageURL(String urlStr);
+    public void defineImage(String url, Image image) throws MalformedURLException;
+
+    public void registerWindow(Window win);
+    public void unregisterWindow(Window win);
+    public void addChoosableFileFilter(JFileChooser fileChooser,
+                                       FileFilter fileFilter);
+
+    public JApplet getApplet();
+
+    public void setApplet(JApplet applet);
 
 
 }
