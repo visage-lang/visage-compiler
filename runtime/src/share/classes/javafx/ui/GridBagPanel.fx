@@ -1,0 +1,68 @@
+/* 
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved. 
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER. 
+ * 
+ * This code is free software; you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License version 2 only, as 
+ * published by the Free Software Foundation.  Sun designates this 
+ * particular file as subject to the "Classpath" exception as provided 
+ * by Sun in the LICENSE file that accompanied this code. 
+ * 
+ * This code is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+ * version 2 for more details (a copy is included in the LICENSE file that 
+ * accompanied this code). 
+ * 
+ * You should have received a copy of the GNU General Public License version 
+ * 2 along with this work; if not, write to the Free Software Foundation, 
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA. 
+ * 
+ * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara, 
+ * CA 95054 USA or visit www.sun.com if you need additional information or 
+ * have any questions. 
+ */  
+ 
+package javafx.ui; 
+
+
+public class GridBagPanel extends Widget {
+    private attribute jpanel: javax.swing.JPanel;
+
+    public attribute cells: GridCell[]
+    on insert [ndx] (cell) {
+        if (jpanel <> null) {
+            jpanel.add(cell.content.getComponent(), cell.constraint, ndx);
+        }
+    }
+
+    on replace [ndx] (oldCell) {
+        if (jpanel <> null) {
+            var cell = cells[ndx];
+            jpanel.remove(ndx);
+            jpanel.add(cell.content.getComponent(), cell.constraint, ndx);
+        }
+    }
+
+    on delete [ndx] (oldCell) {
+        if (jpanel <> null) {
+            jpanel.remove(ndx);
+        }
+    };
+    public function createComponent():javax.swing.JComponent{
+        jpanel = new javax.swing.JPanel();
+        jpanel.setOpaque(false);
+        jpanel.setLayout(new java.awt.GridBagLayout());
+        foreach (i in cells) {
+            jpanel.add(i.content.getComponent(), i.constraint);
+        }
+        return jpanel;
+    }
+    init {
+        focusable = false;
+    }
+}
+
+
+
+
