@@ -27,7 +27,9 @@ package com.sun.javafx.api.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -36,13 +38,15 @@ import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.Window;
+import java.awt.Shape;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.io.ByteArrayInputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -50,14 +54,34 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import javax.imageio.ImageIO;
 import javax.swing.JApplet;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
+import javax.swing.event.DocumentListener;
 import javax.swing.plaf.TabbedPaneUI;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.Document;
+import javax.swing.text.Position.Bias;
+import javax.swing.text.View;
+import javax.swing.text.ViewFactory;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.HTMLEditorKit.HTMLFactory;
+import javax.swing.text.html.StyleSheet;
+import javax.swing.text.Element;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Position;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.html.HTML;
+import javax.swing.text.html.ImageView;
 
 /**
  *
@@ -97,19 +121,584 @@ public class UIContextImpl implements UIContext {
         public HashTableWrapper(Hashtable table){
             mDelegate = table;
         }
+        @Override
         public Object get(Object key) {
             return mDelegate.get(key);
         }
+        @SuppressWarnings("unchecked")
+        @Override
         public Object put(Object key, Object value) {
             return mDelegate.put(key, value);
         }
         public void destroy() {
             mDelegate = null;
         }
+        @Override
         public int size() {
             return mDelegate == null ? 0 : mDelegate.size();
         }
     }
+
+        class PatchedImageView extends ImageView
+        {
+                float vAlign_Patched;
+
+                public PatchedImageView(Element elem)
+                {
+                        super(elem);
+                }
+
+        @Override
+                protected void setPropertiesFromAttributes()
+                {
+                        super.setPropertiesFromAttributes();
+
+                        AttributeSet attr = getElement().getAttributes();
+                        Object alignment = attr.getAttribute(HTML.Attribute.ALIGN);
+
+                        vAlign_Patched = 1.0f;
+                        if (alignment != null)
+                        {
+                                alignment = alignment.toString();
+                                if ("top".equals(alignment))
+                                {
+                                        // gznote: workaround hack for Casual smiley face images
+                                        int w = getImage().getWidth(null);
+                                        int h = getImage().getHeight(null);
+                                        if ((w==18) && (h==18))
+                                        {
+                                                vAlign_Patched = 0.75f;
+                                        }
+                                        else
+                                        {
+                                                vAlign_Patched = 0f;
+                                        }
+                                }
+                                else if ("middle".equals(alignment))
+                                {
+                                        vAlign_Patched = .5f;
+                                }
+                        }
+                }
+
+        @Override
+                public float getAlignment(int axis)
+                {
+                        switch (axis)
+                        {
+                                case View.Y_AXIS:
+                                        return vAlign_Patched;
+                                default:
+                                        return super.getAlignment(axis);
+                        }
+                }
+        }
+
+
+    class PatchedHTMLFactory extends HTMLFactory
+        {
+        @Override
+                public View create(Element elem)
+                {
+                        AttributeSet attrs = elem.getAttributes();
+                        Object elementName = attrs.getAttribute(AbstractDocument.ElementNameAttribute);
+                        Object o = (elementName != null) ? null : attrs.getAttribute(StyleConstants.NameAttribute);
+                        if (o instanceof HTML.Tag)
+                        {
+                                HTML.Tag kind = (HTML.Tag) o;
+
+                                if (kind==HTML.Tag.IMG)
+                                {
+                                        return new PatchedImageView(elem);
+                                }
+                                if (kind == HTML.Tag.OBJECT) {
+                                    Object type = attrs.getAttribute(HTML.Attribute.TYPE);
+                                    Object data = attrs.getAttribute(HTML.Attribute.DATA);
+                                    if (type != null &&
+                                        data != null) {
+                                        String typeStr = type.toString();
+                                        if (typeStr.equals("fx")) {
+
+                                            String key = data.toString();
+                                            System.out.println("UIContextImpl.PatchedHTMLFactory: FIXME: " + key);
+//TODO -Need to resolve fx value from view
+/*****************************************************************
+                                            ValueList value = mModule.resolveValue(key);
+                                            if (value != null) {
+                                                Value x = value.getValue(0);
+                                                Type widgetType = mModule.getType("javafx.ui.Widget");
+                                                if (widgetType.isAssignableFrom(x)) {
+                                                    try {
+                                                        ValueList res =
+                                                            mModule.callMethod(x, "getComponent", new ValueList[] {x});
+                                                        if (res != null) {
+                                                            Value comp =
+                                                                res.getValue(0);
+                                                            if (comp != null) {
+                                                                JComponent jcomp =
+                                                                    (JComponent)
+                                                                    comp.get();
+                                                                return new CompView(elem, jcomp);
+                                                            }
+                                                        }
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            }
+***********************************************/
+                                        }
+                                    }
+                                }
+
+                        }
+
+                        return super.create(elem);
+                }
+        }
+
+
+        class PatchedHTMLEditorKit extends HTMLEditorKit
+        {
+                private final ViewFactory defaultPatchedFactory = new PatchedHTMLFactory();
+        @Override
+                public ViewFactory getViewFactory()
+                {
+                        return defaultPatchedFactory;
+                }
+        }
+
+    boolean mMemLeakWorkaround = true;
+    WeakHashMap mDocs = new WeakHashMap();
+
+    static class HTMLDoc extends HTMLDocument {
+        Set mDocumentListeners = new HashSet();
+        HTMLDoc(StyleSheet ss) {
+            super(ss);
+        }
+        @Override
+        @SuppressWarnings("unchecked")
+        public void addDocumentListener(DocumentListener l) {
+            mDocumentListeners.add(l);
+            super.addDocumentListener(l);
+
+        }
+        @Override
+        public void removeDocumentListener(DocumentListener l) {
+            mDocumentListeners.remove(l);
+            super.removeDocumentListener(l);
+        }
+
+        public void removeAllDocumentListeners() {
+            Object[] listeners = mDocumentListeners.toArray();
+            for (int i = 0; i < listeners.length; i++) {
+                removeDocumentListener((DocumentListener)listeners[i]);
+            }
+        }
+    }
+
+
+    HTMLEditorKit mHtmlKit = new PatchedHTMLEditorKit() {
+        @Override
+        @SuppressWarnings("unchecked")
+            public Document createDefaultDocument() {
+                StyleSheet styles = getStyleSheet();
+                StyleSheet ss = new StyleSheet();
+                ss.addStyleSheet(styles);
+                HTMLDocument doc = new HTMLDoc(ss);
+                doc.setParser(getParser());
+                //doc.setAsynchronousLoadPriority(4);
+                //doc.setTokenThreshold(100);
+                doc.putProperty("imageCache", createImageCache());
+                if (mMemLeakWorkaround) {
+                    mDocs.put(doc, null);
+                }
+                return doc;
+            }
+        };
+    {
+        mHtmlKit.setAutoFormSubmission(false);
+    }
+    static URL FILE_BASE;
+    static {
+        try {
+            FILE_BASE = new URL("file:");
+        } catch (MalformedURLException e) {
+        }
+    }
+
+    public static String displayPropertiesToCSS(Font font, Color fg) {
+        StringBuffer rule = new StringBuffer("body {");
+        if (font != null) {
+            rule.append(" font-family: ");
+            rule.append(font.getFamily());
+            rule.append(" ; ");
+            rule.append(" font-size: ");
+            rule.append(font.getSize());
+            rule.append("pt ;");
+            if (font.isBold()) {
+                rule.append(" font-weight: 700 ; ");
+            }
+            if (font.isItalic()) {
+                rule.append(" font-style: italic ; ");
+            }
+        }
+        if (fg != null) {
+            rule.append(" color: #");
+            if (fg.getRed() < 16) {
+                rule.append('0');
+            }
+            rule.append(Integer.toHexString(fg.getRed()));
+            if (fg.getGreen() < 16) {
+                rule.append('0');
+            }
+            rule.append(Integer.toHexString(fg.getGreen()));
+            if (fg.getBlue() < 16) {
+                rule.append('0');
+            }
+            rule.append(Integer.toHexString(fg.getBlue()));
+            rule.append(" ; ");
+        }
+        rule.append(" }");
+        return rule.toString();
+    }
+    static class Renderer extends View {
+
+        Renderer(JComponent c, ViewFactory f, View v) {
+            super(null);
+            host = c;
+            factory = f;
+            view = v;
+            view.setParent(this);
+            // initially layout to the preferred size
+            setSize(view.getPreferredSpan(X_AXIS), view.getPreferredSpan(Y_AXIS));
+        }
+
+        /**
+         * Fetches the attributes to use when rendering.  At the root
+         * level there are no attributes.  If an attribute is resolved
+         * up the view hierarchy this is the end of the line.
+         */
+        @Override
+        public AttributeSet getAttributes() {
+            return null;
+        }
+
+        /**
+         * Determines the preferred span for this view along an axis.
+         *
+         * @param axis may be either X_AXIS or Y_AXIS
+         * @return the span the view would like to be rendered into.
+         *         Typically the view is told to render into the span
+         *         that is returned, although there is no guarantee.
+         *         The parent may choose to resize or break the view.
+         */
+        public float getPreferredSpan(int axis) {
+            if (axis == X_AXIS) {
+                // width currently laid out to
+                return width;
+            }
+            return view.getPreferredSpan(axis);
+        }
+
+        /**
+         * Determines the minimum span for this view along an axis.
+         *
+         * @param axis may be either X_AXIS or Y_AXIS
+         * @return the span the view would like to be rendered into.
+         *         Typically the view is told to render into the span
+         *         that is returned, although there is no guarantee.
+         *         The parent may choose to resize or break the view.
+         */
+        @Override
+        public float getMinimumSpan(int axis) {
+            return view.getMinimumSpan(axis);
+        }
+
+        /**
+         * Determines the maximum span for this view along an axis.
+         *
+         * @param axis may be either X_AXIS or Y_AXIS
+         * @return the span the view would like to be rendered into.
+         *         Typically the view is told to render into the span
+         *         that is returned, although there is no guarantee.
+         *         The parent may choose to resize or break the view.
+         */
+        @Override
+        public float getMaximumSpan(int axis) {
+            return Integer.MAX_VALUE;
+        }
+
+        /**
+         * Specifies that a preference has changed.
+         * Child views can call this on the parent to indicate that
+         * the preference has changed.  The root view routes this to
+         * invalidate on the hosting component.
+         * <p>
+         * This can be called on a different thread from the
+         * event dispatching thread and is basically unsafe to
+         * propagate into the component.  To make this safe,
+         * the operation is transferred over to the event dispatching
+         * thread for completion.  It is a design goal that all view
+         * methods be safe to call without concern for concurrency,
+         * and this behavior helps make that true.
+         *
+         * @param child the child view
+         * @param width true if the width preference has changed
+         * @param height true if the height preference has changed
+         */
+        @Override
+        public void preferenceChanged(View child, boolean width, boolean height) {
+            host.revalidate();
+            host.repaint();
+        }
+
+        /**
+         * Determines the desired alignment for this view along an axis.
+         *
+         * @param axis may be either X_AXIS or Y_AXIS
+         * @return the desired alignment, where 0.0 indicates the origin
+         *     and 1.0 the full span away from the origin
+         */
+        @Override
+        public float getAlignment(int axis) {
+            return view.getAlignment(axis);
+        }
+
+        /**
+         * Renders the view.
+         *
+         * @param g the graphics context
+         * @param allocation the region to render into
+         */
+        public void paint(Graphics g, Shape allocation) {
+            Rectangle alloc = allocation.getBounds();
+            view.setSize(alloc.width, alloc.height);
+            view.paint(g, allocation);
+        }
+
+        /**
+         * Sets the view parent.
+         *
+         * @param parent the parent view
+         */
+        @Override
+        public void setParent(View parent) {
+            throw new Error("Can't set parent on root view");
+        }
+
+
+        /**
+         * Provides a mapping from the document model coordinate space
+         * to the coordinate space of the view mapped to it.
+         *
+         * @param p0 the position to convert >= 0
+         * @param b0 the bias toward the previous character or the
+         *  next character represented by p0, in case the
+         *  position is a boundary of two views.
+         * @param p1 the position to convert >= 0
+         * @param b1 the bias toward the previous character or the
+         *  next character represented by p1, in case the
+         *  position is a boundary of two views.
+         * @param a the allocated region to render into
+         * @return the bounding box of the given position is returned
+         * @exception BadLocationException  if the given position does
+         *   not represent a valid location in the associated document
+         * @exception IllegalArgumentException for an invalid bias argument
+         * @see View#viewToModel
+         */
+        @Override
+        public Shape modelToView(int p0, Position.Bias b0, int p1,
+                                 Position.Bias b1, Shape a) throws BadLocationException {
+            return view.modelToView(p0, b0, p1, b1, a);
+        }
+        public Shape modelToView(int pos, Shape a, Bias b) throws BadLocationException {
+            return view.modelToView(pos, a, b);
+        }
+        /**
+         * Provides a mapping from the view coordinate space to the logical
+         * coordinate space of the model.
+         *
+         * @param x x coordinate of the view location to convert
+         * @param y y coordinate of the view location to convert
+         * @param a the allocated region to render into
+         * @return the location within the model that best represents the
+         *    given point in the view
+         */
+        public int viewToModel(float x, float y, Shape a, Position.Bias[] bias) {
+            return view.viewToModel(x, y, a, bias);
+        }
+
+        /**
+         * Returns the document model underlying the view.
+         *
+         * @return the model
+         */
+        @Override
+        public Document getDocument() {
+            return view.getDocument();
+        }
+
+        /**
+         * Returns the starting offset into the model for this view.
+         *
+         * @return the starting offset
+         */
+        @Override
+        public int getStartOffset() {
+            return view.getStartOffset();
+        }
+
+        /**
+         * Returns the ending offset into the model for this view.
+         *
+         * @return the ending offset
+         */
+        @Override
+        public int getEndOffset() {
+            return view.getEndOffset();
+        }
+
+        /**
+         * Gets the element that this view is mapped to.
+         *
+         * @return the view
+         */
+        @Override
+        public Element getElement() {
+            return view.getElement();
+        }
+
+        /**
+         * Sets the view size.
+         *
+         * @param width the width
+         * @param height the height
+         */
+        @Override
+        public void setSize(float width, float height) {
+            this.width = (int) width;
+            view.setSize(width, height);
+        }
+
+        /**
+         * Fetches the container hosting the view.  This is useful for
+         * things like scheduling a repaint, finding out the host
+         * components font, etc.  The default implementation
+         * of this is to forward the query to the parent view.
+         *
+         * @return the container
+         */
+        @Override
+        public Container getContainer() {
+            return host;
+        }
+
+        /**
+         * Fetches the factory to be used for building the
+         * various view fragments that make up the view that
+         * represents the model.  This is what determines
+         * how the model will be represented.  This is implemented
+         * to fetch the factory provided by the associated
+         * EditorKit.
+         *
+         * @return the factory
+         */
+        @Override
+        public ViewFactory getViewFactory() {
+            return factory;
+        }
+
+        private int width;
+        private View view;
+        private ViewFactory factory;
+        private JComponent host;
+
+
+
+    }
+
+    HTMLEditorKit mSyncHtmlKit;
+
+    public class XSimpleLabel extends JLabel {
+
+        String mText;
+        HTMLDocument mDoc;
+        boolean mSync;
+        LazyView mView;
+        boolean mLazy;
+
+        public XSimpleLabel() {
+        }
+
+        public XSimpleLabel(boolean sync) {
+            mSync = sync;
+        }
+
+        public XSimpleLabel(boolean sync, boolean lazy) {
+            mSync = sync;
+            mLazy = lazy;
+        }
+
+        @Override
+        public void setText(final String t) {
+            if (t != null) {
+                if (t.equals(mText)) {
+                    return;
+                }
+                if (t.startsWith("<html>")) {
+                    mText = t;
+                    if (mView == null) {
+                        mView = new LazyView(mLazy) {
+                                public View getDelegate() {
+                                    HTMLEditorKit kit = mHtmlKit;
+                                    if (mDoc == null) {
+                                        mDoc = (HTMLDocument)kit.createDefaultDocument();
+                                        mDoc.setPreservesUnknownTags(false);
+                                        mDoc.putProperty("imageCache", getImageCache(mSync));
+                                        mDoc.setBase(FILE_BASE);
+                                    }
+                                    HTMLDocument doc = mDoc;
+                                    doc.getStyleSheet().addRule(
+                                                                displayPropertiesToCSS(getFont(),getForeground()));
+                                    Reader r = new StringReader(mText);
+                                    try {
+                                        doc.remove(0, doc.getLength());
+                                        kit.read(r, doc, 0);
+                                    } catch (Throwable e) {
+                                    }
+                                    ViewFactory f = kit.getViewFactory();
+                                    View hview = f.create(doc.getDefaultRootElement());
+                                    View v = new Renderer(XSimpleLabel.this, f, hview);
+                                    return v;
+                                }
+                            };
+                    }
+                    putClientProperty("html", mView);
+                    mView.invalidate();
+                    revalidate();
+                    repaint();
+                } else {
+                    mText = null;
+                    putClientProperty("html", null);
+                    super.setText(t);
+                }
+            } else {
+                mText = null;
+                putClientProperty("html", null);
+                super.setText(t);
+            }
+        }
+
+        @Override
+        public String getText() {
+            if (getClientProperty("html") != null) {
+                return mText;
+            }
+            return super.getText();
+        }
+    }
+
 
     HashTableWrapper mImageCache;
     HashTableWrapper mSyncImageCache;
@@ -177,13 +766,17 @@ public class UIContextImpl implements UIContext {
     public Object getImageCache() {
         return mImageCache;
     }
-
+    public JLabel createSimpleLabel(){
+         return new XSimpleLabel();
+    }
     public Object getImageCache(boolean sync) {
         return sync ? mSyncImageCache : mImageCache;
     }
 
     public Object createImageCache() {
         return new Hashtable() {
+            @Override
+            @SuppressWarnings("unchecked")
                 public Object get(Object key) {
                     String strKey = key.toString();
                     Object result = super.get(strKey);
@@ -196,6 +789,8 @@ public class UIContextImpl implements UIContext {
                     }
                     return result;
                 }
+            @Override
+            @SuppressWarnings("unchecked")
                 public Object put(Object key, Object value) {
                     return super.put(key.toString(), value);
                 }
@@ -259,6 +854,7 @@ public class UIContextImpl implements UIContext {
 
     Map mAppletUrlMap = new HashMap();
 
+    @SuppressWarnings("unchecked")
     URL makeURL(String url) throws Exception {
         if (mApplet != null) {
             try {
@@ -340,7 +936,7 @@ public class UIContextImpl implements UIContext {
         }
         public void dragOver(DropTargetDragEvent e) {
             Point p = e.getLocation();
-            TabbedPaneUI ui = (TabbedPaneUI)mTabbedPane.getUI();
+            TabbedPaneUI ui = mTabbedPane.getUI();
             final int select = ui.tabForCoordinate(mTabbedPane, p.x, p.y);
             if (select < 0) {
                 e.rejectDrag();

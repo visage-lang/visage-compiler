@@ -27,11 +27,11 @@ package com.sun.javafx.api.ui;
 
 import javax.swing.JPanel;
 import java.awt.Image;
-import java.awt.Window;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.swing.JApplet;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 
 /**
@@ -52,6 +52,8 @@ public interface UIContext {
      * @return a button
      */
     public XButton createButton();
+
+    public JLabel createSimpleLabel();
 
     public boolean isBitSet(int a, int b);
 
