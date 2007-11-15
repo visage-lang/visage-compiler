@@ -904,11 +904,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
        if (selectedType != null && selectedType.isPrimitive()) { // selecetd.type is null for package symbols.
             translatedSelected = makeBox(diagPos, translatedSelected, selectedType);
         }
-        JCFieldAccess translated = make.at(diagPos).Select(translatedSelected, tree.getIdentifier());
-        // since this tree will be morphed, we need to copy the sym info
-        translated.sym = tree.sym;
-        translated.type = tree.type;
-        
         // determine if this is a static reference, eg.   MyClass.myAttribute
         boolean staticReference = false;
         if (tree.sym != null && tree.sym.isStatic()) {
@@ -918,14 +913,30 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 staticReference = ((JCIdent) selected).sym instanceof ClassSymbol;
             }
         }
+        List<JCStatement> dummyReference = null;
+        if (! staticReference && tree.sym.isStatic()) {
+            // Translate x.staticRef to { x; XClass.staticRef }:
+            dummyReference = List.<JCStatement>of(make.Exec(translatedSelected));
+            translatedSelected = makeTypeTree(tree.selected.type, tree, false);
+            staticReference = true;
+        }
+
+        JCFieldAccess translated = make.at(diagPos).Select(translatedSelected, tree.getIdentifier());
+        // since this tree will be morphed, we need to copy the sym info
+        translated.sym = tree.sym;
+        translated.type = tree.type;
         
-        result = typeMorpher.convertVariableReference(
+        JCExpression ref = typeMorpher.convertVariableReference(
                 diagPos,
                 translated,
                 tree.sym, 
                 staticReference , 
                 bindContext, 
                 inLHS);
+        if (dummyReference != null)
+            ref = ((JavafxTreeMaker)make).BlockExpression(
+                0L, dummyReference, ref);
+        result = ref;
     }
     
     @Override
@@ -1709,9 +1720,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                  }
              }
         }
-        JCExpression fresult = make.at(tree.pos).Apply(typeargs, meth, args);
-       if (useInvoke && tree.type.tag != TypeTags.VOID)
-            fresult = castFromObject(fresult, tree.type);
+
+        JCMethodInvocation app = make.at(tree.pos).Apply(typeargs, meth, args);
+        JCExpression fresult = app;
+        if (useInvoke) {
+            if (tree.type.tag != TypeTags.VOID)
+                fresult = castFromObject(fresult, tree.type);
+        }
+        else if (meth instanceof JFXBlockExpression) {
+            // If visitSelect translated exp.staticMember to
+            // { exp; class.staticMember }:
+            JFXBlockExpression block = (JFXBlockExpression) meth;
+            app.meth = block.value;
+            block.value = app;
+            fresult = block;
+        }
         result = fresult;
     }
 
@@ -1995,9 +2018,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             return sym.name;
         }
         String full = sym.name.toString();
-        if (isStatic) {
-            full = full  + staticFunctionSuffix;
-        }
         if (isBound) {
             full = full  + boundFunctionSuffix;
         }    
