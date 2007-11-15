@@ -30,16 +30,20 @@ package javafx.ui;
  * Encapsulates javax.swing.Icon.
  *
  */
-public abstract class Icon {
+public class Icon {
     protected attribute icon: javax.swing.Icon;
     
-    public abstract function getImage(): java.awt.Image ;
+    public function getImage(): java.awt.Image {
+        return null; // Default
+    }
     public function getIcon(): javax.swing.Icon {
         if (icon == null) then {
             icon = this.createIcon();
         };
         return icon;
     }
-    protected abstract function createIcon(): javax.swing.Icon;
+    protected function createIcon(): javax.swing.Icon {
+        return null;
+    }
 
 }
