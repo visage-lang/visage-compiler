@@ -47,6 +47,7 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
@@ -61,6 +62,7 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JApplet;
 import javax.swing.JComponent;
+import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -1063,6 +1065,28 @@ public class UIContextImpl implements UIContext {
         }
     }
 
+    JDesktopPane mDesk = new XInternalFrame.DummyDesktop();
+
+    public XInternalFrame createInternalFrame() {
+        return new XInternalFrame(mDesk);
+    }
+
+
+     JFileChooser mFileChooser;
+
+     public JFileChooser createFileChooser() {
+        if (mFileChooser == null) {
+            mFileChooser = new JFileChooser();
+            try {
+                mFileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return mFileChooser;
+    }
+
+   
  
 
 

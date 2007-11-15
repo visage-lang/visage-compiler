@@ -77,5 +77,9 @@ public interface UIContext {
 
     public void setApplet(JApplet applet);
 
+    public Image getTransparentImage(int width, int height);
 
+     public XInternalFrame createInternalFrame();
+
+     public JFileChooser createFileChooser();
 }
