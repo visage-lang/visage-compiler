@@ -1,23 +1,21 @@
-import com.sun.javafx.runtime.location.IntLocation;
-import com.sun.javafx.runtime.location.ObjectLocation;
-import com.sun.javafx.runtime.location.IntVar;
-import com.sun.javafx.runtime.location.ObjectVar;
 import com.sun.javafx.runtime.InitHelper;
-
-import javax.xml.transform.Templates;
+import com.sun.javafx.runtime.location.IntLocation;
+import com.sun.javafx.runtime.location.IntVar;
+import com.sun.javafx.runtime.location.ObjectLocation;
+import com.sun.javafx.runtime.location.ObjectVar;
 
 class Outer implements Outer$Intf {
     private static final int NUM$FIELDS = 1;
     private InitHelper initHelper = new InitHelper(NUM$FIELDS);
     private IntLocation o;
 
-    final class Outer$1 extends Middle {
+    final class Middle$1 extends Middle {
 
         public String toString() { return "middle"; }
 
-        final class Middle$1 extends Listener {
+        final class Listener$1 extends Listener {
             public void onEvent() {
-                System.out.println(Outer$1.this.get$a().get()
+                System.out.println(Middle$1.this.get$a().get()
                     + Outer.this.get$o().get());
             }
         }
@@ -25,9 +23,9 @@ class Outer implements Outer$Intf {
 
     public void foo() {
         ObjectLocation<Middle$Intf> v = ObjectVar.make(null);
-        Outer$1 tmp = new Outer$1();
+        Middle$1 tmp = new Middle$1();
         tmp.init$a(IntVar.make(1));
-        Listener tmp2 = tmp.new Middle$1();
+        Listener tmp2 = tmp.new Listener$1();
         tmp2.initialize$();
         tmp.init$listener(ObjectVar.make((Listener$Intf) tmp2));
         tmp.initialize$();
