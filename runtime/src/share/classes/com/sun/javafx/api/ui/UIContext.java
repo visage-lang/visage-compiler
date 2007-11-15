@@ -26,7 +26,6 @@
 package com.sun.javafx.api.ui;
 
 import javax.swing.JPanel;
-import java.awt.Font;
 import java.awt.Image;
 import java.awt.Window;
 import java.net.MalformedURLException;
@@ -54,14 +53,6 @@ public interface UIContext {
      */
     public XButton createButton();
 
-    /**
-     * Get a Font
-     *
-     * @return a font
-     */
-    public Font getFont(String url, int style, int size);
-
-
     public boolean isBitSet(int a, int b);
 
     public int setBit(int a, int b);
@@ -76,8 +67,6 @@ public interface UIContext {
     public URL getImageURL(String urlStr);
     public void defineImage(String url, Image image) throws MalformedURLException;
 
-    public void registerWindow(Window win);
-    public void unregisterWindow(Window win);
     public void addChoosableFileFilter(JFileChooser fileChooser,
                                        FileFilter fileFilter);
 

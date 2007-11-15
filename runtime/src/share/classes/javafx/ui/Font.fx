@@ -28,6 +28,10 @@ package javafx.ui;
 import com.sun.javafx.api.ui.UIContext;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
+import java.lang.*;
+import java.net.URL;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import javafx.ui.FontStyle;
 
@@ -75,7 +79,7 @@ public class Font {
     }
     private attribute awtFont: java.awt.Font =  bind
                  if(face <> null and face.url <> null  ) {
-                    UIElement.context.getFont(face.url, computeStyle(style), size) 
+                    getCachedFont(face.url, computeStyle(style), size) 
                  } else if (face <> null) {
                      new java.awt.Font(face.id, computeStyle(style), size);
                  } else if (faceName <> null)  {
@@ -100,11 +104,29 @@ public class Font {
         };
         return bits;
     }
+    
+    private static function getCachedFont(url: String, style: Integer, size: Integer): 
+            java.awt.Font {
+        var f: java.awt.Font = fontCache.get(url) as java.awt.Font;
+        if (f == null) {
+            try {
+                var urlInstance = new URL(url);
+                f = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT,
+                                             urlInstance.openStream());
+                fontCache.put(url, f);
+            } catch (e: Exception) {
+                throw new RuntimeException(e);
+            }
+        }
+        return f.deriveFont(style, size);
+    }
+    private static var fontCache: Map = new WeakHashMap();
+
     public attribute ascent: Number;
     public attribute descent: Number;
     public attribute leading: Number;	
     
     public static attribute HIGH_QUALITY_FONT_CONTEXT:FontRenderContext = 
-                        new FontRenderContext(null, true, true);
+        new FontRenderContext(null, true, true);
 }
 

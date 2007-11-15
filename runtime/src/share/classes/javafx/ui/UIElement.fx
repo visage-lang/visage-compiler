@@ -25,7 +25,8 @@
 
 package javafx.ui;
 
-
+import com.sun.javafx.runtime.awt.GradientPaint;
+import java.awt.RenderingHints;
 import java.lang.Object;
 import java.lang.Throwable;
 import java.lang.System;
@@ -135,13 +136,6 @@ public static function DISCRETE(a:Number[], t:Number):Number {
     return a[t.intValue()*(sizeof a -1)];
 };
 
-
-
-//TODO UIContext
-/**************************
-
-
-
 // net.java.javafx.ui.UIContext is a helper class providing shared cell renderers,
 // image caching, and a few other hacks to work around current Swing
 // limitations. The same package also contains a few non-Swing components:
@@ -153,12 +147,10 @@ try {
     var osName = System.getProperty("os.name").toLowerCase();
     if (osName.contains("win") or osName.contains("mac")) then {
        javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
-    }else {;};
+    }
 } catch (e:Throwable) {
+    // ignore option setting errors
 }
-
-
-*****************/
 
 public function getScreenResolution():Integer {
     Toolkit.getDefaultToolkit().getScreenResolution();
@@ -187,11 +179,6 @@ public class UIElement {
             javax.swing.SwingUtilities.updateComponentTreeUI(getWindow());
     };
     public static attribute context:UIContext = UIContextImpl{};
-    init {
-        //TODO ?????? - Does this make sense in the compiler?
-        //context.getModule().disableUndo();
-        //context.getModule().disableExtent();
-        }
 }
 
 

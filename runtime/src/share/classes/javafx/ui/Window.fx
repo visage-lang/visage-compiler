@@ -125,14 +125,12 @@ class Window extends AbstractFrame {
 
     init {
         frame = new javax.swing.JWindow;
-        UIElement.context.registerWindow(frame);
         frame.setBackground(new java.awt.Color(0,0,0,0));
         win = frame;
         win.addWindowListener(java.awt.event.WindowAdapter  {
                                   public operation windowClosing(e:java.awt.event.WindowEvent) {
                                       if(onClose <> null)
                                             onClose();
-                                      UIElement.context.unregisterWindow(frame);
                                       if (disposeOnClose) {
                                           frame.dispose();
                                       }

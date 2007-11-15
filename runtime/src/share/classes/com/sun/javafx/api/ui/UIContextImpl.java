@@ -28,7 +28,6 @@ package com.sun.javafx.api.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -46,7 +45,6 @@ import java.awt.dnd.DropTargetListener;
 import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -117,7 +115,6 @@ public class UIContextImpl implements UIContext {
     HashTableWrapper mSyncImageCache;
     JApplet mApplet;
     Map mResourceMap = new HashMap();
-    Set mWindows = new HashSet();
 
     public JApplet getApplet() {
         return mApplet;
@@ -134,22 +131,6 @@ public class UIContextImpl implements UIContext {
 
     public XButton createButton() {
         return new XButton();
-    }
-
-    protected Map<String, Font> mFontMap = Collections.synchronizedMap(new HashMap<String, Font>());
-
-    public Font getFont(String url, int style, int size) {
-        Font f = mFontMap.get(url);
-        if (f == null) {
-            try {
-                f = Font.createFont(Font.TRUETYPE_FONT,
-                                    new URL(url).openStream());
-                mFontMap.put(url, f);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return f.deriveFont(style, size);
     }
 
     public boolean isBitSet(int a, int b) {
@@ -341,15 +322,6 @@ public class UIContextImpl implements UIContext {
         addDropHandler(t);
         return t;
     }
-
-    public void registerWindow(Window win) {
-        mWindows.add(win);
-    }
-
-    public void unregisterWindow(Window win) {
-        mWindows.remove(win);
-    }
-
 
     public void addChoosableFileFilter(JFileChooser fileChooser, FileFilter fileFilter) {
         throw new UnsupportedOperationException("Not supported yet.");

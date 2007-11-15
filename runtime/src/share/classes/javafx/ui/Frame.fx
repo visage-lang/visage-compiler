@@ -134,14 +134,6 @@ public class Frame extends AbstractFrame {
                                 if (not visible) {
                                     return;
                                 }
-//TODO What does this mean???
-/*****
-                                if (not UIElement.context.isActive()) {
-                                   disposeOnClose = false;
-                                   frame.dispose();
-                                   return;
-                                }
-******/
                                 frame.setVisible(true);
                                 frame.toFront();
                                 var loc = frame.getLocation();
@@ -299,7 +291,6 @@ public class Frame extends AbstractFrame {
         frame.pack();
     }
     public function close(){
-        UIElement.context.unregisterWindow(frame);
         disposeOnClose = false;
         frame.dispose();
         showing = false;
@@ -310,9 +301,6 @@ public class Frame extends AbstractFrame {
     }
 
     init {
-        //if (not UIElement.context.isActive()) {
-        //    return;
-        //}
         frame = javax.swing.JFrame{};
         if (background <> null) {
             frame.setBackground(background.getColor());
@@ -320,14 +308,12 @@ public class Frame extends AbstractFrame {
         frame.getRootPane().putClientProperty("apple.awt.draggableWindowBackground", false);
         frame.setDefaultCloseOperation(frame.DO_NOTHING_ON_CLOSE);
         //frame.getRootPane().getGlassPane().setVisible(true);
-        UIElement.context.registerWindow(frame);
         win = frame;
         winListener = java.awt.event.WindowListener {
                                   public function windowClosing(e:WindowEvent):Void {
                                       if (disposeOnClose) {
                                            frame.removeWindowListener(winListener);
                                            frame.removeComponentListener(compListener);
-                                           UIElement.context.unregisterWindow(frame);
                                            frame.dispose(); // fix me...
                                       }
                                       if(onClose <> null) {
