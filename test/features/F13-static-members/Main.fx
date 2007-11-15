@@ -20,7 +20,7 @@ Test.a = 3;
 System.out.println("static: {ah.a}, twice: {ah.doublea()}, twice: {Test.doublea()}");
 
 ah.b = 99;
-System.out.println("static: {ah.a}, {ah.b}");
+System.out.println("static: {Test.a}, {ah.b}");
 
 var tr = 77;
 
@@ -28,5 +28,5 @@ ah = Test {
     b: 71717
 };
 
-System.out.println("static: {ah.a},  {ah.b}");
+System.out.println("static: {Test.a},  {ah.b}");
 
