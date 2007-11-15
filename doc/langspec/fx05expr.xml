@@ -25,7 +25,7 @@
     <para>Operators are usually associated with the data type of the operands
     being evaluated (see <emphasis>Types</emphasis>) but some operators can be overloaded to handle closely related types. For example; addition and multiplication operate only on data of type  <code>integer</code> or <code>number</code>, but not <code>boolean</code> or <code>string</code>.</para> 
 
-    <para>In JavaFX Script, an operator can also be a keyword that defines a
+    <para>In JavaFX&trade; Script, an operator can also be a keyword that defines a
     computation, a relationship between two data elements, or a reference to
     an object.</para>
 
@@ -45,7 +45,7 @@
 
           <th style="text-decoration: underline;">Meaning</th>
 
-          <th style="text-decoration: underline;">Java Equivalent</th>
+          <th style="text-decoration: underline;">Java&trade; Equivalent</th>
         </tr>
 
         <tr>
@@ -800,9 +800,9 @@
       <programlisting>a: bind <emphasis>remote</emphasis>  </programlisting>
 
       <para>Where <emphasis>a:</emphasis> is the value of an attribute and <emphasis>remote</emphasis> is the changing value of the remote data object defined and declared earlier in the script.</para>
-    
-    
-    
+
+
+
 
     <sect2 id="lazy">
       <title>Incremental and Lazy Evaluation</title>
@@ -926,7 +926,7 @@
     functions/operations, in that the context object is accessible inside the
     body via the <code>this</code> keyword.</para>
 
-    <para>Java FX Script supports four trigger actions:</para>
+    <para>Java FX Script provides four trigger actions:</para>
 
     <itemizedlist>
       <listitem>Create triggers</listitem>

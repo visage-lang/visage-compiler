@@ -8,7 +8,7 @@
   <sect1 id="seqintro">
     <title>Introduction</title>
 
-    <para><emphasis> This Chapter describes JavaFX Script Sequences.
+    <para><emphasis> This Chapter describes JavaFX&trade; Script Sequences.
     </emphasis></para>
   </sect1>
 
@@ -16,7 +16,7 @@
     <title>Overview</title>
 
     <para>A sequence is a data structure that holds a set of data items of the
-    same type, and in a definite order, similar to an array. In JavaFX Script,
+    same type, and in a definite order, similar to an array. In JavaFX&trade; Script,
     sequences can hold basic types or object references to JavaFX Script
     objects, but can not hold object references to Java objects, or to objects
     that hold other sequence objects (you can not nest sequences).</para>

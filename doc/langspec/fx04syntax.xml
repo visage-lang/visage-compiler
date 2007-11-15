@@ -162,13 +162,13 @@
   <sect1 id="types">
     <title>Basic Types</title>
 
-    <para>The JavaFX Script programming language (TM) defines four basic types: <code> String, Boolean, Number,</code> and <code>Integer.</code> JavaFX Script also supports complex types such as classes and interfaces. <para>
+    <para>The JavaFX&trade; Script programming language defines four basic types: <code> String, Boolean, Number,</code> and <code>Integer.</code> JavaFX Script also supports complex types such as classes and interfaces. <para>
     
     <para>You can use types to declare new variables. In the JavaFX Script programming language, <code>var</code> is a keyword used to introduce a new variable declaration. </para>
     
    
     
-    <para>JavaFX Script types to correspond to the Java programming language (TM) types listed on the table below:</para>
+    <para>JavaFX Script types to correspond to the Java&trade; programming language (TM) types listed on the table below:</para>
 
     <table cellpadding="5" cellspacing="5" style="border: medium groove ;">
       <tbody>
