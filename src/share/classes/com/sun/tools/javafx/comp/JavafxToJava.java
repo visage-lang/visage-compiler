@@ -455,7 +455,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                               newClassArgs,
                               null);
         
-        if (tree != null && tree.getIdentifier() != null) {
+        {
             Symbol sym = TreeInfo.symbol(tree.getIdentifier());
         
             if (sym != null &&
@@ -495,9 +495,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 // this is a Java class, just instanciate it
                 result = newClass;
             }
-       } else {
-            // this is a Java class, just instanciate it
-            result = newClass;
        }
     }
 
@@ -1776,7 +1773,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     public void visitTypeParameter(JCTypeParameter tree) {
         List<JCExpression> bounds = translate(tree.bounds);
-        result = make.at(tree.pos).TypeParameter(tree.name, tree.bounds);
+        result = make.at(tree.pos).TypeParameter(tree.name, bounds);
     }
 
     public void visitUnary(JCUnary tree) {

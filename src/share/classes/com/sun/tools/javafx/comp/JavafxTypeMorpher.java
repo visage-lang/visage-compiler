@@ -349,8 +349,8 @@ public class JavafxTypeMorpher {
                     String str = t.tsym.flatName().toString().replace("$", ".");
                     String strLookFor = str + initBuilder.interfaceNameSuffix.toString();
                     Type tp = reader.enterClass(names.fromString(strLookFor)).type;
-                    tp.tsym.completer = null;
                     if (tp != null) {
+                        tp.tsym.completer = null;
                         newActuals = newActuals.append(tp);
                         break actualsLabel;
                     }
@@ -403,7 +403,6 @@ public class JavafxTypeMorpher {
                     JCFieldAccess select = (JCFieldAccess) expr;
                     expr = make.at(diagPos).Select(select.getExpression(), name);
                 } else if (expr.getTag() == JCTree.IDENT) {
-                    JCIdent ident = (JCIdent) expr;
                     expr = make.at(diagPos).Ident(name);
                 }
             }

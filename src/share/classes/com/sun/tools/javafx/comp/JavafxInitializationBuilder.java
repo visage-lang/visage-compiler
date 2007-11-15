@@ -71,9 +71,9 @@ public class JavafxInitializationBuilder {
     private final Name valueChangedName;
     private final Name classNameSuffix;
     final Name interfaceNameSuffix;
-    final String attributeGetMethodNamePrefix = "get$";
-    final String attributeInitMethodNamePrefix = "init$";
-    private final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
+    static final String attributeGetMethodNamePrefix = "get$";
+    static final String attributeInitMethodNamePrefix = "init$";
+    private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
     private final Name locationName;
     final Name setDefaultsName;
     final Name userInitName;
@@ -83,13 +83,13 @@ public class JavafxInitializationBuilder {
     private final Name getNumFieldsName;
     private final Name initHelperName;
     private final Name getPreviousValueName;
-    private final String assertNonNullName = "assertNonNull";
-    private final String addName = "add";
+    private static final String assertNonNullName = "assertNonNull";
+    private static final String addName = "add";
     private final Name initializeNonSyntheticName;
     private final Name onChangeArgName;
-    private final String fullLocationName = "com.sun.javafx.runtime.location.Location";
-    private final String addDependenciesName = "addDependencies";
-    final String fxObjectName = "com.sun.javafx.runtime.FXObject";
+    private static final String fullLocationName = "com.sun.javafx.runtime.location.Location";
+    private static final String addDependenciesName = "addDependencies";
+    static final String fxObjectName = "com.sun.javafx.runtime.FXObject";
     Name outerAccessorName;
     Name outerAccessorFieldName;
     
@@ -435,9 +435,7 @@ public class JavafxInitializationBuilder {
                 make.Modifiers(classIsFinal? Flags.PRIVATE | Flags.FINAL : Flags.PRIVATE | Flags.FINAL | Flags.STATIC), 
                 numberFieldsName, 
                 make.TypeIdent(TypeTags.INT), 
-                make.Literal(new Integer(attributes.size())));
-        
-        VarSymbol numFieldsVarSym = new VarSymbol(numFieldsVar.mods.flags, numberFieldsName, syms.intType, cDecl.sym);
+                make.Literal( attributes.size() ));
         
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
         cDefinitions.append(numFieldsVar);
@@ -449,7 +447,7 @@ public class JavafxInitializationBuilder {
             if (attrSym.kind == Kinds.VAR) {
                 VarSymbol varSym = (VarSymbol)attrSym;
                 VarMorphInfo vmi = typeMorpher.varMorphInfo(varSym);
-                attrInfos.append(new AttributeWrapper(varSym, vmi.getMorphedType(), varSym.name));
+                attrInfos.append(new AttributeWrapper(vmi.getMorphedType(), varSym.name));
             }
             else {
                 if (attrSym.kind != Kinds.MTH) {
@@ -457,7 +455,7 @@ public class JavafxInitializationBuilder {
                 }
                 
                 MethodSymbol methodSym = (MethodSymbol)attrSym;
-                attrInfos.append(new AttributeWrapper(null, ((MethodType)methodSym.type).restype,
+                attrInfos.append(new AttributeWrapper(((MethodType)methodSym.type).restype,
                         names.fromString(methodSym.name.toString().substring(attributeGetMethodNamePrefix.length()))));
             }
         }
@@ -590,7 +588,7 @@ public class JavafxInitializationBuilder {
                 MethodSymbol ms = new MethodSymbol(Flags.PUBLIC, outerAccessorName, returnSym.type, returnSym);
                 accessorMethod.sym = ms;
 
-                iDefinitions = iDefinitions.append(accessorMethod);
+                iDefinitions.append(accessorMethod);
             }
         }
     }
@@ -701,7 +699,7 @@ public class JavafxInitializationBuilder {
             List<JCStatement> initBlockStats = List.<JCStatement>nil();
             List<JCExpression> initAssertArgs = List.<JCExpression>nil();
             initAssertArgs = initAssertArgs.append(make.Ident(attrInfo.name));
-            initAssertArgs = initAssertArgs.append(make.Literal(new String(cDecl.getName().toString() + "." + attrInfo.name.toString())));
+            initAssertArgs = initAssertArgs.append(make.Literal( cDecl.getName().toString() + "." + attrInfo.name.toString() ));
             
             initBlockStats = initBlockStats.append(toJava.callStatement(cDecl.pos(), make.Identifier(initHelperClassName), assertNonNullName, initAssertArgs));
 
@@ -742,7 +740,7 @@ public class JavafxInitializationBuilder {
         // Add the InitHelper field
         List<JCExpression> ncArgs = List.<JCExpression>nil();
         // ncArgs = ncArgs.append(make.Ident(numberFieldsName));  // getting forward reference error
-        ncArgs = ncArgs.append( make.Literal(new Integer(attrInfos.size())) );
+        ncArgs = ncArgs.append( make.Literal( attrInfos.size() ) );
         
         JCNewClass newIHClass = make.NewClass(null, List.<JCExpression>nil(), make.Identifier(initHelperClassName), ncArgs, null);
         
@@ -877,7 +875,7 @@ public class JavafxInitializationBuilder {
             if (!visitedClasses.contains(cSym.fullname.toString())) {
                 if (isJFXClass(cSym)) {
                     if (((cSym.flags_field & Flags.INTERFACE) != 0 || fxClasses.get(cSym) == null)) {
-                        if (cSym != null && cSym.members() != null) {
+                        if (cSym.members() != null) {
                             for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
                                 if (e.sym.kind == Kinds.MTH) {
                                     MethodSymbol meth = (MethodSymbol)e.sym;
@@ -893,7 +891,7 @@ public class JavafxInitializationBuilder {
                                     
                                     if (!methName.startsWith(attributeGetMethodNamePrefix)) {
                                         StringBuilder nameSigBld = new StringBuilder();
-                                        nameSigBld.append(methName.toString());
+                                        nameSigBld.append( methName );
                                         nameSigBld.append(":");
                                         nameSigBld.append(meth.getReturnType().toString());
                                         nameSigBld.append(":");
@@ -1063,13 +1061,11 @@ public class JavafxInitializationBuilder {
     }
     
     static class AttributeWrapper {
-        VarSymbol var;
         Type type;
         Name name;
         
-        AttributeWrapper(VarSymbol var, Type type, Name name) {
-            this.var = var;
-            this.type = type;
+        AttributeWrapper(Type type, Name name) {
+             this.type = type;
             this.name = name;
         }
     }
