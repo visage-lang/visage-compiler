@@ -45,7 +45,7 @@ public class GroupLayout extends GroupElement {
     /** The contents of this layout. */
     public attribute content: GroupElement[];
 
-    public operation addRows(host:java.awt.Container,
+    public function addRows(host:java.awt.Container,
             layout:org.jdesktop.layout.GroupLayout, 
             vgroup:org.jdesktop.layout.GroupLayout.SequentialGroup){
             //TODO this had content.row, not sure what that means, I assume subscript 0
@@ -101,7 +101,7 @@ public class GroupLayout extends GroupElement {
             }
         }
     }
-    public operation addColumns(host:java.awt.Container, 
+    public function addColumns(host:java.awt.Container, 
             layout:org.jdesktop.layout.GroupLayout, 
             hgroup:org.jdesktop.layout.GroupLayout.SequentialGroup):Void {
 //TODO this had content.column, not sure what that means, I assume subscript 0
@@ -158,7 +158,7 @@ public class GroupLayout extends GroupElement {
         }
     }
 
-    public operation addComponents(host:java.awt.Container){
+    public function addComponents(host:java.awt.Container){
         foreach (e in content where e instanceof GroupLayout) {
             (e as GroupLayout).addComponents(host);
         }

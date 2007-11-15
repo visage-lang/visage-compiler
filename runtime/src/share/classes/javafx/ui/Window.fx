@@ -60,7 +60,7 @@ class Window extends AbstractFrame {
         dim.width = width.intValue();
         frame.setSize(dim);
     };
-    public  operation show(){
+    public function show(){
         this.pack();
         var dim = frame.getSize();
         if (height <> -1) {
@@ -80,13 +80,13 @@ class Window extends AbstractFrame {
         }
         frame.setVisible(true);
     }
-    public operation hide(){
+    public function hide(){
         frame.setVisible(false);
     }
-    public operation pack()  {
+    public function pack()  {
         frame.pack();
     };
-    public operation showDialog(d:Dialog) {
+    public function showDialog(d:Dialog) {
         //Empty
     };
     public attribute onClose: function():Void;
@@ -113,12 +113,12 @@ class Window extends AbstractFrame {
     public attribute undecorated: Boolean on replace {
         //TODO
     };
-    public operation setContentPane(w:Widget) {
+    public function setContentPane(w:Widget) {
         frame.setContentPane(w.getComponent());
         frame.validate();
     }
 
-    public operation close() {
+    public function close() {
         frame.dispose();
         frame = null;
     }
@@ -128,7 +128,7 @@ class Window extends AbstractFrame {
         frame.setBackground(new java.awt.Color(0,0,0,0));
         win = frame;
         win.addWindowListener(java.awt.event.WindowAdapter  {
-                                  public operation windowClosing(e:java.awt.event.WindowEvent) {
+                                  public function windowClosing(e:java.awt.event.WindowEvent) {
                                       if(onClose <> null)
                                             onClose();
                                       if (disposeOnClose) {

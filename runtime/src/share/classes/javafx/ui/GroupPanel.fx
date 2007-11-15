@@ -48,7 +48,7 @@ public class GroupPanel extends Widget, GroupLayout {
      */
     public attribute autoCreateContainerGaps: Boolean = true;
 
-    public operation createComponent():javax.swing.JComponent {
+    public function createComponent():javax.swing.JComponent {
         panel = javax.swing.JPanel{};
         panel.setOpaque(false);
         layout = new org.jdesktop.layout.GroupLayout(panel);
