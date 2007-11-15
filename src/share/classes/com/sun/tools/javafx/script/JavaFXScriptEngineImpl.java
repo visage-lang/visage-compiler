@@ -244,7 +244,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         if (scope != -1) {
             return ctx.getAttribute(ScriptEngine.FILENAME, scope).toString();
         } else {
-            return "$unnamed.fx";
+            return "___FX_SCRIPT___.fx";
         }
     }
     

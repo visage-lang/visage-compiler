@@ -30,6 +30,7 @@ import java.io.*;
 import java.net.URI;
 import java.nio.CharBuffer;
 import java.util.Map;
+import java.util.*;
 import java.util.HashMap;
 import java.util.Set;
 import javax.lang.model.element.NestingKind;
@@ -45,6 +46,7 @@ import java.net.URI;
  */
 public final class MemoryFileManager extends ForwardingJavaFileManager {                 
     private ClassLoader parentClassLoader;
+    List<SimpleJavaFileObject> buffers = new ArrayList<SimpleJavaFileObject>();
 
     /** JavaFX Script source file extension. */
     private final static String EXT = ".fx";
@@ -100,10 +102,16 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
     private static class StringInputBuffer extends SimpleJavaFileObject {
         final String code;
         final boolean isFXSourceFile;
+	String binaryName;
         
+	public String getBinaryName() {
+	    return binaryName.equals("__FX_SCRIPT__.fx") ? "__FX_SCRIPT__" : binaryName;
+	}
+
         StringInputBuffer(String name, String code) {
             super(toURI(name), Kind.SOURCE);
             this.code = code;
+	    binaryName = name;
             isFXSourceFile = name.endsWith(JavafxFileManager.FX_SOURCE_SUFFIX);
         }
         
@@ -118,7 +126,8 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
 
         @Override
         public Kind getKind() {
-            return isFXSourceFile ? JavaFileObject.Kind.SOURCE : super.getKind();
+            //return isFXSourceFile ? JavaFileObject.Kind.SOURCE : super.getKind();
+	    return JavaFileObject.Kind.SOURCE;
         }
 
         @Override
@@ -167,6 +176,10 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
             super(toURI(name), Kind.CLASS);
             this.name = name;
         }
+
+	public String getBinaryName() {
+	    return name;
+	}
 
         @Override
         public OutputStream openOutputStream() {
@@ -218,7 +231,9 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
                                     Kind kind,
                                     FileObject sibling) throws IOException {
         if (kind == Kind.CLASS) {
-            return new ClassOutputBuffer(className);
+            ClassOutputBuffer buf = new ClassOutputBuffer(className);
+	    buffers.add(buf);
+	    return buf;
         } else {
             return super.getJavaFileForOutput(location, className, kind, sibling);
         }
@@ -230,11 +245,44 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
 			 boolean recurse)
         throws IOException
     {
-	return super.list(location, packageName, kinds, recurse);
+	Iterable result = super.list(location, packageName, kinds, recurse);
+	List results = new LinkedList();
+	for (Object o : result) {
+	    results.add(o);
+	}
+	String prefix = packageName.equals("") ? "" : packageName + ".";
+	for (SimpleJavaFileObject b : buffers) {
+	    String name = b.getName().replace("/", ".");
+	    name = name.substring(1, name.length() - (name.endsWith(EXT) ? EXT.length() : 0));
+	    if (prefix == "") {
+		if (!name.contains(".")) {
+		    results.add(b);
+		}
+	    } else {
+		if (name.startsWith(prefix)) {
+		    name = name.substring(prefix.length());
+		    if (!name.contains(".")) {
+			results.add(b);
+		    }
+		}
+	    }
+	}
+	return results;
     }
     
     JavaFileObject makeStringSource(String name, String code) {
-        return new StringInputBuffer(name, code);
+	StringInputBuffer buffer = new StringInputBuffer(name, code);
+	buffers.add(buffer);
+        return buffer;
+    }
+
+    public String inferBinaryName(Location location, JavaFileObject file) {
+	if (file instanceof StringInputBuffer) {
+	    return ((StringInputBuffer)file).getBinaryName();
+	} else if (file instanceof ClassOutputBuffer) {
+	    return ((ClassOutputBuffer)file).getBinaryName();
+	}
+	return super.inferBinaryName(location, file);
     }
 
     static URI toURI(String name) {
