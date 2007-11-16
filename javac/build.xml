@@ -23,6 +23,7 @@
         <ant antfile="${langtools.build.xml}" target="build-javac" inheritall="false">
             <property name="boot.java.home" value="${env.JAVA_HOME}"/>
             <property name="javac.target" value="1.5"/>
+            <property name="javac.debuglevel" value="lines,vars,source"/>
         </ant>
         <copy file="${langtools.dist.lib.dir}/javac.jar" todir="../lib"/>
     </target>

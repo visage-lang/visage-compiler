@@ -288,6 +288,9 @@
         <copy todir="${export.dir}/docroot/current-build">
             <fileset dir="${dist.dir}"/>
         </copy>
+        <copy todir="${export.dir}/docroot/current-build/doc">
+            <fileset dir="doc" includes="**/*.pdf"/>
+        </copy>
     </target>
 
     <target name="runtime" depends="jar">
