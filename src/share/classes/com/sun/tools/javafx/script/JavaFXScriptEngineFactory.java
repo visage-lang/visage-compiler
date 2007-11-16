@@ -135,11 +135,6 @@ public class JavaFXScriptEngineFactory implements ScriptEngineFactory {
     }
 
 
-    // used to generate a unique class name in getProgram
-    private String getClassName() {
-        return "com_sun_tools_javafx_Main$" + getNextClassNumber();
-    }
-
     private static synchronized long getNextClassNumber() {
         return nextClassNum++;
     }

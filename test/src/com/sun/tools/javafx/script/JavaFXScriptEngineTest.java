@@ -8,11 +8,15 @@ package com.sun.tools.javafx.script;
 import com.sun.javafx.api.JavaFXScriptEngine;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.List;
 import javax.script.*;
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
+import javax.tools.DiagnosticListener;
+import javax.tools.JavaFileObject;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -135,6 +139,63 @@ public class JavaFXScriptEngineTest {
         assertEquals("Hello, world", ret.toString());
     }
     
+    @Test
+    public void verifyErrorLineNumber() throws Exception {
+        // test that bindings don't disturb a script's line numbers when an error is reported
+        String script =
+            "class Test {                   // 1\n" +
+            "   function hello():String {   // 2\n" + 
+            "      return \"Hello, world\"; // 3\n" + 
+            "   }                           // 4\n" +
+            "}                              // 5\n" +
+            "                               // 6\n" +
+            "var t = new Test();            // 7\n" +
+            "t.hello(1); // invalid parameter  8\n";
+
+        DiagnosticCollector<JavaFileObject> diags = new DiagnosticCollector<JavaFileObject>();
+        JavaFXScriptEngine jfxEngine = (JavaFXScriptEngine)engine;
+        try {
+            jfxEngine.eval(script, diags);
+            fail("script should have thrown ScriptException due to bad code");
+        } catch (ScriptException e) {
+            List<Diagnostic<? extends JavaFileObject>> errorList = diags.getDiagnostics();
+            assertTrue(errorList.size() == 1);
+            Diagnostic<? extends JavaFileObject> error = errorList.get(0);
+            assertTrue(error.getKind() == Diagnostic.Kind.ERROR);
+            assertTrue(error.getLineNumber() == 8);
+        }
+    }
+    
+    @Test
+    public void verifyErrorLineNumberWithBinding() throws Exception {
+        // test that bindings don't disturb a script's line numbers when an error is reported
+        String script =
+            "class Test {                                    // 1\n" +
+            "   function hello(s:String):String {            // 2\n" +
+            "       return \"hello, {s}\";                   // 3\n" +
+            "   }                                            // 4\n" +
+            "}                                               // 5\n" +
+            "var hello = who;       // who defined in binding   6\n" +
+            "var t = new Test();                             // 7\n" +
+            "t.hello(1);            // invalid parameter        8\n";
+
+        Bindings bindings = new SimpleBindings();
+        bindings.put("who", "world");
+
+        DiagnosticCollector<JavaFileObject> diags = new DiagnosticCollector<JavaFileObject>();
+        JavaFXScriptEngine jfxEngine = (JavaFXScriptEngine)engine;
+        try {
+            jfxEngine.eval(script, bindings, diags);
+            fail("script should have thrown ScriptException due to bad code");
+        } catch (ScriptException e) {
+            List<Diagnostic<? extends JavaFileObject>> errorList = diags.getDiagnostics();
+            assertTrue(errorList.size() == 1);
+            Diagnostic<? extends JavaFileObject> error = errorList.get(0);
+            assertTrue(error.getKind() == Diagnostic.Kind.ERROR);
+            assertTrue(error.getLineNumber() == 8);
+        }
+    }
+   
     private String getOutput() {
         stdout.flush();
         String output = out.toString();

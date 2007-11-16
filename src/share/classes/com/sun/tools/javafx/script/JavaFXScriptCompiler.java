@@ -36,6 +36,8 @@ import javax.tools.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.io.File;
+import java.io.LineNumberReader;
+import java.io.StringReader;
 /**
  * Simple interface to the JavaFX Script compiler using JSR 199 Compiler API, 
  * based on https://scripting.dev.java.net's JavaCompiler by A. Sundararajan.
@@ -115,7 +117,7 @@ public class JavaFXScriptCompiler {
         options.add(isJava6() ? "1.6" : "1.5");
         
         options.add("-XDdumpfx=/tmp");
-       
+        
         // create a compilation task
         JavafxcTask task = tool.getTask(err, manager, diagnostics, options, compUnits);
 
@@ -147,10 +149,22 @@ public class JavaFXScriptCompiler {
     }
 
     static void printDiagnostics(DiagnosticCollector<JavaFileObject> diagnostics, Writer err) {
+        // install customized diagnostic message formats, which don't print script name
+        com.sun.tools.javac.util.Context context = new com.sun.tools.javac.util.Context();
+        com.sun.tools.javac.util.Options options =
+                com.sun.tools.javac.util.Options.instance(context);
+        options.put("diags", "%l: %t%m|%p%m");
+
         PrintWriter perr = new PrintWriter(err);
-        for (Diagnostic diagnostic : diagnostics.getDiagnostics()) {
-            perr.println(diagnostic.getMessage(null));
+        RedirectedLog log = new RedirectedLog(context, perr);
+        for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
+            log.report((com.sun.tools.javac.util.JCDiagnostic)diagnostic);
         }
-        perr.flush();
+    }
+    
+    private static class RedirectedLog extends com.sun.tools.javac.util.Log {
+        RedirectedLog(com.sun.tools.javac.util.Context context, PrintWriter writer) {
+            super(context, writer);
+        }
     }
 }

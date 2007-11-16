@@ -42,22 +42,22 @@ import javax.tools.JavaFileObject;
  * the https://scripting.dev.java.net Java language script engine by
  * A. Sundararajan.
  */
-public class JavaFXScriptEngineImpl extends AbstractScriptEngine 
+public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         implements JavaFXScriptEngine {
 
     private static final String SCRIPT_CONTEXT_NAME = "javafx$ctx";
     
     // Java compiler
     private JavaFXScriptCompiler compiler;
-    
+
     // Scripts parsed by this engine
     private LinkedList<Class> scripts = new LinkedList<Class>();
 
     public JavaFXScriptEngineImpl() {
-	ClassLoader cl = Thread.currentThread().getContextClassLoader();
-	if (cl != null) {
-	    parentClassLoader = cl;
-	}
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if (cl != null) {
+            parentClassLoader = cl;
+        }
         compiler = new JavaFXScriptCompiler(parentClassLoader);
     }
 
@@ -65,25 +65,18 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
     private ScriptEngineFactory factory;
 
     private DiagnosticCollector<JavaFileObject> diagnostics;
-
+    
     private ClassLoader parentClassLoader = getClass().getClassLoader();
 
-    DiagnosticListener<JavaFileObject> 
-	diagnosticListener = new DiagnosticListener<JavaFileObject>() {
-	public void report(Diagnostic<? extends JavaFileObject> rep) {
-	    diagnostics.report(rep);
-	}
-    };
-
     public List<Diagnostic<? extends JavaFileObject>> getLastDiagnostics() {
-	return diagnostics == null ? null : diagnostics.getDiagnostics();
+        return diagnostics == null ? null : diagnostics.getDiagnostics();
     }
 
     // my implementation for CompiledScript
     private class JavafxScriptCompiledScript extends CompiledScript {
         private Class clazz;
 
-        JavafxScriptCompiledScript (Class clazz) {
+        JavafxScriptCompiledScript(Class clazz) {
             this.clazz = clazz;
         }
 
@@ -94,39 +87,78 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         public Object eval(ScriptContext ctx) throws ScriptException {
             return evalClass(clazz, ctx);
         }
-        
+
         public String getName() {
             return clazz.getName();
         }
     }
 
     public CompiledScript compile(String script) throws ScriptException {
-        Class clazz = parse(script, context);
+        return compile(script, null);
+    }
+
+    public CompiledScript compile(Reader reader) throws ScriptException {
+        return compile(readFully(reader));
+    }
+
+    public CompiledScript compile(String script, DiagnosticListener<JavaFileObject> listener)
+            throws ScriptException {
+        Class clazz = parse(script, context, listener);
         scripts.addFirst(clazz);  // most recent scripts get referenced first
         return new JavafxScriptCompiledScript(clazz);
     }
 
-    public CompiledScript compile(Reader reader) throws ScriptException {        
-        return compile(readFully(reader));
+    public CompiledScript compile(Reader script, DiagnosticListener<JavaFileObject> listener)
+            throws ScriptException {
+        return compile(readFully(script), listener);
+    }
+    
+    public Object eval(String script, DiagnosticListener<JavaFileObject> listener) 
+            throws ScriptException {
+        return eval(script, getContext(), listener);
     }
 
-    public Object eval(String str, ScriptContext ctx) 
-                       throws ScriptException {	
-        Class clazz = parse(str, ctx);
-        scripts.addFirst(clazz);  // most recent scripts get referenced first
-        return evalClass(clazz, ctx);
+    public Object eval(Reader script, DiagnosticListener<JavaFileObject> listener) throws ScriptException {
+        return eval(script, getContext(), listener);
+    }
+
+    public Object eval(String str, ScriptContext ctx)
+            throws ScriptException {
+        return eval(str, ctx, null);
     }
 
     public Object eval(Reader reader, ScriptContext ctx)
-                       throws ScriptException {
+            throws ScriptException {
         return eval(readFully(reader), ctx);
+    }
+
+    public Object eval(String script, ScriptContext context, DiagnosticListener<JavaFileObject> listener) throws ScriptException {
+        Class clazz = parse(script, context, listener);
+        scripts.addFirst(clazz);  // most recent scripts get referenced first
+        return evalClass(clazz, context);
+    }
+
+    public Object eval(Reader reader, ScriptContext context, DiagnosticListener<JavaFileObject> listener) throws ScriptException {
+        return eval(readFully(reader), context, listener);
+    }
+
+    public Object eval(String script, Bindings bindings, DiagnosticListener<JavaFileObject> listener) throws ScriptException {
+        ScriptContext ctx = getContext();
+        ctx.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
+        return eval(script, ctx, listener);
+    }
+
+    public Object eval(Reader reader, Bindings bindings, DiagnosticListener<JavaFileObject> listener) throws ScriptException {
+        ScriptContext ctx = getContext();
+        ctx.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
+        return eval(reader, ctx, listener);
     }
 
     public ScriptEngineFactory getFactory() {
         if (factory == null) {
             factory = new JavaFXScriptEngineFactory();
         }
-	return factory;
+        return factory;
     }
 
     public Bindings createBindings() {
@@ -139,40 +171,50 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
 
     // Internals only below this point
 
-    private Class parse(String str, ScriptContext ctx) throws ScriptException {        
+    private Class parse(String str, ScriptContext ctx, final DiagnosticListener<JavaFileObject> listener)
+            throws ScriptException {
         String fileName = getFileName(ctx);
         String sourcePath = getSourcePath(ctx);
         String classPath = getClassPath(ctx);
         String binding = makeBindingStatement(ctx);
         String script = binding + str;
-	diagnostics = new DiagnosticCollector<JavaFileObject>();
+        diagnostics = new DiagnosticCollector<JavaFileObject>();
+        DiagnosticListener<JavaFileObject> 
+            diagnosticListener = new DiagnosticListener<JavaFileObject>() {
+            public void report(Diagnostic<? extends JavaFileObject> rep) {
+                if (listener != null)
+                    listener.report(rep);
+                diagnostics.report(rep);
+            }
+        };
+        DiagnosticCollector<JavaFileObject> firstCollector = 
+                new DiagnosticCollector<JavaFileObject>();
 
         Map<String, byte[]> classBytes = compiler.compile(fileName, script,
-                            ctx.getErrorWriter(), sourcePath, classPath, 
-							  diagnosticListener, 
-							  true);
-        
-        if (diagnostics.getDiagnostics().size() > 0) {
+                ctx.getErrorWriter(), sourcePath, classPath, firstCollector, false);
+
+        if (firstCollector.getDiagnostics().size() > 0) {
             // check for unresolved variables, add to context, and retry
             boolean recompile = false;
-	    if (false) {
-		for (Diagnostic d : diagnostics.getDiagnostics()) {
-		    if (d.getCode().equals("compiler.err.cant.resolve.location")) {
-			Object[] args = ((JCDiagnostic)d).getArgs();
-			if (args.length >= 2 && args[1] instanceof String) {
-			    ctx.setAttribute((String)args[1], null, 
-					     ScriptContext.ENGINE_SCOPE);
-			    recompile = true;
-			}
-		    }
-		}
-	    }
+            for (Diagnostic d : firstCollector.getDiagnostics()) {
+                if (d.getCode().equals("compiler.err.cant.resolve.location")) {
+                    Object[] args = ((JCDiagnostic) d).getArgs();
+                    if (args.length >= 2 && args[1] instanceof String) {
+                        ctx.setAttribute((String) args[1], null,
+                                ScriptContext.ENGINE_SCOPE);
+                        recompile = true;
+                    }
+                }
+            }
             if (recompile) {
                 binding = makeBindingStatement(ctx);
                 script = binding + str;
                 classBytes = compiler.compile(fileName, script,
-                    ctx.getErrorWriter(), sourcePath, classPath);
+                        ctx.getErrorWriter(), sourcePath, classPath,
+                        diagnosticListener, true);
             } else {
+                for (Diagnostic<? extends JavaFileObject> d : firstCollector.getDiagnostics())
+                    diagnosticListener.report(d);
                 JavaFXScriptCompiler.printDiagnostics(diagnostics, ctx.getErrorWriter());
             }
         }
@@ -183,7 +225,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
 
         // create a ClassLoader to load classes from MemoryJavaFileManager
         MemoryClassLoader loader = new MemoryClassLoader(classBytes, classPath,
-							 parentClassLoader);
+                parentClassLoader);
 
         Iterable<Class> classes;
         try {
@@ -191,7 +233,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         } catch (ClassNotFoundException exp) {
             throw new ScriptException(exp);
         }
-        
+
         // search for class with main method
         Class c = findMainClass(classes);
         if (c == null) {
@@ -199,7 +241,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         }
         return c;
     }
-    
+
     private static Class findMainClass(Iterable<Class> classes) {
         // find a public class with public static main method
         for (Class clazz : classes) {
@@ -208,7 +250,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                 Method mainMethod = findMainMethod(clazz);
                 if (mainMethod != null) {
                     return clazz;
-                }                
+                }
             }
         }
 
@@ -230,8 +272,8 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         try {
             Method mainMethod = clazz.getMethod(JavafxModuleBuilder.runMethodString, new Class[0]);
             int modifiers = mainMethod.getModifiers();
-            if (Modifier.isPublic(modifiers) && 
-                Modifier.isStatic(modifiers)) {
+            if (Modifier.isPublic(modifiers) &&
+                    Modifier.isStatic(modifiers)) {
                 return mainMethod;
             }
         } catch (NoSuchMethodException nsme) {
@@ -247,7 +289,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
             return "___FX_SCRIPT___.fx";
         }
     }
-    
+
     private static String getScriptKey(ScriptContext ctx) {
         return "script-context";
     }
@@ -264,7 +306,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         } else {
             // look for "com.sun.tools.javafx.script.sourcepath"
             return System.getProperty(SYSPROP_PREFIX + SOURCEPATH);
-        }        
+        }
     }
 
     private static final String CLASSPATH = "classpath";
@@ -282,15 +324,15 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         }
     }
 
-    private static Object evalClass(Class clazz, ScriptContext ctx) 
-                            throws ScriptException {
+    private static Object evalClass(Class clazz, ScriptContext ctx)
+            throws ScriptException {
         // JSR-223 requirement
         ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);
         if (clazz == null) {
             return null;
         }
         String scriptKey = getScriptKey(ctx);
-        try {            
+        try {
             ScriptContextManager.putContext(scriptKey, ctx);
             Object result = null;
 
@@ -298,10 +340,10 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
             Method mainMethod = findMainMethod(clazz);
             if (mainMethod != null) {
                 boolean isPublicClazz = Modifier.isPublic(clazz.getModifiers());
-                if (! isPublicClazz) {
+                if (!isPublicClazz) {
                     // try to relax access
                     mainMethod.setAccessible(true);
-                }        
+                }
 
                 // call main method
                 result = mainMethod.invoke(null, new Object[0]);
@@ -322,7 +364,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
     }
 
     // read a Reader fully and return the content as string
-    private String readFully(Reader reader) throws ScriptException { 
+    private String readFully(Reader reader) throws ScriptException {
         char[] arr = new char[8*1024]; // 8K at a time
         StringBuilder buf = new StringBuilder();
         int numChars;
@@ -334,30 +376,31 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
             throw new ScriptException(exp);
         }
         return buf.toString();
-    }     
+    }
 
     private String makeBindingStatement(ScriptContext ctx) {
-        
+
         // Merge attribute names from all scopes in context into single set.
         Set<String> attrs = new HashSet<String>();
         for (int scope : ctx.getScopes()) {
-	    Map map = ctx.getBindings(scope);
-	    if (map != null) {
-		attrs.addAll(map.keySet());
-	    }
+            Map map = ctx.getBindings(scope);
+            if (map != null) {
+                attrs.addAll(map.keySet());
+            }
         }
-        if (true || attrs.isEmpty())
+        if (attrs.isEmpty()) {
             return "";
+        }
 
         // Define ScriptContext variable.
         StringBuilder sb = new StringBuilder();
-	sb.append("var ");
-	sb.append(SCRIPT_CONTEXT_NAME);
-	sb.append(":javax.script.ScriptContext = \n");
-	sb.append("com.sun.tools.javafx.script.ScriptContextManager.getContext(\"");
-	sb.append(getScriptKey(ctx));
-	sb.append("\");\n");
-        
+        sb.append("var ");
+        sb.append(SCRIPT_CONTEXT_NAME);
+        sb.append(":javax.script.ScriptContext = ");
+        sb.append("com.sun.tools.javafx.script.ScriptContextManager.getContext(\"");
+        sb.append(getScriptKey(ctx));
+        sb.append("\"); ");
+
         // Define attributes as module variables.
         for (String attr : attrs) {
             sb.append("var ");
@@ -380,9 +423,9 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                 sb.append(" as ");
                 sb.append(type);
             }
-            sb.append(";\n");
+            sb.append("; ");
         }
-        
+
         return sb.toString();
     }
 
@@ -417,7 +460,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                 } catch (Exception e) {
                     throw new ScriptException(e);
                 }
-                
+
             }
         }
         throw new ScriptException(new NoSuchMethodException(name));
@@ -427,11 +470,11 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         Class[] argTypes = new Class[args.length];
         for (int i = 0; i < args.length; i++)
             argTypes[i] = args[i].getClass();
-        
+
         try {
             return clazz.getMethod(name, argTypes);
         } catch (NoSuchMethodException e) {
-            // fall-through
+        // fall-through
         }
 
         for (Method m : clazz.getMethods()) {
@@ -443,19 +486,21 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                     continue;
                 if (argsMatch(argTypes, parameters))
                     return m;
+                }
             }
-        }
         return null;
     }
-    
+
     private Constructor findDefaultConstructor(Class script) throws NoSuchMethodException {
         Constructor[] cs = script.getDeclaredConstructors();
-        for (Constructor c : cs)
-            if (c.getParameterTypes().length == 0)
+        for (Constructor c : cs) {
+            if (c.getParameterTypes().length == 0) {
                 return c;
-        throw new NoSuchMethodException("default constructor");        
+            }
+        }
+        throw new NoSuchMethodException("default constructor");
     }
-    
+
     private static boolean argsMatch(Class[] argTypes, Class[] parameterTypes) {
         for (int i = 0; i < argTypes.length; i++) {
             Class arg = argTypes[i];
@@ -464,7 +509,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                 param = wrappers.get(param);
             if (param == null || !(arg.isAssignableFrom(param)))
                 return false;
-        }
+            }
         return true;
     }
 
@@ -499,13 +544,25 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         return (T) Proxy.newProxyInstance(
             clazz.getClassLoader(),
             new Class[] { clazz },
-            new InvocationHandler() {
-                public Object invoke(Object proxy, Method m, Object[] args)
-                                     throws Throwable {
+                new InvocationHandler() {
+                    public Object invoke(Object proxy, Method m, Object[] args)
+                            throws Throwable {
                     if (thiz == null)
-                        return invokeFunction(m.getName(), args);
-                    return invokeMethod(thiz, m.getName(), args);
-                }
-            });
+                            return invokeFunction(m.getName(), args);
+                        return invokeMethod(thiz, m.getName(), args);
+                    }
+                });
     }
+    
+    private static class MultiDiagnosticListener implements DiagnosticListener<JavaFileObject> {
+        List<DiagnosticListener<JavaFileObject>> listeners =
+                new ArrayList<DiagnosticListener<JavaFileObject>>();
+        public void addListener(DiagnosticListener<JavaFileObject> listener) {
+            listeners.add(listener);
+        }
+        public void report(Diagnostic<? extends JavaFileObject> rep) {
+            for (DiagnosticListener<JavaFileObject> l : listeners)
+                l.report(rep);
+        }
+    };
 }
