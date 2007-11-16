@@ -70,6 +70,7 @@ tokens {
    LBRACKET='[';
    PLUSPLUS='++';
    SUBSUB='--';
+   PIPE='|';
    SEMI_INSERT_END;
 
    // cannot start a statement
@@ -750,12 +751,25 @@ suffixedExpression  returns [JCExpression expr]
 //		( SUBSUB					{ $expr = F.at(pos($SUBSUB)).Unary(JCTree.POSTDEC, $expr); } )?
 	;
 postfixExpression  returns [JCExpression expr] 
+@init {
+    ListBuffer<JFXForExpressionInClause> clauses;
+    JFXVar var; 
+}
 	: primaryExpression 					{ $expr = $primaryExpression.expr; }
 	   ( DOT ( CLASS   					//TODO
-	         | name   					{ $expr = F.at(pos($DOT)).Select($expr, $name.value); }
+	         | n1 = name()   					{ $expr = F.at(pos($DOT)).Select($expr, $n1.value); }
 	         )   
+           |
+	   left = LBRACKET   
+           n = name() PIPE e1 = expression() { 
+                  clauses = ListBuffer.lb(); 
+                  var = F.at(n.pos).Param(n.value, F.TypeUnknown());
+	          clauses.append(F.at(pos($PIPE)).InClause(var, $expr, $e1.expr));
+                  $expr = F.at(pos($PIPE)).ForExpression(clauses.toList(), F.at(n.pos).Ident(n.value));
+            }
+           right = RBRACKET
 	   | LPAREN expressionListOpt RPAREN   			{ $expr = F.at(pos($LPAREN)).Apply(null, $expr, $expressionListOpt.args.toList()); } 
-	   | LBRACKET expression  RBRACKET			{ $expr = F.at(pos($LBRACKET)).SequenceIndexed($expr, $expression.expr); }
+	   | left1 = LBRACKET e1 = expression()  right1 = RBRACKET			{ $expr = F.at(pos(left1)).SequenceIndexed($expr, $e1.expr); }
 	   ) * 
 	;
 primaryExpression  returns [JCExpression expr] 
