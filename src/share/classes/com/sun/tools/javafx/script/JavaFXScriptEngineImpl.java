@@ -176,8 +176,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         String fileName = getFileName(ctx);
         String sourcePath = getSourcePath(ctx);
         String classPath = getClassPath(ctx);
-        String binding = makeBindingStatement(ctx);
-        String script = binding + str;
+        String script = str;
         diagnostics = new DiagnosticCollector<JavaFileObject>();
         DiagnosticListener<JavaFileObject> 
             diagnosticListener = new DiagnosticListener<JavaFileObject>() {
@@ -196,18 +195,18 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         if (firstCollector.getDiagnostics().size() > 0) {
             // check for unresolved variables, add to context, and retry
             boolean recompile = false;
+            Set<String> attrs = new HashSet<String>();
             for (Diagnostic d : firstCollector.getDiagnostics()) {
                 if (d.getCode().equals("compiler.err.cant.resolve.location")) {
                     Object[] args = ((JCDiagnostic) d).getArgs();
                     if (args.length >= 2 && args[1] instanceof String) {
-                        ctx.setAttribute((String) args[1], null,
-                                ScriptContext.ENGINE_SCOPE);
+                        attrs.add((String) args[1]);
                         recompile = true;
                     }
                 }
             }
             if (recompile) {
-                binding = makeBindingStatement(ctx);
+                String binding = makeBindingStatement(ctx, attrs);
                 script = binding + str;
                 classBytes = compiler.compile(fileName, script,
                         ctx.getErrorWriter(), sourcePath, classPath,
@@ -378,16 +377,8 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         return buf.toString();
     }
 
-    private String makeBindingStatement(ScriptContext ctx) {
-
+    private String makeBindingStatement(ScriptContext ctx, Set<String> attrs) {
         // Merge attribute names from all scopes in context into single set.
-        Set<String> attrs = new HashSet<String>();
-        for (int scope : ctx.getScopes()) {
-            Map map = ctx.getBindings(scope);
-            if (map != null) {
-                attrs.addAll(map.keySet());
-            }
-        }
         if (attrs.isEmpty()) {
             return "";
         }
@@ -553,16 +544,4 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                     }
                 });
     }
-    
-    private static class MultiDiagnosticListener implements DiagnosticListener<JavaFileObject> {
-        List<DiagnosticListener<JavaFileObject>> listeners =
-                new ArrayList<DiagnosticListener<JavaFileObject>>();
-        public void addListener(DiagnosticListener<JavaFileObject> listener) {
-            listeners.add(listener);
-        }
-        public void report(Diagnostic<? extends JavaFileObject> rep) {
-            for (DiagnosticListener<JavaFileObject> l : listeners)
-                l.report(rep);
-        }
-    };
 }

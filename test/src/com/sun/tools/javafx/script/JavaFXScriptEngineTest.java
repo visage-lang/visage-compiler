@@ -12,7 +12,6 @@ import java.util.List;
 import javax.script.*;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
-import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -66,6 +65,22 @@ public class JavaFXScriptEngineTest {
             bindings.put("who", "world");
 
             engine.eval("java.lang.System.out.println(\"Hello, {who}\");", bindings);
+            assertEquals("Hello, world\n", getOutput());
+        } finally {
+            System.setOut(originalOut);
+        }
+    }
+
+    @Test
+    public void scriptWithConflictingBinding() throws Exception {
+        try {
+            System.setOut(stdout);
+            Bindings bindings = new SimpleBindings();
+            bindings.put("who", "world");
+            bindings.put("howMany", "lots");           // type of howMany attribute is String
+
+            engine.eval("var howMany: Integer = 1;" +  // versus declared howMany's Integer
+                    "java.lang.System.out.println(\"Hello, {who}\");", bindings);
             assertEquals("Hello, world\n", getOutput());
         } finally {
             System.setOut(originalOut);
