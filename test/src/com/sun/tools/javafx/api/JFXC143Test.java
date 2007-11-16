@@ -16,17 +16,19 @@ import javax.tools.DiagnosticListener;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
-import junit.framework.TestCase;
 
+import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
  * Test for issue JFXC-143:  assertion error in 
  * @author tball
  */
-public class JFXC143Test extends TestCase {
+public class JFXC143Test {
+    private static final String testSrc = System.getProperty("test.src.dir", "test/src");
 
-     public void testJFXC143() throws Exception {
+    @Test
+    public void testJFXC143() throws Exception {
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
         try {            
             /* The javac library uses the context classloader to load the 
@@ -47,9 +49,23 @@ public class JFXC143Test extends TestCase {
         } finally {
             Thread.currentThread().setContextClassLoader(orig);
         }
-     }
+    }
+    
+    @Test
+    public void parseClassSource() throws Exception {
+        JavafxcTool instance = new JavafxcTool();
+        MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
+        StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
+        File file = new File(testSrc + "/com/sun/tools/javafx/api", "UndeclaredClass.fx");
+	Iterable<? extends JavaFileObject> fileList = fm.getJavaFileObjects(file);
+        JavafxcTask task = instance.getTask(null, fm, dl, null, fileList);
+        assertNotNull("no task returned", task);
+        Iterable<? extends CompilationUnitTree> result = task.parse();
+        assertEquals("parse error(s)", 0, dl.errors());
+        assertTrue("no compilation units returned", result.iterator().hasNext());
+    }
      
-     class MockDiagnosticListener<T> implements DiagnosticListener<T> {
+    class MockDiagnosticListener<T> implements DiagnosticListener<T> {
         public void report(Diagnostic<? extends T> d) {
             diagCodes.add(d.getCode());
             System.err.println(d);
@@ -60,4 +76,4 @@ public class JFXC143Test extends TestCase {
             return diagCodes.size();
         }
     }
- }
+}

@@ -502,8 +502,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 //                } else {
                     generatedParser = new v2Parser(context, content);
 //                }
-                try {  
-                    tree = generatedParser.module();
+                try { 
+                    JCCompilationUnit unit = generatedParser.module();
+                    if (unit != null) // test shouldn't be needed when we have better error recovery
+                        tree = unit;
                 } catch (Exception exc) {
                     exc.printStackTrace();
                 }
