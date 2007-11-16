@@ -24,7 +24,7 @@
  */ 
 
 package javafx.ui;
-
+import sun.awt.AppContext;
 import com.sun.javafx.runtime.awt.GradientPaint;
 import java.awt.RenderingHints;
 import java.lang.Object;
@@ -173,12 +173,23 @@ public function pointToPixel(pt:Integer):Number{
 public class UIElement {
     // Not abstract this is the default implementation
     public function getWindow():java.awt.Window {return null; }
-    public attribute lookAndFeel: String
+    public attribute lookAndFeel: String = null
         on replace {
+	if (lookAndFeel <> null) {
             javax.swing.UIManager.setLookAndFeel(lookAndFeel);
             javax.swing.SwingUtilities.updateComponentTreeUI(getWindow());
+	}
     };
-    public static attribute context:UIContext = UIContextImpl{};
+    public static attribute context:UIContext;
+    public static function getUIContext(): UIContext {
+	var appContext = AppContext.getAppContext();
+	var context = appContext.get("javafx.UIContext") as UIContext;
+	if (context == null) {
+	    context = new UIContextImpl();
+	    appContext.put("javafx.UIContext", context);
+	}
+	return context;
+    }	
 }
 
 

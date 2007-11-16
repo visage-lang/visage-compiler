@@ -38,6 +38,7 @@ import java.awt.Dimension;
 import javax.swing.JFrame;
 import java.awt.event.WindowEvent;
 import java.awt.event.ComponentEvent;
+import java.lang.System;
 /**
  * A <code>Frame</code> is a top-level window with a title and a border,
  * and an optional menu bar.
@@ -47,7 +48,8 @@ public class Frame extends AbstractFrame {
 
     private attribute winListener: java.awt.event.WindowListener;
     private attribute compListener: java.awt.event.ComponentListener;
-    private attribute frame: javax.swing.JFrame;
+    private attribute frame: javax.swing.JFrame = bind new javax.swing.JFrame;
+; 
     private attribute inListener: Boolean;
 //TODO SHAPE
 //    public attribute shape: Shape;
@@ -55,23 +57,26 @@ public class Frame extends AbstractFrame {
     public attribute hideOnClose: Boolean;
     public attribute owner: UIElement;
     public attribute screenx: Number = UNSET on replace  {
-        if (not inListener) {
+        if (frame <> null and not inListener and screenx <> UNSET and screeny <> UNSET) {
             frame.setLocation(new java.awt.Point(screenx.intValue(), screeny.intValue()));
         }
         
     };
     public attribute screeny: Number = UNSET on replace  {
-        if (not inListener) {
+        if (frame <> null and not inListener and screeny <> UNSET and screenx <> UNSET) {
             frame.setLocation(new java.awt.Point(screenx.intValue(), screeny.intValue()));
         }
         
     };
     public attribute menubar: MenuBar on replace {
-        frame.setJMenuBar(menubar.jmenubar);
+	if (frame <> null) {
+	    frame.setJMenuBar(if (menubar == null) null else menubar.jmenubar);
+	}
     };
     public attribute content: Widget on replace  {
         this.setContentPane(content);
     };
+
     public attribute dispose: Boolean on replace {
        if (dispose) {
             this.close();
@@ -82,10 +87,10 @@ public class Frame extends AbstractFrame {
      * at any time.  
      */
     public attribute title: String on replace {
-        frame.setTitle(title);
+        if (frame <> null) frame.setTitle(title);
     };
     public attribute height: Number = UNSET on replace  {
-        if (not inListener and height <> UNSET) {
+        if (frame <> null and not inListener and height <> UNSET) {
             
             var dim = frame.getSize();
             dim.height = height.intValue();
@@ -93,7 +98,7 @@ public class Frame extends AbstractFrame {
         }
     };
     public attribute width: Number = UNSET on replace  {
-        if (not inListener and width <> UNSET) {
+        if (frame <> null and not inListener and width <> UNSET) {
             var dim = frame.getSize();
             dim.width = width.intValue();
             frame.setSize(dim);
@@ -101,51 +106,52 @@ public class Frame extends AbstractFrame {
     };
     public function show(){
         if (visible) {
-                if (height == UNSET or width == UNSET) {
-                    this.pack();
-                    var dim = frame.getSize();
-                    if (height <> UNSET) {
-                        dim.height = height.intValue();
-                    }
-                    if (width <> UNSET) {
-                        dim.width = width.intValue();
-                    }
-                    if (height <> UNSET or width <> UNSET) {
-                        frame.setSize(dim);
-                    }
-                } else {
-                    frame.pack();
-                    frame.setSize(new Dimension(width.intValue(), height.intValue()));
-                }
-                if (owner <> null) {
-                    frame.setLocationRelativeTo(owner.getWindow());
-                } else {
-                    if (screenx <> UNSET and screeny <> UNSET) {
-                        frame.setLocation(screenx.intValue(), screeny.intValue());
-                    } else if (centerOnScreen) {
-                        var d = java.awt.Toolkit.getDefaultToolkit().getScreenSize();                 
-                        var s = frame.getSize();
-                        frame.setLocation(d.width/2 - s.width/2, d.height/2 - s.height/2);
-                    }
-                }
-                //TODO DO LATER - this is a work around until a more permanent solution is provided
-                javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
-                          public function run():Void {
-                                if (not visible) {
-                                    return;
-                                }
-                                frame.setVisible(true);
-                                frame.toFront();
-                                var loc = frame.getLocation();
-                                inListener = true;
-                                screenx = loc.getX();
-                                screeny = loc.getY();
-                                var size = frame.getSize();
-                                height = size.height;
-                                width = size.width;
-                                inListener = false;
-                            }
-                    });
+	    if (height == UNSET or width == UNSET) {
+		this.pack();
+		var dim = frame.getSize();
+		if (height <> UNSET) {
+		    dim.height = height.intValue();
+		}
+		if (width <> UNSET) {
+		    dim.width = width.intValue();
+		}
+		if (height <> UNSET or width <> UNSET) {
+		    System.out.println("setting size to { dim }");
+		    frame.setSize(dim);
+		}
+	    } else {
+		frame.pack();
+		frame.setSize(new Dimension(width.intValue(), height.intValue()));
+	    }
+	    if (owner <> null) {
+		frame.setLocationRelativeTo(owner.getWindow());
+	    } else {
+		if (screenx <> UNSET and screeny <> UNSET) {
+		    frame.setLocation(screenx.intValue(), screeny.intValue());
+		} else if (centerOnScreen) {
+		    var d = java.awt.Toolkit.getDefaultToolkit().getScreenSize();                 
+		    var s = frame.getSize();
+		    frame.setLocation(d.width/2 - s.width/2, d.height/2 - s.height/2);
+		}
+	    }
+	    //TODO DO LATER - this is a work around until a more permanent solution is provided
+	    javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+		   public function run():Void {
+		       if (not visible) {
+			   return;
+		       }
+		       frame.setVisible(true);
+		       frame.toFront();
+		       var loc = frame.getLocation();
+		       inListener = true;
+		       screenx = loc.getX();
+		       screeny = loc.getY();
+		       var size = frame.getSize();
+		       height = size.height;
+		       width = size.width;
+		       inListener = false;
+		   }
+	   });
         }
     }
 
@@ -153,7 +159,9 @@ public class Frame extends AbstractFrame {
         //TODO DO LATER - this is a work around until a more permanent solution is provided
         javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                 public function run():Void {
-                    frame.toFront();
+		    if (frame <> null) {
+			frame.toFront();
+		    }
                 }
             });
     }
@@ -162,7 +170,9 @@ public class Frame extends AbstractFrame {
         //TODO DO LATER - this is a work around until a more permanent solution is provided
         javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                   public function run():Void {
+		      if (frame <> null) {
                         frame.toBack();
+		      }
                   }
             });
     }
@@ -178,7 +188,9 @@ public class Frame extends AbstractFrame {
     public attribute onClose: function():Void;
     public attribute centerOnScreen: Boolean;
     public attribute background: AbstractColor on replace {
-       frame.setBackground(background.getColor());
+	if (frame <> null) {
+	    frame.setBackground(if (background == null) null else background.getColor());
+	}
     };
     /**
      * Makes the frame visible or invisible. Frame's are initially invisible.
@@ -199,7 +211,9 @@ public class Frame extends AbstractFrame {
                     disposeOnClose = false;
                     this.close();
                 } else {
-                    frame.setVisible(false);
+		    if (frame <> null) {
+			frame.setVisible(false);
+		    }
                 }
             }
         }
@@ -211,34 +225,42 @@ public class Frame extends AbstractFrame {
      * resizable, otherwise it will be false.
      */
     public attribute resizable: Boolean = true on replace {
-        frame.setResizable(resizable);
+	if (frame <> null) {
+	    frame.setResizable(resizable);
+	}
     };
     /**
      * The icon image for this frame, or <code>null</code> 
      * if this frame doesn't have an icon image.
      */
     public attribute iconImage: Image on replace {
-        frame.setIconImage(iconImage.getImage());
+	if (frame <> null) {
+	    frame.setIconImage(if (iconImage == null) then null else iconImage.getImage());
+	}
     };
     /**
      * Disables or enables decorations for this frame.
      * This attribute can only be set while the frame is not displayable.
      */
     public attribute undecorated: Boolean on replace {
-        frame.setUndecorated(undecorated);
+	if (frame <> null) {
+	    frame.setUndecorated(undecorated);
+	}
     };
     public attribute showing: Boolean;
     public attribute iconified: Boolean = false on replace {
-        var state = frame.getExtendedState();
-        var newState = 0;
-        if (iconified) {
-            newState = UIElement.context.setBit(state, frame.ICONIFIED);
-        } else {
-            newState = UIElement.context.clearBit(state, frame.ICONIFIED);
-        }
-        if (state <> newState) {
-            frame.setExtendedState(newState);
-        }
+	if (frame <> null) {
+	    var state = frame.getExtendedState();
+	    var newState = 0;
+	    if (iconified) {
+		//newState = UIElement.getUIContext().setBit(state, frame.ICONIFIED);
+	    } else {
+		//newState = UIElement.getUIContext().clearBit(state, frame.ICONIFIED);
+	    }
+	    if (state <> newState) {
+		frame.setExtendedState(newState);
+	    }
+	}
     };
     public attribute active: Boolean on replace {
         if (inListener == false) {
@@ -292,16 +314,17 @@ public class Frame extends AbstractFrame {
     }
     public function close(){
         disposeOnClose = false;
-        frame.dispose();
+	if (frame <> null) {
+	    frame.dispose();
+	}
         showing = false;
         frame = null;
     }
-    public function getFrame(): JFrame{
+    public function getFrame(): JFrame {
          return frame;
     }
 
     init {
-        frame = javax.swing.JFrame{};
         if (background <> null) {
             frame.setBackground(background.getColor());
         }

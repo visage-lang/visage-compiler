@@ -103,7 +103,7 @@ public class CompositeTransform extends Transform {
     on replace [indx] (oldValue) {
         updateTransform();
     };
-    private operation updateTransform() {
+    private function updateTransform() {
         var result = new AffineTransform();
         foreach (t in txs) {
             result.concatenate(t);
