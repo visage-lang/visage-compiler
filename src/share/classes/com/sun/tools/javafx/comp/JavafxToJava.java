@@ -354,6 +354,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             
             JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList());
             
+            boolean classIsFinal = (tree.getModifiers().flags & Flags.FINAL) != 0;
+            
             // include the interface only once
             if (!tree.hasBeenTranslated) {
                 prependToDefinitions.append(model.correspondingInterface); // prepend to the enclosing class or top-level
@@ -364,7 +366,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
             {
                 // Add the userInit$ method
-                boolean classIsFinal = (tree.getModifiers().flags & Flags.FINAL) != 0;
+                
                 List<JCVariableDecl> receiverVarDeclList = List.<JCVariableDecl>of(makeReceiverParam(tree));
                 JCBlock userInitBlock = make.Block(0L, translatedInitBlocks.toList());
                 translatedDefs.append(make.MethodDef(
@@ -389,9 +391,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             implementing.append(make.Ident(model.interfaceName));
             implementing.append(makeIdentifier(initBuilder.fxObjectName));
             
+            long flags = tree.mods.flags & (Flags.PUBLIC | Flags.PRIVATE | Flags.PROTECTED | Flags.FINAL | Flags.ABSTRACT);
+            if (tree.sym.owner.kind == Kinds.TYP) {
+                flags |= Flags.STATIC;
+            }
+            
             // make the Java class corresponding to this FX class, and return it
             JCClassDecl res = make.at(diagPos).ClassDef(
-                    translate( tree.mods ),
+                    make.at(diagPos).Modifiers(flags),
                     tree.getName(),
                     tree.getEmptyTypeParameters(), 
                     null,  // no classes are extended, they have become interfaces -- change if we implement single Java class extension
