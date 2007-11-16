@@ -1530,7 +1530,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         for (int inx = tree.getInClauses().size() - 1; inx >= 0; --inx) {
             JFXForExpressionInClause clause = (JFXForExpressionInClause)tree.getInClauses().get(inx);
             if (clause.getWhereExpression() != null) {
-                stmt = make.at(clause).If(clause.getWhereExpression(), stmt, null);
+                stmt = make.at(clause).If( translate( clause.getWhereExpression() ), stmt, null);
             }
 
             // Build the loop
