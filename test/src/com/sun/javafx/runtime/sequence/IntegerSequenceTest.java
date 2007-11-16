@@ -510,8 +510,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
 
         assertDepth(1, new CompositeSequence<Integer>(Integer.class, ONE_SEQUENCE, ONE_SEQUENCE));
         assertDepth(1, Sequences.concatenate(Integer.class, ONE_SEQUENCE, ONE_SEQUENCE));
-        assertDepth(0, Sequences.concatenate(Integer.class, EMPTY_SEQUENCE, ONE_SEQUENCE));
-        assertDepth(0, Sequences.concatenate(Integer.class, ONE_SEQUENCE, EMPTY_SEQUENCE));
+        assertDepth(1, Sequences.concatenate(Integer.class, EMPTY_SEQUENCE, ONE_SEQUENCE));
+        assertDepth(1, Sequences.concatenate(Integer.class, ONE_SEQUENCE, EMPTY_SEQUENCE));
 
         assertDepth(1, new FilterSequence<Integer>(ONE_SEQUENCE, ONE_SEQUENCE.getBits(nullMatcher)));
         assertDepth(1, new FilterSequence<Integer>(ONE_SEQUENCE, ONE_SEQUENCE.getBits(allMatcher)));
@@ -529,5 +529,11 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertDepth(1, Sequences.subsequence(TWO_SEQUENCE, 0, 1));
 
         assertDepth(1, Sequences.reverse(TWO_SEQUENCE));
+    }
+
+    public void testUpcast() {
+        Sequence<Integer> seq = Sequences.range(1, 5);
+        Sequence<Object> asObj = Sequences.upcast(Object.class, seq);
+        assertEquals(asObj, 1, 2, 3, 4, 5);
     }
 }

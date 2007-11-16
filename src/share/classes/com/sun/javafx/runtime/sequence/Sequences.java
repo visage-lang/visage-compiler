@@ -25,9 +25,6 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.location.SequenceVar;
-import com.sun.javafx.runtime.location.SequenceLocation;
-
 import java.util.BitSet;
 import java.util.List;
 
@@ -68,18 +65,18 @@ public final class Sequences {
     }
 
     /** Concatenate two sequences into a new sequence.  */
-    public static<T> Sequence<T> concatenate(Class<T> clazz, Sequence<T> first, Sequence<T> second) {
+    public static<T> Sequence<T> concatenate(Class<T> clazz, Sequence<? extends T> first, Sequence<? extends T> second) {
         // OPT: for small sequences, just copy the elements
         if (first.size() == 0)
-            return second;
+            return upcast(clazz, second);
         else if (second.size() == 0)
-            return first;
+            return upcast(clazz, first);
         else
             return new CompositeSequence<T>(clazz, first, second);
     }
 
     /** Concatenate zero or more sequences into a new sequence.  */
-    public static<T> Sequence<T> concatenate(Class<T> clazz, Sequence<T>... seqs) {
+    public static<T> Sequence<T> concatenate(Class<T> clazz, Sequence<? extends T>... seqs) {
         // OPT: for small sequences, just copy the elements
         return new CompositeSequence<T>(clazz, seqs);
     }
@@ -159,5 +156,10 @@ public final class Sequences {
     public static<T,U> Sequence<U> map(Class<U> clazz, Sequence<T> sequence, SequenceMapper<T, U> mapper) {
         // OPT: for small sequences, do the mapping eagerly
         return new MapSequence<T,U>(clazz, sequence, mapper);
+    }
+
+    /** Upcast a sequence of T to a sequence of superclass-of-T */
+    public static<T> Sequence<T> upcast(Class<T> clazz, Sequence<? extends T> sequence) {
+        return new UpcastSequence<T>(clazz, sequence);
     }
 }
