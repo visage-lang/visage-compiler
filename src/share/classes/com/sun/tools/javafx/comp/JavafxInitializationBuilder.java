@@ -1012,7 +1012,12 @@ public class JavafxInitializationBuilder {
         }
     }
     
-    boolean isJFXClass(ClassSymbol cSym) {
+    boolean isJFXClass(Symbol sym) {
+        if (!(sym instanceof ClassSymbol)) {
+            return false;
+        }
+        
+        ClassSymbol cSym = (ClassSymbol)sym;
         if ((cSym.flags_field & Flags.INTERFACE) != 0) {
             for (List<Type> intfs = cSym.getInterfaces(); intfs.nonEmpty(); intfs = intfs.tail) {
                 if (intfs.head.tsym.type == syms.javafx_FXObjectType) {
