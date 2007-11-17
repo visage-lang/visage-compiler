@@ -29,7 +29,7 @@ package javafx.ui;
  * Provides enumerated values for component alignment and text position
  */
 public class VerticalAlignment {
-    attribute id: Number;
+    public attribute id: Number;
     public attribute name: String;
     
     public static attribute TOP = VerticalAlignment {
