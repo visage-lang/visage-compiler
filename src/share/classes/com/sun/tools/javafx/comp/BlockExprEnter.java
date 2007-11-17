@@ -137,7 +137,7 @@ public class BlockExprEnter extends Enter {
 
 	// Fill out class fields.
 	c.completer = memberEnter;
-        boolean wasStatic = (tree.mods.flags | Flags.STATIC) != 0L;
+        boolean wasStatic = (tree.mods.flags & Flags.STATIC) != 0L;
 	c.flags_field = chk.checkFlags(tree.pos(), (tree.mods.flags & ~(Flags.STATIC)), c, tree);
         if (wasStatic) {
             c.flags_field |= Flags.STATIC;
