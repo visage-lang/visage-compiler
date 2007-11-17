@@ -107,6 +107,11 @@ public class JavafxTreeInfo extends TreeInfo {
         };
     }
 
+    public static DiagnosticPosition diagnosticPositionFor(final Symbol sym, final JCTree tree) {
+        JCTree decl = declarationFor(sym, tree);
+        return ((decl != null) ? decl : tree).pos();
+    }
+
     /** Find the declaration for a symbol, where
      *  that symbol is defined somewhere in the given tree. */
     public static JCTree declarationFor(final Symbol sym, final JCTree tree) {
