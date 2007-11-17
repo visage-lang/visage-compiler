@@ -412,7 +412,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             if ((tree.mods.flags & Flags.FINAL) != 0L && tree.getExtending().nonEmpty()) {
                 Symbol sym1 = TreeInfo.symbol(tree.getExtending().head);
                 if ( sym1 != null && !initBuilder.isJFXClass(sym1))
-                    jcExtending = tree.getExtending().head;
+                    jcExtending = makeTypeTree(tree.getExtending().head.type, null, false);
             }
             
             JCClassDecl res = make.at(diagPos).ClassDef(

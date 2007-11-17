@@ -484,7 +484,8 @@ public class JavafxInitializationBuilder {
         addInterfaceOuterAccessorMethod(iDefinitions, cDecl);
         addClassOuterAccessorMethod(cDefinitions, cDecl);
 
-        implementing.appendList(cDecl.getImplementing());
+        for (List<JCExpression> l = cDecl.getImplementing(); l.nonEmpty(); l = l.tail)
+            implementing.append(toJava.makeTypeTree(l.head.type, null));
 
         return new JavafxClassModel(interfaceName, implementing, iDefinitions.toList(), cDefinitions);
     }
