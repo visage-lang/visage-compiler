@@ -947,6 +947,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     // marking the variable as undefined.
                     v.pos = Position.MAXPOS;
                     initType = attribExpr(tree.init, initEnv, declType);
+                    initType = chk.checkNonVoid(tree.pos(), initType);
                     chk.checkType(tree.pos(), initType, declType, Sequenceness.DISALLOWED);
             }
             else
@@ -1557,7 +1558,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         attribExpr(tree.truepart, env);
         Type falsepartType;
         if (tree.falsepart == null) {
-            falsepartType = tree.truepart.type;
+            falsepartType = syms.voidType;
         } else {
             falsepartType = attribExpr(tree.falsepart, env);
         }
