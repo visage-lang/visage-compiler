@@ -38,6 +38,7 @@ import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
 
 import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.tree.Pretty;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -121,6 +122,11 @@ public class JFXClassDeclaration extends JFXStatement implements ClassDeclaratio
     
     public void appendToMembers(ListBuffer<JCTree> members) {
         defs = defs.appendList(members.toList());
+    }
+
+    public boolean generateClassOnly () {
+        // FIXME also return true if extending a Java class.
+        return (getModifiers().flags & Flags.FINAL) != 0;
     }
 
     @Override

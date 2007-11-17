@@ -79,7 +79,6 @@ public class JavafxInitializationBuilder {
     final Name userInitName;
     final Name receiverName;
     final Name initializeName;
-    private final Name numberFieldsName;
     private final Name getNumFieldsName;
     private final Name initHelperName;
     private final Name getPreviousValueName;
@@ -123,7 +122,6 @@ public class JavafxInitializationBuilder {
         userInitName = names.fromString("userInit$");
         receiverName = names.fromString("receiver$");
         initializeName = names.fromString("initialize$");
-        numberFieldsName = names.fromString("NUM$FIELDS");
         getNumFieldsName = names.fromString("getNumFields$");
         initHelperName = names.fromString("initHelper$");
         getPreviousValueName = names.fromString("getPreviousValue");
@@ -367,7 +365,10 @@ public class JavafxInitializationBuilder {
      * Return the generated interface name corresponding to the class
      * */
     Name interfaceName(JFXClassDeclaration cDecl) {
-        return names.fromString(cDecl.getName().toString() + interfaceNameSuffix);
+        Name name = cDecl.getName();
+        if (cDecl.generateClassOnly())
+            return name;
+        return names.fromString(name.toString() + interfaceNameSuffix);
     }
     
     /**
@@ -375,15 +376,18 @@ public class JavafxInitializationBuilder {
      * */
     static class JavafxClassModel {
         final Name interfaceName;
-        final JCClassDecl correspondingInterface;
+        final ListBuffer<JCExpression> interfaces;
+        final List<JCTree> iDefinitions;
         final List<JCTree> additionalClassMembers;
-        
+  
         JavafxClassModel(
                 Name interfaceName,
-                JCClassDecl correspondingInterface,
+                ListBuffer<JCExpression> interfaces,
+                List<JCTree> iDefinitions,
                 ListBuffer<JCTree> addedClassMembers) {
             this.interfaceName = interfaceName;
-            this.correspondingInterface = correspondingInterface;
+            this.interfaces = interfaces;
+            this.iDefinitions = iDefinitions;
             this.additionalClassMembers = addedClassMembers.toList();
         }
     }
@@ -398,8 +402,9 @@ public class JavafxInitializationBuilder {
      * 
      * Return all this as a JavafxClassModel for use in translation.
      * */
-    JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl, List<TranslatedAttributeInfo> translatedAttrInfo) {
-        boolean classIsFinal =(cDecl.getModifiers().flags & Flags.FINAL) != 0;
+   JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl, List<TranslatedAttributeInfo> translatedAttrInfo) {
+        boolean classIsFinal = (cDecl.getModifiers().flags & Flags.FINAL) != 0;
+        boolean classOnly = cDecl.generateClassOnly();
         Set<String> visitedClasses = new HashSet<String>();
         Map<String, Symbol> collectedAttributes = new HashMap<String, Symbol>();
         Map<String, MethodSymbol> collectedMethods = new HashMap<String, MethodSymbol>();
@@ -430,15 +435,7 @@ public class JavafxInitializationBuilder {
                 implementing.append(make.Ident(names.fromString(baseClass.name.toString() + interfaceNameSuffix)));
             }
         }
-        
-        JCVariableDecl numFieldsVar = make.VarDef(
-                make.Modifiers(classIsFinal? Flags.PRIVATE | Flags.FINAL : Flags.PRIVATE | Flags.FINAL | Flags.STATIC), 
-                numberFieldsName, 
-                make.TypeIdent(TypeTags.INT), 
-                make.Literal( attributes.size() ));
-        
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
-        cDefinitions.append(numFieldsVar);
         cDefinitions.append( makeSetDefaultsMethod(cDecl, baseClasses,  translatedAttrInfo) );
 
         ListBuffer<JCTree> iDefinitions = new ListBuffer<JCTree>();
@@ -461,9 +458,9 @@ public class JavafxInitializationBuilder {
         }
         
         addInterfaceAttributeMethods(iDefinitions, attrInfos);
-        addClassAttributeMethods(cDecl, attrInfos, baseClasses, cDefinitions);
+        addClassAttributeMethods(cDecl, attrInfos, baseClasses, cDefinitions, attributes.size() );
 
-        Name interfaceName = interfaceName(cDecl);
+        Name interfaceName = classOnly ? null : interfaceName(cDecl);
 
         for (boolean bound = toJava.generateBoundFunctions;  ; bound = false) {
             for (MethodSymbol mth : methods) {
@@ -489,11 +486,7 @@ public class JavafxInitializationBuilder {
 
         implementing.appendList(cDecl.getImplementing());
 
-        JCClassDecl cInterface = make.ClassDef(make.Modifiers(Flags.PUBLIC | Flags.INTERFACE),
-                interfaceName, 
-                List.<JCTypeParameter>nil(), null, implementing.toList(), iDefinitions.toList());
-        
-        return new JavafxClassModel(interfaceName, cInterface, cDefinitions);
+        return new JavafxClassModel(interfaceName, implementing, iDefinitions.toList(), cDefinitions);
     }
     
     // Add the methods and field for accessing the outer members. Also add a constructor with an extra parameter to handle the instantiation of the classes that access outer members
@@ -669,7 +662,8 @@ public class JavafxInitializationBuilder {
     }
 
     private void addClassAttributeMethods(JFXClassDeclaration cDecl, ListBuffer<AttributeWrapper> attrInfos, 
-                                                                               java.util.List<ClassSymbol> baseClasses, ListBuffer<JCTree> members) {
+                                                                               java.util.List<ClassSymbol> baseClasses, ListBuffer<JCTree> members,
+                                                                               int numFields) {
         boolean classIsFinal = (cDecl.getModifiers().flags & Flags.FINAL) != 0;
         for (AttributeWrapper attrInfo : attrInfos) { 
 // TODO: Add attributes gotten from interface introspection.
@@ -723,7 +717,7 @@ public class JavafxInitializationBuilder {
         
         // Add the getNumFields$ method
         List<JCStatement> numFieldsStats = List.<JCStatement>nil();
-        numFieldsStats = numFieldsStats.append(make.Return(make.Ident(numberFieldsName)));
+        numFieldsStats = numFieldsStats.append(make.Return(make.Literal(numFields)));
         
         JCBlock numFieldsBlock = make.Block(0L, numFieldsStats);
         members.append(make.MethodDef(
@@ -737,7 +731,6 @@ public class JavafxInitializationBuilder {
 
         // Add the InitHelper field
         List<JCExpression> ncArgs = List.<JCExpression>nil();
-        // ncArgs = ncArgs.append(make.Ident(numberFieldsName));  // getting forward reference error
         ncArgs = ncArgs.append( make.Literal( attrInfos.size() ) );
         
         JCNewClass newIHClass = make.NewClass(null, List.<JCExpression>nil(), make.Identifier(initHelperClassName), ncArgs, null);
@@ -753,12 +746,12 @@ public class JavafxInitializationBuilder {
                 cDecl.pos(), 
                 make.Ident(classIsFinal? names._this : cDecl.getName()),
                 setDefaultsName, 
-                make.TypeCast(make.Ident(names.fromString(cDecl.getName().toString() + interfaceNameSuffix)), make.Ident(names._this))));
+                make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
         initializeStats = initializeStats.append(toJava.callStatement(
                 cDecl.pos(), 
                 make.Ident(classIsFinal? names._this : cDecl.getName()),
                 userInitName, 
-                make.TypeCast(make.Ident(names.fromString(cDecl.getName().toString() + interfaceNameSuffix)), make.Ident(names._this))));
+                make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
         
         // Add a call to initialize the attributes using the initHelper$.initialize();
         initializeStats = initializeStats.append(toJava.callStatement(cDecl.pos(), make.Ident(initHelperName), 

@@ -350,15 +350,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
             prependToDefinitions = prevPrependToDefinitions ;
             prependToStatements = prevPrependToStatements;
-           // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
-            
+            // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
+
+            boolean classOnly = tree.generateClassOnly();
             JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList());
-            
+       
             boolean classIsFinal = (tree.getModifiers().flags & Flags.FINAL) != 0;
             
             // include the interface only once
             if (!tree.hasBeenTranslated) {
-                prependToDefinitions.append(model.correspondingInterface); // prepend to the enclosing class or top-level
+                if (! classOnly) {
+                    JCClassDecl cInterface = make.ClassDef(make.Modifiers(Flags.PUBLIC | Flags.INTERFACE),
+                            model.interfaceName, List.<JCTypeParameter>nil(), null,
+                            model.interfaces.toList(), model.iDefinitions);    
+                    prependToDefinitions.append(cInterface); // prepend to the enclosing class or top-level
+                }
                 tree.hasBeenTranslated = true;
             }
             
@@ -386,10 +392,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
 
             // build the list of implemented interfaces
-           ListBuffer<JCExpression> implementing =  ListBuffer.<JCExpression>lb();
-            implementing.appendList( translate( tree.getImplementing() ) );
-            implementing.append(make.Ident(model.interfaceName));
-            implementing.append(makeIdentifier(initBuilder.fxObjectName));
+            ListBuffer<JCExpression> implementing;
+            if (classOnly) {
+                implementing = model.interfaces;
+            }
+            else {
+                implementing = ListBuffer.<JCExpression>lb();
+                implementing.append(make.Ident(model.interfaceName));
+                implementing.append(makeIdentifier(initBuilder.fxObjectName));
+            }
             
             long flags = tree.mods.flags & (Flags.PUBLIC | Flags.PRIVATE | Flags.PROTECTED | Flags.FINAL | Flags.ABSTRACT);
             if (tree.sym.owner.kind == Kinds.TYP) {
