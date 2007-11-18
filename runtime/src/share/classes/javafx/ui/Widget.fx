@@ -59,6 +59,7 @@ public class KeyboardAction {
 }
 
 public abstract class Widget extends GroupElement, UIElement {  
+
     private attribute inBoundsListener: Boolean;
 
     private function makeKeyEvent(e:java.awt.event.KeyEvent):KeyEvent {
@@ -158,14 +159,14 @@ public abstract class Widget extends GroupElement, UIElement {
                         if (e.isMetaDown() ) KeyModifier.META else null,
                         if (e.isShiftDown() ) KeyModifier.SHIFT else null]
             //TODO JXFC-178
-            //clickCount: e.getClickCount()
+            clickCount: e.getClickCount()
             //TODO JXFC-178
-            //button: if (SwingUtilities.isLeftMouseButton(e) ) 1 else 
-            //    if (SwingUtilities.isRightMouseButton(e) ) 3 else 2
+            button: if (SwingUtilities.isLeftMouseButton(e) ) 1 else 
+                if (SwingUtilities.isRightMouseButton(e) ) 3 else 2
             //TODO JXFC-178
-           // x: e.getX()
+            x: e.getX()
             //TODO JXFC-178
-           // y: e.getY()
+            y: e.getY()
             scrollType: if (e.getScrollType() == e.WHEEL_UNIT_SCROLL) 
                 MouseWheelScrollType.UNIT_SCROLL else MouseWheelScrollType.BLOCK_SCROLL
             scrollAmount: e.getScrollAmount()
@@ -188,7 +189,7 @@ public abstract class Widget extends GroupElement, UIElement {
     }        
 
     function setBounds(b:java.awt.Rectangle):Void{
-        component.setBounds(b);     
+        //component.setBounds(b);     
     }
 
     function getBounds():java.awt.Rectangle {
@@ -220,7 +221,9 @@ public abstract class Widget extends GroupElement, UIElement {
     }  
 
     public attribute name: String on replace {
-         component.setName(name);
+	if (component <> null) {
+	    component.setName(name);
+	}
     };
     
     public attribute keyboardAction: KeyboardAction[]
@@ -283,13 +286,15 @@ public abstract class Widget extends GroupElement, UIElement {
      *  the be copied onto the screen.
      */
     public attribute doubleBuffered: Boolean on replace {
-        component.setDoubleBuffered(doubleBuffered);
+	if (component <> null) {
+	    component.setDoubleBuffered(doubleBuffered);
+	}
     };
 
 
     /** Sets the x coordinate of this component within its parent. Has no effect unless contained in a Panel. */
     public attribute x: Number on replace {
-        if (not inBoundsListener){
+        if (component <> null and not inBoundsListener){
             var b = this.getBounds();
             b.x = x.intValue();
             this.setBounds(b);
@@ -298,7 +303,7 @@ public abstract class Widget extends GroupElement, UIElement {
     
     /** Sets the y coordinate of this component within its parent. Has no effect unless contained in a Panel. */
     public attribute y: Number on replace {
-        if (not inBoundsListener) {
+        if (component <> null and not inBoundsListener) {
             var b = this.getBounds();
             b.y = y.intValue();
             this.setBounds(b);
@@ -307,7 +312,7 @@ public abstract class Widget extends GroupElement, UIElement {
 
     /** Sets width of this component. Has no effect unless contained in a Panel.  */
     public attribute width: Number on replace {
-        if (not inBoundsListener) {
+        if (component <> null and not inBoundsListener) {
             //println("width {getComponent()} = {n}");
             var b = this.getBounds();
             b.width = width.intValue();
@@ -317,7 +322,7 @@ public abstract class Widget extends GroupElement, UIElement {
 
     /** Sets the height of this component. Has no effect unless contained in a Panel.  */
     public attribute height: Number on replace {
-        if (not inBoundsListener) {
+        if (component <> null and not inBoundsListener) {
             //println("height {getComponent()} = {n}");
             var b = this.getBounds();
             b.height = height.intValue();
@@ -351,7 +356,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * True when the object is visible. An object that is not
      * visible is not drawn on the screen.
      */
-    public attribute visible: Boolean on replace {
+    public attribute visible: Boolean = true on replace {
         if (component <> null) {
             component.setVisible(visible);
         }
@@ -366,12 +371,12 @@ public abstract class Widget extends GroupElement, UIElement {
             if (background <> null) {
                 opaque = true;
             }
-            c.setBackground(awtBackground);
+            //c.setBackground(awtBackground);
         }
     };
 
    
-    protected attribute awtBackground: java.awt.Color = bind background.getColor();
+    protected attribute awtBackground: java.awt.Color = bind if (background == null) null else background.getColor();
     /**
      * Sets the foreground color of this component.
      */
@@ -379,12 +384,12 @@ public abstract class Widget extends GroupElement, UIElement {
         if (component <> null) {
             var c = this.getNonScrollPaneComponent();
             if (foreground <> null) {
-                c.setForeground(awtForeground);
+                //c.setForeground(awtForeground);
             }
         }
     };
     
-    protected attribute awtForeground: java.awt.Color = bind foreground.getColor();
+    protected attribute awtForeground: java.awt.Color = bind if (foreground == null) null else foreground.getColor();
     
     /**
      * If true the component paints every pixel within its bounds. 
@@ -400,10 +405,10 @@ public abstract class Widget extends GroupElement, UIElement {
      */
     public attribute font: Font;
     
-    protected attribute awtFont: java.awt.Font = bind font.getFont() on replace {
+    protected attribute awtFont: java.awt.Font = bind if (font == null) null else font.getFont() on replace {
         if (component <> null) {
             var c = this.getNonScrollPaneComponent();
-            c.setFont(awtFont);
+            //c.setFont(awtFont);
         }
     };
 
@@ -542,14 +547,16 @@ public abstract class Widget extends GroupElement, UIElement {
      * that have a non-<code>null</code> cursor. 
      */
     public attribute cursor: Cursor on replace {
-        component.setCursor(cursor.getCursor());
+	if (component <> null) {
+	    component.setCursor(cursor.getCursor());
+	}
     };
     
     /**
      * True when the object is enabled. An object that is not
      * enabled does not interact with the user. Defaults to <code>true</code>.
      */
-    public attribute enabled: Boolean on replace {
+    public attribute enabled: Boolean = true on replace {
         if (component <> null) {
             var c = this.getNonScrollPaneComponent();
             c.setEnabled(enabled);
@@ -565,7 +572,9 @@ public abstract class Widget extends GroupElement, UIElement {
      * the furthest away from the origin, 0.5 is centered, etc.
      */
     public attribute alignmentX: Number on replace {
-        component.setAlignmentX(alignmentX.floatValue());
+	if (component <> null) {
+	    component.setAlignmentX(alignmentX.floatValue());
+	}
     };
 
     /**
@@ -576,7 +585,9 @@ public abstract class Widget extends GroupElement, UIElement {
      * the furthest away from the origin, 0.5 is centered, etc.
      */
     public attribute alignmentY: Number on replace {
-        component.setAlignmentY(alignmentY.floatValue());
+	if (component <> null) {
+	    component.setAlignmentY(alignmentY.floatValue());
+	}
     };         
 
     /**
@@ -612,14 +623,14 @@ public abstract class Widget extends GroupElement, UIElement {
             c.setVisible(visible);
             c.setOpaque(opaque);
             if (background <> null) {
-                c.setBackground(background.getColor());
+                //c.setBackground(background.getColor());
                 c.setOpaque(true);
             }
             if (foreground <> null) {
-                c.setForeground(foreground.getColor());
+                //c.setForeground(foreground.getColor());
             }
             if (awtFont <> null) {
-                c.setFont(awtFont);
+                //c.setFont(awtFont);
             }
             if (focusable <> c.isFocusable()) {
                c.setFocusable(focusable);

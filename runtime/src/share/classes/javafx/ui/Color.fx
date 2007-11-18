@@ -100,8 +100,12 @@ public class Color extends AbstractColor, UIElement{
         return "#{redStr}{greenStr}{blueStr}{alphaStr}";
     }
 
+    private function makeColor(red:Number, green:Number, blue:Number, opacity:Number):java.awt.Color {
+	new java.awt.Color(red.floatValue(), green.floatValue(), blue.floatValue(), opacity.floatValue());
+    }
+    
     private attribute awtColor: java.awt.Color = 
-        bind lazy new java.awt.Color(red.floatValue(), green.floatValue(), blue.floatValue(), opacity.floatValue());
+        bind lazy makeColor(red, green, blue, opacity);
     
     public function getPaint():java.awt.Paint {
         return awtColor;
@@ -114,9 +118,11 @@ public class Color extends AbstractColor, UIElement{
     public static function rgb(r:Number, g:Number, b:Number):Color {
         return Color {red: r/255, green: g/255, blue: b/255, opacity: 1};
     }
+
     public static function rgba(r:Number, g:Number, b:Number, a:Number):Color {
         return Color {red: r/255, green: g/255, blue: b/255, opacity: a/255};
     }
+
     public static attribute ALICEBLUE:Color= Color.rgb(0xF0, 0xF8, 0xFF);
     public static attribute ANTIQUEWHITE:Color= rgb(0xFA, 0xEB, 0xD7);
     public static attribute AQUA:Color= rgb(0x00, 0xFF, 0xFF);
@@ -264,6 +270,7 @@ public class Color extends AbstractColor, UIElement{
         Color {red: c.getRed()/255, green: c.getGreen()/255, 
             blue: c.getBlue()/ 255, opacity: c.getAlpha()/255};
     }
+
     public static function transparent (c:Color, opacity:Number):Color {
         Color { red:c.red, green:c.green, blue:c.blue, opacity: opacity};
     }

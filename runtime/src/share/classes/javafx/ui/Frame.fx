@@ -48,7 +48,7 @@ public class Frame extends AbstractFrame {
 
     private attribute winListener: java.awt.event.WindowListener;
     private attribute compListener: java.awt.event.ComponentListener;
-    private attribute frame: javax.swing.JFrame = bind new javax.swing.JFrame;
+    private attribute frame: javax.swing.JFrame = new javax.swing.JFrame;
 ; 
     private attribute inListener: Boolean;
 //TODO SHAPE
@@ -242,7 +242,7 @@ public class Frame extends AbstractFrame {
      * Disables or enables decorations for this frame.
      * This attribute can only be set while the frame is not displayable.
      */
-    public attribute undecorated: Boolean on replace {
+    public attribute undecorated: Boolean = false on replace {
 	if (frame <> null) {
 	    frame.setUndecorated(undecorated);
 	}

@@ -25,28 +25,27 @@
 
 package javafx.ui;
 import javafx.ui.Widget;
-import javafx.ui.RotatableWidget;
 import javafx.ui.ActionWidget;
 import javafx.ui.KeyStroke;
 import javafx.ui.Icon;
 import javafx.ui.HorizontalAlignment;
 import javafx.ui.VerticalAlignment;
 import javafx.ui.Insets;
-
+import javax.swing.JButton;
 /**
  * An implementation of a "push" button. Encapsulates javax.swing.JButton.
  */
-public class Button extends Widget,  RotatableWidget, ActionWidget {
-    private attribute button: com.sun.javafx.api.ui.XButton;
+public class Button extends Widget, ActionWidget {
+    private attribute button: JButton = bind new JButton();
 
     /** Determines whether this is the default button within a dialog. */
     public attribute defaultButton: Boolean on replace {
-        button.setDefault(defaultButton);        
+        //button.setDefault(defaultButton);        
     };
 
     /** Determines whether this is the default cancel button within a dialog. */
     public attribute defaultCancelButton: Boolean on replace {
-        button.setDefaultClose(defaultCancelButton);
+	//        button.setDefaultClose(defaultCancelButton);
     };
 
     /** Sets this button's text. */
@@ -56,7 +55,9 @@ public class Button extends Widget,  RotatableWidget, ActionWidget {
 
     /** Sets this button's mnemonic. */
     public attribute mnemonic: KeyStroke on replace {
-        button.setMnemonic(mnemonic.id);
+	if (mnemonic <> null) {
+	    button.setMnemonic(mnemonic.id);
+	}
     };
 
     /** Sets this button's default icon. */
@@ -117,7 +118,7 @@ public class Button extends Widget,  RotatableWidget, ActionWidget {
     };
 
     /** Sets whether rollover effects are enabled for this button. Defaults to true. */
-    public attribute rolloverEnabled: Boolean on replace {
+    public attribute rolloverEnabled: Boolean = true on replace {
         button.setRolloverEnabled(rolloverEnabled);
     }
 
@@ -148,8 +149,10 @@ public class Button extends Widget,  RotatableWidget, ActionWidget {
      * Sets the amount of space between the text and the icon
      * displayed in this button.
      */
-    public attribute iconTextGap: Number on replace {
-        button.setIconTextGap(iconTextGap.intValue());        
+    public attribute iconTextGap: Number = -1 on replace {
+	if (iconTextGap >= 0) {
+	    button.setIconTextGap(iconTextGap.intValue());        
+	}
     };
 
     /**
@@ -158,7 +161,7 @@ public class Button extends Widget,  RotatableWidget, ActionWidget {
      * an icon-only button, for example, then you should set
      * this to <code>false</code>. Defaults to <code>true</code>.
      */
-    public attribute contentAreaFilled: Boolean on replace {
+    public attribute contentAreaFilled: Boolean = true on replace {
         button.setContentAreaFilled(contentAreaFilled);
         button.revalidate();
     };
@@ -170,7 +173,7 @@ public class Button extends Widget,  RotatableWidget, ActionWidget {
      * Some look and feels might not paint focus state;
      * they will ignore this property.
      */
-    public attribute focusPainted:Boolean on replace {
+    public attribute focusPainted:Boolean = true on replace {
         button.setFocusPainted(focusPainted);
         button.revalidate();
     };
@@ -179,7 +182,7 @@ public class Button extends Widget,  RotatableWidget, ActionWidget {
      * Sets whether (if this button has a border) the border is painted.
      * Defaults to true.
      */
-    public attribute borderPainted:Boolean on replace {
+    public attribute borderPainted:Boolean = true on replace {
         button.setBorderPainted(borderPainted);
         button.revalidate();
     };
@@ -195,8 +198,10 @@ public class Button extends Widget,  RotatableWidget, ActionWidget {
      * effectively be ignored).
      */
     public attribute margin:Insets on replace {
-        button.setMargin(margin.awtinsets);
-        button.revalidate();        
+	if (margin <> null) {
+	    button.setMargin(margin.awtinsets);
+	    button.revalidate();        
+	}
     };
 
     /**
@@ -209,8 +214,10 @@ public class Button extends Widget,  RotatableWidget, ActionWidget {
      * </ul>
      */
     public attribute horizontalTextPosition: HorizontalAlignment on replace {
-        button.setHorizontalTextPosition(horizontalTextPosition.id.intValue());
-        button.revalidate();
+	if (horizontalTextPosition <> null) {
+	    button.setHorizontalTextPosition(horizontalTextPosition.id.intValue());
+	    button.revalidate();
+	}
     };
 
     /**
@@ -223,8 +230,10 @@ public class Button extends Widget,  RotatableWidget, ActionWidget {
      * </ul>
      */
     public attribute verticalTextPosition: VerticalAlignment on replace {
-        button.setVerticalTextPosition(verticalTextPosition.id.intValue());
-        button.revalidate();
+	if (verticalTextPosition <> null) {
+	    button.setVerticalTextPosition(verticalTextPosition.id.intValue());
+	    button.revalidate();
+	}
     };
 
     /**
@@ -237,8 +246,10 @@ public class Button extends Widget,  RotatableWidget, ActionWidget {
      * </ul>
      */
     public attribute horizontalAlignment: HorizontalAlignment on replace {
-        button.setHorizontalAlignment(horizontalAlignment.id.intValue());
-        button.revalidate();
+	if (horizontalAlignment <> null) {
+	    button.setHorizontalAlignment(horizontalAlignment.id.intValue());
+	    button.revalidate();
+	}
     };
 
     /**
@@ -252,23 +263,18 @@ public class Button extends Widget,  RotatableWidget, ActionWidget {
      * </ul>
      */
     public attribute verticalAlignment: VerticalAlignment on replace {
-        button.setVerticalAlignment(verticalAlignment.id.intValue());
-        button.revalidate();
+	if (verticalAlignment <> null) {
+	    button.setVerticalAlignment(verticalAlignment.id.intValue());
+	    button.revalidate();
+	}
     };
     
-    public function setRotation(n:Number){
-        button.setRotation(n.intValue());
-    }
     
     public function createComponent():javax.swing.JComponent { 
         return button;
     } 
     
     init {
-        opaque = true;
-        button = UIElement.context.createButton();
-        enabled = true;
-        button.setOpaque(true);
         button.addActionListener(java.awt.event.ActionListener {
                          public function actionPerformed(e:java.awt.event.ActionEvent) {
                             //TODO JXFC-211
