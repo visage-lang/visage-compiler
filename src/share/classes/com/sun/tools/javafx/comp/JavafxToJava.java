@@ -106,7 +106,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     /*
      * static information
      */
-    static final boolean generateBoundFunctions = false;
+    static final boolean generateBoundFunctions = true;
     
     private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";
     private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
@@ -1559,10 +1559,32 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
 
             // Build the loop
+            //TODO:  below is the simpler version of the loop. Ideally, this should be used in
+            // cases where the loop variable does not need to be final.
+            /*
             stmt = make.at(clause).ForeachLoop(
                     // loop variable is synthetic should not be bound
                     // even if we are in a bind context
                     boundTranslate(clause.getVar(), JavafxBindStatus.UNBOUND), 
+                    translate(clause.getSequenceExpression()),
+                    stmt);
+             */
+            JFXVar var = clause.getVar();
+            Name tmpVarName = getSyntheticName(var.getName().toString());
+            JCVariableDecl finalVar = make.VarDef(
+                    make.Modifiers(Flags.FINAL), 
+                    var.getName(), 
+                    makeTypeTree(var.type, var, true), 
+                    make.Ident(tmpVarName));
+            stmt = make.Block(0L, List.of(finalVar, stmt));
+            stmt = make.at(clause).ForeachLoop(
+                    // loop variable is synthetic should not be bound
+                    // even if we are in a bind context
+                    make.VarDef(
+                        make.Modifiers(0L), 
+                        tmpVarName, 
+                        makeTypeTree(var.type, var, true), 
+                        null),
                     translate(clause.getSequenceExpression()),
                     stmt);
         }
@@ -1921,6 +1943,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      * Utilities 
      *
      */
+    
+    Symbol expressionSymbol(JCExpression tree) {
+        switch (tree.getTag()) {
+            case JavafxTag.IDENT:
+                return ((JCIdent) tree).sym;
+            case JavafxTag.SELECT:
+                return ((JCFieldAccess) tree).sym;
+            default:
+                return null;
+        }
+    }
     
     private JCBlock boundMethodBody(DiagnosticPosition diagPos, JFXBlockExpression bexpr, JFXOperationDefinition func) {
         return make.at(diagPos).Block(0L, List.<JCStatement>of(make.at(diagPos).Return(

@@ -529,7 +529,13 @@ public class JavafxTypeMorpher {
                     VarSymbol ivsym = (VarSymbol)tree.sym;
                     VarMorphInfo vmi = varMorphInfo(ivsym);
                     if (toJava.shouldMorph(vmi)) {
-                        refMap.put(ivsym, tree);
+                        JCExpression expr = tree.getExpression();
+                        Symbol exprSym = toJava.expressionSymbol(expr);
+                        if (exprSym != null && internalSet.contains(exprSym)) { //TODO: fix this
+                            log.warning(tree, "javafx.not.implemented", "dependency not generated: ", tree);
+                        } else {
+                            refMap.put(ivsym, tree); 
+                        }
                     }
                 }
             }
