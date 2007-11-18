@@ -429,6 +429,23 @@ public class JavafxTypeMorpher {
         }
     }
     
+    private void fxPretty(JCTree tree) {
+        OutputStreamWriter osw = new OutputStreamWriter(System.out);
+        Pretty pretty = new JavafxPretty(osw, false);
+        try {
+            pretty.println();
+            pretty.print("+++++++++++++++++++++++++++++++++");
+            pretty.println();
+            pretty.printExpr(tree);
+            pretty.println();
+            pretty.print("---------------------------------");
+            pretty.println();
+            osw.flush();
+        }catch(Exception ex) {
+            System.err.println("Pretty print got: " + ex);
+        }
+    }
+    
     public JCExpressionTupple buildDefinitionalAssignment(DiagnosticPosition diagPos,
                     VarMorphInfo vmi, JCExpression fxInit, JCExpression translatedInit,
                     JavafxBindStatus bindStatus, boolean isAttribute) {
@@ -497,6 +514,106 @@ public class JavafxTypeMorpher {
     JCExpression makeLit(Type type, Object value, DiagnosticPosition diagPos) {
         int tag = value==null? TypeTags.BOT : type.tag;
         return make.at(diagPos).Literal(tag, value).setType(type.constType(value));
+    }
+    
+    class BindAnalysis extends JavafxTreeScanner {
+
+        boolean iterationSeen = false;
+        boolean assignmentSeen = false;
+        boolean javaCallSeen = false;
+        boolean fxCallSeen = false;
+        boolean exceptionHandlingSeen = false;
+        boolean foreachSeen = false;
+        boolean nonTerminalReturnSeen = false;
+        private JCReturn terminalReturn = null;
+
+        BindAnalysis(JCExpression expr) {
+            if (expr.getTag() == JavafxTag.BLOCK_EXPRESSION) {
+                JFXBlockExpression bexpr = (JFXBlockExpression)expr;
+                if (bexpr.value == null) {
+                    JCStatement last = bexpr.getStatements().last();
+                    if (last != null && last.getTag() == JavafxTag.RETURN)
+                        terminalReturn = (JCReturn)last;
+                }
+            }
+            scan(expr);
+        }
+        
+        boolean isBindPermeable() {
+            return !(iterationSeen || assignmentSeen || exceptionHandlingSeen || nonTerminalReturnSeen);
+        }
+        
+        @Override
+        public void visitApply(JCMethodInvocation tree) {
+            super.visitApply(tree);
+            Symbol msym =toJava.expressionSymbol(tree.getMethodSelect());
+            if (msym != null && initBuilder.isJFXClass(msym.owner)) {
+                fxCallSeen = true;
+            } else {
+                javaCallSeen = true;
+            }
+        }
+        
+        @Override
+        public void visitForExpression(JFXForExpression tree) {
+            super.visitForExpression(tree);
+            foreachSeen = true;
+        }
+
+        @Override
+        public void visitWhileLoop(JCWhileLoop tree) {
+            super.visitWhileLoop(tree);
+            iterationSeen = true;
+        }
+
+        @Override
+        public void visitBreak(JCBreak tree) {
+            super.visitBreak(tree);
+            iterationSeen = true;
+        }
+
+        @Override
+        public void visitContinue(JCContinue tree) {
+            super.visitContinue(tree);
+            iterationSeen = true;
+        }
+
+        @Override
+        public void visitReturn(JCReturn tree) {
+            super.visitReturn(tree);
+            if (terminalReturn != tree) {
+                nonTerminalReturnSeen = true;
+            }
+        }
+
+        @Override
+        public void visitTry(JCTry tree) {
+            super.visitTry(tree);
+            exceptionHandlingSeen = true;
+        }
+
+        @Override
+        public void visitThrow(JCThrow tree) {
+            super.visitThrow(tree);
+            exceptionHandlingSeen = true;
+        }
+
+        @Override
+        public void visitAssign(JCAssign tree) {
+            super.visitAssign(tree);
+            assignmentSeen = true;
+        }
+
+        @Override
+        public void visitAssignop(JCAssignOp tree) {
+            super.visitAssignop(tree);
+            assignmentSeen = true;
+        }
+
+        @Override
+        public void visitClassDeclaration(JFXClassDeclaration that) {
+            // don't decend into classes
+        }
     }
     
     /**
@@ -571,6 +688,8 @@ public class JavafxTypeMorpher {
             JCExpression fxInit, JCStatement stmt, JavafxBindStatus bindStatus, boolean isAttribute) {
         DiagnosticPosition diagPos = fxInit.pos();
         VarMorphInfo vmi = varMorphInfo(vsym);
+        
+        // System.out.println((new BindAnalysis(fxInit).isBindPermeable()? "PERM--  " : "NOT--  ")); fxPretty(fxInit);
 
         JCBlock body = stmt.getTag() == JavafxTag.BLOCK? 
             (JCBlock)stmt :
