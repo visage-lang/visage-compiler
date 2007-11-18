@@ -103,7 +103,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
 
     public CompiledScript compile(String script, DiagnosticListener<JavaFileObject> listener)
             throws ScriptException {
-        Class clazz = parse(script, context, listener);
+        Class clazz = parse(script, context, listener, true);
         scripts.addFirst(clazz);  // most recent scripts get referenced first
         return new JavafxScriptCompiledScript(clazz);
     }
@@ -133,7 +133,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
     }
 
     public Object eval(String script, ScriptContext context, DiagnosticListener<JavaFileObject> listener) throws ScriptException {
-        Class clazz = parse(script, context, listener);
+        Class clazz = parse(script, context, listener, false);
         scripts.addFirst(clazz);  // most recent scripts get referenced first
         return evalClass(clazz, context);
     }
@@ -171,8 +171,9 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
 
     // Internals only below this point
 
-    private Class parse(String str, ScriptContext ctx, final DiagnosticListener<JavaFileObject> listener)
-            throws ScriptException {
+    private Class parse(String str, ScriptContext ctx, 
+            final DiagnosticListener<JavaFileObject> listener,
+            boolean inferBindings) throws ScriptException {
         String fileName = getFileName(ctx);
         String sourcePath = getSourcePath(ctx);
         String classPath = getClassPath(ctx);
@@ -206,7 +207,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                 }
             }
             if (recompile) {
-                String binding = makeBindingStatement(ctx, attrs);
+                String binding = makeBindingStatement(ctx, attrs, inferBindings);
                 script = binding + str;
                 classBytes = compiler.compile(fileName, script,
                         ctx.getErrorWriter(), sourcePath, classPath,
@@ -377,7 +378,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         return buf.toString();
     }
 
-    private String makeBindingStatement(ScriptContext ctx, Set<String> attrs) {
+    private String makeBindingStatement(ScriptContext ctx, Set<String> attrs, boolean inferBindings) {
         // Merge attribute names from all scopes in context into single set.
         if (attrs.isEmpty()) {
             return "";
@@ -394,27 +395,29 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
 
         // Define attributes as module variables.
         for (String attr : attrs) {
-            sb.append("var ");
-            sb.append(attr);
-            String type = null;
             Object value = ctx.getAttribute(attr);
-            if (value != null) { // true when compiling scripts
-                type = value.getClass().getCanonicalName();
-                if (type != null) {
-                    sb.append(':');
+            if (value != null || inferBindings) { // value==null when compiling scripts
+                sb.append("var ");
+                sb.append(attr);
+                String type = null;
+                if (value != null) {
+                    type = value.getClass().getCanonicalName();
+                    if (type != null) {
+                        sb.append(':');
+                        sb.append(type);
+                    }
+                }
+                sb.append(" = ");
+                sb.append(SCRIPT_CONTEXT_NAME);
+                sb.append(".getAttribute(\"");
+                sb.append(attr);
+                sb.append("\")");
+                if (value != null) {
+                    sb.append(" as ");
                     sb.append(type);
                 }
+                sb.append("; ");
             }
-            sb.append(" = ");
-            sb.append(SCRIPT_CONTEXT_NAME);
-            sb.append(".getAttribute(\"");
-            sb.append(attr);
-            sb.append("\")");
-            if (value != null) {
-                sb.append(" as ");
-                sb.append(type);
-            }
-            sb.append("; ");
         }
 
         return sb.toString();

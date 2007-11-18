@@ -215,6 +215,22 @@ public class JavaFXScriptEngineTest {
             assertTrue(error.getLineNumber() == 8);
         }
     }
+    
+    @Test
+    public void verifyNoExtraBindings() throws Exception {
+        // When entering var declarations in JavaFXPad, a user may reference
+        // a variable before declaring it.  This should return an error, but 
+        // the script engine used to declare the var a binding, causing the
+        // declaration to fail when the var's type is later declared.
+        // This test verifies that no bindings are inferred during an eval.
+        try {
+            engine.eval("x = 2;");
+            fail("script should have failed due to missing declaration");
+        } catch (ScriptException e) {
+            Object result = engine.eval("var x = 2;");
+            assertNull(result);  // declarations don't return results
+        }
+    }
    
     private String getOutput() {
         stdout.flush();
