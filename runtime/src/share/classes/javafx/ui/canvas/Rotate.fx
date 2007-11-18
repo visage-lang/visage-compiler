@@ -28,7 +28,7 @@ import java.awt.geom.AffineTransform;
 import java.lang.Math;
 
 /**
- * Transformation operation which rotates an object.  
+ * Transformation function which rotates an object.  
  */
 
 public class Rotate extends Transform {

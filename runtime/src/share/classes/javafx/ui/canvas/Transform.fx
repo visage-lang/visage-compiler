@@ -28,7 +28,7 @@ import java.awt.geom.AffineTransform;
 import java.lang.Math;
 
 /**
- * Interface for operations that perform transformations on graphics objects.
+ * Interface for functions that perform transformations on graphics objects.
  */
 
 public abstract class Transform {

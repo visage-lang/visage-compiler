@@ -28,7 +28,7 @@ package javafx.ui.canvas;
 import java.awt.geom.AffineTransform;
 import java.lang.Math;
 /**
- * Transformation operation which moves an object.  
+ * Transformation function which moves an object.  
  */
 
 public class Translate extends Transform {

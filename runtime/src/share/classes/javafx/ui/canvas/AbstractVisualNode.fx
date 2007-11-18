@@ -28,6 +28,9 @@ package javafx.ui.canvas;
 import javafx.ui.*;
 
 public abstract class AbstractVisualNode {
+
+    protected abstract function updateStroke():Void;
+
     /** The <code>stroke</code> property paints along the outline of the given 
      * graphical element.
      */
@@ -44,18 +47,24 @@ public abstract class AbstractVisualNode {
      * <code>strokeLineCap</code> specifies the shape to be used at the end 
      * of open subpaths when they are stroked. Defaults to <code>SQUARE</code>.
      */
-    public attribute strokeLineCap: StrokeLineCap;
+    public attribute strokeLineCap: StrokeLineCap on replace {
+        updateStroke();
+    };
     /**
      * <code>strokeLineJoin</code> specifies the shape to be used at the 
      * corners of paths or basic shapes when they are stroked. Defaults to
      * <code>MITER</code>.
      */
-    public attribute strokeLineJoin: StrokeLineJoin;
+    public attribute strokeLineJoin: StrokeLineJoin on replace {
+        updateStroke();
+    };
     /**
      * The width of the stroke on the current object. A zero value causes 
      * no stroke to be painted. A negative value is an error. Defaults to 1.0.
      */
-    public attribute strokeWidth: Number;
+    public attribute strokeWidth: Number on replace {
+        updateStroke();
+    };
     /**
      * <p>
      * When two line segments meet at a sharp angle and miter joins have
@@ -87,7 +96,9 @@ public abstract class AbstractVisualNode {
      * theta less than approximately 11.5 degrees.
      * </p>
      */
-    public attribute strokeMiterLimit: Number;
+    public attribute strokeMiterLimit: Number on replace {
+        updateStroke();
+    };
     /**
      * <code>strokeDashArray</code> controls the pattern of dashes and gaps 
      * used to stroke paths. This attribute contains a list of lengths that 
@@ -96,11 +107,23 @@ public abstract class AbstractVisualNode {
      * even number of values. Thus, strokeDashArray: [5,3,2] is equivalent to
      * strokeDashArray: [5,3,2,5,3,2]. Defaults to [].
      */
-    public attribute strokeDashArray: Number[];
+    public attribute strokeDashArray: Number[] 
+        on replace [ndx] (oldValue) {
+            updateStroke();
+        }
+        on insert [ndx] (newValue) {
+            updateStroke();
+        }
+        on delete [ndx] (oldValue) {
+            updateStroke();
+        };
+   
     /** 
      * <code>strokeDashOffset</code> specifies the distance into the dash 
      * pattern to start the dash. Defaults to 0.0.
      */
-    public attribute strokeDashOffset: Number;
+    public attribute strokeDashOffset: Number on replace {
+        updateStroke();
+    };
 
 }

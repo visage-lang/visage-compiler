@@ -27,7 +27,7 @@ package javafx.ui.canvas;
 import java.awt.geom.AffineTransform;
 
 /**
- * Transformation operation which scales an object.  
+ * Transformation function which scales an object.  
  */
 public class Scale extends Transform {
     /** The factor to scale along the x axis */
