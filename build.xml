@@ -294,7 +294,7 @@
     </target>
 
     <target name="runtime" depends="jar">
-        <ant dir="${runtime.dir}" antfile="build.xml" target="jar" inheritall="true" />
+        <ant dir="${runtime.dir}" antfile="build.xml" target="jar" inheritall="false" />
     </target>
 
     <target name="runtime-clean" >
