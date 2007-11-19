@@ -48,7 +48,7 @@ public class VLine extends PathElement {
             //foreach (i in y) {
             //    gp.lineTo(x, i);
             //}
-            gp.lineTo(x,y);
+            gp.lineTo(x.floatValue(), y.floatValue());
         } else {
             path.xCenter = path.currentX;
             path.currentY = path.currentY +y;
@@ -62,7 +62,7 @@ public class VLine extends PathElement {
              //   gp.lineTo(x, prev + i);
              //   prev = i;
             //}
-            gp.lineTo(x,prev+y);
+            gp.lineTo(x.floatValue(), (prev+y).floatValue());
         }
     }
 }

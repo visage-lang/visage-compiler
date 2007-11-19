@@ -88,21 +88,21 @@ public class CurveTo extends PathElement {
     public function addTo(gp:GeneralPath):Void {
         if (smooth) {
             if (absolute) {
-                gp.curveTo(path.currentX * 2 - path.xCenter,
-                           path.currentY * 2 - path.yCenter,
-                           x2, y2, x3, y3);
+                gp.curveTo((path.currentX * 2 - path.xCenter).floatValue(),
+                           (path.currentY * 2 - path.yCenter).floatValue(),
+                           x2.floatValue(), y2.floatValue(), x3.floatValue(), y3.floatValue());
 
                 path.xCenter = x2;
                 path.yCenter = y2;
                 path.currentX = x3;
                 path.currentY = y3;
             } else {
-                gp.curveTo(path.currentX * 2 - path.xCenter,
-                           path.currentY * 2 - path.yCenter,
-                           path.currentX + x2, 
-                           path.currentY + y2, 
-                           path.currentX + x3, 
-                           path.currentY + y3);
+                gp.curveTo((path.currentX * 2 - path.xCenter).floatValue(),
+                           (path.currentY * 2 - path.yCenter).floatValue(),
+                           (path.currentX + x2).floatValue(), 
+                           (path.currentY + y2).floatValue(), 
+                           (path.currentX + x3).floatValue(), 
+                           (path.currentY + y3).floatValue());
 
                 path.xCenter = path.currentX + x2;
                 path.yCenter = path.currentY + y2;
@@ -122,7 +122,7 @@ public class CurveTo extends PathElement {
             path.currentX = x3;
             path.currentY = y3;
 
-            gp.curveTo(x1, y1, x2, y2, x3, y3);
+            gp.curveTo(x1.floatValue(), y1.floatValue(), x2.floatValue(), y2.floatValue(), x3.floatValue(), y3.floatValue());
         } else {
             path.xCenter = path.currentX + x2;
             path.yCenter = path.currentY + y2;
@@ -131,12 +131,12 @@ public class CurveTo extends PathElement {
             path.currentY = path.currentY + y3;
 
             var pt = gp.getCurrentPoint();
-            gp.curveTo(x1 + pt.getX(), 
-                       y1 + pt.getY(),
-                       x2 + pt.getX(),
-                       y2 + pt.getY(),
-                       x3 + pt.getX(),
-                       y3 + pt.getY());
+            gp.curveTo((x1 + pt.getX()).floatValue(), 
+                       (y1 + pt.getY()).floatValue(),
+                       (x2 + pt.getX()).floatValue(),
+                       (y2 + pt.getY()).floatValue(),
+                       (x3 + pt.getX()).floatValue(),
+                       (y3 + pt.getY()).floatValue());
         }
     }
 }

@@ -37,7 +37,7 @@ import java.awt.geom.Rectangle2D;
 import java.lang.Math;
 import java.lang.System;
 import javax.swing.SwingUtilities;
-//TODO CANVAS import javafx.ui.Canvas;
+import javafx.ui.Canvas;
 import javafx.ui.Cursor;
 import javafx.ui.KeyEvent;
 import javafx.ui.HorizontalAlignment;
@@ -71,10 +71,10 @@ public abstract class Node extends CanvasElement, Transformable {
        return Math.max(Math.min(n, max), min);
     }
     // private:
-    //TODO CANVAS private attribute cachedCanvas: Canvas;
+    private attribute cachedCanvas: Canvas;
     protected attribute mouseListener: SGMouseListener;
     protected   function setCursor():Void {
-                 //TODO CANVAS getCanvas().jsgpanel.setCursor(cursor.getCursor(), false);
+         getCanvas().jsgpanel.setCursor(cursor.getCursor(), false);
     }
     protected function installMouseListener() {
         if (mouseListener == null) {
@@ -110,7 +110,7 @@ public abstract class Node extends CanvasElement, Transformable {
                             (onMouseExited)(makeCanvasMouseEvent(e));
                         } 
                         if (cursor <> null) {
-                             //TODO CANVAS getCanvas().jsgpanel.resetCursor();
+                             getCanvas().jsgpanel.resetCursor();
                         }
                         if (isSelectionRoot) { e.consume(); }
                     }
@@ -118,8 +118,8 @@ public abstract class Node extends CanvasElement, Transformable {
                     public function mousePressed(e:MouseEvent):Void {
                         focused = true;
                         Node.MOUSE_PRESS = e;        
-                        //TODO CANVAS var c = getCanvas();
-                        //TODO CANVAS MOUSE_DRAG_SCREEN = getScreenLocation(c.getComponent());
+                        var c = getCanvas();
+                        MOUSE_DRAG_SCREEN = getScreenLocation(c.getComponent());
                         if (onMousePressed <> null) {
                             (onMousePressed)(makeCanvasMouseEvent(e));
                             e.consume();
@@ -162,8 +162,7 @@ public abstract class Node extends CanvasElement, Transformable {
                             var prev = if (MOUSE_DRAG <> null)
                                             then MOUSE_DRAG
                                         else MOUSE_PRESS;
-                            //TODO CANVAS var screen = getScreenLocation(getCanvas().getComponent());
-                            var screen:  java.awt.Point = null;
+                            var screen = getScreenLocation(getCanvas().getComponent());
                             if (prev <> null) {
                                if (MOUSE_DRAG_SCREEN == null) {
                                    MOUSE_DRAG_SCREEN = screen;
@@ -211,8 +210,6 @@ public abstract class Node extends CanvasElement, Transformable {
     }
 
     protected function installFocusListener() {
-        //TODO CANVAS
-        /*******
         var canvas = this.getCanvas();
         if (focusListener == null and canvas.jsgpanel <> null) {
             var self = this;
@@ -226,7 +223,6 @@ public abstract class Node extends CanvasElement, Transformable {
             };
             canvas.jsgpanel.addFocusListener(focusListener);
         }
-        ***********/
     }
     protected function makeCanvasMouseEvent(e:MouseEvent) {
         var info = MouseInfo.getPointerInfo();
@@ -267,7 +263,7 @@ public abstract class Node extends CanvasElement, Transformable {
     private attribute effectFilter: SGEffect;
     private attribute contentNode: SGNode;
 
-    protected attribute bounds: Rectangle2D;
+    /*protected*/public attribute bounds: Rectangle2D;
     private attribute focusListener: FocusListener;
     
     private function getFX(obj:SGNode): Node {
@@ -304,16 +300,13 @@ public abstract class Node extends CanvasElement, Transformable {
 
 
     // protected:
-    protected function getNode(): SGNode {
+    public function getNode(): SGNode {
         if (alignmentFilter == null) {
-            //TODO CANVAS
-            /**********************
             var canvas = this.getCanvas();
             this.onSetCanvas(canvas);
             if (focused) {
                 canvas.focusedNode = this;
             }
-            ********************/
 
             contentNode = this.createNode();
             if (contentNode == null) {
@@ -357,7 +350,7 @@ public abstract class Node extends CanvasElement, Transformable {
             //alignmentFilter.setPickable(selectable); // TODO: needed
             alignmentFilter.setVisible(visible);
             if (scaleToFitCanvas) {
-                //TODO CANVAS insert this into canvas.scaleToFitList;
+                insert this into canvas.scaleToFitList;
             }
             //TODO JXFC-249
             //if (this instanceof SizeableCanvasElement) { // hack
@@ -459,15 +452,12 @@ public abstract class Node extends CanvasElement, Transformable {
     /** If true this node will be scaled to the size of its containing canvas. */
     public attribute scaleToFitCanvas: Boolean  on replace {
         if (this.parentCanvasElement <> null) {
-            //TODO CANVAS
-            /*********************
             var canvas = this.getCanvas();
             if (scaleToFitCanvas) {
                 insert this into canvas.scaleToFitList;
             } else {
                 delete this from canvas.scaleToFitList;
             }
-            ********************/
         }
     };
     /** Determines the horizontal alignment of this node relative to its origin. */
@@ -505,28 +495,25 @@ public abstract class Node extends CanvasElement, Transformable {
     public attribute focusable: Boolean = false on replace {
         if (focusable) {
             installFocusListener();
-            //TODO CANVAS
-            //var canvas = this.getCanvas();
-            //canvas.jsgpanel.setFocusable(focusable);
+            var canvas = this.getCanvas();
+            canvas.jsgpanel.setFocusable(focusable);
         }
     };
     public function requestFocus() {
         if (focusable==true) {
-            //TODO CANVAS
-            //var canvas = this.getCanvas();
-            //canvas.requestFocus();
-            //canvas.focusedNode = this;
+            var canvas = this.getCanvas();
+            canvas.requestFocus();
+            canvas.focusedNode = this;
         }
     };
     public attribute focused: Boolean = false on replace {
         if (focusable and focused) {
             requestFocus();
         } else {
-            //TODO CANVAS
-            //var canvas = this.getCanvas();
-            //if (canvas.focusedNode == this) {
-            //    canvas.focusedNode = null;
-            //}
+            var canvas = this.getCanvas();
+            if (canvas.focusedNode == this) {
+                canvas.focusedNode = null;
+            }
         }
     };
 
@@ -552,7 +539,7 @@ public abstract class Node extends CanvasElement, Transformable {
         }
         return false;
     }
-    function handleAcceptDrop(e:CanvasDropEvent):Boolean {
+    public function handleAcceptDrop(e:CanvasDropEvent):Boolean {
         if (canAcceptDrop <> null) {
             var pt = new java.awt.Point(e.x.intValue(), e.y.intValue());
             alignmentFilter.globalToLocal(pt, pt);
@@ -562,7 +549,7 @@ public abstract class Node extends CanvasElement, Transformable {
         }
         return onDrop <> null;
     }
-    function handleDragEnter(e:CanvasDropEvent):Boolean{
+    public function handleDragEnter(e:CanvasDropEvent):Boolean{
         if (onDragEnter <> null) {
             var pt = new java.awt.Point(e.x.intValue(), e.y.intValue());
             alignmentFilter.globalToLocal(pt, pt);
@@ -573,7 +560,7 @@ public abstract class Node extends CanvasElement, Transformable {
         }
         return false;
     }
-    function handleDragExit(e:CanvasDropEvent):Boolean{
+    public function handleDragExit(e:CanvasDropEvent):Boolean{
         if (onDragExit <> null) {
             var pt = new java.awt.Point(e.x.intValue(), e.y.intValue());
             alignmentFilter.globalToLocal(pt, pt);
@@ -586,9 +573,8 @@ public abstract class Node extends CanvasElement, Transformable {
     }
     function doDragExport():Void {
         var e = (this.exportAsDrag)();
-        //TODO CANVAS
-        //var c = this.getCanvas();
-        //c.doExportAsDrag(e);
+        var c = this.getCanvas();
+        c.doExportAsDrag(e);
     }
     
     /** 
@@ -651,8 +637,7 @@ public abstract class Node extends CanvasElement, Transformable {
     /** Optional cursor to use when the mouse is over this node. */
     public attribute cursor: Cursor on replace  {
         if (hover) {
-            //TODO CANVAS
-            //this.getCanvas().jsgpanel.setCursor(value.getCursor(), false);
+            this.getCanvas().jsgpanel.setCursor(cursor.getCursor(), false);
         } else {
             this.installMouseListener();
         }
@@ -669,20 +654,19 @@ public abstract class Node extends CanvasElement, Transformable {
             this.transformFilter.setAffine(t);
         } 
     }
-    //TODO CANVAS
-    /**********
+
     public function getCanvas(): Canvas {
-        var n = parentCanvasElement;
+        var n = this.parentCanvasElement;
         while (n <> null) {
-            if (n instanceof Canvas) {
-                cachedCanvas = n as Canvas;
-                return cachedCanvas;
-            }
+//TODO JFXC-272:
+//            if (n instanceof Canvas) {
+//                cachedCanvas = n as Canvas;
+//                return cachedCanvas;
+//            }
             n = n.parentCanvasElement;
         }
         return cachedCanvas;
     }
-    ************/
 
     public static attribute LISTENER:FXNodeListener = FXNodeListener{};
 }

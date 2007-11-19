@@ -65,7 +65,7 @@ class QuadTo extends PathElement {
                 path.currentX = x2;
                 path.currentY = y2;
 
-                gp.quadTo(path.xCenter, path.yCenter, path.currentX, path.currentY);
+                gp.quadTo(path.xCenter.floatValue(), path.yCenter.floatValue(), path.currentX.floatValue(), path.currentY.floatValue());
             } else {
                 path.xCenter = path.currentX * 2 - path.xCenter;
                 path.yCenter = path.currentY * 2 - path.yCenter;
@@ -73,7 +73,7 @@ class QuadTo extends PathElement {
                 path.currentX = path.currentX + x2;
                 path.currentY = path.currentY + y2;
 
-                            gp.quadTo(path.xCenter, path.yCenter, path.currentX, path.currentY);
+                gp.quadTo(path.xCenter.floatValue(), path.yCenter.floatValue(), path.currentX.floatValue(), path.currentY.floatValue());
             }
 
                     return;
@@ -91,7 +91,7 @@ class QuadTo extends PathElement {
                     path.currentY = path.currentY +y2;
             }
 
-        gp.quadTo(x1, y1, x2, y2);
+        gp.quadTo(x1.floatValue(), y1.floatValue(), x2.floatValue(), y2.floatValue());
     }
 }
 

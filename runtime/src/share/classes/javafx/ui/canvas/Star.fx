@@ -36,7 +36,7 @@ import com.sun.scenario.scenegraph.SGShape;
  */
 public class Star extends Shape {
 
-    private attribute awtPath: java.awt.geom.Path2D.Double;
+    private attribute awtPath: java.awt.geom.GeneralPath;
     private function updatePolygon() {
         if (awtPath <> null) {
             awtPath.reset();
@@ -47,9 +47,9 @@ public class Star extends Shape {
                 var px = cx + (if (i %2 == 0) then rin else rout)*Math.cos(angle+dth* i);
                 var py = cy + (if (i %2 == 0) then rin else rout)*Math.sin(angle+dth* i);
                 if (i == 0) {
-                    awtPath.moveTo(px, py);
+                    awtPath.moveTo(px.floatValue(), py.floatValue());
                 } else {
-                    awtPath.lineTo(px, py);
+                    awtPath.lineTo(px.floatValue(), py.floatValue());
                 }
             }
             awtPath.closePath();
@@ -86,7 +86,7 @@ public class Star extends Shape {
 
 
     public function createShape(): SGShape {
-        awtPath = new java.awt.geom.Path2D.Double();
+        awtPath = new java.awt.geom.GeneralPath();
         this.updatePolygon();
         var sgshape = new SGShape();
         sgshape.setShape(awtPath);

@@ -34,7 +34,7 @@ import com.sun.scenario.scenegraph.SGShape;
  * the final point to the first point, if those points are different.
  */
 public class Polygon extends Shape {
-    private attribute awtPath: java.awt.geom.Path2D.Double;
+    private attribute awtPath: java.awt.geom.GeneralPath;
 
     /** The list of points that define this polygon */
     public attribute points: Number[]
@@ -56,9 +56,9 @@ public class Polygon extends Shape {
                 var px = points[i*2+0];
                 var py = points[i*2+1];
                 if (i == 0) {
-                    awtPath.moveTo(px, py);
+                    awtPath.moveTo(px.floatValue(), py.floatValue());
                 } else {
-                    awtPath.lineTo(px, py);
+                    awtPath.lineTo(px.floatValue(), py.floatValue());
                 }
             }
             awtPath.closePath();
@@ -70,7 +70,7 @@ public class Polygon extends Shape {
 
 
     public function createShape(): SGShape {
-        awtPath = new java.awt.geom.Path2D.Double();
+        awtPath = new java.awt.geom.GeneralPath();
         updatePolygon();
         var sgshape = new SGShape();
         sgshape.setShape(awtPath);

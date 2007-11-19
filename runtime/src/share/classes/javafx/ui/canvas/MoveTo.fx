@@ -51,7 +51,7 @@ public class MoveTo extends PathElement {
             path.currentY = y;
             path.yCenter = path.currentY;
 
-            gp.moveTo(x, y);
+            gp.moveTo(x.floatValue(), y.floatValue());
             path.lastMoveToX = x;
             path.lastMoveToY = y;
         } else {
@@ -62,9 +62,9 @@ public class MoveTo extends PathElement {
             path.yCenter = path.currentY;
 
             var pt = gp.getCurrentPoint();
-            gp.moveTo(pt.getX() + x, pt.getY() + y);
-            path.lastMoveToX = pt.getX() + x;
-            path.lastMoveToY = pt.getY() + y;
+            gp.moveTo((pt.getX() + x).floatValue(), (pt.getY() + y).floatValue());
+            path.lastMoveToX = (pt.getX() + x).floatValue();
+            path.lastMoveToY = (pt.getY() + y).floatValue();
         }
     }
     init {

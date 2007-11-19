@@ -25,15 +25,15 @@
  
 package javafx.ui.canvas; 
 
-//TODO CANVAS import javafx.ui.Canvas;
+import javafx.ui.Canvas;
 
 /** Abstract interface of objects that appear in a canvas. */
 
 public abstract class CanvasElement {
     /** The containing element of this element. */
-    protected attribute parentCanvasElement: CanvasElement;
+    public attribute parentCanvasElement: CanvasElement;
     /** Convenience method to obtain the containing canvas. */
-    //TODO CANVAS  protected abstract function getCanvas(): Canvas;
+    protected abstract function getCanvas(): Canvas;
     /** Returns the canvas element that contains this element */
     public function getContainer(): Container{
         var p = parentCanvasElement;
@@ -46,7 +46,7 @@ public abstract class CanvasElement {
         }
         return null;
     }
-    //TODO CANVAS protected abstract function onSetCanvas(canvas:Canvas);
+    protected function onSetCanvas(canvas:Canvas):Void {}
     /** raise this element above its next sibling */
     public function raise() {
         if (this instanceof Node) {

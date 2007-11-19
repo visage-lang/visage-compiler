@@ -33,7 +33,7 @@ import com.sun.scenario.scenegraph.SGShape;
   * sequence of points (points) <br></br>[x1, y1, x2, y2, ..., xN, yN].
   */
 public class Polyline extends Shape {
-    private attribute awtPath: java.awt.geom.Path2D.Double;
+    private attribute awtPath: java.awt.geom.GeneralPath;
 
     /**
      * The list of points that make up this polyline. These are alternating
@@ -58,9 +58,9 @@ public class Polyline extends Shape {
                 var px = points[i*2+0];
                 var py = points[i*2+1];
                 if (i == 0) {
-                    awtPath.moveTo(px, py);
+                    awtPath.moveTo(px.floatValue(), py.floatValue());
                 } else {
-                    awtPath.lineTo(px, py);
+                    awtPath.lineTo(px.floatValue(), py.floatValue());
                 }
             }
             if (sgshape <> null) {
@@ -70,7 +70,7 @@ public class Polyline extends Shape {
     }
 
     public function createShape(): SGShape {
-        awtPath = new java.awt.geom.Path2D.Double();
+        awtPath = new java.awt.geom.GeneralPath();
         updatePolyline();
         var sgshape = new SGShape();
         sgshape.setShape(awtPath);

@@ -50,7 +50,7 @@ public class LineTo extends PathElement {
             path.currentY = y;
             path.yCenter = path.currentY;
 
-            gp.lineTo(x, y);
+            gp.lineTo(x.floatValue(), y.floatValue());
         } else {
             path.currentX = path.currentX +x;
             path.xCenter = path.currentX;
@@ -59,7 +59,7 @@ public class LineTo extends PathElement {
             path.yCenter = path.currentY;
 
             var pt = gp.getCurrentPoint();
-            gp.lineTo(pt.getX() + x, pt.getY() + y);
+            gp.lineTo((pt.getX() + x).floatValue(), (pt.getY() + y).floatValue());
         }
     }
 }

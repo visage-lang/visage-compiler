@@ -25,7 +25,7 @@
  
 package javafx.ui.canvas; 
 
-
+import javafx.ui.Canvas;
 import javafx.ui.canvas.SizeableCanvasElement;
 import com.sun.scenario.scenegraph.SGShape;
 
@@ -75,17 +75,15 @@ public class Rect extends Shape, SizeableCanvasElement {
     }
 
     protected function onSizeToFitCanvas(value:Boolean):Void {
-        if (parentCanvasElement <> null) {
-            //TODO CANVAS
-            /***************
-            var canvas = this.getCanvas();
-            if (value) {
-                insert this into canvas.sizeToFitList;
-           } else {
-                delete this from canvas.sizeToFitList;
-            }
-            *************/
-        }
+//TODO JFXC-272:
+//        if (parentCanvasElement <> null) {
+//            var canvas = this.getCanvas();
+//            if (value) {
+//                insert this into canvas.sizeToFitList;
+//           } else {
+//                delete this from canvas.sizeToFitList;
+//            }
+//        }
     }
     public function createShape(): SGShape {
         awtrect = new java.awt.geom.RoundRectangle2D.Double(x, y, width, height, arcWidth, arcHeight);
@@ -94,6 +92,14 @@ public class Rect extends Shape, SizeableCanvasElement {
         return sgshape;
     }
 
+// TODO:  this method should be deleted, as getCanvas() should be resolved by Node superclass
+    public function getCanvas(): Canvas {
+        var n = this.parentCanvasElement;
+        while (n <> null) {
+            n = n.parentCanvasElement;
+        }
+        return cachedCanvas;
+    }
 }
 
 

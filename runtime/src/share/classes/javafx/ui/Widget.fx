@@ -62,7 +62,7 @@ public abstract class Widget extends GroupElement, UIElement {
 
     private attribute inBoundsListener: Boolean;
 
-    private function makeKeyEvent(e:java.awt.event.KeyEvent):KeyEvent {
+    function makeKeyEvent(e:java.awt.event.KeyEvent):KeyEvent {
         var modifiers:KeyStroke[] = [
             if (e.isControlDown() ) KeyStroke.CONTROL else null, 
             if (e.isShiftDown()) KeyStroke.SHIFT else null,

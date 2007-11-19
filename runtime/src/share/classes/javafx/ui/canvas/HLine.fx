@@ -46,7 +46,7 @@ public class HLine extends PathElement {
             //foreach (i in x) {
            //     gp.lineTo(i, y);
             //}
-            gp.lineTo(x, y);
+            gp.lineTo(x.floatValue(), y.floatValue());
         } else {
             path.currentX = path.currentX + x;
             path.xCenter = path.currentX;
@@ -60,7 +60,7 @@ public class HLine extends PathElement {
             //    gp.lineTo(prev+i, y);
             //    prev = i;
             //}
-            gp.lineTo(prev, y);
+            gp.lineTo(prev.floatValue(), y.floatValue());
         }
     }
 
