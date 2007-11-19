@@ -1,2 +1,1 @@
-mkdir build
-%~dp0../../bin/javafxc.bat -d build hello\*.fx
+ant.bat -f %~dp0build.xml
