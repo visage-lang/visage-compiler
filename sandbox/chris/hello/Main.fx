@@ -101,10 +101,9 @@ class BallModel {
     public attribute fps: Number;
 
     function updateFPS():Void {
-	var currTime = System.currentTimeMillis();
+	var currTime:Number = System.currentTimeMillis();
 	var delta_t = currTime - lastTime;
 	if (delta_t >= 2000) {
-	    return;
 	    fps = ((F - lastF)/delta_t) * 1000.0;
 	    System.out.println("fps={fps}");
 	    lastF = F;
