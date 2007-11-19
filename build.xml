@@ -219,7 +219,7 @@
 
     <target name="-post-jar" description="Copy command wrappers to dest/bin directory.">
         <copy todir="dist/bin">
-            <fileset dir="bin"/>
+            <fileset dir="src/bin"/>
         </copy>
         <chmod dir="dist/bin" perm="755" includes="**/javafxc*"/>
     </target>

@@ -1,11 +1,11 @@
 @echo off
 
-REM JavaFX Script compiler script for Linux/Solaris/OS X.
+REM JavaFX Script execution script for Linux/Solaris/OS X.
 REM
-REM Uses the same arguments as the JDK's javac command.
+REM Uses the same arguments as the JDK's java command.
 
 REM %~dp0 is expanded pathname of the current script
-set _JAVAFXC_HOME=%~dp0..\dist
+set _JAVAFXC_HOME=%~dp0..
 
 if "%JAVA_HOME%" == "" goto noJavaHome
 if not exist "%JAVA_HOME%\bin\java.exe" goto noJavaHome
