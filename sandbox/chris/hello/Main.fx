@@ -86,12 +86,7 @@ class BallModel {
     attribute ballCount = 16;
     attribute balls = bind foreach (i in [1..ballCount]) new Ball;
     attribute timer:Timer;
-    attribute labels: SimpleLabel[] = 
-	bind foreach (ball in balls) SimpleLabel {
-		x: bind ball.x
-		y: bind ball.y
-                icon: ballImage
-	};
+    attribute labels: SimpleLabel[];
     attribute listener:ActionListener = ActionListener {
        public function actionPerformed(event:ActionEvent):Void {
 	   timerEvent();
@@ -128,6 +123,11 @@ class BallModel {
     function start() {
 	F = 0;
 	lastTime = System.currentTimeMillis();
+	labels = foreach (ball in balls) SimpleLabel {
+		x: bind ball.x
+		y: bind ball.y
+                icon: ballImage
+	};
 	timer = new Timer(5, listener);	
 	timer.setRepeats(true);
 	timer.start();
@@ -145,16 +145,21 @@ SwingUtilities.invokeLater(Runnable {
 	public function run() {
 	    var model = new BallModel;
 	    model.start();
+            var fps = SimpleLabel {
+		    width: 200
+		    text: bind "FPS: {%f model.fps}" 
+            }
 	    var p = Panel {
 		height: 500
 		width: 800
 		content: // bind 
                 [//model.labels, // <- doesn't compile
-	        foreach (label in model.labels) label as Widget,
-		SimpleLabel {
+	        foreach (label in model.labels) (label as java.lang.Object) as Widget,
+		/*SimpleLabel {
 		    width: 100
 		    text: bind "FPS: {%f model.fps}" 
-                }]
+                }*/
+                [fps as Widget]]
 	    }
 	    var frame = new JFrame();
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
