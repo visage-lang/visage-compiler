@@ -1970,7 +1970,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             return result;
         } else {
             return make.at(diagPos).Block(0L, List.<JCStatement>of(make.at(diagPos).Return(  typeMorpher.buildExpression(
-                    func.sym, 
+                    typeMorpher.varMorphInfo( func.sym ), 
                     bexpr, 
                     exprToTranslatedStatement(bexpr, true), 
                     bindContext))));

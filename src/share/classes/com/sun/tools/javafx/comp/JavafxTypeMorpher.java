@@ -99,12 +99,8 @@ public class JavafxTypeMorpher {
     
     private Map<Symbol, VarMorphInfo> vmiMap = new HashMap<Symbol, VarMorphInfo>();
     
-    class VarMorphInfo {
+    class VarMorphInfo extends TypeMorphInfo {
         private final Symbol sym;
-        final Type realType;
-        final Type morphedType;
-        int typeKind;
-        Type elementType = null;
         private final boolean isMethod;
         private boolean mustMorph = false;
         private boolean haveDeterminedMorphability = false;
@@ -112,14 +108,73 @@ public class JavafxTypeMorpher {
         private boolean isAssignedTo = false;
         
         VarMorphInfo(Symbol sym) {
+            super((sym.kind == Kinds.MTH)? ((MethodType)sym.type).getReturnType() : sym.type);
             this.sym = sym;
             this.isMethod = (sym.kind == Kinds.MTH);
-            Type symType;
+        }
+        
+        private boolean isAttribute() {
             if (isMethod) {
-                 symType = ((MethodType)sym.type).getReturnType();
-            } else {
-                symType = sym.type;
+                return false;
             }
+            Symbol owner = getSymbol().owner;
+            if (owner.kind == Kinds.MTH) {
+                return false; // local var
+            } else if (owner.kind == Kinds.TYP) {
+                if (getSymbol() instanceof JavafxVarSymbol) {
+                    return true; // we made it, soassume it is from a JavaFX class
+                } else if (!sym.toString().equals("super") && !sym.toString().equals("this")) {
+                    //TODO: temp hack until the MI init code is in place
+                    ClassSymbol klass = (ClassSymbol)owner;
+		    if (klass.sourcefile != null) {
+			String source = klass.sourcefile.getName();
+			String extension = source.substring(source.length()-3);
+			return extension.equals(".fx");
+		    }
+                }
+            }
+            // what is this?
+            return false;
+        }
+
+        public boolean mustMorph() {
+            if (!haveDeterminedMorphability()) {
+                if (((getSymbol().flags() & Flags.PARAMETER) == 0) && (isBoundTo() || isAttribute() || isSequence())) {
+                    // Must be a Location if it is bound, or a sequence,
+                    // and, at least for now if it is an attribute.
+                    // However, if this is a parameter it is either synthetic
+                    // (like a loop or formal var) so we don't want to morph
+                    // or it is a function param.  If we do bound param we
+                    // will need to change this.
+                    //TODO: should be a Location if there is a trigger on it
+                    //System.err.println("Will morph: " + varSymbol);
+                    markMustMorph();
+                }
+                markDeterminedMorphability();
+            }
+            return mustMorph;
+        }
+        
+        private void markMustMorph() { mustMorph = true; }
+        private void markDeterminedMorphability() { haveDeterminedMorphability = true; }
+        private boolean haveDeterminedMorphability() { return haveDeterminedMorphability; }
+        public boolean isBoundTo() { return isBoundTo; }
+        public boolean isAssignedTo() { return isAssignedTo; }
+        public void markBoundTo() { this.isBoundTo = true; haveDeterminedMorphability = false; }
+        public void markAssignedTo() { this.isAssignedTo = true; }
+
+        public Symbol getSymbol() {
+            return sym;
+        }
+    }
+    
+    class TypeMorphInfo {
+        final Type realType;
+        final Type morphedType;
+        int typeKind;
+        Type elementType = null;
+        
+        TypeMorphInfo(Type symType) {
             TypeSymbol realTsym = symType.tsym;
             //check if symbol is already a Location, needed for source class
             Type locationType = null;
@@ -143,7 +198,6 @@ public class JavafxTypeMorpher {
                 // External module with a Location type
                 this.morphedType = symType;
                 this.realType = locationType;
-                markMustMorph();
             } else {
                 this.realType = symType;
 
@@ -172,70 +226,17 @@ public class JavafxTypeMorpher {
             }
         }
         
-        private boolean isAttribute() {
-            if (isMethod) {
-                return false;
-            }
-            Symbol owner = getSymbol().owner;
-            if (owner.kind == Kinds.MTH) {
-                return false; // local var
-            } else if (owner.kind == Kinds.TYP) {
-                if (getSymbol() instanceof JavafxVarSymbol) {
-                    return true; // we made it, soassume it is from a JavaFX class
-                } else if (!sym.toString().equals("super") && !sym.toString().equals("this")) {
-                    //TODO: temp hack until the MI init code is in place
-                    ClassSymbol klass = (ClassSymbol)owner;
-		    if (klass.sourcefile != null) {
-			String source = klass.sourcefile.getName();
-			String extension = source.substring(source.length()-3);
-			return extension.equals(".fx");
-		    }
-                }
-            }
-            // what is this?
-            return false;
-        }
-
-        private boolean isSequence() {
+        protected boolean isSequence() {
             return types.erasure(realType) == syms.javafx_SequenceTypeErasure;
         }
 
-        public boolean mustMorph() {
-            if (!haveDeterminedMorphability()) {
-                if (((getSymbol().flags() & Flags.PARAMETER) == 0) && (isBoundTo() || isAttribute() || isSequence())) {
-                    // Must be a Location if it is bound, or a sequence,
-                    // and, at least for now if it is an attribute.
-                    // However, if this is a parameter it is either synthetic
-                    // (like a loop or formal var) so we don't want to morph
-                    // or it is a function param.  If we do bound param we
-                    // will need to change this.
-                    //TODO: should be a Location if there is a trigger on it
-                    //System.err.println("Will morph: " + varSymbol);
-                    markMustMorph();
-                }
-                markDeterminedMorphability();
-            }
-            return mustMorph;
-        }
-        
-        private void markMustMorph() { mustMorph = true; }
-        private void markDeterminedMorphability() { haveDeterminedMorphability = true; }
-        private boolean haveDeterminedMorphability() { return haveDeterminedMorphability; }
         public Type getRealType() { return realType; }
         public Type getMorphedType() { return morphedType; }
         public Type getBindingExpressionType() { return generifyIfNeeded(bindingExpressionType(typeKind), this); }
         public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
         public Type getElementType() { return elementType; }
-        public boolean isBoundTo() { return isBoundTo; }
-        public boolean isAssignedTo() { return isAssignedTo; }
-        public void markBoundTo() { this.isBoundTo = true; haveDeterminedMorphability = false; }
-        public void markAssignedTo() { this.isAssignedTo = true; }
 
         public int getTypeKind() { return typeKind; }
-
-        public Symbol getSymbol() {
-            return sym;
-        }
     }
     
     VarMorphInfo varMorphInfo(Symbol sym) {
@@ -245,6 +246,10 @@ public class JavafxTypeMorpher {
             vmiMap.put(sym, vmi);
         }
         return vmi;
+    }
+    
+    TypeMorphInfo typeMorphInfo(Type type) {
+        return new TypeMorphInfo(type);
     }
     
     public static JavafxTypeMorpher instance(Context context) {
@@ -335,14 +340,14 @@ public class JavafxTypeMorpher {
         return result;
     }
     
-    private Type generifyIfNeeded(Type aLocationType, VarMorphInfo vmi) {
+    private Type generifyIfNeeded(Type aLocationType, TypeMorphInfo tmi) {
         Type newType;
-        if (vmi.getTypeKind() == TYPE_KIND_OBJECT || 
-                vmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
-            List<Type> actuals = vmi.getTypeKind() == TYPE_KIND_SEQUENCE?
-                  vmi.getRealType().getTypeArguments()
-                : List.of(vmi.getRealType());
-            Type clazzOuter = declLocationType(vmi.getTypeKind()).getEnclosingType();
+        if (tmi.getTypeKind() == TYPE_KIND_OBJECT || 
+                tmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
+            List<Type> actuals = tmi.getTypeKind() == TYPE_KIND_SEQUENCE?
+                  tmi.getRealType().getTypeArguments()
+                : List.of(tmi.getRealType());
+            Type clazzOuter = declLocationType(tmi.getTypeKind()).getEnclosingType();
 
             List<Type> newActuals = List.<Type>nil();
             actualsLabel: for (Type t : actuals) {
@@ -673,7 +678,7 @@ public class JavafxTypeMorpher {
         ret = new JCExpressionTupple(initExpr, null);
         if (bindStatus.isUnidiBind()) {
             JCStatement stmt = make.at(diagPos).Return(translatedInit);
-            ret = buildExpressionAndDependencies(vmi.getSymbol(), fxInit, stmt, bindStatus, isAttribute);
+            ret = buildExpressionAndDependencies(vmi, fxInit, stmt, bindStatus, isAttribute);
         } else if (!bindStatus.isBidiBind()) {
             initExpr = makeCall(vmi, diagPos, List.of(initExpr), varLocation, makeMethodName);
             ret = new JCExpressionTupple(initExpr, null);
@@ -681,12 +686,11 @@ public class JavafxTypeMorpher {
         return ret;
     }
     
-    JCExpressionTupple buildExpressionAndDependencies(Symbol vsym, 
+    JCExpressionTupple buildExpressionAndDependencies(TypeMorphInfo tmi, 
             JCExpression fxInit, JCStatement stmt, JavafxBindStatus bindStatus, boolean isAttribute) {
         DiagnosticPosition diagPos = fxInit.pos();
-        VarMorphInfo vmi = varMorphInfo(vsym);
 
-        JCExpression newExpr = buildExpressionClass(diagPos, vmi,  stmt);
+        JCExpression newExpr = buildExpressionClass(diagPos, tmi,  stmt);
         List<JCExpression> dependencies = buildDependencies(fxInit);
         
         ListBuffer<JCExpression> argValues = ListBuffer.lb();
@@ -695,31 +699,30 @@ public class JavafxTypeMorpher {
             argValues.appendList(dependencies);
         }
         
-        JCExpression makeExpr = makeExpressionLocation(diagPos, vmi,  bindStatus, argValues.toList());
+        JCExpression makeExpr = makeExpressionLocation(diagPos, tmi,  bindStatus, argValues.toList());
         return new JCExpressionTupple(makeExpr, isAttribute ? dependencies : null);
     }
     
-    JCExpression buildExpression(Symbol vsym, 
+    JCExpression buildExpression(TypeMorphInfo tmi, 
             JCExpression fxInit, JCStatement stmt, JavafxBindStatus bindStatus) {
         DiagnosticPosition diagPos = fxInit.pos();
-        VarMorphInfo vmi = varMorphInfo(vsym);
 
-        JCExpression newExpr = buildExpressionClass(diagPos, vmi,  stmt);
+        JCExpression newExpr = buildExpressionClass(diagPos, tmi,  stmt);
         List<JCExpression> dependencies = buildDependencies(fxInit);
         
         ListBuffer<JCExpression> argValues = ListBuffer.lb();
         argValues.append(newExpr);
         argValues.appendList(dependencies);
         
-        return makeExpressionLocation(diagPos, vmi,  bindStatus, argValues.toList());
+        return makeExpressionLocation(diagPos, tmi,  bindStatus, argValues.toList());
     }
     
-    JCExpression makeExpressionLocation(DiagnosticPosition diagPos, VarMorphInfo vmi,  JavafxBindStatus bindStatus, List<JCExpression> makeArgs) {
+    JCExpression makeExpressionLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi,  JavafxBindStatus bindStatus, List<JCExpression> makeArgs) {
         Name makeName = bindStatus.isLazy()? makeLazyMethodName : makeMethodName;
-        return makeCall(vmi, diagPos, makeArgs, exprLocation, makeName);
+        return makeCall(tmi, diagPos, makeArgs, exprLocation, makeName);
     }
     
-    JCExpression buildExpressionClass(DiagnosticPosition diagPos, VarMorphInfo vmi,  JCStatement stmt) {
+    JCExpression buildExpressionClass(DiagnosticPosition diagPos, TypeMorphInfo tmi,  JCStatement stmt) {
         JCBlock body = stmt.getTag() == JavafxTag.BLOCK? 
             (JCBlock)stmt :
             make.at(diagPos).Block(0, List.<JCStatement>of(stmt));
@@ -727,7 +730,7 @@ public class JavafxTypeMorpher {
         JCMethodDecl getMethod = make.at(diagPos).MethodDef(
                 make.at(diagPos).Modifiers(Flags.PUBLIC), 
                 getMethodName, 
-                toJava.makeTypeTree(vmi.getRealType(), diagPos, true), 
+                toJava.makeTypeTree(tmi.getRealType(), diagPos, true), 
                 List.<JCTypeParameter>nil(), 
                 List.<JCVariableDecl>nil(), 
                 List.<JCExpression>nil(), 
@@ -738,23 +741,23 @@ public class JavafxTypeMorpher {
                 null,                       // enclosing
                 List.<JCExpression>nil(),   // type args
                 // class name
-                toJava.makeTypeTree(vmi.getBindingExpressionType(), diagPos),
+                toJava.makeTypeTree(tmi.getBindingExpressionType(), diagPos),
                 List.<JCExpression>nil(),   // args
                 make.at(diagPos).AnonymousClassDef(
                     make.at(diagPos).Modifiers(0), 
                     List.<JCTree>of(getMethod)));
     }
 
-    private JCExpression makeCall(VarMorphInfo vmi, 
+    private JCExpression makeCall(TypeMorphInfo tmi, 
                                   DiagnosticPosition diagPos,
                                   List<JCExpression> makeArgs,
                                   LocationNameSymType[] lnsta,
                                   Name makeName) {
-        JCExpression locationTypeExp = sharedLocationId(diagPos, vmi.getTypeKind(), lnsta);
+        JCExpression locationTypeExp = sharedLocationId(diagPos, tmi.getTypeKind(), lnsta);
         JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, makeName);
         List<JCExpression> typeArgs = null;
-        if (vmi.getTypeKind() == TYPE_KIND_OBJECT) {
-            typeArgs = List.of(toJava.makeTypeTree(vmi.getRealType(), diagPos, true));
+        if (tmi.getTypeKind() == TYPE_KIND_OBJECT) {
+            typeArgs = List.of(toJava.makeTypeTree(tmi.getRealType(), diagPos, true));
         }
         return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
     }
