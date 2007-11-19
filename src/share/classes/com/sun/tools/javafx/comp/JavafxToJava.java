@@ -54,6 +54,7 @@ import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedAttribute
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.JavafxClassModel;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher.BindAnalysis;
 import com.sun.tools.javafx.tree.JavafxTreeMaker; // only for BlockExpression
 import static com.sun.tools.javac.code.Flags.*;
 import java.util.HashSet;
@@ -1657,29 +1658,33 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         // but there are other restrictions in javac.  We'll deal with
         // those later, but for now here is a simple rewrite that
         // handles most of the useful cases.
-        if (expr instanceof JCConditional) {
-            JCConditional cond = (JCConditional) expr;
-            return make.at(diagPos).If( translate( cond.getCondition() ), 
-                    exprToTranslatedStatement(cond.truepart, asReturn), 
-                    cond.falsepart == null ? 
-                        null : 
-                        exprToTranslatedStatement(cond.falsepart, asReturn));
-        } else if (expr instanceof JFXBlockExpression) {
-            return blockExpressionToBlock((JFXBlockExpression) expr, asReturn);
-        } else if (expr instanceof JFXForExpression) {
-            JFXForExpression forexpr = (JFXForExpression) expr;
-            return wrapWithInClause(forexpr, 
-                    exprToTranslatedStatement(
-                        forexpr.getBodyExpression(), asReturn));
-        } else if (expr instanceof JCParens) {
-            return exprToTranslatedStatement(((JCParens) expr).getExpression(), asReturn);
-       } else {
-            JCExpression texpr = translate(expr);
-            if (asReturn) {
-                return make.at(diagPos).Return(texpr);
-            } else {
-                return make.at(diagPos).Exec(texpr);
-            }
+        switch (expr.getTag()) {
+            case JavafxTag.CONDEXPR:
+                {
+                    JCConditional cond = (JCConditional) expr;
+                    return make.at(diagPos).If(
+                            translate(cond.getCondition()), 
+                            exprToTranslatedStatement(cond.truepart, asReturn), 
+                            cond.falsepart == null ? null : exprToTranslatedStatement(cond.falsepart, asReturn));
+                }
+            case JavafxTag.BLOCK_EXPRESSION:
+                return blockExpressionToBlock((JFXBlockExpression) expr, asReturn);
+            case JavafxTag.FOR_EXPRESSION:
+                {
+                    JFXForExpression forexpr = (JFXForExpression) expr;
+                    return wrapWithInClause(forexpr, exprToTranslatedStatement(forexpr.getBodyExpression(), asReturn));
+                }
+            case JavafxTag.PARENS:
+                return exprToTranslatedStatement(((JCParens) expr).getExpression(), asReturn);
+            default:
+                {
+                    JCExpression texpr = translate(expr);
+                    if (asReturn) {
+                        return make.at(diagPos).Return(texpr);
+                    } else {
+                        return make.at(diagPos).Exec(texpr);
+                    }
+                }
         }
     }
     
@@ -1956,14 +1961,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
     
     private JCBlock boundMethodBody(DiagnosticPosition diagPos, JFXBlockExpression bexpr, JFXOperationDefinition func) {
-        return make.at(diagPos).Block(0L, List.<JCStatement>of(make.at(diagPos).Return(
-                typeMorpher.buildExpression(
+        BindAnalysis analysis = typeMorpher.bindAnalysis(bexpr);
+        if (false && analysis.isBindPermeable()) { //TODO: permeate bind
+            JavafxBindStatus prevBindContext = bindContext;
+            bindContext = JavafxBindStatus.UNIDIBIND;
+            JCBlock result = blockExpressionToBlock(bexpr, true);
+            bindContext = prevBindContext;
+            return result;
+        } else {
+            return make.at(diagPos).Block(0L, List.<JCStatement>of(make.at(diagPos).Return(  typeMorpher.buildExpression(
                     func.sym, 
                     bexpr, 
-                    this.exprToTranslatedStatement(bexpr, true), 
-                    bindContext,
-                                false).first)));
+                    exprToTranslatedStatement(bexpr, true), 
+                    bindContext))));
         }
+    }
     
     private JCBlock runMethodBody(JFXBlockExpression bexpr) {
         DiagnosticPosition diagPos = bexpr.pos();

@@ -446,25 +446,6 @@ public class JavafxTypeMorpher {
         }
     }
     
-    public JCExpressionTupple buildDefinitionalAssignment(DiagnosticPosition diagPos,
-                    VarMorphInfo vmi, JCExpression fxInit, JCExpression translatedInit,
-                    JavafxBindStatus bindStatus, boolean isAttribute) {
-        JCExpressionTupple ret;
-        JCExpression initExpr = (translatedInit != null)? 
-                translatedInit : 
-                vmi.getTypeKind() == TYPE_KIND_SEQUENCE? 
-                      toJava.makeEmptySeuenceCreator(diagPos, vmi.getElementType())
-                    : makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
-        ret = new JCExpressionTupple(initExpr, null);
-        if (bindStatus.isUnidiBind()) {
-            ret = buildExpression(vmi.getSymbol(), fxInit, initExpr, bindStatus, isAttribute);
-        } else if (!bindStatus.isBidiBind()) {
-            initExpr = makeCall(vmi, diagPos, List.of(initExpr), varLocation, makeMethodName);
-            ret = new JCExpressionTupple(initExpr, null);
-        }
-        return ret;
-    }
-    
     public JCExpression morphAssign(DiagnosticPosition diagPos, VarSymbol vsym, JCExpression lhs, JCExpression rhs) {
         if (vsym != null) {
             VarMorphInfo vmi = varMorphInfo(vsym);
@@ -514,6 +495,10 @@ public class JavafxTypeMorpher {
     JCExpression makeLit(Type type, Object value, DiagnosticPosition diagPos) {
         int tag = value==null? TypeTags.BOT : type.tag;
         return make.at(diagPos).Literal(tag, value).setType(type.constType(value));
+    }
+    
+    public BindAnalysis bindAnalysis(JCExpression expr) {
+        return new BindAnalysis(expr);
     }
     
     class BindAnalysis extends JavafxTreeScanner {
@@ -676,24 +661,69 @@ public class JavafxTypeMorpher {
         return depend.toList();
     }
     
-    private JCExpressionTupple buildExpression(Symbol vsym, 
-            JCExpression fxInit, JCExpression translatedInit, JavafxBindStatus bindStatus, boolean isAttribute) {
-        DiagnosticPosition diagPos = fxInit.pos();
-        JCStatement stmt = make.at(diagPos).Return(translatedInit);
-        
-        return buildExpression(vsym, fxInit, stmt,  bindStatus, isAttribute);
+    public JCExpressionTupple buildDefinitionalAssignment(DiagnosticPosition diagPos,
+                    VarMorphInfo vmi, JCExpression fxInit, JCExpression translatedInit,
+                    JavafxBindStatus bindStatus, boolean isAttribute) {
+        JCExpressionTupple ret;
+        JCExpression initExpr = (translatedInit != null)? 
+                translatedInit : 
+                vmi.getTypeKind() == TYPE_KIND_SEQUENCE? 
+                      toJava.makeEmptySeuenceCreator(diagPos, vmi.getElementType())
+                    : makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
+        ret = new JCExpressionTupple(initExpr, null);
+        if (bindStatus.isUnidiBind()) {
+            JCStatement stmt = make.at(diagPos).Return(translatedInit);
+            ret = buildExpressionAndDependencies(vmi.getSymbol(), fxInit, stmt, bindStatus, isAttribute);
+        } else if (!bindStatus.isBidiBind()) {
+            initExpr = makeCall(vmi, diagPos, List.of(initExpr), varLocation, makeMethodName);
+            ret = new JCExpressionTupple(initExpr, null);
+        }
+        return ret;
     }
     
-    JCExpressionTupple buildExpression(Symbol vsym, 
+    JCExpressionTupple buildExpressionAndDependencies(Symbol vsym, 
             JCExpression fxInit, JCStatement stmt, JavafxBindStatus bindStatus, boolean isAttribute) {
         DiagnosticPosition diagPos = fxInit.pos();
         VarMorphInfo vmi = varMorphInfo(vsym);
-        
-        // System.out.println((new BindAnalysis(fxInit).isBindPermeable()? "PERM--  " : "NOT--  ")); fxPretty(fxInit);
 
+        JCExpression newExpr = buildExpressionClass(diagPos, vmi,  stmt);
+        List<JCExpression> dependencies = buildDependencies(fxInit);
+        
+        ListBuffer<JCExpression> argValues = ListBuffer.lb();
+        argValues.append(newExpr);
+        if (!isAttribute) {
+            argValues.appendList(dependencies);
+        }
+        
+        JCExpression makeExpr = makeExpressionLocation(diagPos, vmi,  bindStatus, argValues.toList());
+        return new JCExpressionTupple(makeExpr, isAttribute ? dependencies : null);
+    }
+    
+    JCExpression buildExpression(Symbol vsym, 
+            JCExpression fxInit, JCStatement stmt, JavafxBindStatus bindStatus) {
+        DiagnosticPosition diagPos = fxInit.pos();
+        VarMorphInfo vmi = varMorphInfo(vsym);
+
+        JCExpression newExpr = buildExpressionClass(diagPos, vmi,  stmt);
+        List<JCExpression> dependencies = buildDependencies(fxInit);
+        
+        ListBuffer<JCExpression> argValues = ListBuffer.lb();
+        argValues.append(newExpr);
+        argValues.appendList(dependencies);
+        
+        return makeExpressionLocation(diagPos, vmi,  bindStatus, argValues.toList());
+    }
+    
+    JCExpression makeExpressionLocation(DiagnosticPosition diagPos, VarMorphInfo vmi,  JavafxBindStatus bindStatus, List<JCExpression> makeArgs) {
+        Name makeName = bindStatus.isLazy()? makeLazyMethodName : makeMethodName;
+        return makeCall(vmi, diagPos, makeArgs, exprLocation, makeName);
+    }
+    
+    JCExpression buildExpressionClass(DiagnosticPosition diagPos, VarMorphInfo vmi,  JCStatement stmt) {
         JCBlock body = stmt.getTag() == JavafxTag.BLOCK? 
             (JCBlock)stmt :
             make.at(diagPos).Block(0, List.<JCStatement>of(stmt));
+        
         JCMethodDecl getMethod = make.at(diagPos).MethodDef(
                 make.at(diagPos).Modifiers(Flags.PUBLIC), 
                 getMethodName, 
@@ -704,7 +734,7 @@ public class JavafxTypeMorpher {
                 body, 
                 null); 
         
-        JCExpression newExpr = make.at(diagPos).NewClass(
+        return make.at(diagPos).NewClass(
                 null,                       // enclosing
                 List.<JCExpression>nil(),   // type args
                 // class name
@@ -713,16 +743,6 @@ public class JavafxTypeMorpher {
                 make.at(diagPos).AnonymousClassDef(
                     make.at(diagPos).Modifiers(0), 
                     List.<JCTree>of(getMethod)));
-        
-        ListBuffer<JCExpression> argValues = ListBuffer.lb();
-        argValues.append(newExpr);
-        List<JCExpression> dependencies = buildDependencies(fxInit);
-        if (!isAttribute) {
-            argValues.appendList(dependencies);
-        }
-        
-        Name makeName = bindStatus.isLazy()? makeLazyMethodName : makeMethodName;
-        return new JCExpressionTupple(makeCall(vmi, diagPos, argValues.toList(), exprLocation, makeName), isAttribute ? dependencies : null);
     }
 
     private JCExpression makeCall(VarMorphInfo vmi, 
