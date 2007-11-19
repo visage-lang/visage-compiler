@@ -140,33 +140,34 @@ class BallModel {
     }
 
 }
+var model = new BallModel;
+model.start();
+var fps = SimpleLabel {
+    width: 200
+    text: bind "FPS: {%f model.fps}" 
+}
 
-SwingUtilities.invokeLater(Runnable {
-	public function run() {
-	    var model = new BallModel;
-	    model.start();
-            var fps = SimpleLabel {
-		    width: 200
-		    text: bind "FPS: {%f model.fps}" 
-            }
-	    var p = Panel {
-		height: 500
-		width: 800
-		content: // bind 
-                [//model.labels, // <- doesn't compile
-	        foreach (label in model.labels) (label as java.lang.Object) as Widget,
-		/*SimpleLabel {
-		    width: 100
-		    text: bind "FPS: {%f model.fps}" 
-                }*/
-                [fps as Widget]]
-	    }
-	    var frame = new JFrame();
-	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    frame.setTitle("Compiled JavaFX Balls");
-	    frame.getContentPane().add(p.getComponent());
-	    frame.setSize(525, 325);
-	    frame.setVisible(true);
-	}
-});
+Frame {
+    content: Panel {
+	height: 500
+	    width: 800
+	    content: // bind 
+	[//model.labels, // <- doesn't compile
+	 foreach (label in model.labels) (label as java.lang.Object) as Widget,
+    /*
+	 SimpleLabel {
+	   width: 100
+	   text: bind "FPS: {%f model.fps}" 
+	   }
+    */
+	 [fps as Widget]]
+    }
+    visible: true
+    title: "Compiled JavaFX Balls"
+    height: 325
+    width: 525
+    onClose: function() { System.exit(0); }
+}
+
+
 

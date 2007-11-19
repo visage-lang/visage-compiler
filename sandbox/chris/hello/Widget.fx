@@ -105,4 +105,9 @@ public abstract class Widget extends AbstractWidget {
     }
     
     public function getJComponent(): JComponent { return getComponent(); }
+
+    public function getWindow(): java.awt.Window {
+           var comp = getComponent();
+           return javax.swing.SwingUtilities.getWindowAncestor(comp);
+    }
 }
