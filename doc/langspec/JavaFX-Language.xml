@@ -12,10 +12,11 @@
 
 <!-- -->
 <xi:include href="fx01overview.xml"  parse="xml"/> 
-
-<xi:include href="fx02quickstart.xml"  parse="xml"/> <!-- 
-<xi:include href="fx03declprog.xml"  parse="xml"/> 
+<!--
+<xi:include href="fx02quickstart.xml"  parse="xml"/>  
 -->
+<xi:include href="fx03declprog.xml"  parse="xml"/> 
+
 <xi:include href="fx04syntax.xml"  parse="xml"/>  
 <xi:include href="fx05expr.xml"  parse="xml"/> 
 <xi:include href="fx06logic.xml"  parse="xml"/> 
