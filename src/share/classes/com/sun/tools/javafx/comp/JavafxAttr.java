@@ -2267,16 +2267,59 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             if (c instanceof JavafxClassSymbol) {
                 javafxClassSymbol = (JavafxClassSymbol)c;
             }
+// Lubo
+            Symbol javaSupertypeSymbol = null;
+            boolean addToSuperTypes = true;
 
             for (JCExpression superClass : tree.getSupertypes()) {
-                // TODO: Report error if we are extending more than one Java clss. (JFXC-222)
-                // TODO: Make sure we allow only one Java class to be extended. (JFXC-222)
-                // This class type should be assigned to thye classSymbol.supertype member.
-                // Noany special, but the default Java code gen should be used for members of this class.
                 Type supType = attribType(superClass, env);
-                if (supType != null && javafxClassSymbol != null) {
+                if (!supType.isInterface() && 
+                        !initBuilder.isJFXClass(supType.tsym) && 
+                        !supType.isPrimitive() &&
+                        javafxClassSymbol.type instanceof ClassType) {
+                    if (javaSupertypeSymbol == null) {
+                        javaSupertypeSymbol = supType.tsym;
+                        // Verify there is a non-parametric constructor.
+                        boolean hasNonParamCtor = true; // If there is no non-param constr we will create one later.
+                        for (Scope.Entry e1 = javaSupertypeSymbol.members().elems;
+                                 e1 != null;
+                                 e1 = e1.sibling) {
+                                Symbol s1 = e1.sym;
+                                if (s1 != null &&
+                                        s1.name == names.init &&
+                                        s1.kind == Kinds.MTH) {
+                                    MethodType mtype = ((MethodSymbol)s1).type.asMethodType();
+                                    if (mtype != null && mtype.getParameterTypes().isEmpty()) {
+                                        hasNonParamCtor = true;
+                                        break;
+                                    }
+                                    else {
+                                        hasNonParamCtor = false;
+                                    }
+                                }
+                        }
+
+                        if (hasNonParamCtor) {
+                            ((ClassType)javafxClassSymbol.type).supertype_field = javaSupertypeSymbol.type;
+                            addToSuperTypes = false;
+                        }
+                        else {
+                            log.error(superClass.pos(), "javafx.base.java.class.non.papar.ctor", supType.tsym.name);
+                            
+                        }
+                    }
+                    else {
+                        // We are already extending one Java class. No more than one is allowed. Report an error.
+                        log.error(superClass.pos(), "javafx.only.one.base.java.class.allowed", supType.tsym.name);
+                    }
+                }
+                
+                if (addToSuperTypes && 
+                        supType != null && 
+                        javafxClassSymbol != null) {
                     javafxClassSymbol.addSuperType(supType);
                 }
+                addToSuperTypes = true;
             }
 
             attribClass(tree.pos(), c);

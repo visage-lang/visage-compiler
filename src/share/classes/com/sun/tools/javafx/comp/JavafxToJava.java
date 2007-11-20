@@ -410,7 +410,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             
             // make the Java class corresponding to this FX class, and return it
             JCExpression jcExtending = null;
-            if ((tree.mods.flags & Flags.FINAL) != 0L && tree.getExtending().nonEmpty()) {
+            if (tree.type instanceof ClassType &&
+                    ((ClassType)tree.type).supertype_field != null &&
+                    ((ClassType)tree.type).supertype_field.tsym instanceof ClassSymbol &&
+                    !initBuilder.isJFXClass(((ClassType)tree.type).supertype_field.tsym)) {
+                jcExtending = makeTypeTree(((ClassType)tree.type).supertype_field, null, false);
+            }
+            else if ((tree.mods.flags & Flags.FINAL) != 0L && tree.getExtending().nonEmpty()) {
                 Symbol sym1 = TreeInfo.symbol(tree.getExtending().head);
                 if ( sym1 != null && !initBuilder.isJFXClass(sym1))
                     jcExtending = makeTypeTree(tree.getExtending().head.type, null, false);
@@ -420,7 +426,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     make.at(diagPos).Modifiers(flags),
                     tree.getName(),
                     tree.getEmptyTypeParameters(), 
-                    jcExtending,  // no classes are extended, they have become interfaces -- change if we implement single Java class extension
+                    jcExtending,
                     implementing.toList(), 
                     translatedDefs.toList());
             res.sym = tree.sym;
@@ -992,9 +998,19 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             result = make.at(diagPos).Ident(initBuilder.receiverName);
             return;
         } else if (tree.name == names._super) {
-            // "super" become just the class where the static implementation method is defined
-            //  the rest of the implementation is in visitApply
-            result = make.at(diagPos).Ident(tree.type.tsym.name);
+            if (tree.type != null &&
+                    initBuilder.isJFXClass(tree.type.tsym)) {
+                // "super" become just the class where the static implementation method is defined
+                //  the rest of the implementation is in visitApply
+                result = make.at(diagPos).Ident(tree.type.tsym.name);
+            }
+            else {
+                // TODO: Lubo
+                JCFieldAccess superSelect = make.at(diagPos).Select(make.at(diagPos).Ident(initBuilder.receiverName), tree.name);
+                superSelect.type = tree.type;
+                superSelect.sym = tree.sym;
+                result = superSelect;
+            }
             return;
         }
        
@@ -1002,8 +1018,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
        // and possible outer access methods
         JCExpression convert;
         int kind = tree.sym.kind;
-        if ((kind == Kinds.VAR || kind == Kinds.MTH) && tree.sym.owner.kind == Kinds.TYP && !tree.sym.isStatic()) {
-            convert = make.at(diagPos).Select(makeReceiver(diagPos, tree.sym, attrEnv.enclClass.sym), tree.name);
+        if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
+                tree.sym.owner.kind == Kinds.TYP &&
+                !tree.sym.isStatic()) {
+            if (initBuilder.isJFXClass(tree.sym.owner)) {
+                convert = make.at(diagPos).Select(makeReceiver(diagPos, tree.sym, attrEnv.enclClass.sym), tree.name);
+            }
+            else {
+                JCExpression mRec = makeReceiver(diagPos, tree.sym, attrEnv.enclClass.sym);
+                convert = make.at(diagPos).Select(make.at(diagPos).TypeCast(makeTypeTree(tree.sym.owner.type, diagPos), mRec), tree.name);
+            }
         } else {
             convert = make.at(diagPos).Ident(tree.name);
         }
@@ -1764,7 +1788,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         List<JCExpression> typeargs = translate(tree.typeargs);
         JCExpression meth = tree.meth;
         Type mtype = meth.type;
-        meth = meth==null? make.Ident(initBuilder.receiverName) :  translate(meth);
+        if (meth==null) {
+            meth = make.Ident(initBuilder.receiverName);
+        }
+        else {
+             meth = translate(meth);
+        }
         boolean useInvoke = mtype instanceof FunctionType
                 || (meth instanceof JCIdent && ((JCIdent) meth).sym instanceof MethodSymbol
                     && isInnerFunction((MethodSymbol) ((JCIdent) meth).sym));
