@@ -2267,7 +2267,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             if (c instanceof JavafxClassSymbol) {
                 javafxClassSymbol = (JavafxClassSymbol)c;
             }
-// Lubo
+
             Symbol javaSupertypeSymbol = null;
             boolean addToSuperTypes = true;
 

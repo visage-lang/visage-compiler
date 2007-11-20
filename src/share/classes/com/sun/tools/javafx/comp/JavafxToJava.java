@@ -107,7 +107,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     /*
      * static information
      */
-    static final boolean generateBoundFunctions = true;
+    static final boolean generateBoundFunctions = false;
     
     private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";
     private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
@@ -1005,7 +1005,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 result = make.at(diagPos).Ident(tree.type.tsym.name);
             }
             else {
-                // TODO: Lubo
                 JCFieldAccess superSelect = make.at(diagPos).Select(make.at(diagPos).Ident(initBuilder.receiverName), tree.name);
                 superSelect.type = tree.type;
                 superSelect.sym = tree.sym;
