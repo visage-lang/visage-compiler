@@ -5,6 +5,11 @@ import java.lang.Math;
 import java.lang.Runnable;
 import java.awt.Insets;
 import java.awt.event.*;
+import hello.canvas.Rect;
+import hello.canvas.ImageNode;
+import hello.canvas.Node;
+import hello.canvas.Canvas;
+
 
 class Ball {
     static attribute elasticity = -0.2;
@@ -147,21 +152,36 @@ var fps = SimpleLabel {
     text: bind "FPS: {%f model.fps}" 
 }
 
+var p = Panel {
+    height: 500
+    width: 800
+    content: // bind 
+    [//model.labels, // <- doesn't compile
+     foreach (label in model.labels) (label as java.lang.Object) as Widget,
+     /*SimpleLabel {
+       width: 100
+       text: bind "FPS: {%f model.fps}" 
+       }*/
+     [fps as Widget]]
+}
+var c = Canvas {
+    height: 300, width: 500
+    content: foreach (ball in model.balls) (Rect {
+			height: 52, width: 52, arcHeight: 52, arcWidth: 52, fill: Color {green: 1}, x: bind ball.x, y: bind ball.y
+		} as java.lang.Object) as Node
+
+}
+
+var p1 = Panel {
+    height: 500
+    width: 800
+    content: // bind 
+    [c as Widget, fps as Widget]
+}
+
+
 Frame {
-    content: Panel {
-	height: 500
-	    width: 800
-	    content: // bind 
-	[//model.labels, // <- doesn't compile
-	 foreach (label in model.labels) (label as java.lang.Object) as Widget,
-    /*
-	 SimpleLabel {
-	   width: 100
-	   text: bind "FPS: {%f model.fps}" 
-	   }
-    */
-	 [fps as Widget]]
-    }
+    content: p1
     visible: true
     title: "Compiled JavaFX Balls"
     height: 325
