@@ -10,10 +10,10 @@ import javax.swing.*;
 
 interface But$Intf {
     public String getText();
+    public String super$getText();
 }
 
-interface SubBut$Intf {
-    public String getText();
+interface SubBut$Intf extends But$Intf {
 }
 
 class But extends JButton implements But$Intf {
@@ -25,10 +25,10 @@ class But extends JButton implements But$Intf {
     }
 
     public static String getText(But$Intf receiver) {
-        return ((But) receiver).super$getText();
+        return receiver.super$getText();
     }
 
-    private String super$getText() {
+    public String super$getText() {
         return super.getText();
     }
 }
@@ -38,14 +38,10 @@ class SubBut extends JButton implements But$Intf {
 
     @OverridesJava
     public String getText() {
-        return getText(this);
+        return But.getText(this);
     }
 
-    public static String getText(But$Intf receiver) {
-        return ((SubBut) receiver).super$getText();
-    }
-
-    private String super$getText() {
+    public String super$getText() {
         return super.getText();
     }
 }
