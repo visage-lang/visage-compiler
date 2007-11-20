@@ -1,3 +1,8 @@
-class ExtendsJava extends JavaClass {
+class But extends JButton {
+    public function getText(): String {
+        super.getText();
+    }
+}
 
+class SubBut extends But {
 }
