@@ -1,3 +1,5 @@
+import com.sun.javafx.runtime.OverridesJava;
+
 import javax.swing.*;
 
 /**
@@ -17,11 +19,10 @@ interface SubBut$Intf {
 class But extends JButton implements But$Intf {
     // Usual initialization code
 
+    @OverridesJava
     public String getText() {
         return getText(this);
     }
-
-    public void foo() { }
 
     public static String getText(But$Intf receiver) {
         return ((But) receiver).super$getText();
@@ -35,11 +36,10 @@ class But extends JButton implements But$Intf {
 class SubBut extends JButton implements But$Intf {
     // Usual initialization code
 
+    @OverridesJava
     public String getText() {
         return getText(this);
     }
-
-    public void foo() { }
 
     public static String getText(But$Intf receiver) {
         return ((SubBut) receiver).super$getText();
