@@ -114,7 +114,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     /*
      * static information
      */
-    static final boolean generateBoundFunctions = false;
+    static final boolean generateBoundFunctions = true;
     static final boolean permeateBind = false;
     
     private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";

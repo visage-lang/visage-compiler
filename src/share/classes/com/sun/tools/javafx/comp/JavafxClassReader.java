@@ -117,10 +117,13 @@ public class JavafxClassReader extends ClassReader {
                 ClassSymbol t = enterClass(className);
                 if (!keepClassFileSignatures()) {
                     if (t == typeMorpher.declLocation[TYPE_KIND_BOOLEAN].sym) {
+                        sbp = startSbp;
                         return syms.booleanType;
                     } else if (t == typeMorpher.declLocation[TYPE_KIND_DOUBLE].sym) {
+                        sbp = startSbp;
                         return syms.doubleType;
                     } else if (t == typeMorpher.declLocation[TYPE_KIND_INT].sym) {
+                        sbp = startSbp;
                         return syms.intType;
                     }
                 }
@@ -139,12 +142,11 @@ public class JavafxClassReader extends ClassReader {
                 className = removeIntfPart(className);
                 ClassSymbol t = enterClass(className);
                 List<Type> genericArgs = sigToTypes('>');
-                if (!keepClassFileSignatures()) {
-                    if (types.erasure(t.type).tsym == typeMorpher.declLocation[TYPE_KIND_OBJECT].sym) {
-                        return genericArgs.head;
-                    }
-                }
-                outer = new ClassType(outer, genericArgs, t) {
+                if (!keepClassFileSignatures() &&
+                               types.erasure(t.type).tsym == typeMorpher.declLocation[TYPE_KIND_OBJECT].sym) {
+                    outer = genericArgs.head;
+                } else {
+                    outer = new ClassType(outer, genericArgs, t) {
                         boolean completed = false;
                         public Type getEnclosingType() {
                             if (!completed) {
@@ -174,6 +176,7 @@ public class JavafxClassReader extends ClassReader {
                             throw new UnsupportedOperationException();
                         }
                     };
+                }
                 switch (signature[sigp++]) {
                 case ';':
                     if (sigp < signature.length && signature[sigp] == '.') {
