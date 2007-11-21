@@ -179,8 +179,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     private JFXOperationDefinition makeMethod(String name, List<JCStatement> stats, JCExpression value, Type returnType) {
         List<JFXVar> emptyVarList = List.nil();
         JFXBlockExpression body = make.BlockExpression(0, stats, value);
-        JCExpression rettree = make.Identifier(returnType.toString());
-        //        JCExpression rettree = toJava.makeTypeTree(returnType, null);
+        JCExpression rettree = toJava.makeTypeTree(returnType, null);
 
         rettree.type = returnType;
         return make.OperationDefinition(
