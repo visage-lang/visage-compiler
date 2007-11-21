@@ -101,6 +101,11 @@ public final class Sequences {
         return new IntRangeSequence(lower, upper, step, true);
     }
 
+    /** Create a double range sequence ranging from lower to upper inclusive, incrementing by 1.0 */
+    public static Sequence<Double> range(double lower, double upper) {
+        return new NumberRangeSequence(lower, upper, 1.0);
+    }
+
     /** Create a double range sequence ranging from lower to upper inclusive, incrementing by the specified step. */
     public static Sequence<Double> range(double lower, double upper, double step) {
         return new NumberRangeSequence(lower, upper, step);

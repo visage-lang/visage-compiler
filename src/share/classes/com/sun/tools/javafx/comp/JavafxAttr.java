@@ -2380,9 +2380,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 log.error(tree.getUpper().pos(), "range.step.int.or.number"); 
             }
         }
-        if (!allInt && tree.getStepOrNull() == null) {
-            log.error(tree.pos(), "range.step.required.number"); 
-        }
         Type owntype = sequenceType(allInt? syms.javafx_IntegerType : syms.javafx_NumberType);
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }

@@ -151,6 +151,10 @@ public class JavafxInitializationBuilder {
         DiagnosticPosition diagPos() { return attribute.pos(); }
     }
   
+    JCStatement makeStaticChangeListenerCall(TranslatedAttributeInfo info) {
+	// TBD static attribute triggers
+	return null;
+    }
     /**
      * Non-destructive creation of "on change" change listener set-up call.
      */
@@ -437,6 +441,7 @@ public class JavafxInitializationBuilder {
         }
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
         cDefinitions.append( makeSetDefaultsMethod(cDecl, baseClasses,  translatedAttrInfo) );
+        cDefinitions.append( make.Block(Flags.STATIC, makeStaticSetDefaultsMethod(cDecl, baseClasses, translatedAttrInfo) ));
 
         ListBuffer<JCTree> iDefinitions = new ListBuffer<JCTree>();
         ListBuffer<AttributeWrapper> attrInfos = new ListBuffer<AttributeWrapper>();
@@ -817,11 +822,51 @@ public class JavafxInitializationBuilder {
                 null);
     }
 
+    /**
+     * Construct the SetDefaults method
+     * */
+     private List<JCStatement> makeStaticSetDefaultsMethod(JFXClassDeclaration cDecl, java.util.List<ClassSymbol> baseClasses, 
+                                                                                            List<TranslatedAttributeInfo> translatedAttrInfo) {
+        boolean classIsFinal =(cDecl.getModifiers().flags & Flags.FINAL) != 0;
+        // Add the initialization of this class' attributesa
+        List<JCStatement> setDefStats = addStaticSetDefaultAttributeInitialization(translatedAttrInfo, cDecl);
+        if (setDefStats.nonEmpty()) {
+            // TBD ?
+            //setDefStats = setDefStats.appendList(addSetDefaultAttributeDependencies(translatedAttrInfo, cDecl));
+        }
+        // add any change listeners (if there are any triggers)
+        for (TranslatedAttributeInfo info : translatedAttrInfo) {
+            JCStatement stat = makeStaticChangeListenerCall(info);
+            if (stat != null) {
+                setDefStats = setDefStats.append(stat);
+            }
+        }
+        return setDefStats;
+    }
+
+    private List<JCStatement> addStaticSetDefaultAttributeInitialization(List<TranslatedAttributeInfo> translatedAttrInfo, JFXClassDeclaration cdef) {
+        List<JCStatement> ret = List.<JCStatement>nil();
+        for (TranslatedAttributeInfo tai : translatedAttrInfo) {
+            if (tai.attribute != null && tai.attribute.getTag() == JavafxTag.VAR_DEF && tai.attribute.pos != Position.NOPOS) {
+		if ((tai.attribute.getModifiers().flags & Flags.STATIC) == 0) {
+		    continue;
+		}
+                if (tai.attribute.sym != null && tai.attribute.sym.owner == cdef.sym) {
+		    ret = ret.append(make.Exec(make.Assign(make.Ident(tai.attribute.name), tai.initExpr)));
+                }
+            }
+        }
+        return ret;
+    }
+
     // Add the initialization of this class' attributes
     private List<JCStatement> addSetDefaultAttributeInitialization(List<TranslatedAttributeInfo> translatedAttrInfo, JFXClassDeclaration cdef) {
         List<JCStatement> ret = List.<JCStatement>nil();
         for (TranslatedAttributeInfo tai : translatedAttrInfo) {
             if (tai.attribute != null && tai.attribute.getTag() == JavafxTag.VAR_DEF && tai.attribute.pos != Position.NOPOS) {
+		if ((tai.attribute.getModifiers().flags & Flags.STATIC) != 0) {
+		    continue;
+		}
                 if (tai.attribute.sym != null && tai.attribute.sym.owner == cdef.sym) {
                     JCExpression cond = make.Binary(JCTree.EQ, 
                             toJava.makeAttributeAccess(cdef, tai.attribute), 
