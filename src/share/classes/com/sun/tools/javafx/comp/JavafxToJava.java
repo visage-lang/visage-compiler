@@ -115,6 +115,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      * static information
      */
     static final boolean generateBoundFunctions = false;
+    static final boolean permeateBind = false;
     
     private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";
     private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
@@ -211,7 +212,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     JCStatement translateExpressionToStatement(JCExpression expr) {
-        assert yield != Yield.ToExpression;
+        //TODO: JavafxAttr mistakenly ignores returns when computing the type of block expressions (so we can't use the below)
+        //assert (tree.type != syms.voidType) : "void block expressions should be handled below";
 	if (expr == null) {
 	    return null;
 	} else {
@@ -1380,7 +1382,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                              types.boxedClass(primitiveType).type,
                                              List.<Type>nil()
                                              .prepend(primitiveType));
-            JCExpression meth =makeIdentifier(valueOfSym.owner.type.toString() + "." + valueOfSym.name.toString());
+//            JCExpression meth =makeIdentifier(valueOfSym.owner.type.toString() + "." + valueOfSym.name.toString());
+            JCExpression meth = make.Select(makeTypeTree(valueOfSym.owner.type, diagPos), valueOfSym.name);
             TreeInfo.setSymbol(meth, valueOfSym);
             meth.type = valueOfSym.type;
             return make.App(meth, List.of(translatedExpr));
@@ -2065,7 +2068,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private JCBlock boundMethodBody(DiagnosticPosition diagPos, JFXBlockExpression bexpr, JFXOperationDefinition func) {
         JCStatement ret;
         BindAnalysis analysis = typeMorpher.bindAnalysis(bexpr);
-        if (analysis.isBindPermeable()) { //TODO: permeate bind
+        if (permeateBind && analysis.isBindPermeable()) { //TODO: permeate bind
             JavafxBindStatus prevBindContext = bindContext;
             bindContext = JavafxBindStatus.UNIDIBIND;
             ret = translateExpressionToStatement(bexpr, Yield.ToReturnLocationStatement);

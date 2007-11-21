@@ -58,6 +58,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     public static final String runMethodString = "javafx$run$";
     private Table names;
     private JavafxTreeMaker make;
+    private final JavafxToJava toJava;
     private Log log;
     private JavafxSymtab syms;
     Name tmpRunReturnName;
@@ -75,6 +76,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         log = Log.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
+        toJava = JavafxToJava.instance(context);
         tmpRunReturnName = names.fromString("run$return$");
     }
 
@@ -178,6 +180,8 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         List<JFXVar> emptyVarList = List.nil();
         JFXBlockExpression body = make.BlockExpression(0, stats, value);
         JCExpression rettree = make.Identifier(returnType.toString());
+        //        JCExpression rettree = toJava.makeTypeTree(returnType, null);
+
         rettree.type = returnType;
         return make.OperationDefinition(
                 make.Modifiers(PUBLIC | STATIC | SYNTHETIC), 

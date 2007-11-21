@@ -708,7 +708,7 @@ public class JavafxTypeMorpher {
         DiagnosticPosition diagPos = fxInit.pos();
 
         List<JCExpression> dependencies = buildDependencies(fxInit);
-        if (dependencies.size() == 0) {
+        if (false && dependencies.size() == 0) { //TODO: block expression return would have to be dealt with
             return makeCall(tmi, diagPos, List.of(toJava.translate(fxInit)), varLocation, makeMethodName);
         } else {
             JCExpression newExpr = buildExpressionClass(diagPos, tmi, stmt);
