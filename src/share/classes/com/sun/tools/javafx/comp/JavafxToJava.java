@@ -98,6 +98,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private ListBuffer<JCStatement> prependToStatements = null;
     
     // for type morphing
+    enum Yield {
+        ToExpression,
+        ToReturnStatement,
+        ToReturnLocationStatement,
+        ToExecStatement
+    };
+    Yield yield = Yield.ToExpression;
     private JavafxBindStatus bindContext = JavafxBindStatus.UNBOUND;
     private boolean inLHS = false;
     private JavafxEnv<JavafxAttrContext> attrEnv;
@@ -152,14 +159,18 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      */
     @SuppressWarnings("unchecked")
     public <T extends JCTree> T translate(T tree) {
+        T ret;
+        Yield prevYield = yield;
+        yield = Yield.ToExpression; // reset to default
 	if (tree == null) {
-	    return null;
+	    ret = null;
 	} else {
 	    tree.accept(this);
-	    JCTree result = this.result;
+	    ret = (T)this.result;
 	    this.result = null;
-	    return (T)result; // XXX cast
 	}
+        yield = prevYield;
+        return ret;
     }
 
     /** Visitor method: translate a list of nodes.
@@ -190,6 +201,28 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         prependToStatements = prevPrependToStatements;
         return translatedStats;
     }
+    
+    JCStatement translateExpressionToStatement(JCExpression expr, Yield newYield) {
+        Yield prevYield = yield;
+        yield = newYield;
+        JCStatement ret = translateExpressionToStatement(expr);
+        yield = prevYield;
+        return ret;
+    }
+
+    JCStatement translateExpressionToStatement(JCExpression expr) {
+        assert yield != Yield.ToExpression;
+	if (expr == null) {
+	    return null;
+	} else {
+	    expr.accept(this);
+	    JCTree ret = this.result;
+	    this.result = null;
+	    return ret instanceof JCStatement? 
+                (JCStatement)ret  // already converted
+                : toCorrectReturn(expr, (JCExpression)ret );
+	}
+    }
 
     private  <T extends JCTree> T boundTranslate(T tree, JavafxBindStatus bind) {
         JavafxBindStatus prevBindContext = bindContext;
@@ -210,6 +243,43 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         T result = translate(tree);
         inLHS = wasInLHS;
         return result;
+    }
+    
+    JCBlock asBlock(JCStatement stmt) {
+        if (stmt.getTag() == JavafxTag.BLOCK) {
+            return (JCBlock)stmt;
+        } else {
+            return make.at(stmt).Block(0L, List.of(stmt));
+        }
+    }
+    
+    JCStatement toCorrectReturn(JCExpression expr, JCExpression translated) {
+        switch (yield) {
+            case ToExecStatement:
+                return make.at(expr).Exec( translated );
+            case ToReturnStatement:
+                return make.at(expr).Return( translated );
+            case ToReturnLocationStatement:
+                return toCorrectReturn(expr, make.at(expr).Return( translated ) );
+            case ToExpression:
+            default:
+                assert false : "this method should not be called";
+                return null;
+        }
+    }
+    
+    JCStatement toCorrectReturn(JCExpression expr, JCStatement translated) {
+        switch (yield) {
+            case ToExecStatement:
+            case ToReturnStatement:
+                return translated;
+            case ToReturnLocationStatement:
+                return make.at(expr).Return(typeMorpher.buildExpression(typeMorpher.typeMorphInfo(expr.type), expr, translated, bindContext));
+            case ToExpression:
+            default:
+                assert false : "this method should not be called";
+                return null;
+        }
     }
     
     public void toJava(JavafxEnv<JavafxAttrContext> attrEnv) {
@@ -578,8 +648,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public JCExpressionTupple translateVarInit(JFXVar tree, boolean isAttribute) {
+        JavafxBindStatus bind = tree.getBindStatus();
+        if (!bind.isBound()) {
+            bind = bindContext;  //TODO: is the right way to merge?
+        }
         return translateDefinitionalAssignment(tree.pos(), tree.init, 
-                                                tree.getBindStatus(), tree.sym, isAttribute);
+                                                bind, tree.sym, isAttribute);
     }
 
     @Override
@@ -596,7 +670,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         VarSymbol vsym = tree.sym;
         boolean isClassVar = vsym.owner.kind == Kinds.TYP;
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        boolean forceTypeMorph = false;;
+        boolean isBound = bindContext.isBound();
+        boolean forceTypeMorph = isBound;
 
         if (!isClassVar && (vsym.flags_field & JavafxFlags.INNER_ACCESS) != 0) {
             if ((vsym.flags_field & JavafxFlags.ASSIGNED_TO) == 0) {
@@ -623,7 +698,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
         // for class vars, initialization happens during class init, so remove
         // from here.  For local vars translate as definitional
-        JCExpression init = (isClassVar || ((vsym.flags() & Flags.PARAMETER) != 0))? null : translateVarInit(tree, false).first;
+        JCExpression init = null;
+        if (!isClassVar && ((vsym.flags() & Flags.PARAMETER) == 0)) {
+            if (isBound && locallyBound != null) {
+                locallyBound.add(vsym);
+            }
+            init = translateVarInit(tree, false).first;
+        }
         
         result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);         
     }
@@ -831,7 +912,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     body = runMethodBody( bexpr );
                 } else {
                     // the "normal" case
-                    body = blockExpressionToBlock(bexpr, !isVoidReturn);
+                    body = asBlock( translateExpressionToStatement(bexpr, isVoidReturn? Yield.ToExecStatement : Yield.ToReturnStatement) );
                 }
             }
 
@@ -872,12 +953,36 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitBlockExpression(JFXBlockExpression tree) {
-        assert (tree.type != syms.voidType) : "void block expressions should all have been folded away";
-        List<JCStatement> defs = translateStatements(tree.stats);
-	result = ((JavafxTreeMaker)make).at(tree.pos).BlockExpression(
-                tree.flags, 
-                defs, 
-                translate(tree.value));
+        DiagnosticPosition diagPos = tree.pos();
+        ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
+        prependToStatements = ListBuffer.lb();
+        
+        JCExpression value = tree.value;
+        boolean valueFromReturn = (value == null) && (yield == Yield.ToReturnStatement || yield == Yield.ToReturnLocationStatement);
+        ListBuffer<JCStatement> translated = ListBuffer.lb();
+        for(JCStatement stmt : tree.getStatements()) {
+            if (valueFromReturn && stmt.getTag() == JavafxTag.RETURN) {
+                value = ((JCReturn)stmt).getExpression();
+            } else {
+                translated.append( translate(stmt) );
+            }
+        }       
+        List<JCStatement> defs = translated.toList();
+        
+        if (yield == Yield.ToExpression) {
+            assert (tree.type != syms.voidType) : "void block expressions should be handled below";
+            JCExpression tvalue = translate(value); // must be before prepend
+            defs = prependToStatements.appendList(defs).toList();
+            result = ((JavafxTreeMaker) make).at(tree.pos).BlockExpression(tree.flags, defs, tvalue);
+        } else {
+            prependToStatements.appendList(defs);
+            if (value != null) {
+                prependToStatements.append( translateExpressionToStatement(value) );
+            }
+            defs = prependToStatements.toList();
+            result = defs.size() == 1? defs.head : make.at(diagPos).Block(0L, defs);
+        }
+        prependToStatements = prevPrependToStatements;
     }
  
     @Override
@@ -1543,8 +1648,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitForExpression(JFXForExpression tree) {
         // sub-translation in done inline -- no super.visitForExpression(tree);
-        if (tree.type != syms.voidType) {
+        if (yield == Yield.ToExecStatement) {
+             result = wrapWithInClause(tree, translateExpressionToStatement(tree.getBodyExpression()));
+        } else {
             // body has value (non-void)
+            assert tree.type != syms.voidType : "should be handled above";
             DiagnosticPosition diagPos = tree.pos();
             ListBuffer<JCStatement> stmts = ListBuffer.<JCStatement>lb();
             JCStatement stmt;
@@ -1565,11 +1673,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             stmt = wrapWithInClause(tree, stmt);
             stmts.append(stmt);
 
-            // Build the block expression -- which is what we translate to
-            result = makeBlockExpression(diagPos, stmts, value);
-        } else {
-            assert false : "should always be folded away";
-            result = exprToTranslatedStatement(tree, false);
+            if (yield == Yield.ToExpression) {
+                    // Build the block expression -- which is what we translate to
+                    result = makeBlockExpression(diagPos, stmts, value);
+            } else {
+                    stmts.append( make.at(tree).Return( value ) );
+                    result = toCorrectReturn( tree, make.at(diagPos).Block(0L, stmts.toList()) );
+            }
         }
     }
 
@@ -1617,44 +1727,53 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     public void visitConditional(JCConditional tree) {
         final DiagnosticPosition diagPos = tree.pos();
-        JCExpression cond = translate( tree.getCondition() );
-        JCExpression trueSide = translate( tree.getTrueExpression() );
-        JCExpression falseSide;
-        if (tree.getFalseExpression() == null) {
-            Type trueSideType = tree.getTrueExpression().type;
-            switch (trueSideType.tag) {
-            case TypeTags.BOOLEAN:
-                falseSide = make.at(diagPos).Literal(TypeTags.BOOLEAN, 0);
-                break;
-            case TypeTags.INT:
-                falseSide = make.at(diagPos).Literal(TypeTags.INT, 0);
-                break;
-            case TypeTags.DOUBLE:
-                falseSide = make.at(diagPos).Literal(TypeTags.DOUBLE, 0.0);
-                break;
-            case TypeTags.BOT:
-                falseSide = make.at(diagPos).Literal(TypeTags.BOT, null);
-                break;
-            case TypeTags.VOID:
-                assert false : "should have been translated";
-                falseSide = make.at(diagPos).Literal(TypeTags.BOT, null);
-                break;
-            case TypeTags.CLASS:
-                if (trueSideType == syms.stringType) {
-                    falseSide = make.at(diagPos).Literal(TypeTags.CLASS, "");
-                } else {
-                    falseSide = make.at(diagPos).Literal(TypeTags.BOT, null);
+        JCExpression cond = translate(tree.getCondition());
+        JCExpression trueSide = tree.getTrueExpression();
+        JCExpression falseSide = tree.getFalseExpression();
+        if (yield == Yield.ToExpression) {
+            JCExpression translatedFalseSide;
+            if (falseSide == null) {
+                Type trueSideType = tree.getTrueExpression().type;
+                switch (trueSideType.tag) {
+                    case TypeTags.BOOLEAN:
+                        translatedFalseSide = make.at(diagPos).Literal(TypeTags.BOOLEAN, 0);
+                        break;
+                    case TypeTags.INT:
+                        translatedFalseSide = make.at(diagPos).Literal(TypeTags.INT, 0);
+                        break;
+                    case TypeTags.DOUBLE:
+                        translatedFalseSide = make.at(diagPos).Literal(TypeTags.DOUBLE, 0.0);
+                        break;
+                    case TypeTags.BOT:
+                        translatedFalseSide = make.at(diagPos).Literal(TypeTags.BOT, null);
+                        break;
+                    case TypeTags.VOID:
+                        assert false : "should have been translated";
+                        translatedFalseSide = make.at(diagPos).Literal(TypeTags.BOT, null);
+                        break;
+                    case TypeTags.CLASS:
+                        if (trueSideType == syms.stringType) {
+                            translatedFalseSide = make.at(diagPos).Literal(TypeTags.CLASS, "");
+                        } else {
+                            translatedFalseSide = make.at(diagPos).Literal(TypeTags.BOT, null);
+                        }
+                        break;
+                    default:
+                        assert false : "what is this type doing here? " + trueSideType;
+                        translatedFalseSide = make.at(diagPos).Literal(TypeTags.BOT, null);
+                        break;
                 }
-                break;
-            default:
-                assert false : "what is this type doing here? " + trueSideType;
-                falseSide = make.at(diagPos).Literal(TypeTags.BOT, null);
-                break;
+            } else {
+                translatedFalseSide = translate(falseSide);
             }
+            result = make.at(diagPos).Conditional(cond, translate(trueSide), translatedFalseSide);
         } else {
-            falseSide = translate( tree.getFalseExpression() );
+            Yield branchYield = (yield == Yield.ToReturnLocationStatement) ? Yield.ToReturnStatement : yield;
+
+            result = toCorrectReturn( tree, make.at(diagPos).If(cond, 
+                    translateExpressionToStatement(trueSide, branchYield), 
+                    falseSide == null ? null : translateExpressionToStatement(falseSide, branchYield)) );
         }
-        result = make.at(diagPos).Conditional(cond, trueSide, falseSide);
     }
 
     public void visitContinue(JCContinue tree) {
@@ -1669,72 +1788,27 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         List<? extends JCTree> errs = translate(tree.errs);
         result = make.at(tree.pos).Erroneous(errs);
     }
-
-    /** Convert an expression to a statement.
-     * In general, just creates an JCExpressionStatement.
-     * However, JCConditional is converted to a JCIf.
-     */
-    private JCStatement exprToTranslatedStatement(JCExpression expr, boolean asReturn) {
-        DiagnosticPosition diagPos = expr.pos();
-        // Gen's visitConditional doesn't like void expressions.
-        // This is easy to fix (use isVoidItem on the item before load),
-        // but there are other restrictions in javac.  We'll deal with
-        // those later, but for now here is a simple rewrite that
-        // handles most of the useful cases.
-        switch (expr.getTag()) {
-            case JavafxTag.CONDEXPR:
-                {
-                    JCConditional cond = (JCConditional) expr;
-                    return make.at(diagPos).If(
-                            translate(cond.getCondition()), 
-                            exprToTranslatedStatement(cond.truepart, asReturn), 
-                            cond.falsepart == null ? null : exprToTranslatedStatement(cond.falsepart, asReturn));
-                }
-            case JavafxTag.BLOCK_EXPRESSION:
-                return blockExpressionToBlock((JFXBlockExpression) expr, asReturn);
-            case JavafxTag.FOR_EXPRESSION:
-                {
-                    JFXForExpression forexpr = (JFXForExpression) expr;
-                    return wrapWithInClause(forexpr, exprToTranslatedStatement(forexpr.getBodyExpression(), asReturn));
-                }
-            case JavafxTag.PARENS:
-                return exprToTranslatedStatement(((JCParens) expr).getExpression(), asReturn);
-            default:
-                {
-                    JCExpression texpr = translate(expr);
-                    if (asReturn) {
-                        return make.at(diagPos).Return(texpr);
-                    } else {
-                        return make.at(diagPos).Exec(texpr);
-                    }
-                }
-        }
-    }
-    
-   JCBlock blockExpressionToBlock(JFXBlockExpression bexpr, boolean asReturn) {
-        DiagnosticPosition diagPos = bexpr.pos();
-        List<JCStatement> stats = translateStatements(bexpr.stats);
-        if (bexpr.value != null) {
-            stats = stats.append( exprToTranslatedStatement(bexpr.value, asReturn) );
-        }
-        return make.at(diagPos).Block(0, stats);
-    }
-
+   
     public void visitReturn(JCReturn tree) {
         JCExpression exp = tree.getExpression();
-        if (exp == null)
-            result = null;
-        else
-            result = exprToTranslatedStatement(exp, true);
+        if (exp == null) {
+            result = make.at(tree).Return(null);
+        } else {
+            result = translateExpressionToStatement(exp, Yield.ToReturnStatement );
+        }
     }
 
     public void visitExec(JCExpressionStatement tree) {
-        result = exprToTranslatedStatement(tree.getExpression(), false);
+        result = translateExpressionToStatement(tree.getExpression(), Yield.ToExecStatement);
     }
 
     public void visitParens(JCParens tree) {
-        JCExpression expr = translate(tree.expr);
-        result = make.at(tree.pos).Parens(expr);
+        if (yield == Yield.ToExpression) {
+            JCExpression expr = translate(tree.expr);
+            result = make.at(tree.pos).Parens(expr);
+        } else {
+            result = translateExpressionToStatement(tree.expr);
+        }
     }
 
     public void visitForeachLoop(JCEnhancedForLoop tree) {
@@ -1989,20 +2063,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
     
     private JCBlock boundMethodBody(DiagnosticPosition diagPos, JFXBlockExpression bexpr, JFXOperationDefinition func) {
+        JCStatement ret;
         BindAnalysis analysis = typeMorpher.bindAnalysis(bexpr);
-        if (false && analysis.isBindPermeable()) { //TODO: permeate bind
+        if (analysis.isBindPermeable()) { //TODO: permeate bind
             JavafxBindStatus prevBindContext = bindContext;
             bindContext = JavafxBindStatus.UNIDIBIND;
-            JCBlock result = blockExpressionToBlock(bexpr, true);
+            ret = translateExpressionToStatement(bexpr, Yield.ToReturnLocationStatement);
             bindContext = prevBindContext;
-            return result;
         } else {
-            return make.at(diagPos).Block(0L, List.<JCStatement>of(make.at(diagPos).Return(  typeMorpher.buildExpression(
+            ret =  make.at(diagPos).Return(  typeMorpher.buildExpression(
                     typeMorpher.varMorphInfo( func.sym ), 
                     bexpr, 
-                    exprToTranslatedStatement(bexpr, true), 
-                    bindContext))));
+                    translateExpressionToStatement(bexpr, Yield.ToReturnStatement), 
+                    bindContext));
         }
+        return asBlock( ret );
     }
     
     private JCBlock runMethodBody(JFXBlockExpression bexpr) {
@@ -2013,7 +2088,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             Type valueType = bexpr.value.type;
             if (valueType == syms.voidType) {
                 // convert the void typed expression to a statement, still return null
-                stats = stats.append( exprToTranslatedStatement(bexpr.value, false) );
+                stats = stats.append( translateExpressionToStatement(bexpr.value, Yield.ToExecStatement) );
             } else {
                 // the returned value will be the trailing expression, box if needed
                 //TODO: handle cases of single legged if, etc
@@ -2021,7 +2096,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     JCExpression boxedExpr = makeBox(diagPos, translate(bexpr.value), valueType);
                     stats = stats.append( make.Return( boxedExpr ) );
                 } else {
-                    stats = stats.append( exprToTranslatedStatement(bexpr.value, true) );
+                    stats = stats.append( translateExpressionToStatement(bexpr.value, Yield.ToReturnStatement) );
                 }
                 nullReturnNeeded = false;
             }

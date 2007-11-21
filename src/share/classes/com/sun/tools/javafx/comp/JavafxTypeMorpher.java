@@ -612,7 +612,7 @@ public class JavafxTypeMorpher {
      * any that are defined internal to the expression.
      * The resulting list is translated.
      */
-    private List<JCExpression> buildDependencies(JCExpression expr) {
+    List<JCExpression> buildDependencies(JCExpression expr) {
         final Map<VarSymbol, JCExpression> refMap = new HashMap<VarSymbol, JCExpression>();
         final Set<VarSymbol> internalSet = new HashSet<VarSymbol>();
         
@@ -707,14 +707,18 @@ public class JavafxTypeMorpher {
             JCExpression fxInit, JCStatement stmt, JavafxBindStatus bindStatus) {
         DiagnosticPosition diagPos = fxInit.pos();
 
-        JCExpression newExpr = buildExpressionClass(diagPos, tmi,  stmt);
         List<JCExpression> dependencies = buildDependencies(fxInit);
-        
-        ListBuffer<JCExpression> argValues = ListBuffer.lb();
-        argValues.append(newExpr);
-        argValues.appendList(dependencies);
-        
-        return makeExpressionLocation(diagPos, tmi,  bindStatus, argValues.toList());
+        if (dependencies.size() == 0) {
+            return makeCall(tmi, diagPos, List.of(toJava.translate(fxInit)), varLocation, makeMethodName);
+        } else {
+            JCExpression newExpr = buildExpressionClass(diagPos, tmi, stmt);
+
+            ListBuffer<JCExpression> argValues = ListBuffer.lb();
+            argValues.append(newExpr);
+            argValues.appendList(dependencies);
+
+            return makeExpressionLocation(diagPos, tmi, bindStatus, argValues.toList());
+        }
     }
     
     JCExpression makeExpressionLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi,  JavafxBindStatus bindStatus, List<JCExpression> makeArgs) {
