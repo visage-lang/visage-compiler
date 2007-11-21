@@ -25,6 +25,7 @@
 
 package com.sun.javafx.api.ui;
 
+import java.awt.Component;
 import javax.swing.JPanel;
 import java.awt.Image;
 import java.net.MalformedURLException;
@@ -32,6 +33,7 @@ import java.net.URL;
 import javax.swing.JApplet;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JTabbedPane;
 
 /**
@@ -45,7 +47,7 @@ public interface UIContext {
      * @return a panel
      */
     public JPanel createPanel();
-    
+
     /**
      * Create a button for a javafx component
      *
@@ -54,6 +56,7 @@ public interface UIContext {
     public XButton createButton();
 
     public JLabel createSimpleLabel();
+
     public XLabel createLabel();
 
     public boolean isBitSet(int a, int b);
@@ -62,16 +65,17 @@ public interface UIContext {
 
     public int clearBit(int a, int b);
 
-   public JTabbedPane createTabbedPane();
+    public JTabbedPane createTabbedPane();
 
     public Image getImage(String url);
 
     public Image getLoadedImage(String url);
+
     public URL getImageURL(String urlStr);
+
     public void defineImage(String url, Image image) throws MalformedURLException;
 
-    public void addChoosableFileFilter(JFileChooser fileChooser,
-                                       FileFilter fileFilter);
+    public void addChoosableFileFilter(JFileChooser fileChooser, FileFilter fileFilter);
 
     public JApplet getApplet();
 
@@ -79,7 +83,9 @@ public interface UIContext {
 
     public Image getTransparentImage(int width, int height);
 
-     public XInternalFrame createInternalFrame();
+    public XInternalFrame createInternalFrame();
 
-     public JFileChooser createFileChooser();
+    public JFileChooser createFileChooser();
+
+    public Component getListCellRendererComponent(JList list, String value, int index, boolean isSelected, boolean cellHasFocus, String tooltip);
 }

@@ -60,11 +60,13 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JApplet;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
@@ -1086,8 +1088,63 @@ public class UIContextImpl implements UIContext {
         return mFileChooser;
     }
 
-   
- 
+    class XListCellRenderer extends DefaultListCellRenderer {
+
+        XSimpleLabel je;
+        String mToolTip;
+
+
+        public Component getListCellRendererComponent(JList list, String value,
+                                                      int index,
+                                                      boolean sel,
+                                                      boolean hasFocus,
+                                                      String tooltip) {
+            JLabel proto = (JLabel) super.getListCellRendererComponent(
+                    list, "", index, sel, hasFocus);
+            if (je == null) {
+                je = new XSimpleLabel(true, false) {
+                        @Override
+                        public String getToolTipText() {
+                            return mToolTip;
+                        }
+                        @Override
+                        public void repaint(long tm, int x, int y, int w, int h)
+                        {
+                            // nothing
+                        }
+                        @Override
+                        public void validate() {
+                            // nothing
+                        }
+                        @Override
+                        public void revalidate() {
+                            // nothing
+                        }
+                    };
+                je.setOpaque(true);
+            }
+            je.setText("");
+            je.setFont(proto.getFont());
+            je.setBackground(proto.getBackground());
+            je.setForeground(proto.getForeground());
+            je.setBorder(proto.getBorder());
+            mToolTip = tooltip;
+            je.setText(value);
+            return je;
+        }
+    }
+
+     XListCellRenderer mListCellRenderer = new XListCellRenderer();
+     public Component getListCellRendererComponent(JList list, String value,
+                                                  int index, boolean isSelected,
+                                                  boolean cellHasFocus,
+                                                  String tooltip) {
+            return mListCellRenderer.getListCellRendererComponent(list, value,
+                                                  index,
+                                                  isSelected, cellHasFocus, 
+                                                  tooltip);
+     }
+
 
 
 
