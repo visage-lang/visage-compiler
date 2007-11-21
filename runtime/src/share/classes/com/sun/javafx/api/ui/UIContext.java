@@ -88,4 +88,6 @@ public interface UIContext {
     public JFileChooser createFileChooser();
 
     public Component getListCellRendererComponent(JList list, String value, int index, boolean isSelected, boolean cellHasFocus, String tooltip);
+    
+     public Object getImageCache();
 }
