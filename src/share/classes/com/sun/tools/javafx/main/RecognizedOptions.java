@@ -113,11 +113,6 @@ public class RecognizedOptions {
     }
 
     static Set<OptionName> javafxcOptions = EnumSet.of(
-        DUMPJAVA,
-        DUMPFX
-    );
-
-    static Set<OptionName> javacOptions = EnumSet.of(
         G,
         G_NONE,
         G_CUSTOM,
@@ -169,6 +164,8 @@ public class RecognizedOptions {
         O,
         XJCOV,
         XD,
+        DUMPJAVA,
+        DUMPFX,
         SOURCEFILE);
 
     static Set<OptionName> javacFileManagerOptions = EnumSet.of(
@@ -228,7 +225,7 @@ public class RecognizedOptions {
         XD);
 
     static Option[] getJavaCompilerOptions(OptionHelper helper) {
-        return getOptions(helper, javacOptions);
+        return getOptions(helper, javafxcOptions);
     }
 
     public static Option[] getJavacFileManagerOptions(OptionHelper helper) {
@@ -552,7 +549,11 @@ public class RecognizedOptions {
 	    }
 	},
 
-	/*
+        // Javafxc-specific options
+        new HiddenOption(DUMPJAVA),
+        new HiddenOption(DUMPFX),
+
+        /*
 	 * TODO: With apt, the matches method accepts anything if
 	 * -XclassAsDecls is used; code elsewhere does the lookup to
 	 * see if the class name is both legal and found.
@@ -585,9 +586,6 @@ public class RecognizedOptions {
 		return false;
 	    }
 	},
-        
-        new HiddenOption(DUMPJAVA),
-        new HiddenOption(DUMPFX)
     };        
     }
     
