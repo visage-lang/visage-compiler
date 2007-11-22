@@ -88,11 +88,14 @@ public class JavafxClassSymbol extends ClassSymbol {
 
             if (baseIntf != null && baseIntf instanceof ClassType) {
                 baseIntf.complete();
-                for (Type baseType : ((ClassType)baseIntf.tsym.type).interfaces_field) {
-                    if (baseType.toString().endsWith(initBuilder.interfaceNameSuffix.toString())) {
-                        String baseTypeName = baseType.toString();
-                        Type tp = reader.enterClass(initBuilder.names.fromString(baseTypeName.substring(0, baseTypeName.length() - initBuilder.interfaceNameSuffix.toString().length()))).type;
-                        addSuperType(tp);
+                if (baseIntf.tsym != null && baseIntf.tsym.type != null &&
+                        ((ClassType)baseIntf.tsym.type).interfaces_field != null) {
+                    for (Type baseType : ((ClassType)baseIntf.tsym.type).interfaces_field) {
+                        if (baseType.toString().endsWith(initBuilder.interfaceNameSuffix.toString())) {
+                            String baseTypeName = baseType.toString();
+                            Type tp = reader.enterClass(initBuilder.names.fromString(baseTypeName.substring(0, baseTypeName.length() - initBuilder.interfaceNameSuffix.toString().length()))).type;
+                            addSuperType(tp);
+                        }
                     }
                 }
             }
