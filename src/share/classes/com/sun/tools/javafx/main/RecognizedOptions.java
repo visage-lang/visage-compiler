@@ -112,6 +112,11 @@ public class RecognizedOptions {
         
     }
 
+    static Set<OptionName> javafxcOptions = EnumSet.of(
+        DUMPJAVA,
+        DUMPFX
+    );
+
     static Set<OptionName> javacOptions = EnumSet.of(
         G,
         G_NONE,
@@ -580,6 +585,9 @@ public class RecognizedOptions {
 		return false;
 	    }
 	},
+        
+        new HiddenOption(DUMPJAVA),
+        new HiddenOption(DUMPFX)
     };        
     }
     

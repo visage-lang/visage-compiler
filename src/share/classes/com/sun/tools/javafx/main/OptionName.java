@@ -89,7 +89,9 @@ public enum OptionName {
     O("-O"),
     XJCOV("-Xjcov"),
     XD("-XD"),
-    SOURCEFILE("sourcefile");
+    SOURCEFILE("sourcefile"),
+    DUMPJAVA("-dumpjava"),
+    DUMPFX("-dumpfx");
 
     public final String optionName;
 
