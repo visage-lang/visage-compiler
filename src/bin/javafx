@@ -46,7 +46,7 @@ parse_args() {
 while [ $# -gt 0 ] ; do
     case "$1" in
         -J*) jopt=`expr "X-$1" : 'X--J\(.*\)'`; jargs="$jargs '$jopt'";;
-        *) args="$args \"$1\"";;
+        *) args="$args $1";;
     esac
     shift
 done
