@@ -16,19 +16,49 @@ goto setArguments
 if "%_JAVACMD%" == "" set _JAVACMD=java.exe
 
 :setArguments
-set _CMD_LINE_ARGS=%1
-if ""%1""=="""" goto runCompiler
-shift
-:setupArgs
-if ""%1""=="""" goto runCompiler
-set _CMD_LINE_ARGS=%_CMD_LINE_ARGS% %1
-shift
-goto setupArgs
+set _JVM_ARGS=
+set _ARGS=%*
+if not defined _ARGS goto jvmoptsDone
+set _ARGS=%_ARGS:-=-d%
+set _ARGS=%_ARGS:"=-q%
+set _ARGS="%_ARGS%"
 
-:runCompiler
-"%_JAVACMD%" "-Xbootclasspath/p:%_JAVAFXC_HOME%\javafxc.jar;%_JAVAFXC_HOME%\javafxrt.jar" %_CMD_LINE_ARGS%
+:jvmoptsLoop
+for /f "tokens=1,*" %%i in (%_ARGS%) do call :getarg "%%i" "%%j"
+goto processarg
+
+:getarg
+for %%i in (%1) do set _CMP=%%~i
+set _ARGS=%2
+goto :EOF
+
+:processarg
+if "%_CMP%" == "" goto jvmoptsDone
+
+set _CMP=%_CMP:-q="%
+set _CMP=%_CMP:-d=-%
+if "%_CMP:~0,2%" == "-J" goto jvmarg
+
+:fxarg
+set _FX_ARGS=%_FX_ARGS% %_CMP%
+goto jvmoptsNext
+
+:jvmarg
+set _VAL=%_CMP:~2%
+set _JVM_ARGS=%_JVM_ARGS% %_VAL%
+
+:jvmoptsNext
+set _CMP=
+goto jvmoptsLoop
+
+:jvmoptsDone
+set _VAL=
+set _CMP=
+
+"%_JAVACMD%" %_JVM_ARGS% "-Xbootclasspath/p:%_JAVAFXC_HOME%\javafxc.jar;%_JAVAFXC_HOME%\javafxrt.jar" %_FX_ARGS%
 
 REM cleanup
 if not "%_JAVAFXC_HOME"=="" set _JAVAFXC_HOME=
 if not "%_JAVACMD%"=="" set _JAVACMD=
-if not "%_CMD_LINE_ARGS%"=="" set ANT_CMD_LINE_ARGS=
+if not "%_JVM_ARGS%"=="" set _JVM_ARGS=
+if not "%_FX_ARGS%"=="" set _FX_ARGS=
