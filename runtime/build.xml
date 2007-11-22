@@ -44,7 +44,9 @@
                  includes="**/*.fx" source="${javac.source}" sourcepath=""
                  srcdir="${src.classes.dir}" target="${javac.target}"
                  classpath="${build.classes.dir}:${javac.classpath}"
-                 compilerclasspath="${build.classes.dir}:${javac.classpath}"/>
+                 compilerclasspath="${build.classes.dir}:${javac.classpath}">
+            <compilerarg line="${javafxc.compilerargs}"/>
+        </javafxc>
     </target>
     
     <target name="jar" description="Build JAR." depends="init,compile">

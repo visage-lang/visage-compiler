@@ -72,10 +72,14 @@ public class TextField extends Widget {
         }
     };
     public attribute horizontalAlignment:HorizontalAlignment on replace {
-        textField.setHorizontalAlignment(horizontalAlignment.id.intValue());
+        if (horizontalAlignment <> null) {
+            textField.setHorizontalAlignment(horizontalAlignment.id.intValue());
+        }
     };
     public attribute margin: Insets on replace {
-        textField.setMargin(margin.awtinsets);
+        if (margin <> null) {
+            textField.setMargin(margin.awtinsets);
+        }
     };
     
     public attribute selectOnFocus:Boolean = true;
