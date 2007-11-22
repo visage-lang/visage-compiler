@@ -30,7 +30,7 @@ package com.sun.javafx.runtime.location;
 *
 * @author Brian Goetz
 */
-public interface IntBindingExpression {
-    /** Calculate the current value of the expression */
-    public int get();
+public abstract class IntBindingExpression extends BindingExpression {
+     /** Calculate the current value of the expression */
+    public abstract int get();
 }

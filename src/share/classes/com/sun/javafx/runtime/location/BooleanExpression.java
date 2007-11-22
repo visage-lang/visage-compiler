@@ -42,6 +42,7 @@ public class BooleanExpression extends AbstractLocation implements BooleanLocati
     /** Create an BooleanExpression with the specified expression and dependencies. */
     public static BooleanLocation make(BooleanBindingExpression exp, Location... dependencies) {
         BooleanExpression loc = new BooleanExpression(false, exp);
+        exp.location = loc;
         loc.addDependencies(dependencies);
         return loc;
     }
@@ -49,6 +50,7 @@ public class BooleanExpression extends AbstractLocation implements BooleanLocati
     /** Create a lazy BooleanExpression with the specified expression and dependencies. */
     public static BooleanLocation makeLazy(BooleanBindingExpression exp, Location... dependencies) {
         BooleanExpression loc = new BooleanExpression(true, exp);
+        exp.location = loc;
         loc.addDependencies(dependencies);
         return loc;
     }

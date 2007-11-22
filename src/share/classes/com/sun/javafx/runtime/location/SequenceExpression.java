@@ -47,6 +47,7 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
      */
     public static <T> SequenceLocation<T> make(SequenceBindingExpression<T> exp, Location... dependencies) {
         SequenceExpression<T> loc = new SequenceExpression<T>(false, exp);
+        exp.location = loc;
         loc.addDependencies(dependencies);
         return loc;
     }
@@ -56,6 +57,7 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
      */
     public static <T> SequenceLocation<T> makeLazy(SequenceBindingExpression<T> exp, Location... dependencies) {
         SequenceExpression<T> loc = new SequenceExpression<T>(true, exp);
+        exp.location = loc;
         loc.addDependencies(dependencies);
         return loc;
     }

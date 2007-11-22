@@ -30,7 +30,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface BooleanBindingExpression {
-    /** Calculate the current value of the expression */
-    public boolean get();
+public abstract class BooleanBindingExpression extends BindingExpression {
+     /** Calculate the current value of the expression */
+    public abstract boolean get();
 }

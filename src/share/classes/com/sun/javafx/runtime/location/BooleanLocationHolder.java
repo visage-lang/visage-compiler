@@ -25,14 +25,11 @@
 
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.sequence.Sequence;
-
 /**
- * SequenceBindingExpression is an interface that represents a bound expression.
-*
-* @author Brian Goetz
-*/
-public abstract class SequenceBindingExpression<T> extends BindingExpression {
-     /** Calculate the current value of the expression */
-    public abstract Sequence<T> get();
+ * Holder for a Location
+ * 
+ * @author Robert Field
+ */
+public class BooleanLocationHolder {
+    public BooleanLocation held = null;
 }

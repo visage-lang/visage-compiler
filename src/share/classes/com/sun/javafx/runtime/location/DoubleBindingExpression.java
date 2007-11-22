@@ -30,7 +30,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface DoubleBindingExpression {
-    /** Calculate the current value of the expression */
-    public double get();
+public abstract class DoubleBindingExpression extends BindingExpression {
+     /** Calculate the current value of the expression */
+    public abstract double get();
 }

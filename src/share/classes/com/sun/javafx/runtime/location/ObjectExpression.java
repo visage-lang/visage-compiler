@@ -42,6 +42,7 @@ public class ObjectExpression<T> extends AbstractLocation implements ObjectLocat
     /** Create an ObjectExpression with the specified expression and dependencies. */
     public static<T> ObjectLocation<T> make(ObjectBindingExpression<T> exp, Location... dependencies) {
         ObjectExpression<T> loc = new ObjectExpression<T>(false, exp);
+        exp.location = loc;
         loc.addDependencies(dependencies);
         return loc;
     }
@@ -49,6 +50,7 @@ public class ObjectExpression<T> extends AbstractLocation implements ObjectLocat
     /** Create a lazy ObjectExpression with the specified expression and dependencies. */
     public static<T> ObjectLocation<T> makeLazy(ObjectBindingExpression<T> exp, Location... dependencies) {
         ObjectExpression<T> loc = new ObjectExpression<T>(true, exp);
+        exp.location = loc;
         loc.addDependencies(dependencies);
         return loc;
     }

@@ -42,6 +42,7 @@ public class IntExpression extends AbstractLocation implements IntLocation {
     /** Create an IntExpression with the specified expression and dependencies. */
     public static IntLocation make(IntBindingExpression exp, Location... dependencies) {
         IntExpression loc = new IntExpression(false, exp);
+        exp.location = loc;
         loc.addDependencies(dependencies);
         return loc;
     }
@@ -49,6 +50,7 @@ public class IntExpression extends AbstractLocation implements IntLocation {
     /** Create a lazy IntExpression with the specified expression and dependencies. */
     public static IntLocation makeLazy(IntBindingExpression exp, Location... dependencies) {
         IntExpression loc = new IntExpression(true, exp);
+        exp.location = loc;
         loc.addDependencies(dependencies);
         return loc;
     }

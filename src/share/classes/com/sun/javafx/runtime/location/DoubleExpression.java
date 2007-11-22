@@ -42,6 +42,7 @@ public class DoubleExpression extends AbstractLocation implements DoubleLocation
     /** Create an DoubleExpression with the specified expression and dependencies. */
     public static DoubleLocation make(DoubleBindingExpression exp, Location... dependencies) {
         DoubleExpression loc = new DoubleExpression(false, exp);
+        exp.location = loc;
         loc.addDependencies(dependencies);
         return loc;
     }
@@ -49,6 +50,7 @@ public class DoubleExpression extends AbstractLocation implements DoubleLocation
     /** Create a lazy DoubleExpression with the specified expression and dependencies. */
     public static DoubleLocation makeLazy(DoubleBindingExpression exp, Location... dependencies) {
         DoubleExpression loc = new DoubleExpression(true, exp);
+        exp.location = loc;
         loc.addDependencies(dependencies);
         return loc;
     }
