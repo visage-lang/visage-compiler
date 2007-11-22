@@ -100,7 +100,8 @@ public class Font {
         var bits = 0;
         
         foreach (i in n) {
-            bits = UIElement.context.setBit(bits, i.id);
+            var id = i.id;
+            bits = UIElement.context.setBit(bits, id);
         };
         return bits;
     }

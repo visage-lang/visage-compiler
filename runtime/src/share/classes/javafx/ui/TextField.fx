@@ -26,20 +26,21 @@
 package javafx.ui; 
 
 import java.awt.event.ActionEvent;
+import javax.swing.JFormattedTextField;
+import javax.swing.JTextField;
 
 public class TextField extends Widget {
+    private attribute textField: JTextField = new JFormattedTextField();
     private attribute propertyChangeListener:java.beans.PropertyChangeListener;
     private attribute propertyChangeRunnable:java.lang.Runnable;
-    private attribute textField: javax.swing.JTextField;
     private attribute verifier: com.sun.javafx.api.ui.XInputVerifierImpl;
-
 
     public attribute value: String on replace  {
         if (value <> textField.getText()) {
             textField.setText(value);
         }
     };
-    public attribute text: String;
+    public attribute text: String = value;
     public attribute onChange: function(newValue:String) on replace (old){
         if (old == null and onChange <> null) {
             textField.addPropertyChangeListener(propertyChangeListener);
@@ -51,10 +52,10 @@ public class TextField extends Widget {
     public attribute columns: Number on replace {
         textField.setColumns(columns.intValue());
     };
-    public attribute editable: Boolean on replace {
+    public attribute editable: Boolean = true on replace {
         textField.setEditable(editable);
     };
-    public attribute enableDND: Boolean on replace {
+    public attribute enableDND: Boolean = true on replace {
         textField.setDragEnabled(enableDND);
     };
     public attribute verify: function(newValue:String):Boolean on replace  {
@@ -77,7 +78,7 @@ public class TextField extends Widget {
         textField.setMargin(margin.awtinsets);
     };
     
-    public attribute selectOnFocus:Boolean;
+    public attribute selectOnFocus:Boolean = true;
     public attribute selectionStart:Integer = 0 on replace {
         if (inSelectionUpdate == false) {
             textField.setSelectionStart(selectionStart);
@@ -101,12 +102,6 @@ public class TextField extends Widget {
         return textField;
     }
     init {
-        editable = true;
-        enableDND = true;
-        selectOnFocus = true;
-        text = value;
-        textField = new javax.swing.JFormattedTextField();
-
         textField.setFont(javax.swing.UIManager.getFont("TextField.font"));
         var selectionColor = javax.swing.UIManager.getColor("TextField.selectionColor");
         if (selectionColor == null) {

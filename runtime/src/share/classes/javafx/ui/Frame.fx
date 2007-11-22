@@ -243,7 +243,7 @@ public class Frame extends AbstractFrame {
      * This attribute can only be set while the frame is not displayable.
      */
     public attribute undecorated: Boolean = false on replace {
-	if (frame <> null) {
+	if (frame <> null and frame.isUndecorated() <> undecorated) {
 	    frame.setUndecorated(undecorated);
 	}
     };

@@ -54,7 +54,9 @@ public class GridBagPanel extends Widget {
         jpanel.setOpaque(false);
         jpanel.setLayout(new java.awt.GridBagLayout());
         foreach (i in cells) {
-            jpanel.add(i.content.getComponent(), i.constraint);
+            var content = i.content;
+            var constraint = i.constraint;
+            jpanel.add(content.getComponent(), constraint);
         }
         return jpanel;
     }

@@ -49,7 +49,9 @@ public class Label extends Widget {
         }
     };
     public attribute honorDisplayProperties: Boolean = true on replace  {
-        jlabel.putClientProperty(jlabel.HONOR_DISPLAY_PROPERTIES, honorDisplayProperties);
+        if (jlabel <> null) {
+            jlabel.putClientProperty(jlabel.HONOR_DISPLAY_PROPERTIES, honorDisplayProperties);
+        }
     };
     public attribute preloadImages: Boolean;
     public attribute onHyperlinkActivated: function(url:String):java.lang.Object;

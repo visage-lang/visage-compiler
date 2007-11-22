@@ -26,7 +26,7 @@ package javafx.ui;
 
 
 public class KeyModifier {
-    public attribute id: Number;
+    public attribute id: Integer;
     
     public static attribute SHIFT = KeyModifier {
         id: java.awt.event.InputEvent.SHIFT_MASK

@@ -180,7 +180,7 @@ public class UIElement {
             javax.swing.SwingUtilities.updateComponentTreeUI(getWindow());
 	}
     };
-    public static attribute context:UIContext;
+    public static attribute context:UIContext = getUIContext();
     public static function getUIContext(): UIContext {
 	var appContext = AppContext.getAppContext();
 	var context = appContext.get("javafx.UIContext") as UIContext;

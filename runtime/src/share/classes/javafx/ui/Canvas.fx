@@ -157,7 +157,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         var path = pick(p.x, p.y, 1, 1);
         var e = CanvasDropEvent {
             x: p.x,
-            y: p.y
+            y: p.y,
             //TODO: transferData: value
         };
         foreach (i in path) {
@@ -172,8 +172,9 @@ public class Canvas extends Widget, CanvasElement, Container {
         dropTargetNode.handleDragExit(e);
         dropTargetNode = null;
         if (this.canAcceptDrop <> null) {
-            e.localX = e.x;
-            e.localY = e.y;
+            e = CanvasDropEvent {
+                x: p.x, y: p.y, localX: p.x, localY: p.y
+            };
             return (this.canAcceptDrop)(e);
         }
         return onDrop <> null;

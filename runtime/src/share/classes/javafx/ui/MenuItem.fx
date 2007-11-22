@@ -50,7 +50,8 @@ public class MenuItem extends AbstractMenuItem {
         if (jmenuitem <> null) {
             var mask = 0;
             foreach (i in accelerator.modifier) {
-                mask += i.id;
+                var id = i.id;
+                mask = mask + id;
             }
             jmenuitem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(accelerator.keyStroke.id, mask)); 
         }
@@ -88,7 +89,8 @@ public class MenuItem extends AbstractMenuItem {
         if (accelerator <> null) {
             var mask = 0;
             foreach (i in accelerator.modifier) {
-                mask += i.id;
+                var id = i.id;
+                mask = mask + id;
             }
             jmenuitem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(accelerator.keyStroke.id, mask)); 
         }

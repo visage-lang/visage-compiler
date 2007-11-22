@@ -677,14 +677,15 @@ public abstract class Widget extends GroupElement, UIElement {
                 foreach (i in keyboardAction) {
                     var k = i.keyStroke;
                     var a = i.action;
+                    var e = i.enabled;
                     var j = javax.swing.KeyStroke.getKeyStroke(k.id, 0);
                     inputMap.put(j, i);
-                    actionMap.put(i, javax.swing.AbstractAction {
+                    actionMap.put(i as Object, javax.swing.AbstractAction {
                             public function isEnabled():Boolean {
-                                return i.enabled;
+                                return e;
                             }
                             public function actionPerformed(e:java.awt.event.ActionEvent):Void {
-                                i.action();
+                                a();
                             }
                         } as javax.swing.Action);
                 }
