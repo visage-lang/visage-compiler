@@ -273,10 +273,14 @@ public class JavafxClassReader extends ClassReader {
     /** Define a new class given its name and owner.
      */
     public ClassSymbol defineClass(Name name, Symbol owner) {
-        ClassSymbol c = new JavafxClassSymbol(0, name, owner);
+        ClassSymbol c = new JavafxClassSymbol(0, name, owner, this);
         if (owner.kind == PCK)
             assert classes.get(c.flatname) == null : c;
         c.completer = this;
         return c;
+    }
+
+    public JavafxInitializationBuilder getInitBuilder() {
+        return initBuilder;
     }
 }

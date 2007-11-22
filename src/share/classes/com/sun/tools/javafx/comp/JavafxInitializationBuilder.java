@@ -60,7 +60,7 @@ public class JavafxInitializationBuilder {
         new Context.Key<JavafxInitializationBuilder>();
 
     private final JavafxTreeMaker make;
-    private final Name.Table names;
+    public final Name.Table names;
     private final JavafxToJava toJava;
     private final JavafxSymtab syms;
     private final JavafxTypeMorpher typeMorpher;
@@ -70,7 +70,7 @@ public class JavafxInitializationBuilder {
     private final Name sequenceChangeListenerInterfaceName;
     private final Name valueChangedName;
     private final Name classNameSuffix;
-    final Name interfaceNameSuffix;
+    public final Name interfaceNameSuffix;
     static final String attributeGetMethodNamePrefix = "get$";
     static final String attributeInitMethodNamePrefix = "init$";
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";

@@ -40,6 +40,7 @@ import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javafx.code.JavafxClassSymbol;
 
 import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.Kinds.*;
@@ -414,6 +415,15 @@ public class JavafxCheck {
         }
 	if (types.isAssignable(found, req, convertWarner(pos, found, req)))
 	    return realFound;
+
+        // use the JavafxClassSymbol's supertypes to see if req is in the supertypes of found.
+        if (found.tsym != null && found.tsym instanceof JavafxClassSymbol) {
+            for (Type baseType : ((JavafxClassSymbol)found.tsym).getSuperTypes()) {
+                if (types.isAssignable(baseType, req, convertWarner(pos, found, req)))
+                    return realFound;
+            }
+        }
+       
 	if (found.tag <= DOUBLE && req.tag <= DOUBLE)
 	    return typeError(pos, JCDiagnostic.fragment("possible.loss.of.precision"), found, req);
 	if (found.isSuperBound()) {

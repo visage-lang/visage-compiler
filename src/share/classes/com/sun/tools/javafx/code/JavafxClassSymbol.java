@@ -28,8 +28,11 @@ package com.sun.tools.javafx.code;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
+import com.sun.tools.javafx.comp.JavafxClassReader;
+import com.sun.tools.javafx.comp.JavafxInitializationBuilder;
 
 /**
  * Marker wrapper on class: this is a JavaFX var
@@ -37,15 +40,22 @@ import com.sun.tools.javac.util.Name;
  * @author llitchev
  */
 public class JavafxClassSymbol extends ClassSymbol {
+    private JavafxClassReader reader;
+    private JavafxInitializationBuilder initBuilder;
+    
     private List<Type> supertypes = List.<Type>nil();
     
     /** Creates a new instance of JavafxClassSymbol */
-    public JavafxClassSymbol(long flags, Name name, Type type, Symbol owner) {
+    public JavafxClassSymbol(long flags, Name name, Type type, Symbol owner, JavafxClassReader reader) {
         super(flags, name, type, owner);
+        this.reader = reader;
+        initBuilder = reader.getInitBuilder();
     }
 
-    public JavafxClassSymbol(long flags, Name name, Symbol owner) {
+    public JavafxClassSymbol(long flags, Name name, Symbol owner, JavafxClassReader reader) {
         super(flags, name, owner);
+        this.reader = reader;
+        initBuilder = reader.getInitBuilder();
     }
     
     public void addSuperType(Type type) {
@@ -54,5 +64,38 @@ public class JavafxClassSymbol extends ClassSymbol {
     
     public List<Type> getSuperTypes() {
         return supertypes;
+    }
+
+    public void complete() throws CompletionFailure {
+        if (completer == null) {
+            return;
+        }
+        super.complete();
+        // Convert all the base interfaces of the form className$Intf gto base classes in the supertypes list.
+        if (initBuilder != null && 
+                this.type != null && 
+                type instanceof ClassType) {
+            String cName = this.fullname.toString() + initBuilder.interfaceNameSuffix.toString();
+            Type baseIntf = null;
+            if (type != null && ((ClassType)type).interfaces_field != null) {
+                for (Type ct : ((ClassType)type).interfaces_field) {
+                    if (ct.toString().equals(cName)) {
+                        baseIntf = ct;
+                        break;
+                    }
+                }
+            }
+
+            if (baseIntf != null && baseIntf instanceof ClassType) {
+                baseIntf.complete();
+                for (Type baseType : ((ClassType)baseIntf.tsym.type).interfaces_field) {
+                    if (baseType.toString().endsWith(initBuilder.interfaceNameSuffix.toString())) {
+                        String baseTypeName = baseType.toString();
+                        Type tp = reader.enterClass(initBuilder.names.fromString(baseTypeName.substring(0, baseTypeName.length() - initBuilder.interfaceNameSuffix.toString().length()))).type;
+                        addSuperType(tp);
+                    }
+                }
+            }
+        }
     }
 }
