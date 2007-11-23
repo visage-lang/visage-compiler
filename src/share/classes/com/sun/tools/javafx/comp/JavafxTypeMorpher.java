@@ -749,15 +749,18 @@ public class JavafxTypeMorpher {
                 body, 
                 null); 
         
+        toJava.bindingExpressionDefs.append(getMethod);
+        JCClassDecl anon = make.at(diagPos).AnonymousClassDef(
+                    make.at(diagPos).Modifiers(0), 
+                    toJava.bindingExpressionDefs.toList());
+        toJava.bindingExpressionDefs = null;
         return make.at(diagPos).NewClass(
                 null,                       // enclosing
                 List.<JCExpression>nil(),   // type args
                 // class name
                 toJava.makeTypeTree(tmi.getBindingExpressionType(), diagPos),
                 List.<JCExpression>nil(),   // args
-                make.at(diagPos).AnonymousClassDef(
-                    make.at(diagPos).Modifiers(0), 
-                    List.<JCTree>of(getMethod)));
+                anon);
     }
 
     private JCExpression makeCall(TypeMorphInfo tmi, 

@@ -104,9 +104,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         ToReturnLocationStatement,
         ToExecStatement
     };
+    //TODO: all these should, probably, go into a translation state class
     Yield yield = Yield.ToExpression;
     private JavafxBindStatus bindContext = JavafxBindStatus.UNBOUND;
     private boolean inLHS = false;
+    ListBuffer<JCTree> bindingExpressionDefs = null;
+    
     private JavafxEnv<JavafxAttrContext> attrEnv;
     private Target target;
     private JavafxResolve rs;
@@ -644,6 +647,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     private JCExpressionTupple translateDefinitionalAssignment(DiagnosticPosition diagPos,
                     JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, boolean isAttribute) {
+        ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
+        bindingExpressionDefs = ListBuffer.lb();
         JCExpression translatedInit = boundTranslate(init, bindStatus);
         JCExpressionTupple translatedInitTupple = new JCExpressionTupple(translatedInit, null);
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
@@ -651,6 +656,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             translatedInitTupple = typeMorpher.buildDefinitionalAssignment(diagPos, vmi, 
                     init, translatedInit, bindStatus, isAttribute);
         }
+        assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
+        bindingExpressionDefs = prevBindingExpressionDefs;
         
         return translatedInitTupple;
     }
@@ -1909,11 +1916,32 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
 
         List<JCExpression> args;       
-        {
-            boolean wasInLHS = inLHS;
-            inLHS = callBound;
+        if (callBound) {
+            ListBuffer<JCExpression> targs = ListBuffer.<JCExpression>lb();
+            for (JCExpression arg : tree.args) {
+                switch (arg.getTag()) {
+                case JavafxTag.IDENT:
+                case JavafxTag.SELECT:
+                case JavafxTag.APPLY:
+                    targs.append( translateLHS(arg) );
+                    break;
+                default: {
+                    ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
+                    bindingExpressionDefs = ListBuffer.lb();
+                    targs.append( typeMorpher.buildExpression(
+                            typeMorpher.typeMorphInfo(arg.type), 
+                            arg, 
+                            translateExpressionToStatement(arg, Yield.ToReturnStatement), 
+                            bindContext) );
+                    assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
+                    bindingExpressionDefs = prevBindingExpressionDefs;
+                    break;
+                }
+                }
+            }
+            args = targs.toList();
+        } else {
             args = translate(tree.args);
-            inLHS = wasInLHS;
         }
         
         // if this is a super.foo(x) call, "super" will be translated to referenced class, 
@@ -1940,15 +1968,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     addDependentName, 
                     make.at(tree).Assign( makeTmpAccess(tree, tmpName), app ));
             Type holderType = typeMorpher.typeMorphInfo(sym.getReturnType()).getHolderType();
-            prependToStatements.append(make.VarDef(
-                    make.Modifiers(Flags.FINAL),
+            bindingExpressionDefs.append(make.VarDef(
+                    make.Modifiers(Flags.PRIVATE),
                     tmpName, 
                     makeTypeTree(holderType, tree), 
                     make.at(tree).NewClass(null, null, makeTypeTree(holderType, tree), List.<JCExpression>nil(), null)));
-            fresult = callExpression(tree, 
-                    make.at(tree).Parens( make.at(tree).Conditional(cond, 
+            JCExpression funcLoc = make.at(tree).Conditional(cond, 
                         initLocation, 
-                        makeTmpAccess(tree, tmpName)) ),
+                        makeTmpAccess(tree, tmpName));
+            fresult = inLHS? funcLoc : callExpression(tree, 
+                    make.at(tree).Parens( funcLoc ),
                     typeMorpher.getMethodName);
         }
         if (useInvoke) {
@@ -1967,12 +1996,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
     //where
     private JCExpression makeTmpAccess(DiagnosticPosition diagPos, Name tmpName) {
-        JCExpression getTmp;
-        if (prependToStatements == prependToDefinitions) {
-            getTmp = make.at(diagPos).Select( make.at(diagPos).Ident(initBuilder.receiverName), tmpName);
-        } else {
-            getTmp = make.at(diagPos).Ident(tmpName);
-        }
+        JCExpression getTmp = make.at(diagPos).Ident(tmpName);
         return  make.at(diagPos).Select(getTmp, heldName);
     }
 
@@ -2135,6 +2159,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     private JCBlock boundMethodBody(DiagnosticPosition diagPos, JFXBlockExpression bexpr, JFXOperationDefinition func) {
         JCStatement ret;
+        
+        ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
+        bindingExpressionDefs = ListBuffer.lb();
         BindAnalysis analysis = typeMorpher.bindAnalysis(bexpr);
         if (permeateBind && analysis.isBindPermeable()) { //TODO: permeate bind
             JavafxBindStatus prevBindContext = bindContext;
@@ -2148,6 +2175,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     translateExpressionToStatement(bexpr, Yield.ToReturnStatement), 
                     bindContext));
         }
+        assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
+        bindingExpressionDefs = prevBindingExpressionDefs;
         return asBlock( ret );
     }
     
