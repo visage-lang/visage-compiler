@@ -1965,11 +1965,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     null, 
                     addDependentName, 
                     make.at(tree).Assign( makeTmpAccess(tree, tmpName), app ));
-            Type holderType = typeMorpher.typeMorphInfo(sym.getReturnType()).getHolderType();
+            Type morphedReturnType = typeMorpher.typeMorphInfo(sym.getReturnType()).getMorphedType();
             bindingExpressionDefs.append(make.VarDef(
                     make.Modifiers(Flags.PRIVATE),
                     tmpName, 
-                    makeTypeTree(holderType, tree), 
+                    makeTypeTree(morphedReturnType, tree), 
                     make.Literal(TypeTags.BOT, null)));
             JCExpression funcLoc = make.at(tree).Conditional(cond, 
                         initLocation, 

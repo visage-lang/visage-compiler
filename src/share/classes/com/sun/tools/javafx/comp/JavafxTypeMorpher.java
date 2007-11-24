@@ -236,7 +236,6 @@ public class JavafxTypeMorpher {
         public Type getRealType() { return realType; }
         public Type getMorphedType() { return morphedType; }
         public Type getBindingExpressionType() { return generifyIfNeeded(bindingExpressionType(typeKind), this); }
-        public Type getHolderType() { return generifyIfNeeded(holderType(typeKind), this); }
         public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
         public Type getElementType() { return elementType; }
 
@@ -286,14 +285,12 @@ public class JavafxTypeMorpher {
         exprLocation = new LocationNameSymType[TYPE_KIND_COUNT];
         declLocation = new LocationNameSymType[TYPE_KIND_COUNT];
         bindingExpression = new LocationNameSymType[TYPE_KIND_COUNT];
-        holder = new LocationNameSymType[TYPE_KIND_COUNT];
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
             varLocation[kind]  = new LocationNameSymType(locClass[kind] + "Var");
             exprLocation[kind] = new LocationNameSymType(locClass[kind] + "Expression");
             declLocation[kind] = new LocationNameSymType(locClass[kind] + "Location");
             bindingExpression[kind] = new LocationNameSymType(locClass[kind] + "BindingExpression");
-            holder[kind] = new LocationNameSymType(locClass[kind] + "LocationHolder");
         }
         
         baseLocation = new LocationNameSymType("Location");
@@ -332,10 +329,6 @@ public class JavafxTypeMorpher {
 
     Type bindingExpressionType(int typeKind) {
         return bindingExpression[typeKind].type;
-    }
-    
-    Type holderType(int typeKind) {
-        return holder[typeKind].type;
     }
     
     JCExpression sharedLocationId(DiagnosticPosition diagPos, int typeKind, LocationNameSymType[] lnsta) {
