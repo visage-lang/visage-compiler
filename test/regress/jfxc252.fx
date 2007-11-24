@@ -1,5 +1,5 @@
 /* JFXC-252:  Bad attribution error. The Button was not considered of Widget type.
- * !test disabled. regress test don't have the RTL on their class path
+ * @test
  */
 import javafx.ui.*; 
 import javax.swing.JComponent; 

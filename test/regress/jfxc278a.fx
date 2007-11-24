@@ -1,5 +1,6 @@
 /* JFXC-278:  bad class file error when bound function generation is enabled.
- * !test disabled. regress test don't have the RTL on their class path
+ *
+ * @test
  */
 import javafx.ui.*; 
 
