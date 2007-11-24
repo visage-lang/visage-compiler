@@ -75,15 +75,14 @@ public class Rect extends Shape, SizeableCanvasElement {
     }
 
     protected function onSizeToFitCanvas(value:Boolean):Void {
-//TODO JFXC-272:
-//        if (parentCanvasElement <> null) {
-//            var canvas = this.getCanvas();
-//            if (value) {
-//                insert this into canvas.sizeToFitList;
-//           } else {
-//                delete this from canvas.sizeToFitList;
-//            }
-//        }
+        if (parentCanvasElement <> null) {
+            var canvas = this.getCanvas();
+            if (value) {
+                insert this into canvas.sizeToFitList;
+           } else {
+                delete this from canvas.sizeToFitList;
+            }
+        }
     }
     public function createShape(): SGShape {
         awtrect = new java.awt.geom.RoundRectangle2D.Double(x, y, width, height, arcWidth, arcHeight);

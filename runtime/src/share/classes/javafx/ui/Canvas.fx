@@ -81,8 +81,7 @@ public class Canvas extends Widget, CanvasElement, Container {
     // public:
     public attribute content: Node[]
         on insert [indx] (newValue) {
-//TODO JFXC-272:
-//            newValue.parentCanvasElement = this;
+            newValue.parentCanvasElement = this; // Lubo as CanvasElement;
 
             if (root <> null) {
                 root.add(newValue.getNode());
@@ -95,8 +94,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         }
         on replace [indx] (oldValue) {
             var newValue = content[indx];
-//TODO JFXC-272:
-//          newValue.parentCanvasElement = this;
+          newValue.parentCanvasElement = this;
             if (root <> null) {
                 root.remove(oldValue.getNode());
                 root.add(newValue.getNode());
@@ -350,8 +348,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         jsgpanel.setOpaque(false);
         jsgpanel.setScene(root);
         foreach (i in content) {
-//TODO JFXC-272:
-//            i.parentCanvasElement = this;
+            i.parentCanvasElement = this;
             root.add(i.getNode());
         }
         var self = this;
