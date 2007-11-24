@@ -672,69 +672,53 @@ public class JavafxTypeMorpher {
     public JCExpressionTupple buildDefinitionalAssignment(DiagnosticPosition diagPos,
                     VarMorphInfo vmi, JCExpression fxInit, JCExpression translatedInit,
                     JavafxBindStatus bindStatus, boolean isAttribute) {
-        JCExpressionTupple ret;
+        List<JCExpression> returnedDependencies = null;
         JCExpression initExpr = (translatedInit != null)? 
                 translatedInit : 
                 vmi.getTypeKind() == TYPE_KIND_SEQUENCE? 
                       toJava.makeEmptySeuenceCreator(diagPos, vmi.getElementType())
                     : makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
-        ret = new JCExpressionTupple(initExpr, null);
+        
         if (bindStatus.isUnidiBind()) {
             JCStatement stmt = make.at(diagPos).Return(translatedInit);
-            ret = isAttribute?
-                buildAttributeExpressionAndDependencies(vmi, fxInit, stmt, bindStatus)
-                : new JCExpressionTupple(buildExpression(vmi, fxInit, stmt, bindStatus), null);
+            List<JCExpression> dependencies = buildDependencies(fxInit);
+            List<JCExpression> initDependencies;
+            
+            if (isAttribute) {
+                initDependencies = List.<JCExpression>nil();
+                returnedDependencies = dependencies;
+            } else {
+                initDependencies = dependencies;
+                returnedDependencies = null;
+            }
+            initExpr =buildExpression(diagPos, vmi, stmt, bindStatus.isLazy(), initDependencies);
         } else if (!bindStatus.isBidiBind()) {
             initExpr = makeCall(vmi, diagPos, List.of(initExpr), varLocation, makeMethodName);
-            ret = new JCExpressionTupple(initExpr, null);
         }
-        return ret;
+        return new JCExpressionTupple(initExpr, returnedDependencies);
     }
-    
-    /**
-     * Create an ExpressionLocation and dependencies for a class attribute
-     * from "stmt" which is the translation of "fxInit" into
-     * a statement.  The ExpressionLocation is created with an anonymous binding expression
-     * instance and no static dependencies (these are set-up during instance init).
-     */
-    private JCExpressionTupple buildAttributeExpressionAndDependencies(TypeMorphInfo tmi, 
-            JCExpression fxInit, JCStatement stmt, JavafxBindStatus bindStatus) {
-        DiagnosticPosition diagPos = fxInit.pos();
 
-        JCExpression newExpr = buildExpressionClass(diagPos, tmi,  stmt);
-        List<JCExpression> dependencies = buildDependencies(fxInit);
-        
-        List<JCExpression> argValues = List.of(newExpr);
-        
-        JCExpression makeExpr = makeExpressionLocation(diagPos, tmi,  bindStatus, argValues);
-        return new JCExpressionTupple(makeExpr, dependencies);
-    }
-    
     /**
-     * Create an ExpressionLocation from "stmt" which is the translation of "fxInit" into
+     * Create an ExpressionLocation from "stmt" which is the translation of the expression into
      * a statement.  The ExpressionLocation is created with an anonymous binding expression
      * instance and the static dependencies.
      */
-    JCExpression buildExpression(TypeMorphInfo tmi, 
-            JCExpression fxInit, JCStatement stmt, JavafxBindStatus bindStatus) {
-        DiagnosticPosition diagPos = fxInit.pos();
-
-        List<JCExpression> dependencies = buildDependencies(fxInit);
-        if (false && dependencies.size() == 0) { //TODO: block expression return would have to be dealt with
-            return makeCall(tmi, diagPos, List.of(toJava.translate(fxInit)), varLocation, makeMethodName);
-        } else {
+    JCExpression buildExpression(DiagnosticPosition diagPos, 
+            TypeMorphInfo tmi,
+            JCStatement stmt, 
+            boolean isLazy, 
+            List<JCExpression> staticDependencies) {
             JCExpression newExpr = buildExpressionClass(diagPos, tmi, stmt);
 
             ListBuffer<JCExpression> argValues = ListBuffer.lb();
             argValues.append(newExpr);
-            argValues.appendList(dependencies);
+            argValues.appendList(staticDependencies);
 
-            return makeExpressionLocation(diagPos, tmi, bindStatus, argValues.toList());
-        }
+            return makeExpressionLocation(diagPos, tmi, isLazy, argValues.toList());
     }
     
-    JCExpression makeExpressionLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi,  JavafxBindStatus bindStatus, List<JCExpression> makeArgs) {
-        Name makeName = bindStatus.isLazy()? makeLazyMethodName : makeMethodName;
+    JCExpression makeExpressionLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi,  boolean isLazy, List<JCExpression> makeArgs) {
+        Name makeName = isLazy? makeLazyMethodName : makeMethodName;
         return makeCall(tmi, diagPos, makeArgs, exprLocation, makeName);
     }
     

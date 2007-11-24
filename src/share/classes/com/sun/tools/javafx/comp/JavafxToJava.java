@@ -58,6 +58,8 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.BindAnalysis;
 import com.sun.tools.javafx.tree.JavafxTreeMaker; // only for BlockExpression
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import static com.sun.tools.javac.code.Flags.*;
+
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.io.OutputStreamWriter;
@@ -98,6 +100,29 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      */
     private ListBuffer<JCStatement> prependToDefinitions = null;
     private ListBuffer<JCStatement> prependToStatements = null;
+    
+    enum YY {
+        AsStatement,
+        AsExpression,
+        AsReturn,
+        AsExec,
+        AsBoundLocation,
+        IsLazy
+    };
+    
+    class State {
+
+        EnumSet<YY> flags;
+        Type asType;
+
+        State(EnumSet<YY> flags, Type asType) {
+            this.flags = flags;
+            this.asType = asType;
+        }
+    }
+
+    State state;
+
     
     // for type morphing
     enum Yield {
@@ -195,6 +220,56 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 	return translated.toList();
     }
     
+    public <T extends JCTree> T translate(T tree, State newState) {
+        State prevState = state;
+        state = newState;
+        T ret = translate(tree);
+        state = prevState;
+        return ret;
+    }
+
+    public <T extends JCTree> List<T> translate(List<T> trees, State newState) {
+        State prevState = state;
+        state = newState;
+        List<T> ret = translate(trees);
+        state = prevState;
+        return ret;
+    }
+
+    JCStatement translateExpressionToStatement(JCExpression expr, State newState) {
+        State prevState = state;
+        state = newState;
+        JCStatement ret = translateExpressionToStatement(expr);
+        state = prevState;
+        return ret;
+    }
+
+    public <T extends JCTree> T translate(T tree, EnumSet<YY> yield, Type asType) {
+        return translate(tree, new State(yield, asType));
+    }
+
+    public <T extends JCTree> List<T> translate(List<T> trees, EnumSet<YY> yield, Type asType) {
+        return translate(trees, new State(yield, asType));
+    }
+
+    public JCStatement translateExpressionToStatement(JCExpression expr, EnumSet<YY> yield, Type asType) {
+        return translateExpressionToStatement(expr, new State(yield, asType));
+    }
+
+    public <T extends JCTree> T translate(T tree, YY first, YY... rest) {
+        return translate(tree, EnumSet.of(first, rest), state.asType);
+    }
+
+    public <T extends JCTree> List<T> translate(List<T> trees, YY first, YY... rest) {
+        return translate(trees, EnumSet.of(first, rest), state.asType);
+    }
+
+    public JCStatement translateExpressionToStatement(JCExpression expr, YY first, YY... rest) {
+        return translateExpressionToStatement(expr, EnumSet.of(first, rest), state.asType);
+    }
+
+
+
     /**
      * Translate a list of statements, 
      * The purpose of this method is to prepend an anonymous class definition in the correct
@@ -283,7 +358,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             case ToReturnStatement:
                 return translated;
             case ToReturnLocationStatement:
-                return make.at(expr).Return(typeMorpher.buildExpression(typeMorpher.typeMorphInfo(expr.type), expr, translated, bindContext));
+                return make.at(expr).Return(typeMorpher.buildExpression(expr.pos(), typeMorpher.typeMorphInfo(expr.type), translated, bindContext.isLazy(), typeMorpher.buildDependencies(expr)));
             case ToExpression:
             default:
                 assert false : "this method should not be called";
@@ -1044,7 +1119,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         // this may or may not be in a LHS but in either
         // event the selector is a value expression
         JCExpression translatedSelected = translateLHS(selected, false);
-     
+ant test     
         if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
             MethodType mtype = (MethodType) tree.sym.type;
             JCVariableDecl selectedTmp = null;
@@ -1932,10 +2007,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
                     bindingExpressionDefs = ListBuffer.lb();
                     targs.append( typeMorpher.buildExpression(
+                            arg.pos(),
                             typeMorpher.typeMorphInfo(arg.type), 
-                            arg, 
                             translateExpressionToStatement(arg, Yield.ToReturnStatement), 
-                            bindContext) );
+                            bindContext.isLazy(), 
+                            typeMorpher.buildDependencies(arg)) );
                     assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
                     bindingExpressionDefs = prevBindingExpressionDefs;
                     break;
@@ -2180,10 +2256,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             bindContext = prevBindContext;
         } else {
             ret =  make.at(diagPos).Return(  typeMorpher.buildExpression(
+                    diagPos,
                     typeMorpher.varMorphInfo( func.sym ), 
-                    bexpr, 
                     translateExpressionToStatement(bexpr, Yield.ToReturnStatement), 
-                    bindContext));
+                    bindContext.isLazy(), 
+                    typeMorpher.buildDependencies(bexpr)));
         }
         assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
         bindingExpressionDefs = prevBindingExpressionDefs;
