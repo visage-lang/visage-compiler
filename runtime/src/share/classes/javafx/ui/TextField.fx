@@ -32,7 +32,6 @@ import javax.swing.JTextField;
 public class TextField extends Widget {
     private attribute textField: JTextField = new JFormattedTextField();
     private attribute propertyChangeListener:java.beans.PropertyChangeListener;
-    private attribute propertyChangeRunnable:java.lang.Runnable;
     private attribute verifier: com.sun.javafx.api.ui.XInputVerifierImpl;
 
     public attribute value: String on replace  {
@@ -121,22 +120,15 @@ public class TextField extends Widget {
             javax.swing.UIManager.put("TextField.selectedTextColor", selectedTextColor);
         }
         textField.setSelectedTextColor(selectedTextColor);
-
         
-        propertyChangeRunnable = java.lang.Runnable {
-                                      public function run():Void {
-                                          value = textField.getText();
-                                          if(onChange <> null)
-                                            onChange(textField.getText());
-                                      }
-                            };
         propertyChangeListener = java.beans.PropertyChangeListener {
-                public function propertyChange(e:java.beans.PropertyChangeEvent):Void {
-                    if (e.getPropertyName().equals("value")) {
-                            //TODO DO LATER - this is a work around until a more permanent solution is provided
-                            javax.swing.SwingUtilities.invokeLater(propertyChangeRunnable);                          
-                    }
+            public function propertyChange(e:java.beans.PropertyChangeEvent):Void {
+                if (e.getPropertyName().equals("value")) {
+                    value = textField.getText();
+                    if(onChange <> null)
+                        onChange(textField.getText());
                 }
+            }
         };
         textField.addPropertyChangeListener(propertyChangeListener);
 
