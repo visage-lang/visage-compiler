@@ -681,7 +681,9 @@ public class JavafxTypeMorpher {
         ret = new JCExpressionTupple(initExpr, null);
         if (bindStatus.isUnidiBind()) {
             JCStatement stmt = make.at(diagPos).Return(translatedInit);
-            ret = buildExpressionAndDependencies(vmi, fxInit, stmt, bindStatus, isAttribute);
+            ret = isAttribute?
+                buildAttributeExpressionAndDependencies(vmi, fxInit, stmt, bindStatus)
+                : new JCExpressionTupple(buildExpression(vmi, fxInit, stmt, bindStatus), null);
         } else if (!bindStatus.isBidiBind()) {
             initExpr = makeCall(vmi, diagPos, List.of(initExpr), varLocation, makeMethodName);
             ret = new JCExpressionTupple(initExpr, null);
@@ -689,23 +691,30 @@ public class JavafxTypeMorpher {
         return ret;
     }
     
-    JCExpressionTupple buildExpressionAndDependencies(TypeMorphInfo tmi, 
-            JCExpression fxInit, JCStatement stmt, JavafxBindStatus bindStatus, boolean isAttribute) {
+    /**
+     * Create an ExpressionLocation and dependencies for a class attribute
+     * from "stmt" which is the translation of "fxInit" into
+     * a statement.  The ExpressionLocation is created with an anonymous binding expression
+     * instance and no static dependencies (these are set-up during instance init).
+     */
+    private JCExpressionTupple buildAttributeExpressionAndDependencies(TypeMorphInfo tmi, 
+            JCExpression fxInit, JCStatement stmt, JavafxBindStatus bindStatus) {
         DiagnosticPosition diagPos = fxInit.pos();
 
         JCExpression newExpr = buildExpressionClass(diagPos, tmi,  stmt);
         List<JCExpression> dependencies = buildDependencies(fxInit);
         
-        ListBuffer<JCExpression> argValues = ListBuffer.lb();
-        argValues.append(newExpr);
-        if (!isAttribute) {
-            argValues.appendList(dependencies);
-        }
+        List<JCExpression> argValues = List.of(newExpr);
         
-        JCExpression makeExpr = makeExpressionLocation(diagPos, tmi,  bindStatus, argValues.toList());
-        return new JCExpressionTupple(makeExpr, isAttribute ? dependencies : null);
+        JCExpression makeExpr = makeExpressionLocation(diagPos, tmi,  bindStatus, argValues);
+        return new JCExpressionTupple(makeExpr, dependencies);
     }
     
+    /**
+     * Create an ExpressionLocation from "stmt" which is the translation of "fxInit" into
+     * a statement.  The ExpressionLocation is created with an anonymous binding expression
+     * instance and the static dependencies.
+     */
     JCExpression buildExpression(TypeMorphInfo tmi, 
             JCExpression fxInit, JCStatement stmt, JavafxBindStatus bindStatus) {
         DiagnosticPosition diagPos = fxInit.pos();

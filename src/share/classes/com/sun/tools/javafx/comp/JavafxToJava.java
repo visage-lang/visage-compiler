@@ -1892,6 +1892,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         MethodSymbol sym = null;
         if (generateBoundFunctions && bindContext.isBound()) {
             sym = (MethodSymbol) expressionSymbol(tree.meth);
+            // if we are in a bound context and we are calling an FX function, call the bound version of the function
             if (sym != null && initBuilder.isJFXClass(sym.owner) && sym.getReturnType() != syms.voidType) {
                 callBound = true;
                 Name name = functionName(sym, true);
@@ -1913,6 +1914,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
         }
 
+        // compute the translated arguments.
+        // if this is a bound call, use left-hand side references for arguments consisting
+        // solely of a  var or attribute reference, or function call, otherwise, wrap it
+        // in an expression location
         List<JCExpression> args;       
         if (callBound) {
             ListBuffer<JCExpression> targs = ListBuffer.<JCExpression>lb();
@@ -1957,14 +1962,20 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCMethodInvocation app = make.at(tree.pos).Apply(typeargs, meth, args);
         JCExpression fresult = app;
         if (callBound) {
+            // now, generate the bound function call.  The bound function should be called no
+            // more than once (per context), but it must be called in place, because of local
+            // variables, so lazily set the functions bound location, which is store as a field
+            // on the binding expression.  Code looks like this:
+            //     (loc == null)? addDependent( loc = boundCall ) : loc
+            // if this is a right-hand side context, call get() on that to get the value.
             Name tmpName = getSyntheticName("loc");
             JCExpression cond = make.at(tree).Binary(JCTree.EQ, 
-                            makeTmpAccess(tree, tmpName), 
+                            make.at(tree).Ident(tmpName), 
                             make.Literal(TypeTags.BOT, null));
             JCExpression initLocation = callExpression(tree, 
                     null, 
                     addDependentName, 
-                    make.at(tree).Assign( makeTmpAccess(tree, tmpName), app ));
+                    make.at(tree).Assign( make.at(tree).Ident(tmpName), app ));
             Type morphedReturnType = typeMorpher.typeMorphInfo(sym.getReturnType()).getMorphedType();
             bindingExpressionDefs.append(make.VarDef(
                     make.Modifiers(Flags.PRIVATE),
@@ -1973,7 +1984,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     make.Literal(TypeTags.BOT, null)));
             JCExpression funcLoc = make.at(tree).Conditional(cond, 
                         initLocation, 
-                        makeTmpAccess(tree, tmpName));
+                        make.at(tree).Ident(tmpName));
             fresult = inLHS? funcLoc : callExpression(tree, 
                     make.at(tree).Parens( funcLoc ),
                     typeMorpher.getMethodName);
@@ -1991,10 +2002,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             fresult = block;
         }
         result = fresult;
-    }
-    //where
-    private JCExpression makeTmpAccess(DiagnosticPosition diagPos, Name tmpName) {
-        return make.at(diagPos).Ident(tmpName);
     }
 
     public void visitModifiers(JCModifiers tree) {
@@ -2154,6 +2161,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
     }
     
+    /**
+     * Build the body of a bound function.
+     * There are two approaches, bind the body as a whole and re-executed it if any of its dependencies change,
+     * or permeate the bind into the body.
+     * The latter will be attempted when it is straight-line code with no assignments
+     */
     private JCBlock boundMethodBody(DiagnosticPosition diagPos, JFXBlockExpression bexpr, JFXOperationDefinition func) {
         JCStatement ret;
         
