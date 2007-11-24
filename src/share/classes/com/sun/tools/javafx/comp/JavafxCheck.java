@@ -500,11 +500,18 @@ public class JavafxCheck {
 	    return req;
 	} else if (types.isCastable(found, req, castWarner(pos, found, req))) {
 	    return req;
-	} else {
-	    return typeError(pos,
-			     JCDiagnostic.fragment("inconvertible.types"),
-			     found, req);
-	}
+        }
+        // use the JavafxClassSymbol's supertypes to see if req is in the supertypes of found.
+        else if (found.tsym != null && found.tsym instanceof JavafxClassSymbol) {
+            for (Type baseType : ((JavafxClassSymbol)found.tsym).getSuperTypes()) {
+                if (types.isCastable(baseType, req, castWarner(pos, found, req)))
+                    return req;
+            }
+        }
+
+        return typeError(pos,
+            JCDiagnostic.fragment("inconvertible.types"),
+	    found, req);
     }
 //where
         /** Is type a type variable, or a (possibly multi-dimensional) array of

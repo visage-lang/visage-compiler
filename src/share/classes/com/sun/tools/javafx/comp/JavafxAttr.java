@@ -474,7 +474,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 ClassSymbol c = (ClassSymbol)bound.tsym;
                 if ((c.flags_field & COMPOUND) != 0) {
                     assert (c.flags_field & UNATTRIBUTED) != 0 : c;
-                    attribClass(typaram.pos(), c);
+                    attribClass(typaram.pos(), null, c);
                 }
             }
         }
@@ -1331,7 +1331,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 //                }
 
                 attribStat(cdef, localEnv);
-                attribClass(cdef.pos(), cdef.sym);
+                attribClass(cdef.pos(), null, cdef.sym);
 
                 // Reassign clazztype and recompute constructor.
                 clazztype = cdef.sym.type;
@@ -2103,10 +2103,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
      *             reported.
      *  @param c   The class symbol whose definition will be attributed.
      */
-    public void attribClass(DiagnosticPosition pos, ClassSymbol c) {
+    public void attribClass(DiagnosticPosition pos, JFXClassDeclaration tree, ClassSymbol c) {
         try {
             annotate.flush();
-            attribClass(c);
+            attribClass(tree, c);
         } catch (CompletionFailure ex) {
             chk.completionError(pos, ex);
         }
@@ -2115,7 +2115,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     /** Attribute class definition associated with given class symbol.
      *  @param c   The class symbol whose definition will be attributed.
      */
-    void attribClass(ClassSymbol c) throws CompletionFailure {
+    void attribClass(JFXClassDeclaration tree, ClassSymbol c) throws CompletionFailure {
         if (c.type.tag == ERROR) return;
 
         // Check for cycles in the inheritance graph, which can arise from
@@ -2126,13 +2126,17 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if ((c.flags_field & Flags.COMPOUND) == 0) {
             // First, attribute superclass.
             if (st.tag == CLASS)
-                attribClass((ClassSymbol)st.tsym);
+                attribClass(null, (ClassSymbol)st.tsym);
 
             // Next attribute owner, if it is a class.
             if (c.owner.kind == TYP && c.owner.type.tag == CLASS)
-                attribClass((ClassSymbol)c.owner);
+                attribClass(null, (ClassSymbol)c.owner);
         }
 
+        if (tree != null) {
+            attribSupertypes(tree, c);
+        }
+        
         // The previous operations might have attributed the current class
         // if there was a cycle. So we test first whether the class is still
         // UNATTRIBUTED.
@@ -2265,71 +2269,83 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 c.flags_field |= NOOUTERTHIS;
             }
 
-            JavafxClassSymbol javafxClassSymbol = null;
-            if (c instanceof JavafxClassSymbol) {
-                javafxClassSymbol = (JavafxClassSymbol)c;
-            }
-
-            Symbol javaSupertypeSymbol = null;
-            boolean addToSuperTypes = true;
-
-            for (JCExpression superClass : tree.getSupertypes()) {
-                Type supType = attribType(superClass, env);
-                if (!supType.isInterface() && 
-                        !initBuilder.isJFXClass(supType.tsym) && 
-                        !supType.isPrimitive() &&
-                        javafxClassSymbol.type instanceof ClassType) {
-                    if (javaSupertypeSymbol == null) {
-                        javaSupertypeSymbol = supType.tsym;
-                        // Verify there is a non-parametric constructor.
-                        boolean hasNonParamCtor = true; // If there is no non-param constr we will create one later.
-                        for (Scope.Entry e1 = javaSupertypeSymbol.members().elems;
-                                 e1 != null;
-                                 e1 = e1.sibling) {
-                                Symbol s1 = e1.sym;
-                                if (s1 != null &&
-                                        s1.name == names.init &&
-                                        s1.kind == Kinds.MTH) {
-                                    MethodType mtype = ((MethodSymbol)s1).type.asMethodType();
-                                    if (mtype != null && mtype.getParameterTypes().isEmpty()) {
-                                        hasNonParamCtor = true;
-                                        break;
-                                    }
-                                    else {
-                                        hasNonParamCtor = false;
-                                    }
-                                }
-                        }
-
-                        if (hasNonParamCtor) {
-                            ((ClassType)javafxClassSymbol.type).supertype_field = javaSupertypeSymbol.type;
-                            addToSuperTypes = false;
-                        }
-                        else {
-                            log.error(superClass.pos(), "javafx.base.java.class.non.papar.ctor", supType.tsym.name);
-                            
-                        }
-                    }
-                    else {
-                        // We are already extending one Java class. No more than one is allowed. Report an error.
-                        log.error(superClass.pos(), "javafx.only.one.base.java.class.allowed", supType.tsym.name);
-                    }
-                }
-                
-                if (addToSuperTypes && 
-                        supType != null && 
-                        javafxClassSymbol != null) {
-                    javafxClassSymbol.addSuperType(supType);
-                }
-                addToSuperTypes = true;
-            }
-
-            attribClass(tree.pos(), c);
+            attribSupertypes(tree, c);
+            
+            attribClass(tree.pos(), null, c);
             
             result = tree.type = c.type;
         }
         
         initBuilder.addFxClass(c, tree);
+    }
+    
+    private void attribSupertypes(JFXClassDeclaration tree, ClassSymbol c) {
+        JavafxClassSymbol javafxClassSymbol = null;
+        if (c instanceof JavafxClassSymbol) {
+            javafxClassSymbol = (JavafxClassSymbol)c;
+        }
+
+        Symbol javaSupertypeSymbol = null;
+        boolean addToSuperTypes = true;
+
+        for (JCExpression superClass : tree.getSupertypes()) {
+            Type supType = null;
+            Symbol supSym = TreeInfo.symbol(superClass);
+            if (supSym == null)  {
+                supType = attribType(superClass, env);
+            }
+            else {
+                supType = supSym.type;
+            }
+            if (!supType.isInterface() && 
+                    !initBuilder.isJFXClass(supType.tsym) && 
+                    !supType.isPrimitive() &&
+                    javafxClassSymbol.type instanceof ClassType) {
+                if (javaSupertypeSymbol == null) {
+                    javaSupertypeSymbol = supType.tsym;
+                    // Verify there is a non-parametric constructor.
+                    boolean hasNonParamCtor = true; // If there is no non-param constr we will create one later.
+                    for (Scope.Entry e1 = javaSupertypeSymbol.members().elems;
+                             e1 != null;
+                             e1 = e1.sibling) {
+                            Symbol s1 = e1.sym;
+                            if (s1 != null &&
+                                    s1.name == names.init &&
+                                    s1.kind == Kinds.MTH) {
+                                MethodType mtype = ((MethodSymbol)s1).type.asMethodType();
+                                if (mtype != null && mtype.getParameterTypes().isEmpty()) {
+                                    hasNonParamCtor = true;
+                                    break;
+                                }
+                                else {
+                                    hasNonParamCtor = false;
+                                }
+                            }
+                    }
+
+                    if (hasNonParamCtor) {
+                        ((ClassType)javafxClassSymbol.type).supertype_field = javaSupertypeSymbol.type;
+                        addToSuperTypes = false;
+                    }
+                    else {
+                        log.error(superClass.pos(), "javafx.base.java.class.non.papar.ctor", supType.tsym.name);
+
+                    }
+                }
+                else {
+                    // We are already extending one Java class. No more than one is allowed. Report an error.
+                    log.error(superClass.pos(), "javafx.only.one.base.java.class.allowed", supType.tsym.name);
+                }
+            }
+
+            if (addToSuperTypes && 
+                    supType != null && 
+                    javafxClassSymbol != null) {
+                javafxClassSymbol.addSuperType(supType);
+            }
+            addToSuperTypes = true;
+        }
+
     }
     
     @Override

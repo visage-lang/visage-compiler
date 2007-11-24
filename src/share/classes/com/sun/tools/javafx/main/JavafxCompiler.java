@@ -945,7 +945,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                                   env.enclClass.sym.sourcefile :
                                   env.toplevel.sourcefile);
         try {
-            attr.attribClass(env.tree.pos(), env.enclClass.sym);
+            attr.attribClass(env.tree.pos(), env.tree instanceof JFXClassDeclaration ? (JFXClassDeclaration)env.tree : null,
+                env.enclClass.sym);
         }
         finally {
             log.useSource(prev);
