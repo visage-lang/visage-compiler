@@ -55,7 +55,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     protected static final Context.Key<JavafxModuleBuilder> javafxModuleBuilderKey =
         new Context.Key<JavafxModuleBuilder>();
 
-    public static final String runMethodString = "javafx$run$";
+    private final JavafxDefs defs;
     private Table names;
     private JavafxTreeMaker make;
     private final JavafxToJava toJava;
@@ -72,6 +72,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     }
 
     protected JavafxModuleBuilder(Context context) {
+        defs = JavafxDefs.instance(context);
         names = Table.instance(context);
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         log = Log.instance(context);
@@ -148,7 +149,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         }
                 
         // Add run() method... If the class can be a module class.
-        moduleClassDefs.prepend(makeMethod(runMethodString, stats.toList(), value, syms.objectType));
+        moduleClassDefs.prepend(makeMethod(defs.runMethodName, stats.toList(), value, syms.objectType));
 
         if (moduleClass == null) {
             moduleClass =  make.ClassDeclaration(
@@ -176,7 +177,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         super.visitClassDeclaration(tree);
     }
 
-    private JFXOperationDefinition makeMethod(String name, List<JCStatement> stats, JCExpression value, Type returnType) {
+    private JFXOperationDefinition makeMethod(Name name, List<JCStatement> stats, JCExpression value, Type returnType) {
         List<JFXVar> emptyVarList = List.nil();
         JFXBlockExpression body = make.BlockExpression(0, stats, value);
         JCExpression rettree = toJava.makeTypeTree(returnType, null);
@@ -184,7 +185,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         rettree.type = returnType;
         return make.OperationDefinition(
                 make.Modifiers(PUBLIC | STATIC | SYNTHETIC), 
-                Name.fromString(names, name), 
+                name, 
                 make.TypeClass(rettree, JFXType.Cardinality.SINGLETON),
                 emptyVarList, 
                 body);        

@@ -56,6 +56,7 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.BindAnalysis;
 import com.sun.tools.javafx.tree.JavafxTreeMaker; // only for BlockExpression
+import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import static com.sun.tools.javac.code.Flags.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -80,6 +81,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private final JavafxSymtab syms;
     private final JavafxInitializationBuilder initBuilder;
     final JavafxTypeMorpher typeMorpher;
+    private final JavafxDefs defs;
     final private JavafxModuleBuilder moduleBuilder;
 
     /*
@@ -117,10 +119,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     /*
      * static information
      */
-    static final boolean generateBoundFunctions = false;
+    static final boolean generateBoundFunctions = true;
     static final boolean permeateBind = false;
     
-    private static final String sequencesMakeString = "com.sun.javafx.runtime.sequence.Sequences.make";
     private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
     private static final String sequencesRangeExclusiveString = "com.sun.javafx.runtime.sequence.Sequences.rangeExclusive";
     private static final String sequencesEmptyString = "com.sun.javafx.runtime.sequence.Sequences.emptySequence";
@@ -128,8 +129,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private static final String toSequenceString = "toSequence";
     private static final String methodThrowsString = "java.lang.Throwable";
     private static final String syntheticNamePrefix = "jfx$$";
-    private static final String staticFunctionSuffix = "$static";
-    private static final String boundFunctionSuffix = "$bound";
     private JFXClassDeclaration currentClass;  //TODO: this is redundant with attrEnv.enclClass
     Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
     
@@ -159,6 +158,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         initBuilder = JavafxInitializationBuilder.instance(context);
         target = Target.instance(context);
         rs = JavafxResolve.instance(context);
+        defs = JavafxDefs.instance(context);
         moduleBuilder = JavafxModuleBuilder.instance(context);
         
         addDependentName = names.fromString("addDependent");
@@ -319,7 +319,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                 initBuilder.isJFXClass((ClassSymbol)(select.sym))) {
                            imports.append(make.Import(make.Select(
                                         translate( select.selected ), 
-                                        names.fromString(select.name.toString() + initBuilder.interfaceNameSuffix)), 
+                                        names.fromString(select.name.toString() + interfaceSuffix)), 
                                    false));
                         }
                     }  else if (((JCImport)def).getQualifiedIdentifier().getTag() == JCTree.IDENT) {
@@ -327,7 +327,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         if (ident.name != names.asterisk && 
                                 ((ident.sym) instanceof ClassSymbol) &&
                                 initBuilder.isJFXClass((ClassSymbol)(ident.sym))) {
-                            imports.append(make.Import(make.Ident(names.fromString(ident.name.toString() + initBuilder.interfaceNameSuffix)), false));
+                            imports.append(make.Import(make.Ident(names.fromString(ident.name.toString() + interfaceSuffix)), false));
                         }
                     }
                 }
@@ -481,7 +481,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             else {
                 implementing = ListBuffer.<JCExpression>lb();
                 implementing.append(make.Ident(model.interfaceName));
-                implementing.append(makeIdentifier(initBuilder.fxObjectName));
+                implementing.append(makeIdentifier(fxObjectString));
             }
             
             long flags = tree.mods.flags & (Flags.PUBLIC | Flags.PRIVATE | Flags.PROTECTED | Flags.FINAL | Flags.ABSTRACT);
@@ -557,7 +557,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         List<JCExpression> newClassArgs = translate( tree.getArgs());
         if (tree.getClassBody() != null &&
             tree.getClassBody().sym != null && hasOuters.contains(tree.getClassBody().sym)) {
-            JCIdent thisIdent = make.Ident(initBuilder.receiverName);
+            JCIdent thisIdent = make.Ident(defs.receiverName);
             thisIdent.sym = tree.getClassBody().sym.owner;
             thisIdent.type = tree.getClassBody().sym.owner.type;
             
@@ -592,13 +592,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     }
 
                     JCIdent ident1 = make.at(diagPos).Ident(tmpName);
-                    JCStatement lastStatement = callStatement(diagPos, ident1, initBuilder.attributeInitMethodNamePrefix + olpart.getName().toString(), init);
+                    JCStatement lastStatement = callStatement(diagPos, ident1, attributeInitMethodNamePrefix + olpart.getName().toString(), init);
                     stats.append(lastStatement); 
 
                 }
 
                 JCIdent ident3 = make.Ident(tmpName);   
-                JCStatement applyExec = callStatement(tree.pos(), ident3, initBuilder.initializeName);
+                JCStatement applyExec = callStatement(tree.pos(), ident3, defs.initializeName);
                 stats.append(applyExec);
 
                 JCIdent ident2 = make.Ident(tmpName);
@@ -937,7 +937,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     body.stats = body.stats.prepend(
                             make.at(diagPos).VarDef(
                                 make.at(diagPos).Modifiers(Flags.FINAL), 
-                                initBuilder.receiverName, 
+                                defs.receiverName, 
                                 make.Ident(initBuilder.interfaceName(currentClass)), 
                                 make.at(diagPos).Ident(names._this))
                             );
@@ -1115,7 +1115,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         if (tree.name == names._this) {
             // in the static implementation method, "this" becomes "receiver$"
-            result = make.at(diagPos).Ident(initBuilder.receiverName);
+            result = make.at(diagPos).Ident(defs.receiverName);
             return;
         } else if (tree.name == names._super) {
             if (tree.type != null &&
@@ -1125,7 +1125,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 result = make.at(diagPos).Ident(tree.type.tsym.name);
             }
             else {
-                JCFieldAccess superSelect = make.at(diagPos).Select(make.at(diagPos).Ident(initBuilder.receiverName), tree.name);
+                JCFieldAccess superSelect = make.at(diagPos).Select(make.at(diagPos).Ident(defs.receiverName), tree.name);
                 superSelect.type = tree.type;
                 superSelect.sym = tree.sym;
                 result = superSelect;
@@ -1247,8 +1247,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      * */
    JCExpression makeAttributeAccess(DiagnosticPosition diagPos, JFXVar attrib) {
        return callExpression(diagPos, 
-                make.Ident(initBuilder.receiverName),
-                initBuilder.attributeGetMethodNamePrefix + attrib.getName());
+                make.Ident(defs.receiverName),
+                attributeGetMethodNamePrefix + attrib.getName());
    }
    
    /**
@@ -1258,7 +1258,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     JCVariableDecl makeReceiverParam(JFXClassDeclaration cDecl) {
         return make.VarDef(
                 make.Modifiers(Flags.FINAL | Flags.PARAMETER), 
-                initBuilder.receiverName, 
+                defs.receiverName, 
                 make.Ident(initBuilder.interfaceName(cDecl)), 
                 null);
     }
@@ -1342,7 +1342,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     JCMethodDecl makeMainMethod(DiagnosticPosition diagPos) {
             List<JCExpression> emptyExpressionList = List.nil();
-            JCIdent runIdent = make.at(diagPos).Ident(Name.fromString(names, JavafxModuleBuilder.runMethodString));
+            JCIdent runIdent = make.at(diagPos).Ident(defs.runMethodName);
             JCMethodInvocation runCall = make.at(diagPos).Apply(emptyExpressionList, runIdent, emptyExpressionList);
             List<JCStatement> mainStats = List.<JCStatement>of(make.at(diagPos).Exec(runCall));
             List<JCVariableDecl> paramList = List.nil();
@@ -1457,7 +1457,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     elemType.tsym instanceof ClassSymbol &&
                     initBuilder.isJFXClass((ClassSymbol)elemType.tsym)) {
                 String str = elemType.tsym.flatName().toString().replace("$", ".");
-                String strLookFor = str + initBuilder.interfaceNameSuffix.toString();
+                String strLookFor = str + interfaceSuffix;
                 elemType = typeMorpher.reader.enterClass(names.fromString(strLookFor)).type;
 
             }
@@ -1568,8 +1568,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             JCExpression texp = null;
 
             if (makeIntf && t.tsym instanceof ClassSymbol && initBuilder.isJFXClass((ClassSymbol)t.tsym) &&
-                    !t.tsym.getQualifiedName().toString().endsWith(initBuilder.interfaceNameSuffix.toString())) {
-                 texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString() + initBuilder.interfaceNameSuffix.toString());
+                    !t.tsym.getQualifiedName().toString().endsWith(interfaceSuffix)) {
+                 texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString() + interfaceSuffix);
             }
             else {
                 texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString());
@@ -1878,7 +1878,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCExpression meth = tree.meth;
         Type mtype = meth.type;
         if (meth==null) {
-            meth = make.Ident(initBuilder.receiverName);
+            meth = make.Ident(defs.receiverName);
         }
         else {
              meth = translate(meth);
@@ -1951,7 +1951,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
              if (selected instanceof JCIdent) {
                  JCIdent id = (JCIdent)selected;
                  if (id.getName() == names._super) {
-                     args = args.prepend(make.Ident(initBuilder.receiverName));
+                     args = args.prepend(make.Ident(defs.receiverName));
                  }
              }
         }
@@ -2226,7 +2226,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
     
     boolean isRunMethod(MethodSymbol sym) {
-        return sym.name.toString().equals(moduleBuilder.runMethodString);
+        return sym.name == defs.runMethodName;
     }
     
     boolean isSequence(Type type) {
@@ -2255,7 +2255,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCExpression ret = null;
         if (treeSym != null && siteOwner != null) {
             
-            ret = make.Ident(initBuilder.receiverName);
+            ret = make.Ident(defs.receiverName);
             ret.type = siteOwner.type;
             
             // check if it is in the chain
@@ -2299,7 +2299,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         String full = sym.name.toString();
         if (isBound) {
-            full = full  + boundFunctionSuffix;
+            full = full  + defs.boundFunctionSuffix;
         }    
         return names.fromString(full);
     }
@@ -2330,7 +2330,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     VarSymbol varSym = new VarSymbol(0L, attrSym.name, ((MethodType)attrSym.type).restype, attrSym.owner);
                     VarMorphInfo vmi = typeMorpher.varMorphInfo(varSym);
                     result.defs = result.defs.append(make.VarDef(make.Modifiers(0L), 
-                            names.fromString(attrSym.name.toString().substring(initBuilder.attributeGetMethodNamePrefix.length())),
+                            names.fromString(attrSym.name.toString().substring(attributeGetMethodNamePrefix.length())),
                            makeTypeTree(vmi.getMorphedType(), result), null));
                 }
                 else if (attrSym.kind == Kinds.VAR && attrSym.owner != sym) {

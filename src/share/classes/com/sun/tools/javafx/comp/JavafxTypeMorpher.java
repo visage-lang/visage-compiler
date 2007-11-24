@@ -40,12 +40,14 @@ import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Log;
+
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.comp.JavafxToJava.JCExpressionTupple;
+import static com.sun.tools.javafx.comp.JavafxDefs.*;
 
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
@@ -362,7 +364,7 @@ public class JavafxTypeMorpher {
                 if ((t.tsym instanceof ClassSymbol) &&
                         initBuilder.isJFXClass((ClassSymbol)t.tsym)) {
                     String str = t.tsym.flatName().toString().replace("$", ".");
-                    String strLookFor = str + initBuilder.interfaceNameSuffix.toString();
+                    String strLookFor = str + interfaceSuffix;
                     Type tp = reader.enterClass(names.fromString(strLookFor)).type;
                     if (tp != null) {
                         tp.tsym.completer = null;
@@ -395,7 +397,7 @@ public class JavafxTypeMorpher {
                     // this is a non-static reference to an attribute, use the get$ form
                     assert varRef.getTag() == JCTree.SELECT : "attribute must be accessed through receiver";
                     JCFieldAccess select = (JCFieldAccess) varRef;
-                    Name attrAccessName = names.fromString(initBuilder.attributeGetMethodNamePrefix + select.name.toString());
+                    Name attrAccessName = names.fromString(attributeGetMethodNamePrefix + select.name.toString());
                     select = make.at(diagPos).Select(select.getExpression(), attrAccessName);
                     List<JCExpression> emptyArgs = List.nil();
                     expr = make.at(diagPos).Apply(null, select, emptyArgs);

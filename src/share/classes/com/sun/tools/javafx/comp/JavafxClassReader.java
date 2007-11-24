@@ -52,6 +52,8 @@ import static com.sun.tools.javac.code.Kinds.*;
 import static com.sun.tools.javac.code.TypeTags.*;
 import com.sun.tools.javac.jvm.ClassFile.NameAndType;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
+import static com.sun.tools.javafx.comp.JavafxDefs.*;
+
 import javax.tools.JavaFileManager.Location;
 import static javax.tools.StandardLocation.*;
 
@@ -73,8 +75,6 @@ public class JavafxClassReader extends ClassReader {
     private final JavafxTypeMorpher typeMorpher;
     private Name currentMethodName;
     private JavafxInitializationBuilder initBuilder;
-    private String intfNameStr;
-    private int intfNameLen;
 
     public static void preRegister(final Context context) {
         context.put(classReaderKey, new Context.Factory<ClassReader>() {
@@ -91,8 +91,6 @@ public class JavafxClassReader extends ClassReader {
         super(context, definitive);
         typeMorpher = JavafxTypeMorpher.instance(context);
         initBuilder = JavafxInitializationBuilder.instance(context);
-        intfNameStr = initBuilder.interfaceNameSuffix.toString();
-        intfNameLen = intfNameStr.length();    
     }
 
     /** Convert class signature to type, where signature is implicit.
@@ -234,6 +232,9 @@ public class JavafxClassReader extends ClassReader {
                                           type.getThrownTypes(),
                                           syms.methodClass);
             }
+            if (name.toString().endsWith(JavafxDefs.boundFunctionSuffix)) {
+                flags |= Flags.SYNTHETIC;  // mark bound function versions as synthetic, so they don't get added
+            }
             MethodSymbol m = new MethodSymbol(flags, name, type, currentOwner);
             Symbol prevOwner = currentOwner;
             currentOwner = m;
@@ -252,8 +253,8 @@ public class JavafxClassReader extends ClassReader {
     private boolean keepClassFileSignatures() {
         if (currentMethodName != null) {
             String currMethodName = currentMethodName.toString();
-            if (currMethodName.startsWith(initBuilder.attributeGetMethodNamePrefix) ||
-                    currMethodName.startsWith(initBuilder.attributeInitMethodNamePrefix)) {
+            if (currMethodName.startsWith(attributeGetMethodNamePrefix) ||
+                    currMethodName.startsWith(attributeInitMethodNamePrefix)) {
                 return true;
             }
         }
@@ -262,9 +263,9 @@ public class JavafxClassReader extends ClassReader {
     }
 
     private Name removeIntfPart(Name className) {
-        if (className.endsWith(initBuilder.interfaceNameSuffix)) {
+        if (className.toString().endsWith(interfaceSuffix)) {
             String classNameStr = className.toString();
-            return names.fromString(classNameStr.substring(0, classNameStr.length() - intfNameLen));
+            return names.fromString(classNameStr.substring(0, classNameStr.length() - interfaceSuffix.length()));
         }
 
         return className;

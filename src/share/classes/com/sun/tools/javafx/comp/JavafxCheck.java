@@ -67,16 +67,14 @@ public class JavafxCheck {
     protected static final Context.Key<JavafxCheck> javafxCheckKey =
 	new Context.Key<JavafxCheck>();
 
+    private final JavafxDefs defs;
     private final Name.Table names;
     private final Log log;
     private final JavafxSymtab syms;
     private final Infer infer;
     private final Target target;
     private final Source source;
-// JavaFX change
-    public
-// JavaFX change
-    /*private*/ final Types types;
+    private final Types types;
     private final boolean skipAnnotations;
     private final JavafxTreeInfo treeinfo;
 
@@ -97,6 +95,7 @@ public class JavafxCheck {
     protected JavafxCheck(Context context) {
 	context.put(javafxCheckKey, this);
 
+        defs = JavafxDefs.instance(context);
 	names = Name.Table.instance(context);
 	log = Log.instance(context);
 	syms = (JavafxSymtab) Symtab.instance(context);

@@ -27,7 +27,7 @@ package com.sun.tools.javafx.script;
 
 import com.sun.javafx.api.JavaFXScriptEngine;
 import com.sun.tools.javac.util.JCDiagnostic;
-import com.sun.tools.javafx.comp.JavafxModuleBuilder;
+import com.sun.tools.javafx.comp.JavafxDefs;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
@@ -270,7 +270,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
     // find public static void main(String[]) method, if any
     private static Method findMainMethod(Class clazz) {
         try {
-            Method mainMethod = clazz.getMethod(JavafxModuleBuilder.runMethodString, new Class[0]);
+            Method mainMethod = clazz.getMethod(JavafxDefs.runMethodString, new Class[0]);
             int modifiers = mainMethod.getModifiers();
             if (Modifier.isPublic(modifiers) &&
                     Modifier.isStatic(modifiers)) {

@@ -33,6 +33,7 @@ import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javafx.comp.JavafxClassReader;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder;
+import static com.sun.tools.javafx.comp.JavafxDefs.*;
 
 /**
  * Marker wrapper on class: this is a JavaFX var
@@ -75,7 +76,7 @@ public class JavafxClassSymbol extends ClassSymbol {
         if (initBuilder != null && 
                 this.type != null && 
                 type instanceof ClassType) {
-            String cName = this.fullname.toString() + initBuilder.interfaceNameSuffix.toString();
+            String cName = this.fullname.toString() + interfaceSuffix;
             Type baseIntf = null;
             if (type != null && ((ClassType)type).interfaces_field != null) {
                 for (Type ct : ((ClassType)type).interfaces_field) {
@@ -91,9 +92,9 @@ public class JavafxClassSymbol extends ClassSymbol {
                 if (baseIntf.tsym != null && baseIntf.tsym.type != null &&
                         ((ClassType)baseIntf.tsym.type).interfaces_field != null) {
                     for (Type baseType : ((ClassType)baseIntf.tsym.type).interfaces_field) {
-                        if (baseType.toString().endsWith(initBuilder.interfaceNameSuffix.toString())) {
+                        if (baseType.toString().endsWith(interfaceSuffix)) {
                             String baseTypeName = baseType.toString();
-                            Type tp = reader.enterClass(initBuilder.names.fromString(baseTypeName.substring(0, baseTypeName.length() - initBuilder.interfaceNameSuffix.toString().length()))).type;
+                            Type tp = reader.enterClass(initBuilder.names.fromString(baseTypeName.substring(0, baseTypeName.length() - interfaceSuffix.length()))).type;
                             addSuperType(tp);
                         }
                     }

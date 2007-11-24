@@ -98,6 +98,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     /*
      * modules imported by context
      */
+    private final JavafxDefs defs;
     private final Name.Table names;
     private final Log log;
     private final JavafxResolve rs;
@@ -131,6 +132,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     protected JavafxAttr(Context context) {    
         context.put(javafxAttrKey, this);
 
+        defs = JavafxDefs.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         names = Name.Table.instance(context);
         log = Log.instance(context);
@@ -1483,7 +1485,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 } else {
                     if (returnType == null)
                         returnType = bodyType;
-                    else if (returnType != syms.javafx_VoidType && !tree.getName().toString().equals(JavafxModuleBuilder.runMethodString))
+                    else if (returnType != syms.javafx_VoidType && tree.getName() != defs.runMethodName)
                         chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.DISALLOWED);       
                 }
             }
