@@ -133,7 +133,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
     
     private Name addDependentName;
-    private Name heldName;
     
     private Set<VarSymbol> locallyBound = null;
     
@@ -162,7 +161,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         moduleBuilder = JavafxModuleBuilder.instance(context);
         
         addDependentName = names.fromString("addDependent");
-        heldName = names.fromString("held");
     }
     
     /** Visitor method: Translate a single node.
@@ -1972,7 +1970,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     make.Modifiers(Flags.PRIVATE),
                     tmpName, 
                     makeTypeTree(holderType, tree), 
-                    make.at(tree).NewClass(null, null, makeTypeTree(holderType, tree), List.<JCExpression>nil(), null)));
+                    make.Literal(TypeTags.BOT, null)));
             JCExpression funcLoc = make.at(tree).Conditional(cond, 
                         initLocation, 
                         makeTmpAccess(tree, tmpName));
@@ -1996,8 +1994,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
     //where
     private JCExpression makeTmpAccess(DiagnosticPosition diagPos, Name tmpName) {
-        JCExpression getTmp = make.at(diagPos).Ident(tmpName);
-        return  make.at(diagPos).Select(getTmp, heldName);
+        return make.at(diagPos).Ident(tmpName);
     }
 
     public void visitModifiers(JCModifiers tree) {
