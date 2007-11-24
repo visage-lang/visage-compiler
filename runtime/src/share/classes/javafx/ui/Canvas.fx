@@ -81,7 +81,7 @@ public class Canvas extends Widget, CanvasElement, Container {
     // public:
     public attribute content: Node[]
         on insert [indx] (newValue) {
-            newValue.parentCanvasElement = this; // Lubo as CanvasElement;
+            newValue.parentCanvasElement = this as CanvasElement;
 
             if (root <> null) {
                 root.add(newValue.getNode());
