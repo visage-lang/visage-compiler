@@ -42,6 +42,7 @@ import static com.sun.tools.javac.tree.JCTree.SELECT;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 
@@ -609,6 +610,14 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     // Begin JavaFX trees
     @Override
     public void visitClassDeclaration(JFXClassDeclaration that) {
+        for (JCExpression superClass : that.getSupertypes()) {
+            Type superType = attr.attribType(superClass, env);
+            if (that.sym != null && that.sym instanceof JavafxClassSymbol) {
+                if (superType != null && superType != Type.noType) {
+                    ((JavafxClassSymbol)that.sym).addSuperType(superType);
+                }
+            }
+        }
     }
     
 /* ********************************************************************

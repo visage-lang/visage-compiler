@@ -10,19 +10,18 @@ class CanvasElement {
 }
 
 class Node extends CanvasElement {
-//    private attribute cachedCanvas: Canvas;
-//    public function getCanvas(): Canvas {
-//        var n = this.parentCanvasElement;
-//        while (n <> null) {
-//            if (n instanceof Canvas) {
-//                cachedCanvas = n as Canvas;
-//                return cachedCanvas;
-//            }
-//            n = n.parentCanvasElement;
-//        }
-//        return cachedCanvas;
-//    }
-
+    private attribute cachedCanvas: Canvas;
+    public function getCanvas(): Canvas {
+        var n = this.parentCanvasElement;
+        while (n <> null) {
+            if (n instanceof Canvas) {
+                cachedCanvas = n as Canvas;
+                return cachedCanvas;
+            }
+            n = n.parentCanvasElement;
+        }
+        return cachedCanvas;
+    }
 }
 
 class Canvas extends Widget, CanvasElement {

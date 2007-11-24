@@ -509,6 +509,13 @@ public class JavafxCheck {
             }
         }
 
+        if (req.tsym != null && req.tsym instanceof JavafxClassSymbol) {
+            for (Type baseType : ((JavafxClassSymbol)req.tsym).getSuperTypes()) {
+                if (types.isCastable(baseType, found, castWarner(pos, found, req)))
+                    return req;
+            }
+        }
+        
         return typeError(pos,
             JCDiagnostic.fragment("inconvertible.types"),
 	    found, req);

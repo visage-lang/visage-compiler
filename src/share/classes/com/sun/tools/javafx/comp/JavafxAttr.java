@@ -2271,7 +2271,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             attribSupertypes(tree, c);
             
-            attribClass(tree.pos(), null, c);
+            attribClass(tree.pos(), tree, c);
             
             result = tree.type = c.type;
         }
