@@ -158,22 +158,17 @@ public abstract class Widget extends GroupElement, UIElement {
                         if (e.isControlDown() ) KeyModifier.CTRL else null, 
                         if (e.isMetaDown() ) KeyModifier.META else null,
                         if (e.isShiftDown() ) KeyModifier.SHIFT else null]
-            //TODO JXFC-178
             clickCount: e.getClickCount()
-            //TODO JXFC-178
             button: if (SwingUtilities.isLeftMouseButton(e) ) 1 else 
                 if (SwingUtilities.isRightMouseButton(e) ) 3 else 2
-            //TODO JXFC-178
             x: e.getX()
-            //TODO JXFC-178
             y: e.getY()
             scrollType: if (e.getScrollType() == e.WHEEL_UNIT_SCROLL) 
                 MouseWheelScrollType.UNIT_SCROLL else MouseWheelScrollType.BLOCK_SCROLL
             scrollAmount: e.getScrollAmount()
             wheelRotation: e.getWheelRotation()
             unitsToScroll: e.getUnitsToScroll()
-           //TODO JXFC-178
-           // source: e
+            source: e
         } as MouseEvent;
     }
 
