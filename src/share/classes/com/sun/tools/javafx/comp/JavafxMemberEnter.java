@@ -584,6 +584,12 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     public void visitTry(JCTry tree) {
     }
 
+    public void visitDoLoop(JCDoWhileLoop tree) {
+    }
+
+    public void visitWhileLoop(JCWhileLoop tree) {
+    }
+    
     @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
             Scope enclScope = enter.enterScope(env);
