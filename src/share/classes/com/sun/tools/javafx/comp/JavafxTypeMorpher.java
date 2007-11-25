@@ -676,7 +676,7 @@ public class JavafxTypeMorpher {
         JCExpression initExpr = (translatedInit != null)? 
                 translatedInit : 
                 vmi.getTypeKind() == TYPE_KIND_SEQUENCE? 
-                      toJava.makeEmptySeuenceCreator(diagPos, vmi.getElementType())
+                      toJava.makeEmptySequenceCreator(diagPos, vmi.getElementType())
                     : makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
         
         if (bindStatus.isUnidiBind()) {

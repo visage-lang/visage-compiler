@@ -1119,7 +1119,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         // this may or may not be in a LHS but in either
         // event the selector is a value expression
         JCExpression translatedSelected = translateLHS(selected, false);
-ant test     
         if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
             MethodType mtype = (MethodType) tree.sym.type;
             JCVariableDecl selectedTmp = null;
@@ -1274,7 +1273,7 @@ ant test
     @Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         Type elemType = tree.type.getTypeArguments().get(0);
-        result = makeEmptySeuenceCreator(tree.pos(), elemType);
+        result = makeEmptySequenceCreator(tree.pos(), elemType);
     }
         
     @Override
@@ -1603,7 +1602,7 @@ ant test
         }
     }
 
-    JCExpression makeEmptySeuenceCreator(DiagnosticPosition diagPos, Type elemType) {
+    JCExpression makeEmptySequenceCreator(DiagnosticPosition diagPos, Type elemType) {
         JCExpression meth = makeQualifiedTree(diagPos, sequencesEmptyString);
         ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb();
         args.append(make.at(diagPos).Select(makeTypeTree(elemType, diagPos, true), names._class));
