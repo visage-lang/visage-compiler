@@ -973,7 +973,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             Type elemType = null;
 
             if (isSequence(tree.type)) {
-                elemType = tree.type.getTypeArguments().head;
+                elemType = chk.elementType(tree.type);
             }
 
             for (JFXAbstractOnChange onc : tree.getOnChanges()) {
@@ -2407,7 +2407,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // atrribute the items, and determine least upper bound of type
         Type elemType = null;
         if (isSequence(pt)) {
-            elemType = elementType(pt);
+            elemType = chk.elementType(pt);
         } else if (pt.tag == NONE || pt == syms.javafx_UnspecifiedType) {
             // we don't know what type we are supposed to be, try to infer it
             for (JCExpression expr : tree.getItems()) {
@@ -2416,7 +2416,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     continue;
                 }
                 if (isSequence(itemType)) {
-                    itemType = elementType(itemType);
+                    itemType = chk.elementType(itemType);
                 }
                 if (elemType == null) {
                     elemType = itemType;
@@ -2491,12 +2491,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             }
         } else {
             Type seqType = attribTree(tree.getSequence(), env, VAR, Type.noType, Sequenceness.REQUIRED); 
-            Type elemType = seqType.getTypeArguments().head;
-            Type unboxed = types.unboxedType(elemType);
-            if (unboxed != Type.noType) {
-                elemType = unboxed;
-            }
-            attribExpr(tree.getElement(), env, elemType);
+            attribExpr(tree.getElement(), env, chk.elementType(seqType));
         }
         result = null;
     }
@@ -2596,15 +2591,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 && type.tag != ERROR 
                 && type.tag != METHOD && type.tag != FORALL
                 && types.erasure(type) == syms.javafx_SequenceTypeErasure;
-    }
-    
-    Type elementType(Type seqType) {
-        Type elemType =seqType.getTypeArguments().head;
-        Type unboxed = types.unboxedType(elemType);
-        if (unboxed.tag != NONE) {
-            elemType = unboxed;
-        }
-        return elemType;
     }
     
     Type sequenceType(Type elemType, Cardinality cardinality) {
