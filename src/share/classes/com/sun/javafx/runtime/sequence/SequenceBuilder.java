@@ -35,19 +35,19 @@ package com.sun.javafx.runtime.sequence;
 public class SequenceBuilder<T> {
     private final static int DEFAULT_SIZE = 16;
 
-    private final Class<T> clazz;
+    private final Class<? extends T> clazz;
     private T[] array;
     private int size;
 
     /** Create a SequenceBuilder for a Sequence of type T */
-    public SequenceBuilder(Class<T> clazz) {
+    public SequenceBuilder(Class<? extends T> clazz) {
         this(clazz, DEFAULT_SIZE);
     }
 
     /** Create a SequenceBuilder for a Sequence of type T, ensuring that there is initially room for at least
      * initialSize elements. */
     @SuppressWarnings("unchecked")
-    public SequenceBuilder(Class<T> clazz, int initialSize) {
+    public SequenceBuilder(Class<? extends T> clazz, int initialSize) {
         this.clazz = clazz;
         array = (T[]) new Object[powerOfTwo(1, initialSize)];
     }
@@ -76,7 +76,7 @@ public class SequenceBuilder<T> {
     }
 
     /** Add the contents of an existing sequence to the sequence */
-    public void add(Sequence<T> elements) {
+    public void add(Sequence<? extends T> elements) {
         ensureSize(size + elements.size());
         elements.toArray(array, size);
         size += elements.size();

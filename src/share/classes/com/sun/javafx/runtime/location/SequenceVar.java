@@ -41,15 +41,15 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
 
     private final SequenceMutator.Listener<T> mutationListener = new MutationListener();
 
-    public static <T> SequenceVar<T> make(Sequence<T> value) {
+    public static <T> SequenceVar<T> make(Sequence<? extends T> value) {
         return new SequenceVar<T>(value);
     }
 
-    public static <T> SequenceLocation<T> makeUnmodifiable(Sequence<T> value) {
+    public static <T> SequenceLocation<? extends T> makeUnmodifiable(Sequence<? extends T> value) {
         return Locations.unmodifiableLocation(new SequenceVar<T>(value));
     }
 
-    private SequenceVar(Sequence<T> value) {
+    private SequenceVar(Sequence<? extends T> value) {
         super(true, false);
         if (value == null)
             throw new NullPointerException();
@@ -62,8 +62,9 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
     }
 
     @Override
-    public Sequence<T> set(Sequence<T> value) {
-        return replaceValue(value);
+    public Sequence<? extends T> set(Sequence<? extends T> value) {
+        replaceValue(value);
+        return value;
     }
 
     @Override
@@ -89,7 +90,7 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
     @Override
     public void deleteValue(final T targetValue) {
         delete(new SequencePredicate<T>() {
-            public boolean matches(Sequence<T> sequence, int index, T value) {
+            public boolean matches(Sequence<? extends T> sequence, int index, T value) {
                 return ((value == null && targetValue == null || value.equals(targetValue)));
             }
         });
@@ -101,7 +102,7 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
     }
 
     @Override
-    public void insert(Sequence<T> values) {
+    public void insert(Sequence<? extends T> values) {
         SequenceMutator.insert(value, mutationListener, values);
     }
 
@@ -110,7 +111,7 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
     }
 
     @Override
-    public void insertFirst(Sequence<T> values) {
+    public void insertFirst(Sequence<? extends T> values) {
         SequenceMutator.insertFirst(value, mutationListener, values);
     }
 
@@ -125,12 +126,12 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
     }
 
     @Override
-    public void insertBefore(Sequence<T> values, int position) {
+    public void insertBefore(Sequence<? extends T> values, int position) {
         SequenceMutator.insertBefore(value, mutationListener, values, position);
     }
 
     @Override
-    public void insertBefore(Sequence<T> values, SequencePredicate<T> sequencePredicate) {
+    public void insertBefore(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
         SequenceMutator.insertBefore(value, mutationListener, values, sequencePredicate);
     }
 
@@ -145,17 +146,17 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
     }
 
     @Override
-    public void insertAfter(Sequence<T> values, int position) {
+    public void insertAfter(Sequence<? extends T> values, int position) {
         SequenceMutator.insertAfter(value, mutationListener, values, position);
     }
 
     @Override
-    public void insertAfter(Sequence<T> values, SequencePredicate<T> sequencePredicate) {
+    public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
         SequenceMutator.insertAfter(value, mutationListener, values, sequencePredicate);
     }
 
     private class MutationListener implements SequenceMutator.Listener<T> {
-        public void onReplaceSequence(Sequence<T> newSeq) {
+        public void onReplaceSequence(Sequence<? extends T> newSeq) {
             value = newSeq;
             valueChanged();
         }

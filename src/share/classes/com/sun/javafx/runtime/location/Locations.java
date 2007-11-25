@@ -57,7 +57,7 @@ public class Locations {
         return new UnmodifiableObjectLocation<T>(loc);
     }
 
-    public static<T> SequenceLocation<T> unmodifiableLocation(SequenceLocation<T> loc) {
+    public static<T> SequenceLocation<? extends T> unmodifiableLocation(SequenceLocation<? extends T> loc) {
         return new UnmodifiableSequenceLocation<T>(loc);
     }
 
@@ -369,13 +369,13 @@ public class Locations {
      * Wrapper class that wraps a SequenceLocation so it cannot be modified
      */
     private static class UnmodifiableSequenceLocation<T> extends LocationWrapper implements SequenceLocation<T> {
-        private final SequenceLocation<T> location;
+        private final SequenceLocation<? extends T> location;
 
-        public UnmodifiableSequenceLocation(SequenceLocation<T> location) {
+        public UnmodifiableSequenceLocation(SequenceLocation<? extends T> location) {
             this.location = location;
         }
 
-        public SequenceLocation<T> getLocation() {
+        public SequenceLocation<? extends T> getLocation() {
             return location;
         }
 
@@ -387,19 +387,19 @@ public class Locations {
             return location.get(position);
         }
 
-        public Sequence<T> get() {
+        public Sequence<? extends T> get() {
             return location.get();
         }
 
-        public Sequence<T> getPreviousValue() {
+        public Sequence<? extends T> getPreviousValue() {
             return location.getPreviousValue();
         }
 
-        public Iterator<T> iterator() {
+        public Iterator<? extends T> iterator() {
             return location.iterator();
         }
 
-        public Sequence<T> set(Sequence<T> value) {
+        public Sequence<? extends T> set(Sequence<? extends T> value) {
             throw new UnsupportedOperationException();
         }
 
@@ -427,7 +427,7 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public void insert(Sequence<T> values) {
+        public void insert(Sequence<? extends T> values) {
             throw new UnsupportedOperationException();
         }
 
@@ -435,7 +435,7 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public void insertFirst(Sequence<T> values) {
+        public void insertFirst(Sequence<? extends T> values) {
             throw new UnsupportedOperationException();
         }
 
@@ -447,11 +447,11 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public void insertBefore(Sequence<T> values, int position) {
+        public void insertBefore(Sequence<? extends T> values, int position) {
             throw new UnsupportedOperationException();
         }
 
-        public void insertBefore(Sequence<T> values, SequencePredicate<T> sequencePredicate) {
+        public void insertBefore(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
             throw new UnsupportedOperationException();
         }
 
@@ -463,11 +463,11 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public void insertAfter(Sequence<T> values, int position) {
+        public void insertAfter(Sequence<? extends T> values, int position) {
             throw new UnsupportedOperationException();
         }
 
-        public void insertAfter(Sequence<T> values, SequencePredicate<T> sequencePredicate) {
+        public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
             throw new UnsupportedOperationException();
         }
     }

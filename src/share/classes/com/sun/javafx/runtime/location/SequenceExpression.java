@@ -40,7 +40,7 @@ import java.util.Iterator;
  * @author Brian Goetz
  */
 public class SequenceExpression<T> extends AbstractSequenceLocation<T> implements SequenceLocation<T> {
-    private final SequenceBindingExpression<T> expression;
+    private final SequenceBindingExpression<? extends T> expression;
 
     /**
      * Create an SequenceExpression with the specified expression and dependencies.
@@ -62,7 +62,7 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
         return loc;
     }
 
-    private SequenceExpression(boolean lazy, SequenceBindingExpression<T> expression) {
+    private SequenceExpression(boolean lazy, SequenceBindingExpression<? extends T> expression) {
         super(false, lazy);
         this.expression = expression;
     }
@@ -79,7 +79,7 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public Iterator<? extends T> iterator() {
         ensureValid();
         return super.iterator();
     }
@@ -91,7 +91,7 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
     }
 
     @Override
-    public Sequence<T> get() {
+    public Sequence<? extends T> get() {
         ensureValid();
         return super.get();
     }
@@ -99,7 +99,7 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
     @Override
     public void update() {
         if (!isValid()) {
-            Sequence<T> v = expression.get();
+            Sequence<? extends T> v = expression.get();
             if (!equals(v, previousValue))
                 replaceValue(v);
             setValid(false);
@@ -115,7 +115,7 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
     }
 
     @Override
-    public Sequence<T> set(Sequence<T> value) {
+    public Sequence<T> set(Sequence<? extends T> value) {
         throw new UnsupportedOperationException();
     }
 
@@ -150,7 +150,7 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
     }
 
     @Override
-    public void insert(Sequence<T> values) {
+    public void insert(Sequence<? extends T> values) {
         throw new UnsupportedOperationException();
     }
 
@@ -160,7 +160,7 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
     }
 
     @Override
-    public void insertFirst(Sequence<T> values) {
+    public void insertFirst(Sequence<? extends T> values) {
         throw new UnsupportedOperationException();
     }
 
@@ -175,12 +175,12 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
     }
 
     @Override
-    public void insertBefore(Sequence<T> values, int position) {
+    public void insertBefore(Sequence<? extends T> values, int position) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void insertBefore(Sequence<T> values, SequencePredicate<T> sequencePredicate) {
+    public void insertBefore(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
         throw new UnsupportedOperationException();
     }
 
@@ -195,12 +195,12 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
     }
 
     @Override
-    public void insertAfter(Sequence<T> values, int position) {
+    public void insertAfter(Sequence<? extends T> values, int position) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void insertAfter(Sequence<T> values, SequencePredicate<T> sequencePredicate) {
+    public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
         throw new UnsupportedOperationException();
     }
 }

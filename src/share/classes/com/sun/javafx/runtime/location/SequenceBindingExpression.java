@@ -34,5 +34,5 @@ import com.sun.javafx.runtime.sequence.Sequence;
 */
 public abstract class SequenceBindingExpression<T> extends BindingExpression {
      /** Calculate the current value of the expression */
-    public abstract Sequence<T> get();
+    public abstract Sequence<? extends T> get();
 }

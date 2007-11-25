@@ -41,34 +41,34 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
 
     @SuppressWarnings("unchecked")
-    public ArraySequence(Class<T> clazz, T... values) {
+    public ArraySequence(Class<? extends T> clazz, T... values) {
         super(clazz);
         this.array =  (T[]) new Object[values.length];
         System.arraycopy(values, 0, array, 0, values.length);
     }
 
     @SuppressWarnings("unchecked")
-    public ArraySequence(Class<T> clazz, T[] values, int size) {
+    public ArraySequence(Class<? extends T> clazz, T[] values, int size) {
         super(clazz);
         this.array =  (T[]) new Object[size];
         System.arraycopy(values, 0, array, 0, size);
     }
 
     @SuppressWarnings("unchecked")
-    public ArraySequence(Class<T> clazz, List<T> values) {
+    public ArraySequence(Class<? extends T> clazz, List<? extends T> values) {
         super(clazz);
         this.array = (T[]) values.toArray();
     }
 
     @SuppressWarnings("unchecked")
-    public ArraySequence(Class<T> clazz, Sequence<T>... sequences) {
+    public ArraySequence(Class<? extends T> clazz, Sequence<? extends T>... sequences) {
         super(clazz);
         int size = 0;
         for (Sequence<? extends T> seq : sequences)
             size += seq.size();
         this.array = (T[]) new Object[size];
         int next = 0;
-        for (Sequence<T> seq : sequences) {
+        for (Sequence<? extends T> seq : sequences) {
             seq.toArray(array, next);
             next += seq.size();
         }
@@ -90,7 +90,7 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
     // optimized versions
     @Override
-    public BitSet getBits(SequencePredicate<T> predicate) {
+    public BitSet getBits(SequencePredicate<? super T> predicate) {
         BitSet bits = new BitSet(array.length);
         for (int i = 0; i < array.length; i++)
             if (predicate.matches(this, i, array[i]))

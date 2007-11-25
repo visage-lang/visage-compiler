@@ -53,12 +53,12 @@ public class ComprehensionsTest extends JavaFXTestCase {
         Sequence<Integer> five = Sequences.range(1, 5);
         Sequence<Integer> six = Sequences.range(1, 6);
         SequencePredicate<Integer> greaterThanThree = new SequencePredicate<Integer>() {
-            public boolean matches(Sequence<Integer> sequence, int index, Integer value) {
+            public boolean matches(Sequence<? extends Integer> sequence, int index, Integer value) {
                 return value > 3;
             }
         };
         SequencePredicate<Integer> oddIndex = new SequencePredicate<Integer>() {
-            public boolean matches(Sequence<Integer> sequence, int index, Integer value) {
+            public boolean matches(Sequence<? extends Integer> sequence, int index, Integer value) {
                 return index % 2 != 0;
             }
         };
@@ -78,7 +78,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
                 sb.add(1);
             }
         }
-        Sequence<Integer> result = sb.toSequence();
+        Sequence<? extends Integer> result = sb.toSequence();
         assertEquals(result, 1, 1, 1, 1, 1, 1);
         Sequence<Integer> c2dResult = new CartesianProduct2D<Integer, Integer, Integer>(Integer.class, outer, inner,
                 new CartesianProduct2D.Mapper<Integer, Integer, Integer>() {
@@ -137,7 +137,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
                 }
             }
         }
-        Sequence<Integer> result = sb.toSequence();
+        Sequence<? extends Integer> result = sb.toSequence();
         assertEquals(result, 1, 2, 3, 4, 2, 4, 6, 8, 3, 6, 9, 12, 2, 4, 6, 8, 4, 8, 12, 16, 6, 12, 18, 24);
 
         Sequence<Integer> cnResult = new CartesianProduct<Integer>(Integer.class,

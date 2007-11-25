@@ -2591,9 +2591,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
 
     Type sequenceType(Type elemType) {
-        if (elemType.isPrimitive()) {
+        if (elemType.isPrimitive())
             elemType = types.boxedClass(elemType).type;
-        }
+        elemType = new WildcardType(elemType, BoundKind.EXTENDS, syms.boundClass);
         Type seqtype = syms.javafx_SequenceType;
         List<Type> actuals = List.of(elemType);
         Type clazzOuter = seqtype.getEnclosingType();

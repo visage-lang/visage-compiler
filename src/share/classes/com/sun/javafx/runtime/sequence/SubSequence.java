@@ -33,11 +33,11 @@ package com.sun.javafx.runtime.sequence;
  */
 class SubSequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
-    private final Sequence<T> sequence;
+    private final Sequence<? extends T> sequence;
     private final int start;
     private final int end;
 
-    public SubSequence(Sequence<T> sequence, int start, int end) {
+    public SubSequence(Sequence<? extends T> sequence, int start, int end) {
         super(sequence.getElementType());
         this.sequence = sequence;
         this.start = Math.max(start, 0);

@@ -32,5 +32,5 @@ package com.sun.javafx.runtime.sequence;
  * @author Brian Goetz
  */
 public interface SequencePredicate<T> {
-    public boolean matches(Sequence<T> sequence, int index, T value);
+    public boolean matches(Sequence<? extends T> sequence, int index, T value);
 }

@@ -10,14 +10,14 @@ import java.util.Iterator;
  * @author Brian Goetz
  */
 public abstract class AbstractSequenceLocation<T> extends AbstractLocation implements SequenceLocation<T> {
-    protected Sequence<T> value, previousValue;
+    protected Sequence<? extends T> value, previousValue;
     protected boolean hasSequenceListeners;
 
     public AbstractSequenceLocation(boolean valid, boolean lazy) {
         super(valid, lazy);
     }
 
-    public Sequence<T> getPreviousValue() {
+    public Sequence<? extends T> getPreviousValue() {
         return previousValue;
     }
 
@@ -29,10 +29,10 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     }
 
     /** Update the held value, notifying change listeners and generating appropriate delete/insert events as necessary */
-    protected Sequence<T> replaceValue(Sequence<T> value) {
+    protected Sequence<? extends T> replaceValue(Sequence<? extends T> value) {
         if (value == null)
             throw new NullPointerException();
-        Sequence<T> oldValue = this.value;
+        Sequence<? extends T> oldValue = this.value;
         if (!value.equals(oldValue)) {
             previousValue = this.value;
             this.value = value;
@@ -85,7 +85,7 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public Iterator<? extends T> iterator() {
         return value.iterator();
     }
 
@@ -95,7 +95,7 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     }
 
     @Override
-    public Sequence<T> get() {
+    public Sequence<? extends T> get() {
         return value;
     }
 }

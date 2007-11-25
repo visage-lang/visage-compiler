@@ -34,7 +34,7 @@ package com.sun.javafx.runtime.sequence;
 class SingletonSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     private final T value;
 
-    public SingletonSequence(Class<T> clazz, T value) {
+    public SingletonSequence(Class<? extends T> clazz, T value) {
         super(clazz);
         this.value = value;
     }

@@ -27,6 +27,7 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
+import java.util.Iterator;
 
 /**
  * A sequence-valued Location.  Exposes analogues of the mutative methods from Sequence, which modify the sequence
@@ -35,16 +36,16 @@ import com.sun.javafx.runtime.sequence.SequencePredicate;
  *
  * @author Brian Goetz
  */
-public interface SequenceLocation<T> extends Location, Iterable<T> {
+public interface SequenceLocation<T> extends Location /*, Iterable<T>*/ {
     
     T get(int position);
 
-    Sequence<T> get();
+    Sequence<? extends T> get();
 
     /** Retrieve the previous value of this location; only defined while change listeners are being notified */
-    public Sequence<T> getPreviousValue();
+    public Sequence<? extends T> getPreviousValue();
 
-    Sequence<T> set(Sequence<T> value);
+    Sequence<? extends T> set(Sequence<? extends T> value);
 
     public void set(int position, T value);
 
@@ -58,25 +59,27 @@ public interface SequenceLocation<T> extends Location, Iterable<T> {
 
     public void insert(T value);
 
-    public void insert(Sequence<T> values);
+    public void insert(Sequence<? extends T> values);
 
     public void insertFirst(T value);
 
-    public void insertFirst(Sequence<T> values);
+    public void insertFirst(Sequence<? extends T> values);
 
     public void insertBefore(T value, int position);
 
     public void insertBefore(T value, SequencePredicate<T> predicate);
 
-    public void insertBefore(Sequence<T> values, int position);
+    public void insertBefore(Sequence<? extends T> values, int position);
 
-    public void insertBefore(Sequence<T> values, SequencePredicate<T> predicate);
+    public void insertBefore(Sequence<? extends T> values, SequencePredicate<T> predicate);
 
     public void insertAfter(T value, int position);
 
     public void insertAfter(T value, SequencePredicate<T> predicate);
 
-    public void insertAfter(Sequence<T> values, int position);
+    public void insertAfter(Sequence<? extends T> values, int position);
 
-    public void insertAfter(Sequence<T> values, SequencePredicate<T> predicate);
+    public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> predicate);
+
+    public Iterator<? extends T> iterator();
 }

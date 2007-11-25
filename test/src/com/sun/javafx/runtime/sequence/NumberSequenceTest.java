@@ -6,6 +6,7 @@ import com.sun.javafx.runtime.JavaFXTestCase;
  * NumberSequenceTest
  *
  * @author Brian Goetz
+ * @author Per Bothner
  */
 public class NumberSequenceTest extends JavaFXTestCase {
     private final Sequence<Double> EMPTY_SEQUENCE = EmptySequence.get(Double.class);
@@ -65,5 +66,31 @@ public class NumberSequenceTest extends JavaFXTestCase {
         assertEquals(Sequences.range(0.0, 1.0, 0.3), 0.0, 0.3, 0.6, 0.9);
         // [ 0..<1 by .3 ] => [ 0, .3, .6, .9 ]
         assertEquals(Sequences.rangeExclusive(0.0, 1.0, 0.3), 0.0, 0.3, 0.6, 0.9);
+    }
+
+    public void testMixedConcat () {
+        Sequence<Integer> sI1 =
+            new ArraySequence<Integer>(Integer.class, 1, 2);
+        Sequence<Double> sD1 =
+            new ArraySequence<Double>(Double.class, 1.5, 2.5);
+        Sequence<? extends Number> sN1 =
+            Sequences.concatenate(Number.class, sI1, sD1);
+        assertEquals(sN1, 1, 2, 1.5, 2.5);
+        assertEquals(Sequences.concatenate(Integer.class, sI1, sI1),
+                     1, 2, 1, 2);
+        Sequence<? extends Number> sN2 =
+            Sequences.concatenate(Number.class, sD1, sD1);
+        assertEquals(sN2, 1.5, 2.5, 1.5, 2.5);
+        Sequence<? extends Double> sD2 =
+            Sequences.concatenate(Double.class, sD1, sD1);
+        assertEquals(sD2, 1.5, 2.5, 1.5, 2.5);
+        sN2 = Sequences.concatenate(Number.class, sI1, sD1);
+        assertEquals(sN2, 1, 2, 1.5, 2.5);
+        sN2 = Sequences.concatenate(Number.class, sD1, sI1);
+        assertEquals(sN2, 1.5, 2.5, 1, 2);
+        sN2 = Sequences.concatenate(Number.class, sN1, sI1);
+        assertEquals(sN2, 1, 2, 1.5, 2.5, 1, 2);
+        sN2 = Sequences.concatenate(Number.class, sD1, sN1);
+        assertEquals(sN2, 1.5, 2.5, 1, 2, 1.5, 2.5);
     }
 }
