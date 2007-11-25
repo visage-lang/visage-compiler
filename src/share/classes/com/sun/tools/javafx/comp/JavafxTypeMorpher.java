@@ -218,9 +218,10 @@ public class JavafxTypeMorpher {
                 } else {
                     if (isSequence()) {
                         typeKind = TYPE_KIND_SEQUENCE;
-                        elementType = symType.getTypeArguments().head;
+                        elementType = toJava.elementType(symType);
                     } else {
                         typeKind = TYPE_KIND_OBJECT;
+                        elementType = realType;
                     }
                 }
 
@@ -347,9 +348,7 @@ public class JavafxTypeMorpher {
         Type newType;
         if (tmi.getTypeKind() == TYPE_KIND_OBJECT || 
                 tmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
-            List<Type> actuals = tmi.getTypeKind() == TYPE_KIND_SEQUENCE?
-                  tmi.getRealType().getTypeArguments()
-                : List.of(tmi.getRealType());
+            List<Type> actuals = List.of(tmi.getElementType());
             Type clazzOuter = declLocationType(tmi.getTypeKind()).getEnclosingType();
 
             List<Type> newActuals = List.<Type>nil();
@@ -761,6 +760,9 @@ public class JavafxTypeMorpher {
         List<JCExpression> typeArgs = null;
         if (tmi.getTypeKind() == TYPE_KIND_OBJECT) {
             typeArgs = List.of(toJava.makeTypeTree(tmi.getRealType(), diagPos, true));
+        }
+        else if (tmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
+            typeArgs = List.of(toJava.makeTypeTree(tmi.getElementType(), diagPos, true));
         }
         return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
     }

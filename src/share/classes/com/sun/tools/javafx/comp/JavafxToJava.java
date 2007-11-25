@@ -468,7 +468,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                             JCTree trans = translate(attrDef);
                             JCExpressionTupple exprTupple = translateVarInit(attrDef, true);
                             attrInfo.append(new TranslatedAttributeInfo(
-                                    attrDef, 
+                                    attrDef,
+                                    elementType(attrDef.type),
                                     exprTupple.first,
                                     exprTupple.args,
                                     translate(attrDef.getOnChanges())));
@@ -1242,9 +1243,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         args.append(make.at(diagPos).Select(makeTypeTree(elemType, diagPos), names._class));
         args.appendList( translate( tree.getItems() ) );
         result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
-         * */
+        */
         ListBuffer<JCStatement> stmts = ListBuffer.<JCStatement>lb();
-        Type elemType = tree.type.getTypeArguments().head;
+        Type elemType = elementType(tree.type);
         UseSequenceBuilder builder = new UseSequenceBuilder(tree.pos(), elemType);
         stmts.append(builder.makeTmpVar());
         for (JCExpression item : tree.getItems()) {
@@ -1272,7 +1273,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
-        Type elemType = tree.type.getTypeArguments().get(0);
+        Type elemType = elementType(tree.type);
         result = makeEmptySequenceCreator(tree.pos(), elemType);
     }
         
@@ -1636,6 +1637,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      * If "makeIntf" is set, convert JavaFX class references to interface references.
      * */
     public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos, boolean makeIntf) {
+        while (t instanceof CapturedType)
+            t = ((CapturedType) t).wildcard;
         if (t.tag == TypeTags.CLASS) {
             JCExpression texp = null;
 
@@ -1659,11 +1662,24 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 texp = make.at(diagPos).TypeApply(texp, targs);
             }
             return texp;
+        } else if (t.tag == TypeTags.WILDCARD) {
+            WildcardType wtype = (WildcardType) t;
+            return make.at(diagPos).Wildcard(make.TypeBoundKind(wtype.kind),
+                    makeTypeTree(wtype.type, diagPos, makeIntf));
         } else {
             return make.at(diagPos).Type(t);
         }
     }
-    
+
+    Type elementType(Type seqType) {
+        Type elemType = seqType.getTypeArguments().head;
+        if (elemType instanceof CapturedType)
+            elemType = ((CapturedType) elemType).wildcard;
+        if (elemType instanceof WildcardType)
+            elemType = ((WildcardType) elemType).type;
+        return elemType;
+    }
+        
    JCExpression castFromObject (JCExpression arg, Type castType) {
         if (castType.isPrimitive())
             castType = types.boxedClass(castType).type;
@@ -1748,7 +1764,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
             // Compute the element type from the sequence type
             assert tree.type.getTypeArguments().size() == 1;
-            Type elemType = tree.type.getTypeArguments().head;
+            Type elemType = elementType(tree.type);
 
             UseSequenceBuilder builder = new UseSequenceBuilder(diagPos, elemType);
             stmts.append(builder.makeTmpVar());

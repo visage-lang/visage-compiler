@@ -444,7 +444,11 @@ public class JavafxCheck {
     }
     
     Type elementType(Type seqType) {
-        Type elemType =seqType.getTypeArguments().head;
+        Type elemType = seqType.getTypeArguments().head;
+        if (elemType instanceof CapturedType)
+            elemType = ((CapturedType) elemType).wildcard;
+        if (elemType instanceof WildcardType)
+            elemType = ((WildcardType) elemType).type;
         Type unboxed = types.unboxedType(elemType);
         if (unboxed.tag != NONE) {
             elemType = unboxed;

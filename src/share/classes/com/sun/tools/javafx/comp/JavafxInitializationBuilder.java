@@ -35,6 +35,8 @@ import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.MethodType;
+import com.sun.tools.javac.code.Type.WildcardType;
+import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
@@ -127,12 +129,13 @@ public class JavafxInitializationBuilder {
         final JCExpression initExpr;
         final List<JFXAbstractOnChange> onChanges;
         final List<JCExpression> args;
-        TranslatedAttributeInfo(JFXVar attribute, JCExpression initExpr, final List<JCExpression> args, List<JFXAbstractOnChange> onChanges) {
+        TranslatedAttributeInfo(JFXVar attribute, Type elemType,
+                JCExpression initExpr, final List<JCExpression> args, List<JFXAbstractOnChange> onChanges) {
             this.attribute = attribute;
             this.initExpr = initExpr;
             this.onChanges = onChanges;
-            this.elemType = attribute.type.getTypeArguments().head;
-           this.args = args;
+            this.elemType = elemType;
+            this.args = args;
         }
         
         Name name() { return attribute.getName(); }
@@ -641,7 +644,6 @@ public class JavafxInitializationBuilder {
                     List.<JCVariableDecl>nil(), 
                     List.<JCExpression>nil(), 
                     null, null));
-
             List<JCVariableDecl> locationVarDeclList = List.<JCVariableDecl>nil();
                 locationVarDeclList = locationVarDeclList.append(make.VarDef(make.Modifiers(0L),
                     locationName, toJava.makeTypeTree(attrInfo.type, null), null));
@@ -699,8 +701,11 @@ public class JavafxInitializationBuilder {
             
             JCBlock initBlock = make.Block(0L, initBlockStats);
             List<JCVariableDecl> locationVarDeclList = List.<JCVariableDecl>nil();
-            locationVarDeclList = locationVarDeclList.append(make.VarDef(make.Modifiers(0L),
-                    locationName, toJava.makeTypeTree(attrInfo.type, null), null));
+            locationVarDeclList = locationVarDeclList.append(
+                    make.VarDef(make.Modifiers(0L),
+                    locationName,
+                    toJava.makeTypeTree(attrInfo.type, null),
+                    null));
             members.append(make.MethodDef(
                     make.Modifiers(Flags.PUBLIC),
                     names.fromString(attributeInitMethodNamePrefix + attrInfo.name.toString()),
