@@ -658,10 +658,11 @@ public abstract class Node extends CanvasElement, Transformable {
     public function getCanvas(): Canvas {
         var n = this.parentCanvasElement;
         while (n <> null) {
-            if (n instanceof Canvas) {
-                cachedCanvas = n as Canvas;
-                return cachedCanvas;
-            }
+            //TODO JXFC-249
+            //if (n instanceof Canvas) {
+            //    cachedCanvas = n as Canvas;
+            //    return cachedCanvas;
+           // }
             n = n.parentCanvasElement;
         }
         return cachedCanvas;
