@@ -62,7 +62,7 @@ public final class JavafxcTool implements JavafxCompiler {
         public void write(int b) {}
     });
 
-    private final Main sharedCompiler = new Main("javafx", silent);
+    private final Main sharedCompiler = new Main("javafxc", silent);
     {
         sharedCompiler.setOptions(Options.instance(dummyContext));
     }

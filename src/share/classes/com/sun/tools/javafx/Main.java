@@ -95,7 +95,7 @@ public class Main {
      */
     public static int compile(String[] args, PrintWriter out) {
 	com.sun.tools.javafx.main.Main compiler =
-	    new com.sun.tools.javafx.main.Main("javafx", out);
+	    new com.sun.tools.javafx.main.Main("javafxc", out);
 	return compiler.compile(args);
     }
 }
