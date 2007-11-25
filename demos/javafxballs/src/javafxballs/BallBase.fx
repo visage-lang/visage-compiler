@@ -29,7 +29,7 @@ public class BallBase {
     attribute _d:Number = 0;
     attribute _d2:Number = 0;
     
-    function initialize() {
+    function initialize():Void {
         //default provisioning
         // default provisioning
         this._x = (model.walls.right - model.walls.left - 2*model.ballRadius)*Math.random();
@@ -41,7 +41,7 @@ public class BallBase {
         this._d2 = this._d*this._d;
     };
     
-    function move() {
+    function move():Void {
         //TODO: this._x += this._vx;
         //TODO: this._y += this._vy;
         this._x = this._x + this._vx;
