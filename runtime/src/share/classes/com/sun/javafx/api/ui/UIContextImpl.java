@@ -53,6 +53,9 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -67,12 +70,16 @@ import javax.swing.JApplet;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
+import javax.swing.SpinnerModel;
 import javax.swing.ToolTipManager;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
@@ -91,7 +98,9 @@ import javax.swing.text.Element;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultCaret;
+import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.NumberFormatter;
 import javax.swing.text.Position;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.HTML;
@@ -1228,6 +1237,185 @@ public class UIContextImpl implements UIContext {
         handler.installDropTargetListener(comp);
     }
 
+    public JSpinner createSpinner() {
+
+        final JSpinner spin = new JSpinner(new BigDecimalSpinnerModel()) {
+
+            @Override
+                protected JComponent createEditor(SpinnerModel model) {
+                    return new NumberEditor(this);
+                }
+                /**
+                 * This subclass of javax.swing.NumberFormatter maps the minimum/maximum
+                 * properties to a SpinnerNumberModel and initializes the valueClass
+                 * of the NumberFormatter to match the type of the initial models value.
+                 */
+                class NumberEditorFormatter extends NumberFormatter {
+                    private final BigDecimalSpinnerModel model;
+
+                    NumberEditorFormatter(BigDecimalSpinnerModel model, NumberFormat format) {
+                        super(format);
+                        this.model = model;
+                        setValueClass(model.getValue().getClass());
+                    }
+
+                @Override
+                    public void setMinimum(Comparable min) {
+                        model.setMinimum(min);
+                    }
+
+                @Override
+                    public Comparable getMinimum() {
+                        return  model.getMinimum();
+                    }
+
+                @Override
+                    public void setMaximum(Comparable max) {
+                        model.setMaximum(max);
+                    }
+
+                @Override
+                    public Comparable getMaximum() {
+                        return model.getMaximum();
+                    }
+                }
+
+
+                class NumberEditor extends DefaultEditor
+                {
+                   
+                    /**
+                     * Construct a <code>JSpinner</code> editor that supports displaying
+                     * and editing the value of a <code>SpinnerNumberModel</code>
+                     * with a <code>JFormattedTextField</code>.  <code>This</code>
+                     * <code>NumberEditor</code> becomes both a <code>ChangeListener</code>
+                     * on the spinner and a <code>PropertyChangeListener</code>
+                     * on the new <code>JFormattedTextField</code>.
+                     *
+                     * @param spinner the spinner whose model <code>this</code> editor will monitor
+                     * @exception IllegalArgumentException if the spinners model is not
+                     *     an instance of <code>SpinnerNumberModel</code>
+                     *
+                     * @see #getModel
+                     * @see #getFormat
+                     * @see SpinnerNumberModel
+                     */
+                    public NumberEditor(JSpinner spinner) {
+                        this(spinner, "#");
+                    }
+
+                    /**
+                     * Construct a <code>JSpinner</code> editor that supports displaying
+                     * and editing the value of a <code>SpinnerNumberModel</code>
+                     * with a <code>JFormattedTextField</code>.  <code>This</code>
+                     * <code>NumberEditor</code> becomes both a <code>ChangeListener</code>
+                     * on the spinner and a <code>PropertyChangeListener</code>
+                     * on the new <code>JFormattedTextField</code>.
+                     *
+                     * @param spinner the spinner whose model <code>this</code> editor will monitor
+                     * @param decimalFormatPattern the initial pattern for the
+                     *     <code>DecimalFormat</code> object that's used to display
+                     *     and parse the value of the text field.
+                     * @exception IllegalArgumentException if the spinners model is not
+                     *     an instance of <code>SpinnerNumberModel</code> or if
+                     *     <code>decimalFormatPattern</code> is not a legal
+                     *     argument to <code>DecimalFormat</code>
+                     *
+                     * @see #getTextField
+                     * @see SpinnerNumberModel
+                     * @see java.text.DecimalFormat
+                     */
+                    public NumberEditor(JSpinner spinner, String decimalFormatPattern) {
+                        this(spinner, new DecimalFormat(decimalFormatPattern));
+                    }
+
+
+                    /**
+                     * Construct a <code>JSpinner</code> editor that supports displaying
+                     * and editing the value of a <code>SpinnerNumberModel</code>
+                     * with a <code>JFormattedTextField</code>.  <code>This</code>
+                     * <code>NumberEditor</code> becomes both a <code>ChangeListener</code>
+                     * on the spinner and a <code>PropertyChangeListener</code>
+                     * on the new <code>JFormattedTextField</code>.
+                     *
+                     * @param spinner the spinner whose model <code>this</code> editor will monitor
+                     * @param decimalFormatPattern the initial pattern for the
+                     *     <code>DecimalFormat</code> object that's used to display
+                     *     and parse the value of the text field.
+                     * @exception IllegalArgumentException if the spinners model is not
+                     *     an instance of <code>SpinnerNumberModel</code>
+                     *
+                     * @see #getTextField
+                     * @see SpinnerNumberModel
+                     * @see java.text.DecimalFormat
+                     */
+                    private NumberEditor(JSpinner spinner, DecimalFormat format) {
+                        super(spinner);
+                        if (!(spinner.getModel() instanceof BigDecimalSpinnerModel)) {
+                            throw new IllegalArgumentException(
+                                                               "model not a BigDecimalSpinnerModel");
+                        }
+
+                        BigDecimalSpinnerModel model = (BigDecimalSpinnerModel)spinner.getModel();
+                        NumberFormatter formatter = new NumberEditorFormatter(model,
+                                                                              format);
+                        DefaultFormatterFactory factory = new DefaultFormatterFactory(
+                                                                                      formatter);
+                        JFormattedTextField ftf = getTextField();
+                        ftf.setEditable(true);
+                        ftf.setFormatterFactory(factory);
+                        ftf.setHorizontalAlignment(JTextField.RIGHT);
+
+                        /* TBD - initializing the column width of the text field
+                         * is imprecise and doing it here is tricky because
+                         * the developer may configure the formatter later.
+                         */
+                        try {
+                            String maxString = formatter.valueToString(model.getMinimum());
+                            String minString = formatter.valueToString(model.getMaximum());
+                            ftf.setColumns(Math.max(maxString.length(),
+                                                    minString.length()));
+                        }
+                        catch (ParseException e) {
+                            // TBD should throw a chained error here
+                        }
+
+                    }
+
+
+                    /**
+                     * Returns the <code>java.text.DecimalFormat</code> object the
+                     * <code>JFormattedTextField</code> uses to parse and format
+                     * numbers.
+                     *
+                     * @return the value of <code>getTextField().getFormatter().getFormat()</code>.
+                     * @see #getTextField
+                     * @see java.text.DecimalFormat
+                     */
+                    public DecimalFormat getFormat() {
+                        return (DecimalFormat)((NumberFormatter)(getTextField().getFormatter())).getFormat();
+                    }
+
+
+                    /**
+                     * Return our spinner ancestor's <code>SpinnerNumberModel</code>.
+                     *
+                     * @return <code>getSpinner().getModel()</code>
+                     * @see #getSpinner
+                     * @see #getTextField
+                     */
+                    public BigDecimalSpinnerModel getModel() {
+                        return (BigDecimalSpinnerModel)(getSpinner().getModel());
+                    }
+                }
+            };
+        // total hack...
+        JTextField dummy = new JTextField();
+        dummy.setColumns(10);
+        spin.setPreferredSize(new Dimension(dummy.getPreferredSize().width,
+                                            spin.getPreferredSize().height));
+        return spin;
+    }
 
 
 

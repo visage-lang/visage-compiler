@@ -35,6 +35,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 
 /**
@@ -100,6 +101,6 @@ public interface UIContext {
                                final ValueAcceptor acceptor,
                                final VisualRepresentation rep);
      
-
+    public JSpinner createSpinner();
 
 }
