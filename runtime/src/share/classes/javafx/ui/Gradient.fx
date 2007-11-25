@@ -27,38 +27,66 @@ package javafx.ui;
 
 import javafx.ui.canvas.Transformable;
 
-public class Gradient extends AbstractColor, Transformable {
+//TODO JXFC-306 Cannot locate Transformable$Intf
+public abstract class Gradient extends  Paint  {
+//public abstract class Gradient extends Transformable, Paint  {
+
+
+
+    //TODO JXFC-306 Cannot locate Transformable - following is work around
+    // affineTransform is defined in Transformable
+    protected attribute affineTransform: java.awt.geom.AffineTransform;
+    // END WORK AROUND
+
+    protected attribute gradient: com.sun.javafx.runtime.awt.MultipleGradientPaint;
     /** The ramp of colors to use on this gradient */
-    public attribute stops: Stop[];
-    public attribute spreadMethod: SpreadMethod;
-    public attribute gradientUnits: GradientUnits;
-    //TODO JFXC-285
-    protected attribute holders: StopHolder[] /*****= 
-            bind foreach (s in stops ) { 
-                StopHolder{
-                    gradient: this, 
-                    jstop: new com.sun.javafx.api.ui.Stop(), 
-                    offset: bind s.offset, 
-                    color: bind s.color.getColor()
-                }
-             }***/;
-    protected attribute stopCount: Number;
+    public attribute stops: Stop[] 
+        on replace [ndx] (oldVaue) {
+            createGradient();
+        }
+        on insert [ndx] (newValue) {
+            createGradient();
+        }
+        on delete [ndx] (oldVaue) {
+            createGradient();
+        };
+    public attribute spreadMethod: SpreadMethod = SpreadMethod.PAD on replace {
+        createGradient();
+    };
+    public attribute colorSpace: ColorSpaceType = ColorSpaceType.SRGB on replace {
+        createGradient();
+    };
+    public attribute transparency: Integer on replace {
+        createGradient();
+    };
 
-    //TODO how should this class handle these methods???
-    public function getColor(): java.awt.Color { return null;}
-    public function getPaint():java.awt.Paint{ return null;}
+    protected abstract function createGradient():Void;
+
+    public function getGradient():com.sun.javafx.runtime.awt.MultipleGradientPaint {
+        if(gradient == null) {
+            createGradient();
+        }
+        return gradient;
+    }
+
+     public function getPaint():java.awt.Paint {
+        return getGradient() as java.awt.Paint;
+     }
+
+    function getColors(): java.awt.Color[] { 
+        var colors:java.awt.Color[] = [];
+        foreach(s in stops) {
+            insert s.color.getColor() into colors;
+        }
+        return colors;
+    }
+    function getFractions(): Number[] {
+        var fractions:Number[] = [];
+        foreach(s in stops) {
+            insert s.offset into fractions;
+        }
+        return fractions;
+    }
 }
 
-class StopHolder {
-    attribute gradient: Gradient;
-    attribute jstop: com.sun.javafx.api.ui.Stop;
-    attribute offset: Number on replace {
-        jstop.setOffset(offset.floatValue());
-        gradient.stopCount = gradient.stopCount + 1;
-    };
-    attribute color: java.awt.Color on replace {
-        jstop.setColor(color);
-        gradient.stopCount = gradient.stopCount + 1;
-    };
-}
 
