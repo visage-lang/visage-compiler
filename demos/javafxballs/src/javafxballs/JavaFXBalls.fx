@@ -26,7 +26,7 @@ class BallsTest {
             insert JavaFxBall{img:ball{}} into balls; 
         }
 
-        System.out.println("New number of balls is {value}");
+        System.out.println("New number of balls is {_N}");
         System.out.println("sizeof balls is {sizeof balls}");
     };
     
