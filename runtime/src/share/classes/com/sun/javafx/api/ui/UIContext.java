@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2005 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -31,6 +31,7 @@ import java.awt.Image;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.swing.JApplet;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -87,7 +88,18 @@ public interface UIContext {
 
     public JFileChooser createFileChooser();
 
-    public Component getListCellRendererComponent(JList list, String value, int index, boolean isSelected, boolean cellHasFocus, String tooltip);
+    public Component getListCellRendererComponent(JList list, String value, 
+            int index, boolean isSelected, boolean cellHasFocus, String tooltip);
     
      public Object getImageCache();
+     
+     public void addTransferHandler(final JComponent comp,
+                               final Class dropType,
+                               final ValueGetter exporter,
+                               final ValueSetter importer,
+                               final ValueAcceptor acceptor,
+                               final VisualRepresentation rep);
+     
+
+
 }
