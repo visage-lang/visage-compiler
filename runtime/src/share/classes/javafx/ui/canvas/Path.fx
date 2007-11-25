@@ -34,7 +34,7 @@ import com.sun.scenario.scenegraph.SGShape;
  * constructed from straight lines, and quadratic and cubic
  * (B&eacute;zier) curves.
  */
-class Path extends Shape {
+public class Path extends Shape {
     private attribute UNSET: Integer = java.lang.Integer.MIN_VALUE;
     attribute locked: Boolean on replace  {
         if (not locked) {
