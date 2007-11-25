@@ -22,10 +22,10 @@ public class ball extends CompositeNode {
                         Circle {
                             cx: 106.0
                             cy: 74.0
-                            fill: rgba(0xcc, 0xff, 0x00, 0xff)
+                            fill: Color.rgba(0xcc, 0xff, 0x00, 0xff)
                             opacity: 0.9
                             radius: 25.0
-                            stroke: rgba(0xa7, 0xd1, 0x00, 0xff)
+                            stroke: Color.rgba(0xa7, 0xd1, 0x00, 0xff)
                             strokeWidth: 2.0
                         },
                         Path {
@@ -83,11 +83,11 @@ public class ball extends CompositeNode {
                         Ellipse {
                             cx: 96.5
                             cy: 62.5
-                            fill: rgba(0xff, 0xff, 0xff, 0xff)
+                            fill: Color.rgba(0xff, 0xff, 0xff, 0xff)
                             radiusX: 8.294
                             radiusY: 4.906
                             transform: [
-                                matrix(0.7958, -0.6055, 0.6055, 0.7958, -18.1424, 71.1966)
+                                Transform.matrix(0.7958, -0.6055, 0.6055, 0.7958, -18.1424, 71.1966)
                             ]
                         }
                     ]
@@ -103,42 +103,42 @@ public class ball extends CompositeNode {
             cx: 156.7178
             cy: 129.2988
             transform: [
-                matrix(1.19, 0.165, 0.165, 1.2813, -82.7876, -94.3076)
+                Transform.matrix(1.19, 0.165, 0.165, 1.2813, -82.7876, -94.3076)
             ]
-            gradientUnits: USER_SPACE_ON_USE
+            gradientUnits: GradientUnits.USER_SPACE_ON_USE
             radius: 53.625
             stops: [
                 Stop {
                     offset: 0.0
-                    color: rgba(0xFF, 0xFF, 0xFF, 0xff)
+                    color: Color.rgba(0xFF, 0xFF, 0xFF, 0xff)
                 },
                 Stop {
                     offset: 0.2033
-                    color: rgba(0xFE, 0xFF, 0xFD, 0xff)
+                    color: Color.rgba(0xFE, 0xFF, 0xFD, 0xff)
                 },
                 Stop {
                     offset: 0.2765
-                    color: rgba(0xFD, 0xFD, 0xF6, 0xff)
+                    color: Color.rgba(0xFD, 0xFD, 0xF6, 0xff)
                 },
                 Stop {
                     offset: 0.3286
-                    color: rgba(0xF9, 0xFB, 0xEB, 0xff)
+                    color: Color.rgba(0xF9, 0xFB, 0xEB, 0xff)
                 },
                 Stop {
                     offset: 0.3708
-                    color: rgba(0xF4, 0xF7, 0xDA, 0xff)
+                    color: Color.rgba(0xF4, 0xF7, 0xDA, 0xff)
                 },
                 Stop {
                     offset: 0.4065
-                    color: rgba(0xEE, 0xF2, 0xC4, 0xff)
+                    color: Color.rgba(0xEE, 0xF2, 0xC4, 0xff)
                 },
                 Stop {
                     offset: 0.4157
-                    color: rgba(0xEC, 0xF1, 0xBD, 0xff)
+                    color: Color.rgba(0xEC, 0xF1, 0xBD, 0xff)
                 },
                 Stop {
                     offset: 1.0
-                    color: rgba(0xCC, 0xFF, 0x00, 0xff)
+                    color: Color.rgba(0xCC, 0xFF, 0x00, 0xff)
                 }
             ]
         }
