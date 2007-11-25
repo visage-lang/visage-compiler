@@ -61,22 +61,14 @@ public class Canvas extends Widget, CanvasElement, Container {
     
     protected function getFX(obj:SGNode): Node {
         while (obj <> null) {
-//TODO JFXC-271: any var name gets an "already defined in getFX()" bogus error
-//            var n = obj.getAttribute("FX") as Node;
-//            if (n <> null) {
-//                return n;
-//            }
-// workaround:
-            _n_ = obj.getAttribute("FX") as Node;
-            if (_n_ <> null) {
-                return _n_;
+           var n = obj.getAttribute("FX") as Node;
+            if (n <> null) {
+                return n;
             }
-//end workaround
             obj = obj.getParent();
         }
         return null;
     };
-/*TODO JFXC-271 workaround:*/ private attribute _n_: Node;
 
     // public:
     public attribute content: Node[]

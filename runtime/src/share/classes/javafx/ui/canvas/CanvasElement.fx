@@ -36,20 +36,16 @@ public abstract class CanvasElement {
     protected abstract function getCanvas(): Canvas;
     /** Returns the canvas element that contains this element */
     public function getContainer(): Container{
-//TODO JFXC-271
-//        var p = parentCanvasElement;
-// workaround:
-        _p_ = parentCanvasElement;
-        while (_p_ <> null) {
+        var p = parentCanvasElement;
+        while (p <> null) {
             //TODO JXFC-149
             //if (p instanceof Container) {
             //    return p as Container;
             //}
-            _p_ = _p_.parentCanvasElement;
+            p = p.parentCanvasElement;
         }
         return null;
     }
-/*TODO: JFXC-271 workaround:*/private var _p_:CanvasElement; 
     protected function onSetCanvas(canvas:Canvas):Void {}
     /** raise this element above its next sibling */
     public function raise() {
