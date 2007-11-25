@@ -24,6 +24,8 @@
  */
 
 package com.sun.javafx.api.ui;
+
+import com.sun.javafx.runtime.awt.TransferHandler;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -36,7 +38,7 @@ import javax.swing.*;
 import java.io.File;
 import java.util.List;
 
-abstract public class ValueTransferHandler extends TransferHandler {
+abstract public class ValueTransferHandler extends com.sun.javafx.runtime.awt.TransferHandler {
 
     Class type;
     public Class getType() {
@@ -265,7 +267,7 @@ abstract public class ValueTransferHandler extends TransferHandler {
 	 */
         public void dragGestureRecognized(DragGestureEvent dge) {
 	    JComponent c = (JComponent) dge.getComponent();
-	    ValueTransferHandler th = (ValueTransferHandler)c.getTransferHandler();
+	    ValueTransferHandler th = (ValueTransferHandler)TransferHandler.getTransferHandler(c);
 	    Transferable t = th.createTransferable(c);
 	    if (t != null) {
                 scrolls = c.getAutoscrolls();
@@ -347,7 +349,7 @@ abstract public class ValueTransferHandler extends TransferHandler {
             }
             DragSourceContext dsc = dsde.getDragSourceContext();
             JComponent c = (JComponent)dsc.getComponent();
-            ValueTransferHandler th = (ValueTransferHandler)c.getTransferHandler();
+            ValueTransferHandler th = (ValueTransferHandler)TransferHandler.getTransferHandler(c);
 	    if (dsde.getDropSuccess()) {
                 th.exportDone(c, dsc.getTransferable(), dsde.getDropAction());
 	    } else {

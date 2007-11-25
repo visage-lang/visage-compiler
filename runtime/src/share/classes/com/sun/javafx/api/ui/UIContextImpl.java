@@ -26,6 +26,7 @@
 package com.sun.javafx.api.ui;
 
 import com.sun.javafx.api.ui.UIContextImpl.InvisibleCaret;
+import com.sun.javafx.runtime.awt.TransferHandler;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -1233,7 +1234,7 @@ public class UIContextImpl implements UIContext {
 
 
             };
-        comp.setTransferHandler(handler);
+        TransferHandler.setTransferHandler(comp, handler);
         handler.installDropTargetListener(comp);
     }
 
