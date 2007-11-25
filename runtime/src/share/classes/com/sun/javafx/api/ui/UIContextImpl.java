@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2005 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -41,6 +41,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
@@ -61,6 +62,7 @@ import java.util.WeakHashMap;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
 import javax.swing.JApplet;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -1144,6 +1146,87 @@ public class UIContextImpl implements UIContext {
                                                   isSelected, cellHasFocus, 
                                                   tooltip);
      }
+
+    public void addTransferHandler(final JComponent comp, final Class dropType, 
+            final ValueGetter exporter, final ValueSetter importer, 
+            final ValueAcceptor acceptor, final VisualRepresentation rep) {
+        ValueTransferHandler handler = new ValueTransferHandler(comp, dropType) {
+
+                Object dragValue = null;
+
+                public boolean canImport(Object valueList) {
+                    System.out.println("can import "+comp);
+                    dragValue = valueList;
+                    boolean result = acceptor == null ? importer != null : acceptor.accept(valueList);
+                    return result;
+                }
+
+                protected void notifyDragEnter() {
+                    System.out.println("notify drag enter "+comp);
+                    if (acceptor != null) {
+                        acceptor.dragEnter(null);
+                    }
+                }
+
+                protected void notifyDragOver() {
+                }
+
+                protected void notifyDragExit() {
+                    System.out.println("notify drag exit");
+                    if (acceptor != null) {
+                        acceptor.dragExit(null);
+                    }
+                }
+
+                protected void notifyDrop(DropTargetDropEvent e) {
+                    if (importer != null) {
+                        //importData(comp, e.getTransferable());
+                    }
+                }
+
+                protected Object exportValue(JComponent c) {
+                    Object result = exporter == null ? null : exporter.get();
+                    return result;
+                }
+
+                protected void importValue(JComponent c, Object value) {
+                    System.out.println("import value"+c);
+                    if (importer != null) {
+                        importer.set(value);
+                    }
+                }
+
+                protected void cleanup(JComponent c, boolean remove) {
+                    //System.out.println("cleanup called");
+                    Object value = dragValue;
+                    dragValue = null;
+                    if (remove) {
+                    }
+                }
+
+            @Override
+                public Icon getVisualRepresentation(Transferable tr) {
+                    if (rep != null) {
+                        Object valueList = ((ValueSelection)tr).getValue();
+                        return rep.getIcon(valueList);
+                    }
+                    return null;
+                }
+
+            @Override
+                public Component getVisualComponent(Transferable tr) {
+                    if (rep != null) {
+                        Object valueList = ((ValueSelection)tr).getValue();
+                        return rep.getComponent(valueList);
+                    }
+                    return null;
+                }
+
+
+            };
+        comp.setTransferHandler(handler);
+        handler.installDropTargetListener(comp);
+    }
 
 
 
