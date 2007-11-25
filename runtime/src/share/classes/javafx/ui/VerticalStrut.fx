@@ -30,7 +30,7 @@ public class VerticalStrut extends Widget {
     public function createComponent():javax.swing.JComponent {
         return javax.swing.Box.createVerticalStrut(height.intValue()) as javax.swing.JComponent;
     }
-    function setBounds(b:java.awt.Rectangle):Void {
+    public function setBounds(b:java.awt.Rectangle):Void {
         // do nothing
     }
 }
