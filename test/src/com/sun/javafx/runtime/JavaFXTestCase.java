@@ -51,7 +51,7 @@ public abstract class JavaFXTestCase extends TestCase {
      * equality of toString(), by iterating the elements, and by toArray
      */
     protected <T> void assertEquals(Sequence<? extends T> sequence, T... values) {
-        Sequence<T> newSeq = Sequences.make(sequence.getElementType(), values);
+        Sequence<T> newSeq = Sequences.<T>make(sequence.getElementType(), values);
         assertEquals((Object) sequence, (Object) newSeq);
 
         StringBuffer sb = new StringBuffer();
