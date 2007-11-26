@@ -953,6 +953,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     initType = attribExpr(tree.init, initEnv, declType);
                     initType = chk.checkNonVoid(tree.pos(), initType);
                     chk.checkType(tree.pos(), initType, declType, Sequenceness.DISALLOWED);
+                    if (initType == syms.botType)
+                        initType = syms.objectType;
             }
             else
                 initType = syms.objectType;  // nothing to go on, so we assume Object
