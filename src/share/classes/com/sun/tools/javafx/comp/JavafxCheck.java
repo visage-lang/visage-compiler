@@ -83,7 +83,7 @@ public class JavafxCheck {
     // visits all the various parts of the trees during attribution.
     private Lint lint;
 
-    private JavafxTypeMorpher typeMorpher;
+    JavafxTypeMorpher typeMorpher;
 
     public static JavafxCheck instance(Context context) {
 	JavafxCheck instance = context.get(javafxCheckKey);
@@ -374,6 +374,8 @@ public class JavafxCheck {
 	if (external.tag == CLASS) {
             if (types.erasure(external) == typeMorpher.declLocation[TYPE_KIND_OBJECT].type) {
                 return ((ClassType)external).getTypeArguments().head;
+            } else if (types.erasure(external) == types.erasure(typeMorpher.declLocation[TYPE_KIND_SEQUENCE].type)) {
+                throw new AssertionError("At this point we should not have Location(s). This is most likely JavafxReader problem. It should convert all the Location types to the \"real\" types.");
             } else if (external == typeMorpher.declLocation[TYPE_KIND_BOOLEAN].type) {
                 return syms.booleanType;
             } else if (external == typeMorpher.declLocation[TYPE_KIND_DOUBLE].type) {

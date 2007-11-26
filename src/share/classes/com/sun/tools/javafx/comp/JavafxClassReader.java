@@ -52,6 +52,7 @@ import static com.sun.tools.javac.code.Kinds.*;
 import static com.sun.tools.javac.code.TypeTags.*;
 import com.sun.tools.javac.jvm.ClassFile.NameAndType;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
+import com.sun.tools.javafx.code.JavafxSymtab;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 
 import javax.tools.JavaFileManager.Location;
@@ -143,6 +144,11 @@ public class JavafxClassReader extends ClassReader {
                 if (!keepClassFileSignatures() &&
                                types.erasure(t.type).tsym == typeMorpher.declLocation[TYPE_KIND_OBJECT].sym) {
                     outer = genericArgs.head;
+                }
+                else if (!keepClassFileSignatures() &&
+                               types.erasure(t.type).tsym == typeMorpher.declLocation[TYPE_KIND_SEQUENCE].sym) {
+                    WildcardType tpType = new WildcardType(genericArgs.head, BoundKind.EXTENDS, genericArgs.head.tsym);
+                    outer = new ClassType(((JavafxSymtab)syms).javafx_SequenceType, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
                 } else {
                     outer = new ClassType(outer, genericArgs, t) {
                         boolean completed = false;
