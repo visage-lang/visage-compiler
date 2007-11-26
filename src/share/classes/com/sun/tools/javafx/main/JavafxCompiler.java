@@ -695,6 +695,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             enterTrees(cus);
             
             compile2(null);
+            if (attr != null) {
+                attr.clearCaches();
+            }
             close();
         } catch (Abort ex) {
             if (devVerbose)
