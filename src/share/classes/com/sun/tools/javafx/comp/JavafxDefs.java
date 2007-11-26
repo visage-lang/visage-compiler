@@ -47,6 +47,8 @@ public class JavafxDefs {
     public static final String runMethodString = "javafx$run$";
     public static final String receiverNameString = "receiver$";
     public static final String initializeNameString ="initialize$";
+    public static final String getMethodNameString = "get";
+    public static final String setMethodNameString ="set";
      
     /**
      * Name definitions
@@ -54,6 +56,8 @@ public class JavafxDefs {
     final Name runMethodName;
     final Name receiverName;
     final Name initializeName;
+    final Name getMethodName;
+    final Name setMethodName;
     
     /**
      * For internal use of this class
@@ -80,5 +84,7 @@ public class JavafxDefs {
         runMethodName = names.fromString(runMethodString);
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);
+        getMethodName = Name.fromString(names, getMethodNameString);
+        setMethodName = Name.fromString(names, setMethodNameString);
     }
 }

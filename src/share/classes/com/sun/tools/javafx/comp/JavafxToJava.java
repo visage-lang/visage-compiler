@@ -59,7 +59,6 @@ import com.sun.tools.javafx.tree.JavafxTreeMaker; // only for BlockExpression
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import static com.sun.tools.javac.code.Flags.*;
 
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.io.OutputStreamWriter;
@@ -101,27 +100,55 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private ListBuffer<JCStatement> prependToDefinitions = null;
     private ListBuffer<JCStatement> prependToStatements = null;
     
-    enum YY {
+    enum Wrapped {
+        InLocation,
+        InNothing
+    };
+    
+    enum Manifest {
         AsStatement,
-        AsExpression,
-        AsReturn,
-        AsExec,
-        AsBoundLocation,
-        IsLazy
+        AsExpression
+    };
+    
+    enum Convert {
+        ToBound,
+        Normal
+    };
+    
+    enum ExpressionsAre {
+        Lazy,
+        Eager
     };
     
     class State {
 
-        EnumSet<YY> flags;
+        Wrapped wrap;
+        Manifest manifest;
+        Convert convert;
+        ExpressionsAre expressionAre;
         Type asType;
 
-        State(EnumSet<YY> flags, Type asType) {
-            this.flags = flags;
+        State(Wrapped wrap, Manifest manifest, Convert convert, ExpressionsAre expressionAre, Type asType) {
+            this.wrap = wrap;
+            this.manifest = manifest;
+            this.convert = convert;
+            this.expressionAre = expressionAre;
             this.asType = asType;
+        }
+        
+        /**
+         * Base state
+         */
+        State() {
+            this(Wrapped.InNothing, Manifest.AsExpression, Convert.Normal, ExpressionsAre.Eager, null);
+        }
+        
+        boolean wantLocation() {
+            return wrap == Wrapped.InLocation;
         }
     }
 
-    State state;
+    State state = new State();
 
     
     // for type morphing
@@ -134,7 +161,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     //TODO: all these should, probably, go into a translation state class
     Yield yield = Yield.ToExpression;
     private JavafxBindStatus bindContext = JavafxBindStatus.UNBOUND;
-    private boolean inLHS = false;
     ListBuffer<JCTree> bindingExpressionDefs = null;
     
     private JavafxEnv<JavafxAttrContext> attrEnv;
@@ -220,6 +246,23 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 	return translated.toList();
     }
     
+    /**
+     * Translate a list of statements, 
+     * The purpose of this method is to prepend an anonymous class definition in the correct
+     * scope.  However, that is currently disabled since generated classes define static members
+     * and that isn't allowed by an (unmodified) javac back-end.
+     * */
+    private List<JCStatement> translateStatements(List<JCStatement> stmts) {
+        ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
+        prependToStatements = ListBuffer.lb();
+        List<JCStatement> translatedStats = translate(stmts);
+        translatedStats = translatedStats.prependList(prependToStatements.toList());
+        prependToStatements = prevPrependToStatements;
+        return translatedStats;
+    }
+    
+    //// Translation with state transition
+    
     public <T extends JCTree> T translate(T tree, State newState) {
         State prevState = state;
         state = newState;
@@ -244,47 +287,64 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return ret;
     }
 
-    public <T extends JCTree> T translate(T tree, EnumSet<YY> yield, Type asType) {
-        return translate(tree, new State(yield, asType));
+     private List<JCStatement> translateStatements(List<JCStatement> stmts, State newState) {
+        State prevState = state;
+        state = newState;
+        List<JCStatement> ret = translateStatements(stmts);
+        state = prevState;
+        return ret;
     }
 
-    public <T extends JCTree> List<T> translate(List<T> trees, EnumSet<YY> yield, Type asType) {
-        return translate(trees, new State(yield, asType));
+   public <T extends JCTree> T translate(T tree, Wrapped wrap, Manifest manifest, Convert convert, ExpressionsAre expressionAre, Type asType) {
+        return translate(tree, new State(wrap, manifest, convert, expressionAre, asType));
     }
 
-    public JCStatement translateExpressionToStatement(JCExpression expr, EnumSet<YY> yield, Type asType) {
-        return translateExpressionToStatement(expr, new State(yield, asType));
+    public <T extends JCTree> List<T> translate(List<T> trees, Wrapped wrap, Manifest manifest, Convert convert, ExpressionsAre expressionAre, Type asType) {
+        return translate(trees, new State(wrap, manifest, convert, expressionAre, asType));
     }
 
-    public <T extends JCTree> T translate(T tree, YY first, YY... rest) {
-        return translate(tree, EnumSet.of(first, rest), state.asType);
+    public JCStatement translateExpressionToStatement(JCExpression expr, Wrapped wrap, Manifest manifest, Convert convert, ExpressionsAre expressionAre, Type asType) {
+        return translateExpressionToStatement(expr, new State(wrap, manifest, convert, expressionAre, asType));
     }
 
-    public <T extends JCTree> List<T> translate(List<T> trees, YY first, YY... rest) {
-        return translate(trees, EnumSet.of(first, rest), state.asType);
+     private List<JCStatement> translateStatements(List<JCStatement> stmts, Wrapped wrap, Manifest manifest, Convert convert, ExpressionsAre expressionAre, Type asType) {
+        return translateStatements(stmts, new State(wrap, manifest, convert, expressionAre, asType));
     }
 
-    public JCStatement translateExpressionToStatement(JCExpression expr, YY first, YY... rest) {
-        return translateExpressionToStatement(expr, EnumSet.of(first, rest), state.asType);
+    public <T extends JCTree> T translate(T tree, Wrapped wrap, Manifest manifest) {
+        return translate(tree, wrap, manifest, state.convert, state.expressionAre, state.asType);
+    }
+
+    public <T extends JCTree> List<T> translate(List<T> trees, Wrapped wrap, Manifest manifest) {
+        return translate(trees, wrap, manifest, state.convert, state.expressionAre, state.asType);
+    }
+
+    public JCStatement translateExpressionToStatement(JCExpression expr, Wrapped wrap, Manifest manifest) {
+        return translateExpressionToStatement(expr, wrap, manifest, state.convert, state.expressionAre, state.asType);
+    }
+
+    private List<JCStatement> translateStatements(List<JCStatement> stmts, Wrapped wrap, Manifest manifest) {
+        return translateStatements(stmts, wrap, manifest, state.convert, state.expressionAre, state.asType);
+    }
+
+    public <T extends JCTree> T translate(T tree, Wrapped wrap) {
+        return translate(tree, wrap, state.manifest, state.convert, state.expressionAre, state.asType);
+    }
+
+    public <T extends JCTree> List<T> translate(List<T> trees, Wrapped wrap) {
+        return translate(trees, wrap, state.manifest, state.convert, state.expressionAre, state.asType);
+    }
+
+    public JCStatement translateExpressionToStatement(JCExpression expr, Wrapped wrap) {
+        return translateExpressionToStatement(expr, wrap, state.manifest, state.convert, state.expressionAre, state.asType);
+    }
+
+    private List<JCStatement> translateStatements(List<JCStatement> stmts, Wrapped wrap) {
+        return translateStatements(stmts, wrap, state.manifest, state.convert, state.expressionAre, state.asType);
     }
 
 
 
-    /**
-     * Translate a list of statements, 
-     * The purpose of this method is to prepend an anonymous class definition in the correct
-     * scope.  However, that is currently disabled since generated classes define static members
-     * and that isn't allowed by an (unmodified) javac back-end.
-     * */
-    private List<JCStatement> translateStatements(List<JCStatement> stats) {
-        ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
-        prependToStatements = ListBuffer.lb();
-        List<JCStatement> translatedStats = translate(stats);
-        translatedStats = translatedStats.prependList(prependToStatements.toList());
-        prependToStatements = prevPrependToStatements;
-        return translatedStats;
-    }
-    
     JCStatement translateExpressionToStatement(JCExpression expr, Yield newYield) {
         Yield prevYield = yield;
         yield = newYield;
@@ -314,18 +374,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         bindContext = bind;
         T result = translate(tree);
         bindContext = prevBindContext;
-        return result;
-    }
-    
-    <T extends JCTree> T translateLHS(T tree) {
-        return translateLHS(tree, true);
-    }
-    
-    <T extends JCTree> T translateLHS(T tree, boolean isImmediateLHS) {
-        boolean wasInLHS = inLHS;
-        inLHS = isImmediateLHS;
-        T result = translate(tree);
-        inLHS = wasInLHS;
         return result;
     }
     
@@ -432,7 +480,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JFXClassDeclaration prevClass = currentClass;
         JFXClassDeclaration prevEnclClass = attrEnv.enclClass;
         JavafxBindStatus prevBindContext = bindContext;
-        boolean prevInLHS = inLHS;
+        State prevState = state;
+        state = new State(Wrapped.InNothing, Manifest.AsExpression, Convert.Normal, ExpressionsAre.Eager, null);
         currentClass = tree;
 
         new ForEachInClauseOwnerFixer().scan(tree);
@@ -444,7 +493,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
             attrEnv.enclClass = tree;
             bindContext = JavafxBindStatus.UNBOUND;
-            inLHS = false;
 
             ListBuffer<JCStatement> translatedInitBlocks = ListBuffer.<JCStatement>lb();
             ListBuffer<JCTree> translatedDefs = ListBuffer.<JCTree>lb();
@@ -593,7 +641,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         finally {
             attrEnv.enclClass = prevEnclClass;
             bindContext = prevBindContext;
-            inLHS = prevInLHS;
+            state = prevState;
 
             currentClass = prevClass;
             inOperationDef = prevInOper;
@@ -1100,14 +1148,28 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         JCExpression rhs = translate(tree.rhs);
         if (tree.lhs.getTag() == JavafxTag.SEQUENCE_INDEXED) {
-            // assignment of a sequence element --  s[i]=8
+            // assignment of a sequence element --  s[i]=8, call the sequence set method
             JFXSequenceIndexed si = (JFXSequenceIndexed)tree.lhs;
-            JCExpression seq = translateLHS(si.getSequence(), true);  // LHS?
+            JCExpression seq = translate(si.getSequence(), Wrapped.InLocation); 
             JCExpression index = translate(si.getIndex());
-            result = typeMorpher.morphSequenceIndexedAssign(diagPos, seq, index, rhs);
-        } else {
-            JCExpression lhs = translateLHS(tree.lhs, true);
-            result = typeMorpher.morphAssign(diagPos, vsym, lhs, rhs);
+            JCFieldAccess select = make.Select(seq, defs.setMethodName);
+            List<JCExpression> args = List.of(index, rhs);
+            result = make.at(diagPos).Apply(null, select, args);
+       } else {
+            if (vsym != null) {
+                VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+                if (shouldMorph(vmi)) {
+                    // we are setting a var Location, call the set method
+                    JCExpression lhs = translate(tree.lhs, Wrapped.InLocation);
+                    JCFieldAccess setSelect = make.Select(lhs, defs.setMethodName);
+                    List<JCExpression> setArgs = List.of(rhs);
+                    result = make.at(diagPos).Apply(null, setSelect, setArgs);
+                    return;
+                }
+            }
+            // We are setting a "normal" non-Location, use normal assign
+            JCExpression lhs = translate(tree.lhs);
+            result = make.at(diagPos).Assign(lhs, rhs); // make a new one so we are non-destructive
         }
     }
 
@@ -1119,7 +1181,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         // this may or may not be in a LHS but in either
         // event the selector is a value expression
-        JCExpression translatedSelected = translateLHS(selected, false);
+        JCExpression translatedSelected = translate(selected, Wrapped.InNothing);
         if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
             MethodType mtype = (MethodType) tree.sym.type;
             JCVariableDecl selectedTmp = null;
@@ -1169,8 +1231,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 translated,
                 tree.sym, 
                 staticReference , 
-                bindContext, 
-                inLHS);
+                bindContext.isBidiBind() || state.wantLocation());
         if (dummyReference != null)
             ref = ((JavafxTreeMaker)make).BlockExpression(
                 0L, dummyReference, ref);
@@ -1224,7 +1285,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             convert = make.at(diagPos).Ident(tree.name);
         }
         
-        result = typeMorpher.convertVariableReference(diagPos, convert, tree.sym, tree.sym.isStatic(), bindContext, inLHS);
+        result = typeMorpher.convertVariableReference(diagPos, convert, tree.sym, tree.sym.isStatic(), bindContext.isBidiBind() || state.wantLocation());
     }
 
     @Override
@@ -1280,35 +1341,30 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {
         DiagnosticPosition diagPos = tree.pos();
-        JCExpression seq = translateLHS(tree.getSequence(), true);  // LHS?
+        JCExpression seq = translate(tree.getSequence(), Wrapped.InLocation);  
         JCExpression index = translate(tree.getIndex());
-        result = typeMorpher.morphSequenceIndexedAccess(diagPos, seq, index);
+        JCFieldAccess select = make.at(diagPos).Select(seq, defs.getMethodName);
+        List<JCExpression> args = List.of(index);
+        result = make.at(diagPos).Apply(null, select, args);
     }
 
     @Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
         result = callStatement(tree, 
-                translateLHS( tree.getSequence() ), 
+                translate( tree.getSequence(), Wrapped.InLocation ), 
                 "insert", 
                 translate( tree.getElement() ));
     }
     
     @Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
+        JCExpression seqLoc = translate( tree.getSequence(), Wrapped.InLocation );
         if (tree.getIndex() != null) { 
-            result = callStatement(tree.pos(), 
-                translateLHS( tree.getSequence() ), 
-                "delete", 
-                translate( tree.getIndex() ));
+            result = callStatement(tree.pos(),  seqLoc,  "delete",   translate( tree.getIndex() ));
         } else if (tree.getElement() != null) { 
-            result = callStatement(tree.pos(), 
-                translateLHS( tree.getSequence() ), 
-                "deleteValue", 
-                translate( tree.getElement() ));
+            result = callStatement(tree.pos(),  seqLoc,  "deleteValue",  translate( tree.getElement() ));
         } else { 
-            result = callStatement(tree.pos(), 
-                translateLHS( tree.getSequence() ), 
-                "deleteAll");
+            result = callStatement(tree.pos(), seqLoc,  "deleteAll");
         }
     }
 
@@ -2016,7 +2072,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 case JavafxTag.IDENT:
                 case JavafxTag.SELECT:
                 case JavafxTag.APPLY:
-                    targs.append( translateLHS(arg) );
+                    targs.append( translate(arg, Wrapped.InLocation) );
                     break;
                 default: {
                     ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
@@ -2076,9 +2132,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             JCExpression funcLoc = make.at(tree).Conditional(cond, 
                         initLocation, 
                         make.at(tree).Ident(tmpName));
-            fresult = inLHS? funcLoc : callExpression(tree, 
+            fresult = state.wantLocation()? funcLoc : callExpression(tree, 
                     make.at(tree).Parens( funcLoc ),
-                    typeMorpher.getMethodName);
+                    defs.getMethodName);
         }
         if (useInvoke) {
             if (tree.type.tag != TypeTags.VOID)

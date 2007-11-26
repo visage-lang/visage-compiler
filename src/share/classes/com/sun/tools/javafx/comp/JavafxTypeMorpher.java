@@ -47,6 +47,7 @@ import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.comp.JavafxToJava.JCExpressionTupple;
+import com.sun.tools.javafx.comp.JavafxToJava.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 
 import java.io.OutputStreamWriter;
@@ -63,6 +64,7 @@ public class JavafxTypeMorpher {
     protected static final Context.Key<JavafxTypeMorpher> typeMorpherKey =
             new Context.Key<JavafxTypeMorpher>();
     
+    private final JavafxDefs defs;
     private final Name.Table names;
     final ClassReader reader;
     private final TreeMaker make;
@@ -84,8 +86,6 @@ public class JavafxTypeMorpher {
     private final Type[] realTypeByKind;
     private final Object[] defaultValueByKind;
     
-    final Name getMethodName;
-    final Name setMethodName;
     private final Name makeMethodName;
     private final Name makeLazyMethodName;
     
@@ -266,6 +266,7 @@ public class JavafxTypeMorpher {
     protected JavafxTypeMorpher(Context context) {
         context.put(typeMorpherKey, this);
         
+        defs = JavafxDefs.instance(context);
         syms = (JavafxSymtab)(JavafxSymtab.instance(context));
         types = Types.instance(context);
         names = Name.Table.instance(context);
@@ -310,8 +311,6 @@ public class JavafxTypeMorpher {
         defaultValueByKind[TYPE_KIND_INT] = new Integer(0);
         defaultValueByKind[TYPE_KIND_SEQUENCE] = null; //TODO: empty sequence
         
-        getMethodName = Name.fromString(names, "get");
-        setMethodName = Name.fromString(names, "set");
         makeMethodName = Name.fromString(names, "make");
         makeLazyMethodName = Name.fromString(names, "makeLazy");
     }
@@ -377,7 +376,7 @@ public class JavafxTypeMorpher {
         
     public JCExpression convertVariableReference(DiagnosticPosition diagPos,
                                                                                             JCExpression varRef, Symbol sym, boolean staticReference,
-                                                                                            JavafxBindStatus bindContext, boolean inLHS) {
+                                                                                            boolean wantLocation) {
         
         JCExpression expr = varRef;
 
@@ -394,13 +393,11 @@ public class JavafxTypeMorpher {
                     List<JCExpression> emptyArgs = List.nil();
                     expr = make.at(diagPos).Apply(null, select, emptyArgs);
                 }   
-                if (bindContext.isBidiBind()) {
+                if (wantLocation) {
                     // already in correct form-- leave it
-                } else if (inLHS) {
-                    // immediate left-hand side -- leave it
                 } else {
                     // non-bind context -- want v1.get()
-                    JCFieldAccess getSelect = make.Select(expr, getMethodName);
+                    JCFieldAccess getSelect = make.Select(expr, defs.getMethodName);
                     List<JCExpression> getArgs = List.nil();
                     expr = make.at(diagPos).Apply(null, getSelect, getArgs);
                 }
@@ -453,43 +450,6 @@ public class JavafxTypeMorpher {
         }
     }
     
-    public JCExpression morphAssign(DiagnosticPosition diagPos, VarSymbol vsym, JCExpression lhs, JCExpression rhs) {
-        if (vsym != null) {
-            VarMorphInfo vmi = varMorphInfo(vsym);
-            if (toJava.shouldMorph(vmi)) {     
-                JCFieldAccess setSelect = make.Select(lhs, setMethodName);
-                List<JCExpression> setArgs = List.of(rhs);
-                return make.at(diagPos).Apply(null, setSelect, setArgs);
-            }
-        }
-        return make.at(diagPos).Assign(lhs, rhs); // make a new one so we are non-destructive
-    }        
-    
-    /**
-     * assignment of a sequence element --  s[i]=8
-     */
-    public JCExpression morphSequenceIndexedAssign(
-            DiagnosticPosition diagPos, 
-            JCExpression seq, 
-            JCExpression index, 
-            JCExpression value) {
-        JCFieldAccess select = make.Select(seq, setMethodName);
-        List<JCExpression> args = List.of(index, value);
-        return make.at(diagPos).Apply(null, select, args);
-    }        
-
-    /**
-     * access of a sequence element (RHS) --  s[i]
-     */
-    public JCExpression morphSequenceIndexedAccess(
-            DiagnosticPosition diagPos, 
-            JCExpression seq, 
-            JCExpression index) {
-        JCFieldAccess select = make.at(diagPos).Select(seq, getMethodName);
-        List<JCExpression> args = List.of(index);
-        return make.at(diagPos).Apply(null, select, args);
-    }        
-
     //========================================================================================================================
     // Bound Expression support
     //========================================================================================================================
@@ -641,7 +601,7 @@ public class JavafxTypeMorpher {
                         JCExpression expr = tree.getExpression();
                         Symbol exprSym = toJava.expressionSymbol(expr);
                         if (exprSym != null && internalSet.contains(exprSym)) { //TODO: fix this
-                            log.warning(tree, "javafx.not.implemented", "dependency not generated: ", tree);
+                            // log.warning(tree, "javafx.not.implemented", "dependency not generated: ", tree);
                         } else {
                             refMap.put(ivsym, tree); 
                         }
@@ -661,7 +621,7 @@ public class JavafxTypeMorpher {
         ListBuffer<JCExpression> depend = ListBuffer.<JCExpression>lb();
         for (Map.Entry<VarSymbol, JCExpression> ref : refMap.entrySet()) {
             if (!internalSet.contains(ref.getKey())) {
-                depend.append( toJava.translateLHS( ref.getValue() ) );
+                depend.append( toJava.translate( ref.getValue(), Wrapped.InLocation ) );
             }
         }
         
@@ -728,7 +688,7 @@ public class JavafxTypeMorpher {
         
         JCMethodDecl getMethod = make.at(diagPos).MethodDef(
                 make.at(diagPos).Modifiers(Flags.PUBLIC), 
-                getMethodName, 
+                defs.getMethodName, 
                 toJava.makeTypeTree(tmi.getRealType(), diagPos, true), 
                 List.<JCTypeParameter>nil(), 
                 List.<JCVariableDecl>nil(), 
