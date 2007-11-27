@@ -218,6 +218,7 @@
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
     <target name="-post-jar" description="Copy command wrappers to dest/bin directory.">
+        <antcall target="runtime-jar"/>
         <copy todir="dist/bin">
             <fileset dir="src/bin"/>
         </copy>
@@ -294,6 +295,10 @@
     </target>
 
     <target name="runtime" depends="jar">
+        <antcall target="runtime-jar"/>
+    </target>
+    
+    <target name="runtime-jar">
         <ant dir="${runtime.dir}" antfile="build.xml" target="jar" inheritall="false" />
     </target>
 
