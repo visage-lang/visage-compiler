@@ -164,8 +164,7 @@ public class GroupLayout extends GroupElement {
         }
         foreach (e in content where e instanceof Widget) {
             var comp = (e as Widget).getComponent();
-            //JXFC-243
-            //host.add(comp);
+            host.add(comp);
         }
     }
 }
