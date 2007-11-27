@@ -29,7 +29,7 @@ package javafx.ui;
  * Interface for widget's that perform actions.
  */
 
-public abstract class ActionWidget {
+public abstract class ActionWidget extends Widget {
     /**
      * Function which implements this widget's action.
      */
