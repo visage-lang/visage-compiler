@@ -76,48 +76,46 @@ var win = Frame {
         title: "JavaFX Balls"
         width: 510
         height: 366
-        content: [
-            BorderPanel {
-                center: Canvas {
-                        content: [
-                            Rect {
-                                width: 500
-                                height: 300
-                                fill: Color.WHITE
-                            },
-                            Text {
-                                x: 4
-                                y: 4
-                                content: bind test.<<fps>>
-                                font: Font {faceName: "Arial", size: 14}
-                            },
-                            Group {
-                                content: bind foreach (b in test.balls) b.img
-                            }
-                            //bind test._ballImg
-                        ]
-                    },
-                bottom: FlowPanel{
-                    alignment: Alignment.LEADING
+        content: BorderPanel {
+            center: Canvas {
                     content: [
-                        Button{
-                            text: bind if (not test._is_running) then "Start" else "Stop"
-                            action: function() {
-                                test._is_running = not test._is_running;
-                            }
+                        Rect {
+                            width: 500
+                            height: 300
+                            fill: Color.WHITE
                         },
-                        Label {
-                            text: "# of balls:"
-                        }, 
-                        Spinner {
-                          min: 2
-                          max: 1024
-                          value: bind test._N
+                        Text {
+                            x: 4
+                            y: 4
+                            content: bind test.<<fps>>
+                            font: Font {faceName: "Arial", size: 14}
+                        },
+                        Group {
+                            content: bind foreach (b in test.balls) b.img
                         }
+                        //bind test._ballImg
                     ]
-                }
-            }      
-        ]
+                },
+            bottom: FlowPanel{
+                alignment: Alignment.LEADING
+                content: [
+                    Button{
+                        text: bind if (not test._is_running) then "Start" else "Stop"
+                        action: function() {
+                            test._is_running = not test._is_running;
+                        }
+                    },
+                    Label {
+                        text: "# of balls:"
+                    }, 
+                    Spinner {
+                      min: 2
+                      max: 1024
+                      value: bind test._N
+                    }
+                ]
+            }
+        }      
         visible: true
         resizable: false
         onClose: function() {

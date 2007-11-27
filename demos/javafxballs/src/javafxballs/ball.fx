@@ -15,7 +15,7 @@ public class ball extends CompositeNode {
    public function composeNode(): Node {
       return Group { content:[
          Group {
-            transform: [Translate{x: -80.0, y: -48.0}]
+            //TODO JXFC-306: transform: [Translate{x: -80.0, y: -48.0}]
             content: [
                 Group {
                     content: [
@@ -97,15 +97,17 @@ public class ball extends CompositeNode {
     ]};
    }
 
-    function XMLID_6_() {
-      return [
+    function XMLID_6_(): Paint {
+      return 
         RadialGradient {
             cx: 156.7178
             cy: 129.2988
+            /*TODO JXFC-306: 
             transform: [
                 Transform.matrix(1.19, 0.165, 0.165, 1.2813, -82.7876, -94.3076)
             ]
-            gradientUnits: GradientUnits.USER_SPACE_ON_USE
+             */
+            //TODO: gradientUnits: GradientUnits.USER_SPACE_ON_USE
             radius: 53.625
             stops: [
                 Stop {
@@ -141,7 +143,7 @@ public class ball extends CompositeNode {
                     color: Color.rgba(0xCC, 0xFF, 0x00, 0xff)
                 }
             ]
-        }
-    ];}
+        };
+    }
 }
 //<<ball>> {}

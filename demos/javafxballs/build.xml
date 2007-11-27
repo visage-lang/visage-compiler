@@ -66,30 +66,5 @@
     nbproject/build-impl.xml file. 
 
     -->
-    <available property="ant.jar" value="${ant.home}/lib/ant.jar" file="${ant.home}/lib/ant.jar"/>
-    <!-- if the previous location is not correct than find the ant.jar from the java.class.path value -->
-    <pathconvert property="ant.jar">
-        <mapper type="regexp" from="${path.separator}([^${path.separator}]*ant.jar)${path.separator}" to="\1"/>
-        <path location="${path.separator}${java.class.path}${path.separator}"/>
-    </pathconvert>
-
-    <target name="-post-compile" if="have.sources" depends="init,deps-jar,-pre-pre-compile,-pre-compile">
-        <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask">
-            <classpath>
-                <pathelement location="${ant.jar}"/>
-                <pathelement location="../${build.classes.dir}"/>
-                <pathelement path="${javac.classpath}"/>
-            </classpath>
-        </taskdef>
-        <javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"
-                 destdir="${build.classes.dir}"
-                 encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"
-                 includes="**/*.fx" source="${javac.source}" sourcepath=""
-                 srcdir="${src.dir}" target="${javac.target}"
-                 classpath="${build.classes.dir}:${javac.classpath}"
-                 compilerclasspath="${build.classes.dir}:${javac.classpath}">
-            <compilerarg line="${javafxc.compilerargs}"/>
-        </javafxc>
-    </target>
 
 </project>
