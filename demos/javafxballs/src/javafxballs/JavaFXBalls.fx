@@ -122,7 +122,6 @@ var win = Frame {
             test._is_running = false;
             test.timer = 0;
             test.fpsTimer = 0;
-            //TODO: JFXC-310 delete test;
-            test = null;
+	    delete test;
         }
 };
