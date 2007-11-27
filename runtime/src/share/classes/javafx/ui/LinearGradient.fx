@@ -27,6 +27,7 @@
 package javafx.ui;
 
 import com.sun.javafx.runtime.awt.LinearGradientPaint;
+import com.sun.javafx.api.ui.GradientFactory;
 
 public class LinearGradient extends Gradient {
     public attribute startX:Number on replace {
@@ -42,7 +43,7 @@ public class LinearGradient extends Gradient {
         createGradient();
     };
 
-    protected function createGradient():Void {
+    public function createGradient():Void {
         var fractions = getFractions();
         var colors = getColors();
         var start = new java.awt.geom.Point2D.Double(startX, startY);
@@ -50,5 +51,8 @@ public class LinearGradient extends Gradient {
         //TODO JXFC-305
         //gradient = new LinearGradientPaint(start, end,
         //        fractions, colors, spreadMethod.id, colorSpace.id, affineTransform);
+        gradient = GradientFactory.createLinearGradientPaint(
+                start as java.awt.geom.Point2D, end as java.awt.geom.Point2D,
+                fractions, colors, spreadMethod.id, colorSpace.id, affineTransform);
     }
 }

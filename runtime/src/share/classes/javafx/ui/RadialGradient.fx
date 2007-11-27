@@ -27,6 +27,7 @@
 package javafx.ui;
 
 import com.sun.javafx.runtime.awt.RadialGradientPaint;
+import com.sun.javafx.api.ui.GradientFactory;
 
 public class RadialGradient extends Gradient {
     public attribute radius:Number on replace {
@@ -46,7 +47,7 @@ public class RadialGradient extends Gradient {
         createGradient();
     };
 
-    protected function createGradient():Void {
+    public function createGradient():Void {
         var fractions = getFractions();
         var colors = getColors();
         var fx = if(focusX == -1) then cx else focusX;
@@ -56,5 +57,7 @@ public class RadialGradient extends Gradient {
         //TODO JXFC-305
         //gradient = new RadialGradientPaint(center, radius.floatValue(), focus,
         //        fractions, colors, spreadMethod.id, colorSpace.id, affineTransform);
+        gradient = GradientFactory.createRadialGradientPaint(center, radius.floatValue(), focus,
+                fractions, colors, spreadMethod.id, colorSpace.id, affineTransform);
     }
 }
