@@ -908,6 +908,19 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
         lhsSym.flags_field |= JavafxFlags.ASSIGNED_TO;        
         result = check(tree, capturedType, VAL, pkind, pt, pSequenceness);
+
+        if (lhsSym != null && tree.rhs != null) {
+            JFXVar lhsVar = varSymToTree.get(lhsSym);
+            if (lhsVar != null && (lhsVar.getJFXType() instanceof JFXTypeUnknown)) {
+                if ((lhsVar.type == null || lhsVar.type == syms.javafx_AnyType)) {
+                    if (tree.rhs.type != null && lhsVar.type != tree.rhs.type) {
+                        lhsVar.type = lhsSym.type = tree.rhs.type;
+                        JCExpression jcExpr = make.at(tree.pos()).Ident(lhsSym);
+                        lhsVar.setJFXType(make.at(tree.pos()).TypeClass(jcExpr, lhsVar.getJFXType().getCardinality()));
+                    }
+                }
+            }
+        }
     }
     
     @Override
@@ -918,9 +931,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public void finishVar(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
         VarSymbol v = tree.sym;
         Type declType = attribType(tree.getJFXType(), env);
-        if (declType != syms.javafx_UnspecifiedType)
+        if (declType != syms.javafx_UnspecifiedType) {
             result = tree.type = v.type = declType;
-
+        }
         // Check that the variable's declared type is well-formed.
 //        chk.validate(tree.vartype);
 
@@ -1918,6 +1931,19 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (tree.lhs instanceof JCIdent)
             ((JCIdent) (tree.lhs)).sym.flags_field |= JavafxFlags.ASSIGNED_TO;
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
+
+        if (lhsSym != null && tree.rhs != null) {
+            JFXVar lhsVar = varSymToTree.get(lhsSym);
+            if (lhsVar != null && (lhsVar.getJFXType() instanceof JFXTypeUnknown)) {
+                if ((lhsVar.type == null || lhsVar.type == syms.javafx_AnyType)) {
+                    if (tree.rhs.type != null && lhsVar.type != tree.rhs.type) {
+                        lhsVar.type = lhsSym.type = tree.rhs.type;
+                        JCExpression jcExpr = make.at(tree.pos()).Ident(lhsSym);
+                        lhsVar.setJFXType(make.at(tree.pos()).TypeClass(jcExpr, lhsVar.getJFXType().getCardinality()));
+                    }
+                }
+            }
+        }
     }
 
     public void visitUnary(JCUnary tree) {
@@ -2040,16 +2066,19 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
  
         // Fix types of numeric arguments with non -specified type.
+        boolean lhsSet = false;
+
         Symbol lhsSym = TreeInfo.symbol(tree.lhs);
         if (lhsSym != null && tree.lhs instanceof JCExpression &&
                 (lhsSym.type == null || lhsSym.type == Type.noType || lhsSym.type == syms.javafx_AnyType)) {
             JFXVar lhsVarTree = varSymToTree.get(lhsSym);
             left = setBinaryTypes(tree.getTag(), (JCExpression)tree.lhs, lhsVarTree, lhsSym.type, lhsSym);
+            lhsSet = true;
         }
 
         Symbol rhsSym = TreeInfo.symbol(tree.rhs);
-        if (rhsSym != null  && tree.rhs instanceof JCExpression &&
-                (rhsSym.type == null || rhsSym.type == Type.noType || rhsSym.type == syms.javafx_AnyType)) {
+        if (rhsSym != null  && ((tree.rhs instanceof JCExpression &&
+                (rhsSym.type == null || rhsSym.type == Type.noType || rhsSym.type == syms.javafx_AnyType))) || (lhsSet && lhsSym == rhsSym)) {
             JFXVar rhsVarTree = varSymToTree.get(rhsSym);
             right = setBinaryTypes(tree.getTag(), (JCExpression)tree.rhs, rhsVarTree, rhsSym.type, rhsSym);
         }
