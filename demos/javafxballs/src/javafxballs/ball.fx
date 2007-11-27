@@ -15,7 +15,7 @@ public class ball extends CompositeNode {
    public function composeNode(): Node {
       return Group { content:[
          Group {
-            //TODO JXFC-306: transform: [Translate{x: -80.0, y: -48.0}]
+            transform: [Translate{x: -80.0, y: -48.0}]
             content: [
                 Group {
                     content: [

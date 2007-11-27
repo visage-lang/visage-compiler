@@ -17,8 +17,8 @@ import javafx.ui.canvas.*;
  */
 class JavaFxBall extends BallBase {
     attribute img: ball = null;
-    function move() {
-        img.transform = [Translate{x:bind super._x, y: bind super._y}];
+    public function move() {
+        img.transform = [Translate{x:bind _x, y: bind _y}];
         super.initialize();
     };
 }    

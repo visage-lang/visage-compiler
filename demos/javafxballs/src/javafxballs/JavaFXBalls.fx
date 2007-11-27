@@ -91,7 +91,7 @@ var win = Frame {
                             font: Font {faceName: "Arial", size: 14}
                         },
                         Group {
-                            content: bind foreach (b in test.balls) b.img
+                            content: bind foreach (b in test.balls) (b.img as java.lang.Object) as Node
                         }
                         //bind test._ballImg
                     ]
@@ -122,6 +122,7 @@ var win = Frame {
             test._is_running = false;
             test.timer = 0;
             test.fpsTimer = 0;
-            delete test;
+            //TODO: JFXC-310 delete test;
+            test = null;
         }
 };
