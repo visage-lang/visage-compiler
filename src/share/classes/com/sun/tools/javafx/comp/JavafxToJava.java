@@ -54,6 +54,7 @@ import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedAttribute
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.JavafxClassModel;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.BindAnalysis;
 import com.sun.tools.javafx.tree.JavafxTreeMaker; // only for BlockExpression
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
@@ -115,24 +116,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         Normal
     };
     
-    enum ExpressionsAre {
-        Lazy,
-        Eager
-    };
-    
     class State {
 
         Wrapped wrap;
         Manifest manifest;
         Convert convert;
-        ExpressionsAre expressionAre;
         Type asType;
 
-        State(Wrapped wrap, Manifest manifest, Convert convert, ExpressionsAre expressionAre, Type asType) {
+        State(Wrapped wrap, Manifest manifest, Convert convert, Type asType) {
             this.wrap = wrap;
             this.manifest = manifest;
             this.convert = convert;
-            this.expressionAre = expressionAre;
             this.asType = asType;
         }
         
@@ -140,11 +134,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
          * Base state
          */
         State() {
-            this(Wrapped.InNothing, Manifest.AsExpression, Convert.Normal, ExpressionsAre.Eager, null);
+            this(Wrapped.InNothing, Manifest.AsExpression, Convert.Normal, null);
         }
         
         boolean wantLocation() {
             return wrap == Wrapped.InLocation;
+        }
+        
+        boolean isBound() {
+            return convert == Convert.ToBound;
         }
     }
 
@@ -155,12 +153,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     enum Yield {
         ToExpression,
         ToReturnStatement,
-        ToReturnLocationStatement,
         ToExecStatement
     };
     //TODO: all these should, probably, go into a translation state class
     Yield yield = Yield.ToExpression;
-    private JavafxBindStatus bindContext = JavafxBindStatus.UNBOUND;
     ListBuffer<JCTree> bindingExpressionDefs = null;
     
     private JavafxEnv<JavafxAttrContext> attrEnv;
@@ -295,52 +291,68 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return ret;
     }
 
-   public <T extends JCTree> T translate(T tree, Wrapped wrap, Manifest manifest, Convert convert, ExpressionsAre expressionAre, Type asType) {
-        return translate(tree, new State(wrap, manifest, convert, expressionAre, asType));
+   public <T extends JCTree> T translate(T tree, Wrapped wrap, Manifest manifest, Convert convert, Type asType) {
+        return translate(tree, new State(wrap, manifest, convert, asType));
     }
 
-    public <T extends JCTree> List<T> translate(List<T> trees, Wrapped wrap, Manifest manifest, Convert convert, ExpressionsAre expressionAre, Type asType) {
-        return translate(trees, new State(wrap, manifest, convert, expressionAre, asType));
+    public <T extends JCTree> List<T> translate(List<T> trees, Wrapped wrap, Manifest manifest, Convert convert, Type asType) {
+        return translate(trees, new State(wrap, manifest, convert, asType));
     }
 
-    public JCStatement translateExpressionToStatement(JCExpression expr, Wrapped wrap, Manifest manifest, Convert convert, ExpressionsAre expressionAre, Type asType) {
-        return translateExpressionToStatement(expr, new State(wrap, manifest, convert, expressionAre, asType));
+    public JCStatement translateExpressionToStatement(JCExpression expr, Wrapped wrap, Manifest manifest, Convert convert, Type asType) {
+        return translateExpressionToStatement(expr, new State(wrap, manifest, convert, asType));
     }
 
-     private List<JCStatement> translateStatements(List<JCStatement> stmts, Wrapped wrap, Manifest manifest, Convert convert, ExpressionsAre expressionAre, Type asType) {
-        return translateStatements(stmts, new State(wrap, manifest, convert, expressionAre, asType));
+     private List<JCStatement> translateStatements(List<JCStatement> stmts, Wrapped wrap, Manifest manifest, Convert convert, Type asType) {
+        return translateStatements(stmts, new State(wrap, manifest, convert, asType));
     }
 
     public <T extends JCTree> T translate(T tree, Wrapped wrap, Manifest manifest) {
-        return translate(tree, wrap, manifest, state.convert, state.expressionAre, state.asType);
+        return translate(tree, wrap, manifest, state.convert, state.asType);
     }
 
     public <T extends JCTree> List<T> translate(List<T> trees, Wrapped wrap, Manifest manifest) {
-        return translate(trees, wrap, manifest, state.convert, state.expressionAre, state.asType);
+        return translate(trees, wrap, manifest, state.convert, state.asType);
     }
 
     public JCStatement translateExpressionToStatement(JCExpression expr, Wrapped wrap, Manifest manifest) {
-        return translateExpressionToStatement(expr, wrap, manifest, state.convert, state.expressionAre, state.asType);
+        return translateExpressionToStatement(expr, wrap, manifest, state.convert, state.asType);
     }
 
     private List<JCStatement> translateStatements(List<JCStatement> stmts, Wrapped wrap, Manifest manifest) {
-        return translateStatements(stmts, wrap, manifest, state.convert, state.expressionAre, state.asType);
+        return translateStatements(stmts, wrap, manifest, state.convert, state.asType);
     }
 
     public <T extends JCTree> T translate(T tree, Wrapped wrap) {
-        return translate(tree, wrap, state.manifest, state.convert, state.expressionAre, state.asType);
+        return translate(tree, wrap, state.manifest, state.convert, state.asType);
     }
 
     public <T extends JCTree> List<T> translate(List<T> trees, Wrapped wrap) {
-        return translate(trees, wrap, state.manifest, state.convert, state.expressionAre, state.asType);
+        return translate(trees, wrap, state.manifest, state.convert, state.asType);
     }
 
     public JCStatement translateExpressionToStatement(JCExpression expr, Wrapped wrap) {
-        return translateExpressionToStatement(expr, wrap, state.manifest, state.convert, state.expressionAre, state.asType);
+        return translateExpressionToStatement(expr, wrap, state.manifest, state.convert, state.asType);
     }
 
     private List<JCStatement> translateStatements(List<JCStatement> stmts, Wrapped wrap) {
-        return translateStatements(stmts, wrap, state.manifest, state.convert, state.expressionAre, state.asType);
+        return translateStatements(stmts, wrap, state.manifest, state.convert, state.asType);
+    }
+
+    public <T extends JCTree> T translate(T tree, Convert convert) {
+        return translate(tree, state.wrap, state.manifest, convert, state.asType);
+    }
+
+    public <T extends JCTree> List<T> translate(List<T> trees, Convert convert) {
+        return translate(trees, state.wrap, state.manifest, convert, state.asType);
+    }
+
+    public JCStatement translateExpressionToStatement(JCExpression expr, Convert convert) {
+        return translateExpressionToStatement(expr, state.wrap, state.manifest, convert, state.asType);
+    }
+
+    private List<JCStatement> translateStatements(List<JCStatement> stmts, Convert convert) {
+        return translateStatements(stmts, state.wrap, state.manifest, convert, state.asType);
     }
 
 
@@ -368,15 +380,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 	}
     }
 
-    private  <T extends JCTree> T boundTranslate(T tree, JavafxBindStatus bind) {
-        JavafxBindStatus prevBindContext = bindContext;
-        
-        bindContext = bind;
-        T result = translate(tree);
-        bindContext = prevBindContext;
-        return result;
-    }
-    
     JCBlock asBlock(JCStatement stmt) {
         if (stmt.getTag() == JavafxTag.BLOCK) {
             return (JCBlock)stmt;
@@ -391,22 +394,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 return make.at(expr).Exec( translated );
             case ToReturnStatement:
                 return make.at(expr).Return( translated );
-            case ToReturnLocationStatement:
-                return toCorrectReturn(expr, make.at(expr).Return( translated ) );
-            case ToExpression:
-            default:
-                assert false : "this method should not be called";
-                return null;
-        }
-    }
-    
-    JCStatement toCorrectReturn(JCExpression expr, JCStatement translated) {
-        switch (yield) {
-            case ToExecStatement:
-            case ToReturnStatement:
-                return translated;
-            case ToReturnLocationStatement:
-                return make.at(expr).Return(typeMorpher.buildExpression(expr.pos(), typeMorpher.typeMorphInfo(expr.type), translated, bindContext.isLazy(), typeMorpher.buildDependencies(expr)));
             case ToExpression:
             default:
                 assert false : "this method should not be called";
@@ -479,9 +466,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         JFXClassDeclaration prevClass = currentClass;
         JFXClassDeclaration prevEnclClass = attrEnv.enclClass;
-        JavafxBindStatus prevBindContext = bindContext;
         State prevState = state;
-        state = new State(Wrapped.InNothing, Manifest.AsExpression, Convert.Normal, ExpressionsAre.Eager, null);
+        state = new State();
         currentClass = tree;
 
         new ForEachInClauseOwnerFixer().scan(tree);
@@ -492,7 +478,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             DiagnosticPosition diagPos = tree.pos();
 
             attrEnv.enclClass = tree;
-            bindContext = JavafxBindStatus.UNBOUND;
 
             ListBuffer<JCStatement> translatedInitBlocks = ListBuffer.<JCStatement>lb();
             ListBuffer<JCTree> translatedDefs = ListBuffer.<JCTree>lb();
@@ -529,7 +514,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                             translatedDefs.append(  translate(funcDef) );
                             if (generateBoundFunctions) {
                                 if ((funcDef.sym.flags() & Flags.SYNTHETIC) == 0) {
-                                    translatedDefs.append(boundTranslate(funcDef, JavafxBindStatus.UNIDIBIND));
+                                    translatedDefs.append(translate(funcDef, Convert.ToBound));
                                 }
                             }
                             break;
@@ -640,7 +625,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         finally {
             attrEnv.enclClass = prevEnclClass;
-            bindContext = prevBindContext;
             state = prevState;
 
             currentClass = prevClass;
@@ -709,8 +693,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
                     if (shouldMorph(vmi)) {
                         init = translateDefinitionalAssignment(diagPos, init, bindStatus, vsym, false).first;
-                    } else {
-                        init = boundTranslate(init, bindStatus);
                     }
 
                     JCIdent ident1 = make.at(diagPos).Ident(tmpName);
@@ -771,7 +753,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, boolean isAttribute) {
         ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
         bindingExpressionDefs = ListBuffer.lb();
-        JCExpression translatedInit = boundTranslate(init, bindStatus);
+        JCExpression translatedInit = translate(init, 
+                bindStatus.isBidiBind()? Wrapped.InLocation : Wrapped.InNothing, 
+                state.manifest, 
+                state.isBound() || bindStatus.isBound()? Convert.ToBound : Convert.Normal, 
+                state.asType);
         JCExpressionTupple translatedInitTupple = new JCExpressionTupple(translatedInit, null);
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         if (shouldMorph(vmi)) {
@@ -785,12 +771,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public JCExpressionTupple translateVarInit(JFXVar tree, boolean isAttribute) {
-        JavafxBindStatus bind = tree.getBindStatus();
-        if (!bind.isBound()) {
-            bind = bindContext;  //TODO: is the right way to merge?
-        }
         return translateDefinitionalAssignment(tree.pos(), tree.init, 
-                                                bind, tree.sym, isAttribute);
+                                                tree.getBindStatus(), tree.sym, isAttribute);
     }
 
     @Override
@@ -807,7 +789,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         VarSymbol vsym = tree.sym;
         boolean isClassVar = vsym.owner.kind == Kinds.TYP;
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        boolean isBound = bindContext.isBound();
+        boolean isBound = state.isBound();
         boolean forceTypeMorph = isBound;
 
         if (!isClassVar && (vsym.flags_field & JavafxFlags.INNER_ACCESS) != 0) {
@@ -1005,9 +987,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         boolean prevInOperDef = inOperationDef;
         inOperationDef = true;
 
-        boolean isBound = bindContext.isBound();
-        JavafxBindStatus prevBindContext = bindContext;
-        bindContext = JavafxBindStatus.UNBOUND;
+        boolean isBound = state.isBound();
+        State prevState = state;
+        state = new State();
 
         try {
             boolean classIsFinal = (currentClass.getModifiers().flags & Flags.FINAL) != 0;
@@ -1084,7 +1066,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             result.type = tree.type;
         }
         finally {
-            bindContext = prevBindContext;
+            state = prevState;
             inOperationDef = prevInOperDef;
         }
     }
@@ -1095,7 +1077,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         prependToStatements = ListBuffer.lb();
         
         JCExpression value = tree.value;
-        boolean valueFromReturn = (value == null) && (yield == Yield.ToReturnStatement || yield == Yield.ToReturnLocationStatement);
+        boolean valueFromReturn = (value == null) && (yield == Yield.ToReturnStatement);
         ListBuffer<JCStatement> translated = ListBuffer.lb();
         for(JCStatement stmt : tree.getStatements()) {
             if (valueFromReturn && stmt.getTag() == JavafxTag.RETURN) {
@@ -1231,7 +1213,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 translated,
                 tree.sym, 
                 staticReference , 
-                bindContext.isBidiBind() || state.wantLocation());
+                state.wantLocation());
         if (dummyReference != null)
             ref = ((JavafxTreeMaker)make).BlockExpression(
                 0L, dummyReference, ref);
@@ -1285,7 +1267,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             convert = make.at(diagPos).Ident(tree.name);
         }
         
-        result = typeMorpher.convertVariableReference(diagPos, convert, tree.sym, tree.sym.isStatic(), bindContext.isBidiBind() || state.wantLocation());
+        result = typeMorpher.convertVariableReference(diagPos, convert, tree.sym, tree.sym.isStatic(), state.wantLocation());
     }
 
     @Override
@@ -1838,7 +1820,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     result = makeBlockExpression(diagPos, stmts, value);
             } else {
                     stmts.append( make.at(tree).Return( value ) );
-                    result = toCorrectReturn( tree, make.at(diagPos).Block(0L, stmts.toList()) );
+                    result = make.at(diagPos).Block(0L, stmts.toList());
             }
         }
     }
@@ -1928,11 +1910,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
             result = make.at(diagPos).Conditional(cond, translate(trueSide), translatedFalseSide);
         } else {
-            Yield branchYield = (yield == Yield.ToReturnLocationStatement) ? Yield.ToReturnStatement : yield;
-
-            result = toCorrectReturn( tree, make.at(diagPos).If(cond, 
-                    translateExpressionToStatement(trueSide, branchYield), 
-                    falseSide == null ? null : translateExpressionToStatement(falseSide, branchYield)) );
+            result = make.at(diagPos).If(cond, 
+                    translateExpressionToStatement(trueSide, yield), 
+                    falseSide == null ? null : translateExpressionToStatement(falseSide, yield));
         }
     }
 
@@ -2036,7 +2016,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         boolean callBound = false;
         MethodSymbol sym = null;
-        if (generateBoundFunctions && bindContext.isBound()) {
+        if (generateBoundFunctions && state.isBound()) {
             sym = (MethodSymbol) expressionSymbol(tree.meth);
             // if we are in a bound context and we are calling an FX function, call the bound version of the function
             if (sym != null && initBuilder.isJFXClass(sym.owner) && sym.getReturnType() != syms.voidType) {
@@ -2081,7 +2061,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                             arg.pos(),
                             typeMorpher.typeMorphInfo(arg.type), 
                             translateExpressionToStatement(arg, Yield.ToReturnStatement), 
-                            bindContext.isLazy(), 
+                            false, 
                             typeMorpher.buildDependencies(arg)) );
                     assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
                     bindingExpressionDefs = prevBindingExpressionDefs;
@@ -2321,21 +2301,24 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         bindingExpressionDefs = ListBuffer.lb();
         BindAnalysis analysis = typeMorpher.bindAnalysis(bexpr);
         if (permeateBind && analysis.isBindPermeable()) { //TODO: permeate bind
-            JavafxBindStatus prevBindContext = bindContext;
-            bindContext = JavafxBindStatus.UNIDIBIND;
-            ret = translateExpressionToStatement(bexpr, Yield.ToReturnLocationStatement);
-            bindContext = prevBindContext;
+            State prevState = state;
+            state = new State(state.wrap, state.manifest, Convert.Normal, state.asType);
+            ret = make.at(diagPos).Return( makeBoundExpression(bexpr, typeMorpher.varMorphInfo( func.sym ), false) );
+            state = prevState;
         } else {
-            ret =  make.at(diagPos).Return(  typeMorpher.buildExpression(
-                    diagPos,
-                    typeMorpher.varMorphInfo( func.sym ), 
-                    translateExpressionToStatement(bexpr, Yield.ToReturnStatement), 
-                    bindContext.isLazy(), 
-                    typeMorpher.buildDependencies(bexpr)));
+            ret =  make.at(diagPos).Return( makeBoundExpression(bexpr, typeMorpher.varMorphInfo( func.sym ), false) );
         }
         assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
         bindingExpressionDefs = prevBindingExpressionDefs;
         return asBlock( ret );
+    }
+    
+    JCExpression makeBoundExpression(JCExpression expr, TypeMorphInfo tmi, boolean isLazy) {
+        return typeMorpher.buildExpression(
+                    expr.pos(), tmi, 
+                    translateExpressionToStatement(expr, Yield.ToReturnStatement), 
+                    isLazy, 
+                    typeMorpher.buildDependencies(expr));
     }
     
     private JCBlock runMethodBody(JFXBlockExpression bexpr) {
