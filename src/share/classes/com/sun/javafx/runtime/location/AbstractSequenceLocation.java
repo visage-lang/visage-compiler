@@ -39,7 +39,7 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
             valueChanged();
             if (hasSequenceListeners) {
                 if (oldValue != null)
-                    for (int i=0; i<oldValue.size(); i++)
+                    for (int i=oldValue.size() - 1; i >= 0; i--)
                         onDelete(i, oldValue.get(i));
                 for (int i=0; i< this.value.size(); i++)
                     onInsert(i, this.value.get(i));

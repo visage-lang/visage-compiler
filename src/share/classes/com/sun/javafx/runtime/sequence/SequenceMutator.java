@@ -106,8 +106,9 @@ public class SequenceMutator {
         Sequence<? extends T> result = Sequences.filter(target, bits);
         if (listener != null) {
             listener.onReplaceSequence(result);
-            for (int i = bits.nextClearBit(0); i >= 0 && i < target.size(); i = bits.nextClearBit(i + 1))
-                listener.onDelete(i, target.get(i));
+            for (int i = target.size() - 1; i >= 0; i--)
+                if (!bits.get(i))
+                    listener.onDelete(i, target.get(i));
         }
         return result;
     }

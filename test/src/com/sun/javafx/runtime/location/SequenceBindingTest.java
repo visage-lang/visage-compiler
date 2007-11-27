@@ -193,7 +193,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(11, cl.deleteCount);
         assertEquals(cl.deleted, 9, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1);
         assertEquals(cl.changeCount, 13);
-        assertEquals(hl, "d-0-1", "d-2-1", "d-5-1", "d-11-1", "d-16-1", "d-18-1", "d-23-1", "d-29-1", "d-31-1");
+        assertEquals(hl, "d-31-1", "d-29-1", "d-23-1", "d-18-1", "d-16-1", "d-11-1", "d-5-1", "d-2-1", "d-0-1");
 
         seq.insertFirst(777);
         assertEquals(seq, 777, 9, 3, 8, 2, 3, 10, 2, 3, 2, 3, 4, 9, 9, 2, 3, 8, 2, 2, 3, 10, 3, 9, 9, 2, 3, 2, 3);
@@ -310,8 +310,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
         v.set(Sequences.make(Integer.class, 1, 2));
         assertEquals(v, 1, 2);
         assertEquals(b, 1, 2);
-        assertEquals(vh, "d-0-1", "d-1-2", "d-2-3", "i-0-1", "i-1-2");
-        assertEquals(bh, "d-0-1", "d-1-2", "d-2-3", "i-0-1", "i-1-2");
+        assertEquals(vh, "d-2-3", "d-1-2", "d-0-1", "i-0-1", "i-1-2");
+        assertEquals(bh, "d-2-3", "d-1-2", "d-0-1", "i-0-1", "i-1-2");
     }
 
     public void testUpcast() {
