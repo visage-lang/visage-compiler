@@ -1340,13 +1340,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
-        JCExpression seqLoc = translate( tree.getSequence(), Wrapped.InLocation );
+        JCExpression seq = tree.getSequence();
+        JCExpression seqLoc = translate(seq, Wrapped.InLocation);
         if (tree.getIndex() != null) { 
             result = callStatement(tree.pos(),  seqLoc,  "delete",   translate( tree.getIndex() ));
         } else if (tree.getElement() != null) { 
             result = callStatement(tree.pos(),  seqLoc,  "deleteValue",  translate( tree.getElement() ));
-        } else { 
-            result = callStatement(tree.pos(), seqLoc,  "deleteAll");
+        } else {
+            if (isSequence(seq.type))
+                result = callStatement(tree.pos(), seqLoc,  "deleteAll");
+            else {
+                make.at(tree.pos());
+                // Bit of a KLUDGE ...
+                visitAssign(make.Assign(seq, make.Literal(TypeTags.BOT, null)));
+                result = make.Exec((JCExpression) result);
+            }
         }
     }
 
