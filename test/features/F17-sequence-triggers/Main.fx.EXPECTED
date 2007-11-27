@@ -3,13 +3,13 @@ insert 77 at 11
 delete 109 from 9
 delete 106 from 6
 [ 100, 101, 102, 88, 104, 105, 107, 108, 110, 77 ]
-delete 100 from 0
-delete 101 from 1
-delete 102 from 2
-delete 88 from 3
-delete 104 from 4
-delete 105 from 5
-delete 107 from 6
-delete 108 from 7
-delete 110 from 8
 delete 77 from 9
+delete 110 from 8
+delete 108 from 7
+delete 107 from 6
+delete 105 from 5
+delete 104 from 4
+delete 88 from 3
+delete 102 from 2
+delete 101 from 1
+delete 100 from 0
