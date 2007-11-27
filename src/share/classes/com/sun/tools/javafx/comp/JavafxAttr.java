@@ -1454,12 +1454,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 attribVar(l.head, localEnv);
                 argbuf.append(l.head.sym.type);
             }
-            returnType = null;
+            returnType = syms.unknownType;
             if (opVal.getJFXReturnType().getTag() != JavafxTag.TYPEUNKNOWN) {
                 returnType = attribType(tree.getJFXReturnType(), localEnv);
             }
             MethodType mtype = new MethodType(argbuf.toList(),
-                                    returnType, // may be null - i.e. not yet known
+                                    returnType, // may be unknownType
                                     List.<Type>nil(),
                                     syms.methodClass);
             m.type = mtype;
@@ -1472,7 +1472,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     (tree.mods.flags & (ABSTRACT | NATIVE)) == 0 &&
                     !relax)
                     log.error(tree.pos(), "missing.meth.body.or.decl.abstract");
-                else if (returnType == null)
+                else if (returnType == syms.unknownType)
                     // no body, can't infer, assume Any
                     // FIXME Should this be Void or an error?
                     returnType = syms.javafx_AnyType;
@@ -1484,7 +1484,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 log.error(tree.pos(), "native.meth.cant.have.body");
             } else {
                 JFXBlockExpression body = opVal.getBodyExpression();
-                if (body.value == null && returnType == null) {
+                if (body.value == null && returnType == syms.unknownType) {
                     JCStatement last = body.stats.last();
                     if (last instanceof JCReturn) {
                         ListBuffer<JCStatement> rstats =
@@ -1501,10 +1501,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 // Attribute method bodyExpression
                 Type bodyType = attribExpr(body, localEnv);
                 if (body.value == null) {
-                    if (returnType == null)
+                    if (returnType == syms.unknownType)
                         returnType = syms.javafx_VoidType; //TODO: this is wrong if there is a return statement
                 } else {
-                    if (returnType == null)
+                    if (returnType == syms.unknownType)
                         returnType = bodyType;
                     else if (returnType != syms.javafx_VoidType && tree.getName() != defs.runMethodName)
                         chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.DISALLOWED);       
@@ -1869,14 +1869,16 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                               restype.tsym);
             }
 
-// Javafx change
             if (restype == null) {
+                log.error(tree,
+                        "javafx.not.a.function",
+                         mtype,
+                         typeargtypes,
+                         Type.toString(argtypes));
                 tree.type = pt;
                 result = pt;
             }
             else {
-                
-// Javafx change
             // Check that value of resulting type is admissible in the
             // current context.  Also, capture the return type
                 result = check(tree, capture(restype), VAL, pkind, pt, pSequenceness);
