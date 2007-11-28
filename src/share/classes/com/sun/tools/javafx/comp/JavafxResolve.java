@@ -42,6 +42,8 @@ import javax.lang.model.element.ElementVisitor;
 
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.tree.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /** Helper class for name resolution, used mostly by the attribution phase.
  *
@@ -206,7 +208,7 @@ public class JavafxResolve {
                  env.enclClass.sym.outermostClass() ==
                  sym.owner.outermostClass())
                 &&
-                sym.isInheritedIn(site.tsym, types);
+                isInheritedIn(sym, site.tsym, types);
         case 0:
             return
                 (env.toplevel.packge == sym.owner.owner // fast special case
@@ -215,7 +217,7 @@ public class JavafxResolve {
                 &&
                 isAccessible(env, site)
                 &&
-                sym.isInheritedIn(site.tsym, types);
+                isInheritedIn(sym, site.tsym, types);
         case PROTECTED:
             return
                 (env.toplevel.packge == sym.owner.owner // fast special case
@@ -447,7 +449,7 @@ public class JavafxResolve {
             List<Type> supertypes = ((JavafxClassSymbol)c).getSuperTypes();
             for (Type tp : supertypes) {
                 if (tp != null && tp.tag == CLASS) {
-                    sym = findField(env, site, name, st.tsym);
+                    sym = findField(env, site, name, tp.tsym);
                     if (sym.kind < bestSoFar.kind) bestSoFar = sym;
                     if (bestSoFar.kind < AMBIGUOUS) {
                         break;
@@ -576,7 +578,7 @@ public class JavafxResolve {
                       boolean useVarargs,
                       boolean operator) {
         if (sym.kind == ERR) return bestSoFar;
-        if (!sym.isInheritedIn(site.tsym, types)) return bestSoFar;
+        if (!isInheritedIn(sym, site.tsym, types)) return bestSoFar;
         assert sym.kind < AMBIGUOUS;
         List<Type> argtypes = expected.getParameterTypes();
         List<Type> typeargtypes = expected.getTypeArguments();
@@ -1963,6 +1965,65 @@ public class JavafxResolve {
                       kindName(pair.sym2),
                       pair.sym2,
                       pair.sym2.location(site, types));
+        }
+    }
+
+    public boolean isInheritedIn(Symbol sym, Symbol clazz, Types types) {
+        switch ((int)(sym.flags_field & Flags.AccessFlags)) {
+        default: // error recovery
+        case PUBLIC:
+            return true;
+        case PRIVATE:
+            return sym.owner == clazz;
+        case PROTECTED:
+            // we model interfaces as extending Object
+            return (clazz.flags() & INTERFACE) == 0;
+        case 0:
+            PackageSymbol thisPackage = sym.packge();
+            ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+            Set superSet = new HashSet<Type>();
+            if (clazz.type != null) {
+                supertypes.append(clazz.type);
+                superSet.add(clazz.type);
+            }
+            getSupertypes(clazz, types, supertypes, superSet);
+
+            boolean foundInherited = false;
+            for (Type supType : supertypes.toList()) {
+                if (supType.tsym == sym.owner) {
+                    foundInherited = true;
+                    break;
+                }
+                else if (supType.isErroneous()) {
+                    return true; // Error recovery
+                }
+                else if (supType.tsym != null && (supType.tsym.flags() & COMPOUND) != 0) {
+                    continue;
+                }
+            }
+            return foundInherited && (clazz.flags() & INTERFACE) == 0;
+        }
+    }
+    
+    public void getSupertypes(Symbol clazz, Types types, ListBuffer<Type> supertypes,Set<Type> dupSet) {
+        ListBuffer<Type> ret = ListBuffer.<Type>lb();
+        if (clazz != null) {
+            Type supType = types.supertype(clazz.type);
+            if (!dupSet.contains(supType)) {
+                supertypes.append(supType);
+                dupSet.add(supType);
+                getSupertypes(supType.tsym, types, supertypes,dupSet);
+            }
+
+            if (clazz instanceof JavafxClassSymbol) {
+                for (Type superType : ((JavafxClassSymbol)clazz).getSuperTypes()) {
+                    if (!dupSet.contains(superType)) {
+                        supertypes.append(superType);
+                        dupSet.add(superType);
+                        getSupertypes(superType.tsym, types, supertypes,dupSet);
+                    }
+                }
+            }
         }
     }
 }
