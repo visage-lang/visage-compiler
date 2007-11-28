@@ -39,6 +39,7 @@ public class JavafxDefs {
      * static string definitions
      */
     public static final String boundFunctionSuffix = "$bound";
+    public static final String implFunctionSuffix = "$impl";
     public static final String attributeGetMethodNamePrefix = "get$";
     public static final String attributeInitMethodNamePrefix = "init$";
     public static final String interfaceSuffix = "$Intf";

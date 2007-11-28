@@ -402,23 +402,10 @@ public class JavafxInitializationBuilder {
    JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl, List<TranslatedAttributeInfo> translatedAttrInfo) {
         boolean classIsFinal = (cDecl.getModifiers().flags & Flags.FINAL) != 0;
         boolean classOnly = cDecl.generateClassOnly();
-        Set<String> visitedClasses = new HashSet<String>();
-        Map<String, Symbol> collectedAttributes = new HashMap<String, Symbol>();
-        Map<String, MethodSymbol> collectedMethods = new HashMap<String, MethodSymbol>();
-        java.util.List<Symbol> attributes = new java.util.ArrayList<Symbol>();
-        java.util.List<MethodSymbol> methods = new java.util.ArrayList<MethodSymbol>();
-        java.util.List<ClassSymbol> baseClasses = new java.util.ArrayList<ClassSymbol>();
-        java.util.List<ClassSymbol> classesToVisit = new java.util.ArrayList<ClassSymbol>();
         
-        classesToVisit.add(cDecl.sym);
-        
-        collectAttributesAndMethods(visitedClasses,
-                                    collectedAttributes,
-                                    collectedMethods,
-                                    attributes,
-                                    methods,
-                                    baseClasses,
-                                    classesToVisit);
+        CollectAttributeAndMethods collection = new CollectAttributeAndMethods(cDecl.sym);        
+        java.util.List<ClassSymbol> baseClasses = collection.baseClasses;
+        java.util.List<Symbol> attributes = collection.attributes;
 
         addFxClassAttributes(cDecl.sym, attributes);
         
@@ -461,19 +448,27 @@ public class JavafxInitializationBuilder {
         Name interfaceName = classOnly ? null : interfaceName(cDecl);
 
         for (boolean bound = toJava.generateBoundFunctions;  ; bound = false) {
-            for (MethodSymbol mth : methods) {
-                if ((mth.flags() & (Flags.SYNTHETIC|Flags.STATIC)) == 0) {
-                    // ignore synthetics, like the run method
+
+            // add interface methods for each method defined in this class
+            for (MethodSymbol mth : collection.needInterfaceMethods) {
                     if (mth.owner == cDecl.sym) {
-                        // add interface methods for each method defined in this class
                         iDefinitions.append(makeMethod(cDecl, mth, null, bound));
                     }
-                    if ((mth.flags() & Flags.ABSTRACT) == 0 && (!classIsFinal || mth.owner != cDecl.sym)) {
-                        // add proxies which redirect to the static implementation for every concrete method
-                        cDefinitions.append(makeMethod(cDecl, mth, makeProxyBody(cDecl, mth, bound), bound));
-                    }
-                }
             }
+
+            // add proxies which redirect to the static implementation for every concrete method
+            for (MethodSymbol mth : collection.needDispatchMethods) {
+                    if ((!classIsFinal && (mth.flags() & (Flags.STATIC)) == 0L) || mth.owner != cDecl.sym) { //TODO: this test is wrong
+                        cDefinitions.append(makeMethod(cDecl, mth, makeDispatchBody(cDecl, mth, bound, false), bound));
+                    }
+            }
+            
+            for (MethodSymbol mth : collection.needStaticDispatchMethods) {
+                    if ((!classIsFinal && (mth.flags() & (Flags.STATIC)) == 0L) || mth.owner != cDecl.sym) {  //TODO: this test is wrong
+                        cDefinitions.append(makeMethod(cDecl, mth, makeDispatchBody(cDecl, mth, bound, true), bound));
+                    }
+            }
+            
             if (!bound) {
                 break;
             }
@@ -606,8 +601,8 @@ public class JavafxInitializationBuilder {
         
         // make the method
         return make.at(diagPos).MethodDef(
-                        make.Modifiers(Flags.PUBLIC | (mth.flags() & Flags.ABSTRACT)), 
-                        toJava.functionInterfaceName(mth, isBound), 
+                        make.Modifiers(Flags.PUBLIC | (mthBody==null? Flags.ABSTRACT : 0L)), 
+                        toJava.functionName(mth, false, isBound), 
                         toJava.makeReturnTypeTree(diagPos, mth, isBound), 
                         List.<JCTypeParameter>nil(), 
                         params.toList(), 
@@ -619,9 +614,9 @@ public class JavafxInitializationBuilder {
     /**
      * Make a method body which redirects to the actual implementation in a static method of the defining class.
      */
-    private JCBlock makeProxyBody(DiagnosticPosition diagPos, MethodSymbol mth, boolean isBound) {
+    private JCBlock makeDispatchBody(DiagnosticPosition diagPos, MethodSymbol mth, boolean isBound, boolean isStatic) {
         ListBuffer<JCExpression> args = ListBuffer.lb();
-        if (!mth.isStatic()) {
+        if (!isStatic) {
             // Add the this argument, so the static implementation method is invoked
             args.append(make.Ident(names._this));
         }
@@ -629,7 +624,7 @@ public class JavafxInitializationBuilder {
             args.append(make.Ident(var.name));
         }
         String receiver = mth.owner.name.toString();
-        JCExpression expr = toJava.callExpression(diagPos, make.Identifier(receiver), toJava.functionName(mth, isBound), args);
+        JCExpression expr = toJava.callExpression(diagPos, make.Identifier(receiver), toJava.functionName(mth, !isStatic, isBound), args);
         JCStatement statement = (mth.getReturnType() == syms.voidType) ? make.Exec(expr) : make.Return(expr);
         return make.at(diagPos).Block(0L, List.<JCStatement>of(statement));
      }
@@ -891,161 +886,218 @@ public class JavafxInitializationBuilder {
         }
         return ret;
     }
+   
+   class CollectAttributeAndMethods {
 
-    private void collectAttributesAndMethods(Set<String> visitedClasses,
-                                             Map<String, Symbol> collectedAttributes,
-                                             Map<String, MethodSymbol> collectedMethods,
-                                             java.util.List<Symbol> attributes,
-                                             java.util.List<MethodSymbol> methods,
-                                             java.util.List<ClassSymbol> baseClasses,
-                                             java.util.List<ClassSymbol> classesToVisit) {
-        Set<ClassSymbol> addedBaseClasses = new HashSet<ClassSymbol>();
-        while(!classesToVisit.isEmpty()) {
-            ClassSymbol cSym = classesToVisit.get(0);
-            classesToVisit.remove(0);
-            
-            if (!visitedClasses.contains(cSym.fullname.toString())) {
-                if (isJFXClass(cSym)) {
-                    if (((cSym.flags_field & Flags.INTERFACE) != 0 || fxClasses.get(cSym) == null)) {
-                        if (cSym.members() != null) {
-                            for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
-                                if (e.sym.kind == Kinds.MTH) {
-                                    MethodSymbol meth = (MethodSymbol)e.sym;
-                                    String methName = meth.name.toString();
-                                    if (meth.name == defs.initializeName ||
-                                            meth.name == setDefaultsName ||
-                                            meth.name == userInitName ||
-                                            meth.name == names.init ||
-                                            meth.name == names.clinit ||
-                                            meth.name == defs.runMethodName) {
-                                        continue;
-                                    }
-                                    
-                                    if (!methName.startsWith(attributeGetMethodNamePrefix)) {
-                                        StringBuilder nameSigBld = new StringBuilder();
-                                        nameSigBld.append( methName );
-                                        nameSigBld.append(":");
-                                        nameSigBld.append(meth.getReturnType().toString());
-                                        nameSigBld.append(":");
-                                        for (VarSymbol param : meth.getParameters()) {
-                                            nameSigBld.append(param.type.toString());
-                                            nameSigBld.append(":");
-                                        }
-
-                                        String nameSig = nameSigBld.toString();
-                                        if (collectedMethods.containsKey(nameSig)) {
-                                            continue;
-                                        }
-
-                                        if (!methName.startsWith(attributeInitMethodNamePrefix)) {
-                                            collectedMethods.put(nameSig, meth);
-                                            methods.add(meth);
-                                        }                                                                            }
-                                    else {
-                                        String nameSig = methName.substring(attributeGetMethodNamePrefix.length());
-                                        if (collectedAttributes.containsKey(nameSig)) {
-                                            continue;
-                                        }
-
-                                        collectedAttributes.put(nameSig, meth);
-                                        attributes.add(meth);
-                                    }
-                                }
-                                else if (e.sym.kind == Kinds.VAR) {
-                                    VarSymbol var = (VarSymbol)e.sym;
-                                    
-                                    if (var.owner.kind != Kinds.TYP) {
-                                        continue;
-                                    }
-                                    
-                                    String name = var.name.toString();
-                                    
-                                    if (!name.startsWith(attributeGetMethodNamePrefix)) {
-                                        continue;
-                                    }
-                                    
-                                    if (collectedAttributes.containsKey(name)) {
-                                        continue;
-                                    }
-                                    
-                                    collectedAttributes.put(name, var);
-                                    attributes.add(var);
-                                }
-                            }
-
-                            for (Type supertype : cSym.getInterfaces()) {
-                                if (supertype != null && supertype.tsym != null && supertype.tsym.kind == Kinds.TYP && !addedBaseClasses.contains((ClassSymbol)supertype.tsym)) {
-                                    addedBaseClasses.add((ClassSymbol)supertype.tsym);
-                                    classesToVisit.add((ClassSymbol)supertype.tsym);
-                                    baseClasses.add((ClassSymbol)supertype.tsym);
-                                }
-                            }
-
-                            visitedClasses.add(cSym.fullname.toString());
-                        }
-                    }
-                    else {
+       Set<String> visitedClasses = new HashSet<String>();
+       Map<String, Symbol> collectedAttributes = new HashMap<String, Symbol>();
+       Map<String, MethodSymbol> collectedMethods = new HashMap<String, MethodSymbol>();
+       java.util.List<Symbol> attributes = new java.util.ArrayList<Symbol>();
+       java.util.List<MethodSymbol> needInterfaceMethods = new java.util.ArrayList<MethodSymbol>();
+       java.util.List<MethodSymbol> needDispatchMethods = new java.util.ArrayList<MethodSymbol>();
+       java.util.List<MethodSymbol> needStaticDispatchMethods = new java.util.ArrayList<MethodSymbol>();
+       java.util.List<ClassSymbol> baseClasses = new java.util.ArrayList<ClassSymbol>();
+       java.util.List<ClassSymbol> classesToVisit = new java.util.ArrayList<ClassSymbol>();
+       Set<ClassSymbol> addedBaseClasses = new HashSet<ClassSymbol>();
+       final boolean debug = false;
+        
+       CollectAttributeAndMethods(ClassSymbol csym) {
+           classesToVisit.add(csym);
+           while (!classesToVisit.isEmpty()) {
+               ClassSymbol cSym = classesToVisit.get(0);
+               classesToVisit.remove(0);
+               if (debug) System.err.println(((cSym.flags_field & Flags.INTERFACE) != 0? "INTERFACE: " : "CLASS: ") + cSym);
+               if (!visitedClasses.contains(cSym.fullname.toString())) {
+                   if (isJFXClass(cSym)) {
                         JFXClassDeclaration cDecl = fxClasses.get(cSym);
+                       if (cDecl == null) {
+                           // this is a JavaFX class from a class file
+                           if ((cSym.flags_field & Flags.INTERFACE) == 0 && cSym.members() != null) {
+                               // we want to base this solely on (non-empty) implementation
+                                for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
+                                   if (e.sym.kind == Kinds.MTH) {
+                                       processMethodFromClassFile((MethodSymbol) e.sym);
+                                   } else if (e.sym.kind == Kinds.VAR) {
+//                                       processAttributeFromClassFile((VarSymbol) e.sym);
+                                   }
+                               }
+                           }
 
-                        if (cDecl != null && cDecl.getMembers() != null) {
-                            for (JCTree def : cDecl.getMembers()) {
-                                if (def.getTag() == JavafxTag.FUNCTION_DEF) {
-                                    MethodSymbol meth = (MethodSymbol)((JFXOperationDefinition)def).sym;
-                                    List<JFXVar> pars = ((JFXOperationDefinition)def).getParameters();
-                                    StringBuilder nameSigBld = new StringBuilder();
-                                    nameSigBld.append(meth.name.toString());
-                                    nameSigBld.append(":");
-                                    nameSigBld.append(meth.getReturnType().toString());
-                                    nameSigBld.append(":");
-                                    for (VarSymbol param : meth.getParameters()) {
-                                        param.name = pars.head.name;
-                                        pars = pars.tail;
-                                        nameSigBld.append(param.type.toString());
-                                        nameSigBld.append(":");
-                                    }
-                                    
-                                    String nameSig = nameSigBld.toString();
-                                    if (def.pos == Position.NOPOS || collectedMethods.containsKey(nameSig)) {
-                                        continue;
-                                    }
-                                    
-                                    collectedMethods.put(nameSig, meth);
-                                    methods.add(meth);
-                                }
-                                else if (def.getTag() == JavafxTag.VAR_DEF) {
-                                    VarSymbol var = (VarSymbol)((JFXVar)def).sym;
-                                    
-                                    if (def.pos == Position.NOPOS || var.owner.kind != Kinds.TYP) {
-                                        continue;
-                                    }
-                                    
-                                    String name = var.name.toString();
-                                    
-                                    if (collectedAttributes.containsKey(name)) {
-                                        continue;
-                                    }
-                                    
-                                    collectedAttributes.put(name, var);
-                                    attributes.add(var);
-                                }
-                            }
+                           for (Type supertype : cSym.getInterfaces()) {
+                               if (supertype != null) {
+                                   ClassSymbol iSym = (ClassSymbol) supertype.tsym;
+                                   if (iSym != null && iSym.kind == Kinds.TYP && !addedBaseClasses.contains(iSym)) {
+                                       if (debug) System.err.println("added SUPER-INTERFACE: " + iSym);
+                                       addedBaseClasses.add(iSym);
+                                       classesToVisit.add(iSym);
+                                       baseClasses.add(iSym);
+                                       String iName = iSym.fullname.toString();
+                                       if (iName.endsWith(defs.interfaceSuffix)) {
+                                           String sName = iName.substring(0, iName.length() - defs.interfaceSuffix.length());
+                                           ClassSymbol sSym = null;
+                                           try {
+                                               sSym = typeMorpher.reader.enterClass(names.fromString(sName));
+                                           } catch (Throwable thr) { 
+                                               System.err.println("THROWN: " + thr);
+                                           }
+                                           if (sSym != null && sSym.kind == Kinds.TYP && !addedBaseClasses.contains(sSym)) {
+                                               if (debug) System.err.println("added SUPER-CLASS: " + sName + " { " + sSym + "}");
+                                               addedBaseClasses.add(sSym);
+                                               classesToVisit.add(sSym);
+                                               baseClasses.add(sSym);
+                                           }
+                                       }
+                                   }
+                               }
+                           }
 
-                            for (JCExpression supertype : cDecl.getSupertypes()) {
-                                if (supertype.type != null && supertype.type.tsym != null && supertype.type.tsym.kind == Kinds.TYP && !addedBaseClasses.contains((ClassSymbol)supertype.type.tsym)) {
-                                    addedBaseClasses.add((ClassSymbol)supertype.type.tsym);
-                                    classesToVisit.add((ClassSymbol)supertype.type.tsym);
-                                    baseClasses.add((ClassSymbol)supertype.type.tsym);
-                                }
-                            }
-                            
-                            visitedClasses.add(cSym.fullname.toString());
-                        }
-                    }
+                               visitedClasses.add(cSym.fullname.toString());
+                       } else {
+                           if (cDecl.getMembers() != null) {
+                               for (JCTree def : cDecl.getMembers()) {
+                                   if (def.getTag() == JavafxTag.FUNCTION_DEF) {
+                                       processFunctionFromSource((JFXOperationDefinition) def);
+                                   } else if (def.getTag() == JavafxTag.VAR_DEF) {
+                                       processAttributeFromSource((JFXVar) def);
+                                   }
+                               }
+                               visitedClasses.add(cSym.fullname.toString());
+                           }
+
+                           for (JCExpression supertype : cDecl.getSupertypes()) {
+                                   if (supertype.type != null && 
+                                           supertype.type.tsym != null && 
+                                           supertype.type.tsym.kind == Kinds.TYP && 
+                                           !addedBaseClasses.contains((ClassSymbol) supertype.type.tsym)) {
+                                       addedBaseClasses.add((ClassSymbol) supertype.type.tsym);
+                                       classesToVisit.add((ClassSymbol) supertype.type.tsym);
+                                       baseClasses.add((ClassSymbol) supertype.type.tsym);
+                               }
+                           }
+                       }
+                   }
+               }
+           }
+       }
+       
+         void processAttributeFromClassFile(VarSymbol var) {
+             if (var.owner.kind == Kinds.TYP) {
+                 // only want attributes
+                 String name = var.name.toString();
+                 if (!name.startsWith(attributeGetMethodNamePrefix)) {
+                     return; // this doesn't make any sense that this wouold occur
+                 }
+                 if (!collectedAttributes.containsKey(name)) {
+                     collectedAttributes.put(name, var);
+                     attributes.add(var);
+                 }
+             }
+         }
+         
+       void processMethodFromClassFile(MethodSymbol meth) {
+           String methName = meth.name.toString();
+           if (methName.startsWith(attributeGetMethodNamePrefix)) {
+               // this is an attrubute get method, collect it as an attribute
+               String nameSig = methName.substring(attributeGetMethodNamePrefix.length());
+               if (!collectedAttributes.containsKey(nameSig)) {
+                   collectedAttributes.put(nameSig, meth);
+                   attributes.add(meth);
+               }
+           } else if (methName.endsWith(defs.implFunctionSuffix)) {
+               // implementation method
+               methName = methName.substring(0, methName.length() - defs.implFunctionSuffix.length());
+               int cnt = 0;
+               ListBuffer<VarSymbol> params = ListBuffer.lb();
+               ListBuffer<Type> paramTypes = ListBuffer.lb();
+               for (VarSymbol param : meth.getParameters()) {
+                   cnt++;
+                   if (cnt > 1) {
+                       params.append(param);
+                       paramTypes.append(param.type);
+                   }
+               }
+               MethodType mtype = new MethodType(paramTypes.toList(), meth.type.getReturnType(), meth.type.getThrownTypes(), meth.type.tsym);
+               MethodSymbol fixedMeth = new MethodSymbol(
+                    meth.flags() & ~Flags.STATIC, 
+                    names.fromString(methName),
+                    mtype, 
+                    meth.owner);
+               fixedMeth.params = params.toList();
+               String nameSig = methodSignature(fixedMeth);
+               if (debug) System.err.println("    METHOD: " + meth + "  fixed: " + fixedMeth);
+               if (!collectedMethods.containsKey(nameSig)) {
+                   collectedMethods.put(nameSig, fixedMeth);
+                   needDispatchMethods.add(fixedMeth);
+               }
+           }
+       }
+     
+       void processFunctionFromSource(JFXOperationDefinition def) {
+           MethodSymbol meth = def.sym;
+           List<JFXVar> pars = def.getParameters();
+           //TODO: use methodSignature
+           StringBuilder nameSigBld = new StringBuilder();
+           nameSigBld.append(meth.name.toString());
+           nameSigBld.append(":");
+           nameSigBld.append(meth.getReturnType().toString());
+           nameSigBld.append(":");
+           for (VarSymbol param : meth.getParameters()) {
+               param.name = pars.head.name;
+               pars = pars.tail;
+               nameSigBld.append(param.type.toString());
+               nameSigBld.append(":");
+           }
+
+           String nameSig = nameSigBld.toString();
+           if (def.pos == Position.NOPOS) {
+               return; //TODO: this looks REALLY dangerous, and probably unneeded
+           }
+           if (debug) System.err.println("    SRC-METHOD: " + meth);
+           if (!collectedMethods.containsKey(nameSig)) {
+               collectedMethods.put(nameSig, meth);
+               if ((meth.flags() & (Flags.SYNTHETIC|Flags.STATIC)) == 0) {
+                   needInterfaceMethods.add(meth);
+               }
+               if ((meth.flags() & (Flags.SYNTHETIC | Flags.ABSTRACT)) == 0) {
+                   if ((meth.flags() & (Flags.STATIC)) != 0) {
+                       needStaticDispatchMethods.add(meth);
+                   } else {
+                       needDispatchMethods.add(meth);
+                   }
+               }
+           }
+       }
+       
+        void processAttributeFromSource(JFXVar def) {
+            VarSymbol var = def.sym;
+
+            if (def.pos == Position.NOPOS) {
+                return; //TODO: this looks REALLY dangerous, and probably unneeded
+            }
+            if (var.owner.kind == Kinds.TYP) {
+                String name = var.name.toString();
+
+                if (!collectedAttributes.containsKey(name)) {
+                    collectedAttributes.put(name, var);
+                    attributes.add(var);
                 }
             }
         }
+
+        private String methodSignature(MethodSymbol meth) {
+            StringBuilder nameSigBld = new StringBuilder();
+            nameSigBld.append(meth.name.toString());
+            nameSigBld.append(":");
+            nameSigBld.append(meth.getReturnType().toString());
+            nameSigBld.append(":");
+            for (VarSymbol param : meth.getParameters()) {
+                nameSigBld.append(param.type.toString());
+                nameSigBld.append(":");
+            }
+            return nameSigBld.toString();
+        }
     }
-    
+
     boolean isJFXClass(Symbol sym) {
         if (!(sym instanceof ClassSymbol)) {
             return false;

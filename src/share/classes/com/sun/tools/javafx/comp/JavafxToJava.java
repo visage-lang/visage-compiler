@@ -1005,6 +1005,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
             flags &= ~Flags.SYNTHETIC;
             JCModifiers mods = make.Modifiers(flags);     
+            boolean isImplMethod = (originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0 && !classIsFinal;
 
             DiagnosticPosition diagPos = tree.pos();
             MethodType mtype = (MethodType)tree.type;
@@ -1029,6 +1030,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 } else if (isRunMethod(tree.sym)) {
                     // it is a module level run method, do special translation
                     body = runMethodBody( bexpr );
+                    isImplMethod = false;
                 } else {
                     // the "normal" case
                     body = asBlock( translateExpressionToStatement(bexpr, isVoidReturn? Yield.ToExecStatement : Yield.ToReturnStatement) );
@@ -1055,7 +1057,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
             result = make.at(diagPos).MethodDef(
                     mods,
-                    functionName(tree.sym, isBound), 
+                    functionName(tree.sym, isImplMethod,  isBound), 
                     makeReturnTypeTree(diagPos, tree.sym, isBound), 
                     make.at(diagPos).TypeParams(mtype.getTypeArguments()), 
                     params.toList(),
@@ -2029,25 +2031,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             // if we are in a bound context and we are calling an FX function, call the bound version of the function
             if (sym != null && initBuilder.isJFXClass(sym.owner) && sym.getReturnType() != syms.voidType) {
                 callBound = true;
-                Name name = functionName(sym, true);
-                switch (meth.getTag()) {
-                    case JavafxTag.SELECT:
-                        {
-                            JCFieldAccess smeth = (JCFieldAccess) meth;
-                            meth = make.Select(smeth.getExpression(), name);
-                            break;
-                        }
-                    case JavafxTag.IDENT:
-                        {
-                            meth = make.Ident(name);
-                            break;
-                        }
-                    default:
-                        assert false : "unexpected method expression";
-                }
             }
         }
-
+        
         // compute the translated arguments.
         // if this is a bound call, use left-hand side references for arguments consisting
         // solely of a  var or attribute reference, or function call, otherwise, wrap it
@@ -2084,16 +2070,40 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         // if this is a super.foo(x) call, "super" will be translated to referenced class, 
         // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
+        boolean superCall = false;
         if (tree.meth instanceof JCFieldAccess) {
              JCExpression selected =  ((JCFieldAccess)(tree.meth)).getExpression();
              if (selected instanceof JCIdent) {
                  JCIdent id = (JCIdent)selected;
                  if (id.getName() == names._super) {
                      args = args.prepend(make.Ident(defs.receiverName));
+                     superCall = true;
                  }
              }
         }
         
+        if (callBound || superCall) {
+                if (sym == null) {
+                    sym = (MethodSymbol) expressionSymbol(tree.meth);
+                }
+                Name name = functionName(sym, superCall, callBound);
+                switch (meth.getTag()) {
+                    case JavafxTag.SELECT:
+                        {
+                            JCFieldAccess smeth = (JCFieldAccess) meth;
+                            meth = make.Select(smeth.getExpression(), name);
+                            break;
+                        }
+                    case JavafxTag.IDENT:
+                        {
+                            meth = make.Ident(name);
+                            break;
+                        }
+                    default:
+                        assert false : "unexpected method expression";
+                }
+        }
+
         JCMethodInvocation app = make.at(tree.pos).Apply(typeargs, meth, args);
         JCExpression fresult = app;
         if (callBound) {
@@ -2433,23 +2443,26 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     Name functionName(MethodSymbol sym, boolean isBound) {
-        return functionName(sym, 
-                sym.isStatic() && (sym.owner.kind != Kinds.TYP || initBuilder.isJFXClass((ClassSymbol) sym.owner)) && !isRunMethod(sym), 
-                isBound);
-    }
-
-    Name functionInterfaceName(MethodSymbol sym, boolean isBound) {
         return functionName(sym, false, isBound);
     }
 
-    Name functionName(MethodSymbol sym, boolean isStatic, boolean isBound) {
-        if (!isStatic && !isBound) {
+    Name functionInterfaceName(MethodSymbol sym, boolean isBound) {
+        return functionName(sym, isBound);
+    }
+
+    Name functionName(MethodSymbol sym, boolean markAsImpl, boolean isBound) {
+        if (!markAsImpl && !isBound) {
             return sym.name;
         }
-        String full = sym.name.toString();
+        return functionName( sym.name.toString(), markAsImpl, isBound );
+    }
+
+    Name functionName(String full, boolean markAsImpl, boolean isBound) {
         if (isBound) {
             full = full  + defs.boundFunctionSuffix;
-        }    
+        } else  if (markAsImpl) {
+            full = full  + defs.implFunctionSuffix;
+        } 
         return names.fromString(full);
     }
 
