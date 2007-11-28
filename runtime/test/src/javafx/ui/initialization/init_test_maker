@@ -1,0 +1,6 @@
+#!/bin/sh
+
+(cd ../../../../../src/share/classes/javafx/ui/; ls *.fx) | \
+   awk -F/ '{print $1}' | \
+   awk -F. '{ f = "test" $1 ".fx"; printf("/*\n * Test %s.fx initialization\n * @test\n * @run\n */\n\nimport javafx.ui.%s;\n\nvar %s = new %s;\n", $1, $1, tolower($1), $1) > f; close(f); system("touch " f ".EXPECTED");}'
+rm `javafxc -target 1.5 -d /tmp *.fx 2>&1 |grep javafx.ui. |grep -v '^import' |awk -F: '{print $1}'`

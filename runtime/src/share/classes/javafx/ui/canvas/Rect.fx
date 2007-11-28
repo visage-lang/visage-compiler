@@ -36,7 +36,8 @@ import com.sun.scenario.scenegraph.SGShape;
  * (arcWidth, arcHeight) with which to round the corners.
  */
 public class Rect extends Shape, SizeableCanvasElement {
-    private attribute awtrect: java.awt.geom.RoundRectangle2D.Double;
+    private attribute awtrect: java.awt.geom.RoundRectangle2D.Double = 
+        new java.awt.geom.RoundRectangle2D.Double();
 
     /** The x coordinate of this rectangle's location. */
     public attribute x: Number on replace {

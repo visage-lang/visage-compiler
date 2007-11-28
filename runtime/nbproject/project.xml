@@ -9,7 +9,7 @@
                 <root id="src.classes.dir" name="Source Packages"/>
             </source-roots>
             <test-roots>
-                <root id="test.src.dir"/>
+                <root id="test.src.dir" name="test/src"/>
             </test-roots>
         </data>
     </configuration>

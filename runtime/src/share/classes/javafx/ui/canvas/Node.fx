@@ -252,12 +252,15 @@ public abstract class Node extends CanvasElement, Transformable {
     private attribute alignmentFilter: SGAlignment;
     private attribute compositeFilter: SGComposite;
     private attribute clipFilter: SGClip;
-    private attribute clipNode: VisualNode = bind clip.shape on replace {
-        clipFilter.setShape(clipNode.getVisualNode().getShape());
+    //TODO: need to handle clip==null
+    private attribute clipNode: VisualNode /*= bind clip.shape*/ on replace {
+        if (clipNode <> null)
+            clipFilter.setShape(clipNode.getVisualNode().getShape());
     };
-    private attribute antialiasClip: Boolean = bind clip.antialias on replace {
+    private attribute antialiasClip: Boolean /*= bind clip.antialias*/ on replace {
         antialiasClipSet = true;
-        clipFilter.setAntialiased(antialiasClip);
+        if (clipFilter <> null)
+            clipFilter.setAntialiased(antialiasClip);
     };
     private attribute antialiasClipSet = false;
     private attribute effectFilter: SGEffect;
@@ -465,14 +468,18 @@ public abstract class Node extends CanvasElement, Transformable {
         if (halign == null) {
             halign = HorizontalAlignment.LEADING;
         }
-        alignmentFilter.setHorizontalAlignment(halign.id.intValue());
+        else if (alignmentFilter <> null) {
+            alignmentFilter.setHorizontalAlignment(halign.id.intValue());
+        }
     }
     /** Determines the vertical alignment of this node relative to its origin. */
     public attribute valign: VerticalAlignment on replace {
         if (valign == null) {
             valign = VerticalAlignment.TOP;
         }
-        alignmentFilter.setVerticalAlignment(valign.id.intValue());
+        else if (alignmentFilter <> null) {
+            alignmentFilter.setVerticalAlignment(valign.id.intValue());
+        }
     };
 
     /** 
@@ -481,7 +488,9 @@ public abstract class Node extends CanvasElement, Transformable {
      * will not receive events.
      */
     public attribute visible: Boolean = true on replace {
-        alignmentFilter.setVisible(visible);
+        if (alignmentFilter <> null) {
+            alignmentFilter.setVisible(visible);
+        }
     };
 
     public attribute onKeyDown: function(e:KeyEvent):Void;
@@ -511,7 +520,7 @@ public abstract class Node extends CanvasElement, Transformable {
             requestFocus();
         } else {
             var canvas = this.getCanvas();
-            if (canvas.focusedNode == this) {
+            if (canvas <> null and canvas.focusedNode == this) {
                 canvas.focusedNode = null;
             }
         }
@@ -647,7 +656,8 @@ public abstract class Node extends CanvasElement, Transformable {
     }
     public attribute hover: Boolean;
     public attribute id: String on replace {
-        contentNode.setID(id);   
+        if (contentNode <> null)
+            contentNode.setID(id);   
     };
     function onTransformChanged(t:AffineTransform){
         if (transformFilter <> null) {

@@ -30,6 +30,22 @@
         </fail>
     </target>
 
+    <target name="-do-compile" depends="init,deps-jar,-pre-pre-compile,-pre-compile" if="have.sources">
+        <javac compiler="modern" fork="true"
+               srcdir="${src.classes.dir}" destdir="${build.classes.dir}"
+               debug="${javac.debug}" deprecation="${javac.deprecation}"
+               source="${javac.source}" target="${javac.target}" includeantruntime="false">
+            <classpath>
+                <path path="${javac.classpath}"/>
+            </classpath>
+            <compilerarg value="-J-Xbootclasspath/p:${basedir}${file.separator}..${file.separator}lib${file.separator}javac.jar"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.classes.dir}" excludes="${build.classes.excludes}"/>
+        </copy>
+    </target>
+
     <target name="-post-compile" if="have.sources" depends="init,deps-jar,-pre-pre-compile,-pre-compile">
         <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask">
             <classpath>
