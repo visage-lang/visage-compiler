@@ -67,4 +67,5 @@
 
     -->
 
+    <target name="javadoc"/>  <!-- suppress Javadoc -->
 </project>
