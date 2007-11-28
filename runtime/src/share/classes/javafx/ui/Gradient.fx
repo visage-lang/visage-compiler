@@ -27,17 +27,7 @@ package javafx.ui;
 
 import javafx.ui.canvas.Transformable;
 
-//TODO JXFC-306 Cannot locate Transformable$Intf
-public abstract class Gradient extends  Paint  {
-//public abstract class Gradient extends Transformable, Paint  {
-
-
-
-    //TODO JXFC-306 Cannot locate Transformable - following is work around
-    // affineTransform is defined in Transformable
-    protected attribute affineTransform: java.awt.geom.AffineTransform;
-    // END WORK AROUND
-
+public abstract class Gradient extends Transformable, Paint  {
     protected attribute gradient: com.sun.javafx.runtime.awt.MultipleGradientPaint;
     /** The ramp of colors to use on this gradient */
     public attribute stops: Stop[] 
