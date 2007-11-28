@@ -48,6 +48,7 @@ import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Position;
+import com.sun.tools.javafx.code.JavafxClassSymbol;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxSymtab;
@@ -376,16 +377,19 @@ public class JavafxInitializationBuilder {
         final ListBuffer<JCExpression> interfaces;
         final List<JCTree> iDefinitions;
         final List<JCTree> additionalClassMembers;
+        final List<JCExpression> additionalImports;
   
         JavafxClassModel(
                 Name interfaceName,
                 ListBuffer<JCExpression> interfaces,
                 List<JCTree> iDefinitions,
-                ListBuffer<JCTree> addedClassMembers) {
+                ListBuffer<JCTree> addedClassMembers,
+                ListBuffer<JCExpression> additionalImports) {
             this.interfaceName = interfaceName;
             this.interfaces = interfaces;
             this.iDefinitions = iDefinitions;
             this.additionalClassMembers = addedClassMembers.toList();
+            this.additionalImports = additionalImports.toList();
         }
     }
 
@@ -412,13 +416,24 @@ public class JavafxInitializationBuilder {
         ListBuffer<JCExpression> implementing = new ListBuffer<JCExpression>();
         implementing.append(make.Identifier(fxObjectString));
 
+        // Add import statements for all the base classes and basClass $Intf(s).
+        // There might be references to them when the methods/attributes are rolled up.
+        ListBuffer<JCExpression> additionalImports = new ListBuffer<JCExpression>();
         for (ClassSymbol baseClass : baseClasses) {
             if (!baseClass.name.toString().endsWith(interfaceSuffix) && 
                     baseClass.fullname != names.fromString(fxObjectString) &&
-                    isJFXClass(baseClass)) {
-                implementing.append(make.Ident(names.fromString(baseClass.name.toString() + interfaceSuffix)));
+                    isJFXClass(baseClass) && baseClass.type != null) {
+                implementing.append(toJava.makeTypeTree(baseClass.type, cDecl.pos(), true));
+                if (baseClass.type != null && baseClass.type.tsym != null &&
+                        baseClass.type.tsym.packge() != syms.unnamedPackage) {    // Work around javac bug. the visitImport of Attr 
+                                                                                  // is casting to JCFieldAcces, but if you have imported an
+                                                                                  // JCIdent only a ClastCastException is thrown.
+                    additionalImports.append(toJava.makeTypeTree(baseClass.type, cDecl.pos(), false));
+                    additionalImports.append(toJava.makeTypeTree(baseClass.type, cDecl.pos(), true));
+                }
             }
         }
+
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
         cDefinitions.append( makeSetDefaultsMethod(cDecl, baseClasses,  translatedAttrInfo) );
         cDefinitions.append( make.Block(Flags.STATIC, makeStaticSetDefaultsMethod(cDecl, baseClasses, translatedAttrInfo) ));
@@ -477,10 +492,11 @@ public class JavafxInitializationBuilder {
         addInterfaceOuterAccessorMethod(iDefinitions, cDecl);
         addClassOuterAccessorMethod(cDefinitions, cDecl);
 
-        for (List<JCExpression> l = cDecl.getImplementing(); l.nonEmpty(); l = l.tail)
+        for (List<JCExpression> l = cDecl.getImplementing(); l.nonEmpty(); l = l.tail) {
             implementing.append(toJava.makeTypeTree(l.head.type, null));
+        }
 
-        return new JavafxClassModel(interfaceName, implementing, iDefinitions.toList(), cDefinitions);
+        return new JavafxClassModel(interfaceName, implementing, iDefinitions.toList(), cDefinitions, additionalImports);
     }
     
     // Add the methods and field for accessing the outer members. Also add a constructor with an extra parameter to handle the instantiation of the classes that access outer members

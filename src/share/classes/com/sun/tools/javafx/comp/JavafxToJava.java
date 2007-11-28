@@ -101,6 +101,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private ListBuffer<JCStatement> prependToDefinitions = null;
     private ListBuffer<JCStatement> prependToStatements = null;
     
+    private ListBuffer<JCExpression> additionalImports = null;
+    
     enum Wrapped {
         InLocation,
         InNothing
@@ -415,6 +417,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
        ListBuffer<JCTree> translatedDefinitions= ListBuffer.<JCTree>lb();
        ListBuffer<JCTree> imports= ListBuffer.<JCTree>lb();
+       additionalImports = ListBuffer.<JCExpression>lb();
        prependToStatements = prependToDefinitions = ListBuffer.lb();
        for (JCTree def : tree.defs) {
             if (def.getTag() == JCTree.IMPORT) {
@@ -444,13 +447,20 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 translatedDefinitions.append( translate(def) );
             }
         }
-        // order is imports, any prepends, then the translated non-imports
+
+       // order is imports, any prepends, then the translated non-imports
         for (JCTree prepend : prependToDefinitions) {
             translatedDefinitions.prepend(prepend);
         }
+       
         for (JCTree prepend : imports) {
             translatedDefinitions.prepend(prepend);
         }
+        
+        for (JCExpression prepend : additionalImports) {
+            translatedDefinitions.append(make.Import(prepend, false));
+        }
+
         prependToStatements = prependToDefinitions = null; // shouldn't be used again until the next top level
 
  	JCExpression pid = tree.pid;  //translate(tree.pid);
@@ -543,6 +553,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
             boolean classOnly = tree.generateClassOnly();
             JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList());
+            additionalImports.appendList(model.additionalImports);
        
             boolean classIsFinal = (tree.getModifiers().flags & Flags.FINAL) != 0;
             
