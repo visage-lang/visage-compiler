@@ -84,7 +84,7 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
 
     @Override
     public void deleteAll() {
-        set(Sequences.emptySequence(value.getElementType()));
+        set(Sequences.emptySequence((Class<? extends T>) value.getElementType()));
     }
 
     @Override
