@@ -2226,8 +2226,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             if (isSequence(tree.arg.type)) {
                 result = callExpression(tree, translate(tree.arg), "size");
             } else {
-                // not a sequence, virtually promote to a sequence of length one
-                result = make.at(tree).Literal(TypeTags.INT, 1);
+                result = callExpression(tree, makeQualifiedTree(tree, "com.sun.javafx.runtime.sequence.Sequences"), "size", translate(tree.arg));
             }
         } else {
             result = make.at(tree.pos).Unary(tree.getTag(), translate(tree.arg));

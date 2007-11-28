@@ -246,4 +246,12 @@ f range, the sequence is returned unchanged. */
     public static<T> Sequence<? extends T> upcast(Class<? extends T> clazz, Sequence<? extends T> sequence) {
         return new UpcastSequence<T>(clazz, sequence);
     }
+
+    /** How large is this sequence?  */
+    public static int size(Object seq) {
+        if (seq instanceof Sequence)
+            return ((Sequence) seq).size();
+        else
+            return seq == null ? 0 : 1;
+    }
 }
