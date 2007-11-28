@@ -43,6 +43,7 @@ import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
@@ -874,11 +875,12 @@ public class JavafxInitializationBuilder {
 		    continue;
 		}
                 if (tai.attribute.sym != null && tai.attribute.sym.owner == cdef.sym) {
-                    JCExpression cond = make.Binary(JCTree.EQ, 
+                    DiagnosticPosition diagPos = tai.attribute.pos();
+                    JCExpression cond = make.at(diagPos).Binary(JCTree.EQ, 
                             toJava.makeAttributeAccess(cdef, tai.attribute), 
                             make.Literal(TypeTags.BOT, null));
                     
-                    JCStatement thenStat = toJava.callStatement(cdef.pos(), make.Ident(defs.receiverName), attributeInitMethodNamePrefix + tai.attribute.name.toString(), tai.initExpr);
+                    JCStatement thenStat = toJava.callStatement(diagPos, make.Ident(defs.receiverName), attributeInitMethodNamePrefix + tai.attribute.name.toString(), tai.initExpr);
                     JCIf defInitIf = make.If(cond, thenStat, null);
                     ret = ret.append(defInitIf);
                 }
@@ -894,7 +896,7 @@ public class JavafxInitializationBuilder {
             if (tai.attribute != null && tai.attribute.getTag() == JavafxTag.VAR_DEF && tai.attribute.pos != Position.NOPOS &&
                     tai.args != null) {
                 if (tai.attribute.sym != null && tai.attribute.sym.owner == cdef.sym) {
-                    ret = ret.append(toJava.callStatement(cdef.pos(), 
+                    ret = ret.append(toJava.callStatement(tai.attribute.pos(), 
                             toJava.makeAttributeAccess(cdef, tai.attribute),
                             addDependenciesName, tai.args));
                 }
