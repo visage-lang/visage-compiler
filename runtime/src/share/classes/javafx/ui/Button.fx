@@ -277,12 +277,9 @@ public class Button extends Widget, ActionWidget {
     init {
         button.addActionListener(java.awt.event.ActionListener {
                          public function actionPerformed(e:java.awt.event.ActionEvent) {
-                            //TODO JXFC-211
-                            /********
                             if(action <> null) {
                                  action();
                             }
-                            ***********/
                          }
                      });        
     }
