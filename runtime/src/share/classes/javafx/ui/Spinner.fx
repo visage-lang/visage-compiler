@@ -27,7 +27,7 @@ package javafx.ui;
 
 
 public class Spinner extends Widget {
-    protected attribute spinner:javax.swing.JSpinner;
+    protected attribute spinner:javax.swing.JSpinner = UIElement.context.createSpinner();
     public attribute min: Number on replace {
         (spinner.getModel() as com.sun.javafx.api.ui.BigDecimalSpinnerModel).setMinimum(min as java.lang.Number);
     };
@@ -66,19 +66,14 @@ public class Spinner extends Widget {
     public attribute focusable: Boolean = false;
 
     public function createComponent():javax.swing.JComponent {
-        if(spinner == null) {
-            spinner = UIElement.context.createSpinner();
-            spinner.addChangeListener(javax.swing.event.ChangeListener {
-                                          public function stateChanged(e:javax.swing.event.ChangeEvent):Void {
-                                              
-                                              value = (spinner.getValue() as java.lang.Number).doubleValue();
-                                              if(onChange <> null){
-                                                  onChange(value);
-                                              }
-                                          }
-                                      });
-       }
        return spinner;
     }
 
+    init {
+        spinner.addChangeListener(javax.swing.event.ChangeListener {
+            public function stateChanged(e:javax.swing.event.ChangeEvent):Void {
+                value = (spinner.getValue() as java.lang.Number).doubleValue();
+            }
+        });
+    }
 }

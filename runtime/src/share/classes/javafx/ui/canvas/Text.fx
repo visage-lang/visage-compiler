@@ -45,23 +45,27 @@ public class Text extends VisualNode {
     // private:
     private attribute sgtext: SGText;
     private attribute awtFont: java.awt.Font = bind font.getFont() on replace {
-        sgtext.setFont(awtFont);
+        if (sgtext <> null)
+            sgtext.setFont(awtFont);
     };
 
     // public
     /** The character content of this text. */
     public attribute content: String on replace {
-        sgtext.setText(content);
+        if (sgtext <> null)
+            sgtext.setText(content);
     };
     
     /** The x coordinate of the location of this text. */
     public attribute x: Number on replace {
-        updateLocation();
+        if (sgtext <> null)
+            updateLocation();
     };
     
     /** The y coordinate of the location of this text. */
     public attribute y: Number on replace {
-        updateLocation();
+        if (sgtext <> null)
+            updateLocation();
     };
     
     /** The font used to render the characters of this text. */
