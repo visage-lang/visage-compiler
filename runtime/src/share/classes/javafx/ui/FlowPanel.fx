@@ -54,10 +54,12 @@ public class FlowPanel extends Widget {
         }
     };
     public attribute vgap: Number on replace {
-        layout.setVgap(vgap.intValue());
+        if (layout <> null)
+            layout.setVgap(vgap.intValue());
     };
     public attribute hgap: Number on replace {
-        layout.setHgap(hgap.intValue());
+        if (layout <> null)
+            layout.setHgap(hgap.intValue());
     };
     public attribute content: Widget[]
         on insert [ndx] (newalue) {

@@ -42,24 +42,30 @@ public class Spinner extends Widget {
     };
     public attribute onChange: function(value:Number);
     public attribute editorForeground: Color on replace {
-        var comp = spinner.getEditor();
-        if (comp instanceof javax.swing.JSpinner.DefaultEditor) {
-            var def = comp as javax.swing.JSpinner.DefaultEditor;
-            def.getTextField().setForeground(editorForeground.getColor());
+        if (editorForeground <> null) {
+            var comp = spinner.getEditor();
+            if (comp instanceof javax.swing.JSpinner.DefaultEditor) {
+                var def = comp as javax.swing.JSpinner.DefaultEditor;
+                def.getTextField().setForeground(editorForeground.getColor());
+            }
         }
     };
     public attribute editorBackground: Color on replace {
-        var comp = spinner.getEditor();
-        if (comp instanceof javax.swing.JSpinner.DefaultEditor) {
-            var def = comp as javax.swing.JSpinner.DefaultEditor;
-            def.getTextField().setBackground(editorBackground.getColor());
+        if (editorBackground <> null) {
+            var comp = spinner.getEditor();
+            if (comp instanceof javax.swing.JSpinner.DefaultEditor) {
+                var def = comp as javax.swing.JSpinner.DefaultEditor;
+                def.getTextField().setBackground(editorBackground.getColor());
+            }
         }
     };
     public attribute editorFont: Font on replace {
-        var comp = spinner.getEditor();
-        if (comp instanceof javax.swing.JSpinner.DefaultEditor) {
-            var def = comp as javax.swing.JSpinner.DefaultEditor;
-            def.getTextField().setFont(editorFont.getFont());
+        if (editorFont <> null) {
+            var comp = spinner.getEditor();
+            if (comp instanceof javax.swing.JSpinner.DefaultEditor) {
+                var def = comp as javax.swing.JSpinner.DefaultEditor;
+                def.getTextField().setFont(editorFont.getFont());
+            }
         }
     };
 

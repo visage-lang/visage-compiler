@@ -20,7 +20,7 @@ class BallsTest {
     attribute _frames:Number = 0;
     attribute _startTime:Number = System.currentTimeMillis();
 
-    attribute _N:Integer = 16 on replace {
+    attribute _N:Number = 16 on replace {
         delete balls;
         foreach (i in [1.._N]) {
             insert JavaFxBall{img:ball{}} into balls; 
@@ -37,11 +37,11 @@ class BallsTest {
 
     function update() {
         foreach (i in [0.._N]) {
-             balls[i].move();
+             balls[i.intValue()].move();
         }
         foreach (i in [0.._N]) {
              foreach (j in [i+1.._N]) {
-                balls[i].doCollide(balls[j]);
+                balls[i.intValue()].doCollide(balls[j.intValue()]);
              }
         }
         _frames = _frames + 1;
@@ -111,7 +111,7 @@ var win = Frame {
                     Spinner {
                       min: 2
                       max: 1024
-                      value: bind test._N
+                      value: bind test._N with inverse
                     }
                 ]
             }
