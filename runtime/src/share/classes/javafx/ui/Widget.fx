@@ -371,7 +371,7 @@ public abstract class Widget extends GroupElement, UIElement {
     };
 
    
-    protected attribute awtBackground: java.awt.Color = bind if (background == null) null else background.getColor();
+    protected attribute awtBackground: java.awt.Color /*TODO:JFXC-329 = bind if (background == null) null else background.getColor()*/;
     /**
      * Sets the foreground color of this component.
      */
@@ -384,7 +384,7 @@ public abstract class Widget extends GroupElement, UIElement {
         }
     };
     
-    protected attribute awtForeground: java.awt.Color = bind if (foreground == null) null else foreground.getColor();
+    protected attribute awtForeground: java.awt.Color /*TODO:JFXC-329 = bind if (foreground == null) null else foreground.getColor()*/;
     
     /**
      * If true the component paints every pixel within its bounds. 
@@ -400,7 +400,7 @@ public abstract class Widget extends GroupElement, UIElement {
      */
     public attribute font: Font;
     
-    protected attribute awtFont: java.awt.Font = bind if (font == null) null else font.getFont() on replace {
+    protected attribute awtFont: java.awt.Font /*TODO:JFXC-329 = bind if (font == null) null else font.getFont()*/ on replace {
         if (component <> null) {
             var c = this.getNonScrollPaneComponent();
             //c.setFont(awtFont);

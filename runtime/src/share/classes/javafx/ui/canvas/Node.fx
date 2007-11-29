@@ -252,11 +252,11 @@ public abstract class Node extends CanvasElement, Transformable {
     private attribute alignmentFilter: SGAlignment;
     private attribute compositeFilter: SGComposite;
     private attribute clipFilter: SGClip;
-    private attribute clipNode: VisualNode = bind if (clip == null) null else clip.shape on replace {
+    private attribute clipNode: VisualNode /*TODO:JFXC-329 = bind if (clip == null) null else clip.shape*/ on replace {
         if (clipNode <> null)
             clipFilter.setShape(clipNode.getVisualNode().getShape());
     };
-    private attribute antialiasClip: Boolean = bind if (clip == null) null else clip.antialias on replace {
+    private attribute antialiasClip: Boolean /*TODO:JFXC-329 = bind if (clip == null) null else clip.antialias*/ on replace {
         antialiasClipSet = true;
         if (clipFilter <> null)
             clipFilter.setAntialiased(antialiasClip);
