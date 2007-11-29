@@ -252,7 +252,7 @@ public abstract class Node extends CanvasElement, Transformable {
     private attribute alignmentFilter: SGAlignment;
     private attribute compositeFilter: SGComposite;
     private attribute clipFilter: SGClip;
-    private attribute clipNode: VisualNode bind if (clip == null) null else clip.shape on replace {
+    private attribute clipNode: VisualNode = bind if (clip == null) null else clip.shape on replace {
         if (clipNode <> null)
             clipFilter.setShape(clipNode.getVisualNode().getShape());
     };
