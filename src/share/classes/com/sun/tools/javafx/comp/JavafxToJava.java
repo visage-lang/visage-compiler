@@ -84,7 +84,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private final JavafxInitializationBuilder initBuilder;
     final JavafxTypeMorpher typeMorpher;
     private final JavafxDefs defs;
-    final private JavafxModuleBuilder moduleBuilder;
+    final private JavafxResolve rs;
 
     /*
      * other instance information
@@ -163,7 +163,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     private JavafxEnv<JavafxAttrContext> attrEnv;
     private Target target;
-    private JavafxResolve rs;
 
     /*
      * static information
@@ -207,7 +206,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         target = Target.instance(context);
         rs = JavafxResolve.instance(context);
         defs = JavafxDefs.instance(context);
-        moduleBuilder = JavafxModuleBuilder.instance(context);
         
         addDependentName = names.fromString("addDependent");
     }
@@ -2428,20 +2426,48 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             ret.type = siteOwner.type;
             
             // check if it is in the chain
-            Symbol siteCursor = siteOwner;
-            while (treeSym.owner != siteCursor && siteCursor.kind != Kinds.PCK) {
-                siteCursor = siteCursor.owner;
-            }
-            
-            if (treeSym.owner == siteCursor) {
-                // site was found up the outer class chain, add the chaining accessors
-                siteCursor = siteOwner;
-                while (treeSym.owner != siteCursor) {
-                    if (siteCursor.kind == Kinds.TYP) {
-                        ret = callExpression(pos, ret, initBuilder.outerAccessorName);
-                        ret.type = siteCursor.type;
+            if (siteOwner != treeSym.owner) {
+                Symbol siteCursor = siteOwner;
+                boolean foundOwner = false;
+                int numOfOuters = 0;
+                while (siteCursor.kind != Kinds.PCK) {            
+                    ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+                    Set superSet = new HashSet<Type>();
+                    if (siteCursor.type != null) {
+                        supertypes.append(siteCursor.type);
+                        superSet.add(siteCursor.type);
                     }
+
+                    if (siteCursor.kind == Kinds.TYP) {
+                        rs.getSupertypes(siteCursor, types, supertypes, superSet);
+                    }
+
+                    if (superSet.contains(treeSym.owner.type)) {
+                        foundOwner = true;
+                        break;
+                    }
+
+                    if (siteCursor.kind == Kinds.TYP) {
+                        numOfOuters++;
+                    }
+                    
                     siteCursor = siteCursor.owner;
+                }
+
+                if (foundOwner) {
+                    // site was found up the outer class chain, add the chaining accessors
+                    siteCursor = siteOwner;
+                    while (numOfOuters > 0) {
+                        if (siteCursor.kind == Kinds.TYP) {
+                            ret = callExpression(pos, ret, initBuilder.outerAccessorName);
+                            ret.type = siteCursor.type;
+                        }
+                        
+                        if (siteCursor.kind == Kinds.TYP) {
+                            numOfOuters--;
+                        }
+                        siteCursor = siteCursor.owner;
+                    }
                 }
             }
         }
@@ -2477,12 +2503,23 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
 // Is the referenced symbol an outer member.
-    static boolean isOuterMember(Symbol sym, Symbol ownerSym) {
+    boolean isOuterMember(Symbol sym, Symbol ownerSym) {
         if (sym != null && ownerSym != null) {
-            Symbol symOwner = sym.owner;
             Symbol ownerSymOwner = ownerSym.owner;
-            while (ownerSymOwner != null && ownerSymOwner.kind != Kinds.PCK) {
-                if (ownerSymOwner == symOwner) {
+            Symbol symOwner = sym.owner;
+            while (ownerSymOwner != null && ownerSymOwner.kind != Kinds.PCK) {            
+                ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+                Set superSet = new HashSet<Type>();
+                if (ownerSymOwner.type != null) {
+                    supertypes.append(ownerSymOwner.type);
+                    superSet.add(ownerSymOwner.type);
+                }
+                
+                if (ownerSymOwner.kind == Kinds.TYP) {
+                    rs.getSupertypes(ownerSymOwner, types, supertypes, superSet);
+                }
+
+                if (symOwner.type != null && superSet.contains(symOwner.type)) {
                     return true;
                 }
 
@@ -2535,7 +2572,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     // Fix up the owner of the ForeachInClause.var JFXVar symbol. When it is created it is set to be 
     // the outer ClassDeclaration and therefor is treated as an attribute instead of local var.
-    static class ForEachInClauseOwnerFixer extends JavafxTreeScanner {
+    class ForEachInClauseOwnerFixer extends JavafxTreeScanner {
         Symbol currentSymbol;
         
         @Override
@@ -2636,8 +2673,24 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     Symbol symOwner = sym.owner;
                     Symbol ownerSymOwner = ownerSymbol;
                     ListBuffer<ClassSymbol> potentialOuters = new ListBuffer<ClassSymbol>();
-                    while (symOwner != null &&  
-                            ownerSymOwner != symOwner) {
+                    boolean foundOuterOwner = false;
+                    while (symOwner != null &&  ownerSymOwner != null) {             
+                        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+                        Set superSet = new HashSet<Type>();
+                        if (ownerSymOwner.type != null) {
+                            supertypes.append(ownerSymOwner.type);
+                            superSet.add(ownerSymOwner.type);
+                        }
+
+                        if (ownerSymOwner.kind == Kinds.TYP) {
+                            rs.getSupertypes(ownerSymOwner, types, supertypes, superSet);
+                        }
+
+                        if (symOwner.type != null && superSet.contains(symOwner.type)) {
+                            foundOuterOwner = true;
+                            break;
+                        }
+                        
                         if (ownerSymOwner.kind == Kinds.TYP) {
                             potentialOuters.append((ClassSymbol)ownerSymOwner);
                         }
@@ -2645,7 +2698,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         ownerSymOwner = ownerSymOwner.owner;
                     }
                     
-                    if (ownerSymOwner == symOwner) {
+                    if (foundOuterOwner) {
                         for (ClassSymbol cs : potentialOuters) {
                             hasOuters.add(cs);
                         }
