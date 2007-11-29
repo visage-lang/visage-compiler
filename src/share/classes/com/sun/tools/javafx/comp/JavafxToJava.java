@@ -24,45 +24,37 @@
  */
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.tools.javac.code.*;
+import static com.sun.tools.javac.code.Flags.*;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type.CapturedType;
+import com.sun.tools.javac.code.Type.ClassType;
+import com.sun.tools.javac.code.Type.MethodType;
+import com.sun.tools.javac.code.Type.WildcardType;
+import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.tree.TreeMaker;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Log;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Scope;
-import com.sun.tools.javac.code.Kinds;
-import com.sun.tools.javac.code.Types;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.Type.*;
-import com.sun.tools.javac.code.TypeTags;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javac.tree.TreeInfo;
-
+import com.sun.tools.javac.tree.TreeMaker;
+import com.sun.tools.javac.util.*;
+import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
-import com.sun.tools.javafx.code.FunctionType;
-import com.sun.javafx.api.JavafxBindStatus;
-import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
-import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedAttributeInfo;
-import com.sun.tools.javafx.comp.JavafxInitializationBuilder.JavafxClassModel;
-import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.BindAnalysis;
-import com.sun.tools.javafx.tree.JavafxTreeMaker; // only for BlockExpression
+import static com.sun.tools.javafx.code.JavafxVarSymbol.ClassSymbol;
+import static com.sun.tools.javafx.code.JavafxVarSymbol.MethodSymbol;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
-import static com.sun.tools.javac.code.Flags.*;
+import com.sun.tools.javafx.comp.JavafxInitializationBuilder.JavafxClassModel;
+import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedAttributeInfo;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher.BindAnalysis;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
+import com.sun.tools.javafx.tree.*;
 
+import java.io.OutputStreamWriter;
 import java.util.HashSet;
 import java.util.Set;
-import java.io.OutputStreamWriter;
 
 public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     protected static final Context.Key<JavafxToJava> jfxToJavaKey =
@@ -207,7 +199,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         rs = JavafxResolve.instance(context);
         defs = JavafxDefs.instance(context);
         
-        addDependentName = names.fromString("addDependent");
+        addDependentName = names.fromString("addStaticDependent");
     }
     
     /** Visitor method: Translate a single node.

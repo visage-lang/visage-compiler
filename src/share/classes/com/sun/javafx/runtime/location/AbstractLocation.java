@@ -43,6 +43,19 @@ public abstract class AbstractLocation implements Location {
     protected List<ChangeListener> listeners;
     protected List<WeakReference<Location>> dependentLocations;
 
+    // The implementation of dynamic dependencies exploits the clearability of weak references.  When we register
+    // ourselves as being dynamically dependent on another location for the first time, we create a weak reference
+    // for ourselves that we remember and use for subsequence dynamic dependencies.  When we are asked to clear the
+    // dynamic dependencies (unregister ourselves with any location with which we've registered as a dynamic dependency),
+    // we clear() the weak reference and forget it, which will eventually cause those other locations to forget about us.
+    private WeakReference<Location> weakMe;
+
+    // Dynamic dependencies introduce a problem; we register dependent locations from the update() method, while the
+    // list of dependencies is being iterated, causing CME.  So we defer adding anything to the list until we're done
+    // iterating
+    private int iterationDepth;
+    private List<WeakReference<Location>> deferredDependencies;
+
     protected AbstractLocation(boolean valid, boolean lazy) {
         isValid = valid;
         isLazy = lazy;
@@ -74,15 +87,36 @@ public abstract class AbstractLocation implements Location {
         invalidateDependencies();
     }
 
-    private void invalidateDependencies() {
+    private void purgeDeadDependencies() {
         if (dependentLocations != null) {
             for (Iterator<WeakReference<Location>> iterator = dependentLocations.iterator(); iterator.hasNext();) {
                 WeakReference<Location> locationRef = iterator.next();
                 Location loc = locationRef.get();
                 if (loc == null)
                     iterator.remove();
-                else
-                    loc.invalidate();
+            }
+        }
+    }
+
+    private void invalidateDependencies() {
+        if (dependentLocations != null) {
+            try {
+                ++iterationDepth;
+                for (Iterator<WeakReference<Location>> iterator = dependentLocations.iterator(); iterator.hasNext();) {
+                    WeakReference<Location> locationRef = iterator.next();
+                    Location loc = locationRef.get();
+                    if (loc == null)
+                        iterator.remove();
+                    else
+                        loc.invalidate();
+                }
+            }
+            finally {
+                --iterationDepth;
+                if (iterationDepth == 0 && deferredDependencies != null && deferredDependencies.size() > 0) {
+                    dependentLocations.addAll(deferredDependencies);
+                    deferredDependencies.clear();
+                }
             }
         }
     }
@@ -100,7 +134,12 @@ public abstract class AbstractLocation implements Location {
     public void addDependentLocation(WeakReference<Location> location) {
         if (dependentLocations == null)
             dependentLocations = new ArrayList<WeakReference<Location>>();
-        dependentLocations.add(location);
+        if (iterationDepth > 0) {
+            if (deferredDependencies == null)
+                deferredDependencies = new ArrayList<WeakReference<Location>>();
+            deferredDependencies.add(location);
+        } else
+            dependentLocations.add(location);
     }
 
     public void addChangeListener(ChangeListener listener) {
@@ -118,6 +157,19 @@ public abstract class AbstractLocation implements Location {
             WeakReference<Location> wr = new WeakReference<Location>(this);
             for (Location dep : dependencies)
                 dep.addDependentLocation(wr);
+        }
+    }
+
+    public void addDynamicDependency(Location location) {
+        if (weakMe == null)
+            weakMe = new WeakReference<Location>(this);
+        location.addDependentLocation(weakMe);
+    }
+
+    public void clearDynamicDependencies() {
+        if (weakMe != null) {
+            weakMe.clear();
+            weakMe = null;
         }
     }
 
@@ -149,6 +201,7 @@ public abstract class AbstractLocation implements Location {
 
     // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
     int getListenerCount() {
+        purgeDeadDependencies();
         return (listeners == null ? 0 : listeners.size())
                 + (dependentLocations == null ? 0 : dependentLocations.size());
     }

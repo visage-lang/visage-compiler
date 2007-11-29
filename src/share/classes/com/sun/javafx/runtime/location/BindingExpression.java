@@ -37,30 +37,18 @@ public class BindingExpression {
      * Enclosing expresion Location
      */
     Location location;
-    
-    public IntLocation addDependent(IntLocation dep) {
-        location.addDependencies(dep);
+
+    public void clearDynamicDependencies() {
+        location.clearDynamicDependencies();
+    }
+
+    public<T extends Location> T addDynamicDependent(T dep) {
+        location.addDynamicDependency(dep);
         return dep;
     }
 
-    public DoubleLocation addDependent(DoubleLocation dep) {
+    public<T extends Location> T addStaticDependent(T dep) {
         location.addDependencies(dep);
         return dep;
     }
-
-    public BooleanLocation addDependent(BooleanLocation dep) {
-        location.addDependencies(dep);
-        return dep;
-    }
-
-    public <T>ObjectLocation<T> addDependent(ObjectLocation<T> dep) {
-        location.addDependencies(dep);
-        return dep;
-    }
-
-    public <T>SequenceLocation<T> addDependent(SequenceLocation<T> dep) {
-        location.addDependencies(dep);
-        return dep;
-    }
-
 }

@@ -81,4 +81,10 @@ public interface Location {
 
     /** Add this location as a dependency of zero or more other Locations */
     public void addDependencies(Location... location);
+
+    /** Add this location as a dynamic dependency of zero or more other Locations */
+    public void addDynamicDependency(Location location);
+
+    /** Remove this location as a dynamic dependency of any Location it was previously registered with */
+    public void clearDynamicDependencies();
 }

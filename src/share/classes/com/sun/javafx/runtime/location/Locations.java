@@ -101,6 +101,14 @@ public class Locations {
             getLocation().addDependencies(location);
         }
 
+        public void addDynamicDependency(Location location) {
+            getLocation().addDynamicDependency(location);
+        }
+
+        public void clearDynamicDependencies() {
+            getLocation().clearDynamicDependencies();
+        }
+
         public void addDependentLocation(WeakReference<Location> location) {
             getLocation().addDependentLocation(location);
         }
