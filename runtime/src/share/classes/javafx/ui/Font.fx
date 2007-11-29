@@ -77,7 +77,9 @@ public class Font {
     public function italic(): Font {
         Font{faceName:faceName, style:[FontStyle.ITALIC], size:size};
     }
-    private attribute awtFont: java.awt.Font =  bind
+    private attribute awtFont: java.awt.Font 
+    /*TODO: NPE in initialization 
+     =  bind
                  if(face <> null and face.url <> null  ) {
                     getCachedFont(face.url, computeStyle(style), size) 
                  } else if (face <> null) {
@@ -87,6 +89,7 @@ public class Font {
                  } else {
                     new java.awt.Font("Dialog", computeStyle(style), size);
                  }
+     */
         on replace {
             if (awtFont <> null) {
                 var layout = new TextLayout(" ", awtFont, HIGH_QUALITY_FONT_CONTEXT);
@@ -129,5 +132,20 @@ public class Font {
     
     public static attribute HIGH_QUALITY_FONT_CONTEXT:FontRenderContext = 
         new FontRenderContext(null, true, true);
+
+    //TODO: workaround for awtFont initialization NPE
+    init {
+        awtFont = {
+             if (face <> null and face.url <> null) {
+                getCachedFont(face.url, computeStyle(style), size);
+             } else if (face <> null) {
+                 new java.awt.Font(face.id, computeStyle(style), size);
+             } else if (faceName <> null)  {
+                 new java.awt.Font(faceName, computeStyle(style), size);
+             } else {
+                new java.awt.Font("Dialog", computeStyle(style), size);
+             }
+        };
+    }
 }
 
