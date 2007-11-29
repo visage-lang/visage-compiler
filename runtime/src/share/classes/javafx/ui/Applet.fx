@@ -30,12 +30,16 @@ import javafx.ui.MenuBar;
 
 
 public class Applet extends Widget {
-    private attribute applet:javax.swing.JApplet;
+    private attribute applet:javax.swing.JApplet = UIElement.context.getApplet();
     public attribute menubar: MenuBar on replace {
-        applet.setJMenuBar(menubar.jmenubar);
+        if (applet <> null) {
+            applet.setJMenuBar(menubar.jmenubar);
+        }
     }
     public attribute content: Widget on replace  {
-        applet.setContentPane(content.getComponent());
+        if (applet <> null) {
+            applet.setContentPane(content.getComponent());
+        }
     }
     public function showDocument(url:String){
         this.showDocumentInFrame(url, "_self");
@@ -50,13 +54,12 @@ public class Applet extends Widget {
     public function getWindow():java.awt.Window {
         return javax.swing.SwingUtilities.getWindowAncestor(applet);
     }
-    public static attribute APPLICATION = Applet{};
+    public static attribute APPLICATION: Applet;
     public function createComponent():javax.swing.JComponent{
         return null;
     }
     
     init {
-            applet = UIElement.context.getApplet();
             Applet.APPLICATION = this;
     }
 }
