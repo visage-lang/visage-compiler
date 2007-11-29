@@ -171,9 +171,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private static final String syntheticNamePrefix = "jfx$$";
     private JFXClassDeclaration currentClass;  //TODO: this is redundant with attrEnv.enclClass
     Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
-    
-    private Name addDependentName;
-    
+        
     private Set<VarSymbol> locallyBound = null;
     
     private boolean inOperationDef = false;
@@ -198,8 +196,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         target = Target.instance(context);
         rs = JavafxResolve.instance(context);
         defs = JavafxDefs.instance(context);
-        
-        addDependentName = names.fromString("addStaticDependent");
     }
     
     /** Visitor method: Translate a single node.
@@ -1207,16 +1203,18 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
 
         JCFieldAccess translated = make.at(diagPos).Select(translatedSelected, tree.getIdentifier());
+        //TODO: the below is curently untrue -- remove these
         // since this tree will be morphed, we need to copy the sym info
         translated.sym = tree.sym;
         translated.type = tree.type;
-        
+
         JCExpression ref = typeMorpher.convertVariableReference(
                 diagPos,
                 translated,
                 tree.sym, 
                 staticReference , 
-                state.wantLocation());
+                state.wantLocation(),
+                state.isBound() && !staticReference);
         if (dummyReference != null)
             ref = ((JavafxTreeMaker)make).BlockExpression(
                 0L, dummyReference, ref);
@@ -1270,7 +1268,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             convert = make.at(diagPos).Ident(tree.name);
         }
         
-        result = typeMorpher.convertVariableReference(diagPos, convert, tree.sym, tree.sym.isStatic(), state.wantLocation());
+        result = typeMorpher.convertVariableReference(diagPos, convert, tree.sym, tree.sym.isStatic(), state.wantLocation(), false);
     }
 
     @Override
@@ -2120,7 +2118,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                             make.Literal(TypeTags.BOT, null));
             JCExpression initLocation = callExpression(tree, 
                     null, 
-                    addDependentName, 
+                    defs.addStaticDependentName, 
                     make.at(tree).Assign( make.at(tree).Ident(tmpName), app ));
             Type morphedReturnType = typeMorpher.typeMorphInfo(sym.getReturnType()).getMorphedType();
             bindingExpressionDefs.append(make.VarDef(

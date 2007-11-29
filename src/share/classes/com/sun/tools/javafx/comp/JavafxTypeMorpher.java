@@ -376,7 +376,7 @@ public class JavafxTypeMorpher {
         
     public JCExpression convertVariableReference(DiagnosticPosition diagPos,
                                                                                             JCExpression varRef, Symbol sym, boolean staticReference,
-                                                                                            boolean wantLocation) {
+                                                                                            boolean wantLocation, boolean dynamicReference) {
         
         JCExpression expr = varRef;
 
@@ -392,6 +392,12 @@ public class JavafxTypeMorpher {
                     select = make.at(diagPos).Select(select.getExpression(), attrAccessName);
                     List<JCExpression> emptyArgs = List.nil();
                     expr = make.at(diagPos).Apply(null, select, emptyArgs);
+
+                    // if are in a bind context and this is a select of an attribute,
+                    // add the result as a dynamic dependency
+                    if (dynamicReference) {
+                        expr = toJava.callExpression(diagPos, null, defs.addDynamicDependentName, expr);
+                    }
                 }   
                 if (wantLocation) {
                     // already in correct form-- leave it
@@ -600,10 +606,10 @@ public class JavafxTypeMorpher {
                     if (toJava.shouldMorph(vmi)) {
                         JCExpression expr = tree.getExpression();
                         Symbol exprSym = toJava.expressionSymbol(expr);
-                        if (exprSym != null && internalSet.contains(exprSym)) { //TODO: fix this
-                            // log.warning(tree, "javafx.not.implemented", "dependency not generated: ", tree);
-                        } else {
-                            refMap.put(ivsym, tree); 
+                         if (tree.sym.isStatic() || (exprSym != null &&  (exprSym instanceof ClassSymbol))) { 
+                             // this is a static reference, set up for a static dependency
+                             // otherwise, this will be handled as a dynamic dependency
+                             refMap.put(ivsym, tree); 
                         }
                     }
                 }
@@ -682,9 +688,17 @@ public class JavafxTypeMorpher {
     }
     
     JCExpression buildExpressionClass(DiagnosticPosition diagPos, TypeMorphInfo tmi,  JCStatement stmt) {
-        JCBlock body = stmt.getTag() == JavafxTag.BLOCK? 
-            (JCBlock)stmt :
-            make.at(diagPos).Block(0, List.<JCStatement>of(stmt));
+        //TODO: clear should only be generated when there are dynamic dependencies in the body
+        JCStatement clearStmt = toJava.callStatement(diagPos, null, defs.clearDynamicDependenciesName);
+        List<JCStatement> stmts;
+        if (stmt.getTag() == JavafxTag.BLOCK) {
+            JCBlock block = (JCBlock) stmt;
+            stmts = block.getStatements();
+            stmts.prepend(clearStmt);
+        } else {
+            stmts = List.<JCStatement>of(clearStmt, stmt);
+        }
+        JCBlock body = make.at(diagPos).Block(0, stmts);
         
         JCMethodDecl getMethod = make.at(diagPos).MethodDef(
                 make.at(diagPos).Modifiers(Flags.PUBLIC), 

@@ -50,6 +50,9 @@ public class JavafxDefs {
     public static final String initializeNameString ="initialize$";
     public static final String getMethodNameString = "get";
     public static final String setMethodNameString ="set";
+    public static final String addStaticDependentNameString = "addStaticDependent";
+    public static final String addDynamicDependentNameString = "addDynamicDependent";
+    public static final String clearDynamicDependenciesNameString = "clearDynamicDependencies";
      
     /**
      * Name definitions
@@ -59,6 +62,9 @@ public class JavafxDefs {
     final Name initializeName;
     final Name getMethodName;
     final Name setMethodName;
+    final Name addStaticDependentName;
+    final Name addDynamicDependentName;
+    final Name clearDynamicDependenciesName;
     
     /**
      * For internal use of this class
@@ -87,5 +93,8 @@ public class JavafxDefs {
         initializeName = names.fromString(initializeNameString);
         getMethodName = Name.fromString(names, getMethodNameString);
         setMethodName = Name.fromString(names, setMethodNameString);
+        addStaticDependentName = names.fromString(addStaticDependentNameString);
+        addDynamicDependentName = names.fromString(addDynamicDependentNameString);
+        clearDynamicDependenciesName = names.fromString(clearDynamicDependenciesNameString);
     }
 }
