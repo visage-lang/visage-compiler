@@ -101,11 +101,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         InNothing
     };
     
-    enum Manifest {
-        AsStatement,
-        AsExpression
-    };
-    
     enum Convert {
         ToBound,
         Normal
@@ -114,22 +109,18 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     class State {
 
         Wrapped wrap;
-        Manifest manifest;
         Convert convert;
-        Type asType;
 
-        State(Wrapped wrap, Manifest manifest, Convert convert, Type asType) {
+        State(Wrapped wrap, Convert convert) {
             this.wrap = wrap;
-            this.manifest = manifest;
             this.convert = convert;
-            this.asType = asType;
         }
         
         /**
          * Base state
          */
         State() {
-            this(Wrapped.InNothing, Manifest.AsExpression, Convert.Normal, null);
+            this(Wrapped.InNothing, Convert.Normal);
         }
         
         boolean wantLocation() {
@@ -295,14 +286,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return translateExpressionToStatement(expr, state,  targetType);
     }
 
-    private JCStatement translateExpressionToStatement(JCExpression expr, State newState) {
-        State prevState = state;
-        state = newState;
-        JCStatement ret = translateExpressionToStatement(expr);
-        state = prevState;
-        return ret;
-    }
-
      private List<JCStatement> translateStatements(List<JCStatement> stmts, State newState) {
         State prevState = state;
         state = newState;
@@ -311,28 +294,20 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return ret;
     }
 
-   private  <T extends JCTree> T translate(T tree, Wrapped wrap, Manifest manifest, Convert convert, Type asType) {
-        return translate(tree, new State(wrap, manifest, convert, asType));
-    }
-
-    private  <T extends JCTree> List<T> translate(List<T> trees, Wrapped wrap, Manifest manifest, Convert convert, Type asType) {
-        return translate(trees, new State(wrap, manifest, convert, asType));
+   private  <T extends JCTree> T translate(T tree, Wrapped wrap, Convert convert) {
+        return translate(tree, new State(wrap, convert));
     }
 
     private JCStatement translateExpressionToStatement(JCExpression expr, Wrapped wrap, Convert convert, Type asType) {
-        return translateExpressionToStatement(expr, new State(wrap, state.manifest, convert, asType), asType);
-    }
-
-    private  <T extends JCTree> List<T> translate(List<T> trees, Wrapped wrap, Manifest manifest) {
-        return translate(trees, wrap, manifest, state.convert, state.asType);
+        return translateExpressionToStatement(expr, new State(wrap, convert), asType);
     }
 
     public  <T extends JCTree> T translate(T tree, Wrapped wrap) {
-        return translate(tree, wrap, state.manifest, state.convert, state.asType);
+        return translate(tree, wrap, state.convert);
     }
 
     public <T extends JCTree> T translate(T tree, Convert convert) {
-        return translate(tree, state.wrap, state.manifest, convert, state.asType);
+        return translate(tree, state.wrap, convert);
     }
 
     JCBlock asBlock(JCStatement stmt) {
@@ -741,7 +716,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 bindingExpressionDefs = prevBindingExpressionDefs;
             } else if (bindStatus.isBidiBind()) {
                 // Bi-directional bind translate so it stays in a Location
-                initExpr = translate(init, Wrapped.InLocation, Manifest.AsExpression, Convert.ToBound, vmi.getRealType());
+                initExpr = translate(init, Wrapped.InLocation, Convert.ToBound);
             } else {
                 // normal init -- unbound -- but it is setting a Location
                 if (init == null) {
@@ -2319,7 +2294,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         BindAnalysis analysis = typeMorpher.bindAnalysis(bexpr);
         if (permeateBind && analysis.isBindPermeable()) { //TODO: permeate bind
             State prevState = state;
-            state = new State(state.wrap, state.manifest, Convert.Normal, state.asType);
+            state = new State(state.wrap, Convert.Normal);
             ret = make.at(diagPos).Return( makeBoundExpression(bexpr, typeMorpher.varMorphInfo( func.sym ), false) );
             state = prevState;
         } else {
