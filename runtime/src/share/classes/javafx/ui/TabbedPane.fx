@@ -108,13 +108,10 @@ public class TabbedPane extends Widget {
             selectedIndex = 0;
             changeListener = javax.swing.event.ChangeListener {
                 public function stateChanged(e:javax.swing.event.ChangeEvent):Void {
-                    //TODO JXFC-317
-                    /*************
                     selection = WidgetInitiatedMultiSelection {
                             widget: tabbedpane,
                             anchorIndex: tabbedpane.getSelectedIndex()
                    } as SingleSelection;
-                   ******************/
                 }
             };
             tabbedpane.getModel().addChangeListener(changeListener);
