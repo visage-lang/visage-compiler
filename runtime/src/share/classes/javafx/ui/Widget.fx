@@ -901,5 +901,9 @@ public abstract class Widget extends GroupElement, UIElement {
             }
         }
     } 
+
+    public function getJComponent():javax.swing.JComponent {
+	return getComponent();
+    }
     
 }
