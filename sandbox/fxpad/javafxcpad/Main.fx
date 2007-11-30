@@ -256,7 +256,7 @@ Frame {
 }
 
 function userCode() = 
-"import hello.Button;
+"import javafx.ui.Button;
 
 Button \{ 
     text: \"Hello\"
