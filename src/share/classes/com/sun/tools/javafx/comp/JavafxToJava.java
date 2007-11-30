@@ -50,6 +50,7 @@ import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedAttribute
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.BindAnalysis;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
+import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.tree.*;
 
 import java.io.OutputStreamWriter;
@@ -151,6 +152,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     };
     //TODO: all these should, probably, go into a translation state class
     Yield yield = Yield.ToExpression;
+    Type targetType = null;
     ListBuffer<JCTree> bindingExpressionDefs = null;
     
     private JavafxEnv<JavafxAttrContext> attrEnv;
@@ -263,7 +265,37 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return ret;
     }
 
-    JCStatement translateExpressionToStatement(JCExpression expr, State newState) {
+    JCStatement translateExpressionToStatement(JCExpression expr) {
+        assert yield != Yield.ToExpression;
+	if (expr == null) {
+	    return null;
+	} else {
+	    expr.accept(this);
+	    JCTree ret = this.result;
+	    this.result = null;
+	    return ret instanceof JCStatement? 
+                (JCStatement)ret  // already converted
+                : toCorrectReturn(expr, (JCExpression)ret );
+	}
+    }
+
+    JCStatement translateExpressionToStatement(JCExpression expr, State newState, Type targetType) {
+        State prevState = state;
+       Yield prevYield = yield;
+        yield = targetType==syms.voidType? Yield.ToExecStatement : Yield.ToReturnStatement;
+        this.targetType = targetType;
+        state = newState;
+       JCStatement ret = translateExpressionToStatement(expr);
+        yield = prevYield;
+        state = prevState;
+        return ret;
+    }
+
+    JCStatement translateExpressionToStatement(JCExpression expr, Type targetType) {
+        return translateExpressionToStatement(expr, state,  targetType);
+    }
+
+    private JCStatement translateExpressionToStatement(JCExpression expr, State newState) {
         State prevState = state;
         state = newState;
         JCStatement ret = translateExpressionToStatement(expr);
@@ -279,93 +311,28 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return ret;
     }
 
-   public <T extends JCTree> T translate(T tree, Wrapped wrap, Manifest manifest, Convert convert, Type asType) {
+   private  <T extends JCTree> T translate(T tree, Wrapped wrap, Manifest manifest, Convert convert, Type asType) {
         return translate(tree, new State(wrap, manifest, convert, asType));
     }
 
-    public <T extends JCTree> List<T> translate(List<T> trees, Wrapped wrap, Manifest manifest, Convert convert, Type asType) {
+    private  <T extends JCTree> List<T> translate(List<T> trees, Wrapped wrap, Manifest manifest, Convert convert, Type asType) {
         return translate(trees, new State(wrap, manifest, convert, asType));
     }
 
-    public JCStatement translateExpressionToStatement(JCExpression expr, Wrapped wrap, Manifest manifest, Convert convert, Type asType) {
-        return translateExpressionToStatement(expr, new State(wrap, manifest, convert, asType));
+    private JCStatement translateExpressionToStatement(JCExpression expr, Wrapped wrap, Convert convert, Type asType) {
+        return translateExpressionToStatement(expr, new State(wrap, state.manifest, convert, asType), asType);
     }
 
-     private List<JCStatement> translateStatements(List<JCStatement> stmts, Wrapped wrap, Manifest manifest, Convert convert, Type asType) {
-        return translateStatements(stmts, new State(wrap, manifest, convert, asType));
-    }
-
-    public <T extends JCTree> T translate(T tree, Wrapped wrap, Manifest manifest) {
-        return translate(tree, wrap, manifest, state.convert, state.asType);
-    }
-
-    public <T extends JCTree> List<T> translate(List<T> trees, Wrapped wrap, Manifest manifest) {
+    private  <T extends JCTree> List<T> translate(List<T> trees, Wrapped wrap, Manifest manifest) {
         return translate(trees, wrap, manifest, state.convert, state.asType);
     }
 
-    public JCStatement translateExpressionToStatement(JCExpression expr, Wrapped wrap, Manifest manifest) {
-        return translateExpressionToStatement(expr, wrap, manifest, state.convert, state.asType);
-    }
-
-    private List<JCStatement> translateStatements(List<JCStatement> stmts, Wrapped wrap, Manifest manifest) {
-        return translateStatements(stmts, wrap, manifest, state.convert, state.asType);
-    }
-
-    public <T extends JCTree> T translate(T tree, Wrapped wrap) {
+    public  <T extends JCTree> T translate(T tree, Wrapped wrap) {
         return translate(tree, wrap, state.manifest, state.convert, state.asType);
-    }
-
-    public <T extends JCTree> List<T> translate(List<T> trees, Wrapped wrap) {
-        return translate(trees, wrap, state.manifest, state.convert, state.asType);
-    }
-
-    public JCStatement translateExpressionToStatement(JCExpression expr, Wrapped wrap) {
-        return translateExpressionToStatement(expr, wrap, state.manifest, state.convert, state.asType);
-    }
-
-    private List<JCStatement> translateStatements(List<JCStatement> stmts, Wrapped wrap) {
-        return translateStatements(stmts, wrap, state.manifest, state.convert, state.asType);
     }
 
     public <T extends JCTree> T translate(T tree, Convert convert) {
         return translate(tree, state.wrap, state.manifest, convert, state.asType);
-    }
-
-    public <T extends JCTree> List<T> translate(List<T> trees, Convert convert) {
-        return translate(trees, state.wrap, state.manifest, convert, state.asType);
-    }
-
-    public JCStatement translateExpressionToStatement(JCExpression expr, Convert convert) {
-        return translateExpressionToStatement(expr, state.wrap, state.manifest, convert, state.asType);
-    }
-
-    private List<JCStatement> translateStatements(List<JCStatement> stmts, Convert convert) {
-        return translateStatements(stmts, state.wrap, state.manifest, convert, state.asType);
-    }
-
-
-
-    JCStatement translateExpressionToStatement(JCExpression expr, Yield newYield) {
-        Yield prevYield = yield;
-        yield = newYield;
-        JCStatement ret = translateExpressionToStatement(expr);
-        yield = prevYield;
-        return ret;
-    }
-
-    JCStatement translateExpressionToStatement(JCExpression expr) {
-        //TODO: JavafxAttr mistakenly ignores returns when computing the type of block expressions (so we can't use the below)
-        //assert (tree.type != syms.voidType) : "void block expressions should be handled below";
-	if (expr == null) {
-	    return null;
-	} else {
-	    expr.accept(this);
-	    JCTree ret = this.result;
-	    this.result = null;
-	    return ret instanceof JCStatement? 
-                (JCStatement)ret  // already converted
-                : toCorrectReturn(expr, (JCExpression)ret );
-	}
     }
 
     JCBlock asBlock(JCStatement stmt) {
@@ -746,25 +713,55 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = make.Apply(null, formatter, values.toList());
     }
 
-    private JCExpressionTupple translateDefinitionalAssignment(DiagnosticPosition diagPos,
-                    JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, boolean isAttribute) {
-        ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
-        bindingExpressionDefs = ListBuffer.lb();
-        JCExpression translatedInit = translate(init, 
-                bindStatus.isBidiBind()? Wrapped.InLocation : Wrapped.InNothing, 
-                state.manifest, 
-                state.isBound() || bindStatus.isBound()? Convert.ToBound : Convert.Normal, 
-                state.asType);
-        JCExpressionTupple translatedInitTupple = new JCExpressionTupple(translatedInit, null);
+    private JCExpressionTupple translateDefinitionalAssignment(DiagnosticPosition diagPos, JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, boolean isAttribute) {
+        List<JCExpression> returnedDependencies = null;
+        JCExpression initExpr;
+
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         if (shouldMorph(vmi)) {
-            translatedInitTupple = typeMorpher.buildDefinitionalAssignment(diagPos, vmi, 
-                    init, translatedInit, bindStatus, isAttribute);
+
+            if (bindStatus.isUnidiBind()) {
+                List<JCExpression> dependencies = typeMorpher.buildDependencies(init);
+                List<JCExpression> initDependencies;
+
+                if (isAttribute) {
+                    initDependencies = List.<JCExpression>nil();
+                    returnedDependencies = dependencies;
+                } else {
+                    initDependencies = dependencies;
+                    returnedDependencies = null;
+                }
+                ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
+                bindingExpressionDefs = ListBuffer.lb();
+
+                JCStatement stmt = translateExpressionToStatement(init, Wrapped.InNothing, Convert.ToBound, vmi.getRealType());
+                initExpr = typeMorpher.buildExpression(diagPos, vmi, stmt, bindStatus.isLazy(), initDependencies);
+
+                assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
+                bindingExpressionDefs = prevBindingExpressionDefs;
+            } else if (bindStatus.isBidiBind()) {
+                // Bi-directional bind translate so it stays in a Location
+                initExpr = translate(init, Wrapped.InLocation, Manifest.AsExpression, Convert.ToBound, vmi.getRealType());
+            } else {
+                // normal init -- unbound -- but it is setting a Location
+                if (init == null) {
+                    // no initializing expression determine a default value from the type
+                    initExpr = vmi.getTypeKind() == TYPE_KIND_SEQUENCE ? makeEmptySequenceCreator(diagPos, vmi.getElementType()) : typeMorpher.makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
+                } else {
+                    // do a vanilla translation of the expression
+                    initExpr = translate(init, new State());
+                }
+                // convert the expression to a Location
+                initExpr = typeMorpher.makeCall(vmi, diagPos, List.of(initExpr), typeMorpher.varLocation, defs.makeMethodName);
+            }
+        } else {
+            // normal init -- unbound -- setting a non-Location
+            assert !state.isBound();
+            assert !bindStatus.isBound();
+            initExpr = translate(init, new State());
         }
-        assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
-        bindingExpressionDefs = prevBindingExpressionDefs;
-        
-        return translatedInitTupple;
+
+        return new JCExpressionTupple(initExpr, returnedDependencies);
     }
 
     public JCExpressionTupple translateVarInit(JFXVar tree, boolean isAttribute) {
@@ -1030,7 +1027,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     isImplMethod = false;
                 } else {
                     // the "normal" case
-                    body = asBlock( translateExpressionToStatement(bexpr, isVoidReturn? Yield.ToExecStatement : Yield.ToReturnStatement) );
+                    body = asBlock( translateExpressionToStatement(bexpr, mtype.getReturnType()) );
                 }
             }
 
@@ -1208,13 +1205,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         translated.sym = tree.sym;
         translated.type = tree.type;
 
+        //TODO: there is probably a cleaner way to do this -- e.g., state.isBound() is probably redundant
+        // only make dynamic dependencies if we are in a binding expression (bindingExpressionDefs != null)
+        boolean createDynamicDependencies = state.isBound() && !staticReference && bindingExpressionDefs != null;
+        
         JCExpression ref = typeMorpher.convertVariableReference(
                 diagPos,
                 translated,
                 tree.sym, 
                 staticReference , 
                 state.wantLocation(),
-                state.isBound() && !staticReference);
+                createDynamicDependencies);
         if (dummyReference != null)
             ref = ((JavafxTreeMaker)make).BlockExpression(
                 0L, dummyReference, ref);
@@ -1920,8 +1921,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             result = make.at(diagPos).Conditional(cond, translate(trueSide), translatedFalseSide);
         } else {
             result = make.at(diagPos).If(cond, 
-                    translateExpressionToStatement(trueSide, yield), 
-                    falseSide == null ? null : translateExpressionToStatement(falseSide, yield));
+                    translateExpressionToStatement(trueSide), 
+                    falseSide == null ? null : translateExpressionToStatement(falseSide));
         }
     }
 
@@ -1943,12 +1944,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (exp == null) {
             result = make.at(tree).Return(null);
         } else {
-            result = translateExpressionToStatement(exp, Yield.ToReturnStatement );
+            result = translateExpressionToStatement(exp, tree.type);
         }
     }
 
     public void visitExec(JCExpressionStatement tree) {
-        result = translateExpressionToStatement(tree.getExpression(), Yield.ToExecStatement);
+        result = translateExpressionToStatement(tree.getExpression(), syms.voidType);
     }
 
     public void visitParens(JCParens tree) {
@@ -2053,7 +2054,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     targs.append( typeMorpher.buildExpression(
                             arg.pos(),
                             typeMorpher.typeMorphInfo(arg.type), 
-                            translateExpressionToStatement(arg, Yield.ToReturnStatement), 
+                            translateExpressionToStatement(arg, arg.type), 
                             false, 
                             typeMorpher.buildDependencies(arg)) );
                     assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
@@ -2332,7 +2333,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     JCExpression makeBoundExpression(JCExpression expr, TypeMorphInfo tmi, boolean isLazy) {
         return typeMorpher.buildExpression(
                     expr.pos(), tmi, 
-                    translateExpressionToStatement(expr, Yield.ToReturnStatement), 
+                    translateExpressionToStatement(expr, expr.type), 
                     isLazy, 
                     typeMorpher.buildDependencies(expr));
     }
@@ -2345,7 +2346,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             Type valueType = bexpr.value.type;
             if (valueType == syms.voidType) {
                 // convert the void typed expression to a statement, still return null
-                stats = stats.append( translateExpressionToStatement(bexpr.value, Yield.ToExecStatement) );
+                stats = stats.append( translateExpressionToStatement(bexpr.value, valueType) );
             } else {
                 // the returned value will be the trailing expression, box if needed
                 //TODO: handle cases of single legged if, etc
@@ -2353,7 +2354,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     JCExpression boxedExpr = makeBox(diagPos, translate(bexpr.value), valueType);
                     stats = stats.append( make.Return( boxedExpr ) );
                 } else {
-                    stats = stats.append( translateExpressionToStatement(bexpr.value, Yield.ToReturnStatement) );
+                    stats = stats.append( translateExpressionToStatement(bexpr.value, valueType) );
                 }
                 nullReturnNeeded = false;
             }

@@ -85,10 +85,7 @@ public class JavafxTypeMorpher {
     
     private final Type[] realTypeByKind;
     private final Object[] defaultValueByKind;
-    
-    private final Name makeMethodName;
-    private final Name makeLazyMethodName;
-    
+        
     public class LocationNameSymType {
         public final Name name;
         public final ClassSymbol sym;
@@ -310,9 +307,6 @@ public class JavafxTypeMorpher {
         defaultValueByKind[TYPE_KIND_BOOLEAN] = new Integer(0);
         defaultValueByKind[TYPE_KIND_INT] = new Integer(0);
         defaultValueByKind[TYPE_KIND_SEQUENCE] = null; //TODO: empty sequence
-        
-        makeMethodName = Name.fromString(names, "make");
-        makeLazyMethodName = Name.fromString(names, "makeLazy");
     }
        
     Type declLocationType(int typeKind) {
@@ -376,7 +370,7 @@ public class JavafxTypeMorpher {
         
     public JCExpression convertVariableReference(DiagnosticPosition diagPos,
                                                                                             JCExpression varRef, Symbol sym, boolean staticReference,
-                                                                                            boolean wantLocation, boolean dynamicReference) {
+                                                                                            boolean wantLocation, boolean createDynamicDependencies) {
         
         JCExpression expr = varRef;
 
@@ -395,7 +389,7 @@ public class JavafxTypeMorpher {
 
                     // if are in a bind context and this is a select of an attribute,
                     // add the result as a dynamic dependency
-                    if (dynamicReference) {
+                    if (createDynamicDependencies) {
                         expr = toJava.callExpression(diagPos, null, defs.addDynamicDependentName, expr);
                     }
                 }   
@@ -634,35 +628,6 @@ public class JavafxTypeMorpher {
         return depend.toList();
     }
     
-    public JCExpressionTupple buildDefinitionalAssignment(DiagnosticPosition diagPos,
-                    VarMorphInfo vmi, JCExpression fxInit, JCExpression translatedInit,
-                    JavafxBindStatus bindStatus, boolean isAttribute) {
-        List<JCExpression> returnedDependencies = null;
-        JCExpression initExpr = (translatedInit != null)? 
-                translatedInit : 
-                vmi.getTypeKind() == TYPE_KIND_SEQUENCE? 
-                      toJava.makeEmptySequenceCreator(diagPos, vmi.getElementType())
-                    : makeLit(vmi.getRealType(), vmi.getDefaultValue(), diagPos);
-        
-        if (bindStatus.isUnidiBind()) {
-            JCStatement stmt = make.at(diagPos).Return(translatedInit);
-            List<JCExpression> dependencies = buildDependencies(fxInit);
-            List<JCExpression> initDependencies;
-            
-            if (isAttribute) {
-                initDependencies = List.<JCExpression>nil();
-                returnedDependencies = dependencies;
-            } else {
-                initDependencies = dependencies;
-                returnedDependencies = null;
-            }
-            initExpr =buildExpression(diagPos, vmi, stmt, bindStatus.isLazy(), initDependencies);
-        } else if (!bindStatus.isBidiBind()) {
-            initExpr = makeCall(vmi, diagPos, List.of(initExpr), varLocation, makeMethodName);
-        }
-        return new JCExpressionTupple(initExpr, returnedDependencies);
-    }
-
     /**
      * Create an ExpressionLocation from "stmt" which is the translation of the expression into
      * a statement.  The ExpressionLocation is created with an anonymous binding expression
@@ -683,7 +648,7 @@ public class JavafxTypeMorpher {
     }
     
     JCExpression makeExpressionLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi,  boolean isLazy, List<JCExpression> makeArgs) {
-        Name makeName = isLazy? makeLazyMethodName : makeMethodName;
+        Name makeName = isLazy? defs.makeLazyMethodName : defs.makeMethodName;
         return makeCall(tmi, diagPos, makeArgs, exprLocation, makeName);
     }
     
@@ -724,7 +689,7 @@ public class JavafxTypeMorpher {
                 anon);
     }
 
-    private JCExpression makeCall(TypeMorphInfo tmi, 
+    JCExpression makeCall(TypeMorphInfo tmi, 
                                   DiagnosticPosition diagPos,
                                   List<JCExpression> makeArgs,
                                   LocationNameSymType[] lnsta,

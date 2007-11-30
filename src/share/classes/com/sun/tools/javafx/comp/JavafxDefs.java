@@ -65,6 +65,8 @@ public class JavafxDefs {
     final Name addStaticDependentName;
     final Name addDynamicDependentName;
     final Name clearDynamicDependenciesName;
+    final Name makeMethodName;
+    final Name makeLazyMethodName;
     
     /**
      * For internal use of this class
@@ -96,5 +98,7 @@ public class JavafxDefs {
         addStaticDependentName = names.fromString(addStaticDependentNameString);
         addDynamicDependentName = names.fromString(addDynamicDependentNameString);
         clearDynamicDependenciesName = names.fromString(clearDynamicDependenciesNameString);
+        makeMethodName = Name.fromString(names, "make");
+        makeLazyMethodName = Name.fromString(names, "makeLazy");
     }
 }
