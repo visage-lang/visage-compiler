@@ -1307,8 +1307,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
-        Type elemType = elementType(tree.type);
-        result = makeEmptySequenceCreator(tree.pos(), elemType);
+        if (isSequence(tree.type)) {
+            Type elemType = elementType(tree.type);
+            result = makeEmptySequenceCreator(tree.pos(), elemType);
+        }
+        else
+            result = make.at(tree.pos).Literal(TypeTags.BOT, null);
     }
         
     @Override
