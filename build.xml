@@ -13,8 +13,8 @@
 
     <import file="nbproject/build-impl.xml"/>
 
-    <target name="default" depends="jar"
-            description="Build javafxc compiler."/>
+    <target name="default" depends="jar,runtime,install-scripts"
+            description="Build javafxc compiler and runtime distribution"/>
 
     <target name="all" depends="jar, runtime, spec, javadoc, test, findbugs"
             description="Build and test all project artifacts"/>
@@ -24,6 +24,9 @@
 
     <target name="all-with-coverage" depends="coverage, all, coverage-report"
             description="Build and test all project artifacts with coverage"/>
+
+    <target name="compiler-only" depends="jar"
+            description="Build just the javafxc compiler (no runtime or bin scripts)"/>
 
     <available property="ant.jar" value="${ant.home}/lib/ant.jar" file="${ant.home}/lib/ant.jar"/>
     <!-- if the previous location is not correct than find the ant.jar from the java.class.path value -->
@@ -218,7 +221,6 @@
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
     <target name="-post-jar" description="Copy command wrappers to dest/bin directory.">
-        <antcall target="runtime-jar"/>
         <copy todir="dist/bin">
             <fileset dir="src/bin"/>
         </copy>
@@ -295,11 +297,14 @@
     </target>
 
     <target name="runtime" depends="jar">
-        <antcall target="runtime-jar"/>
+        <ant dir="${runtime.dir}" antfile="build.xml" target="jar" inheritall="false" />
     </target>
     
-    <target name="runtime-jar">
-        <ant dir="${runtime.dir}" antfile="build.xml" target="jar" inheritall="false" />
+    <target name="install-scripts">
+        <copy todir="dist/bin">
+            <fileset dir="src/bin"/>
+        </copy>
+        <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>
     </target>
 
     <target name="runtime-clean" >

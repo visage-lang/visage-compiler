@@ -76,5 +76,6 @@
     <target depends="init" name="-do-clean">
         <delete dir="${build.dir}"/>
         <delete dir="${dist.jar}"/>
+        <delete dir="${build.test.dir}"/>
     </target>
 </project>
