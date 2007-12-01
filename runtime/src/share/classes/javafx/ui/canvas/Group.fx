@@ -37,14 +37,16 @@ public class Group extends Node, Container {
     protected attribute sggroup: SGGroup;
 
     public attribute content: Node[] on insert [indx] (newValue) {
-        newValue.parentCanvasElement = this;
+        //TODO JFXC-301
+        //newValue.parentCanvasElement = this as CanvasElement;
         if (sggroup <> null) {
             sggroup.add(indx, newValue.getNode());
         }
     } on replace [indx] (oldValue) {
         var newValue = content[indx];
         if (newValue <> null) {
-            newValue.parentCanvasElement = this;
+            //TODO JFXC-301
+            //newValue.parentCanvasElement = this as CanvasElement;
             if (sggroup <> null) {
                 if (oldValue <> null) {
                    try {
@@ -55,9 +57,10 @@ public class Group extends Node, Container {
                 }
                 sggroup.add(indx, newValue.getNode());
             }
-            if (oldValue.parentCanvasElement == this) {
-                oldValue.parentCanvasElement = null;
-            }
+            //TODO JFXC-301
+            //if (oldValue.parentCanvasElement == this as CanvasElement) {
+            //    oldValue.parentCanvasElement = null;
+            //}
         }
     }
     on delete [indx] (oldValue) {
@@ -68,9 +71,10 @@ public class Group extends Node, Container {
                  //println("e={e}");
             }
         }
-        if (oldValue.parentCanvasElement == this) {
-            oldValue.parentCanvasElement = null;
-        }
+        //TODO JFXC-301
+        //if (oldValue.parentCanvasElement == this as CanvasElement) {
+        //    oldValue.parentCanvasElement = null;
+        //}
     };
 
     public function createNode(): SGNode {
@@ -81,58 +85,70 @@ public class Group extends Node, Container {
         return sggroup;
     }
 
-    function raiseNode(n:Node) {
+    public function raiseNode(n:Node):Void {
         /*TODO: need select, index, delete
         var i = select indexof x from x in content where x == n;
+        **/
+        var i = 0;
+        foreach( ndx in [0..sizeof content -1] ) {
+            if(content[ndx] == n) {
+                break;
+            }
+            i = i + 1;
+        }
         if (i == sizeof content -1) {
             return;
         }
-        delete content[i];
-        insert n after content[i];
-         */
+
     }
-    function lowerNode(n:Node) {
+    public function lowerNode(n:Node):Void {
         /*TODO: need select, index, delete
         var i = select first indexof x from x in content where x == n;
+         * */
+        var i = 0;
+        foreach( ndx in [0..sizeof content -1] ) {
+            if(content[ndx] == n) {
+                break;
+            }
+            i = i + 1;
+        }
         if (i == 0) {
             return;
         }
-        delete content[i];
-        insert n before content[i-1];
-         */
+        var tmp = content[i-1];
+        content[i-1] = content[i];
+        content[i] = tmp;
     }
     
-    function moveNodeToFront(n:Node) {
-        /*TODO: need select, index, delete
+    public function moveNodeToFront(n:Node):Void {
+        /*TODO: need select, index, delete*/
         if (content[sizeof content-1] == n) {
             return;
         }
         var i = 0;
-        for (c in content) {
-           if (c == n) {
-               i = indexof c;
-               break;
-           }
+        foreach( ndx in [0..sizeof content -1] ) {
+            if(content[ndx] == n) {
+                break;
+            }
+            i = i + 1;
         }
         delete content[i];
-        insert n as last into content;
-         */
+        insert n into content;
     }
 
-    function moveNodeToBack(n:Node) {
-        /*TODO: need select, index, delete
+    public function moveNodeToBack(n:Node):Void {
+        /*TODO: need select, index, delete*/
         if (content[0] == n) {
             return;
         }
         var i = 0;
-        for (c in content) {
-           if (c == n) {
-               i = indexof c;
-               break;
-           }
+        foreach( ndx in [0..sizeof content -1] ) {
+            if(content[ndx] == n) {
+                break;
+            }
+            i = i + 1;
         }
         delete content[i];
-        insert n as first into content;
-         */
+        content = [ n, content];        
     }
 }
