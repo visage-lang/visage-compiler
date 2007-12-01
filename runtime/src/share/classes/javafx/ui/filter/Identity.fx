@@ -53,6 +53,6 @@ public class Identity extends Filter {
             }
         };
      }
-    protected function createFilter(): BufferedImageOp { getFilter(); }
+    public function createFilter(): BufferedImageOp { getFilter(); }
 }
 
