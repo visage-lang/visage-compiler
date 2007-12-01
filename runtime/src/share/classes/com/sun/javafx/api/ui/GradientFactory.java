@@ -33,7 +33,6 @@ import com.sun.javafx.runtime.awt.RadialGradientPaint;
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.util.Iterator;
 import com.sun.tools.javafx.ui.SequenceUtil;
 
 /**
