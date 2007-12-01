@@ -34,6 +34,7 @@ import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Iterator;
+import com.sun.tools.javafx.ui.SequenceUtil;
 
 /**
  *
@@ -46,14 +47,10 @@ public class GradientFactory {
             Sequence<? extends java.awt.Color> colors,
             CycleMethod cycleMethod, ColorSpaceType colorSpace, AffineTransform transform) {
         
-        float[] dFractions = new float[fractions.size()];
+        float[] dFractions = SequenceUtil.sequenceOfDouble2floatArray(fractions);
         Color[] dColors = new Color[colors.size()];
-        
         colors.toArray(dColors, 0);
-        Iterator<? extends java.lang.Double> iter = fractions.iterator();
-        for(int i = 0; iter.hasNext();i++) {
-            dFractions[i] = iter.next().floatValue();
-        }
+        
         return new LinearGradientPaint(start, end, dFractions, dColors, 
                 cycleMethod, colorSpace, transform);
         
@@ -65,14 +62,10 @@ public class GradientFactory {
             Sequence<? extends java.awt.Color> colors,
             CycleMethod cycleMethod, ColorSpaceType colorSpace, AffineTransform transform) {
         
-        float[] dFractions = new float[fractions.size()];
+        float[] dFractions = SequenceUtil.sequenceOfDouble2floatArray(fractions);
         Color[] dColors = new Color[colors.size()];
-        
         colors.toArray(dColors, 0);
-        Iterator<? extends java.lang.Double> iter = fractions.iterator();
-        for(int i = 0; iter.hasNext();i++) {
-            dFractions[i] = iter.next().floatValue();
-        }
+        
         return new RadialGradientPaint(center, radius, focus, dFractions, dColors, 
                 cycleMethod, colorSpace, transform);
         
