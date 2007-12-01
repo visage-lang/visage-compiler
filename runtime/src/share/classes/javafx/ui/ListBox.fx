@@ -429,12 +429,10 @@ public class ListBox extends ScrollableWidget {
                          label.setBorder(listCell.border.getBorder());
                     }
                     if (listCell.horizontalAlignment <> null) {
-                        //TODO JXFC-303
-                        //label.setHorizontalAlignment(listCell.horizontalAlignment.id.intValue());
+                        label.setHorizontalAlignment(listCell.horizontalAlignment.id.intValue());
                     } 
                     if (listCell.verticalAlignment <> null) {
-                        //TODO JXFC-303
-                        //label.setVerticalAlignment(listCell.verticalAlignment.id.intValue());
+                        label.setVerticalAlignment(listCell.verticalAlignment.id.intValue());
                     }
                     if (selected) {
                         if (selectedCellForeground <> null) {
