@@ -28,7 +28,7 @@ a double quote can be included without quoting it, and vice versa.</para>
 </production>
 <production xml:id="syntax.EnclosedExpression">
 <lhs>EnclosedExpression</lhs>
-<rhs><nonterminal def="#syntax.Expression">Expression</nonterminal></rhs>
+<rhs>Expression</rhs>
 </production>
 <production xml:id="syntax.FormatSpecifier">
 <lhs>FormatSpecifier</lhs>
