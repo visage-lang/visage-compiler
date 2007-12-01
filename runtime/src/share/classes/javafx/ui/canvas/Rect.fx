@@ -78,15 +78,12 @@ public class Rect extends Shape, SizeableCanvasElement {
     protected function onSizeToFitCanvas(value:Boolean):Void {
         if (parentCanvasElement <> null) {
             var canvas = this.getCanvas();
-            //TODO JXFC-301
-            /**********
             var canvasElement = this as SizeableCanvasElement;
             if (value) {
                 insert canvasElement into canvas.sizeToFitList;
            } else {
                 delete canvasElement from canvas.sizeToFitList;
             }
-            ************/
         }
     }
     public function createShape(): SGShape {
