@@ -107,6 +107,16 @@ public abstract class JavaFXTestCase extends TestCase {
         assertEquals(hl, new String[] { value });
     }
 
+    protected void assertEqualsAndClear(HistorySequenceListener hl, String value) {
+        assertEquals(hl, new String[] { value });
+        hl.clear();
+    }
+
+    protected void assertEqualsAndClear(HistorySequenceListener hl, String... values) {
+        assertEquals(hl, values);
+        hl.clear();
+    }
+
     protected void assertEquals(int value, IntLocation loc) {
         assertTrue(loc.isValid());
         assertEquals(value, loc.get());

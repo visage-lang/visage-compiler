@@ -25,6 +25,7 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
+import com.sun.javafx.runtime.sequence.BoundCompositeSequence;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 import com.sun.javafx.runtime.sequence.Sequences;
@@ -75,6 +76,19 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(3, firstValue);
         assertEquals(1, cl.changeCount);
         assertEquals(1, cl.replaceCount);
+    }
+
+    public void testReplaceListener() {
+        final SequenceVar<Integer> seq = SequenceVar.make(Sequences.range(1, 3));
+        CountingSequenceListener cl = new CountingSequenceListener();
+        HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
+        seq.addChangeListener(cl);
+        seq.addChangeListener(hl);
+
+        assertEquals(seq, 1, 2, 3);
+        seq.set(0, 0);
+        assertEquals(seq, 0, 2, 3);
+        assertEquals(hl, "r-0-1-0");
     }
 
     public void testSequenceListener() {
@@ -318,6 +332,64 @@ public class SequenceBindingTest extends JavaFXTestCase {
         final SequenceLocation<Integer> iloc = SequenceVar.make(Sequences.range(1, 3));
         final SequenceLocation<Number> nloc = SequenceVar.<Number>make(iloc.get());
         assertEquals(nloc.get(), 1, 2, 3);
+    }
+
+    public void testBoundConcat() {
+        SequenceLocation<Integer> a = SequenceVar.make(Sequences.range(1, 2));
+        SequenceLocation<Integer> b = SequenceVar.make(Sequences.range(3, 4));
+        SequenceLocation<Integer> c = (SequenceLocation<Integer>) BoundCompositeSequence.make(Integer.class, a, b);
+        HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
+        c.addChangeListener(hl);
+
+        assertEquals(c, 1, 2, 3, 4);
+        assertEquals(hl);
+        a.set(0, 0);
+        assertEquals(c, 0, 2, 3, 4);
+        assertEqualsAndClear(hl, "r-0-1-0");
+        b.set(1, 5);
+        assertEquals(c, 0, 2, 3, 5);
+        assertEqualsAndClear(hl, "r-3-4-5");
+
+        a.insert(9);
+        assertEquals(c, 0, 2, 9, 3, 5);
+        assertEqualsAndClear(hl, "i-2-9");
+        b.insert(19);
+        assertEquals(c, 0, 2, 9, 3, 5, 19);
+        assertEqualsAndClear(hl, "i-5-19");
+        b.insertFirst(100);
+        assertEquals(c, 0, 2, 9, 100, 3, 5, 19);
+        assertEqualsAndClear(hl, "i-3-100");
+
+        a.delete(0);
+        assertEquals(c, 2, 9, 100, 3, 5, 19);
+        assertEqualsAndClear(hl, "d-0-0");
+        b.delete(0);
+        assertEquals(c, 2, 9, 3, 5, 19);
+        assertEqualsAndClear(hl, "d-2-100");
+
+        a.set(Sequences.range(1, 2));
+        assertEquals(c, 1, 2, 3, 5, 19);
+        assertEqualsAndClear(hl, "d-1-9", "d-0-2", "i-0-1", "i-1-2");
+
+        b.set(Sequences.range(3, 4));
+        assertEquals(c, 1, 2, 3, 4);
+        assertEqualsAndClear(hl, "d-4-19", "d-3-5", "d-2-3", "i-2-3", "i-3-4");
+
+        a.deleteAll();
+        assertEquals(c, 3, 4);
+        assertEqualsAndClear(hl, "d-1-2", "d-0-1");
+
+        b.deleteAll();
+        assertEquals(0, c.get().size());
+        assertEqualsAndClear(hl, "d-1-4", "d-0-3");
+
+        a.set(Sequences.range(1, 2));
+        assertEquals(c, 1, 2);
+        assertEqualsAndClear(hl, "i-0-1", "i-1-2");
+
+        b.set(Sequences.range(3, 4));
+        assertEquals(c, 1, 2, 3, 4);
+        assertEqualsAndClear(hl, "i-2-3", "i-3-4");
     }
 }
 

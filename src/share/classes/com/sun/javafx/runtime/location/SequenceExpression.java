@@ -26,7 +26,6 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.SequencePredicate;
 
 import java.util.Iterator;
 
@@ -67,6 +66,17 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
         this.expression = expression;
     }
 
+    @Override
+    public void update() {
+        if (!isValid()) {
+            Sequence<? extends T> v = expression.get();
+            if (!equals(v, previousValue))
+                replaceValue(v);
+            setValid(false);
+            previousValue = null;
+        }
+    }
+
     private void ensureValid() {
         if (!isValid())
             update();
@@ -97,110 +107,9 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
     }
 
     @Override
-    public void update() {
-        if (!isValid()) {
-            Sequence<? extends T> v = expression.get();
-            if (!equals(v, previousValue))
-                replaceValue(v);
-            setValid(false);
-            previousValue = null;
-        }
-    }
-
-    @Override
     public void invalidate() {
         if (isValid())
             previousValue = value;
         super.invalidate();
-    }
-
-    @Override
-    public Sequence<T> set(Sequence<? extends T> value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void set(int position, T value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void delete(int position) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void deleteAll() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void deleteValue(T value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void delete(SequencePredicate<T> sequencePredicate) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void insert(T value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void insert(Sequence<? extends T> values) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void insertFirst(T value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void insertFirst(Sequence<? extends T> values) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void insertBefore(T value, int position) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void insertBefore(T value, SequencePredicate<T> sequencePredicate) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void insertBefore(Sequence<? extends T> values, int position) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void insertBefore(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void insertAfter(T value, int position) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void insertAfter(T value, SequencePredicate<T> sequencePredicate) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void insertAfter(Sequence<? extends T> values, int position) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
-        throw new UnsupportedOperationException();
     }
 }
