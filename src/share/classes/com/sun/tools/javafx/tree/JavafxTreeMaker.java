@@ -77,8 +77,6 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
      */
     JavafxTreeMaker(JCCompilationUnit toplevel, Name.Table names, Types types, Symtab syms) {
         super(toplevel, names, types, syms);
-        invokeName = names.fromString("invoke");
-        lambdaName = names.fromString("lambda");
     }
     
     /** Create a new tree maker for a given toplevel.
@@ -88,9 +86,6 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return new JavafxTreeMaker(toplevel, names, types, syms);
     }
 
-    public final Name invokeName;
-    public final Name lambdaName;
-    
     /** Reassign current position.
      */
     @Override

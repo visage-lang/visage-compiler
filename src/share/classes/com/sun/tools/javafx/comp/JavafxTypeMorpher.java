@@ -659,7 +659,7 @@ public class JavafxTypeMorpher {
         if (stmt.getTag() == JavafxTag.BLOCK) {
             JCBlock block = (JCBlock) stmt;
             stmts = block.getStatements();
-            stmts.prepend(clearStmt);
+            stmts = stmts.prepend(clearStmt);
         } else {
             stmts = List.<JCStatement>of(clearStmt, stmt);
         }

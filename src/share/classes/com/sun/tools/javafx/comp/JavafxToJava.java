@@ -337,6 +337,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         attrEnv.toplevel = translate(attrEnv.toplevel);
     }
+
+    interface Translator {
+        JCTree doit();
+    }
     
     @Override
     public void visitTopLevel(JCCompilationUnit tree) {
@@ -733,7 +737,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             // normal init -- unbound -- setting a non-Location
             assert !state.isBound();
             assert !bindStatus.isBound();
-            initExpr = translate(init, new State());
+            if (init == null) {
+                // no initializing expression determine a default value from the type
+                initExpr = makeDefaultValue(diagPos, vmi);
+            } else {
+                // do a vanilla translation of the expression
+                initExpr = translate(init, new State());
+            }
         }
 
         return new JCExpressionTupple(initExpr, returnedDependencies);
@@ -751,16 +761,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     JCExpression makeDefaultValue(DiagnosticPosition diagPos, TypeMorphInfo tmi) {
         return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ? 
                 makeEmptySequenceCreator(diagPos, tmi.getElementType()) : 
-                typeMorpher.makeLit(tmi.getRealType(), tmi.getDefaultValue(), diagPos);
+                                tmi.getRealType() == syms.javafx_StringType? make.Literal("") :
+                                typeMorpher.makeLit(tmi.getRealType(), tmi.getDefaultValue(), diagPos);
     }
 
     @Override
     public void visitVar(JFXVar tree) {
-        // Fix for JFXC-69
-        if (tree.type == syms.javafx_StringType && tree.init == null) {
-            tree.init = make.Literal("");
-        }
-
         DiagnosticPosition diagPos = tree.pos();
         Type type = tree.type;
         JCModifiers mods = tree.getModifiers();
@@ -874,7 +880,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitOperationValue(JFXOperationValue tree) {
         JFXOperationDefinition def = tree.definition;
-        result = makeFunctionValue(make.Ident(((JavafxTreeMaker)make).lambdaName), def, tree.pos(), (MethodType) def.type);
+        result = makeFunctionValue(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type);
         result.type = tree.type;
     }
     
@@ -916,7 +922,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
        JCMethodDecl bridgeDef = make.at(diagPos).MethodDef(
                 make.Modifiers(flags),
-                ((JavafxTreeMaker)make).invokeName, 
+                defs.invokeName, 
                 makeTypeTree(syms.objectType, diagPos), 
                 List.<JCTypeParameter>nil(), 
                 params.toList(),
@@ -1990,171 +1996,154 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
          assert false : "should not be in JavaFX AST";
    }
 
-    public void visitApply(JCMethodInvocation tree) {
-        final DiagnosticPosition diagPos = tree.pos();
-        List<JCExpression> typeargs = translate(tree.typeargs);
-        JCExpression meth = translate(tree.meth);
-        JCExpression nullTestExpression = null;  // expression to guard invocation with, if null then none
-        if (tree.meth.getTag() == JavafxTag.SELECT) {
-            JCFieldAccess select = (JCFieldAccess) tree.meth;
-            if (!select.sym.isStatic()) {
- //               nullTestExpression = select.getExpression();  //TODO: disabled
-            }
-        }
+    public void visitApply(final JCMethodInvocation tree) {
+        result = (new Translator() {
 
-        boolean useInvoke = tree.meth.type instanceof FunctionType
-                || (meth instanceof JCIdent && ((JCIdent) meth).sym instanceof MethodSymbol
-                    && isInnerFunction((MethodSymbol) ((JCIdent) meth).sym));
-        if (useInvoke) {
-            meth = make.Select(meth, ((JavafxTreeMaker) make).invokeName);
-            nullTestExpression = null; // caution, prehaps unwarranted
-        }
-        
-        boolean callBound = false;
-        MethodSymbol sym = null;
-        if (generateBoundFunctions && state.isBound()) {
-            sym = (MethodSymbol) expressionSymbol(tree.meth);
-            // if we are in a bound context and we are calling an FX function, call the bound version of the function
-            if (sym != null && initBuilder.isJFXClass(sym.owner) && sym.getReturnType() != syms.voidType) {
-                callBound = true;
-            }
-        }
-        
-        // compute the translated arguments.
-        // if this is a bound call, use left-hand side references for arguments consisting
-        // solely of a  var or attribute reference, or function call, otherwise, wrap it
-        // in an expression location
-        List<JCExpression> args;       
-        if (callBound) {
-            ListBuffer<JCExpression> targs = ListBuffer.<JCExpression>lb();
-            for (JCExpression arg : tree.args) {
-                switch (arg.getTag()) {
-                case JavafxTag.IDENT:
-                case JavafxTag.SELECT:
-                case JavafxTag.APPLY:
-                    targs.append( translate(arg, Wrapped.InLocation) );
-                    break;
-                default: {
-                    ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
-                    bindingExpressionDefs = ListBuffer.lb();
-                    targs.append( typeMorpher.buildExpression(
-                            arg.pos(),
-                            typeMorpher.typeMorphInfo(arg.type), 
-                            translateExpressionToStatement(arg, arg.type), 
-                            false, 
-                            typeMorpher.buildDependencies(arg)) );
-                    assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
-                    bindingExpressionDefs = prevBindingExpressionDefs;
-                    break;
-                }
-                }
-            }
-            args = targs.toList();
-        } else {
-            args = translate(tree.args);
-        }
-        
-        // if this is a super.foo(x) call, "super" will be translated to referenced class, 
-        // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
-        boolean superCall = false;
-        if (tree.meth instanceof JCFieldAccess) {
-             JCExpression selected =  ((JCFieldAccess)(tree.meth)).getExpression();
-             if (selected instanceof JCIdent) {
-                 JCIdent id = (JCIdent)selected;
-                 if (id.getName() == names._super) {
-                     args = args.prepend(make.Ident(defs.receiverName));
-                     superCall = true;
-                     nullTestExpression = null; // don't want to test super
-                 } else if (id.getName() == names._this) {
-                     nullTestExpression = null; // don't want to test "this"
-                 }
-             }
-        }
-        
-        // translate the method name -- e.g., foo  to foo$bound or foo$impl
-        if (callBound || superCall) {
-                if (sym == null) {
-                    sym = (MethodSymbol) expressionSymbol(tree.meth);
-                }
-                Name name = functionName(sym, superCall, callBound);
-                switch (meth.getTag()) {
-                    case JavafxTag.SELECT:
-                        {
-                            JCFieldAccess smeth = (JCFieldAccess) meth;
-                            meth = make.at(diagPos).Select(smeth.getExpression(), name);
-                            break;
-                        }
-                    case JavafxTag.IDENT:
-                        {
-                            meth = make.Ident(name);
-                            break;
-                        }
-                    default:
-                        assert false : "unexpected method expression";
-                }
-        }
+            private final DiagnosticPosition diagPos = tree.pos();
+            private final JCExpression meth = tree.meth;
+            private final JCExpression selector = meth.getTag() == JavafxTag.SELECT?   
+                                                                    ((JCFieldAccess) meth).getExpression() :  
+                                                                    null;
+            private final Symbol sym = expressionSymbol(meth);
+            private final MethodSymbol msym = (sym instanceof MethodSymbol)? (MethodSymbol)sym : null;
+            private final Name selectorIdName = (selector != null && selector.getTag() == JavafxTag.IDENT)? ((JCIdent) selector).getName() : null;
+            private final boolean superCall = selectorIdName == names._super;
+            private final boolean thisCall = selectorIdName == names._this;
 
-        JCMethodInvocation app = make.at(diagPos).Apply(typeargs, meth, args);
-        JCExpression fresult = app;
-        if (callBound) {
+            private JCExpression transMeth = translate(meth);
+
+            private final boolean useInvoke = meth.type instanceof FunctionType 
+                                                                    || (transMeth instanceof JCIdent
+                                                                                 && ((JCIdent) transMeth).sym instanceof MethodSymbol 
+                                                                                 && isInnerFunction((MethodSymbol) ((JCIdent) transMeth).sym));
+
+            private final boolean testForNull =  msym!=null  && !sym.isStatic() && selector!=null && !superCall && !thisCall && !useInvoke;
+
+            private final boolean callBound = generateBoundFunctions  
+                                                                    && state.isBound()  
+                                                                    && msym != null  
+                                                                    && initBuilder.isJFXClass(msym.owner)  
+                                                                    && msym.getReturnType() != syms.voidType  
+                                                                    && !useInvoke;
+
+            public JCTree doit() {
+                 // translate the method name -- e.g., foo  to foo$bound or foo$impl
+                if (superCall || callBound) {
+                    Name name = functionName(msym, superCall, callBound);
+                    if (transMeth.getTag() == JavafxTag.IDENT) {
+                        transMeth = make.at(diagPos).Ident(name);
+                    } else if (transMeth.getTag() == JavafxTag.SELECT) {
+                        JCFieldAccess faccess = (JCFieldAccess) transMeth;
+                        transMeth = make.at(diagPos).Select(faccess.getExpression(), name);
+                    }
+                }
+                if (useInvoke) {
+                    transMeth = make.Select(transMeth, defs.invokeName);
+                }
+
+                JCMethodInvocation app = make.at(diagPos).Apply( translate(tree.typeargs), transMeth, determineArgs());
+                JCExpression fresult = app;
+                if (callBound) {
+                    fresult = makeBoundCall(app);
+                }
+                if (useInvoke) {
+                    if (tree.type.tag != TypeTags.VOID) {
+                        fresult = castFromObject(fresult, tree.type);
+                    }
+                } else if (transMeth instanceof JFXBlockExpression) {
+                    // If visitSelect translated exp.staticMember to
+                    // { exp; class.staticMember }:
+                    JFXBlockExpression block = (JFXBlockExpression) transMeth;
+                    app.meth = block.value;
+                    block.value = app;
+                    fresult = block;
+                }
+                if (testForNull && msym.getReturnType() != syms.voidType && initBuilder.isJFXClass(selector.type.tsym)) {
+                    // we have a testable guard for null, wrap the invoke in it, return default value if null
+                    TypeMorphInfo tmi = typeMorpher.typeMorphInfo(msym.getReturnType());
+                    JCExpression defaultExpr = makeDefaultValue(diagPos, tmi);
+                    if (state.wantLocation()) {
+                        defaultExpr = makeIntoLocation(diagPos, tmi, defaultExpr);
+                    }
+                    JCExpression cond = make.at(diagPos).Binary(JCTree.EQ, translate(selector), make.Literal(TypeTags.BOT, null));
+                    fresult = make.at(diagPos).Conditional(cond, defaultExpr, fresult);
+                }
+                return fresult;
+            }
+
+            // compute the translated arguments.
+            // if this is a bound call, use left-hand side references for arguments consisting
+            // solely of a  var or attribute reference, or function call, otherwise, wrap it
+            // in an expression location
+            List<JCExpression> determineArgs() {
+                List<JCExpression> args;
+                if (callBound) {
+                    ListBuffer<JCExpression> targs = ListBuffer.<JCExpression>lb();
+                    for (JCExpression arg : tree.args) {
+                        switch (arg.getTag()) {
+                            case JavafxTag.IDENT:
+                            case JavafxTag.SELECT:
+                            case JavafxTag.APPLY:
+                                targs.append(translate(arg, Wrapped.InLocation));
+                                break;
+                            default:
+                                {
+                                    ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
+                                    bindingExpressionDefs = ListBuffer.lb();
+                                    targs.append(typeMorpher.buildExpression(
+                                                                    arg.pos(), 
+                                                                    typeMorpher.typeMorphInfo(arg.type), 
+                                                                    translateExpressionToStatement(arg, arg.type), 
+                                                                    false, 
+                                                                    typeMorpher.buildDependencies(arg)));
+                                    assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
+                                    bindingExpressionDefs = prevBindingExpressionDefs;
+                                    break;
+                                }
+                        }
+                    }
+                    args = targs.toList();
+                } else {
+                    args = translate(tree.args);
+                }
+
+               // if this is a super.foo(x) call, "super" will be translated to referenced class,
+                // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
+                if (superCall) {
+                    args = args.prepend(make.Ident(defs.receiverName));
+                }
+
+                return args;
+            }
+
             // now, generate the bound function call.  The bound function should be called no
             // more than once (per context), but it must be called in place, because of local
             // variables, so lazily set the functions bound location, which is stored as a field
             // on the binding expression.  Code looks like this:
             //     (loc == null)? addDependent( loc = boundCall ) : loc
             // if this is a right-hand side context, call get() on that to get the value.
-            Name tmpName = getSyntheticName("loc");
-            JCExpression cond = make.at(diagPos).Binary(JCTree.EQ, 
-                            make.at(tree).Ident(tmpName), 
-                            make.Literal(TypeTags.BOT, null));
-            JCExpression initLocation = callExpression(diagPos, 
-                    null, 
-                    defs.addStaticDependentName, 
-                    make.at(tree).Assign( make.at(diagPos).Ident(tmpName), app ));
-            Type morphedReturnType = typeMorpher.typeMorphInfo(sym.getReturnType()).getMorphedType();
-            bindingExpressionDefs.append(make.VarDef(
-                    make.Modifiers(Flags.PRIVATE),
-                    tmpName, 
-                    makeTypeTree(morphedReturnType, diagPos), 
-                    make.Literal(TypeTags.BOT, null)));
-            JCExpression funcLoc = make.at(diagPos).Conditional(cond, 
-                        initLocation, 
-                        make.at(tree).Ident(tmpName));
-            fresult = state.wantLocation()? funcLoc : callExpression(tree, 
-                    make.at(diagPos).Parens( funcLoc ),
-                    defs.getMethodName);
-        }
-        if (useInvoke) {
-            if (tree.type.tag != TypeTags.VOID)
-                fresult = castFromObject(fresult, tree.type);
-        }
-        else if (meth instanceof JFXBlockExpression) {
-            // If visitSelect translated exp.staticMember to
-            // { exp; class.staticMember }:
-            JFXBlockExpression block = (JFXBlockExpression) meth;
-            app.meth = block.value;
-            block.value = app;
-            fresult = block;
-            nullTestExpression = null; // caution, out of ignorance
-        }
-        if (nullTestExpression != null) {
-            // we have a testable guard for null, wrap the invoke in it, return default value if null
-            if (sym == null) {
-                sym = (MethodSymbol) expressionSymbol(tree.meth);
+            JCExpression makeBoundCall(JCExpression applyExpression) {
+                Name tmpName = getSyntheticName("loc");
+                JCExpression cond = make.at(diagPos).Binary(JCTree.EQ, make.at(diagPos).Ident(tmpName), make.Literal(TypeTags.BOT, null));
+                JCExpression initLocation = callExpression(diagPos, 
+                                                                    null, 
+                                                                    defs.addStaticDependentName, 
+                                                                    make.at(diagPos).Assign(make.at(diagPos).Ident(tmpName), applyExpression));
+                Type morphedReturnType = typeMorpher.typeMorphInfo(msym.getReturnType()).getMorphedType();
+                bindingExpressionDefs.append(make.VarDef(
+                                                                    make.Modifiers(Flags.PRIVATE), 
+                                                                    tmpName, 
+                                                                    makeTypeTree(morphedReturnType, diagPos), 
+                                                                    make.Literal(TypeTags.BOT, null)));
+                JCExpression funcLoc = make.at(diagPos).Conditional(cond, 
+                                                                    initLocation, 
+                                                                    make.at(diagPos).Ident(tmpName));
+                return state.wantLocation() ? funcLoc : callExpression(diagPos, 
+                                                                    make.at(diagPos).Parens(funcLoc), 
+                                                                    defs.getMethodName);
             }
-            if (sym != null && initBuilder.isJFXClass(nullTestExpression.type.tsym)) {
-                TypeMorphInfo tmi = typeMorpher.typeMorphInfo(sym.getReturnType());
-                JCExpression defaultExpr = makeDefaultValue(diagPos, tmi);
-                if (state.wantLocation()) {
-                    defaultExpr = makeIntoLocation(diagPos, tmi, defaultExpr);
-                }
-                JCExpression cond = make.at(diagPos).Binary(JCTree.EQ, 
-                        translate(nullTestExpression), 
-                        make.Literal(TypeTags.BOT, null));
-                fresult = make.at(diagPos).Conditional(cond, defaultExpr, fresult);
-            }
-        }
-        result = fresult;
+
+        }).doit();
     }
 
     public void visitModifiers(JCModifiers tree) {
