@@ -50,17 +50,13 @@ class TabSlider extends Widget {
         if (panel == null) {
             return;
         }
-        //TODO JXFC-318
-        //var oldTab = tabs[old.intValue()];
-        var oldTab:SlideTab = null;
+        var oldTab = tabs[old.intValue()];
         if (oldTab <> null) {
             inSelection = true;
             oldTab.selected = false;
             inSelection = false;
         }
-        //TODO JXFC-318
-        //var newTab = tabs[value.intValue()];
-        var newTab:SlideTab = null;
+	var newTab = tabs[value.intValue()];
         if (orientation == Orientation.VERTICAL) {
             if (newTab <> null) {
                 var availHeight = panel.getHeight() - sizeof tabs*23;
