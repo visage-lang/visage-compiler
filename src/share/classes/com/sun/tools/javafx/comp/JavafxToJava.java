@@ -1688,6 +1688,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                  texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString() + interfaceSuffix);
             }
             else {
+                if (t.isCompound())
+                    t =syms.objectType;
                 texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString());
             }
 
