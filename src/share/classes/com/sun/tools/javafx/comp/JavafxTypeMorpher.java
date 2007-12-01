@@ -647,12 +647,12 @@ public class JavafxTypeMorpher {
             return makeExpressionLocation(diagPos, tmi, isLazy, argValues.toList());
     }
     
-    JCExpression makeExpressionLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi,  boolean isLazy, List<JCExpression> makeArgs) {
+    private JCExpression makeExpressionLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi,  boolean isLazy, List<JCExpression> makeArgs) {
         Name makeName = isLazy? defs.makeLazyMethodName : defs.makeMethodName;
         return makeCall(tmi, diagPos, makeArgs, exprLocation, makeName);
     }
     
-    JCExpression buildExpressionClass(DiagnosticPosition diagPos, TypeMorphInfo tmi,  JCStatement stmt) {
+    private JCExpression buildExpressionClass(DiagnosticPosition diagPos, TypeMorphInfo tmi,  JCStatement stmt) {
         //TODO: clear should only be generated when there are dynamic dependencies in the body
         JCStatement clearStmt = toJava.callStatement(diagPos, null, defs.clearDynamicDependenciesName);
         List<JCStatement> stmts;

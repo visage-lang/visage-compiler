@@ -31,3 +31,32 @@ System.out.println(f.fo());
 System.out.println(f.next.fo());
 System.out.println(f.getNext().fo());
 
+System.out.println("---------------------");
+f = null;
+System.out.println(f.fi());
+System.out.println(f.next.fi());
+System.out.println(f.getNext().fi());
+System.out.println(f.fs());
+System.out.println(f.next.fs());
+System.out.println(f.getNext().fs());
+System.out.println(f.fas());
+System.out.println(f.next.fas());
+System.out.println(f.getNext().fas());
+System.out.println(f.fo());
+System.out.println(f.next.fo());
+System.out.println(f.getNext().fo());
+
+System.out.println("---------------------");
+f = Foo { next: Foo {} }
+System.out.println(f.fi());
+System.out.println(f.next.fi());
+System.out.println(f.getNext().fi());
+System.out.println(f.fs());
+System.out.println(f.next.fs());
+System.out.println(f.getNext().fs());
+System.out.println(f.fas());
+System.out.println(f.next.fas());
+System.out.println(f.getNext().fas());
+System.out.println(f.fo());
+System.out.println(f.next.fo());
+System.out.println(f.getNext().fo());

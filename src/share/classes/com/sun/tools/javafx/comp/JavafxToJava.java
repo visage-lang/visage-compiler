@@ -154,6 +154,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      */
     static final boolean generateBoundFunctions = true;
     static final boolean permeateBind = false;
+    static final boolean generateNullChecks = true;
     
     private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
     private static final String sequencesRangeExclusiveString = "com.sun.javafx.runtime.sequence.Sequences.rangeExclusive";
@@ -1208,6 +1209,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (dummyReference != null)
             ref = ((JavafxTreeMaker)make).BlockExpression(
                 0L, dummyReference, ref);
+        if (generateNullChecks && !staticReference
+                                           && (tree.sym instanceof VarSymbol) 
+                                           && initBuilder.isJFXClass(tree.type.tsym)) {
+            // we have a testable guard for null, wrap the attribute access  in it, return default value if null
+            TypeMorphInfo tmi = typeMorpher.typeMorphInfo(tree.type);
+            JCExpression defaultExpr = makeDefaultValue(diagPos, tmi);
+            if (state.wantLocation()) {
+                defaultExpr = makeIntoLocation(diagPos, tmi, defaultExpr);
+            }
+            JCExpression cond = make.at(diagPos).Binary(
+                JCTree.EQ, 
+                translate(selected), 
+                make.Literal(TypeTags.BOT, null));
+            ref = make.at(diagPos).Conditional(cond, defaultExpr, ref);
+        }
         result = ref;
     }
     
@@ -2023,7 +2039,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                                                                  && ((JCIdent) transMeth).sym instanceof MethodSymbol 
                                                                                  && isInnerFunction((MethodSymbol) ((JCIdent) transMeth).sym));
 
-            private final boolean testForNull =  msym!=null  && !sym.isStatic() && selector!=null && !superCall && !thisCall && !useInvoke;
+            private final boolean testForNull =  generateNullChecks && msym!=null  && !sym.isStatic() && selector!=null && !superCall && !thisCall && !useInvoke;
 
             private final boolean callBound = generateBoundFunctions  
                                                                     && state.isBound()  
