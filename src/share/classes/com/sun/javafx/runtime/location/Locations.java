@@ -57,7 +57,7 @@ public class Locations {
         return new UnmodifiableObjectLocation<T>(loc);
     }
 
-    public static<T> SequenceLocation<? extends T> unmodifiableLocation(SequenceLocation<? extends T> loc) {
+    public static<T> SequenceLocation<T> unmodifiableLocation(SequenceLocation<T> loc) {
         return new UnmodifiableSequenceLocation<T>(loc);
     }
 
@@ -377,13 +377,13 @@ public class Locations {
      * Wrapper class that wraps a SequenceLocation so it cannot be modified
      */
     private static class UnmodifiableSequenceLocation<T> extends LocationWrapper implements SequenceLocation<T> {
-        private final SequenceLocation<? extends T> location;
+        private final SequenceLocation<T> location;
 
-        public UnmodifiableSequenceLocation(SequenceLocation<? extends T> location) {
+        public UnmodifiableSequenceLocation(SequenceLocation<T> location) {
             this.location = location;
         }
 
-        public SequenceLocation<? extends T> getLocation() {
+        public SequenceLocation<T> getLocation() {
             return location;
         }
 
@@ -395,19 +395,19 @@ public class Locations {
             return location.get(position);
         }
 
-        public Sequence<? extends T> get() {
+        public Sequence<T> get() {
             return location.get();
         }
 
-        public Sequence<? extends T> getPreviousValue() {
+        public Sequence<T> getPreviousValue() {
             return location.getPreviousValue();
         }
 
-        public Iterator<? extends T> iterator() {
+        public Iterator<T> iterator() {
             return location.iterator();
         }
 
-        public Sequence<? extends T> set(Sequence<? extends T> value) {
+        public Sequence<T> set(Sequence<? extends T> value) {
             throw new UnsupportedOperationException();
         }
 

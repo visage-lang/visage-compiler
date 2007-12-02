@@ -42,15 +42,13 @@ import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
-import static com.sun.tools.javafx.code.JavafxVarSymbol.ClassSymbol;
-import static com.sun.tools.javafx.code.JavafxVarSymbol.MethodSymbol;
+import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.JavafxClassModel;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedAttributeInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.BindAnalysis;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
-import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.tree.*;
 
 import java.io.OutputStreamWriter;
@@ -756,7 +754,18 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     JCExpression makeIntoLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi, JCExpression expr) {
-        return  typeMorpher.makeCall(tmi, diagPos, List.of(expr), typeMorpher.varLocation, defs.makeMethodName);
+        List<JCExpression> makeArgs = List.of(expr);
+        if (tmi.typeKind == TYPE_KIND_SEQUENCE) {
+            makeArgs = makeArgs.prepend(  makeSequenceClassArg(diagPos, tmi) );
+        }
+        return  typeMorpher.makeCall(tmi, diagPos, makeArgs, typeMorpher.varLocation, defs.makeMethodName);
+    }
+
+
+    JCExpression makeSequenceClassArg(DiagnosticPosition diagPos, TypeMorphInfo tmi) {
+        return make.Select(
+                makeTypeTree(tmi.getElementType(), diagPos, true),
+                names.fromString("class"));
     }
 
     JCExpression makeDefaultValue(DiagnosticPosition diagPos, TypeMorphInfo tmi) {

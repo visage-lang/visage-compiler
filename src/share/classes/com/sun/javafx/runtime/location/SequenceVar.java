@@ -38,22 +38,32 @@ import com.sun.javafx.runtime.sequence.Sequences;
  * @author Brian Goetz
  */
 public class SequenceVar<T> extends AbstractSequenceLocation<T> implements SequenceLocation<T>, MutableLocation {
-
     private final SequenceMutator.Listener<T> mutationListener = new MutationListener();
 
-    public static <T> SequenceVar<T> make(Sequence<? extends T> value) {
+    public static <T> SequenceVar<T> make(Sequence<T> value) {
         return new SequenceVar<T>(value);
     }
 
-    public static <T> SequenceLocation<? extends T> makeUnmodifiable(Sequence<? extends T> value) {
+    public static <T> SequenceVar<T> make(Class<T> clazz, Sequence<? extends T> value) {
+        return new SequenceVar<T>(clazz, value);
+    }
+
+    public static <T> SequenceLocation<T> makeUnmodifiable(Sequence<T> value) {
         return Locations.unmodifiableLocation(new SequenceVar<T>(value));
     }
 
-    private SequenceVar(Sequence<? extends T> value) {
-        super(true, false);
+    private SequenceVar(Sequence<T> value) {
+        super(value.getElementType(), true, false);
         if (value == null)
             throw new NullPointerException();
         this.value = value;
+    }
+
+    private SequenceVar(Class<T> clazz, Sequence<? extends T> value) {
+        super(clazz, true, false);
+        if (value == null)
+            throw new NullPointerException();
+        set(value);
     }
 
     @Override
@@ -62,8 +72,8 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
     }
 
     @Override
-    public Sequence<? extends T> set(Sequence<? extends T> value) {
-        replaceValue(value);
+    public Sequence<T> set(Sequence<? extends T> newValue) {
+        replaceValue(Sequences.upcast(clazz, newValue));
         return value;
     }
 
@@ -84,7 +94,7 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
 
     @Override
     public void deleteAll() {
-        set(Sequences.emptySequence((Class<? extends T>) value.getElementType()));
+        set(Sequences.emptySequence((Class<T>) value.getElementType()));
     }
 
     @Override
@@ -156,7 +166,7 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
     }
 
     private class MutationListener implements SequenceMutator.Listener<T> {
-        public void onReplaceSequence(Sequence<? extends T> newSeq) {
+        public void onReplaceSequence(Sequence<T> newSeq) {
             value = newSeq;
             valueChanged();
         }

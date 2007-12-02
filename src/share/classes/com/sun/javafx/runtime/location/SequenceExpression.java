@@ -26,6 +26,7 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
 
 import java.util.Iterator;
 
@@ -39,13 +40,13 @@ import java.util.Iterator;
  * @author Brian Goetz
  */
 public class SequenceExpression<T> extends AbstractSequenceLocation<T> implements SequenceLocation<T> {
-    private final SequenceBindingExpression<? extends T> expression;
+    private final SequenceBindingExpression<T> expression;
 
     /**
      * Create an SequenceExpression with the specified expression and dependencies.
      */
-    public static <T> SequenceLocation<T> make(SequenceBindingExpression<T> exp, Location... dependencies) {
-        SequenceExpression<T> loc = new SequenceExpression<T>(false, exp);
+    public static <T> SequenceLocation<T> make(Class<T> clazz, SequenceBindingExpression<T> exp, Location... dependencies) {
+        SequenceExpression<T> loc = new SequenceExpression<T>(clazz, false, exp);
         exp.location = loc;
         loc.addDependencies(dependencies);
         return loc;
@@ -54,22 +55,22 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
     /**
      * Create a lazy SequenceExpression with the specified expression and dependencies.
      */
-    public static <T> SequenceLocation<T> makeLazy(SequenceBindingExpression<T> exp, Location... dependencies) {
-        SequenceExpression<T> loc = new SequenceExpression<T>(true, exp);
+    public static <T> SequenceLocation<T> makeLazy(Class<T> clazz, SequenceBindingExpression<T> exp, Location... dependencies) {
+        SequenceExpression<T> loc = new SequenceExpression<T>(clazz, true, exp);
         exp.location = loc;
         loc.addDependencies(dependencies);
         return loc;
     }
 
-    private SequenceExpression(boolean lazy, SequenceBindingExpression<? extends T> expression) {
-        super(false, lazy);
+    private SequenceExpression(Class<T> clazz, boolean lazy, SequenceBindingExpression<T> expression) {
+        super(clazz, false, lazy);
         this.expression = expression;
     }
 
     @Override
     public void update() {
         if (!isValid()) {
-            Sequence<? extends T> v = expression.get();
+            Sequence<T> v = Sequences.upcast(clazz, expression.get());
             if (!equals(v, previousValue))
                 replaceValue(v);
             setValid(false);
@@ -89,7 +90,7 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
     }
 
     @Override
-    public Iterator<? extends T> iterator() {
+    public Iterator<T> iterator() {
         ensureValid();
         return super.iterator();
     }
@@ -101,7 +102,7 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
     }
 
     @Override
-    public Sequence<? extends T> get() {
+    public Sequence<T> get() {
         ensureValid();
         return super.get();
     }

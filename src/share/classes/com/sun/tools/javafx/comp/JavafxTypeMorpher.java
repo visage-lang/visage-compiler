@@ -29,31 +29,27 @@ import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.jvm.ClassReader;
-import com.sun.tools.javac.tree.*;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.Log;
-
-import com.sun.javafx.api.JavafxBindStatus;
-import com.sun.tools.javafx.code.JavafxVarSymbol;
-import com.sun.tools.javafx.tree.*;
-import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
+import com.sun.tools.javac.tree.Pretty;
+import com.sun.tools.javac.tree.TreeMaker;
+import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javafx.comp.JavafxToJava.JCExpressionTupple;
-import com.sun.tools.javafx.comp.JavafxToJava.*;
-import static com.sun.tools.javafx.comp.JavafxDefs.*;
+import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
+import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
+import static com.sun.tools.javafx.comp.JavafxDefs.attributeGetMethodNamePrefix;
+import static com.sun.tools.javafx.comp.JavafxDefs.interfaceSuffix;
+import com.sun.tools.javafx.comp.JavafxToJava.Wrapped;
+import com.sun.tools.javafx.tree.*;
 
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -648,6 +644,9 @@ public class JavafxTypeMorpher {
     }
     
     private JCExpression makeExpressionLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi,  boolean isLazy, List<JCExpression> makeArgs) {
+        if (tmi.typeKind == TYPE_KIND_SEQUENCE) {
+            makeArgs = makeArgs.prepend(  toJava.makeSequenceClassArg(diagPos, tmi) );
+        }
         Name makeName = isLazy? defs.makeLazyMethodName : defs.makeMethodName;
         return makeCall(tmi, diagPos, makeArgs, exprLocation, makeName);
     }
@@ -664,7 +663,7 @@ public class JavafxTypeMorpher {
             stmts = List.<JCStatement>of(clearStmt, stmt);
         }
         JCBlock body = make.at(diagPos).Block(0, stmts);
-        
+
         JCMethodDecl getMethod = make.at(diagPos).MethodDef(
                 make.at(diagPos).Modifiers(Flags.PUBLIC), 
                 defs.getMethodName, 

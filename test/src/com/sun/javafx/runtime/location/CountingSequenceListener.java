@@ -34,8 +34,8 @@ import com.sun.javafx.runtime.sequence.Sequences;
  */
 class CountingSequenceListener implements SequenceChangeListener<Integer> {
     int changeCount, insertCount, deleteCount, replaceCount;
-    Sequence<? extends Integer> inserted = Sequences.emptySequence(Integer.class);
-    Sequence<? extends Integer> deleted = Sequences.emptySequence(Integer.class);
+    Sequence<Integer> inserted = Sequences.emptySequence(Integer.class);
+    Sequence<Integer> deleted = Sequences.emptySequence(Integer.class);
 
     public boolean onChange(Location location) {
         ++changeCount;
@@ -44,12 +44,12 @@ class CountingSequenceListener implements SequenceChangeListener<Integer> {
 
     public void onInsert(int position, Integer element) {
         ++insertCount;
-        inserted = Sequences.insert(inserted, element);
+        inserted = inserted.insert(element);
     }
 
     public void onDelete(int position, Integer element) {
         ++deleteCount;
-        deleted =  Sequences.insert(deleted, element);
+        deleted = deleted.insert(element);
     }
 
     public void onReplace(int position, Integer oldValue, Integer newValue) {

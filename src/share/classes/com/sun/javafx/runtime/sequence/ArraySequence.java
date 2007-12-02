@@ -25,6 +25,8 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.Util;
+
 import java.util.BitSet;
 import java.util.List;
 
@@ -40,33 +42,30 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
     private final T[] array;
 
 
-    @SuppressWarnings("unchecked")
-    public ArraySequence(Class<? extends T> clazz, T... values) {
+    public ArraySequence(Class<T> clazz, T... values) {
         super(clazz);
-        this.array =  (T[]) new Object[values.length];
+        this.array =  Util.<T>newArray(values.length);
         System.arraycopy(values, 0, array, 0, values.length);
     }
 
-    @SuppressWarnings("unchecked")
-    public ArraySequence(Class<? extends T> clazz, T[] values, int size) {
+    public ArraySequence(Class<T> clazz, T[] values, int size) {
         super(clazz);
-        this.array =  (T[]) new Object[size];
+        this.array =  Util.<T>newArray(size);
         System.arraycopy(values, 0, array, 0, size);
     }
 
     @SuppressWarnings("unchecked")
-    public ArraySequence(Class<? extends T> clazz, List<? extends T> values) {
+    public ArraySequence(Class<T> clazz, List<? extends T> values) {
         super(clazz);
         this.array = (T[]) values.toArray();
     }
 
-    @SuppressWarnings("unchecked")
-    public ArraySequence(Class<? extends T> clazz, Sequence<? extends T>... sequences) {
+    public ArraySequence(Class<T> clazz, Sequence<? extends T>... sequences) {
         super(clazz);
         int size = 0;
         for (Sequence<? extends T> seq : sequences)
             size += seq.size();
-        this.array = (T[]) new Object[size];
+        this.array = Util.<T>newArray(size);
         int next = 0;
         for (Sequence<? extends T> seq : sequences) {
             seq.toArray(array, next);

@@ -8,7 +8,7 @@ package com.sun.javafx.runtime.sequence;
 public class UpcastSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     private final Sequence<? extends T> sequence;
 
-    public UpcastSequence(Class<? extends T> newClazz, Sequence<? extends T> sequence) {
+    public UpcastSequence(Class<T> newClazz, Sequence<? extends T> sequence) {
         super(newClazz);
         this.sequence = sequence;
     }

@@ -19,3 +19,5 @@ var labels : Label[] = [Label {}];
 var container = Container { 
     content: labels 
 } 
+var components : Component[] = labels;
+insert Component{} into components;

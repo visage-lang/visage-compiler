@@ -39,7 +39,7 @@ class FilterSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     private final Sequence<? extends T> sequence;
     private final int[] indices;
 
-    public FilterSequence(Sequence<? extends T> sequence, BitSet bits) {
+    public FilterSequence(Sequence<T> sequence, BitSet bits) {
         super(sequence.getElementType());
         this.sequence = sequence;
         indices = new int[bits.cardinality()];

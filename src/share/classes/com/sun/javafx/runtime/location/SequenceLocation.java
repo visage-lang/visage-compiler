@@ -27,7 +27,6 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
-import java.util.Iterator;
 
 /**
  * A sequence-valued Location.  Exposes analogues of the mutative methods from Sequence, which modify the sequence
@@ -36,16 +35,16 @@ import java.util.Iterator;
  *
  * @author Brian Goetz
  */
-public interface SequenceLocation<T> extends Location /*, Iterable<T>*/ {
+public interface SequenceLocation<T> extends Location, Iterable<T> {
     
     T get(int position);
 
-    Sequence<? extends T> get();
+    Sequence<T> get();
 
     /** Retrieve the previous value of this location; only defined while change listeners are being notified */
-    public Sequence<? extends T> getPreviousValue();
+    public Sequence<T> getPreviousValue();
 
-    Sequence<? extends T> set(Sequence<? extends T> value);
+    Sequence<T> set(Sequence<? extends T> value);
 
     public void set(int position, T value);
 
@@ -80,6 +79,4 @@ public interface SequenceLocation<T> extends Location /*, Iterable<T>*/ {
     public void insertAfter(Sequence<? extends T> values, int position);
 
     public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> predicate);
-
-    public Iterator<? extends T> iterator();
 }

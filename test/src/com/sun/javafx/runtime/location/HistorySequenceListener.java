@@ -24,8 +24,8 @@
  */
 package com.sun.javafx.runtime.location;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * SequenceHistoryListener
@@ -52,7 +52,6 @@ public class HistorySequenceListener<T> implements SequenceChangeListener<T> {
     public void clear() { elements.clear(); }
 
     public boolean onChange(Location location) {
-        elements.clear();
         return true;
     }
 }

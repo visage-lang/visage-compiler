@@ -25,21 +25,22 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.sequence.SequenceMutator.Listener;
+
 import java.util.BitSet;
 import java.util.Iterator;
-import com.sun.javafx.runtime.sequence.SequenceMutator.Listener;
 
 /**
  * Abstract base class for sequence classes.  A subclass need only define the size() and get() methods; subclasses
  * may also want to provide optimized versions of some other methods, such as toArray() or getBits().  Subclasses that
- * represent views onto other sequences should also implement the getDepth() method.  
+ * represent views onto other sequences should also implement the getDepth() method.
  *
  * @author Brian Goetz
  */
 public abstract class AbstractSequence<T> implements Sequence<T> {
-    protected final Class<? extends T> clazz;
+    protected final Class<T> clazz;
 
-    protected AbstractSequence(Class<? extends T> clazz) {
+    protected AbstractSequence(Class<T> clazz) {
         this.clazz = clazz;
     }
 
@@ -56,7 +57,7 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
         return bits;
     }
 
-    public Class<? extends T> getElementType() {
+    public Class<T> getElementType() {
         return clazz;
     }
 
@@ -68,7 +69,7 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
         return 0;
     }
 
-    public<V> Sequence<V> map(Class<V> clazz, SequenceMapper<T, V> sequenceMapper) {
+    public <V> Sequence<V> map(Class<V> clazz, SequenceMapper<T, V> sequenceMapper) {
         return Sequences.map(clazz, this, sequenceMapper);
     }
 
@@ -77,7 +78,7 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
             array[i + destOffset] = get(i);
     }
 
-    public Sequence<? extends T> get(SequencePredicate<? super T> predicate) {
+    public Sequence<T> get(SequencePredicate<? super T> predicate) {
         return Sequences.filter(this, getBits(predicate));
     }
 
@@ -109,12 +110,7 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
         if (!(obj instanceof Sequence))
             return false;
         Sequence other = (Sequence) obj;
-        boolean r1 = (other.getElementType().isAssignableFrom(getElementType()));
-        boolean r = r1 && isEqual((Sequence<T>) other);
-        if (! r) {
-          //new Error("equals failed "+r1+" -> "+r +" this:"+this+"::"+getClass().getName()+" other:"+other+"::"+other.getClass().getName()).printStackTrace();
-        }
-        return r;
+        return (other.getElementType().isAssignableFrom(getElementType())) && isEqual((Sequence<T>) other);
     }
 
     @Override
@@ -160,7 +156,7 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
     }
 
 
-    public Sequence<? extends T> subsequence(int start, int end) {
+    public Sequence<T> subsequence(int start, int end) {
         return Sequences.subsequence(this, start, end);
     }
 
@@ -168,7 +164,7 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
         return Sequences.reverse(this);
     }
 
-    public Sequence<? extends T> flatten() {
+    public Sequence<T> flatten() {
         if (getDepth() == 0)
             return this;
         else {
@@ -179,30 +175,63 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
         }
     }
 
-    public final Sequence<? extends T> set(int position, T value) {
+    public final Sequence<T> set(int position, T value) {
         return SequenceMutator.set(this, null, position, value);
     }
 
-    /*
-    public final Sequence<? extends T> delete(SequencePredicate<? super T> predicate) {
-      return SequenceMutator.delete(this, (Listener<T>)null, predicate);
+    public final Sequence<T> delete(int position) {
+        return SequenceMutator.delete(this, null, position);
     }
 
-    public final Sequence<? ,extends T> insert(T value) {
-      return SequenceMutator.insert(this, (Listener<T>)null, value);
+    public final Sequence<T> delete(SequencePredicate<? super T> predicate) {
+        return SequenceMutator.delete(this, (Listener<T>) null, predicate);
     }
 
-    public final Sequence<? extends T> insert(Sequence<? extends T> values) {
-      return SequenceMutator.insert(this, (Listener<T>) null, values);
+    public final Sequence<T> insert(T value) {
+        return SequenceMutator.insert(this, (Listener<T>) null, value);
     }
 
-    public final Sequence<? extends T> insertFirst(T value) {
+    public final Sequence<T> insert(Sequence<? extends T> values) {
+        return SequenceMutator.insert(this, (Listener<T>) null, values);
+    }
+
+    public final Sequence<T> insertFirst(T value) {
         return SequenceMutator.insertFirst(this, null, value);
     }
 
-    public final Sequence<? extends T> insertFirst(Sequence<? extends T> values) {
-      return SequenceMutator.insertFirst(this, (Listener<T>)null, values);
+    public final Sequence<T> insertFirst(Sequence<? extends T> values) {
+        return SequenceMutator.insertFirst(this, (Listener<T>) null, values);
     }
-    */
 
+    public final Sequence<T> insertBefore(T value, int position) {
+        return SequenceMutator.insertBefore(this, null, value, position);
+    }
+
+    public final Sequence<T> insertBefore(Sequence<? extends T> values, int position) {
+        return SequenceMutator.<T>insertBefore(this, null, values, position);
+    }
+
+    public final Sequence<T> insertAfter(T value, int position) {
+        return SequenceMutator.insertAfter(this, null, value, position);
+    }
+
+    public final Sequence<T> insertAfter(Sequence<? extends T> values, int position) {
+        return SequenceMutator.<T>insertAfter(this, null, values, position);
+    }
+
+    public final Sequence<T> insertBefore(T value, SequencePredicate<? super T> predicate) {
+        return SequenceMutator.insertBefore(this, null, value, predicate);
+    }
+
+    public final Sequence<T> insertBefore(Sequence<? extends T> values, SequencePredicate<? super T> predicate) {
+        return SequenceMutator.insertBefore(this, null, values, predicate);
+    }
+
+    public final Sequence<T> insertAfter(T value, SequencePredicate<? super T> predicate) {
+        return SequenceMutator.insertAfter(this, null, value, predicate);
+    }
+
+    public final Sequence<T> insertAfter(Sequence<? extends T> values, SequencePredicate<? super T> predicate) {
+        return SequenceMutator.insertAfter(this, null, values, predicate);
+    }
 }

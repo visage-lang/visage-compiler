@@ -78,7 +78,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
                 sb.add(1);
             }
         }
-        Sequence<? extends Integer> result = sb.toSequence();
+        Sequence<Integer> result = sb.toSequence();
         assertEquals(result, 1, 1, 1, 1, 1, 1);
         Sequence<Integer> c2dResult = new CartesianProduct2D<Integer, Integer, Integer>(Integer.class, outer, inner,
                 new CartesianProduct2D.Mapper<Integer, Integer, Integer>() {
@@ -137,7 +137,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
                 }
             }
         }
-        Sequence<? extends Integer> result = sb.toSequence();
+        Sequence<Integer> result = sb.toSequence();
         assertEquals(result, 1, 2, 3, 4, 2, 4, 6, 8, 3, 6, 9, 12, 2, 4, 6, 8, 4, 8, 12, 16, 6, 12, 18, 24);
 
         Sequence<Integer> cnResult = new CartesianProduct<Integer>(Integer.class,

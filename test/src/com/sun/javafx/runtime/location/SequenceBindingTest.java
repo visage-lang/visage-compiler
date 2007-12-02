@@ -88,7 +88,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(seq, 1, 2, 3);
         seq.set(0, 0);
         assertEquals(seq, 0, 2, 3);
-        assertEquals(hl, "r-0-1-0");
+        assertEqualsAndClear(hl, "r-0-1-0");
     }
 
     public void testSequenceListener() {
@@ -103,63 +103,63 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(1, cl.insertCount);
         assertEquals(cl.inserted, 4);
         assertEquals(cl.changeCount, cl.insertCount);
-        assertEquals(hl, "i-3-4");
+        assertEqualsAndClear(hl, "i-3-4");
 
         seq.insert(Sequences.range(1, 3));
         assertEquals(seq, 1, 2, 3, 4, 1, 2, 3);
         assertEquals(4, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3);
         assertEquals(cl.changeCount, 2);
-        assertEquals(hl, "i-4-1", "i-5-2", "i-6-3");
+        assertEqualsAndClear(hl, "i-4-1", "i-5-2", "i-6-3");
 
         seq.insertAfter(10, 5);
         assertEquals(seq, 1, 2, 3, 4, 1, 2, 10, 3);
         assertEquals(5, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10);
         assertEquals(cl.changeCount, 3);
-        assertEquals(hl, "i-6-10");
+        assertEqualsAndClear(hl, "i-6-10");
 
         seq.insertAfter(8, isOnePredicate);
         assertEquals(seq, 1, 8, 2, 3, 4, 1, 8, 2, 10, 3);
         assertEquals(7, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8);
         assertEquals(cl.changeCount, 4);
-        assertEquals(hl, "i-1-8", "i-6-8");
+        assertEqualsAndClear(hl, "i-1-8", "i-6-8");
 
         seq.insertAfter(Sequences.range(1, 3), 9);
         assertEquals(seq, 1, 8, 2, 3, 4, 1, 8, 2, 10, 3, 1, 2, 3);
         assertEquals(10, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3);
         assertEquals(cl.changeCount, 5);
-        assertEquals(hl, "i-10-1", "i-11-2", "i-12-3");
+        assertEqualsAndClear(hl, "i-10-1", "i-11-2", "i-12-3");
 
         seq.insertAfter(Sequences.range(1, 3), isOnePredicate);
         assertEquals(seq, 1, 1, 2, 3, 8, 2, 3, 4, 1, 1, 2, 3, 8, 2, 10, 3, 1, 1, 2, 3, 2, 3);
         assertEquals(19, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3);
         assertEquals(cl.changeCount, 6);
-        assertEquals(hl, "i-1-1", "i-2-2", "i-3-3", "i-9-1", "i-10-2", "i-11-3", "i-17-1", "i-18-2", "i-19-3");
+        assertEqualsAndClear(hl, "i-1-1", "i-2-2", "i-3-3", "i-9-1", "i-10-2", "i-11-3", "i-17-1", "i-18-2", "i-19-3");
 
         seq.insertBefore(10, 5);
         assertEquals(seq, 1, 1, 2, 3, 8, 10, 2, 3, 4, 1, 1, 2, 3, 8, 2, 10, 3, 1, 1, 2, 3, 2, 3);
         assertEquals(20, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 10);
         assertEquals(cl.changeCount, 7);
-        assertEquals(hl, "i-5-10");
+        assertEqualsAndClear(hl, "i-5-10");
 
         seq.insertBefore(9, isOnePredicate);
         assertEquals(seq, 9, 1, 9, 1, 2, 3, 8, 10, 2, 3, 4, 9, 1, 9, 1, 2, 3, 8, 2, 10, 3, 9, 1, 9, 1, 2, 3, 2, 3);
         assertEquals(26, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 10, 9, 9, 9, 9, 9, 9);
         assertEquals(cl.changeCount, 8);
-        assertEquals(hl, "i-0-9", "i-2-9", "i-11-9", "i-13-9", "i-21-9", "i-23-9");
+        assertEqualsAndClear(hl, "i-0-9", "i-2-9", "i-11-9", "i-13-9", "i-21-9", "i-23-9");
 
         seq.insertBefore(Sequences.range(1, 3), 10);
         assertEquals(seq, 9, 1, 9, 1, 2, 3, 8, 10, 2, 3, 1, 2, 3, 4, 9, 1, 9, 1, 2, 3, 8, 2, 10, 3, 9, 1, 9, 1, 2, 3, 2, 3);
         assertEquals(29, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 10, 9, 9, 9, 9, 9, 9, 1, 2, 3);
         assertEquals(cl.changeCount, 9);
-        assertEquals(hl, "i-10-1", "i-11-2", "i-12-3");
+        assertEqualsAndClear(hl, "i-10-1", "i-11-2", "i-12-3");
 
         seq.insertBefore(Sequences.range(1, 3), new SequencePredicate<Integer>() {
             public boolean matches(Sequence sequence, int index, Integer value) {
@@ -170,14 +170,14 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(35, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 10, 9, 9, 9, 9, 9, 9, 1, 2, 3, 1, 2, 3, 1, 2, 3);
         assertEquals(cl.changeCount, 10);
-        assertEquals(hl, "i-7-1", "i-8-2", "i-9-3", "i-25-1", "i-26-2", "i-27-3");
+        assertEqualsAndClear(hl, "i-7-1", "i-8-2", "i-9-3", "i-25-1", "i-26-2", "i-27-3");
 
         seq.delete(0);
         assertEquals(seq, 1, 9, 1, 2, 3, 8, 1, 2, 3, 10, 2, 3, 1, 2, 3, 4, 9, 1, 9, 1, 2, 3, 8, 2, 1, 2, 3, 10, 3, 9, 1, 9, 1, 2, 3, 2, 3);
         assertEquals(1, cl.deleteCount);
         assertEquals(cl.deleted, 9);
         assertEquals(cl.changeCount, 11);
-        assertEquals(hl, "d-0-9");
+        assertEqualsAndClear(hl, "d-0-9");
 
         hl.clear();
         seq.delete(-1); // no effect
@@ -185,7 +185,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(1, cl.deleteCount);
         assertEquals(cl.deleted, 9);
         assertEquals(cl.changeCount, 11);
-        assertEquals(hl, new String[]{});
+        assertEqualsAndClear(hl, new String[]{});
 
         hl.clear();
         seq.delete(100); // no effect
@@ -193,42 +193,42 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(1, cl.deleteCount);
         assertEquals(cl.deleted, 9);
         assertEquals(cl.changeCount, 11);
-        assertEquals(hl, new String[]{});
+        assertEqualsAndClear(hl, new String[]{});
 
         seq.delete(3);
         assertEquals(seq, 1, 9, 1, 3, 8, 1, 2, 3, 10, 2, 3, 1, 2, 3, 4, 9, 1, 9, 1, 2, 3, 8, 2, 1, 2, 3, 10, 3, 9, 1, 9, 1, 2, 3, 2, 3);
         assertEquals(2, cl.deleteCount);
         assertEquals(cl.deleted, 9, 2);
         assertEquals(cl.changeCount, 12);
-        assertEquals(hl, "d-3-2");
+        assertEqualsAndClear(hl, "d-3-2");
 
         seq.delete(isOnePredicate);
         assertEquals(seq, 9, 3, 8, 2, 3, 10, 2, 3, 2, 3, 4, 9, 9, 2, 3, 8, 2, 2, 3, 10, 3, 9, 9, 2, 3, 2, 3);
         assertEquals(11, cl.deleteCount);
         assertEquals(cl.deleted, 9, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1);
         assertEquals(cl.changeCount, 13);
-        assertEquals(hl, "d-31-1", "d-29-1", "d-23-1", "d-18-1", "d-16-1", "d-11-1", "d-5-1", "d-2-1", "d-0-1");
+        assertEqualsAndClear(hl, "d-31-1", "d-29-1", "d-23-1", "d-18-1", "d-16-1", "d-11-1", "d-5-1", "d-2-1", "d-0-1");
 
         seq.insertFirst(777);
         assertEquals(seq, 777, 9, 3, 8, 2, 3, 10, 2, 3, 2, 3, 4, 9, 9, 2, 3, 8, 2, 2, 3, 10, 3, 9, 9, 2, 3, 2, 3);
         assertEquals(36, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 10, 9, 9, 9, 9, 9, 9, 1, 2, 3, 1, 2, 3, 1, 2, 3, 777);
         assertEquals(cl.changeCount, 14);
-        assertEquals(hl, "i-0-777");
+        assertEqualsAndClear(hl, "i-0-777");
 
         seq.insertFirst(Sequences.range(33, 34));
         assertEquals(seq, 33, 34, 777, 9, 3, 8, 2, 3, 10, 2, 3, 2, 3, 4, 9, 9, 2, 3, 8, 2, 2, 3, 10, 3, 9, 9, 2, 3, 2, 3);
         assertEquals(38, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 10, 9, 9, 9, 9, 9, 9, 1, 2, 3, 1, 2, 3, 1, 2, 3, 777, 33, 34);
         assertEquals(cl.changeCount, 15);
-        assertEquals(hl, "i-0-33", "i-1-34");
+        assertEqualsAndClear(hl, "i-0-33", "i-1-34");
     }
 
     public void testSequenceExpression() {
         // oneToN = bind 1..n
         final IntLocation n = IntVar.make(0);
-        final SequenceLocation<? extends Integer> oneToN = SequenceExpression.make(new SequenceBindingExpression<Integer>() {
-            public Sequence<? extends Integer> get() {
+        final SequenceLocation<Integer> oneToN = SequenceExpression.make(Integer.class, new SequenceBindingExpression<Integer>() {
+            public Sequence<Integer> get() {
                 return Sequences.range(1, n.get());
             }
         }, n);
@@ -242,8 +242,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
         // oddN = bind select t from v where t % 2 == 1
         final SequenceLocation<Integer> v = SequenceVar.make(Sequences.range(1, 8));
-        final SequenceLocation<? extends Integer> oddN = SequenceExpression.make(new SequenceBindingExpression<Integer>() {
-            public Sequence<? extends Integer> get() {
+        final SequenceLocation<Integer> oddN = SequenceExpression.make(Integer.class, new SequenceBindingExpression<Integer>() {
+            public Sequence<Integer> get() {
                 return v.get().get(new SequencePredicate<Integer>() {
                     public boolean matches(Sequence<? extends Integer> sequence, int index, Integer value) {
                         return value % 2 == 1;
@@ -258,8 +258,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
     /** Ensure that mutative methods on sequence expressions throw UOE */
     public void testUOE() {
-        final SequenceLocation<? extends Integer> seq = SequenceExpression.make(new SequenceBindingExpression<Integer>() {
-            public Sequence<? extends Integer> get() {
+        final SequenceLocation<Integer> seq = SequenceExpression.make(Integer.class, new SequenceBindingExpression<Integer>() {
+            public Sequence<Integer> get() {
                 return Sequences.range(1, 10);
             }
         });
@@ -280,13 +280,13 @@ public class SequenceBindingTest extends JavaFXTestCase {
         // oneToN = bind 1..n
         // evenN = bind select x from oneToN where x % 2 == 0
         final IntLocation n = IntVar.make(0);
-        final SequenceLocation<? extends Integer> oneToN = SequenceExpression.make(new SequenceBindingExpression<Integer>() {
-            public Sequence<? extends Integer> get() {
+        final SequenceLocation<Integer> oneToN = SequenceExpression.make(Integer.class, new SequenceBindingExpression<Integer>() {
+            public Sequence<Integer> get() {
                 return Sequences.range(1, n.get());
             }
         }, n);
-        final SequenceLocation<? extends Integer> evenN = SequenceExpression.make(new SequenceBindingExpression<Integer>() {
-            public Sequence<? extends Integer> get() {
+        final SequenceLocation<Integer> evenN = SequenceExpression.make(Integer.class, new SequenceBindingExpression<Integer>() {
+            public Sequence<Integer> get() {
                 return oneToN.get().get(new SequencePredicate<Integer>() {
                     public boolean matches(Sequence<? extends Integer> sequence, int index, Integer value) {
                         return value % 2 == 0;
@@ -305,8 +305,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
     public void testDependentTrigger() {
         final SequenceLocation<Integer> v = SequenceVar.make(Sequences.make(Integer.class, 1, 2, 3));
-        final SequenceLocation<? extends Integer> b = SequenceExpression.make(new SequenceBindingExpression<Integer>() {
-            public Sequence<? extends Integer> get() {
+        final SequenceLocation<Integer> b = SequenceExpression.make(Integer.class, new SequenceBindingExpression<Integer>() {
+            public Sequence<Integer> get() {
                 return v.get();
             }
         }, v);
@@ -318,26 +318,25 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(v, 1, 2, 3);
         assertEquals(b, 1, 2, 3);
         assertEquals(vh);
-        assertEquals(bh, "i-0-1", "i-1-2", "i-2-3");
-        bh.clear();
+        assertEqualsAndClear(bh, "i-0-1", "i-1-2", "i-2-3");
 
         v.set(Sequences.make(Integer.class, 1, 2));
         assertEquals(v, 1, 2);
         assertEquals(b, 1, 2);
-        assertEquals(vh, "d-2-3", "d-1-2", "d-0-1", "i-0-1", "i-1-2");
-        assertEquals(bh, "d-2-3", "d-1-2", "d-0-1", "i-0-1", "i-1-2");
+        assertEqualsAndClear(vh, "d-2-3", "d-1-2", "d-0-1", "i-0-1", "i-1-2");
+        assertEqualsAndClear(bh, "d-2-3", "d-1-2", "d-0-1", "i-0-1", "i-1-2");
     }
 
     public void testUpcast() {
         final SequenceLocation<Integer> iloc = SequenceVar.make(Sequences.range(1, 3));
-        final SequenceLocation<Number> nloc = SequenceVar.<Number>make(iloc.get());
+        final SequenceLocation<Number> nloc = SequenceVar.make(Sequences.upcast(Number.class, iloc.get()));
         assertEquals(nloc.get(), 1, 2, 3);
     }
 
     public void testBoundConcat() {
         SequenceLocation<Integer> a = SequenceVar.make(Sequences.range(1, 2));
         SequenceLocation<Integer> b = SequenceVar.make(Sequences.range(3, 4));
-        SequenceLocation<Integer> c = (SequenceLocation<Integer>) BoundCompositeSequence.make(Integer.class, a, b);
+        SequenceLocation<Integer> c = BoundCompositeSequence.make(Integer.class, a, b);
         HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
         c.addChangeListener(hl);
 

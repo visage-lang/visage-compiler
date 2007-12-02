@@ -53,7 +53,7 @@ public interface Sequence<T> extends Iterable<T> {
     public boolean isEmpty();
 
     /** What is the element type? */
-    public Class<? extends T> getElementType();
+    public Class<T> getElementType();
 
     /** Copy the contents of this sequence to an array, at a specified offset within the destination array */
     public void toArray(Object[] array, int destOffset);
@@ -67,16 +67,62 @@ public interface Sequence<T> extends Iterable<T> {
      * sequences.  */
     public T get(int position);
 
+    /** Delete the element at the specified position.  If the position is out of range, the sequence is not modified. */
+    public Sequence<T> delete(int position);
+
+    /** Delete the elements matching the specified predicate.  */
+    public Sequence<T> delete(SequencePredicate<? super T> predicate);
+
     /** Modify the element at the specified position.  If the position is out of range, the sequence is not
      * modified. */
-    public Sequence<? extends T> set(int position, T value);
+    public Sequence<T> set(int position, T value);
 
     /** Select elements from the sequence matching the specified predicate. */
-    public Sequence<? extends T> get(SequencePredicate<? super T> predicate);
+    public Sequence<T> get(SequencePredicate<? super T> predicate);
 
     /** Return a subsequence starting at the specified start position, up to but not including the specified
      * end position.  If the end position is less than or equal to the start, an empty sequence is returned. */
-    public Sequence<? extends T> subsequence(int start, int end);
+    public Sequence<T> subsequence(int start, int end);
+
+    /** Insert the specified value at the end of the sequence */
+    public Sequence<T> insert(T value);
+
+    /** Insert the specified values at the end of the sequence */
+    public Sequence<T> insert(Sequence<? extends T> values);
+
+    /** Insert the specified value at the beginning of the sequence */
+    public Sequence<T> insertFirst(T value);
+
+    /** Insert the specified values at the beginning of the sequence */
+    public Sequence<T> insertFirst(Sequence<? extends T> values);
+
+    /** Insert the specified value before the specified position.  If the position is negative, it is inserted before
+     *  element zero; if it is greater than or equal to the size of the sequence, it is inserted at the end.  */
+    public Sequence<T> insertBefore(T value, int position);
+
+    /** Insert the specified value before the position(s) matching the specified predicate.  */
+    public Sequence<T> insertBefore(T value, SequencePredicate<? super T> predicate);
+
+    /** Insert the specified values before the specified position.  If the position is negative, they are inserted before
+     *  element zero; if it is greater than or equal to the size of the sequence, they are inserted at the end.  */
+    public Sequence<T> insertBefore(Sequence<? extends T> values, int position);
+
+    /** Insert the specified values before the position(s) matchign the specified predicate.  */
+    public Sequence<T> insertBefore(Sequence<? extends T> values, SequencePredicate<? super T> predicate);
+
+    /** Insert the specified value after the specified position.  If the position is negative, it is inserted before
+     *  element zero; if it is greater than or equal to the size of the sequence, it is inserted at the end.  */
+    public Sequence<T> insertAfter(T value, int position);
+
+    /** Insert the specified value after the position(s) matching the specified predicate.  */
+    public Sequence<T> insertAfter(T value, SequencePredicate<? super T> predicate);
+
+    /** Insert the specified values after the specified position.  If the position is negative, they are inserted before
+     *  element zero; if it is greater than or equal to the size of the sequence, they are inserted at the end.  */
+    public Sequence<T> insertAfter(Sequence<? extends T> values, int position);
+
+    /** Insert the specified values after the position(s) matchign the specified predicate.  */
+    public Sequence<T> insertAfter(Sequence<? extends T> values, SequencePredicate<? super T> predicate);
 
     /** Reverse the elements of the sequence */
     public Sequence<T> reverse();
@@ -90,7 +136,7 @@ public interface Sequence<T> extends Iterable<T> {
     /** Many sequences are represented as trees to reduce copying costs; if the current sequence has depth > 0, 
      * copy the elements into a new sequence of depth == 0.
      */
-    public Sequence<? extends T> flatten();
+    public Sequence<T> flatten();
 
     /**
      * Returns the number of levels of sequence objects between this Sequence object and the deepest data.

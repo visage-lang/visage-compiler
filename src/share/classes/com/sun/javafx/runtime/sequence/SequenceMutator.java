@@ -25,6 +25,8 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.Util;
+
 import java.util.BitSet;
 
 /**
@@ -37,7 +39,7 @@ import java.util.BitSet;
 public class SequenceMutator {
 
     public interface Listener<T> {
-        public void onReplaceSequence(Sequence<? extends T> newSeq);
+        public void onReplaceSequence(Sequence<T> newSeq);
 
         public void onInsert(int position, T element);
 
@@ -54,13 +56,13 @@ public class SequenceMutator {
      * Modify the element at the specified position.  If the position is out of range, the sequence is not
      * modified.
      */
-    public static <T> Sequence<? extends T> set(Sequence<? extends T> target, Listener<T> listener, int position, T value) {
+    public static <T> Sequence<T> set(Sequence<T> target, Listener<T> listener, int position, T value) {
         int size = target.size();
         if (position < 0 || position >= size)
             return target;
         else {
-            Sequence<? extends T> newElement = Sequences.singleton(target.getElementType(), value);
-            Sequence<? extends T> result;
+            Sequence<T> newElement = Sequences.singleton(target.getElementType(), value);
+            Sequence<T> result;
             if (position == 0)
                 result = Sequences.concatenate(target.getElementType(), newElement, target.subsequence(1, size));
             else if (position == size - 1)
@@ -79,14 +81,14 @@ public class SequenceMutator {
     /**
      * Delete the element at the specified position.  If the position is out of range, the sequence is not modified.
      */
-    public static <T> Sequence<? extends T> delete(Sequence<? extends T> target, Listener<T> listener, int position) {
+    public static <T> Sequence<T> delete(Sequence<T> target, Listener<T> listener, int position) {
         int size = target.size();
         if (position < 0 || position >= size)
             return target;
         BitSet bits = new BitSet(size);
         bits.set(0, size);
         bits.clear(position);
-        Sequence<? extends T> result = Sequences.filter(target, bits);
+        Sequence<T> result = Sequences.filter(target, bits);
         if (listener != null) {
             listener.onReplaceSequence(result);
             listener.onDelete(position, target.get(position));
@@ -97,13 +99,13 @@ public class SequenceMutator {
     /**
      * Delete the elements matching the specified predicate.
      */
-    public static <T> Sequence<? extends T> delete(Sequence<? extends T> target, Listener<T> listener,
+    public static <T> Sequence<T> delete(Sequence<T> target, Listener<T> listener,
                                          SequencePredicate<? super T> predicate) {
         BitSet bits = target.getBits(predicate);
         if (bits.cardinality() == 0)
             return target;
         bits.flip(0, target.size());
-        Sequence<? extends T> result = Sequences.filter(target, bits);
+        Sequence<T> result = Sequences.filter(target, bits);
         if (listener != null) {
             listener.onReplaceSequence(result);
             for (int i = target.size() - 1; i >= 0; i--)
@@ -116,9 +118,9 @@ public class SequenceMutator {
     /**
      * Insert the specified value at the end of the sequence
      */
-    public static <T> Sequence<? extends T> insert(Sequence<? extends T> target, Listener<T> listener, T value) {
-        Class<? extends T> elementType = target.getElementType();
-        Sequence<? extends T> result = Sequences.concatenate(elementType, target, Sequences.singleton(elementType, value));
+    public static <T> Sequence<T> insert(Sequence<T> target, Listener<T> listener, T value) {
+        Class<T> elementType = target.getElementType();
+        Sequence<T> result = Sequences.concatenate(elementType, target, Sequences.singleton(elementType, value));
         if (listener != null) {
             listener.onReplaceSequence(result);
             listener.onInsert(target.size(), value);
@@ -129,8 +131,8 @@ public class SequenceMutator {
     /**
      * Insert the specified values at the end of the sequence
      */
-    public static <T> Sequence<? extends T> insert(Sequence<? extends T> target, Listener<T> listener, Sequence<? extends T> values) {
-        Sequence<? extends T> result = Sequences.concatenate(target.getElementType(), target, values);
+    public static <T> Sequence<T> insert(Sequence<T> target, Listener<T> listener, Sequence<? extends T> values) {
+        Sequence<T> result = Sequences.concatenate(target.getElementType(), target, values);
         if (listener != null) {
             listener.onReplaceSequence(result);
             int size = target.size();
@@ -143,9 +145,9 @@ public class SequenceMutator {
     /**
      * Insert the specified value at the beginning of the sequence
      */
-    public static <T> Sequence<? extends T> insertFirst(Sequence<? extends T> target, Listener<T> listener, T value) {
-        Class<? extends T> elementType = target.getElementType();
-        Sequence<? extends T> result = Sequences.concatenate(elementType, Sequences.singleton(elementType, value), target);
+    public static <T> Sequence<T> insertFirst(Sequence<T> target, Listener<T> listener, T value) {
+        Class<T> elementType = target.getElementType();
+        Sequence<T> result = Sequences.concatenate(elementType, Sequences.singleton(elementType, value), target);
         if (listener != null) {
             listener.onReplaceSequence(result);
             listener.onInsert(0, value);
@@ -156,8 +158,8 @@ public class SequenceMutator {
     /**
      * Insert the specified values at the beginning of the sequence
      */
-    public static <T> Sequence<? extends T> insertFirst(Sequence<? extends T> target, Listener<T> listener, Sequence<? extends T> values) {
-        Sequence<? extends T> result = Sequences.concatenate(target.getElementType(), values, target);
+    public static <T> Sequence<T> insertFirst(Sequence<T> target, Listener<T> listener, Sequence<? extends T> values) {
+        Sequence<T> result = Sequences.concatenate(target.getElementType(), values, target);
         if (listener != null) {
             listener.onReplaceSequence(result);
             for (int i = 0; i < values.size(); i++)
@@ -170,7 +172,7 @@ public class SequenceMutator {
      * Insert the specified value before the specified position.  If the position is negative, it is inserted before
      * element zero; if it is greater than or equal to the size of the sequence, it is inserted at the end.
      */
-    public static <T> Sequence<? extends T> insertBefore(Sequence<? extends T> target, Listener<T> listener,
+    public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
                                                T value, int position) {
         if (position <= 0)
             return insertFirst(target, listener, value);
@@ -183,7 +185,7 @@ public class SequenceMutator {
     /**
      * Insert the specified value before the position(s) matching the specified predicate.
      */
-    public static <T> Sequence<? extends T> insertBefore(Sequence<? extends T> target, Listener<T> listener,
+    public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
                                                T value, SequencePredicate<? super T> predicate) {
         BitSet bits = target.getBits(predicate);
         if (bits.cardinality() == 0)
@@ -198,14 +200,14 @@ public class SequenceMutator {
      * Insert the specified values before the specified position.  If the position is negative, they are inserted before
      * element zero; if it is greater than or equal to the size of the sequence, they are inserted at the end.
      */
-    public static <T> Sequence<? extends T> insertBefore(Sequence<? extends T> target, Listener<T> listener,
+    public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
                                                Sequence<? extends T> values, int position) {
         if (position <= 0)
             return insertFirst(target, listener, values);
         else if (position >= target.size())
             return insert(target, listener, values);
         else {
-            Sequence<? extends T> result = Sequences.concatenate(target.getElementType(),
+            Sequence<T> result = Sequences.concatenate(target.getElementType(),
                     target.subsequence(0, position), values, target.subsequence(position, target.size()));
             if (listener != null) {
                 listener.onReplaceSequence(result);
@@ -219,7 +221,7 @@ public class SequenceMutator {
     /**
      * Insert the specified values before the position(s) matching the specified predicate.
      */
-    public static <T> Sequence<? extends T> insertBefore(Sequence<? extends T> target, Listener<T> listener,
+    public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
                                                Sequence<? extends T> values, SequencePredicate<? super T> predicate) {
         BitSet bits = target.getBits(predicate);
         if (bits.cardinality() == 0)
@@ -234,7 +236,7 @@ public class SequenceMutator {
      * Insert the specified value after the specified position.  If the position is negative, it is inserted before
      * element zero; if it is greater than or equal to the size of the sequence, it is inserted at the end.
      */
-    public static <T> Sequence<? extends T> insertAfter(Sequence<? extends T> target, Listener<T> listener,
+    public static <T> Sequence<T> insertAfter(Sequence<T> target, Listener<T> listener,
                                               T value, int position) {
         if (position >= target.size())
             return insert(target, listener, value);
@@ -247,7 +249,7 @@ public class SequenceMutator {
     /**
      * Insert the specified value after the position(s) matching the specified predicate.
      */
-    public static <T> Sequence<? extends T> insertAfter(Sequence<? extends T> target, Listener<T> listener,
+    public static <T> Sequence<T> insertAfter(Sequence<T> target, Listener<T> listener,
                                               T value, SequencePredicate<? super T> predicate) {
         BitSet bits = target.getBits(predicate);
         if (bits.cardinality() == 0)
@@ -262,7 +264,7 @@ public class SequenceMutator {
      * Insert the specified values after the specified position.  If the position is negative, they are inserted before
      * element zero; if it is greater than or equal to the size of the sequence, they are inserted at the end.
      */
-    public static <T> Sequence<? extends T> insertAfter(Sequence<? extends T> target, Listener<T> listener,
+    public static <T> Sequence<T> insertAfter(Sequence<T> target, Listener<T> listener,
                                               Sequence<? extends T> values, int position) {
         double size = target.size();
         if (position >= size - 1)
@@ -270,7 +272,7 @@ public class SequenceMutator {
         else if (position < 0)
             return insertFirst(target, listener, values);
         else {
-            Sequence<? extends T> result = Sequences.concatenate(target.getElementType(),
+            Sequence<T> result = Sequences.concatenate(target.getElementType(),
                     target.subsequence(0, position + 1), values, target.subsequence(position + 1, target.size()));
             if (listener != null) {
                 listener.onReplaceSequence(result);
@@ -284,7 +286,7 @@ public class SequenceMutator {
     /**
      * Insert the specified values after the position(s) matching the specified predicate.
      */
-    public static <T> Sequence<? extends T> insertAfter(Sequence<? extends T> target, Listener<T> listener,
+    public static <T> Sequence<T> insertAfter(Sequence<T> target, Listener<T> listener,
                                               Sequence<? extends T> values, SequencePredicate<? super T> predicate) {
         BitSet bits = target.getBits(predicate);
         if (bits.cardinality() == 0)
@@ -298,13 +300,12 @@ public class SequenceMutator {
     /*
     * Precondition: bits.cardinality() > 1
     */
-    @SuppressWarnings("unchecked")
-    private static <T> Sequence<? extends T> multiInsertBefore(Sequence<? extends T> target, Listener<T> listener,
+    private static <T> Sequence<T> multiInsertBefore(Sequence<T> target, Listener<T> listener,
                                                      BitSet bits, Sequence<? extends T> values) {
         assert (bits.cardinality() > 1);
         int firstBit = bits.nextSetBit(0);
         int count = 2 * bits.cardinality() + (firstBit > 0 ? 1 : 0);
-        Sequence[] segments = new Sequence[count];
+        Sequence<? extends T>[] segments = Util.<T>newSequenceArray(count);
         int n = 0;
         if (firstBit > 0)
             segments[n++] = target.subsequence(0, firstBit);
@@ -312,7 +313,7 @@ public class SequenceMutator {
             segments[n++] = values;
             segments[n++] = target.subsequence(i, (j > 0) ? j : target.size());
         }
-        Sequence<? extends T> result = Sequences.concatenate(target.getElementType(), segments);
+        Sequence<T> result = Sequences.concatenate(target.getElementType(), segments);
         if (listener != null) {
             listener.onReplaceSequence(result);
             int curPos = firstBit > 0 ? firstBit : 0;
@@ -328,8 +329,7 @@ public class SequenceMutator {
     /*
      * Precondition: bits.cardinality() > 1
      */
-    @SuppressWarnings("unchecked")
-    private static <T> Sequence<? extends T> multiInsertAfter(Sequence<? extends T> target, Listener<T> listener,
+    private static <T> Sequence<T> multiInsertAfter(Sequence<T> target, Listener<T> listener,
                                                     BitSet bits, Sequence<? extends T> values) {
         assert (bits.cardinality() > 1);
         int firstBit = bits.nextSetBit(0);
@@ -338,7 +338,7 @@ public class SequenceMutator {
             lastBit = i;
         int size = target.size();
         int count = 2 * bits.cardinality() + (lastBit < size - 1 ? 1 : 0);
-        Sequence[] segments = new Sequence[count];
+        Sequence<? extends T>[] segments = Util.<T>newSequenceArray(count);
         int lastWritten = -1, n = 0;
         for (int j = firstBit; j >= 0; j = bits.nextSetBit(j + 1)) {
             segments[n++] = target.subsequence(lastWritten + 1, j + 1);

@@ -11,18 +11,16 @@ import com.sun.javafx.runtime.location.SequenceLocation;
  */
 public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implements SequenceLocation<T> {
     private final SequenceLocation<? extends T>[] locations;
-    private final Class<? extends T> clazz;
     private final int[] startPositions;
 
-    private BoundCompositeSequence(Class<? extends T> clazz, boolean lazy, SequenceLocation<? extends T>... locations) {
-        super(false, lazy);
-        this.clazz = clazz;
-        this.locations = locations;
-        this.startPositions = new int[locations.length];
+    public static<T> SequenceLocation<T> make(Class<T> clazz, SequenceLocation<? extends T>... locations) {
+        return new BoundCompositeSequence<T>(clazz, false, locations);
     }
 
-    public static<T> SequenceLocation<? extends T> make(Class<? extends T> clazz, SequenceLocation<? extends T>... locations) {
-        return new BoundCompositeSequence<T>(clazz, false, locations);
+    private BoundCompositeSequence(Class<T> clazz, boolean lazy, SequenceLocation<? extends T>... locations) {
+        super(clazz, false, lazy);
+        this.locations = locations;
+        this.startPositions = new int[locations.length];
     }
 
     protected void computeInitial() {
@@ -51,25 +49,28 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
 
         public void onInsert(int position, T element) {
             int actualPos = startPositions[index] + position;
-            value = Sequences.insertBefore(value, element, actualPos);
+            value = value.insertBefore(element, actualPos);
             for (int i=index+1; i<startPositions.length; i++)
                 ++startPositions[i];
+            valueChanged();
             BoundCompositeSequence.this.onInsert(actualPos, element);
         }
 
         public void onDelete(int position, T element) {
             int actualPos = startPositions[index] + position;
-            value = Sequences.delete(value, actualPos);
+            value = value.delete(actualPos);
             for (int i=index+1; i<startPositions.length; i++)
                 --startPositions[i];
+            valueChanged();
             BoundCompositeSequence.this.onDelete(actualPos, element);
         }
 
         public void onReplace(int position, T oldValue, T newValue) {
             int actualPos = startPositions[index] + position;
             T old = value.get(actualPos);
-            value = ((Sequence<T>) value).set(actualPos, newValue);
-            onReplaceElement(actualPos, old, newValue);
+            value = value.set(actualPos, newValue);
+            valueChanged();
+            BoundCompositeSequence.this.onReplaceElement(actualPos, old, newValue);
         }
 
         public boolean onChange(Location location) {

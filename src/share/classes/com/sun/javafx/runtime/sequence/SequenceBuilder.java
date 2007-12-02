@@ -25,6 +25,8 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.Util;
+
 /**
  * Helper classes for building sequences, much like StringBuilder assists in building Strings.  SequenceBuilder
  * stores the sequence building built in an array, which is automatically resized as needed.  It can be converted
@@ -35,21 +37,20 @@ package com.sun.javafx.runtime.sequence;
 public class SequenceBuilder<T> {
     private final static int DEFAULT_SIZE = 16;
 
-    private final Class<? extends T> clazz;
+    private final Class<T> clazz;
     private T[] array;
     private int size;
 
     /** Create a SequenceBuilder for a Sequence of type T */
-    public SequenceBuilder(Class<? extends T> clazz) {
+    public SequenceBuilder(Class<T> clazz) {
         this(clazz, DEFAULT_SIZE);
     }
 
     /** Create a SequenceBuilder for a Sequence of type T, ensuring that there is initially room for at least
      * initialSize elements. */
-    @SuppressWarnings("unchecked")
-    public SequenceBuilder(Class<? extends T> clazz, int initialSize) {
+    public SequenceBuilder(Class<T> clazz, int initialSize) {
         this.clazz = clazz;
-        array = (T[]) new Object[powerOfTwo(1, initialSize)];
+        array = Util.<T>newArray(powerOfTwo(1, initialSize));
     }
 
     private int powerOfTwo(int current, int desired) {
@@ -59,11 +60,10 @@ public class SequenceBuilder<T> {
         return capacity;
     }
 
-    @SuppressWarnings("unchecked")
     private void ensureSize(int newSize) {
         if (array.length < newSize) {
             int newCapacity = powerOfTwo(array.length, newSize);
-            T[] newArray = (T[]) new Object[newCapacity];
+            T[] newArray = Util.<T>newArray(newCapacity);
             System.arraycopy(array, 0, newArray, 0, size);
             array = newArray;
         }
@@ -96,9 +96,8 @@ public class SequenceBuilder<T> {
     }
 
     /** Erase the current contents of the SequenceBuilder */
-    @SuppressWarnings("unchecked")
     public void clear() {
-        array = (T[]) new Object[powerOfTwo(1, DEFAULT_SIZE)];
+        array = Util.<T>newArray(powerOfTwo(1, DEFAULT_SIZE));
         size = 0;
     }
 

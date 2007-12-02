@@ -11,14 +11,16 @@ import java.util.Iterator;
  * @author Brian Goetz
  */
 public abstract class AbstractSequenceLocation<T> extends AbstractLocation implements SequenceLocation<T> {
-    protected Sequence<? extends T> value, previousValue;
+    protected Sequence<T> value, previousValue;
     protected boolean hasSequenceListeners;
+    protected final Class<T> clazz;
 
-    public AbstractSequenceLocation(boolean valid, boolean lazy) {
+    public AbstractSequenceLocation(Class<T> clazz, boolean valid, boolean lazy) {
         super(valid, lazy);
+        this.clazz = clazz;
     }
 
-    public Sequence<? extends T> getPreviousValue() {
+    public Sequence<T> getPreviousValue() {
         return previousValue;
     }
 
@@ -30,24 +32,24 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     }
 
     /** Update the held value, notifying change listeners and generating appropriate delete/insert events as necessary */
-    protected Sequence<? extends T> replaceValue(Sequence<? extends T> value) {
-        if (value == null)
+    protected Sequence<T> replaceValue(Sequence<T> newValue) {
+        if (newValue == null)
             throw new NullPointerException();
-        Sequence<? extends T> oldValue = this.value;
-        if (!value.equals(oldValue)) {
-            previousValue = this.value;
-            this.value = value;
+        Sequence<? extends T> oldValue = value;
+        if (!newValue.equals(oldValue)) {
+            previousValue = value;
+            this.value = newValue;
             valueChanged();
             if (hasSequenceListeners) {
                 if (oldValue != null)
                     for (int i=oldValue.size() - 1; i >= 0; i--)
                         onDelete(i, oldValue.get(i));
-                for (int i=0; i< this.value.size(); i++)
-                    onInsert(i, this.value.get(i));
+                for (int i=0; i< value.size(); i++)
+                    onInsert(i, value.get(i));
             }
             previousValue = null;
         }
-        return value;
+        return newValue;
     }
 
     protected void onInsert(int position, T element) {
@@ -86,7 +88,7 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     }
 
     @Override
-    public Iterator<? extends T> iterator() {
+    public Iterator<T> iterator() {
         return value.iterator();
     }
 
@@ -96,12 +98,12 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     }
 
     @Override
-    public Sequence<? extends T> get() {
+    public Sequence<T> get() {
         return value;
     }
 
     @Override
-    public Sequence<? extends T> set(Sequence<? extends T> value) {
+    public Sequence<T> set(Sequence<? extends T> value) {
         throw new UnsupportedOperationException();
     }
 

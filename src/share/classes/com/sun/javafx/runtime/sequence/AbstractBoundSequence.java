@@ -11,8 +11,8 @@ import java.util.Iterator;
  */
 public abstract class AbstractBoundSequence<T> extends AbstractSequenceLocation<T> {
 
-    protected AbstractBoundSequence(boolean valid, boolean lazy) {
-        super(valid, lazy);
+    protected AbstractBoundSequence(Class<T> clazz, boolean valid, boolean lazy) {
+        super(clazz, valid, lazy);
     }
 
     protected abstract void computeInitial();
@@ -29,7 +29,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractSequenceLocation<
     }
 
     @Override
-    public Iterator<? extends T> iterator() {
+    public Iterator<T> iterator() {
         ensureValid();
         return super.iterator();
     }
@@ -41,7 +41,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractSequenceLocation<
     }
 
     @Override
-    public Sequence<? extends T> get() {
+    public Sequence<T> get() {
         ensureValid();
         return super.get();
     }
