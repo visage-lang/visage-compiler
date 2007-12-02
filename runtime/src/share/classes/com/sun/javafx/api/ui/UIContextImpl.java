@@ -25,10 +25,17 @@
 
 package com.sun.javafx.api.ui;
 
+import com.sun.javafx.api.ui.UIContextImpl.FXTreeModel;
 import com.sun.javafx.api.ui.UIContextImpl.InvisibleCaret;
+import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.awt.TransferHandler;
+import com.sun.javafx.runtime.location.BooleanLocation;
+import com.sun.javafx.runtime.location.ObjectLocation;
+import com.sun.javafx.runtime.location.SequenceLocation;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Composite;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -48,21 +55,27 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
+import java.awt.event.MouseEvent;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -84,10 +97,18 @@ import javax.swing.JViewport;
 import javax.swing.Scrollable;
 import javax.swing.SpinnerModel;
 import javax.swing.ToolTipManager;
+import javax.swing.border.Border;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.plaf.TabbedPaneUI;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.Document;
 import javax.swing.text.Position.Bias;
@@ -108,12 +129,712 @@ import javax.swing.text.Position;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.ImageView;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 
 /**
  *
  * @author jclarke
  */
 public class UIContextImpl implements UIContext {
+    XTreeCellRenderer mTreeCellRenderer = new XTreeCellRenderer();
+    XTableCellRenderer mTableCellRenderer = new XTableCellRenderer();
+
+    class XTreeCellRenderer extends DefaultTreeCellRenderer {
+
+        String mText;
+        HTMLDocument mDoc;
+
+        @Override
+        public void setText(String t) {
+            if (t != null) {
+                if (t.equals(mText)) {
+                    return;
+                }
+                mText = t;
+                if (t.startsWith("<html>")) {
+                    HTMLEditorKit kit = mHtmlKit;
+                    if (mDoc == null) {
+                        mDoc = (HTMLDocument)kit.createDefaultDocument();
+                        mDoc.setPreservesUnknownTags(false);
+                        mDoc.setBase(FILE_BASE);
+                    }
+                    HTMLDocument doc = mDoc;
+                    Object base = getClientProperty("html.base");
+                    if (base instanceof URL) {
+                        doc.setBase((URL)base);
+                    }
+                    //doc.putProperty("imageCache", getImageCache());
+                    Reader r = new StringReader(t);
+                    try {
+                        doc.remove(0, doc.getLength());
+                        doc.getStyleSheet().addRule(
+                                                    displayPropertiesToCSS(getFont(), getForeground()));
+                        kit.read(r, doc, 0);
+                    } catch (Throwable e) {
+                    }
+                    ViewFactory f = kit.getViewFactory();
+                    View hview = f.create(doc.getDefaultRootElement());
+                    View v = new Renderer(this, f, hview);
+                    putClientProperty("html", v);
+                } else {
+                    putClientProperty("html", null);
+                    mText = null;
+                    super.setText(t);
+                }
+            } else {
+                mText = null;
+                super.setText(t);
+            }
+        }
+
+        @Override
+        public void paint(Graphics g) {
+
+            Graphics2D g2 = (Graphics2D) g;
+            Composite oldComp = g2.getComposite();
+            if (!isEnabled()) {
+                if (getClientProperty("html") != null) {
+                    AlphaComposite composite =
+                        AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
+                    g2.setComposite(composite);
+                }
+            }
+            super.paint(g2);
+            g2.setComposite(oldComp);
+
+        }
+
+
+        @Override
+        public String getText() {
+            if (getClientProperty("html") != null) {
+                return mText;
+            }
+            return super.getText();
+        }
+
+        String mToolTip;
+
+        @Override
+        public String getToolTipText(MouseEvent me) {
+            return mToolTip;
+        }
+
+        public Component getTreeCellRendererComponent(JTree tree, String value,
+                                                      boolean sel,
+                                                      boolean expanded,
+                                                      boolean leaf, int row,
+                                                      boolean hasFocus,
+                                                      String tooltip,
+                                                      Color cellForeground,
+                                                      Color cellBackground,
+                                                      Color selectedCellForeground,
+                                                      Color selectedCellBackground) {
+
+            mToolTip = tooltip;
+            super.getTreeCellRendererComponent(tree,
+                                               "",
+                                               sel,
+                                               expanded, leaf, row, hasFocus);
+
+            setText(value);
+            setIcon(null);
+            setDisabledIcon(null);
+            if (cellForeground != null) {
+                setTextNonSelectionColor(cellForeground);
+            }
+            if (cellBackground != null) {
+                setBackgroundNonSelectionColor(cellBackground);
+            }
+            if (selectedCellForeground != null) {
+                setTextSelectionColor(selectedCellForeground);
+            }
+            if (selectedCellBackground != null) {
+                setBackgroundSelectionColor(selectedCellBackground);
+            }
+
+            return this;
+        }
+    }
+    public class FXTreeCellRenderer implements TreeCellRenderer {
+        Color mCellForeground;
+        Color mCellBackground;
+        Color mSelectedCellBackground;
+        Color mSelectedCellForeground;
+        Method mText;
+        Method mToolTipText;
+        public FXTreeCellRenderer() {
+            try {
+                Class treeCellClass = Class.forName("javafx.ui.TreeCell");
+                Method[] methods = treeCellClass.getMethods();
+                String textMethodName = "get$text";
+                String toolTipTextName = "get$toolTipText";
+                for(int i = 0; i < methods.length; i++) {
+                    if(methods[i].getName().equals(textMethodName )) {
+                        mText = methods[i];
+                    }else if(methods[i].getName().equals(toolTipTextName)) {
+                        mToolTipText = methods[i];
+                    }
+                }
+            } catch (Exception ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            //Type treeCellType = mModule.getType("javafx.ui.TreeCell");
+            //mText = treeCellType.getAttribute("text");
+            //mToolTipText = treeCellType.getAttribute("toolTipText");
+            
+        }
+        public void setCellForeground(Color color) {
+            mCellForeground = color;
+        }
+        public void setCellBackground(Color color) {
+            mCellBackground = color;
+        }
+        public void setSelectedCellBackground(Color color) {
+            mSelectedCellBackground = color;
+        }
+        public void setSelectedCellForeground(Color color) {
+            mSelectedCellForeground = color;
+        }
+
+        public Component getTreeCellRendererComponent(JTree tree,
+                                                      Object value,
+                                                      boolean selected, boolean expanded,
+                                                      boolean leaf, int row, boolean hasFocus) {
+            String text = "";
+            String tip = null;
+            if (value instanceof FXObject) {
+                try {
+                    //text = cell.getString(mText, 0);
+                    ObjectLocation loc = (ObjectLocation) mText.invoke(value);
+                    text = (String)loc.get();
+                }catch(Throwable ex) {
+                    Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                try {
+                    //tip = cell.getString(mToolTipText, 0);
+                    ObjectLocation loc = (ObjectLocation) mToolTipText.invoke(value);
+                    tip = (String)loc.get();
+                }catch(Throwable ex) {
+                    Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            } else {
+                text = String.valueOf(value);
+            }
+            return UIContextImpl.this.getTreeCellRendererComponent(tree, text,
+                                                                   selected, expanded,
+                                                                   leaf, row, hasFocus,
+                                                                   tip,
+                                                                   mCellForeground, mCellBackground,
+                                                                   mSelectedCellForeground,
+                                                                   mSelectedCellBackground);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static class FXTreeModel implements TreeModel, TreeSelectionListener {
+        Object mTree;
+        Set mListeners = new HashSet();
+        static Method mCells;
+        static Method[] treeMethods;
+        static Method[] treeCellMethods;
+
+        static {
+            try {
+                Class treeCellClass = Class.forName("javafx.ui.TreeCell");
+                treeCellMethods = treeCellClass.getMethods();
+                mCells = getProperty(treeCellMethods, "cells");
+                Class treeClass = Class.forName("javafx.ui.Tree");
+                treeMethods = treeClass.getMethods();
+            } catch (Exception ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        public FXTreeModel(Object tree) {
+            mTree = tree;
+        }
+        
+        private static Method getProperty(Method[] methods, String basename) {
+            String fxname = "get$" + basename;
+            for(int i = 0; i < methods.length; i++ ) {
+                if(methods[i].getName().equals(fxname)) {
+                    return methods[i];
+                }
+            }
+            return null;
+        }
+
+        public Object getRoot() {
+            //return mTree.get("root", 0);
+            Method meth = getProperty(treeMethods,"root");
+            if(meth != null) {
+                try {
+                    ObjectLocation location = (ObjectLocation)meth.invoke(mTree);
+                    return location.get();
+                } catch (Throwable ex) {
+                    Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            return null;
+        }
+
+        public Object getChild(Object parent, int i) {
+            try {
+                if (parent == null || ! (parent instanceof FXObject) ){
+                    return null;
+                }
+                //Value value = (Value)parent;
+                //return value.get(mCells, i);
+                SequenceLocation location = (SequenceLocation) mCells.invoke(parent);
+                return location.get(i);
+                
+            } catch (Throwable ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return null;
+        }
+
+        public int getChildCount(Object parent) {
+            if (parent == null || ! (parent instanceof FXObject)) {
+                return 0;
+            }
+            try {
+            //Value value = (Value)parent;
+            //return value.getCardinality(mCells);
+                SequenceLocation location = (SequenceLocation) mCells.invoke(parent);
+                return location.get().size();
+            } catch (Throwable ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }                
+            return 0;
+        }
+
+        public boolean isLeaf(Object parent) {
+            return getChildCount(parent) == 0;
+        }
+
+        public void valueForPathChanged(TreePath path, Object obj) {
+        }
+
+        public int getIndexOfChild(Object parent, Object child) {
+            if(parent == null || !(parent instanceof FXObject)) {
+                return -1;
+            }
+            /*****
+            Value value = (Value)parent;
+            int size = value.getCardinality(mCells);
+            for (int i = 0; i < size; i++) {
+                if (value.get(mCells, i) == child) {
+                    return i;
+                }
+            }
+            *****/
+            try {
+                SequenceLocation location = (SequenceLocation) mCells.invoke(parent);
+                int size =  location.get().size();
+                for(int i = 0; i < size; i++) {
+                    if(location.get(i) == child) {
+                        return i;
+                    }
+                }
+            } catch (Throwable ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+            return -1;
+        }
+        @SuppressWarnings("unchecked")
+        public void addTreeModelListener(TreeModelListener listener) {
+            mListeners.add(listener);
+        }
+
+        public void removeTreeModelListener(TreeModelListener listener) {
+            mListeners.remove(listener);
+        }
+
+        @SuppressWarnings("unchecked")
+        public void fireTreeNodesChanged(TreeModelEvent e) {
+            if (mListeners.size() > 0) {
+                TreeModelListener[] arr = new TreeModelListener[mListeners.size()];
+                mListeners.toArray(arr);
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i].treeNodesChanged(e);
+                }
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        public void fireTreeNodesInserted(TreeModelEvent e) {
+            if (mListeners.size() > 0) {
+                TreeModelListener[] arr = new TreeModelListener[mListeners.size()];
+                mListeners.toArray(arr);
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i].treeNodesInserted(e);
+                }
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        public void fireTreeNodesRemoved(TreeModelEvent e) {
+            if (mListeners.size() > 0) {
+                TreeModelListener[] arr = new TreeModelListener[mListeners.size()];
+                mListeners.toArray(arr);
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i].treeNodesRemoved(e);
+                }
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        public void fireTreeStructureChanged(TreeModelEvent e) {
+            if (mListeners.size() > 0) {
+                TreeModelListener[] arr = new TreeModelListener[mListeners.size()];
+                mListeners.toArray(arr);
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i].treeStructureChanged(e);
+                }
+            }
+
+        }
+
+        public void valueChanged(TreeSelectionEvent e) {
+            TreePath old = e.getOldLeadSelectionPath();
+            try {
+            Method inSelMethod = getProperty(FXTreeModel.treeMethods, "inSelectionChange");
+            Method selectedMethod = getProperty(treeCellMethods, "selected");
+            BooleanLocation inSelectionChangeLoc = (BooleanLocation)inSelMethod.invoke(mTree);
+            inSelectionChangeLoc.set(true);            
+            //mTree.setBoolean("inSelectionChange", 0, true);
+            if (old != null) {
+                Object oldLead = old.getLastPathComponent();
+                if (oldLead != null) {
+                    BooleanLocation selectedLoc = (BooleanLocation)selectedMethod.invoke(oldLead);
+                    selectedLoc.set(false);
+                    //oldLead.setBoolean("selected", 0, false);
+                }
+            }
+            TreePath p = e.getNewLeadSelectionPath();
+            if (p != null) {
+                Object newLead = p.getLastPathComponent();
+                if (newLead != null) {
+                    BooleanLocation selectedLoc = (BooleanLocation)selectedMethod.invoke(newLead);
+                    selectedLoc.set(true);
+                    //newLead.setBoolean("selected", 0, true);
+                }
+            }
+            //mTree.setBoolean("inSelectionChange", 0, false);
+            inSelectionChangeLoc.set(false);
+            } catch (Throwable ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+        }
+
+
+    }
+
+    class XTableCellRenderer extends DefaultTableCellRenderer {
+
+        XSimpleLabel je;
+
+
+        public Component getTableCellRendererComponent(JTable table,
+                                                       String value,
+                                                       boolean sel,
+                                                       boolean hasFocus,
+                                                       int row,
+                                                       int column,
+                                                       String tooltip) {
+
+            JLabel proto = (JLabel) super.getTableCellRendererComponent(table,
+                                                                        "",
+                                                                        sel,
+                                                                        hasFocus, row, column);
+            //value = mModel.getValueAt(value, 0);
+            if (je == null) {
+                je = new XSimpleLabel(true, false);
+            }
+            je.setOpaque(table.isOpaque());
+            je.setFont(proto.getFont());
+            je.setBackground(proto.getBackground());
+            je.setForeground(proto.getForeground());
+            je.setText(value);
+            //je.setToolTipText(tooltip);
+            je.setBorder(proto.getBorder());
+            Component result = je;
+            return result;
+        }
+    }
+
+    public Component getTreeCellRendererComponent(JTree tree, String value,
+                                                  boolean sel,
+                                                  boolean expanded,
+                                                  boolean leaf, int row,
+                                                  boolean hasFocus,
+                                                  String tooltip,
+                                                  Color cellFg,
+                                                  Color cellBg,
+                                                  Color cellSelFg,
+                                                  Color cellSelBg) {
+        return mTreeCellRenderer.getTreeCellRendererComponent(tree, value, sel, 
+                expanded, leaf, row, hasFocus, tooltip, cellFg, 
+                cellBg, cellSelFg, cellSelBg);
+    }
+
+    public Component getTableCellRendererComponent(JTable table, String value,
+                                                   boolean sel,
+                                                   boolean hasFocus,
+                                                   int row, int column,
+                                                   String tooltip) {
+        return mTableCellRenderer.getTableCellRendererComponent(table, value, sel, hasFocus, row, column, tooltip);
+    }
+
+    public static class XTableCell {
+        String text;
+        String tooltip;
+        Color background;
+        Color foreground;
+        Font font;
+        Border border;
+        public XTableCell(String text, String tooltip, Color background,
+                          Color foreground, Font font, Border border) {
+            this.text = text;
+            this.tooltip = tooltip;
+            this.background = background;
+            this.foreground = foreground;
+            this.font = font;
+            this.border = border;
+        }
+    }
+
+    public static class XTableCellModel extends AbstractTableModel {
+       
+        List mCells = new ArrayList();
+        String[] mColumnNames;
+        int[] mColumnAlignments;
+
+        public void setColumnNames(String[] names) {
+            mColumnNames = names;
+
+        }
+
+        public void setColumnAlignments(int[] aligns) {
+            mColumnAlignments = aligns;
+        }
+
+        public int getColumnAlignment(int column) {
+            return mColumnAlignments[column];
+        }
+
+        @Override
+        public Class getColumnClass(int column) {
+            return XTableCell.class;
+        }
+
+        @SuppressWarnings("unchecked")
+        public void addCell(int index, String text, String tooltip,
+                            Font font, Color background, Color foreground,
+                            Border border) {
+            mCells.add(index, new XTableCell(text, tooltip, background,
+                                             foreground, font, border));
+            int col = index % getColumnCount();
+            if (col == 0) {
+                int row = index / getColumnCount();
+                fireTableRowsInserted(row, row);
+            }
+        }
+
+        public void updateCell(int index, String text, String tooltip,
+                               Font font,
+                               Color background, Color foreground,
+                               Border border) {
+            XTableCell cell = (XTableCell)mCells.get(index);
+            cell.text = text;
+            cell.tooltip = tooltip;
+            cell.foreground = foreground;
+            cell.background = background;
+            cell.font = font;
+            cell.border = border;
+            int col = index % getColumnCount();
+            int row = (index - col) / getColumnCount();
+            fireTableRowsUpdated(row, row);
+        }
+
+        public void removeCell(int index) {
+            mCells.remove(index);
+            if (mCells.size() % getColumnCount() == 0) {
+                int row = mCells.size() / getColumnCount();
+                fireTableRowsDeleted(row, row);
+            }
+        }
+
+        @Override
+        public String getColumnName(int col) {
+            return mColumnNames[col];
+        }
+
+        @Override
+        public boolean isCellEditable(int row, int col) {
+            return false;
+        }
+
+        public Object getValueAt(int row, int column) {
+            return mCells.get(row * getColumnCount() + column);
+        }
+
+        @Override
+        public void setValueAt(Object value, int row, int col) {
+        }
+
+        public int getColumnCount() {
+            return mColumnNames == null ? 0 : mColumnNames.length;
+        }
+
+        public int getRowCount() {
+            if (mColumnNames == null) return 0;
+            int result = mCells.size() / mColumnNames.length;
+            return result;
+       }
+
+    }
+    public void installTableHeaderRenderer(JTable table) {
+        TableCellRenderer def = table.getTableHeader().getDefaultRenderer();
+        table.getTableHeader().setDefaultRenderer(new HeaderRenderer(def));
+    }
+    class HeaderRenderer implements TableCellRenderer {
+
+        TableCellRenderer mDefaultRenderer;
+
+        HeaderRenderer(TableCellRenderer defaultRenderer) {
+            mDefaultRenderer = defaultRenderer;
+        }
+
+        HTMLDocument mDoc;
+
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean sel, boolean hasFocus, int
+ row, int column) {
+            // total hack...
+            String str = value == null ? "" : value.toString();
+            JLabel def = null;
+            String x = str.startsWith("<html>") ? "" : str;
+            def = (JLabel)mDefaultRenderer.getTableCellRendererComponent(table, x, sel, hasFocus, row, column);
+            if (str.startsWith("<html>")) {
+                HTMLEditorKit kit = mHtmlKit;
+                if (mDoc == null) {
+                    mDoc = (HTMLDocument)kit.createDefaultDocument();
+                    mDoc.setPreservesUnknownTags(false);
+                    mDoc.setBase(FILE_BASE);
+                    mDoc.putProperty("imageCache", getImageCache(true));
+                }
+                Object base = def.getClientProperty("html.base");
+                if (base instanceof URL) {
+                    mDoc.setBase((URL)base);
+                }
+                HTMLDocument doc = mDoc;
+                doc.getStyleSheet().addRule(
+                                            displayPropertiesToCSS(def.getFont(),def.getForeground()));
+                Reader r = new StringReader(str);
+                try {
+                    doc.remove(0, doc.getLength());
+                    kit.read(r, doc, 0);
+                } catch (Throwable e) {
+                }
+                ViewFactory f = kit.getViewFactory();
+                View hview = f.create(doc.getDefaultRootElement());
+                View v = new Renderer(def, f, hview);
+                def.putClientProperty("html", v);
+            }
+            return def;
+        }
+    }
+
+    public void installXTableCellRenderer(final JTable table) {
+        table.setDefaultRenderer(XTableCell.class,
+                                 new DefaultTableCellRenderer() {
+                                     String mToolTip;
+                                     XSimpleLabel je;
+
+            @Override
+                                     public Component getTableCellRendererComponent(JTable table,
+                                                                                    Object value,
+                                                                                    boolean sel,
+                                                                                    boolean hasFocus,
+                                                                                    int row,
+                                                                                    int column) {
+
+                                         XTableCell cell = (XTableCell)value;
+                                         JLabel proto = (JLabel) super.getTableCellRendererComponent(table,
+                                                             "",
+                                                             sel,
+                                                             hasFocus, row, column);
+                                        if (je == null) {
+                                             je = new XSimpleLabel() {
+                                                     @Override
+                                                     public String getToolTipText() {
+                                                         return mToolTip;
+                                                     }
+                                                 };
+                                             je.setOpaque(true);
+                                         }
+                                         if (cell.font != null) {
+                                             je.setFont(cell.font);
+                                         } else {
+                                             je.setFont(proto.getFont());
+                                         }
+                                         if (cell.background != null) {
+                                             je.setBackground(cell.background);
+                                         } else {
+                                             je.setBackground(proto.getBackground());
+                                         }
+                                         if (cell.foreground != null) {
+                                             je.setForeground(cell.foreground);
+                                         } else {
+                                             je.setForeground(proto.getForeground());
+                                         }
+                                         mToolTip = cell.tooltip;
+                                         je.setText(cell.text);
+                                         if (cell.border != null) {
+                                             je.setBorder(cell.border);
+                                         } else {
+                                             je.setBorder(proto.getBorder());
+                                         }
+                                         XTableCellModel model = (XTableCellModel)table.getModel();
+                                         je.setHorizontalAlignment(model.getColumnAlignment(column));
+                                         Component result = je;
+                                         return result;
+                                     }
+                                 });
+    }
+
+    public class XTable extends JTable {
+        XTable() {
+            super(new XTableModel());
+            installXTableCellRenderer(this);
+        }
+
+        @Override
+        public String getToolTipText(MouseEvent event) {
+            String tip = null;
+            Point p = event.getPoint();
+
+
+            int hitColumnIndex = columnAtPoint(p);
+            int hitRowIndex = rowAtPoint(p);
+
+            if ((hitColumnIndex != -1) && (hitRowIndex != -1)) {
+                XTableCell cell =
+                    (XTableCell)getModel().getValueAt(hitRowIndex,
+                                                      hitColumnIndex);
+                if (cell != null) {
+                    return cell.tooltip;
+                }
+            }
+            return null;
+        }
+    }
+
     
     public static class XPanel extends JPanel implements Scrollable {
         public XPanel() {
@@ -1487,11 +2208,15 @@ public class UIContextImpl implements UIContext {
     }
 
     public JTable createTable() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new XTable();
     }
 
     public JTree createTree() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        JTree result = new JTree();
+        result.setCellRenderer(new FXTreeCellRenderer());
+        ToolTipManager.sharedInstance().registerComponent(result);
+        return result;
+
     }
 
 

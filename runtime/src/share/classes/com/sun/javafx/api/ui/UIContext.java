@@ -108,5 +108,6 @@ public interface UIContext {
     public XToggleButton createToggleButton();
     public JTable createTable();
     public JTree createTree();
-
+    public void installXTableCellRenderer(JTable table);
+    public void installTableHeaderRenderer(JTable table);
 }
