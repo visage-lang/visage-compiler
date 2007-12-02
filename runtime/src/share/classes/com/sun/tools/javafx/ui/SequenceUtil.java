@@ -29,7 +29,8 @@ import com.sun.javafx.runtime.sequence.Sequence;
 import java.util.Iterator;
 
 /**
- *
+ * Utilities to convert squenced to Java Arrays for calling Java methods.
+ * This is supposed to be a temporary work around.
  * @author jclarke
  */
 public class SequenceUtil {
@@ -49,5 +50,19 @@ public class SequenceUtil {
             dArray[i] = iter.next().doubleValue();
         }
         return dArray;
+    }
+    public static int[] sequenceOfInteger2intArray(Sequence<? extends java.lang.Integer> sequence) {
+        int[] iArray = new int[sequence.size()];
+        Iterator<? extends java.lang.Integer> iter = sequence.iterator();
+        for(int i = 0; iter.hasNext();i++) {
+            iArray[i] = iter.next().intValue();
+        }
+        return iArray;
+    } 
+    
+    public static String[] sequenceOfString2StringArray(Sequence<? extends String> sequence) {
+        String[] iArray = new String[sequence.size()];
+        sequence.toArray(iArray, 0);
+        return iArray;        
     }
 }
