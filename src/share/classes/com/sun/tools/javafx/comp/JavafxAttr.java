@@ -968,6 +968,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     chk.checkType(tree.pos(), initType, declType, Sequenceness.DISALLOWED);
                     if (initType == syms.botType)
                         initType = syms.objectType;
+                    else if (initType.isPrimitive()
+                             &&  initType != syms.doubleType
+                             &&  initType != syms.intType
+                             &&  initType != syms.booleanType)
+                        initType = types.boxedClass(initType).type;
             }
             else
                 initType = syms.objectType;  // nothing to go on, so we assume Object
