@@ -10,13 +10,13 @@ import com.sun.javafx.runtime.sequence.Sequence;
  */
 public class Util {
     @SuppressWarnings("unchecked")
-    public static<T> T[] newArray(int size) {
+    public static<T> T[] newObjectArray(int size) {
         return (T[]) new Object[size];
     }
 
     @SuppressWarnings("unchecked")
-    public static<T> Sequence<? extends T>[] newSequenceArray(int size) {
-        return (Sequence<? extends T>[]) new Sequence[size];
+    public static<T> Sequence<T>[] newSequenceArray(int size) {
+        return (Sequence<T>[]) new Sequence[size];
 
     }
 }

@@ -305,7 +305,7 @@ public class SequenceMutator {
         assert (bits.cardinality() > 1);
         int firstBit = bits.nextSetBit(0);
         int count = 2 * bits.cardinality() + (firstBit > 0 ? 1 : 0);
-        Sequence<? extends T>[] segments = Util.<T>newSequenceArray(count);
+        Sequence<? extends T>[] segments = Util.newSequenceArray(count);
         int n = 0;
         if (firstBit > 0)
             segments[n++] = target.subsequence(0, firstBit);
@@ -338,7 +338,7 @@ public class SequenceMutator {
             lastBit = i;
         int size = target.size();
         int count = 2 * bits.cardinality() + (lastBit < size - 1 ? 1 : 0);
-        Sequence<? extends T>[] segments = Util.<T>newSequenceArray(count);
+        Sequence<? extends T>[] segments = Util.newSequenceArray(count);
         int lastWritten = -1, n = 0;
         for (int j = firstBit; j >= 0; j = bits.nextSetBit(j + 1)) {
             segments[n++] = target.subsequence(lastWritten + 1, j + 1);

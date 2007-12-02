@@ -69,7 +69,7 @@ public abstract class JavaFXTestCase extends TestCase {
             assertEquals(t, values[index++]);
         }
 
-        T[] array = (T[]) new Object[sequence.size()];
+        T[] array = Util.newObjectArray(sequence.size());
         sequence.toArray(array, 0);
         assertEquals(array.length, values.length);
         for (int i = 0; i < array.length; i++)

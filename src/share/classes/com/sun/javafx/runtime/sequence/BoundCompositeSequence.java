@@ -1,5 +1,6 @@
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.Util;
 import com.sun.javafx.runtime.location.Location;
 import com.sun.javafx.runtime.location.SequenceChangeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
@@ -24,10 +25,10 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
     }
 
     protected void computeInitial() {
-        Sequence<T>[] sequences = (Sequence<T>[]) new Sequence[locations.length];
+        Sequence<? extends T>[] sequences = Util.newSequenceArray(locations.length);
         for (int i = 0, offset = 0; i < locations.length; i++) {
             locations[i].addChangeListener(new MyListener(i));
-            sequences[i] = (Sequence<T>) locations[i].get();
+            sequences[i] = locations[i].get();
             Class eClass = locations[i].get().getElementType();
             if (!clazz.isAssignableFrom(eClass))
                 throw new ClassCastException("cannot cast "+eClass.getName()
