@@ -44,13 +44,13 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
     public ArraySequence(Class<T> clazz, T... values) {
         super(clazz);
-        this.array =  Util.newObjectArray(values.length);
+        this.array = Util.<T>newObjectArray(values.length);
         System.arraycopy(values, 0, array, 0, values.length);
     }
 
     public ArraySequence(Class<T> clazz, T[] values, int size) {
         super(clazz);
-        this.array =  Util.newObjectArray(size);
+        this.array =  Util.<T>newObjectArray(size);
         System.arraycopy(values, 0, array, 0, size);
     }
 
@@ -65,7 +65,7 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
         int size = 0;
         for (Sequence<? extends T> seq : sequences)
             size += seq.size();
-        this.array = Util.newObjectArray(size);
+        this.array = Util.<T>newObjectArray(size);
         int next = 0;
         for (Sequence<? extends T> seq : sequences) {
             seq.toArray(array, next);

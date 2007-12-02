@@ -61,15 +61,7 @@ public class SequenceMutator {
         if (position < 0 || position >= size)
             return target;
         else {
-            Sequence<T> newElement = Sequences.singleton(target.getElementType(), value);
-            Sequence<T> result;
-            if (position == 0)
-                result = Sequences.concatenate(target.getElementType(), newElement, target.subsequence(1, size));
-            else if (position == size - 1)
-                result = Sequences.concatenate(target.getElementType(), target.subsequence(0, size - 1), newElement);
-            else
-                result = Sequences.concatenate(target.getElementType(),
-                        target.subsequence(0, position), newElement, target.subsequence(position + 1, size));
+            Sequence<T> result = new ReplacementSequence<T>(target, position, value);
             if (listener != null) {
                 listener.onReplaceSequence(result);
                 listener.onReplaceElement(position, target.get(position), value);
