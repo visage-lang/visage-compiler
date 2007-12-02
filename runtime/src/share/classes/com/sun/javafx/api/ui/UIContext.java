@@ -37,6 +37,8 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTree;
 
 /**
  * Interface for accessing undelying Java components and utilities
@@ -102,5 +104,9 @@ public interface UIContext {
                                final VisualRepresentation rep);
      
     public JSpinner createSpinner();
+
+    public XToggleButton createToggleButton();
+    public JTable createTable();
+    public JTree createTree();
 
 }

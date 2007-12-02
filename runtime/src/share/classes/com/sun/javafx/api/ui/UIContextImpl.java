@@ -77,7 +77,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
 import javax.swing.SpinnerModel;
@@ -1416,6 +1418,80 @@ public class UIContextImpl implements UIContext {
         spin.setPreferredSize(new Dimension(dummy.getPreferredSize().width,
                                             spin.getPreferredSize().height));
         return spin;
+    }
+
+    public class XToggleButtonImpl extends XToggleButton {
+
+        String mxText;
+        HTMLDocument mDoc;
+
+        public XToggleButtonImpl() {
+        }
+
+        @Override
+        public void setText(String t) {
+            if (t != null) {
+                if (t.equals(mxText)) {
+                    return;
+                }
+                mxText = t;
+                if (t.startsWith("<html>")) {
+                    HTMLEditorKit kit = mHtmlKit;
+                    if (mDoc == null) {
+                        mDoc = (HTMLDocument)kit.createDefaultDocument();
+                        mDoc.setPreservesUnknownTags(false);
+                        mDoc.setBase(FILE_BASE);
+                    }
+                    HTMLDocument doc = mDoc;
+                    doc.setPreservesUnknownTags(false);
+                    doc.getStyleSheet().addRule(
+                             displayPropertiesToCSS(getFont(),getForeground()));
+                    Object base = getClientProperty("html.base");
+                    if (base instanceof URL) {
+                        doc.setBase((URL)base);
+                    }
+                    Reader r = new StringReader(t);
+                    try {
+                        doc.remove(0, doc.getLength());
+                        kit.read(r, doc, 0);
+                    } catch (Throwable e) {
+                    }
+                    ViewFactory f = kit.getViewFactory();
+                    View hview = f.create(doc.getDefaultRootElement());
+                    View v = new Renderer(this, f, hview);
+                    putClientProperty("html", v);
+                    revalidate();
+                    repaint();
+                } else {
+                    mxText = null;
+                    super.setText(t);
+                }
+            } else {
+                mxText = null;
+                super.setText(t);
+            }
+        }
+
+        @Override
+        public String getText() {
+            if (getClientProperty("html") != null) {
+                return mxText;
+            }
+            return super.getText();
+        }
+    }
+
+
+    public XToggleButton createToggleButton() {
+        return new XToggleButtonImpl();
+    }
+
+    public JTable createTable() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public JTree createTree() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 
