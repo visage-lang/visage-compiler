@@ -26,9 +26,10 @@ package javafx.ui;
 import javafx.ui.HorizontalAlignment;
 
 public class TableColumn {
+    private attribute UNSET: Integer = java.lang.Integer.MIN_VALUE;
     public attribute text:String;
-    public attribute weight: Number;
-    public attribute width: Number;
+    public attribute weight: Number = UNSET;
+    public attribute width: Number = UNSET;
     public attribute alignment: HorizontalAlignment= HorizontalAlignment.LEADING;
 }
 
