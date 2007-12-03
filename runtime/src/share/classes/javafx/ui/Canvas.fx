@@ -292,11 +292,11 @@ public class Canvas extends Widget, CanvasElement, Container {
 
     attribute border: Border = EmptyBorder {top: 5, left: 5, right: 5, bottom: 5};
 
-    function getCanvas() {
+    protected function getCanvas() {
         return this;
     }
 
-    function raiseNode(n:Node) {
+    protected function raiseNode(n:Node) {
         /*TODO: need indexof
         var i = select indexof x from x in content where x == n;
         if (i == sizeof content -1) {
@@ -307,7 +307,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         */
     }
 
-    function lowerNode(n:Node) {
+    protected function lowerNode(n:Node) {
         /*TODO: need indexof
         var i = select first indexof x from x in content where x == n;
         if (i == 0) {
@@ -318,7 +318,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         */
     }
 
-    function moveNodeToFront(n:Node) {
+    protected function moveNodeToFront(n:Node) {
         /*TODO: need indexof
         var i = select indexof x from x in content where x == n;
         delete content[i];
@@ -326,7 +326,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         */
     }
 
-    function moveNodeToBack(n:Node) {
+    protected function moveNodeToBack(n:Node) {
         /*TODO: need indexof
         var i = select indexof x from x in content where x == n;
         delete content[i];
