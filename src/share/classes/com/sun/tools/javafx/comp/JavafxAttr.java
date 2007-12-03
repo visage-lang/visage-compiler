@@ -121,6 +121,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     private final Name booleanTypeName;
     private final Name stringTypeName;
     private final Name voidTypeName;  // possibly temporary
+    private final Source source;
 
     private Map<JavafxVarSymbol, JFXVar> varSymToTree = new HashMap<JavafxVarSymbol, JFXVar>();
     
@@ -151,7 +152,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         Options options = Options.instance(context);
 
-        Source source = Source.instance(context);
+        source = Source.instance(context);
         allowGenerics = source.allowGenerics();
         allowVarargs = source.allowVarargs();
         allowEnums = source.allowEnums();
@@ -969,9 +970,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     if (initType == syms.botType)
                         initType = syms.objectType;
                     else if (initType.isPrimitive()
-                             &&  initType != syms.doubleType
-                             &&  initType != syms.intType
-                             &&  initType != syms.booleanType)
+                             &&  initType != syms.javafx_NumberType
+                             &&  initType != syms.javafx_IntegerType
+                             &&  initType != syms.javafx_BooleanType)
                         initType = types.boxedClass(initType).type;
             }
             else
@@ -1524,8 +1525,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             // If we override any other methods, check that we do so properly.
             // JLS ???
-            if (m.owner instanceof ClassSymbol)
+            if (m.owner instanceof ClassSymbol) {
+                // Fix primitive/number types so overridden Java methods will have the correct types.
+                fixOverride(tree, m);
                 chk.checkOverride(tree, m);
+            }
         }
         finally {
             chk.setLint(prevLint);
@@ -3328,5 +3332,100 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     public void clearCaches() {
         varSymToTree = null;
+    }
+
+    void fixOverride(JFXOperationDefinition tree, MethodSymbol m) {
+	ClassSymbol origin = (ClassSymbol)m.owner;
+	if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name))
+	    if (m.overrides(syms.enumFinalFinalize, origin, types, false)) {
+		log.error(tree.pos(), "enum.no.finalize");
+		return;
+	    }
+
+        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+            Set superSet = new HashSet<Type>();
+            rs.getSupertypes(origin, types, supertypes, superSet);
+
+        for (Type t : supertypes) {
+            if (t.tag == CLASS) {
+                TypeSymbol c = t.tsym;
+                Scope.Entry e = c.members().lookup(m.name);
+                while (e.scope != null) {
+                    e.sym.complete();
+                    if (m.overrides(e.sym, origin, types, false))
+                        if (fixOverride(tree, m, (MethodSymbol)e.sym, origin)) 
+                            break;
+                    e = e.next();
+                }
+            }
+	}
+    }
+
+// Javafx modification
+public
+// Javafx modification
+    boolean fixOverride(JFXOperationDefinition tree,
+		       MethodSymbol m,
+		       MethodSymbol other,
+		       ClassSymbol origin) {
+
+	Type mt = types.memberType(origin.type, m);
+	Type ot = types.memberType(origin.type, other);
+	// Error if overriding result type is different
+	// (or, in the case of generics mode, not a subtype) of
+	// overridden result type. We have to rename any type parameters
+	// before comparing types.
+	List<Type> mtvars = mt.getTypeArguments();
+	List<Type> otvars = ot.getTypeArguments();
+	Type mtres = mt.getReturnType();
+	Type otres = types.subst(ot.getReturnType(), otvars, mtvars);
+
+	boolean resultTypesOK =
+	    types.returnTypeSubstitutable(mt, ot, otres, null);
+	if (!resultTypesOK) {
+	    if (!source.allowCovariantReturns() &&
+		m.owner != origin &&
+		m.owner.isSubClass(other.owner, types)) {
+		// allow limited interoperability with covariant returns
+	    }
+            else {
+                Type setReturnType = null;
+                int typeTag = -1;
+                if (mtres == syms.javafx_NumberType && otres == syms.floatType) {
+                    setReturnType = syms.floatType;
+                    typeTag = TypeTags.FLOAT;
+                }
+                else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_NumberType) && otres == syms.byteType) {
+                    setReturnType = syms.byteType;
+                    typeTag = TypeTags.BYTE;
+                }
+                else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_NumberType) && otres == syms.charType) {
+                    setReturnType = syms.charType;
+                    typeTag = TypeTags.CHAR;
+                }
+                else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_NumberType) && otres == syms.shortType) {
+                    setReturnType = syms.shortType;
+                    typeTag = TypeTags.SHORT;
+                }
+                else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_NumberType) && otres == syms.longType) {
+                    setReturnType = syms.longType;
+                    typeTag = TypeTags.LONG;
+                }
+
+                if (setReturnType != null) {
+                    JFXType oldType = tree.operation.getJFXReturnType();
+                    tree.operation.rettype = make.TypeClass(make.TypeIdent(typeTag), oldType.getCardinality());
+                    if (mt != null && mt instanceof MethodType) {
+                        ((MethodType)mt).restype = setReturnType;
+                    }
+                    
+                    if (tree.type != null && tree.type instanceof MethodType) {
+                        ((MethodType)tree.type).restype = setReturnType;
+                    }
+                }
+            }
+	}
+
+        return true;
     }
 }

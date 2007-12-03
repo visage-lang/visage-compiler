@@ -77,6 +77,7 @@ public class JavafxCheck {
     private final Types types;
     private final boolean skipAnnotations;
     private final JavafxTreeInfo treeinfo;
+    private final JavafxResolve rs;
 
     // The set of lint options currently in effect. It is initialized
     // from the context, and then is set/reset as needed by Attr as it 
@@ -119,6 +120,7 @@ public class JavafxCheck {
 	deprecationHandler = new MandatoryWarningHandler(log,verboseDeprecated, "deprecated");
 	uncheckedHandler = new MandatoryWarningHandler(log, verboseUnchecked, "unchecked");
         typeMorpher = JavafxTypeMorpher.instance(context);
+        rs = JavafxResolve.instance(context);
     }
 
 
@@ -1547,16 +1549,21 @@ public
 		log.error(tree.pos(), "enum.no.finalize");
 		return;
 	    }
-	for (Type t = types.supertype(origin.type); t.tag == CLASS;
-	     t = types.supertype(t)) {
-	    TypeSymbol c = t.tsym;
-	    Scope.Entry e = c.members().lookup(m.name);
-	    while (e.scope != null) {
-                e.sym.complete();
-		if (m.overrides(e.sym, origin, types, false))
-		    checkOverride(tree, m, (MethodSymbol)e.sym, origin);
-		e = e.next();
-	    }
+            ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+            Set superSet = new HashSet<Type>();
+            rs.getSupertypes(origin, types, supertypes, superSet);
+
+        for (Type t : supertypes) {
+            if (t.tag == CLASS) {
+                TypeSymbol c = t.tsym;
+                Scope.Entry e = c.members().lookup(m.name);
+                while (e.scope != null) {
+                    e.sym.complete();
+                    if (m.overrides(e.sym, origin, types, false))
+                        checkOverride(tree, m, (MethodSymbol)e.sym, origin);
+                    e = e.next();
+                }
+            }
 	}
     }
 

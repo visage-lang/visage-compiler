@@ -198,9 +198,14 @@ public class JavafxTypeMorpher {
                 this.realType = symType;
 
                 if (symType.isPrimitive()) {
-                    if (realTsym == syms.doubleType.tsym) {
+                    if (realTsym == syms.doubleType.tsym
+                            || realTsym == syms.floatType.tsym) {
                         typeKind = TYPE_KIND_DOUBLE;
-                    } else if (realTsym == syms.intType.tsym) {
+                    } else if (realTsym == syms.intType.tsym
+                            || realTsym == syms.byteType.tsym
+                            || realTsym == syms.charType.tsym
+                            || realTsym == syms.longType.tsym
+                            || realTsym == syms.shortType.tsym) {
                         typeKind = TYPE_KIND_INT;
                     } else if (realTsym == syms.booleanType.tsym) {
                         typeKind = TYPE_KIND_BOOLEAN;
