@@ -48,19 +48,16 @@ public final class Sequences {
 
     /** Factory for simple sequence generation */
     public static<T> Sequence<T> make(Class<T> clazz, T... values) {
-        // OPT: for small sequences, just copy the elements
         return new ArraySequence<T>(clazz, values);
     }
 
     /** Factory for simple sequence generation */
     public static<T> Sequence<T> make(Class<T> clazz, T[] values, int size) {
-        // OPT: for small sequences, just copy the elements
         return new ArraySequence<T>(clazz, values, size);
     }
 
     /** Factory for simple sequence generation */
     public static<T> Sequence<T> make(Class<T> clazz, List<? extends T> values) {
-        // OPT: for small sequences, just copy the elements
         return new ArraySequence<T>(clazz, values);
     }
 
@@ -178,5 +175,9 @@ public final class Sequences {
             return ((Sequence) seq).size();
         else
             return seq == null ? 0 : 1;
+    }
+
+    public static int size(Sequence seq) {
+        return (seq == null) ? 0 : seq.size();
     }
 }

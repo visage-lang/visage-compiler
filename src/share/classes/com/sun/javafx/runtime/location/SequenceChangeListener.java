@@ -30,7 +30,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface SequenceChangeListener<T> extends ChangeListener {
+public interface SequenceChangeListener<T> {
     public void onInsert(int position, T element);
     public void onDelete(int position, T element);
     public void onReplace(int position, T oldValue, T newValue);

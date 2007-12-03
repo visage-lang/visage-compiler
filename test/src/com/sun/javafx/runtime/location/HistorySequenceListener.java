@@ -50,8 +50,4 @@ public class HistorySequenceListener<T> implements SequenceChangeListener<T> {
     public List<String> get() { return elements; }
 
     public void clear() { elements.clear(); }
-
-    public boolean onChange(Location location) {
-        return true;
-    }
 }

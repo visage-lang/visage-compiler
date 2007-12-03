@@ -1,7 +1,6 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.Util;
-import com.sun.javafx.runtime.location.Location;
 import com.sun.javafx.runtime.location.SequenceChangeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
@@ -72,10 +71,6 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             value = value.set(actualPos, newValue);
             valueChanged();
             BoundCompositeSequence.this.onReplaceElement(actualPos, old, newValue);
-        }
-
-        public boolean onChange(Location location) {
-            return true;
         }
     }
 }
