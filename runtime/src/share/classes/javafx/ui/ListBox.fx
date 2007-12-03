@@ -456,7 +456,8 @@ public class ListBox extends ScrollableWidget {
                      return o == this;
                  }
              });
-        javax.swing.ToolTipManager.sharedInstance().registerComponent(list);
+             //TODO ToolTip
+        //javax.swing.ToolTipManager.sharedInstance().registerComponent(list);
         list.setModel(listmodel);
         selectionListener = javax.swing.event.ListSelectionListener {
               public function valueChanged(e:javax.swing.event.ListSelectionEvent):Void {

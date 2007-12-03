@@ -341,7 +341,8 @@ public abstract class Widget extends GroupElement, UIElement {
      */
     public attribute toolTipText: String on replace {
         if (component <> null) {
-            this.getNonScrollPaneComponent().setToolTipText(toolTipText);
+            //TODO workaround until scenegraph handles tool tips okay
+                //this.getNonScrollPaneComponent().setToolTipText(toolTipText);
         }
     };
 
@@ -612,9 +613,10 @@ public abstract class Widget extends GroupElement, UIElement {
             if (cursor <> null) {
                 c.setCursor(cursor.getCursor());
             }
-            if (toolTipText <> null) {
-                c.setToolTipText(toolTipText);
-            }
+            //TODO ToolTip Scenegraph
+            //if (toolTipText <> null ) {
+            //    c.setToolTipText(toolTipText);
+            //}
             c.setVisible(visible);
             c.setOpaque(opaque);
             if (background <> null) {
