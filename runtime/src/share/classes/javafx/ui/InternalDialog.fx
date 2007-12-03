@@ -25,7 +25,6 @@
  
 package javafx.ui; 
 
-//TODO JXFC-250 Assertion Error
 
 
 import javax.swing.JPanel;

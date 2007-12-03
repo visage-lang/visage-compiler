@@ -52,7 +52,6 @@ import javax.swing.JWindow;
 import javax.swing.JLayeredPane;
 import javax.swing.event.InternalFrameEvent;
 
-//TODO JXFC-250 Assertion Error
 
 
 class InternalWindow extends UIElement {

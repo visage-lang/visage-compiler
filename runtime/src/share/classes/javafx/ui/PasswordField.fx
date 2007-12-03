@@ -28,7 +28,6 @@ package javafx.ui;
 import javafx.ui.Widget;
 import javafx.ui.HorizontalAlignment;
 
-//TODO JXFC-250  Assertion Error
 
 public class PasswordField extends Widget {
     protected attribute inListener: Boolean;
