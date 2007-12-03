@@ -672,7 +672,7 @@ public class JavafxTypeMorpher {
         JCMethodDecl getMethod = make.at(diagPos).MethodDef(
                 make.at(diagPos).Modifiers(Flags.PUBLIC), 
                 defs.getMethodName, 
-                toJava.makeTypeTree(tmi.getRealType(), diagPos, true), 
+                toJava.makeTypeTree(getReturnTypeForGetLocation(tmi), diagPos, true), 
                 List.<JCTypeParameter>nil(), 
                 List.<JCVariableDecl>nil(), 
                 List.<JCExpression>nil(), 
@@ -708,5 +708,17 @@ public class JavafxTypeMorpher {
             typeArgs = List.of(toJava.makeTypeTree(tmi.getElementType(), diagPos, true));
         }
         return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
+    }
+
+    private Type getReturnTypeForGetLocation(TypeMorphInfo tmi) {
+        Type ret = tmi.getRealType();
+        if (tmi.typeKind == TYPE_KIND_DOUBLE) {
+            ret = syms.javafx_NumberType;
+        }
+        else if (tmi.typeKind == TYPE_KIND_INT) {
+            ret = syms.javafx_IntegerType;
+        }
+        
+        return ret;
     }
 }
