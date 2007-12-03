@@ -24,37 +24,21 @@
  */
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Kinds;
+import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Scope.Entry;
-import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.TypeTags;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.MethodType;
-import com.sun.tools.javac.code.Type.WildcardType;
-import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.tree.JCTree.JCClassDecl;
-import com.sun.tools.javac.tree.TreeInfo;
-import com.sun.tools.javac.tree.TreeTranslator;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.JCDiagnostic;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Position;
-import com.sun.tools.javafx.code.JavafxClassSymbol;
-
-import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxSymtab;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
+import com.sun.tools.javafx.tree.*;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -182,12 +166,7 @@ public class JavafxInitializationBuilder {
             }
         }
        
-        // If there are any listeners, we need to build this, even if empty
-        defs.append(makeOnReplaceChangeListenerMethod(
-                        diagPos,
-                        onReplace));
-        
-        JCExpression changeListener = make.at(diagPos).Identifier(changeListenerInterfaceName);
+        JCExpression changeListener;
         List<JCExpression> emptyTypeArgs = List.nil();
         if (onReplaceElement != null || onInsertElement != null || onDeleteElement != null) {
             changeListener = make.at(diagPos).Identifier(sequenceChangeListenerInterfaceName);
@@ -201,7 +180,7 @@ public class JavafxInitializationBuilder {
                         makeIndexParam(diagPos, onReplaceElement), 
                         makeParam(diagPos, info.elemType(),
                                   onReplaceElement == null ? null : onReplaceElement.getOldValue(),
-                                  "$oldVallue$"), 
+                                  "$oldValue$"),
                         makeParam(diagPos, info.elemType(), null, "$newValue$")), 
                     TypeTags.VOID));
             defs.append(makeSequenceChangeListenerMethod(
@@ -222,9 +201,14 @@ public class JavafxInitializationBuilder {
                         makeIndexParam(diagPos, onDeleteElement), 
                         makeParam(diagPos, info.elemType(),
                                   onDeleteElement == null ? null : onDeleteElement.getOldValue(),
-                                  "$oldVallue$")), 
+                                  "$oldValue$")), 
                     TypeTags.VOID));
         }
+        else {
+            changeListener = make.at(diagPos).Identifier(changeListenerInterfaceName);
+            defs.append(makeOnReplaceChangeListenerMethod(diagPos, onReplace));
+        }
+
         JCNewClass anonymousChangeListener = make.NewClass(
                 null, 
                 emptyTypeArgs, 
