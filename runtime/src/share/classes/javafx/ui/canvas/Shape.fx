@@ -38,6 +38,7 @@ import javafx.ui.canvas.VisualNode;
 import com.sun.scenario.scenegraph.SGShape;
 import com.sun.scenario.scenegraph.SGAbstractShape;
 import javafx.ui.canvas.Transform.CompositeTransform;
+import com.sun.tools.javafx.ui.SequenceUtil;
 //TODO BATIK
 //TODO BATIK import net.java.javafx.ui.batik.PathLength;
 
@@ -84,15 +85,13 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
     public function transformAt(length: Number): Transform[] {
         var pt = pointAt(length);
         var angle = angleAt(length);
-        //TODO JXFC_XXX Up cast to super class
-        /*****************************************
-        return [Transform.CompositeTransform {
+        //TODO JXFC-339
+        return [/*****Transform.CompositeTransform {
             transforms: bind [
                 Translate.translate(pt.getX(), pt.getY()) as Transform, 
                 Rotate.rotate(angle, 0, 0) as Transform] 
-        } as Transform];
-        ************************************/
-        return [];
+        } as Transform *****/];
+       
     }
 
     public function toPath(): Path{
@@ -160,16 +159,13 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
     protected function addTo(gp:GeneralPath):Void {
         var tshape = this.getTransformedShape();
         if (outline) {
-            //TODO JXFC-211
-            /*******************
-            var s = new BasicStroke(strokeWidth,
-                                    strokeLineCap.id,
-                                    strokeLineJoin.id,
-                                    strokeMiterLimit,
-                                    strokeDashArray,
-                                    strokeDashOffset);
-            gp.append(s.createStrokedShape(tshape), false);
-            ********************/
+            var s = new BasicStroke(strokeWidth.floatValue(),
+                       strokeLineCap.id.intValue(),
+                       strokeLineJoin.id.intValue(),
+                       strokeMiterLimit.floatValue(),
+                       SequenceUtil.sequenceOfDouble2floatArray(strokeDashArray),
+                       strokeDashOffset.floatValue());
+            gp.append(s.createStrokedShape(tshape), false);           
         } else {
             gp.append(tshape, false);
         }

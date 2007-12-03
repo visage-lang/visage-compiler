@@ -31,20 +31,31 @@ import javafx.ui.Paint;
 import com.sun.scenario.scenegraph.SGAbstractShape;
 import com.sun.scenario.scenegraph.SGAbstractShape.Mode;
 import com.sun.scenario.scenegraph.SGNode;
+import com.sun.tools.javafx.ui.SequenceUtil;
 
 /**
  * Abstract base class for visual elements that appear in the canvas.
  */
 public abstract class VisualNode extends Node, AbstractVisualNode {
     private attribute sgvisualnode: SGAbstractShape;
-    private attribute awtStroke: java.awt.Paint //TODO JXFC-211  = bind stroke.getPaint()
+    public attribute stroke: Paint on replace {
+        if(stroke <> null) {
+            awtStroke = stroke.getPaint();
+        }
+    };
+    public attribute fill: Paint on replace {
+        if(fill <> null) {
+            awtFill = fill.getPaint();
+        }
+    };
+    private attribute awtStroke: java.awt.Paint  //TODO:JFXC-329 = bind if (stroke <> null) then stroke.getPaint() else null
         on replace  {
             if (sgvisualnode <> null and awtStroke <> null) {
                 sgvisualnode.setDrawPaint(awtStroke);
             }
             updateMode();
         };
-    private attribute awtFill: java.awt.Paint //TODO JXFC-211= bind fill.getPaint() 
+    private attribute awtFill: java.awt.Paint //TODO:JFXC-329 = bind if (fill <> null) then fill.getPaint() else null
         on replace {
             if (sgvisualnode <> null and awtFill <> null) {
                 sgvisualnode.setFillPaint(awtFill);
@@ -74,42 +85,43 @@ public abstract class VisualNode extends Node, AbstractVisualNode {
 
     public function updateStroke():Void {
         if (sgvisualnode <> null) {
-            //TODO JXFC-211
-            /*******************
-            sgvisualnode.setDrawStroke(new BasicStroke(strokeWidth,
-                                                       strokeLineCap.id,
-                                                       strokeLineJoin.id,
-                                                       strokeMiterLimit,
-                                                       strokeDashArray,
-                                                       strokeDashOffset));
-            **************************/
+            var basic = new BasicStroke(strokeWidth.floatValue(),
+                       strokeLineCap.id.intValue(),
+                       strokeLineJoin.id.intValue(),
+                       strokeMiterLimit.floatValue(),
+                       SequenceUtil.sequenceOfDouble2floatArray(strokeDashArray),
+                       strokeDashOffset.floatValue());
+            sgvisualnode.setDrawStroke(basic);
             updateMode();
+            
         }
     }
 
-    protected function createNode(): SGNode {
+    public function createNode(): SGNode {
         sgvisualnode = this.createVisualNode();
-
+        if(awtFill == null and fill <> null) {
+            awtFill = fill.getPaint();
+        }
         if (awtFill <> null) {
             sgvisualnode.setFillPaint(awtFill);
         }
+        if(awtStroke == null and stroke <> null) {
+            awtStroke = stroke.getPaint();
+        }
         if (awtStroke <> null) {
-            //TODO JXFC-211  sgvisualnode.setDrawPaint(stroke.getPaint());
+            sgvisualnode.setDrawPaint(stroke.getPaint());
         }
         updateStroke(); // will also call updateMode()...
 
         return sgvisualnode;
     }
-
-    init {
-        //TODO JXFC-211
-        //strokeWidth = 1.0;
-        //strokeLineCap = StrokeLineCap.SQUARE;
-        //strokeLineJoin = StrokeLineJoin.MITER;
-        //strokeMiterLimit = 10.0;
-        //strokeDashArray = [];
-        //strokeDashOffset = 0.0;
-    }
+    
+    public attribute strokeWidth:Number = 1.0;
+    public attribute strokeLineJoin:StrokeLineJoin = StrokeLineJoin.MITER;
+    public attribute strokeLineCap:StrokeLineCap = StrokeLineCap.SQUARE;
+    public attribute strokeMiterLimit:Number = 10.0;
+    public attribute strokeDashArray:Number[] = [1.0];
+    public attribute strokeDashOffset:Number = 0.0;
 }
 
 
