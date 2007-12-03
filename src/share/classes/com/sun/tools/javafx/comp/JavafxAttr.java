@@ -2597,9 +2597,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {
         Type seqType = attribExpr(tree.getSequence(), env);
-        //TODO: check that it is a sequence
+
         attribExpr(tree.getIndex(), env, syms.javafx_IntegerType);
-        Type owntype = chk.elementType(seqType);
+        Type owntype;
+        if (seqType.tag == TypeTags.ARRAY) {
+            owntype = ((ArrayType)seqType).elemtype;
+        }
+        else {
+            owntype = chk.elementType(seqType);
+        }
         result = check(tree, owntype, VAR, pkind, pt, pSequenceness);
     }
     
