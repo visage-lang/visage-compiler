@@ -38,7 +38,8 @@ public class JavafxDefs {
     /**
      * static string definitions
      */
-    public static final String boundFunctionSuffix = "$bound";
+    public static final String boundFunctionSuffix = "$$bound"; // Add an extra $ character so it doesn't get confused with an inner class named $bound
+    public static final String boundFunctionDollarSuffix = "$$bound$";
     public static final String implFunctionSuffix = "$impl";
     public static final String attributeGetMethodNamePrefix = "get$";
     public static final String attributeInitMethodNamePrefix = "init$";
@@ -57,6 +58,9 @@ public class JavafxDefs {
     public static final String makeLazyMethodNameString = "makeLazy";
     public static final String invokeNameString = "invoke";
     public static final String lambdaNameString = "lambda";
+    
+    public char typeCharToEscape = '.';
+    public char escapeTypeChar = '_';
      
     /**
      * Name definitions

@@ -2525,19 +2525,43 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (!markAsImpl && !isBound) {
             return sym.name;
         }
-        return functionName( sym.name.toString(), markAsImpl, isBound );
+        return functionName( sym, sym.name.toString(), markAsImpl, isBound );
     }
 
-    Name functionName(String full, boolean markAsImpl, boolean isBound) {
+    Name functionName(MethodSymbol sym, String full, boolean markAsImpl, boolean isBound) {
         if (isBound) {
-            full = full  + defs.boundFunctionSuffix;
+            full = full  + defs.boundFunctionDollarSuffix + getParameterTypeSuffix(sym);
         } else  if (markAsImpl) {
             full = full  + defs.implFunctionSuffix;
         } 
         return names.fromString(full);
     }
 
-// Is the referenced symbol an outer member.
+    private String escapeTypeName(Type type) {
+        return type.toString().replace(defs.typeCharToEscape, defs.escapeTypeChar);
+    }
+    
+    private String getParameterTypeSuffix(MethodSymbol sym) {
+        StringBuilder sb = new StringBuilder();
+        if (sym != null && sym.type != null) {
+            if (sym.type.tag == TypeTags.METHOD) {
+                List<Type> argtypes = ((MethodType)sym.type).getParameterTypes();
+                int argtypesCount = argtypes.length();
+                int counter = 0;
+                for (Type argtype : argtypes) {
+                    sb.append(escapeTypeName(argtype));
+                    if (counter < argtypesCount - 1) { // Don't append type separator after the last type in the signature.
+                        sb.append(defs.escapeTypeChar); // Double separator between type names.
+                        sb.append(defs.escapeTypeChar);
+                    }
+                    counter ++;
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    // Is the referenced symbol an outer member.
     boolean isOuterMember(Symbol sym, Symbol ownerSym) {
         if (sym != null && ownerSym != null) {
             Symbol ownerSymOwner = ownerSym.owner;

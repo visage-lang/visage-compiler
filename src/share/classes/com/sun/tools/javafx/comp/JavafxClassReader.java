@@ -238,7 +238,7 @@ public class JavafxClassReader extends ClassReader {
                                           type.getThrownTypes(),
                                           syms.methodClass);
             }
-            if (name.toString().endsWith(JavafxDefs.boundFunctionSuffix)) {
+            if (name.toString().indexOf(JavafxDefs.boundFunctionDollarSuffix) != -1) {
                 flags |= Flags.SYNTHETIC;  // mark bound function versions as synthetic, so they don't get added
             }
             MethodSymbol m = new MethodSymbol(flags, name, type, currentOwner);
