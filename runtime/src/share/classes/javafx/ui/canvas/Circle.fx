@@ -41,8 +41,10 @@ public class Circle extends Shape {
         var y = cy - radius;
         var width = 2*radius;
         var height = 2*radius;
-        awtEllipse.setFrame(x, y, width, height);
-        sgshape.setShape(awtEllipse);
+        if (awtEllipse <> null)
+            awtEllipse.setFrame(x, y, width, height);
+        if (sgshape <> null)
+            sgshape.setShape(awtEllipse);
     };
     /** The y coordinate of the center point of this circle. */
     public attribute cy: Number on replace {
@@ -50,8 +52,10 @@ public class Circle extends Shape {
         var y = cy - radius;
         var width = 2*radius;
         var height = 2*radius;
-        awtEllipse.setFrame(x, y, width, height);
-        sgshape.setShape(awtEllipse);
+        if (awtEllipse <> null)
+            awtEllipse.setFrame(x, y, width, height);
+        if (sgshape <> null)
+            sgshape.setShape(awtEllipse);
     };
     /** The radius of this circle. */
     public attribute radius: Number on replace {
@@ -59,8 +63,10 @@ public class Circle extends Shape {
         var y = cy - radius;
         var width = 2*radius;
         var height = 2*radius;
-        awtEllipse.setFrame(x, y, width, height);
-        sgshape.setShape(awtEllipse);
+        if (awtEllipse <> null)
+            awtEllipse.setFrame(x, y, width, height);
+        if (sgshape <> null)
+            sgshape.setShape(awtEllipse);
     };
 
     public function createShape(): SGShape  {
