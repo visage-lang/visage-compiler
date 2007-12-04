@@ -242,11 +242,12 @@ class TabSlider extends Widget {
     public function createComponent():javax.swing.JComponent {
         panel = new LayoutNotifier();
         panel.setOpaque(false);
-//TODO JXFC-309
-/***************************
         panel.setLayoutManager(LayoutManager2 {
-                public function addLayoutComponent(comp:java.awt.Component, constraint:Object):Void {
+		public function addLayoutComponent(name : java.lang.String, comp:java.awt.Component) : Void {
                 }
+
+                public function addLayoutComponent(comp:java.awt.Component, constraint:java.lang.Object):Void { 
+                } 
                 public function maximumLayoutSize(container:java.awt.Container):Dimension {
                     return new Dimension(java.lang.Integer.MAX_VALUE, java.lang.Integer.MAX_VALUE);
                 }
@@ -385,7 +386,6 @@ class TabSlider extends Widget {
                 public function removeLayoutComponent(comp:java.awt.Component):Void {
                 }
             });
-      ******************************/
         var selection = -1;
         foreach (indx in [0..sizeof tabs exclusive] ) {
         //TODO JFXC-319
