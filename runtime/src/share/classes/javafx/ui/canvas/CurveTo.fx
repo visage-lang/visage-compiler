@@ -86,6 +86,9 @@ public class CurveTo extends PathElement {
     };
 
     public function addTo(gp:GeneralPath):Void {
+        if (path == null) {
+            return;
+        }
         if (smooth) {
             if (absolute) {
                 gp.curveTo((path.currentX * 2 - path.xCenter).floatValue(),

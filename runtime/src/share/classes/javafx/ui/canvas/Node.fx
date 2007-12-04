@@ -667,14 +667,26 @@ public abstract class Node extends CanvasElement, Transformable {
     public function getCanvas(): Canvas {
         var n = this.parentCanvasElement;
         while (n <> null) {
-            //TODO JXFC-249
-            //if (n instanceof Canvas) {
-            //    cachedCanvas = n as Canvas;
-            //    return cachedCanvas;
-           // }
+            if (n instanceof Canvas) {
+                cachedCanvas = n as Canvas;
+                return cachedCanvas;
+            }
             n = n.parentCanvasElement;
         }
         return cachedCanvas;
+    }
+    
+    //TODO: remove once Rect.getCanvas() can be deleted
+    static function getCanvas(node:Node): Canvas {
+        var n = node.parentCanvasElement;
+        while (n <> null) {
+            if (n instanceof Canvas) {
+                node.cachedCanvas = n as Canvas;
+                return node.cachedCanvas;
+            }
+            n = n.parentCanvasElement;
+        }
+        return node.cachedCanvas;
     }
 
     public static attribute LISTENER:FXNodeListener = FXNodeListener{};

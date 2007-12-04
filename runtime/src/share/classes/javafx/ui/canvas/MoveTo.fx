@@ -44,6 +44,9 @@ public class MoveTo extends PathElement {
     };   
 
     public function addTo(gp:GeneralPath):Void {
+        if (path == null) {
+            return;
+        }
         if (absolute) {
             path.currentX = x;
             path.xCenter = path.currentX;

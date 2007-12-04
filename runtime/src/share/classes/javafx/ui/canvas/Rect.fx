@@ -95,7 +95,7 @@ public class Rect extends Shape, SizeableCanvasElement {
 
 // TODO:  this method should be deleted, as getCanvas() should be resolved by Node superclass
     public function getCanvas(): Canvas {
-        return null;
+        return Node.getCanvas(this as Node);
     }
 }
 

@@ -50,7 +50,7 @@ public abstract class Transformable {
             updateTransform();   
         };
     
-    protected attribute affineTransform: AffineTransform;
+    protected attribute affineTransform: AffineTransform = new AffineTransform();
     
     protected function updateTransform() {
         var t = new AffineTransform();

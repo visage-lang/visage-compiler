@@ -42,8 +42,10 @@ public class Ellipse extends Shape {
         var y = cy - radiusY;
         var width = 2*radiusX;
         var height = 2*radiusY;
-        awtEllipse.setFrame(x, y, width, height);
-        sgshape.setShape(awtEllipse);
+        if (awtEllipse <> null)
+            awtEllipse.setFrame(x, y, width, height);
+        if (sgshape <> null)
+            sgshape.setShape(awtEllipse);
     };
     /** the y coordinate of the center point of this ellipse.*/
     public attribute cy: Number on replace {
@@ -51,8 +53,10 @@ public class Ellipse extends Shape {
         var y = cy - radiusY;
         var width = 2*radiusX;
         var height = 2*radiusY;
-        awtEllipse.setFrame(x, y, width, height);
-        sgshape.setShape(awtEllipse);
+        if (awtEllipse <> null)
+            awtEllipse.setFrame(x, y, width, height);
+        if (sgshape <> null)
+            sgshape.setShape(awtEllipse);
     };
     /** the horizontal radius of this ellipse.*/
     public attribute radiusX: Number on replace {
@@ -60,8 +64,10 @@ public class Ellipse extends Shape {
         var y = cy - radiusY;
         var width = 2*radiusX;
         var height = 2*radiusY;
-        awtEllipse.setFrame(x, y, width, height);
-        sgshape.setShape(awtEllipse);
+        if (awtEllipse <> null)
+            awtEllipse.setFrame(x, y, width, height);
+        if (sgshape <> null)
+            sgshape.setShape(awtEllipse);
     };
     /** the vertical radius of this ellipse.*/
     public attribute radiusY: Number on replace {
@@ -69,8 +75,10 @@ public class Ellipse extends Shape {
         var y = cy - radiusY;
         var width = 2*radiusX;
         var height = 2*radiusY;
-        awtEllipse.setFrame(x, y, width, height);
-        sgshape.setShape(awtEllipse);
+        if (awtEllipse <> null)
+            awtEllipse.setFrame(x, y, width, height);
+        if (sgshape <> null)
+            sgshape.setShape(awtEllipse);
     };
 
     public function createShape(): SGShape {
