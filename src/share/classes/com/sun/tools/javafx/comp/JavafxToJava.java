@@ -1111,19 +1111,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     public void visitAssign(JCAssign tree) {
         DiagnosticPosition diagPos = tree.pos();
         
-        Symbol sym = null;
-        // TODO other cases
-        if (tree.lhs instanceof JCIdent) {
-            JCIdent varid = (JCIdent)tree.lhs;
-            sym = varid.sym;
-        } else if (tree.lhs instanceof JCFieldAccess) {
-            JCFieldAccess varaccess = (JCFieldAccess)tree.lhs;
-            sym = varaccess.sym;
-        }
-        VarSymbol vsym = null;
-        if (sym != null && (sym instanceof VarSymbol)) {
-            vsym = (VarSymbol)sym;
-        }
+        Symbol sym = expressionSymbol(tree.lhs);
+        VarSymbol vsym = (sym != null && (sym instanceof VarSymbol))? (VarSymbol)sym : null;
         
         JCExpression rhs = translate(tree.rhs);
         if (tree.lhs.getTag() == JavafxTag.SEQUENCE_INDEXED) {
@@ -1134,21 +1123,68 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             JCFieldAccess select = make.Select(seq, defs.setMethodName);
             List<JCExpression> args = List.of(index, rhs);
             result = make.at(diagPos).Apply(null, select, args);
-       } else {
-            if (vsym != null) {
-                VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-                if (shouldMorph(vmi)) {
-                    // we are setting a var Location, call the set method
-                    JCExpression lhs = translate(tree.lhs, Wrapped.InLocation);
-                    JCFieldAccess setSelect = make.Select(lhs, defs.setMethodName);
-                    List<JCExpression> setArgs = List.of(rhs);
-                    result = make.at(diagPos).Apply(null, setSelect, setArgs);
-                    return;
-                }
-            }
+        } else if (shouldMorph(vsym)) {
+            // we are setting a var Location, call the set method
+            JCExpression lhs = translate(tree.lhs, Wrapped.InLocation);
+            JCFieldAccess setSelect = make.Select(lhs, defs.setMethodName);
+            List<JCExpression> setArgs = List.of(rhs);
+            result = make.at(diagPos).Apply(null, setSelect, setArgs);
+        } else {
             // We are setting a "normal" non-Location, use normal assign
             JCExpression lhs = translate(tree.lhs);
             result = make.at(diagPos).Assign(lhs, rhs); // make a new one so we are non-destructive
+        }
+    }
+
+    public void visitAssignop(JCAssignOp tree) {
+        DiagnosticPosition diagPos = tree.pos();
+        
+        Symbol sym = expressionSymbol(tree.lhs);
+        VarSymbol vsym = (sym != null && (sym instanceof VarSymbol))? (VarSymbol)sym : null;
+        
+        JCExpression rhs = translate(tree.rhs);
+        JCExpression lhs = translate(tree.lhs);
+        int binaryOp;
+        switch (tree.getTag()) {
+            case JCTree.PLUS_ASG:
+                binaryOp = JCTree.PLUS;
+                break;
+            case JCTree.MINUS_ASG:
+                binaryOp = JCTree.MINUS;
+                break;
+            case JCTree.MUL_ASG:
+                binaryOp = JCTree.MUL;
+                break;
+            case JCTree.DIV_ASG:
+                binaryOp = JCTree.DIV;
+                break;
+            case JCTree.MOD_ASG:
+                binaryOp = JCTree.MOD;
+                break;
+            default:
+                assert false : "unexpected assign op kind";
+                binaryOp = JCTree.PLUS;
+                break;
+        }
+        JCExpression combined = make.at(diagPos).Binary(binaryOp, lhs, rhs);
+
+        if (tree.lhs.getTag() == JavafxTag.SEQUENCE_INDEXED) {
+            // assignment of a sequence element --  s[i]+=8, call the sequence set method
+            JFXSequenceIndexed si = (JFXSequenceIndexed)tree.lhs;
+            JCExpression seq = translate(si.getSequence(), Wrapped.InLocation); 
+            JCExpression index = translate(si.getIndex());
+            JCFieldAccess select = make.Select(seq, defs.setMethodName);
+            List<JCExpression> args = List.of(index, combined);
+            result = make.at(diagPos).Apply(null, select, args);
+        } else if (shouldMorph(vsym)) {
+            // we are setting a var Location, call the set method
+            JCExpression targetLHS = translate(tree.lhs, Wrapped.InLocation);
+            JCFieldAccess setSelect = make.Select(targetLHS, defs.setMethodName);
+            List<JCExpression> setArgs = List.of(combined);
+            result = make.at(diagPos).Apply(null, setSelect, setArgs);
+        } else {
+            // We are setting a "normal" non-Location non-sequence-access, use normal assignop
+            result = make.at(diagPos).Assignop(tree.getTag(), lhs, rhs);
         }
     }
 
@@ -1768,12 +1804,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCExpression cond = translate(tree.cond);
         JCExpression detail = translate(tree.detail);
         result = make.at(tree.pos).Assert(cond, detail);
-    }
-
-    public void visitAssignop(JCAssignOp tree) {
-        JCTree lhs = translate(tree.lhs);
-        JCTree rhs = translate(tree.rhs);
-        result = make.at(tree.pos).Assignop(tree.getTag(), lhs, rhs);
     }
 
     public void visitBinary(JCBinary tree) {
@@ -2407,6 +2437,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             stats = stats.append( make.Return(make.Literal(TypeTags.BOT, null)) );
         }
         return make.at(diagPos).Block(0L, stats);
+    }
+    
+    boolean shouldMorph(VarSymbol vsym) {
+        if (vsym == null) {
+            return false;
+        }
+        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+        return shouldMorph(vmi);
     }
     
     boolean shouldMorph(VarMorphInfo vmi) {
