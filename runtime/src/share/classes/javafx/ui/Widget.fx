@@ -456,14 +456,18 @@ public abstract class Widget extends GroupElement, UIElement {
      * be asked for the preferred size.
      */
     public attribute preferredSize: Dimension on replace {
-        if (component <> null) {
-            if (preferredSize.height <= 0) {
-                preferredSize.height = component.getPreferredSize().height;
+        if (component <> null and preferredSize <> null) {
+            if(component.getPreferredSize() <> null) {
+                if (preferredSize.height <= 0 ) {
+                    preferredSize.height = component.getPreferredSize().height;
+                }
+                if (preferredSize.width <= 0 ) {
+                    preferredSize.width = component.getPreferredSize().width;
+                }
             }
-            if (preferredSize.width <= 0) {
-                preferredSize.width = component.getPreferredSize().width;
+            if(preferredSize.height >= 0 and preferredSize.width >= 0) {
+                component.setPreferredSize(preferredSize);
             }
-            component.setPreferredSize(preferredSize);
         }
     };
 
@@ -476,14 +480,18 @@ public abstract class Widget extends GroupElement, UIElement {
      * restores the default behavior.
      */
     public attribute maximumSize: Dimension on replace {
-        if (component <> null) {
-            if (maximumSize.height <= 0) {
-                maximumSize.height = component.getMaximumSize().height;
+        if (component <> null and maximumSize <> null) {
+            if(component.getMaximumSize() <> null) {
+                if (maximumSize.height <= 0) {
+                    maximumSize.height = component.getMaximumSize().height;
+                }
+                if (maximumSize.width <= 0) {
+                    maximumSize.width = component.getMaximumSize().width;
+                }
             }
-            if (maximumSize.width <= 0) {
-                maximumSize.width = component.getMaximumSize().width;
+            if(maximumSize.height >= 0 and maximumSize.width >= 0) {
+                component.setMaximumSize(maximumSize);
             }
-            component.setMaximumSize(maximumSize);
         }
     }; 
     
@@ -495,14 +503,18 @@ public abstract class Widget extends GroupElement, UIElement {
      * restores the default behavior.
      */
     public attribute minimumSize: Dimension on replace {
-        if (component <> null) {
-            if (minimumSize.height <= 0) {
-                minimumSize.height = component.getMinimumSize().height;
+        if (component <> null and minimumSize <> null) {
+            if(component.getMinimumSize() <> null) {
+                if (minimumSize.height <= 0) {
+                    minimumSize.height = component.getMinimumSize().height;
+                }
+                if (minimumSize.width <= 0) {
+                    minimumSize.width = component.getMinimumSize().width;
+                }
             }
-            if (minimumSize.width <= 0) {
-                minimumSize.width = component.getMinimumSize().width;
+            if(minimumSize.height >= 0 and minimumSize.width >= 0) {
+                component.setMinimumSize(minimumSize);
             }
-            component.setMinimumSize(minimumSize);
         }
     };  
     
@@ -593,8 +605,8 @@ public abstract class Widget extends GroupElement, UIElement {
      * subclasses will use this property to
      * determine how to lay out and draw components.
      */
-    public attribute componentOrientation: ComponentOrientation on replace {
-        if (component <> null) {
+    public attribute componentOrientation: ComponentOrientation = ComponentOrientation.UNKNOWN on replace {
+        if (component <> null and componentOrientation <> null) {
             this.getNonScrollPaneComponent().setComponentOrientation(componentOrientation);
         }
     };        
