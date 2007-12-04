@@ -177,6 +177,7 @@ is divided into following sections:
                         <path path="@{classpath}"/>
                     </classpath>
                     <compilerarg line="${javac.compilerargs} @{javac.compilerargs.jaxws}"/>
+                    <compilerarg line="${javafxc.compilerargs}"/>
                     <customize/>
                 </javafxc>
             </sequential>
