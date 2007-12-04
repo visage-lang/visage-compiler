@@ -747,8 +747,8 @@ unaryExpression  returns [JCExpression expr]
 	;
 suffixedExpression  returns [JCExpression expr] 
 	: e1=postfixExpression					{ $expr = $e1.expr; }
-//TODO:		( PLUSPLUS					{ $expr = F.at(pos($PLUSPLUS)).Unary(JCTree.POSTINC, $expr); } )?
-//		( SUBSUB					{ $expr = F.at(pos($SUBSUB)).Unary(JCTree.POSTDEC, $expr); } )?
+		( PLUSPLUS					{ $expr = F.at(pos($PLUSPLUS)).Unary(JCTree.POSTINC, $expr); } )?
+		( SUBSUB					{ $expr = F.at(pos($SUBSUB)).Unary(JCTree.POSTDEC, $expr); } )?
 	;
 postfixExpression  returns [JCExpression expr] 
 @init {
@@ -850,8 +850,8 @@ prefixUnaryOperator  returns [int optag]
 	| SIZEOF   			{ $optag = JavafxTag.SIZEOF; } //TODO
 //	| TYPEOF   			{ $optag = 0; } //TODO
 //	| REVERSE   			{ $optag = 0; } //TODO
-//	| PLUSPLUS   			{ $optag = JCTree.PREINC; }  //TODO
-//	| SUBSUB 			{ $optag = JCTree.PREDEC; }   //TODO
+	| PLUSPLUS   			{ $optag = JCTree.PREINC; }  
+	| SUBSUB 			{ $optag = JCTree.PREDEC; }  
 	;
 assignmentOperator  returns [int optag]
 	: PLUSEQ   			{ $optag = JCTree.PLUS_ASG; } 

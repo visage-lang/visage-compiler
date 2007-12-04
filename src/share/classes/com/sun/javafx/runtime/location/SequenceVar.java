@@ -78,8 +78,9 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
     }
 
     @Override
-    public void set(int position, T newValue) {
+    public T set(int position, T newValue) {
         SequenceMutator.set(value, mutationListener, position, newValue);
+        return newValue;
     }
 
     @Override

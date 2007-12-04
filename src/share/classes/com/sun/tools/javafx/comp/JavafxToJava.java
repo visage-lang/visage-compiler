@@ -2284,17 +2284,74 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = make.at(tree.pos).TypeParameter(tree.name, bounds);
     }
 
-    public void visitUnary(JCUnary tree) {
-        if (tree.getTag() == JavafxTag.SIZEOF) {
-            if (isSequence(tree.arg.type)) {
-                result = callExpression(tree, translate(tree.arg), "size");
-            } else {
-                result = callExpression(tree, makeQualifiedTree(tree, "com.sun.javafx.runtime.sequence.Sequences"), "size", translate(tree.arg));
+    public void visitUnary(final JCUnary tree) {
+        result = (new Translator() {
+
+            private final DiagnosticPosition diagPos = tree.pos();
+            private final JCExpression expr = tree.getExpression();
+            private final JCExpression transExpr = translate(expr);
+
+            private JCExpression doVanilla() {
+                return make.at(diagPos).Unary(tree.getTag(), transExpr);
             }
-        } else {
-            result = make.at(tree.pos).Unary(tree.getTag(), translate(tree.arg));
-        }
+            
+            private JCExpression callSetMethod(JCExpression target, List<JCExpression> args) {
+                JCExpression transTarget = translate(target, Wrapped.InLocation); // must be Location
+                JCFieldAccess setSelect = make.Select(transTarget, defs.setMethodName);
+                return make.at(diagPos).Apply(null, setSelect, args);
+            }
+
+            private JCExpression doIncDec(int binaryOp, boolean postfix) {
+                final Symbol sym = expressionSymbol(expr);
+                final VarSymbol vsym = (sym != null && (sym instanceof VarSymbol)) ? (VarSymbol) sym : null;
+                final JCExpression one = make.at(diagPos).Literal(1);
+                final JCExpression combined = make.at(diagPos).Binary(binaryOp, transExpr, one);
+                JCExpression ret;
+
+                if (expr.getTag() == JavafxTag.SEQUENCE_INDEXED) {
+                    // assignment of a sequence element --  s[i]+=8, call the sequence set method
+                    JFXSequenceIndexed si = (JFXSequenceIndexed) expr;
+                    JCExpression index = translate(si.getIndex());
+                    ret = callSetMethod( si.getSequence(), List.of(index, combined) );
+                } else if (shouldMorph(vsym)) {
+                    // we are setting a var Location, call the set method
+                    ret = callSetMethod( expr, List.of(combined) );
+                } else {
+                    // We are setting a "normal" non-Location non-sequence-access, use normal operator
+                    return doVanilla();
+                }
+                if (postfix) {
+                    // this is a postfix operation, undo the value (not the variable) change
+                    return make.at(diagPos).Binary(binaryOp, ret, make.at(diagPos).Literal(-1));
+                } else {
+                    // prefix operation
+                    return ret;
+                }
+            }
+
+            public JCTree doit() {
+                switch (tree.getTag()) {
+                    case JavafxTag.SIZEOF:
+                        if (isSequence(expr.type)) {
+                            return callExpression(diagPos, transExpr, "size");
+                        } else {
+                            return callExpression(diagPos, makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"), "size", transExpr);
+                        }
+                    case JCTree.PREINC:
+                        return doIncDec(JCTree.PLUS, false);
+                    case JCTree.PREDEC:
+                        return doIncDec(JCTree.MINUS, false);
+                    case JCTree.POSTINC:
+                        return doIncDec(JCTree.PLUS, true);
+                    case JCTree.POSTDEC:
+                        return doIncDec(JCTree.MINUS, true);
+                    default:
+                        return doVanilla();
+                }
+            }
+        }).doit();
     }
+  
 
     public void visitVarDef(JCVariableDecl tree) {
         assert false : "should not be in JavaFX AST";

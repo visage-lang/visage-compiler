@@ -48,7 +48,7 @@ public interface SequenceLocation<T> extends Location, Iterable<T> {
 
     Sequence<T> set(Sequence<? extends T> value);
 
-    public void set(int position, T value);
+    public T set(int position, T value);
 
     public void delete(int position);
 

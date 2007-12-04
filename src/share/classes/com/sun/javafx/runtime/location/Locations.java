@@ -415,7 +415,7 @@ public class Locations {
             location.addChangeListener(sequenceChangeListener);
         }
 
-        public void set(int position, T value) {
+        public T set(int position, T value) {
             throw new UnsupportedOperationException();
         }
 

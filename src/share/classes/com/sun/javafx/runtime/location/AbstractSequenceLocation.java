@@ -105,7 +105,7 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     }
 
     @Override
-    public void set(int position, T value) {
+    public T set(int position, T value) {
         throw new UnsupportedOperationException();
     }
 
