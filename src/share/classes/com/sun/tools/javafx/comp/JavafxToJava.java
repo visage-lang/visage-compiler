@@ -1220,7 +1220,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 0L, dummyReference, ref);
         if (generateNullChecks && !staticReference
                                            && (tree.sym instanceof VarSymbol) 
-                                           && initBuilder.isJFXClass(tree.type.tsym)) {
+                                           && initBuilder.isJFXClass(selectedType.tsym)) {
             // we have a testable guard for null, wrap the attribute access  in it, return default value if null
             TypeMorphInfo tmi = typeMorpher.typeMorphInfo(tree.type);
             JCExpression defaultExpr = makeDefaultValue(diagPos, tmi);
@@ -2089,17 +2089,33 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     block.value = app;
                     fresult = block;
                 }
-                if (testForNull && msym.getReturnType() != syms.voidType && initBuilder.isJFXClass(selector.type.tsym)) {
-                    // we have a testable guard for null, wrap the invoke in it, return default value if null
-                    TypeMorphInfo tmi = typeMorpher.typeMorphInfo(msym.getReturnType());
-                    JCExpression defaultExpr = makeDefaultValue(diagPos, tmi);
-                    if (state.wantLocation()) {
-                        defaultExpr = makeIntoLocation(diagPos, tmi, defaultExpr);
+                if (testForNull && !selector.type.isPrimitive()) {
+                    // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
+                    JCExpression cond = make.at(diagPos).Binary(JCTree.NE, translate(selector), make.Literal(TypeTags.BOT, null));
+                    if (msym.getReturnType() == syms.voidType) {
+                        // if this is a void expression, check it with an If-statement
+                        JCStatement stmt = make.If(cond, make.Exec(fresult), null);
+                        if (yield == Yield.ToExecStatement) {
+                            // if a statement is the desired result of the translation, return the If-statement
+                            return stmt;
+                        } else {
+                            // otherwise wrap it in a block expression to make it into an expression
+                            //TODO: should this case ever happen?
+                            return makeBlockExpression(diagPos, ListBuffer.<JCStatement>lb().append(stmt), null);
+                        }
+                    } else {
+                        // it has a non-void return type, convert it to a conditional expression
+                        // if it would dereference null, then instead give the default value
+                        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(msym.getReturnType());
+                        JCExpression defaultExpr = makeDefaultValue(diagPos, tmi);
+                        if (state.wantLocation()) {
+                            defaultExpr = makeIntoLocation(diagPos, tmi, defaultExpr);
+                        }
+                        return make.at(diagPos).Conditional(cond, fresult, defaultExpr);
                     }
-                    JCExpression cond = make.at(diagPos).Binary(JCTree.EQ, translate(selector), make.Literal(TypeTags.BOT, null));
-                    fresult = make.at(diagPos).Conditional(cond, defaultExpr, fresult);
+                } else {
+                    return fresult;
                 }
-                return fresult;
             }
 
             // compute the translated arguments.
