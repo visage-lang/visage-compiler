@@ -34,7 +34,8 @@ import java.lang.Math;
 public abstract class Transform {
     protected attribute transformable :Transformable;
     protected attribute transform :AffineTransform on replace {
-        transformable.updateTransform();
+        if (transformable <> null)
+            transformable.updateTransform();
     };
 
     public static function matrix(a:Number,b:Number,c:Number,

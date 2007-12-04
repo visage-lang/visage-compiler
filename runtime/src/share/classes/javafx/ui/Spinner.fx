@@ -35,7 +35,7 @@ public class Spinner extends Widget {
         (spinner.getModel() as com.sun.javafx.api.ui.BigDecimalSpinnerModel).setMaximum(max as java.lang.Number);
     };
     public attribute value: Number on replace {
-            spinner.setValue(value);
+            (spinner.getModel() as com.sun.javafx.api.ui.BigDecimalSpinnerModel).setValue(value);
     };
     public attribute stepSize: Number on replace {
         (spinner.getModel() as com.sun.javafx.api.ui.BigDecimalSpinnerModel).setStepSize(value);

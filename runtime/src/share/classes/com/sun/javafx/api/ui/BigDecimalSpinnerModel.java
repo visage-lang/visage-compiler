@@ -134,7 +134,6 @@ public class BigDecimalSpinnerModel extends AbstractSpinnerModel {
     public void setMinimum(Comparable minimum) {
 	if ((minimum == null) ? (this.minimum != null) : !minimum.equals(this.minimum)) {
 	    this.minimum = minimum;
-	    fireStateChanged();
 	}
     }
 
@@ -186,7 +185,6 @@ public class BigDecimalSpinnerModel extends AbstractSpinnerModel {
     public void setMaximum(Comparable maximum) {
 	if ((maximum == null) ? (this.maximum != null) : !maximum.equals(this.maximum)) {
 	    this.maximum = maximum;
-	    fireStateChanged();
 	}
     }
 
@@ -224,7 +222,6 @@ public class BigDecimalSpinnerModel extends AbstractSpinnerModel {
 	}
 	if (!stepSize.equals(this.stepSize)) {
 	    this.stepSize = stepSize;
-	    fireStateChanged();
 	}
     }
 
