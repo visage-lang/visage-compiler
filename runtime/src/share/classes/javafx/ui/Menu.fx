@@ -65,9 +65,10 @@ public class Menu extends AbstractMenuItem {
             jmenu.setBackground(origbackground);
         }
     }
+    public attribute opaque: Boolean = true;
     public function createComponent():javax.swing.JComponent {
             jmenu = new javax.swing.JMenu();
-            jmenu.setOpaque(false);
+            jmenu.setOpaque(true);
             if (text <> null) {
                 jmenu.setText(text);
             }
@@ -77,6 +78,9 @@ public class Menu extends AbstractMenuItem {
             if ( not opaque) {
                 jmenu.setRolloverEnabled(false);
                 jmenu.setBackground(new java.awt.Color(0,0,0,0));
+            }
+            foreach(i in items) {
+                jmenu.add(i.getComponent());
             }
             return jmenu;
     }

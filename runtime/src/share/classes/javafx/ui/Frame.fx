@@ -70,7 +70,7 @@ public class Frame extends AbstractFrame {
     };
     public attribute menubar: MenuBar on replace {
 	if (frame <> null) {
-	    frame.setJMenuBar(if (menubar == null) null else menubar.jmenubar);
+	    frame.setJMenuBar(if (menubar == null) null else menubar.getComponent() as javax.swing.JMenuBar);
 	}
     };
     public attribute content: Widget on replace  {
@@ -331,6 +331,9 @@ public class Frame extends AbstractFrame {
         frame.getRootPane().putClientProperty("apple.awt.draggableWindowBackground", false);
         frame.setDefaultCloseOperation(frame.DO_NOTHING_ON_CLOSE);
         //frame.getRootPane().getGlassPane().setVisible(true);
+        if(menubar <> null) {
+            frame.setJMenuBar(menubar.getComponent() as javax.swing.JMenuBar);
+        }
         win = frame;
         winListener = java.awt.event.WindowListener {
                                   public function windowClosing(e:WindowEvent):Void {

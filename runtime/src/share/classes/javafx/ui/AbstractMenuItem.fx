@@ -26,7 +26,5 @@
 package javafx.ui;
 
 public abstract class AbstractMenuItem extends Widget {
-    init {
-        opaque = true;
-    }
+    public attribute opaque: Boolean = true;
 }

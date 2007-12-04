@@ -31,7 +31,7 @@ import javafx.ui.MenuBar;
 public class RootPane extends Widget {
     private attribute jrootpane:javax.swing.JRootPane;
     public attribute menubar: MenuBar on replace {
-        jrootpane.setJMenuBar(menubar.jmenubar);
+        jrootpane.setJMenuBar(menubar.getComponent() as javax.swing.JMenuBar);
     };
     public attribute content: Widget on replace {
         if (content <> null) {
@@ -43,7 +43,7 @@ public class RootPane extends Widget {
     public function createComponent():javax.swing.JComponent {
         jrootpane = new javax.swing.JRootPane();
         if (menubar <> null) {
-            jrootpane.setJMenuBar(menubar.jmenubar);
+            jrootpane.setJMenuBar(menubar.getComponent() as javax.swing.JMenuBar);
         }
         if (content <> null) {
             jrootpane.setContentPane(content.getComponent());

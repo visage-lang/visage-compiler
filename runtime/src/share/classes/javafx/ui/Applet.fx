@@ -33,7 +33,7 @@ public class Applet extends Widget {
     private attribute applet:javax.swing.JApplet = UIElement.context.getApplet();
     public attribute menubar: MenuBar on replace {
         if (applet <> null) {
-            applet.setJMenuBar(menubar.jmenubar);
+            applet.setJMenuBar(menubar.getComponent() as javax.swing.JMenuBar);
         }
     }
     public attribute content: Widget on replace  {

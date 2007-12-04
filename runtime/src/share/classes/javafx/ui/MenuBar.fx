@@ -29,7 +29,7 @@ import javafx.ui.Widget;
 import javafx.ui.Menu;
 
 public class MenuBar extends Widget {
-    attribute jmenubar:javax.swing.JMenuBar;
+    attribute jmenubar:javax.swing.JMenuBar= javax.swing.JMenuBar{};
     public attribute menus: Menu[]
         on insert [ndx] (menu) {
             jmenubar.add(menu.getComponent(), ndx);
@@ -49,16 +49,15 @@ public class MenuBar extends Widget {
             jmenubar.repaint();
         };
     public function createComponent():javax.swing.JComponent {
+        jmenubar.setOpaque(true);
+        foreach(m in menus) {
+            jmenubar.add(m.getComponent());
+        }
         return jmenubar;
     }
 
-    init {
-        opaque = true;
-        focusable = false;
-        jmenubar = javax.swing.JMenuBar{};
-        jmenubar.setOpaque(true);
-        component = jmenubar;
-    }
+    public attribute opaque: Boolean = true;
+    public attribute focusable: Boolean = false;
 }
 
 

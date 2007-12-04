@@ -36,7 +36,7 @@ public class InternalFrame extends Widget {
         jinternalframe.putClientProperty("JInternalFrame.isPalette", true);
     };
     public attribute menubar: MenuBar on replace {
-        jinternalframe.setJMenuBar(menubar.jmenubar);
+        jinternalframe.setJMenuBar(menubar.getComponent() as javax.swing.JMenuBar);
     };
     public attribute layer: Number;
     public attribute desk: DesktopPane;
@@ -82,7 +82,7 @@ public class InternalFrame extends Widget {
             jinternalframe.setTitle(title);
         }
         if (menubar <> null) {
-            jinternalframe.setJMenuBar(menubar.jmenubar);
+            jinternalframe.setJMenuBar(menubar.getComponent() as javax.swing.JMenuBar);
         }
         if (isPalette) {
             jinternalframe.putClientProperty("JInternalFrame.isPalette", true);
