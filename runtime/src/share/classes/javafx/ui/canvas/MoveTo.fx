@@ -36,13 +36,11 @@ import java.awt.geom.GeneralPath;
 public class MoveTo extends PathElement {
     /** the x coordinate of the point */
     public attribute x: Number on replace  {
-        if (path <> null)
-            path.buildPath();
+        path.buildPath();
     };
     /** the y coordinate of the point */
     public attribute y: Number on replace  {
-        if (path <> null)
-            path.buildPath();
+        path.buildPath();
     };   
 
     public function addTo(gp:GeneralPath):Void {

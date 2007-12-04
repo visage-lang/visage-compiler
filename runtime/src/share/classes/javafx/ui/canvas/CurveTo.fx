@@ -44,8 +44,7 @@ public class CurveTo extends PathElement {
      * control point
      */
     public attribute x1: Number on replace {
-        if (path <> null)
-            path.buildPath();
+        path.buildPath();
     };
 
     /** 
@@ -53,8 +52,7 @@ public class CurveTo extends PathElement {
      * control point
      */
     public attribute y1: Number on replace {
-        if (path <> null)
-            path.buildPath();
+        path.buildPath();
     };
 
     /** 
@@ -62,8 +60,7 @@ public class CurveTo extends PathElement {
      * control point
      */
     public attribute x2: Number on replace {
-        if (path <> null)
-            path.buildPath();
+        path.buildPath();
     };
 
     /** 
@@ -71,24 +68,21 @@ public class CurveTo extends PathElement {
      * control point
      */
     public attribute y2: Number on replace {
-        if (path <> null)
-            path.buildPath();
+        path.buildPath();
     };
 
     /** 
      * the x coordinate of the final endpoint
      */
     public attribute x3: Number on replace {
-        if (path <> null)
-            path.buildPath();
+        path.buildPath();
     };
 
     /** 
      * the y coordinate of the final endpoint
      */
     public attribute y3: Number on replace {
-        if (path <> null)
-            path.buildPath();
+        path.buildPath();
     };
 
     public function addTo(gp:GeneralPath):Void {
