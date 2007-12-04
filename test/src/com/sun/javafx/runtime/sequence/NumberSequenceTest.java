@@ -93,4 +93,20 @@ public class NumberSequenceTest extends JavaFXTestCase {
         sN2 = Sequences.concatenate(Number.class, sD1, sN1);
         assertEquals(sN2, 1.5, 2.5, 1, 2, 1.5, 2.5);
     }
+
+    public void testBoxing() {
+        assertEquals(Sequences.box(new long[] { 1, 2, 3 }), 1L, 2L, 3L);
+        assertEquals(Sequences.box(new int[] { 1, 2, 3 }), 1, 2, 3);
+        assertEquals(Sequences.box(new short[] { 1, 2, 3 }), 1, 2, 3);
+        assertEquals(Sequences.box(new char[] { 1, 2, 3 }), 1, 2, 3);
+        assertEquals(Sequences.box(new byte[] { 1, 2, 3 }), 1, 2, 3);
+        assertEquals(Sequences.box(new double[] { 1.0, 2.0, 3.0 }), 1.0, 2.0, 3.0);
+        assertEquals(Sequences.box(new float[] { 1.0f, 2.0f, 3.0f }), 1.0, 2.0, 3.0);
+        assertEquals(Sequences.box(new boolean[] { true, false, true } ), true, false, true);
+
+        assertEquals(Sequences.unbox(Sequences.range(1, 3)), 1, 2, 3);
+        assertEquals(Sequences.unbox(Sequences.range(1.0, 3.0)), 1.0, 2.0, 3.0);
+        assertEquals(Sequences.unbox(Sequences.box(new boolean[] { true, false })), true, false);
+        assertEquals(Sequences.unbox(Sequences.box(new long[] { 1, 2, 3})), 1L, 2L, 3L);
+    }
 }

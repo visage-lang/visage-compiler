@@ -157,6 +157,30 @@ public abstract class JavaFXTestCase extends TestCase {
         assertEquals(collection, newCollection);
     }
 
+    protected void assertEquals(int[] array, int... values) {
+        assertEquals(array.length, values.length);
+        for (int i=0; i<array.length; i++)
+            assertEquals(array[i], values[i]);
+    }
+
+    protected void assertEquals(double[] array, double... values) {
+        assertEquals(array.length, values.length);
+        for (int i=0; i<array.length; i++)
+            assertEquals(array[i], values[i]);
+    }
+
+    protected void assertEquals(long[] array, long... values) {
+        assertEquals(array.length, values.length);
+        for (int i=0; i<array.length; i++)
+            assertEquals(array[i], values[i]);
+    }
+
+    protected void assertEquals(boolean[] array, boolean... values) {
+        assertEquals(array.length, values.length);
+        for (int i=0; i<array.length; i++)
+            assertEquals(array[i], values[i]);
+    }
+
     protected interface VoidCallable {
         public void call() throws Exception;
     }
