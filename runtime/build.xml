@@ -73,6 +73,10 @@
         </jar>
     </target>
 
+    <target name="-post-jar">
+        <copy file="${file.reference.scenegraph.jar}" todir="${dist.jar.dir}"/>
+    </target>
+
     <target depends="init" name="-do-clean">
         <delete dir="${build.dir}"/>
         <delete dir="${dist.jar}"/>

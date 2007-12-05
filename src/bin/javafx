@@ -17,7 +17,7 @@ while [ -h "$PRG" ]; do
     fi
 done
 
-HOME=`dirname "$PRG"`/..
+HOME=`dirname "$PRG"`/../lib
 
 case "`uname`" in
   Darwin*) if [ -z "$JAVA_HOME" ] ; then
@@ -42,10 +42,12 @@ fi
 
 args=""
 jargs=""
+classpath="$HOME/javafxrt.jar:$HOME/scenegraph.jar"
 parse_args() {
 while [ $# -gt 0 ] ; do
     case "$1" in
         -J*) jopt=`expr "X-$1" : 'X--J\(.*\)'`; jargs="$jargs '$jopt'";;
+        -cp | -classpath) shift; classpath="$classpath:$1";;
         *) args="$args $1";;
     esac
     shift
@@ -53,5 +55,5 @@ done
 } 
 
 parse_args "$@" # process arguments on the command line
-$JAVA_CMD $jargs -Xbootclasspath/p:$HOME/javafxc.jar:$HOME/javafxrt.jar $args
+$JAVA_CMD $jargs -Xbootclasspath/p:$HOME/javafxc.jar -classpath $classpath $args
 
