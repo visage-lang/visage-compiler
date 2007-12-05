@@ -25,6 +25,8 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.Util;
+
 import java.util.BitSet;
 import java.util.List;
 
@@ -182,96 +184,109 @@ public final class Sequences {
         return (seq == null) ? 0 : seq.size();
     }
 
-    /** Box a long[] to a Sequence<Long> */
-    public static Sequence<Long> box(long[] values) {
+    /** Convert a T[] to a Sequence<T> */
+    public static<T> Sequence<T> fromArray(Class<T> clazz, T[] values) {
+        return new ArraySequence<T>(clazz, values);
+    }
+
+    /** Convert a long[] to a Sequence<Long> */
+    public static Sequence<Long> fromArray(long[] values) {
         Long[] boxed = new Long[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Long.valueOf(values[i]);
         return new ArraySequence<Long>(Long.class, boxed, values.length);
     }
 
-    /** Box an int[] to a Sequence<Integer> */
-    public static Sequence<Integer> box(int[] values) {
+    /** Convert an int[] to a Sequence<Integer> */
+    public static Sequence<Integer> fromArray(int[] values) {
         Integer[] boxed = new Integer[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Integer.valueOf(values[i]);
         return new ArraySequence<Integer>(Integer.class, boxed, values.length);
     }
 
-    /** Box a short[] to a Sequence<Integer> */
-    public static Sequence<Integer> box(short[] values) {
+    /** Convert a short[] to a Sequence<Integer> */
+    public static Sequence<Integer> fromArray(short[] values) {
         Integer[] boxed = new Integer[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Integer.valueOf(values[i]);
         return new ArraySequence<Integer>(Integer.class, boxed, values.length);
     }
 
-    /** Box a char[] to a Sequence<Integer> */
-    public static Sequence<Integer> box(char[] values) {
+    /** Convert a char[] to a Sequence<Integer> */
+    public static Sequence<Integer> fromArray(char[] values) {
         Integer[] boxed = new Integer[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Integer.valueOf(values[i]);
         return new ArraySequence<Integer>(Integer.class, boxed, values.length);
     }
 
-    /** Box a byte[] to a Sequence<Integer> */
-    public static Sequence<Integer> box(byte[] values) {
+    /** Convert a byte[] to a Sequence<Integer> */
+    public static Sequence<Integer> fromArray(byte[] values) {
         Integer[] boxed = new Integer[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Integer.valueOf(values[i]);
         return new ArraySequence<Integer>(Integer.class, boxed, values.length);
     }
 
-    /** Box a double[] to a Sequence<Double> */
-    public static Sequence<Double> box(double[] values) {
+    /** Convert a double[] to a Sequence<Double> */
+    public static Sequence<Double> fromArray(double[] values) {
         Double[] boxed = new Double[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Double.valueOf(values[i]);
         return new ArraySequence<Double>(Double.class, boxed, values.length);
     }
 
-    /** Box a float[] to a Sequence<Double> */
-    public static Sequence<Double> box(float[] values) {
+    /** Convert a float[] to a Sequence<Double> */
+    public static Sequence<Double> fromArray(float[] values) {
         Double[] boxed = new Double[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Double.valueOf(values[i]);
         return new ArraySequence<Double>(Double.class, boxed, values.length);
     }
 
-    /** Box a boolean[] to a Sequence<Boolean> */
-    public static Sequence<Boolean> box(boolean[] values) {
+    /** Convert a boolean[] to a Sequence<Boolean> */
+    public static Sequence<Boolean> fromArray(boolean[] values) {
         Boolean[] boxed = new Boolean[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Boolean.valueOf(values[i]);
         return new ArraySequence<Boolean>(Boolean.class, boxed, values.length);
     }
 
-    /** Unbox a Sequence<Long> */
-    public static long[] unbox(Sequence<Long> seq) {
+    /** Convert a Sequence<T> to an array */
+    public static<T> T[] toArray(Sequence<T> seq) {
+        T[] unboxed = Util.newObjectArray(seq.size());
+        for (int i=0; i<unboxed.length; i++)
+            unboxed[i] = seq.get(i);
+        return unboxed;
+    }
+
+    /** Convert a Sequence<Long> to an array */
+    public static long[] toArray(Sequence<Long> seq) {
         long[] unboxed = new long[seq.size()];
         for (int i=0; i<unboxed.length; i++)
             unboxed[i] = seq.get(i);
         return unboxed;
     }
 
-    /** Unbox a Sequence<Integer> */
-    public static int[] unbox(Sequence<Integer> seq) {
+    /** Convert a Sequence<Integer> to an array */
+    public static int[] toArray(Sequence<Integer> seq) {
         int[] unboxed = new int[seq.size()];
         for (int i=0; i<unboxed.length; i++)
             unboxed[i] = seq.get(i);
         return unboxed;
     }
 
-    /** Unbox a Sequence<Double> */
-    public static double[] unbox(Sequence<Double> seq) {
+    /** Convert a Sequence<Double> to an array */
+    public static double[] toArray(Sequence<Double> seq) {
         double[] unboxed = new double[seq.size()];
         for (int i=0; i<unboxed.length; i++)
             unboxed[i] = seq.get(i);
         return unboxed;
     }
 
-    /** Unbox a Sequence<Boolean> */
-    public static boolean[] unbox(Sequence<Boolean> seq) {
+    /** Convert a Sequence<Boolean> to an array */
+    public static boolean[] toArray(Sequence<Boolean> seq) {
         boolean[] unboxed = new boolean[seq.size()];
         for (int i=0; i<unboxed.length; i++)
             unboxed[i] = seq.get(i);
