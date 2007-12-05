@@ -584,6 +584,18 @@ public class JavafxCheck {
 	    return t;
     }
 
+    /**
+     * Return element type for a sequence type, and report error otherwise.
+     */
+    public Type checkSequenceElementType (DiagnosticPosition pos, Type t) {
+        if (types.isSequence(t))
+            return types.elementType(t);
+        if (t.tag != ERROR)
+            log.error(pos, "type.found.req",
+                      t, types.sequenceType(syms.unknownType));
+        return syms.errType;
+    }
+
     /** Check that type is a class or interface type.
      *  @param pos           Position to be used for error reporting.
      *  @param t             The type to be checked.

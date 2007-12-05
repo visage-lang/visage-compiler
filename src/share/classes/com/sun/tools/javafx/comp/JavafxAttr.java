@@ -364,7 +364,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         return attribTree(tree, env, VAL, pt.tag != ERROR ? pt : Type.noType, 
                 (pt.tag == ERROR || pt == Type.noType)? 
                         Sequenceness.PERMITTED :  
-                        isSequence(pt)? Sequenceness.REQUIRED : Sequenceness.DISALLOWED);
+                        types.isSequence(pt)? Sequenceness.REQUIRED : Sequenceness.DISALLOWED);
     }
 
     /** Derived visitor method: attribute an expression tree with
@@ -999,7 +999,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (tree.getOnChanges() != null) {
             Type elemType = null;
 
-            if (isSequence(tree.type)) {
+            if (types.isSequence(tree.type)) {
                 elemType = types.elementType(tree.type);
             }
 
@@ -1136,7 +1136,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         Type bodyType = tree.getBodyExpression().type;
         Type owntype = (bodyType == null || bodyType == syms.voidType)? 
             syms.voidType : 
-            sequenceType(bodyType);
+            types.sequenceType(bodyType);
 
         forExprEnv.info.scope.leave();
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
@@ -2510,11 +2510,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         boolean isSeq = false;
-        if (pt.tag != NONE && !(isSeq = isSequence(pt)) && pSequenceness == Sequenceness.DISALLOWED) {
+        if (pt.tag != NONE && !(isSeq = types.isSequence(pt)) && pSequenceness == Sequenceness.DISALLOWED) {
             log.error(tree.pos(), "array.req.but.found", pt); //TODO: msg
             result = syms.errType;
         } else {
-            Type owntype = pt.tag == NONE? pt : isSeq? pt : sequenceType(pt);
+            Type owntype = pt.tag == NONE? pt : isSeq? pt : types.sequenceType(pt);
             result = check(tree, owntype, VAL, pkind, Type.noType, pSequenceness);
         }
     }
@@ -2543,7 +2543,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 log.error(tree.getUpper().pos(), "range.step.int.or.number"); 
             }
         }
-        Type owntype = sequenceType(allInt? syms.javafx_IntegerType : syms.javafx_NumberType);
+        Type owntype = types.sequenceType(allInt? syms.javafx_IntegerType : syms.javafx_NumberType);
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
     
@@ -2551,7 +2551,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
         // atrribute the items, and determine least upper bound of type
         Type elemType = null;
-        if (isSequence(pt)) {
+        if (types.isSequence(pt)) {
             elemType = types.elementType(pt);
         } else if (pt.tag == NONE || pt == syms.javafx_UnspecifiedType) {
             // we don't know what type we are supposed to be, try to infer it
@@ -2560,7 +2560,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 if (itemType.tag == NONE || itemType.tag == ERROR) {
                     continue;
                 }
-                if (isSequence(itemType)) {
+                if (types.isSequence(itemType)) {
                     itemType = types.elementType(itemType);
                 }
                 if (elemType == null) {
@@ -2585,7 +2585,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
            for (JCExpression expr : tree.getItems()) {
                 chk.checkNonVoid(expr.pos(), attribExpr(expr, env, elemType, Sequenceness.PERMITTED));
            }
-           Type owntype = sequenceType(elemType);
+           Type owntype = types.sequenceType(elemType);
            result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
         } else {
             // because of nested sequences, we can't test here
@@ -2611,29 +2611,33 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
-        Type seqType = attribTree(tree.getSequence(), env, VAR, Type.noType, Sequenceness.REQUIRED); 
-        attribExpr(tree.getElement(), env, types.elementType(seqType));
+        JCExpression seq = tree.getSequence();
+        Type seqType = attribTree(seq, env, VAR, Type.noType, Sequenceness.REQUIRED);
+        Type elementType = chk.checkSequenceElementType(seq.pos(), seqType);
+        attribExpr(tree.getElement(), env, elementType);
         result = null;
     }
     
     @Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
+        JCExpression seq = tree.getSequence();
         if (tree.getElement() == null) {
             if (tree.getSequence() instanceof JFXSequenceIndexed) { 
                 // delete seq[index];
-                JFXSequenceIndexed seqInd = (JFXSequenceIndexed)tree.getSequence();
-                JCExpression seq = seqInd.getSequence();
+                JFXSequenceIndexed seqInd = (JFXSequenceIndexed)seq;
+                JCExpression seqseq = seqInd.getSequence();
                 JCExpression index = seqInd.getIndex();
-                tree.resetSequenceAndIndex(seq, index);
-                attribTree(tree.getSequence(), env, VAR, Type.noType, Sequenceness.REQUIRED); 
+                tree.resetSequenceAndIndex(seqseq, index);
+                attribTree(seq, env, VAR, Type.noType, Sequenceness.REQUIRED); 
                 attribExpr(index, env, syms.javafx_IntegerType);
             } else {
                 // delete seq;   // that is, all the elements
-                attribTree(tree.getSequence(), env, VAR, Type.noType, Sequenceness.REQUIRED); 
+                attribTree(seq, env, VAR, Type.noType, Sequenceness.REQUIRED); 
             }
         } else {
-            Type seqType = attribTree(tree.getSequence(), env, VAR, Type.noType, Sequenceness.REQUIRED); 
-            attribExpr(tree.getElement(), env, types.elementType(seqType));
+            Type seqType = attribTree(seq, env, VAR, Type.noType, Sequenceness.REQUIRED); 
+            attribExpr(tree.getElement(), env,
+                    chk.checkSequenceElementType(seq.pos(), seqType));
         }
         result = null;
     }
@@ -2728,29 +2732,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         result = tree.type = syms.javafx_UnspecifiedType;
     }
 
-    boolean isSequence(Type type) {
-        return type != Type.noType && type != null 
-                && type.tag != ERROR 
-                && type.tag != METHOD && type.tag != FORALL
-                && types.erasure(type) == syms.javafx_SequenceTypeErasure;
-    }
-    
     Type sequenceType(Type elemType, Cardinality cardinality) {
         return cardinality == cardinality.ANY 
-                ? sequenceType(elemType)
+                ? types.sequenceType(elemType)
                 : elemType;
     }
 
-    Type sequenceType(Type elemType) {
-        if (elemType.isPrimitive())
-            elemType = types.boxedClass(elemType).type;
-        elemType = new WildcardType(elemType, BoundKind.EXTENDS, syms.boundClass);
-        Type seqtype = syms.javafx_SequenceType;
-        List<Type> actuals = List.of(elemType);
-        Type clazzOuter = seqtype.getEnclosingType();
-        return new ClassType(clazzOuter, actuals, seqtype.tsym);
-    }
-    
         /** Determine type of identifier or select expression and check that
          *  (1) the referenced symbol is not deprecated
          *  (2) the symbol's type is safe (@see checkSafe)
