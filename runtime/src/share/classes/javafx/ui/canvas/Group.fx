@@ -28,6 +28,7 @@ package javafx.ui.canvas;
 import javafx.ui.canvas.Node;
 import com.sun.scenario.scenegraph.SGGroup;
 import com.sun.scenario.scenegraph.SGNode;
+import java.lang.Object;
 
 /**
  * Non-visual node that defines a new coordinate space for its child nodes.
@@ -39,6 +40,7 @@ public class Group extends Node, Container {
     public attribute content: Node[] on insert [indx] (newValue) {
         //TODO JFXC-301
         //newValue.parentCanvasElement = this as CanvasElement;
+        newValue.parentCanvasElement = (this as Object) as CanvasElement;
         if (sggroup <> null) {
             sggroup.add(indx, newValue.getNode());
         }
@@ -47,6 +49,7 @@ public class Group extends Node, Container {
         if (newValue <> null) {
             //TODO JFXC-301
             //newValue.parentCanvasElement = this as CanvasElement;
+            newValue.parentCanvasElement = (this as Object) as CanvasElement;
             if (sggroup <> null) {
                 if (oldValue <> null) {
                    try {
@@ -59,8 +62,9 @@ public class Group extends Node, Container {
             }
             //TODO JFXC-301
             //if (oldValue.parentCanvasElement == this as CanvasElement) {
-            //    oldValue.parentCanvasElement = null;
-            //}
+            if (oldValue.parentCanvasElement == ((this as Object) as CanvasElement)) {
+                oldValue.parentCanvasElement = null;
+            }
         }
     }
     on delete [indx] (oldValue) {
@@ -73,8 +77,9 @@ public class Group extends Node, Container {
         }
         //TODO JFXC-301
         //if (oldValue.parentCanvasElement == this as CanvasElement) {
-        //    oldValue.parentCanvasElement = null;
-        //}
+        if (oldValue.parentCanvasElement == ((this as Object) as CanvasElement)) {
+            oldValue.parentCanvasElement = null;
+        }
     };
 
     public function createNode(): SGNode {
