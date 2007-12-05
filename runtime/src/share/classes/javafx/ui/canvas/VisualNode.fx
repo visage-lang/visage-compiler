@@ -28,6 +28,7 @@ package javafx.ui.canvas;
 
 import java.awt.BasicStroke;
 import javafx.ui.Paint;
+import java.lang.System;
 import com.sun.scenario.scenegraph.SGAbstractShape;
 import com.sun.scenario.scenegraph.SGAbstractShape.Mode;
 import com.sun.scenario.scenegraph.SGNode;
@@ -35,6 +36,7 @@ import com.sun.tools.javafx.ui.SequenceUtil;
 
 /**
  * Abstract base class for visual elements that appear in the canvas.
+
  */
 public abstract class VisualNode extends Node, AbstractVisualNode {
     private attribute sgvisualnode: SGAbstractShape;
@@ -97,6 +99,7 @@ public abstract class VisualNode extends Node, AbstractVisualNode {
         }
     }
 
+    
     public function createNode(): SGNode {
         sgvisualnode = this.createVisualNode();
         if(awtFill == null and fill <> null) {
@@ -109,7 +112,7 @@ public abstract class VisualNode extends Node, AbstractVisualNode {
             awtStroke = stroke.getPaint();
         }
         if (awtStroke <> null) {
-            sgvisualnode.setDrawPaint(stroke.getPaint());
+            sgvisualnode.setDrawPaint(awtStroke);
         }
         updateStroke(); // will also call updateMode()...
 
