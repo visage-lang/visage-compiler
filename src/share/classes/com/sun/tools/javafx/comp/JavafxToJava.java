@@ -2707,7 +2707,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 int argtypesCount = argtypes.length();
                 int counter = 0;
                 for (Type argtype : argtypes) {
-                    sb.append(escapeTypeName(argtype));
+                    sb.append(escapeTypeName(types.erasure(argtype)));
                     if (counter < argtypesCount - 1) { // Don't append type separator after the last type in the signature.
                         sb.append(defs.escapeTypeChar); // Double separator between type names.
                         sb.append(defs.escapeTypeChar);
