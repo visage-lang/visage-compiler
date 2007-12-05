@@ -42,10 +42,8 @@ public class BallBase {
     };
     
     function move():Void {
-        //TODO: this._x += this._vx;
-        //TODO: this._y += this._vy;
-        this._x = this._x + this._vx;
-        this._y = this._y + this._vy;
+        this._x += this._vx;
+        this._y += this._vy;
         // walls collisons
 
         // left
@@ -96,22 +94,17 @@ public class BallBase {
             return false;
         }
 
-        //TODO: mag /= distance2;
-        mag = mag / distance2;
-
+        mag /= distance2;
+        
         var delta_vx = dx*mag;
         var delta_vy = dy*mag;
 
-        //TODO: this._vx -= delta_vx;
-        //TODO: this._vy -= delta_vy;
-        this._vx = this._vx - delta_vx;
-        this._vy = this._vy - delta_vy;
-
-        //TODO: b._vx += delta_vx;
-        //TODO: b._vy += delta_vy;
-        b._vx = b._vx + delta_vx;
-        b._vy = b._vy + delta_vy;
-
+        this._vx -= delta_vx;
+        this._vy -= delta_vy;
+        
+        b._vx += delta_vx;
+        b._vy += delta_vy;
+        
         return true;
     }; 
 }

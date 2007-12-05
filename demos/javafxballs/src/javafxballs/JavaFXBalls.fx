@@ -61,11 +61,11 @@ class BallsTest {
     attribute balls:JavaFxBall[];
 
     function update() {
-        foreach (i in [0.._N]) {
+        foreach (i in [0.._N-1]) {
              balls[i.intValue()].move();
         }
-        foreach (i in [0.._N]) {
-             foreach (j in [i+1.._N]) {
+        foreach (i in [0.._N-1]) {
+             foreach (j in [i+1.._N-1]) {
                 balls[i.intValue()].doCollide(balls[j.intValue()]);
              }
         }

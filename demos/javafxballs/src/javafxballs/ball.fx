@@ -102,11 +102,9 @@ public class ball extends CompositeNode {
         RadialGradient {
             cx: 156.7178
             cy: 129.2988
-            /*TODO JXFC-306: 
             transform: [
                 Transform.matrix(1.19, 0.165, 0.165, 1.2813, -82.7876, -94.3076)
             ]
-             */
             //TODO: gradientUnits: GradientUnits.USER_SPACE_ON_USE
             radius: 53.625
             stops: [
