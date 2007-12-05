@@ -46,7 +46,7 @@ public class Image extends Icon {
     private function getImage0():java.awt.Image {
         if (image == null and url <> null) {
             var imageUrl = url;
-            if (baseURL <> null) {
+            if (baseURL <> null and baseURL.length() > 0) {
                 var base = new java.net.URL(baseURL);
                 var tmpUrl = new java.net.URL(base, url); 
                 imageUrl = tmpUrl.toString();
@@ -205,7 +205,6 @@ public class Image extends Icon {
     protected function createIcon(): javax.swing.Icon {
         return null;
     }
-
 }
 
 
