@@ -28,6 +28,7 @@ import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javac.code.*;
 import static com.sun.tools.javac.code.Flags.*;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.CapturedType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.MethodType;
@@ -800,6 +801,22 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return  typeMorpher.makeCall(tmi, diagPos, makeArgs, typeMorpher.varLocation, defs.makeMethodName);
     }
 
+    JCExpression makeSequence(DiagnosticPosition diagPos, JCExpression expr, Type type, boolean makeInterface) {
+        List<JCExpression> makeArgs = List.of(expr);
+        makeArgs = makeArgs.prepend(  makeSequenceClassArg(diagPos, type, makeInterface));
+        JCExpression sequenceExpr = makeTypeTree(syms.javafx_SequencesType, diagPos, makeInterface);
+        JCFieldAccess makeSelect = make.at(diagPos).Select(sequenceExpr, defs.makeMethodName);
+
+        List<JCExpression> typeArgs = null;
+        typeArgs = List.of(makeTypeTree(type, diagPos, makeInterface));
+        return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
+    }
+
+    JCExpression makeSequenceClassArg(DiagnosticPosition diagPos, Type type, boolean makeInterface) {
+        return make.Select(
+                makeTypeTree(type, diagPos, makeInterface),
+                names.fromString("class"));
+    }
 
     JCExpression makeSequenceClassArg(DiagnosticPosition diagPos, TypeMorphInfo tmi) {
         return make.Select(
@@ -858,7 +875,20 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
             init = translateVarInit(tree, false).first;
         }
-        
+
+        // Convert initializers returning Java arrays to sequences.
+        if (type.tag == TypeTags.ARRAY) {
+            JCExpression newTree = ((JCExpression)makeTypeTree(((ArrayType)type).elemtype, diagPos, initBuilder.isJFXClass(((ArrayType)type).elemtype.tsym)));
+            newTree.type = ((ArrayType)type).elemtype;
+            WildcardType tpType = new WildcardType(newTree.type, BoundKind.EXTENDS, type.tsym);
+            ClassType classType = new ClassType(((JavafxSymtab)syms).javafx_SequenceType, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
+            typeExpression = makeTypeTree(classType, diagPos, false);
+            
+            if (init.type != ((JavafxSymtab)syms).javafx_SequenceType) {
+                init = makeSequence(diagPos, init, newTree.type, false);
+            }
+        }
+
         result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);         
     }
 
