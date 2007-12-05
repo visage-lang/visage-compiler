@@ -45,8 +45,6 @@ public class Image extends Icon {
 
     private function getImage0():java.awt.Image {
         if (image == null and url <> null) {
-//TODO JXFC-235
-/**********************************************************************************
             var imageUrl = url;
             if (baseURL <> null) {
                 var base = new java.net.URL(baseURL);
@@ -63,6 +61,7 @@ public class Image extends Icon {
                 totalDownloaded = notifierDL.getTotalRead();
                 notifierDL.addImageDownloadObserver(ImageDownloadObserver {
                         public function progress(totalRead:Integer, ofTotal:Integer):Void {
+                            /********** JXFC-332 **********
                             //TODO DO LATER - this is a work around until a more permanent solution is provided
                             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                                       public function run():Void {
@@ -73,6 +72,7 @@ public class Image extends Icon {
                                             }
                                       }
                             });
+                             *******************/
                         }
                         public function contentEncoding(contentEncoding:String):Void {
                             //empty
@@ -111,7 +111,7 @@ public class Image extends Icon {
                             if (w < size.width) {
                                 w = size.width;
                             }
-                            var temp = new java.awt.image.BufferedImage(w,  (w / ratio).intValue(), java.awt.image.BufferedImage.TYPE_INT_ARGB);
+                            var temp = new java.awt.image.BufferedImage(w.intValue(),  (w / ratio).intValue(), java.awt.image.BufferedImage.TYPE_INT_ARGB);
                             var g2 = temp.createGraphics();
                             g2.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,
                                                 java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -129,7 +129,7 @@ public class Image extends Icon {
                             if (h < size.height) {
                                 h = size.height;
                             }
-                            var temp = new java.awt.image.BufferedImage((h / ratio).intValue(), h, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+                            var temp = new java.awt.image.BufferedImage((h / ratio).intValue(), h.intValue(), java.awt.image.BufferedImage.TYPE_INT_ARGB);
                             var g2 = temp.createGraphics();
                             g2.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,
                                                 java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -145,7 +145,6 @@ public class Image extends Icon {
                 }
 
             }
- END JXFC-235 *****************************************************************/
         }
 
         if (cache and image <>  null) {
@@ -161,7 +160,7 @@ public class Image extends Icon {
     };
     public attribute size: Dimension;
     public attribute onLoad: function() on replace {
-    //    this.installListener();
+        this.installListener();
     };
     public attribute stretch: Stretch;
     public attribute totalDownloadSize: Number;
@@ -169,11 +168,8 @@ public class Image extends Icon {
     public attribute stretchDirection: StretchDirection;
     public attribute downloadProgress: function(totalRead:Number, ofTotal:Number):Void;
     private function installListener() {
-//TODO JXFC-236
-/***************************************************************************
         if (image <> null and onLoad <> null) {
-            notifier = new com.sun.javafx.api.ui.ImageLoadingNotifier(image,
-                            com.sun.javafx.api.ui.ImageLoadingNotifier.ImageLoadingListener {
+            var loadingListener = com.sun.javafx.api.ui.ImageLoadingNotifier.ImageLoadingListener {
                                 public function imageLoadingDone(img:java.awt.Image):Void {
                                     if(onLoad <> null) {
                                         onLoad();
@@ -192,9 +188,9 @@ public class Image extends Icon {
                                 public function imageHeightAvailable(img:java.awt.Image, h:Integer):Void {
                                     // Empty
                                 }
-                            });
+                            };
+            notifier = new com.sun.javafx.api.ui.ImageLoadingNotifier(image,loadingListener);
         }
-*****************************************************************/
     }
     public function getURL():java.net.URL {
         return UIElement.context.getImageURL(url);
