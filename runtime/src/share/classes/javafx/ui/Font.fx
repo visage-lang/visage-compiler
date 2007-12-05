@@ -136,7 +136,7 @@ public class Font {
     //TODO: workaround for awtFont initialization NPE
     init {
         awtFont = {
-             if (face <> null and face.url <> null) {
+             if (face <> null and face.url <> null and face.url.length() <> 0) {
                 getCachedFont(face.url, computeStyle(style), size);
              } else if (face <> null) {
                  new java.awt.Font(face.id, computeStyle(style), size);
