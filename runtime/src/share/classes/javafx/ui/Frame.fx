@@ -140,6 +140,7 @@ public class Frame extends AbstractFrame {
 		       if (not visible) {
 			   return;
 		       }
+                       frame.validate();
 		       frame.setVisible(true);
 		       frame.toFront();
 		       var loc = frame.getLocation();
