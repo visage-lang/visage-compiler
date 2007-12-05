@@ -168,7 +168,8 @@ public class ImageView extends Node {
         loaded = true;
     }
     public function createNode(): SGNode {
-            return sgimage;
+        getImage();
+        return sgimage;
     }
 }
 
