@@ -15,6 +15,7 @@ import javafx.ui.canvas.*;
 import java.lang.System;
 import java.lang.Math;
 import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import javax.swing.Timer;
 
 class BallsTest {
@@ -31,18 +32,20 @@ class BallsTest {
         System.out.println("New number of balls is {_N}");
         System.out.println("sizeof balls is {sizeof balls}");
     };
-    
-    attribute timer = new Timer(5, ActionListener {
-        public function actionPerformed(evt): Void {
+
+    attribute timerListener:ActionListener =  ActionListener {
+        public function actionPerformed(evt:ActionEvent): Void {
             if (_is_running) {
                 update();
             } else {
                 stop();
             }
         }
-    });
-    attribute fpsTimer = new Timer(3000, ActionListener {
-        public function actionPerformed(evt): Void {
+    }
+    attribute timer:Timer = new Timer(5, timerListener);
+
+    attribute fpsListener:ActionListener = ActionListener {
+        public function actionPerformed(evt:ActionEvent): Void {
             if (_is_running) {
                 <<fps>> = "{Math.round( 1000*_frames/(System.currentTimeMillis() - _startTime) )} fps";
                 _frames = 0;
@@ -51,7 +54,9 @@ class BallsTest {
                 stop();
             }
         }
-    });
+    }
+
+    attribute fpsTimer:Timer = new Timer(3000, fpsListener);
     
     attribute balls:JavaFxBall[];
 
@@ -69,12 +74,12 @@ class BallsTest {
 
     attribute <<fps>>:String = "-- fps";
     
-    function start() {
+    function start(): Void {
         timer.start();
         fpsTimer.start();
     }
     
-    function stop() {
+    function stop(): Void {
         if (_is_running) {
             _is_running = false;
             timer.stop();
