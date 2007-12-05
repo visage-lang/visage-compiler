@@ -1,3 +1,4 @@
+
 /* 
  * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved. 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER. 
@@ -309,7 +310,6 @@ public abstract class Node extends CanvasElement, Transformable {
             if (focused) {
                 canvas.focusedNode = this;
             }
-
             contentNode = this.createNode();
             if (contentNode == null) {
                 throw new Exception("create node for class {this.getClass().getName()} returned null");
@@ -340,10 +340,9 @@ public abstract class Node extends CanvasElement, Transformable {
             if (antialiasClipSet) {
                 clipFilter.setAntialiased(antialiasClip);
             }
-            //TODO JXFC-XXX - Cannot access members of superclass
-            //if (affineTransform <> null) {
-            //    transformFilter.setAffine(affineTransform);
-            //}
+            if (affineTransform <> null) {
+                transformFilter.setAffine(affineTransform);
+            }
             if (mouseListener <> null) {
                 alignmentFilter.removeMouseListener(mouseListener);
                 alignmentFilter.addMouseListener(mouseListener);
