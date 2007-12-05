@@ -40,11 +40,11 @@ import com.sun.javafx.runtime.sequence.Sequences;
 public class SequenceVar<T> extends AbstractSequenceLocation<T> implements SequenceLocation<T>, MutableLocation {
     private final SequenceMutator.Listener<T> mutationListener = new MutationListener();
 
-    public static <T> SequenceVar<T> make(Sequence<T> value) {
+    public static <T> SequenceLocation<T> make(Sequence<T> value) {
         return new SequenceVar<T>(value);
     }
 
-    public static <T> SequenceVar<T> make(Class<T> clazz, Sequence<? extends T> value) {
+    public static <T> SequenceLocation<T> make(Class<T> clazz, Sequence<? extends T> value) {
         return new SequenceVar<T>(clazz, value);
     }
 

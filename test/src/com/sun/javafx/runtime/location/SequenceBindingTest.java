@@ -48,7 +48,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
     public void testUnbound() {
         Sequence<Integer> seq = Sequences.range(1, 100);
-        SequenceVar<Integer> loc = SequenceVar.make(seq);
+        SequenceLocation<Integer> loc = SequenceVar.make(seq);
         if (! seq.equals(loc.get())) {
           Class cl1 = seq.getElementType();
           Class cl2 = loc.get().getElementType();
@@ -62,7 +62,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
      * bind first = seq[0]
      */
     public void testElementBind() {
-        final SequenceVar<Integer> seq = SequenceVar.make(Sequences.range(1, 3));
+        final SequenceLocation<Integer> seq = SequenceVar.make(Sequences.range(1, 3));
         IntLocation firstValue = IntExpression.make(new IntBindingExpression() {
             public int get() {
                 return seq.get().get(0);
@@ -81,7 +81,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testReplaceListener() {
-        final SequenceVar<Integer> seq = SequenceVar.make(Sequences.range(1, 3));
+        final SequenceLocation<Integer> seq = SequenceVar.make(Sequences.range(1, 3));
         CountingSequenceListener cl = new CountingSequenceListener();
         HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
         seq.addChangeListener(cl);
@@ -94,7 +94,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testSequenceListener() {
-        final SequenceVar<Integer> seq = SequenceVar.make(Sequences.range(1, 3));
+        final SequenceLocation<Integer> seq = SequenceVar.make(Sequences.range(1, 3));
         CountingSequenceListener cl = new CountingSequenceListener();
         HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
         seq.addChangeListener(cl);
