@@ -42,6 +42,9 @@ import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Paint;
@@ -49,6 +52,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.Toolkit;
+import java.awt.Transparency;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
@@ -56,17 +61,34 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -80,6 +102,7 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JApplet;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -96,6 +119,7 @@ import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
 import javax.swing.SpinnerModel;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentListener;
@@ -141,6 +165,274 @@ import javax.swing.tree.TreePath;
 public class UIContextImpl implements UIContext {
     XTreeCellRenderer mTreeCellRenderer = new XTreeCellRenderer();
     XTableCellRenderer mTableCellRenderer = new XTableCellRenderer();
+    static Map<String, Reference>  mGlobalImageCache = Collections.synchronizedMap(new HashMap<String, Reference>(100));
+    public UIContextImpl() {
+
+        mSyncImageCache = new HashTableWrapper(new Hashtable() {
+            @Override
+                public Object get(Object key) {
+                    Image result = (Image)mImageCache.get(key);
+                    if (result != null) {
+                        new ImageIcon(result);
+                    }
+                    return result;
+                }
+            });
+
+        mImageCache = new HashTableWrapper(new Hashtable() {
+
+            @SuppressWarnings("unchecked")
+                Set mObservers = Collections.synchronizedSet(new HashSet());
+
+                Map mSuffixCache = new HashMap();
+                ReferenceQueue refQueue = new ReferenceQueue();
+
+                class MyRef extends WeakReference {
+                    Object key;
+                @SuppressWarnings("unchecked")
+                    MyRef(Object key, Object value, ReferenceQueue q) {
+                        super(value, q);
+                        this.key = key;
+                    }
+                }
+            @Override
+            @SuppressWarnings("unchecked")
+                public synchronized Object put(Object key, Object value) {
+                    String strKey = ((URL)key).toString();
+                    return super.put(strKey, new MyRef(strKey, value, refQueue));
+                }
+
+                void pollRefs() {
+                    MyRef ref;
+                    while ((ref = (MyRef)refQueue.poll()) != null) {
+                        if (super.get(ref.key) == ref) {
+                            remove(ref.key);
+                            mGlobalImageCache.remove(ref.key);
+                        }
+                    }
+                }
+
+            @Override
+            @SuppressWarnings("unchecked")
+                public synchronized Object get(final Object key) {
+                    String strKey = ((URL)key).toString();
+                    Reference ref  = (Reference)super.get(strKey);
+                    Image result = null;
+                    if (ref != null) {
+                        result = (Image)ref.get();
+                        if (result == null) {
+                            remove(strKey);
+                        }
+                    }
+                    pollRefs();
+                    if (result == null) {
+                        ref = mGlobalImageCache.get(strKey);
+                        if (ref != null) {
+                            result = (Image)ref.get();
+                            if (result == null) {
+                                mGlobalImageCache.remove(strKey);
+                            } else {
+                                put(key, result);
+                            }
+                        }
+                    }
+                    boolean cached = false;
+                    if (result == null) {
+                        URL src = (URL)key;
+                        if (src.getPath().startsWith("jfilechooser/icon/")) {
+                            String fileName = src.getPath().substring("jfilechooser/icon/".length());
+                            createFileChooser();
+                            File tmpFile = null;
+                            String suffix = null;
+                            try {
+                                URI uri = new URI("file:"+fileName);
+                                File f = new File(uri.getPath());
+                                String name = f.getName();
+                                int dot = name.lastIndexOf(".");
+                                if (dot > 0) {
+                                    suffix = name.substring(dot);
+                                }
+                                result = (Image)mSuffixCache.get(suffix);
+                                if (result == null) {
+                                    if (!f.exists()) {
+                                        tmpFile = File.createTempFile("tmp", suffix);
+                                        f = tmpFile;
+                                    }
+                                }
+                                if (result == null) {
+                                    if (f.exists()) {
+                                        Icon icon = mFileChooser.getUI().getFileView(mFileChooser).getIcon(f);
+                                        if (icon instanceof ImageIcon) {
+                                            result = ((ImageIcon)icon).getImage();
+                                        } else {
+                                            result = new BufferedImage(icon.getIconWidth(),
+                                                                       icon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR) ;
+                                            Graphics g = result.getGraphics() ;
+                                            icon.paintIcon(mFileChooser, g, 0, 0) ;
+                                        }
+                                    } else {
+                                        result = EMPTY_16x16_IMAGE;
+                                    }
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            } finally {
+                                if (tmpFile != null) {
+                                    mSuffixCache.put(suffix, result);
+                                    tmpFile.delete();
+                                }
+                            }
+                        } else {
+                            if (null == src.getProtocol() ||
+                                "".equals(src.getProtocol()) ||
+                                "file".equals(src.getProtocol())) {
+                                //System.out.println("looking for resource: "+ src.getPath());
+                                ClassLoader loader = Thread.currentThread().getContextClassLoader();
+                                InputStream is = loader.getResourceAsStream(src.getPath());
+                                if (is != null) {
+                                    try {
+                                        URL imageUrl = loader.getResource(src.getPath());
+                                        String srcName = src.toString().toLowerCase();
+                                        try {
+                                            if (!srcName.endsWith(".bmp")) {
+                                                result = Toolkit.getDefaultToolkit().createImage(imageUrl);
+                                            }
+                                            if (result == null) {
+                                                result = ImageIO.read(imageUrl);
+                                            }
+                                        } catch (Exception e) {
+                                            if (result == null) {
+                                                result = ImageIO.read(imageUrl);
+                                            }
+                                        }
+                                        mResourceMap.put(key, imageUrl);
+                                    } catch (IOException ioe) {
+                                        ioe.printStackTrace();
+                                    } finally {
+                                    }
+                                }
+                            }
+                            if (result == null) {
+                                //result = getImageFromCache(src);
+                                cached = result != null;
+                            }
+                            if (result == null) {
+                                try {
+                                    URL codeBase = null;
+                                    //URL codeBase = mModule.getCodeBase();
+                                    URL u;
+
+                                    if (codeBase == null) {
+
+                                            u = src;
+                                    } else {
+                                        u = new URL(codeBase, src.toString());
+                                    }
+                                    if (false && mApplet != null) {
+                                        result = mApplet.getImage(u);
+                                    } else {
+                                        try {
+                                            String srcName = u.toString().toLowerCase();
+                                            if (!srcName.endsWith(".bmp")) {
+                                                if ("http".equals(u.getProtocol())) {
+                                                    result = Toolkit.getDefaultToolkit().createImage(new CachedImage(UIContextImpl.this, u));
+                                                } else {
+                                                    result = Toolkit.getDefaultToolkit().createImage(u);
+                                                }
+                                            }
+                                            if (result == null) {
+                                                result = ImageIO.read(u);
+                                            }
+                                        } catch (Exception e) {
+                                            if (result == null) {
+                                                result = ImageIO.read(u);
+                                            }
+                                        }
+
+                                    }
+                                } catch (java.io.IOException e) {
+                                } catch (java.security.AccessControlException e) {
+                                    System.out.println("access denied: " + key);
+                                }
+                            }
+
+                            if (result != null) {
+                                if ((src.getProtocol() == null ||
+                                     src.getProtocol().equals("file") ||
+                                     src.getProtocol().equals(""))) {
+                                    // force load
+                                    //new ImageIcon(result);
+                                } else if (false) {
+                                    ImageObserver observer = new ImageObserver() {
+                                            public boolean imageUpdate(final Image image, final int infoflags, final int x, final
+ int y, final int width, final int height) {
+                                                if ((infoflags & ALLBITS) != 0) {
+                                                    final ImageObserver self = this;
+                                                    try {
+                                                        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment(
+);
+                                                        GraphicsDevice gs = ge.getDefaultScreenDevice();
+                                                        GraphicsConfiguration gc = gs.getDefaultConfiguration();
+                                                        // Create an image that supports arbitrary levels of transparency
+                                                        final Image i = gc.createCompatibleImage(width, height, Transparency.TRANSLUCENT);
+                                                        i.getGraphics().drawImage(image, 0, 0, self);
+                                                        SwingUtilities.invokeLater(new Runnable() {
+                                                                public void run() {
+                                                                    put(key, i);
+                                                                }
+                                                            });
+                                                    } catch (java.security.AccessControlException e) {
+                                                        System.out.println("create image access denied: " + key);
+                                                    }
+                                                    mObservers.remove(this);
+                                                    return false;
+                                                }
+                                                return true;
+                                            }
+                                        };
+                                    mObservers.add(observer);
+                                    int w  = result.getWidth(observer);
+                                    if (w >= 0) {
+                                        int h = result.getHeight(observer);
+                                        if (h >= 0) {
+                                            mObservers.remove(observer);
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                        if (result != null) {
+                            mGlobalImageCache.put(strKey, new WeakReference(result));
+                            put(key, result);
+                        } else {
+                            System.out.println("not found: " + src);
+                        }
+                    }
+                    return result;
+                }
+            });
+        mSyncHtmlKit = new HTMLEditorKit() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public Document createDefaultDocument() {
+                StyleSheet styles = getStyleSheet();
+                StyleSheet ss = new StyleSheet();
+                ss.addStyleSheet(styles);
+                HTMLDocument doc = new HTMLDoc(ss);
+                doc.setParser(getParser());
+                //doc.setAsynchronousLoadPriority(4);
+                //doc.setTokenThreshold(100);
+                doc.putProperty("imageCache", mSyncImageCache);
+                if (mMemLeakWorkaround) {
+                    mDocs.put(doc, null);
+                }
+                return doc;
+            }
+        };
+        mSyncHtmlKit.setAutoFormSubmission(false);
+    }
+            
 
     class XTreeCellRenderer extends DefaultTreeCellRenderer {
 
@@ -2218,7 +2510,194 @@ public class UIContextImpl implements UIContext {
         return result;
 
     }
+    InputStream getInputStream(final URL u, final ImageDownloadObserver observer) throws IOException {
+        if (!"http".equals(u.getProtocol())) {
+            return u.openStream();
+        }
+        return new InputStream() {
 
+                InputStream delegate;
+
+                public int read() throws  IOException {
+                    if (delegate == null) {
+                        delegate = getDelegate();
+                    }
+                    return delegate.read();
+                }
+            @Override
+                public int read(byte[] bytes, int start, int len) throws IOException {
+                    if (delegate == null) {
+                        delegate = getDelegate();
+                    }
+                    return delegate.read(bytes, start, len);
+                }
+
+            @Override
+                public void close() throws IOException {
+                    if (delegate != null) {
+                        delegate.close();
+                        delegate = null;
+                    }
+                }
+
+                InputStream getDelegate() throws IOException {
+                    String cacheName = toCacheName(u);
+                    File cacheFile = new File(cacheDir, cacheName);
+                    return download(u, cacheFile, observer);
+                }
+
+            };
+    }
+    
+    @SuppressWarnings("unchecked")
+    InputStream download(final URL u, final File cache, final ImageDownloadObserver observer) throws IOException {
+        String contentEncoding = (String)fileCache.get(u.toString());
+        boolean download = contentEncoding == null || !cache.exists();
+        if (download) {
+            if (!"http".equals(u.getProtocol())) {
+                return u.openStream();
+            }
+            //System.out.println("download requested...");
+            int totalRead = 0;
+            int totalSize = 0;
+            String etag = null;
+            String lastModified = null;
+            if (cache.exists()) {
+                File cacheRec = new File(cache.toString() + "-cache.rec");
+                if (cacheRec.exists()) {
+                    BufferedReader reader = new BufferedReader(new FileReader(cacheRec));
+                    etag = reader.readLine();
+                    lastModified = reader.readLine();
+                    contentEncoding = reader.readLine();
+                    reader.close();
+                }
+            }
+            final HttpURLConnection c =
+                (HttpURLConnection)u.openConnection();
+            HttpURLConnection.setFollowRedirects(true);
+            c.setRequestProperty("accept-encoding",
+                                 "image/png,image/gif,image,jpeg");
+            if (etag != null) {
+                c.addRequestProperty("If-None-Match", etag);
+            }
+            if (lastModified != null) {
+                c.addRequestProperty("If-Modified-Since", lastModified);
+            }
+            try {
+                //System.out.println("connecting to: " + u);
+                c.connect();
+                download = c.getResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED;
+                //System.out.println("connecting to: " + u + "...done");
+            } catch (IOException e) {
+                if (!cache.exists()) {
+                    //mNotFound.add(urlStr);
+                    throw e;
+                }
+                download = false;
+            }
+            if (download) {
+                    if (cache.exists()) {
+                    cache.delete();
+                }
+                return new InputStream() {
+                        int total = c.getContentLength();
+                        String contentEncoding = c.getContentEncoding();
+                        final InputStream is = c.getInputStream();
+                        ByteArrayInputStream tee;
+                        int totalRead;
+                        {
+                            observer.contentEncoding(contentEncoding);
+                            notifyProgress(0, total);
+                            byte[] buf = new byte[8192];
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            int count;
+                            while ((count = is.read(buf, 0, buf.length)) != -1) {
+                                notifyProgress(count);
+                                baos.write(buf, 0, count);
+                            }
+                            byte[] bytes = baos.toByteArray();
+                            notifyComplete(bytes);
+                            tee = new ByteArrayInputStream(bytes);
+                        }
+                        public int read() throws IOException {
+                            return tee.read();
+                        }
+
+                    @Override
+                        public int read(byte[] bytes, int start, int len) throws IOException {
+                            return tee.read(bytes, start, len);
+                        }
+
+                    @Override
+                        public void close() throws IOException {
+                        }
+
+                        void notifyProgress(int lastRead) {
+                            totalRead += lastRead;
+                            notifyProgress(totalRead, total);
+                        }
+
+                        void notifyProgress(int totalRead, int ofTotal) {
+                            observer.progress(totalRead, ofTotal);
+                        }
+
+                    @SuppressWarnings("unchecked")
+                        void notifyComplete(byte[] bytes) throws IOException {
+                            FileOutputStream fos = new FileOutputStream(cache);
+                            fos.write(bytes, 0, bytes.length);
+                            fos.close();
+                            String lastModified = c.getHeaderField("Last-Modified");
+                            String etag = c.getHeaderField("ETag");
+                            java.io.PrintWriter pw = new java.io.PrintWriter(new FileWriter(new File(cache.toString()+"-cache.rec")));
+                            pw.println(etag);
+                            pw.println(lastModified);
+                            pw.println(contentEncoding);
+                            pw.close();
+                            fileCache.put(u.toString(), contentEncoding == null ? "" : contentEncoding);
+                            notifyProgress(totalRead, totalRead);
+                        }
+                    };
+            } else {
+                fileCache.put(u.toString(), contentEncoding == null ? "" : contentEncoding);
+            }
+        }
+        int size = (int)cache.length();
+        //System.out.println("returning image from cache: " + u);
+        observer.contentEncoding(contentEncoding);
+        observer.progress(size, size);
+        return new BufferedInputStream(new FileInputStream(cache));
+    }
+
+    String toCacheName(URL url) {
+        try {
+            return toCacheName(url.toURI().toString());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    String toCacheName(String url) {
+        String name = url;
+        name = name.replace('\\', '/');
+        name = name.replaceAll(":", "%3a");
+        name = name.replaceAll("/", "%2f");
+        name = name.replaceAll("[.]", "%2e");
+        name = name.replaceAll("[&]", "%26");
+        name = name.replaceAll("[=]", "%3d");
+        name = name.replaceAll("[?]", "%3f");
+        return name;
+    }
+
+    @SuppressWarnings("unchecked")
+    static Map fileCache = Collections.synchronizedMap(new HashMap());
+
+    File cacheDir = new File(System.getProperty("user.home")+"/.javafxcache/images");
+    {
+        try {
+            cacheDir.mkdirs();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
 }
