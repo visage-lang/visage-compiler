@@ -14,6 +14,8 @@ import javafx.ui.*;
 import javafx.ui.canvas.*;
 import java.lang.System;
 import java.lang.Math;
+import java.awt.event.ActionListener;
+import javax.swing.Timer;
 
 class BallsTest {
     attribute _is_running: Boolean = true;
@@ -30,8 +32,26 @@ class BallsTest {
         System.out.println("sizeof balls is {sizeof balls}");
     };
     
-    attribute timer:Number;
-    attribute fpsTimer:Number;
+    attribute timer = new Timer(5, ActionListener {
+        public function actionPerformed(evt): Void {
+            if (_is_running) {
+                update();
+            } else {
+                stop();
+            }
+        }
+    });
+    attribute fpsTimer = new Timer(3000, ActionListener {
+        public function actionPerformed(evt): Void {
+            if (_is_running) {
+                <<fps>> = "{Math.round( 1000*_frames/(System.currentTimeMillis() - _startTime) )} fps";
+                _frames = 0;
+                _startTime = System.currentTimeMillis();
+            } else {
+                stop();
+            }
+        }
+    });
     
     attribute balls:JavaFxBall[];
 
@@ -48,27 +68,21 @@ class BallsTest {
     };
 
     attribute <<fps>>:String = "-- fps";
+    
+    function start() {
+        timer.start();
+        fpsTimer.start();
+    }
+    
+    function stop() {
+        if (_is_running) {
+            _is_running = false;
+            timer.stop();
+            fpsTimer.stop();
+            <<fps>> = "-- fps";
+        }
+    }
 }
-
-/*
-attribute BallsTest.timer = bind [1..1000] dur 1000 linear
-while _is_running
-continue if _is_running;
-
-attribute BallsTest.fpsTimer = bind [1..10] dur 30000 linear
-while _is_running
-continue if _is_running;
-
-trigger on BallsTest.timer = value{
-    update();
-}
-
-trigger on BallsTest.fpsTimer = value{
-    <<fps>> = "{Math.round( 1000*_frames/(System.currentTimeMillis() - _startTime) )} fps";
-    _frames = 0;
-    _startTime = System.currentTimeMillis();
-}
-*/
 
 var test = new BallsTest();
 
@@ -119,9 +133,9 @@ var win = Frame {
         visible: true
         resizable: false
         onClose: function() {
-            test._is_running = false;
-            test.timer = 0;
-            test.fpsTimer = 0;
+            test.stop();
 	    delete test;
         }
 };
+
+test.start();
