@@ -47,7 +47,7 @@ import com.sun.tools.javafx.ui.SequenceUtil;
  * that represent some form of geometric shape.
  */
 public abstract class Shape extends VisualNode, AbstractPathElement {
-    protected attribute sgshape: SGShape = new SGShape();
+    protected attribute sgshape: SGShape;
     protected abstract function createShape(): SGShape; // TODO: could return Shape here instead?
     public function getShape(): SGShape{
         if (sgshape == null) {
