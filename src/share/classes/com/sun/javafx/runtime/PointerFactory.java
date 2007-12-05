@@ -29,7 +29,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
         throw new UnsupportedOperationException();
     }
 
-    public ObjectLocation<Pointer> make$bound(IntLocation location) {
+    public ObjectLocation<Pointer> make$$bound$int(IntLocation location) {
         return ObjectVar.make(Pointer.make(location));
     }
 
@@ -37,7 +37,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
         throw new UnsupportedOperationException();
     }
 
-    public ObjectLocation<Pointer> make$bound(DoubleLocation location) {
+    public ObjectLocation<Pointer> make$$bound$double(DoubleLocation location) {
         return ObjectVar.make(Pointer.make(location));
     }
 
@@ -45,7 +45,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
         throw new UnsupportedOperationException();
     }
 
-    public ObjectLocation<Pointer> make$bound(BooleanLocation location) {
+    public ObjectLocation<Pointer> make$$bound$boolean(BooleanLocation location) {
         return ObjectVar.make(Pointer.make(location));
     }
 
@@ -53,7 +53,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
         throw new UnsupportedOperationException();
     }
 
-    public ObjectLocation<Pointer> make$bound(ObjectLocation location) {
+    public ObjectLocation<Pointer> make$$bound$java_lang_Object(ObjectLocation location) {
         return ObjectVar.make(Pointer.make(location));
     }
 
@@ -61,7 +61,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
         throw new UnsupportedOperationException();
     }
 
-    public ObjectLocation<Pointer> make$bound(SequenceLocation location) {
+    public ObjectLocation<Pointer> make$$bound$com_sun_javafx_runtime_sequence_Sequence(SequenceLocation location) {
         return ObjectVar.make(Pointer.make(location));
     }
 }

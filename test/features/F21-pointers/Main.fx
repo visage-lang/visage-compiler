@@ -13,6 +13,8 @@ var pf = PointerFactory { };
 var v = 1;
 var w = 2;
 var s = [ 1, 2, 3 ];
+var b : Boolean = true;
+var n : Number = 1.0;
 
 var bvp = bind pf.make(v);
 var vp = bvp.unwrap();
@@ -24,6 +26,12 @@ var wp1 = bwp1.unwrap();
 
 var bsp = bind pf.make(s);
 var sp = bsp.unwrap();
+
+var bnp = bind pf.make(n);
+var np = bnp.unwrap();
+
+var bbp = bind pf.make(b);
+var bp = bbp.unwrap();
 
 // True
 System.out.println(Pointer.equals(vp, vp));
