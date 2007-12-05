@@ -140,7 +140,6 @@ public class Calculator extends CompositeNode {
         var divmult = ["div", "mult", "sub", "add"];
         var ops = ["/", "*", "-", "+"];
         Group {
-            
             content:
             [ImageView {
                 image: Image{url: "{__DIR__}/images/Calculator.png"}
@@ -160,24 +159,24 @@ public class Calculator extends CompositeNode {
             foreach(i in [0..sizeof n13 exclusive ])
             (CalcButton {
                 transform: [Transform.translate(16+i *38, 153)]
-                image: Image{url: "{__DIR__}/images/{i}.png"}
-                pressedImage: Image{url: "{__DIR__}/images/d{i}.png"}
+                image: Image{url: "{__DIR__}/images/{n13[i]}.png"}
+                pressedImage: Image{url: "{__DIR__}/images/d{n13[i]}.png"}
                 action: function():Void {input("{n13[i]}");}
             } as Object) as Node,
             //foreach (i in [4,5,6])
             foreach(i in [0..sizeof n46 exclusive ])
             (CalcButton {
                 transform: [Transform.translate(16+i *38, 153-38)]
-                image: Image{url: "{__DIR__}/images/{i}.png"}
-                pressedImage: Image{url: "{__DIR__}/images/d{i}.png"}
+                image: Image{url: "{__DIR__}/images/{n46[i]}.png"}
+                pressedImage: Image{url: "{__DIR__}/images/d{n46[i]}.png"}
                 action: function():Void {input("{n46[i]}");}    
             }as Object) as Node,
             //foreach (i in [7,8,9])
             foreach(i in [0..sizeof n79 exclusive ])
             (CalcButton {
                 transform: [Transform.translate(16+i *38, 153-38*2)]
-                image: Image{url: "{__DIR__}/images/{i}.png"}
-                pressedImage: Image{url: "{__DIR__}/images/d{i}.png"}
+                image: Image{url: "{__DIR__}/images/{n79[i]}.png"}
+                pressedImage: Image{url: "{__DIR__}/images/d{n79[i]}.png"}
                 action: function():Void {input("{n79[i]}");}
             }as Object) as Node,
             //foreach (i in ["0", "decimal", "c"])
@@ -226,10 +225,7 @@ var canvas = Canvas {
 
 Frame {
   title: "JavaFX Calculator"
-  width: 480
-  height: 300
-  
-  background: Color.GREY
+  background: Color.WHITE
   onClose: function():Void { System.exit(0); }
   content: canvas
   visible: true
