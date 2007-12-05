@@ -442,8 +442,9 @@ public abstract class Node extends CanvasElement, Transformable {
             }
         };
     /** A number between 0 and 1, 0 being transparent and 1 opaque. */
-    public attribute opacity: Number on replace {
-        opacitySet = true;
+    public attribute opacity: Number = 1 on replace {
+        if (opacitySet == false and opacity <> 1) // ignore initial opaque setting
+            opacitySet = true;
         if (compositeFilter <> null) {
             compositeFilter.setOpacity(clamp(opacity, 0, 1).floatValue());
         }
