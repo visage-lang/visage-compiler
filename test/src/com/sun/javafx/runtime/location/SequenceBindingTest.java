@@ -30,6 +30,8 @@ import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 import com.sun.javafx.runtime.sequence.Sequences;
 
+import java.util.Map;
+
 /**
  * SequenceBindingTest
  *
@@ -330,7 +332,15 @@ public class SequenceBindingTest extends JavaFXTestCase {
     public void testUpcast() {
         final SequenceLocation<Integer> iloc = SequenceVar.make(Sequences.range(1, 3));
         final SequenceLocation<Number> nloc = SequenceVar.make(Sequences.upcast(Number.class, iloc.get()));
+        final SequenceLocation<Object> asObjects = SequenceVar.make(Sequences.upcast(Object.class, iloc.get()));
         assertEquals(nloc.get(), 1, 2, 3);
+        assertEquals(asObjects.get(), 1, 2, 3);
+
+        assertThrows(ClassCastException.class, new VoidCallable() {
+            public void call() throws Exception {
+                Sequence<Map> asMaps = Sequences.upcast(Map.class, (Sequence) asObjects.get());
+            }
+        });
     }
 
     public void testBoundConcat() {

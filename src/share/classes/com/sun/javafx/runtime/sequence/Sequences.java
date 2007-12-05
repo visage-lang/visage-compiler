@@ -167,6 +167,9 @@ public final class Sequences {
     public static<T> Sequence<T> upcast(Class<T> clazz, Sequence<? extends T> sequence) {
         if (clazz == sequence.getElementType())
             return (Sequence<T>) sequence;
+        else if (!clazz.isAssignableFrom(sequence.getElementType()))
+            throw new ClassCastException("Cannot upcast Sequence<" + sequence.getElementType().getName()
+                    + "> to Sequence<" + clazz.getName() + ">");
         else
             return new UpcastSequence<T>(clazz, sequence);
     }
