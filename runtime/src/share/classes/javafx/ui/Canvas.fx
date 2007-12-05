@@ -296,42 +296,70 @@ public class Canvas extends Widget, CanvasElement, Container {
         return this;
     }
 
-    protected function raiseNode(n:Node) {
-        /*TODO: need indexof
-        var i = select indexof x from x in content where x == n;
+    protected function raiseNode(n:Node):Void {
+        //TODO: need indexof
+        //var i = select indexof x from x in content where x == n;
+        var i = 0;
+        foreach(x in content) {
+            if(x == n) {
+                break;
+            }
+            i = i + 1;
+        }
         if (i == sizeof content -1) {
             return;
         }
-        delete content[i];
-        insert n after content[i];
-        */
+        var tmp = content[i];
+        content[i] = content[i+1];
+        content[i+1] = tmp;
     }
 
-    protected function lowerNode(n:Node) {
-        /*TODO: need indexof
-        var i = select first indexof x from x in content where x == n;
+    protected function lowerNode(n:Node):Void {
+        //TODO: need indexof
+        //var i = select first indexof x from x in content where x == n;
+        var i = 0;
+        foreach(x in content) {
+            if(x == n) {
+                break;
+            }
+            i = i + 1;
+        }
         if (i == 0) {
             return;
         }
-        delete content[i];
-        insert n before content[i-1];
-        */
+        var tmp = content[i-1];
+        content[i-1] = content[i];
+        content[i] = tmp;
     }
 
-    protected function moveNodeToFront(n:Node) {
-        /*TODO: need indexof
-        var i = select indexof x from x in content where x == n;
+    protected function moveNodeToFront(n:Node):Void {
+        //TODO: need indexof
+        //var i = select indexof x from x in content where x == n;
+        var i = 0;
+        foreach(x in content) {
+            if(x == n) {
+                break;
+            }
+            i = i + 1;
+        }
         delete content[i];
-        insert n as last into content;
-        */
+        insert n  into content;
+        
     }
 
-    protected function moveNodeToBack(n:Node) {
-        /*TODO: need indexof
-        var i = select indexof x from x in content where x == n;
+    protected function moveNodeToBack(n:Node):Void {
+        //TODO: need indexof
+        //var i = select indexof x from x in content where x == n;
+        var i = 0;
+        foreach(x in content) {
+            if(x == n) {
+                break;
+            }
+            i = i + 1;
+        }
         delete content[i];
-        insert n as first into content;
-        */
+        //insert n as first into content;
+        content = [n, content];
     }
 
     public function createComponent():javax.swing.JComponent {
@@ -359,7 +387,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         // doing mouseovers in JFXPad:
         //     java.lang.ClassCastException: com.sun.scenario.scenegraph.SGGroup
         //     cannot be cast to javax.swing.JComponent
-        //<<javax.swing.ToolTipManager>>.sharedInstance().registerComponent(jsgpanel);
+        //<<javax.swing.ToolTipManager>/>.sharedInstance().registerComponent(jsgpanel);
         var javaVersion = System.getProperty("java.version") as java.lang.String;
         var javaBroken = javaVersion.startsWith("1.5.0_0") as Boolean;
      /* TODO: port addTransferHandler
@@ -412,6 +440,7 @@ public class Canvas extends Widget, CanvasElement, Container {
                 (focusedNode.onKeyUp)(self.makeKeyEvent(e));
             }
         });
+        jsgpanel.repaint();
         return jsgpanel;
     }
 }
