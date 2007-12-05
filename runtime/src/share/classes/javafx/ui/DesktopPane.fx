@@ -50,8 +50,6 @@ public class DesktopPane extends Widget {
     public attribute cascaded: Boolean on replace {
 
             if (cascaded) {
-                //TODO JFXC-344
-                /*********************
                 var dframes = jdesk.getAllFrames();
                 var x = 0.0;
                 var y = 0.0;
@@ -82,7 +80,6 @@ public class DesktopPane extends Widget {
                     x += d;
                     y += d;
                 }
-                 ************ END OF JFXC-344 ********/
 
                 cascaded = false;
             }
