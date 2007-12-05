@@ -255,7 +255,7 @@ public final class Sequences {
 
     /** Convert a Sequence<T> to an array */
     public static<T> T[] toArray(Sequence<T> seq) {
-        T[] unboxed = Util.newObjectArray(seq.size());
+        T[] unboxed = Util.<T>newObjectArray(seq.size());
         for (int i=0; i<unboxed.length; i++)
             unboxed[i] = seq.get(i);
         return unboxed;
