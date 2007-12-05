@@ -48,7 +48,7 @@ import static com.sun.tools.javac.code.TypeTags.*;
 
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
-import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.comp.JavafxAttr.Sequenceness;
 
 import java.util.Map;
@@ -74,7 +74,7 @@ public class JavafxCheck {
     private final Infer infer;
     private final Target target;
     private final Source source;
-    private final Types types;
+    private final JavafxTypes types;
     private final boolean skipAnnotations;
     private final JavafxTreeInfo treeinfo;
     private final JavafxResolve rs;
@@ -101,7 +101,7 @@ public class JavafxCheck {
 	log = Log.instance(context);
 	syms = (JavafxSymtab) Symtab.instance(context);
 	infer = Infer.instance(context);
-	this.types = Types.instance(context);
+	this.types = JavafxTypes.instance(context);
 	Options options = Options.instance(context);
 	target = Target.instance(context);
         source = Source.instance(context);
@@ -406,12 +406,12 @@ public class JavafxCheck {
 	if (req.tag == NONE || req == syms.javafx_UnspecifiedType)
 	    return found;
         if (isSequence(req)) {  
-            req = elementType(req);
+            req = types.elementType(req);
             pSequenceness = Sequenceness.REQUIRED;
         }
         if (isSequence(found)) {  
             if (pSequenceness != Sequenceness.DISALLOWED) {
-                found = elementType(found);
+                found = types.elementType(found);
             } else {
                 return typeError(pos, JCDiagnostic.fragment("incompatible.types"), found, req);
             }
@@ -445,21 +445,7 @@ public class JavafxCheck {
                 && type.tag != ERROR 
                 && type.tag != METHOD && type.tag != FORALL
                 && types.erasure(type) == syms.javafx_SequenceTypeErasure;
-    }
-    
-    Type elementType(Type seqType) {
-        Type elemType = seqType.getTypeArguments().head;
-        if (elemType instanceof CapturedType)
-            elemType = ((CapturedType) elemType).wildcard;
-        if (elemType instanceof WildcardType)
-            elemType = ((WildcardType) elemType).type;
-        Type unboxed = types.unboxedType(elemType);
-        if (unboxed.tag != NONE) {
-            elemType = unboxed;
-        }
-        return elemType;
-    }
-    
+    }   
 
     /** Instantiate polymorphic type to some prototype, unless
      *  prototype is `anyPoly' in which case polymorphic type

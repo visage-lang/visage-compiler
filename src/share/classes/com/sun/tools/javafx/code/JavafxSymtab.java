@@ -31,8 +31,7 @@ import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.code.Type.MethodType;
 import static com.sun.tools.javac.jvm.ByteCodes.*;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
+import com.sun.tools.javac.util.*;
 
 /**
  *

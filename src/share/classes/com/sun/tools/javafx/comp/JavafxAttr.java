@@ -109,7 +109,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     private final ConstFold cfolder;
     private final JavafxEnter enter;
     private final Target target;
-    private final Types types;
+    private final JavafxTypes types;
     private final Annotate annotate;
     private JavafxInitializationBuilder initBuilder;
 
@@ -146,7 +146,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         enter = JavafxEnter.instance(context);
         cfolder = ConstFold.instance(context);
         target = Target.instance(context);
-        types = Types.instance(context);
+        types = JavafxTypes.instance(context);
         annotate = Annotate.instance(context);
         initBuilder = JavafxInitializationBuilder.instance(context);
 
@@ -1000,7 +1000,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             Type elemType = null;
 
             if (isSequence(tree.type)) {
-                elemType = chk.elementType(tree.type);
+                elemType = types.elementType(tree.type);
             }
 
             for (JFXAbstractOnChange onc : tree.getOnChanges()) {
@@ -2552,7 +2552,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // atrribute the items, and determine least upper bound of type
         Type elemType = null;
         if (isSequence(pt)) {
-            elemType = chk.elementType(pt);
+            elemType = types.elementType(pt);
         } else if (pt.tag == NONE || pt == syms.javafx_UnspecifiedType) {
             // we don't know what type we are supposed to be, try to infer it
             for (JCExpression expr : tree.getItems()) {
@@ -2561,7 +2561,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     continue;
                 }
                 if (isSequence(itemType)) {
-                    itemType = chk.elementType(itemType);
+                    itemType = types.elementType(itemType);
                 }
                 if (elemType == null) {
                     elemType = itemType;
@@ -2604,7 +2604,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             owntype = ((ArrayType)seqType).elemtype;
         }
         else {
-            owntype = chk.elementType(seqType);
+            owntype = types.elementType(seqType);
         }
         result = check(tree, owntype, VAR, pkind, pt, pSequenceness);
     }
@@ -2612,7 +2612,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
         Type seqType = attribTree(tree.getSequence(), env, VAR, Type.noType, Sequenceness.REQUIRED); 
-        attribExpr(tree.getElement(), env, chk.elementType(seqType));
+        attribExpr(tree.getElement(), env, types.elementType(seqType));
         result = null;
     }
     
@@ -2633,7 +2633,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             }
         } else {
             Type seqType = attribTree(tree.getSequence(), env, VAR, Type.noType, Sequenceness.REQUIRED); 
-            attribExpr(tree.getElement(), env, chk.elementType(seqType));
+            attribExpr(tree.getElement(), env, types.elementType(seqType));
         }
         result = null;
     }

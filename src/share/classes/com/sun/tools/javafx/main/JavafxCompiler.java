@@ -284,6 +284,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         com.sun.tools.javafx.tree.JavafxTreeMaker.preRegister(context);
         com.sun.tools.javafx.tree.JavafxTreeInfo.preRegister(context);
         com.sun.tools.javafx.code.JavafxSymtab.preRegister(context);
+        com.sun.tools.javafx.code.JavafxTypes.preRegister(context);
         com.sun.tools.javafx.comp.JavafxClassReader.preRegister(context);
         
         javafxJavaCompiler = JavafxJavaCompiler.instance(context);

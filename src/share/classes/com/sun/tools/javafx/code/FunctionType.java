@@ -49,6 +49,7 @@ public class FunctionType extends Type.ClassType {
         mtype = orig.mtype;
     }
 
+    public List<Type>        getParameterTypes() { return mtype.getParameterTypes(); } 
     public Type              getReturnType()     { return restype; }
     
     public MethodType asMethodType () { return mtype; }
