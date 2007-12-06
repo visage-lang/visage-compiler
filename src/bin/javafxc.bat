@@ -5,7 +5,7 @@ REM
 REM Uses the same arguments as the JDK's javac command.
 
 REM %~dp0 is expanded pathname of the current script
-set _JAVAFXC_HOME=%~dp0..
+set _JAVAFXC_HOME=%~dp0..\lib
 
 if "%JAVA_HOME%" == "" goto noJavaHome
 if not exist "%JAVA_HOME%\bin\java.exe" goto noJavaHome

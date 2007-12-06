@@ -17,7 +17,7 @@ while [ -h "$PRG" ]; do
     fi
 done
 
-HOME=`dirname "$PRG"`/..
+HOME=`dirname "$PRG"`/../lib
 
 case "`uname`" in
   Darwin*) if [ -z "$JAVA_HOME" ] ; then
