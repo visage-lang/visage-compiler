@@ -1879,9 +1879,40 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitBinary(JCBinary tree) {
+        DiagnosticPosition diagPos = tree.pos();
         JCExpression lhs = translate(tree.lhs);
         JCExpression rhs = translate(tree.rhs);
-        result = make.at(tree.pos).Binary(tree.getTag(), lhs, rhs);
+        if (tree.getTag() == JavafxTag.EQ && !tree.lhs.type.isPrimitive()) {
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            Name lhsTmpVarName = getSyntheticName("lhs");
+            Name rhsTmpVarName = getSyntheticName("rhs");
+            stmts.append(  make.at(diagPos).VarDef(
+                        make.Modifiers(0L), 
+                        lhsTmpVarName, 
+                        makeTypeTree(tree.lhs.type, diagPos, true), 
+                        lhs) );
+            stmts.append(  make.at(diagPos).VarDef(
+                        make.Modifiers(0L), 
+                        rhsTmpVarName, 
+                        makeTypeTree(tree.lhs.type, diagPos, true), 
+                        rhs) );
+            JCExpression cond = make.at(diagPos).Binary(JCTree.NE, 
+                    make.Ident(lhsTmpVarName), 
+                    make.Literal(TypeTags.BOT, null));
+            JCExpression nullCase = make.at(diagPos).Binary(tree.getTag(),
+                    make.Ident(lhsTmpVarName),
+                    make.Ident(rhsTmpVarName));
+            JCExpression value = make.at(diagPos).Conditional(cond, 
+                    this.callExpression(diagPos, 
+                        make.Ident(lhsTmpVarName), 
+                        "equals", 
+                        make.Ident(rhsTmpVarName)), 
+                    nullCase
+                    );
+            result = makeBlockExpression(diagPos, stmts, value);
+        } else {
+            result = make.at(diagPos).Binary(tree.getTag(), lhs, rhs);
+        }
     }
 
     public void visitBreak(JCBreak tree) {
