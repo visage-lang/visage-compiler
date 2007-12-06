@@ -65,15 +65,12 @@
         </javafxc>
     </target>
     
-    <target name="jar" description="Build JAR." depends="init,compile">
+    <target name="jar" description="Build JAR." depends="init,compile,-pre-pre-jar">
         <jar compress="${jar.compress}" destfile="${dist.jar}">
             <fileset dir="${build.classes.dir}"/>
             <zipfileset src="${file.reference.javafxc.jar}" includes="com/sun/javafx/**"/>
             <zipfileset src="${file.reference.swing-layout.jar}" excludes="META-INF/**/"/>
         </jar>
-    </target>
-
-    <target name="-post-jar">
         <copy file="${file.reference.scenegraph.jar}" todir="${dist.jar.dir}"/>
     </target>
 
