@@ -41,7 +41,6 @@ public class Path extends Shape {
             buildPath();
         }
     };
-    //TODO 
     public attribute lastMoveToX: Number = UNSET;
     public attribute lastMoveToY: Number = UNSET;
     public attribute xCenter: Number = UNSET;
@@ -79,13 +78,13 @@ public class Path extends Shape {
 
     protected function createShape(): SGShape {
         sgshape = new SGShape();
+        foreach (i in d) {
+                i.path = this;
+        }
         this.buildPath();
         return sgshape;
     }
-
-    init {
-        fillRule = FillRule.NON_ZERO;
-    }
+    public attribute fillRule: FillRule = FillRule.NON_ZERO;
 }
 
 

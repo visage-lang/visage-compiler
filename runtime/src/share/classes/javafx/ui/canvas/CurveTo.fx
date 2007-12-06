@@ -100,6 +100,7 @@ public class CurveTo extends PathElement {
                 path.currentX = x3;
                 path.currentY = y3;
             } else {
+
                 gp.curveTo((path.currentX * 2 - path.xCenter).floatValue(),
                            (path.currentY * 2 - path.yCenter).floatValue(),
                            (path.currentX + x2).floatValue(), 
@@ -110,8 +111,8 @@ public class CurveTo extends PathElement {
                 path.xCenter = path.currentX + x2;
                 path.yCenter = path.currentY + y2;
 
-                path.currentX = path.currentX + x3;
-                path.currentY = path.currentY + y3;
+                path.currentX +=  x3;
+                path.currentY +=  y3;
             }
 
             return;
@@ -130,10 +131,11 @@ public class CurveTo extends PathElement {
             path.xCenter = path.currentX + x2;
             path.yCenter = path.currentY + y2;
 
-            path.currentX = path.currentX + x3;
-            path.currentY = path.currentY + y3;
+            path.currentX += x3;
+            path.currentY += y3;
 
             var pt = gp.getCurrentPoint();
+            
             gp.curveTo((x1 + pt.getX()).floatValue(), 
                        (y1 + pt.getY()).floatValue(),
                        (x2 + pt.getX()).floatValue(),

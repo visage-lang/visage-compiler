@@ -124,10 +124,10 @@ public class ArcTo extends PathElement {
         if(not sweepFlag and angleExtent > 0) {
             angleExtent -= 360;
         } else if (sweepFlag and angleExtent < 0) {
-            angleExtent = angleExtent + 360;
+            angleExtent += 360;
         }
-        angleExtent = angleExtent %360;
-        angleStart = angleStart %360;
+        angleExtent %= 360;
+        angleStart %= 360;
 
         //
         // We can now build the resulting Arc2D in double precision

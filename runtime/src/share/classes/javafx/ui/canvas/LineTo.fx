@@ -52,10 +52,10 @@ public class LineTo extends PathElement {
 
             gp.lineTo(x.floatValue(), y.floatValue());
         } else {
-            path.currentX = path.currentX +x;
+            path.currentX += x;
             path.xCenter = path.currentX;
 
-            path.currentY = path.currentY + y;
+            path.currentY +=  y;
             path.yCenter = path.currentY;
 
             var pt = gp.getCurrentPoint();

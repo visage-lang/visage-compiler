@@ -58,25 +58,25 @@ class QuadTo extends PathElement {
 
     public function addTo(gp:GeneralPath):Void {
             if (smooth) {
-            if (absolute) {
-                path.xCenter = path.currentX * 2 - path.xCenter;
-                path.yCenter = path.currentY * 2 - path.yCenter;
+                if (absolute) {
+                    path.xCenter = path.currentX * 2 - path.xCenter;
+                    path.yCenter = path.currentY * 2 - path.yCenter;
 
-                path.currentX = x2;
-                path.currentY = y2;
+                    path.currentX = x2;
+                    path.currentY = y2;
 
-                gp.quadTo(path.xCenter.floatValue(), path.yCenter.floatValue(), path.currentX.floatValue(), path.currentY.floatValue());
-            } else {
-                path.xCenter = path.currentX * 2 - path.xCenter;
-                path.yCenter = path.currentY * 2 - path.yCenter;
+                    gp.quadTo(path.xCenter.floatValue(), path.yCenter.floatValue(), path.currentX.floatValue(), path.currentY.floatValue());
+                } else {
+                    path.xCenter = path.currentX * 2 - path.xCenter;
+                    path.yCenter = path.currentY * 2 - path.yCenter;
 
-                path.currentX = path.currentX + x2;
-                path.currentY = path.currentY + y2;
+                    path.currentX += x2;
+                    path.currentY += y2;
 
-                gp.quadTo(path.xCenter.floatValue(), path.yCenter.floatValue(), path.currentX.floatValue(), path.currentY.floatValue());
-            }
+                    gp.quadTo(path.xCenter.floatValue(), path.yCenter.floatValue(), path.currentX.floatValue(), path.currentY.floatValue());
+                }
 
-                    return;
+                return;
             }
 
             if (absolute)  {
@@ -87,8 +87,8 @@ class QuadTo extends PathElement {
             } else {
                     path.xCenter = path.currentX + x1;
                     path.yCenter = path.currentY + y1;
-                    path.currentX = path.currentX +x2;
-                    path.currentY = path.currentY +y2;
+                    path.currentX += x2;
+                    path.currentY += y2;
             }
 
         gp.quadTo(x1.floatValue(), y1.floatValue(), x2.floatValue(), y2.floatValue());
