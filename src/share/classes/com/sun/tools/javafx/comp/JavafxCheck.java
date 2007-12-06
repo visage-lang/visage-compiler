@@ -502,14 +502,27 @@ public class JavafxCheck {
         }
         // use the JavafxClassSymbol's supertypes to see if req is in the supertypes of found.
         else if (found.tsym != null && found.tsym instanceof JavafxClassSymbol) {
-            for (Type baseType : ((JavafxClassSymbol)found.tsym).getSuperTypes()) {
+            ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+            Set superSet = new HashSet<Type>();
+            supertypes.append(found);
+            superSet.add(found);
+
+            rs.getSupertypes(found.tsym, types, supertypes, superSet);
+
+            for (Type baseType : supertypes) {
                 if (types.isCastable(baseType, req, castWarner(pos, found, req)))
                     return req;
             }
         }
 
         if (req.tsym != null && req.tsym instanceof JavafxClassSymbol) {
-            for (Type baseType : ((JavafxClassSymbol)req.tsym).getSuperTypes()) {
+            ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+            Set superSet = new HashSet<Type>();
+            supertypes.append(req);
+            superSet.add(req);
+
+            rs.getSupertypes(req.tsym, types, supertypes, superSet);
+            for (Type baseType : supertypes) {
                 if (types.isCastable(baseType, found, castWarner(pos, found, req)))
                     return req;
             }
