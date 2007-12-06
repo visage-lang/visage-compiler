@@ -8,7 +8,7 @@
 #
 FX_HOME=`dirname "$0"`
 # Make the path absolute
-FX_BOOTCLASSPATH=${FX_HOME}/../../dist/javafxc.jar
+FX_BOOTCLASSPATH=${FX_HOME}/../../dist/lib/javafxc.jar
 export FX_BOOTCLASSPATH
 CLASSPATH=${FX_HOME}/javafxcpad/lib/jfxFormat.jar:${FX_HOME}
 export CLASSPATH
