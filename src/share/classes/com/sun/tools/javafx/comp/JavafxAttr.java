@@ -1357,8 +1357,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 //                    cdef.extending = clazz;
 //                }
 
-                attribStat(cdef, localEnv);
-                attribClass(cdef.pos(), null, cdef.sym);
+                if (cdef.sym == null)
+                    enter.classEnter(cdef, env);
+                
+                 attribStat(cdef, localEnv);                 
+                 attribClass(cdef.pos(), null, cdef.sym);
 
                 // Reassign clazztype and recompute constructor.
                 clazztype = cdef.sym.type;
