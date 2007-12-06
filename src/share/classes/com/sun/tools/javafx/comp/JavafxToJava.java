@@ -216,10 +216,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             ListBuffer<JCStatement> stats = ListBuffer.<JCStatement>lb();
             DiagnosticPosition diagPos = tree.pos();
             JCExpression vartype = null;
-            JCExpression init = null;
+            JCExpression init = (JCExpression) translate(tree);
             Type elemType = types.elemtype(type);
+            if (elemType.isPrimitive()) {
+               return callExpression(diagPos, makeTypeTree(syms.javafx_SequencesType, diagPos, false),
+                       "toArray", init);
+            }
             JCVariableDecl tmpVar = make.VarDef(make.Modifiers(0), tmpName,
-                    makeTypeTree(tree.type, diagPos, true), (JCExpression) translate(tree));
+                    makeTypeTree(tree.type, diagPos, true), init);
             stats.append(tmpVar);
             JCVariableDecl arrVar = make.VarDef(make.Modifiers(0), arrName,
                     makeTypeTree(type, diagPos, true),
@@ -801,14 +805,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return  typeMorpher.makeCall(tmi, diagPos, makeArgs, typeMorpher.varLocation, defs.makeMethodName);
     }
 
-    JCExpression makeSequence(DiagnosticPosition diagPos, JCExpression expr, Type type, boolean makeInterface) {
-        List<JCExpression> makeArgs = List.of(expr);
-        makeArgs = makeArgs.prepend(  makeSequenceClassArg(diagPos, type, makeInterface));
-        JCExpression sequenceExpr = makeTypeTree(syms.javafx_SequencesType, diagPos, makeInterface);
+    JCExpression makeSequence(DiagnosticPosition diagPos, JCExpression expr, Type type) {
+        List<JCExpression> makeArgs =
+            List.of(expr).prepend(  makeSequenceClassArg(diagPos, type, false));
+        JCExpression sequenceExpr = makeTypeTree(syms.javafx_SequencesType, diagPos, false);
         JCFieldAccess makeSelect = make.at(diagPos).Select(sequenceExpr, defs.makeMethodName);
 
-        List<JCExpression> typeArgs = null;
-        typeArgs = List.of(makeTypeTree(type, diagPos, makeInterface));
+        List<JCExpression> typeArgs = List.of(makeTypeTree(type, diagPos, false));
         return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
     }
 
@@ -885,7 +888,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             typeExpression = makeTypeTree(classType, diagPos, false);
             
             if (init.type != ((JavafxSymtab)syms).javafx_SequenceType) {
-                init = makeSequence(diagPos, init, newTree.type, false);
+                init = makeSequence(diagPos, init, newTree.type);
             }
         }
 
