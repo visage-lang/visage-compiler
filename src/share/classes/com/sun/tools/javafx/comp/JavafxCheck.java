@@ -420,13 +420,18 @@ public class JavafxCheck {
 	    return realFound;
 
         // use the JavafxClassSymbol's supertypes to see if req is in the supertypes of found.
-        if (found.tsym != null && found.tsym instanceof JavafxClassSymbol) {
-            for (Type baseType : ((JavafxClassSymbol)found.tsym).getSuperTypes()) {
-                if (types.isAssignable(baseType, req, convertWarner(pos, found, req)))
-                    return realFound;
-            }
+        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+        Set superSet = new HashSet<Type>();
+        supertypes.append(found);
+        superSet.add(found);
+
+        rs.getSupertypes(found.tsym, types, supertypes, superSet);
+
+        for (Type baseType : supertypes) {
+            if (types.isAssignable(baseType, req, convertWarner(pos, found, req)))
+                return realFound;
         }
-       
+
 	if (found.tag <= DOUBLE && req.tag <= DOUBLE)
 	    return typeError(pos, JCDiagnostic.fragment("possible.loss.of.precision"), found, req);
 	if (found.isSuperBound()) {
