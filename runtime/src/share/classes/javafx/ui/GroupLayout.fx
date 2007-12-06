@@ -47,7 +47,7 @@ public class GroupLayout extends GroupElement {
 
     public function addRows(host:java.awt.Container,
             layout:org.jdesktop.layout.GroupLayout, 
-            vgroup:org.jdesktop.layout.GroupLayout.SequentialGroup){
+            vgroup:org.jdesktop.layout.GroupLayout.SequentialGroup) : Void {
             //TODO this had content.row, not sure what that means, I assume subscript 0
         if (rows == null and content[0].row == null) {
             rows = [Row {}];
@@ -158,7 +158,7 @@ public class GroupLayout extends GroupElement {
         }
     }
 
-    public function addComponents(host:java.awt.Container){
+    public function addComponents(host:java.awt.Container) : Void {
         foreach (e in content where e instanceof GroupLayout) {
             (e as GroupLayout).addComponents(host);
         }
