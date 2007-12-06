@@ -664,11 +664,12 @@ public abstract class Node extends CanvasElement, Transformable {
         if (contentNode <> null)
             contentNode.setID(id);   
     };
-    function onTransformChanged(t:AffineTransform){
-        if (transformFilter <> null) {
-            this.transformFilter.setAffine(t);
-        } 
-    }
+    protected attribute  onTransformChanged: function(:AffineTransform):Void = 
+        function (t:AffineTransform):Void {
+            if (transformFilter <> null) {
+                this.transformFilter.setAffine(t);
+            } 
+        }
 
     public function getCanvas(): Canvas {
         var n = this.parentCanvasElement;
