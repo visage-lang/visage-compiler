@@ -140,6 +140,7 @@ var win = Frame {
         onClose: function() {
             test.stop();
 	    delete test;
+            System.exit(0);
         }
 };
 
