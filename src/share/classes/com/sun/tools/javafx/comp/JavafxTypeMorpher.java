@@ -109,47 +109,35 @@ public class JavafxTypeMorpher {
             this.isMethod = (sym.kind == Kinds.MTH);
         }
         
-        private boolean isAttribute() {
-            if (isMethod) {
-                return false;
-            }
-            Symbol owner = getSymbol().owner;
-            if (owner.kind == Kinds.MTH) {
-                return false; // local var
-            } else if (owner.kind == Kinds.TYP) {
-                if (getSymbol() instanceof JavafxVarSymbol) {
-                    return true; // we made it, soassume it is from a JavaFX class
-                } else if (!sym.toString().equals("super") && !sym.toString().equals("this")) {
-                    //TODO: temp hack until the MI init code is in place
-                    ClassSymbol klass = (ClassSymbol)owner;
-		    if (klass.sourcefile != null) {
-			String source = klass.sourcefile.getName();
-			String extension = source.substring(source.length()-3);
-			return extension.equals(".fx");
-		    }
-                }
-            }
-            // what is this?
-            return false;
-        }
+            private void determineMorphability() {
+           if (!isMethod) {
+               Symbol owner = getSymbol().owner;
+               if (owner.kind == Kinds.MTH) {
+                   // non-parameter local vars are morphed if they are bound to or sequencea
+                   // (bound functions and their parameters are handled elsewhere)
+                   if ((isBoundTo() || isSequence()) && ((getSymbol().flags() & Flags.PARAMETER) == 0)) {
+                       markMustMorph();
+                   }
+               } else if (owner.kind == Kinds.TYP) {
+                   if (getSymbol() instanceof JavafxVarSymbol) {
+                       markMustMorph(); // we made it, soassume it is from a JavaFX class
+                   } else if (sym.flatName() != names._super && sym.flatName() != names._this) {
+                       if (initBuilder.isJFXClass(owner)) {
+                           // this is an attribute: it is owned by a JavaFX class and it isn't 'this' or 'super'
+                           markMustMorph();
+                       }
+                   }
+               }
+           }
+           markDeterminedMorphability();
+       }
 
-        public boolean mustMorph() {
-            if (!haveDeterminedMorphability()) {
-                if (((getSymbol().flags() & Flags.PARAMETER) == 0) && (isBoundTo() || isAttribute() || isSequence())) {
-                    // Must be a Location if it is bound, or a sequence,
-                    // and, at least for now if it is an attribute.
-                    // However, if this is a parameter it is either synthetic
-                    // (like a loop or formal var) so we don't want to morph
-                    // or it is a function param.  If we do bound param we
-                    // will need to change this.
-                    //TODO: should be a Location if there is a trigger on it
-                    //System.err.println("Will morph: " + varSymbol);
-                    markMustMorph();
-                }
-                markDeterminedMorphability();
-            }
-            return mustMorph;
-        }
+       public boolean mustMorph() {
+           if (!haveDeterminedMorphability()) {
+               determineMorphability();
+           }
+           return mustMorph;
+       }
         
         private void markMustMorph() { mustMorph = true; }
         private void markDeterminedMorphability() { haveDeterminedMorphability = true; }
@@ -599,9 +587,7 @@ public class JavafxTypeMorpher {
                     VarSymbol ivsym = (VarSymbol)tree.sym;
                     VarMorphInfo vmi = varMorphInfo(ivsym);
                     if (toJava.shouldMorph(vmi)) {
-                        JCExpression expr = tree.getExpression();
-                        Symbol exprSym = toJava.expressionSymbol(expr);
-                         if (tree.sym.isStatic() || (exprSym != null &&  (exprSym instanceof ClassSymbol))) { 
+                         if (ivsym.isStatic()) { 
                              // this is a static reference, set up for a static dependency
                              // otherwise, this will be handled as a dynamic dependency
                              refMap.put(ivsym, tree); 
