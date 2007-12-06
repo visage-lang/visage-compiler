@@ -1858,7 +1858,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             // Compute the result type.
             Type restype = mtype.getReturnType();
-
+            if (restype == syms.unknownType) {
+                log.error(tree.pos(), "javafx.type.infer.cycle", tree.meth);
+                restype = syms.objectType;
+            }
             // as a special case, array.clone() has a result that is
             // the same as static type of the array being cloned
             if (tree.meth.getTag() == JCTree.SELECT &&
