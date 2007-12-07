@@ -34,36 +34,12 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public class BooleanExpression extends AbstractLocation implements BooleanLocation {
-
-    private final BooleanBindingExpression expression;
+public abstract class BooleanExpression extends AbstractLocation implements BooleanLocation {
     private boolean value, previousValue;
-
-    /** Create an BooleanExpression with the specified expression and dependencies. */
-    public static BooleanLocation make(BooleanBindingExpression exp, Location... dependencies) {
-        BooleanExpression loc = new BooleanExpression(false, exp);
-        exp.location = loc;
-        loc.addDependencies(dependencies);
-        return loc;
-    }
-
-    /** Create a lazy BooleanExpression with the specified expression and dependencies. */
-    public static BooleanLocation makeLazy(BooleanBindingExpression exp, Location... dependencies) {
-        BooleanExpression loc = new BooleanExpression(true, exp);
-        exp.location = loc;
-        loc.addDependencies(dependencies);
-        return loc;
-    }
 
     public BooleanExpression(boolean lazy, Location... dependencies) {
         super(false, lazy);
         addDependencies(dependencies);
-        expression = null;
-    }
-
-    private BooleanExpression(boolean lazy, BooleanBindingExpression expression) {
-        super(false, lazy);
-        this.expression = expression;
     }
 
     public boolean get() {
@@ -81,9 +57,7 @@ public class BooleanExpression extends AbstractLocation implements BooleanLocati
     }
 
     /** Calculate the current value of the expression */
-    protected boolean computeValue() {
-        return expression.get();
-    }
+    protected abstract boolean computeValue();
 
     @Override
     public void update() {

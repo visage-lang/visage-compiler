@@ -34,36 +34,12 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public class ObjectExpression<T> extends AbstractLocation implements ObjectLocation<T> {
-
-    private final ObjectBindingExpression<T> expression;
+public abstract class ObjectExpression<T> extends AbstractLocation implements ObjectLocation<T> {
     private T value, previousValue;
-
-    /** Create an ObjectExpression with the specified expression and dependencies. */
-    public static<T> ObjectLocation<T> make(ObjectBindingExpression<T> exp, Location... dependencies) {
-        ObjectExpression<T> loc = new ObjectExpression<T>(false, exp);
-        exp.location = loc;
-        loc.addDependencies(dependencies);
-        return loc;
-    }
-
-    /** Create a lazy ObjectExpression with the specified expression and dependencies. */
-    public static<T> ObjectLocation<T> makeLazy(ObjectBindingExpression<T> exp, Location... dependencies) {
-        ObjectExpression<T> loc = new ObjectExpression<T>(true, exp);
-        exp.location = loc;
-        loc.addDependencies(dependencies);
-        return loc;
-    }
 
     public ObjectExpression(boolean lazy, Location... dependencies) {
         super(false, lazy);
         addDependencies(dependencies);
-        expression = null;
-    }
-
-    private ObjectExpression(boolean lazy, ObjectBindingExpression<T> expression) {
-        super(false, lazy);
-        this.expression = expression;
     }
 
     public T get() {
@@ -81,9 +57,7 @@ public class ObjectExpression<T> extends AbstractLocation implements ObjectLocat
     }
 
     /** Calculate the current value of the expression */
-    protected T computeValue() {
-        return expression.get();
-    }
+    protected abstract T computeValue();
 
     @Override
     public void update() {

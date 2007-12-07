@@ -39,44 +39,15 @@ import java.util.Iterator;
  *
  * @author Brian Goetz
  */
-public class SequenceExpression<T> extends AbstractSequenceLocation<T> implements SequenceLocation<T> {
-    private final SequenceBindingExpression<T> expression;
-
-    /**
-     * Create an SequenceExpression with the specified expression and dependencies.
-     */
-    public static <T> SequenceLocation<T> make(Class<T> clazz, SequenceBindingExpression<T> exp, Location... dependencies) {
-        SequenceExpression<T> loc = new SequenceExpression<T>(clazz, false, exp);
-        exp.location = loc;
-        loc.addDependencies(dependencies);
-        return loc;
-    }
-
-    /**
-     * Create a lazy SequenceExpression with the specified expression and dependencies.
-     */
-    public static <T> SequenceLocation<T> makeLazy(Class<T> clazz, SequenceBindingExpression<T> exp, Location... dependencies) {
-        SequenceExpression<T> loc = new SequenceExpression<T>(clazz, true, exp);
-        exp.location = loc;
-        loc.addDependencies(dependencies);
-        return loc;
-    }
+public abstract class SequenceExpression<T> extends AbstractSequenceLocation<T> implements SequenceLocation<T> {
 
     public SequenceExpression(Class<T> clazz, boolean lazy, Location... dependencies) {
         super(clazz, false, lazy);
         addDependencies(dependencies);
-        expression = null;
-    }
-
-    private SequenceExpression(Class<T> clazz, boolean lazy, SequenceBindingExpression<T> expression) {
-        super(clazz, false, lazy);
-        this.expression = expression;
     }
 
     /** Calculate the current value of the expression */
-    protected Sequence<? extends T> computeValue() {
-        return expression.get();
-    }
+    protected abstract Sequence<? extends T> computeValue();
 
     @Override
     public void update() {

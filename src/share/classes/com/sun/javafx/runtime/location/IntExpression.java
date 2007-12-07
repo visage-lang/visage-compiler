@@ -34,36 +34,12 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public class IntExpression extends AbstractLocation implements IntLocation {
-
-    private final IntBindingExpression expression;
+public abstract class IntExpression extends AbstractLocation implements IntLocation {
     private int value, previousValue;
-
-    /** Create an IntExpression with the specified expression and dependencies. */
-    public static IntLocation make(IntBindingExpression exp, Location... dependencies) {
-        IntExpression loc = new IntExpression(false, exp);
-        exp.location = loc;
-        loc.addDependencies(dependencies);
-        return loc;
-    }
-
-    /** Create a lazy IntExpression with the specified expression and dependencies. */
-    public static IntLocation makeLazy(IntBindingExpression exp, Location... dependencies) {
-        IntExpression loc = new IntExpression(true, exp);
-        exp.location = loc;
-        loc.addDependencies(dependencies);
-        return loc;
-    }
 
     public IntExpression(boolean lazy, Location... dependencies) {
         super(false, lazy);
         addDependencies(dependencies);
-        expression = null;
-    }
-
-    private IntExpression(boolean lazy, IntBindingExpression expression) {
-        super(false, lazy);
-        this.expression = expression;
     }
 
     public int get() {
@@ -81,9 +57,7 @@ public class IntExpression extends AbstractLocation implements IntLocation {
     }
 
     /** Calculate the current value of the expression */
-    protected int computeValue() {
-        return expression.get();
-    }
+    protected abstract int computeValue();
 
     @Override
     public void update() {

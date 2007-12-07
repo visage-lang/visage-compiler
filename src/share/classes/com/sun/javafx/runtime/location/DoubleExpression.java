@@ -34,36 +34,13 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public class DoubleExpression extends AbstractLocation implements DoubleLocation {
+public abstract class DoubleExpression extends AbstractLocation implements DoubleLocation {
 
-    private final DoubleBindingExpression expression;
     private double value, previousValue;
-
-    /** Create an DoubleExpression with the specified expression and dependencies. */
-    public static DoubleLocation make(DoubleBindingExpression exp, Location... dependencies) {
-        DoubleExpression loc = new DoubleExpression(false, exp);
-        exp.location = loc;
-        loc.addDependencies(dependencies);
-        return loc;
-    }
-
-    /** Create a lazy DoubleExpression with the specified expression and dependencies. */
-    public static DoubleLocation makeLazy(DoubleBindingExpression exp, Location... dependencies) {
-        DoubleExpression loc = new DoubleExpression(true, exp);
-        exp.location = loc;
-        loc.addDependencies(dependencies);
-        return loc;
-    }
 
     public DoubleExpression(boolean lazy, Location... dependencies) {
         super(false, lazy);
         addDependencies(dependencies);
-        expression = null;
-    }
-
-    private DoubleExpression(boolean lazy, DoubleBindingExpression expression) {
-        super(false, lazy);
-        this.expression = expression;
     }
 
     public double get() {
@@ -81,9 +58,7 @@ public class DoubleExpression extends AbstractLocation implements DoubleLocation
     }
 
     /** Calculate the current value of the expression */
-    protected double computeValue() {
-        return expression.get();
-    }
+    protected abstract double computeValue();
 
     @Override
     public void update() {
