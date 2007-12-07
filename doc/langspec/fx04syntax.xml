@@ -12,7 +12,6 @@
     types, strings and string formatting. </emphasis></para>
   </sect1>
 
-
   <sect1 id="lex">
     <title>Lexical Structure</title>
 
@@ -53,96 +52,108 @@
     </itemizedlist>
   </sect1>
 
-  <sect1 id="types"><title>Types</title>
-    
-  <para><emphasis>Intro to come. A type is a property of a data item  that associates a legal range of values, a set of legal operators and a data format to that data item. jfx script provides several basic types and supports user-defined types. </emphasis></para>
-  
-  
-  
-  <sect2 id="basictypes">
-  
-  <title>Basic Types</title>
+  <sect1 id="types">
+    <title>Types</title>
 
-    <para>The JavaFX™ Script programming language defines four basic types:
-    <code> String, Boolean, Number,</code> and <code>Integer.</code> JavaFX
-    Script also supports complex types such as classes and interfaces. <para>
-        <para>You can use types to declare new variables. In the JavaFX Script
-        programming language, <code>var</code> is a keyword used to introduce
-        a new variable declaration.</para>
+    <para>In JavaFX™ Script; a type is a language property that associates a
+    legal range of values, a set of legal operators and a data format to a
+    data item. JavaFX Script provides several basic types and supports
+    user-defined types.</para>
 
-        <para>JavaFX Script types to correspond to the Java™ programming
-        language (TM) types listed on the table below:</para>
+    <para><emphasis role="bold">QUESTION:&nbsp;&nbsp;How does the types system support user-defined
+    types?</emphasis></para>
 
-        <table cellpadding="5" cellspacing="5" style="border: medium groove ;">
-          <tbody>
-            <tr>
-              <th style="text-decoration: underline;">JavaFX</th>
+    <para><emphasis role="bold">QUESTION:&nbsp;&nbsp;Java™ is a strongly typed language. JavaFX
+    Script is a weakly typed language. We need to explain why JavaFX Script is
+    weakly-typed, and how the compiler translates between Java types and JavaFX
+    types. </emphasis></para>
 
-              <th style="text-decoration: underline;">Java</th>
-            </tr>
+    <sect2 id="basictypes">
+      <title>Basic Types</title>
 
-            <tr>
-              <td>
-                <code>String</code>
-              </td>
+      <para>The JavaFX™ Script programming language defines four basic types:
+      <code> String, Boolean, Number,</code> and <code>Integer.</code> JavaFX
+      Script also supports complex types such as classes and interfaces. <para>
+          <para>You can use types to declare new variables. In the JavaFX
+          Script programming language, <code>var</code> is a keyword used to
+          introduce a new variable declaration.</para>
 
-              <td>
-                <code>java.lang.String</code>
-              </td>
-            </tr>
+          <para>JavaFX Script types to correspond to the Java™ programming
+          language (TM) types listed on the table below:</para>
 
-            <tr>
-              <td>
-                <code>Boolean</code>
-              </td>
+          <table cellpadding="5" cellspacing="5"
+                 style="border: medium groove ;">
+            <tbody>
+              <tr>
+                <th style="text-decoration: underline;">JavaFX</th>
 
-              <td>
-                <code>java.lang.boolean</code>
-              </td>
-            </tr>
+                <th style="text-decoration: underline;">Java</th>
+              </tr>
 
-            <tr>
-              <td>
-                <code>Number</code>
-              </td>
+              <tr>
+                <td>
+                  <code>String</code>
+                </td>
 
-              <td>
-                <code>java.lang.Number</code>
-              </td>
-            </tr>
+                <td>
+                  <code>java.lang.String</code>
+                </td>
+              </tr>
 
-            <tr>
-              <td>
-                <code>Integer</code>
-              </td>
+              <tr>
+                <td>
+                  <code>Boolean</code>
+                </td>
 
-              <td>
-                <code>byte,short,int,long,BigInteger</code>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                <td>
+                  <code>java.lang.boolean</code>
+                </td>
+              </tr>
 
-        <para>The complete syntax for creating a new variable is:</para>
+              <tr>
+                <td>
+                  <code>Number</code>
+                </td>
 
-        <programlisting> var <emphasis>variableName</emphasis> : typename [?, +, *] = <emphasis>initial value </emphasis> </programlisting>
+                <td>
+                  <code>java.lang.Number</code>
+                </td>
+              </tr>
 
-        <para><emphasis role="bold">NOTE:  </emphasis> If you do not specify
-        type using the syntax <code>: typeName, </code> the interpreter infers
-        the type of the variable from its use.</para>
+              <tr>
+                <td>
+                  <code>Integer</code>
+                </td>
 
-        <!-- QUESTIONS: 
-    What interpreter? Should we now say 'compiler? 
-    Does the compiler behave the same way the interpreter does? 
-    Will the interpreter go away once the compiler comes online?
-    
-    -->
+                <td>
+                  <code>byte,short,int,long,BigInteger</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
-        <para>
-          <emphasis role="bold">Example:</emphasis>
-        </para>
+          <para>The complete syntax for creating a new variable is:</para>
 
-        <programlisting>var s : String = "Hello": // type explicitly stated
+          <programlisting> var <emphasis>variableName</emphasis> : typename [?, +, *] = <emphasis>initial value </emphasis> </programlisting>
+
+          <para><emphasis role="bold">NOTE:  </emphasis> If you do not specify
+          type using the syntax <code>: typeName, </code> the interpreter
+          infers the type of the variable from its use.</para>
+
+          <para>
+            <emphasis role="bold">QUESTION:&nbsp;&nbsp;What interpreter? Should we now say
+            'compiler? What is the difference between the interpreted and the
+            compiled version of this language? Are there syntactical
+            differences we need to note here?</emphasis>
+          </para>
+
+          
+
+          <para>
+            <emphasis role="bold">Example:</emphasis>
+          </para>
+
+          <programlisting>var s : String = "Hello": // type explicitly stated
     var s = "hello";      // type inferred
     s.toUpperCase();      // yields HELLO
     s.substring(1);       //  yields  ello
@@ -151,7 +162,7 @@
     var n = 1/5;          //type inferred
     n.intValue; //yields 1</programlisting>
 
-        <!-- QUESTIONS
+          <!-- QUESTIONS
     
     Is it OK to use calls to toUpperCase(), substring(), intValue() 
     at this point when we haven'ty talked about functions or calling 
@@ -159,125 +170,252 @@
     
     -->
 
-        <programlisting>var b :boolean = true;  // type explicitly stated
+          <programlisting>var b :Boolean = true;  // type explicitly stated
     var b = true;           //type inferred
-    b instanceof Boolian    // yields true </programlisting>
+    b instanceof Boolean    // yields true </programlisting>
 
-        <!-- QUESTIONS
+          <!-- QUESTIONS
     
     This content on coercions will be moved to the section on methods and argument passing. Makes no sense here. 
    
     -->
 
-        <para>JavaFX Script automatically performs coercions on numeric types
-        when passing arguments or return values to or from Java methods.
-        JavaFX Script also performs implicit truncating coercions when
-        converting Numbers to Integers.</para>
+          <para>JavaFX Script automatically performs coercions on numeric
+          types when passing arguments or return values to or from Java
+          methods. JavaFX Script also performs implicit truncating coercions
+          when converting Numbers to Integers.</para>
 
-        <!--
-    <para><emphasis>How does JavaFX Script perform coercions?</emphasis></para>
-    -->
+          <para>
+            <emphasis role="bold">QUESTION:&nbsp;&nbsp;How does JavaFX Script perform coercions?</emphasis>
+          </para>
 
-        <!-- **********  Variables, functions, operations, arrays ******* -->
-	
-	</para></para></sect2></sect1>
+          <!-- **********  Variables, functions, operations, arrays ******* -->
+        </para></para>
+    </sect2>
+  </sect1>
 
-        <sect1 id="vars">
-          <title>Variables</title>
+  <sect1 id="vars">
+    <title>Variables</title>
 
-          <!--
+    <!--
     <para><emphasis>We need to have discussed keywords before this point, because var is a keyword. </emphasis></para>
 -->
 
-          <para>The <code>var</code> keyword introduces a new variable. You
-          can optionally specify the type of a variable in its declaration. If
-          you do not specify the type, the interpreter infers the variable
-          type from its use. A variable declaration takes the form</para>
+    <para>The <code>var</code> keyword introduces a new variable. You can
+    optionally specify the type of a variable in its declaration. If you do
+    not specify the type, the interpreter infers the variable type from its
+    use. A variable declaration takes the form</para>
 
-          <programlisting>        var variableName : typeName [?,+,*] = initializer;
+    <programlisting>        var variableName : typeName [?,+,*] = initializer;
 </programlisting>
 
-          <para>You can use one of the <code> ?, +, </code> or <code> *
-          </code> operators to denote the cardinality of the variable, as
-          follows:</para>
+    <para>You can use one of the <code> ?, +, </code> or <code> * </code>
+    operators to denote the cardinality of the variable, as follows:</para>
 
-          <programlisting>Operator   Meaning
+    <programlisting>Operator   Meaning
    ?       Optional (can be null)
    +       One or more
    *       Zero or more
 </programlisting>
 
-          <para>
-            <emphasis role="bold">Example:</emphasis>
-          </para>
+    <para><emphasis role="bold">Example:</emphasis></para>
 
-          <programlisting>        var nums:Number* = [1,2,3];	
+    <programlisting>        var nums:Number* = [1,2,3];	
 </programlisting>
 
-          <para>This example declares a new variable named <code>nums</code> ,
-          holding a value defined to consist of zero or more instances of type
-          <code>Number</code> and holding an initial value of
-          <code>[1,2,3].</code></para>
+    <para>This example declares a new variable named <code>nums</code> ,
+    holding a value defined to consist of zero or more instances of type
+    <code>Number</code> and holding an initial value of
+    <code>[1,2,3].</code></para>
 
-          <!--
-    <para><emphasis>Why does JFX Script support this [?+*] feature? </emphasis></para>
-    -->
+    <para><emphasis role="bold">QUESTION:&nbsp;&nbsp;Why does JFX Script support this [?+*] cardinality 
+    feature? </emphasis></para>
 
-          <para>
-            <emphasis>I'm sure that this syntax simplifies coding for some
-            applications. Can we provide an example or two here? String
-            handling? Returning tables from a database?</emphasis>
-          </para>
+    <para><emphasis role="bold">QUESTION:&nbsp;&nbsp;I'm sure that this syntax simplifies coding
+    for some applications. Can we provide an example or two here? String
+    handling? Returning tables from a database?</emphasis></para>
 
-          <para>The <code>:typeName, [?,+,*],</code> and <code> =</code>
-          initializer portions of the declaration are optional, so the
-          following code snippet is equivalent to the above:</para>
+    <para>The <code>:typeName, [?,+,*],</code> and <code> =</code> initializer
+    portions of the declaration are optional, so the following code snippet is
+    equivalent to the above:</para>
 
-          <programlisting>        var nums = [1,2,3];
+    <programlisting>        var nums = [1,2,3];
 </programlisting>
-        </sect1>
+  </sect1>
 
-        <sect1 id="stringsintro">
-          <title>Strings</title>
+  <sect1 id="stringsintro">
+    <title>Strings</title>
 
-          <para>
-            <emphasis>Introduction to come</emphasis>
-          </para>
+    <para><emphasis>Introduction to come</emphasis></para>
+
+    
+     <para><emphasis role="bold">QUESTION:&nbsp;&nbsp;We need a discussion of the string  formatter operator <code>format as</code></emphasis></para>
+ 
+    <!-- 8888888888888888888888888888888888888888888888888888888888 -->
+
+    <sect2 id="StringLiterals">
+      <title>String Literals</title>
+
+      <para>A String literal evaluates to a <classname>String</classname>
+      value. It is written with single or double quotes. If it is written &gt;
+      single quotes, then a double quote can be included without quoting it,
+      and vice versa.</para>
+
+      <productionset>
+        <production xml:id="syntax.StringLiteral">
+          <lhs>StringLiteral</lhs>
+
+          <rhs><quote>
+              <code>"</code>
+            </quote> (<nonterminal
+          def="#syntax.StringContent">StringContent</nonterminal>|"<code>'</code>")*
+          '<code>"</code>' | <code>"'"</code> (<nonterminal
+          def="#syntax.StringContent">StringContent</nonterminal>|<code>'""</code>)*
+          <code>"'"</code></rhs>
+        </production>
+
+        <production xml:id="syntax.StringContent">
+          <lhs>StringContent</lhs>
+
+          <rhs><code>StringCharacter</code> | <nonterminal
+          def="#syntax.LineSeparator">LineSeparator</nonterminal> |
+          <nonterminal>EscapeSequence</nonterminal> | "{" <nonterminal
+          def="#syntax.EnclosedExpression">EnclosedExpression</nonterminal> }"
+          | <code>"{"</code> <nonterminal
+          def="#syntax.FormatSpecifier">FormatSpecifier</nonterminal> [Space+
+          <nonterminal
+          def="#syntax.EnclosedExpression">EnclosedExpression</nonterminal>]<code>"}"</code></rhs>
+        </production>
+
+        <production xml:id="syntax.EnclosedExpression">
+          <lhs>EnclosedExpression</lhs>
+
+          <rhs>Expression</rhs>
+        </production>
+
+        <production xml:id="syntax.FormatSpecifier">
+          <lhs>FormatSpecifier</lhs>
+
+          <rhs>"%"argument_index"$"][flags][width]\
+          ["."precision]ConversionCharacter</rhs>
+        </production>
+
+        <production xml:id="syntax.LineSeparator">
+          <lhs>LineSeparator</lhs>
+
+          <rhs>CR | LF | CR LF | LS</rhs>
+        </production>
+      </productionset>
+
+      <para>A <nonterminal
+      def="#syntax.StringLiteral">StringLiteral</nonterminal> is first
+      translated to a format string, then that format string is optionally
+      used as a key for localization. If a translation for the format string
+      exists (using Resources or other mechanisms to be determined later),
+      that yields a localized format string, otherwise the untranslated format
+      string is used as an EffectiveFormatString.</para>
+
+      <para>The value of the <code>StringLiteral</code> is defined as the
+      result of the Java expression:</para>
+
+      <programlisting>
+String.format(EffectiveFormatString [, EnclosedExpression]*)
+</programlisting>
+
+      <para>where any <nonterminal
+      def="#syntax.EnclosedExpression">EnclosedExpression</nonterminal> in the
+      <code>StringLiteral</code> becomes an argument to
+      <code>String.format</code>.</para>
+
+      <para>A StringCharacter is any Java RawInputCharacter, except for '"',
+      '\'', '{', '}' or a LineSeparator, or an EscapeSequence (which starts
+      with '\\'). It becomes the same character in the format string, except
+      that '%' is quoted to yield '%%'.</para>
+
+      <para>A <nonterminal
+      def="#syntax.LineSeparator">LineSeparator</nonterminal> appends
+      <code>'%n'</code> to the format string. This effectively (assuming no
+      change during localization) adds
+      <code>System.getProperty("line.separator")</code> to the result string
+      (using the run-time, not compile-time,
+      <code>line.separator</code>).</para>
+
+      <para>An EscapeSequence is as in Java, with the following additions:
+      <code>\{</code> is replaced by <code>'{'</code> in the format string.
+      <code>\}</code> is replaced by <code>'}'</code> in the format string.
+      <code>\</code> followed by optional horizontal whitespace, followed by a
+      LineSeparator, followed by optional horizontal whitespace is replaced by
+      nothing. (Note the latter might also be done by an earlier phase, so it
+      works outside string literals.)</para>
+
+      <para>(Handling of Unicode escapes is presumably done by an earlier
+      pass. However, we should add support for characters that are outside the
+      Basic 16-bit plane, perhaps using a \U escape sequence, analogous to \u
+      escape sequences. We defer this issue for now.)</para>
+
+      <para>The content "{" FormatSpecifier [Space+ EnclosedExpression]"}"
+      adds FormatSpecifier to the format string.</para>
+
+      <para>The content</para>
+
+      <programlisting>
+"{" EnclosedExpression "}"
+</programlisting>
+
+      <para>is equivalent to:</para>
+
+      <programlisting>
+"{%s " EnclosedExpression "}"
+</programlisting>
+
+      <para>and therefore adds <code>"%s"</code> to the format string.</para>
+
+<!-- ***
+      
+End of Per's section. Old String Section below 
+      
+*** -->
+
+<!--
 
 
-        <sect2 id="strings">
-          <title>String Literals and String Expressions</title>
+    <sect2 id="strings">
+      <title>String Literals and String Expressions</title>
 
-          <para>JavaFX Script specifies a literal character string with either
-          single or double quotes:</para>
+      <para>JavaFX Script specifies a literal character string with either
+      single or double quotes:</para>
 
-          <programlisting>        var s = 'Hello';
+      <programlisting>        var s = 'Hello';
        var s = "Hello"; // equivalent statement
 </programlisting>
 
-          <para>When using double quotes, you can embed JavaFX Script
-          expressions using curly bracket operators: <code>{}</code>:</para>
+      <para>When using double quotes, you can embed JavaFX Script expressions
+      using curly bracket operators: <code>{}</code>:</para>
 
-          <programlisting>        var name = 'Joe';
+      <programlisting>        var name = 'Joe';
         var s = "Hello {name}"; // s = 'Hello Joe'
 </programlisting>
 
-          <para>You can nest quoted strings. Your embedded expression can
-          itself contain quoted strings (which, in turn, can contain further
-          embedded expressions):</para>
+      <para>You can nest quoted strings. Your embedded expression can itself
+      contain quoted strings (which, in turn, can contain further embedded
+      expressions):</para>
 
-          <programlisting>        var answer = true;
+      <programlisting>        var answer = true;
         var s = "The answer is {if answer then "Yes" else "No"}"; // s = 'The answer is Yes'
 </programlisting>
 
-          <para>Unlike Java, JavaFX Script double-quoted String literals
-          <emphasis>can</emphasis> contain newlines:</para>
+      <para>Unlike Java, JavaFX Script double-quoted String literals
+      <emphasis>can</emphasis> contain newlines:</para>
 
-          <programlisting>        var s = "This
+      <programlisting>        var s = "This
                  contains
                  new lines";
 </programlisting>
-        </sect2>
+    </sect2> 
+    -->
+    
+    
+<!--
 
         <sect2 id="sformatting">
           <title>String, Number, and Date Formatting</title>
@@ -323,34 +461,56 @@
 </programlisting>
 
         </sect2>
-	
-	</sect1>
-	
- 
+-->
+    
+
     <!-- VERY SIMPLE INTRODUCTORY DEFINITIONS 
  
     ... these are meant to quickly define terms the reader should
     already know, before introducing syntax and presenting snippets.
     
     
-    Expression:  A combination of keywords, operators, variables, and literals that yield a string, number, or object. An expression can perform a calculation, manipulate characters, call a function, or test data.
+    Expression:  A combination of keywords, operators, variables, and 
+literals that yield a string, number, or object. An expression can 
+perform a calculation, manipulate characters, call a function, or test data.
     
-    An expression in a programming language is a combination of values, variables, operators, and functions that are interpreted (evaluated) according to the particular rules of precedence and of association for a particular programming language, which computes and then produces (returns, in a stateful environment) another value. 
+    An expression in a programming language is a combination of values, 
+variables, operators, and functions that are interpreted (evaluated) 
+according to the particular rules of precedence and of association for 
+a particular programming language, which computes and then produces (returns, 
+in a stateful environment) another value. 
     
     
     Statement: 
     
-    An entity in a programming language which is typically the smallest indivisible unit of execution.
+    An entity in a programming language which is typically the smallest 
+indivisible unit of execution.
     
-    An instruction to carry out some action; a single step within a program.
+    An instruction to carry out some action; a single step 
+within a program.
     
-    In computer programming a statement can be thought of as the smallest standalone element of an imperative programming language. A program is formed by a sequence of one or more statements. A statement will have internal components (eg, expressions).
+    In computer programming a statement can be thought of 
+as the smallest standalone element of an imperative programming 
+language. A program is formed by a sequence of one or more statements.
+ A statement will have internal components (eg, expressions).
     
-    Many languages (eg, C) make a distinction between statements and definitions, with a statement only containing executable code and a definition declaring an identifier.
+    Many languages (eg, C) make a distinction between statements 
+and definitions, with a statement only containing executable code 
+and a definition declaring an identifier.
     
-    In most languages statements contrast with expressions in that statements do not return results and are executed solely for their side effects, while expressions always return a result and often do not have side effects at all. Among imperative programming languages, Algol 68 is one of the few in which a statement can return a result. In languages which mix imperative and functional styles, such as the Lisp family, the distinction between expressions and statements is not made: even expressions executed in sequential contexts solely for their side effects and whose return values are not used are considered 'expressions'.
+    In most languages statements contrast with expressions in that 
+statements do not return results and are executed solely for their 
+side effects, while expressions always return a result and often 
+do not have side effects at all. Among imperative programming languages, 
+Algol 68 is one of the few in which a statement can return a result. 
+In languages which mix imperative and functional styles, such as the 
+Lisp family, the distinction between expressions and statements is not 
+made: even expressions executed in sequential contexts solely for 
+their side effects and whose return values are not used are 
+considered 'expressions'.
     
-    The syntax and semantics of statements is specified by the definition of the programming language.
+    The syntax and semantics of statements is specified by the 
+definition of the programming language.
     
     
     Syntax:  software language rules which determine what is and is
@@ -415,9 +575,7 @@
     more here. 
     
     -->
-
-  
-  
-  
-  
+    
+    </sect2>
+  </sect1>
 </chapter>

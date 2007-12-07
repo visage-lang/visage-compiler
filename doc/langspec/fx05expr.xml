@@ -10,6 +10,13 @@
 
     <para><emphasis>This Chapter describes operators, including
     <code>trigger</code> and <code>bind</code>.</emphasis><!-- ... and logical expressions. --></para>
+    
+    <para><emphasis role="bold">
+    QUESTION:&nbsp; &nbsp; We lack a current list of operators. This section is based on a list that was written six months ago. We need to identify those operators used in logical expressions; in Strings; and in Sequences, provide brief syntax illustrations, and example snippets that indicate the kinds of task that each operator was designed to perform. 
+    </emphasis></para>
+    
+    
+    
   </sect1>
 
   <sect1 id="oper">
