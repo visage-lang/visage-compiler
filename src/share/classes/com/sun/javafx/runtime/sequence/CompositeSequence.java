@@ -70,7 +70,7 @@ class CompositeSequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
     @Override
     public T get(int position) {
-        if (position < 0 || position >= size || size == 0)
+        if (position < 0 || position >= size)
             throw new IndexOutOfBoundsException(Integer.toString(position));
         // Linear search should be good enough for now
         int chunk = 0;
