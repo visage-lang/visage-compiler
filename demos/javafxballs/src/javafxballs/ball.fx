@@ -12,7 +12,18 @@ import javafx.ui.*;
 import javafx.ui.canvas.*;
 
 public class ball extends CompositeNode {
-   public function composeNode(): Node {
+    public function composeNode(): Node {
+       //return composeVectorNode();
+       return composeImageNode();
+    }
+   
+    private function composeImageNode(): Node {
+       var imageURL = this.getClass().getResource("resources/ball.png").toString();
+       return ImageView { 
+           image: Image { url: imageURL }
+       };
+    }
+    private function composeVectorNode(): Node {
       return Group { content:[
          Group {
             transform: [Translate{x: -80.0, y: -48.0}]
@@ -95,7 +106,7 @@ public class ball extends CompositeNode {
             ]
         }
     ]};
-   }
+    }
 
     function XMLID_6_(): Paint {
       return 
