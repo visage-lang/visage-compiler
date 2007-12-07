@@ -48,6 +48,8 @@ public class Translate extends Transform {
     }
 
     public static function translateX(x:Number):Translate {
+        //TODO: JXFC-153
+        //Translate {x: bind x, y: 0};
        Translate {x: x, y: 0};
     }
 
