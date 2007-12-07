@@ -43,7 +43,7 @@ import com.sun.scenario.scenegraph.SGText.VAlign;
  */
 public class Text extends VisualNode {
     // private:
-    private attribute sgtext: SGText;
+    private attribute sgtext: SGText = new SGText();
     private attribute awtFont: java.awt.Font = bind font.getFont() on replace {
         if (sgtext <> null)
             sgtext.setFont(awtFont);
@@ -98,7 +98,6 @@ public class Text extends VisualNode {
 
 
     public function createVisualNode(): SGAbstractShape {
-        sgtext = new SGText();
         sgtext.setAntialiasingHint(java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         sgtext.setText(content);
         sgtext.setFont(awtFont);
