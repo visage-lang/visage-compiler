@@ -77,7 +77,8 @@ public class JavafxDefs {
     final Name makeLazyMethodName;
     final Name invokeName;
     final Name lambdaName;
-   
+    final Name computeValueName;
+
     /**
      * For internal use of this class
      */
@@ -112,5 +113,6 @@ public class JavafxDefs {
         makeLazyMethodName = Name.fromString(names, makeLazyMethodNameString);
         invokeName = names.fromString(invokeNameString);
         lambdaName = names.fromString(lambdaNameString);
+        computeValueName = names.fromString("computeValue");
     }
 }

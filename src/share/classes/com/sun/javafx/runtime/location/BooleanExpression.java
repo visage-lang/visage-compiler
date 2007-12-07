@@ -55,6 +55,12 @@ public class BooleanExpression extends AbstractLocation implements BooleanLocati
         return loc;
     }
 
+    public BooleanExpression(boolean lazy, Location... dependencies) {
+        super(false, lazy);
+        addDependencies(dependencies);
+        expression = null;
+    }
+
     private BooleanExpression(boolean lazy, BooleanBindingExpression expression) {
         super(false, lazy);
         this.expression = expression;
@@ -74,10 +80,15 @@ public class BooleanExpression extends AbstractLocation implements BooleanLocati
         throw new UnsupportedOperationException();
     }
 
+    /** Calculate the current value of the expression */
+    protected boolean computeValue() {
+        return expression.get();
+    }
+
     @Override
     public void update() {
         if (!isValid()) {
-            value = expression.get();
+            value = computeValue();
             setValid(previousValue != value);
         }
     }

@@ -62,15 +62,26 @@ public class SequenceExpression<T> extends AbstractSequenceLocation<T> implement
         return loc;
     }
 
+    public SequenceExpression(Class<T> clazz, boolean lazy, Location... dependencies) {
+        super(clazz, false, lazy);
+        addDependencies(dependencies);
+        expression = null;
+    }
+
     private SequenceExpression(Class<T> clazz, boolean lazy, SequenceBindingExpression<T> expression) {
         super(clazz, false, lazy);
         this.expression = expression;
     }
 
+    /** Calculate the current value of the expression */
+    protected Sequence<? extends T> computeValue() {
+        return expression.get();
+    }
+
     @Override
     public void update() {
         if (!isValid()) {
-            Sequence<T> v = Sequences.upcast(clazz, expression.get());
+            Sequence<T> v = Sequences.upcast(clazz, computeValue());
             if (!equals(v, previousValue))
                 replaceValue(v);
             setValid(false);

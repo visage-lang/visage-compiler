@@ -173,6 +173,16 @@ public abstract class AbstractLocation implements Location {
         }
     }
 
+    public<T extends Location> T addDynamicDependent(T dep) {
+        addDynamicDependency(dep);
+        return dep;
+    }
+
+    public<T extends Location> T addStaticDependent(T dep) {
+        addDependencies(dep);
+        return dep;
+    }
+
     public Collection<ChangeListener> getListeners() {
         if (listeners == null)
             return Collections.emptySet();

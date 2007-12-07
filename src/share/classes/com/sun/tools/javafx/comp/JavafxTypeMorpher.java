@@ -75,7 +75,6 @@ public class JavafxTypeMorpher {
     public LocationNameSymType[] varLocation;
     public LocationNameSymType[] exprLocation;
     public LocationNameSymType[] declLocation;
-    public LocationNameSymType[] bindingExpression;
     public LocationNameSymType[] holder;
     public LocationNameSymType   baseLocation;
     
@@ -222,7 +221,6 @@ public class JavafxTypeMorpher {
 
         public Type getRealType() { return realType; }
         public Type getMorphedType() { return morphedType; }
-        public Type getBindingExpressionType() { return generifyIfNeeded(bindingExpressionType(typeKind), this); }
         public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
         public Type getElementType() { return elementType; }
 
@@ -272,13 +270,11 @@ public class JavafxTypeMorpher {
         varLocation = new LocationNameSymType[TYPE_KIND_COUNT];
         exprLocation = new LocationNameSymType[TYPE_KIND_COUNT];
         declLocation = new LocationNameSymType[TYPE_KIND_COUNT];
-        bindingExpression = new LocationNameSymType[TYPE_KIND_COUNT];
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
             varLocation[kind]  = new LocationNameSymType(locClass[kind] + "Var");
             exprLocation[kind] = new LocationNameSymType(locClass[kind] + "Expression");
             declLocation[kind] = new LocationNameSymType(locClass[kind] + "Location");
-            bindingExpression[kind] = new LocationNameSymType(locClass[kind] + "BindingExpression");
         }
         
         baseLocation = new LocationNameSymType("Location");
@@ -310,10 +306,6 @@ public class JavafxTypeMorpher {
         return exprLocation[typeKind].type;
     }
 
-    Type bindingExpressionType(int typeKind) {
-        return bindingExpression[typeKind].type;
-    }
-    
     JCExpression sharedLocationId(DiagnosticPosition diagPos, int typeKind, LocationNameSymType[] lnsta) {
         LocationNameSymType lnst = lnsta[typeKind];
         return ((JavafxTreeMaker)make).at(diagPos).Identifier(lnst.name);
@@ -625,25 +617,7 @@ public class JavafxTypeMorpher {
             JCStatement stmt, 
             boolean isLazy, 
             List<JCExpression> staticDependencies) {
-            JCExpression newExpr = buildExpressionClass(diagPos, tmi, stmt);
-
-            ListBuffer<JCExpression> argValues = ListBuffer.lb();
-            argValues.append(newExpr);
-            argValues.appendList(staticDependencies);
-
-            return makeExpressionLocation(diagPos, tmi, isLazy, argValues.toList());
-    }
     
-    private JCExpression makeExpressionLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi,  boolean isLazy, List<JCExpression> makeArgs) {
-        if (tmi.typeKind == TYPE_KIND_SEQUENCE) {
-            makeArgs = makeArgs.prepend(  toJava.makeSequenceClassArg(diagPos, tmi) );
-        }
-        Name makeName = isLazy? defs.makeLazyMethodName : defs.makeMethodName;
-        return makeCall(tmi, diagPos, makeArgs, exprLocation, makeName);
-    }
-    
-    private JCExpression buildExpressionClass(DiagnosticPosition diagPos, TypeMorphInfo tmi,  JCStatement stmt) {
-        //TODO: clear should only be generated when there are dynamic dependencies in the body
         JCStatement clearStmt = toJava.callStatement(diagPos, null, defs.clearDynamicDependenciesName);
         List<JCStatement> stmts;
         if (stmt.getTag() == JavafxTag.BLOCK) {
@@ -655,9 +629,9 @@ public class JavafxTypeMorpher {
         }
         JCBlock body = make.at(diagPos).Block(0, stmts);
 
-        JCMethodDecl getMethod = make.at(diagPos).MethodDef(
+        JCMethodDecl computeValueMethod = make.at(diagPos).MethodDef(
                 make.at(diagPos).Modifiers(Flags.PUBLIC), 
-                defs.getMethodName, 
+                defs.computeValueName, 
                 toJava.makeTypeTree(getReturnTypeForGetLocation(tmi), diagPos, true), 
                 List.<JCTypeParameter>nil(), 
                 List.<JCVariableDecl>nil(), 
@@ -665,17 +639,24 @@ public class JavafxTypeMorpher {
                 body, 
                 null); 
         
-        toJava.bindingExpressionDefs.append(getMethod);
+        toJava.bindingExpressionDefs.append(computeValueMethod);
         JCClassDecl anon = make.at(diagPos).AnonymousClassDef(
                     make.at(diagPos).Modifiers(0), 
                     toJava.bindingExpressionDefs.toList());
         toJava.bindingExpressionDefs = null;
+        ListBuffer<JCExpression> argValues = ListBuffer.lb();
+        if (tmi.typeKind == TYPE_KIND_SEQUENCE)
+            argValues.append(toJava.makeSequenceClassArg(diagPos, tmi));
+        argValues.append(make.Literal(TypeTags.BOOLEAN, isLazy ? 1 : 0));
+        argValues.appendList(staticDependencies);
+        Type expressionClass =
+                generifyIfNeeded(exprLocation[tmi.typeKind].type, tmi);
         return make.at(diagPos).NewClass(
                 null,                       // enclosing
                 List.<JCExpression>nil(),   // type args
                 // class name
-                toJava.makeTypeTree(tmi.getBindingExpressionType(), diagPos),
-                List.<JCExpression>nil(),   // args
+                toJava.makeTypeTree(expressionClass, diagPos),
+                argValues.toList(),
                 anon);
     }
 

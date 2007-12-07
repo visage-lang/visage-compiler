@@ -55,7 +55,12 @@ public class DoubleExpression extends AbstractLocation implements DoubleLocation
         return loc;
     }
 
-    
+    public DoubleExpression(boolean lazy, Location... dependencies) {
+        super(false, lazy);
+        addDependencies(dependencies);
+        expression = null;
+    }
+
     private DoubleExpression(boolean lazy, DoubleBindingExpression expression) {
         super(false, lazy);
         this.expression = expression;
@@ -75,10 +80,15 @@ public class DoubleExpression extends AbstractLocation implements DoubleLocation
         throw new UnsupportedOperationException();
     }
 
+    /** Calculate the current value of the expression */
+    protected double computeValue() {
+        return expression.get();
+    }
+
     @Override
     public void update() {
         if (!isValid()) {
-            value = expression.get();
+            value = computeValue();
             setValid(previousValue != value);
         }
     }

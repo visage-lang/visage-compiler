@@ -55,6 +55,12 @@ public class ObjectExpression<T> extends AbstractLocation implements ObjectLocat
         return loc;
     }
 
+    public ObjectExpression(boolean lazy, Location... dependencies) {
+        super(false, lazy);
+        addDependencies(dependencies);
+        expression = null;
+    }
+
     private ObjectExpression(boolean lazy, ObjectBindingExpression<T> expression) {
         super(false, lazy);
         this.expression = expression;
@@ -74,10 +80,15 @@ public class ObjectExpression<T> extends AbstractLocation implements ObjectLocat
         throw new UnsupportedOperationException();
     }
 
+    /** Calculate the current value of the expression */
+    protected T computeValue() {
+        return expression.get();
+    }
+
     @Override
     public void update() {
         if (!isValid()) {
-            value = expression.get();
+            value = computeValue();
             setValid(!equals(value, previousValue));
             previousValue = null;
         }
