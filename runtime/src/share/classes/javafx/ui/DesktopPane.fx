@@ -25,7 +25,6 @@
  
 package javafx.ui; 
 
-//TODO JXFC-284 NPE
 import javafx.ui.InternalFrameDragMode;
 import javafx.ui.InternalFrame;
 

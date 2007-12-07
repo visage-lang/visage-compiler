@@ -25,9 +25,6 @@
  
 package javafx.ui; 
 
-//TODO JXFC-284 NPE
-
-
 public class InternalFrame extends Widget {
     // private
     private attribute jinternalframe: javax.swing.JInternalFrame;
