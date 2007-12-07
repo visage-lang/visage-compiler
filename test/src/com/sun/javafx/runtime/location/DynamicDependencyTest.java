@@ -37,11 +37,11 @@ public class DynamicDependencyTest extends JavaFXTestCase {
     public void testStaticDependencies() {
         final IntLocation a = IntVar.make(1);
         final IntLocation b = IntVar.make(1);
-        final IntLocation c = IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        final IntLocation c = new IntExpression(false, a, b) {
+            public int computeValue() {
                 return a.get() + b.get();
             }
-        }, a, b);
+        };
 
         assertEquals(2, c.get());
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
@@ -62,14 +62,14 @@ public class DynamicDependencyTest extends JavaFXTestCase {
     public void testDynamicOnly() {
         final IntLocation a = IntVar.make(1);
         final IntLocation b = IntVar.make(1);
-        final IntLocation c = IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        final IntLocation c = new IntExpression(false) {
+            public int computeValue() {
                 clearDynamicDependencies();
                 addDynamicDependent(a);
                 addDynamicDependent(b);
                 return a.get() + b.get();
             }
-        });
+        };
 
         assertEquals(0, ((AbstractLocation) a).getListenerCount());
         assertEquals(0, ((AbstractLocation) b).getListenerCount());
@@ -108,13 +108,13 @@ public class DynamicDependencyTest extends JavaFXTestCase {
     public void testStaticAndDynamic() {
         final IntLocation a = IntVar.make(1);
         final IntLocation b = IntVar.make(1);
-        final IntLocation c = IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        final IntLocation c = new IntExpression(false, a) {
+            public int computeValue() {
                 clearDynamicDependencies();
                 addDynamicDependent(b);
                 return a.get() + b.get();
             }
-        }, a);
+        };
 
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
         assertEquals(0, ((AbstractLocation) b).getListenerCount());

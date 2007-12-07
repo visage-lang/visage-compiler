@@ -35,11 +35,11 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
 
     public void testIntObjectWrapper() {
         final IntLocation i = IntVar.make(0);
-        final IntLocation ie = IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        final IntLocation ie = new IntExpression(false) {
+            public int computeValue() {
                 return i.get() + 1;
             }
-        });
+        };
         final ObjectLocation<Integer> oi = i.asObjectLocation();
         final ObjectLocation<Integer> oie = ie.asObjectLocation();
 
@@ -78,11 +78,11 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
 
     public void testDoubleObjectWrapper() {
         final DoubleLocation i = DoubleVar.make(0);
-        final DoubleLocation ie = DoubleExpression.make(new DoubleBindingExpression() {
-            public double get() {
+        final DoubleLocation ie = new DoubleExpression(false) {
+            public double computeValue() {
                 return i.get() + 1;
             }
-        });
+        };
         final ObjectLocation<Double> oi = i.asObjectLocation();
         final ObjectLocation<Double> oie = ie.asObjectLocation();
 
@@ -121,11 +121,11 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
 
     public void testBooleanObjectWrapper() {
         final BooleanLocation i = BooleanVar.make(true);
-        final BooleanLocation ie = BooleanExpression.make(new BooleanBindingExpression() {
-            public boolean get() {
+        final BooleanLocation ie = new BooleanExpression(false) {
+            public boolean computeValue() {
                 return !i.get();
             }
-        });
+        };
         final ObjectLocation<Boolean> oi = i.asObjectLocation();
         final ObjectLocation<Boolean> oie = ie.asObjectLocation();
 

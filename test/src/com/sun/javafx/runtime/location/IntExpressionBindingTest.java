@@ -51,11 +51,11 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
      */
     public void testInitiallyInvalid() {
         final IntLocation a = IntVar.make(0);
-        final IntLocation b = IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        final IntLocation b = new IntExpression(false, a) {
+            public int computeValue() {
                 return a.get() + 1;
             }
-        }, a);
+        };
 
         assertTrue(a.isValid());
         assertEqualsLazy(1, b);
@@ -70,16 +70,16 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
 
     public void testSimpleBind() {
         final IntLocation a = IntVar.make(0);
-        final IntLocation b = IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        final IntLocation b = new IntExpression(false, a) {
+            public int computeValue() {
                 return a.get() + 1;
             }
-        }, a);
-        final IntLocation c = IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        };
+        final IntLocation c = new IntExpression(false, b) {
+            public int computeValue() {
                 return b.get();
             }
-        }, b);
+        };
 
         CountingListener counter = new CountingListener();
         c.addChangeListener(counter);
@@ -101,11 +101,11 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
      */
     public void testLazyBind() {
         final IntLocation a = IntVar.make(0);
-        final IntLocation b = IntExpression.makeLazy(new IntBindingExpression() {
-            public int get() {
+        final IntLocation b = new IntExpression(true, a) {
+            public int computeValue() {
                 return a.get() + 1;
             }
-        }, a);
+        };
 
         a.set(2);
         assertEquals(2, a);
@@ -119,16 +119,16 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
     public void testLazyBehindEager() {
         final IntLocation a = IntVar.make(0);
         final IntLocation b = IntVar.make(0);
-        final IntLocation c = IntExpression.makeLazy(new IntBindingExpression() {
-            public int get() {
+        final IntLocation c = new IntExpression(true, a, b) {
+            public int computeValue() {
                 return a.get() + b.get();
             }
-        }, a, b);
-        final IntLocation d = IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        };
+final IntLocation d = new IntExpression(false, c) {
+            public int computeValue() {
                 return c.get() + 1;
             }
-        }, c);
+        };
 
         assertTrue(c.isLazy());
         assertFalse(d.isLazy());
@@ -145,11 +145,11 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
     public void testDouble() {
         final DoubleLocation a = DoubleVar.make(0);
         final DoubleLocation b = DoubleVar.make(0);
-        final DoubleLocation c = DoubleExpression.make(new DoubleBindingExpression() {
-            public double get() {
+        final DoubleLocation c = new DoubleExpression(false, a, b) {
+            public double computeValue() {
                 return a.get() + b.get();
             }
-        }, a, b);
+        };
         assertEqualsLazy(0.0, c);
         a.set(1.2);
         assertEquals(1.2, c);
@@ -163,11 +163,11 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
     public void testString() {
         final ObjectLocation<String> a = ObjectVar.make("foo");
         final ObjectLocation<String> b = ObjectVar.make(" bar");
-        final ObjectLocation<String> c = ObjectExpression.make(new ObjectBindingExpression<String>() {
-            public String get() {
+        final ObjectLocation<String> c = new ObjectExpression<String>(false, a, b) {
+            public String computeValue() {
                 return a.get() + b.get();
             }
-        }, a, b);
+        };
         assertEqualsLazy("foo bar", c);
         a.set("yoo ");
         assertEquals("yoo  bar", c);
@@ -177,11 +177,11 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
 
     public void testWeakRef() {
         final IntLocation v = IntVar.make(3);
-        IntLocation vPlusOne = IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        IntLocation vPlusOne = new IntExpression(false, v) {
+            public int computeValue() {
                 return v.get() + 1;
             }
-        }, v);
+        };
         assertEqualsLazy(4, vPlusOne);
         v.set(5);
         assertEquals(6, vPlusOne);
@@ -204,21 +204,21 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         final IntLocation b = IntVar.make(0);
         final IntLocation c = IntVar.make(0);
         final IntLocation d = IntVar.make(0);
-        final IntLocation x = IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        final IntLocation x = new IntExpression(false, a, b) {
+            public int computeValue() {
                 return a.get() + b.get();
             }
-        }, a, b);
-        final IntLocation y = IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        };
+        final IntLocation y = new IntExpression(false, c, d) {
+            public int computeValue() {
                 return c.get() + d.get();
             }
-        }, c, d);
-        final IntLocation z = IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        };
+        final IntLocation z = new IntExpression(false, x, y) {
+            public int computeValue() {
                 return x.get() + y.get();
             }
-        }, x, y);
+        };
         CountingListener aCounter = new CountingListener();
         CountingListener bCounter = new CountingListener();
         CountingListener cCounter = new CountingListener();

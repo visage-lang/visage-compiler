@@ -12,12 +12,11 @@ import com.sun.javafx.runtime.sequence.Sequences;
 public class PointerTest extends JavaFXTestCase {
     public void testPointers() {
         final SequenceLocation<Integer> seqvar = SequenceVar.make(Sequences.range(1, 3));
-        final SequenceLocation<Integer> seqexp = SequenceExpression.make(Integer.class,
-                new SequenceBindingExpression<Integer>() {
-                    public Sequence<? extends Integer> get() {
-                        return seqvar.get();
-                    }
-                }, seqvar);
+        final SequenceLocation<Integer> seqexp = new SequenceExpression<Integer>(Integer.class, false, seqvar) {
+          public Sequence<? extends Integer> computeValue() {
+            return seqvar.get();
+          }
+        };
         final IntLocation intvar1 = IntVar.make(3);
         final IntLocation intvar2 = IntVar.make(3);
 

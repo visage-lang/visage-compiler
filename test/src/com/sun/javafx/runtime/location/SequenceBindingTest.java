@@ -63,11 +63,11 @@ public class SequenceBindingTest extends JavaFXTestCase {
      */
     public void testElementBind() {
         final SequenceLocation<Integer> seq = SequenceVar.make(Sequences.range(1, 3));
-        IntLocation firstValue = IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        IntLocation firstValue = new IntExpression(false, seq) {
+            public int computeValue() {
                 return seq.get().get(0);
             }
-        }, seq);
+        };
         CountingSequenceListener cl = new CountingSequenceListener();
         seq.addChangeListener(cl);
         assertEquals(seq, 1, 2, 3);
@@ -229,11 +229,11 @@ public class SequenceBindingTest extends JavaFXTestCase {
     public void testSequenceExpression() {
         // oneToN = bind 1..n
         final IntLocation n = IntVar.make(0);
-        final SequenceLocation<Integer> oneToN = SequenceExpression.make(Integer.class, new SequenceBindingExpression<Integer>() {
-            public Sequence<Integer> get() {
+        final SequenceLocation<Integer> oneToN = new SequenceExpression(Integer.class, false, n) {
+            public Sequence<Integer> computeValue() {
                 return Sequences.range(1, n.get());
             }
-        }, n);
+        };
         assertEquals(oneToN.get(), 1, 0);
         n.set(3);
         assertEquals(oneToN.get(), 1, 2, 3);
@@ -244,15 +244,15 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
         // oddN = bind select t from v where t % 2 == 1
         final SequenceLocation<Integer> v = SequenceVar.make(Sequences.range(1, 8));
-        final SequenceLocation<Integer> oddN = SequenceExpression.make(Integer.class, new SequenceBindingExpression<Integer>() {
-            public Sequence<Integer> get() {
+        final SequenceLocation<Integer> oddN = new SequenceExpression(Integer.class, false, v) {
+            public Sequence<Integer> computeValue() {
                 return v.get().get(new SequencePredicate<Integer>() {
                     public boolean matches(Sequence<? extends Integer> sequence, int index, Integer value) {
                         return value % 2 == 1;
                     }
                 });
             }
-        }, v);
+        };
         assertEquals(oddN.get(), 1, 3, 5, 7);
         v.set(Sequences.range(3, 11));
         assertEquals(oddN.get(), 3, 5, 7, 9, 11);
@@ -260,11 +260,11 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
     /** Ensure that mutative methods on sequence expressions throw UOE */
     public void testUOE() {
-        final SequenceLocation<Integer> seq = SequenceExpression.make(Integer.class, new SequenceBindingExpression<Integer>() {
-            public Sequence<Integer> get() {
+      final SequenceLocation<Integer> seq = new SequenceExpression<Integer>(Integer.class, false) {
+            public Sequence<Integer> computeValue() {
                 return Sequences.range(1, 10);
             }
-        });
+        };
 
         assertUOE(seq, "deleteAll");
         assertUOE(seq, "deleteValue(T)", new Integer(1));
@@ -282,20 +282,20 @@ public class SequenceBindingTest extends JavaFXTestCase {
         // oneToN = bind 1..n
         // evenN = bind select x from oneToN where x % 2 == 0
         final IntLocation n = IntVar.make(0);
-        final SequenceLocation<Integer> oneToN = SequenceExpression.make(Integer.class, new SequenceBindingExpression<Integer>() {
-            public Sequence<Integer> get() {
+        final SequenceLocation<Integer> oneToN = new SequenceExpression<Integer>(Integer.class, false, n) {
+            public Sequence<? extends Integer> computeValue() {
                 return Sequences.range(1, n.get());
             }
-        }, n);
-        final SequenceLocation<Integer> evenN = SequenceExpression.make(Integer.class, new SequenceBindingExpression<Integer>() {
-            public Sequence<Integer> get() {
+        };
+        final SequenceLocation<Integer> evenN = new SequenceExpression<Integer>(Integer.class, false, oneToN) {
+            public Sequence<? extends Integer> computeValue() {
                 return oneToN.get().get(new SequencePredicate<Integer>() {
                     public boolean matches(Sequence<? extends Integer> sequence, int index, Integer value) {
                         return value % 2 == 0;
                     }
                 });
             }
-        }, oneToN);
+        };
         assertEquals(evenN.get(), 0);
         n.set(3);
         assertEquals(evenN.get(), 2);
@@ -307,11 +307,11 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
     public void testDependentTrigger() {
         final SequenceLocation<Integer> v = SequenceVar.make(Sequences.make(Integer.class, 1, 2, 3));
-        final SequenceLocation<Integer> b = SequenceExpression.make(Integer.class, new SequenceBindingExpression<Integer>() {
-            public Sequence<Integer> get() {
+        final SequenceLocation<Integer> b = new SequenceExpression<Integer>(Integer.class, false, v) {
+            public Sequence<Integer> computeValue() {
                 return v.get();
             }
-        }, v);
+        };
         HistorySequenceListener<Integer> vh = new HistorySequenceListener<Integer>();
         HistorySequenceListener<Integer> bh = new HistorySequenceListener<Integer>();
         v.addChangeListener(vh);
