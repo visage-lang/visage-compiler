@@ -35,17 +35,17 @@ import com.sun.javafx.runtime.CircularBindingException;
 public class BijectiveBindTest extends JavaFXTestCase {
     public void testFailures() {
         final IntLocation i = IntVar.make(0);
-        final IntLocation ie = IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        final IntLocation ie = new IntExpression(false) {
+            public int computeValue() {
                 return 0;
             }
-        });
+        };
         final ObjectLocation<String> s = ObjectVar.make("");
-        final ObjectLocation<String> se = ObjectExpression.make(new ObjectBindingExpression<String>() {
-            public String get() {
+        final ObjectLocation<String> se = new ObjectExpression<String>(false) {
+            public String computeValue() {
                 return "";
             }
-        });
+        };
         assertThrows(IllegalArgumentException.class, new VoidCallable() {
             public void call() throws Exception {
                 Bindings.bijectiveBind(ie, ie, new Bijection<Integer, Integer>() {
