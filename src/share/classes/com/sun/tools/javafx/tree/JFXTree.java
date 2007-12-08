@@ -57,12 +57,12 @@ public abstract class JFXTree extends JCTree implements JavaFXTree {
     // stuff to ignore
     
     public Kind getKind()  {
-        throw new InternalError("not implemented");
+        throw new UnsupportedOperationException();
     }
     
     @Override
     public <R,D> R accept(TreeVisitor<R,D> v, D d) {
-        throw new InternalError("not implemented");
+        throw new UnsupportedOperationException();
     }
     
     @SuppressWarnings("unchecked")
