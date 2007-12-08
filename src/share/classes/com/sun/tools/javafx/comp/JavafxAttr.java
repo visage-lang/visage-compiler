@@ -2137,7 +2137,25 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             // castable to each other, (JLS???).
             if ((opc == ByteCodes.if_acmpeq || opc == ByteCodes.if_acmpne)) {
                 if (!types.isCastable(left, right, new Warner(tree.pos()))) {
-                    log.error(tree.pos(), "incomparable.types", left, right);
+                    boolean isError = true;
+                    if (right.tsym != null && right.tsym instanceof JavafxClassSymbol) {
+                        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+                        Set superSet = new HashSet<Type>();
+                        supertypes.append(right);
+                        superSet.add(right);
+
+                        rs.getSupertypes(right.tsym, types, supertypes, superSet);
+                        for (Type baseType : supertypes) {
+                            if (types.isCastable(left, baseType, new Warner(tree.pos()))){
+                                isError = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (isError) {
+                        log.error(tree.pos(), "incomparable.types", left, right);
+                    }
                 }
             }
 

@@ -2009,7 +2009,7 @@ public class JavafxResolve {
         ListBuffer<Type> ret = ListBuffer.<Type>lb();
         if (clazz != null) {
             Type supType = types.supertype(clazz.type);
-            if (supType != null && !dupSet.contains(supType)) {
+            if (supType != null && supType != Type.noType && !dupSet.contains(supType)) {
                 supertypes.append(supType);
                 dupSet.add(supType);
                 getSupertypes(supType.tsym, types, supertypes,dupSet);
