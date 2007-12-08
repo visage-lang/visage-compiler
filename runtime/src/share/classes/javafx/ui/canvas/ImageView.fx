@@ -38,14 +38,25 @@ import com.sun.scenario.scenegraph.SGNode;
  * A node that contains an Image. 
  */
 public class ImageView extends Node {
-    private attribute awtImage: java.awt.Image = bind image.getImage() on replace {
+    // Seems to be something wrong with this bind as
+    // when image changes, awtImage does not get updated
+    // after the original creation.
+    private attribute awtImage: java.awt.Image //= bind image.getImage() 
+    on replace {
+        //java.lang.System.out.println("ImageView.awtImage on replace");
         if (sgimage <> null) {
             this.getImage();
         }
     };
     private attribute sgimage: SGImage;
     private attribute needsScaling: Boolean;
-    public attribute image: Image;
+    public attribute image: Image on replace {
+        //java.lang.System.out.println("ImageView.image on replace");
+        awtImage = image.getImage();
+        if (sgimage <> null) {
+            this.getImage();
+        }
+    };
     public attribute animated: Boolean;
     public attribute imageOpacity: Number = 1.0;
     public attribute loaded: Boolean;
@@ -61,6 +72,7 @@ public class ImageView extends Node {
         return result*100;
     }
     public function getImage(){
+        //java.lang.System.out.println("getImage() {image}={awtImage}-{size} ");
         if (image <> null and size <> null) {
             loaded = false;
             var curImage = image;
