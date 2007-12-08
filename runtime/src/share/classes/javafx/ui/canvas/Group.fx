@@ -38,18 +38,14 @@ public class Group extends Node, Container {
     protected attribute sggroup: SGGroup;
 
     public attribute content: Node[] on insert [indx] (newValue) {
-        //TODO JFXC-301
-        //newValue.parentCanvasElement = this as CanvasElement;
-        newValue.parentCanvasElement = (this as Object) as CanvasElement;
+        newValue.parentCanvasElement = this as CanvasElement;
         if (sggroup <> null) {
             sggroup.add(indx, newValue.getNode());
         }
     } on replace [indx] (oldValue) {
         var newValue = content[indx];
         if (newValue <> null) {
-            //TODO JFXC-301
-            //newValue.parentCanvasElement = this as CanvasElement;
-            newValue.parentCanvasElement = (this as Object) as CanvasElement;
+            newValue.parentCanvasElement = this as CanvasElement;
             if (sggroup <> null) {
                 if (oldValue <> null) {
                    try {
@@ -60,9 +56,8 @@ public class Group extends Node, Container {
                 }
                 sggroup.add(indx, newValue.getNode());
             }
-            //TODO JFXC-301
-            //if (oldValue.parentCanvasElement == this as CanvasElement) {
-            if (oldValue.parentCanvasElement == ((this as Object) as CanvasElement)) {
+            
+            if (oldValue.parentCanvasElement == (this as CanvasElement)) {
                 oldValue.parentCanvasElement = null;
             }
         }
@@ -75,9 +70,8 @@ public class Group extends Node, Container {
                  //println("e={e}");
             }
         }
-        //TODO JFXC-301
-        //if (oldValue.parentCanvasElement == this as CanvasElement) {
-        if (oldValue.parentCanvasElement == ((this as Object) as CanvasElement)) {
+        
+        if (oldValue.parentCanvasElement == (this as CanvasElement)) {
             oldValue.parentCanvasElement = null;
         }
     };
