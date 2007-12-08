@@ -16,12 +16,12 @@ class CalcButton extends CompositeNode {
     
     public function composeNode(): Node {
         ImageView {
-            onMousePressed: function(e:CanvasMouseEvent):Void  {pressed = true;}
+            onMousePressed: function(e:CanvasMouseEvent):Void  {
+                pressed = true;
+            }
             onMouseReleased:  function(e:CanvasMouseEvent):Void {
                 pressed = false; 
-                //TODO hover
-                //if (hover and action <> null) {
-                if (action <> null) {
+                if (hover and action <> null) {
                     action();
                 }
             }
