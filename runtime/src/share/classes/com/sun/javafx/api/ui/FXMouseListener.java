@@ -25,17 +25,64 @@
 
 package com.sun.javafx.api.ui;
 
+import com.sun.javafx.runtime.location.BooleanLocation;
+import com.sun.javafx.runtime.location.ObjectLocation;
+import com.sun.scenario.scenegraph.JSGPanel;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.util.IdentityHashMap;
 import java.util.Set;
 import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.event.SGMouseAdapter;
+import java.awt.Point;
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FXMouseListener extends SGMouseAdapter {
+    static Class targetClass = null;
+    static PropertyDescriptor mHover;
+    static PropertyDescriptor mContentNode;
+    static PropertyDescriptor mIsSelectionRoot;
+    static PropertyDescriptor mSelectable;
+    static PropertyDescriptor mDraggable;
+    static PropertyDescriptor mDragTrigger;
 
+    static {
+        try {
+            targetClass = Class.forName("javafx.ui.canvas.Node$Intf");
+            BeanInfo bi = Introspector.getBeanInfo(targetClass);
+            PropertyDescriptor[] pds = bi.getPropertyDescriptors();
+            for(int i = 0; i < pds.length; i++) {
+                String name = pds[i].getName();
+                if(name.equals("$hover")) {
+                    mHover =pds[i];
+                } else if(name.equals("$contentNode")) {
+                    mContentNode =pds[i];
+                } else if(name.equals("$isSelectionRoot")) {
+                    mIsSelectionRoot =pds[i];
+                } else if(name.equals("$selectable")) {
+                    mSelectable =pds[i];
+                } else if(name.equals("$exportDrag")) {
+                    mDraggable =pds[i];
+                } else if(name.equals("$dragCount")) {
+                    mDragTrigger =pds[i];
+                }
+            }
+        }catch(Exception ex) {
+            Logger.getLogger(FXMouseListener.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
     boolean mDragging;
-    IdentityHashMap mHoverSet = new IdentityHashMap();
+    IdentityHashMap<Object, Object> mHoverSet = new IdentityHashMap<Object, Object>();
 
     Object getFX(SGNode obj) {
         Object result = null;
@@ -62,17 +109,43 @@ public class FXMouseListener extends SGMouseAdapter {
         }
         return result;
     }
+    
+    private void setBoolean(Object obj, PropertyDescriptor desc, boolean value) {
+        try {
+            Method meth = desc.getReadMethod();
+            BooleanLocation location = (BooleanLocation) meth.invoke(obj);
+            location.set(value);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(FXMouseListener.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalArgumentException ex) {
+            Logger.getLogger(FXMouseListener.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvocationTargetException ex) {
+            Logger.getLogger(FXMouseListener.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private boolean getBoolean(Object obj, PropertyDescriptor desc) {
+        try {
+            Method meth = desc.getReadMethod();
+            BooleanLocation location = (BooleanLocation) meth.invoke(obj);
+            return location.get();
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(FXMouseListener.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalArgumentException ex) {
+            Logger.getLogger(FXMouseListener.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvocationTargetException ex) {
+            Logger.getLogger(FXMouseListener.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
 
     private void updateHoverSet(Set hoverSet) {
-    /* TODO:
         Iterator iter = mHoverSet.keySet().iterator();
         while (iter.hasNext()) {
-            Value n = (Value)iter.next();
+            Object n = iter.next();
             if (n == null || hoverSet == null || !hoverSet.contains(n)) {
                 if (n != null) {
-                    n.prepare(mHover);
-                    n.setBoolean(mHover, 0, false);
-                    n.commit(mHover);
+                    setBoolean(n, mHover, false);
                 }
                 iter.remove();
             }
@@ -80,18 +153,14 @@ public class FXMouseListener extends SGMouseAdapter {
         if (hoverSet != null) {
             iter = hoverSet.iterator();
             while (iter.hasNext()) {
-                Value n = (Value)iter.next();
+                Object n = iter.next();
                 mHoverSet.put(n, null);
-                n.prepare(mHover);
-                n.setBoolean(mHover, 0, true);
-                n.commit(mHover);
+                setBoolean(n, mHover, true);
             }
         }
-     */
     }
     
     private void updateHoverSetForEvent(MouseEvent e) {
-/* TODO:        
         // TODO: ideally e.getComponent() would return the originating
         // JSGPanel, but for events originating from a node or embedded
         // JSGPanel, e.getComponent() will return null (since SGNode calls
@@ -117,19 +186,18 @@ public class FXMouseListener extends SGMouseAdapter {
         }
         boolean done = false;
         Map hoverSet = new IdentityHashMap();
-        Value last = null;
+        Object last = null;
         for (SGNode sgnode : path) {
-            Value n = getF3(sgnode);
+            Object n = getFX(sgnode);
             if (n != null && n != last) {
                 if (!done) {
                     hoverSet.put(n, n);
-                    done = n.getBoolean(mIsSelectionRoot, 0).booleanValue();
+                    done = getBoolean(n,mIsSelectionRoot);
                 }
                 last = n;
             }
         }
         updateHoverSet(hoverSet.keySet());
- */
     }
 
     @Override
