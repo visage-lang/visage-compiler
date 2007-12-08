@@ -5,80 +5,53 @@ REM
 REM Uses the same arguments as the JDK's java command.
 
 REM %~dp0 is expanded pathname of the current script
-set _JAVAFXC_HOME=%~dp0..\lib
+set _JAVAFX_LIBS=%~dp0..\lib
 
 if "%JAVA_HOME%" == "" goto noJavaHome
 if not exist "%JAVA_HOME%\bin\java.exe" goto noJavaHome
 if "%_JAVACMD%" == "" set _JAVACMD=%JAVA_HOME%\bin\java.exe
-goto setClasspath
+goto setArguments
 
 :noJavaHome
 if "%_JAVACMD%" == "" set _JAVACMD=java.exe
 
-:setClasspath
-set _CLASSPATH="%_JAVAFXC_HOME%\javafxrt.jar;%_JAVAFXC_HOME%\scenegraph.jar"
-if "%CLASSPATH%" == "" goto setArguments
-set _CLASSPATH="%CLASSPATH%;%_CLASSPATH%"
-set _CLASSPATH=%_CLASSPATH:"=%
-
-set _IN_CP=
-
 :setArguments
-set _JVM_ARGS=
-set _ARGS=%*
-if not defined _ARGS goto jvmoptsDone
-set _ARGS=%_ARGS:-=-d%
-set _ARGS=%_ARGS:"=-q%
-set _ARGS="%_ARGS%"
+set _CP_=%CLASSPATH%
+if "%_CP_%" == "" set _CP_=.
+set _ARGS=
 
 :jvmoptsLoop
-for /f "tokens=1,*" %%i in (%_ARGS%) do call :getarg "%%i" "%%j"
-goto processarg
+if "%1" == "" goto jvmoptsDone
+if "%1" == "-cp" goto getClasspath
+if "%1" == "-classpath" goto getClasspath
+goto fxarg
 
-:getarg
-for %%i in (%1) do set _CMP=%%~i
-set _ARGS=%2
-goto :EOF
+:getClasspath
+shift
+set _CP_=%~1%
 
-:processarg
-if "%_CMP%" == "" goto jvmoptsDone
-set _CMP=%_CMP:-q="%
-set _CMP=%_CMP:-d=-%
-if "%_CMP%" == "-cp" goto setinclasspath
-if "%_CMP%" == "-classpath" goto setinclasspath
-if "%_CMP:~0,2%" == "-J" goto jvmarg
-if NOT "%_IN_CP%" == "true" goto fxarg
-set _CLASSPATH="%_CMP%;%_CLASSPATH%"
-set _CLASSPATH=%_CLASSPATH:"=%
-set _IN_CP=
-goto jvmoptsNext
-
-:setinclasspath
-set _IN_CP=true
 goto jvmoptsNext
 
 :fxarg
-set _FX_ARGS=%_FX_ARGS% %_CMP%
+set _FX_ARGS=%_FX_ARGS% %1%
 goto jvmoptsNext
 
-:jvmarg
-set _VAL=%_CMP:~2%
-set _JVM_ARGS=%_JVM_ARGS% %_VAL%
-
 :jvmoptsNext
-set _CMP=
+shift
 goto jvmoptsLoop
 
 :jvmoptsDone
+set _CLASSPATH=%_JAVAFX_LIBS%\javafxrt.jar;%_JAVAFX_LIBS%\scenegraph.jar;%_CP_%
+set _CP_=
 set _VAL=
 set _CMP=
 
-"%_JAVACMD%" %_JVM_ARGS% "-Xbootclasspath/p:%_JAVAFXC_HOME%\javafxc.jar" -classpath "%_CLASSPATH%" %_FX_ARGS%
+"%_JAVACMD%" "-Xbootclasspath/p:%_JAVAFX_LIBS%\javafxc.jar" -classpath "%_CLASSPATH%" %_FX_ARGS%
 
 REM cleanup
-if not "%_JAVAFXC_HOME"=="" set _JAVAFXC_HOME=
+set _CLASSPATH=
+if not "%_JAVAFX_LIBS"=="" set _JAVAFX_LIBS=
 if not "%_JAVACMD%"=="" set _JAVACMD=
 if not "%_JVM_ARGS%"=="" set _JVM_ARGS=
 if not "%_FX_ARGS%"=="" set _FX_ARGS=
-if not "%_CLASSPATH%"=="" set _CLASSPATH=
 if not "%_ARGS%"=="" set _ARGS=
