@@ -274,7 +274,7 @@ public abstract class Node extends CanvasElement, Transformable {
         while (obj <> null) {
             //TODO JFXC-235
             //var n = obj.getAttribute("fx") as Node;
-            n = obj.getAttribute("fx") as Node;
+            n = obj.getAttribute("FX") as Node;
             if (n <> null) {
                 return n;
             }
@@ -322,7 +322,7 @@ public abstract class Node extends CanvasElement, Transformable {
             clipFilter = new SGClip();
             clipFilter.setChild(compositeFilter);
             transformFilter = SGTransform.createAffine(new AffineTransform(), clipFilter);
-            transformFilter.putAttribute("fx", this);
+            transformFilter.putAttribute("FX", this);
             transformFilter.addNodeListener(Node.LISTENER);
             alignmentFilter = new SGAlignment();
             alignmentFilter.setChild(transformFilter);
