@@ -26,6 +26,7 @@
 package com.sun.tools.javafx.ui;
 
 import com.sun.javafx.runtime.sequence.Sequence;
+import java.lang.reflect.Array;
 import java.util.Iterator;
 
 /**
@@ -64,5 +65,12 @@ public class SequenceUtil {
         String[] iArray = new String[sequence.size()];
         sequence.toArray(iArray, 0);
         return iArray;        
+    }
+
+    public static <T>T[] sequenceToArray(Sequence<? extends T> sequence) {
+        Class cl = sequence.getElementType();
+        T[] c = (T[])Array.newInstance(cl, sequence.size());
+        sequence.toArray(c, 0);
+        return c;
     }
 }
