@@ -39,6 +39,7 @@ tokens {
    CONTINUE='continue';
    DELETE='delete';
    FALSE='false';
+   FOR='for';
    FOREACH='foreach';
    FUNCTION='function';
    IF='if';
@@ -683,6 +684,10 @@ forExpression   returns [JCExpression expr]
 		in1=inClause					{ clauses.append($in1.value); }	       
 		( COMMA in2=inClause				{ clauses.append($in2.value); } )*	       
 	        RPAREN be=expression 				{ $expr = F.at(pos($FOREACH)).ForExpression(clauses.toList(), $be.expr); }
+	| FOR   LPAREN  
+		in1=inClause					{ clauses.append($in1.value); }	       
+		( COMMA in2=inClause				{ clauses.append($in2.value); } )*	       
+	        RPAREN be=expression 				{ $expr = F.at(pos($FOR)).ForExpression(clauses.toList(), $be.expr); }
 	;
 inClause   returns [JFXForExpressionInClause value] 
 @init { JFXVar var; }
