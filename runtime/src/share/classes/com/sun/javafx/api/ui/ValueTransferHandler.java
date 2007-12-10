@@ -126,11 +126,13 @@ abstract public class ValueTransferHandler extends com.sun.javafx.runtime.awt.Tr
     MyDropTargetListener myDropTargetListener;
 
     void installDropTargetListener(Component comp) {
-        myDropTargetListener = new MyDropTargetListener();
-        try {
-            comp.getDropTarget().addDropTargetListener(myDropTargetListener);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if(comp.getDropTarget() != null) {
+            myDropTargetListener = new MyDropTargetListener();
+            try {
+                comp.getDropTarget().addDropTargetListener(myDropTargetListener);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
