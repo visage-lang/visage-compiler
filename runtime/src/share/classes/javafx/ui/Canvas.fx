@@ -148,7 +148,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         var e = CanvasDropEvent {
             x: p.x,
             y: p.y,
-            //TODO: transferData: value
+            transferData: [value]
         };
         foreach (i in path) {
             if (i.handleAcceptDrop(e)) {          
@@ -180,7 +180,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         var e = CanvasDropEvent {
             x: p.x,
             y: p.y
-            //TODO: transferData: value
+            transferData: [value]
         };
         foreach (i in path) {
             if (i.handleDragEnter(e)) {
@@ -208,7 +208,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         var e = CanvasDropEvent {
             x: p.x,
             y: p.y
-            //TODO: transferData: value
+            transferData: [value]
         };
         foreach (i in path) {
             if (i.handleDragExit(e)) {
@@ -226,7 +226,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         return dragNode;
     }
 
-    private function getDragValue() {
+    private function getDragValue():Object {
         return dragValue;
     }
 
@@ -240,7 +240,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         var e = CanvasDropEvent {
             x: p.x,
             y: p.y
-            //TODO: transferData: value
+            transferData: [value]
         };
         foreach (i in path) {
             if (i.handleDrop(e)) {
@@ -257,11 +257,11 @@ public class Canvas extends Widget, CanvasElement, Container {
     public function doExportAsDrag(e:CanvasDragEvent) {
          //dragNode = e.source;
          dragNode = e.dragView;
-         dragValue = e.dragValue;
+         dragValue = e.dragValue as Object;
     }
 
     attribute dragNode: Node;
-    attribute dragValue: Object[];
+    attribute dragValue: Object;
     attribute dropTargetNode: Node;
 
     private function sizeAllToFit() {
@@ -371,16 +371,15 @@ public class Canvas extends Widget, CanvasElement, Container {
             i.parentCanvasElement = this;
             root.add(i.getNode());
         }
-        var self = this;
         var hoverListener = new FXMouseListener();
         jsgpanel.addMouseListener(hoverListener);
         jsgpanel.addMouseMotionListener(hoverListener);
         jsgpanel.addComponentListener(ComponentAdapter {
                 function componentShown(e) {
-                    self.sizeAllToFit();
+                    sizeAllToFit();
                 }
                 function componentResized(e) {
-                    self.sizeAllToFit();
+                    sizeAllToFit();
                 }
             });
         // TODO: the following causes exceptions to be thrown like this when
@@ -390,54 +389,58 @@ public class Canvas extends Widget, CanvasElement, Container {
         //<<javax.swing.ToolTipManager>/>.sharedInstance().registerComponent(jsgpanel);
         var javaVersion = System.getProperty("java.version") as java.lang.String;
         var javaBroken = javaVersion.startsWith("1.5.0_0") as Boolean;
-     /* TODO: port addTransferHandler
-        context:UIContext.addTransferHandler(
+        UIElement.context.addTransferHandler(
             jsgpanel, dropType,
-            new <<net.java.javafx.ui.ValueGetter>>() {
-                function get() {
-                    return self.getDragValue();
+            com.sun.javafx.api.ui.ValueGetter {
+                public function get():Object {
+                    return getDragValue();
                 }
             },
-            new <<net.java.javafx.ui.ValueSetter>>() {
-                function set(value) {
-                    self.setDropValue(value);
+            com.sun.javafx.api.ui.ValueSetter {
+                public function set(value:Object) {
+                    setDropValue(value);
                 }
             },
-            new <<net.java.javafx.ui.ValueAcceptor>>() {
-                function accept(value) {
+            com.sun.javafx.api.ui.ValueAcceptor {
+                public function accept(value:Object):Boolean {
                     if (javaBroken) {
                         return true;
                     }
-                    var result = self.acceptDrop(value);
+                    var result = acceptDrop(value);
                     return result;
                 }
-                function dragEnter(value) {
-                    self.handleDragEnter(value);
+                public function dragEnter(value:Object):Void {
+                    handleDragEnter(value);
                 }
-                function dragExit(value) {
-                    self.handleDragExit(value);
+                public function dragExit(value:Object):Void {
+                    handleDragExit(value);
                 }
             },
-            new <<net.java.javafx.ui.VisualRepresentation>>() {
-                function getIcon(value) {
+            com.sun.javafx.api.ui.VisualRepresentation {
+                public function getIcon(value:Object):javax.swing.Icon {
                     var c = CanvasIcon {
-                        content: self.getDragNode()
+                        content: [ getDragNode() ]
                     };
                     var icon = c.getIcon();
                     return icon;
                 }
+                public function getComponent(value:Object):java.awt.Component {
+                    return null;
+                }
             }
         );
-      */
         jsgpanel.addKeyListener(KeyListener {
             public function keyTyped(e:KeyEvent): Void {
-                (focusedNode.onKeyTyped)(self.makeKeyEvent(e));
+                if(focusedNode.onKeyTyped <> null)
+                    focusedNode.onKeyTyped(makeKeyEvent(e));
             }
             public function keyPressed(e:KeyEvent): Void {
-                (focusedNode.onKeyDown)(self.makeKeyEvent(e));
+                if(focusedNode.onKeyDown <> null)
+                    focusedNode.onKeyDown(makeKeyEvent(e));
             }
             public function keyReleased(e:KeyEvent): Void {
-                (focusedNode.onKeyUp)(self.makeKeyEvent(e));
+                if(focusedNode.onKeyUp <> null)
+                    focusedNode.onKeyUp(makeKeyEvent(e));
             }
         });
         jsgpanel.repaint();
