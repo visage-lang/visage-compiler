@@ -559,4 +559,18 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitTree(JCTree tree) {
         assert false : "Should not be here!!!";
     }
+    
+    /** Convert a tree to a pretty-printed string. */
+    public static String toString(JCTree tree) {
+        StringWriter s = new StringWriter();
+        try {
+            new JavafxPretty(s, false).printExpr(tree);
+        }
+        catch (IOException e) {
+            // should never happen, because StringWriter is defined             
+            // never to throw any IOExceptions                                  
+            throw new AssertionError(e);
+        }
+        return s.toString();
+    }
 }
