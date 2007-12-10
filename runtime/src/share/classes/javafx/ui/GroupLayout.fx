@@ -96,8 +96,7 @@ public class GroupLayout extends GroupElement {
                 }
             }
             if (sizeof comps > 0) {
-                //TODO JXFC-241
-                //layout.linkSize(comps, layout.VERTICAL);
+                layout.linkSize(comps, layout.VERTICAL);
             }
         }
     }
@@ -152,8 +151,7 @@ public class GroupLayout extends GroupElement {
                 }
             }
             if (sizeof comps > 0) {
-                //TODO JXFC-241
-                //layout.linkSize(comps, layout.HORIZONTAL);
+                layout.linkSize(comps, layout.HORIZONTAL);
             }
         }
     }

@@ -51,8 +51,8 @@ public class RadioButtonMenuItem extends MenuItem, SelectableButton {
                                             //return;
                                         }
                                         selected = jradiobuttonmenuitem.isSelected();
-                                        if (onChange <> null) {
-                                             (onChange)(selected);
+                                        if (self.onChange <> null) {
+                                             self.onChange(selected);
                                         }
                                         if (selected) {
                                             buttonGroup.selection = i;

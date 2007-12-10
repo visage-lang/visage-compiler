@@ -61,7 +61,7 @@ public class Image extends Icon {
                 totalDownloaded = notifierDL.getTotalRead();
                 notifierDL.addImageDownloadObserver(ImageDownloadObserver {
                         public function progress(totalRead:Integer, ofTotal:Integer):Void {
-                            /********** JXFC-332 **********
+                            /********** JXFC-332 JXFC-333 **********
                             //TODO DO LATER - this is a work around until a more permanent solution is provided
                             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                                       public function run():Void {

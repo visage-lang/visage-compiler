@@ -72,7 +72,6 @@ public class MenuItem extends AbstractMenuItem {
     public function createComponent():javax.swing.JComponent {
         jmenuitem = this.createMenuItem();
         jmenuitem.setOpaque(false);
-        //TODO JXFC-166
         jmenuitem.addActionListener(java.awt.event.ActionListener {
                                         public function actionPerformed(e:ActionEvent):Void {
                                             if (action <> null) {

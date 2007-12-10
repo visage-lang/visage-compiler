@@ -58,10 +58,8 @@ public class GroupPanel extends Widget, GroupLayout {
         //this.addComponents(panel);
         var hgroup = layout.createSequentialGroup();
         var vgroup = layout.createSequentialGroup();
-        //TODO JXFC-242
-        //this.addColumns(panel as java.awt.Container, layout, hgroup);
-        //TODO JXFC-242
-        //this.addRows(panel as java.awt.Container, layout, vgroup);
+        this.addColumns(panel as java.awt.Container, layout, hgroup);
+        this.addRows(panel as java.awt.Container, layout, vgroup);
         layout.setHorizontalGroup(hgroup);
         layout.setVerticalGroup(vgroup);
         return panel;

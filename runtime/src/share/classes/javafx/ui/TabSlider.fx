@@ -46,17 +46,17 @@ class TabSlider extends Widget {
     attribute inUpdateSelection: Boolean;
     //TODO JXFC-320
 /****************
-    public function updateSelection(old:Number, value:Number):Void {
+    public function updateSelection(oldIndex:Integer, newIndex:Integer):Void {
         if (panel == null) {
             return;
         }
-        var oldTab = tabs[old.intValue()];
+        var oldTab = tabs[oldIndex];
         if (oldTab <> null) {
             inSelection = true;
             oldTab.selected = false;
             inSelection = false;
         }
-	var newTab = tabs[value.intValue()];
+	var newTab = tabs[newIndex];
         if (orientation == Orientation.VERTICAL) {
             if (newTab <> null) {
                 var availHeight = panel.getHeight() - sizeof tabs*23;
@@ -226,7 +226,7 @@ class TabSlider extends Widget {
                 inUpdateSelection = false;
             } 
             if (old <> selectedIndex) {
-                //TODO JXFC-XXXX
+                //TODO JXFC-320
                 //updateSelection(old, selectedIndex);
             }
         }
@@ -459,7 +459,7 @@ class TabSlider extends Widget {
                     if (selection >= 0 and selection <> selectedIndex) {
                         selectedIndex = selection;
                     } else {
-                        //TODO JXFC-XXX
+                        //TODO JXFC-320
                         //updateSelection(-1.0, selectedIndex);
                     }
                   }

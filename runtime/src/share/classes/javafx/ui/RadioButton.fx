@@ -141,17 +141,14 @@ public class RadioButton extends SelectableButton {
         jradiobutton.addItemListener(java.awt.event.ItemListener {
                 public function itemStateChanged(e:java.awt.event.ItemEvent):Void {
                     var i = 0;// = select indexof x from x in buttonGroup.buttons where x == self;
-                    //TODO JXFC-211
-                    //foreach (ii in [0..sizeof buttonGroup.buttons exclusive]) {
+                    foreach (ii in [0..sizeof buttonGroup.buttons exclusive]) {
                         //TODO JXFC-270
                         /********* 270 is "this" ***********/
                         //if(buttonGroup.buttons[ii] == this) {
                         //    i = ii;
                         //     break;
                         //}
-                    //}
-                    //TODO JXFC-211
-                    /**********  211 ***********
+                    }
                     selected = jradiobutton.isSelected();
                     if(onChange <> null){
                         (onChange)(selected);
@@ -159,7 +156,6 @@ public class RadioButton extends SelectableButton {
                     if (selected) {
                         buttonGroup.selection = i;
                     }
-                    ************ 211 **********/
                 }
             });
         jradiobutton.addActionListener(java.awt.event.ActionListener {

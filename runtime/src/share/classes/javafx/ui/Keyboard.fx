@@ -32,9 +32,6 @@ public class Keyboard {
     protected attribute keyMap:Map = new HashMap();
 
     public function getKeyStroke(id:Integer): KeyStroke {
-        //TODO  JXFC-82 get() in 
-        // com.sun.javafx.runtime.location.ObjectLocation<java.util.Map> 
-        // cannot be applied to (java.lang.Object)
 
         return this.keyMap.get(id as Object) as KeyStroke;
     }

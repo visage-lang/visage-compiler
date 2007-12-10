@@ -79,14 +79,11 @@ public class Dialog extends AbstractFrame {
     public attribute visible: Boolean on replace {
          if (visible) {
             //TODO DO LATER
-            //TODO JXFC-197
-            /**********
             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                       public function run():Void {
                            show();
                       }
             });
-            ***********/
          } else {
             hide();
          }
