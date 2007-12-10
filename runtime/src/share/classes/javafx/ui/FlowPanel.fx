@@ -48,7 +48,7 @@ public class FlowPanel extends Widget {
         return panel;
     }
 
-    public attribute alignment:Alignment on replace {
+    public attribute alignment:Alignment = Alignment.CENTER on replace {
         if (panel <> null) {
             this.createLayout();
         }
@@ -96,7 +96,6 @@ public class FlowPanel extends Widget {
         return panel;
     }
     public attribute focusable:Boolean = false;
-    public attribute alignment:Alignment = Alignment.CENTER;
 
 }
 
