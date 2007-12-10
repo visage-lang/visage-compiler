@@ -27,53 +27,41 @@ package javafx.ui;
 
 
 public class GridCell {
-    protected attribute constraint: java.awt.GridBagConstraints;
+    protected attribute constraint: java.awt.GridBagConstraints = new java.awt.GridBagConstraints();
     public attribute insets: Insets on replace  {
         constraint.insets = insets.awtinsets;
     };
-    public attribute anchor: Anchor on replace  {
+    public attribute anchor: Anchor = Anchor.CENTER on replace  {
         constraint.anchor = anchor.id.intValue();
     };
-    public attribute gridwidth: Number on replace  {
+    public attribute gridwidth: Number = 1 on replace  {
         constraint.gridwidth = gridwidth.intValue();
     };
-    public attribute gridheight: Number on replace {
+    public attribute gridheight: Number = 1 on replace {
         constraint.gridheight = gridheight.intValue();
     };
-    public attribute gridx: Number on replace {
+    public attribute gridx: Number = java.awt.GridBagConstraints.RELATIVE on replace {
         constraint.gridx = gridx.intValue();
     };
-    public attribute gridy: Number on replace {
+    public attribute gridy: Number = java.awt.GridBagConstraints.RELATIVE on replace {
         constraint.gridy = gridy.intValue();
     };
-    public attribute fill: Fill on replace  {
+    public attribute fill: Fill = Fill.NONE on replace  {
         constraint.fill = fill.id.intValue();
     };
-    public attribute weightx: Number on replace  {
+    public attribute weightx: Number = 0.0 on replace  {
         constraint.weightx = weightx;
     };
-    public attribute weighty: Number on replace  {
+    public attribute weighty: Number = 0.0 on replace  {
         constraint.weighty = weighty;
     };
-    public attribute ipadx: Number on replace  {
+    public attribute ipadx: Number = 0 on replace  {
         constraint.ipadx = ipadx.intValue();
     };
-    public attribute ipady: Number on replace  {
+    public attribute ipady: Number = 0 on replace  {
         constraint.ipady = ipady.intValue();
     };
     public attribute content: Widget;
-    init {
-        anchor = Anchor.CENTER;
-        fill = Fill.NONE;
-        gridx = java.awt.GridBagConstraints.RELATIVE;
-        gridy = java.awt.GridBagConstraints.RELATIVE;
-        gridwidth = 1;
-        gridheight = 1;
-        weightx = 0.0;
-        weighty = 0.0;
-        ipadx = 0;
-        ipady = 0;
-        constraint = new java.awt.GridBagConstraints();
-    }
+    
 }
 

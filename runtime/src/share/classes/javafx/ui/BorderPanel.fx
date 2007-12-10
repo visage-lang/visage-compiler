@@ -118,10 +118,7 @@ public class BorderPanel extends Widget {
         }
         jpanel;
     }    
-        
-    init {
-        focusable = false;
-    }
+    public attribute focusable:Boolean = false;    
 }
 
 

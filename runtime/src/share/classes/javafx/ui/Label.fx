@@ -84,9 +84,7 @@ public class Label extends Widget {
         jlabel.setPreloadImages(preloadImages);
         return jlabel;
     }
-    init {
-        focusable = false;
-    }
+    public attribute focusable:Boolean = false;
 }
 
 

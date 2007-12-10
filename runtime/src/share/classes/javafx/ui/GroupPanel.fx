@@ -64,10 +64,7 @@ public class GroupPanel extends Widget, GroupLayout {
         layout.setVerticalGroup(vgroup);
         return panel;
     }
-
-    init {
-        focusable = false;
-    }
+    public attribute focusable:Boolean = false;
 }
 
 

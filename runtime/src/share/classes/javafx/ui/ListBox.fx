@@ -175,7 +175,7 @@ public class ListBox extends ScrollableWidget {
      * When changed back to false synchronization will occur. Can be used 
      * as a performance optimizationwhen when doing large batch updates.
      */
-    public attribute locked: Boolean on replace {
+    public attribute locked: Boolean = true on replace {
         if (not locked) {
             list.removeListSelectionListener(selectionListener);
             if (dirty) {
@@ -471,10 +471,6 @@ public class ListBox extends ScrollableWidget {
             locked = false;
         //}
         return list;
-    }
-
-    init {
-        locked = true;
     }
 
 }

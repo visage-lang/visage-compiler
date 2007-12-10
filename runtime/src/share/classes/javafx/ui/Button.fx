@@ -271,18 +271,16 @@ public class Button extends Widget, ActionWidget {
     
     
     public function createComponent():javax.swing.JComponent { 
+        button.addActionListener(java.awt.event.ActionListener {
+                 public function actionPerformed(e:java.awt.event.ActionEvent) {
+                    if(action <> null) {
+                         action();
+                    }
+                 }
+             });  
         return button;
     } 
     
-    init {
-        button.addActionListener(java.awt.event.ActionListener {
-                         public function actionPerformed(e:java.awt.event.ActionEvent) {
-                            if(action <> null) {
-                                 action();
-                            }
-                         }
-                     });        
-    }
 }
 
 

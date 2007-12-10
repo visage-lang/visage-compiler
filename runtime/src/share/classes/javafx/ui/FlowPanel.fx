@@ -53,11 +53,11 @@ public class FlowPanel extends Widget {
             this.createLayout();
         }
     };
-    public attribute vgap: Number on replace {
+    public attribute vgap: Number = 5 on replace {
         if (layout <> null)
             layout.setVgap(vgap.intValue());
     };
-    public attribute hgap: Number on replace {
+    public attribute hgap: Number = 5 on replace {
         if (layout <> null)
             layout.setHgap(hgap.intValue());
     };
@@ -95,12 +95,8 @@ public class FlowPanel extends Widget {
         this.createLayout();
         return panel;
     }
+    public attribute focusable:Boolean = false;
+    public attribute alignment:Alignment = Alignment.CENTER;
 
-    init {
-        focusable = false;
-        alignment = Alignment.CENTER;
-        vgap = 5;
-        hgap = 5;
-    }
 }
 

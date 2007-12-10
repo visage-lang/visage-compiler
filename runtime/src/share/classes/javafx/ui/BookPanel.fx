@@ -72,10 +72,8 @@ public class BookPanel extends Widget {
         bookPanel.setLeftPageIndex(leftPageIndex);
         return bookPanel;
     }   
+    public attribute background: AbstractColor = Color.WHITE;
+    public attribute focusable:Boolean = false;
     
-    init {
-        background = Color.WHITE;
-        focusable = false;
-    }
 }
 

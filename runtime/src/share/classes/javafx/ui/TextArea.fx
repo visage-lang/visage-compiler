@@ -37,7 +37,7 @@ public class TextArea extends ScrollableWidget {
     };
     private attribute inUpdate:Boolean;
     private attribute documentListener:javax.swing.event.DocumentListener;
-    private attribute jtextarea: JTextArea;
+    private attribute jtextarea: JTextArea = new JTextArea();
     public attribute editable: Boolean = true on replace {
         jtextarea.setEditable(editable);
     };
@@ -165,9 +165,6 @@ public class TextArea extends ScrollableWidget {
         return jtextarea;
     }
 
-    init {
-        jtextarea = new JTextArea();
-    }
 
 }
 

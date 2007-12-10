@@ -55,8 +55,6 @@ class InfiniteProgressPanel extends Widget {
         pane.setText(text);
         return root;
     }
-    init {
-        focusable = false;
-    }
+    public attribute focusable:Boolean = false;
 }
 

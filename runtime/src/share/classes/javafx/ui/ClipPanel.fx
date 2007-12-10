@@ -97,8 +97,6 @@ public class ClipPanel extends Widget {
         p.setOpaque(false);
         return p;
     }
-    init {
-        focusable = false;
-    }
+    public attribute focusable:Boolean = false;
 }
 

@@ -60,9 +60,7 @@ public class GridBagPanel extends Widget {
         }
         return jpanel;
     }
-    init {
-        focusable = false;
-    }
+    public attribute focusable:Boolean = false;
 }
 
 

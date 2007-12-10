@@ -43,9 +43,7 @@ public abstract class CompositeWidget extends Widget {
         __panel__.add(c, BorderLayout.CENTER);
         return __panel__;
     }
-    init {
-        focusable = false;
-    }
+    public attribute focusable:Boolean = false;
 }
 
 
