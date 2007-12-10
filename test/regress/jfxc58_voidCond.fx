@@ -19,7 +19,7 @@ public class Foo {
     public attribute style: FontStyle[];
     
     public function Font(faceName:String, style:String[], size:Integer){
-        foreach (i in style) {
+        for (i in style) {
             if (i == "PLAIN") then {
                 insert FontStyle.PLAIN into this.style
             } else if (i == "ITALIC") then {

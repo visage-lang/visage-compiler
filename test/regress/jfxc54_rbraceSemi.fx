@@ -21,5 +21,5 @@ if (h > 4) then {
 if (h < 100) then { 
   System.out.println("That too"); null
 }
-var c : Integer[] = foreach (x in [1..10]) { x*x }
+var c : Integer[] = for (x in [1..10]) { x*x }
 System.out.println(c)
