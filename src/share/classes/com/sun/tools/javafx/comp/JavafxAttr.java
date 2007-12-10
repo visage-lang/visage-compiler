@@ -1093,8 +1093,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         
         for (ForExpressionInClauseTree cl : tree.getInClauses()) {
             JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
-            attribVar(clause.getVar(), forExprEnv);
             Type exprType = types.upperBound(attribExpr((JCExpression)clause.getSequenceExpression(), forExprEnv));
+            if (clause.getVar() != null &&
+                clause.getVar().getJFXType() instanceof JFXTypeUnknown &&
+                exprType.allparams() != null && exprType.allparams().nonEmpty()) {
+                Type sequenceType = types.upperBound(exprType.allparams().last());
+                clause.getVar().setJFXType(make.TypeClass(make.Ident(sequenceType.tsym), Cardinality.SINGLETON));
+                clause.getVar().type = sequenceType;
+            }
+            attribVar(clause.getVar(), forExprEnv);
             chk.checkNonVoid(((JCTree)clause).pos(), exprType);
             Type elemtype;
             // must implement Sequence<T>?
@@ -1107,7 +1114,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 if (iterableParams.isEmpty()) {
                     elemtype = syms.errType;
                 } else {
-                    elemtype = types.upperBound(iterableParams.head);
+                    elemtype = types.upperBound(iterableParams.last());
                 }
             }
             if (elemtype == syms.errType) {

@@ -1,7 +1,8 @@
 /* JFXC-301: cannot cast "this" in Rect.fx to super class SizeableCanvasElement
  * @test
- * @run
  */
+package javafx.ui.canvas;
+
 import javafx.ui.canvas.Node;
 import com.sun.scenario.scenegraph.SGGroup;
 import com.sun.scenario.scenegraph.SGNode;
