@@ -1952,18 +1952,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             private JCExpression makeFullCheck(JCExpression lhs, JCExpression rhs) {
                 return callRuntime(defs.equalsMethodString, List.of(lhs, rhs));
             }
-           
+            
             /**
-             * Translate a binary expressions
+             * Return the translation for a == comparision
              */
-            public JCTree doit() {
-                final JCExpression lhs = translate( tree.lhs );
+            private JCExpression translateEqualsEquals() {
+                 final JCExpression lhs = translate( tree.lhs );
                 final JCExpression rhs = translate( tree.rhs );
                 final Type lhsType = tree.lhs.type;
                 final Type rhsType = tree.rhs.type;
                 
-                //TODO: handle <>
-                if (tree.getTag() == JavafxTag.EQ) {
                     // this is an x == y
                     if (lhsType.getKind() == TypeKind.NULL) {
                         if (rhsType.getKind() == TypeKind.NULL) {
@@ -1996,8 +1994,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                             return makeFullCheck(lhs, rhs);
                         }
                     }
+            }
+           
+            /**
+             * Translate a binary expressions
+             */
+            public JCTree doit() {
+                //TODO: handle <>
+                if (tree.getTag() == JavafxTag.EQ) {
+                    return translateEqualsEquals();
+                } else if (tree.getTag() == JavafxTag.NE) {
+                    return make.at(diagPos).Unary(JCTree.NOT, translateEqualsEquals());
                 } else {
-                    // anything other than ==
+                    // anything other than == or <>
+                    final JCExpression lhs = translate(tree.lhs);
+                    final JCExpression rhs = translate(tree.rhs);
                     return makeBinary(tree.getTag(), lhs, rhs);
                 }
             }
