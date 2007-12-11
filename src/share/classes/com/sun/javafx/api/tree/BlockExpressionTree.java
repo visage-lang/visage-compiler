@@ -25,6 +25,10 @@
 
 package com.sun.javafx.api.tree;
 
+import com.sun.source.tree.ExpressionTree;
+import com.sun.source.tree.StatementTree;
+import java.util.List;
+
 /**
  * Common interface for expression nodes in an abstract syntax tree for the 
  * JavaFX Script language.
@@ -38,4 +42,7 @@ package com.sun.javafx.api.tree;
  * @author Tom Ball
  */
 public interface BlockExpressionTree extends JavaFXExpressionTree {
+    boolean isStatic();
+    List<? extends StatementTree> getStatements();
+    ExpressionTree getValue();
 }

@@ -59,6 +59,10 @@ public class JFXBlockExpression extends JFXExpression implements BlockExpression
         return stats;
     }
     
+    public JCExpression getValue() {
+        return value;
+    }
+    
     public void accept(Visitor v) {
         // Kludge
         if (v instanceof JavafxVisitor)
