@@ -35,6 +35,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImageOp;
 import java.lang.Math;
 import java.lang.System;
 import javax.swing.SwingUtilities;
@@ -50,14 +51,15 @@ import com.sun.javafx.api.ui.FXNodeListener;
 import com.sun.scenario.scenegraph.SGAlignment;
 import com.sun.scenario.scenegraph.SGComposite;
 import com.sun.scenario.scenegraph.SGClip;
-import com.sun.scenario.scenegraph.SGEffect;
 import com.sun.scenario.scenegraph.SGGroup;
+import com.sun.scenario.scenegraph.SGImageOp;
 import com.sun.scenario.scenegraph.SGLeaf;
 import com.sun.scenario.scenegraph.SGNode;
+import com.sun.scenario.scenegraph.SGRenderCache;
 import com.sun.scenario.scenegraph.SGTransform;
 import com.sun.scenario.scenegraph.SGTransform.Affine;
 import com.sun.scenario.scenegraph.event.SGMouseListener;
-
+import com.sun.scenario.scenegraph.event.SGMouseAdapter;
 
 
 /**
@@ -82,9 +84,9 @@ public abstract class Node extends CanvasElement, Transformable {
             selectable = true;
             var entered = false;
 
-            mouseListener = SGMouseListener {
-                    // TODO: percolate not implemented; many lines commented out below...
-                    public function mouseClicked(e:MouseEvent):Void {
+            mouseListener = SGMouseAdapter {
+                    
+                    public function mouseClicked(e:MouseEvent, SGNode):Void {
                         focused = true;
                         if (onMouseClicked <> null) {
                             (onMouseClicked)(makeCanvasMouseEvent(e));
@@ -96,7 +98,7 @@ public abstract class Node extends CanvasElement, Transformable {
                         }
                     }
 
-                    public function mouseEntered(e:MouseEvent):Void {
+                    public function mouseEntered(e:MouseEvent, SGNode):Void {
                         if (cursor <> null) {
                             setCursor();        
                         } 
@@ -106,7 +108,7 @@ public abstract class Node extends CanvasElement, Transformable {
                         if (isSelectionRoot) { e.consume(); }
                     }
 
-                    public function mouseExited(e:MouseEvent):Void {
+                    public function mouseExited(e:MouseEvent, SGNode):Void {
                         if (onMouseExited <> null) {
                             (onMouseExited)(makeCanvasMouseEvent(e));
                         } 
@@ -116,7 +118,7 @@ public abstract class Node extends CanvasElement, Transformable {
                         if (isSelectionRoot) { e.consume(); }
                     }
 
-                    public function mousePressed(e:MouseEvent):Void {
+                    public function mousePressed(e:MouseEvent, SGNode):Void {
                         focused = true;
                         Node.MOUSE_PRESS = e;        
                         var c = getCanvas();
@@ -131,7 +133,7 @@ public abstract class Node extends CanvasElement, Transformable {
                         }
                     }
 
-                    public function mouseReleased(e:MouseEvent):Void {
+                    public function mouseReleased(e:MouseEvent, SGNode):Void {
                         MOUSE_DRAG = null;
                         MOUSE_PRESS = null;
                         MOUSE_DRAG_SCREEN = null;
@@ -145,7 +147,7 @@ public abstract class Node extends CanvasElement, Transformable {
                         }
                     }
 
-                    public function mouseDragged(e:MouseEvent):Void {
+                    public function mouseDragged(e:MouseEvent, SGNode):Void {
                         if (exportDrag) {
                             return;
                         }
@@ -190,7 +192,7 @@ public abstract class Node extends CanvasElement, Transformable {
                         }
                     }
 
-                    public function mouseMoved(e:MouseEvent):Void {
+                    public function mouseMoved(e:MouseEvent, SGNode):Void {
                         if (cursor <> null) {
                             setCursor();
                         }
@@ -198,9 +200,6 @@ public abstract class Node extends CanvasElement, Transformable {
                         if (onMouseMoved <> null) {
                             (onMouseMoved)(makeCanvasMouseEvent(e));
                         }
-                    }
-                    public function mouseWheelMoved(e:MouseWheelEvent):Void {
-                        // empty
                     }
                 };
 
@@ -249,9 +248,8 @@ public abstract class Node extends CanvasElement, Transformable {
         return result;
     }
 
-    attribute transformFilter: SGTransform.Affine;
     private attribute alignmentFilter: SGAlignment;
-    private attribute compositeFilter: SGComposite;
+    attribute transformFilter: SGTransform.Affine;
     private attribute clipFilter: SGClip;
     private attribute clipNode: VisualNode /*TODO:JFXC-329 = bind if (clip == null) null else clip.shape*/ on replace {
         if (clipNode <> null)
@@ -262,8 +260,10 @@ public abstract class Node extends CanvasElement, Transformable {
         if (clipFilter <> null)
             clipFilter.setAntialiased(antialiasClip);
     };
+    private attribute compositeFilter: SGComposite;
+    private attribute cacheFilter: SGRenderCache;
     private attribute antialiasClipSet = false;
-    private attribute effectFilter: SGEffect;
+    private attribute effectFilter: SGImageOp;
     private attribute contentNode: SGNode;
 
     /*protected*/public attribute bounds: Rectangle2D;
@@ -301,6 +301,14 @@ public abstract class Node extends CanvasElement, Transformable {
         return comp.getLocationOnScreen();
     }
 
+    private function updateImageOps() {
+        if (effectFilter <> null) {
+//          effectFilter.setImageOps(select i.getFilter() from i in filter);
+            // TODO: uncomment once Scenario optimization is made
+            //cacheFilter.setEnabled(filter <> null);
+            cacheFilter.setEnabled(false);
+        }
+    }
 
     // protected:
     public function getNode(): SGNode {
@@ -315,10 +323,12 @@ public abstract class Node extends CanvasElement, Transformable {
                 throw new Exception("create node for class {this.getClass().getName()} returned null");
             }
 
-            effectFilter = new SGEffect();
+            effectFilter = new SGImageOp();
             effectFilter.setChild(contentNode);
+            cacheFilter = SGRenderCache.createCache(effectFilter);
+            cacheFilter.setEnabled(false);
             compositeFilter = new SGComposite();
-            compositeFilter.setChild(effectFilter);
+            compositeFilter.setChild(cacheFilter);
             clipFilter = new SGClip();
             clipFilter.setChild(compositeFilter);
             transformFilter = SGTransform.createAffine(new AffineTransform(), clipFilter);
@@ -369,10 +379,7 @@ public abstract class Node extends CanvasElement, Transformable {
             if (opacitySet and opacity <> 1.0) {
                 compositeFilter.setOpacity(clamp(opacity, 0, 1).floatValue());
             }
-            if (filter <> null) {
-                //JXFC-XXX com.sun.javafx.runtime.sequence.Sequence<java.awt.image.BufferedImageOp>
-                //effectFilter.setImageOps(foreach(i in filter)i.getFilter());
-            }
+            updateImageOps();
             if (toolTipText <> null) {
                 //alignmentFilter.setToolTipText(toolTipText); // TODO: hmm
             }
@@ -427,24 +434,14 @@ public abstract class Node extends CanvasElement, Transformable {
      */
     public attribute filter: Filter[]
         on insert [ndx] (f) {
-            if (effectFilter <> null) {
-                //JXFC-XXX com.sun.javafx.runtime.sequence.Sequence<java.awt.image.BufferedImageOp>
-                //effectFilter.setImageOps(foreach(i in filter) i.getFilter());
-                    
-            }
+            updateImageOps();
         }
         on delete [ndx] (f)  {
-            if (effectFilter <> null) {
-                //JXFC-XXX com.sun.javafx.runtime.sequence.Sequence<java.awt.image.BufferedImageOp>
-                //effectFilter.setImageOps(foreach(i in filter) i.getFilter());
-            }
+            updateImageOps();
         }
 
         on replace [ndx] (f)  {
-            if (effectFilter <> null) {
-                //JXFC-XXX com.sun.javafx.runtime.sequence.Sequence<java.awt.image.BufferedImageOp>
-                //effectFilter.setImageOps(foreach(i in filter) i.getFilter());
-            }
+            updateImageOps();
         };
     /** A number between 0 and 1, 0 being transparent and 1 opaque. */
     public attribute opacity: Number = 1 on replace {

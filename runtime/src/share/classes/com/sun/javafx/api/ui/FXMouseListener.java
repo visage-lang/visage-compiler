@@ -26,7 +26,6 @@
 package com.sun.javafx.api.ui;
 
 import com.sun.javafx.runtime.location.BooleanLocation;
-import com.sun.javafx.runtime.location.ObjectLocation;
 import com.sun.scenario.scenegraph.JSGPanel;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -34,7 +33,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.IdentityHashMap;
 import java.util.Set;
 import com.sun.scenario.scenegraph.SGNode;
-import com.sun.scenario.scenegraph.event.SGMouseAdapter;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelListener;
 import java.awt.Point;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -46,7 +47,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FXMouseListener extends SGMouseAdapter {
+public class FXMouseListener implements MouseListener, MouseMotionListener, MouseWheelListener {
     static Class targetClass = null;
     static PropertyDescriptor mHover;
     static PropertyDescriptor mContentNode;
@@ -92,20 +93,6 @@ public class FXMouseListener extends SGMouseAdapter {
                 return result;
             }
             obj = obj.getParent();
-            // TODO: maybe the following is needed when we support multiple
-            // parents on SGNode?
-            /*
-            } else if (obj instanceof ZVisualComponent) {
-                ZNode[] p = ((ZVisualComponent)obj).getParents();
-                if (p.length > 0) {
-                    obj = p[0];
-                } else {
-                    obj = null;
-                }
-            } else {
-                obj = null;
-            }
-             */
         }
         return result;
     }
@@ -161,18 +148,7 @@ public class FXMouseListener extends SGMouseAdapter {
     }
     
     private void updateHoverSetForEvent(MouseEvent e) {
-        // TODO: ideally e.getComponent() would return the originating
-        // JSGPanel, but for events originating from a node or embedded
-        // JSGPanel, e.getComponent() will return null (since SGNode calls
-        // MouseEvent.setSource(), which will overwrite the original source
-        // Component); the following is more of a workaround than a fix...
-        Object source = e.getSource();
-        JSGPanel jsgpanel = null;
-        if (source instanceof JSGPanel) {
-            jsgpanel = (JSGPanel)source;
-        } else if (source instanceof SGNode) {
-            jsgpanel = ((SGNode)source).getPanel();
-        }
+        JSGPanel jsgpanel = (JSGPanel)e.getComponent();
         if (jsgpanel == null) {
             updateHoverSet(null);
             return;
@@ -200,21 +176,17 @@ public class FXMouseListener extends SGMouseAdapter {
         updateHoverSet(hoverSet.keySet());
     }
 
-    @Override
     public void mouseClicked(MouseEvent e) {
     }
 
-    @Override
     public void mousePressed(MouseEvent e) {
     }
 
-    @Override
     public void mouseReleased(MouseEvent e) {
         mDragging = false;
         mouseMoved(e);
     }
 
-    @Override
     public void mouseEntered(MouseEvent e) {
         if (mDragging) {
             //System.out.println("mouse enter during drag: "+ e.getPoint());
@@ -223,7 +195,6 @@ public class FXMouseListener extends SGMouseAdapter {
         updateHoverSetForEvent(e);
     }
 
-    @Override
     public void mouseExited(MouseEvent e) {
         if (mDragging) {
             //System.out.println("mouse exit during drag "+ e.getPoint());
@@ -232,17 +203,14 @@ public class FXMouseListener extends SGMouseAdapter {
         updateHoverSetForEvent(e);
     }
     
-    @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
 	mouseMoved(e);
     }
 
-    @Override
     public void mouseMoved(MouseEvent e) {
         updateHoverSetForEvent(e);
     }
 
-    @Override
     public void mouseDragged(MouseEvent e) {
         // TODO: implement
         /*

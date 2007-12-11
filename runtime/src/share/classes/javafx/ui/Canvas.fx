@@ -382,11 +382,7 @@ public class Canvas extends Widget, CanvasElement, Container {
                     sizeAllToFit();
                 }
             });
-        // TODO: the following causes exceptions to be thrown like this when
-        // doing mouseovers in JFXPad:
-        //     java.lang.ClassCastException: com.sun.scenario.scenegraph.SGGroup
-        //     cannot be cast to javax.swing.JComponent
-        //<<javax.swing.ToolTipManager>/>.sharedInstance().registerComponent(jsgpanel);
+        javax.swing.ToolTipManager.sharedInstance().registerComponent(jsgpanel);
         var javaVersion = System.getProperty("java.version") as java.lang.String;
         var javaBroken = javaVersion.startsWith("1.5.0_0") as Boolean;
         UIElement.context.addTransferHandler(
