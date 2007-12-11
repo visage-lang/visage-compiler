@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -53,6 +53,7 @@ import com.sun.tools.javafx.tree.*;
 import java.io.OutputStreamWriter;
 import java.util.HashSet;
 import java.util.Set;
+import javax.lang.model.type.TypeKind;
 
 public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     protected static final Context.Key<JavafxToJava> jfxToJavaKey =
@@ -1890,41 +1891,118 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = make.at(tree.pos).Assert(cond, detail);
     }
 
-    public void visitBinary(JCBinary tree) {
-        DiagnosticPosition diagPos = tree.pos();
-        JCExpression lhs = translate(tree.lhs);
-        JCExpression rhs = translate(tree.rhs);
-        if (tree.getTag() == JavafxTag.EQ && !tree.lhs.type.isPrimitive()) {
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            Name lhsTmpVarName = getSyntheticName("lhs");
-            Name rhsTmpVarName = getSyntheticName("rhs");
-            stmts.append(  make.at(diagPos).VarDef(
-                        make.Modifiers(0L), 
-                        lhsTmpVarName, 
-                        makeTypeTree(tree.lhs.type, diagPos, true), 
-                        lhs) );
-            stmts.append(  make.at(diagPos).VarDef(
-                        make.Modifiers(0L), 
-                        rhsTmpVarName, 
-                        makeTypeTree(tree.lhs.type, diagPos, true), 
-                        rhs) );
-            JCExpression cond = make.at(diagPos).Binary(JCTree.NE, 
-                    make.Ident(lhsTmpVarName), 
-                    make.Literal(TypeTags.BOT, null));
-            JCExpression nullCase = make.at(diagPos).Binary(tree.getTag(),
-                    make.Ident(lhsTmpVarName),
-                    make.Ident(rhsTmpVarName));
-            JCExpression value = make.at(diagPos).Conditional(cond, 
-                    this.callExpression(diagPos, 
-                        make.Ident(lhsTmpVarName), 
-                        "equals", 
-                        make.Ident(rhsTmpVarName)), 
-                    nullCase
-                    );
-            result = makeBlockExpression(diagPos, stmts, value);
-        } else {
-            result = make.at(diagPos).Binary(tree.getTag(), lhs, rhs);
-        }
+    public void visitBinary(final JCBinary tree) {
+        result = (new Translator() {
+
+            private final DiagnosticPosition diagPos = tree.pos();
+            
+            /**
+             * Compare against null
+             */
+            private JCExpression makeNullCheck(JCExpression targ) {
+                return makeEqEq(targ, makeNull());
+            }
+            
+            //TODO: after type system is figured out, this needs to be revisited
+            /**
+             * Check if a primitive has the default value for its type.
+             */
+            private JCExpression makePrimitiveNullCheck(Type argType, JCExpression arg) {
+                TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
+                JCExpression defaultValue = typeMorpher.makeLit(tmi.getRealType(), tmi.getDefaultValue(), diagPos);
+                return makeEqEq( arg, defaultValue);
+            }
+            
+            /**
+             * Check if a non-primitive has the default value for its type.
+             */
+            private JCExpression makeObjectNullCheck(Type argType, JCExpression arg) {
+                TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
+                if (tmi.getTypeKind() == TYPE_KIND_SEQUENCE || tmi.getRealType() == syms.javafx_StringType) {
+                    return callRuntime(defs.isNullMethodString, List.of(arg));
+                } else {
+                    return makeNullCheck(arg);
+                }
+            }
+           
+            /*
+             * Do a == compare
+             */
+            private JCExpression makeEqEq(JCExpression arg1, JCExpression arg2) {
+                return makeBinary(JCTree.EQ, arg1, arg2);
+            }
+            
+            private JCExpression makeBinary(int tag, JCExpression arg1, JCExpression arg2) {
+                return make.at(diagPos).Binary(tag, arg1, arg2);
+            }
+            
+            private JCExpression makeNull() {
+                return make.at(diagPos).Literal(TypeTags.BOT, null);
+            }
+            
+            private JCExpression callRuntime(String methNameString, List<JCExpression> args) {
+                JCExpression meth = makeQualifiedTree(diagPos, methNameString);
+                List<JCExpression> typeArgs = List.<JCExpression>nil();
+                return make.at(diagPos).Apply(typeArgs, meth, args);
+            }
+            
+            /**
+             * Make a .equals() comparison with a null check on the receiver
+             */
+            private JCExpression makeFullCheck(JCExpression lhs, JCExpression rhs) {
+                return callRuntime(defs.equalsMethodString, List.of(lhs, rhs));
+            }
+           
+            /**
+             * Translate a binary expressions
+             */
+            public JCTree doit() {
+                final JCExpression lhs = translate( tree.lhs );
+                final JCExpression rhs = translate( tree.rhs );
+                final Type lhsType = tree.lhs.type;
+                final Type rhsType = tree.rhs.type;
+                
+                //TODO: handle <>
+                if (tree.getTag() == JavafxTag.EQ) {
+                    // this is an x == y
+                    if (lhsType.getKind() == TypeKind.NULL) {
+                        if (rhsType.getKind() == TypeKind.NULL) {
+                            // both are known to be null
+                            return make.at(diagPos).Literal(true);
+                        } else if (rhsType.isPrimitive()) {
+                            // lhs is null, rhs is primitive, do default check
+                            return makePrimitiveNullCheck(rhsType, rhs);
+                        } else {
+                            // lhs is null, rhs is non-primitive, figure out what check to do
+                            return makeObjectNullCheck(rhsType, rhs);
+                        }
+                    } else if (lhsType.isPrimitive()) {
+                        if (rhsType.getKind() == TypeKind.NULL) {
+                            // lhs is primitive, rhs is null, do default check on lhs
+                            return makePrimitiveNullCheck(lhsType, lhs);
+                        } else if (rhsType.isPrimitive()) {
+                            // both are primitive, use ==
+                            return makeEqEq(lhs, rhs);
+                        } else {
+                            // lhs is primitive, rhs is non-primitive, use equals(), but switch them
+                            return makeFullCheck(rhs, lhs);
+                        }
+                    } else {
+                        if (rhsType.getKind() == TypeKind.NULL) {
+                            // lhs is non-primitive, rhs is null, figure out what check to do
+                            return makeObjectNullCheck(lhsType, lhs);
+                        } else {
+                            //  lhs is non-primitive, use equals()
+                            return makeFullCheck(lhs, rhs);
+                        }
+                    }
+                } else {
+                    // anything other than ==
+                    return makeBinary(tree.getTag(), lhs, rhs);
+                }
+            }
+
+        }).doit();
     }
 
     public void visitBreak(JCBreak tree) {

@@ -125,7 +125,7 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
 
     public boolean isEqual(Sequence<T> other) {
         if (other == null)
-            return false;
+            return size() == 0;
         if (size() != other.size())
             return false;
         for (int i = 0; i < size(); i++) {
