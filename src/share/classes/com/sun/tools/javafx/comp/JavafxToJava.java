@@ -236,7 +236,18 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             return makeBlockExpression(diagPos, stats, ident2);
             
         }
-        return translate(tree);
+        
+        JCExpression ret = translate(tree);
+
+        Type paramType = tree.type;
+        if (paramType == syms.javafx_IntegerType ||
+                type == syms.javafx_IntegerType) {
+            if (paramType != type && type.isPrimitive()) {
+                ret = make.at(tree).TypeCast(type, ret);
+            }
+        }
+
+        return ret;
     }
 
     /** Visitor method: translate a list of nodes.
@@ -1120,7 +1131,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 }
             }
             for (JFXVar fxVar : tree.getParameters()) {
-                params.append(translate(fxVar));
+                JCVariableDecl var = (JCVariableDecl)translate(fxVar);
+                params.append(var);
             }
             result = make.at(diagPos).MethodDef(
                     mods,

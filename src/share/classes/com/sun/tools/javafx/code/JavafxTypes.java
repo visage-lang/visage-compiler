@@ -91,6 +91,31 @@ public class JavafxTypes extends Types {
             return true;
         if (isSequence(t) && isArray(s))
             return isConvertible(elementType(t), elemtype(s), warn);
+        
+        // Allow lessening precision conversions.
+        if (t == syms.javafx_NumberType) {
+            if (s == syms.javafx_IntegerType ||
+                    s == syms.intType ||
+                    s == syms.floatType ||
+                    s == syms.shortType ||
+                    s == syms.charType ||
+                    s == syms.byteType ||
+                    s == syms.longType) {
+                return true;
+            }
+        }
+        else if (t == syms.javafx_IntegerType) {
+            if (s == syms.javafx_NumberType ||
+                    s == syms.intType ||
+                    s == syms.floatType ||
+                    s == syms.shortType ||
+                    s == syms.charType ||
+                    s == syms.byteType ||
+                    s == syms.longType) {
+                return true;
+            }
+        }
+
         return false;
     }
 }
