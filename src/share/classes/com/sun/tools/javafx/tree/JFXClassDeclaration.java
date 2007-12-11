@@ -154,10 +154,6 @@ public class JFXClassDeclaration extends JFXStatement implements ClassDeclaratio
             v.visitTree(this);
         }
     }
-    
-    public java.util.List<Tree> getMemberTrees() {
-        return JFXTree.convertList(Tree.class, defs);
-    }
 
     public JavaFXKind getJavaFXKind() {
         return JavaFXKind.CLASS_DECLARATION;
@@ -169,10 +165,6 @@ public class JFXClassDeclaration extends JFXStatement implements ClassDeclaratio
 
     public javax.lang.model.element.Name getSimpleName() {
         return (javax.lang.model.element.Name)name;
-    }
-
-    public java.util.List<ExpressionTree> getSupers() {
-        return JFXTree.convertList(ExpressionTree.class, supertypes);
     }
 
     public java.util.List<ExpressionTree> getImplements() {

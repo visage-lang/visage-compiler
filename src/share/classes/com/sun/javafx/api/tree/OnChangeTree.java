@@ -25,9 +25,7 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.source.tree.BlockTree;
-import com.sun.source.tree.Tree.Kind;
 
 /**
  * Common interface for change nodes, such as on-insert or on-delete nodes,
@@ -42,4 +40,7 @@ import com.sun.source.tree.Tree.Kind;
  * @author Tom Ball
  */
 public interface OnChangeTree extends JavaFXStatementTree {
+    JavaFXVariableTree getIndex();
+    JavaFXVariableTree getOldValue();
+    BlockTree getBody();
 }

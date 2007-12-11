@@ -25,6 +25,8 @@
 
 package com.sun.javafx.api.tree;
 
+import com.sun.source.tree.ModifiersTree;
+
 /**
  * Common interface for expression nodes in an abstract syntax tree for the 
  * JavaFX Script language.
@@ -38,4 +40,6 @@ package com.sun.javafx.api.tree;
  * @author Tom Ball
  */
 public interface OperationDefinitionTree extends JavaFXExpressionTree {
+    ModifiersTree getModifiers();
+    OperationValueTree getOperationValue();
 }

@@ -47,7 +47,8 @@ import javax.lang.model.element.Name;
 public interface ClassDeclarationTree extends JavaFXTree {
     Name getSimpleName();
     ModifiersTree getModifiers();
-    List<ExpressionTree> getSupers();
+    List<ExpressionTree> getImplements();
+    List<ExpressionTree> getSupertypeList();
     List<ExpressionTree> getExtends();
     List<Tree> getClassMembers();
 }

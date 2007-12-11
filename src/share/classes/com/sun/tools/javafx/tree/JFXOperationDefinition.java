@@ -73,6 +73,9 @@ public class JFXOperationDefinition extends JFXStatement implements OperationDef
     public Name getName() { return name; }
     public JFXType getJFXReturnType() { return operation.rettype; }
     public List<JFXVar> getParameters() { return operation.funParams; }
+    public JFXOperationValue getOperationValue() {
+        return operation;
+    }
 
     public void accept(JavafxVisitor v) {
         v.visitOperationDefinition(this);
