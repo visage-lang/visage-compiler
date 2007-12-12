@@ -1,0 +1,15 @@
+/*
+ * Regression test: for JFXC-6 : BlockExpressions now require that Block has type
+ *
+ * @test
+ * @run
+ */
+import java.lang.System; 
+import java.lang.Exception; 
+
+var bool = true; 
+if (bool) { 
+    System.out.println("Oh, joy!"); 
+} else { 
+    throw new Exception("Oops..."); 
+}; 
