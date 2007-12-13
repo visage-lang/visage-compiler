@@ -157,7 +157,7 @@
                  includes="**/*.fx" source="${javac.source}" sourcepath=""
                  srcdir="${src.classes.dir}" target="${javac.target}"
                  classpath="${build.classes.dir}:${javac.test.classpath}"
-                 compilerclasspath="${build.classes.dir}:${javac.classpath}"/>
+                 compilerclasspath="${build.classess.dir}:${javac.classpath}"/>
     </target>
 
     <target depends="init,deps-jar" name="-pre-pre-compile">
@@ -223,6 +223,9 @@
     <target name="-post-jar" description="Copy command wrappers to dest/bin directory.">
         <copy todir="dist/bin">
             <fileset dir="src/bin"/>
+            <filterset>
+                <filter token="SCENEGRAPH_JAR" value="${scenegraph.jar}"/>
+            </filterset>
         </copy>
         <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>
     </target>

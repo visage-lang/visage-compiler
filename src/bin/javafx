@@ -42,7 +42,7 @@ fi
 
 args=""
 jargs=""
-classpath="$HOME/javafxrt.jar:$HOME/scenegraph.jar"
+classpath="$HOME/javafxrt.jar:$HOME/@SCENEGRAPH_JAR@"
 parse_args() {
 while [ $# -gt 0 ] ; do
     case "$1" in
