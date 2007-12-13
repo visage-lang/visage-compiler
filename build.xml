@@ -157,7 +157,7 @@
                  includes="**/*.fx" source="${javac.source}" sourcepath=""
                  srcdir="${src.classes.dir}" target="${javac.target}"
                  classpath="${build.classes.dir}:${javac.test.classpath}"
-                 compilerclasspath="${build.classess.dir}:${javac.classpath}"/>
+                 compilerclasspath="${build.classes.dir}:${javac.classpath}"/>
     </target>
 
     <target depends="init,deps-jar" name="-pre-pre-compile">
