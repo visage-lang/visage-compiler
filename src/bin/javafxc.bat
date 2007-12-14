@@ -52,7 +52,7 @@ set _CMP=
 goto jvmoptsLoop
 
 :jvmoptsDone
-set _CLASSPATH=%_JAVAFX_LIBS%\@SCENEGRAPH_JAR@
+set _CLASSPATH=%_JAVAFXC_HOME%\@SCENEGRAPH_JAR@
 set _VAL=
 set _CMP=
 
