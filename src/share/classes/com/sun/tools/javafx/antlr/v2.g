@@ -827,13 +827,13 @@ bracketExpression   returns [JFXAbstractSequenceCreator expr]
 	    ( /*nada*/				{ $expr = F.at(pos($LBRACKET)).EmptySequence(); }
 	    | e1=expression 			{ exps.append($e1.expr); }
 	     	(   /*nada*/			{ $expr = F.at(pos($LBRACKET)).ExplicitSequence(exps.toList()); }
-	     	| COMMA e2=expression 		{ exps.append($e2.expr); }
-	     	    (
-//	     	      DOTDOT dds=expression	{  }
-//	     	    | 			
-	     	      (COMMA  en=expression	{ exps.append($en.expr); } )*
-	     	    				{ $expr = F.at(pos($LBRACKET)).ExplicitSequence(exps.toList()); }
-	     	    )
+	     	| COMMA 
+	     	   (   /*nada*/					{ $expr = F.at(pos($LBRACKET)).ExplicitSequence(exps.toList()); }
+                   | e2=expression 		{ exps.append($e2.expr); }
+	     	         (COMMA  en=expression	{ exps.append($en.expr); } )*
+                          COMMA?
+	     	       				{ $expr = F.at(pos($LBRACKET)).ExplicitSequence(exps.toList()); }
+                    )
 	     	| DOTDOT   dd=expression	
 	     	    ( STEP st=expression	{ step = $st.expr; }
 	     	    )?
