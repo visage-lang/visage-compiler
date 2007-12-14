@@ -25,7 +25,7 @@ class BallsTest {
 
     attribute _N:Number = 16 on replace {
         delete balls;
-        foreach (i in [1.._N]) {
+        for (i in [1.._N]) {
             insert JavaFxBall{img:ball{}} into balls; 
         }
 
@@ -47,7 +47,7 @@ class BallsTest {
     attribute fpsListener:ActionListener = ActionListener {
         public function actionPerformed(evt:ActionEvent): Void {
             if (_is_running) {
-                <<fps>> = "{Math.round( 1000*_frames/(System.currentTimeMillis() - _startTime) )} fps";
+                fps = "{Math.round( 1000*_frames/(System.currentTimeMillis() - _startTime) )} fps";
                 _frames = 0;
                 _startTime = System.currentTimeMillis();
             } else {
@@ -61,18 +61,18 @@ class BallsTest {
     attribute balls:JavaFxBall[];
 
     function update() {
-        foreach (i in [0.._N-1]) {
+        for (i in [0.._N-1]) {
              balls[i.intValue()].move();
         }
-        foreach (i in [0.._N-1]) {
-             foreach (j in [i+1.._N-1]) {
+        for (i in [0.._N-1]) {
+             for (j in [i+1.._N-1]) {
                 balls[i.intValue()].doCollide(balls[j.intValue()]);
              }
         }
         _frames = _frames + 1;
     };
 
-    attribute <<fps>>:String = "-- fps";
+    attribute fps:String = "-- fps";
     
     function start(): Void {
         timer.start();
@@ -84,7 +84,7 @@ class BallsTest {
             _is_running = false;
             timer.stop();
             fpsTimer.stop();
-            <<fps>> = "-- fps";
+            fps = "-- fps";
         }
     }
 }
@@ -106,11 +106,11 @@ var win = Frame {
                         Text {
                             x: 4
                             y: 4
-                            content: bind test.<<fps>>
+                            content: bind test.fps
                             font: Font {faceName: "Arial", size: 14}
                         },
                         Group {
-                            content: bind foreach (b in test.balls) (b.img as java.lang.Object) as Node
+                            content: bind for (b in test.balls) (b.img as java.lang.Object) as Node
                         }
                         //bind test._ballImg
                     ]
