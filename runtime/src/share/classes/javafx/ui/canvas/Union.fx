@@ -45,7 +45,7 @@ public class Union extends Shape {
             } else if (sizeof content > 1) {
                 var area = new java.awt.geom.Area(content[0].getTransformedShape());
                 var i = 0;
-                foreach (c in content) {
+                for (c in content) {
                     if (i > 0) {
                         var s1 = c.getTransformedShape();
                         area.add(new java.awt.geom.Area(s1));

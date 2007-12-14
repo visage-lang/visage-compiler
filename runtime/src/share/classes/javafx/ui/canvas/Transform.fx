@@ -94,7 +94,7 @@ public abstract class Transform {
 public class CompositeTransform extends Transform {
     public attribute transforms :Transform[];
     private attribute txs :AffineTransform[] //TODO JXFC-152
-        //= bind foreach ( t in transforms) t.transform
+        //= bind for ( t in transforms) t.transform
     on insert  [indx] (newValue) {
         updateTransform();
     }
@@ -106,7 +106,7 @@ public class CompositeTransform extends Transform {
     };
     private function updateTransform() {
         var result = new AffineTransform();
-        foreach (t in txs) {
+        for (t in txs) {
             result.concatenate(t);
         }
         transform = result;

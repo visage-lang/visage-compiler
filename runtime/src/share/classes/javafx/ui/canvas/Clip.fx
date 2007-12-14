@@ -87,14 +87,14 @@ public class Clip extends Node, Container {
         clipFilter.setAntialiased(antialias);
         childGroup = new SGGroup();
         clipFilter.setChild(childGroup);
-        foreach (i in content) {
+        for (i in content) {
             childGroup.add(i.getNode());
         }
         return clipFilter;
     }
     private function selectIndex(n:Node):Integer {
         var a = -1;
-        foreach (i in [0..sizeof content exclusive]) {
+        for (i in [0..sizeof content exclusive]) {
             if(n == content[i]){
                 a = i;
                 break;

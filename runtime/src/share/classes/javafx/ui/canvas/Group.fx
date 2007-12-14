@@ -78,7 +78,7 @@ public class Group extends Node, Container {
 
     public function createNode(): SGNode {
         sggroup  = new SGGroup();
-        foreach (i in content) {
+        for (i in content) {
             sggroup.add(i.getNode());
         }
         return sggroup;
@@ -89,7 +89,7 @@ public class Group extends Node, Container {
         var i = select indexof x from x in content where x == n;
         **/
         var i = 0;
-        foreach( ndx in [0..sizeof content -1] ) {
+        for ( ndx in [0..sizeof content -1] ) {
             if(content[ndx] == n) {
                 break;
             }
@@ -105,7 +105,7 @@ public class Group extends Node, Container {
         var i = select first indexof x from x in content where x == n;
          * */
         var i = 0;
-        foreach( ndx in [0..sizeof content -1] ) {
+        for ( ndx in [0..sizeof content -1] ) {
             if(content[ndx] == n) {
                 break;
             }
@@ -125,7 +125,7 @@ public class Group extends Node, Container {
             return;
         }
         var i = 0;
-        foreach( ndx in [0..sizeof content -1] ) {
+        for ( ndx in [0..sizeof content -1] ) {
             if(content[ndx] == n) {
                 break;
             }
@@ -141,7 +141,7 @@ public class Group extends Node, Container {
             return;
         }
         var i = 0;
-        foreach( ndx in [0..sizeof content -1] ) {
+        for ( ndx in [0..sizeof content -1] ) {
             if(content[ndx] == n) {
                 break;
             }

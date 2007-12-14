@@ -29,7 +29,7 @@ import javafx.ui.*;
 
 public class VBox extends CompositeNode {
     private attribute holders: Group[] =
-          bind foreach (ndx in [0..sizeof content exclusive])
+          bind for (ndx in [0..sizeof content exclusive])
              Group {
                   content: [ content[ndx] ]
                   //var prev = if (ndx > 0 and hasParent() )

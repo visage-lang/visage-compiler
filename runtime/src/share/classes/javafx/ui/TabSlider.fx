@@ -76,7 +76,7 @@ class TabSlider extends Widget {
                 }
                 resizing = true;
                 //TODO DUR
-                foreach (i in [0..availHeight]) { // (dur slideDuration) {
+                for (i in [0..availHeight]) { // (dur slideDuration) {
                     newTab.size = i;
                     if (oldTab <> null) {
                         oldTab.size = availHeight - i;
@@ -106,7 +106,7 @@ class TabSlider extends Widget {
                 oldTab.scrollable.setScrollableTracksViewportWidth(false);
                 oldTab.scrollable.setPreferredScrollableViewportSize(oldTab.viewport.getSize());
                 //TODO DUR
-                foreach (i in [oldTab.size..0]){ // (dur slideDuration) {
+                for (i in [oldTab.size..0]){ // (dur slideDuration) {
                     oldTab.size = i;
                     panel.validate();
                     panel.doLayout();
@@ -143,7 +143,7 @@ class TabSlider extends Widget {
                     oldTab.scrollable.setPreferredScrollableViewportSize(oldTab.viewport.getSize());
                 }
                 //TODO DUR
-                foreach (i in [0..avail]){ // (dur slideDuration) {
+                for (i in [0..avail]){ // (dur slideDuration) {
                     newTab.size = i;
                     if (oldTab <> null) {
                         oldTab.size = avail - i;
@@ -173,7 +173,7 @@ class TabSlider extends Widget {
                 oldTab.scrollable.setPreferredScrollableViewportSize(oldTab.viewport.getSize());
                 resizing = true;
                 //TODO DUR
-                foreach (i in [oldTab.size..0]){ // (dur slideDuration) {
+                for (i in [oldTab.size..0]){ // (dur slideDuration) {
                     oldTab.size = i;
                     panel.validate();
                     panel.doLayout();
@@ -203,11 +203,11 @@ class TabSlider extends Widget {
     attribute inSelection: Boolean;
     public attribute orientation: Orientation = Orientation.VERTICAL on replace {
         if (orientation == Orientation.VERTICAL) {
-            foreach (i in  tabs) {
+            for (i in  tabs) {
                 (i.button as RotatableWidget).rotation = 0;
             }
         } else {
-            foreach (i in  tabs) {
+            for (i in  tabs) {
                 (i.button as RotatableWidget).rotation = 90;
             }
         }
@@ -262,7 +262,7 @@ class TabSlider extends Widget {
                         var comp = tabs[selectedIndex.intValue()];
                         var w = 0;
                         var h = tabCount * 23;
-                        foreach (tab in tabs) {
+                        for (tab in tabs) {
                             var c = tab.button.getComponent();
                             var pref = c.getPreferredSize();
                             if (pref.width > w) {
@@ -286,7 +286,7 @@ class TabSlider extends Widget {
                         var comp = tabs[selectedIndex.intValue()];
                         var w = tabCount * 23;
                         var h = 0;
-                        foreach (tab in tabs) {
+                        for (tab in tabs) {
                             var c = tab.button.getComponent();
                             var pref = c.getPreferredSize();
                             if (pref.height > h) {
@@ -338,7 +338,7 @@ class TabSlider extends Widget {
                         if (showing <> null and not resizing) {
                             showing.size = availHeight;
                         }
-                        foreach (tab in tabs) {
+                        for (tab in tabs) {
                             var c = tab.button.getComponent();
                             c.setBounds(x, y, w, 23);
                             c = tab.viewport;
@@ -368,7 +368,7 @@ class TabSlider extends Widget {
                         if (showing <> null and not resizing) {
                             showing.size = avail;
                         }
-                        foreach (tab in tabs) {
+                        for (tab in tabs) {
                             var c = tab.button.getComponent();
                             c.setBounds(x, y, 23, h);
                             c = tab.viewport;
@@ -387,7 +387,7 @@ class TabSlider extends Widget {
                 }
             });
         var selection = -1;
-        foreach (indx in [0..sizeof tabs exclusive] ) {
+        for (indx in [0..sizeof tabs exclusive] ) {
         //TODO JFXC-319
         /***********************
             if (tabs[indx].button == null) {
@@ -471,7 +471,7 @@ class TabSlider extends Widget {
          if (not inSelection) {
             if (tab.selected) {
                 //var i = select indexof x from x in slider.tabs where x == this;
-                foreach(i in [0..sizeof tabs exclusive]) {
+                for (i in [0..sizeof tabs exclusive]) {
                     if(tabs[i] == tab) {
                         selectedIndex = i;
                         break;

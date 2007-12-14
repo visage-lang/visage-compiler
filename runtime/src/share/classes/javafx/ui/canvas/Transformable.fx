@@ -54,7 +54,7 @@ public abstract class Transformable {
     
     protected function updateTransform() {
         var t = new AffineTransform();
-        foreach (i in transform) {
+        for (i in transform) {
             if (i.transform <> null) {
                 t.concatenate(i.transform);
             }

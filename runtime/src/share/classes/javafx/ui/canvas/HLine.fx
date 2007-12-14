@@ -43,7 +43,7 @@ public class HLine extends PathElement {
 
             var y = gp.getCurrentPoint().getY();
             //TODO this makes no sense as x is not an array
-            //foreach (i in x) {
+            //for (i in x) {
            //     gp.lineTo(i, y);
             //}
             gp.lineTo(x.floatValue(), y.floatValue());
@@ -56,7 +56,7 @@ public class HLine extends PathElement {
             var prev = pt.getX();
             var y = pt.getY();
             //TODO this makes no sense
-            //foreach (i in x) {
+            //for (i in x) {
             //    gp.lineTo(prev+i, y);
             //    prev = i;
             //}

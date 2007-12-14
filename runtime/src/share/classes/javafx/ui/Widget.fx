@@ -683,7 +683,7 @@ public abstract class Widget extends GroupElement, UIElement {
             if (keyboardAction <> null) {
                 var inputMap = c.getInputMap();
                 var actionMap = c.getActionMap();
-                foreach (i in keyboardAction) {
+                for (i in keyboardAction) {
                     var k = i.keyStroke;
                     var a = i.action;
                     var e = i.enabled;

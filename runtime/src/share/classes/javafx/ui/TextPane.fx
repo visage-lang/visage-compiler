@@ -39,7 +39,7 @@ public class TextPane extends ScrollableWidget {
     public attribute content: Object[]
         on insert [ndx] (element) {
             var off = 0;
-            foreach (i in content) {
+            for (i in content) {
                 if (i == element) {
                     break;
                 }
@@ -63,7 +63,7 @@ public class TextPane extends ScrollableWidget {
         }
         on delete [ndx] (element) {
             var off = 0;
-            foreach (i in [0..ndx exclusive]) {
+            for (i in [0..ndx exclusive]) {
                 var e = content[i];
                 if (e instanceof String) {
                     off += (e as String).length();

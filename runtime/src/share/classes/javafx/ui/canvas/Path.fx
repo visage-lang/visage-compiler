@@ -48,7 +48,7 @@ public class Path extends Shape {
     protected function buildPath() {
         if (sgshape <> null and not locked) {
             var gp = new GeneralPath(fillRule.id.intValue(), sizeof d);
-            foreach (i in d) {
+            for (i in d) {
                 i.addTo(gp);
             }
             sgshape.setShape(gp);
@@ -78,7 +78,7 @@ public class Path extends Shape {
 
     protected function createShape(): SGShape {
         sgshape = new SGShape();
-        foreach (i in d) {
+        for (i in d) {
                 i.path = this;
         }
         this.buildPath();

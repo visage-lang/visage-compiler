@@ -351,7 +351,7 @@ public abstract class Node extends CanvasElement, Transformable {
                 clipFilter.setAntialiased(antialiasClip);
             }
             if(transform <> null and sizeof transform > 0) {
-                foreach(t in transform) {
+                for (t in transform) {
                     t.transformable = this;
                 }
                 updateTransform()

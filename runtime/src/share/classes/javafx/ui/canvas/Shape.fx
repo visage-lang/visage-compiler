@@ -107,7 +107,7 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
         var p = new PathLength(getTransformedShape());
        var segs = p.getSegments();
        
-       foreach (seg in segs) {
+       for (seg in segs) {
            if (seg.getSegType() == PathIterator.SEG_MOVETO) {
                insert MoveTo {x: seg.getX(), y: seg.getY()} into path.d;
            } else if (seg.getSegType() == PathIterator.SEG_LINETO) {

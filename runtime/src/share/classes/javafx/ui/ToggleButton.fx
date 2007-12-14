@@ -127,7 +127,7 @@ public class ToggleButton extends SelectableButton {
                 public function itemStateChanged(e:java.awt.event.ItemEvent):Void {
                     //var i = select indexof x from x in buttonGroup.buttons where x == self;
                     var i = 0;
-                    foreach ( ii in [0..sizeof buttonGroup.buttons exclusive]) {
+                    for ( ii in [0..sizeof buttonGroup.buttons exclusive]) {
                         //JXFC-335
                         //if( buttonGroup.buttons[ii] == this) {
                             i = ii;

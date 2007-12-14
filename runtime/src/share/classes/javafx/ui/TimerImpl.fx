@@ -133,7 +133,7 @@ public class TimerImpl {
     public function calcNextSplineValue(timeDifference:Integer, currentValue:Integer):Integer {
         var elapsed =  timeDifference.doubleValue()/this.duration.doubleValue();
         var keyTime = 0;
-        foreach (i in [0..sizeof keyTimes exclusive]) {
+        for (i in [0..sizeof keyTimes exclusive]) {
             if (elapsed < keyTimes[i]) {
                 keyTime = i; // keep going we want the last one
             }

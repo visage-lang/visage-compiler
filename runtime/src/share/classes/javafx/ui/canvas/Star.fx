@@ -43,7 +43,7 @@ public class Star extends Shape {
             var angle = Math.toRadians(startAngle);
             var dth = Math.PI/points;
             var n = (points*2-1).intValue();
-            foreach (i in [0..n] ) {
+            for (i in [0..n] ) {
                 var px = cx + (if (i %2 == 0) then rin else rout)*Math.cos(angle+dth* i);
                 var py = cy + (if (i %2 == 0) then rin else rout)*Math.sin(angle+dth* i);
                 if (i == 0) {

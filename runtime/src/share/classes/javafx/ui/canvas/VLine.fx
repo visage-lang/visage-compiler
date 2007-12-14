@@ -45,7 +45,7 @@ public class VLine extends PathElement {
 
             var x = gp.getCurrentPoint().getX();
             //TODO THis does not make sense as y is not an array
-            //foreach (i in y) {
+            //for (i in y) {
             //    gp.lineTo(x, i);
             //}
             gp.lineTo(x.floatValue(), y.floatValue());
@@ -58,7 +58,7 @@ public class VLine extends PathElement {
             var prev = pt.getY();
             var x = pt.getX();
             //TODO THis does not make sense as y is not an array
-            //foreach (i in y) {
+            //for (i in y) {
              //   gp.lineTo(x, prev + i);
              //   prev = i;
             //}

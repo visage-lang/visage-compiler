@@ -54,7 +54,7 @@ public class Polyline extends Shape {
         //fix me: OPT
         if (awtPath <> null and (sizeof points % 2 == 0)) {
             awtPath.reset();
-            foreach (i in [0..((sizeof points)/2-1)]) {
+            for (i in [0..((sizeof points)/2-1)]) {
                 var px = points[i*2+0];
                 var py = points[i*2+1];
                 if (i == 0) {
