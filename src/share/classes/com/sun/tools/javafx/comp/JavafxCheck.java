@@ -251,7 +251,7 @@ public class JavafxCheck {
     protected
 // JavaFX change
     void duplicateError(DiagnosticPosition pos, Symbol sym) {
-	if (!sym.type.isErroneous()) {
+	if (sym.type == null || !sym.type.isErroneous()) {
 	    log.error(pos, "already.defined", sym, sym.location());
 	}
     }
