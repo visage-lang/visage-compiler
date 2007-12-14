@@ -9,7 +9,7 @@ import javafx.ui.canvas.*;
 class jfxc376 extends Transformable {
     function getNode() : Void {
         if(transform <> null and sizeof transform > 0) {
-             foreach(t in transform) {
+             for(t in transform) {
                  t.transformable = this;
              }
         }
