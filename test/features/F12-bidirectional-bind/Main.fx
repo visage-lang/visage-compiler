@@ -5,7 +5,7 @@
  */
 
 import java.lang.System;
-
+ 
 class AttHold {
     attribute a : Integer = 14;
     attribute b : Integer = bind a with inverse;
@@ -42,6 +42,6 @@ System.out.println("{ah.a} == {tr}");
 ah.a = 6;
 System.out.println("{ah.a} == {tr}");
 
-tr = 1111;
+tr = 11111;
 System.out.println("{ah.a} == {tr}");
 
