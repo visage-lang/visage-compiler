@@ -44,8 +44,6 @@ import com.sun.javafx.api.ui.ScrollablePanel;
 class TabSlider extends Widget {
     // private
     attribute inUpdateSelection: Boolean;
-    //TODO JXFC-320
-/****************
     public function updateSelection(oldIndex:Integer, newIndex:Integer):Void {
         if (panel == null) {
             return;
@@ -193,7 +191,7 @@ class TabSlider extends Widget {
             }
         }
     }
-************/
+
     attribute resizing: Boolean on replace {
        if (not resizing) {
             panel.doLayout();
