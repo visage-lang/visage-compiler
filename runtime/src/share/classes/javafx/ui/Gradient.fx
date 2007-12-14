@@ -65,14 +65,14 @@ public abstract class Gradient extends Transformable, Paint  {
 
     function getColors(): java.awt.Color[] { 
         var colors:java.awt.Color[] = [];
-        foreach(s in stops) {
+        for (s in stops) {
             insert s.color.getColor() into colors;
         }
         return colors;
     }
     function getFractions(): Number[] {
         var fractions:Number[] = [];
-        foreach(s in stops) {
+        for (s in stops) {
             insert s.offset into fractions;
         }
         return fractions;

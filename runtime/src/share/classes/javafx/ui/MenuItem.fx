@@ -49,7 +49,7 @@ public class MenuItem extends AbstractMenuItem {
     public attribute accelerator: Accelerator on replace  {
         if (jmenuitem <> null) {
             var mask = 0;
-            foreach (i in accelerator.modifier) {
+            for (i in accelerator.modifier) {
                 var id = i.id;
                 mask = mask + id;
             }
@@ -87,7 +87,7 @@ public class MenuItem extends AbstractMenuItem {
         }
         if (accelerator <> null) {
             var mask = 0;
-            foreach (i in accelerator.modifier) {
+            for (i in accelerator.modifier) {
                 var id = i.id;
                 mask = mask + id;
             }

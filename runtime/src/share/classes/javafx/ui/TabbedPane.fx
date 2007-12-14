@@ -118,7 +118,7 @@ public class TabbedPane extends Widget {
         }
 
         if (selectedIndex >= 0 and selectedIndex < tabbedpane.getTabCount()) {
-            foreach (i in tabs) {
+            for (i in tabs) {
                 i.selectTab();
             }
             tabbedpane.setSelectedIndex(selectedIndex.intValue());

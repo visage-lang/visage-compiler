@@ -33,7 +33,7 @@ public class TableCell {
         if (table.tableModel <> null) {
             //var cr = select indexof x from x in table.cells where x == this;
             var cr = -1;
-            foreach(i in [0..sizeof table.cells exclusive]){
+            for(i in [0..sizeof table.cells exclusive]){
                 if(table.cells[i] == this) {
                     cr = i;
                     break;
@@ -47,7 +47,7 @@ public class TableCell {
         if (table.tableModel <> null) {
             //var cr = select indexof x from x in table.cells where x == this;
             var cr = -1;
-            foreach(i in [0..sizeof table.cells exclusive]){
+            for(i in [0..sizeof table.cells exclusive]){
                 if(table.cells[i] == this) {
                     cr = i;
                     break;
@@ -61,7 +61,7 @@ public class TableCell {
         if (table.tableModel <> null) {
             //var cr = select indexof x from x in table.cells where x == this;
             var cr = -1;
-            foreach(i in [0..sizeof table.cells exclusive]){
+            for(i in [0..sizeof table.cells exclusive]){
                 if(table.cells[i] == this) {
                     cr = i;
                     break;
@@ -75,7 +75,7 @@ public class TableCell {
         if (table.tableModel <> null) {
             //var cr = select indexof x from x in table.cells where x == this;
             var cr = -1;
-            foreach(i in [0..sizeof table.cells exclusive]){
+            for(i in [0..sizeof table.cells exclusive]){
                 if(table.cells[i] == this) {
                     cr = i;
                     break;
@@ -89,7 +89,7 @@ public class TableCell {
         if (table.tableModel <> null) {
             //var cr = select indexof x from x in table.cells where x == this;
             var cr = -1;
-            foreach(i in [0..sizeof table.cells exclusive]){
+            for(i in [0..sizeof table.cells exclusive]){
                 if(table.cells[i] == this) {
                     cr = i;
                     break;
@@ -106,7 +106,7 @@ public class TableCell {
             if (selected) {
                 //var cr = select indexof x from x in table.cells where x == this;
                 var cr = -1;
-                foreach(i in [0..sizeof table.cells exclusive]){
+                for (i in [0..sizeof table.cells exclusive]){
                     if(table.cells[i] == this) {
                         cr = i;
                         break;

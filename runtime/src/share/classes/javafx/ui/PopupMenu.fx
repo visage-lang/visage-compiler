@@ -57,7 +57,7 @@ public class PopupMenu {
         if (visible) {
             if (jpopupMenu == null) {
                 jpopupMenu = new JPopupMenu();
-                foreach (i in items) {
+                for (i in items) {
                     jpopupMenu.add(i.getComponent());
                 }
                 jpopupMenu.addPopupMenuListener(PopupMenuListener {

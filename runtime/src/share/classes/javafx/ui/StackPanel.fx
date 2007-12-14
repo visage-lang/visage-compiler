@@ -63,7 +63,7 @@ public class StackPanel extends Widget {
         jpanel.setLayout(new com.sun.javafx.api.ui.StackLayout());
         jpanel.setOpaque(false);
         jpanel.setCursor(null);
-        foreach (i in content) {
+        for (i in content) {
             jpanel.add(i.getComponent());
         }
         return jpanel;

@@ -50,7 +50,7 @@ public class MenuBar extends Widget {
         };
     public function createComponent():javax.swing.JComponent {
         jmenubar.setOpaque(true);
-        foreach(m in menus) {
+        for (m in menus) {
             jmenubar.add(m.getComponent());
         }
         return jmenubar;

@@ -48,7 +48,7 @@ public class Font {
     public function Font(faceName:String, style:String[], size:Integer){
         this.faceName = faceName;
         
-        foreach (i in style) {
+        for (i in style) {
             if (i == "PLAIN")  {
                 insert FontStyle.PLAIN into this.style;
             } else if (i == "ITALIC")  {
@@ -102,7 +102,7 @@ public class Font {
     private function computeStyle(n:FontStyle[]): Integer {
         var bits = 0;
         
-        foreach (i in n) {
+        for (i in n) {
             var id = i.id;
             bits = UIElement.context.setBit(bits, id);
         };

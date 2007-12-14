@@ -79,7 +79,7 @@ public class Menu extends AbstractMenuItem {
                 jmenu.setRolloverEnabled(false);
                 jmenu.setBackground(new java.awt.Color(0,0,0,0));
             }
-            foreach(i in items) {
+            for(i in items) {
                 jmenu.add(i.getComponent());
             }
             return jmenu;

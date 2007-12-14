@@ -36,7 +36,7 @@ public class ComboBoxCell {
             //var i = select indexof x from x in combobox.cells where x == this;
            var i = -1;
            var ii = 0;
-           foreach (c in combobox.cells) {
+           for (c in combobox.cells) {
                if(this == c) {
                    i = ii;
                    break;
@@ -45,7 +45,7 @@ public class ComboBoxCell {
            }
             e = new javax.swing.event.ListDataEvent(this, e.CONTENTS_CHANGED,
                                                         i, i);
-            foreach (j in combobox.listeners) {
+            for (j in combobox.listeners) {
                 j.contentsChanged(e);
             }
         }

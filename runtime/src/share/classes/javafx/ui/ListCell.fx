@@ -47,7 +47,7 @@ public class ListCell {
             if (not listbox.locked) {
                 var e:javax.swing.event.ListDataEvent;
                 if (cacheGeneration < listbox.updateGeneration) {
-                    foreach( i in [0..sizeof listbox.cells exclusive ] ) {
+                    for (i in [0..sizeof listbox.cells exclusive ] ) {
                         var c = listbox.cells[i];
                         c.myIndex = i;
                         c.cacheGeneration = listbox.updateGeneration;
@@ -59,10 +59,10 @@ public class ListCell {
                 var ls:javax.swing.event.ListDataListener[] = [];
                 //TODO JXFC-300
                 //insert listbox.listeners into ls;
-                foreach(l in listbox.listeners) {
+                for (l in listbox.listeners) {
                     insert l into ls;
                 }
-                foreach (j in ls) {
+                for (j in ls) {
                     j.contentsChanged(e);
                 }
             }
@@ -73,7 +73,7 @@ public class ListCell {
         if (listbox <> null) {
             if (not listbox.locked) {
                 if (cacheGeneration < listbox.updateGeneration) {
-                    foreach( i in [0..sizeof listbox.cells exclusive ] ) {
+                    for ( i in [0..sizeof listbox.cells exclusive ] ) {
                         var c = listbox.cells[i];
                         c.myIndex = i;
                         c.cacheGeneration = listbox.updateGeneration;

@@ -66,10 +66,10 @@ public class SplitPane extends Widget {
         };  
         
     private function getModel(): List {
-        var n = foreach (p in content) p.getSplitNode();
+        var n = for (p in content) p.getSplitNode();
         var div = null;
         var result = new ArrayList();
-        foreach (i in n) {
+        for (i in n) {
             if (div <> null) {
                 result.add(div);
             }
@@ -89,7 +89,7 @@ public class SplitPane extends Widget {
         root.setWeight(1.0);
         root.setChildren(this.getModel());
         split.getMultiSplitLayout().setModel(root);
-        foreach (p in content) {
+        for (p in content) {
             split.add(p.id, p.content.getComponent());
         }
         return split;

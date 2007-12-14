@@ -73,7 +73,7 @@ public class ListBox extends ScrollableWidget {
     private function getDragValue(): java.lang.Object  {
         var result:ListCell[] = [];
         //TODO MULTIPLE SELECTION
-        //foreach (i in selection) {
+        //for (i in selection) {
         //    insert cells[i].value into result;
         //}
         insert cells[selection.intValue()] into result;
@@ -89,7 +89,7 @@ public class ListBox extends ScrollableWidget {
 /********************************
         var selectedCells:ListCell[] = [];
         
-        foreach (i in selection) {
+        for (i in selection) {
             insert cells[i] into selectedCells;
         }
          fix me...
@@ -289,10 +289,10 @@ public class ListBox extends ScrollableWidget {
                 var ls:javax.swing.event.ListDataListener[] = [];
                 //TODO JXFC-300
                 //insert listeners into ls;
-                foreach (l in listeners) {
+                for (l in listeners) {
                     insert l into ls;
                 }
-                foreach (j in ls) {
+                for (j in ls) {
                     j.intervalAdded(e);
                 }
                 if (selected or cell.selected) {
@@ -317,10 +317,10 @@ public class ListBox extends ScrollableWidget {
                 var ls:javax.swing.event.ListDataListener[] = [];
                 //TODO JXFC-300
                 //insert listeners into ls;
-                foreach (l in listeners) {
+                for (l in listeners) {
                     insert l into ls;
                 }
-                foreach (j in ls) {
+                for (j in ls) {
                     j.intervalRemoved(e);
                 }
                 if (ndx == s) {

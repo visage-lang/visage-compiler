@@ -59,7 +59,7 @@ public class Table extends ScrollableWidget {
             if (old >= 0 and old < table.getRowCount()) {
                 var c1 = old * sizeof columns;
                 var c2 = c1 + sizeof columns;
-                foreach (i in [c1..c2-1]) {
+                for (i in [c1..c2-1]) {
                     var c = cells[i.intValue()];
                     c.table = null;
                     c.selected = false;
@@ -78,7 +78,7 @@ public class Table extends ScrollableWidget {
                 if (true) {
                     var c1 = selection * sizeof columns;
                     var c2 = c1 + sizeof columns;
-                    foreach (i in [c1..c2-1]) {
+                    for (i in [c1..c2-1]) {
                         var c = cells[i.intValue()];
                         c.table = null;
                         c.selected = true;
@@ -145,15 +145,15 @@ public class Table extends ScrollableWidget {
         tableModel = new com.sun.javafx.api.ui.UIContextImpl.XTableCellModel();
         var cnames:String[] = [];
         var alignIds:Integer[] = [];
-        foreach(c in columns) {
+        for(c in columns) {
             insert c.text into cnames;
             insert c.alignment.id.intValue() into alignIds;
         }
         
         tableModel.setColumnNames(SequenceUtil.sequenceOfString2StringArray(cnames));        
         tableModel.setColumnAlignments(SequenceUtil.sequenceOfInteger2intArray(alignIds)); 
-        //foreach (i in cells) {
-        foreach( ii in [0..sizeof cells exclusive]) {
+        //for (i in cells) {
+        for( ii in [0..sizeof cells exclusive]) {
             var i = cells[ii];
             tableModel.addCell(ii, i.text, i.toolTipText,
                                i.font.getFont(), i.background.getColor(), i.foreground.getColor(),
@@ -161,7 +161,7 @@ public class Table extends ScrollableWidget {
         }
         table.setModel(tableModel);
         var columnModel = table.getColumnModel();
-        foreach (i in [0..table.getColumnCount() exclusive]) {
+        for (i in [0..table.getColumnCount() exclusive]) {
             var col = columns[i.intValue()];
             if (col.width <> UNSET) {
                 columnModel.getColumn(i.intValue()).setPreferredWidth(col.width.intValue());

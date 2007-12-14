@@ -77,7 +77,7 @@ public class GridPanel extends Widget {
             layout.setHgap(hgap.intValue());
         }
         jpanel.setLayout(layout);
-        foreach (i in cells) {
+        for (i in cells) {
             jpanel.add(i.getComponent());
         }
         return jpanel;

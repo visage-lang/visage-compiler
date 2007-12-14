@@ -29,7 +29,7 @@ public class FlowPanel extends Widget {
     private attribute panel: com.sun.javafx.api.ui.ScrollablePanel;
     private attribute layout: java.awt.FlowLayout;
     protected function createLayout():com.sun.javafx.api.ui.ScrollablePanel {
-        foreach (i in [0..panel.getComponentCount() exclusive]) {
+        for (i in [0..panel.getComponentCount() exclusive]) {
             panel.remove(0);
         }
         var align = 
@@ -42,7 +42,7 @@ public class FlowPanel extends Widget {
             else java.awt.FlowLayout.LEADING; // default
         layout = new com.sun.javafx.api.ui.FlowLayout(align, hgap.intValue(), vgap.intValue());
         panel.setLayout(layout);
-        foreach (i in content) {
+        for (i in content) {
             panel.add(i.getComponent());
         }
         return panel;

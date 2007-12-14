@@ -38,7 +38,7 @@ public class MouseEvent {
         //TODO this used to be mod in Modifiers, do this until and if
         // an alternative is implemented
         var rc = false;
-        foreach( m in modifiers) {
+        for ( m in modifiers) {
             if(m == mod) {
                 rc = true;
                 break;

@@ -141,7 +141,7 @@ public class RadioButton extends SelectableButton {
         jradiobutton.addItemListener(java.awt.event.ItemListener {
                 public function itemStateChanged(e:java.awt.event.ItemEvent):Void {
                     var i = 0;// = select indexof x from x in buttonGroup.buttons where x == self;
-                    foreach (ii in [0..sizeof buttonGroup.buttons exclusive]) {
+                    for (ii in [0..sizeof buttonGroup.buttons exclusive]) {
                         //TODO JXFC-270
                         /********* 270 is "this" ***********/
                         //if(buttonGroup.buttons[ii] == this) {

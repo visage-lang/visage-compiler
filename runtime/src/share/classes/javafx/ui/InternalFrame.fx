@@ -92,7 +92,7 @@ public class InternalFrame extends Widget {
         var self = this;
         jinternalframe.addInternalFrameListener(javax.swing.event.InternalFrameAdapter {
             public function internalFrameActivated(e:javax.swing.event.InternalFrameEvent):Void {
-                foreach (i in desk.frames) {
+                for (i in desk.frames) {
 
                     if (i <> self) {
                         i.selected = false;

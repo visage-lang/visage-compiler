@@ -56,7 +56,7 @@ public class Dialog extends AbstractFrame {
             buttonpanel.add(javax.swing.Box.createRigidArea(new java.awt.Dimension(5,0)));
             buttonpanel.add(button.getComponent());
             var dim = new java.awt.Dimension(80,0);
-            foreach (i in buttons) {
+            for (i in buttons) {
                 var d = i.getComponent().getPreferredSize();
                 if (dim.height < d.height) {
                     dim.height = d.height;
@@ -65,7 +65,7 @@ public class Dialog extends AbstractFrame {
                     dim.width = d.height;
                 }
             }
-            foreach (i in buttons) {
+            for (i in buttons) {
                 i.getComponent().setPreferredSize(dim);
                 i.getComponent().setMinimumSize(dim);
                 i.getComponent().setMaximumSize(dim);

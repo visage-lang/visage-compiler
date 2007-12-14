@@ -58,10 +58,10 @@ public class DesktopPane extends Widget {
                 if (d < 15) {
                     d = 15;
                 }
-                //foreach (f in reverse frames) {
+                //for (f in reverse frames) {
 
                 var n = sizeof dframes - 1;
-                foreach (i in [n..0]) {
+                for (i in [n..0]) {
                     var f = dframes[i];
                     try {
                         f.setVisible(true);
@@ -102,8 +102,8 @@ public class DesktopPane extends Widget {
                 var h = (size.height/ rows).intValue();
                 var x = 0;
                 var y = 0;
-                foreach (i in [0..rows exclusive]) {
-                    foreach (j in [0..cols exclusive]) {
+                for (i in [0..rows exclusive]) {
+                    for (j in [0..cols exclusive]) {
                         var cell = (i * cols) + j;
                         if (cell >= sizeof dframes) {
                             break;
@@ -135,7 +135,7 @@ public class DesktopPane extends Widget {
         jdesk = new javax.swing.JDesktopPane();
         jdesk.setOpaque(false);
         jdesk.setDragMode(dragMode.id);
-        foreach (i in frames) {
+        for (i in frames) {
             var count = jdesk.getComponentCountInLayer(i.layer);
             var b = new java.awt.Rectangle(i.x, i.y, i.width, i.height);
             jdesk.add(i.getComponent(), i.layer.intValue(), 0);

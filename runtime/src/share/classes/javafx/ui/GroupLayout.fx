@@ -51,17 +51,17 @@ public class GroupLayout extends GroupElement {
             //TODO this had content.row, not sure what that means, I assume subscript 0
         if (rows == null and content[0].row == null) {
             rows = [Row {}];
-            foreach (i in content) {
+            for (i in content) {
                 i.row = rows[0];
             }
         }
-        foreach (i in rows) {
+        for (i in rows) {
             var pgroup = layout.createParallelGroup(i.alignment.id.intValue(), i.resizable);
             vgroup.add(pgroup);
             var comps:java.awt.Component[] = [];
             //TODO JXFC-244
-            //foreach (j in content where j.row == i) {
-            foreach(j in content) { // Workaround
+            //for (j in content where j.row == i) {
+            for(j in content) { // Workaround
                 if (j instanceof Widget) {
                     var w =  j as Widget;
                     if (w.sizeToFitRow) {
@@ -106,17 +106,17 @@ public class GroupLayout extends GroupElement {
 //TODO this had content.column, not sure what that means, I assume subscript 0
         if (columns == null and content[0].column == null) {
            columns = [Column {}];
-           foreach (i in content) {
+           for (i in content) {
                i.column = columns[0];
            }
         }
-        foreach (i in columns) {
+        for (i in columns) {
             var pgroup = layout.createParallelGroup(i.alignment.id.intValue(), i.resizable);
             hgroup.add(pgroup);
             var comps:java.awt.Component[] = [];
             //TODO JXFC-244
-            //foreach (j in content where j.column == i) {
-            foreach(j in content) { // Workaround
+            //for (j in content where j.column == i) {
+            for(j in content) { // Workaround
                 if (j instanceof Widget) {
                     var w = j as Widget;
                     var c = w.getComponent();
@@ -157,10 +157,10 @@ public class GroupLayout extends GroupElement {
     }
 
     public function addComponents(host:java.awt.Container) : Void {
-        foreach (e in content where e instanceof GroupLayout) {
+        for (e in content where e instanceof GroupLayout) {
             (e as GroupLayout).addComponents(host);
         }
-        foreach (e in content where e instanceof Widget) {
+        for (e in content where e instanceof Widget) {
             var comp = (e as Widget).getComponent();
             host.add(comp);
         }

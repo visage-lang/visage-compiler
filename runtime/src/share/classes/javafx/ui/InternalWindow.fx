@@ -263,9 +263,8 @@ class InternalWindow extends UIElement {
                                 x = 0;
                                 y = 0;
                             }
-                            //TODO JFXC-337
-                            //x += dx;
-                            //y += dy;
+                            x += dx;
+                            y += dy;
                             x = x + dx;
                             y = y + dy;
                             inBounds = false;
@@ -322,7 +321,7 @@ class InternalWindow extends UIElement {
                                                             height.intValue());
                             frame.setBounds(x.intValue(), y.intValue(), width.intValue(), if( slide) then 0 else height.intValue());
                             //TODO DUR Animation
-                            foreach (i in [0..h]) {//TODO DUR ANIMATION(dur animationDuration easeboth) 
+                            for (i in [0..h]) {//TODO DUR ANIMATION(dur animationDuration easeboth) 
                                 if (fade) {
                                     if (i > 0) {
                                             var opacity = (i/h).floatValue();
@@ -350,7 +349,7 @@ class InternalWindow extends UIElement {
                             var y1 = y;
                             frame.reshape(x.intValue(), h.intValue(), width.intValue(), if (slide) then 0 else height.intValue());
 
-                            foreach (i in [h..0]) {//TODO DUR ANIMATION(dur animationDuration easeboth) 
+                            for (i in [h..0]) {//TODO DUR ANIMATION(dur animationDuration easeboth) 
                                 if (fade) {
                                     frame.setOpacity((1-i/h).floatValue());
                                 }
@@ -382,7 +381,7 @@ class InternalWindow extends UIElement {
                                     or anchor ==Anchor.CENTER ) {
                             var h = frame.getHeight();
                             (glass.getParent() as JLayeredPane).moveToFront(glass);
-                            foreach (i in [h..0]) {//TODO DUR ANIMATION(dur animationDuration easeboth) 
+                            for (i in [h..0]) {//TODO DUR ANIMATION(dur animationDuration easeboth) 
                                 if (frame <> null) {
                                     if (slide) {
                                         frame.setBounds(x.intValue(), y.intValue(), width.intValue(), i);
@@ -409,7 +408,7 @@ class InternalWindow extends UIElement {
                         } else {
                             var h = frame.getHeight();
                             var y1 = y;
-                            foreach (i in [0..h]) {//TODO DUR ANIMATION(dur animationDuration easeboth) 
+                            for (i in [0..h]) {//TODO DUR ANIMATION(dur animationDuration easeboth) 
                                 if (frame <> null) {
                                     if (slide) {
                                         frame.setBounds(x.intValue(), y1.intValue() + i, width.intValue(), h.intValue() - i);

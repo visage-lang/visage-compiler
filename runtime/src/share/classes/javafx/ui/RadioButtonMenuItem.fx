@@ -36,7 +36,7 @@ public class RadioButtonMenuItem extends MenuItem, SelectableButton {
         jradiobuttonmenuitem.addChangeListener(javax.swing.event.ChangeListener {
                     public function stateChanged(e:javax.swing.event.ChangeEvent):Void {
                         var i = -1;
-                        foreach (x in buttonGroup.buttons) {
+                        for (x in buttonGroup.buttons) {
                             i = i + 1;
                             if(x == self ) {
                                 break;

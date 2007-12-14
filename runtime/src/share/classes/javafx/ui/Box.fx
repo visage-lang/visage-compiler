@@ -57,7 +57,7 @@ public class Box extends Widget {
         } else {
             box.setLayout(new javax.swing.BoxLayout(box, javax.swing.BoxLayout.Y_AXIS));
         }
-        foreach (i in content) {
+        for (i in content) {
             box.add(i.getComponent());
         }
         return box;

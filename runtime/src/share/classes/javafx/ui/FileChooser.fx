@@ -83,7 +83,7 @@ public class FileChooser extends Widget {
         filechooser.setSelectedFile(null);
 
         var sz = sizeof fileFilters - 1;     
-        foreach(i in [sz..0] ) {
+        for(i in [sz..0] ) {
             UIElement.context.addChoosableFileFilter(filechooser, 
                             com.sun.javafx.api.ui.FileFilter {
                                                    public function equals(obj:java.lang.Object):Boolean {

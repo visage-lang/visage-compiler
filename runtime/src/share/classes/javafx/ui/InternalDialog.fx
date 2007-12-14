@@ -47,7 +47,7 @@ class InternalDialog extends InternalWindow {
             /***********************************
             var builder = new com.jgoodies.forms.builder.ButtonBarBuilder(buttonpanel);
             var btns:javax.swing.JButton[];
-            foreach (i in buttons) {
+            for (i in buttons) {
                 insert (i.getComponent() as javax.swing.JButton) into btns;
             }
             builder.addGriddedButtons(btns);

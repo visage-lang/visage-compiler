@@ -105,7 +105,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         }
         var lastNode:Node = null;
         var size = path.size();
-        foreach (i in [0..path.size()-1]) {
+        for (i in [0..path.size()-1]) {
             var n = getFX(path.get(i) as SGNode);
             if (n <> null and n <> lastNode) {
                 insert n into result;
@@ -150,7 +150,7 @@ public class Canvas extends Widget, CanvasElement, Container {
             y: p.y,
             transferData: [value]
         };
-        foreach (i in path) {
+        for (i in path) {
             if (i.handleAcceptDrop(e)) {          
                if (dropTargetNode <> i) {
                    dropTargetNode.handleDragExit(e);
@@ -182,7 +182,7 @@ public class Canvas extends Widget, CanvasElement, Container {
             y: p.y
             transferData: [value]
         };
-        foreach (i in path) {
+        for (i in path) {
             if (i.handleDragEnter(e)) {
                if (dropTargetNode <> i) {
                    dropTargetNode.handleDragExit(e);
@@ -210,7 +210,7 @@ public class Canvas extends Widget, CanvasElement, Container {
             y: p.y
             transferData: [value]
         };
-        foreach (i in path) {
+        for (i in path) {
             if (i.handleDragExit(e)) {
                break;
             }
@@ -242,7 +242,7 @@ public class Canvas extends Widget, CanvasElement, Container {
             y: p.y
             transferData: [value]
         };
-        foreach (i in path) {
+        for (i in path) {
             if (i.handleDrop(e)) {
                 return;
             }
@@ -272,7 +272,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         }
         viewport.setSize(canvasBounds.width, canvasBounds.height);
         if (sizeof scaleToFitList > 0) {
-            foreach (n in scaleToFitList) {
+            for (n in scaleToFitList) {
                 var root = (n.getNode() as SGAlignment).getChild() as Affine;
                 var nodeBounds = root.getBounds();
                 if ((nodeBounds.getWidth() > 0) and (nodeBounds.getHeight() > 0)) {
@@ -284,7 +284,7 @@ public class Canvas extends Widget, CanvasElement, Container {
             }
         }
         if (sizeof sizeToFitList > 0) then {
-            foreach (n in sizeToFitList) {
+            for (n in sizeToFitList) {
                 n.setSize(canvasBounds.getWidth(), canvasBounds.getHeight());
             }
         }
@@ -300,7 +300,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         //TODO: need indexof
         //var i = select indexof x from x in content where x == n;
         var i = 0;
-        foreach(x in content) {
+        for(x in content) {
             if(x == n) {
                 break;
             }
@@ -318,7 +318,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         //TODO: need indexof
         //var i = select first indexof x from x in content where x == n;
         var i = 0;
-        foreach(x in content) {
+        for(x in content) {
             if(x == n) {
                 break;
             }
@@ -336,7 +336,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         //TODO: need indexof
         //var i = select indexof x from x in content where x == n;
         var i = 0;
-        foreach(x in content) {
+        for(x in content) {
             if(x == n) {
                 break;
             }
@@ -351,7 +351,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         //TODO: need indexof
         //var i = select indexof x from x in content where x == n;
         var i = 0;
-        foreach(x in content) {
+        for(x in content) {
             if(x == n) {
                 break;
             }
@@ -367,7 +367,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         jsgpanel.setCursor(java.awt.Cursor.getDefaultCursor());
         jsgpanel.setOpaque(false);
         jsgpanel.setScene(root);
-        foreach (i in content) {
+        for (i in content) {
             i.parentCanvasElement = this;
             root.add(i.getNode());
         }

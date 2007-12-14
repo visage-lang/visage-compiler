@@ -47,7 +47,7 @@ public class ComboBox extends Widget {
             var e:javax.swing.event.ListDataEvent;
             e = new javax.swing.event.ListDataEvent(this, e.INTERVAL_ADDED,
                                                         ndx, ndx);
-            foreach (i in listeners) {
+            for (i in listeners) {
                 i.intervalAdded(e);
             }
             if (ndx == sel) {
@@ -58,7 +58,7 @@ public class ComboBox extends Widget {
             var e:javax.swing.event.ListDataEvent;
             e = new javax.swing.event.ListDataEvent(this, e.INTERVAL_REMOVED,
                                                         ndx, ndx);
-            foreach (i in listeners) {
+            for (i in listeners) {
                 i.intervalRemoved(e);
             }
         }
@@ -144,7 +144,7 @@ public class ComboBox extends Widget {
                            var cell = anItem as ComboBoxCell;
                            var i = -1;
                            var ii = 0;
-                           foreach (c in cells) {
+                           for (c in cells) {
                                if(cell == c) {
                                    i = ii;
                                    break;

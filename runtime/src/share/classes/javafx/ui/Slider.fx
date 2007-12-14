@@ -90,7 +90,7 @@ public class Slider extends Widget {
     on insert [ndx] (label) {
         if(jslider <> null) {
             var dict = new java.util.Hashtable();
-            foreach (i in labels) {
+            for (i in labels) {
                 dict.put(i.value.intValue(), i.label.getComponent());
             }
             paintLabels = true;
@@ -100,7 +100,7 @@ public class Slider extends Widget {
     on delete [ndx] (label) {
         if(jslider <> null) {
             var dict = new java.util.Hashtable();
-            foreach (i in labels) {
+            for (i in labels) {
                 dict.put(i.value.intValue(), i.label.getComponent());
             }
             jslider.setLabelTable(dict);
@@ -137,7 +137,7 @@ public class Slider extends Widget {
         }
         if (sizeof labels > 0) {
             var dict = new java.util.Hashtable();
-            foreach (i in labels) {
+            for (i in labels) {
                 dict.put(i.value.intValue(), i.label.getComponent());
             }
             jslider.setLabelTable(dict);
