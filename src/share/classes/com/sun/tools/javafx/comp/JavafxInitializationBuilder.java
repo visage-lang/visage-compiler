@@ -452,20 +452,26 @@ public class JavafxInitializationBuilder {
             // add interface methods for each method defined in this class
             for (MethodSymbol mth : collection.needInterfaceMethods) {
                     if (mth.owner == cDecl.sym) {
-                        iDefinitions.append(makeMethod(cDecl, mth, null, bound));
+                        if (!bound || toJava.generateBoundVoidFunctions || mth.getReturnType() != syms.voidType) {
+                            iDefinitions.append(makeMethod(cDecl, mth, null, bound));
+                        }
                     }
             }
 
             // add proxies which redirect to the static implementation for every concrete method
             for (MethodSymbol mth : collection.needDispatchMethods) {
                     if ((!classIsFinal && (mth.flags() & (Flags.STATIC)) == 0L) || mth.owner != cDecl.sym) { //TODO: this test is wrong
-                        cDefinitions.append(makeMethod(cDecl, mth, makeDispatchBody(cDecl, mth, bound, false), bound));
+                        if (!bound || toJava.generateBoundVoidFunctions || mth.getReturnType() != syms.voidType) {
+                            cDefinitions.append(makeMethod(cDecl, mth, makeDispatchBody(cDecl, mth, bound, false), bound));
+                        }
                     }
             }
             
             for (MethodSymbol mth : collection.needStaticDispatchMethods) {
                     if ((!classIsFinal && (mth.flags() & (Flags.STATIC)) == 0L) || mth.owner != cDecl.sym) {  //TODO: this test is wrong
-                        cDefinitions.append(makeMethod(cDecl, mth, makeDispatchBody(cDecl, mth, bound, true), bound));
+                        if (!bound || toJava.generateBoundVoidFunctions || mth.getReturnType() != syms.voidType) {
+                            cDefinitions.append(makeMethod(cDecl, mth, makeDispatchBody(cDecl, mth, bound, true), bound));
+                        }
                     }
             }
             

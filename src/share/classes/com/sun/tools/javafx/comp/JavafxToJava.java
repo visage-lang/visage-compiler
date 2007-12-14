@@ -151,6 +151,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      * static information
      */
     static final boolean generateBoundFunctions = true;
+    static final boolean generateBoundVoidFunctions = false;
     static final boolean permeateBind = false;
     static final boolean generateNullChecks = true;
     
@@ -510,7 +511,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                        case JavafxTag.FUNCTION_DEF : {
                            JFXOperationDefinition funcDef = (JFXOperationDefinition)def;
                             translatedDefs.append(  translate(funcDef) );
-                            if (generateBoundFunctions) {
+                            if (generateBoundFunctions  && (generateBoundVoidFunctions || funcDef.type.getReturnType() != syms.voidType)) {
                                 if ((funcDef.sym.flags() & Flags.SYNTHETIC) == 0) {
                                     translatedDefs.append(translate(funcDef, Convert.ToBound));
                                 }
@@ -1103,8 +1104,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             if (bexpr == null) {
                 body = null; // null if no block expression
             } else {
-                boolean isVoidReturn = mtype.getReturnType() == syms.voidType;
-                if (isBound && !isVoidReturn) {
+                if (isBound) {
                     // bound function return value
                     body = boundMethodBody( diagPos, bexpr, tree );
                 } else if (isRunMethod(tree.sym)) {
@@ -1120,6 +1120,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             ListBuffer<JCVariableDecl> params = ListBuffer.<JCVariableDecl>lb();
             if ((originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) {
                 if (classIsFinal) {
+                    // all implementation code is generated assuming a receiver parameter.
+                    // in the final class case, there is no receiver param, so allow generated code
+                    // to function by adding:   var receiver = this;
                     body.stats = body.stats.prepend(
                             make.at(diagPos).VarDef(
                                 make.at(diagPos).Modifiers(Flags.FINAL), 
@@ -2290,7 +2293,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                                                     && state.isBound()  
                                                                     && msym != null  
                                                                     && initBuilder.isJFXClass(msym.owner)  
-                                                                    && msym.getReturnType() != syms.voidType  
+                                                                    && (generateBoundVoidFunctions || msym.getReturnType() != syms.voidType )
                                                                     && !useInvoke;
 
             public JCTree doit() {
