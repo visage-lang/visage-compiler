@@ -113,7 +113,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             this.wrap = wrap;
             this.convert = convert;
         }
-        
+
         /**
          * Base state
          */
@@ -162,6 +162,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private static final String methodThrowsString = "java.lang.Throwable";
     private static final String syntheticNamePrefix = "jfx$$";
     private JFXClassDeclaration currentClass;  //TODO: this is redundant with attrEnv.enclClass
+    /** Class symbols for classes that need a reference to the outer class. */
     Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
         
     private Set<VarSymbol> locallyBound = null;
@@ -2854,34 +2855,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return sb.toString();
     }
 
-    // Is the referenced symbol an outer member.
-    boolean isOuterMember(Symbol sym, Symbol ownerSym) {
-        if (sym != null && ownerSym != null) {
-            Symbol ownerSymOwner = ownerSym.owner;
-            Symbol symOwner = sym.owner;
-            while (ownerSymOwner != null && ownerSymOwner.kind != Kinds.PCK) {            
-                ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-                Set superSet = new HashSet<Type>();
-                if (ownerSymOwner.type != null) {
-                    supertypes.append(ownerSymOwner.type);
-                    superSet.add(ownerSymOwner.type);
-                }
-                
-                if (ownerSymOwner.kind == Kinds.TYP) {
-                    rs.getSupertypes(ownerSymOwner, types, supertypes, superSet);
-                }
-
-                if (symOwner.type != null && superSet.contains(symOwner.type)) {
-                    return true;
-                }
-
-                ownerSymOwner = ownerSymOwner.owner;
-            }
-        }
-
-        return false;
-    }
-
     //TODO: destructive -- remove
     private void addBaseAttributes(ClassSymbol sym, JCClassDecl result) {
         java.util.List<Symbol> attrSyms = initBuilder.fxClassAttributes.get(sym);
@@ -3007,7 +2980,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             @Override
             public void visitIdent(JCIdent tree) {
                 super.visitIdent(tree);
-                if (currentClass != null && tree.sym.kind != Kinds.TYP && isOuterMember(tree.sym, currentClass.sym)) {
+                if (currentClass != null && tree.sym.kind != Kinds.TYP) {
                     addOutersForOuterAccess(tree.sym, currentClass.sym);
                 }
             }
@@ -3015,7 +2988,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             @Override
             public void visitSelect(JCFieldAccess tree) {
                 super.visitSelect(tree);
-                if (currentClass != null && tree.sym.kind != Kinds.TYP && isOuterMember(tree.sym, currentClass.sym)) {
+                if (currentClass != null && tree.sym.kind != Kinds.TYP) {
                     addOutersForOuterAccess(tree.sym, currentClass.sym);
                 }
             }
@@ -3028,34 +3001,29 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 }
             }
 
-            private void addOutersForOuterAccess(Symbol sym, Symbol ownerSymbol) {
-                if (sym != null && ownerSymbol != null) {
-                    Symbol symOwner = sym.owner;
-                    Symbol ownerSymOwner = ownerSymbol;
+            private void addOutersForOuterAccess(Symbol sym, Symbol currentClass) {
+                if (sym != null && sym.owner != null && sym.owner.type != null
+                        && currentClass != null) {
+                    Symbol outerSym = currentClass;
                     ListBuffer<ClassSymbol> potentialOuters = new ListBuffer<ClassSymbol>();
                     boolean foundOuterOwner = false;
-                    while (symOwner != null &&  ownerSymOwner != null) {             
-                        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-                        Set superSet = new HashSet<Type>();
-                        if (ownerSymOwner.type != null) {
-                            supertypes.append(ownerSymOwner.type);
-                            superSet.add(ownerSymOwner.type);
-                        }
+                    while (outerSym != null) {
+                        if (outerSym.kind == Kinds.TYP) {
+                            ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+                            Set superSet = new HashSet<Type>();
+                            supertypes.append(outerSym.type);
+                            superSet.add(outerSym.type);
+                            rs.getSupertypes(outerSym, types, supertypes, superSet);
 
-                        if (ownerSymOwner.kind == Kinds.TYP) {
-                            rs.getSupertypes(ownerSymOwner, types, supertypes, superSet);
+                            if (superSet.contains(sym.owner.type)) {
+                                foundOuterOwner = true;
+                                break;
+                             }
+                            potentialOuters.append((ClassSymbol)outerSym);
                         }
-
-                        if (symOwner.type != null && superSet.contains(symOwner.type)) {
-                            foundOuterOwner = true;
+                        else if (sym.owner == outerSym)
                             break;
-                        }
-                        
-                        if (ownerSymOwner.kind == Kinds.TYP) {
-                            potentialOuters.append((ClassSymbol)ownerSymOwner);
-                        }
-
-                        ownerSymOwner = ownerSymOwner.owner;
+                        outerSym = outerSym.owner;
                     }
                     
                     if (foundOuterOwner) {
