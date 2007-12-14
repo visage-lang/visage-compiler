@@ -42,19 +42,19 @@ public class Translate extends Transform {
     };
 
     public static function translate(x:Number, y:Number):Translate {
-       //TODO: JXFC-153
+       //TODO: JXFC-107
         //Translate {x: bind x, y: bind y};
         Translate {x: x, y: y};
     }
 
     public static function translateX(x:Number):Translate {
-        //TODO: JXFC-153
+        //TODO: JXFC-107
         //Translate {x: bind x, y: 0};
        Translate {x: x, y: 0};
     }
 
     public static function translateY(y:Number):Translate {
-        //TODO: JXFC-153
+        //TODO: JXFC-107
         //Translate {x: 0, y: bind y};
         Translate {x: 0, y: y};
     }    

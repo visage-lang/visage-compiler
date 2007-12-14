@@ -44,7 +44,7 @@ public class Scale extends Transform {
     };
     
     public static function scale(x:Number, y:Number):Scale {
-        //TODO: JXFC-153
+        //TODO: JXFC-107
         //return Scale {x: bind x, y: bind y};
         return Scale {x: x, y: y};
     };
