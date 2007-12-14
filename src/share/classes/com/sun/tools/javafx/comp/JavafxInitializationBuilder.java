@@ -780,12 +780,7 @@ public class JavafxInitializationBuilder {
     private JCMethodDecl makeSetDefaultsMethod(JFXClassDeclaration cDecl, java.util.List<ClassSymbol> baseClasses, 
                                                                                             List<TranslatedAttributeInfo> translatedAttrInfo) {
         boolean classIsFinal =(cDecl.getModifiers().flags & Flags.FINAL) != 0;
-        // Add the initialization of this class' attributes
-        List<JCStatement> setDefStats = addSetDefaultAttributeInitialization(translatedAttrInfo, cDecl);
-        if (setDefStats.nonEmpty()) {
-            setDefStats = setDefStats.appendList(addSetDefaultAttributeDependencies(translatedAttrInfo, cDecl));
-        }
-        
+        List<JCStatement> setDefStats = List.<JCStatement>nil();
         // call the superclasses SetDefaults
         for (ClassSymbol csym : baseClasses) {
             if (isJFXClass(csym)) {
@@ -798,6 +793,12 @@ public class JavafxInitializationBuilder {
                 args1 = args1.append(make.Ident(defs.receiverName));
                 setDefStats = setDefStats.append(toJava.callStatement(cDecl.pos(), make.Identifier(className), setDefaultsName, args1));
             }
+        }
+
+        // Add the initialization of this class' attributes
+        setDefStats = setDefStats.appendList(addSetDefaultAttributeInitialization(translatedAttrInfo, cDecl));
+        if (setDefStats.nonEmpty()) {
+            setDefStats = setDefStats.appendList(addSetDefaultAttributeDependencies(translatedAttrInfo, cDecl));
         }
         
         // add any change listeners (if there are any triggers)
