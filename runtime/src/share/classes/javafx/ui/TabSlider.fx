@@ -224,8 +224,7 @@ class TabSlider extends Widget {
                 inUpdateSelection = false;
             } 
             if (old <> selectedIndex) {
-                //TODO JXFC-320
-                //updateSelection(old, selectedIndex);
+                updateSelection(old, selectedIndex);
             }
         }
     };
@@ -457,8 +456,7 @@ class TabSlider extends Widget {
                     if (selection >= 0 and selection <> selectedIndex) {
                         selectedIndex = selection;
                     } else {
-                        //TODO JXFC-320
-                        //updateSelection(-1.0, selectedIndex);
+                        updateSelection(-1.0, selectedIndex);
                     }
                   }
         });
