@@ -363,18 +363,21 @@ public class JavafxInitializationBuilder {
         final List<JCTree> iDefinitions;
         final List<JCTree> additionalClassMembers;
         final List<JCExpression> additionalImports;
+        final java.util.List<ClassSymbol> baseClasses;
   
         JavafxClassModel(
                 Name interfaceName,
                 ListBuffer<JCExpression> interfaces,
                 List<JCTree> iDefinitions,
                 ListBuffer<JCTree> addedClassMembers,
-                ListBuffer<JCExpression> additionalImports) {
+                ListBuffer<JCExpression> additionalImports, 
+                java.util.List<ClassSymbol> baseClasses) {
             this.interfaceName = interfaceName;
             this.interfaces = interfaces;
             this.iDefinitions = iDefinitions;
             this.additionalClassMembers = addedClassMembers.toList();
             this.additionalImports = additionalImports.toList();
+            this.baseClasses = baseClasses;
         }
     }
 
@@ -395,7 +398,7 @@ public class JavafxInitializationBuilder {
         CollectAttributeAndMethods collection = new CollectAttributeAndMethods(cDecl.sym);        
         java.util.List<ClassSymbol> baseClasses = collection.baseClasses;
         java.util.List<Symbol> attributes = collection.attributes;
-
+        
         addFxClassAttributes(cDecl.sym, attributes);
         
         ListBuffer<JCExpression> implementing = new ListBuffer<JCExpression>();
@@ -487,7 +490,7 @@ public class JavafxInitializationBuilder {
             implementing.append(toJava.makeTypeTree(l.head.type, null));
         }
 
-        return new JavafxClassModel(interfaceName, implementing, iDefinitions.toList(), cDefinitions, additionalImports);
+        return new JavafxClassModel(interfaceName, implementing, iDefinitions.toList(), cDefinitions, additionalImports, baseClasses);
     }
     
     // Add the methods and field for accessing the outer members. Also add a constructor with an extra parameter to handle the instantiation of the classes that access outer members
