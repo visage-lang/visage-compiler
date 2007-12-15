@@ -385,8 +385,6 @@ class TabSlider extends Widget {
             });
         var selection = -1;
         for (indx in [0..sizeof tabs exclusive] ) {
-        //TODO JFXC-319
-        /***********************
             if (tabs[indx].button == null) {
                 tabs[indx].button = new Button(); 
                 if (tabs[indx].title <> null) {
@@ -448,7 +446,6 @@ class TabSlider extends Widget {
             if (tabs[indx].selected) {
                 selection = indx;
             }
-        ***************/
         }
         //TODO DO LATER - this is a work around until a more permanent solution is provided
         javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
