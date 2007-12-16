@@ -290,12 +290,12 @@ public class JavafxInitializationBuilder {
                     make.at(diagPos).VarDef(
                         make.Modifiers(0L), 
                         oldValue.getName(), 
-                        toJava.makeTypeTree(vmi.getRealType(), diagPos, false), 
+                        toJava.makeTypeTree(vmi.getRealType(), diagPos, isJFXClass(vmi.getRealType().tsym) ? true : false),
                         make.at(diagPos).Apply(
                             List.<JCExpression>nil(),       // no type args
                             make.at(diagPos).Select(
                                 make.at(diagPos).TypeCast(   // cast to the specific Location type -- eg: (IntLocation) $location
-                                    toJava.makeTypeTree(locationType, diagPos, false), 
+                                    toJava.makeTypeTree(locationType, diagPos, isJFXClass(locationType.tsym) ? true : false),
                                     make.at(diagPos).Ident(onChangeArgName)),
                                 getPreviousValueName),
                             List.<JCExpression>nil()        // no args
