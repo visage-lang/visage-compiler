@@ -45,14 +45,16 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
     private final JFXClassDeclaration def;
     private final List<JCExpression> args;
     private final List<JFXObjectLiteralPart> parts;
+    private final List<JFXVar> localVars;
     public ClassSymbol sym;
     public Symbol constructor;
 
-    protected JFXInstanciate(JCExpression clazz, JFXClassDeclaration def, List<JCExpression> args, List<JFXObjectLiteralPart> parts, ClassSymbol sym) {
+    protected JFXInstanciate(JCExpression clazz, JFXClassDeclaration def, List<JCExpression> args, List<JFXObjectLiteralPart> parts, List<JFXVar> localVars, ClassSymbol sym) {
         this.clazz = clazz;
         this.def = def;
         this.args = args;
         this.parts = parts;
+        this.localVars = localVars;
         this.sym = sym;
     }
 
@@ -81,6 +83,10 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
         }
         assert false;
         return null;
+    }
+
+    public List<JFXVar> getLocalvars() {
+        return localVars;
     }
 
     public List<JFXObjectLiteralPart> getParts() {

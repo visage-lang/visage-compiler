@@ -224,10 +224,13 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
             List<JCTree> defs) {
         ListBuffer<JFXObjectLiteralPart> partsBuffer = ListBuffer.<JFXObjectLiteralPart>lb();
         ListBuffer<JCTree> defsBuffer = ListBuffer.<JCTree>lb();
+        ListBuffer<JFXVar> varsBuffer = ListBuffer.<JFXVar>lb();
         if (defs != null) {
             for (JCTree def : defs) {
                 if (def instanceof JFXObjectLiteralPart) {
                     partsBuffer.append((JFXObjectLiteralPart) def);
+                } else if (def instanceof JFXVar && ((JFXVar)def).isLocal()) {
+                    varsBuffer.append((JFXVar) def);
                 } else {
                     defsBuffer.append(def);
                 }
@@ -242,7 +245,12 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
             klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<JCExpression>of(ident), defsBuffer.toList());
         }
         
-        JFXInstanciate tree = new JFXInstanciate(ident, klass, args==null? List.<JCExpression>nil() : args, partsBuffer.toList(), null);
+        JFXInstanciate tree = new JFXInstanciate(ident, 
+                klass, 
+                args==null? List.<JCExpression>nil() : args, 
+                partsBuffer.toList(), 
+                varsBuffer.toList(), 
+                null);
         tree.pos = pos;
         return tree;
     }
@@ -325,11 +333,12 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     public JFXVar Var(Name name,
             JFXType type,
             JCModifiers mods,
+            boolean isLocal,
             JCExpression initializer,
             JavafxBindStatus bindStatus,
             List<JFXAbstractOnChange> onChanges) {
         JFXVar tree = new JFXVar(name, type, 
-                mods, initializer, bindStatus, onChanges, null);
+                mods, isLocal, initializer, bindStatus, onChanges, null);
         tree.pos = pos;
         return tree;
     }
@@ -337,7 +346,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     public JFXVar Param(Name name,
             JFXType type) {
         JFXVar tree = new JFXVar(name, type, 
-                Modifiers(Flags.PARAMETER), null, JavafxBindStatus.UNBOUND, 
+                Modifiers(Flags.PARAMETER), true, null, JavafxBindStatus.UNBOUND, 
                 List.<JFXAbstractOnChange>nil(), null);
         tree.pos = pos;
         return tree;

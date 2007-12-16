@@ -45,15 +45,18 @@ public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
     private JFXType jfxtype;
     private final JavafxBindStatus bindStatus;
     private final List<JFXAbstractOnChange> onChanges;
+    private final boolean local;
     
     protected JFXVar(Name name,
             JFXType jfxtype,
             JCModifiers mods,
+            boolean local,
             JCExpression init,
             JavafxBindStatus bindStat,
             List<JFXAbstractOnChange> onChanges,
             VarSymbol sym) {
         super(mods, name, jfxtype, init, sym);
+        this.local = local;
         this.jfxtype = jfxtype;
         this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
         this.onChanges = onChanges;
@@ -85,6 +88,10 @@ public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
 
     public List<JFXAbstractOnChange> getOnChanges() {
         return onChanges;
+    }
+
+    public boolean isLocal() {
+        return local;
     }
 
     public JavafxBindStatus getBindStatus() {

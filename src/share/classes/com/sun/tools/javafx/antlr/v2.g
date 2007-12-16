@@ -602,6 +602,7 @@ variableDeclaration   returns [JCStatement value]
 	    					{ $value = F.at($variableLabel.pos).Var($name.value, 
 	    							$typeReference.type, 
 	    							F.at($variableLabel.pos).Modifiers($varModifierFlags.flags),
+	    							$variableLabel.local,
 	    							$eqBoundExpressionOpt.expr, 
 	    							$eqBoundExpressionOpt.status, 
 	    							$onChanges.listb.toList()); }
@@ -623,10 +624,10 @@ onChangeClause   returns [JFXAbstractOnChange value]
 	| ON DELETE LBRACKET index=formalParameter RBRACKET (LPAREN oldv=formalParameter RPAREN)? block
 						{ $value = F.at(pos($ON)).OnDeleteElement($index.var, $oldv.var, $block.value); }
 	;
-variableLabel    returns [int pos]
-	: VAR					{ $pos = pos($VAR); }
-	| LET					{ $pos = pos($LET); }
-	| ATTRIBUTE				{ $pos = pos($ATTRIBUTE); }
+variableLabel    returns [boolean local, int pos]
+	: VAR					{ $local = true; $pos = pos($VAR); }
+	| LET					{ $local = true; $pos = pos($LET); }
+	| ATTRIBUTE				{ $local = false; $pos = pos($ATTRIBUTE); }
 	;
 insertStatement   returns [JCStatement value]
 	: INSERT e1=expression  INTO e2=expression 
