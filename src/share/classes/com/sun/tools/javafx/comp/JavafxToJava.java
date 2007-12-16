@@ -566,16 +566,20 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
                 // call the superclasses userInit$
+                Set<String> dupSet = new HashSet<String>();
                 for (ClassSymbol csym : model.baseClasses) {
-                    if ((csym.flags_field & Flags.INTERFACE) == 0L && initBuilder.isJFXClass(csym)) {
+                    if (initBuilder.isJFXClass(csym)) {
                         String className = csym.fullname.toString();
                         if (className.endsWith(interfaceSuffix)) {
                             className = className.substring(0, className.length() - interfaceSuffix.length());
                         }
 
-                        List<JCExpression> args1 = List.<JCExpression>nil();
-                        args1 = args1.append(make.TypeCast(makeTypeTree(csym.type, tree.pos(), true), make.Ident(defs.receiverName)));
-                        initStats = initStats.append(callStatement(tree.pos(), makeTypeTree(csym.type, tree.pos(), false), initBuilder.userInitName, args1));
+                        if (!dupSet.contains(className)) {
+                            dupSet.add(className);
+                            List<JCExpression> args1 = List.<JCExpression>nil();
+                            args1 = args1.append(make.TypeCast(makeTypeTree(csym.type, tree.pos(), true), make.Ident(defs.receiverName)));
+                            initStats = initStats.append(callStatement(tree.pos(), ((JavafxTreeMaker)make).Identifier(className), initBuilder.userInitName, args1));
+                        }
                     }
                 }
                 initStats.appendList(translatedInitBlocks);

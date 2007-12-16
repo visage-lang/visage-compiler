@@ -784,17 +784,22 @@ public class JavafxInitializationBuilder {
                                                                                             List<TranslatedAttributeInfo> translatedAttrInfo) {
         boolean classIsFinal =(cDecl.getModifiers().flags & Flags.FINAL) != 0;
         List<JCStatement> setDefStats = List.<JCStatement>nil();
+
         // call the superclasses SetDefaults
+        Set<String> dupClasses = new HashSet<String>();
         for (ClassSymbol csym : baseClasses) {
             if (isJFXClass(csym)) {
                 String className = csym.fullname.toString();
                 if (className.endsWith(interfaceSuffix)) {
                     className = className.substring(0, className.length() - interfaceSuffix.length());
                 }
-                
-                List<JCExpression> args1 = List.<JCExpression>nil();
-                args1 = args1.append(make.Ident(defs.receiverName));
-                setDefStats = setDefStats.append(toJava.callStatement(cDecl.pos(), make.Identifier(className), setDefaultsName, args1));
+
+                if (!dupClasses.contains(className)) {
+                    dupClasses.add(className);
+                    List<JCExpression> args1 = List.<JCExpression>nil();
+                    args1 = args1.append(make.Ident(defs.receiverName));
+                    setDefStats = setDefStats.append(toJava.callStatement(cDecl.pos(), make.Identifier(className), setDefaultsName, args1));
+                }
             }
         }
 
@@ -803,7 +808,7 @@ public class JavafxInitializationBuilder {
         if (setDefStats.nonEmpty()) {
             setDefStats = setDefStats.appendList(addSetDefaultAttributeDependencies(translatedAttrInfo, cDecl));
         }
-        
+
         // add any change listeners (if there are any triggers)
         for (TranslatedAttributeInfo info : translatedAttrInfo) {
             JCStatement stat = makeChangeListenerCall(info);
