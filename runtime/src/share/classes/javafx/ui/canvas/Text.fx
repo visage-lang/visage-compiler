@@ -105,4 +105,9 @@ public class Text extends VisualNode {
         updateVerticalAlignment();
         return sgtext;
     }
+
+    init {
+        stroke = null;
+        fill = Color.BLACK;
+    }
 }

@@ -125,6 +125,15 @@ public abstract class VisualNode extends Node, AbstractVisualNode {
     public attribute strokeMiterLimit:Number = 10.0;
     public attribute strokeDashArray:Number[] = [1.0];
     public attribute strokeDashOffset:Number = 0.0;
+
+    init {
+        strokeWidth = 1.0;
+        strokeLineJoin = StrokeLineJoin.MITER;
+        strokeLineCap = StrokeLineCap.SQUARE;
+        strokeMiterLimit = 10.0;
+        strokeDashArray = [1.0];
+        strokeDashOffset = 0.0;
+    }
 }
 
 
