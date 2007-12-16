@@ -128,11 +128,10 @@ public class ToggleButton extends SelectableButton {
                     //var i = select indexof x from x in buttonGroup.buttons where x == self;
                     var i = 0;
                     for ( ii in [0..sizeof buttonGroup.buttons exclusive]) {
-                        //JXFC-335
-                        //if( buttonGroup.buttons[ii] == this) {
+                        if( buttonGroup.buttons[ii] == this) {
                             i = ii;
                             break;
-                        //}
+                        }
                     }
                     selected = button.isSelected();
                     //onChange(selected);
