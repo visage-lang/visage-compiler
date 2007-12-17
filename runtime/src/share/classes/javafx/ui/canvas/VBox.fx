@@ -38,7 +38,7 @@ public class VBox extends CompositeNode {
                  //           then 0 else prev.currentX + prev.currentWidth
                   transform: bind [ Translate.translate(0.0, 
                             (if (ndx > 0 and hasParent() )
-                                then holders[ndx-1].currentY + holders[ndx-1].currentHeight
+                                then content[ndx-1].currentY + content[ndx-1].currentHeight
                                 else 0)                            
                             +(if (ndx > 0) then spacing else 0)) as Transform ]
              }
