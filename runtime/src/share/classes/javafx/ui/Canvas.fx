@@ -56,7 +56,7 @@ public class Canvas extends Widget, CanvasElement, Container {
     public attribute jsgpanel: JSGPanel = new JSGPanel();
     protected attribute root: SGGroup;   
     protected attribute focusRect: Rect;
-    protected attribute focusBounds: Rectangle2D /*TODO:JFXC-329 = bind if (focusedNode == null) null else focusedNode.bounds*/;
+    protected attribute focusBounds: Rectangle2D  = bind if (focusedNode == null) null else focusedNode.bounds;
     public attribute focusedNode: Node;
     
     protected function getFX(obj:SGNode): Node {
