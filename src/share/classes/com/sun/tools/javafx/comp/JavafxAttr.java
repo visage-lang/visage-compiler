@@ -545,6 +545,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         return t;
     }
 
+    JavafxEnv<JavafxAttrContext> newLocalEnv(JCTree tree) {
+        JavafxEnv<JavafxAttrContext> localEnv =
+                env.dup(tree, env.info.dup(env.info.scope.dupUnshared()));
+        localEnv.outer = env;
+        return localEnv;
+    }
+
     public void visitTypeCast(JCTypeCast tree) {
         Type clazztype = attribType(tree.clazz, env);
         Type exprtype = attribExpr(tree.expr, env, Infer.anyPoly);
@@ -1028,8 +1035,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     // let the owner of the environment be a freshly
                     // created BLOCK-method.
                     long flags = tree.getModifiers().flags;
-                    JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup(env.info.scope.dupUnshared()));
-                    localEnv.outer = env;
+                    JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
                     localEnv.info.scope.owner = new MethodSymbol(flags | BLOCK, names.empty, null, env.info.scope.owner);
                     if ((flags & STATIC) != 0) {
                         localEnv.info.staticLevel++;
@@ -1163,9 +1169,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             // Block is a static or instance initializer;
             // let the owner of the environment be a freshly
             // created BLOCK-method.
-            JavafxEnv<JavafxAttrContext> localEnv =
-                env.dup(tree, env.info.dup(env.info.scope.dupUnshared()));
-            localEnv.outer = env;
+            JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
             localEnv.info.scope.owner =
                 new MethodSymbol(tree.flags | BLOCK, names.empty, null,
                                  env.info.scope.owner);
@@ -1247,7 +1251,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         // The local environment of a class creation is
         // a new environment nested in the current one.
-        JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup());
+        JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
+        memberEnter.memberEnter(tree.getLocalvars(), localEnv);
 
         // The anonymous inner class definition of the new expression,
         // if one is defined by it.
@@ -1396,6 +1401,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
 
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
+        localEnv.info.scope.leave();
     }
 
     /** Make an attributed null check tree.
