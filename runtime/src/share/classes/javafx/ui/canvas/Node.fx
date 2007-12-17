@@ -661,12 +661,6 @@ public abstract class Node extends CanvasElement, Transformable {
         if (contentNode <> null)
             contentNode.setID(id);   
     };
-    protected attribute  onTransformChanged: function(:AffineTransform):Void = 
-        function (t:AffineTransform):Void {
-            if (transformFilter <> null) {
-                this.transformFilter.setAffine(t);
-            } 
-        }
 
     public function getCanvas(): Canvas {
         var n = this.parentCanvasElement;
@@ -694,5 +688,13 @@ public abstract class Node extends CanvasElement, Transformable {
     }
 
     public static attribute LISTENER:FXNodeListener = FXNodeListener{};
+    
+    init {
+        onTransformChanged = function (t:AffineTransform):Void {
+            if (transformFilter <> null) {
+                this.transformFilter.setAffine(t);
+            } 
+        }
+    }
 }
 
