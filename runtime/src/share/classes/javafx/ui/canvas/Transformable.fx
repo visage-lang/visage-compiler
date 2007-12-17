@@ -61,12 +61,8 @@ public abstract class Transformable {
         }
         if (affineTransform <> t) {
             affineTransform = t;
-            //TODO this makes no sense, as you just assgined affineTransform to t
-            // but this was the way it was in the interpreter.
-            if (affineTransform == t) {
-                if(onTransformChanged <> null) {
-                    onTransformChanged(affineTransform);
-                }
+            if(onTransformChanged <> null) {
+                onTransformChanged(affineTransform);
             }
         }
     }
