@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  * @author jclarke
  */
 public class GradientFactory {
-    private static boolean isJDK15 = System.getProperty("java.version").startsWith("1.5");
+    private static boolean isJDK15;
     
     private static final String JDK15_COLORSPACETYPE_CLASSNAME = "com.sun.javafx.runtime.awt.MultipleGradientPaint$ColorSpaceType";
     private static final String JDK15_CYCLEMETHOD_CLASSNAME = "com.sun.javafx.runtime.awt.MultipleGradientPaint$CycleMethod";
@@ -63,6 +63,12 @@ public class GradientFactory {
     private static Constructor radialGradientCtor;
     
     static {
+        try {
+            Class.forName(JDK16_COLORSPACETYPE_CLASSNAME);
+            isJDK15 = false;
+        } catch (ClassNotFoundException e) {
+            isJDK15 = true;
+        }         
         try {
             if (isJDK15) {
                 colorSpaceClass = Class.forName(JDK15_COLORSPACETYPE_CLASSNAME);
