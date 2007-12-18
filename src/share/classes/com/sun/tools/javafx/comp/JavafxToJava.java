@@ -222,8 +222,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             JCExpression init = (JCExpression) translate(tree);
             Type elemType = types.elemtype(type);
             if (elemType.isPrimitive()) {
-               return callExpression(diagPos, makeTypeTree(syms.javafx_SequencesType, diagPos, false),
-                       "toArray", init);
+                String mname = "toArray";
+                if (elemType == syms.floatType)
+                    mname = "toFloatArray";
+                return callExpression(diagPos, makeTypeTree(syms.javafx_SequencesType, diagPos, false),
+                       mname, init);
             }
             JCVariableDecl tmpVar = make.VarDef(make.Modifiers(0), tmpName,
                     makeTypeTree(tree.type, diagPos, true), init);
@@ -687,7 +690,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             tmpTypeExpr = makeTypeTree(cdef.type, tree, false);
          }
 
-        List<JCExpression> newClassArgs = translate( tree.getArgs());
+        List<JCExpression> newClassArgs;
+        if (tree.constructor != null && tree.constructor.type != null) {
+            List<Type> ptypes =
+                    tree.constructor.type.asMethodType().getParameterTypes();
+            newClassArgs = translate(tree.getArgs(), ptypes);
+        }
+        else
+            newClassArgs = translate(tree.getArgs());
         if (tree.getClassBody() != null &&
             tree.getClassBody().sym != null && hasOuters.contains(tree.getClassBody().sym)) {
             JCIdent thisIdent = make.Ident(defs.receiverName);

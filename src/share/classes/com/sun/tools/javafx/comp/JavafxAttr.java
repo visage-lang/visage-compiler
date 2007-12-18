@@ -1307,6 +1307,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 localEnv.info.selectSuper = cdef != null;
                 localEnv.info.varArgs = false;
 
+                if (! initBuilder.isJFXClass(clazztype.tsym))
+                    tree.constructor = rs.resolveConstructor(
+                        tree.pos(), localEnv, clazztype, argtypes, null);
                 /**
                 List<Type> emptyTypeargtypes = List.<Type>nil();
                 tree.constructor = rs.resolveConstructor(
