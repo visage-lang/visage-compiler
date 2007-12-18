@@ -143,6 +143,9 @@ tokens {
 
 @lexer::header {
 package com.sun.tools.javafx.antlr;
+
+import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.Log;
 }
 
 @header {
@@ -168,12 +171,16 @@ import org.antlr.runtime.*;
 
 @members {
         public v2Parser(Context context, CharSequence content) {
-           this(new CommonTokenStream(new v2Lexer(new ANTLRStringStream(content.toString()))));
+           this(new CommonTokenStream(new v2Lexer(context, new ANTLRStringStream(content.toString()))));
            initialize(context);
     	}
 }
 
 @lexer::members {
+    /** The log to be used for error diagnostics.
+     */
+    private Log log;
+    
     static final byte NO_INSERT_SEMI = 0; // default
     static final byte INSERT_SEMI = 1; 
     static final byte IGNORE_FOR_SEMI = 2; 
@@ -200,6 +207,11 @@ import org.antlr.runtime.*;
     int previousTokenType = -1;
     final Token syntheticSemi = new CommonToken(SEMI);
     List tokens = new ArrayList();
+    
+    public v2Lexer(Context context, CharStream input) {
+    	this(input);
+        this.log = Log.instance(context);
+    }
     
     /** Allow emitting more than one token from a lexer rule
      */
@@ -281,10 +293,10 @@ import org.antlr.runtime.*;
         }
     }
     
-    void removeQuotes() {
-    	setText(getText().substring(1, getText().length()-1));
+    void processString() {
+    	setText(StringLiteralProcessor.convert( log, getCharIndex(), getText() ));
     }
-    
+
     // quote context --
     static final int CUR_QUOTE_CTX	= 0;	// 0 = use current quote context
     static final int SNG_QUOTE_CTX	= 1;	// 1 = single quote quote context
@@ -295,38 +307,44 @@ import org.antlr.runtime.*;
  * LEXER RULES
  *------------------------------------------------------------------*/
 
-STRING_LITERAL  		: '"' (~('{' |'"'))* '"'  	{ removeQuotes(); }
-				| '\'' (~('{' |'\''))* '\''  	{ removeQuotes(); }
+STRING_LITERAL  		: '"' DoubleQuoteBody '"'  	{ processString(); }
+				| '\'' SingleQuoteBody '\''  	{ processString(); }
 				;
 // String Expression token implementation
-QUOTE_LBRACE_STRING_LITERAL 	: '"' (~('{' |'"'))* '{'   	{ removeQuotes(); }
+QUOTE_LBRACE_STRING_LITERAL 	: '"' DoubleQuoteBody '{'   	{ processString(); }
 				  NextIsPercent[DBL_QUOTE_CTX] 
-				| '\'' (~('{' |'\''))* '{'   	{ removeQuotes(); }
+				| '\'' SingleQuoteBody '{'   	{ processString(); }
 				  NextIsPercent[SNG_QUOTE_CTX] 
 				;
 LBRACE				: '{'				{ BraceQuoteTracker.enterBrace(0, false); } 
 				;
 RBRACE_QUOTE_STRING_LITERAL 	:				{ BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) }?=>
-				  '}' (~('{' |'"'))* '"'	{ BraceQuoteTracker.leaveBrace(); 
+				  '}' DoubleQuoteBody '"'	{ BraceQuoteTracker.leaveBrace(); 
 				         			  BraceQuoteTracker.leaveQuote(); 
-				         			  removeQuotes(); }
+				         			  processString(); }
 				|				{ BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) }?=>
-				  '}' (~('{' |'\''))* '\''	{ BraceQuoteTracker.leaveBrace(); 
+				  '}' SingleQuoteBody '\''	{ BraceQuoteTracker.leaveBrace(); 
 				         			  BraceQuoteTracker.leaveQuote(); 
-				         			  removeQuotes(); }
+				         			  processString(); }
 				;
 RBRACE_LBRACE_STRING_LITERAL 	:				{ BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) }?=>
-				  '}' (~('{' |'"'))* '{'	{ BraceQuoteTracker.leaveBrace(); 
-				         			  removeQuotes(); }
+				  '}' DoubleQuoteBody '{'	{ BraceQuoteTracker.leaveBrace(); 
+				         			  processString(); }
 				   NextIsPercent[CUR_QUOTE_CTX]	
 				|				{ BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) }?=>
-				  '}' (~('{' |'\''))* '{'	{ BraceQuoteTracker.leaveBrace(); 
-				         			  removeQuotes(); }
+				  '}' SingleQuoteBody '{'	{ BraceQuoteTracker.leaveBrace(); 
+				         			  processString(); }
 				   NextIsPercent[CUR_QUOTE_CTX]	
 				;
 RBRACE				:				{ !BraceQuoteTracker.rightBraceLikeQuote(CUR_QUOTE_CTX) }?=>
 				  '}'				{ BraceQuoteTracker.leaveBrace(); }
 				;
+fragment
+DoubleQuoteBody  :	 (~('{' |'"'|'\\')|'\\' .)*  ;
+
+fragment
+SingleQuoteBody  :	 (~('{' |'\''|'\\')|'\\' .)*  ;
+
 fragment
 NextIsPercent[int quoteContext]
 	 			: ((' '|'\r'|'\t'|'\u000C'|'\n')* '%')=>
