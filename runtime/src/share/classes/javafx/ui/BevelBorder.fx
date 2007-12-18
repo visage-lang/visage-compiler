@@ -25,7 +25,7 @@
 package javafx.ui;
 
 
-public class BevelBorder {
+public class BevelBorder extends Border {
     public attribute style: BevelType;
     public attribute highlight: Color;
     public attribute shadow: Color;
