@@ -73,7 +73,10 @@ public class JavafxInitializationBuilder {
     private static final String addDependenciesName = "addDependencies";
     Name outerAccessorName;
     Name outerAccessorFieldName;
-    
+    Name literalsDoneName;
+    Name isNotLiteralSetName;
+    Name getInitHelperName;
+
     private Map<ClassSymbol, JFXClassDeclaration> fxClasses;
     Map<ClassSymbol, java.util.List<Symbol>> fxClassAttributes;
 
@@ -107,6 +110,9 @@ public class JavafxInitializationBuilder {
         onChangeArgName = names.fromString("$location");
         outerAccessorName = names.fromString("accessOuter$");
         outerAccessorFieldName = names.fromString("accessOuterField$");
+        literalsDoneName = names.fromString("literalsDone$");
+        isNotLiteralSetName = names.fromString("isNotLiteralSet$");
+        getInitHelperName = names.fromString("getInitHelper$");
     }
     
     static class TranslatedAttributeInfo {
@@ -696,12 +702,11 @@ public class JavafxInitializationBuilder {
             initAssertArgs = initAssertArgs.append(make.Ident(attrInfo.name));
             initAssertArgs = initAssertArgs.append(make.Literal( cDecl.getName().toString() + "." + attrInfo.name.toString() ));
             
-            initBlockStats = initBlockStats.append(toJava.callStatement(cDecl.pos(), make.Identifier(initHelperClassName), assertNonNullName, initAssertArgs));
-
             // Add the initHelper$.add(...) call
             List<JCExpression> initAddArgs = List.<JCExpression>nil();
             initAddArgs = initAddArgs.append(make.Assign(make.Ident(attrInfo.name), make.Ident(locationName)));
-            
+            initAddArgs = initAddArgs.append(make.Literal(attrInfo.name.toString()));
+
             initBlockStats = initBlockStats.append(toJava.callStatement(cDecl.pos(), make.Ident(initHelperName), addName, initAddArgs));
             
             JCBlock initBlock = make.Block(0L, initBlockStats);
@@ -743,9 +748,28 @@ public class JavafxInitializationBuilder {
         
         members.append(make.VarDef(make.Modifiers(Flags.PRIVATE),
                 initHelperName, make.Identifier(initHelperClassName), newIHClass));
-        
+
+        // Append the getInitHelperName
+        ListBuffer<JCStatement> mStats1 = new ListBuffer<JCStatement>();
+        JCIdent retIdent1 = make.Ident(initHelperName);
+        JCReturn retRet1 = make.Return(retIdent1);
+        mStats1.append(retRet1);
+
+        members.append(make.MethodDef(make.Modifiers(Flags.PUBLIC),
+                getInitHelperName,
+                make.Identifier(initHelperClassName),
+                List.<JCTypeParameter>nil(),
+                List.<JCVariableDecl>nil(),
+                List.<JCExpression>nil(),
+                make.Block(0L, mStats1.toList()),
+                null));
+
         // Add the initialize$ method
         List<JCStatement> initializeStats = List.<JCStatement>nil();
+
+        // Set the marker that we are done setting the object literal set attributes.
+        initializeStats = initializeStats.append(toJava.callStatement(cDecl.pos(), make.Ident(initHelperName), 
+            literalsDoneName));
 
         // Add calls to do the the default value initialization and user init code (validation for example.)
         initializeStats = initializeStats.append(toJava.callStatement(
@@ -875,13 +899,17 @@ public class JavafxInitializationBuilder {
 		}
                 if (tai.attribute.sym != null && tai.attribute.sym.owner == cdef.sym) {
                     DiagnosticPosition diagPos = tai.attribute.pos();
-                    JCExpression cond = make.at(diagPos).Binary(JCTree.EQ, 
-                            toJava.makeAttributeAccess(cdef, tai.attribute), 
-                            make.Literal(TypeTags.BOT, null));
-                    
+                    ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb();
+                    args.append(make.Literal(tai.name().toString()));
+                    JCExpression cond = toJava.callExpression(diagPos,
+                        toJava.callExpression(diagPos, make.Ident(defs.receiverName), getInitHelperName), 
+                        isNotLiteralSetName, args.toList());
+
+                    JCStatement statToAdd = null;
                     JCStatement thenStat = toJava.callStatement(diagPos, make.Ident(defs.receiverName), attributeInitMethodNamePrefix + tai.attribute.name.toString(), tai.initExpr);
                     JCIf defInitIf = make.If(cond, thenStat, null);
-                    ret = ret.append(defInitIf);
+                    statToAdd = defInitIf;
+                    ret = ret.append(statToAdd);
                 }
             }
         }

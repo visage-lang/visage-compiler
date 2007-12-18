@@ -15,6 +15,10 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
     public static int getNumFields$() { return 0; }
     private com.sun.javafx.runtime.InitHelper initHelper$ = new com.sun.javafx.runtime.InitHelper(0);
 
+    public InitHelper getInitHelper$() {
+        return initHelper$;
+    }
+
     public void initialize$() {
         setDefaults$(this);
         userInit$(this);
