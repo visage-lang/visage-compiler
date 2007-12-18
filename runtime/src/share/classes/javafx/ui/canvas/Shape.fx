@@ -39,7 +39,6 @@ import javafx.ui.canvas.VisualNode;
 import com.sun.scenario.scenegraph.SGShape;
 import com.sun.scenario.scenegraph.SGAbstractShape;
 import javafx.ui.canvas.Transform.CompositeTransform;
-import com.sun.tools.javafx.ui.SequenceUtil;
 //TODO BATIK
 //TODO BATIK import net.java.javafx.ui.batik.PathLength;
 
@@ -169,7 +168,7 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
                        strokeLineCap.id.intValue(),
                        strokeLineJoin.id.intValue(),
                        strokeMiterLimit.floatValue(),
-                       SequenceUtil.sequenceOfDouble2floatArray(strokeDashArray),
+                       strokeDashArray,
                        strokeDashOffset.floatValue());
             gp.append(s.createStrokedShape(tshape), false);           
         } else {

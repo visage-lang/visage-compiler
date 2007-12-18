@@ -28,7 +28,6 @@ import javafx.ui.filter.Filter;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 import java.awt.image.BufferedImageOp;
-import com.sun.tools.javafx.ui.SequenceUtil;
 
 public class Convolve extends Filter {
     public attribute convolveOp: ConvolveOp;
@@ -37,7 +36,7 @@ public class Convolve extends Filter {
     public attribute data: Number[];
     public function createFilter(): BufferedImageOp{
         if (convolveOp == null) {
-            var kernel = new Kernel(width, height, SequenceUtil.sequenceOfDouble2floatArray(data));
+            var kernel = new Kernel(width, height, data);
             convolveOp = new ConvolveOp(kernel);
         }
         return convolveOp;

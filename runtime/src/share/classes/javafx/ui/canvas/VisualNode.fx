@@ -32,7 +32,6 @@ import java.lang.System;
 import com.sun.scenario.scenegraph.SGAbstractShape;
 import com.sun.scenario.scenegraph.SGAbstractShape.Mode;
 import com.sun.scenario.scenegraph.SGNode;
-import com.sun.tools.javafx.ui.SequenceUtil;
 
 /**
  * Abstract base class for visual elements that appear in the canvas.
@@ -91,7 +90,7 @@ public abstract class VisualNode extends Node, AbstractVisualNode {
                        strokeLineCap.id.intValue(),
                        strokeLineJoin.id.intValue(),
                        strokeMiterLimit.floatValue(),
-                       SequenceUtil.sequenceOfDouble2floatArray(strokeDashArray),
+                       strokeDashArray,
                        strokeDashOffset.floatValue());
             sgvisualnode.setDrawStroke(basic);
             updateMode();
