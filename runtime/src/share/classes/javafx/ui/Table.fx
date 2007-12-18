@@ -31,8 +31,6 @@ import javafx.ui.ScrollableWidget;
 import javafx.ui.TableAutoResizeMode;
 import javafx.ui.TableCell;
 import javafx.ui.TableColumn;
-import com.sun.tools.javafx.ui.SequenceUtil;
-
 
 public class Table extends ScrollableWidget {
     private attribute UNSET: Integer = java.lang.Integer.MIN_VALUE;
@@ -150,8 +148,8 @@ public class Table extends ScrollableWidget {
             insert c.alignment.id.intValue() into alignIds;
         }
         
-        tableModel.setColumnNames(SequenceUtil.sequenceOfString2StringArray(cnames));        
-        tableModel.setColumnAlignments(SequenceUtil.sequenceOfInteger2intArray(alignIds)); 
+        tableModel.setColumnNames(cnames);        
+        tableModel.setColumnAlignments(alignIds); 
         //for (i in cells) {
         for( ii in [0..sizeof cells exclusive]) {
             var i = cells[ii];

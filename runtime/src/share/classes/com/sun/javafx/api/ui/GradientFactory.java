@@ -27,13 +27,13 @@ package com.sun.javafx.api.ui;
 
 import com.sun.javafx.runtime.awt.LinearGradientPaint;
 import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.javafx.runtime.awt.MultipleGradientPaint.ColorSpaceType;
 import com.sun.javafx.runtime.awt.MultipleGradientPaint.CycleMethod;
 import com.sun.javafx.runtime.awt.RadialGradientPaint;
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import com.sun.tools.javafx.ui.SequenceUtil;
 
 /**
  *
@@ -42,11 +42,11 @@ import com.sun.tools.javafx.ui.SequenceUtil;
 public class GradientFactory {
     
     public static LinearGradientPaint createLinearGradientPaint(Point2D start, Point2D end,
-            Sequence<? extends java.lang.Double> fractions, 
+            Sequence<? extends java.lang.Number> fractions, 
             Sequence<? extends java.awt.Color> colors,
             CycleMethod cycleMethod, ColorSpaceType colorSpace, AffineTransform transform) {
         
-        float[] dFractions = SequenceUtil.sequenceOfDouble2floatArray(fractions);
+        float[] dFractions = Sequences.toFloatArray(fractions);
         Color[] dColors = new Color[colors.size()];
         colors.toArray(dColors, 0);
         
@@ -57,11 +57,11 @@ public class GradientFactory {
     
     public static RadialGradientPaint createRadialGradientPaint(Point2D center, 
             float radius, Point2D focus,
-            Sequence<? extends java.lang.Double> fractions, 
+            Sequence<? extends java.lang.Number> fractions, 
             Sequence<? extends java.awt.Color> colors,
             CycleMethod cycleMethod, ColorSpaceType colorSpace, AffineTransform transform) {
         
-        float[] dFractions = SequenceUtil.sequenceOfDouble2floatArray(fractions);
+        float[] dFractions = Sequences.toFloatArray(fractions);
         Color[] dColors = new Color[colors.size()];
         colors.toArray(dColors, 0);
         

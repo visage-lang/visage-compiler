@@ -28,7 +28,6 @@ package javafx.ui;
 import com.sun.javafx.api.ui.UIContextImpl.FXTreeCellRenderer;
 import com.sun.javafx.api.ui.UIContextImpl.FXTreeModel;
 import java.lang.Object;
-import com.sun.tools.javafx.ui.SequenceUtil;
 
 public class Tree extends ScrollableWidget {
     private attribute cellRenderer: FXTreeCellRenderer;
@@ -88,9 +87,9 @@ public class Tree extends ScrollableWidget {
             var children:Object[] = [ row ];
             var childIndices:Integer[] = [ i.intValue()];
             var event = new javax.swing.event.TreeModelEvent(treemodel as Object,
-                                                                 SequenceUtil.sequenceToArray(rpath),
-                                                                 SequenceUtil.sequenceOfInteger2intArray(childIndices),
-                                                                 SequenceUtil.sequenceToArray(children) );
+                                                                 rpath,
+                                                                 childIndices,
+                                                                 children);
             treemodel.fireTreeNodesInserted(event);
         }
         if (row.selected) {
@@ -121,9 +120,9 @@ public class Tree extends ScrollableWidget {
             var children:Object[] = [ row ];
             var childIndices:Integer[] = [ i.intValue()];
             var event = new javax.swing.event.TreeModelEvent(treemodel as Object,
-                                                                 SequenceUtil.sequenceToArray(rpath),
-                                                                 SequenceUtil.sequenceOfInteger2intArray(childIndices),
-                                                                 SequenceUtil.sequenceToArray(children) );
+                                                                 rpath,
+                                                                 childIndices,
+                                                                 children);
             treemodel.fireTreeNodesRemoved(event);
         }
     }
@@ -141,7 +140,7 @@ public class Tree extends ScrollableWidget {
                 insert path[j] into rpath;
             }            
             var event = new javax.swing.event.TreeModelEvent(treemodel as Object,
-                                                                 SequenceUtil.sequenceToArray(rpath),
+                                                                 rpath,
                                                                  null,
                                                                  null);
             treemodel.fireTreeStructureChanged(event);
@@ -173,9 +172,9 @@ public class Tree extends ScrollableWidget {
             var children:Object[] = [ row ];
             var childIndices:Integer[] = [ i.intValue()];            
             var event = new javax.swing.event.TreeModelEvent(treemodel as Object,
-                                                                 SequenceUtil.sequenceToArray(rpath),
-                                                                 SequenceUtil.sequenceOfInteger2intArray(childIndices),
-                                                                 SequenceUtil.sequenceToArray(children));
+                                                                 rpath,
+                                                                 childIndices,
+                                                                 children);
             treemodel.fireTreeNodesChanged(event);
         }
     }
