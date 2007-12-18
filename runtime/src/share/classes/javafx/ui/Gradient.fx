@@ -28,7 +28,7 @@ package javafx.ui;
 import javafx.ui.canvas.Transformable;
 
 public abstract class Gradient extends Transformable, Paint  {
-    protected attribute gradient: com.sun.javafx.runtime.awt.MultipleGradientPaint;
+    protected attribute gradient: java.awt.Paint;
     /** The ramp of colors to use on this gradient */
     public attribute stops: Stop[] 
         on replace [ndx] (oldVaue) {
@@ -52,7 +52,7 @@ public abstract class Gradient extends Transformable, Paint  {
 
     protected abstract function createGradient():Void;
 
-    public function getGradient():com.sun.javafx.runtime.awt.MultipleGradientPaint {
+    public function getGradient():java.awt.Paint {
         if(gradient == null) {
             createGradient();
         }
@@ -60,7 +60,7 @@ public abstract class Gradient extends Transformable, Paint  {
     }
 
      public function getPaint():java.awt.Paint {
-        return getGradient() as java.awt.Paint;
+        return getGradient();
      }
 
     function getColors(): java.awt.Color[] { 

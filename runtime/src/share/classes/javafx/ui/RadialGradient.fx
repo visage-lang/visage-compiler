@@ -26,7 +26,6 @@
 
 package javafx.ui;
 
-import com.sun.javafx.runtime.awt.RadialGradientPaint;
 import com.sun.javafx.api.ui.GradientFactory;
 
 public class RadialGradient extends Gradient {

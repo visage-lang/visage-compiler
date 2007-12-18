@@ -26,14 +26,14 @@
 
 package javafx.ui;
 
-import com.sun.javafx.runtime.awt.MultipleGradientPaint;
 
 public class ColorSpaceType {
     public attribute name: String;
-    public attribute id:MultipleGradientPaint.ColorSpaceType;
-    
-    public static attribute LINEAR_RGB  = 
-        ColorSpaceType{name:"LINEAR_RGB" id: MultipleGradientPaint.ColorSpaceType.LINEAR_RGB};
+    public attribute id:Integer;
+    // numbers must match order defined in ColorSpaceType
     public static attribute SRGB = 
-        ColorSpaceType{name:"SRGB" id: MultipleGradientPaint.ColorSpaceType.SRGB};
+        ColorSpaceType{name:"SRGB" id: 0}; //maps to enum ColorSpaceType.SRGB    
+    public static attribute LINEAR_RGB  = 
+        ColorSpaceType{name:"LINEAR_RGB" id: 1}; //maps to enum ColorSpaceType.LINEAR_RGB
+
 }

@@ -29,21 +29,22 @@ import com.sun.javafx.runtime.awt.MultipleGradientPaint;
 
 
 public class SpreadMethod {
-    public attribute id: MultipleGradientPaint.CycleMethod;
+    public attribute id: Number;
     public attribute name: String;
 
+    // Numbers must match order declared in MultipleGradientPaint.CycleMethod
     public static attribute PAD = SpreadMethod {
-          id: MultipleGradientPaint.CycleMethod.NO_CYCLE
+          id: 0 //MultipleGradientPaint.CycleMethod.NO_CYCLE
           name: "PAD"
     };
 
     public static attribute REFLECT = SpreadMethod {
-          id: MultipleGradientPaint.CycleMethod.REFLECT
+          id: 1 //MultipleGradientPaint.CycleMethod.REFLECT
           name: "REFLECT"
     };
 
     public static attribute REPEAT = SpreadMethod {
-          id: MultipleGradientPaint.CycleMethod.REPEAT
+          id: 2 //MultipleGradientPaint.CycleMethod.REPEAT
           name: "REPEAT"
     };
     
