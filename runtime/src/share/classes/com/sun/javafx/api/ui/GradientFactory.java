@@ -25,49 +25,120 @@
 
 package com.sun.javafx.api.ui;
 
-import com.sun.javafx.runtime.awt.LinearGradientPaint;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
-import com.sun.javafx.runtime.awt.MultipleGradientPaint.ColorSpaceType;
-import com.sun.javafx.runtime.awt.MultipleGradientPaint.CycleMethod;
-import com.sun.javafx.runtime.awt.RadialGradientPaint;
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.Paint;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author jclarke
  */
 public class GradientFactory {
+    private static boolean isJDK15 = System.getProperty("java.version").startsWith("1.5");
     
-    public static LinearGradientPaint createLinearGradientPaint(Point2D start, Point2D end,
+    private static final String JDK15_COLORSPACETYPE_CLASSNAME = "com.sun.javafx.runtime.awt.MultipleGradientPaint$ColorSpaceType";
+    private static final String JDK15_CYCLEMETHOD_CLASSNAME = "com.sun.javafx.runtime.awt.MultipleGradientPaint$CycleMethod";
+    private static final String JDK15_LINEARGRADIENTPAINT_CLASSNAME = "com.sun.javafx.runtime.awt.LinearGradientPaint";
+    private static final String JDK15_RADIALGRADIENTPAINT_CLASSNAME = "com.sun.javafx.runtime.awt.RadialGradientPaint";
+
+    private static final String JDK16_COLORSPACETYPE_CLASSNAME = "java.awt.MultipleGradientPaint$ColorSpaceType";
+    private static final String JDK16_CYCLEMETHOD_CLASSNAME = "java.awt.MultipleGradientPaint$CycleMethod";
+    private static final String JDK16_LINEARGRADIENTPAINT_CLASSNAME = "java.awt.LinearGradientPaint";
+    private static final String JDK16_RADIALGRADIENTPAINT_CLASSNAME = "java.awt.RadialGradientPaint";
+    
+    private static Object[] ColorSpaceObjects;
+    private static Object[] CycleMethodObjects;
+    private static Class colorSpaceClass;
+    private static Class cycleMethodClass;
+    private static Class linearGradientClass;
+    private static Class radialGradientClass;
+    private static Constructor linearGradientCtor;
+    private static Constructor radialGradientCtor;
+    
+    static {
+        try {
+            if (isJDK15) {
+                colorSpaceClass = Class.forName(JDK15_COLORSPACETYPE_CLASSNAME);
+                ColorSpaceObjects = colorSpaceClass.getEnumConstants();
+                cycleMethodClass = Class.forName(JDK15_CYCLEMETHOD_CLASSNAME);
+                CycleMethodObjects = cycleMethodClass.getEnumConstants();
+                linearGradientClass = Class.forName(JDK15_LINEARGRADIENTPAINT_CLASSNAME);
+                radialGradientClass = Class.forName(JDK15_RADIALGRADIENTPAINT_CLASSNAME);
+                
+            } else {
+                colorSpaceClass = Class.forName(JDK16_COLORSPACETYPE_CLASSNAME);
+                ColorSpaceObjects = colorSpaceClass.getEnumConstants();
+                cycleMethodClass = Class.forName(JDK16_CYCLEMETHOD_CLASSNAME);
+                CycleMethodObjects = cycleMethodClass.getEnumConstants();
+                linearGradientClass = Class.forName(JDK16_LINEARGRADIENTPAINT_CLASSNAME);
+                radialGradientClass = Class.forName(JDK16_RADIALGRADIENTPAINT_CLASSNAME);
+            }
+            linearGradientCtor = linearGradientClass.getConstructor(
+                    java.awt.geom.Point2D.class,
+                    java.awt.geom.Point2D.class,
+                    float[].class,
+                    Color[].class,
+                    cycleMethodClass,
+                    colorSpaceClass,
+                    java.awt.geom.AffineTransform.class);
+            radialGradientCtor = radialGradientClass.getConstructor(
+                    java.awt.geom.Point2D.class,
+                    Float.TYPE,
+                    java.awt.geom.Point2D.class,
+                    float[].class,
+                    Color[].class,
+                    cycleMethodClass,
+                    colorSpaceClass,
+                    java.awt.geom.AffineTransform.class);
+
+        }catch(Exception ex) {
+            Logger.getLogger(GradientFactory.class.getName()).log(
+                        Level.WARNING, "Error instantiating GradientFactory", ex);
+        }
+    }
+    
+    public static Paint createLinearGradientPaint(Point2D start, Point2D end,
             Sequence<? extends java.lang.Number> fractions, 
             Sequence<? extends java.awt.Color> colors,
-            CycleMethod cycleMethod, ColorSpaceType colorSpace, AffineTransform transform) {
-        
+            int cycleMethod, int colorSpace, AffineTransform transform) 
+        throws InstantiationException, IllegalAccessException, 
+            IllegalArgumentException, InvocationTargetException {
         float[] dFractions = Sequences.toFloatArray(fractions);
         Color[] dColors = new Color[colors.size()];
         colors.toArray(dColors, 0);
-        
-        return new LinearGradientPaint(start, end, dFractions, dColors, 
-                cycleMethod, colorSpace, transform);
-        
+        Object cycleMethodObject = CycleMethodObjects[cycleMethod];
+        Object colorSpaceObject = ColorSpaceObjects[colorSpace];
+        return (Paint)linearGradientCtor.newInstance(start, end,
+                dFractions, dColors, cycleMethodObject, colorSpaceObject, transform);
     }
     
-    public static RadialGradientPaint createRadialGradientPaint(Point2D center, 
+    public static Paint createRadialGradientPaint(Point2D center, 
             float radius, Point2D focus,
             Sequence<? extends java.lang.Number> fractions, 
             Sequence<? extends java.awt.Color> colors,
-            CycleMethod cycleMethod, ColorSpaceType colorSpace, AffineTransform transform) {
+            int cycleMethod, int colorSpace, AffineTransform transform) 
+        throws InstantiationException, 
+            IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         
         float[] dFractions = Sequences.toFloatArray(fractions);
         Color[] dColors = new Color[colors.size()];
         colors.toArray(dColors, 0);
-        
-        return new RadialGradientPaint(center, radius, focus, dFractions, dColors, 
-                cycleMethod, colorSpace, transform);
+        Object cycleMethodObject = CycleMethodObjects[cycleMethod];
+        Object colorSpaceObject = ColorSpaceObjects[colorSpace]; 
+        return (Paint)radialGradientCtor.newInstance(center, radius, focus, 
+                dFractions, dColors, cycleMethodObject, colorSpaceObject, transform);
+                
         
     }
+    
+
+    
 
 }
