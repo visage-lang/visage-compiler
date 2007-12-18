@@ -665,6 +665,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCExpression tmpTypeExpr; // cloned so we don't use the same tree
 
         ListBuffer<JCStatement> stats = ListBuffer.<JCStatement>lb();
+        for (JFXVar var : tree.getLocalvars()) {
+            // force var to be a Location (so class members can see it)
+            typeMorpher.varMorphInfo(var.sym).markBoundTo();
+            // add the variable before the class definition or object litersl assignment
+            stats.append(translate(var));
+        }
         if (tree.getClassBody() == null) {
             classTypeExpr = makeTypeTree(tree.type, tree, false);
             tmpTypeExpr = makeTypeTree(tree.type, tree, false);
@@ -674,7 +680,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 prependToStatements.append( translate( cdef ) );  // prepend to the enclosing statements, class or top-level
             }
             else {
-                stats = stats.append(translate(cdef));
+                stats.append(translate(cdef));
             }
 
             classTypeExpr = makeTypeTree(cdef.type, tree, false);
