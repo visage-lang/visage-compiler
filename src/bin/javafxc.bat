@@ -16,43 +16,38 @@ goto setArguments
 if "%_JAVACMD%" == "" set _JAVACMD=java.exe
 
 :setArguments
+if "%CLASSPATH%" == "" set _CP_=.
+if not "%CLASSPATH%" == "" set _CP_=.;%CLASSPATH%
+set _ARGS=
 set _JVM_ARGS=
-set _ARGS=%*
-if not defined _ARGS goto jvmoptsDone
-set _ARGS=%_ARGS:-=-d%
-set _ARGS=%_ARGS:"=-q%
-set _ARGS="%_ARGS%"
 
 :jvmoptsLoop
-for /f "tokens=1,*" %%i in (%_ARGS%) do call :getarg "%%i" "%%j"
-goto processarg
+if "%1" == "" goto jvmoptsDone
+if "%1" == "-cp" goto getClasspath
+if "%1" == "-classpath" goto getClasspath
+if "%1:~0,2%" == "-J" goto jvmarg
+goto fxarg
 
-:getarg
-for %%i in (%1) do set _CMP=%%~i
-set _ARGS=%2
-goto :EOF
+:getClasspath
+shift
+set _CP_=%~1%
 
-:processarg
-if "%_CMP%" == "" goto jvmoptsDone
-
-set _CMP=%_CMP:-q="%
-set _CMP=%_CMP:-d=-%
-if "%_CMP:~0,2%" == "-J" goto jvmarg
+goto jvmoptsNext
 
 :fxarg
-set _FX_ARGS=%_FX_ARGS% %_CMP%
+set _FX_ARGS=%_FX_ARGS% %1%
 goto jvmoptsNext
 
 :jvmarg
-set _VAL=%_CMP:~2%
-set _JVM_ARGS=%_JVM_ARGS% %_VAL%
+set _JVM_ARGS=%_JVM_ARGS% %1:~2%
 
 :jvmoptsNext
-set _CMP=
+shift
 goto jvmoptsLoop
 
 :jvmoptsDone
-set _CLASSPATH=%_JAVAFXC_HOME%\@SCENEGRAPH_JAR@
+set _CLASSPATH=%_JAVAFXC_HOME%\@SCENEGRAPH_JAR@;%_CP_%
+set _CP_=
 set _VAL=
 set _CMP=
 
@@ -63,3 +58,4 @@ if not "%_JAVAFXC_HOME"=="" set _JAVAFXC_HOME=
 if not "%_JAVACMD%"=="" set _JAVACMD=
 if not "%_JVM_ARGS%"=="" set _JVM_ARGS=
 if not "%_FX_ARGS%"=="" set _FX_ARGS=
+if not "%_CLASSPATH"=="" set _CLASSPATH=
