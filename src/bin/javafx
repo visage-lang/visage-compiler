@@ -40,9 +40,15 @@ if [ ! -x "$JAVA_CMD" ] ; then
   exit 1
 fi
 
+if [ -z "$CLASSPATH" ] ; then
+  USER_CP="."
+else
+  USER_CP="$CLASSPATH"
+fi 
+classpath="$HOME/javafxrt.jar:$HOME/@SCENEGRAPH_JAR@:$USER_CP"
+
 args=""
 jargs=""
-classpath="$HOME/javafxrt.jar:$HOME/@SCENEGRAPH_JAR@"
 parse_args() {
 while [ $# -gt 0 ] ; do
     case "$1" in

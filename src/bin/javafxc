@@ -40,12 +40,20 @@ if [ ! -x "$JAVA_CMD" ] ; then
   exit 1
 fi
 
+if [ -z "$CLASSPATH" ] ; then
+  USER_CP="."
+else
+  USER_CP="$CLASSPATH"
+fi 
+classpath="$HOME/javafxrt.jar:$HOME/@SCENEGRAPH_JAR@:$USER_CP"
+
 args=""
 jargs=""
 parse_args() {
 while [ $# -gt 0 ] ; do
     case "$1" in
         -J*) jopt=`expr "X-$1" : 'X--J\(.*\)'`; jargs="$jargs '$jopt'";;
+        -cp | -classpath) shift; classpath="$classpath:$1";;
         *) args="$args $1";;
     esac
     shift
@@ -53,5 +61,5 @@ done
 } 
 
 parse_args "$@" # process arguments on the command line
-$JAVA_CMD $jargs -Xbootclasspath/p:$HOME/javafxc.jar:$HOME/javafxrt.jar com.sun.tools.javafx.Main $args
+$JAVA_CMD $jargs -Xbootclasspath/p:$HOME/javafxc.jar:$HOME/javafxrt.jar com.sun.tools.javafx.Main -classpath $classpath $args
 
