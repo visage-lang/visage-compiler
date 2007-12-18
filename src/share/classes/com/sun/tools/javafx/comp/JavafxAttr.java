@@ -1202,7 +1202,18 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             owntype = attribExpr(tree.value, localEnv);
         }
         if (owntype == null) {
-            owntype = syms.voidType;
+            JCStatement lastStat = tree.stats.last();
+            if (lastStat != null) { 
+                if (lastStat.getTag() == JCTree.RETURN &&
+                        ((JCReturn)lastStat).expr != null) {
+                    owntype = ((JCReturn)lastStat).expr.type;
+                }
+                
+            }
+            
+            if (owntype == null) {
+                owntype = syms.voidType;
+            }
         }
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
         localEnv.info.scope.leave();
