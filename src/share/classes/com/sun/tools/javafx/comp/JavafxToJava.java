@@ -1897,6 +1897,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             WildcardType wtype = (WildcardType) t;
             return make.at(diagPos).Wildcard(make.TypeBoundKind(wtype.kind),
                     makeTypeTree(wtype.type, diagPos, makeIntf));
+        } else if (t.tag == TypeTags.ARRAY) {
+            return make.at(diagPos).TypeArray(makeTypeTree(types.elemtype(t), diagPos, makeIntf));
         } else {
             return make.at(diagPos).Type(t);
         }
