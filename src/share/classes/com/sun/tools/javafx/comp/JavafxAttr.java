@@ -2689,8 +2689,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public void visitSequenceInsert(JFXSequenceInsert tree) {
         JCExpression seq = tree.getSequence();
         Type seqType = attribTree(seq, env, VAR, Type.noType, Sequenceness.REQUIRED);
-        Type elementType = chk.checkSequenceElementType(seq.pos(), seqType);
-        attribExpr(tree.getElement(), env, elementType);
+        attribExpr(tree.getElement(), env, seqType);
         result = null;
     }
     
