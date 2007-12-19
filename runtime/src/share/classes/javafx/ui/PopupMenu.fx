@@ -64,26 +64,20 @@ public class PopupMenu {
                         public function popupMenuWillBecomeVisible(e:PopupMenuEvent):Void {
                         }
                         public function popupMenuWillBecomeInvisible(e:PopupMenuEvent):Void {
-                            //TODO JXFC-307
-                            /*************************
                             //TODO DO LATER - this is a work around until a more permanent solution is provided
                             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                                       public function run():Void {
                                            visible = false;
                                       }
                             });
-                            *************************/
                         }
                         public function popupMenuCanceled(e:PopupMenuEvent):Void {
-                            //TODO JXFC-307
-                            /*************************
                             //TODO DO LATER - this is a work around until a more permanent solution is provided
                             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                                       public function run():Void {
                                            visible = false;
                                       }
                             });
-                            *************************/
                         }
                     });
             }

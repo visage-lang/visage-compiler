@@ -120,8 +120,7 @@ public class TextArea extends ScrollableWidget {
                 //TODO DO LATER - this is a work around until a more permanent solution is provided
                 javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                           public function run():Void {
-                                //TODO JXFC-307
-                               //lineCount = jtextarea.getLineCount();
+                               lineCount = jtextarea.getLineCount();
                           }
                 });
                 inUpdate = false;
@@ -132,8 +131,7 @@ public class TextArea extends ScrollableWidget {
                 //TODO DO LATER - this is a work around until a more permanent solution is provided
                 javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                           public function run():Void {
-                                //TODO JXFC-307
-                               //lineCount = jtextarea.getLineCount();
+                               lineCount = jtextarea.getLineCount();
                           }
                 });
                 inUpdate = false;
@@ -144,8 +142,7 @@ public class TextArea extends ScrollableWidget {
                 //TODO DO LATER - this is a work around until a more permanent solution is provided
                 javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                           public function run():Void {
-                              //TODO JXFC-307
-                              //lineCount = jtextarea.getLineCount();
+                              lineCount = jtextarea.getLineCount();
                           }
                 });
                 inUpdate = false;

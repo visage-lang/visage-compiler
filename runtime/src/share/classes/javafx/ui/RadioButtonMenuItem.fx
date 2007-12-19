@@ -42,8 +42,6 @@ public class RadioButtonMenuItem extends MenuItem, SelectableButton {
                                 break;
                             }
                         }
-                        //TODO JXFC-333
-                        /************ JXFC-333
                         //TODO DO LATER - this is a work around until a more permanent solution is provided
                         javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                                   public function run():Void {
@@ -59,7 +57,6 @@ public class RadioButtonMenuItem extends MenuItem, SelectableButton {
                                         }
                                   }
                         });   
-                         ******************/                     
                     }
                 });
         return jradiobuttonmenuitem;
