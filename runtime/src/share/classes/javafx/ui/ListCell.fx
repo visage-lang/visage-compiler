@@ -57,11 +57,7 @@ public class ListCell {
                         e.CONTENTS_CHANGED, myIndex.intValue(), 
                         sizeof listbox.cells - 1);
                 var ls:javax.swing.event.ListDataListener[] = [];
-                //TODO JXFC-300
-                //insert listbox.listeners into ls;
-                for (l in listbox.listeners) {
-                    insert l into ls;
-                }
+                insert listbox.listeners into ls;
                 for (j in ls) {
                     j.contentsChanged(e);
                 }

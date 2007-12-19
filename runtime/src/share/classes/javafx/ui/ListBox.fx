@@ -287,11 +287,7 @@ public class ListBox extends ScrollableWidget {
                 var selected = ndx == selection or sizeof cells == 1 ;
                 e = new javax.swing.event.ListDataEvent(list, e.INTERVAL_ADDED, ndx, ndx);
                 var ls:javax.swing.event.ListDataListener[] = [];
-                //TODO JXFC-300
-                //insert listeners into ls;
-                for (l in listeners) {
-                    insert l into ls;
-                }
+		insert listeners into ls;
                 for (j in ls) {
                     j.intervalAdded(e);
                 }
@@ -315,11 +311,7 @@ public class ListBox extends ScrollableWidget {
                 var s = selection;
                 e = new javax.swing.event.ListDataEvent(list, e.INTERVAL_REMOVED, ndx, ndx);
                 var ls:javax.swing.event.ListDataListener[] = [];
-                //TODO JXFC-300
-                //insert listeners into ls;
-                for (l in listeners) {
-                    insert l into ls;
-                }
+		insert listeners into ls;
                 for (j in ls) {
                     j.intervalRemoved(e);
                 }
