@@ -106,8 +106,4 @@ public class Text extends VisualNode {
         return sgtext;
     }
 
-    init {
-        stroke = null;
-        fill = Color.BLACK;
-    }
 }
