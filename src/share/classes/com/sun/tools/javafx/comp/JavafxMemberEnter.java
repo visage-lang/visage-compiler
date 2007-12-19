@@ -570,10 +570,22 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         JavafxAttr attr;
 
         public void complete(Symbol m) throws CompletionFailure {
-            if (tree instanceof JFXOperationDefinition)
-                attr.finishOperationDefinition((JFXOperationDefinition) tree, env);
-            else
+            if (tree instanceof JFXVar)
                 attr.finishVar((JFXVar) tree, env);
+            else if (attr.pt != Type.noType) {
+                // finishOperationDefinition makes use of the expected type pt.
+                // This is useful when coming from visitOperationValue - i.e.
+                // attributing an anonymous function.  However, using the
+                // expected type from a random call-site (which can happen if
+                // we're called via complete) is a bit too flakey.
+                // (ML can do it, because they unify across all the call-sites.)
+                // This is a trick to run finishOperationDefinition, but in a
+                // context where we're cleared the expected type attr.pt.
+                m.completer = this;
+                attr.attribExpr(tree, env);
+            }
+            else
+                attr.finishOperationDefinition((JFXOperationDefinition) tree, env);  
         }
     }
     @Override
