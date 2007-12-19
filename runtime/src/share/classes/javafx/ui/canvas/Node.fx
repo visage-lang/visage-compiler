@@ -83,10 +83,8 @@ public abstract class Node extends CanvasElement, Transformable {
         if (mouseListener == null) {
             selectable = true;
             var entered = false;
-
             mouseListener = SGMouseAdapter {
-                    
-                    public function mouseClicked(e:MouseEvent, SGNode):Void {
+                    public function mouseClicked(e:MouseEvent, node:SGNode):Void {
                         focused = true;
                         if (onMouseClicked <> null) {
                             (onMouseClicked)(makeCanvasMouseEvent(e));
@@ -98,7 +96,7 @@ public abstract class Node extends CanvasElement, Transformable {
                         }
                     }
 
-                    public function mouseEntered(e:MouseEvent, SGNode):Void {
+                    public function mouseEntered(e:MouseEvent, node:SGNode):Void {
                         if (cursor <> null) {
                             setCursor();        
                         } 
@@ -108,7 +106,7 @@ public abstract class Node extends CanvasElement, Transformable {
                         if (isSelectionRoot) { e.consume(); }
                     }
 
-                    public function mouseExited(e:MouseEvent, SGNode):Void {
+                    public function mouseExited(e:MouseEvent, node:SGNode):Void {
                         if (onMouseExited <> null) {
                             (onMouseExited)(makeCanvasMouseEvent(e));
                         } 
@@ -118,7 +116,7 @@ public abstract class Node extends CanvasElement, Transformable {
                         if (isSelectionRoot) { e.consume(); }
                     }
 
-                    public function mousePressed(e:MouseEvent, SGNode):Void {
+                    public function mousePressed(e:MouseEvent, node:SGNode):Void {
                         focused = true;
                         Node.MOUSE_PRESS = e;        
                         var c = getCanvas();
@@ -133,7 +131,7 @@ public abstract class Node extends CanvasElement, Transformable {
                         }
                     }
 
-                    public function mouseReleased(e:MouseEvent, SGNode):Void {
+                    public function mouseReleased(e:MouseEvent, node:SGNode):Void {
                         MOUSE_DRAG = null;
                         MOUSE_PRESS = null;
                         MOUSE_DRAG_SCREEN = null;
@@ -147,7 +145,7 @@ public abstract class Node extends CanvasElement, Transformable {
                         }
                     }
 
-                    public function mouseDragged(e:MouseEvent, SGNode):Void {
+                    public function mouseDragged(e:MouseEvent, node:SGNode):Void {
                         if (exportDrag) {
                             return;
                         }
@@ -192,7 +190,7 @@ public abstract class Node extends CanvasElement, Transformable {
                         }
                     }
 
-                    public function mouseMoved(e:MouseEvent, SGNode):Void {
+                    public function mouseMoved(e:MouseEvent, node:SGNode):Void {
                         if (cursor <> null) {
                             setCursor();
                         }
@@ -202,7 +200,6 @@ public abstract class Node extends CanvasElement, Transformable {
                         }
                     }
                 };
-
             if (alignmentFilter <> null) {
                 alignmentFilter.addMouseListener(mouseListener);
             }
