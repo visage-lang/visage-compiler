@@ -27,7 +27,6 @@ package com.sun.tools.javafx.tree;
 
 import java.io.*;
 import java.util.*;
-import com.sun.javafx.api.tree.TypeTree;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.code.*;
@@ -37,6 +36,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.tools.javac.tree.Pretty;
+import com.sun.tools.javac.tree.TreeInfo;
 import static com.sun.tools.javac.code.Flags.*;
 
 /** Prints out a tree as an indented Java source program.
@@ -49,14 +49,31 @@ import static com.sun.tools.javac.code.Flags.*;
  * @author Robert Field
  */
 public class JavafxPretty extends Pretty implements JavafxVisitor {
+    public static final int SCOPE_OUTER = 0;
+    public static final int SCOPE_CLASS = 1;
+    public static final int SCOPE_METHOD = 2;
+    public static final int SCOPE_PARAMS = 3;
+    protected int variableScope = SCOPE_OUTER;
+
+    /** A hashtable mapping trees to their documentation comments
+     *  (can be null)
+     */
+    Map<JCTree, String> docComments = null;
 
     public JavafxPretty(Writer out, boolean sourceOutput) {
         super(out, sourceOutput);
     }
 
+    @Override
+    public void printUnit(JCCompilationUnit tree, JCClassDecl cdef) throws IOException {
+        docComments = tree.docComments;
+        super.printUnit(tree, cdef);
+    }
+
     /** Visitor method: print expression tree.
      *  @param prec  The current precedence level.
      */
+    @Override
     public void printExpr(JCTree tree, int prec) throws IOException {
         int prevPrec = this.prec;
         try {
@@ -77,11 +94,12 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
 
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         try {
+            int oldScope = variableScope;
+            variableScope = SCOPE_CLASS;
             println();
             align();
             printDocComment(tree);
             print("class ");
-            print(" ");
             print(tree.getName());
             print(" {");
             println();
@@ -95,6 +113,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             print("}");
             println();
             align();
+            variableScope = oldScope;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -105,7 +124,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             pretty.println();
             pretty.align();
             pretty.printDocComment(tree);
-            pretty.print(" function ");
+            pretty.print("function ");
             pretty.print("(");
             pretty.printExprs(tree.getParams());
             pretty.print(")");
@@ -128,20 +147,27 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
 
     public static void visitOperationDefinition(Pretty pretty, JFXOperationDefinition tree) {
         try {
+            JavafxPretty fxpretty = (JavafxPretty)pretty;
+            int oldScope = fxpretty.variableScope;
             pretty.println();
             pretty.align();
             pretty.printDocComment(tree);
             pretty.printExpr(tree.mods);
-            pretty.print(" operation ");
+            pretty.print("function ");
             pretty.print(tree.name);
             pretty.print("(");
+            fxpretty.variableScope = SCOPE_PARAMS;
             pretty.printExprs(tree.getParameters());
+            fxpretty.variableScope = SCOPE_METHOD;
             pretty.print(")");
             pretty.printExpr(tree.operation.rettype);
             JFXBlockExpression body = tree.getBodyExpression();
-            if (body != null)
+            if (body != null) {
+                pretty.print(" ");
                 pretty.printExpr(body);
+            }
             pretty.println();
+            fxpretty.variableScope = oldScope;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -156,7 +182,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             println();
             align();
             printDocComment(tree);
-            print(" init ");
+            print("init ");
             print(tree.getBody());
             println();
         } catch (IOException e) {
@@ -201,13 +227,29 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     void printBind(JavafxBindStatus bindStatus) {
         try {
             if (bindStatus.isUnidiBind()) {
-                print(" stays ");
+                print(" bind /*stays*/ ");
             }
             if (bindStatus.isBidiBind()) {
-                print(" tie ");
+                print(" bind /*tie*/ ");
             }
             if (bindStatus.isLazy()) {
-                print(" lazy ");
+                print(" bind /*lazy*/ ");
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void visitConditional(JCConditional tree) {
+        try {
+            print("if (");
+            printExpr(tree.cond, TreeInfo.condPrec);
+            print(") ");
+            printExpr(tree.truepart, TreeInfo.condPrec);
+            if (tree.falsepart != null) {
+                print(" else ");
+                printExpr(tree.falsepart, TreeInfo.condPrec);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -337,23 +379,33 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitInstanciate(JFXInstanciate tree) {
         try {
             JCExpression id = tree.getIdentifier();
+            if (tree.getArgs().nonEmpty())
+                print("new ");
             if (id != null) {
                 printExpr(id);
             }
-            print(" {");
-            indent();
-            for (JFXObjectLiteralPart mem : tree.getParts()) {
-                println();
-                align();
-                printExpr(mem);
+            if (tree.getArgs().nonEmpty()) {
+                // Java constructor call
+                print("(");
+                printExprs(tree.getArgs());
+                print(")");
+            } else {
+                // JFX instantiation
+                print(" {");
+                if (tree.getParts().nonEmpty()) {
+                    indent();
+                    for (JFXObjectLiteralPart mem : tree.getParts()) {
+                        println();
+                        align();
+                        printExpr(mem);
+                    }
+                    //TODO: add defs
+                    undent();
+                    println();
+                    align();
+                }
+                print("}");
             }
-            //TODO: add defs
-            undent();
-            println();
-            align();
-            print("}");
-            println();
-            align();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -371,7 +423,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         try {
             print(tree.getName());
-            print(" : ");
+            print(": ");
             printBind(tree.getBindStatus());
             printExpr(tree.getExpression());
         } catch (IOException e) {
@@ -381,8 +433,19 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
 
     public void visitTypeAny(JFXTypeAny tree) {
         try {
-            print(" : * ");
+            print(": * ");
             print(ary(tree));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void visitTypeCast(JCTypeCast tree) {
+        try {
+            printExpr(tree.expr, TreeInfo.prefixPrec);
+            print(" as ");
+            printExpr(tree.clazz);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -390,7 +453,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
 
     public void visitTypeClass(JFXTypeClass tree) {
         try {
-            print(" : ");
+            print(": ");
             print(tree.getClassName());
             print(ary(tree));
         } catch (IOException e) {
@@ -400,7 +463,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
 
     public void visitTypeFunctional(JFXTypeFunctional tree) {
         try {
-            print(" : (");
+            print(": (");
             printExprs(tree.getParams());
             print(")");
             printExpr((JFXType)tree.getReturnType());
@@ -424,18 +487,32 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             case ANY:
                 return "[]";
             case SINGLETON:
-                return " ";
+                return "";
         }
         return "";
     }
 
     public void visitVar(JFXVar tree) {
         try {
+            if (docComments != null && docComments.get(tree) != null) {
+                println(); align();
+            }
+            printDocComment(tree);
+            printExpr(tree.mods);
+            if (variableScope == SCOPE_CLASS)
+                print("attribute ");
+            else if (variableScope != SCOPE_PARAMS)
+                print("var ");
             print(tree.getName());
             printExpr(tree.getJFXType());
-            if (tree.getInitializer() != null) {
-                print(" = ");
-                printExpr(tree.getInitializer());
+            if (variableScope != SCOPE_PARAMS) {
+                if (tree.getInitializer() != null) {
+                    print(" = ");
+                    printExpr(tree.getInitializer());
+                }
+                print(";");
+                if (variableScope == SCOPE_OUTER || variableScope == SCOPE_CLASS)
+                    println();
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -556,8 +633,20 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
+    @Override
     public void visitTree(JCTree tree) {
         assert false : "Should not be here!!!";
+    }
+
+    @Override
+    public String operatorName(int tag) {
+        switch(tag) {
+            case JCTree.OR:      return "or";
+            case JCTree.AND:     return "and";
+            case JCTree.EQ:      return "==";
+            case JCTree.NE:      return "<>";
+            default: return super.operatorName(tag);
+        }
     }
     
     /** Convert a tree to a pretty-printed string. */
