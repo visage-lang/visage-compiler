@@ -1486,15 +1486,39 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             // Attribute all value parameters.
             ListBuffer<Type> argbuf = new ListBuffer<Type>();
+            List<Type> pparam = null;
+            MethodType mtype = null;
+            if (pt.tag == TypeTags.METHOD || pt instanceof FunctionType) {
+                mtype = pt.asMethodType();
+                pparam = mtype.getParameterTypes();
+            }
             for (List<JFXVar> l = tree.getParameters(); l.nonEmpty(); l = l.tail) {
+                JFXVar pvar = l.head;
                 attribVar(l.head, localEnv);
-                argbuf.append(l.head.sym.type);
+                Type declType = attribType(pvar.getJFXType(), env);
+                if (pparam != null && pparam.nonEmpty()) {
+                    if (declType == syms.javafx_UnspecifiedType)
+                        declType = pparam.head;
+                    pparam = pparam.tail;
+                }
+                else if (declType == syms.javafx_UnspecifiedType)
+                    declType = syms.objectType;
+                Symbol sym = pvar.sym;
+                if (sym instanceof JavafxVarSymbol)
+                    varSymToTree.put((JavafxVarSymbol)sym, pvar);
+   
+                pvar.type = sym.type = declType;
+                argbuf.append(pvar.sym.type);
             }
             returnType = syms.unknownType;
-            if (opVal.getJFXReturnType().getTag() != JavafxTag.TYPEUNKNOWN) {
+            if (opVal.getJFXReturnType().getTag() != JavafxTag.TYPEUNKNOWN)
                 returnType = attribType(tree.getJFXReturnType(), localEnv);
+            else if (mtype != null) {
+                Type mrtype = mtype.getReturnType();
+                if (mrtype != null && mrtype.tag != TypeTags.NONE)
+                    returnType = mrtype;
             }
-            MethodType mtype = new MethodType(argbuf.toList(),
+            mtype = new MethodType(argbuf.toList(),
                                     returnType, // may be unknownType
                                     List.<Type>nil(),
                                     syms.methodClass);
