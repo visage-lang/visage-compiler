@@ -431,8 +431,6 @@ public abstract class Widget extends GroupElement, UIElement {
     public attribute focused: Boolean = false on replace {
         if (focused) {
             requestFocus();
-            //TODO - I get a mismatch on 
-            focused; 
         } else {
             var f = focusable;	
             focusable = false;
