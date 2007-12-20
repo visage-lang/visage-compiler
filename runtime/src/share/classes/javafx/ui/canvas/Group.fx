@@ -79,6 +79,7 @@ public class Group extends Node, Container {
     public function createNode(): SGNode {
         sggroup  = new SGGroup();
         for (i in content) {
+            i.parentCanvasElement = this as CanvasElement;
             sggroup.add(i.getNode());
         }
         return sggroup;
