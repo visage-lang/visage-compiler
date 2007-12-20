@@ -573,8 +573,7 @@ block
 blockExpression 
 	: LBRACE blockComponent?
 	   (SEMI blockComponent?) *
-	   expression?
-	  RBRACE				-> ^(LBRACE blockComponent* expression?)
+	  RBRACE				-> ^(LBRACE blockComponent*)
 	;
 blockComponent
 	: statement				-> ^(STATEMENT statement)
@@ -667,28 +666,36 @@ elseClause
 	: (ELSE)=>  ELSE  expression				-> expression
 	| /*nada*/ 						->
 	;
-assignmentExpression  returns [JCExpression expr] 
-	: e1=assignmentOpExpression assignmentClause[$e1.expr]	{ $expr = $assignmentClause.expr; }
+assignmentExpression  
+	: assignmentOpExpression 
+		( (EQ)=>   EQ  expression			-> ^(EQ assignmentOpExpression expression)
+		|						-> assignmentOpExpression
+		)
 	;
-assignmentClause [JCExpression lhs] returns [JCExpression expr] 
-	: (EQ)=>   EQ  expression				{ $expr = F.at(pos($EQ)).Assign($lhs, $expression.expr); } 
-	|							{ $expr = $lhs; } 
+assignmentOpExpression 
+	: e1=andExpression					
+	   (   assignmentOperator   e2=expression		-> ^(assignmentOperator $e1, $e2) 
+	   |							-> $e1
+	   )
 	;
-assignmentOpExpression  returns [JCExpression expr] 
-	: e1=andExpression					{ $expr = $e1.expr; }
-	   (   assignmentOperator   e2=expression		{ $expr = F.Assignop($assignmentOperator.optag, $expr, $e2.expr); }   ) ? 
+andExpression  
+	: e1=orExpression					
+	   (   AND   e2=orExpression				-> ^(AND $e1, $e2) 
+	   |							-> $e1
+	   )
 	;
-andExpression  returns [JCExpression expr] 
-	: e1=orExpression					{ $expr = $e1.expr; }
-	   (   AND   e2=orExpression				{ $expr = F.at(pos($AND)).Binary(JCTree.AND, $expr, $e2.expr); }   ) * ;
-orExpression  returns [JCExpression expr] 
-	: e1=typeExpression				{ $expr = $e1.expr; }
-	   (   OR   e2=typeExpression			{ $expr = F.at(pos($OR)).Binary(JCTree.OR, $expr, $e2.expr); }    ) * ;
-typeExpression  returns [JCExpression expr] 
-	: e1=relationalExpression				{ $expr = $e1.expr; }
-	   (   INSTANCEOF itn=typeName				{ $expr = F.at(pos($INSTANCEOF)).TypeTest($expr, $itn.expr); }
-	   |   AS atn=typeName					{ $expr = F.at(pos($AS)).TypeCast($atn.expr, $expr); }   
-	   ) ? 
+orExpression  
+	: e1=typeExpression				
+	   (   OR   e2=typeExpression				-> ^(OR $e1, $e2) 
+	   |							-> $e1
+	   )
+	;
+typeExpression 
+	: relationalExpression		
+	   (   INSTANCEOF itn=typeName				-> ^(INSTANCEOF relationalExpression $itn) }
+	   |   AS atn=typeName					-> ^(AS relationalExpression $atn) }
+	   | 							-> relationalExpression
+	   )
 	;
 relationalExpression  returns [JCExpression expr] 
 	: e1=additiveExpression					{ $expr = $e1.expr; }
@@ -698,7 +705,6 @@ relationalExpression  returns [JCExpression expr]
 	   |   GTEQ   e=additiveExpression			{ $expr = F.at(pos($GTEQ)).Binary(JCTree.GE, $expr, $e.expr); }
 	   |   LT     e=additiveExpression			{ $expr = F.at(pos($LT))  .Binary(JCTree.LT, $expr, $e.expr); }
 	   |   GT     e=additiveExpression			{ $expr = F.at(pos($GT))  .Binary(JCTree.GT, $expr, $e.expr); }
-	   |   IN     e=additiveExpression			{ /* $expr = F.at(pos($IN  )).Binary(JavaFXTag.IN, $expr, $e2.expr); */ }
 	   ) * ;
 additiveExpression  returns [JCExpression expr] 
 	: e1=multiplicativeExpression				{ $expr = $e1.expr; }
@@ -729,15 +735,6 @@ postfixExpression  returns [JCExpression expr]
 	   ( DOT ( CLASS   					//TODO
 	  	| n1 = name()   					{ $expr = F.at(pos($DOT)).Select($expr, $n1.value); }
 	         )   
-    	|
-	   left = LBRACKET   
-           n = name() PIPE e1 = expression() { 
-                  clauses = ListBuffer.lb(); 
-                  var = F.at(n.pos).Param(n.value, F.TypeUnknown());
-	          clauses.append(F.at(pos($PIPE)).InClause(var, $expr, $e1.expr));
-                  $expr = F.at(pos($PIPE)).ForExpression(clauses.toList(), F.at(n.pos).Ident(n.value));
-            }
-           right = RBRACKET
 	   | LPAREN expressionListOpt RPAREN   			{ $expr = F.at(pos($LPAREN)).Apply(null, $expr, $expressionListOpt.args.toList()); } 
 	   | left1 = LBRACKET e1 = expression()  right1 = RBRACKET			{ $expr = F.at(pos(left1)).SequenceIndexed($expr, $e1.expr); }
 	   ) * 
@@ -817,22 +814,22 @@ expressionListOpt  returns [ListBuffer<JCExpression> args = new ListBuffer<JCExp
 	: ( e1=expression		{ $args.append($e1.expr); }
 	    (COMMA   e=expression	{ $args.append($e.expr); }  )* )? ;
 prefixUnaryOperator  returns [int optag]
-//	: POUND				{ $optag = 0; } //TODO
-//	| QUES   			{ $optag = 0; } //TODO
-	: SUB   			{ $optag = JCTree.NEG; } 
-	| NOT   			{ $optag = JCTree.NOT; } 
-	| SIZEOF   			{ $optag = JavafxTag.SIZEOF; } //TODO
-//	| TYPEOF   			{ $optag = 0; } //TODO
-//	| REVERSE   			{ $optag = 0; } //TODO
-	| PLUSPLUS   			{ $optag = JCTree.PREINC; }  
-	| SUBSUB 			{ $optag = JCTree.PREDEC; }  
+//	: POUND		
+//	| QUES   	
+	: SUB   		
+	| NOT   	
+	| SIZEOF   	
+//	| TYPEOF   	
+//	| REVERSE   	
+	| PLUSPLUS   	
+	| SUBSUB 
 	;
-assignmentOperator  returns [int optag]
-	: PLUSEQ   			{ $optag = JCTree.PLUS_ASG; } 
-	| SUBEQ   			{ $optag = JCTree.MINUS_ASG; } 
-	| STAREQ   			{ $optag = JCTree.MUL_ASG; } 
-	| SLASHEQ   			{ $optag = JCTree.DIV_ASG; } 
-	| PERCENTEQ   			{ $optag = JCTree.MOD_ASG; } 
+assignmentOperator 
+	: PLUSEQ   
+	| SUBEQ   		
+	| STAREQ   
+	| SLASHEQ   
+	| PERCENTEQ   			
 	;
 type returns [JFXType type]
 	: typeName cardinality		{ $type = F.TypeClass($typeName.expr, $cardinality.ary); }
