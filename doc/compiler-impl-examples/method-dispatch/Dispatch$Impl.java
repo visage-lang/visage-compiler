@@ -37,33 +37,34 @@ class Base1$Impl implements Base1$Intf {
     public void setDefaults$(InitHelper helper) { }
     public void userInit$() { }
     public void initialize$() { }
+    public InitHelper getInitHelper$() { return null; }
 
     protected static int foo(Base1$Intf receiver, int a) { return a + receiver.get$n().get() + 1; }
     public static int moo(Base1$Intf receiver, int a) { return a + receiver.get$n().get() + 2; }
     public static int bar(Base1$Intf receiver, int a) { return a + receiver.get$n().get() + 3; }
 
     public static IntLocation foo$bound(final Base1$Intf receiver, final IntLocation a) {
-        return IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        return new IntExpression(false, a) {
+            protected int computeValue() {
                 return a.get() + receiver.get$n().get() + 1;
             }
-        }, a);
+        };
     }
 
     public static IntLocation moo$bound(final Base1$Intf receiver, final IntLocation a) {
-        return IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        return new IntExpression(false, a) {
+            public int computeValue() {
                 return a.get() + receiver.get$n().get() + 2;
             }
-        }, a);
+        };
     }
 
     public static IntLocation bar$bound(final Base1$Intf receiver, final IntLocation a) {
-        return IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        return new IntExpression(false, a) {
+            public int computeValue() {
                 return a.get() + receiver.get$n().get() + 3;
             }
-        }, a);
+        };
     }
 
     public int foo(int a) { return foo(this, a); }
@@ -80,14 +81,15 @@ class Base2$Impl implements Base2$Intf {
     public void setDefaults$(InitHelper helper) { }
     public void userInit$() { }
     public void initialize$() { }
+    public InitHelper getInitHelper$() { return null; }
 
     public static int bork(Base2$Intf receiver, int a) { return a + 4; }
     public static IntLocation bork$bound(Base2$Intf receiver, final IntLocation a) {
-        return IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        return new IntExpression(false, a) {
+            public int computeValue() {
                 return a.get() + 4;
             }
-        }, a);
+        };
     }
 
     public int bork(int a) { return bork(this, a); }
@@ -104,15 +106,16 @@ public class Dispatch$Impl implements Dispatch$Intf {
     public void setDefaults$(InitHelper helper) { }
     public void userInit$() { }
     public void initialize$() { }
+    public InitHelper getInitHelper$() { return null; }
 
     public static int foo(Dispatch$Intf receiver, int a) { return a + receiver.get$n().get() + 5; }
 
     public static IntLocation foo$bound(final Dispatch$Intf receiver, final IntLocation a) {
-        return IntExpression.make(new IntBindingExpression() {
-            public int get() {
+        return new IntExpression(false,a ) {
+            public int computeValue() {
                 return a.get() + receiver.get$n().get() + 5;
             }
-        }, a);
+        };
     }
 
     public int foo(int a) { return foo(this, a); }
