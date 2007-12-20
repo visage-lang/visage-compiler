@@ -539,4 +539,12 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         Sequence<Number> addSix = asNumber.insert(6.0);
         assertEquals(addSix, 1, 2, 3, 4, 5, 6.0);
     }
+
+    public void testOverflow() {
+        assertThrows(IllegalArgumentException.class, new VoidCallable() {
+            public void call() throws Exception {
+                Sequence<Integer> seq = Sequences.range(Integer.MIN_VALUE, 0);
+            }
+        });
+    }
 }

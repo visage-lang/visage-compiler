@@ -40,6 +40,8 @@ class IntRangeSequence extends AbstractSequence<Integer> implements Sequence<Int
 
     public IntRangeSequence(int start, int bound, int step, boolean exclusive) {
         super(Integer.class);
+        if (Math.abs((long) bound - (long) start) > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("Range sequence too big");
         this.start = start;
         this.step = step;
         int size;
