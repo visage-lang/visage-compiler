@@ -543,8 +543,22 @@ public class IntegerSequenceTest extends JavaFXTestCase {
     public void testOverflow() {
         assertThrows(IllegalArgumentException.class, new VoidCallable() {
             public void call() throws Exception {
+                Sequence<Integer> seq = Sequences.range(Integer.MIN_VALUE, Integer.MAX_VALUE);
+            }
+        });
+        assertThrows(IllegalArgumentException.class, new VoidCallable() {
+            public void call() throws Exception {
                 Sequence<Integer> seq = Sequences.range(Integer.MIN_VALUE, 0);
             }
         });
+        assertThrows(IllegalArgumentException.class, new VoidCallable() {
+            public void call() throws Exception {
+                Sequence<Integer> seq = Sequences.range(0, Integer.MAX_VALUE);
+            }
+        });
+        Sequence<Integer> seq = Sequences.range(1, Integer.MAX_VALUE);
+        assertEquals(seq.size(), Integer.MAX_VALUE);
+        seq = Sequences.range(Integer.MIN_VALUE + 2, 0);
+        assertEquals(seq.size(), Integer.MAX_VALUE);
     }
 }

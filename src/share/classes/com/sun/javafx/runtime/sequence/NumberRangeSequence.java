@@ -43,21 +43,23 @@ class NumberRangeSequence extends AbstractSequence<Double> implements Sequence<D
         super(Double.class);
         this.start = start;
         this.step = step;
-        int size;
+        long size;
         if (bound == start) {
             size = exclusive ? 0 : 1;
         }
         else if (bound > start) {
-            size = step > 0 ? ((int) ((bound - start) / step) + 1) : 0;
+            size = step > 0 ? ((long) (((long) (bound - start)) / step) + 1) : 0;
             if (exclusive && start + (size-1)*step >= bound)
                 --size;
         }
         else {
-            size = step < 0 ? ((int) ((start - bound) / -step) + 1) : 0;
+            size = step < 0 ? ((long) (((long) (start - bound)) / -step) + 1) : 0;
             if (exclusive && start + (size-1)*step <= bound)
                 --size;
         }
-        this.size = size;
+        if (size > Integer.MAX_VALUE || size < 0)
+            throw new IllegalArgumentException("Range sequence too big");
+        this.size = (int) size;
     }
 
     public NumberRangeSequence(double start, double bound, double step) {
