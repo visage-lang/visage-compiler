@@ -1563,7 +1563,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     }
                 }
                 // Attribute method bodyExpression
-                Type bodyType = attribExpr(body, localEnv);
+                Type typeToCheck = returnType;
+                if(tree.name == defs.runMethodName) {
+                    typeToCheck = Type.noType;
+                }
+                else if (returnType == syms.voidType) {
+                    typeToCheck = Type.noType;
+                }
+                
+                Type bodyType = attribExpr(body, localEnv, typeToCheck); // Special hading for the JavafxDefs.runMethodName method. It's body is empty at this point.
                 if (body.value == null) {
                     if (returnType == syms.unknownType)
                         returnType = syms.javafx_VoidType; //TODO: this is wrong if there is a return statement
