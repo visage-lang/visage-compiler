@@ -47,6 +47,7 @@ public class FXCompilerTestCase extends TestCase {
     private final File test;
     private final File buildDir;
     private final boolean shouldRun;
+    private final boolean shouldFail;
     private String className;
     private final List<String> auxFiles;
     private final List<String> separateFiles;
@@ -57,10 +58,11 @@ public class FXCompilerTestCase extends TestCase {
     public static final String BUILD_ROOT = "build/test";
     public static final String TEST_PREFIX = TEST_ROOT + File.separator;
 
-    public FXCompilerTestCase(File test, String name, boolean shouldRun, Collection<String> auxFiles, Collection<String> separateFiles) {
+    public FXCompilerTestCase(File test, String name, boolean shouldRun, boolean shouldFail, Collection<String> auxFiles, Collection<String> separateFiles) {
         super(name);
         this.test = test;
         this.shouldRun = shouldRun;
+        this.shouldFail = shouldFail;
         assertTrue("path not a relative pathname", test.getPath().startsWith(TEST_PREFIX));
         this.buildDir = new File(BUILD_ROOT + File.separator + test.getParent().substring(TEST_PREFIX.length()));
         this.auxFiles = new LinkedList<String>(auxFiles);
@@ -100,7 +102,7 @@ public class FXCompilerTestCase extends TestCase {
             files.add(new File(test.getParent(), f).getPath());
             System.out.println("Compiling " + f);
             int errors = doCompile(buildDir.getPath(), classpath.toString(), files, out, err);
-            if (errors != 0) {
+            if (errors != 0 && !shouldFail) {
                 dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output");
                 System.out.println("--");
                 StringBuilder sb = new StringBuilder();
@@ -109,6 +111,8 @@ public class FXCompilerTestCase extends TestCase {
                     sb.append('s');
                 sb.append(" compiling ").append(f);
                 fail(sb.toString());
+            } else if (errors == 0 && shouldFail) {
+                fail("compiler failed to catch test error(s)");
             }
         }
 
@@ -120,7 +124,7 @@ public class FXCompilerTestCase extends TestCase {
             files.add(new File(test.getParent(), f).getPath());
         System.out.println("Compiling " + test);
         int errors = doCompile(buildDir.getPath(), classpath.toString(), files, out, err);
-        if (errors != 0) {
+        if (errors != 0 && !shouldFail) {
             dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output");
             System.out.println("--");
             StringBuilder sb = new StringBuilder();
@@ -129,6 +133,8 @@ public class FXCompilerTestCase extends TestCase {
                 sb.append('s');
             sb.append(" compiling ").append(test);
             fail(sb.toString());
+        } else if (errors == 0 && shouldFail) {
+            fail("compiler failed to catch test error(s)");
         }
     }
 
