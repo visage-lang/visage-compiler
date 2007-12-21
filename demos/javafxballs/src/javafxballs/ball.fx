@@ -24,10 +24,10 @@ public class ball extends CompositeNode {
        };
     }
     private function composeVectorNode(): Node {
-      return Group { content:[
+      return Group { content:
          Group {
-            transform: [Translate{x: -80.0, y: -48.0}]
-            content: [
+            transform: Translate{x: -80.0, y: -48.0}
+            content:
                 Group {
                     content: [
                         Circle {
@@ -97,15 +97,13 @@ public class ball extends CompositeNode {
                             fill: Color.rgba(0xff, 0xff, 0xff, 0xff)
                             radiusX: 8.294
                             radiusY: 4.906
-                            transform: [
+                            transform:
                                 Transform.matrix(0.7958, -0.6055, 0.6055, 0.7958, -18.1424, 71.1966)
-                            ]
                         }
                     ]
                 }
-            ]
-        }
-    ]};
+            }
+        };
     }
 
     function XMLID_6_(): Paint {
@@ -113,9 +111,7 @@ public class ball extends CompositeNode {
         RadialGradient {
             cx: 156.7178
             cy: 129.2988
-            transform: [
-                Transform.matrix(1.19, 0.165, 0.165, 1.2813, -82.7876, -94.3076)
-            ]
+            transform: Transform.matrix(1.19, 0.165, 0.165, 1.2813, -82.7876, -94.3076)
             //TODO: gradientUnits: GradientUnits.USER_SPACE_ON_USE
             radius: 53.625
             stops: [
