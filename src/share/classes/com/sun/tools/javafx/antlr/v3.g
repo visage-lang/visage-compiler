@@ -155,6 +155,8 @@ tokens {
    ON_REPLACE_ELEMENT;
    ON_INSERT_ELEMENT;
    ON_DELETE_ELEMENT;
+   POSTINCR;
+   POSTDECR;
 }
 
 @lexer::header {
@@ -697,82 +699,80 @@ typeExpression
 	   | 							-> relationalExpression
 	   )
 	;
-relationalExpression  returns [JCExpression expr] 
-	: e1=additiveExpression					{ $expr = $e1.expr; }
-	   (   LTGT   e=additiveExpression			{ $expr = F.at(pos($LTGT)).Binary(JCTree.NE, $expr, $e.expr); }
-	   |   EQEQ   e=additiveExpression			{ $expr = F.at(pos($EQEQ)).Binary(JCTree.EQ, $expr, $e.expr); }
-	   |   LTEQ   e=additiveExpression			{ $expr = F.at(pos($LTEQ)).Binary(JCTree.LE, $expr, $e.expr); }
-	   |   GTEQ   e=additiveExpression			{ $expr = F.at(pos($GTEQ)).Binary(JCTree.GE, $expr, $e.expr); }
-	   |   LT     e=additiveExpression			{ $expr = F.at(pos($LT))  .Binary(JCTree.LT, $expr, $e.expr); }
-	   |   GT     e=additiveExpression			{ $expr = F.at(pos($GT))  .Binary(JCTree.GT, $expr, $e.expr); }
+relationalExpression  
+	: additiveExpression					-> additiveExpression
+	   (   LTGT   e=additiveExpression			-> ^(LTGT $relationalExpression $e)
+	   |   EQEQ   e=additiveExpression			-> ^(EQEQ $relationalExpression $e)
+	   |   LTEQ   e=additiveExpression			-> ^(LTEQ $relationalExpression $e)
+	   |   GTEQ   e=additiveExpression			-> ^(GTEQ $relationalExpression $e)
+	   |   LT     e=additiveExpression			-> ^(LT   $relationalExpression $e)
+	   |   GT     e=additiveExpression			-> ^(GT   $relationalExpression $e)
 	   ) * ;
-additiveExpression  returns [JCExpression expr] 
-	: e1=multiplicativeExpression				{ $expr = $e1.expr; }
-	   (   PLUS   e=multiplicativeExpression		{ $expr = F.at(pos($PLUS)).Binary(JCTree.PLUS , $expr, $e.expr); }
-	   |   SUB    e=multiplicativeExpression		{ $expr = F.at(pos($SUB)) .Binary(JCTree.MINUS, $expr, $e.expr); }
+additiveExpression 
+	: multiplicativeExpression				-> multiplicativeExpression
+	   (   PLUS   e=multiplicativeExpression		-> ^(PLUS $additiveExpression $e)
+	   |   SUB    e=multiplicativeExpression		-> ^(SUB  $additiveExpression $e)
 	   ) * ;
-multiplicativeExpression  returns [JCExpression expr] 
-	: e1=unaryExpression					{ $expr = $e1.expr; }
-	   (   STAR    e=unaryExpression			{ $expr = F.at(pos($STAR))   .Binary(JCTree.MUL  , $expr, $e.expr); }
-	   |   SLASH   e=unaryExpression			{ $expr = F.at(pos($SLASH))  .Binary(JCTree.DIV  , $expr, $e.expr); }
-	   |   PERCENT e=unaryExpression			{ $expr = F.at(pos($PERCENT)).Binary(JCTree.MOD  , $expr, $e.expr); }   
+multiplicativeExpression
+	: unaryExpression					-> unaryExpression
+	   (   STAR    e=unaryExpression			-> ^(STAR    $multiplicativeExpression $e)
+	   |   SLASH   e=unaryExpression			-> ^(SLASH   $multiplicativeExpression $e)
+	   |   PERCENT e=unaryExpression			-> ^(PERCENT $multiplicativeExpression $e)
 	   ) * ;
-unaryExpression  returns [JCExpression expr] 
-	: suffixedExpression					{ $expr = $suffixedExpression.expr; }
-	| prefixUnaryOperator   e=unaryExpression		{ $expr = F.Unary($prefixUnaryOperator.optag, $e.expr); }
+//TODO: POUND QUES TYPEOF REVERSE
+unaryExpression 
+	: suffixedExpression					-> suffixedExpression
+	| SUB      e=unaryExpression				-> ^(SUB $e)
+	| NOT      e=unaryExpression				-> ^(NOT $e)		
+	| SIZEOF   e=unaryExpression				-> ^(SIZEOF $e)	
+	| PLUSPLUS e=unaryExpression				-> ^(PLUSPLUS $e)   	
+	| SUBSUB   e=unaryExpression				-> ^(SUBSUB $e) 
 	;
-suffixedExpression  returns [JCExpression expr] 
-	: e1=postfixExpression					{ $expr = $e1.expr; }
-		( PLUSPLUS					{ $expr = F.at(pos($PLUSPLUS)).Unary(JCTree.POSTINC, $expr); } )?
-		( SUBSUB					{ $expr = F.at(pos($SUBSUB)).Unary(JCTree.POSTDEC, $expr); } )?
+suffixedExpression 
+	: postfixExpression
+		( PLUSPLUS					-> ^(POSTINCR postfixExpression)
+		| SUBSUB					-> ^(POSTDECR postfixExpression)
+		|						-> postfixExpression
+		)
 	;
-postfixExpression  returns [JCExpression expr] 
-@init {
-    ListBuffer<JFXForExpressionInClause> clauses;
-    JFXVar var; 
-}
-	: primaryExpression 					{ $expr = $primaryExpression.expr; }
-	   ( DOT ( CLASS   					//TODO
-	  	| n1 = name()   					{ $expr = F.at(pos($DOT)).Select($expr, $n1.value); }
+postfixExpression 
+	: primaryExpression 					-> primaryExpression
+	   ( DOT ( name						-> ^(DOT $postfixExpression name)
+//TODO:		 | CLASS   					
 	         )   
-	   | LPAREN expressionListOpt RPAREN   			{ $expr = F.at(pos($LPAREN)).Apply(null, $expr, $expressionListOpt.args.toList()); } 
-	   | left1 = LBRACKET e1 = expression()  right1 = RBRACKET			{ $expr = F.at(pos(left1)).SequenceIndexed($expr, $e1.expr); }
+	   | LPAREN expressionListOpt RPAREN   			-> ^(LPAREN $postfixExpression expressionListOpt)
+	   | LBRACKET expression RBRACKET			-> ^(SEQ_INDEX $postfixExpression expression)
 	   ) * 
 	;
-primaryExpression  returns [JCExpression expr] 
-	: qualident						{ $expr = $qualident.expr; }
-		( LBRACE  objectLiteral RBRACE 			{ $expr = F.at(pos($LBRACE)).Instanciate($expr, null, $objectLiteral.parts.toList()); } 
-		)?
-       	| THIS							{ $expr = F.at(pos($THIS)).Ident(names._this); }
-       	| SUPER							{ $expr = F.at(pos($SUPER)).Ident(names._super); }
-       	| stringExpression 					{ $expr = $stringExpression.expr; }
-       	| bracketExpression 					{ $expr = $bracketExpression.expr; }
-       	| literal 						{ $expr = $literal.expr; }
-      	| functionExpression					{ $expr = $functionExpression.expr; }
-       	| LPAREN expression RPAREN				{ $expr = F.at(pos($LPAREN)).Parens($expression.expr); }
+primaryExpression  
+	: qualident					
+		( LBRACE  objectLiteralPart* RBRACE 		-> ^(OBJECT_LIT qualident objectLiteralPart*)
+		|						-> qualident
+		)
+       	| THIS							-> THIS
+       	| SUPER							-> SUPER
+       	| stringExpression 					-> stringExpression
+       	| bracketExpression 					-> bracketExpression
+       	| literal 						-> literal
+      	| functionExpression					-> functionExpression
+       	| LPAREN expression RPAREN				-> expression
        	;
 functionExpression  
-	: FUNCTION   formalParameters   typeReference blockExpression
-								-> ^(FUNCTIONEXPR formalParameters   typeReference blockExpression)
+	: FUNCTION formalParameters typeReference blockExpression
+								-> ^(FUNCTIONEXPR formalParameters typeReference blockExpression)
 	;
-newExpression  returns [JCExpression expr] 
-@init { ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb(); }
+newExpression 
 	: NEW  typeName  
-		( (LPAREN)=>LPAREN expressionListOpt  RPAREN 	{ args = $expressionListOpt.args; } 
+		( (LPAREN)=>LPAREN expressionListOpt  RPAREN
 		)?
-								{ $expr = F.at(pos($NEW)).Instanciate($typeName.expr, args.toList(), null); }
-		   //TODO: need anonymous subclasses
+								-> ^(NEW typeName expressionListOpt?)
 	;
-objectLiteral  returns [ListBuffer<JCTree> parts = ListBuffer.<JCTree>lb()]
-	: ( objectLiteralPart  					{ $parts.append($objectLiteralPart.value); } ) * 
-	;
-objectLiteralPart  returns [JCTree value]
-	: name COLON  boundExpression (COMMA | SEMI)?		{ $value = F.at($name.pos).ObjectLiteralPart($name.value, $boundExpression.expr, $boundExpression.status); }
-       	| variableDeclaration	(COMMA | SEMI)?			{ $value = $variableDeclaration.value; }
-       	| functionDefinition 	(COMMA | SEMI)?			{ $value = $functionDefinition.value; }
+objectLiteralPart  
+	: name COLON  boundExpression (COMMA | SEMI)?		-> ^(COLON name boundExpression)
+       	| variableDeclaration	(COMMA | SEMI)?			-> variableDeclaration
+       	| functionDefinition 	(COMMA | SEMI)?			-> functionDefinition
        	;
-stringExpression  returns [JCExpression expr] 
-@init { ListBuffer<JCExpression> strexp = new ListBuffer<JCExpression>(); }
+stringExpression  
 	: ql=QUOTE_LBRACE_STRING_LITERAL	{ strexp.append(F.at(pos($ql)).Literal(TypeTags.CLASS, $ql.text)); }
 	  f1=stringFormat			{ strexp.append($f1.expr); }
 	  e1=expression 			{ strexp.append($e1.expr); }
@@ -783,29 +783,31 @@ stringExpression  returns [JCExpression expr]
 	  rq=RBRACE_QUOTE_STRING_LITERAL	{ strexp.append(F.at(pos($rq)).Literal(TypeTags.CLASS, $rq.text)); }
 	  					{ $expr = F.at(pos($ql)).StringExpression(strexp.toList()); }
 	;
-stringFormat  returns [JCExpression expr] 
-	: fs=FORMAT_STRING_LITERAL		{ $expr = F.at(pos($fs)).Literal(TypeTags.CLASS, $fs.text); }
-	| /* no formar */			{ $expr = F.             Literal(TypeTags.CLASS, ""); }
+stringExpressionPart
+	: stringFormat			
+	| expression 			
+	;
+stringFormat  
+	: FORMAT_STRING_LITERAL			-> FORMAT_STRING_LITERAL
+	| /* no formar */			-> EMPTY_FORMAT_STRING
 	;
 bracketExpression   returns [JFXAbstractSequenceCreator expr]
 @init { ListBuffer<JCExpression> exps = new ListBuffer<JCExpression>(); JCExpression step = null; boolean exclusive = false; }
 	: LBRACKET   
-	    ( /*nada*/				{ $expr = F.at(pos($LBRACKET)).EmptySequence(); }
-	    | e1=expression 			{ exps.append($e1.expr); }
-	     	(   /*nada*/			{ $expr = F.at(pos($LBRACKET)).ExplicitSequence(exps.toList()); }
+	    ( /*nada*/				-> ^(LBRACKET)
+	    | e1=expression 	
+	     	(   /*nada*/			-> ^(LBRACKET expression*)
 	     	| COMMA 
-	     	   (   /*nada*/					{ $expr = F.at(pos($LBRACKET)).ExplicitSequence(exps.toList()); }
-            	| e2=expression 		{ exps.append($e2.expr); }
-	     	         (COMMA  en=expression	{ exps.append($en.expr); } )*
+	     	   (   /*nada*/			-> ^(LBRACKET expression*)
+            	| e2=expression 		
+	     	         (COMMA expression)*
                           COMMA?
-	     	       				{ $expr = F.at(pos($LBRACKET)).ExplicitSequence(exps.toList()); }
+	     	       				-> ^(LBRACKET expression*)
                     )
 	     	| DOTDOT   dd=expression	
-	     	    ( STEP st=expression	{ step = $st.expr; }
-	     	    )?
-	     	    ( EXCLUSIVE			{ exclusive = true; }
-	     	    )?
-	     					{ $expr = F.at(pos($LBRACKET)).RangeSequence($e1.expr, $dd.expr, step, exclusive); }
+	     	    ( STEP st=expression )?
+	     	    EXCLUSIVE?
+	     					-> ^(DOTDOT $e1 $dd $st EXCLUSIVE)
 	     	)   
 	    )
 	  RBRACKET 
@@ -813,17 +815,6 @@ bracketExpression   returns [JFXAbstractSequenceCreator expr]
 expressionListOpt  returns [ListBuffer<JCExpression> args = new ListBuffer<JCExpression>()] 
 	: ( e1=expression		{ $args.append($e1.expr); }
 	    (COMMA   e=expression	{ $args.append($e.expr); }  )* )? ;
-prefixUnaryOperator  returns [int optag]
-//	: POUND		
-//	| QUES   	
-	: SUB   		
-	| NOT   	
-	| SIZEOF   	
-//	| TYPEOF   	
-//	| REVERSE   	
-	| PLUSPLUS   	
-	| SUBSUB 
-	;
 assignmentOperator 
 	: PLUSEQ   
 	| SUBEQ   		
