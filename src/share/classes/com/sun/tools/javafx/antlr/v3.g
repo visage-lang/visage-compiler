@@ -163,6 +163,7 @@ tokens {
    TYPE_NAMED;
    TYPE_FUNCTION;
    TYPE_ANY;
+   TYPE_UNKNOWN;
    TYPE_ARG;
 }
 
@@ -195,8 +196,8 @@ import org.antlr.runtime.*;
 }
 
 @members {
-        public v2Parser(Context context, CharSequence content) {
-           this(new CommonTokenStream(new v2Lexer(context, new ANTLRStringStream(content.toString()))));
+        public v3Parser(Context context, CharSequence content) {
+           this(new CommonTokenStream(new v3Lexer(context, new ANTLRStringStream(content.toString()))));
            initialize(context);
     	}
 }
@@ -233,7 +234,7 @@ import org.antlr.runtime.*;
     final Token syntheticSemi = new CommonToken(SEMI);
     List tokens = new ArrayList();
     
-    public v2Lexer(Context context, CharStream input) {
+    public v3Lexer(Context context, CharStream input) {
     	this(input);
         this.log = Log.instance(context);
     }
@@ -489,13 +490,14 @@ packageDecl
        	: PACKAGE qualident SEMI         	-> qualident
 	;
 moduleItems    
-	: moduleItem? (SEMI moduleItem? )*	-> moduleItem*
+	: moduleItem (SEMI moduleItem )*	-> moduleItem*
 	;
 moduleItem 
 	: importDecl 				-> importDecl
 	| classDefinition 			-> classDefinition
 	| statement      			-> statement
 	| expression 				-> expression
+	|					->
 	;
 importDecl
  	: IMPORT importId			-> ^(IMPORT importId)
@@ -507,14 +509,13 @@ importId
 	;
 classDefinition 
 	: classModifierFlags  CLASS name supers LBRACE classMembers RBRACE
-	  					-> ^(CLASS classModifierFlags name supers classMembers)
+	  					-> ^(CLASS classModifierFlags name supers? classMembers)
 	;
 supers 
 	: (EXTENDS typeName
-           ( COMMA typeName )* 
+           ( COMMA typeName )* 			-> ^(EXTENDS typeName*)
 	  )?
-	  					-> ^(EXTENDS typeName+)
-	;
+	;	  					
 classMembers 
 	: classMember ?
 	  (SEMI
@@ -527,8 +528,10 @@ classMember
 	| functionDefinition 
 	;
 functionDefinition
-	: functionModifierFlags FUNCTION name formalParameters typeReference  
-	    					-> ^(FUNCTION name functionModifierFlags formalParameters typeReference)
+	: functionModifierFlags FUNCTION name formalParameters typeReference blockExpression?
+	    					-> ^(FUNCTION name functionModifierFlags 
+	    						formalParameters typeReference 
+	    						blockExpression?)
 	;
 initDefinition
 	: INIT block 				-> ^(INIT block)
@@ -606,7 +609,7 @@ variableDeclaration
 	;
 onChangeClause  
 	: ON REPLACE (LPAREN oldv=formalParameter RPAREN)? block
-						-> ^(ON_REPLACE $oldv block)
+						-> ^(ON_REPLACE $oldv? block)
 	| ON REPLACE LBRACKET index=formalParameter RBRACKET (LPAREN oldv=formalParameter RPAREN)? block
 						-> ^(ON_REPLACE_ELEMENT $index $oldv? block)
 	| ON INSERT LBRACKET index=formalParameter RBRACKET (LPAREN newv=formalParameter RPAREN)? block
@@ -639,7 +642,7 @@ tryStatement
 	: TRY block 			
 	   ( finallyClause
 	   | catchClause+ finallyClause?   
-	   ) 					-> ^(TRY block catchClause+ finallyClause?)
+	   ) 					-> ^(TRY block catchClause* finallyClause?)
 	;
 finallyClause
 	: FINALLY block				-> ^(FINALLY block)
@@ -665,11 +668,12 @@ forExpression
 								-> ^(FOR inClause* expression)
 	;
 inClause
-	: formalParameter IN expression (WHERE expression)?	-> ^(IN formalParameter IN expression expression?)
+	: formalParameter IN in=expression (WHERE wh=expression)?
+								-> ^(IN formalParameter IN $in $wh?)
 	;
 ifExpression 
 	: IF LPAREN econd=expression  RPAREN 
-		THEN?  ethen=expression  elseClause 		-> ^(IF $econd $ethen elseClause)
+		THEN?  ethen=expression  elseClause 		-> ^(IF $econd $ethen elseClause?)
 	;
 elseClause
 	: (ELSE)=>  ELSE  expression				-> expression
@@ -816,7 +820,7 @@ bracketExpression
 	     	| DOTDOT   dd=expression	
 	     	    ( STEP st=expression )?
 	     	    EXCLUSIVE?
-	     					-> ^(DOTDOT $e1 $dd $st EXCLUSIVE)
+	     					-> ^(DOTDOT $e1 $dd $st? EXCLUSIVE?)
 	     	)   
 	    )
 	  RBRACKET 
@@ -825,12 +829,12 @@ expressionListOpt
 	: (expression (COMMA expression)*)?	-> expression*
 	;
 type 
-	: typeName cardinality			-> ^(TYPE_NAMED typeName cardinality)
+	: typeName cardinality			-> ^(TYPE_NAMED typeName cardinality?)
  	| FUNCTION LPAREN typeArgList
           	   RPAREN typeReference 
           	   	cardinality	//TODO: this introduces an ambiguity: return cardinality vs type cardinality
-          	   				-> ^(TYPE_FUNCTION typeArgList typeReference cardinality)
- 	| STAR cardinality			-> ^(TYPE_ANY cardinality)
+          	   				-> ^(TYPE_FUNCTION typeArgList typeReference cardinality?)
+ 	| STAR cardinality			-> ^(TYPE_ANY cardinality?)
  	;
 typeArgList
  	: (typeArg (COMMA typeArg)* )?		-> typeArg*
@@ -843,7 +847,7 @@ typeArg
  	;
 typeReference 
  	: COLON type				-> type
- 	| /*nada*/				->
+ 	| /*nada*/				-> ^(TYPE_UNKNOWN)
  	;
 cardinality 
 	: (LBRACKET)=>LBRACKET RBRACKET 	-> RBRACKET
