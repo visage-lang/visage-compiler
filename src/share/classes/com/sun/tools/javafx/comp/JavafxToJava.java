@@ -728,6 +728,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     JCExpression init = olpart.getExpression();
                     VarSymbol vsym = (VarSymbol) olpart.sym;
                     VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+
+                    // Lift JFXObjectLiteralPart if needed
+                    if (types.isSequence(olpart.type)) {
+                        if (!types.isSequence(olpart.expr.type)) {
+                             init = ((JavafxTreeMaker)make).ExplicitSequence(List.<JCExpression>of(olpart.expr));
+                             WildcardType tpType = new WildcardType(olpart.expr.type, BoundKind.EXTENDS, olpart.expr.type.tsym);
+                             ClassType classType = new ClassType(((JavafxSymtab)syms).javafx_SequenceType, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
+                             init.type = classType;
+                         }
+                    }
+
                     if (shouldMorph(vmi)) {
                         init = translateDefinitionalAssignment(diagPos, init, bindStatus, vsym, false).first;
                     }
