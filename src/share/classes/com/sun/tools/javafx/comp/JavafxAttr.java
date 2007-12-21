@@ -2582,7 +2582,16 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitInitDefinition(JFXInitDefinition that) {
-        ((JCBlock)that.getBody()).accept(this);
+        Symbol symOwner = env.info.scope.owner;
+        try {
+            MethodType mt = new MethodType(List.<Type>nil(), syms.voidType, List.<Type>nil(), (TypeSymbol)symOwner);
+            that.sym = new MethodSymbol(0L, defs.initDefName, mt, symOwner);
+            env.info.scope.owner = that.sym;
+            ((JCBlock)that.getBody()).accept(this);
+        }
+        finally {
+            env.info.scope.owner = symOwner;
+        }
     }
 
     @Override

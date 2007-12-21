@@ -78,6 +78,7 @@ public class JavafxDefs {
     final Name invokeName;
     final Name lambdaName;
     final Name computeValueName;
+    final Name initDefName;
 
     /**
      * For internal use of this class
@@ -113,5 +114,6 @@ public class JavafxDefs {
         invokeName = names.fromString(invokeNameString);
         lambdaName = names.fromString(lambdaNameString);
         computeValueName = names.fromString("computeValue");
+        initDefName = names.fromString("$init$def$name");
     }
 }

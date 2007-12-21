@@ -2968,6 +2968,18 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         
         @Override
+        public void visitInitDefinition(JFXInitDefinition tree) {
+            Symbol prevSymbol = currentSymbol;
+            try {
+                currentSymbol = tree.sym;
+                super.visitInitDefinition(tree);
+            }
+            finally {
+                currentSymbol = prevSymbol;
+            }
+        }
+
+        @Override
         public void visitClassDeclaration(JFXClassDeclaration tree) {
             Symbol prevSymbol = currentSymbol;
             try {

@@ -30,6 +30,7 @@ import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.javafx.api.tree.JavaFXTreeVisitor;
 import com.sun.source.tree.BlockTree;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
+import com.sun.tools.javac.code.Symbol.MethodSymbol;
 
 /**
  *
@@ -37,6 +38,7 @@ import com.sun.tools.javac.tree.JCTree.JCBlock;
  */
 public class JFXInitDefinition extends JFXTree implements InitDefinitionTree{
     public JCBlock body;
+    public MethodSymbol sym;
 
     protected JFXInitDefinition(JCBlock body) {
         this.body = body;
