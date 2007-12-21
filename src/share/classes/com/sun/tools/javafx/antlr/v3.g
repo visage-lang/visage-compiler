@@ -157,6 +157,13 @@ tokens {
    ON_DELETE_ELEMENT;
    POSTINCR;
    POSTDECR;
+   SEQ_INDEX;
+   OBJECT_LIT;
+   EMPTY_FORMAT_STRING;
+   TYPE_NAMED;
+   TYPE_FUNCTION;
+   TYPE_ANY;
+   TYPE_ARG;
 }
 
 @lexer::header {
@@ -676,26 +683,37 @@ assignmentExpression
 	;
 assignmentOpExpression 
 	: e1=andExpression					
-	   (   assignmentOperator   e2=expression		-> ^(assignmentOperator $e1, $e2) 
+	   (   PLUSEQ   e2=expression				-> ^(PLUSEQ $e1 $e2) 
+	   |   SUBEQ   e2=expression				-> ^(SUBEQ $e1 $e2) 
+	   |   STAREQ   e2=expression				-> ^(STAREQ $e1 $e2) 
+	   |   SLASHEQ   e2=expression				-> ^(SLASHEQ $e1 $e2) 
+	   |   PERCENTEQ   e2=expression			-> ^(PERCENTEQ $e1 $e2) 
 	   |							-> $e1
 	   )
 	;
+assignmentOperator 
+	: PLUSEQ   
+	|    		
+	|    
+	|    
+	| PERCENTEQ   			
+	;
 andExpression  
 	: e1=orExpression					
-	   (   AND   e2=orExpression				-> ^(AND $e1, $e2) 
+	   (   AND   e2=orExpression				-> ^(AND $e1 $e2) 
 	   |							-> $e1
 	   )
 	;
 orExpression  
 	: e1=typeExpression				
-	   (   OR   e2=typeExpression				-> ^(OR $e1, $e2) 
+	   (   OR   e2=typeExpression				-> ^(OR $e1 $e2) 
 	   |							-> $e1
 	   )
 	;
 typeExpression 
 	: relationalExpression		
-	   (   INSTANCEOF itn=typeName				-> ^(INSTANCEOF relationalExpression $itn) }
-	   |   AS atn=typeName					-> ^(AS relationalExpression $atn) }
+	   (   INSTANCEOF itn=typeName				-> ^(INSTANCEOF relationalExpression $itn)
+	   |   AS atn=typeName					-> ^(AS relationalExpression $atn)
 	   | 							-> relationalExpression
 	   )
 	;
@@ -714,11 +732,12 @@ additiveExpression
 	   |   SUB    e=multiplicativeExpression		-> ^(SUB  $additiveExpression $e)
 	   ) * ;
 multiplicativeExpression
-	: unaryExpression					-> unaryExpression
+	: ( unaryExpression					-> unaryExpression )
 	   (   STAR    e=unaryExpression			-> ^(STAR    $multiplicativeExpression $e)
 	   |   SLASH   e=unaryExpression			-> ^(SLASH   $multiplicativeExpression $e)
 	   |   PERCENT e=unaryExpression			-> ^(PERCENT $multiplicativeExpression $e)
-	   ) * ;
+	   ) * 
+	;
 //TODO: POUND QUES TYPEOF REVERSE
 unaryExpression 
 	: suffixedExpression					-> suffixedExpression
@@ -773,26 +792,23 @@ objectLiteralPart
        	| functionDefinition 	(COMMA | SEMI)?			-> functionDefinition
        	;
 stringExpression  
-	: ql=QUOTE_LBRACE_STRING_LITERAL	{ strexp.append(F.at(pos($ql)).Literal(TypeTags.CLASS, $ql.text)); }
-	  f1=stringFormat			{ strexp.append($f1.expr); }
-	  e1=expression 			{ strexp.append($e1.expr); }
-	  (  rl=RBRACE_LBRACE_STRING_LITERAL	{ strexp.append(F.at(pos($rl)).Literal(TypeTags.CLASS, $rl.text)); }
-	     fn=stringFormat			{ strexp.append($fn.expr); }
-	     en=expression 			{ strexp.append($en.expr); }
-	  )*   
-	  rq=RBRACE_QUOTE_STRING_LITERAL	{ strexp.append(F.at(pos($rq)).Literal(TypeTags.CLASS, $rq.text)); }
-	  					{ $expr = F.at(pos($ql)).StringExpression(strexp.toList()); }
+	: QUOTE_LBRACE_STRING_LITERAL
+	  stringFormat	
+	  expression 	
+	  stringExpressionInner*   
+	  RBRACE_QUOTE_STRING_LITERAL				-> ^(QUOTE_LBRACE_STRING_LITERAL 
+	  								stringFormat expression 
+	  								stringExpressionInner* 
+	  								RBRACE_QUOTE_STRING_LITERAL)
 	;
-stringExpressionPart
-	: stringFormat			
-	| expression 			
+stringExpressionInner
+	: RBRACE_LBRACE_STRING_LITERAL stringFormat expression 			
 	;
 stringFormat  
 	: FORMAT_STRING_LITERAL			-> FORMAT_STRING_LITERAL
 	| /* no formar */			-> EMPTY_FORMAT_STRING
 	;
-bracketExpression   returns [JFXAbstractSequenceCreator expr]
-@init { ListBuffer<JCExpression> exps = new ListBuffer<JCExpression>(); JCExpression step = null; boolean exclusive = false; }
+bracketExpression  
 	: LBRACKET   
 	    ( /*nada*/				-> ^(LBRACKET)
 	    | e1=expression 	
@@ -812,75 +828,59 @@ bracketExpression   returns [JFXAbstractSequenceCreator expr]
 	    )
 	  RBRACKET 
 	;
-expressionListOpt  returns [ListBuffer<JCExpression> args = new ListBuffer<JCExpression>()] 
-	: ( e1=expression		{ $args.append($e1.expr); }
-	    (COMMA   e=expression	{ $args.append($e.expr); }  )* )? ;
-assignmentOperator 
-	: PLUSEQ   
-	| SUBEQ   		
-	| STAREQ   
-	| SLASHEQ   
-	| PERCENTEQ   			
+expressionListOpt  
+	: (expression (COMMA expression)*)?	-> expression*
 	;
-type returns [JFXType type]
-	: typeName cardinality		{ $type = F.TypeClass($typeName.expr, $cardinality.ary); }
- 	| FUNCTION LPAREN tal=typeArgList
-          	   RPAREN ret=typeReference 
+type 
+	: typeName cardinality			-> ^(TYPE_NAMED typeName cardinality)
+ 	| FUNCTION LPAREN typeArgList
+          	   RPAREN typeReference 
           	   	cardinality	//TODO: this introduces an ambiguity: return cardinality vs type cardinality
-          	   			{ $type = F.at(pos($FUNCTION)).TypeFunctional($tal.ptypes.toList(), $ret.type, $cardinality.ary); }
- 	| STAR cardinality		{ $type = F.at(pos($STAR)).TypeAny($cardinality.ary); } 
+          	   				-> ^(TYPE_FUNCTION typeArgList typeReference cardinality)
+ 	| STAR cardinality			-> ^(TYPE_ANY cardinality)
  	;
-typeArgList   returns [ListBuffer<JFXType> ptypes = ListBuffer.<JFXType>lb(); ]
- 	: (pt0=typeArg			{ ptypes.append($pt0.type); }
-	          (COMMA ptn=typeArg	{ ptypes.append($ptn.type); } 
-	          )* )?
+typeArgList
+ 	: (typeArg (COMMA typeArg)* )?		-> typeArg*
 	;
-typeArg returns [JFXType type]
- 	: COLON type			{ $type = $type.type; }
- 	| name COLON type		{ $type = $type.type; }
- 	| name				{ $type = F.TypeUnknown(); }
+typeArg 
+ 	: ( COLON type		
+ 	  | name COLON type		
+ 	  | name			
+ 	  )					-> ^(COLON name? type?)
  	;
-typeReference returns [JFXType type]
- 	: COLON type			{ $type = $type.type; }
- 	| /*nada*/			{ $type = F.TypeUnknown(); }
+typeReference 
+ 	: COLON type				-> type
+ 	| /*nada*/				->
  	;
-cardinality returns [TypeTree.Cardinality ary]
-	: (LBRACKET)=>LBRACKET RBRACKET { ary = TypeTree.Cardinality.ANY; }
-	|                         	{ ary = TypeTree.Cardinality.SINGLETON; } 
+cardinality 
+	: (LBRACKET)=>LBRACKET RBRACKET 	-> RBRACKET
+	|                         		->
 	;
-literal  returns [JCExpression expr]
-	: t=STRING_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.CLASS, $t.text); }
-	| t=DECIMAL_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 10)); }
-	| t=OCTAL_LITERAL		{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 8)); }
-	| t=HEX_LITERAL			{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 16)); }
-	| t=FLOATING_POINT_LITERAL 	{ $expr = F.at(pos($t)).Literal(TypeTags.DOUBLE, Double.valueOf($t.text)); }
-	| t=TRUE   			{ $expr = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 1); }
-	| t=FALSE   			{ $expr = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 0); }
-	| t=NULL 			{ $expr = F.at(pos($t)).Literal(TypeTags.BOT, null); } 
+literal  
+	: STRING_LITERAL	
+	| DECIMAL_LITERAL	
+	| OCTAL_LITERAL		
+	| HEX_LITERAL			
+	| FLOATING_POINT_LITERAL 
+	| TRUE   		
+	| FALSE   		
+	| NULL 		
 	;
 	
-typeName  returns [JCExpression expr]
-	: qualident 			{ $expr = $qualident.expr; }
-		(typeArguments		{ $expr = F.TypeApply($expr, $typeArguments.exprbuff.toList()); }
-		)?
+typeName  
+	: qualident 		
+		(LT typeArgument (COMMA typeArgument)* GT
+						-> ^(TYPE_ARG qualident typeArgument+)
+		|				-> qualident
+		)
 	;
-
-typeArguments  returns [ListBuffer<JCExpression> exprbuff = ListBuffer.<JCExpression>lb()]
-	: LT ta0=typeArgument 		{ $exprbuff.append($ta0.expr); }
-	     (COMMA tan=typeArgument	{ $exprbuff.append($tan.expr); }
-	     )* 
-	  GT
-	;
-	
-typeArgument  returns [JCExpression expr]
-@init { BoundKind bk = BoundKind.UNBOUND; JCExpression texpr = null; }
-	: typeName			{ $expr = $typeName.expr; }
-	| QUES (  ( EXTENDS 		{ bk = BoundKind.EXTENDS; }
-		  | SUPER		{ bk = BoundKind.SUPER; }
+typeArgument 
+	: typeName				-> typeName
+	| QUES (  ( EXTENDS 		
+		  | SUPER		
 		  ) 
-		 typeName		{ texpr = $typeName.expr; }
-	       )?			{ $expr = F.at(pos($QUES)).Wildcard(
-	       					F.TypeBoundKind(bk), texpr); }
+		 typeName		
+	       )?				-> ^(QUES EXTENDS? SUPER? typeName?)
 	;
 	
 qualident returns [JCExpression expr]
