@@ -691,13 +691,6 @@ assignmentOpExpression
 	   |							-> $e1
 	   )
 	;
-assignmentOperator 
-	: PLUSEQ   
-	|    		
-	|    
-	|    
-	| PERCENTEQ   			
-	;
 andExpression  
 	: e1=orExpression					
 	   (   AND   e2=orExpression				-> ^(AND $e1 $e2) 
@@ -718,7 +711,7 @@ typeExpression
 	   )
 	;
 relationalExpression  
-	: additiveExpression					-> additiveExpression
+	: ( additiveExpression					-> additiveExpression )
 	   (   LTGT   e=additiveExpression			-> ^(LTGT $relationalExpression $e)
 	   |   EQEQ   e=additiveExpression			-> ^(EQEQ $relationalExpression $e)
 	   |   LTEQ   e=additiveExpression			-> ^(LTEQ $relationalExpression $e)
@@ -727,7 +720,7 @@ relationalExpression
 	   |   GT     e=additiveExpression			-> ^(GT   $relationalExpression $e)
 	   ) * ;
 additiveExpression 
-	: multiplicativeExpression				-> multiplicativeExpression
+	: ( multiplicativeExpression				-> multiplicativeExpression )
 	   (   PLUS   e=multiplicativeExpression		-> ^(PLUS $additiveExpression $e)
 	   |   SUB    e=multiplicativeExpression		-> ^(SUB  $additiveExpression $e)
 	   ) * ;
@@ -755,7 +748,7 @@ suffixedExpression
 		)
 	;
 postfixExpression 
-	: primaryExpression 					-> primaryExpression
+	: ( primaryExpression 					-> primaryExpression )
 	   ( DOT ( name						-> ^(DOT $postfixExpression name)
 //TODO:		 | CLASS   					
 	         )   
@@ -796,10 +789,10 @@ stringExpression
 	  stringFormat	
 	  expression 	
 	  stringExpressionInner*   
-	  RBRACE_QUOTE_STRING_LITERAL				-> ^(QUOTE_LBRACE_STRING_LITERAL 
-	  								stringFormat expression 
-	  								stringExpressionInner* 
-	  								RBRACE_QUOTE_STRING_LITERAL)
+	  RBRACE_QUOTE_STRING_LITERAL		-> ^(QUOTE_LBRACE_STRING_LITERAL 
+	  							stringFormat expression 
+	  							stringExpressionInner* 
+	  							RBRACE_QUOTE_STRING_LITERAL)
 	;
 stringExpressionInner
 	: RBRACE_LBRACE_STRING_LITERAL stringFormat expression 			
@@ -883,24 +876,23 @@ typeArgument
 	       )?				-> ^(QUES EXTENDS? SUPER? typeName?)
 	;
 	
-qualident returns [JCExpression expr]
-	: n0=plainName            	{ $expr = F.at($n0.pos).Ident($n0.value); } 
-         ( (DOT)=> DOT nn=plainName     { $expr = F.at($nn.pos).Select($expr, $nn.value); } 
-         ) *  
-	| frenchName			{ $expr = F.at($frenchName.pos).Identifier($frenchName.value); }
-         ( (DOT)=> DOT nn=plainName     { $expr = F.at($nn.pos).Select($expr, $nn.value); } 
-         ) *  
+qualident 
+	: (  ( plainName            		-> plainName )
+	  |  ( frenchName			-> frenchName )
+	  )
+          ( (DOT)=> DOT nn=plainName     	-> ^(DOT $qualident $nn)
+          ) *  
 	;
-identifier  returns [JCIdent expr]
-	: name              		{ $expr = F.at($name.pos).Ident($name.value); } 
+identifier 
+	: name              	
 	;
-name returns [Name value, int pos]
-	: plainName			{ $value = $plainName.value; $pos = $plainName.pos; }
-	| frenchName			{ $value = $frenchName.value; $pos = $frenchName.pos; }
+name 
+	: plainName			
+	| frenchName			
 	;
-plainName returns [Name value, int pos]
-	: IDENTIFIER			{ $value = Name.fromString(names, $IDENTIFIER.text); $pos = pos($IDENTIFIER); } 
+plainName 
+	: IDENTIFIER			
 	;
-frenchName returns [Name value, int pos]
-	: QUOTED_IDENTIFIER		{ $value = Name.fromString(names, $QUOTED_IDENTIFIER.text); $pos = pos($QUOTED_IDENTIFIER); } 
+frenchName 
+	: QUOTED_IDENTIFIER		
 	;
