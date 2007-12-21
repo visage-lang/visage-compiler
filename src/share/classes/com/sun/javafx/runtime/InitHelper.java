@@ -27,8 +27,6 @@ package com.sun.javafx.runtime;
 
 import com.sun.javafx.runtime.location.Location;
 import com.sun.javafx.runtime.location.MutableLocation;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Helper class for initializing JavaFX instances from object literals.
@@ -36,27 +34,14 @@ import java.util.Set;
  * @author Brian Goetz
  */
 public class InitHelper {
-    private Location[] initOrder;
+    private final Location[] initOrder;
     private int initIndex;
-    private Map<String, Location> initMap = new java.util.concurrent.ConcurrentHashMap<String, Location>();
-    private Set<String> literalInitSet = new java.util.HashSet<String>();
-    private boolean literalsDone = false;
 
     public InitHelper(int numFields) {
         this.initOrder = new Location[numFields];
     }
 
-    public void add(Location loc, String name) { 
-        if (!literalsDone) {
-            literalInitSet.add(name);
-        }
-        
-        if (initMap.get(name) != null) {
-            return;
-        }
-        initMap.put(name, loc);
-        initOrder[initIndex++] = loc; 
-    }
+    public void add(Location loc) { initOrder[initIndex++] = loc; }
 
     public void initialize() {
         for (Location loc : initOrder) {
@@ -67,17 +52,11 @@ public class InitHelper {
                     loc.update();
             }
         }
-        /// Release memory. We don't need this anymore.
-        initOrder = null;
-        initMap = null;
-        literalInitSet = null;
     }
 
-    public void literalsDone$() {
-        literalsDone = true;
+    public static void assertNonNull(Location location, String name) {
+        if (location != null)
+            throw new IllegalStateException("Duplicate initialization for attribute: " + name);
     }
 
-    public boolean isNotLiteralSet$(String name) {
-        return !literalInitSet.contains(name);
-    }
 }

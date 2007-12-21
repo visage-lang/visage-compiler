@@ -38,5 +38,4 @@ import java.util.List;
 public interface FXObject {
     /** Set default values, set up change triggers, and run init blocks */
     public void initialize$();
-    public InitHelper getInitHelper$();
 }

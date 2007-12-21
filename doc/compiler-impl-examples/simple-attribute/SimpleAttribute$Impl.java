@@ -20,16 +20,13 @@ public class SimpleAttribute$Impl implements SimpleAttribute$Intf {
     private IntLocation a;
     private InitHelper initHelper = new InitHelper(NUM$FIELDS);
 
-    public InitHelper getInitHelper$() {
-        return initHelper;
-    }
-
     public IntLocation get$a() {
         return a;
     }
 
     public void init$a(IntLocation location) {
-        initHelper.add(this.a = location, "SimpleAttribute.a");
+        InitHelper.assertNonNull(a, "SimpleAttribute.a");
+        initHelper.add(this.a = location);
     }
 
     protected static void setDefaults$(final SimpleAttribute$Intf receiver) {

@@ -33,14 +33,11 @@ class Base$Impl implements Base$Intf {
     private IntLocation a;
     private InitHelper initHelper = new InitHelper(NUM$FIELDS);
 
-    public InitHelper getInitHelper$() {
-        return initHelper;
-    }
-
     public IntLocation get$a() { return a; }
 
     public void init$a(IntLocation location) {
-        initHelper.add(this.a = location, "Base.a");
+        InitHelper.assertNonNull(a, "Base.a");
+        initHelper.add(this.a = location);
     }
 
     protected static void setDefaults$(final Base$Intf receiver) {
@@ -64,17 +61,14 @@ class OtherBase$Impl implements OtherBase$Intf {
         return NUM$FIELDS;
     }
 
-    public InitHelper getInitHelper$() {
-        return initHelper;
-    }
-
     private IntLocation b;
     private InitHelper initHelper = new InitHelper(NUM$FIELDS);
 
     public IntLocation get$b() { return b; }
 
     public void init$b(IntLocation location) {
-        initHelper.add(this.b = location, "OtherBase.b");
+        InitHelper.assertNonNull(b, "OtherBase.b");
+        initHelper.add(this.b = location);
     }
 
     protected static void setDefaults$(final OtherBase$Intf receiver) {
@@ -103,24 +97,23 @@ public class Subclass$Impl implements Subclass$Intf {
     private IntLocation c;
     private InitHelper initHelper = new InitHelper(NUM$FIELDS);
 
-    public InitHelper getInitHelper$() {
-        return initHelper;
-    }
-
     public IntLocation get$a() { return a; }
     public IntLocation get$b() { return b; }
     public IntLocation get$c() { return c; }
 
     public void init$a(IntLocation location) {
-        initHelper.add(this.a = location, "Subclass.a");
+        InitHelper.assertNonNull(b, "Subclass.a");
+        initHelper.add(this.a = location);
     }
 
     public void init$b(IntLocation location) {
-        initHelper.add(this.b = location, "Subclass.b");
+        InitHelper.assertNonNull(b, "Subclass.b");
+        initHelper.add(this.b = location);
     }
 
     public void init$c(IntLocation location) {
-        initHelper.add(this.c = location, "Subclass.c");
+        InitHelper.assertNonNull(c, "Subclass.c");
+        initHelper.add(this.c = location);
     }
 
     protected static void setDefaults$(final Subclass$Intf receiver) {
