@@ -62,8 +62,7 @@ public class ListBox extends ScrollableWidget {
             var e = ListDropEvent {
                 x: p.getX()
                 y: p.getY()
-                //TODO JFXC-302
-                //transferData: value
+                transferData: value
                 listIndex: i
             };
             return (this.canAcceptDrop)(e);
@@ -109,8 +108,7 @@ public class ListBox extends ScrollableWidget {
             var e = ListDropEvent {
                 x: p.getX()
                 y: p.getY()
-                //TODO JFXC-302
-                //transferData: value
+                transferData: value
                 listIndex: i
             };
             onDrop(e);
