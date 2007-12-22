@@ -25,6 +25,9 @@ var toZ = [1..0 step -0.1];
 var emptyStart : Integer[] = [];
 insert 1234 into emptyStart;
 
+var fractionalRange = [0.3..1.0 step .1 ];
+var fractionalRangeDsc = [1.0..0.3 step -.1];
+
 System.out.println(nums);
 System.out.println(strs);
 System.out.println(bars);
@@ -40,3 +43,6 @@ System.out.println(nums[3]);
 System.out.println(strs[1]);
 System.out.println(bars[0]);
 System.out.println(range[2]);
+
+System.out.println(sizeof fractionalRange);
+System.out.println(sizeof fractionalRangeDsc);
