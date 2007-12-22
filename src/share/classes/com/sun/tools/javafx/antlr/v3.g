@@ -159,6 +159,9 @@ tokens {
    POSTDECR;
    SEQ_INDEX;
    OBJECT_LIT;
+   OBJECT_LIT_PART;
+   SEQ_EMPTY;
+   SEQ_EXPLICIT;
    EMPTY_FORMAT_STRING;
    TYPE_NAMED;
    TYPE_FUNCTION;
@@ -669,7 +672,7 @@ forExpression
 	;
 inClause
 	: formalParameter IN in=expression (WHERE wh=expression)?
-								-> ^(IN formalParameter IN $in $wh?)
+								-> ^(IN formalParameter $in $wh?)
 	;
 ifExpression 
 	: IF LPAREN econd=expression  RPAREN 
@@ -784,7 +787,7 @@ newExpression
 								-> ^(NEW typeName expressionListOpt?)
 	;
 objectLiteralPart  
-	: name COLON  boundExpression (COMMA | SEMI)?		-> ^(COLON name boundExpression)
+	: name COLON  boundExpression (COMMA | SEMI)?		-> ^(OBJECT_LIT_PART name boundExpression)
        	| variableDeclaration	(COMMA | SEMI)?			-> variableDeclaration
        	| functionDefinition 	(COMMA | SEMI)?			-> functionDefinition
        	;
@@ -807,15 +810,15 @@ stringFormat
 	;
 bracketExpression  
 	: LBRACKET   
-	    ( /*nada*/				-> ^(LBRACKET)
+	    ( /*nada*/				-> ^(SEQ_EMPTY)
 	    | e1=expression 	
-	     	(   /*nada*/			-> ^(LBRACKET expression*)
+	     	(   /*nada*/			-> ^(SEQ_EXPLICIT expression*)
 	     	| COMMA 
-	     	   (   /*nada*/			-> ^(LBRACKET expression*)
+	     	   (   /*nada*/			-> ^(SEQ_EXPLICIT expression*)
             	| e2=expression 		
 	     	         (COMMA expression)*
                           COMMA?
-	     	       				-> ^(LBRACKET expression*)
+	     	       				-> ^(SEQ_EXPLICIT expression*)
                     )
 	     	| DOTDOT   dd=expression	
 	     	    ( STEP st=expression )?
