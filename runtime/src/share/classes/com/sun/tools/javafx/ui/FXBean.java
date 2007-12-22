@@ -315,12 +315,23 @@ public class FXBean {
      */
     public Object getObject(Object instance, String attribute) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         PropertyDescriptor desc = getDescriptor(attribute);
-        if(desc.getPropertyType() != ObjectLocation.class) {
-            throw new IllegalArgumentException(beanClass + "." + attribute + " is not a Number type");
-        }
         Method meth = desc.getReadMethod();
-        ObjectLocation location = (ObjectLocation) meth.invoke(instance);
-        return location.get(); 
+        Class propertyType = desc.getPropertyType();
+        if(propertyType == DoubleLocation.class) {
+            DoubleLocation location = (DoubleLocation)meth.invoke(instance);
+            return new Double(location.get());
+        }else if (propertyType == IntLocation.class) {
+            IntLocation location = (IntLocation)meth.invoke(instance);
+            return new Integer(location.get());
+        }else if (propertyType == BooleanLocation.class) {
+            BooleanLocation location = (BooleanLocation)meth.invoke(instance);
+            return(Boolean.valueOf(location.get()));
+        }else if(desc.getPropertyType() != ObjectLocation.class) {
+            throw new IllegalArgumentException(beanClass + "." + attribute + " is not an Object type");
+        }else {
+            ObjectLocation location = (ObjectLocation) meth.invoke(instance);
+            return location.get();
+        } 
     }  
     
     /**
