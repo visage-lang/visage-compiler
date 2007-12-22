@@ -808,6 +808,11 @@ public class JavafxResolve {
                                            allowBoxing,
                                            useVarargs,
                                            operator);
+                    if (bestSoFar != null && bestSoFar.kind < AMBIGUOUS) {
+                        if (isExactMatch(mtype, bestSoFar)) {
+                            return bestSoFar;
+                        }
+                    }
                 }
                 else if ((e.sym.kind & (VAR|MTH)) != 0 && bestSoFar == methodNotFound)
                     return e.sym;
@@ -892,6 +897,28 @@ public class JavafxResolve {
         }
 
         return bestSoFar;
+    }
+             
+    private boolean isExactMatch(Type mtype, Symbol bestSoFar) {
+        if (bestSoFar.kind == MTH &&
+                mtype.tag == TypeTags.METHOD ) {
+            List<Type> actuals = ((MethodType)mtype).getParameterTypes();
+            List<Type> formals = ((MethodType)bestSoFar.type).getParameterTypes();
+            if (actuals != null && formals != null) {
+                if (actuals.size() == formals.size()) {
+                    for (Type actual : actuals) {
+                        if (actual != formals.head) {
+                            return false;
+                        }
+
+                        formals = formals.tail;
+                    }
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 
     Type newMethTemplate(List<Type> argtypes, List<Type> typeargtypes) {
