@@ -493,7 +493,7 @@ module
 	: packageDecl? moduleItems EOF 		-> ^(MODULE packageDecl? moduleItems)
        	;
 packageDecl 
-       	: PACKAGE qualident SEMI         	-> qualident
+       	: PACKAGE qualident SEMI         	-> ^(PACKAGE qualident)
 	;
 moduleItems    
 	: moduleItem (SEMI moduleItem )*	-> moduleItem*
@@ -889,10 +889,8 @@ typeArgument
 	;
 	
 qualident 
-	: (  ( plainName            		-> plainName )
-	  |  ( frenchName			-> frenchName )
-	  )
-          ( (DOT)=> DOT nn=plainName     	-> ^(DOT $qualident $nn)
+	: ( name				-> name )
+          ( (DOT)=> DOT nn=name     		-> ^(DOT $qualident $nn)
           ) *  
 	;
 identifier 

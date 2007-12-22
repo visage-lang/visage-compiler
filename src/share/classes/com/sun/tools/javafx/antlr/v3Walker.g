@@ -34,7 +34,7 @@ module
 	: ^(MODULE packageDecl? moduleItems)
        	;
 packageDecl 
-       	: qualident
+       	: ^(PACKAGE qualident)
 	;
 moduleItems    
 	: moduleItem*
@@ -209,7 +209,6 @@ expression
 	| ^(SEQ_EXPLICIT expression*)
 	| ^(DOTDOT expression expression expression? EXCLUSIVE?)
 	| SEQ_EMPTY
-	| qualident
        	| THIS
        	| SUPER
 	;
@@ -267,12 +266,8 @@ typeArgument
 	;
 	
 qualident 
-	: (  plainName 
-	  |  frenchName 
-	  )
-
-          ( ^(DOT qualident plainName)
-          ) *  
+	: name 
+	| ^(DOT qualident name)
 	;
 identifier 
 	: name              	
