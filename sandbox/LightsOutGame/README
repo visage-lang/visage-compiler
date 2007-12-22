@@ -1,0 +1,14 @@
+This is under construction and is using a hacked up Animation class.
+
+*** NOTE****
+This should NOT be construed as the final way that animation will be
+defined nor handled in JFX. 
+*** NOTE****
+
+The primary purpose of this package is to test other parts of the
+JavaFX compiler project that will be impacted by animation. 
+And to better understand the capabilities provided by the Scenario
+animation classes.
+
+Presently, there is an issue where the onMousePressed function
+for the BlueButton cannot be set, so only the splash screen displays for now. 
