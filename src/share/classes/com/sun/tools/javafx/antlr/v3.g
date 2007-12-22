@@ -147,7 +147,7 @@ tokens {
    MODIFIER;
    MEMBERSELECTOR;
    PARAM;
-   FUNCTIONEXPR;
+   FUNC_EXPR;
    STATEMENT;
    EXPRESSION;
    BLOCK;
@@ -155,6 +155,9 @@ tokens {
    ON_REPLACE_ELEMENT;
    ON_INSERT_ELEMENT;
    ON_DELETE_ELEMENT;
+   EXPR_LIST;
+   FUNC_APPLY;
+   NEGATIVE;
    POSTINCR;
    POSTDECR;
    SEQ_INDEX;
@@ -741,7 +744,7 @@ multiplicativeExpression
 //TODO: POUND QUES TYPEOF REVERSE
 unaryExpression 
 	: suffixedExpression					-> suffixedExpression
-	| SUB      e=unaryExpression				-> ^(SUB $e)
+	| SUB      e=unaryExpression				-> ^(NEGATIVE[SUB] $e)
 	| NOT      e=unaryExpression				-> ^(NOT $e)		
 	| SIZEOF   e=unaryExpression				-> ^(SIZEOF $e)	
 	| PLUSPLUS e=unaryExpression				-> ^(PLUSPLUS $e)   	
@@ -759,13 +762,13 @@ postfixExpression
 	   ( DOT ( name						-> ^(DOT $postfixExpression name)
 //TODO:		 | CLASS   					
 	         )   
-	   | LPAREN expressionListOpt RPAREN   			-> ^(LPAREN $postfixExpression expressionListOpt)
-	   | LBRACKET expression RBRACKET			-> ^(SEQ_INDEX $postfixExpression expression)
+	   | expressionList  					-> ^(FUNC_APPLY $postfixExpression expressionList)
+	   | LBRACKET expression RBRACKET			-> ^(SEQ_INDEX[LBRACKET] $postfixExpression expression)
 	   ) * 
 	;
 primaryExpression  
 	: qualident					
-		( LBRACE  objectLiteralPart* RBRACE 		-> ^(OBJECT_LIT qualident objectLiteralPart*)
+		( LBRACE  objectLiteralPart* RBRACE 		-> ^(OBJECT_LIT[LBRACE] qualident objectLiteralPart*)
 		|						-> qualident
 		)
        	| THIS							-> THIS
@@ -778,13 +781,10 @@ primaryExpression
        	;
 functionExpression  
 	: FUNCTION formalParameters typeReference blockExpression
-								-> ^(FUNCTIONEXPR formalParameters typeReference blockExpression)
+								-> ^(FUNC_EXPR[FUNCTION] formalParameters typeReference blockExpression)
 	;
 newExpression 
-	: NEW  typeName  
-		( (LPAREN)=>LPAREN expressionListOpt  RPAREN
-		)?
-								-> ^(NEW typeName expressionListOpt?)
+	: NEW typeName expressionListOpt			-> ^(NEW typeName expressionListOpt)
 	;
 objectLiteralPart  
 	: name COLON  boundExpression (COMMA | SEMI)?		-> ^(OBJECT_LIT_PART name boundExpression)
@@ -810,15 +810,15 @@ stringFormat
 	;
 bracketExpression  
 	: LBRACKET   
-	    ( /*nada*/				-> ^(SEQ_EMPTY)
+	    ( /*nada*/				-> ^(SEQ_EMPTY[LBRACKET])
 	    | e1=expression 	
-	     	(   /*nada*/			-> ^(SEQ_EXPLICIT expression*)
+	     	(   /*nada*/			-> ^(SEQ_EXPLICIT[LBRACKET] expression*)
 	     	| COMMA 
-	     	   (   /*nada*/			-> ^(SEQ_EXPLICIT expression*)
+	     	   (   /*nada*/			-> ^(SEQ_EXPLICIT[LBRACKET] expression*)
             	| e2=expression 		
 	     	         (COMMA expression)*
                           COMMA?
-	     	       				-> ^(SEQ_EXPLICIT expression*)
+	     	       				-> ^(SEQ_EXPLICIT[LBRACKET] expression*)
                     )
 	     	| DOTDOT   dd=expression	
 	     	    ( STEP st=expression )?
@@ -828,16 +828,21 @@ bracketExpression
 	    )
 	  RBRACKET 
 	;
+expressionList  
+	: LPAREN (expression (COMMA expression)*)? RPAREN
+						-> ^(EXPR_LIST[LPAREN] expression*)
+	;
 expressionListOpt  
-	: (expression (COMMA expression)*)?	-> expression*
+	: (LPAREN)=> expressionList		-> expressionList
+	|					-> ^(EXPR_LIST)
 	;
 type 
 	: typeName cardinality			-> ^(TYPE_NAMED typeName cardinality?)
  	| FUNCTION LPAREN typeArgList
           	   RPAREN typeReference 
           	   	cardinality	//TODO: this introduces an ambiguity: return cardinality vs type cardinality
-          	   				-> ^(TYPE_FUNCTION typeArgList typeReference cardinality?)
- 	| STAR cardinality			-> ^(TYPE_ANY cardinality?)
+          	   				-> ^(TYPE_FUNCTION[$FUNCTION] typeArgList typeReference cardinality?)
+ 	| STAR cardinality			-> ^(TYPE_ANY[STAR] cardinality?)
  	;
 typeArgList
  	: (typeArg (COMMA typeArg)* )?		-> typeArg*

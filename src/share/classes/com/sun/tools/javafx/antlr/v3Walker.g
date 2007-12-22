@@ -50,8 +50,7 @@ importDecl
 	;
 importId
  	: identifier
-                 ( ^(DOT importId name) )* 
-                 ( ^(DOT importId STAR) )?  
+                 ( ^(DOT importId (name | STAR)) )* 
 	;
 classDefinition 
 	: ^(CLASS classModifierFlags name supers? classMembers)
@@ -68,7 +67,7 @@ classMember
 	| functionDefinition 
 	;
 functionDefinition
-	: ^(FUNCTION name functionModifierFlags formalParameters typeReference blockExpression?)
+	: ^(FUNCTION name functionModifierFlags formalParameters type blockExpression?)
 	;
 initDefinition
 	: ^(INIT block)
@@ -105,7 +104,7 @@ formalParameters
 	: ^(LPAREN formalParameter*)
 	;
 formalParameter
-	: ^(PARAM name typeReference)
+	: ^(PARAM name type)
 	;
 block
 	: ^(BLOCK blockComponent*)
@@ -130,7 +129,7 @@ statement
        	| tryStatement			
        	;
 variableDeclaration   
-	: ^(VAR variableLabel varModifierFlags name typeReference boundExpression? onChangeClause*)
+	: ^(VAR variableLabel varModifierFlags name type boundExpression? onChangeClause*)
 	;
 onChangeClause  
 	: ^(ON_REPLACE formalParameter? block)
@@ -193,7 +192,7 @@ expression
 	| ^(STAR    expression expression)
 	| ^(SLASH   expression expression)
 	| ^(PERCENT expression expression)
-	| ^(SUB expression)
+	| ^(NEGATIVE expression)
 	| ^(NOT expression)		
 	| ^(SIZEOF expression)	
 	| ^(PLUSPLUS expression)   	
@@ -201,11 +200,11 @@ expression
 	| ^(POSTINCR expression)
 	| ^(POSTDECR expression)
 	| ^(DOT expression name)
-	| ^(LPAREN expression expressionListOpt)
+	| ^(FUNC_APPLY expression expressionList)
 	| ^(SEQ_INDEX expression expression)
 	| ^(OBJECT_LIT qualident objectLiteralPart*)
-       	| ^(FUNCTIONEXPR formalParameters typeReference blockExpression)
-	| ^(NEW typeName expressionListOpt?)
+       	| ^(FUNC_EXPR formalParameters type blockExpression)
+	| ^(NEW typeName expressionList)
 	| ^(QUOTE_LBRACE_STRING_LITERAL stringFormat expression stringExpressionInner* RBRACE_QUOTE_STRING_LITERAL)
 	| ^(SEQ_EXPLICIT expression*)
 	| ^(DOTDOT expression expression expression? EXCLUSIVE?)
@@ -229,23 +228,20 @@ stringFormat
 	: FORMAT_STRING_LITERAL
 	| EMPTY_FORMAT_STRING
 	;
-expressionListOpt  
-	: expression*
+expressionList
+	: ^(EXPR_LIST expression*)
 	;
 type 
 	: ^(TYPE_NAMED typeName cardinality?)
- 	| ^(TYPE_FUNCTION typeArgList typeReference cardinality?)
+ 	| ^(TYPE_FUNCTION typeArgList type cardinality?)
  	| ^(TYPE_ANY cardinality?)
+ 	| TYPE_UNKNOWN
  	;
 typeArgList
  	: typeArg*
 	;
 typeArg 
  	: ^(COLON name? type?)
- 	;
-typeReference 
- 	: type
- 	| TYPE_UNKNOWN
  	;
 cardinality 
 	: RBRACKET
