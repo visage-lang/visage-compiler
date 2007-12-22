@@ -48,12 +48,12 @@ class NumberRangeSequence extends AbstractSequence<Double> implements Sequence<D
             size = exclusive ? 0 : 1;
         }
         else if (bound > start) {
-            size = step > 0 ? ((long) (((long) (bound - start)) / step) + 1) : 0;
+            size = step > 0 ? (((long) ((bound - start) / step)) + 1) : 0;
             if (exclusive && start + (size-1)*step >= bound)
                 --size;
         }
         else {
-            size = step < 0 ? ((long) (((long) (start - bound)) / -step) + 1) : 0;
+            size = step < 0 ? (((long) ((start - bound) / -step)) + 1) : 0;
             if (exclusive && start + (size-1)*step <= bound)
                 --size;
         }
