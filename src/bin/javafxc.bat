@@ -51,7 +51,7 @@ set _CP_=
 set _VAL=
 set _CMP=
 
-"%_JAVACMD%" %_JVM_ARGS% "-Xbootclasspath/p:%_JAVAFXC_HOME%\javafxc.jar;%_JAVAFXC_HOME%\javafxrt.jar" -classpath "%_CLASSPATH%" com.sun.tools.javafx.Main %_FX_ARGS%
+"%_JAVACMD%" %_JVM_ARGS% "-Xbootclasspath/p:%_JAVAFXC_HOME%\javafxc.jar;%_JAVAFXC_HOME%\javafxrt.jar" com.sun.tools.javafx.Main -classpath "%_CLASSPATH%" %_FX_ARGS%
 
 REM cleanup
 if not "%_JAVAFXC_HOME"=="" set _JAVAFXC_HOME=
