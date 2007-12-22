@@ -123,7 +123,7 @@ public class FXBean {
      * @throws java.lang.IllegalArgumentException if the attribute is not 
      *         a member of the bean class
      */
-    private PropertyDescriptor getDescriptor(String attribute) {
+    public PropertyDescriptor getDescriptor(String attribute) {
         if(attribute.startsWith("$")) {
             attribute = attribute.substring(1);
         }
@@ -267,12 +267,41 @@ public class FXBean {
      */
     public void setObject(Object instance, String attribute, Object value) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         PropertyDescriptor desc = getDescriptor(attribute);
-        if(desc.getPropertyType() != ObjectLocation.class) {
-            throw new IllegalArgumentException(beanClass + "." + attribute + " is not a Number type");
-        }
         Method meth = desc.getReadMethod();
-        ObjectLocation location = (ObjectLocation) meth.invoke(instance);
-        location.set(value);
+        Class propertyType = desc.getPropertyType();
+        if(propertyType == DoubleLocation.class) {
+            DoubleLocation location = (DoubleLocation)meth.invoke(instance);
+            double v = 0.0;
+            if(instance instanceof Number) {
+                v = ((Number)value).doubleValue();
+            }else {
+                v = Double.valueOf(value.toString());
+            }
+            location.set(v);
+        }else if (propertyType == IntLocation.class) {
+            IntLocation location = (IntLocation)meth.invoke(instance);
+            int v = 0;
+            if(instance instanceof Number) {
+                v = ((Number)value).intValue();
+            }else {
+                v = Integer.valueOf(value.toString());
+            }
+            location.set(v);
+        }else if (propertyType == BooleanLocation.class) {
+            BooleanLocation location = (BooleanLocation)meth.invoke(instance);
+            boolean v = false;
+            if(instance instanceof Boolean) {
+                v = ((Boolean)value).booleanValue();
+            }else {
+                v = Boolean.valueOf(value.toString());
+            }
+            location.set(v);
+        }else if(desc.getPropertyType() != ObjectLocation.class) {
+            throw new IllegalArgumentException(beanClass + "." + attribute + " is not an Object type");
+        }else {
+            ObjectLocation location = (ObjectLocation) meth.invoke(instance);
+            location.set(value);
+        }
     }
     
     /**
