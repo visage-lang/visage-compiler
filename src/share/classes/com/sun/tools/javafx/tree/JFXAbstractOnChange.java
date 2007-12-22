@@ -35,8 +35,6 @@ public abstract class JFXAbstractOnChange extends JFXStatement {
     private final JFXVar index;
     private final JFXVar oldValue;
     private final JCBlock body;
-    
-    public Type elementType = null;
 
     public JFXAbstractOnChange(JFXVar index, JFXVar oldValue, JCBlock body) {
         this.index = index;

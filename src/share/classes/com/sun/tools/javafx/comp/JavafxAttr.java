@@ -982,6 +982,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                              &&  initType != syms.javafx_BooleanType)
                         initType = types.boxedClass(initType).type;
             }
+            else if (tree.type != null)
+                initType = tree.type;
             else
                 initType = syms.objectType;  // nothing to go on, so we assume Object
             if (declType == syms.javafx_UnspecifiedType && v.type == null)
@@ -1011,23 +1013,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             }
 
             for (JFXAbstractOnChange onc : tree.getOnChanges()) {
-                // OK, this is probably a tad hacky, but set the element type for the onChanges
-                onc.elementType = elemType;
-
-                if (onc != null && onc.getOldValue() != null) {
-                    if (onc.getOldValue().getJFXType() instanceof JFXTypeUnknown) {
-                        onc.getOldValue().setJFXType(tree.getJFXType());
-                    }
-                    
-                    if (onc.getOldValue().type == null) {
-                        onc.getOldValue().type = tree.type;
-                    }
-                    
-                    if (onc.getOldValue().sym != null) {
-                        if (onc.getOldValue().sym != null && onc.getOldValue().sym.type == null) {
-                            onc.getOldValue().sym.type = tree.sym.type;
-                        }
-                    }
+                JFXVar oldValue = onc.getOldValue();
+	        if (oldValue != null && oldValue.type == null) {
+                    oldValue.type = onc instanceof JFXOnReplace ? tree.type : elemType;
                 }
 
                 if (env.info.scope.owner.kind == TYP) {
@@ -1057,12 +1045,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             attribVar(tree.getIndex(), env);
             tree.getIndex().sym.type = syms.intType;
         }
-	if (tree.getOldValue() != null) {
-            tree.getOldValue().mods.flags |= Flags.FINAL;
-            attribVar(tree.getOldValue(), env);  
-            if (tree.elementType != null) {
-                tree.getOldValue().sym.type = tree.elementType;
-            }
+        JFXVar oldValue = tree.getOldValue();
+	if (oldValue != null) {
+            oldValue.mods.flags |= Flags.FINAL;
+            attribVar(oldValue, env);  
         }
         attribStat(tree.getBody(), env);
     }
@@ -1498,21 +1484,17 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             }
             for (List<JFXVar> l = tree.getParameters(); l.nonEmpty(); l = l.tail) {
                 JFXVar pvar = l.head;
-                attribVar(l.head, localEnv);
-                Type declType = attribType(pvar.getJFXType(), env);
+                Type type;
                 if (pparam != null && pparam.nonEmpty()) {
-                    if (declType == syms.javafx_UnspecifiedType)
-                        declType = pparam.head;
+                    type = pparam.head;
                     pparam = pparam.tail;
                 }
-                else if (declType == syms.javafx_UnspecifiedType)
-                    declType = syms.objectType;
+                else
+                    type = syms.objectType;
                 Symbol sym = pvar.sym;
-                if (sym instanceof JavafxVarSymbol)
-                    varSymToTree.put((JavafxVarSymbol)sym, pvar);
-   
-                pvar.type = sym.type = declType;
-                argbuf.append(pvar.sym.type);
+                pvar.type = type;
+                type = attribVar(pvar, localEnv);
+                argbuf.append(type);
             }
             returnType = syms.unknownType;
             if (opVal.getJFXReturnType().getTag() != JavafxTag.TYPEUNKNOWN)
