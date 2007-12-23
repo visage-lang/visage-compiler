@@ -13,7 +13,7 @@ public class LightsOutMain extends Group {
     // main game screen
     attribute locan:LightsOutCanvas = LightsOutCanvas { opacity:0 };
     //splash screen
-    attribute screen:LightsOutSplash = LightsOutSplash { opacity: 1.0 };
+    attribute screen:LightsOutSplash = LightsOutSplash { main:this, opacity: 1.0 };
 }
 
 // do init stuff
@@ -22,7 +22,7 @@ main.screen.locan = main.locan;
 main.locan.model.randomize();
 
 //show on screen
-main.content = [main.screen, main.locan];
+main.content = [main.screen];
 Frame{
     title: "Lights Out"
     visible: true

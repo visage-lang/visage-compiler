@@ -56,7 +56,7 @@ public class Light extends Group {
     attribute model:LightsOutModel;
     public attribute transform: Transform[] = 
                     bind [ Transform.translate( gx*55+15+x, gy*55+15+y)];
-    attribute onMousePressed = function(e:CanvasMouseEvent):Void { toggle(); };
+    attribute onMousePressed:function(:CanvasMouseEvent):Void  = function(e:CanvasMouseEvent):Void { toggle(); };
     attribute strokeAlpha = 0.0;
     init {
         var size = 50;

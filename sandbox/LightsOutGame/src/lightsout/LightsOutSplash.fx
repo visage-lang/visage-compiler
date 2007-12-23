@@ -8,10 +8,13 @@ import javafx.ui.filter.*;
 import lightsout.math.*;
 import java.lang.System;
 import javafx.ui.animation.Animation;
-import com.sun.javafx.runtime.animation.FXTimingTarget;
+import com.sun.javafx.runtime.animation.FXTimingTargetAdapter;
 
 public class LightsOutSplash extends CompositeNode {
-    public static attribute stdFont:Font = Font.Font("Arial", ["BOLD"], 55);        
+    public static attribute stdFont:Font = Font.Font("Arial", ["BOLD"], 55);   
+    
+    public attribute main:LightsOutMain;
+    
     private attribute text_lights: Text= Text {
         //content:"Lights", x:125,y:70, font:stdFont, fill: Color.WHITE
         content:"Lights", x:-300.0,y:70, font:stdFont, fill: Color.WHITE
@@ -25,26 +28,40 @@ public class LightsOutSplash extends CompositeNode {
             //transform : [Transform.translate(152,230)], width: 100, height: 30,
             transform : [Transform.translate(152,500)], width: 100, height: 30,
             //transition to the next screen
-            buttonAction : function(e:CanvasMouseEvent):Void { 
-                System.out.println("Pressed");
+            onMousePressed : function(e:CanvasMouseEvent):Void { 
+                start_button.fadingOut = true;
+                insert locan into main.content;
                 //opacity = 0.0;  [1.00..0 step 0.01] dur 1000 delay ;
                 var anime:Animation = Animation{
                     duration:1000, 
                     instance:this, 
                     property:"opacity",
-                    sequence:[1.0..0.0 step -0.01]
+                    sequence:[1.0..0.00 step -0.01]
                 };
-                anime.start();                
+                anime.start(); 
+                 
+                
                 //locan.opacity = 1.0; [0.00..1.0 step 0.01] dur 1000 delay 500;
                 anime = Animation{
                     duration:1000, 
                     instance:locan, 
                     property:"opacity",
                     sequence:[0.0..1.0 step 0.01]
+                    delay:500
+                    timingTarget: FXTimingTargetAdapter {
+                        public function end():Void {
+                            removeFromMain();
+                        }
+                    }
                 };
-                anime.start();                
+                anime.start(); 
+                
             }
         };
+        
+    private function removeFromMain():Void {
+        delete this from main.content;
+    }
 
     // a reference to main so we can do screen transitions
     attribute locan: LightsOutCanvas;
@@ -61,7 +78,7 @@ public class LightsOutSplash extends CompositeNode {
         //then move in the text after 1.5s. notice the delay of 1500 
         //text_lights.x = [-300..125] dur 500 delay 1500;
         anime = Animation{
-            duration:1500, 
+            duration:500, 
             instance:text_lights, 
             property:"x",
             sequence:[-300..125]
@@ -71,7 +88,7 @@ public class LightsOutSplash extends CompositeNode {
         
         //text_out.x = [500..155] dur 500 delay 1500;
         anime = Animation{
-            duration:1500, 
+            duration:500, 
             instance:text_out, 
             property:"x",
             sequence:[500..155 step -1]
@@ -90,7 +107,7 @@ public class LightsOutSplash extends CompositeNode {
         anime = Animation{
             instance:transform
             property:"y"
-            duration:1750, 
+            duration:750, 
             sequence:[350..200 step -1]
             delay:2000
             interpolation:"Spline:0:.75:.5:1"

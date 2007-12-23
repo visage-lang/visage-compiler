@@ -26,7 +26,7 @@ public class LightsOutCanvas extends Group {
             font: Font.Font("Arial",["BOLD"],20)
             transform: [Transform.translate(305,15)]
             width: 80, height: 30
-            buttonAction : function(e:CanvasMouseEvent):Void { model.randomize(); }
+            onMousePressed : function(e:CanvasMouseEvent):Void { model.randomize(); }
             } into content;
 
         //score
@@ -46,7 +46,7 @@ public class LightsOutCanvas extends Group {
 
         //quit button
         insert BlueButton { text: "Quit", font: Font.Font("Arial",["BOLD"],20), transform: [Transform.translate(305,255)], width: 80, height: 30,
-            buttonAction: function(e) { System.exit(0); }
+            onMousePressed: function(e:CanvasMouseEvent):Void  { System.exit(0); }
         } into content;
     }
 
