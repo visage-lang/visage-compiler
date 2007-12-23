@@ -29,7 +29,7 @@ import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.code.Type.MethodType;
+import com.sun.tools.javac.code.Type.*;
 import static com.sun.tools.javac.jvm.ByteCodes.*;
 import com.sun.tools.javac.util.*;
 
@@ -47,15 +47,19 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_StringType;
     public final Type javafx_BooleanType;
     public final Type javafx_VoidType;
+    public final Type javafx_java_lang_VoidType;
     public final Type javafx_SequenceType;
     public final Type javafx_SequenceTypeErasure;
     static public final int MAX_FIXED_PARAM_LENGTH = 8;
     public final Type[] javafx_FunctionTypes = new Type[MAX_FIXED_PARAM_LENGTH+1];
     public final Type javafx_FXObjectType;
     public final Type javafx_SequencesType;
-    
+
     private Types types;
-    
+
+    public static final String functionClassPrefix =
+            "com.sun.javafx.functions.Function";
+
     public static void preRegister(final Context context) {
         context.put(symtabKey, new Context.Factory<Symtab>() {
             public Symtab make() {
@@ -77,11 +81,12 @@ public class JavafxSymtab extends Symtab {
         javafx_StringType = stringType;
         javafx_BooleanType = booleanType;
         javafx_VoidType = voidType;
+        javafx_java_lang_VoidType = types.boxedClass(voidType).type;
         javafx_SequenceType = enterClass("com.sun.javafx.runtime.sequence.Sequence");
         javafx_SequencesType = enterClass("com.sun.javafx.runtime.sequence.Sequences");
         javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);
         for (int i = MAX_FIXED_PARAM_LENGTH; --i >= 0;  ) {
-            javafx_FunctionTypes[i] = enterClass("com.sun.javafx.functions.Function"+i);
+            javafx_FunctionTypes[i] = enterClass(functionClassPrefix+i);
         }
         
         javafx_FXObjectType = enterClass("com.sun.javafx.runtime.FXObject");
@@ -116,18 +121,38 @@ public class JavafxSymtab extends Symtab {
     }
 
     public Type boxIfNeeded(Type elemType) {
-        if (elemType.isPrimitive())
+        if (elemType.isPrimitive() || elemType == voidType)
             return types.boxedClass(elemType).type;
         else
             return elemType;
     }
+    
+    public FunctionType makeFunctionType(List<Type> typarams) {
+        ListBuffer<Type> argtypes = new ListBuffer<Type>();
+        Type restype = null;
+        for (List<Type> l = typarams; l.nonEmpty();  l = l.tail) {
+            Type a = l.head;
+            if (a instanceof WildcardType)
+                a = ((WildcardType) a).type;
+            if (restype == null) {
+                if (a.tsym.name == javafx_java_lang_VoidType.tsym.name) {
+                    a = voidType;
+                }
+                restype = a;
+            }
+            else
+                argtypes.append(a);
+        }
+        MethodType mtype = new MethodType(argtypes.toList(), restype, null, methodClass);
+        return makeFunctionType(typarams, mtype);
+    }
 
-    public FunctionType makeFunctionType(ListBuffer<Type> typarams, Type restype) {
+    public FunctionType makeFunctionType(List<Type> typarams, MethodType mtype) {
         int nargs = typarams.size()-1;
         assert nargs <= MAX_FIXED_PARAM_LENGTH
                 : "NOT IMPLEMENTED - functions with >"+MAX_FIXED_PARAM_LENGTH+" parameters";
         Type funtype = javafx_FunctionTypes[nargs];
-        return new FunctionType(funtype.getEnclosingType(), typarams.toList(), funtype.tsym, restype);
+        return new FunctionType(funtype.getEnclosingType(), typarams, funtype.tsym, mtype);
     }
 
     /** Given a MethodType, create the corresponding FunctionType.
@@ -135,13 +160,10 @@ public class JavafxSymtab extends Symtab {
     public FunctionType makeFunctionType(MethodType mtype) {
         Type rtype = mtype.restype;
         ListBuffer<Type> typarams = new ListBuffer<Type>();
-        Type robjtype = rtype == voidType ? objectType : boxIfNeeded(rtype);
-        typarams.append(robjtype);
+        typarams.append(boxIfNeeded(rtype));
         for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail) {
             typarams.append(boxIfNeeded(l.head));
         }
-        FunctionType ftype = makeFunctionType(typarams, rtype);
-        ftype.mtype = mtype;
-        return ftype;
+        return makeFunctionType(typarams.toList(), mtype);
     }
 }

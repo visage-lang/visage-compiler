@@ -1504,6 +1504,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 if (mrtype != null && mrtype.tag != TypeTags.NONE)
                     returnType = mrtype;
             }
+            if (returnType == syms.javafx_java_lang_VoidType)
+                returnType = syms.voidType;
             mtype = new MethodType(argbuf.toList(),
                                     returnType, // may be unknownType
                                     List.<Type>nil(),
@@ -2782,9 +2784,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         Type restype = attribType(tree.restype, env);
         if (restype == syms.unknownType)
             restype = syms.voidType;
-        Type robjtype = restype == syms.voidType ? syms.objectType : syms.boxIfNeeded(restype);
-        Type rtype = new WildcardType(robjtype, BoundKind.EXTENDS, syms.boundClass);
-
+        Type rtype = restype == syms.voidType ? syms.javafx_java_lang_VoidType
+                : new WildcardType(syms.boxIfNeeded(restype), BoundKind.EXTENDS, syms.boundClass);
         ListBuffer<Type> typarams = new ListBuffer<Type>();
         ListBuffer<Type> argtypes = new ListBuffer<Type>();
         typarams.append(rtype);
@@ -2798,8 +2799,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             nargs++;
         }
         MethodType mtype = new MethodType(argtypes.toList(), restype, null, syms.methodClass);
-        FunctionType ftype = syms.makeFunctionType(typarams, restype);
-        ftype.mtype = mtype;
+        FunctionType ftype = syms.makeFunctionType(typarams.toList(), mtype);
         Type type = sequenceType(ftype, tree.getCardinality());
         tree.type = type;
         result = type; 

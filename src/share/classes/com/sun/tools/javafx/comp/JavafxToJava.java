@@ -1026,7 +1026,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     public void visitOperationValue(JFXOperationValue tree) {
         JFXOperationDefinition def = tree.definition;
         result = makeFunctionValue(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type);
-        result.type = tree.type;
     }
     
    JCExpression makeFunctionValue (JCExpression meth, JFXOperationDefinition def, DiagnosticPosition diagPos, MethodType mtype) {
@@ -1039,19 +1038,22 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         Type ftype = syms.javafx_FunctionTypes[nargs];
         JCExpression t = makeQualifiedTree(null, ftype.tsym.getQualifiedName().toString());
         ListBuffer<JCExpression> typeargs = new ListBuffer<JCExpression>();
-        typeargs.append(makeTypeTree(syms.objectType, diagPos));
+        Type rtype = syms.boxIfNeeded(mtype.restype);
+        typeargs.append(makeTypeTree(rtype, diagPos));
         ListBuffer<JCVariableDecl> params = new ListBuffer<JCVariableDecl>();
         ListBuffer<JCExpression> margs = new ListBuffer<JCExpression>();
         int i = 0;
         for (List<Type> l = mtype.argtypes;  l.nonEmpty();  l = l.tail) {
             Name pname = make.paramName(i++);
+            Type ptype = syms.boxIfNeeded(l.head);
             JCVariableDecl param = make.VarDef(make.Modifiers(0), pname,
-                    makeTypeTree(syms.objectType, diagPos), null);
+                    makeTypeTree(ptype, diagPos), null);
             params.append(param);
             JCExpression marg = make.Ident(pname);
-            margs.append(castFromObject(marg, l.head));
-            typeargs.append(makeTypeTree(syms.objectType, diagPos));
+            margs.append(marg);
+            typeargs.append(makeTypeTree(ptype, diagPos));
         }
+
         // The backend's Attr skips SYNTHETIC methods when looking for a matching method.
         long flags = PUBLIC | BRIDGE; // | SYNTHETIC;
 
@@ -1068,8 +1070,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
        JCMethodDecl bridgeDef = make.at(diagPos).MethodDef(
                 make.Modifiers(flags),
                 defs.invokeName, 
-                makeTypeTree(syms.objectType, diagPos), 
-                List.<JCTypeParameter>nil(), 
+                makeTypeTree(rtype, diagPos),
+                List.<JCTypeParameter>nil(),
                 params.toList(),
                 make.at(diagPos).Types(mtype.getThrownTypes()),
                 make.Block(0, stats), 
@@ -1896,10 +1898,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             if (!t.getTypeArguments().isEmpty()) {
                 List<JCExpression> targs = List.<JCExpression>nil();
                 for (Type ta : t.getTypeArguments()) {
-                    // Kludge - we convert FunctionType generic parameters to Object,
-                    // since otherwise the backend complains about our bridge methods.
-                    targs = targs.append(makeTypeTree(t instanceof FunctionType ? syms.objectType : ta,
-                            diagPos, makeIntf ? true: false));
+                    targs = targs.append(makeTypeTree(ta, diagPos, makeIntf));
                 }
                 texp = make.at(diagPos).TypeApply(texp, targs);
             }

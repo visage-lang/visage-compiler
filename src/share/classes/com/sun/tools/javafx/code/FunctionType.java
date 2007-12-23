@@ -35,22 +35,22 @@ import com.sun.tools.javac.code.Symbol.TypeSymbol;
  */
 public class FunctionType extends Type.ClassType {
 
-    Type restype;
     public MethodType mtype;
     
-    public FunctionType(Type outer, List<Type> typarams, TypeSymbol tsym, Type restype) {
+    public FunctionType(Type outer, List<Type> typarams, TypeSymbol tsym,
+            MethodType mtype) {
         super(outer, typarams, tsym);
-        this.restype = restype;
+        this.mtype = mtype;
     }
 
     /** Copy constructor. */
     public FunctionType(FunctionType orig) {
-        this(orig.getEnclosingType(), orig.typarams_field, orig.tsym, orig.restype);
-        mtype = orig.mtype;
+        this(orig.getEnclosingType(), orig.typarams_field, orig.tsym,
+                orig.mtype);
     }
 
     public List<Type>        getParameterTypes() { return mtype.getParameterTypes(); } 
-    public Type              getReturnType()     { return restype; }
+    public Type              getReturnType()     { return mtype.restype; }
     
     public MethodType asMethodType () { return mtype; }
     
@@ -69,7 +69,7 @@ public class FunctionType extends Type.ClassType {
             }
         }
         s.append("):");
-        s.append(restype);
+        s.append(mtype.restype);
         return s.toString();
     }
 }
