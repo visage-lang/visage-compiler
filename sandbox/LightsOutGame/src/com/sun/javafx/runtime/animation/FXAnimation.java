@@ -7,16 +7,21 @@ package com.sun.javafx.runtime.animation;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.scenario.animation.*;
 import com.sun.tools.javafx.ui.FXBean;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Timer;
 /**
  *
  * @author jclarke
  */
 public class FXAnimation implements TimingTarget, Interpolator {
     private static final int UNSET = Integer.MIN_VALUE;
+    
+    Timer timer;
     FXTimingTarget timingTarget;
     FXInterpolator interpolator;
     Clip clip;
@@ -32,11 +37,17 @@ public class FXAnimation implements TimingTarget, Interpolator {
     FXBean stopBean;
     
     public FXAnimation(int duration, Object instance, String property, Sequence sequence) {
-        this(duration, instance, property, null, null, null, sequence);
+        this(null, duration, instance, property, null, null, null, sequence);
+        
     }
-    public FXAnimation(int duration, Object instance, String property, 
+    public FXAnimation( int duration, Object instance, String property, 
+            Object stopInstance, String stopProperty, Object stopValue, Sequence sequence) {
+            this(null, duration, instance, property, stopInstance, stopProperty, stopValue, sequence);
+    }
+    public FXAnimation(FXTimingTarget timingTarget, int duration, Object instance, String property, 
             Object stopInstance, String stopProperty, Object stopValue, Sequence sequence) {
         try {
+            this.timingTarget = timingTarget;
             this.sequence =  sequence;
             this.bean = new FXBean(instance.getClass());
             this.instance = instance;
@@ -182,13 +193,18 @@ public class FXAnimation implements TimingTarget, Interpolator {
     public void start() {
         counter = 0;
         if(delay > 0) {
-            try {
-                Thread.sleep(delay);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(FXAnimation.class.getName()).log(Level.SEVERE, null, ex);
+            if(timer == null) {
+                timer = new Timer(delay, new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        clip.start();
+                    }
+                });
+                timer.setRepeats(false);
             }
+            timer.start();
+        }else {
+            clip.start();
         }
-        clip.start();
     }
     
     public void cancel() {
@@ -207,7 +223,7 @@ public class FXAnimation implements TimingTarget, Interpolator {
     }
 
     public void timingEvent(float fraction) {
-        if(timingTarget != null) {
+        if(timingTarget != null && bean == null) {
             if(sequence != null) {
                 
                 if(sequence.size() == 0) {
@@ -252,7 +268,8 @@ public class FXAnimation implements TimingTarget, Interpolator {
                 if(sequence.size() == 0) {
                     value = new Double(0.0);
                 }else {                
-                    int ndx = (int)(fraction * (sequence.size()-1));
+                    int ndx = (int)(fraction * sequence.size()) - 1;
+                    if(ndx < 0) ndx = 0;
                     Object obj = sequence.get(ndx);
                     if(obj instanceof Number) {
                         if(obj instanceof Double) {
@@ -264,11 +281,14 @@ public class FXAnimation implements TimingTarget, Interpolator {
                         try {
                             value = Double.valueOf(obj.toString());
                         }catch(NumberFormatException ex) {
-                            Logger.getLogger(FXAnimation.class.getName()).log(Level.WARNING, null, ex);
+                            Logger.getLogger(FXAnimation.class.getName()).log(Level.SEVERE, null, ex);
                             value = new Double(0.0);
                         }
                     }
                     bean.setObject(instance, property, value);
+                    if(this.timingTarget != null) {
+                        timingTarget.timingEvent(value);
+                    }
                 }
             } catch (IllegalAccessException ex) {
                 Logger.getLogger(FXAnimation.class.getName()).log(Level.SEVERE, null, ex);
