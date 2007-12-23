@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<project name="migrator" default="default" basedir=".">
+    <description>Builds, tests, and runs the project migrator.</description>
+    
+    <property environment="env" />
+    <property name="tools.dir" value="../tools"/>
+    <import file="../tools-defs.xml"/>
+    <import file="nbproject/build-impl.xml"/>
+
+    <target name="generate-parser" unless="parser.uptodate" >
+        <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+            <arg value="${antlr.grammar.file}" />
+            <jvmarg value="-Xmx256m"/>
+        </java>
+    </target>
+
+    <target name="-do-compile" depends="init,deps-jar,-pre-pre-compile,-pre-compile" if="have.sources">
+        <javac compiler="modern" fork="true"
+               srcdir="${src.dir}" destdir="${build.classes.dir}"
+               debug="${javac.debug}" deprecation="${javac.deprecation}"
+               source="${javac.source}" target="${javac.target}" includeantruntime="false">
+            <classpath>
+                <path path="${javac.classpath}"/>
+            </classpath>
+            <compilerarg value="-J-Xbootclasspath/p:..${file.separator}lib${file.separator}javac.jar"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.dir}" excludes="${build.classes.excludes}"/>
+        </copy>
+    </target>
+
+    <target depends="init,deps-jar" name="-pre-pre-compile">
+        <mkdir dir="${build.classes.dir}"/>
+        <uptodate property="parser.uptodate" srcfile="${antlr.grammar.file}" targetfile="${antlr.generated.dir}/Parser.java" />
+    </target>
+    
+    <target name="-pre-compile" depends="generate-parser"/>
+
+    <target name="-post-clean">
+        <!-- Delete ANTLR-generated files -->
+        <delete dir="${antlr.src.dir}" includes="**/${antlr.grammar}*.*" excludes="**/${antlr.grammar}.g"/>
+    </target>
+</project>
