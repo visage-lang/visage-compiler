@@ -45,22 +45,20 @@ public class Font {
        return awtFont;
     }
     
-    public function Font(faceName:String, style:String[], size:Integer){
-        this.faceName = faceName;
-        
-        for (i in style) {
+    public static function Font(faceName:String, styleStr:String[], size:Integer){
+        var style: FontStyle[] = [];
+        for (i in styleStr) {
             if (i == "PLAIN")  {
-                insert FontStyle.PLAIN into this.style;
+                insert FontStyle.PLAIN into style;
             } else if (i == "ITALIC")  {
-                insert FontStyle.ITALIC into this.style;
+                insert FontStyle.ITALIC into style;
             } else if (i == "BOLD") {
-                insert FontStyle.BOLD into this.style;
+                insert FontStyle.BOLD into style;
             } else {
                 throw new java.lang.Throwable("Bad font style {i}: expected PLAIN, BOLD, or ITALIC");
             };
         };
-        this.styleStr = style;
-        this.size = size;
+        Font {faceName:faceName, style:style, size:size};
     }
     public function bigger(): Font {
         Font{faceName:faceName, style:style, size:size+1};
