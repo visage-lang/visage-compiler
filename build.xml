@@ -9,7 +9,9 @@
     <property name="runtime.dir" value="${basedir}/runtime"/>
     <property environment="env" />
     <import file="tools-defs.xml"/>
-    <property name="antlr.grammar" value="v2" />
+    <property name="antlr.grammarv2" value="v2" />
+    <property name="antlr.grammarv3" value="v3" />
+    <property name="antlr.grammarv3w" value="v3Walker" />
 
     <import file="nbproject/build-impl.xml"/>
 
@@ -88,7 +90,9 @@
     </target>
 
     <target name="-post-init">
-        <property name="antlr.grammar.file" value="${antlr.src.dir}/${antlr.grammar}.g" />
+        <property name="antlr.grammarv2.file" value="${antlr.src.dir}/${antlr.grammarv2}.g" />
+        <property name="antlr.grammarv3.file" value="${antlr.src.dir}/${antlr.grammarv3}.g" />
+        <property name="antlr.grammarv3w.file" value="${antlr.src.dir}/${antlr.grammarv3w}.g" />
     </target>
 
     <!-- jar file creation: external runtime jar contents are included to reduce classpath issues -->
@@ -103,9 +107,23 @@
         </jar>
     </target>
 
-    <target name="generate-parser" unless="parser.uptodate" >
+    <target name="generate-parserv2" unless="parserv2.uptodate" >
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
-            <arg value="${antlr.grammar.file}" />
+            <arg value="${antlr.grammarv2.file}" />
+        </java>
+    </target>
+
+    <target name="generate-parserv3" unless="parserv3.uptodate" >
+        <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+            <arg value="${antlr.grammarv3.file}" />
+        </java>
+    </target>
+
+    <target name="generate-parserv3w" unless="parserv3w.uptodate" >
+        <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+            <arg value="${antlr.grammarv3w.file}" />
+            <arg value="-lib" />
+            <arg value="${antlr.src.dir}" />
         </java>
     </target>
 
@@ -162,9 +180,11 @@
 
     <target depends="init,deps-jar" name="-pre-pre-compile">
         <mkdir dir="${build.classes.dir}"/>
-        <uptodate property="parser.uptodate" srcfile="${antlr.grammar.file}" targetfile="${antlr.generated.dir}/${antlr.grammar}Parser.java" />
+        <uptodate property="parserv2.uptodate" srcfile="${antlr.grammarv2.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv2}Parser.java" />
+        <uptodate property="parserv3.uptodate" srcfile="${antlr.grammarv3.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv3}Parser.java" />
+        <uptodate property="parserv3w.uptodate" srcfile="${antlr.grammarv3w.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv3w}.java" />
     </target>
-    <target name="-pre-compile" depends="generate-parser"/>
+    <target name="-pre-compile" depends="generate-parserv2,generate-parserv3,generate-parserv3w"/>
     <target name="-post-compile" depends="compile-runtime-fx" />
     <target depends="init" name="-javadoc-build">
         <mkdir dir="${dist.javadoc.dir}"/>
@@ -233,6 +253,7 @@
     <target name="-post-clean" depends="runtime-clean">
         <!-- Delete ANTLR-generated files -->
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v2*.*" excludes="**/v2.g"/>
+        <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v3*.*" excludes="**/v3.g **/v3Walker.g"/>
         <delete dir="${syntax.diagrams.dir}" />
         <delete dir="${build.instrumented.dir}"/>
         <delete file="cobertura.ser" />

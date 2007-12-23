@@ -34,13 +34,14 @@ import com.sun.tools.javac.util.*;
 import static com.sun.tools.javac.util.ListBuffer.lb;
 
 import org.antlr.runtime.*;
+import org.antlr.runtime.tree.*;
 
 /**
  * Base class for ANTLR generated parsers 
  * 
  * @author Robert Field
  */
-public abstract class AbstractGeneratedParser extends Parser {
+public abstract class AbstractGeneratedTreeParser extends TreeParser {
     
     /** The factory to be used for abstract syntax tree construction.
      */
@@ -69,7 +70,7 @@ public abstract class AbstractGeneratedParser extends Parser {
         this.source = Source.instance(context);
     }
     
-    protected AbstractGeneratedParser(TokenStream input) {
+    protected AbstractGeneratedTreeParser(TreeNodeStream input) {
         super(input);
     }
     

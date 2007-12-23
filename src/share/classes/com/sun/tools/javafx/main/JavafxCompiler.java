@@ -54,7 +54,7 @@ import com.sun.tools.javafx.code.*;
 import java.util.Iterator;
 import static javax.tools.StandardLocation.CLASS_OUTPUT;
 import static com.sun.tools.javac.util.ListBuffer.lb;
-import com.sun.tools.javafx.antlr.*;
+import com.sun.tools.javafx.antlr.JavafxSyntacticAnalysis;
 
 /** This class could be the main entry point for GJC when GJC is used as a
  *  component in a larger software system. It provides operations to
@@ -259,7 +259,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     protected TaskListener taskListener;
 
-// Javafx change
+    protected JavafxSyntacticAnalysis syntacticAnalysis;
     protected JavafxModuleBuilder javafxModuleBuilder;
     protected JavafxVarUsageAnalysis varUsageAnalysis;
     protected JavafxToJava jfxToJava;
@@ -299,6 +299,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
         fileManager = context.get(JavaFileManager.class);
 
+        syntacticAnalysis = JavafxSyntacticAnalysis.instance(context);
         javafxModuleBuilder = JavafxModuleBuilder.instance(context);
         varUsageAnalysis = JavafxVarUsageAnalysis.instance(context);
         jfxToJava = JavafxToJava.instance(context);
@@ -481,8 +482,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     protected JCCompilationUnit parse(JavaFileObject filename, CharSequence content) {
         long msec = now();
-        JCCompilationUnit tree = make.TopLevel(List.<JCTree.JCAnnotation>nil(),
-                                      null, List.<JCTree>nil());
+        JCCompilationUnit tree = null;
         if (content != null) {
             if (verbose) {
                 printVerbose("parsing.started", filename);
@@ -491,34 +491,26 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 TaskEvent e = new TaskEvent(TaskEvent.Kind.PARSE, filename);
                 taskListener.started(e);
             }
-	    int initialErrorCount = log.nerrors;
-            String parserChoice = options.get("parser");
-            if (parserChoice == null) {
-                parserChoice = "vn"; // default
+            int initialErrorCount = log.nerrors;
+            
+            // Parse the input, returning the AST
+            
+            tree = syntacticAnalysis.parse(content);
+            parseErrors |= (log.nerrors > initialErrorCount);
+            if (tree != null && lineDebugInfo) {
+                String hunk = content.toString();
+                tree.lineMap = Position.makeLineMap(hunk.toCharArray(), hunk.length(), false);
             }
-            {
-                AbstractGeneratedParser generatedParser;
-//                if (parserChoice.equals("v1")) {
-//                    generatedParser = new v1Parser(context, content);
-//                } else {
-                    generatedParser = new v2Parser(context, content);
-//                }
-                try { 
-                    JCCompilationUnit unit = generatedParser.module();
-                    if (unit != null) // test shouldn't be needed when we have better error recovery
-                        tree = unit;
-                } catch (Exception exc) {
-                    exc.printStackTrace();
-                }
-                parseErrors |= (log.nerrors > initialErrorCount);
-                if (lineDebugInfo) {
-                    String hunk = content.toString();
-                    tree.lineMap = Position.makeLineMap(hunk.toCharArray(), hunk.length(), false);
-                }        
-            }
-            if (verbose) {
-                printVerbose("parsing.done", Long.toString(elapsed(msec)));
-            }
+        }
+        if (verbose) {
+            printVerbose("parsing.done", Long.toString(elapsed(msec)));
+        }
+
+        // test shouldn't be needed when we have better error recovery
+        if (tree == null) {
+            // We have nothing, so make an empty module
+            tree = make.TopLevel(List.<JCTree.JCAnnotation>nil(),
+                    null, List.<JCTree>nil());
         }
 
         tree.sourcefile = filename;

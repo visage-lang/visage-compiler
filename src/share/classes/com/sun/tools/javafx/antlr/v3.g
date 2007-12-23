@@ -183,29 +183,9 @@ import com.sun.tools.javac.util.Log;
 @header {
 package com.sun.tools.javafx.antlr;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.io.OutputStreamWriter;
-
-import com.sun.tools.javac.tree.*;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javafx.tree.*;
-import com.sun.javafx.api.tree.*;
-
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.util.*;
-import static com.sun.tools.javac.util.ListBuffer.lb;
-import com.sun.javafx.api.JavafxBindStatus;
-import static com.sun.javafx.api.JavafxBindStatus.*;
-
+import com.sun.tools.javac.util.Context;
+import org.antlr.runtime.tree.*;
 import org.antlr.runtime.*;
-}
-
-@members {
-        public v3Parser(Context context, CharSequence content) {
-           this(new CommonTokenStream(new v3Lexer(context, new ANTLRStringStream(content.toString()))));
-           initialize(context);
-    	}
 }
 
 @lexer::members {
@@ -744,7 +724,7 @@ multiplicativeExpression
 //TODO: POUND QUES TYPEOF REVERSE
 unaryExpression 
 	: suffixedExpression					-> suffixedExpression
-	| SUB      e=unaryExpression				-> ^(NEGATIVE[SUB] $e)
+	| SUB      e=unaryExpression				-> ^(NEGATIVE[$SUB] $e)
 	| NOT      e=unaryExpression				-> ^(NOT $e)		
 	| SIZEOF   e=unaryExpression				-> ^(SIZEOF $e)	
 	| PLUSPLUS e=unaryExpression				-> ^(PLUSPLUS $e)   	
@@ -763,12 +743,12 @@ postfixExpression
 //TODO:		 | CLASS   					
 	         )   
 	   | expressionList  					-> ^(FUNC_APPLY $postfixExpression expressionList)
-	   | LBRACKET expression RBRACKET			-> ^(SEQ_INDEX[LBRACKET] $postfixExpression expression)
+	   | LBRACKET expression RBRACKET			-> ^(SEQ_INDEX[$LBRACKET] $postfixExpression expression)
 	   ) * 
 	;
 primaryExpression  
 	: qualident					
-		( LBRACE  objectLiteralPart* RBRACE 		-> ^(OBJECT_LIT[LBRACE] qualident objectLiteralPart*)
+		( LBRACE  objectLiteralPart* RBRACE 		-> ^(OBJECT_LIT[$LBRACE] qualident objectLiteralPart*)
 		|						-> qualident
 		)
        	| THIS							-> THIS
@@ -781,7 +761,7 @@ primaryExpression
        	;
 functionExpression  
 	: FUNCTION formalParameters typeReference blockExpression
-								-> ^(FUNC_EXPR[FUNCTION] formalParameters typeReference blockExpression)
+								-> ^(FUNC_EXPR[$FUNCTION] formalParameters typeReference blockExpression)
 	;
 newExpression 
 	: NEW typeName expressionListOpt			-> ^(NEW typeName expressionListOpt)
@@ -810,15 +790,15 @@ stringFormat
 	;
 bracketExpression  
 	: LBRACKET   
-	    ( /*nada*/				-> ^(SEQ_EMPTY[LBRACKET])
+	    ( /*nada*/				-> ^(SEQ_EMPTY[$LBRACKET])
 	    | e1=expression 	
-	     	(   /*nada*/			-> ^(SEQ_EXPLICIT[LBRACKET] expression*)
+	     	(   /*nada*/			-> ^(SEQ_EXPLICIT[$LBRACKET] expression*)
 	     	| COMMA 
-	     	   (   /*nada*/			-> ^(SEQ_EXPLICIT[LBRACKET] expression*)
+	     	   (   /*nada*/			-> ^(SEQ_EXPLICIT[$LBRACKET] expression*)
             	| e2=expression 		
 	     	         (COMMA expression)*
                           COMMA?
-	     	       				-> ^(SEQ_EXPLICIT[LBRACKET] expression*)
+	     	       				-> ^(SEQ_EXPLICIT[$LBRACKET] expression*)
                     )
 	     	| DOTDOT   dd=expression	
 	     	    ( STEP st=expression )?
@@ -830,7 +810,7 @@ bracketExpression
 	;
 expressionList  
 	: LPAREN (expression (COMMA expression)*)? RPAREN
-						-> ^(EXPR_LIST[LPAREN] expression*)
+						-> ^(EXPR_LIST[$LPAREN] expression*)
 	;
 expressionListOpt  
 	: (LPAREN)=> expressionList		-> expressionList
@@ -842,7 +822,7 @@ type
           	   RPAREN typeReference 
           	   	cardinality	//TODO: this introduces an ambiguity: return cardinality vs type cardinality
           	   				-> ^(TYPE_FUNCTION[$FUNCTION] typeArgList typeReference cardinality?)
- 	| STAR cardinality			-> ^(TYPE_ANY[STAR] cardinality?)
+ 	| STAR cardinality			-> ^(TYPE_ANY[$STAR] cardinality?)
  	;
 typeArgList
  	: (typeArg (COMMA typeArg)* )?		-> typeArg*
@@ -875,7 +855,7 @@ literal
 typeName  
 	: qualident 		
 		(LT typeArgument (COMMA typeArgument)* GT
-						-> ^(TYPE_ARG qualident typeArgument+)
+						-> ^(TYPE_ARG[$LT] qualident typeArgument+)
 		|				-> qualident
 		)
 	;

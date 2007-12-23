@@ -23,23 +23,46 @@
  * have any questions.
  */
 
-grammar v3Walker;
+tree grammar v3Walker;
 
 options { 
    tokenVocab=v3;
    ASTLabelType=CommonTree;
+   superClass = AbstractGeneratedTreeParser; 
 }
 
-module
-	: ^(MODULE packageDecl? moduleItems)
+@header {
+package com.sun.tools.javafx.antlr;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.io.OutputStreamWriter;
+
+import com.sun.tools.javac.tree.*;
+import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javafx.tree.*;
+import com.sun.javafx.api.tree.*;
+
+import com.sun.tools.javac.code.*;
+import com.sun.tools.javac.util.*;
+import static com.sun.tools.javac.util.ListBuffer.lb;
+import com.sun.javafx.api.JavafxBindStatus;
+import static com.sun.javafx.api.JavafxBindStatus.*;
+
+import org.antlr.runtime.*;
+}
+	
+module returns [JCCompilationUnit result]
+	: ^(MODULE packageDecl? moduleItems)		{ $result = F.TopLevel(noJCAnnotations(), $packageDecl.value, $moduleItems.items.toList()); }
        	;
-packageDecl 
-       	: ^(PACKAGE qualident)
+packageDecl  returns [JCExpression value]
+       	: ^(PACKAGE qualident)        			{ $value = $qualident.expr; }
 	;
-moduleItems    
-	: moduleItem*
+moduleItems  returns [ListBuffer<JCTree> items = new ListBuffer<JCTree>()]  
+	: ( moduleItem					{ items.append($moduleItem.value); }
+	  )*
 	;
-moduleItem 
+moduleItem  returns [JCTree value]
 	: importDecl
 	| classDefinition
 	| statement
@@ -265,7 +288,7 @@ typeArgument
 	| ^(QUES EXTENDS? SUPER? typeName?)
 	;
 	
-qualident 
+qualident  returns [JCExpression expr]
 	: name 
 	| ^(DOT qualident name)
 	;
