@@ -152,7 +152,7 @@ public abstract class Widget extends GroupElement, UIElement {
             source: e
         };
     }
-    private function makeMouseWheelEvent(e:java.awt.event.MouseWheelEvent):MouseEvent {
+    private function makeMouseWheelEvent(e:java.awt.event.MouseWheelEvent):MouseWheelEvent {
         MouseWheelEvent {
             modifiers: [if (e.isAltDown() ) KeyModifier.ALT else null,
                         if (e.isControlDown() ) KeyModifier.CTRL else null, 
@@ -169,7 +169,7 @@ public abstract class Widget extends GroupElement, UIElement {
             wheelRotation: e.getWheelRotation()
             unitsToScroll: e.getUnitsToScroll()
             source: e
-        } as MouseEvent;
+        };
     }
 
     protected attribute mouseListener: MouseListener;
