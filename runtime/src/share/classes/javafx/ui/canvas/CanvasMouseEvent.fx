@@ -45,21 +45,50 @@ public class CanvasMouseEvent {
         //source.percolate = value; // TODO: hmm
     };
     public function isControlDown():Boolean{
-        return KeyModifier.CTRL in modifiers <> null;
+        var result:Boolean;
+        for(m in modifiers) {
+            if(m == KeyModifier.CTRL) {
+                result = true;
+                break;
+            }
+        }
+        return result;
     }
     public function isAltDown():Boolean{
-        return KeyModifier.ALT in modifiers  <> null;
+        var result:Boolean;
+        for(m in modifiers) {
+            if(m == KeyModifier.ALT) {
+                result = true;
+                break;
+            }
+        }
+        return result;        
     }
     public function isShiftDown():Boolean{
-        return KeyModifier.SHIFT in modifiers  <> null;
+        var result:Boolean;
+        for(m in modifiers) {
+            if(m == KeyModifier.SHIFT) {
+                result = true;
+                break;
+            }
+        }
+        return result;        
     }
     public function isMetaDown():Boolean{
-        return KeyModifier.META in modifiers  <> null;
+        var result:Boolean;
+        for(m in modifiers) {
+            if(m == KeyModifier.META) {
+                result = true;
+                break;
+            }
+        }
+        return result;        
     }
     public function isPopupTrigger():Boolean{
         return false; //source.isPopupTrigger(); // TODO: hmm
     }
     protected attribute source: MouseEvent;
+    
 }
 
 
