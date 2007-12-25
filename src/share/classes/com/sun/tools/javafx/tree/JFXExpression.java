@@ -67,11 +67,11 @@ public abstract class JFXExpression extends JCExpression implements JavaFXExpres
 
     @Override
     public final Kind getKind() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
     }
 
     @Override
     public final <R, D> R accept(TreeVisitor<R, D> v, D d) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
     }
 }

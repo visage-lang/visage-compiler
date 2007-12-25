@@ -124,10 +124,10 @@ public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
     }
 
     public JavaFXKind getJavaFXKind() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
     }
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
     }
 }

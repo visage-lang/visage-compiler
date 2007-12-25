@@ -57,11 +57,11 @@ public abstract class JFXStatement extends JCStatement implements JavaFXStatemen
 
     @Override
     public final Kind getKind() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
     }
 
     @Override
     public final <R, D> R accept(TreeVisitor<R, D> v, D d) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
     }
 }
