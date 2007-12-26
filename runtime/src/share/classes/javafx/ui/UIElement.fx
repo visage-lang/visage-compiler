@@ -24,14 +24,15 @@
  */ 
 
 package javafx.ui;
-import sun.awt.AppContext;
 import com.sun.javafx.runtime.awt.GradientPaint;
 import java.awt.RenderingHints;
 import java.lang.Object;
 import java.lang.Throwable;
 import java.lang.System;
 import java.lang.Math;
+import java.lang.Thread;
 import java.awt.Toolkit;
+import java.util.HashMap;
 import com.sun.javafx.api.ui.UIContext;
 import com.sun.javafx.api.ui.UIContextImpl;
 
@@ -171,6 +172,10 @@ public function pointToPixel(pt:Integer):Number{
 }
 
 public class UIElement {
+    // each applet has separate ThreadGroup, so this map provides separate UIContext for each applet
+    private static attribute threadGroupContexts: HashMap 
+        = new HashMap/*<ThreadGroup,Map<String,UIContext>>*/;
+
     // Not abstract this is the default implementation
     public function getWindow():java.awt.Window {return null; }
     public attribute lookAndFeel: String = null
@@ -180,16 +185,23 @@ public class UIElement {
             javax.swing.SwingUtilities.updateComponentTreeUI(getWindow());
 	}
     };
+  
     public static attribute context:UIContext = getUIContext();
+
     public static function getUIContext(): UIContext {
-	var appContext = AppContext.getAppContext();
+        var tgroup = Thread.currentThread().getThreadGroup();
+        var appContext = threadGroupContexts.get(tgroup) as HashMap;
+        if (appContext == null) {
+            appContext = new HashMap;
+            threadGroupContexts.put(tgroup, appContext);
+        }
 	var context = appContext.get("javafx.UIContext") as UIContext;
 	if (context == null) {
 	    context = new UIContextImpl();
 	    appContext.put("javafx.UIContext", context);
 	}
 	return context;
-    }	
+    }
 }
 
 
