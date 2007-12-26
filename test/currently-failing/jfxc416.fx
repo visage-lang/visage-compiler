@@ -2,8 +2,8 @@
  * Regression test: Infer delete trigger oldValue type from context.
  * Failing as part of JFXC-472; assigned to brian
  *
- * @test/fail
- * @run
+ * @test
+ * @run/fail
  */
 
 import java.lang.System;
