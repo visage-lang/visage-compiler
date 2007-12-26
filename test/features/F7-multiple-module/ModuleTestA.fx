@@ -1,5 +1,5 @@
 /*
- * Not a test itself, but needs to be compiled to support multiple-module
+ * @subtest Main.fx
  */
 class ModuleTestA {
     attribute vs : String;

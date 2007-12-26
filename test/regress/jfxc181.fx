@@ -1,3 +1,7 @@
+/*
+ * @test
+ */
+
 class Bar {
     attribute a : Integer;
 }

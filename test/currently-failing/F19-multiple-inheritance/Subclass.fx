@@ -1,3 +1,7 @@
+/*
+ * @subtest F19
+ */
+
 class Subclass extends Base1, Base2 {
     attribute d : Integer;
 

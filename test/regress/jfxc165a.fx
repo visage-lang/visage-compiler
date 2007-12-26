@@ -1,4 +1,8 @@
-import java.lang.System; 
+/*
+ * @test
+ * @run
+ */
+import java.lang.System;
 
 var aaa = 100; 
 aaa = 2 + aaa; 

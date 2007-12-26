@@ -1,6 +1,7 @@
 /*
  * NullPointerException is thrown if compiled, but it compiles successfully
  * if "hello():Object" is substituted.
+ * @test
  */
 
 import java.lang.*;

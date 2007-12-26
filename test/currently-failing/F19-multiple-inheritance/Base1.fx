@@ -1,3 +1,7 @@
+/*
+ * @subtest F19
+ */
+
 class Base1 {
     attribute a : Integer;
     attribute b : Integer;

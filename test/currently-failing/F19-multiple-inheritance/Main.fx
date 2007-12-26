@@ -3,10 +3,10 @@ import java.lang.System;
 /*
  * Feature test #19 -- multiple inheritance
  *
- * @ test
- * @ compilefirst Base1.fx
- * @ compilefirst Base2.fx
- * @ compile Subclass.fx
+ * @test/fail
+ * @compilefirst Base1.fx
+ * @compilefirst Base2.fx
+ * @compile Subclass.fx
  */
 
 var v = Subclass { a: 1 }

@@ -1,5 +1,9 @@
 import java.lang.System;
 
+/*
+ * @subtest Main.fx
+ */
+
 class Moo {
     attribute x : Integer;
     attribute y : Integer;

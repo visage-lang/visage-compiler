@@ -25,6 +25,10 @@
 
 package framework;
 
+import java.io.*;
+import java.lang.reflect.Method;
+import java.util.*;
+
 import com.sun.javafx.api.JavafxCompiler;
 import junit.framework.TestCase;
 import org.apache.tools.ant.Project;
@@ -34,16 +38,13 @@ import org.apache.tools.ant.taskdefs.PumpStreamHandler;
 import org.apache.tools.ant.types.CommandlineJava;
 import org.apache.tools.ant.types.Path;
 
-import java.io.*;
-import java.lang.reflect.Method;
-import java.util.*;
-
 /**
  * Compiles a single JavaFX script source file and executes the resulting class.
  *
  * @author tball
  */
-public class FXCompilerTestCase extends TestCase {
+public class FXCompilerTestCase extends TestCase implements Comparable<FXCompilerTestCase> {
+    private final String name;
     private final File test;
     private final File buildDir;
     private final boolean shouldRun;
@@ -67,6 +68,7 @@ public class FXCompilerTestCase extends TestCase {
                               Collection<String> auxFiles,
                               Collection<String> separateFiles) {
         super(name);
+        this.name = name;
         this.test = test;
         this.shouldRun = shouldRun;
         this.expectCompileFailure = expectCompileFailure;
@@ -84,11 +86,14 @@ public class FXCompilerTestCase extends TestCase {
         String outputFileName = buildDir + File.separator + className + ".OUTPUT";
         String errorFileName = buildDir + File.separator + className + ".ERROR";
         String expectedFileName = test.getPath() + ".EXPECTED";
+        System.out.println("Test(compile" + (shouldRun ? ", run" : "") + "): " + test);
         compile();
-        if (shouldRun) {
-            execute(outputFileName, errorFileName);
-            compare(outputFileName, expectedFileName);
-        }
+        if (shouldRun)
+            execute(outputFileName, errorFileName, expectedFileName);
+    }
+
+    public int compareTo(FXCompilerTestCase o) {
+        return name.compareTo(((FXCompilerTestCase) o).name);
     }
 
     private void compile() throws IOException {
@@ -108,7 +113,6 @@ public class FXCompilerTestCase extends TestCase {
             err = new ByteArrayOutputStream();
             List<String> files = new ArrayList<String>();
             files.add(new File(test.getParent(), f).getPath());
-            System.out.println("Compiling " + f);
             int errors = doCompile(buildDir.getPath(), classpath.toString(), files, out, err);
             if (errors != 0 && !expectCompileFailure) {
                 dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output");
@@ -119,8 +123,6 @@ public class FXCompilerTestCase extends TestCase {
                     sb.append('s');
                 sb.append(" compiling ").append(f);
                 fail(sb.toString());
-            } else if (errors == 0 && expectCompileFailure) {
-                fail("expected compiler error");
             }
         }
 
@@ -130,7 +132,6 @@ public class FXCompilerTestCase extends TestCase {
         files.add(test.getPath());
         for (String f : auxFiles)
             files.add(new File(test.getParent(), f).getPath());
-        System.out.println("Compiling " + test);
         int errors = doCompile(buildDir.getPath(), classpath.toString(), files, out, err);
         if (errors != 0 && !expectCompileFailure) {
             dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output");
@@ -159,8 +160,7 @@ public class FXCompilerTestCase extends TestCase {
         return compiler.run(null, out, err, args.toArray(new String[args.size()]));
     }
 
-    private void execute(String outputFileName, String errorFileName) throws IOException {
-        System.out.println("Running " + test);
+    private void execute(String outputFileName, String errorFileName, String expectedFileName) throws IOException {
         CommandlineJava commandLine = new CommandlineJava();
         String mainClass = className.substring(0, className.length() - ".fx".length());
         commandLine.setClassname(mainClass);
@@ -182,8 +182,11 @@ public class FXCompilerTestCase extends TestCase {
                 System.out.println("--");
                 fail("Output written to standard error");
             }
+            compare(outputFileName, expectedFileName);
         } catch (IOException e) {
-            fail("Failure running test " + test + ": " + e.getMessage());
+            if (!expectRunFailure)
+                fail("Failure running test " + test + ": " + e.getMessage());
+            // else success
         }
     }
 
@@ -194,7 +197,6 @@ public class FXCompilerTestCase extends TestCase {
                 : new BufferedReader(new StringReader(""));
         BufferedReader actual = new BufferedReader(new InputStreamReader(new FileInputStream(outputFileName)));
 
-        System.out.println("Comparing " + test);
         int lineCount = 0;
         while (true) {
             String es = expected.readLine();
@@ -202,7 +204,13 @@ public class FXCompilerTestCase extends TestCase {
             while (as != null && as.startsWith("Cobertura:"))
                 as = actual.readLine();
             ++lineCount;
-            if (es == null && as == null)
+            if (es == null && as == null) {
+                if (expectRunFailure)
+                    fail("Expected runtime failure");
+                else
+                    break;
+            }
+            else if (expectRunFailure && ((es == null) || as == null || !es.equals(as)))
                 break;
             else if (es == null)
                 fail("Expected output for " + test + " ends prematurely at line " + lineCount);
