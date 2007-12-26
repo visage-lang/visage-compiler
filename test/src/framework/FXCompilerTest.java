@@ -33,6 +33,7 @@ import java.util.Scanner;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.apache.tools.ant.DirectoryScanner;
 
 /**
  * Simple JUnit test suite for the JavaFX script compiler.
@@ -73,12 +74,20 @@ public class FXCompilerTest extends TestSuite {
     }
 
     private static void findTests(File dir, List<Test> tests, List<String> orphanFiles) {
+        String pattern = System.getProperty("test.fx.includes");
+        DirectoryScanner ds = new DirectoryScanner();
+        ds.setIncludes(new String[] { (pattern == null ? "**/*.fx" : pattern) });
+        ds.setBasedir(dir);
+        ds.scan();
+        final List<File> included = new ArrayList<File>();
+        for (String s : ds.getIncludedFiles())
+            included.add(new File(dir, s));
         File[] children = dir.listFiles(new FileFilter() {
             public boolean accept(File f) {
                 String name = f.getName();
                 if (f.isDirectory())
                     return !name.equals("SCCS");
-                return name.endsWith(".fx");
+                return name.endsWith(".fx") && included.contains(f);
             }
         });
         for (File f : children) {

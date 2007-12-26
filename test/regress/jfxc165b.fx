@@ -1,5 +1,6 @@
 /*
  * @test
+ * @compile jfxc165a.fx
  */
  
 class jfxc165b {

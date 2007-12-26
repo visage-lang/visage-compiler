@@ -83,7 +83,13 @@
         <ant antfile="bootstrap.xml" target="all"/>
     </target>
 
-    <target name="-pre-init" depends="check-ant,check-jdk-1.5,do-bootstrap,tool-paths">
+    <target name="single-fx-test-check" if="test.fx.includes">
+        <property name="test.includes" value="**/FXCompilerTest.java"/>
+        <property name="javac.includes" value="**/FXCompilerTest.java"/>
+        <property name="test-sys-prop.test.fx.includes" value="${test.fx.includes}"/>
+    </target>
+
+    <target name="-pre-init" depends="check-ant,check-jdk-1.5,do-bootstrap,tool-paths,single-fx-test-check">
         <fail unless="has-jdk-1.5">You need JDK 1.5 or higher to build JavaFX.</fail>
         <echo message="JDK version ${java.version}"/>
         <echo message="Ant version ${ant.version}"/>
