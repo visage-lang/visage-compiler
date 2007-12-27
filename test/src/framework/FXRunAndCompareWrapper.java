@@ -26,10 +26,11 @@
 package framework;
 
 import java.io.*;
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
-import com.sun.javafx.api.JavafxCompiler;
 import junit.framework.TestCase;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.filters.StringInputStream;
@@ -43,79 +44,62 @@ import org.apache.tools.ant.types.Path;
  *
  * @author tball
  */
-public class FXCompilerTestCase extends TestCase implements Comparable<FXCompilerTestCase> {
+public class FXRunAndCompareWrapper extends TestCase {
     private final String name;
-    private final File test;
+    private final File testFile;
     private final File buildDir;
     private final boolean shouldRun;
     private final boolean expectCompileFailure;
     private final boolean expectRunFailure;
-    private String className;
+    private final String className;
+    private final String classpath;
     private final List<String> auxFiles;
     private final List<String> separateFiles;
 
-    private static final JavafxCompiler compiler = compilerLocator();
-
-    public static final String TEST_ROOT = "test";
-    public static final String BUILD_ROOT = "build/test";
-    public static final String TEST_PREFIX = TEST_ROOT + File.separator;
-
-    public FXCompilerTestCase(File test,
-                              String name,
-                              boolean expectCompileFailure,
-                              boolean shouldRun,
-                              boolean expectRunFailure,
-                              Collection<String> auxFiles,
-                              Collection<String> separateFiles) {
+    public FXRunAndCompareWrapper(File testFile,
+                                  String name,
+                                  boolean expectCompileFailure,
+                                  boolean shouldRun,
+                                  boolean expectRunFailure,
+                                  Collection<String> auxFiles,
+                                  Collection<String> separateFiles) {
         super(name);
         this.name = name;
-        this.test = test;
+        this.testFile = testFile;
+        this.buildDir = TestHelper.makeBuildDir(testFile);
         this.shouldRun = shouldRun;
         this.expectCompileFailure = expectCompileFailure;
         this.expectRunFailure = expectRunFailure;
-        assertTrue("path not a relative pathname", test.getPath().startsWith(TEST_PREFIX));
-        this.buildDir = new File(BUILD_ROOT + File.separator + test.getParent().substring(TEST_PREFIX.length()));
         this.auxFiles = new LinkedList<String>(auxFiles);
         this.separateFiles = new LinkedList<String>(separateFiles);
+        this.className = testFile.getName();
+        assertTrue(className.endsWith(".fx"));
+        classpath = TestHelper.getClassPath(buildDir);
     }
 
     @Override
     protected void runTest() throws Throwable {
-        className = test.getName();
-        assertTrue(className.endsWith(".fx"));
         String outputFileName = buildDir + File.separator + className + ".OUTPUT";
         String errorFileName = buildDir + File.separator + className + ".ERROR";
-        String expectedFileName = test.getPath() + ".EXPECTED";
-        System.out.println("Test(compile" + (shouldRun ? ", run" : "") + "): " + test);
+        String expectedFileName = testFile.getPath() + ".EXPECTED";
+        System.out.println("Test(compile" + (shouldRun ? ", run" : "") + "): " + testFile);
         compile();
         if (shouldRun)
             execute(outputFileName, errorFileName, expectedFileName);
-    }
-
-    public int compareTo(FXCompilerTestCase o) {
-        return name.compareTo(((FXCompilerTestCase) o).name);
     }
 
     private void compile() throws IOException {
         ByteArrayOutputStream out;
         ByteArrayOutputStream err;
 
-        File buildRoot = new File(BUILD_ROOT);
-        if (!buildRoot.exists())
-            fail("no " + BUILD_ROOT + " directory in " + new File(".").getAbsolutePath());
-        buildDir.mkdirs();
-        Path classpath = new CommandlineJava().createClasspath(new Project());
-        classpath.createPathElement().setPath(System.getProperty("java.class.path"));
-        classpath.createPathElement().setPath(buildDir.getPath());
-
         for (String f : separateFiles) {
             out = new ByteArrayOutputStream();
             err = new ByteArrayOutputStream();
             List<String> files = new ArrayList<String>();
-            files.add(new File(test.getParent(), f).getPath());
-            int errors = doCompile(buildDir.getPath(), classpath.toString(), files, out, err);
+            files.add(new File(testFile.getParent(), f).getPath());
+            int errors = TestHelper.doCompile(buildDir.getPath(), classpath, files, out, err);
             if (errors != 0 && !expectCompileFailure) {
-                dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output");
+                TestHelper.dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output", testFile.toString());
                 System.out.println("--");
                 StringBuilder sb = new StringBuilder();
                 sb.append(errors).append(" error");
@@ -129,35 +113,23 @@ public class FXCompilerTestCase extends TestCase implements Comparable<FXCompile
         out = new ByteArrayOutputStream();
         err = new ByteArrayOutputStream();
         List<String> files = new ArrayList<String>();
-        files.add(test.getPath());
+        files.add(testFile.getPath());
         for (String f : auxFiles)
-            files.add(new File(test.getParent(), f).getPath());
-        int errors = doCompile(buildDir.getPath(), classpath.toString(), files, out, err);
+            files.add(new File(testFile.getParent(), f).getPath());
+        int errors = TestHelper.doCompile(buildDir.getPath(), classpath, files, out, err);
         if (errors != 0 && !expectCompileFailure) {
-            dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output");
+            TestHelper.dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output", testFile.toString());
             System.out.println("--");
             StringBuilder sb = new StringBuilder();
             sb.append(errors).append(" error");
             if (errors > 1)
                 sb.append('s');
-            sb.append(" compiling ").append(test);
+            sb.append(" compiling ").append(testFile);
             fail(sb.toString());
-        } else if (errors == 0 && expectCompileFailure) {
+        }
+        else if (errors == 0 && expectCompileFailure) {
             fail("expected compiler error");
         }
-    }
-
-    private static int doCompile(String dir, String classpath, List<String> files, OutputStream out, OutputStream err) {
-        List<String> args = new ArrayList<String>();
-        args.add("-target");
-        args.add("1.5");
-        args.add("-d");
-        args.add(dir);
-        args.add("-cp");
-        args.add(classpath);
-        for (String f : files)
-            args.add(f);
-        return compiler.run(null, out, err, args.toArray(new String[args.size()]));
     }
 
     private void execute(String outputFileName, String errorFileName, String expectedFileName) throws IOException {
@@ -177,15 +149,16 @@ public class FXCompilerTestCase extends TestCase implements Comparable<FXCompile
             exe.execute();
             File errorFileHandle = new File(errorFileName);
             if (errorFileHandle.length() > 0) {
-                dumpFile(new FileInputStream(outputFileName), "Test Output");
-                dumpFile(new FileInputStream(errorFileName), "Test Error");
+                TestHelper.dumpFile(new FileInputStream(outputFileName), "Test Output", testFile.toString());
+                TestHelper.dumpFile(new FileInputStream(errorFileName), "Test Error", testFile.toString());
                 System.out.println("--");
                 fail("Output written to standard error");
             }
             compare(outputFileName, expectedFileName);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             if (!expectRunFailure)
-                fail("Failure running test " + test + ": " + e.getMessage());
+                fail("Failure running test " + testFile + ": " + e.getMessage());
             // else success
         }
     }
@@ -213,75 +186,12 @@ public class FXCompilerTestCase extends TestCase implements Comparable<FXCompile
             else if (expectRunFailure && ((es == null) || as == null || !es.equals(as)))
                 break;
             else if (es == null)
-                fail("Expected output for " + test + " ends prematurely at line " + lineCount);
+                fail("Expected output for " + testFile + " ends prematurely at line " + lineCount);
             else if (as == null)
-                fail("Program output for " + test + " ends prematurely at line " + lineCount);
+                fail("Program output for " + testFile + " ends prematurely at line " + lineCount);
             else if (!es.equals(as))
-                fail("Program output for " + test + " differs from expected at line " + lineCount);
+                fail("Program output for " + testFile + " differs from expected at line " + lineCount);
         }
     }
 
-    private void dumpFile(InputStream file, String header) throws IOException {
-        System.out.println("--" + header + " for " + test + "--");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(file));
-        try {
-            while (true) {
-                String line = reader.readLine();
-                if (line == null)
-                    break;
-                System.out.println(line);
-            }
-        } finally {
-            reader.close();
-        }
-    }
-
-    private static JavafxCompiler compilerLocator() {
-        Iterator<?> iterator;
-        Class<?> loaderClass;
-        String loadMethodName;
-        boolean usingServiceLoader;
-
-        try {
-            loaderClass = Class.forName("java.util.ServiceLoader");
-            loadMethodName = "load";
-            usingServiceLoader = true;
-        } catch (ClassNotFoundException cnfe) {
-            try {
-                loaderClass = Class.forName("sun.misc.Service");
-                loadMethodName = "providers";
-                usingServiceLoader = false;
-            } catch (ClassNotFoundException cnfe2) {
-                throw new AssertionError("Failed discovering ServiceLoader");
-            }
-        }
-
-        try {
-            // java.util.ServiceLoader.load or sun.misc.Service.providers
-            Method loadMethod = loaderClass.getMethod(loadMethodName,
-                    Class.class,
-                    ClassLoader.class);
-            ClassLoader cl = FXCompilerTestCase.class.getClassLoader();
-            Object result = loadMethod.invoke(null, JavafxCompiler.class, cl);
-
-            // For java.util.ServiceLoader, we have to call another
-            // method to get the iterator.
-            if (usingServiceLoader) {
-                Method m = loaderClass.getMethod("iterator");
-                result = m.invoke(result); // serviceLoader.iterator();
-            }
-
-            iterator = (Iterator<?>) result;
-        } catch (Throwable t) {
-            t.printStackTrace();
-            fail("Failed accessing ServiceLoader: " + t);
-            throw new AssertionError(); // not executed
-        }
-
-        if (!iterator.hasNext()) {
-            fail("No JavaFX Script compiler found");
-            throw new AssertionError(); // not executed
-        }
-        return (JavafxCompiler) iterator.next();
-    }
 }

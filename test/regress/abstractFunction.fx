@@ -1,7 +1,7 @@
 /**
  * regression test:  abstract functions and abstract classes
  *
- * @test
+ * @test/fxunit
  * @run
  */
 
@@ -16,7 +16,10 @@ class Food extends Foo {
   function bar() : Integer { 22 }
 }
 
-var ood = new Food;
-System.out.println(ood.bar());
-System.out.println(ood.baz());
-
+public class abstractFunction extends junit.framework.TestCase {
+    function test() {
+        var ood = new Food;
+        assertEquals(22, ood.bar());
+        assertEquals(33, ood.baz());
+    }
+}

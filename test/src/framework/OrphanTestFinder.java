@@ -23,7 +23,8 @@ public class OrphanTestFinder extends TestCase {
 
         StringBuffer sb = new StringBuffer();
         String NL = System.getProperty("line.separator");
-        sb.append("Test files found with neither @test nor @subtest: ");
+        sb.append(orphanFiles.size());
+        sb.append(" files found with neither @test nor @subtest: ");
         sb.append(NL);
         for (String s : orphanFiles) {
             sb.append("  ");

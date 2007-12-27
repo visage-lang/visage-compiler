@@ -55,7 +55,7 @@ public class FXCompilerTest extends TestSuite {
      * @param directory the top-level directory to scan for .fx source files.
      * @return a Test which
      */
-    public static Test suite() {
+    public static Test suite() throws Exception {
         List<Test> tests = new ArrayList<Test>();
         List<String> orphans = new ArrayList<String>();
         for (String root : TEST_ROOTS) {
@@ -73,7 +73,7 @@ public class FXCompilerTest extends TestSuite {
             addTest(t);
     }
 
-    private static void findTests(File dir, List<Test> tests, List<String> orphanFiles) {
+    private static void findTests(File dir, List<Test> tests, List<String> orphanFiles) throws Exception {
         String pattern = System.getProperty("test.fx.includes");
         DirectoryScanner ds = new DirectoryScanner();
         ds.setIncludes(new String[] { (pattern == null ? "**/*.fx" : pattern) });
@@ -96,7 +96,7 @@ public class FXCompilerTest extends TestSuite {
                 findTests(f, tests, orphanFiles);
             else {
                 assert name.lastIndexOf(".fx") > 0 : "not a JavaFX script: " + name;
-                boolean isTest = false, isNotTest = false, shouldRun = false, compileFailure = false, runFailure = false;
+                boolean isTest = false, isNotTest = false, isFxUnit = false, shouldRun = false, compileFailure = false, runFailure = false;
 
                 Scanner scanner = null;
                 List<String> auxFiles = new ArrayList<String>();
@@ -119,6 +119,10 @@ public class FXCompilerTest extends TestSuite {
                         else if (token.equals("@test/fail")) {
                             isTest = true;
                             compileFailure = true;
+                        }
+                        else if (token.equals("@test/fxunit")) {
+                            isTest = true;
+                            isFxUnit = true;
                         }
                         else if (token.equals("@subtest"))
                             isNotTest = true;
@@ -145,8 +149,12 @@ public class FXCompilerTest extends TestSuite {
                     if (scanner != null)
                         scanner.close();
                 }
-                if (isTest)
-                    tests.add(new FXCompilerTestCase(f, name, compileFailure, shouldRun, runFailure, auxFiles, separateFiles));
+                if (isTest) {
+                    if (isFxUnit)
+                        tests.add(FXUnitTestWrapper.makeSuite(f, name));
+                    else
+                        tests.add(new FXRunAndCompareWrapper(f, name, compileFailure, shouldRun, runFailure, auxFiles, separateFiles));
+                }
                 else if (!isNotTest)
                     orphanFiles.add(name);
             }
