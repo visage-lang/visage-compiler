@@ -26,6 +26,8 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.JavaFXStatementTree;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javac.tree.JCTree.Visitor;
 
@@ -57,11 +59,15 @@ public abstract class JFXStatement extends JCStatement implements JavaFXStatemen
 
     @Override
     public final Kind getKind() {
-        throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
+        return Kind.OTHER;
     }
 
     @Override
     public final <R, D> R accept(TreeVisitor<R, D> v, D d) {
-        throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
+        if (v instanceof JavaFXTreeVisitor) {
+            return (R)this.accept((JavaFXTreeVisitor)v, d);
+        } else {
+            throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
+        }
     }
 }
