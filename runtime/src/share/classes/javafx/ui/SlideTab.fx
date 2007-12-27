@@ -39,7 +39,9 @@ public class SlideTab {
 
     // public
     public attribute enabled: Boolean = true on replace {
-        button.enabled = enabled;
+        if (button instanceof Button) {
+            button.enabled = enabled;
+        }
     };
     public attribute button: Widget;
     public attribute title: String on replace {
@@ -64,7 +66,9 @@ public class SlideTab {
         }
     };
     public attribute opaque: Boolean = true on replace {
-        button.opaque = opaque;
+        if (button instanceof Button) {
+            button.opaque = opaque;
+        }
     };
 }
 

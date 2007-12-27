@@ -25,42 +25,45 @@
 
 
 package javafx.ui;
+
 import javafx.ui.Widget;
 import javafx.ui.MenuBar;
+import javax.swing.*;
 
-
-public class Applet extends Widget {
-    private attribute applet:javax.swing.JApplet = UIElement.context.getApplet();
+public class Applet extends JApplet, Widget {
+    
     public attribute menubar: MenuBar on replace {
-        if (applet <> null) {
-            applet.setJMenuBar(menubar.getComponent() as javax.swing.JMenuBar);
-        }
+        setJMenuBar(menubar.getComponent() as JMenuBar);
     }
+    
     public attribute content: Widget on replace  {
-        if (applet <> null) {
-            applet.setContentPane(content.getComponent());
+        if (content.getComponent() <> null) {
+            setContentPane(content.getComponent());
         }
     }
+    
+    public attribute glassPane: Widget on replace {
+        if (glassPane.getComponent() <> null) {
+            setGlassPane(glassPane.getComponent());
+        }
+    }
+    
     public function showDocument(url:String){
         this.showDocumentInFrame(url, "_self");
     }
     
     public function showDocumentInFrame(url:String, frameName:String){
-        if (applet <> null) {
-            applet.getAppletContext().showDocument(new java.net.URL(url),
+        getAppletContext().showDocument(new java.net.URL(url),
                                                    frameName);
-        }
-    }
-    public function getWindow():java.awt.Window {
-        return javax.swing.SwingUtilities.getWindowAncestor(applet);
-    }
-    public static attribute APPLICATION: Applet;
-    public function createComponent():javax.swing.JComponent{
-        return null;
     }
     
-    init {
-            Applet.APPLICATION = this;
+    public function getWindow():java.awt.Window {
+        var self: Widget = this;
+        return SwingUtilities.getWindowAncestor(self.getComponent());
+    }
+
+    public function createComponent():JComponent{
+        return null;
     }
 }
 

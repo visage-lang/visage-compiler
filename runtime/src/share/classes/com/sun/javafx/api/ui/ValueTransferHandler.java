@@ -25,7 +25,6 @@
 
 package com.sun.javafx.api.ui;
 
-import com.sun.javafx.runtime.awt.TransferHandler;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -38,7 +37,7 @@ import javax.swing.*;
 import java.io.File;
 import java.util.List;
 
-abstract public class ValueTransferHandler extends com.sun.javafx.runtime.awt.TransferHandler {
+abstract public class ValueTransferHandler extends TransferHandler {
 
     Class type;
     public Class getType() {
@@ -135,26 +134,6 @@ abstract public class ValueTransferHandler extends com.sun.javafx.runtime.awt.Tr
             }
         }
     }
-
-    @Override
-    public boolean canImport(TransferSupport support) {
-        Transferable t = null;
-        try {
-            t = support.getTransferable();
-            if (support.getDataFlavors().length > 0) {
-                t.getTransferData(support.getDataFlavors()[0]);
-            }
-        } catch (UnsupportedFlavorException exc) {
-        } catch (IOException exc) {
-        } catch (InvalidDnDOperationException exc) {
-            // hack...
-            t = null;
-        }
-        return canImport((JComponent)support.getComponent(),
-                         support.getDataFlavors(),
-                         t);
-    }
-
 
     protected abstract boolean canImport(Object value);
 
@@ -269,7 +248,7 @@ abstract public class ValueTransferHandler extends com.sun.javafx.runtime.awt.Tr
 	 */
         public void dragGestureRecognized(DragGestureEvent dge) {
 	    JComponent c = (JComponent) dge.getComponent();
-	    ValueTransferHandler th = (ValueTransferHandler)TransferHandler.getTransferHandler(c);
+	    ValueTransferHandler th = (ValueTransferHandler)getTransferHandler(c);
 	    Transferable t = th.createTransferable(c);
 	    if (t != null) {
                 scrolls = c.getAutoscrolls();
@@ -351,7 +330,7 @@ abstract public class ValueTransferHandler extends com.sun.javafx.runtime.awt.Tr
             }
             DragSourceContext dsc = dsde.getDragSourceContext();
             JComponent c = (JComponent)dsc.getComponent();
-            ValueTransferHandler th = (ValueTransferHandler)TransferHandler.getTransferHandler(c);
+            ValueTransferHandler th = (ValueTransferHandler)getTransferHandler(c);
 	    if (dsde.getDropSuccess()) {
                 th.exportDone(c, dsc.getTransferable(), dsde.getDropAction());
 	    } else {
@@ -363,6 +342,10 @@ abstract public class ValueTransferHandler extends com.sun.javafx.runtime.awt.Tr
         public void dropActionChanged(DragSourceDragEvent dsde) {
 	}
 
+    }
+        
+    static TransferHandler getTransferHandler(JComponent c) {
+        return (TransferHandler)c.getClientProperty("JComponent_TRANSFER_HANDLER");
     }
 
     SwingDragGestureRecognizer recognizer;

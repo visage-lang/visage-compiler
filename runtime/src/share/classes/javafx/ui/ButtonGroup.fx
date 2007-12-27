@@ -60,15 +60,17 @@ public class ButtonGroup {
             buttongroup.remove(oldValue.getComponent() as javax.swing.AbstractButton);
         };
     public attribute selection: Number on replace (oldValue) {
-        buttons[oldValue.intValue()].selected = false;
-        buttons[selection.intValue()].selected = true;
-        if (this.onSelectionChange <> null) {
-            (this.onSelectionChange)(SingleSelection {
-                                         anchorIndex: oldValue
-                                             },
-                                     SingleSelection {
-                                         anchorIndex: selection
-                                             });
+        if (sizeof buttons > 0) {
+            buttons[oldValue.intValue()].selected = false;
+            buttons[selection.intValue()].selected = true;
+            if (this.onSelectionChange <> null) {
+                (this.onSelectionChange)(SingleSelection {
+                                             anchorIndex: oldValue
+                                                 },
+                                         SingleSelection {
+                                             anchorIndex: selection
+                                                 });
+            }
         }
     };
     public attribute onSelectionChange: function(oldSelection:SingleSelection,

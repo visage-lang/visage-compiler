@@ -28,7 +28,6 @@ package com.sun.javafx.api.ui;
 import com.sun.javafx.api.ui.UIContextImpl.FXTreeModel;
 import com.sun.javafx.api.ui.UIContextImpl.InvisibleCaret;
 import com.sun.javafx.runtime.FXObject;
-import com.sun.javafx.runtime.awt.TransferHandler;
 import com.sun.javafx.runtime.location.BooleanLocation;
 import com.sun.javafx.runtime.location.ObjectLocation;
 import com.sun.javafx.runtime.location.SequenceLocation;
@@ -2175,19 +2174,20 @@ public class UIContextImpl implements UIContext {
     public void addTransferHandler(final JComponent comp, final Class dropType, 
             final ValueGetter exporter, final ValueSetter importer, 
             final ValueAcceptor acceptor, final VisualRepresentation rep) {
-        ValueTransferHandler handler = new ValueTransferHandler(comp, dropType) {
+        try {
+            ValueTransferHandler handler = new ValueTransferHandler(comp, dropType) {
 
                 Object dragValue = null;
 
                 public boolean canImport(Object valueList) {
-                    System.out.println("can import "+comp);
+                    System.out.println("can import " + comp);
                     dragValue = valueList;
                     boolean result = acceptor == null ? importer != null : acceptor.accept(valueList);
                     return result;
                 }
 
                 protected void notifyDragEnter() {
-                    System.out.println("notify drag enter "+comp);
+                    System.out.println("notify drag enter " + comp);
                     if (acceptor != null) {
                         acceptor.dragEnter(null);
                     }
@@ -2205,7 +2205,7 @@ public class UIContextImpl implements UIContext {
 
                 protected void notifyDrop(DropTargetDropEvent e) {
                     if (importer != null) {
-                        //importData(comp, e.getTransferable());
+                    //importData(comp, e.getTransferable());
                     }
                 }
 
@@ -2215,7 +2215,7 @@ public class UIContextImpl implements UIContext {
                 }
 
                 protected void importValue(JComponent c, Object value) {
-                    System.out.println("import value"+c);
+                    System.out.println("import value" + c);
                     if (importer != null) {
                         importer.set(value);
                     }
@@ -2229,29 +2229,31 @@ public class UIContextImpl implements UIContext {
                     }
                 }
 
-            @Override
+                @Override
                 public Icon getVisualRepresentation(Transferable tr) {
                     if (rep != null) {
-                        Object valueList = ((ValueSelection)tr).getValue();
+                        Object valueList = ((ValueSelection) tr).getValue();
                         return rep.getIcon(valueList);
                     }
                     return null;
                 }
 
-            @Override
+                @Override
                 public Component getVisualComponent(Transferable tr) {
                     if (rep != null) {
-                        Object valueList = ((ValueSelection)tr).getValue();
+                        Object valueList = ((ValueSelection) tr).getValue();
                         return rep.getComponent(valueList);
                     }
                     return null;
                 }
-
-
             };
-        TransferHandler.setTransferHandler(comp, handler);
-        handler.installDropTargetListener(comp);
-    }
+            comp.putClientProperty("JComponent_TRANSFER_HANDLER", handler);
+            handler.installDropTargetListener(comp);
+
+        } catch (SecurityException securityException) {
+            // applet running in 1.5, give up...
+        }
+    }   
 
     public JSpinner createSpinner() {
 
@@ -2542,7 +2544,7 @@ public class UIContextImpl implements UIContext {
 
                 InputStream getDelegate() throws IOException {
                     String cacheName = toCacheName(u);
-                    File cacheFile = new File(cacheDir, cacheName);
+                    File cacheFile = cacheDir != null ? new File(cacheDir, cacheName) : null;
                     return download(u, cacheFile, observer);
                 }
 
@@ -2552,7 +2554,7 @@ public class UIContextImpl implements UIContext {
     @SuppressWarnings("unchecked")
     InputStream download(final URL u, final File cache, final ImageDownloadObserver observer) throws IOException {
         String contentEncoding = (String)fileCache.get(u.toString());
-        boolean download = contentEncoding == null || !cache.exists();
+        boolean download = contentEncoding == null || cache == null || !cache.exists();
         if (download) {
             if (!"http".equals(u.getProtocol())) {
                 return u.openStream();
@@ -2562,7 +2564,7 @@ public class UIContextImpl implements UIContext {
             int totalSize = 0;
             String etag = null;
             String lastModified = null;
-            if (cache.exists()) {
+            if (cache != null && cache.exists()) {
                 File cacheRec = new File(cache.toString() + "-cache.rec");
                 if (cacheRec.exists()) {
                     BufferedReader reader = new BufferedReader(new FileReader(cacheRec));
@@ -2589,14 +2591,14 @@ public class UIContextImpl implements UIContext {
                 download = c.getResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED;
                 //System.out.println("connecting to: " + u + "...done");
             } catch (IOException e) {
-                if (!cache.exists()) {
+                if (cache == null || !cache.exists()) {
                     //mNotFound.add(urlStr);
                     throw e;
                 }
                 download = false;
             }
             if (download) {
-                    if (cache.exists()) {
+                    if (cache != null && cache.exists()) {
                     cache.delete();
                 }
                 return new InputStream() {
@@ -2643,17 +2645,19 @@ public class UIContextImpl implements UIContext {
 
                     @SuppressWarnings("unchecked")
                         void notifyComplete(byte[] bytes) throws IOException {
-                            FileOutputStream fos = new FileOutputStream(cache);
-                            fos.write(bytes, 0, bytes.length);
-                            fos.close();
-                            String lastModified = c.getHeaderField("Last-Modified");
-                            String etag = c.getHeaderField("ETag");
-                            java.io.PrintWriter pw = new java.io.PrintWriter(new FileWriter(new File(cache.toString()+"-cache.rec")));
-                            pw.println(etag);
-                            pw.println(lastModified);
-                            pw.println(contentEncoding);
-                            pw.close();
-                            fileCache.put(u.toString(), contentEncoding == null ? "" : contentEncoding);
+                            if (cache != null) {
+                                FileOutputStream fos = new FileOutputStream(cache);
+                                fos.write(bytes, 0, bytes.length);
+                                fos.close();
+                                String lastModified = c.getHeaderField("Last-Modified");
+                                String etag = c.getHeaderField("ETag");
+                                java.io.PrintWriter pw = new java.io.PrintWriter(new FileWriter(new File(cache.toString()+"-cache.rec")));
+                                pw.println(etag);
+                                pw.println(lastModified);
+                                pw.println(contentEncoding);
+                                pw.close();
+                                fileCache.put(u.toString(), contentEncoding == null ? "" : contentEncoding);
+                            }
                             notifyProgress(totalRead, totalRead);
                         }
                     };
@@ -2661,6 +2665,7 @@ public class UIContextImpl implements UIContext {
                 fileCache.put(u.toString(), contentEncoding == null ? "" : contentEncoding);
             }
         }
+        assert cache != null;
         int size = (int)cache.length();
         //System.out.println("returning image from cache: " + u);
         observer.contentEncoding(contentEncoding);
@@ -2690,10 +2695,13 @@ public class UIContextImpl implements UIContext {
     @SuppressWarnings("unchecked")
     static Map fileCache = Collections.synchronizedMap(new HashMap());
 
-    File cacheDir = new File(System.getProperty("user.home")+"/.javafxcache/images");
+    File cacheDir;
     {
         try {
+            cacheDir = new File(System.getProperty("user.home")+"/.javafxcache/images");
             cacheDir.mkdirs();
+        } catch (SecurityException e) {
+            cacheDir = null;
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -41,7 +41,9 @@ public class Dialog extends AbstractFrame {
     public attribute owner: UIElement;
     public attribute title: String;
     public attribute content:Widget on replace {
-        p.add(content.getComponent(), java.awt.BorderLayout.CENTER);
+        if (content.getComponent() <> null) {
+            p.add(content.getComponent(), java.awt.BorderLayout.CENTER);
+        }
     };
     public attribute buttons: Button[]
         on insert [indx] (button) {

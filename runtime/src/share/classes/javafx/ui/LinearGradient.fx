@@ -44,14 +44,12 @@ public class LinearGradient extends Gradient {
 
     public function createGradient():Void {
         var fractions = getFractions();
-        var colors = getColors();
-        var start = new java.awt.geom.Point2D.Double(startX, startY);
-        var end = new java.awt.geom.Point2D.Double(endX, endY);
-        //TODO JXFC-305
-        //gradient = new LinearGradientPaint(start, end,
-        //        fractions, colors, spreadMethod.id, colorSpace.id, affineTransform);
-        gradient = GradientFactory.createLinearGradientPaint(
-                start as java.awt.geom.Point2D, end as java.awt.geom.Point2D,
-                fractions, colors, spreadMethod.id, colorSpace.id, affineTransform);
+        if (sizeof fractions >= 2) {
+            var colors = getColors();
+            var start = new java.awt.geom.Point2D.Double(startX, startY);
+            var end = new java.awt.geom.Point2D.Double(endX, endY);
+            gradient = GradientFactory.createLinearGradientPaint(start, end,
+                    fractions, colors, spreadMethod.id, colorSpace.id, affineTransform);
+        }
     }
 }

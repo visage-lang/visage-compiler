@@ -48,15 +48,14 @@ public class RadialGradient extends Gradient {
 
     public function createGradient():Void {
         var fractions = getFractions();
-        var colors = getColors();
-        var fx = if(focusX == -1) then cx else focusX;
-        var fy = if(focusY == -1) then cy else focusY;
-        var center = new java.awt.geom.Point2D.Double(cx, cy);
-        var focus = new java.awt.geom.Point2D.Double(fx, fy);
-        //TODO JXFC-305
-        //gradient = new RadialGradientPaint(center, radius.floatValue(), focus,
-        //        fractions, colors, spreadMethod.id, colorSpace.id, affineTransform);
-        gradient = GradientFactory.createRadialGradientPaint(center, radius.floatValue(), focus,
-                fractions, colors, spreadMethod.id, colorSpace.id, affineTransform);
+        if (sizeof fractions >= 2) {
+            var colors = getColors();
+            var fx = if(focusX == -1) then cx else focusX;
+            var fy = if(focusY == -1) then cy else focusY;
+            var center = new java.awt.geom.Point2D.Double(cx, cy);
+            var focus = new java.awt.geom.Point2D.Double(fx, fy);
+            gradient = GradientFactory.createRadialGradientPaint(center, radius.floatValue(), focus,
+                    fractions, colors, spreadMethod.id, colorSpace.id, affineTransform);
+        }
     }
 }

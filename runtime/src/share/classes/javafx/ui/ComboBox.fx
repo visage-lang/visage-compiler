@@ -157,7 +157,8 @@ public class ComboBox extends Widget {
                            }
                        }
                        public function getSelectedItem():Object {
-                           return cells[selection.intValue()];
+                           var i = selection.intValue();
+                           return if (i >= 0) cells[i] else null;
                        }
                    });
         jcombobox.addItemListener(java.awt.event.ItemListener{
