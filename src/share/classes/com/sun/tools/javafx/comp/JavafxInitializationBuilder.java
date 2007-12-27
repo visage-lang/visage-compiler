@@ -24,6 +24,11 @@
  */
 package com.sun.tools.javafx.comp;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Scope.Entry;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
@@ -38,11 +43,6 @@ import com.sun.tools.javafx.code.JavafxSymtab;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 public class JavafxInitializationBuilder {
     protected static final Context.Key<JavafxInitializationBuilder> javafxInitializationBuilderKey =
@@ -61,6 +61,7 @@ public class JavafxInitializationBuilder {
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
     private final Name locationName;
     private final Name setDefaultsName;
+    private final Name addTriggersName;
     final Name userInitName;
     private final Name getNumFieldsName;
     private final Name initHelperName;
@@ -99,6 +100,7 @@ public class JavafxInitializationBuilder {
         sequenceChangeListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "SequenceChangeListener");
         locationName = names.fromString("location");
         setDefaultsName = names.fromString("setDefaults$");
+        addTriggersName = names.fromString("addTriggers$");
         userInitName = names.fromString("userInit$");
         getNumFieldsName = names.fromString("getNumFields$");
         initHelperName = names.fromString("initHelper$");
@@ -424,6 +426,7 @@ public class JavafxInitializationBuilder {
 
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
         cDefinitions.append( makeSetDefaultsMethod(cDecl, collection, translatedAttrInfo) );
+        cDefinitions.append( makeAddTriggersMethod(cDecl, collection, translatedAttrInfo) );
         cDefinitions.append( make.Block(Flags.STATIC, makeStaticSetDefaultsMethod(cDecl, translatedAttrInfo) ));
 
         ListBuffer<JCTree> iDefinitions = new ListBuffer<JCTree>();
@@ -755,6 +758,11 @@ public class JavafxInitializationBuilder {
                 make.Ident(classIsFinal? names._this : cDecl.getName()),
                 userInitName, 
                 make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
+        initializeStats = initializeStats.append(toJava.callStatement(
+                cDecl.pos(),
+                make.Ident(classIsFinal? names._this : cDecl.getName()),
+                addTriggersName,
+                make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
         
         // Add a call to initialize the attributes using the initHelper$.initialize();
         initializeStats = initializeStats.append(toJava.callStatement(cDecl.pos(), make.Ident(initHelperName), 
@@ -811,14 +819,6 @@ public class JavafxInitializationBuilder {
             setDefStats = setDefStats.appendList(addSetDefaultAttributeDependencies(translatedAttrInfo, cDecl));
         }
 
-        // add any change listeners (if there are any triggers)
-        for (TranslatedAttributeInfo info : translatedAttrInfo) {
-            JCStatement stat = makeChangeListenerCall(info);
-            if (stat != null) {
-                setDefStats = setDefStats.append(stat);
-            }
-        }
-                
         return make.MethodDef(
                 make.Modifiers(classIsFinal? Flags.PUBLIC  : Flags.PUBLIC | Flags.STATIC),
                 setDefaultsName,
@@ -831,10 +831,55 @@ public class JavafxInitializationBuilder {
     }
 
     /**
+     * Construct the addTriggers method
+     * */
+    private JCMethodDecl makeAddTriggersMethod(JFXClassDeclaration cDecl,
+                                               CollectAttributeAndMethods classInfo,
+                                               List<TranslatedAttributeInfo> translatedAttrInfo) {
+        boolean classIsFinal =(cDecl.getModifiers().flags & Flags.FINAL) != 0;
+        List<JCStatement> stats = List.nil();
+
+        // call the superclasses addTriggers
+        Set<String> dupClasses = new HashSet<String>();
+        for (ClassSymbol csym : classInfo.baseClasses) {
+            if (isJFXClass(csym)) {
+                String className = csym.fullname.toString();
+                if (className.endsWith(interfaceSuffix)) {
+                    className = className.substring(0, className.length() - interfaceSuffix.length());
+                }
+
+                if (!dupClasses.contains(className)) {
+                    dupClasses.add(className);
+                    List<JCExpression> args1 = List.nil();
+                    args1 = args1.append(make.Ident(defs.receiverName));
+                    stats = stats.append(toJava.callStatement(cDecl.pos(), make.Identifier(className), addTriggersName, args1));
+                }
+            }
+        }
+
+        // add any change listeners (if there are any triggers)
+        for (TranslatedAttributeInfo info : translatedAttrInfo) {
+            JCStatement stat = makeChangeListenerCall(info);
+            if (stat != null)
+                stats = stats.append(stat);
+        }
+
+        return make.MethodDef(
+                make.Modifiers(classIsFinal? Flags.PUBLIC  : Flags.PUBLIC | Flags.STATIC),
+                addTriggersName,
+                toJava.makeTypeTree(syms.voidType, null),
+                List.<JCTypeParameter>nil(),
+                List.<JCVariableDecl>of( toJava.makeReceiverParam(cDecl) ),
+                List.<JCExpression>nil(),
+                make.Block(0L, stats),
+                null);
+    }
+
+    /**
      * Construct the SetDefaults method
      * */
-     private List<JCStatement> makeStaticSetDefaultsMethod(JFXClassDeclaration cDecl, 
-                                                                                            List<TranslatedAttributeInfo> translatedAttrInfo) {
+    private List<JCStatement> makeStaticSetDefaultsMethod(JFXClassDeclaration cDecl,
+                                                          List<TranslatedAttributeInfo> translatedAttrInfo) {
         boolean classIsFinal =(cDecl.getModifiers().flags & Flags.FINAL) != 0;
         // Add the initialization of this class' attributesa
         List<JCStatement> setDefStats = addStaticSetDefaultAttributeInitialization(translatedAttrInfo, cDecl);
