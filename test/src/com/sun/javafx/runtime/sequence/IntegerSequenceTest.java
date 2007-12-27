@@ -24,9 +24,9 @@
  */
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.JavaFXTestCase;
-
 import java.util.BitSet;
+
+import com.sun.javafx.runtime.JavaFXTestCase;
 
 /**
  * TestIntegerSequence
@@ -247,8 +247,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(seq.insert(cc), a, b, C, C);
         assertEquals(seq.insertFirst(C), C, a, b);
         assertEquals(seq.insertFirst(cc), C, C, a, b);
-        assertEquals(seq.insertBefore(C, -10), C, a, b);
-        assertEquals(seq.insertBefore(cc, -10), C, C, a, b);
+        assertEquals(seq.insertBefore(C, -10), a, b);
+        assertEquals(seq.insertBefore(cc, -10), a, b);
         assertEquals(seq.insertBefore(C, 0), C, a, b);
         assertEquals(seq.insertBefore(cc, 0), C, C, a, b);
         assertEquals(seq.insertBefore(C, 1), a, C, b);
@@ -257,8 +257,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(seq.insertAfter(cc, 0), a, C, C, b);
         assertEquals(seq.insertAfter(C, 1), a, b, C);
         assertEquals(seq.insertAfter(cc, 1), a, b, C, C);
-        assertEquals(seq.insertAfter(C, 100), a, b, C);
-        assertEquals(seq.insertAfter(cc, 100), a, b, C, C);
+        assertEquals(seq.insertAfter(C, 100), a, b);
+        assertEquals(seq.insertAfter(cc, 100), a, b);
 
         // Test predicate insertion 
         assertEquals(seq.insertAfter(C, nullMatcher), seq);

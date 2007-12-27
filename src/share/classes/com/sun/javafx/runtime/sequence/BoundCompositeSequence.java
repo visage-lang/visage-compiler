@@ -49,7 +49,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
 
         public void onInsert(int position, T element) {
             int actualPos = startPositions[index] + position;
-            value = value.insertBefore(element, actualPos);
+            value = actualPos == value.size() ? value.insert(element) : value.insertBefore(element, actualPos);
             for (int i=index+1; i<startPositions.length; i++)
                 ++startPositions[i];
             valueChanged();

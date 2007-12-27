@@ -25,9 +25,9 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.Util;
-
 import java.util.BitSet;
+
+import com.sun.javafx.runtime.Util;
 
 /**
  * Helper methods for modifying sequences and notifying sequence change listeners.  The helper methods only call the
@@ -166,10 +166,8 @@ public class SequenceMutator {
      */
     public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
                                                T value, int position) {
-        if (position <= 0)
-            return insertFirst(target, listener, value);
-        else if (position >= target.size())
-            return insert(target, listener, value);
+        if (position < 0 || position > target.size() - 1)
+            return target;
         else
             return insertBefore(target, listener, Sequences.singleton(target.getElementType(), value), position);
     }
@@ -194,10 +192,8 @@ public class SequenceMutator {
      */
     public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
                                                Sequence<? extends T> values, int position) {
-        if (position <= 0)
-            return insertFirst(target, listener, values);
-        else if (position >= target.size())
-            return insert(target, listener, values);
+        if (position < 0 || position > target.size() - 1)
+            return target;
         else {
             Sequence<T> result = Sequences.concatenate(target.getElementType(),
                     target.subsequence(0, position), values, target.subsequence(position, target.size()));
@@ -230,10 +226,8 @@ public class SequenceMutator {
      */
     public static <T> Sequence<T> insertAfter(Sequence<T> target, Listener<T> listener,
                                               T value, int position) {
-        if (position >= target.size())
-            return insert(target, listener, value);
-        else if (position < 0)
-            return insertFirst(target, listener, value);
+        if (position < 0 || position > target.size() - 1)
+            return target;
         else
             return insertAfter(target, listener, Sequences.singleton(target.getElementType(), value), position);
     }
@@ -258,11 +252,8 @@ public class SequenceMutator {
      */
     public static <T> Sequence<T> insertAfter(Sequence<T> target, Listener<T> listener,
                                               Sequence<? extends T> values, int position) {
-        double size = target.size();
-        if (position >= size - 1)
-            return insert(target, listener, values);
-        else if (position < 0)
-            return insertFirst(target, listener, values);
+        if (position < 0 || position > target.size() - 1)
+            return target;
         else {
             Sequence<T> result = Sequences.concatenate(target.getElementType(),
                     target.subsequence(0, position + 1), values, target.subsequence(position + 1, target.size()));
