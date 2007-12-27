@@ -25,7 +25,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.*;
 import com.sun.source.util.SimpleTreeVisitor;
 
 /**
@@ -56,6 +55,10 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
     }
 
     public R visitInitDefinition(InitDefinitionTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitPostInitDefinition(InitDefinitionTree node, P p) {
         return defaultAction(node, p);
     }
 

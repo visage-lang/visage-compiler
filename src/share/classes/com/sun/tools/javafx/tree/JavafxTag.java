@@ -47,9 +47,13 @@ public abstract class JavafxTag extends JCTree {
      */
     public static final int INIT_DEF = FUNCTION_DEF + 1;     
 
+    /** postinit definition
+     */
+    public static final int POSTINIT_DEF = INIT_DEF + 1;     
+
     /** any var declaration including formal params
      */
-    public static final int VAR_DEF = INIT_DEF + 1;        
+    public static final int VAR_DEF = POSTINIT_DEF + 1;
 
     /** on change triggers
      */

@@ -25,20 +25,16 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
-import com.sun.tools.javac.tree.*;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symtab;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
+import com.sun.tools.javac.code.Types;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.tree.TreeMaker;
+import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.util.Position;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.javafx.api.JavafxBindStatus;
 
 /* JavaFX version of tree maker
  */
@@ -158,6 +154,12 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
+    public JFXPostInitDefinition PostInitDefinition(JCBlock body) {
+        JFXPostInitDefinition tree = new JFXPostInitDefinition(body);
+        tree.pos = pos;
+        return tree;
+    }
+
     public JFXDoLater  DoLater(JCBlock body) {
         JFXDoLater tree = new JFXDoLater(body);
         tree.pos = pos;
@@ -222,9 +224,9 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     public JFXInstanciate Instanciate(JCExpression ident,
             List<JCExpression> args,
             List<JCTree> defs) {
-        ListBuffer<JFXObjectLiteralPart> partsBuffer = ListBuffer.<JFXObjectLiteralPart>lb();
-        ListBuffer<JCTree> defsBuffer = ListBuffer.<JCTree>lb();
-        ListBuffer<JFXVar> varsBuffer = ListBuffer.<JFXVar>lb();
+        ListBuffer<JFXObjectLiteralPart> partsBuffer = ListBuffer.lb();
+        ListBuffer<JCTree> defsBuffer = ListBuffer.lb();
+        ListBuffer<JFXVar> varsBuffer = ListBuffer.lb();
         if (defs != null) {
             for (JCTree def : defs) {
                 if (def instanceof JFXObjectLiteralPart) {

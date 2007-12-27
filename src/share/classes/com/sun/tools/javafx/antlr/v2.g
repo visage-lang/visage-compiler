@@ -51,6 +51,7 @@ tokens {
    NOT='not';
    NULL='null';
    PACKAGE='package';
+   POSTINIT='postinit';
    PRIVATE='private';
    PROTECTED='protected';
    PUBLIC='public';
@@ -494,13 +495,15 @@ supers returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>()]
 	  )?
 	;
 classMembers returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]
-@init { boolean initSeen = false; }
+@init { boolean initSeen = false; boolean postInitSeen = false; }
 	:    ( id1=initDefinition		{ initSeen = true; $mems.append($id1.value); }			
+	     | pd1=postInitDefinition 		{ postInitSeen = true; $mems.append($pd1.value); }
 	     | vd1=variableDeclaration 		{ $mems.append($vd1.value); }
 	     | fd1=functionDefinition     	{ $mems.append($fd1.value); }
 	     ) ?
 	  (SEMI
 	     ( {!initSeen}? id2=initDefinition	{ initSeen = true; $mems.append($id2.value); }			
+	     | {!postInitSeen}? pd2=postInitDefinition	{ postInitSeen = true; $mems.append($pd2.value); }			
 	     | vd2=variableDeclaration 		{ $mems.append($vd2.value); }
 	     | fd2=functionDefinition     	{ $mems.append($fd2.value); }
 	     ) ?
@@ -521,6 +524,9 @@ functionLabel    returns [int pos]
 	;
 initDefinition  returns [JFXInitDefinition value]
 	: INIT block 				{ $value = F.at(pos($INIT)).InitDefinition($block.value); }
+	;
+postInitDefinition  returns [JFXPostInitDefinition value]
+	: POSTINIT block 			{ $value = F.at(pos($POSTINIT)).PostInitDefinition($block.value); }
 	;
 functionModifierFlags returns [long flags]
 	: accessModifier 		 	{ flags = $accessModifier.flag; }

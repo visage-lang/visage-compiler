@@ -79,6 +79,7 @@ public class JavafxDefs {
     final Name lambdaName;
     final Name computeValueName;
     final Name initDefName;
+    final Name postInitDefName;
 
     /**
      * For internal use of this class
@@ -115,5 +116,6 @@ public class JavafxDefs {
         lambdaName = names.fromString(lambdaNameString);
         computeValueName = names.fromString("computeValue");
         initDefName = names.fromString("$init$def$name");
+        postInitDefName = names.fromString("$postinit$def$name");
     }
 }

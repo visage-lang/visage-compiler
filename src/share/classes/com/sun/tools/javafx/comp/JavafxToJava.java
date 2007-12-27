@@ -482,6 +482,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             attrEnv.enclClass = tree;
 
             ListBuffer<JCStatement> translatedInitBlocks = ListBuffer.lb();
+            ListBuffer<JCStatement> translatedPostInitBlocks = ListBuffer.lb();
             ListBuffer<JCTree> translatedDefs = ListBuffer.lb();
             ListBuffer<TranslatedAttributeInfo> attrInfo = ListBuffer.lb();
 
@@ -494,8 +495,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 for (JCTree def : tree.getMembers()) {
                     switch(def.getTag()) {
                         case JavafxTag.INIT_DEF: {
-                            JFXInitDefinition initDef = (JFXInitDefinition) def;
-                            translatedInitBlocks.append(translate((JCBlock)initDef.getBody()));
+                            translatedInitBlocks.append(translate((JCBlock) ((JFXInitDefinition) def).getBody()));
+                            break;
+                        }
+                        case JavafxTag.POSTINIT_DEF: {
+                            translatedPostInitBlocks.append(translate((JCBlock) ((JFXPostInitDefinition) def).getBody()));
                             break;
                         }
                         case JavafxTag.VAR_DEF: {
@@ -564,9 +568,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
             {
                 // Add the userInit$ method
-                
                 List<JCVariableDecl> receiverVarDeclList = List.of(makeReceiverParam(tree));
-
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
                 // call the superclasses userInit$
                 Set<String> dupSet = new HashSet<String>();
@@ -598,7 +600,41 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         userInitBlock, 
                         null));
             }
- 
+            {
+                // Add the userPostInit$ method
+                List<JCVariableDecl> receiverVarDeclList = List.of(makeReceiverParam(tree));
+                ListBuffer<JCStatement> initStats = ListBuffer.lb();
+                // call the superclasses postInit$
+                Set<String> dupSet = new HashSet<String>();
+                for (ClassSymbol csym : model.baseClasses) {
+                    if (initBuilder.isJFXClass(csym)) {
+                        String className = csym.fullname.toString();
+                        if (className.endsWith(interfaceSuffix)) {
+                            className = className.substring(0, className.length() - interfaceSuffix.length());
+                        }
+
+                        if (!dupSet.contains(className)) {
+                            dupSet.add(className);
+                            List<JCExpression> args1 = List.nil();
+                            args1 = args1.append(make.TypeCast(makeTypeTree(csym.type, tree.pos(), true), make.Ident(defs.receiverName)));
+                            initStats = initStats.append(callStatement(tree.pos(), ((JavafxTreeMaker)make).Identifier(className), initBuilder.postInitName, args1));
+                        }
+                    }
+                }
+                initStats.appendList(translatedPostInitBlocks);
+
+                JCBlock postInitBlock = make.Block(0L, initStats.toList());
+                translatedDefs.append(make.MethodDef(
+                        make.Modifiers(classIsFinal? Flags.PUBLIC  : Flags.PUBLIC | Flags.STATIC),
+                        initBuilder.postInitName,
+                        makeTypeTree(syms.voidType, null),
+                        List.<JCTypeParameter>nil(),
+                        receiverVarDeclList,
+                        List.<JCExpression>nil(),
+                        postInitBlock,
+                        null));
+            }
+
             if (tree.isModuleClass) {
                 // Add main method...
                 translatedDefs.append(makeMainMethod(diagPos));
@@ -658,6 +694,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitInitDefinition(JFXInitDefinition tree) {
+        result = null; // Just remove this tree...
+    }
+
+    public void visitPostInitDefinition(JFXPostInitDefinition tree) {
         result = null; // Just remove this tree...
     }
 

@@ -77,6 +77,11 @@ public interface JavaFXTree extends Tree {
         INIT_DEFINITION(InitDefinitionTree.class),
 
         /**
+         * Used for instances of {@link PostInitDefinitionTree}.
+         */
+        POSTINIT_DEFINITION(InitDefinitionTree.class),
+
+        /**
          * Used for instances of {@link InstatiateTree}.
          */
         INSTANTIATE(InstantiateTree.class),

@@ -25,19 +25,18 @@
 
 package com.sun.tools.javafx.tree;
 
-import java.io.*;
-import java.util.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Map;
+
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.TreeInfo;
-import static com.sun.tools.javac.code.Flags.*;
+import com.sun.tools.javac.util.List;
 
 /** Prints out a tree as an indented Java source program.
  *
@@ -183,6 +182,19 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             align();
             printDocComment(tree);
             print("init ");
+            print(tree.getBody());
+            println();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitPostInitDefinition(JFXPostInitDefinition tree) {
+        try {
+            println();
+            align();
+            printDocComment(tree);
+            print("postinit ");
             print(tree.getBody());
             println();
         } catch (IOException e) {

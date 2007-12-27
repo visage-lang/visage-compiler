@@ -27,12 +27,11 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.source.tree.Tree;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
-import com.sun.tools.javac.tree.JCTree.JCStatement;
+import com.sun.tools.javac.tree.TreeScanner;
+import com.sun.tools.javac.util.List;
 
 /**
  *
@@ -98,6 +97,10 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
 
     @Override
     public void visitInitDefinition(JFXInitDefinition that) {
+        ((JCBlock)that.getBody()).accept(this);
+    }
+
+    public void visitPostInitDefinition(JFXPostInitDefinition that) {
         ((JCBlock)that.getBody()).accept(this);
     }
 

@@ -31,6 +31,7 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitClassDeclaration(JFXClassDeclaration tree);
     public void visitOperationDefinition(JFXOperationDefinition tree);
     public void visitInitDefinition(JFXInitDefinition tree);
+    public void visitPostInitDefinition(JFXPostInitDefinition tree);
     public void visitMemberSelector(JFXMemberSelector tree);
     public void visitDoLater(JFXDoLater tree);
     public void visitStringExpression(JFXStringExpression tree);

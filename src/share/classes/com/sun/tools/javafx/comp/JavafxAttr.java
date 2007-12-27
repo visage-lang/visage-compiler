@@ -25,58 +25,35 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.javafx.api.tree.ForExpressionInClauseTree;
-import com.sun.javafx.api.tree.ObjectLiteralPartTree;
-import com.sun.javafx.api.tree.OnChangeTree;
-import com.sun.javafx.api.tree.TypeTree.Cardinality;
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.comp.*;
-import static com.sun.tools.javac.code.Flags.FINAL;
-import static com.sun.tools.javac.code.Kinds.*;
-import com.sun.tools.javac.code.Symbol.OperatorSymbol;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.code.Symbol.TypeSymbol;
-import com.sun.tools.javac.code.Type.ClassType;
-import com.sun.tools.javac.code.Type.MethodType;
-import com.sun.tools.javac.code.Type.WildcardType;
-import static com.sun.tools.javac.code.TypeTags.*;
-import static com.sun.tools.javac.code.TypeTags.WILDCARD;
-import com.sun.tools.javac.jvm.ByteCodes;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javafx.code.*;
-import com.sun.tools.javafx.code.JavafxSymtab;
-import com.sun.tools.javafx.tree.JFXBlockExpression;
-import com.sun.tools.javafx.tree.JavafxTreeInfo;
-import com.sun.tools.javafx.tree.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.ElementKind;
 import javax.tools.JavaFileObject;
-import com.sun.tools.javafx.code.FunctionType;
 
+import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.jvm.*;
-import com.sun.tools.javac.tree.*;
+import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.javac.code.Flags.ANNOTATION;
+import static com.sun.tools.javac.code.Flags.BLOCK;
+import static com.sun.tools.javac.code.Kinds.*;
+import static com.sun.tools.javac.code.Kinds.ERRONEOUS;
+import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.javac.code.Type.*;
+import static com.sun.tools.javac.code.TypeTags.*;
+import static com.sun.tools.javac.code.TypeTags.WILDCARD;
+import com.sun.tools.javac.comp.*;
+import com.sun.tools.javac.jvm.ByteCodes;
+import com.sun.tools.javac.jvm.Target;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.util.List;
-
-import com.sun.tools.javac.jvm.Target;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.code.Type.*;
-
-import com.sun.source.tree.IdentifierTree;
-import com.sun.source.tree.MemberSelectTree;
-import com.sun.source.tree.TreeVisitor;
-import com.sun.source.util.SimpleTreeVisitor;
-
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.TypeTags.*;
+import com.sun.tools.javafx.code.*;
+import com.sun.tools.javafx.tree.*;
 
 /** This is the main context-dependent analysis phase in GJC. It
  *  encompasses name resolution, type checking and constant folding as
@@ -2570,6 +2547,19 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         try {
             MethodType mt = new MethodType(List.<Type>nil(), syms.voidType, List.<Type>nil(), (TypeSymbol)symOwner);
             that.sym = new MethodSymbol(0L, defs.initDefName, mt, symOwner);
+            env.info.scope.owner = that.sym;
+            ((JCBlock)that.getBody()).accept(this);
+        }
+        finally {
+            env.info.scope.owner = symOwner;
+        }
+    }
+
+    public void visitPostInitDefinition(JFXPostInitDefinition that) {
+        Symbol symOwner = env.info.scope.owner;
+        try {
+            MethodType mt = new MethodType(List.<Type>nil(), syms.voidType, List.<Type>nil(), (TypeSymbol)symOwner);
+            that.sym = new MethodSymbol(0L, defs.postInitDefName, mt, symOwner);
             env.info.scope.owner = that.sym;
             ((JCBlock)that.getBody()).accept(this);
         }

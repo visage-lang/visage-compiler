@@ -63,6 +63,7 @@ public class JavafxInitializationBuilder {
     private final Name setDefaultsName;
     private final Name addTriggersName;
     final Name userInitName;
+    final Name postInitName;
     private final Name getNumFieldsName;
     private final Name initHelperName;
     private final Name getPreviousValueName;
@@ -102,6 +103,7 @@ public class JavafxInitializationBuilder {
         setDefaultsName = names.fromString("setDefaults$");
         addTriggersName = names.fromString("addTriggers$");
         userInitName = names.fromString("userInit$");
+        postInitName = names.fromString("postInit$");
         getNumFieldsName = names.fromString("getNumFields$");
         initHelperName = names.fromString("initHelper$");
         getPreviousValueName = names.fromString("getPreviousValue");
@@ -770,7 +772,14 @@ public class JavafxInitializationBuilder {
         
         // Set the initHelper = null;
         initializeStats = initializeStats.append(make.Exec(make.Assign(make.Ident(initHelperName), make.Literal(TypeTags.BOT, null))));
-        
+
+        // Call the postInit$ method
+        initializeStats = initializeStats.append(toJava.callStatement(
+                cDecl.pos(),
+                make.Ident(classIsFinal? names._this : cDecl.getName()),
+                postInitName, 
+                make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
+
         JCBlock initializeBlock = make.Block(0L, initializeStats);
         members.append(make.MethodDef(
                 make.Modifiers(Flags.PUBLIC),
