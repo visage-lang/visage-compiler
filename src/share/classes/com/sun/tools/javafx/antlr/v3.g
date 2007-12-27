@@ -554,7 +554,7 @@ classModifier
 	:  ABSTRACT        			
 	;
 memberSelector
-	: name DOT name				-> ^(MEMBERSELECTOR name+)
+	: n1=name DOT n2=name			-> ^(MEMBERSELECTOR $n1 $n2)
 	;
 formalParameters
 	: LPAREN ( formalParameter (COMMA formalParameter)* )?  RPAREN
@@ -585,7 +585,7 @@ statement
  	| whileStatement
 	| BREAK    		
 	| CONTINUE  	 	 	
-       	| THROW expression 	   	
+       	| throwStatement	   	
        	| returnStatement 		
        	| tryStatement			
        	;
@@ -607,6 +607,9 @@ variableLabel
 	: VAR	
 	| LET	
 	| ATTRIBUTE	
+	;
+throwStatement
+	: THROW expression 			-> ^(THROW expression)
 	;
 whileStatement
 	: WHILE LPAREN expression RPAREN block	-> ^(WHILE expression block)
@@ -828,10 +831,8 @@ typeArgList
  	: (typeArg (COMMA typeArg)* )?		-> typeArg*
 	;
 typeArg 
- 	: ( COLON type		
- 	  | name COLON type		
- 	  | name			
- 	  )					-> ^(COLON name? type?)
+ 	: name? COLON type			-> ^(COLON name type)	
+ 	| name					-> ^(COLON name ^(TYPE_UNKNOWN))
  	;
 typeReference 
  	: COLON type				-> type
@@ -854,12 +855,12 @@ literal
 	
 typeName  
 	: qualident 		
-		(LT typeArgument (COMMA typeArgument)* GT
-						-> ^(TYPE_ARG[$LT] qualident typeArgument+)
+		(LT genericArgument (COMMA genericArgument)* GT
+						-> ^(TYPE_ARG[$LT] qualident genericArgument+)
 		|				-> qualident
 		)
 	;
-typeArgument 
+genericArgument 
 	: typeName				-> typeName
 	| QUES (  ( EXTENDS 		
 		  | SUPER		

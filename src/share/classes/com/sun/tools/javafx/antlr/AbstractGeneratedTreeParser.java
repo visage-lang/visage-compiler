@@ -103,9 +103,9 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
         log.error(pos, "javafx.generalerror", msg);
     }
     
-    protected int pos(Token tok) {
+    protected int pos(CommonTree tree) {
         //System.out.println("TOKEN: line: " + tok.getLine() + " char: " + tok.getCharPositionInLine() + " pos: " + ((CommonToken)tok).getStartIndex());
-        return ((CommonToken)tok).getStartIndex();
+        return tree.getTokenStartIndex();
     }
     
     protected List noJCTrees() {
