@@ -87,6 +87,8 @@ public class JavafxSyntacticAnalysis {
                 nodes.setTokenStream(tokens);
                 // Create a tree Walker attached to the nodes stream
                 v3Walker walker = new v3Walker(nodes);
+                // Set the context
+                walker.initialize(context);
                 // Invoke the start symbol, rule module
                 unit = walker.module();
                 printTree(comTree, "---");
