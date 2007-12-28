@@ -54,9 +54,9 @@ public class JavafxSyntacticAnalysis {
         JCCompilationUnit unit = null;
         String parserChoice = options.get("parser");
         if (parserChoice == null) {
-            parserChoice = "vn"; // default
+            parserChoice = "v2"; // default
         }
-        if (parserChoice.equals("vn")) {
+        if (parserChoice.equals("v2")) {
             // leave this default until the new stuff works
             v2Parser generatedParser;
             generatedParser = new v2Parser(context, content);
@@ -91,9 +91,12 @@ public class JavafxSyntacticAnalysis {
                 walker.initialize(context);
                 // Invoke the start symbol, rule module
                 unit = walker.module();
-                printTree(comTree, "---");
+                String treeChoice = options.get("tree");
+                if (treeChoice != null) {
+                    printTree(comTree, "---");
+                }            
             } catch (Throwable thr) {
-                System.err.println("Got Error:");
+                System.err.println("Error in syntactix analysis:");
                 thr.printStackTrace(System.err);
             }
         }

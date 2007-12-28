@@ -55,6 +55,7 @@ tokens {
    NOT='not';
    NULL='null';
    PACKAGE='package';
+   POSTINIT='postinit';
    PRIVATE='private';
    PROTECTED='protected';
    PUBLIC='public';
@@ -204,7 +205,6 @@ import org.antlr.runtime.*;
       semiKind[RBRACE] = INSERT_SEMI;
       semiKind[STRING_LITERAL] = INSERT_SEMI;
       semiKind[QUOTE_LBRACE_STRING_LITERAL] = INSERT_SEMI;
-      semiKind[QUOTED_IDENTIFIER] = INSERT_SEMI;
       semiKind[DECIMAL_LITERAL] = INSERT_SEMI;
       semiKind[OCTAL_LITERAL] = INSERT_SEMI;
       semiKind[HEX_LITERAL] = INSERT_SEMI;
@@ -367,9 +367,6 @@ FORMAT_STRING_LITERAL		: 				{ BraceQuoteTracker.percentIsFormat() }?=>
 				  '%' (~' ')* 			{ BraceQuoteTracker.resetPercentIsFormat(); }
 				;
  
-QUOTED_IDENTIFIER 
-		:	'<<' (~'>'| '>' ~'>')* '>'* '>>'   	{ setText(getText().substring(2, getText().length()-2)); };
- 
 DECIMAL_LITERAL : ('0' | '1'..'9' '0'..'9'*) ;
 
 OCTAL_LITERAL : '0' ('0'..'7')+ ;
@@ -411,8 +408,9 @@ Exponent : 	('e'|'E') ('+'|'-')? Digits
  	;
 
 IDENTIFIER 
-    :   Letter (Letter|JavaIDDigit)*
-    ;
+	: Letter (Letter|JavaIDDigit)*
+	| '<<' (~'>'| '>' ~'>')* '>'* '>>'			{ setText(getText().substring(2, getText().length()-2)); }
+	;
 
 fragment
 Letter
@@ -510,6 +508,7 @@ classMembers
 	;
 classMember
 	: initDefinition	
+	| postInitDefinition
 	| variableDeclaration 
 	| functionDefinition 
 	;
@@ -521,6 +520,9 @@ functionDefinition
 	;
 initDefinition
 	: INIT block 				-> ^(INIT block)
+	;
+postInitDefinition
+	: POSTINIT block 			-> ^(POSTINIT block)
 	;
 functionModifierFlags
 	: accessModifier functionModifier?	-> ^(MODIFIER accessModifier  functionModifier?)
@@ -554,7 +556,7 @@ classModifier
 	:  ABSTRACT        			
 	;
 memberSelector
-	: n1=name DOT n2=name			-> ^(MEMBERSELECTOR $n1 $n2)
+	: n1=name DOT n2=name			-> ^(MEMBERSELECTOR[$DOT] $n1 $n2)
 	;
 formalParameters
 	: LPAREN ( formalParameter (COMMA formalParameter)* )?  RPAREN
@@ -566,7 +568,7 @@ formalParameter
 block
 	: LBRACE blockComponent?
 	   (SEMI blockComponent?) *
-	  RBRACE				-> ^(BLOCK blockComponent*)
+	  RBRACE				-> ^(BLOCK[$LBRACE] blockComponent*)
 	;
 blockExpression 
 	: LBRACE blockComponent?
@@ -595,13 +597,13 @@ variableDeclaration
 	;
 onChangeClause  
 	: ON REPLACE (LPAREN oldv=formalParameter RPAREN)? block
-						-> ^(ON_REPLACE $oldv? block)
+						-> ^(ON_REPLACE[$ON] $oldv? block)
 	| ON REPLACE LBRACKET index=formalParameter RBRACKET (LPAREN oldv=formalParameter RPAREN)? block
-						-> ^(ON_REPLACE_ELEMENT $index $oldv? block)
+						-> ^(ON_REPLACE_ELEMENT[$ON] $index $oldv? block)
 	| ON INSERT LBRACKET index=formalParameter RBRACKET (LPAREN newv=formalParameter RPAREN)? block
-						-> ^(ON_INSERT_ELEMENT $index $newv? block)
+						-> ^(ON_INSERT_ELEMENT[$ON] $index $newv? block)
 	| ON DELETE LBRACKET index=formalParameter RBRACKET (LPAREN oldv=formalParameter RPAREN)? block
-						-> ^(ON_DELETE_ELEMENT $index $oldv? block)
+						-> ^(ON_DELETE_ELEMENT[$ON] $index $oldv? block)
 	;
 variableLabel 
 	: VAR	
@@ -685,16 +687,12 @@ assignmentOpExpression
 	   )
 	;
 andExpression  
-	: e1=orExpression					
-	   (   AND   e2=orExpression				-> ^(AND $e1 $e2) 
-	   |							-> $e1
-	   )
+	: ( e1=orExpression					-> $e1 )		
+	  (   AND   e2=orExpression				-> ^(AND $andExpression $e2) )*
 	;
 orExpression  
-	: e1=typeExpression				
-	   (   OR   e2=typeExpression				-> ^(OR $e1 $e2) 
-	   |							-> $e1
-	   )
+	: ( e1=typeExpression					-> $e1 )		
+	  (   OR   e2=typeExpression				-> ^(OR $orExpression $e2) )*
 	;
 typeExpression 
 	: relationalExpression		
@@ -711,12 +709,14 @@ relationalExpression
 	   |   GTEQ   e=additiveExpression			-> ^(GTEQ $relationalExpression $e)
 	   |   LT     e=additiveExpression			-> ^(LT   $relationalExpression $e)
 	   |   GT     e=additiveExpression			-> ^(GT   $relationalExpression $e)
-	   ) * ;
+	   ) * 
+	;
 additiveExpression 
 	: ( multiplicativeExpression				-> multiplicativeExpression )
 	   (   PLUS   e=multiplicativeExpression		-> ^(PLUS $additiveExpression $e)
 	   |   SUB    e=multiplicativeExpression		-> ^(SUB  $additiveExpression $e)
-	   ) * ;
+	   ) * 
+	;
 multiplicativeExpression
 	: ( unaryExpression					-> unaryExpression )
 	   (   STAR    e=unaryExpression			-> ^(STAR    $multiplicativeExpression $e)
@@ -735,8 +735,8 @@ unaryExpression
 	;
 suffixedExpression 
 	: postfixExpression
-		( PLUSPLUS					-> ^(POSTINCR postfixExpression)
-		| SUBSUB					-> ^(POSTDECR postfixExpression)
+		( PLUSPLUS					-> ^(POSTINCR[$PLUSPLUS] postfixExpression)
+		| SUBSUB					-> ^(POSTDECR[$SUBSUB] postfixExpression)
 		|						-> postfixExpression
 		)
 	;
@@ -746,7 +746,8 @@ postfixExpression
 //TODO:		 | CLASS   					
 	         )   
 	   | expressionList  					-> ^(FUNC_APPLY $postfixExpression expressionList)
-	   | LBRACKET expression RBRACKET			-> ^(SEQ_INDEX[$LBRACKET] $postfixExpression expression)
+	   | LBRACKET name PIPE expression RBRACKET		-> ^(PIPE $postfixExpression name expression)
+	   | LBRACKET expression RBRACKET			-> ^(SEQ_INDEX $postfixExpression expression)
 	   ) * 
 	;
 primaryExpression  
@@ -770,7 +771,7 @@ newExpression
 	: NEW typeName expressionListOpt			-> ^(NEW typeName expressionListOpt)
 	;
 objectLiteralPart  
-	: name COLON  boundExpression (COMMA | SEMI)?		-> ^(OBJECT_LIT_PART name boundExpression)
+	: name COLON  boundExpression (COMMA | SEMI)?		-> ^(OBJECT_LIT_PART[$COLON] name boundExpression)
        	| variableDeclaration	(COMMA | SEMI)?			-> variableDeclaration
        	| functionDefinition 	(COMMA | SEMI)?			-> functionDefinition
        	;
@@ -878,12 +879,5 @@ identifier
 	: name              	
 	;
 name 
-	: plainName			
-	| frenchName			
-	;
-plainName 
-	: IDENTIFIER			
-	;
-frenchName 
-	: QUOTED_IDENTIFIER		
+	: IDENTIFIER						
 	;

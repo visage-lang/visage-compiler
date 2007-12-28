@@ -95,6 +95,7 @@ classMembers  returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]
 	;
 classMember  returns [JCTree member]
 	: initDefinition				{ $member = $initDefinition.value; } 
+	| postInitDefinition 				{ $member = $postInitDefinition.value; } 
 	| variableDeclaration 				{ $member = $variableDeclaration.value; } 
 	| functionDefinition 				{ $member = $functionDefinition.value; } 
 	;
@@ -107,6 +108,9 @@ functionDefinition  returns [JFXOperationDefinition value]
 	;
 initDefinition  returns [JFXInitDefinition value]
 	: ^(INIT block)					{ $value = F.at(pos($INIT)).InitDefinition($block.value); }
+	;
+postInitDefinition  returns [JFXPostInitDefinition value]
+	: ^(POSTINIT block)	 			{ $value = F.at(pos($POSTINIT)).PostInitDefinition($block.value); }
 	;
 functionModifierFlags  returns [long flags]
 	: ^(MODIFIER accessModifier?  functionModifier?)
@@ -272,6 +276,7 @@ expression  returns [JCExpression expr]
        							{ $expr = F.at(pos($FUNC_EXPR)).OperationValue($type.type, $formalParameters.params.toList(),
                                                								$blockExpression.expr); }
 	| ^(NEW typeName expressionList)		{ $expr = F.at(pos($NEW)).Instanciate($typeName.expr, $expressionList.args.toList(), null); }
+	| pipeExpression				{ $expr = $pipeExpression.expr; }
 	| blockExpression				{ $expr = $blockExpression.expr; }
        	| stringExpression				{ $expr = $stringExpression.expr; }
 	| explicitSequenceExpression			{ $expr = $explicitSequenceExpression.expr; }
@@ -296,6 +301,13 @@ inClauses  returns [ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb
 inClause  returns [JFXForExpressionInClause value] 
 	: ^(IN formalParameter se=expression we=expression?)
 							{ $value = F.at(pos($IN)).InClause($formalParameter.var, $se.expr, $we.expr); }
+	;
+pipeExpression  returns [JCExpression expr] //TODO: this is a hack
+	: ^(PIPE seq=expression name cond=expression)	{ ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb(); 
+                  					  JFXVar var = F.at($name.pos).Param($name.value, F.TypeUnknown());
+	          					  clauses.append(F.at(pos($PIPE)).InClause(var, $seq.expr, $cond.expr));
+                  					  $expr = F.at(pos($PIPE)).ForExpression(clauses.toList(), F.at($name.pos).Ident($name.value));
+							}
 	;
 stringExpression  returns [JCExpression expr] 
 @init { ListBuffer<JCExpression> strexp = new ListBuffer<JCExpression>(); }
@@ -375,12 +387,5 @@ identifier  returns [JCExpression expr]
 	: name 				          	{ $expr = F.at($name.pos).Ident($name.value); } 
 	;
 name returns [Name value, int pos]
-	: plainName					{ $value = $plainName.value; $pos = $plainName.pos; }
-	| frenchName					{ $value = $frenchName.value; $pos = $frenchName.pos; }
-	;
-plainName returns [Name value, int pos]
 	: IDENTIFIER					{ $value = Name.fromString(names, $IDENTIFIER.text); $pos = pos($IDENTIFIER); } 
-	;
-frenchName returns [Name value, int pos]
-	: QUOTED_IDENTIFIER				{ $value = Name.fromString(names, $QUOTED_IDENTIFIER.text); $pos = pos($QUOTED_IDENTIFIER); } 
 	;
