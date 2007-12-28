@@ -145,6 +145,10 @@ formalParameters  returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]
 formalParameter returns [JFXVar var]
 	: ^(PARAM name type)				{ $var = F.at($name.pos).Param($name.value, $type.type); } 
 	;
+formalParameterOpt returns [JFXVar var]
+	: formalParameter				{ $var = $formalParameter.var; } 
+	|						{ $var = null; } 
+	;
 block  returns [JCBlock value]
 @init { ListBuffer<JCStatement> stats = ListBuffer.<JCStatement>lb(); }
 	: ^(BLOCK
@@ -164,26 +168,26 @@ blockExpression  returns [JFXBlockExpression expr]
 	    )						{ $expr = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), val); }
 	;
 variableDeclaration    returns [JCStatement value]
-	: ^(VAR variableLabel varModifierFlags name type boundExpression? onChanges)
+	: ^(VAR variableLabel varModifierFlags name type boundExpressionOpt onChanges)
 	    						{ $value = F.at(pos($VAR)).Var($name.value, 
 	    							$type.type, 
 	    							F.at($variableLabel.pos).Modifiers($varModifierFlags.flags),
 	    							$variableLabel.local,
-	    							$boundExpression.expr, 
-	    							$boundExpression.status, 
+	    							$boundExpressionOpt.expr, 
+	    							$boundExpressionOpt.status, 
 	    							$onChanges.listb.toList()); }
 	;
 onChanges   returns [ListBuffer<JFXAbstractOnChange> listb = ListBuffer.<JFXAbstractOnChange>lb()]
 	: ( onChangeClause				{ listb.append($onChangeClause.value); } )*
 	;
 onChangeClause     returns [JFXAbstractOnChange value]
-	: ^(ON_REPLACE oldv=formalParameter? block)
+	: ^(ON_REPLACE oldv=formalParameterOpt block)
 							{ $value = F.at(pos($ON_REPLACE)).OnReplace($oldv.var, $block.value); }
-	| ^(ON_REPLACE_ELEMENT index=formalParameter oldv=formalParameter? block)
+	| ^(ON_REPLACE_ELEMENT index=formalParameter oldv=formalParameterOpt block)
 							{ $value = F.at(pos($ON_REPLACE_ELEMENT)).OnReplaceElement($index.var, $oldv.var, $block.value); }
-	| ^(ON_INSERT_ELEMENT index=formalParameter newv=formalParameter? block)
+	| ^(ON_INSERT_ELEMENT index=formalParameter newv=formalParameterOpt block)
 							{ $value = F.at(pos($ON_INSERT_ELEMENT)).OnInsertElement($index.var, $newv.var, $block.value); }
-	| ^(ON_DELETE_ELEMENT index=formalParameter oldv=formalParameter? block)
+	| ^(ON_DELETE_ELEMENT index=formalParameter oldv=formalParameterOpt block)
 							{ $value = F.at(pos($ON_DELETE_ELEMENT)).OnDeleteElement($index.var, $oldv.var, $block.value); }
 	;
 variableLabel    returns [boolean local, int pos]
@@ -219,10 +223,14 @@ boundExpression   returns [JavafxBindStatus status, JCExpression expr]
 	      (LAZY					{ isLazy = true; } )?
 	      (INVERSE					{ isBidirectional = true; } )?
 	      expression				{ $expr = $expression.expr; }
-	      						{ $status = isBidirectional? isLazy? JavafxBindStatus.LAZY_BIDIBIND : JavafxBindStatus.BIDIBIND
-	  									   : isLazy? JavafxBindStatus.LAZY_UNIDIBIND :  JavafxBindStatus.UNIDIBIND; }
+	      						{ $status = isBidirectional? isLazy? LAZY_BIDIBIND : BIDIBIND
+	  									   : isLazy? LAZY_UNIDIBIND :  UNIDIBIND; }
 	   )
 	| ^(EXPRESSION expression)			{ $expr = $expression.expr; $status = UNBOUND; }
+	;
+boundExpressionOpt   returns [JavafxBindStatus status, JCExpression expr]
+	: boundExpression				{ $expr = $boundExpression.expr; $status = $boundExpression.status; }
+	| 						{ $expr = null; $status = UNBOUND; }
 	;
 expression  returns [JCExpression expr]
        	: ^(FOR inClauses e0=expression)		{ $expr = F.at(pos($FOR)).ForExpression($inClauses.clauses.toList(), $e0.expr); }
@@ -327,7 +335,8 @@ expressionList  returns [ListBuffer<JCExpression> args = new ListBuffer<JCExpres
 	;
 type  returns [JFXType type]
 	: ^(TYPE_NAMED typeName cardinality)		{ $type = F.at(pos($TYPE_NAMED)).TypeClass($typeName.expr, $cardinality.ary); }
- 	| ^(TYPE_FUNCTION typeArgList type cardinality)	{ $type = F.at(pos($TYPE_FUNCTION)).TypeFunctional($typeArgList.ptypes.toList(), $type.type, $cardinality.ary); }
+ 	| ^(TYPE_FUNCTION typeArgList ret=type cardinality)
+ 							{ $type = F.at(pos($TYPE_FUNCTION)).TypeFunctional($typeArgList.ptypes.toList(), $ret.type, $cardinality.ary); }
  	| ^(TYPE_ANY cardinality)			{ $type = F.at(pos($TYPE_ANY)).TypeAny($cardinality.ary); } 
  	| TYPE_UNKNOWN					{ $type = F.TypeUnknown(); }
  	;
@@ -360,7 +369,7 @@ genericArgument  returns [JCExpression expr]
 	;
 qualident  returns [JCExpression expr]
 	: name 				          	{ $expr = F.at($name.pos).Ident($name.value); } 
-	| ^(DOT qualident name)				{ $expr = F.at(pos($DOT)).Select($qualident.expr, $name.value); } 
+	| ^(DOT id=qualident name)			{ $expr = F.at(pos($DOT)).Select($id.expr, $name.value); } 
 	;
 identifier  returns [JCExpression expr]
 	: name 				          	{ $expr = F.at($name.pos).Ident($name.value); } 

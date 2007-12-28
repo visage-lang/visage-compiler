@@ -621,7 +621,7 @@ insertStatement
 deleteStatement  
 	: DELETE  e1=expression  
 	   ( FROM e2=expression 		-> ^(FROM $e1 $e2)
-	   | /* indexed and whole cases */	-> ^(DELETE $e2)
+	   | /* indexed and whole cases */	-> ^(DELETE $e1)
 	   )
 	;
 returnStatement
@@ -798,7 +798,7 @@ bracketExpression
 	     	(   /*nada*/			-> ^(SEQ_EXPLICIT[$LBRACKET] expression*)
 	     	| COMMA 
 	     	   (   /*nada*/			-> ^(SEQ_EXPLICIT[$LBRACKET] expression*)
-            	| e2=expression 		
+            	| expression 		
 	     	         (COMMA expression)*
                           COMMA?
 	     	       				-> ^(SEQ_EXPLICIT[$LBRACKET] expression*)
@@ -831,7 +831,7 @@ typeArgList
  	: (typeArg (COMMA typeArg)* )?		-> typeArg*
 	;
 typeArg 
- 	: name? COLON type			-> ^(COLON name type)	
+ 	: name? COLON type			-> ^(COLON name? type)	
  	| name					-> ^(COLON name ^(TYPE_UNKNOWN))
  	;
 typeReference 

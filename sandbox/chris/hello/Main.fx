@@ -89,7 +89,7 @@ class BallModel {
     attribute ballImage =
 	Image { url: "http://bubblemark.com/assets/ball.png"};
     attribute ballCount = 16;
-    attribute balls = bind foreach (i in [1..ballCount]) new Ball;
+    attribute balls = bind for (i in [1..ballCount]) new Ball;
     attribute timer:Timer;
     attribute labels: SimpleLabel[];
     attribute listener:ActionListener = ActionListener {
@@ -114,10 +114,10 @@ class BallModel {
 
     function timerEvent(): Void {
 	var n = ballCount -1;
-	foreach (i in [0..n]) {
+	for (i in [0..n]) {
 	    balls[i].move();
 	}
-	foreach (i in [0..n-1], j in [i+1..n]) {
+	for (i in [0..n-1], j in [i+1..n]) {
 	    balls[i].doCollide(balls[j]);
 	}
 	F = F + 1;
@@ -128,7 +128,7 @@ class BallModel {
     function start() {
 	F = 0;
 	lastTime = System.currentTimeMillis();
-	labels = foreach (ball in balls) SimpleLabel {
+	labels = for (ball in balls) SimpleLabel {
 		x: bind ball.x
 		y: bind ball.y
                 icon: ballImage
@@ -157,7 +157,7 @@ var p = Panel {
     width: 800
     content: // bind 
     [//model.labels, // <- doesn't compile
-     foreach (label in model.labels) (label as java.lang.Object) as Widget,
+     for (label in model.labels) (label as java.lang.Object) as Widget,
      /*SimpleLabel {
        width: 100
        text: bind "FPS: {%f model.fps}" 
@@ -166,7 +166,7 @@ var p = Panel {
 }
 var c = Canvas {
     height: 300, width: 500
-    content: foreach (ball in model.balls) (Rect {
+    content: for (ball in model.balls) (Rect {
 			height: 52, width: 52, arcHeight: 52, arcWidth: 52, fill: Color {green: 1}, x: bind ball.x, y: bind ball.y
 		} as java.lang.Object) as Node
 

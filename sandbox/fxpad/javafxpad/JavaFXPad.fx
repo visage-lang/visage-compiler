@@ -939,7 +939,7 @@ operation JavaFXPad.completionRequest(k:KeyStroke) {
                 displayValue = makeFunction(key, (Operation) value.class);
                 var args = value.class.Attributes[a|a.Name <> 'this' and a.Name <> 'return'];
                 off = key.length()+2;
-                key = "{key}({foreach (a in args) "{a.Name}{if indexof a < sizeof args-1 then ", " else ""}"})";
+                key = "{key}({for (a in args) "{a.Name}{if indexof a < sizeof args-1 then ", " else ""}"})";
                 off = off - key.length();
             }
             insert CompletionProposal {
@@ -1117,7 +1117,7 @@ operation JavaFXPad.evaluate(sourceCode:String, run:Boolean) {
         if (notNode <> null) {
             compileError = "Incompatible type: expected Node, found {notNode[0].class.Name}";     compiledContent = View {
                 content: TextArea {
-                    text: "{if sizeof result > 1 then "[{foreach (i in result) "{if indexof i > 0 then " ," else ""}{i}"}]" else result}"
+                    text: "{if sizeof result > 1 then "[{for (i in result) "{if indexof i > 0 then " ," else ""}{i}"}]" else result}"
                     editable: false
                 }
             };
@@ -1223,7 +1223,7 @@ operation JavaFXPad.composeWidget() {
                                         
                                         content: 
                                         [Group {
-                                            content: bind foreach (x in [0,5..(Math.max(this.canvas.width, this.canvas.viewport.currentWidth) *100/zoomValue/ 5).intValue()*5+100])
+                                            content: bind for (x in [0,5..(Math.max(this.canvas.width, this.canvas.viewport.currentWidth) *100/zoomValue/ 5).intValue()*5+100])
                                             [Line {
                                                 stroke: black
                                                 x1: x
@@ -1255,7 +1255,7 @@ operation JavaFXPad.composeWidget() {
                                         content: 
                                         [Group {
                                             
-                                            content: bind foreach (y in [0,5..(Math.max(this.canvas.height, this.canvas.viewport.currentHeight)*100/zoomValue /5).intValue()*5+10])
+                                            content: bind for (y in [0,5..(Math.max(this.canvas.height, this.canvas.viewport.currentHeight)*100/zoomValue /5).intValue()*5+10])
                                             [Line {
                                                 stroke: black
                                                 y1: y
@@ -1347,7 +1347,7 @@ operation JavaFXPad.composeWidget() {
                                         opaque: true
                                         selectedTextColor: white
                                         foreground: black
-                                        annotations: bind foreach (err in errMessages) 
+                                        annotations: bind for (err in errMessages) 
                                         LineAnnotation {
                                             line: err.line
                                             column: err.column
@@ -1362,7 +1362,7 @@ operation JavaFXPad.composeWidget() {
                                                     strokeLineJoin: BEVEL
                                                     strokeWidth: 0.5
                                                     transform: bind translate(0, self.currentHeight-1)
-                                                    points: bind foreach (i in [0,2..self.currentWidth + self.currentWidth % 2]) [i, if indexof i % 2 == 0 then 1.5 else -1.5]
+                                                    points: bind for (i in [0,2..self.currentWidth + self.currentWidth % 2]) [i, if indexof i % 2 == 0 then 1.5 else -1.5]
                                                 }
                                             }
                                         }
@@ -1391,7 +1391,7 @@ operation JavaFXPad.composeWidget() {
                                                 var r = bind lineNumbers.getCellBounds(0)
                                                 var errImage = Image {url: "{__DOCBASE__}/images/error_obj.gif"}
                                                 content: 
-                                                bind foreach (err in errMessages) 
+                                                bind for (err in errMessages) 
                                                 View {
                                                     toolTipText: "<html><div 'width=300'>{err.message}</div></html>"
                                                     transform: bind translate(2, (err.line -1)*r.height)
@@ -1536,7 +1536,7 @@ operation JavaFXPad.composeWidget() {
                                     }
                                 }
                             }
-                            cells: bind foreach (err in errMessages) 
+                            cells: bind for (err in errMessages) 
                             ListCell {
                                 var eol = err.message.indexOf("\n")
                                 text: "<html><table cellspacing='0' cellpadding='0'><tr><td><img src='{__DOCBASE__}/images/error_obj.gif'></img></td><td>&nbsp;{if eol < 0 then err.message else "{err.message.substring(0, eol).trim()}..."}</td></tr><table>"
@@ -1578,7 +1578,7 @@ operation JavaFXPad.composeWidget() {
                     locked: bind updatingCompletions
                     cursor: DEFAULT
                     focusable: false
-                    cells: bind foreach (proposal in this.completionProposals) 
+                    cells: bind for (proposal in this.completionProposals) 
                     ListCell {
                         horizontalAlignment: LEADING
                         text: bind proposal.displayValue

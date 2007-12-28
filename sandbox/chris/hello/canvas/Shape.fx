@@ -71,7 +71,7 @@ public abstract class Shape extends VisualNode {
                                     strokeLineCap.id.intValue(),
                                     strokeLineJoin.id.intValue(),
                                     strokeMiterLimit.floatValue(),
-                                    null, //foreach (i in strokeDashArray) i.floatValue(),
+                                    null, //for (i in strokeDashArray) i.floatValue(),
                                     strokeDashOffset.floatValue());
             gp.append(s.createStrokedShape(tshape), false);
         } else {

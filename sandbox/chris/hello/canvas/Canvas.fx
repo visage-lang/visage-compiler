@@ -68,7 +68,7 @@ public class Canvas extends Widget, CanvasElement, Container {
 	    return result;
 	}
 	var lastNode:Node = null;
-	foreach (i in [0..path.size()-1]) {
+	for (i in [0..path.size()-1]) {
 	    var n = getF3(path.get(i) as SGNode);
 	    if (n <> null and n <> lastNode) {
 		insert n into result;
@@ -88,7 +88,7 @@ public class Canvas extends Widget, CanvasElement, Container {
 	jsgpanel = new JSGPanel();
 	jsgpanel.setOpaque(false);
 	jsgpanel.setScene(root);
-	foreach (i in content) {
+	for (i in content) {
 	    i.parentCanvasElement = (this as java.lang.Object) as CanvasElement;
 	    root.add(i.getNode());
 	}

@@ -39,7 +39,7 @@ public class Panel extends Widget {
     protected function createPanel(): javax.swing.JPanel {
 	var panel = new JPanel();
 	panel.setOpaque(false);
-	foreach (i in content) {
+	for (i in content) {
 	    var comp = i.getComponent();
 	    var x = i.x;
 	    var y = i.y;

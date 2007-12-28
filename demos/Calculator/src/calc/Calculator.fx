@@ -156,48 +156,48 @@ public class Calculator extends CompositeNode {
                 //fill: Color.rgba(0, 0, 0, 0.4)
                 fill: Color.WHITE
             } as Node,
-            //foreach (i in [1,2,3])
-            foreach(i in [0..sizeof n13 exclusive ])
+            //for (i in [1,2,3])
+            for(i in [0..sizeof n13 exclusive ])
             (CalcButton {
                 transform: [Transform.translate(16+i *38, 153)]
                 image: Image{url: this.getClass().getResource("images/{n13[i]}.png").toString()}
                 pressedImage: Image{url: this.getClass().getResource("images/d{n13[i]}.png").toString()}
                 action: function():Void {input("{n13[i]}");}
             } as Object) as Node,
-            //foreach (i in [4,5,6])
-            foreach(i in [0..sizeof n46 exclusive ])
+            //for (i in [4,5,6])
+            for(i in [0..sizeof n46 exclusive ])
             (CalcButton {
                 transform: [Transform.translate(16+i *38, 153-38)]
                 image: Image{url: this.getClass().getResource("images/{n46[i]}.png").toString()}
                 pressedImage: Image{url: this.getClass().getResource("images/d{n46[i]}.png").toString()}
                 action: function():Void {input("{n46[i]}");}    
             }as Object) as Node,
-            //foreach (i in [7,8,9])
-            foreach(i in [0..sizeof n79 exclusive ])
+            //for (i in [7,8,9])
+            for(i in [0..sizeof n79 exclusive ])
             (CalcButton {
                 transform: [Transform.translate(16+i *38, 153-38*2)]
                 image: Image{url: this.getClass().getResource("images/{n79[i]}.png").toString()}
                 pressedImage: Image{url: this.getClass().getResource("images/d{n79[i]}.png").toString()}
                 action: function():Void {input("{n79[i]}");}
             }as Object) as Node,
-            //foreach (i in ["0", "decimal", "c"])
-            foreach(i in [0..sizeof dec exclusive ])
+            //for (i in ["0", "decimal", "c"])
+            for(i in [0..sizeof dec exclusive ])
             (CalcButton {
                 transform: [Transform.translate(16+i * 38, 191)]
                 image: Image{url: this.getClass().getResource("images/{dec[i]}.png").toString()}
                 pressedImage: Image{url: this.getClass().getResource("images/d{dec[i]}.png").toString()}
                 action: function():Void {input(dec[i]);}    
             }as Object) as Node,
-            //foreach (i in ["m+", "m-", "mc", "mr"])
-            foreach(i in [0..sizeof mr exclusive ])
+            //for (i in ["m+", "m-", "mc", "mr"])
+            for(i in [0..sizeof mr exclusive ])
             (CalcButton {
                 transform: [Transform.translate(16+i * 28, 52)]
                 image: Image{url: this.getClass().getResource("images/{mr[i]}.png").toString()}
                 pressedImage: Image{url: this.getClass().getResource("images/d{mr[i]}.png").toString()}
                 action: function():Void {input(mr[i]);}
             }as Object) as Node,
-            //foreach (i in ["div", "mult", "sub", "add"])
-            foreach(i in [0..sizeof divmult exclusive ])
+            //for (i in ["div", "mult", "sub", "add"])
+            for(i in [0..sizeof divmult exclusive ])
             (CalcButton {
                 transform: [Transform.translate(130 + (if (i > 0) then 1 else 0), 52+27* i)]
                 image: Image{url: bind this.getClass().getResource("images/{if (operator == ops[i]) then 'a{divmult[i]}' else divmult[i]}.png").toString()}

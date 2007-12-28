@@ -114,7 +114,7 @@ public abstract class Node extends CanvasElement {
             }
             //if (filter <> null) {
                 //JXFC-XXX com.sun.javafx.runtime.sequence.Sequence<java.awt.image.BufferedImageOp>
-                //effectFilter.setImageOps(foreach(i in filter)i.getFilter());
+                //effectFilter.setImageOps(for(i in filter)i.getFilter());
             //}
             if (toolTipText <> null) {
                 //alignmentFilter.setToolTipText(toolTipText); // TODO: hmm
@@ -164,21 +164,21 @@ public abstract class Node extends CanvasElement {
         on insert [ndx] (f) {
             if (effectFilter <> null) {
                 //JXFC-XXX com.sun.javafx.runtime.sequence.Sequence<java.awt.image.BufferedImageOp>
-                //effectFilter.setImageOps(foreach(i in filter) i.getFilter());
+                //effectFilter.setImageOps(for(i in filter) i.getFilter());
                     
             }
         }
         on delete [ndx] (f)  {
             if (effectFilter <> null) {
                 //JXFC-XXX com.sun.javafx.runtime.sequence.Sequence<java.awt.image.BufferedImageOp>
-                //effectFilter.setImageOps(foreach(i in filter) i.getFilter());
+                //effectFilter.setImageOps(for(i in filter) i.getFilter());
             }
         }
 
         on replace [ndx] (f)  {
             if (effectFilter <> null) {
                 //JXFC-XXX com.sun.javafx.runtime.sequence.Sequence<java.awt.image.BufferedImageOp>
-                //effectFilter.setImageOps(foreach(i in filter) i.getFilter());
+                //effectFilter.setImageOps(for(i in filter) i.getFilter());
             }
         };
      */

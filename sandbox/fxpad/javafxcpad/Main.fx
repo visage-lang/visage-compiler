@@ -1,4 +1,4 @@
-/*
+X/*
  *  $Id$
  * 
  *  Copyright 2007 Sun Microsystems, Inc. All rights reserved.
@@ -242,7 +242,7 @@ Frame {
             ComboBox {
                 row: row
                 column: zoomCol
-                cells: bind foreach (i in javafxPad.zoomOptions)
+                cells: bind for (i in javafxPad.zoomOptions)
                    ComboBoxCell { text: "{i format as <<0.##>>}%"}
                 selection: bind javafxPad.zoomSelection
             }]
