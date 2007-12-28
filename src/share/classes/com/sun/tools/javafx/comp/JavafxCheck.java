@@ -93,6 +93,14 @@ public class JavafxCheck {
 	return instance;
     }
 
+    public static void preRegister(final Context context) {
+        context.put(javafxCheckKey, new Context.Factory<JavafxCheck>() {
+	       public JavafxCheck make() {
+		   return new JavafxCheck(context);
+	       }
+        });
+    }
+
     protected JavafxCheck(Context context) {
 	context.put(javafxCheckKey, this);
 

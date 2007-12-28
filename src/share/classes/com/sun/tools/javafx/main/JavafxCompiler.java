@@ -277,15 +277,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     public JavafxCompiler(final Context context) {
         this.context = context;
         context.put(compilerKey, this);
-        
-        // if fileManager not already set, register the JavacFileManager to be used
-        if (context.get(JavaFileManager.class) == null)
-	    com.sun.tools.javafx.util.JavafxFileManager.preRegister(context);
-        com.sun.tools.javafx.tree.JavafxTreeMaker.preRegister(context);
-        com.sun.tools.javafx.tree.JavafxTreeInfo.preRegister(context);
-        com.sun.tools.javafx.code.JavafxSymtab.preRegister(context);
-        com.sun.tools.javafx.code.JavafxTypes.preRegister(context);
-        com.sun.tools.javafx.comp.JavafxClassReader.preRegister(context);
+        registerServices(context);
         
         javafxJavaCompiler = JavafxJavaCompiler.instance(context);
         names = Name.Table.instance(context);
@@ -1163,5 +1155,17 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             h.setLevel(Level.ALL);
        }
 
+    }
+
+    protected void registerServices(final Context context) {
+        // if fileManager not already set, register the JavacFileManager to be used
+        if (context.get(JavaFileManager.class) == null) {
+            com.sun.tools.javafx.util.JavafxFileManager.preRegister(context);
+        }
+        com.sun.tools.javafx.tree.JavafxTreeMaker.preRegister(context);
+        com.sun.tools.javafx.tree.JavafxTreeInfo.preRegister(context);
+        com.sun.tools.javafx.code.JavafxSymtab.preRegister(context);
+        com.sun.tools.javafx.code.JavafxTypes.preRegister(context);
+        com.sun.tools.javafx.comp.JavafxClassReader.preRegister(context);
     }
 }
