@@ -165,7 +165,7 @@ public class JavaFXScriptEngineTest {
             assertTrue(errorList.size() == 1);
             Diagnostic<? extends JavaFileObject> error = errorList.get(0);
             assertTrue(error.getKind() == Diagnostic.Kind.ERROR);
-            assertTrue(error.getLineNumber() == 8);
+            assertEquals(8, error.getLineNumber());
         }
     }
     
@@ -195,7 +195,7 @@ public class JavaFXScriptEngineTest {
             assertTrue(errorList.size() == 1);
             Diagnostic<? extends JavaFileObject> error = errorList.get(0);
             assertTrue(error.getKind() == Diagnostic.Kind.ERROR);
-            assertTrue(error.getLineNumber() == 8);
+            assertEquals(8, error.getLineNumber());
         }
     }
     
