@@ -44,10 +44,10 @@ public class Tree extends ScrollableWidget {
         var node = [root];
         var path:TreeCell[] = [];
         //tree.getSelectionModel().removeTreeSelectionListener(treeSelectionListener);
-        foreach (x in newPath) {
+        for (x in newPath) {
             //node = node[n|n.value == x];
             var nnode:TreeCell[] = [];
-            foreach(n in node) {
+            for(n in node) {
                 if(n.value == x) {
                     insert n into nnode;
                 }
@@ -62,7 +62,7 @@ public class Tree extends ScrollableWidget {
         }
         if (node <> null and sizeof path > 0) {
             var tp = new javax.swing.tree.TreePath(path[0]);
-            foreach (i in [1..sizeof path exclusive]) {
+            for (i in [1..sizeof path exclusive]) {
                 tp = tp.pathByAddingChild(path[i]);
             }
             tree.clearSelection();
@@ -81,7 +81,7 @@ public class Tree extends ScrollableWidget {
                 r = r.parent;
             }
             var rpath:Object[] = [];
-            foreach( j in [sizeof path -1 ..0]){
+            for( j in [sizeof path -1 ..0]){
                 insert path[j] into rpath;
             }
             var children:Object[] = [ row ];
@@ -114,7 +114,7 @@ public class Tree extends ScrollableWidget {
             }
             var rpath:Object[] = [];
             // reverse rpath
-            foreach( j in [sizeof path -1 ..0]){
+            for( j in [sizeof path -1 ..0]){
                 insert path[j] into rpath;
             }           
             var children:Object[] = [ row ];
@@ -136,7 +136,7 @@ public class Tree extends ScrollableWidget {
                 r = r.parent;
             }
             var rpath:TreeCell[] = [];
-            foreach( j in [sizeof path -1 ..0]){
+            for( j in [sizeof path -1 ..0]){
                 insert path[j] into rpath;
             }            
             var event = new javax.swing.event.TreeModelEvent(treemodel as Object,
@@ -159,14 +159,14 @@ public class Tree extends ScrollableWidget {
             }
             //var i = select indexof x from x in row.parent.cells where x == row;
             var i = -1;
-            foreach(ii in [0..sizeof row.parent.cells exclusive]) {
+            for(ii in [0..sizeof row.parent.cells exclusive]) {
                 if(row.parent.cells[ii] == row) {
                     i = ii;
                     break;
                 }
             }
             var rpath:TreeCell[] = [];
-            foreach( j in [sizeof path -1 ..0]){
+            for( j in [sizeof path -1 ..0]){
                 insert path[j] into rpath;
             }  
             var children:Object[] = [ row ];
@@ -196,9 +196,9 @@ public class Tree extends ScrollableWidget {
                if (sizeof leadSelectionPath > 0 and root.value == leadSelectionPath[0]) {
                    var tp = new javax.swing.tree.TreePath(root);
                    var p = root;
-                   foreach (i in [1..sizeof leadSelectionPath exclusive]) {
+                   for (i in [1..sizeof leadSelectionPath exclusive]) {
                        var cell:TreeCell = null;
-                       foreach (c in p.cells) {
+                       for (c in p.cells) {
                            if(c.value == leadSelectionPath[i]) {
                                cell = c;
                                break;
@@ -221,9 +221,9 @@ public class Tree extends ScrollableWidget {
                if (sizeof leadSelectionPath > 0 and root.value == leadSelectionPath[0]) {
                    var tp = new javax.swing.tree.TreePath(root);
                    var p = root;
-                   foreach (i in [1..sizeof leadSelectionPath exclusive]) {
+                   for (i in [1..sizeof leadSelectionPath exclusive]) {
                        var cell:TreeCell = null;
-                       foreach (c in p.cells) {
+                       for (c in p.cells) {
                            if(c.value == leadSelectionPath[i]) {
                                cell = c;
                                break;
@@ -245,9 +245,9 @@ public class Tree extends ScrollableWidget {
                if (sizeof leadSelectionPath > 0 and root.value == leadSelectionPath[0]) {
                    var tp = new javax.swing.tree.TreePath(root);
                    var p = root;
-                   foreach (i in [1..sizeof leadSelectionPath exclusive]) {
+                   for (i in [1..sizeof leadSelectionPath exclusive]) {
                        var cell:TreeCell = null;
-                       foreach (c in p.cells) {
+                       for (c in p.cells) {
                            if(c.value == leadSelectionPath[i]) {
                                cell = c;
                                break;

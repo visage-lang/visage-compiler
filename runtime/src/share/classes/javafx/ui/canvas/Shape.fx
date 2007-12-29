@@ -52,7 +52,7 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
     public function getShape(): SGShape{
         if (sgshape == null) {
             sgshape = this.createShape();
-            sgshape.setAntialiasingHint(<<java.awt.RenderingHints>>.VALUE_ANTIALIAS_ON);
+            sgshape.setAntialiasingHint(java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
         }
         return sgshape;
     }

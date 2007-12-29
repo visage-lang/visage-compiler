@@ -99,7 +99,7 @@ public class Canvas extends Widget, CanvasElement, Container {
     public function pick(x: Integer, y: Integer, w:Integer, h:Integer): Node[] {
         var result:Node[] = [];
         // TODO: SGNode.pick() needs to take (x,y,w,h)
-        var path = jsgpanel.getScene().pick(new <<java.awt.Point>>(x, y));
+        var path = jsgpanel.getScene().pick(new java.awt.Point(x, y));
         if (path.isEmpty()) {
             return result;
         }
