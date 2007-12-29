@@ -64,7 +64,7 @@ public class Dialog extends AbstractFrame {
                     dim.height = d.height;
                 }
                 if (dim.width < d.width) {
-                    dim.width = d.height;
+                    dim.width = d.width;
                 }
             }
             for (i in buttons) {
@@ -145,6 +145,36 @@ public class Dialog extends AbstractFrame {
         p = new javax.swing.JPanel();
         p.setLayout(new java.awt.BorderLayout());
         border = EmptyBorder {top: 10 left: 10 right: 10 bottom: 10};
+        
+        //init buttons
+        if (buttonpanel == null) {
+            buttonpanel = new javax.swing.JPanel();
+            buttonpanel.setLayout(new javax.swing.BoxLayout(buttonpanel,
+                            javax.swing.BoxLayout.X_AXIS));
+            buttonpanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 5, 0, 0));
+            buttonpanel.add(javax.swing.Box.createHorizontalGlue());
+            p.add(buttonpanel, java.awt.BorderLayout.SOUTH);
+        }
+        for(i in buttons) {
+            buttonpanel.add(javax.swing.Box.createRigidArea(new java.awt.Dimension(5,0)));
+            buttonpanel.add(i.getComponent());      
+        }
+
+        var dim = new java.awt.Dimension(80,0);
+        for (i in buttons) {
+            var d = i.getComponent().getPreferredSize();
+            if (dim.height < d.height) {
+                dim.height = d.height;
+            }
+            if (dim.width < d.width) {
+                dim.width = d.width;
+            }
+        }
+        for (i in buttons) {
+            i.getComponent().setPreferredSize(dim);
+            i.getComponent().setMinimumSize(dim);
+            i.getComponent().setMaximumSize(dim);
+        }        
     }
 }
 
