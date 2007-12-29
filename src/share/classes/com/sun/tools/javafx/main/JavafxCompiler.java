@@ -507,7 +507,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
         tree.sourcefile = filename;
         
-        printJavafxSource(tree);
+        printJavafxSource(tree, content); 
 
         javafxModuleBuilder.visitTopLevel(tree);
 
@@ -558,7 +558,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** Emit pretty=printed fx source corresponding to an input file.
      */
-    void printJavafxSource(JCCompilationUnit cu) {
+    void printJavafxSource(JCCompilationUnit cu, CharSequence content) {
         String dump = options.get("dumpfx");
         BufferedWriter out = null;
         if (dump != null) {
@@ -568,7 +568,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                     File outFile = new File(dump, (new File(fn)).getName());
                     FileWriter fw = new FileWriter(outFile);
                     out = new BufferedWriter(fw);
-                    new JavafxPretty(out, true).printUnit(cu, null);
+                    new JavafxPretty(out, true, content).printUnit(cu, null);
                 } finally {
                     if (out != null) {
                         out.close();

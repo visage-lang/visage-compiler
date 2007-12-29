@@ -54,7 +54,7 @@ public class JavafxSyntacticAnalysis {
         JCCompilationUnit unit = null;
         String parserChoice = options.get("parser");
         if (parserChoice == null) {
-            parserChoice = "v2"; // default
+            parserChoice = "v3"; // default
         }
         if (parserChoice.equals("v2")) {
             // leave this default until the new stuff works
@@ -104,7 +104,8 @@ public class JavafxSyntacticAnalysis {
     }
 
     private void printTree(Tree tree, String prefix) {
-        System.out.println(prefix + tree);
+        CommonToken token = (CommonToken)((CommonTree)tree).getToken();
+        System.out.println(prefix + tree + "  (" + token.getStartIndex() + ")" + token.getLine());
         int n = tree.getChildCount();
         String nextPrefix = prefix + "   ";
         for (int i = 0; i < n; ++i) {

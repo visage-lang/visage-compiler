@@ -37,6 +37,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.Position;
 
 /** Prints out a tree as an indented Java source program.
  *
@@ -58,15 +59,45 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
      *  (can be null)
      */
     Map<JCTree, String> docComments = null;
+    
+    CharSequence sourceContent;
+
+    public JavafxPretty(Writer out, boolean sourceOutput, CharSequence content) {
+        super(out, sourceOutput);
+        sourceContent = content;
+    }
 
     public JavafxPretty(Writer out, boolean sourceOutput) {
         super(out, sourceOutput);
+        sourceContent = null;
     }
 
     @Override
     public void printUnit(JCCompilationUnit tree, JCClassDecl cdef) throws IOException {
         docComments = tree.docComments;
         super.printUnit(tree, cdef);
+    }
+    
+    private String posAsString(int pos) {
+        if (pos == Position.NOPOS || sourceContent == null) {
+            return "%?%";
+        }
+        int line = 1;
+        int bp = 0;
+        while (bp < sourceContent.length() && bp < pos) {
+            switch (sourceContent.charAt(bp++)) {
+                case 0xD: //CR
+                    if (bp < sourceContent.length() && sourceContent.charAt(bp) == 0xA) {
+                        bp++;
+                    }
+                    line++;
+                    break;
+                case 0xA: //LF
+                    line++;
+                    break;
+                }
+        }
+        return " %(" + pos + ")" + line + "% ";
     }
 
     /** Visitor method: print expression tree.
@@ -76,6 +107,9 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void printExpr(JCTree tree, int prec) throws IOException {
         int prevPrec = this.prec;
         try {
+//          uncomment to debug position information
+//            println();
+//            print(posAsString(tree.getStartPosition()));
             this.prec = prec;
             if (tree == null) {
                 print("/*missing*/");
