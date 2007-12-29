@@ -56,14 +56,14 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
         super(value.getElementType(), true, false);
         if (value == null)
             throw new NullPointerException();
-        this.value = value;
+        replaceValue(value);
     }
 
     private SequenceVar(Class<T> clazz, Sequence<? extends T> value) {
         super(clazz, true, false);
         if (value == null)
             throw new NullPointerException();
-        set(value);
+        replaceValue(Sequences.upcast(clazz, value));
     }
 
     @Override
@@ -73,14 +73,21 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
 
     @Override
     public Sequence<T> set(Sequence<? extends T> newValue) {
-        replaceValue(Sequences.upcast(clazz, newValue));
-        return value;
+        if (equals(value, newValue))
+            return value;
+        else
+            return SequenceMutator.replaceSlice(value, mutationListener, 0, Sequences.size(value) - 1, newValue);
     }
 
     @Override
     public T set(int position, T newValue) {
         SequenceMutator.set(value, mutationListener, position, newValue);
         return newValue;
+    }
+
+    @Override
+    public void replaceSlice(int startPos, int endPos, Sequence<T> newValues) {
+        SequenceMutator.replaceSlice(value, mutationListener, startPos, endPos, newValues);
     }
 
     @Override
@@ -167,22 +174,12 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
     }
 
     private class MutationListener implements SequenceMutator.Listener<T> {
-        public void onReplaceSequence(Sequence<T> newSeq) {
-            value = newSeq;
+        public void onReplaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+            previousValue = value;
+            value = newValue;
             valueChanged();
+            SequenceVar.this.notifyListeners(startPos, endPos, newElements, oldValue, newValue);
+            previousValue = null;
         }
-
-        public void onInsert(int position, T element) {
-            SequenceVar.this.onInsert(position, element);
-        }
-
-        public void onDelete(int position, T element) {
-            SequenceVar.this.onDelete(position, element);
-        }
-
-        public void onReplaceElement(int position, T oldValue, T newValue) {
-            SequenceVar.this.onReplaceElement(position, oldValue, newValue);
-        }
-
     }
 }

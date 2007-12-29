@@ -24,13 +24,10 @@
  */
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.JavaFXTestCase;
-import com.sun.javafx.runtime.sequence.BoundCompositeSequence;
-import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.SequencePredicate;
-import com.sun.javafx.runtime.sequence.Sequences;
-
 import java.util.Map;
+
+import com.sun.javafx.runtime.JavaFXTestCase;
+import com.sun.javafx.runtime.sequence.*;
 
 /**
  * SequenceBindingTest
@@ -229,7 +226,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     public void testSequenceExpression() {
         // oneToN = bind 1..n
         final IntLocation n = IntVar.make(0);
-        final SequenceLocation<Integer> oneToN = new SequenceExpression(Integer.class, false, n) {
+        final SequenceLocation<Integer> oneToN = new SequenceExpression<Integer>(Integer.class, false, n) {
             public Sequence<Integer> computeValue() {
                 return Sequences.range(1, n.get());
             }
@@ -244,7 +241,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
         // oddN = bind select t from v where t % 2 == 1
         final SequenceLocation<Integer> v = SequenceVar.make(Sequences.range(1, 8));
-        final SequenceLocation<Integer> oddN = new SequenceExpression(Integer.class, false, v) {
+        final SequenceLocation<Integer> oddN = new SequenceExpression<Integer>(Integer.class, false, v) {
             public Sequence<Integer> computeValue() {
                 return v.get().get(new SequencePredicate<Integer>() {
                     public boolean matches(Sequence<? extends Integer> sequence, int index, Integer value) {
@@ -267,13 +264,13 @@ public class SequenceBindingTest extends JavaFXTestCase {
         };
 
         assertUOE(seq, "deleteAll");
-        assertUOE(seq, "deleteValue(T)", new Integer(1));
-        assertUOE(seq, "delete(I)", new Integer(0));
+        assertUOE(seq, "deleteValue(T)", 1);
+        assertUOE(seq, "delete(I)", 0);
         assertUOE(seq, "set(IT)", 0, 0);
         assertUOE(seq, "set(Lcom.sun.javafx.runtime.sequence.Sequence;)", Sequences.emptySequence(Integer.class));
-        assertUOE(seq, "insert(T)", new Integer(0));
+        assertUOE(seq, "insert(T)", 0);
         assertUOE(seq, "insert(Lcom.sun.javafx.runtime.sequence.Sequence;)", Sequences.emptySequence(Integer.class));
-        assertUOE(seq, "insertFirst(T)", new Integer(0));
+        assertUOE(seq, "insertFirst(T)", 0);
         assertUOE(seq, "insertFirst(Lcom.sun.javafx.runtime.sequence.Sequence;)", Sequences.emptySequence(Integer.class));
         // Also insertBefore/After 
     }
@@ -346,7 +343,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     public void testBoundConcat() {
         SequenceLocation<Integer> a = SequenceVar.make(Sequences.range(1, 2));
         SequenceLocation<Integer> b = SequenceVar.make(Sequences.range(3, 4));
-        SequenceLocation<Integer> c = BoundCompositeSequence.make(Integer.class, a, b);
+        SequenceLocation<Integer> c = BoundSequences.concatenate(Integer.class, a, b);
         HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
         c.addChangeListener(hl);
 
@@ -378,7 +375,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
         a.set(Sequences.range(1, 2));
         assertEquals(c, 1, 2, 3, 5, 19);
-        assertEqualsAndClear(hl, "d-1-9", "d-0-2", "i-0-1", "i-1-2");
+        assertEqualsAndClear(hl, "r-0-2-1", "r-1-9-2");
 
         b.set(Sequences.range(3, 4));
         assertEquals(c, 1, 2, 3, 4);
@@ -399,6 +396,88 @@ public class SequenceBindingTest extends JavaFXTestCase {
         b.set(Sequences.range(3, 4));
         assertEquals(c, 1, 2, 3, 4);
         assertEqualsAndClear(hl, "i-2-3", "i-3-4");
+    }
+
+    public void testBoundReverse() {
+        SequenceLocation<Integer> a = SequenceVar.make(Sequences.make(Integer.class, 1, 2, 3));
+        SequenceLocation<Integer> r = BoundSequences.reverse(a);
+        HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
+        r.addChangeListener(hl);
+
+        assertEquals(r, 3, 2, 1);
+
+        a.insert(4);
+        assertEquals(a, 1, 2, 3, 4);
+        assertEquals(r, 4, 3, 2, 1);
+        assertEqualsAndClear(hl, "[0, -1] => [ 4 ]");
+
+        a.insertFirst(0);
+        assertEquals(a, 0, 1, 2, 3, 4);
+        assertEquals(r, 4, 3, 2, 1, 0);
+        assertEqualsAndClear(hl, "[4, 3] => [ 0 ]");
+
+        a.delete(0);
+        assertEquals(a, 1, 2, 3, 4);
+        assertEquals(r, 4, 3, 2, 1);
+        assertEqualsAndClear(hl, "[4, 4] => [ ]");
+
+        a.delete(3);
+        assertEquals(a, 1, 2, 3);
+        assertEquals(r, 3, 2, 1);
+        assertEqualsAndClear(hl, "[0, 0] => [ ]");
+
+        a.set(0, 2);
+        assertEquals(a, 2, 2, 3);
+        assertEquals(r, 3, 2, 2);
+        assertEqualsAndClear(hl, "[2, 2] => [ 2 ]");
+
+        a.set(2, 2);
+        assertEquals(a, 2, 2, 2);
+        assertEquals(r, 2, 2, 2);
+        assertEqualsAndClear(hl, "[0, 0] => [ 2 ]");
+
+        a.set(Sequences.range(1, 2));
+        assertEquals(a, 1, 2);
+        assertEquals(r, 2, 1);
+        assertEqualsAndClear(hl, "[0, 2] => [ 2, 1 ]");
+
+    }
+
+    public void testSliceTriggers() {
+        SequenceLocation<Integer> a = SequenceVar.make(Sequences.make(Integer.class, 1, 2, 3));
+        HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
+        a.addChangeListener(hl);
+        a.set(Sequences.range(1, 2));
+        assertEquals(a, 1, 2);
+        assertEqualsAndClear(hl, "[0, 2] => [ 1, 2 ]");
+
+        a.set(Sequences.range(2, 3));
+        assertEquals(a, 2, 3);
+        assertEqualsAndClear(hl, "[0, 1] => [ 2, 3 ]");
+
+        a.deleteAll();
+        assertEquals(a);
+        assertEqualsAndClear(hl, "[0, 1] => [ ]");
+
+        a.insert(1);
+        assertEquals(a, 1);
+        assertEqualsAndClear(hl, "[0, -1] => [ 1 ]");
+
+        a.insertFirst(0);
+        assertEquals(a, 0, 1);
+        assertEqualsAndClear(hl, "[0, -1] => [ 0 ]");
+
+        a.insert(2);
+        assertEquals(a, 0, 1, 2);
+        assertEqualsAndClear(hl, "[2, 1] => [ 2 ]");
+
+        a.set(1, 3);
+        assertEquals(a, 0, 3, 2);
+        assertEqualsAndClear(hl, "[1, 1] => [ 3 ]");
+
+        a.delete(0);
+        assertEquals(a, 3, 2);
+        assertEqualsAndClear(hl, "[0, 0] => [ ]");
     }
 }
 

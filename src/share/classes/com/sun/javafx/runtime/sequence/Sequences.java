@@ -25,10 +25,10 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.Util;
-
 import java.util.BitSet;
 import java.util.List;
+
+import com.sun.javafx.runtime.Util;
 
 /**
  * Sequences -- static helper methods for constructing derived sequences. Implements heuristics for reducing time and
@@ -66,9 +66,9 @@ public final class Sequences {
     /** Concatenate two sequences into a new sequence.  */
     public static<T> Sequence<T> concatenate(Class<T> clazz, Sequence<? extends T> first, Sequence<? extends T> second) {
         // OPT: for small sequences, just copy the elements
-        if (first.size() == 0)
+        if (Sequences.size(first) == 0)
             return Sequences.upcast(clazz, second);
-        else if (second.size() == 0)
+        else if (Sequences.size(second) == 0)
             return Sequences.upcast(clazz, first);
         else
             return new CompositeSequence<T>(clazz, first, second);

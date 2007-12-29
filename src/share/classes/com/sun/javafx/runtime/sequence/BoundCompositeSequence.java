@@ -1,7 +1,31 @@
+/*
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ * CA 95054 USA or visit www.sun.com if you need additional information or
+ * have any questions.
+ */
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.Util;
-import com.sun.javafx.runtime.location.SequenceChangeListener;
+import com.sun.javafx.runtime.location.SequenceReplaceListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
 /**
@@ -13,11 +37,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
     private final SequenceLocation<? extends T>[] locations;
     private final int[] startPositions;
 
-    public static<T> SequenceLocation<T> make(Class<T> clazz, SequenceLocation<? extends T>... locations) {
-        return new BoundCompositeSequence<T>(clazz, false, locations);
-    }
-
-    private BoundCompositeSequence(Class<T> clazz, boolean lazy, SequenceLocation<? extends T>... locations) {
+    BoundCompositeSequence(Class<T> clazz, boolean lazy, SequenceLocation<? extends T>... locations) {
         super(clazz, false, lazy);
         this.locations = locations;
         this.startPositions = new int[locations.length];
@@ -30,8 +50,8 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             sequences[i] = locations[i].get();
             Class eClass = locations[i].get().getElementType();
             if (!clazz.isAssignableFrom(eClass))
-                throw new ClassCastException("cannot cast "+eClass.getName()
-                                             +" segment to "+clazz.getName()+" sequence");
+                throw new ClassCastException("cannot cast " + eClass.getName()
+                        + " segment to " + clazz.getName() + " sequence");
             startPositions[i] = offset;
             offset += sequences[i].size();
         }
@@ -40,38 +60,24 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
     }
 
 
-    private class MyListener implements SequenceChangeListener<T> {
+    private class MyListener<V extends T> implements SequenceReplaceListener<V> {
         private final int index;
 
         private MyListener(int index) {
             this.index = index;
         }
 
-        public void onInsert(int position, T element) {
-            int actualPos = startPositions[index] + position;
-            value = actualPos == value.size() ? value.insert(element) : value.insertBefore(element, actualPos);
-            for (int i=index+1; i<startPositions.length; i++)
-                ++startPositions[i];
-            valueChanged();
-            BoundCompositeSequence.this.onInsert(actualPos, element);
-        }
-
-        public void onDelete(int position, T element) {
-            int actualPos = startPositions[index] + position;
-            value = value.delete(actualPos);
-            for (int i=index+1; i<startPositions.length; i++)
-                --startPositions[i];
-            valueChanged();
-            BoundCompositeSequence.this.onDelete(actualPos, element);
-        }
-
-        public void onReplace(int position, T oldValue, T newValue) {
-            int actualPos = startPositions[index] + position;
-            T old = value.get(actualPos);
-            value = value.set(actualPos, newValue);
-            valueChanged();
-            BoundCompositeSequence.this.onReplaceElement(actualPos, old, newValue);
+        public void onReplace(int startPos, int endPos, Sequence<? extends V> newElements,
+                              Sequence<V> oldValue, Sequence<V> newValue) {
+            int actualStart = startPositions[index] + startPos;
+            int actualEnd = startPositions[index] + endPos;
+            Sequence<T> ourNewValue = value.replaceSlice(actualStart, actualEnd, newElements);
+            int delta = Sequences.size(newElements) - (endPos - startPos + 1);
+            if (delta != 0)
+                for (int i = index + 1; i < startPositions.length; i++)
+                    startPositions[i] += delta;
+            notifyListeners(actualStart, actualEnd, newElements, value, ourNewValue);
+            value = ourNewValue;
         }
     }
 }
-

@@ -24,18 +24,18 @@
  */
 package com.sun.javafx.runtime;
 
-import com.sun.javafx.runtime.location.*;
-import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.Sequences;
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.sun.javafx.runtime.location.*;
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
 /**
  * JavaFXTestCase
@@ -55,10 +55,11 @@ public abstract class JavaFXTestCase extends TestCase {
         assertEquals((Object) sequence, (Object) newSeq);
 
         StringBuffer sb = new StringBuffer();
-        sb.append("[ ");
+        sb.append("[");
         for (int i = 0; i < values.length; i++) {
             if (i != 0)
-                sb.append(", ");
+                sb.append(",");
+            sb.append(" ");
             sb.append(values[i]);
         }
         sb.append(" ]");
@@ -97,6 +98,11 @@ public abstract class JavaFXTestCase extends TestCase {
         assertEquals(sequence.get(), values);
     }
 
+    protected <T> void assertEquals(SequenceLocation<T> sequence, T value) {
+        assertEquals(1, sequence.get().size());
+        assertEquals(value, sequence.get().get(0));
+    }
+
     protected void assertEquals(HistorySequenceListener hl, String... values) {
         assertEquals(values.length, hl.get().size());
         for (int i=0; i<values.length; i++)
@@ -113,6 +119,26 @@ public abstract class JavaFXTestCase extends TestCase {
     }
 
     protected void assertEqualsAndClear(HistorySequenceListener hl, String... values) {
+        assertEquals(hl, values);
+        hl.clear();
+    }
+
+    protected void assertEquals(HistoryReplaceListener hl, String... values) {
+        assertEquals(values.length, hl.get().size());
+        for (int i=0; i<values.length; i++)
+            Assert.assertEquals(values[i], hl.get().get(i));
+    }
+
+    protected void assertEquals(HistoryReplaceListener hl, String value) {
+        assertEquals(hl, new String[] { value });
+    }
+
+    protected void assertEqualsAndClear(HistoryReplaceListener hl, String value) {
+        assertEquals(hl, new String[] { value });
+        hl.clear();
+    }
+
+    protected void assertEqualsAndClear(HistoryReplaceListener hl, String... values) {
         assertEquals(hl, values);
         hl.clear();
     }

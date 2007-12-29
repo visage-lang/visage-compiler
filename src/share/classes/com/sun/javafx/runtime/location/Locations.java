@@ -1,11 +1,11 @@
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.SequencePredicate;
-
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Iterator;
+
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.SequencePredicate;
 
 /**
  * Factory methods for wrapping Locations: unmodifiable locations, ObjectLocation-typed views of primitive locations, etc
@@ -411,11 +411,19 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public void addChangeListener(SequenceChangeListener<? super T> sequenceChangeListener) {
-            location.addChangeListener(sequenceChangeListener);
+        public void addChangeListener(SequenceReplaceListener<T> sequenceReplaceListener) {
+            location.addChangeListener(sequenceReplaceListener);
+        }
+
+        public void addChangeListener(SequenceChangeListener<T> listener) {
+            location.addChangeListener(listener);
         }
 
         public T set(int position, T value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void replaceSlice(int startPos, int endPos, Sequence<T> newValues) {
             throw new UnsupportedOperationException();
         }
 

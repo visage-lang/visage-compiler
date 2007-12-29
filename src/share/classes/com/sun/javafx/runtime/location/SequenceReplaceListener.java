@@ -25,13 +25,13 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.sequence.Sequence;
+
 /**
- * Sequence change listener that implements the old-style single element change listener
+ * Sequence-specific notification methods 
  *
  * @author Brian Goetz
  */
-public interface SequenceChangeListener<T> {
-    public void onInsert(int position, T element);
-    public void onDelete(int position, T element);
-    public void onReplace(int position, T oldValue, T newValue);
+public interface SequenceReplaceListener<T> {
+    public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue);
 }

@@ -25,10 +25,10 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.sequence.SequenceMutator.Listener;
-
 import java.util.BitSet;
 import java.util.Iterator;
+
+import com.sun.javafx.runtime.sequence.SequenceMutator.Listener;
 
 /**
  * Abstract base class for sequence classes.  A subclass need only define the size() and get() methods; subclasses
@@ -47,6 +47,10 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
     public abstract int size();
 
     public abstract T get(int position);
+
+    public Sequence<T> getSlice(int startPos, int endPos) {
+        return Sequences.subsequence(this, startPos, endPos+1);
+    }
 
     public BitSet getBits(SequencePredicate<? super T> predicate) {
         int length = size();
@@ -177,6 +181,10 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
 
     public final Sequence<T> set(int position, T value) {
         return SequenceMutator.set(this, null, position, value);
+    }
+
+    public Sequence<T> replaceSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
+        return SequenceMutator.replaceSlice(this, null, startPos, endPos, newValues);
     }
 
     public final Sequence<T> delete(int position) {

@@ -67,6 +67,9 @@ public interface Sequence<T> extends Iterable<T> {
      * sequences.  */
     public T get(int position);
 
+    /** Extract a slice of the sequence */
+    public Sequence<T> getSlice(int startPos, int endPos);
+
     /** Delete the element at the specified position.  If the position is out of range, the sequence is not modified. */
     public Sequence<T> delete(int position);
 
@@ -76,6 +79,11 @@ public interface Sequence<T> extends Iterable<T> {
     /** Modify the element at the specified position.  If the position is out of range, the sequence is not
      * modified. */
     public Sequence<T> set(int position, T value);
+
+    /** Modify a slice of the sequence.  A slice is defined by a starting position and an ending position, both
+     *  inclusive.  Extracting element n is equivalent to the slice from n..n.  Extracting the whole sequence is 
+     *  equivalent to the slice from 0..size-1. */
+    public Sequence<T> replaceSlice(int startPos, int endPos, Sequence<? extends T> newValues);
 
     /** Select elements from the sequence matching the specified predicate. */
     public Sequence<T> get(SequencePredicate<? super T> predicate);

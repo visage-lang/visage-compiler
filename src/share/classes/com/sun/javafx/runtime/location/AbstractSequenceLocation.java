@@ -1,11 +1,12 @@
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.SequencePredicate;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.SequencePredicate;
+import com.sun.javafx.runtime.sequence.Sequences;
 
 /**
  * AbstractSequenceLocation
@@ -15,7 +16,7 @@ import java.util.List;
 public abstract class AbstractSequenceLocation<T> extends AbstractLocation implements SequenceLocation<T> {
     protected Sequence<T> value, previousValue;
     protected final Class<T> clazz;
-    protected List<SequenceChangeListener<? super T>> sequenceListeners;
+    protected List<SequenceReplaceListener<T>> sequenceListeners;
 
     public AbstractSequenceLocation(Class<T> clazz, boolean valid, boolean lazy) {
         super(valid, lazy);
@@ -26,10 +27,29 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
         return previousValue;
     }
 
-    public void addChangeListener(SequenceChangeListener<? super T> listener) {
+    public void addChangeListener(SequenceReplaceListener<T> listener) {
         if (sequenceListeners == null)
-            sequenceListeners = new ArrayList<SequenceChangeListener<? super T>>();
+            sequenceListeners = new ArrayList<SequenceReplaceListener<T>>();
         sequenceListeners.add(listener);
+    }
+
+    public void addChangeListener(final SequenceChangeListener<T> listener) {
+        addChangeListener(new SequenceReplaceListener<T>() {
+            public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                int newSize = Sequences.size(newElements);
+                if (endPos-startPos+1 == newSize) {
+                    for (int i=startPos; i<=endPos; i++)
+                        listener.onReplace(i, oldValue.get(i), newValue.get(i));
+                }
+                else {
+                    for (int i=endPos; i >= startPos; i--)
+                        listener.onDelete(i, oldValue.get(i));
+                    for (int i=0; i<newSize; i++)
+                        listener.onInsert(startPos+i, newElements.get(i));
+                }
+
+            }
+        });
     }
 
     /**
@@ -38,43 +58,22 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     protected Sequence<T> replaceValue(Sequence<T> newValue) {
         if (newValue == null)
             throw new NullPointerException();
-        Sequence<? extends T> oldValue = value;
-        if (!newValue.equals(oldValue)) {
+        Sequence<T> oldValue = value;
+        if (!equals(oldValue, newValue)) {
             previousValue = value;
             this.value = newValue;
             valueChanged();
-            if (sequenceListeners != null) {
-                if (oldValue != null)
-                    for (int i = oldValue.size() - 1; i >= 0; i--)
-                        onDelete(i, oldValue.get(i));
-                for (int i = 0; i < value.size(); i++)
-                    onInsert(i, value.get(i));
-            }
+            if (sequenceListeners != null)
+                notifyListeners(0, Sequences.size(oldValue)-1, newValue, oldValue, newValue);
             previousValue = null;
         }
         return newValue;
     }
 
-    protected void onInsert(int position, T element) {
+    protected void notifyListeners(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
         if (sequenceListeners != null) {
-            for (SequenceChangeListener<? super T> listener : sequenceListeners) {
-                listener.onInsert(position, element);
-            }
-        }
-    }
-
-    protected void onReplaceElement(int position, T oldValue, T newValue) {
-        if (sequenceListeners != null) {
-            for (SequenceChangeListener<? super T> listener : sequenceListeners) {
-                listener.onReplace(position, oldValue, newValue);
-            }
-        }
-    }
-
-    protected void onDelete(int position, T element) {
-        if (sequenceListeners != null) {
-            for (SequenceChangeListener<? super T> listener : sequenceListeners) {
-                listener.onDelete(position, element);
+            for (SequenceReplaceListener<T> listener : sequenceListeners) {
+                listener.onReplace(startPos, endPos, newElements, oldValue, newValue);
             }
         }
     }
@@ -106,6 +105,11 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
 
     @Override
     public T set(int position, T value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void replaceSlice(int startPos, int endPos, Sequence<T> newValues) {
         throw new UnsupportedOperationException();
     }
 

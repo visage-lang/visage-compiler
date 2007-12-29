@@ -74,7 +74,7 @@ public abstract class TestHelper {
             Method loadMethod = loaderClass.getMethod(loadMethodName,
                     Class.class,
                     ClassLoader.class);
-            ClassLoader cl = FXRunAndCompareWrapper.class.getClassLoader();
+            ClassLoader cl = TestHelper.class.getClassLoader();
             Object result = loadMethod.invoke(null, JavafxCompiler.class, cl);
 
             // For java.util.ServiceLoader, we have to call another

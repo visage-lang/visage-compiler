@@ -72,6 +72,11 @@ public class IntegerSequenceTest extends JavaFXTestCase {
             return value % 2 == 0;
         }
     };
+    private final SequencePredicate<Integer> oneMatcher = new SequencePredicate<Integer>() {
+        public boolean matches(Sequence<? extends Integer> sequence, int index, Integer value) {
+            return value == 1;
+        }
+    };
 
     /**
      * Helper method for asserting the depth of a Sequence
@@ -489,6 +494,76 @@ public class IntegerSequenceTest extends JavaFXTestCase {
                 } });
         assertEquals(TWO_SEQUENCE.set(-1, 400), TWO_SEQUENCE);
         assertEquals(TWO_SEQUENCE.set(200, 400), TWO_SEQUENCE);
+    }
+
+    public void testInsert() {
+        Sequence<Integer> three = Sequences.range(1, 3);
+        assertEquals(three.insert(4), 1, 2, 3, 4);
+        assertEquals(three.insertFirst(0), 0, 1, 2, 3);
+        assertEquals(three.insertAfter(0, -1), 1, 2, 3);
+        assertEquals(three.insertAfter(0, 0), 1, 0, 2, 3);
+        assertEquals(three.insertAfter(0, 1), 1, 2, 0, 3);
+        assertEquals(three.insertAfter(0, 2), 1, 2, 3, 0);
+        assertEquals(three.insertAfter(0, 3), 1, 2, 3);
+        assertEquals(three.insertBefore(0, -1), 1, 2, 3);
+        assertEquals(three.insertBefore(0, 0), 0, 1, 2, 3);
+        assertEquals(three.insertBefore(0, 1), 1, 0, 2, 3);
+        assertEquals(three.insertBefore(0, 2), 1, 2, 0, 3);
+        assertEquals(three.insertBefore(0, 3), 1, 2, 3);
+        assertEquals(three.insertAfter(0, oneMatcher), 1, 0, 2, 3);
+        assertEquals(three.insertBefore(0, oneMatcher), 0, 1, 2, 3);
+        assertEquals(three.insertBefore(0, allMatcher), 0, 1, 0, 2, 0, 3);
+        assertEquals(three.insertAfter(0, allMatcher), 1, 0, 2, 0, 3, 0);
+    }
+
+    public void testDelete() {
+        Sequence<Integer> three = Sequences.range(1, 3);
+        assertEquals(three.delete(-1), 1, 2, 3);
+        assertEquals(three.delete(0), 2, 3);
+        assertEquals(three.delete(1), 1, 3);
+        assertEquals(three.delete(2), 1, 2);
+        assertEquals(three.delete(3), 1, 2, 3);
+        assertEquals(three.delete(4), 1, 2, 3);
+        assertEquals(three.delete(firstMatcher), 2, 3);
+        assertEquals(three.delete(lastMatcher), 1, 2);
+        assertEquals(three.delete(oneMatcher), 2, 3);
+        assertEquals(three.delete(evenMatcher), 1, 3);
+        assertEquals(three.delete(oddMatcher), 2);
+    }
+
+    public void testGetSlices() {
+        Sequence<Integer> three = Sequences.range(1, 3);
+        assertEquals(three.getSlice(-1, -1));
+        assertEquals(three.getSlice(-1, 0), 1);
+        assertEquals(three.getSlice(0, -1));
+        assertEquals(three.getSlice(1, 0));
+        assertEquals(three.getSlice(2, 1));
+        assertEquals(three.getSlice(0, 0), 1);
+        assertEquals(three.getSlice(1, 1), 2);
+        assertEquals(three.getSlice(2, 2), 3);
+        assertEquals(three.getSlice(3, 3));
+        assertEquals(three.getSlice(0, 1), 1, 2);
+        assertEquals(three.getSlice(0, 2), 1, 2, 3);
+        assertEquals(three.getSlice(0, 3), 1, 2, 3);
+        assertEquals(three.getSlice(1, 2), 2, 3);
+        assertEquals(three.getSlice(1, 3), 2, 3);
+    }
+
+    public void testSetSlices() {
+        Sequence<Integer> three = Sequences.range(1, 3);
+        Sequence<Integer> x = Sequences.make(Integer.class, 0);
+        assertEquals(three.replaceSlice(0, 0, x), 0, 2, 3);
+        assertEquals(three.replaceSlice(1, 1, x), 1, 0, 3);
+        assertEquals(three.replaceSlice(2, 2, x), 1, 2, 0);
+        assertEquals(three.replaceSlice(3, 3, x), 1, 2, 3, 0);
+        assertEquals(three.replaceSlice(-1, -1, x), three);
+        assertEquals(three.replaceSlice(-1, 0, x), 1, 2, 3);
+        assertEquals(three.replaceSlice(0, 1, x), 0, 3);
+        assertEquals(three.replaceSlice(1, 2, x), 1, 0);
+        assertEquals(three.replaceSlice(2, 3, x), 1, 2, 0);
+        assertEquals(three.replaceSlice(0, 2, x), 0);
+        assertEquals(three.replaceSlice(0, 3, x), 0);
+        assertEquals(three.replaceSlice(0, 4, x), 0);
     }
 
     /**

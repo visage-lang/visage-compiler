@@ -44,11 +44,15 @@ public interface SequenceLocation<T> extends Location, Iterable<T> {
     /** Retrieve the previous value of this location; only defined while change listeners are being notified */
     public Sequence<T> getPreviousValue();
 
-    public void addChangeListener(SequenceChangeListener<? super T> listener);
+    public void addChangeListener(SequenceReplaceListener<T> listener);
 
-    Sequence<T> set(Sequence<? extends T> value);
+    public void addChangeListener(SequenceChangeListener<T> listener);
+
+    public Sequence<T> set(Sequence<? extends T> value);
 
     public T set(int position, T value);
+
+    public void replaceSlice(int startPos, int endPos, Sequence<T> newValues);
 
     public void delete(int position);
 

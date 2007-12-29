@@ -23,15 +23,31 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime.location;
+package com.sun.javafx.runtime.sequence;
+
+import com.sun.javafx.runtime.location.SequenceLocation;
 
 /**
- * Sequence change listener that implements the old-style single element change listener
+ * BoundSequences
  *
  * @author Brian Goetz
  */
-public interface SequenceChangeListener<T> {
-    public void onInsert(int position, T element);
-    public void onDelete(int position, T element);
-    public void onReplace(int position, T oldValue, T newValue);
+public class BoundSequences {
+    /**
+     * Construct a bound sequence of the form
+     *   bind [ a, b, ... ]
+     * where a, b, ..., are sequence locations.
+     *  
+     */
+    public static <T> SequenceLocation<T> concatenate(Class<T> clazz, SequenceLocation<? extends T>... locations) {
+        return new BoundCompositeSequence<T>(clazz, false, locations);
+    }
+
+    /** Construct a bound sequence of the form
+     *   bind reverse x
+     * where x is a sequence.
+     */
+    public static<T> SequenceLocation<T> reverse(SequenceLocation<T> sequence) {
+        return new BoundReverseSequence<T>(sequence, false);
+    }
 }
