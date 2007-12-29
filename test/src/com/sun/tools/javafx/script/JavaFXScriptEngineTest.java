@@ -30,10 +30,14 @@ public class JavaFXScriptEngineTest {
     private ByteArrayOutputStream out;
     private PrintStream stdout;
     private static PrintStream originalOut;
+    private ByteArrayOutputStream err;
+    private PrintStream stderr;
+    private static PrintStream originalErr;
     
     @BeforeClass
-    public static void saveSystemOut() {
+    public static void saveSystemOutErr() {
         originalOut = System.out;
+        originalErr = System.err;
     }
 
     @Before
@@ -44,50 +48,39 @@ public class JavaFXScriptEngineTest {
         engine = (JavaFXScriptEngine)scrEng;
         out = new ByteArrayOutputStream();
         stdout = new PrintStream(out);
+        System.setOut(stdout);
+        err = new ByteArrayOutputStream();
+        stderr = new PrintStream(err);
+        System.setErr(stderr);
     }
 
     @Test
     public void simpleScript() throws Exception {
-        try {
-            System.setOut(stdout);
-            engine.eval("java.lang.System.out.print(\"Hello, world\");" +
-                        "java.lang.System.out.flush();");
-            assertEquals("Hello, world", getOutput());
-        } finally {
-            System.setOut(originalOut);
-        }
+        engine.eval("java.lang.System.out.print(\"Hello, world\");" +
+                    "java.lang.System.out.flush();");
+        assertEquals("Hello, world", getOutput());
     }
 
     @Test
     public void scriptWithBinding() throws Exception {
-        try {
-            System.setOut(stdout);
-            Bindings bindings = new SimpleBindings();
-            bindings.put("who", "world");
+        Bindings bindings = new SimpleBindings();
+        bindings.put("who", "world");
 
-            engine.eval("java.lang.System.out.print(\"Hello, {who}\");" +
-                        "java.lang.System.out.flush();", bindings);
-            assertEquals("Hello, world", getOutput());
-        } finally {
-            System.setOut(originalOut);
-        }
+        engine.eval("java.lang.System.out.print(\"Hello, {who}\");" +
+                    "java.lang.System.out.flush();", bindings);
+        assertEquals("Hello, world", getOutput());
     }
 
     @Test
     public void scriptWithConflictingBinding() throws Exception {
-        try {
-            System.setOut(stdout);
-            Bindings bindings = new SimpleBindings();
-            bindings.put("who", "world");
-            bindings.put("howMany", "lots");           // type of howMany attribute is String
+        Bindings bindings = new SimpleBindings();
+        bindings.put("who", "world");
+        bindings.put("howMany", "lots");           // type of howMany attribute is String
 
-            engine.eval("var howMany: Integer = 1;" +  // versus declared howMany's Integer
-                        "java.lang.System.out.print(\"Hello, {who}\");" +
-                        "java.lang.System.out.flush();", bindings);
-            assertEquals("Hello, world", getOutput());
-        } finally {
-            System.setOut(originalOut);
-        }
+        engine.eval("var howMany: Integer = 1;" +  // versus declared howMany's Integer
+                    "java.lang.System.out.print(\"Hello, {who}\");" +
+                    "java.lang.System.out.flush();", bindings);
+        assertEquals("Hello, world", getOutput());
     }
     
     @Test
@@ -99,18 +92,13 @@ public class JavaFXScriptEngineTest {
     
     @Test
     public void compiledScript() throws Exception {
-        try {
-            System.setOut(stdout);
-            CompiledScript script = engine.compile(
-                    "java.lang.System.out.print(\"Hello, {who}\");" +
-                    "java.lang.System.out.flush();");
-            Bindings bindings = new SimpleBindings();
-            bindings.put("who", "world");
-            script.eval(bindings);
-            assertEquals("Hello, world", getOutput());
-        } finally {
-            System.setOut(originalOut);
-        }
+        CompiledScript script = engine.compile(
+                "java.lang.System.out.print(\"Hello, {who}\");" +
+                "java.lang.System.out.flush();");
+        Bindings bindings = new SimpleBindings();
+        bindings.put("who", "world");
+        script.eval(bindings);
+        assertEquals("Hello, world", getOutput());
     }
     
     @Test
@@ -121,19 +109,14 @@ public class JavaFXScriptEngineTest {
         String script = "java.lang.System.out.print(\"{greeting}, {who}\");" +
                         "java.lang.System.out.flush();";
 
-        try {
-            System.setOut(stdout);
-            Bindings bindings = new SimpleBindings();
-            bindings.put("who", "world");
-            engine.eval(script, bindings);
-            assertEquals("Hello, world", getOutput());
-            bindings.clear();
-            bindings.put("who", "moon");
-            engine.eval(script, bindings);
-            assertEquals("Hello, moon", getOutput());
-        } finally {
-            System.setOut(originalOut);
-        }
+        Bindings bindings = new SimpleBindings();
+        bindings.put("who", "world");
+        engine.eval(script, bindings);
+        assertEquals("Hello, world", getOutput());
+        bindings.clear();
+        bindings.put("who", "moon");
+        engine.eval(script, bindings);
+        assertEquals("Hello, moon", getOutput());
     }
     
     @Test
@@ -240,7 +223,8 @@ public class JavaFXScriptEngineTest {
     }
     
     @AfterClass
-    public static void restoreSystemOut() {
+    public static void restoreSystemOutErr() {
         System.setOut(originalOut);
+        System.setErr(originalErr);
     }
 }
