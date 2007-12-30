@@ -5,7 +5,7 @@ package com.sun.javafx.runtime.sequence;
  *
  * @author Brian Goetz
  */
-public class ReplacementSequence<T> extends AbstractSequence<T> implements Sequence<T> {
+class ReplacementSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     private final Sequence<T> sequence;
     private final int newIndex;
     private final T newValue;

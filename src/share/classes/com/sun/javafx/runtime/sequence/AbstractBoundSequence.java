@@ -1,8 +1,8 @@
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.location.AbstractSequenceLocation;
-
 import java.util.Iterator;
+
+import com.sun.javafx.runtime.location.AbstractSequenceLocation;
 
 /**
  * AbstractBoundSequence
@@ -15,11 +15,21 @@ public abstract class AbstractBoundSequence<T> extends AbstractSequenceLocation<
         super(clazz, valid, lazy);
     }
 
-    protected abstract void computeInitial();
+    protected abstract Sequence<T> computeInitial();
+
+    protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
+        previousValue = value;
+        value = value.replaceSlice(startPos, endPos, newValues);
+        notifyListeners(startPos, endPos, newValues, previousValue, value);
+        valueChanged();
+        previousValue = null;
+    }
 
     private void ensureValid() {
-        if (!isValid())
-            computeInitial();
+        if (!isValid()) {
+            value = computeInitial();
+            setValid(true);
+        }
     }
 
     @Override

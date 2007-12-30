@@ -8,7 +8,7 @@ import com.sun.javafx.runtime.location.SequenceReplaceListener;
  *
  * @author Brian Goetz
  */
-public class BoundReverseSequence<T> extends AbstractBoundSequence<T> implements SequenceLocation<T> {
+class BoundReverseSequence<T> extends AbstractBoundSequence<T> implements SequenceLocation<T> {
     private final SequenceLocation<T> location;
 
     BoundReverseSequence(SequenceLocation<T> location, boolean lazy) {
@@ -16,19 +16,17 @@ public class BoundReverseSequence<T> extends AbstractBoundSequence<T> implements
         this.location = location;
     }
 
-    protected void computeInitial() {
-        value = location.get().reverse();
+    protected Sequence<T> computeInitial() {
+        Sequence<T> sequence = location.get().reverse();
         location.addChangeListener(new SequenceReplaceListener<T>() {
             public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 int sliceSize = endPos - startPos;
                 int actualStart = oldValue.size() - startPos - (sliceSize + 1);
                 int actualEnd = actualStart + sliceSize;
                 Sequence<? extends T> reverseElements = newElements == null ? null : newElements.reverse();
-                Sequence<T> ourNewValue = value.replaceSlice(actualStart, actualEnd, reverseElements);
-                notifyListeners(actualStart, actualEnd, reverseElements, value, ourNewValue);
-                value = ourNewValue;
+                updateSlice(actualStart, actualEnd, reverseElements);
             }
         });
-        setValid(true);
+        return sequence;
     }
 }

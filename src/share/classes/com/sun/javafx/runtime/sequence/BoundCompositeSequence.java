@@ -33,7 +33,7 @@ import com.sun.javafx.runtime.location.SequenceLocation;
  *
  * @author Brian Goetz
  */
-public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implements SequenceLocation<T> {
+class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implements SequenceLocation<T> {
     private final SequenceLocation<? extends T>[] locations;
     private final int[] startPositions;
 
@@ -43,7 +43,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         this.startPositions = new int[locations.length];
     }
 
-    protected void computeInitial() {
+    protected Sequence<T> computeInitial() {
         Sequence<? extends T>[] sequences = Util.newSequenceArray(locations.length);
         for (int i = 0, offset = 0; i < locations.length; i++) {
             locations[i].addChangeListener(new MyListener(i));
@@ -55,8 +55,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             startPositions[i] = offset;
             offset += sequences[i].size();
         }
-        value = Sequences.concatenate(clazz, sequences);
-        setValid(true);
+        return Sequences.concatenate(clazz, sequences);
     }
 
 
@@ -71,13 +70,11 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
                               Sequence<V> oldValue, Sequence<V> newValue) {
             int actualStart = startPositions[index] + startPos;
             int actualEnd = startPositions[index] + endPos;
-            Sequence<T> ourNewValue = value.replaceSlice(actualStart, actualEnd, newElements);
             int delta = Sequences.size(newElements) - (endPos - startPos + 1);
             if (delta != 0)
                 for (int i = index + 1; i < startPositions.length; i++)
                     startPositions[i] += delta;
-            notifyListeners(actualStart, actualEnd, newElements, value, ourNewValue);
-            value = ourNewValue;
+            updateSlice(actualStart, actualEnd, newElements);
         }
     }
 }
