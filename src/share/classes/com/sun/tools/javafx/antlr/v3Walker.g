@@ -51,8 +51,21 @@ import static com.sun.javafx.api.JavafxBindStatus.*;
 
 import org.antlr.runtime.*;
 }
+
+@members {
+    void setDocComment(JCTree tree, CommonTree comment) {
+        if (comment != null) {
+            if (docComments == null)
+                docComments = new HashMap<JCTree,String>();
+            docComments.put(tree, comment.getText());
+        }
+    }
+    HashMap<JCTree,String> docComments;
+}
 	
 module returns [JCCompilationUnit result]
+@init   { docComments = null; }
+@after  { $result.docComments = docComments; }
 	: ^(MODULE packageDecl? moduleItems)		{ $result = F.TopLevel(noJCAnnotations(), $packageDecl.value, $moduleItems.items.toList()); }
        	;
 packageDecl  returns [JCExpression value]
@@ -79,12 +92,13 @@ importId  returns [JCExpression pid]
            )		
 	;
 classDefinition  returns [JFXClassDeclaration value]
-	: ^(CLASS classModifierFlags name supers classMembers)
+	: ^(CLASS classModifierFlags name supers classMembers DOC_COMMENT?)
 	  						{ $value = F.at(pos($CLASS)).ClassDeclaration(
 	  						  F.at(pos($CLASS)).Modifiers($classModifierFlags.flags),
 	  						  $name.value,
 	                                	          $supers.ids.toList(), 
-	                                	           $classMembers.mems.toList()); }
+	                                	          $classMembers.mems.toList()); 
+                                                          setDocComment($value, $DOC_COMMENT); }
 	;
 supers  returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>()]
 	: ^(EXTENDS (typeName           		{ $ids.append($typeName.expr); } )* )
@@ -100,11 +114,12 @@ classMember  returns [JCTree member]
 	| functionDefinition 				{ $member = $functionDefinition.value; } 
 	;
 functionDefinition  returns [JFXOperationDefinition value]
-	: ^(FUNCTION name functionModifierFlags formalParameters type blockExpression?)
+	: ^(FUNCTION name functionModifierFlags formalParameters type blockExpression? DOC_COMMENT?)
 	    						{ $value = F.at(pos($FUNCTION)).OperationDefinition(
 	    						  F.at(pos($FUNCTION)).Modifiers($functionModifierFlags.flags),
 	    						  $name.value, $type.type, 
-	    						  $formalParameters.params.toList(), $blockExpression.expr); }
+	    						  $formalParameters.params.toList(), $blockExpression.expr); 
+                                                          setDocComment($value, $DOC_COMMENT); }
 	;
 initDefinition  returns [JFXInitDefinition value]
 	: ^(INIT block)					{ $value = F.at(pos($INIT)).InitDefinition($block.value); }
@@ -172,14 +187,15 @@ blockExpression  returns [JFXBlockExpression expr]
 	    )						{ $expr = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), val); }
 	;
 variableDeclaration    returns [JCStatement value]
-	: ^(VAR variableLabel varModifierFlags name type boundExpressionOpt onChanges)
+	: ^(VAR variableLabel varModifierFlags name type boundExpressionOpt onChanges DOC_COMMENT?)
 	    						{ $value = F.at(pos($VAR)).Var($name.value, 
 	    							$type.type, 
 	    							F.at($variableLabel.pos).Modifiers($varModifierFlags.flags),
 	    							$variableLabel.local,
 	    							$boundExpressionOpt.expr, 
 	    							$boundExpressionOpt.status, 
-	    							$onChanges.listb.toList()); }
+	    							$onChanges.listb.toList()); 
+                                                          setDocComment($value, $DOC_COMMENT); }
 	;
 onChanges   returns [ListBuffer<JFXAbstractOnChange> listb = ListBuffer.<JFXAbstractOnChange>lb()]
 	: ( onChangeClause				{ listb.append($onChangeClause.value); } )*

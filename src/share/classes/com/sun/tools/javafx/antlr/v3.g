@@ -30,7 +30,7 @@ options {
    ASTLabelType=CommonTree;
    superClass = AbstractGeneratedParser; 
 }
- 
+
 tokens {
    // these tokens can start a statement/definition -- can insert semi-colons before
    SEMI_INSERT_START;
@@ -162,6 +162,7 @@ tokens {
    TYPE_ANY;
    TYPE_UNKNOWN;
    TYPE_ARG;
+   DOC_COMMENT;
 }
 
 @lexer::header {
@@ -305,6 +306,22 @@ import org.antlr.runtime.*;
     static final int DBL_QUOTE_CTX	= 2;	// 2 = double quote quote context
  }
 
+@members {
+    Tree getDocComment(Token start) {
+       int index = start.getTokenIndex() - 1;
+       while (index >= 0 && input.get(index).getType() == WS)
+           --index;
+       if (index < 0 || input.get(index).getType() != COMMENT)
+           return null;
+       Token token = input.get(index);
+       if (token.getText().startsWith("/**")) {
+           token.setType(DOC_COMMENT);
+           return new CommonTree(token);
+       }
+       return null;
+    }
+}
+ 
 /*------------------------------------------------------------------
  * LEXER RULES
  *------------------------------------------------------------------*/
@@ -482,6 +499,8 @@ importId
                  ( DOT STAR			-> ^(DOT $importId STAR) )?  
 	;
 classDefinition 
+@after { Tree docComment = getDocComment($classDefinition.start);
+         $classDefinition.tree.addChild(docComment); }
 	: classModifierFlags  CLASS name supers LBRACE classMembers RBRACE
 	  					-> ^(CLASS classModifierFlags name supers? classMembers)
 	;
@@ -503,6 +522,8 @@ classMember
 	| functionDefinition 
 	;
 functionDefinition
+@after { Tree docComment = getDocComment($functionDefinition.start);
+         $functionDefinition.tree.addChild(docComment); }
 	: functionModifierFlags FUNCTION name formalParameters typeReference blockExpression?
 	    					-> ^(FUNCTION name functionModifierFlags 
 	    						formalParameters typeReference 
@@ -582,6 +603,8 @@ statement
        	| tryStatement			
        	;
 variableDeclaration   
+@after { Tree docComment = getDocComment($variableDeclaration.start);
+         $variableDeclaration.tree.addChild(docComment); }
 	: varModifierFlags variableLabel  name  typeReference (EQ boundExpression)? onChangeClause*
 	    					-> ^(VAR variableLabel varModifierFlags name typeReference boundExpression? onChangeClause*)
 	;
