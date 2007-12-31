@@ -44,7 +44,6 @@ tokens {
    DELETE='delete';
    FALSE='false';
    FOR='for';
-   FOREACH='foreach';
    FUNCTION='function';
    IF='if';
    IMPORT='import';
@@ -84,13 +83,7 @@ tokens {
    AND='and';
    AS='as';
    BEFORE='before';
-   BY='by';
    CATCH='catch';
-   DO='do';
-   DUR='dur';
-   EASEBOTH='easeboth';
-   EASEIN='easein';
-   EASEOUT='easeout';
    ELSE='else';
    EXCLUSIVE='exclusive';
    EXTENDS='extends';
@@ -104,11 +97,8 @@ tokens {
    INVERSE='inverse';
    LAST='last';
    LAZY='lazy';
-   LINEAR='linear';
-   MOTION='motion';
    ON='on';
    OR='or';
-   ORDER='order';
    REPLACE='replace';
    REVERSE='reverse';
    STEP='step';
