@@ -32,6 +32,8 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.code.Type.*;
 import static com.sun.tools.javac.jvm.ByteCodes.*;
 import com.sun.tools.javac.util.*;
+import com.sun.tools.javac.code.Symbol.TypeSymbol;
+import com.sun.tools.javac.code.TypeTags;
 
 /**
  *
@@ -54,6 +56,13 @@ public class JavafxSymtab extends Symtab {
     public final Type[] javafx_FunctionTypes = new Type[MAX_FIXED_PARAM_LENGTH+1];
     public final Type javafx_FXObjectType;
     public final Type javafx_SequencesType;
+    
+    /** The type of expressions that never returns a value to its parent.
+     * E.g. an expression that always throws an Exception.
+     * Likewise, a "return expression" returns from the outer function,
+     * which makes any following/surrounding code unreachable.
+     */
+    public final Type unreachableType;
 
     private Types types;
 
@@ -72,6 +81,8 @@ public class JavafxSymtab extends Symtab {
     JavafxSymtab(Context context) {
         super(context);
 
+        // FIXME It would be better to make 'names' in super-class be protected.
+        Name.Table names = Name.Table.instance(context);
         types = Types.instance(context);
         
         javafx_IntegerType = intType;
@@ -81,6 +92,8 @@ public class JavafxSymtab extends Symtab {
         javafx_StringType = stringType;
         javafx_BooleanType = booleanType;
         javafx_VoidType = voidType;
+        unreachableType = new Type(TypeTags.VOID, null);
+        unreachableType.tsym = new TypeSymbol(0, names.fromString("<unreachable>"), Type.noType, rootPackage);
         javafx_java_lang_VoidType = types.boxedClass(voidType).type;
         javafx_SequenceType = enterClass("com.sun.javafx.runtime.sequence.Sequence");
         javafx_SequencesType = enterClass("com.sun.javafx.runtime.sequence.Sequences");

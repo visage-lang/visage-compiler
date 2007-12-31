@@ -409,6 +409,8 @@ public class JavafxCheck {
         Type realFound = found;
 	if (req.tag == ERROR)
 	    return req;
+        if (found == syms.unreachableType)
+            return found;
 	if (found.tag == FORALL)
 	    return instantiatePoly(pos, (ForAll)found, req, convertWarner(pos, found, req));
 	if (req.tag == NONE || req == syms.javafx_UnspecifiedType)

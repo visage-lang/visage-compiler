@@ -951,7 +951,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     initType = attribExpr(tree.init, initEnv, declType);
                     initType = chk.checkNonVoid(tree.pos(), initType);
                     chk.checkType(tree.pos(), initType, declType, Sequenceness.DISALLOWED);
-                    if (initType == syms.botType)
+                    if (initType == syms.botType
+                            || initType == syms.unreachableType)
                         initType = syms.objectType;
                     else if (initType.isPrimitive()
                              &&  initType != syms.javafx_NumberType
@@ -1158,10 +1159,22 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 env.dup(tree, env.info.dup(env.info.scope.dup()));
         localEnv.outer = env;
         memberEnter.memberEnter(tree.stats, localEnv);
-        for (List<JCStatement> l = tree.stats; l.nonEmpty(); l = l.tail)
-            attribStat(l.head, localEnv);
+        boolean canReturn = true;
+        boolean unreachableReported = false;
+        for (List<JCStatement> l = tree.stats; l.nonEmpty(); l = l.tail) {
+            if (! canReturn && ! unreachableReported) {
+                unreachableReported = true;
+                log.error(l.head.pos(), "unreachable.stmt");
+            }
+            Type stype = attribTree(l.head, localEnv,
+                    NIL, Type.noType, Sequenceness.DISALLOWED);
+            if (stype == syms.unreachableType)
+                canReturn = false;
+        }
         Type owntype = null;
         if (tree.value != null) {
+            if (! canReturn && ! unreachableReported)
+                log.error(tree.value.pos(), "unreachable.stmt");
             owntype = attribExpr(tree.value, localEnv);
         }
         if (owntype == null) {
@@ -1178,6 +1191,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 owntype = syms.voidType;
             }
         }
+        if (! canReturn)
+            owntype = syms.unreachableType;
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
         localEnv.info.scope.leave();
     }
@@ -1532,13 +1547,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     typeToCheck = Type.noType;
                 }
                 
-                Type bodyType = attribExpr(body, localEnv, typeToCheck); // Special hading for the JavafxDefs.runMethodName method. It's body is empty at this point.
+                Type bodyType = attribExpr(body, localEnv, typeToCheck); // Special hading for the JavafxDefs.runMethodName method. Its body is empty at this point.
                 if (body.value == null) {
                     if (returnType == syms.unknownType)
                         returnType = syms.javafx_VoidType; //TODO: this is wrong if there is a return statement
                 } else {
                     if (returnType == syms.unknownType)
-                        returnType = bodyType;
+                        returnType = bodyType == syms.unreachableType ? syms.javafx_VoidType : bodyType;
                     else if (returnType != syms.javafx_VoidType && tree.getName() != defs.runMethodName)
                         chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.DISALLOWED);       
                 }
@@ -1668,6 +1683,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
          */
         private Type condType1(DiagnosticPosition pos, Type condtype,
                                Type thentype, Type elsetype) {
+            if (thentype == syms.unreachableType)
+                return elsetype;
+            if (elsetype == syms.unreachableType)
+                return thentype;
             // If same type, that is the result
             if (types.isSameType(thentype, elsetype))
                 return thentype.baseType();
@@ -1736,8 +1755,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitExec(JCExpressionStatement tree) {
-        attribExpr(tree.expr, env);
-        result = null;
+        Type type = attribExpr(tree.expr, env);
+        result = type == syms.unreachableType ? type : null;
     }
 
     public void visitBreak(JCBreak tree) {
@@ -1834,12 +1853,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 }
         }
 
-        result = null;
+        result = syms.unreachableType;
     }
 
     public void visitThrow(JCThrow tree) {
         attribExpr(tree.expr, env, syms.throwableType);
-        result = null;
+        result = syms.unreachableType;
     }
 
     public void visitAssert(JCAssert tree) {
