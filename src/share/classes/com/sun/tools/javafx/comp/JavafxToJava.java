@@ -1442,7 +1442,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
             JCExpression cond = make.at(diagPos).Binary(
                 JCTree.EQ, 
-                translate(selected), 
+                translate(selected, Wrapped.InNothing), 
                 make.Literal(TypeTags.BOT, null));
             ref = make.at(diagPos).Conditional(cond, defaultExpr, ref);
         }
