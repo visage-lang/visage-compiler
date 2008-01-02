@@ -61,6 +61,11 @@ public class Locations {
         return new UnmodifiableSequenceLocation<T>(loc);
     }
 
+    public static DoubleLocation asDoubleLocation(IntLocation loc) {
+        return new IntDoubleLocation(loc);
+    }
+
+
 
     private static abstract class LocationWrapper implements Location {
         protected abstract Location getLocation();
@@ -142,6 +147,41 @@ public class Locations {
 
         public Location getUnderlyingLocation() {
             return location;
+        }
+    }
+
+    /**
+     * Wrapper class that creates a DoubleLocation view of an IntLocation
+     */
+    private static class IntDoubleLocation extends LocationWrapper implements DoubleLocation, ViewLocation {
+        private final IntLocation location;
+
+        protected IntLocation getLocation() {
+            return location;
+        }
+
+        public IntDoubleLocation(IntLocation location) {
+            this.location = location;
+        }
+
+        public double get() {
+            return location.get();
+        }
+
+        public double getPreviousValue() {
+            return location.getPreviousValue();
+        }
+
+        public double set(double value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Location getUnderlyingLocation() {
+            return location;
+        }
+
+        public ObjectLocation<Double> asObjectLocation() {
+            return new DoubleObjectLocation(this);
         }
     }
 
