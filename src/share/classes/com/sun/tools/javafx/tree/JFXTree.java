@@ -31,6 +31,8 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.Visitor;
 
 import com.sun.source.tree.TreeVisitor;
+import java.io.IOException;
+import java.io.StringWriter;
 
 /**
  * The base of the JavaFX AST
@@ -77,5 +79,20 @@ public abstract class JFXTree extends JCTree implements JavaFXTree {
 	for (Object o : list)
 	    klass.cast(o);
         return (java.util.List<T>)list;
+    }
+
+    /** Convert a tree to a pretty-printed string. */
+    @Override
+    public String toString() {
+        StringWriter s = new StringWriter();
+        try {
+            new JavafxPretty(s, false).printExpr(this);
+        }
+        catch (IOException e) {
+            // should never happen, because StringWriter is defined
+            // never to throw any IOExceptions
+            throw new AssertionError(e);
+        }
+        return s.toString();
     }
 }

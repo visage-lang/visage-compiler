@@ -32,6 +32,8 @@ import com.sun.tools.javac.tree.JCTree.Visitor;
 
 import com.sun.source.tree.TreeVisitor;
 import com.sun.tools.javac.tree.Pretty;
+import java.io.IOException;
+import java.io.StringWriter;
 
 /**
  * Statements.
@@ -78,5 +80,20 @@ public abstract class JFXExpression extends JCExpression implements JavaFXExpres
         } else {
             throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
         }
+    }
+
+    /** Convert a tree to a pretty-printed string. */
+    @Override
+    public String toString() {
+        StringWriter s = new StringWriter();
+        try {
+            new JavafxPretty(s, false).printExpr(this);
+        }
+        catch (IOException e) {
+            // should never happen, because StringWriter is defined
+            // never to throw any IOExceptions
+            throw new AssertionError(e);
+        }
+        return s.toString();
     }
 }
