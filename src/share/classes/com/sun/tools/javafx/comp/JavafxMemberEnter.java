@@ -516,17 +516,12 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         return localEnv;
     }
 
+    public void scan(JCTree tree) {
+    }
+
     @Override
     public void visitVarDef(JCVariableDecl tree) {
         assert false : "should not be here";
-    }
-    
-    @Override
-    public void visitBlockExpression(JFXBlockExpression tree) {
-    }
-    
-    @Override
-    public void visitForExpression(JFXForExpression tree) {
     }
 
     @Override
@@ -588,20 +583,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 attr.finishOperationDefinition((JFXOperationDefinition) tree, env);  
         }
     }
-    @Override
-    public void visitOperationValue(JFXOperationValue tree) {
-    }
 
-    @Override
-    public void visitTry(JCTry tree) {
-    }
-
-    public void visitDoLoop(JCDoWhileLoop tree) {
-    }
-
-    public void visitWhileLoop(JCWhileLoop tree) {
-    }
-    
     @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
             Scope enclScope = enter.enterScope(env);

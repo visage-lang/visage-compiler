@@ -72,41 +72,39 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     
     @Override
     public void visitClassDeclaration(JFXClassDeclaration that) {
-        that.mods.accept(this);
+        scan(that.mods);
         for (Tree member : that.getMembers()) {
-            ((JCTree)member).accept(this);
+            scan((JCTree)member);
         }
     }
     
     @Override
     public void visitOperationValue(JFXOperationValue tree) {
         for (JFXVar param : tree.getParams()) {
-            param.accept((JavafxVisitor)this);
+            scan(param);
         }
-        if (tree.getBodyExpression() != null) {
-            tree.getBodyExpression().accept((JavafxVisitor)this);
-        }
+        scan(tree.getBodyExpression());
     }
 
     @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
-        tree.getModifiers().accept(this);
-        tree.getJFXReturnType().accept((JavafxVisitor)this);
+        scan(tree.getModifiers());
+        scan(tree.getJFXReturnType());
         visitOperationValue(tree.operation);
     }
 
     @Override
     public void visitInitDefinition(JFXInitDefinition that) {
-        ((JCBlock)that.getBody()).accept(this);
+        scan((JCBlock)that.getBody());
     }
 
     public void visitPostInitDefinition(JFXPostInitDefinition that) {
-        ((JCBlock)that.getBody()).accept(this);
+        scan((JCBlock)that.getBody());
     }
 
     @Override
     public void visitDoLater(JFXDoLater that) {
-        that.getBody().accept(this);
+        scan(that.getBody());
     }
 
     @Override
@@ -131,8 +129,8 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
 
     @Override
     public void visitSequenceIndexed(JFXSequenceIndexed that) {
-        that.getSequence().accept(this);
-        that.getIndex().accept(this);
+        scan(that.getSequence());
+        scan(that.getIndex());
     }
     
     @Override
@@ -153,7 +151,7 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
         parts = parts.tail;
         while (parts.nonEmpty()) {
             parts = parts.tail;
-            parts.head.accept(this);
+            scan(parts.head);
             parts = parts.tail;
             parts = parts.tail;
         }
@@ -161,10 +159,10 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     
     @Override
     public void visitInstanciate(JFXInstanciate tree) {
-       tree.getIdentifier().accept(this);
-       scan( tree.getParts() );
-       scan( tree.getLocalvars() );
-       scan( tree.getClassBody() );
+       scan(tree.getIdentifier());
+       scan(tree.getParts());
+       scan(tree.getLocalvars());
+       scan(tree.getClassBody());
     }
     
     @Override
@@ -173,7 +171,7 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     
     @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
-        that.getExpression().accept(this);
+        scan(that.getExpression());
     }  
     
     @Override
@@ -187,10 +185,9 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     @Override
     public void visitTypeFunctional(JFXTypeFunctional that) {
         for (JCTree param : (List<JFXType>)that.getParameters()) {
-            param.accept(this);
+            scan(param);
         }
-        JFXType type = (JFXType)that.getReturnType();
-        type.accept((JavafxVisitor)this);
+        scan((JFXType)that.getReturnType());
     }
     
     @Override
@@ -240,18 +237,16 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     public void visitForExpression(JFXForExpression that) {
         for (ForExpressionInClauseTree cl : that.getInClauses()) {
             JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
-            clause.accept((JavafxVisitor)this);
+            scan(clause);
         }
-        that.getBodyExpression().accept(this);
+        scan(that.getBodyExpression());
     }
     
     @Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
-        that.getVar().accept((JavafxVisitor)this);
-        that.getSequenceExpression().accept(this);
-        if (that.getWhereExpression() != null) {
-            that.getWhereExpression().accept(this);
-        }
+        scan(that.getVar());
+        scan(that.getSequenceExpression());
+        scan(that.getWhereExpression());
     }
     
     @Override
