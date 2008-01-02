@@ -172,16 +172,16 @@ block  returns [JCBlock value]
 @init { ListBuffer<JCStatement> stats = ListBuffer.<JCStatement>lb(); }
 	: ^(BLOCK
 		(	^(STATEMENT statement)		{ stats.append($statement.value); }	
-		| 	^(EXPRESSION expression)	{ stats.append(F.Exec($expression.expr)); }
+		| 	^(EXPRESSION expression)	{ stats.append(F.at($expression.expr.pos).Exec($expression.expr)); }
 		)*
 	    )						{ $value = F.at(pos($BLOCK)).Block(0L, stats.toList()); }
 	;
 blockExpression  returns [JFXBlockExpression expr]
 @init { ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>(); JCExpression val = null; }
 	: ^(LBRACE 
-		(	^(STATEMENT statement)		{ if (val != null) { stats.append(F.Exec(val)); val = null; }
+		(	^(STATEMENT statement)		{ if (val != null) { stats.append(F.at(val.pos).Exec(val)); val = null; }
 	     					  	  stats.append($statement.value); }
-		| 	^(EXPRESSION expression)	{ if (val != null) { stats.append(F.Exec(val)); }
+		| 	^(EXPRESSION expression)	{ if (val != null) { stats.append(F.at(val.pos).Exec(val)); }
 	     					  	  val = $expression.expr; }
 		)*
 	    )						{ $expr = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), val); }
@@ -282,8 +282,8 @@ expression  returns [JCExpression expr]
 	| ^(SIZEOF e0=expression)			{ $expr = F.at(pos($SIZEOF)).Unary(JavafxTag.SIZEOF, $e0.expr); }
 	| ^(PLUSPLUS e0=expression)   			{ $expr = F.at(pos($PLUSPLUS)).Unary(JCTree.PREINC, $e0.expr); }
 	| ^(SUBSUB e0=expression) 			{ $expr = F.at(pos($SUBSUB)).Unary(JCTree.PREDEC, $e0.expr); }
-	| ^(POSTINCR e0=expression)			{ $expr = F.at(pos($POSTINCR)).Unary(JCTree.POSTINC, $e0.expr); }
-	| ^(POSTDECR e0=expression)			{ $expr = F.at(pos($POSTDECR)).Unary(JCTree.POSTDEC, $e0.expr); }
+	| ^(POSTINCR e0=expression)			{ $expr = F.at($e0.expr.pos).Unary(JCTree.POSTINC, $e0.expr); }
+	| ^(POSTDECR e0=expression)			{ $expr = F.at($e0.expr.pos).Unary(JCTree.POSTDEC, $e0.expr); }
 	| ^(DOT e0=expression name)			{ $expr = F.at(pos($DOT)).Select($e0.expr, $name.value); }
 	| ^(FUNC_APPLY e0=expression expressionList)	{ $expr = F.at(pos($FUNC_APPLY)).Apply(null, $e0.expr, $expressionList.args.toList()); } 
 	| ^(SEQ_INDEX seq=expression idx=expression)	{ $expr = F.at(pos($SEQ_INDEX)).SequenceIndexed($seq.expr, $idx.expr); }
