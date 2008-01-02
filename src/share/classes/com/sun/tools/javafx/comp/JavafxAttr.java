@@ -63,6 +63,9 @@ import com.sun.tools.javafx.tree.*;
  *  @see ConstFold
  *  @see Infer
  *
+ * This class is interleaved with {@link JavafxMemberEnter}, which is used
+ * to enter declarations into a local scope.
+ *
  *  <p><b>This is NOT part of any API supported by Sun Microsystems.  If
  *  you write code that depends on this, you do so at your own risk.
  *  This code and its internal interfaces are subject to change or

@@ -34,8 +34,14 @@ import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.util.List;
 
 /**
- *
+ * An abstract tree walker (visitor) for ASTs ({@code JCTree}s).
+ * Each {@code visitXxx} method calls {@code scan} to visit its child
+ * trees.  The {@code scan} method calls the {@code JCTree}-subclass-specific
+ * {@code accept} method.  A sub-class can override a specific {@code visitXxx}
+ * method, or the {@code scan method}.
+ * 
  * @author Robert Field
+ * @author Per Bothner
  */
 public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
 

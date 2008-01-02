@@ -52,9 +52,11 @@ import java.util.Set;
 import java.util.HashSet;
 
 
-/** This is the second phase of Enter, in which classes are completed
- *  by entering their members into the class scope using
- *  MemberEnter.complete().  See Enter for an overview.
+/**
+ * Add local declaratuions to current environment.
+ * The main entry point is {@code memberEnter}, which is called from
+ * {@link JavafxAttr} when {@code visit}-ing a tree that contains local
+ * declarations.
  *
  *  <p><b>This is NOT part of any API supported by Sun Microsystems.  If
  *  you write code that depends on this, you do so at your own risk.
