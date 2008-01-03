@@ -37,7 +37,6 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         base.delete(0);
         assertEquals(derived, 4, 6, 8);
         assertEquals(3, len.get());
-        System.out.println(hl.get());
         assertEqualsAndClear(hl, "[0, 0] => [ ]");
 
         base.set(0, 0);
