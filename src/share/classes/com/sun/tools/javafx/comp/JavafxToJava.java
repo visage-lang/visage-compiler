@@ -688,8 +688,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             res.sym = tree.sym;
             res.type = tree.type;
             result = res;
-
-            addBaseAttributes(tree.sym, res);  //TODO: remove this
+            addBaseAttributes(tree.sym, res, model.attributes);  //TODO: remove this
         }
         finally {
             attrEnv.enclClass = prevEnclClass;
@@ -2954,8 +2953,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     //TODO: destructive -- remove
-    private void addBaseAttributes(ClassSymbol sym, JCClassDecl result) {
-        java.util.List<Symbol> attrSyms = initBuilder.fxClassAttributes.get(sym);
+    private void addBaseAttributes(ClassSymbol sym, JCClassDecl result, java.util.List<Symbol> attrSyms) {
         if (attrSyms != null) {
             for (Symbol attrSym : attrSyms) {
                 if (attrSym.kind == Kinds.MTH) {

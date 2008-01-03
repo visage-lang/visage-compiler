@@ -77,7 +77,6 @@ public class JavafxInitializationBuilder {
     Name outerAccessorFieldName;
     
     private Map<ClassSymbol, JFXClassDeclaration> fxClasses;
-    Map<ClassSymbol, java.util.List<Symbol>> fxClassAttributes;
 
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
@@ -368,20 +367,23 @@ public class JavafxInitializationBuilder {
         final List<JCTree> additionalClassMembers;
         final List<JCExpression> additionalImports;
         final java.util.List<ClassSymbol> baseClasses;
-  
+        final java.util.List<Symbol> attributes;
+
         JavafxClassModel(
                 Name interfaceName,
                 ListBuffer<JCExpression> interfaces,
                 List<JCTree> iDefinitions,
                 ListBuffer<JCTree> addedClassMembers,
                 ListBuffer<JCExpression> additionalImports, 
-                java.util.List<ClassSymbol> baseClasses) {
+                java.util.List<ClassSymbol> baseClasses,
+                java.util.List<Symbol> attributes) {
             this.interfaceName = interfaceName;
             this.interfaces = interfaces;
             this.iDefinitions = iDefinitions;
             this.additionalClassMembers = addedClassMembers.toList();
             this.additionalImports = additionalImports.toList();
             this.baseClasses = baseClasses;
+            this.attributes = attributes;
         }
     }
 
@@ -402,8 +404,6 @@ public class JavafxInitializationBuilder {
         CollectAttributeAndMethods collection = new CollectAttributeAndMethods(cDecl.sym);        
         java.util.List<ClassSymbol> baseClasses = collection.baseClasses;
         java.util.List<Symbol> attributes = collection.attributes;
-        
-        addFxClassAttributes(cDecl.sym, attributes);
         
         ListBuffer<JCExpression> implementing = new ListBuffer<JCExpression>();
         implementing.append(make.Identifier(fxObjectString));
@@ -495,7 +495,7 @@ public class JavafxInitializationBuilder {
             implementing.append(toJava.makeTypeTree(l.head.type, null));
         }
 
-        return new JavafxClassModel(interfaceName, implementing, iDefinitions.toList(), cDefinitions, additionalImports, baseClasses);
+        return new JavafxClassModel(interfaceName, implementing, iDefinitions.toList(), cDefinitions, additionalImports, baseClasses, attributes);
     }
     
     // Add the methods and field for accessing the outer members. Also add a constructor with an extra parameter to handle the instantiation of the classes that access outer members
@@ -1177,17 +1177,8 @@ public class JavafxInitializationBuilder {
         fxClasses.put(csym, cdecl);
     }
 
-    void addFxClassAttributes(ClassSymbol csym, java.util.List<Symbol> attrs) {
-        if (fxClassAttributes == null) {
-            fxClassAttributes = new HashMap<ClassSymbol, java.util.List<Symbol>>();
-        }
-        
-        fxClassAttributes.put(csym, attrs);
-    }
-
     public void clearCaches() {
         fxClasses = null;
-        fxClassAttributes = null;
     }
     
     static class AttributeWrapper {
