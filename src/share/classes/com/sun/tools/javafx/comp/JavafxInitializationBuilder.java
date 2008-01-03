@@ -437,7 +437,7 @@ public class JavafxInitializationBuilder {
             if (attrSym.kind == Kinds.VAR) {
                 VarSymbol varSym = (VarSymbol)attrSym;
                 VarMorphInfo vmi = typeMorpher.varMorphInfo(varSym);
-                attrInfos.append(new AttributeWrapper(vmi.getMorphedType(), varSym.name));
+                attrInfos.append(new AttributeWrapper(vmi.getMorphedType(), varSym.name, varSym.flags()));
             }
             else {
                 if (attrSym.kind != Kinds.MTH) {
@@ -446,7 +446,7 @@ public class JavafxInitializationBuilder {
                 
                 MethodSymbol methodSym = (MethodSymbol)attrSym;
                 attrInfos.append(new AttributeWrapper(((MethodType)methodSym.type).restype,
-                        names.fromString(methodSym.name.toString().substring(attributeGetMethodNamePrefix.length()))));
+                        names.fromString(methodSym.name.toString().substring(attributeGetMethodNamePrefix.length())), methodSym.flags()));
             }
         }
         
@@ -612,8 +612,10 @@ public class JavafxInitializationBuilder {
         }
         
         // make the method
+        JCModifiers mods = make.Modifiers(Flags.PUBLIC | (mthBody==null? Flags.ABSTRACT : 0L));
+        mods = JavafxToJava.addAccessAnnotationModifiers(mth.flags(), mods, (JavafxTreeMaker)make);
         return make.at(diagPos).MethodDef(
-                        make.Modifiers(Flags.PUBLIC | (mthBody==null? Flags.ABSTRACT : 0L)), 
+                        mods, 
                         toJava.functionName(mth, false, isBound), 
                         toJava.makeReturnTypeTree(diagPos, mth, isBound), 
                         List.<JCTypeParameter>nil(), 
@@ -642,9 +644,11 @@ public class JavafxInitializationBuilder {
      }
     
     private void addInterfaceAttributeMethods(ListBuffer<JCTree> idefs, ListBuffer<AttributeWrapper> attrInfos) {
-        for (AttributeWrapper attrInfo : attrInfos) {            
+        for (AttributeWrapper attrInfo : attrInfos) {         
+            JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT);
+            mods = JavafxToJava.addAccessAnnotationModifiers(attrInfo.flags, mods, (JavafxTreeMaker)make);
             idefs.append(make.MethodDef(
-                    make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT),
+                    mods,
                     names.fromString(attributeGetMethodNamePrefix + attrInfo.name.toString()),
                     toJava.makeTypeTree(attrInfo.type, null),
                     List.<JCTypeParameter>nil(), 
@@ -671,7 +675,6 @@ public class JavafxInitializationBuilder {
                                                                                int numFields) {
         boolean classIsFinal = (cDecl.getModifiers().flags & Flags.FINAL) != 0;
         for (AttributeWrapper attrInfo : attrInfos) { 
-// TODO: Add attributes gotten from interface introspection.
             List<JCStatement> stats = List.nil();
             
             // Add the return stastement for the attribute
@@ -682,8 +685,10 @@ public class JavafxInitializationBuilder {
             statBlock.stats = stats;
             
             // Add the method for this class' attributes
+            JCModifiers mods = make.Modifiers(Flags.PUBLIC);
+            mods = JavafxToJava.addAccessAnnotationModifiers(attrInfo.flags, mods, (JavafxTreeMaker)make);
             members.append(make.MethodDef(
-                    make.Modifiers(Flags.PUBLIC),
+                    mods,
                     names.fromString(attributeGetMethodNamePrefix + attrInfo.name.toString()),
                     toJava.makeTypeTree(attrInfo.type, null),
                     List.<JCTypeParameter>nil(), 
@@ -1188,10 +1193,12 @@ public class JavafxInitializationBuilder {
     static class AttributeWrapper {
         Type type;
         Name name;
+        long flags;
         
-        AttributeWrapper(Type type, Name name) {
-             this.type = type;
+        AttributeWrapper(Type type, Name name, long flags) {
+            this.type = type;
             this.name = name;
+            this.flags = flags;
         }
     }
 }

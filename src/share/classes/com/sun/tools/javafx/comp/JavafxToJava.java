@@ -75,6 +75,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     final JavafxTypeMorpher typeMorpher;
     private final JavafxDefs defs;
     final private JavafxResolve rs;
+    
+    static final private String privateAnnotationStr = "com.sun.javafx.runtime.Private";
+    static final private String protectedAnnotationStr = "com.sun.javafx.runtime.Protected";
+    static final private String publicAnnotationStr = "com.sun.javafx.runtime.Public";
 
     /*
      * other instance information
@@ -556,9 +560,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             // include the interface only once
             if (!tree.hasBeenTranslated) {
                 if (! classOnly) {
-                    JCClassDecl cInterface = make.ClassDef(make.Modifiers(Flags.PUBLIC | Flags.INTERFACE),
+                    JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.INTERFACE);
+                    mods = addAccessAnnotationModifiers(tree.mods.flags, mods, (JavafxTreeMaker)make);
+
+                    JCClassDecl cInterface = make.ClassDef(mods,
                             model.interfaceName, List.<JCTypeParameter>nil(), null,
-                            model.interfaces.toList(), model.iDefinitions);    
+                            model.interfaces.toList(), model.iDefinitions);
+
                     prependToDefinitions.append(cInterface); // prepend to the enclosing class or top-level
                 }
                 tree.hasBeenTranslated = true;
@@ -1227,6 +1235,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 JCVariableDecl var = (JCVariableDecl)translate(fxVar);
                 params.append(var);
             }
+            
+            mods = addAccessAnnotationModifiers(tree.mods.flags, mods, (JavafxTreeMaker)make);
+
             result = make.at(diagPos).MethodDef(
                     mods,
                     functionName(tree.sym, isImplMethod,  isBound), 
@@ -3135,5 +3146,27 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         
         new FillClassesWithOuters().scan(tree);
+    }
+
+    static JCModifiers addAccessAnnotationModifiers(long flags, JCModifiers mods, JavafxTreeMaker make) {
+        JCModifiers ret = mods;
+        ListBuffer<JCAnnotation> annotations;
+        if ((flags & Flags.PUBLIC) != 0) {
+            annotations = ListBuffer.<JCAnnotation>lb();
+            annotations.append(make.Annotation(make.Identifier(publicAnnotationStr), List.<JCExpression>nil()));
+            ret = make.Modifiers(mods.flags, annotations.toList());
+        }
+        else if ((flags & Flags.PRIVATE) != 0) {
+            annotations = ListBuffer.<JCAnnotation>lb();
+            annotations.append(make.Annotation(make.Identifier(privateAnnotationStr), List.<JCExpression>nil()));
+            ret = make.Modifiers(mods.flags, annotations.toList());
+        }
+        else if ((flags & Flags.PROTECTED) != 0) {        
+            annotations = ListBuffer.<JCAnnotation>lb();
+            annotations.append(make.Annotation(make.Identifier(protectedAnnotationStr), List.<JCExpression>nil()));
+            ret = make.Modifiers(mods.flags, annotations.toList());
+        }                
+        
+        return ret;
     }
 }
