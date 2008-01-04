@@ -142,7 +142,7 @@
                 <path refid="antlrworks.class.path" />
             </classpath>
             <arg value="-f" />
-            <arg value="${antlr.grammar.file}" />
+            <arg value="${antlr.grammarv3.file}" />
             <arg value="-sd" />
             <arg value="png" />
             <arg value="-o" />
