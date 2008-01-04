@@ -27,13 +27,17 @@ package com.sun.tools.javafx.code;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.code.Type.*;
-
+import java.util.HashMap;
+import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javac.code.Symbol.ClassSymbol;
 /**
  *
  * @author bothner
  */
 public class JavafxTypes extends Types {
     JavafxSymtab syms;
+
+    private HashMap<ClassSymbol, JFXClassDeclaration> fxClasses;
 
     public static void preRegister(final Context context) {
         context.put(typesKey, new Context.Factory<Types>() {
@@ -117,5 +121,51 @@ public class JavafxTypes extends Types {
         }
 
         return false;
+    }
+
+    public boolean isJFXClass(Symbol sym) {
+        if (!(sym instanceof ClassSymbol)) {
+            return false;
+        }
+        
+        ClassSymbol cSym = (ClassSymbol)sym;
+        if ((cSym.flags_field & Flags.INTERFACE) != 0) {
+            for (List<Type> intfs = cSym.getInterfaces(); intfs.nonEmpty(); intfs = intfs.tail) {
+                if (intfs.head.tsym.type == syms.javafx_FXObjectType) {
+                    return true;
+                }
+            }
+        }
+        else {
+            if (fxClasses != null) {
+                if (fxClasses.containsKey(cSym)) {
+                    return true;
+                }
+                
+                for (List<Type> intfs = cSym.getInterfaces(); intfs.nonEmpty(); intfs = intfs.tail) {
+                    if (intfs.head.tsym.type == syms.javafx_FXObjectType) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    public void addFxClass(ClassSymbol csym, JFXClassDeclaration cdecl) {
+        if (fxClasses == null) {
+            fxClasses = new HashMap<ClassSymbol, JFXClassDeclaration>();
+        }
+        
+        fxClasses.put(csym, cdecl);
+    }
+    
+    public JFXClassDeclaration getFxClass (ClassSymbol csym) {
+       return fxClasses.get(csym);
+    }
+
+    public void clearCaches() {
+        fxClasses = null;
     }
 }

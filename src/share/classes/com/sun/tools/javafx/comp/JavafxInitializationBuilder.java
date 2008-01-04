@@ -24,9 +24,7 @@
  */
 package com.sun.tools.javafx.comp;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import com.sun.tools.javac.code.*;
@@ -41,6 +39,7 @@ import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
+import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 
@@ -53,6 +52,7 @@ public class JavafxInitializationBuilder {
     public final Name.Table names;
     private final JavafxToJava toJava;
     private final JavafxSymtab syms;
+    private final JavafxTypes types;
     private final JavafxTypeMorpher typeMorpher;
     
     private final Name addChangeListenerName;
@@ -76,8 +76,6 @@ public class JavafxInitializationBuilder {
     Name outerAccessorName;
     Name outerAccessorFieldName;
     
-    private Map<ClassSymbol, JFXClassDeclaration> fxClasses;
-
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
         if (instance == null)
@@ -93,6 +91,7 @@ public class JavafxInitializationBuilder {
         names = Name.Table.instance(context);
         toJava = JavafxToJava.instance(context);
         syms = (JavafxSymtab)(JavafxSymtab.instance(context));
+        types = JavafxTypes.instance(context);
         typeMorpher = JavafxTypeMorpher.instance(context);
         
         addChangeListenerName = names.fromString("addChangeListener");
@@ -293,12 +292,12 @@ public class JavafxInitializationBuilder {
                     make.at(diagPos).VarDef(
                         make.Modifiers(0L), 
                         oldValue.getName(), 
-                        toJava.makeTypeTree(vmi.getRealType(), diagPos, isJFXClass(vmi.getRealType().tsym)),
+                        toJava.makeTypeTree(vmi.getRealType(), diagPos, types.isJFXClass(vmi.getRealType().tsym)),
                         make.at(diagPos).Apply(
                             List.<JCExpression>nil(),       // no type args
                             make.at(diagPos).Select(
                                 make.at(diagPos).TypeCast(   // cast to the specific Location type -- eg: (IntLocation) $location
-                                    toJava.makeTypeTree(locationType, diagPos, isJFXClass(locationType.tsym)),
+                                    toJava.makeTypeTree(locationType, diagPos, types.isJFXClass(locationType.tsym)),
                                     make.at(diagPos).Ident(onChangeArgName)),
                                 getPreviousValueName),
                             List.<JCExpression>nil()        // no args
@@ -414,7 +413,7 @@ public class JavafxInitializationBuilder {
         for (ClassSymbol baseClass : baseClasses) {
             if (!baseClass.name.toString().endsWith(interfaceSuffix) && 
                     baseClass.fullname != names.fromString(fxObjectString) &&
-                    isJFXClass(baseClass) && baseClass.type != null) {
+                    types.isJFXClass(baseClass) && baseClass.type != null) {
                 implementing.append(toJava.makeTypeTree(baseClass.type, cDecl.pos(), true));
                 if (baseClass.type != null && baseClass.type.tsym != null &&
                         baseClass.type.tsym.packge() != syms.unnamedPackage) {    // Work around javac bug. the visitImport of Attr 
@@ -812,7 +811,7 @@ public class JavafxInitializationBuilder {
         // call the superclasses SetDefaults
         Set<String> dupClasses = new HashSet<String>();
         for (ClassSymbol csym : classInfo.baseClasses) {
-            if (isJFXClass(csym)) {
+            if (types.isJFXClass(csym)) {
                 String className = csym.fullname.toString();
                 if (className.endsWith(interfaceSuffix)) {
                     className = className.substring(0, className.length() - interfaceSuffix.length());
@@ -856,7 +855,7 @@ public class JavafxInitializationBuilder {
         // call the superclasses addTriggers
         Set<String> dupClasses = new HashSet<String>();
         for (ClassSymbol csym : classInfo.baseClasses) {
-            if (isJFXClass(csym)) {
+            if (types.isJFXClass(csym)) {
                 String className = csym.fullname.toString();
                 if (className.endsWith(interfaceSuffix)) {
                     className = className.substring(0, className.length() - interfaceSuffix.length());
@@ -996,8 +995,8 @@ public class JavafxInitializationBuilder {
            while (!classesToVisit.isEmpty()) {
                ClassSymbol cSym = classesToVisit.get(0);
                classesToVisit.remove(0);
-               if (isJFXClass(cSym)) {
-                   JFXClassDeclaration cDecl = fxClasses.get(cSym); // get the corresponding AST, null if from class file
+               if (types.isJFXClass(cSym)) {
+                   JFXClassDeclaration cDecl = types.getFxClass(cSym); // get the corresponding AST, null if from class file
                    if (cDecl == null) { 
                        // this is a JavaFX class from a class file
                        if ((cSym.flags_field & Flags.INTERFACE) == 0 && cSym.members() != null) {
@@ -1139,48 +1138,6 @@ public class JavafxInitializationBuilder {
         }
     }
 
-    boolean isJFXClass(Symbol sym) {
-        if (!(sym instanceof ClassSymbol)) {
-            return false;
-        }
-        
-        ClassSymbol cSym = (ClassSymbol)sym;
-        if ((cSym.flags_field & Flags.INTERFACE) != 0) {
-            for (List<Type> intfs = cSym.getInterfaces(); intfs.nonEmpty(); intfs = intfs.tail) {
-                if (intfs.head.tsym.type == syms.javafx_FXObjectType) {
-                    return true;
-                }
-            }
-        }
-        else {
-            if (fxClasses != null) {
-                if (fxClasses.containsKey(cSym)) {
-                    return true;
-                }
-                
-                for (List<Type> intfs = cSym.getInterfaces(); intfs.nonEmpty(); intfs = intfs.tail) {
-                    if (intfs.head.tsym.type == syms.javafx_FXObjectType) {
-                        return true;
-                    }
-                }
-            }
-        }
-        
-        return false;
-    }
-    
-    void addFxClass(ClassSymbol csym, JFXClassDeclaration cdecl) {
-        if (fxClasses == null) {
-            fxClasses = new HashMap<ClassSymbol, JFXClassDeclaration>();
-        }
-        
-        fxClasses.put(csym, cdecl);
-    }
-
-    public void clearCaches() {
-        fxClasses = null;
-    }
-    
     static class AttributeWrapper {
         Type type;
         Name name;

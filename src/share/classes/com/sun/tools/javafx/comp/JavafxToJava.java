@@ -423,7 +423,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         JCFieldAccess select = (JCFieldAccess)((JCImport)def).getQualifiedIdentifier();
                         if (select.name != names.asterisk && 
                                 ((select.sym) instanceof ClassSymbol) &&
-                                initBuilder.isJFXClass((ClassSymbol)(select.sym))) {
+                                types.isJFXClass((ClassSymbol)(select.sym))) {
                            imports.append(make.Import(make.Select(
                                         translate( select.selected ), 
                                         names.fromString(select.name.toString() + interfaceSuffix)), 
@@ -433,7 +433,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         JCIdent ident = (JCIdent)((JCImport)def).getQualifiedIdentifier();
                         if (ident.name != names.asterisk && 
                                 ((ident.sym) instanceof ClassSymbol) &&
-                                initBuilder.isJFXClass((ClassSymbol)(ident.sym))) {
+                                types.isJFXClass((ClassSymbol)(ident.sym))) {
                             imports.append(make.Import(make.Ident(names.fromString(ident.name.toString() + interfaceSuffix)), false));
                         }
                     }
@@ -581,7 +581,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 // call the superclasses userInit$
                 Set<String> dupSet = new HashSet<String>();
                 for (ClassSymbol csym : model.baseClasses) {
-                    if (initBuilder.isJFXClass(csym)) {
+                    if (types.isJFXClass(csym)) {
                         String className = csym.fullname.toString();
                         if (className.endsWith(interfaceSuffix)) {
                             className = className.substring(0, className.length() - interfaceSuffix.length());
@@ -615,7 +615,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 // call the superclasses postInit$
                 Set<String> dupSet = new HashSet<String>();
                 for (ClassSymbol csym : model.baseClasses) {
-                    if (initBuilder.isJFXClass(csym)) {
+                    if (types.isJFXClass(csym)) {
                         String className = csym.fullname.toString();
                         if (className.endsWith(interfaceSuffix)) {
                             className = className.substring(0, className.length() - interfaceSuffix.length());
@@ -669,12 +669,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             if (tree.type instanceof ClassType &&
                     ((ClassType)tree.type).supertype_field != null &&
                     ((ClassType)tree.type).supertype_field.tsym instanceof ClassSymbol &&
-                    !initBuilder.isJFXClass(((ClassType)tree.type).supertype_field.tsym)) {
+                    !types.isJFXClass(((ClassType)tree.type).supertype_field.tsym)) {
                 jcExtending = makeTypeTree(((ClassType)tree.type).supertype_field, null, false);
             }
             else if ((tree.mods.flags & Flags.FINAL) != 0L && tree.getExtending().nonEmpty()) {
                 Symbol sym1 = TreeInfo.symbol(tree.getExtending().head);
-                if ( sym1 != null && !initBuilder.isJFXClass(sym1))
+                if (sym1 != null && !types.isJFXClass(sym1))
                     jcExtending = makeTypeTree(tree.getExtending().head.type, null, false);
             }
             
@@ -764,7 +764,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
             if (sym != null &&
                 sym.kind == Kinds.TYP && (sym instanceof ClassSymbol) &&
-                (initBuilder.isJFXClass((ClassSymbol)sym) ||
+                (types.isJFXClass((ClassSymbol)sym) ||
                 tree.getClassBody() != null)) {
                 // it is a JavaFX class, initializa it properly
                 JCVariableDecl tmpVar = make.VarDef(make.Modifiers(0), tmpName, tmpTypeExpr, newClass);
@@ -988,7 +988,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
         // Convert initializers returning Java arrays to sequences.
         if (type.tag == TypeTags.ARRAY) {
-            JCExpression newTree = ((JCExpression)makeTypeTree(((ArrayType)type).elemtype, diagPos, initBuilder.isJFXClass(((ArrayType)type).elemtype.tsym)));
+            JCExpression newTree = ((JCExpression)makeTypeTree(((ArrayType)type).elemtype, diagPos, types.isJFXClass(((ArrayType)type).elemtype.tsym)));
             newTree.type = ((ArrayType)type).elemtype;
             WildcardType tpType = new WildcardType(newTree.type, BoundKind.EXTENDS, type.tsym);
             ClassType classType = new ClassType(((JavafxSymtab)syms).javafx_SequenceType, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
@@ -1443,7 +1443,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 0L, dummyReference, ref);
         if (generateNullChecks && !staticReference
                                            && (tree.sym instanceof VarSymbol) 
-                                           && initBuilder.isJFXClass(selectedType.tsym)) {
+                                           && types.isJFXClass(selectedType.tsym)) {
             // we have a testable guard for null, wrap the attribute access  in it, return default value if null
             TypeMorphInfo tmi = typeMorpher.typeMorphInfo(tree.type);
             JCExpression defaultExpr = makeDefaultValue(diagPos, tmi);
@@ -1474,7 +1474,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             return;
         } else if (tree.name == names._super) {
             if (tree.type != null &&
-                    initBuilder.isJFXClass(tree.type.tsym)) {
+                    types.isJFXClass(tree.type.tsym)) {
                 // "super" become just the class where the static implementation method is defined
                 //  the rest of the implementation is in visitApply
                 result = make.at(diagPos).Ident(tree.type.tsym.name);
@@ -1495,7 +1495,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
                 tree.sym.owner.kind == Kinds.TYP &&
                 !tree.sym.isStatic()) {
-            if (initBuilder.isJFXClass(tree.sym.owner)) {
+            if (types.isJFXClass(tree.sym.owner)) {
                 convert = make.at(diagPos).Select(makeReceiver(diagPos, tree.sym, attrEnv.enclClass.sym), tree.name);
             }
             else {
@@ -1817,7 +1817,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             // Build the type declaration expression for the sequence builder
             if (elemType.tsym != null &&
                     elemType.tsym instanceof ClassSymbol &&
-                    initBuilder.isJFXClass((ClassSymbol)elemType.tsym)) {
+                    types.isJFXClass((ClassSymbol)elemType.tsym)) {
                 String str = elemType.tsym.flatName().toString().replace("$", ".");
                 String strLookFor = str + interfaceSuffix;
                 elemType = typeMorpher.reader.enterClass(names.fromString(strLookFor)).type;
@@ -1931,7 +1931,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (t.tag == TypeTags.CLASS) {
             JCExpression texp = null;
 
-            if (makeIntf && t.tsym instanceof ClassSymbol && initBuilder.isJFXClass((ClassSymbol)t.tsym) &&
+            if (makeIntf && t.tsym instanceof ClassSymbol && types.isJFXClass((ClassSymbol)t.tsym) &&
                     !t.tsym.getQualifiedName().toString().endsWith(interfaceSuffix)) {
                  texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString() + interfaceSuffix);
             }
@@ -2389,7 +2389,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             private final boolean callBound = generateBoundFunctions
                     && state.isBound()
                     && msym != null
-                    && initBuilder.isJFXClass(msym.owner)
+                    && types.isJFXClass(msym.owner)
                     && (generateBoundVoidFunctions || msym.getReturnType() != syms.voidType )
                     && !useInvoke;
 

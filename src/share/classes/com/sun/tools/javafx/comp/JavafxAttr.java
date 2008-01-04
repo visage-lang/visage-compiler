@@ -1303,7 +1303,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 localEnv.info.selectSuper = cdef != null;
                 localEnv.info.varArgs = false;
 
-                if (! initBuilder.isJFXClass(clazztype.tsym))
+                if (! types.isJFXClass(clazztype.tsym))
                     tree.constructor = rs.resolveConstructor(
                         tree.pos(), localEnv, clazztype, argtypes, null);
                 /**
@@ -2491,7 +2491,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             result = tree.type = c.type;
         }
         
-        initBuilder.addFxClass(c, tree);
+        types.addFxClass(c, tree);
     }
     
     private void attribSupertypes(JFXClassDeclaration tree, ClassSymbol c) {
@@ -2513,7 +2513,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 supType = supSym.type;
             }
             if (!supType.isInterface() && 
-                    !initBuilder.isJFXClass(supType.tsym) && 
+                    !types.isJFXClass(supType.tsym) && 
                     !supType.isPrimitive() &&
                     javafxClassSymbol.type instanceof ClassType) {
                 if (javaSupertypeSymbol == null) {

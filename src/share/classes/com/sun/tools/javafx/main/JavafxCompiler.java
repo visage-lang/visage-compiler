@@ -263,7 +263,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     protected JavafxModuleBuilder javafxModuleBuilder;
     protected JavafxVarUsageAnalysis varUsageAnalysis;
     protected JavafxToJava jfxToJava;
-    protected JavafxInitializationBuilder initBuilder;
 
     /**
      * Flag set if any implicit source files read.
@@ -295,7 +294,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         javafxModuleBuilder = JavafxModuleBuilder.instance(context);
         varUsageAnalysis = JavafxVarUsageAnalysis.instance(context);
         jfxToJava = JavafxToJava.instance(context);
-        initBuilder = JavafxInitializationBuilder.instance(context);
         prepForBackEnd = JavafxPrepForBackEnd.instance(context);
         
         // Add the javafx message resource bundle
@@ -811,9 +809,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             printCount("warn", warningCount());
         }
         
-        if (initBuilder != null) {
-            initBuilder.clearCaches();
-        }
+        ((JavafxTypes) types).clearCaches();
     }
     
     /**

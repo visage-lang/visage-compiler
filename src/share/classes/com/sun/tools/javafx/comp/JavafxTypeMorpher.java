@@ -38,8 +38,7 @@ import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javafx.code.JavafxSymtab;
-import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.javafx.code.*;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.attributeGetMethodNamePrefix;
 import static com.sun.tools.javafx.comp.JavafxDefs.interfaceSuffix;
@@ -67,8 +66,7 @@ public class JavafxTypeMorpher {
     private final JavafxSymtab syms;
     private final Log log;
     private final JavafxToJava toJava;
-    private final Types types;
-    private final JavafxInitializationBuilder initBuilder;
+    private final JavafxTypes types;
     
     public static final String locationPackageName = "com.sun.javafx.runtime.location.";
     
@@ -121,7 +119,7 @@ public class JavafxTypeMorpher {
                    if (getSymbol() instanceof JavafxVarSymbol) {
                        markMustMorph(); // we made it, soassume it is from a JavaFX class
                    } else if (sym.flatName() != names._super && sym.flatName() != names._this) {
-                       if (initBuilder.isJFXClass(owner)) {
+                       if (types.isJFXClass(owner)) {
                            // this is an attribute: it is owned by a JavaFX class and it isn't 'this' or 'super'
                            markMustMorph();
                        }
@@ -252,13 +250,12 @@ public class JavafxTypeMorpher {
         
         defs = JavafxDefs.instance(context);
         syms = (JavafxSymtab)(JavafxSymtab.instance(context));
-        types = Types.instance(context);
+        types = JavafxTypes.instance(context);
         names = Name.Table.instance(context);
         reader = ClassReader.instance(context);
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         log = Log.instance(context);
         toJava = JavafxToJava.instance(context);
-        initBuilder = JavafxInitializationBuilder.instance(context);
 
         String[] locClass = new String[TYPE_KIND_COUNT];
         locClass[TYPE_KIND_OBJECT] = "Object";
@@ -328,7 +325,7 @@ public class JavafxTypeMorpher {
             List<Type> newActuals = List.<Type>nil();
             actualsLabel: for (Type t : actuals) {
                 if ((t.tsym instanceof ClassSymbol) &&
-                        initBuilder.isJFXClass((ClassSymbol)t.tsym)) {
+                        types.isJFXClass((ClassSymbol)t.tsym)) {
                     String str = t.tsym.flatName().toString().replace("$", ".");
                     String strLookFor = str + interfaceSuffix;
                     Type tp = reader.enterClass(names.fromString(strLookFor)).type;
@@ -480,7 +477,7 @@ public class JavafxTypeMorpher {
         public void visitApply(JCMethodInvocation tree) {
             super.visitApply(tree);
             Symbol msym =toJava.expressionSymbol(tree.getMethodSelect());
-            if (msym != null && initBuilder.isJFXClass(msym.owner)) {
+            if (msym != null && types.isJFXClass(msym.owner)) {
                 fxCallSeen = true;
             } else {
                 javaCallSeen = true;
