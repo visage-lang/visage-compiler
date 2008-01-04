@@ -1,7 +1,15 @@
-Index: share/classes/com/sun/tools/javac/jvm/Items.java
+
+Property changes on: .
+___________________________________________________________________
+Name: svn:ignore
+   + dist
+build
+
+
+Index: com/sun/tools/javac/jvm/Items.java
 ===================================================================
---- share/classes/com/sun/tools/javac/jvm/Items.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/jvm/Items.java	(working copy)
+--- com/sun/tools/javac/jvm/Items.java	(revision 258)
++++ com/sun/tools/javac/jvm/Items.java	(working copy)
 @@ -185,7 +185,7 @@
  
      /** The base class of all items, which implements default behavior.
@@ -110,19 +118,32 @@ Index: share/classes/com/sun/tools/javac/jvm/Items.java
              Chain trueChain = null;
              Chain falseChain = jumpFalse();
              if (!isFalse()) {
-Index: share/classes/com/sun/tools/javac/jvm/ClassReader.java
+Index: com/sun/tools/javac/jvm/ClassReader.java
 ===================================================================
---- share/classes/com/sun/tools/javac/jvm/ClassReader.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/jvm/ClassReader.java	(working copy)
-@@ -116,12 +116,12 @@
-     final Log log;
+--- com/sun/tools/javac/jvm/ClassReader.java	(revision 258)
++++ com/sun/tools/javac/jvm/ClassReader.java	(working copy)
+@@ -68,7 +68,7 @@
+     protected static final Context.Key<ClassReader> classReaderKey =
+         new Context.Key<ClassReader>();
+ 
+-    Annotate annotate;
++    protected Annotate annotate;
+ 
+     /** Switch: verbose output.
+      */
+@@ -113,15 +113,15 @@
+ 
+     /** The log to use for verbose output
+      */
+-    final Log log;
++    public final Log log;
  
      /** The symbol table. */
 -    Symtab syms;
-+    protected Symtab syms;
++    public Symtab syms;
  
 -    Types types;
-+    protected Types types;
++    public Types types;
  
      /** The name table. */
 -    final Name.Table names;
@@ -138,6 +159,15 @@ Index: share/classes/com/sun/tools/javac/jvm/ClassReader.java
 +    protected Map<Name,ClassSymbol> classes;
  
      /** A hashtable containing the encountered packages.
+      */
+@@ -152,7 +152,7 @@
+ 
+     /** The path name of the class file currently being read.
+      */
+-    protected JavaFileObject currentClassFile = null;
++    public JavaFileObject currentClassFile = null;
+ 
+     /** The class or method currently being read.
       */
 @@ -281,7 +281,7 @@
  
@@ -219,7 +249,217 @@ Index: share/classes/com/sun/tools/javac/jvm/ClassReader.java
          char ac = nextChar();
          for (int i = 0; i < ac; i++) {
              Name attrName = readName(nextChar());
-@@ -1483,7 +1483,7 @@
+@@ -1101,7 +1101,7 @@
+ 
+     /** Attach annotations.
+      */
+-    void attachAnnotations(final Symbol sym) {
++    protected void attachAnnotations(final Symbol sym) {
+         int numAttributes = nextChar();
+         if (numAttributes != 0) {
+             ListBuffer<CompoundAnnotationProxy> proxies =
+@@ -1113,7 +1113,7 @@
+                 else
+                     proxies.append(proxy);
+             }
+-            annotate.later(new AnnotationCompleter(sym, proxies.toList()));
++            annotate.later(new AnnotationCompleter(sym, proxies.toList(), this));
+         }
+     }
+ 
+@@ -1139,7 +1139,7 @@
+     void attachAnnotationDefault(final Symbol sym) {
+         final MethodSymbol meth = (MethodSymbol)sym; // only on methods
+         final Attribute value = readAttributeValue();
+-        annotate.later(new AnnotationDefaultCompleter(meth, value));
++        annotate.later(new AnnotationDefaultCompleter(meth, value, this));
+     }
+ 
+     Type readTypeOrClassSymbol(int i) {
+@@ -1157,7 +1157,7 @@
+         return readType(i);
+     }
+ 
+-    CompoundAnnotationProxy readCompoundAnnotation() {
++    protected CompoundAnnotationProxy readCompoundAnnotation() {
+         Type t = readTypeOrClassSymbol(nextChar());
+         int numFields = nextChar();
+         ListBuffer<Pair<Name,Attribute>> pairs =
+@@ -1243,7 +1243,7 @@
+ 
+     /** A temporary proxy representing a compound attribute.
+      */
+-    static class CompoundAnnotationProxy extends Attribute {
++    public static class CompoundAnnotationProxy extends Attribute {
+         final List<Pair<Name,Attribute>> values;
+         public CompoundAnnotationProxy(Type type,
+                                       List<Pair<Name,Attribute>> values) {
+@@ -1271,11 +1271,17 @@
+         }
+     }
+ 
+-    class AnnotationDeproxy implements ProxyVisitor {
+-        private ClassSymbol requestingOwner = currentOwner.kind == MTH
+-            ? currentOwner.enclClass() : (ClassSymbol)currentOwner;
++    static public class AnnotationDeproxy implements ProxyVisitor {
++        protected ClassReader classReader;
++        protected ClassSymbol requestingOwner;
++        
++        public AnnotationDeproxy(ClassReader classReader) {
++            this.classReader = classReader;
++            requestingOwner = classReader.currentOwner.kind == MTH
++                ? classReader.currentOwner.enclClass() : (ClassSymbol)classReader.currentOwner;
++        }
+ 
+-        List<Attribute.Compound> deproxyCompoundList(List<CompoundAnnotationProxy> pl) {
++        protected List<Attribute.Compound> deproxyCompoundList(List<CompoundAnnotationProxy> pl) {
+             // also must fill in types!!!!
+             ListBuffer<Attribute.Compound> buf =
+                 new ListBuffer<Attribute.Compound>();
+@@ -1285,7 +1291,7 @@
+             return buf.toList();
+         }
+ 
+-        Attribute.Compound deproxyCompound(CompoundAnnotationProxy a) {
++        protected Attribute.Compound deproxyCompound(CompoundAnnotationProxy a) {
+             ListBuffer<Pair<Symbol.MethodSymbol,Attribute>> buf =
+                 new ListBuffer<Pair<Symbol.MethodSymbol,Attribute>>();
+             for (List<Pair<Name,Attribute>> l = a.values;
+@@ -1312,29 +1318,29 @@
+                 failure = ex;
+             }
+             // The method wasn't found: emit a warning and recover
+-            JavaFileObject prevSource = log.useSource(requestingOwner.classfile);
++            JavaFileObject prevSource = classReader.log.useSource(requestingOwner.classfile);
+             try {
+                 if (failure == null) {
+-                    log.warning("annotation.method.not.found",
++                    classReader.log.warning("annotation.method.not.found",
+                                 container,
+                                 name);
+                 } else {
+-                    log.warning("annotation.method.not.found.reason",
++                    classReader.log.warning("annotation.method.not.found.reason",
+                                 container,
+                                 name,
+                                 failure.getMessage());
+                 }
+             } finally {
+-                log.useSource(prevSource);
++                classReader.log.useSource(prevSource);
+             }
+             // Construct a new method type and symbol.  Use bottom
+             // type (typeof null) as return type because this type is
+             // a subtype of all reference types and can be converted
+             // to primitive types by unboxing.
+             MethodType mt = new MethodType(List.<Type>nil(),
+-                                           syms.botType,
++                                           classReader.syms.botType,
+                                            List.<Type>nil(),
+-                                           syms.methodClass);
++                                           classReader.syms.methodClass);
+             return new MethodSymbol(PUBLIC | ABSTRACT, name, mt, container.tsym);
+         }
+ 
+@@ -1391,8 +1397,8 @@
+                 }
+             }
+             if (enumerator == null) {
+-                log.error("unknown.enum.constant",
+-                          currentClassFile, enumTypeSym, proxy.enumerator);
++                classReader.log.error("unknown.enum.constant",
++                          classReader.currentClassFile, enumTypeSym, proxy.enumerator);
+                 result = new Attribute.Error(enumTypeSym.type);
+             } else {
+                 result = new Attribute.Enum(enumTypeSym.type, enumerator);
+@@ -1402,7 +1408,7 @@
+         public void visitArrayAttributeProxy(ArrayAttributeProxy proxy) {
+             int length = proxy.values.length();
+             Attribute[] ats = new Attribute[length];
+-            Type elemtype = types.elemtype(type);
++            Type elemtype = classReader.types.elemtype(type);
+             int i = 0;
+             for (List<Attribute> p = proxy.values; p.nonEmpty(); p = p.tail) {
+                 ats[i++] = deproxy(elemtype, p.head);
+@@ -1415,52 +1421,62 @@
+         }
+     }
+ 
+-    class AnnotationDefaultCompleter extends AnnotationDeproxy implements Annotate.Annotator {
++    static public class AnnotationDefaultCompleter extends AnnotationDeproxy implements Annotate.Annotator {
+         final MethodSymbol sym;
+         final Attribute value;
+-        final JavaFileObject classFile = currentClassFile;
++        final JavaFileObject classFile;
++        protected ClassReader classReader;
+         public String toString() {
+             return " ClassReader store default for " + sym.owner + "." + sym + " is " + value;
+         }
+-        AnnotationDefaultCompleter(MethodSymbol sym, Attribute value) {
++        AnnotationDefaultCompleter(MethodSymbol sym, Attribute value, ClassReader classReader) {
++            super(classReader);
++            this.classReader = classReader;
+             this.sym = sym;
+             this.value = value;
++            classFile = classReader.currentClassFile;
+         }
+         // implement Annotate.Annotator.enterAnnotation()
+         public void enterAnnotation() {
+-            JavaFileObject previousClassFile = currentClassFile;
++            JavaFileObject previousClassFile = classReader.currentClassFile;
+             try {
+-                currentClassFile = classFile;
++                classReader.currentClassFile = classFile;
+                 sym.defaultValue = deproxy(sym.type.getReturnType(), value);
+             } finally {
+-                currentClassFile = previousClassFile;
++                classReader.currentClassFile = previousClassFile;
+             }
+         }
+     }
+ 
+-    class AnnotationCompleter extends AnnotationDeproxy implements Annotate.Annotator {
+-        final Symbol sym;
+-        final List<CompoundAnnotationProxy> l;
+-        final JavaFileObject classFile;
++    static public class AnnotationCompleter extends AnnotationDeproxy implements Annotate.Annotator {
++        protected final Symbol sym;
++        protected final List<CompoundAnnotationProxy> l;
++        protected final JavaFileObject classFile;
++        protected ClassReader classReader;
++
+         public String toString() {
+             return " ClassReader annotate " + sym.owner + "." + sym + " with " + l;
+         }
+-        AnnotationCompleter(Symbol sym, List<CompoundAnnotationProxy> l) {
++
++        public AnnotationCompleter(Symbol sym, List<CompoundAnnotationProxy> l, ClassReader classReader) {
++            super(classReader);
+             this.sym = sym;
+             this.l = l;
+-            this.classFile = currentClassFile;
++            this.classReader = classReader;
++            this.classFile = classReader.currentClassFile;
++            
+         }
+         // implement Annotate.Annotator.enterAnnotation()
+         public void enterAnnotation() {
+-            JavaFileObject previousClassFile = currentClassFile;
++            JavaFileObject previousClassFile = classReader.currentClassFile;
+             try {
+-                currentClassFile = classFile;
++                classReader.currentClassFile = classFile;
+                 List<Attribute.Compound> newList = deproxyCompoundList(l);
+                 sym.attributes_field = ((sym.attributes_field == null)
+                                         ? newList
+                                         : newList.prependList(sym.attributes_field));
+             } finally {
+-                currentClassFile = previousClassFile;
++                classReader.currentClassFile = previousClassFile;
+             }
+         }
+     }
+@@ -1483,7 +1499,7 @@
  
      /** Read a method.
       */
@@ -228,7 +468,7 @@ Index: share/classes/com/sun/tools/javac/jvm/ClassReader.java
          long flags = adjustMethodFlags(nextChar());
          Name name = readName(nextChar());
          Type type = readType(nextChar());
-@@ -1679,7 +1679,7 @@
+@@ -1679,7 +1695,7 @@
      long adjustFieldFlags(long flags) {
          return flags;
      }
@@ -237,10 +477,10 @@ Index: share/classes/com/sun/tools/javac/jvm/ClassReader.java
          if ((flags & ACC_BRIDGE) != 0) {
              flags &= ~ACC_BRIDGE;
              flags |= BRIDGE;
-Index: share/classes/com/sun/tools/javac/jvm/Gen.java
+Index: com/sun/tools/javac/jvm/Gen.java
 ===================================================================
---- share/classes/com/sun/tools/javac/jvm/Gen.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/jvm/Gen.java	(working copy)
+--- com/sun/tools/javac/jvm/Gen.java	(revision 258)
++++ com/sun/tools/javac/jvm/Gen.java	(working copy)
 @@ -172,7 +172,7 @@
  
      /** Code buffer, set by genMethod.
@@ -277,10 +517,10 @@ Index: share/classes/com/sun/tools/javac/jvm/Gen.java
  
          /** A chain for all unresolved jumps that exit the current environment.
           */
-Index: share/classes/com/sun/tools/javac/jvm/Code.java
+Index: com/sun/tools/javac/jvm/Code.java
 ===================================================================
---- share/classes/com/sun/tools/javac/jvm/Code.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/jvm/Code.java	(working copy)
+--- com/sun/tools/javac/jvm/Code.java	(revision 258)
++++ com/sun/tools/javac/jvm/Code.java	(working copy)
 @@ -153,7 +153,7 @@
       *  We need this to emit line numbers lazily, which we need to do
       *  because of jump-to-jump optimization.
@@ -290,10 +530,10 @@ Index: share/classes/com/sun/tools/javac/jvm/Code.java
  
      /** Set true when a stackMap is needed at the current PC. */
      boolean pendingStackMap = false;
-Index: share/classes/com/sun/tools/javac/comp/Infer.java
+Index: com/sun/tools/javac/comp/Infer.java
 ===================================================================
---- share/classes/com/sun/tools/javac/comp/Infer.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/comp/Infer.java	(working copy)
+--- com/sun/tools/javac/comp/Infer.java	(revision 258)
++++ com/sun/tools/javac/comp/Infer.java	(working copy)
 @@ -67,7 +67,7 @@
      public static class NoInstanceException extends RuntimeException {
          private static final long serialVersionUID = 0;
@@ -303,10 +543,10 @@ Index: share/classes/com/sun/tools/javac/comp/Infer.java
  
          JCDiagnostic diagnostic;
  
-Index: share/classes/com/sun/tools/javac/comp/MemberEnter.java
+Index: com/sun/tools/javac/comp/MemberEnter.java
 ===================================================================
---- share/classes/com/sun/tools/javac/comp/MemberEnter.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/comp/MemberEnter.java	(working copy)
+--- com/sun/tools/javac/comp/MemberEnter.java	(revision 258)
++++ com/sun/tools/javac/comp/MemberEnter.java	(working copy)
 @@ -65,7 +65,7 @@
      private final Enter enter;
      private final Log log;
@@ -361,10 +601,10 @@ Index: share/classes/com/sun/tools/javac/comp/MemberEnter.java
                                     final Env<AttrContext> localEnv,
                                     final MethodSymbol m) {
          annotate.later(new Annotate.Annotator() {
-Index: share/classes/com/sun/tools/javac/comp/Flow.java
+Index: com/sun/tools/javac/comp/Flow.java
 ===================================================================
---- share/classes/com/sun/tools/javac/comp/Flow.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/comp/Flow.java	(working copy)
+--- com/sun/tools/javac/comp/Flow.java	(revision 258)
++++ com/sun/tools/javac/comp/Flow.java	(working copy)
 @@ -295,7 +295,7 @@
  
      /** Complain that pending exceptions are not caught.
@@ -374,10 +614,10 @@ Index: share/classes/com/sun/tools/javac/comp/Flow.java
          for (PendingExit exit = pendingExits.next();
               exit != null;
               exit = pendingExits.next()) {
-Index: share/classes/com/sun/tools/javac/comp/Attr.java
+Index: com/sun/tools/javac/comp/Attr.java
 ===================================================================
---- share/classes/com/sun/tools/javac/comp/Attr.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/comp/Attr.java	(working copy)
+--- com/sun/tools/javac/comp/Attr.java	(revision 258)
++++ com/sun/tools/javac/comp/Attr.java	(working copy)
 @@ -68,18 +68,18 @@
      protected static final Context.Key<Attr> attrKey =
          new Context.Key<Attr>();
@@ -537,10 +777,10 @@ Index: share/classes/com/sun/tools/javac/comp/Attr.java
          return types.capture(type);
      }
  }
-Index: share/classes/com/sun/tools/javac/comp/Enter.java
+Index: com/sun/tools/javac/comp/Enter.java
 ===================================================================
---- share/classes/com/sun/tools/javac/comp/Enter.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/comp/Enter.java	(working copy)
+--- com/sun/tools/javac/comp/Enter.java	(revision 258)
++++ com/sun/tools/javac/comp/Enter.java	(working copy)
 @@ -95,11 +95,11 @@
  
      Log log;
@@ -620,10 +860,10 @@ Index: share/classes/com/sun/tools/javac/comp/Enter.java
                                                          Env<AttrContext> env) {
              return env.toplevel.sourcefile.isNameCompatible(c.name.toString(),
                                                              JavaFileObject.Kind.SOURCE);
-Index: share/classes/com/sun/tools/javac/comp/Check.java
+Index: com/sun/tools/javac/comp/Check.java
 ===================================================================
---- share/classes/com/sun/tools/javac/comp/Check.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/comp/Check.java	(working copy)
+--- com/sun/tools/javac/comp/Check.java	(revision 258)
++++ com/sun/tools/javac/comp/Check.java	(working copy)
 @@ -56,13 +56,13 @@
      protected static final Context.Key<Check> checkKey =
          new Context.Key<Check>();
@@ -792,10 +1032,10 @@ Index: share/classes/com/sun/tools/javac/comp/Check.java
          Map<Symbol,Symbol> callMap = new HashMap<Symbol, Symbol>();
  
          // enter each constructor this-call into the map
-Index: share/classes/com/sun/tools/javac/comp/Resolve.java
+Index: com/sun/tools/javac/comp/Resolve.java
 ===================================================================
---- share/classes/com/sun/tools/javac/comp/Resolve.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/comp/Resolve.java	(working copy)
+--- com/sun/tools/javac/comp/Resolve.java	(revision 258)
++++ com/sun/tools/javac/comp/Resolve.java	(working copy)
 @@ -52,8 +52,8 @@
          new Context.Key<Resolve>();
  
@@ -918,10 +1158,10 @@ Index: share/classes/com/sun/tools/javac/comp/Resolve.java
                      List<Type> argtypes, List<Type> typeargtypes) {
              AmbiguityError pair = this;
              while (true) {
-Index: share/classes/com/sun/tools/javac/comp/AttrContext.java
+Index: com/sun/tools/javac/comp/AttrContext.java
 ===================================================================
---- share/classes/com/sun/tools/javac/comp/AttrContext.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/comp/AttrContext.java	(working copy)
+--- com/sun/tools/javac/comp/AttrContext.java	(revision 258)
++++ com/sun/tools/javac/comp/AttrContext.java	(working copy)
 @@ -40,23 +40,23 @@
  
      /** The scope of local symbols.
@@ -974,10 +1214,10 @@ Index: share/classes/com/sun/tools/javac/comp/AttrContext.java
          return dup(scope);
      }
  
-Index: share/classes/com/sun/tools/javac/comp/ConstFold.java
+Index: com/sun/tools/javac/comp/ConstFold.java
 ===================================================================
---- share/classes/com/sun/tools/javac/comp/ConstFold.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/comp/ConstFold.java	(working copy)
+--- com/sun/tools/javac/comp/ConstFold.java	(revision 258)
++++ com/sun/tools/javac/comp/ConstFold.java	(working copy)
 @@ -42,7 +42,7 @@
   *  This code and its internal interfaces are subject to change or
   *  deletion without notice.</b>
@@ -1005,10 +1245,10 @@ Index: share/classes/com/sun/tools/javac/comp/ConstFold.java
           // WAS if (etype.baseType() == ttype.baseType())
           if (etype.tsym.type == ttype.tsym.type)
               return etype;
-Index: share/classes/com/sun/tools/javac/tree/TreeMaker.java
+Index: com/sun/tools/javac/tree/TreeMaker.java
 ===================================================================
---- share/classes/com/sun/tools/javac/tree/TreeMaker.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/tree/TreeMaker.java	(working copy)
+--- com/sun/tools/javac/tree/TreeMaker.java	(revision 258)
++++ com/sun/tools/javac/tree/TreeMaker.java	(working copy)
 @@ -67,12 +67,12 @@
      public JCCompilationUnit toplevel;
  
@@ -1034,10 +1274,10 @@ Index: share/classes/com/sun/tools/javac/tree/TreeMaker.java
          this.pos = Position.FIRSTPOS;
          this.toplevel = toplevel;
          this.names = names;
-Index: share/classes/com/sun/tools/javac/tree/Pretty.java
+Index: com/sun/tools/javac/tree/Pretty.java
 ===================================================================
---- share/classes/com/sun/tools/javac/tree/Pretty.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/tree/Pretty.java	(working copy)
+--- com/sun/tools/javac/tree/Pretty.java	(revision 258)
++++ com/sun/tools/javac/tree/Pretty.java	(working copy)
 @@ -56,7 +56,7 @@
       *  the output even though that detail would not be valid java
       *  soruce.
@@ -1090,10 +1330,10 @@ Index: share/classes/com/sun/tools/javac/tree/Pretty.java
  
      /** Visitor method: print expression tree.
       *  @param prec  The current precedence level.
-Index: share/classes/com/sun/tools/javac/tree/TreeTranslator.java
+Index: com/sun/tools/javac/tree/TreeTranslator.java
 ===================================================================
---- share/classes/com/sun/tools/javac/tree/TreeTranslator.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/tree/TreeTranslator.java	(working copy)
+--- com/sun/tools/javac/tree/TreeTranslator.java	(revision 258)
++++ com/sun/tools/javac/tree/TreeTranslator.java	(working copy)
 @@ -46,7 +46,10 @@
  
      /** Visitor result field: a tree
@@ -1106,10 +1346,10 @@ Index: share/classes/com/sun/tools/javac/tree/TreeTranslator.java
  
      /** Visitor method: Translate a single node.
       */
-Index: share/classes/com/sun/tools/javac/tree/TreeInfo.java
+Index: com/sun/tools/javac/tree/TreeInfo.java
 ===================================================================
---- share/classes/com/sun/tools/javac/tree/TreeInfo.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/tree/TreeInfo.java	(working copy)
+--- com/sun/tools/javac/tree/TreeInfo.java	(revision 258)
++++ com/sun/tools/javac/tree/TreeInfo.java	(working copy)
 @@ -57,9 +57,9 @@
  
      /** The names of all operators.
@@ -1122,10 +1362,10 @@ Index: share/classes/com/sun/tools/javac/tree/TreeInfo.java
          context.put(treeInfoKey, this);
  
          Name.Table names = Name.Table.instance(context);
-Index: share/classes/com/sun/tools/javac/code/Symtab.java
+Index: com/sun/tools/javac/code/Symtab.java
 ===================================================================
---- share/classes/com/sun/tools/javac/code/Symtab.java	(revision 258)
-+++ share/classes/com/sun/tools/javac/code/Symtab.java	(working copy)
+--- com/sun/tools/javac/code/Symtab.java	(revision 258)
++++ com/sun/tools/javac/code/Symtab.java	(working copy)
 @@ -55,8 +55,10 @@
      /** Get the symbol table instance. */
      public static Symtab instance(Context context) {
@@ -1194,3 +1434,74 @@ Index: share/classes/com/sun/tools/javac/code/Symtab.java
  
          // string concatenation
          enterBinop("+", stringType, objectType, stringType, string_add);
+Index: com/sun/tools/javac/code/Types.java
+===================================================================
+--- com/sun/tools/javac/code/Types.java	(revision 258)
++++ com/sun/tools/javac/code/Types.java	(working copy)
+@@ -1,4 +1,4 @@
+-/*
++    /*
+  * Copyright 2003-2006 Sun Microsystems, Inc.  All Rights Reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+Index: com/sun/tools/javac/util/Paths.java
+===================================================================
+--- com/sun/tools/javac/util/Paths.java	(revision 258)
++++ com/sun/tools/javac/util/Paths.java	(working copy)
+@@ -89,7 +89,7 @@
+ 
+     private static boolean NON_BATCH_MODE = System.getProperty("nonBatchMode") != null;// TODO: Use -XD compiler switch for this.
+     private static Map<File, PathEntry> pathExistanceCache = new ConcurrentHashMap<File, PathEntry>();
+-    private static Map<File, java.util.List<String>> manifestEntries = new ConcurrentHashMap<File, java.util.List<String>>();
++    private static Map<File, java.util.List<File>> manifestEntries = new ConcurrentHashMap<File, java.util.List<File>>();
+     private static Map<File, Boolean> isDirectory = new ConcurrentHashMap<File, Boolean>();
+     private static Lock lock = new ReentrantLock();
+ 
+@@ -369,13 +369,13 @@
+         // filenames, but if we do, we should redo all path-related code.
+         private void addJarClassPath(File jarFile, boolean warn) {
+             try {
+-                java.util.List<String> manifestsList = manifestEntries.get(jarFile);
++                java.util.List<File> manifestsList = manifestEntries.get(jarFile);
+                 if (!NON_BATCH_MODE) {
+                     lock.lock();
+                     try {
+                         if (manifestsList != null) {
+-                            for (String entr : manifestsList) {
+-                                addFile(new File(entr), warn);
++                            for (File entr : manifestsList) {
++                                addFile(entr, warn);
+                             }
+                             return;
+                         }
+@@ -386,7 +386,7 @@
+                 }
+ 
+                 if (!NON_BATCH_MODE) {
+-                    manifestsList = new ArrayList<String>();
++                    manifestsList = new ArrayList<File>();
+                     manifestEntries.put(jarFile, manifestsList);
+                 }
+ 
+@@ -412,7 +412,7 @@
+                         if (!NON_BATCH_MODE) {
+                             lock.lock();
+                             try {
+-                                manifestsList.add(elt);
++                                manifestsList.add(f);
+                             }
+                             finally {
+                                 lock.unlock();
+Index: com/sun/javadoc/Type.java
+===================================================================
+--- com/sun/javadoc/Type.java	(revision 258)
++++ com/sun/javadoc/Type.java	(working copy)
+@@ -36,6 +36,8 @@
+  * @author Robert Field (rewrite)
+  * @author Scott Seligman (generics)
+  */
++
++
+ public interface Type {
+ 
+     /**
