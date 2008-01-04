@@ -1,5 +1,5 @@
-/*
- * @test/fail
+/* Regression test: parse error 'for' vs 'foreach'
+ * @test
  */
 import javafx.ui.*;
 
@@ -13,7 +13,7 @@ Frame {
     content:
     BorderPanel {
         center: ListBox {
-            cells: bind foreach (name in model.names) ListCell { text: name }
+            cells: bind for (name in model.names) ListCell { text: name }
             selection: bind model.selection with inverse        
             
         }

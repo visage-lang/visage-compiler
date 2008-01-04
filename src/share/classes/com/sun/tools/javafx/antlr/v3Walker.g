@@ -78,8 +78,8 @@ moduleItems  returns [ListBuffer<JCTree> items = new ListBuffer<JCTree>()]
 moduleItem  returns [JCTree value]
        : importDecl 					{ $value = $importDecl.value; }
        | classDefinition 				{ $value = $classDefinition.value; }
-       | statement      				{ $value = $statement.value; } 
-       | expression 					{ $value = $expression.expr; } 
+       | ^(STATEMENT statement)		{ $value = $statement.value; }	
+       | ^(EXPRESSION expression)	{ $value = F.at($expression.expr.pos).Exec($expression.expr); }
 	;
 importDecl  returns [JCTree value]
  	: ^(IMPORT importId)				{ $value = F.at(pos($IMPORT)).Import($importId.pid, false); }
