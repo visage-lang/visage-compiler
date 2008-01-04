@@ -486,8 +486,8 @@ moduleItems
 moduleItem 
 	: importDecl 				-> importDecl
 	| classDefinition 			-> classDefinition
-	| statement				-> ^(STATEMENT statement)
-	| expression				-> ^(EXPRESSION expression)
+	| statement				-> statement
+	| expression				-> expression
 	|					->
 	;
 importDecl
