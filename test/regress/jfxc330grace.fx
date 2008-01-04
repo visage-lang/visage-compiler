@@ -18,8 +18,8 @@ class Foo {
    public function toString() : String { "Foo" }
 
   attribute path : Path; 
-  function buildIt() : Void {
-              path.buildPath();
+  function toPath() : Void {
+              path.toPath();
   }
 }
 
@@ -69,7 +69,7 @@ System.out.println(f.getNext().fo());
 
 System.out.println("---------------------");
 var fo = Foo{}
-fo.buildIt();
+fo.toPath();
 System.out.println(fo.path);
 
 var ct = CurveTo {}

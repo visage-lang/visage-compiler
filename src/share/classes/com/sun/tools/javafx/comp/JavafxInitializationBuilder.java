@@ -436,7 +436,7 @@ public class JavafxInitializationBuilder {
             if (attrSym.kind == Kinds.VAR) {
                 VarSymbol varSym = (VarSymbol)attrSym;
                 VarMorphInfo vmi = typeMorpher.varMorphInfo(varSym);
-                attrInfos.append(new AttributeWrapper(vmi.getMorphedType(), varSym.name, varSym.flags()));
+                attrInfos.append(new AttributeWrapper(vmi.getMorphedType(), varSym.name, varSym.flags(), varSym.owner == cDecl.sym));
             }
             else {
                 if (attrSym.kind != Kinds.MTH) {
@@ -445,7 +445,8 @@ public class JavafxInitializationBuilder {
                 
                 MethodSymbol methodSym = (MethodSymbol)attrSym;
                 attrInfos.append(new AttributeWrapper(((MethodType)methodSym.type).restype,
-                        names.fromString(methodSym.name.toString().substring(attributeGetMethodNamePrefix.length())), methodSym.flags()));
+                        names.fromString(methodSym.name.toString().substring(attributeGetMethodNamePrefix.length())),
+                        methodSym.flags(), false));
             }
         }
         
@@ -643,7 +644,11 @@ public class JavafxInitializationBuilder {
      }
     
     private void addInterfaceAttributeMethods(ListBuffer<JCTree> idefs, ListBuffer<AttributeWrapper> attrInfos) {
-        for (AttributeWrapper attrInfo : attrInfos) {         
+        for (AttributeWrapper attrInfo : attrInfos) { 
+            if ((attrInfo.flags & Flags.PRIVATE) != 0 && !attrInfo.directOwner) {
+                continue;
+            }
+  
             JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT);
             mods = JavafxToJava.addAccessAnnotationModifiers(attrInfo.flags, mods, (JavafxTreeMaker)make);
             idefs.append(make.MethodDef(
@@ -1142,11 +1147,13 @@ public class JavafxInitializationBuilder {
         Type type;
         Name name;
         long flags;
+        boolean directOwner;
         
-        AttributeWrapper(Type type, Name name, long flags) {
+        AttributeWrapper(Type type, Name name, long flags, boolean isDirectOwner) {
             this.type = type;
             this.name = name;
             this.flags = flags;
+            this.directOwner = isDirectOwner;
         }
     }
 }

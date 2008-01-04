@@ -77,6 +77,7 @@ public class JavafxClassReader extends ClassReader {
     private Name currentMethodName;
     private JavafxInitializationBuilder initBuilder;
     private Name functionClassPrefixName;
+    private JavafxDefs defs;
 
     public static void preRegister(final Context context) {
         context.put(classReaderKey, new Context.Factory<ClassReader>() {
@@ -93,6 +94,7 @@ public class JavafxClassReader extends ClassReader {
         super(context, definitive);
         typeMorpher = JavafxTypeMorpher.instance(context);
         initBuilder = JavafxInitializationBuilder.instance(context);
+        defs = JavafxDefs.instance(context);
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
     }
 
@@ -298,5 +300,73 @@ public class JavafxClassReader extends ClassReader {
 
     public JavafxInitializationBuilder getInitBuilder() {
         return initBuilder;
+    }
+
+    protected void attachAnnotations(final Symbol sym) {
+        int numAttributes = nextChar();
+        if (numAttributes != 0) {
+            ListBuffer<CompoundAnnotationProxy> proxies =
+                new ListBuffer<CompoundAnnotationProxy>();
+            for (int i = 0; i<numAttributes; i++) {
+                CompoundAnnotationProxy proxy = readCompoundAnnotation();
+                if (proxy.type.tsym == syms.proprietaryType.tsym)
+                    sym.flags_field |= PROPRIETARY;
+                else {
+                        proxies.append(proxy);
+                }
+            }
+            annotate.later(new JavafxAnnotationCompleter(sym, proxies.toList(), this));
+        }
+    }
+
+    static public class JavafxAnnotationCompleter extends AnnotationCompleter {
+        JavafxClassReader classReader;
+        public JavafxAnnotationCompleter(Symbol sym, List<CompoundAnnotationProxy> l, ClassReader classReader) {
+            super(sym, l, classReader);
+            this.classReader = (JavafxClassReader)classReader;
+        }
+        // implement Annotate.Annotator.enterAnnotation()
+        public void enterAnnotation() {
+            JavaFileObject previousClassFile = classReader.currentClassFile;
+            try {
+                classReader.currentClassFile = classFile;
+                List<Attribute.Compound> newList = deproxyCompoundList(l);
+                JavafxSymtab javafxSyms = (JavafxSymtab)classReader.syms;
+                for (Attribute.Compound comp : newList) {
+                    if (comp.type.tsym.flatName() == javafxSyms.javafx_privateAnnotationType.tsym.flatName()) {
+                        if (sym != null && sym.kind == MTH  && false) {// TODO: Need a way to deal with private methods. The interface 
+                                                              // of a base class defines them, but for a superclasss that implements 
+                                                              // them they are not considered overriding methods since they are private.
+                                // See above TODO; !sym.name.toString().startsWith(classReader.defs.attributeGetMethodNamePrefix)) {
+                            sym.flags_field &= ~(Flags.PROTECTED | Flags.PUBLIC);
+                            sym.flags_field |=  Flags.PRIVATE;
+                        }
+                        break;
+                    }
+                    else if (comp.type.tsym.flatName() == javafxSyms.javafx_protectedAnnotationType.tsym.flatName()) {
+                        if (sym != null && sym.kind == MTH &&
+                                !sym.name.toString().startsWith(classReader.defs.attributeGetMethodNamePrefix)) {
+                            sym.flags_field &= ~(Flags.PRIVATE | Flags.PUBLIC);
+                            sym.flags_field |=  Flags.PROTECTED;
+                        }
+                        break;
+                    }
+                    else if (comp.type.tsym.flatName() == javafxSyms.javafx_publicAnnotationType.tsym.flatName()) {
+                        if (sym != null && sym.kind == MTH &&
+                                !sym.name.toString().startsWith(classReader.defs.attributeGetMethodNamePrefix)) {
+                            sym.flags_field &= ~(Flags.PROTECTED | Flags.PRIVATE);
+                            sym.flags_field |=  Flags.PUBLIC;
+                        }
+                        break;
+                    }
+                }
+
+                sym.attributes_field = ((sym.attributes_field == null)
+                                        ? newList
+                                        : newList.prependList(sym.attributes_field));
+            } finally {
+                classReader.currentClassFile = previousClassFile;
+            }
+        }
     }
 }
