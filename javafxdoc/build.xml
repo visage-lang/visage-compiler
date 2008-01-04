@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<project name="JavaFXDoc" default="default" basedir=".">
+    <description>Builds, tests, and runs the project JavaFXDoc.</description>
+    <import file="nbproject/build-impl.xml"/>
+
+    <target name="-do-compile" depends="init,deps-jar,-pre-pre-compile,-pre-compile" if="have.sources">
+        <javac compiler="modern" fork="true"
+               srcdir="${src.dir}" destdir="${build.classes.dir}"
+               debug="${javac.debug}" deprecation="${javac.deprecation}"
+               source="${javac.source}" target="${javac.target}" includeantruntime="false">
+            <classpath>
+                <path path="${javac.classpath}"/>
+            </classpath>
+            <compilerarg value="-J-Xbootclasspath/p:${basedir}${file.separator}lib${file.separator}javac.jar"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
+    </target>
+
+</project>
