@@ -1296,6 +1296,7 @@ public
         }
 
 	// Error if overriding method has weaker access (JLS 8.4.6.3).
+/*---------------  Taken out. Javafx doesn't have the JLS 8.4.6.3 rule...
 	if ((origin.flags() & INTERFACE) == 0 &&
 		 protection(m.flags()) > protection(other.flags())) {
 	    log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), "override.weaker.access",
@@ -1304,7 +1305,7 @@ public
 	    return;
 
 	}
-
+----------------- */
 	Type mt = types.memberType(origin.type, m);
 	Type ot = types.memberType(origin.type, other);
 	// Error if overriding result type is different
