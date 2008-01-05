@@ -32,20 +32,21 @@ import javafx.ui.HorizontalAlignment;
 import javafx.ui.VerticalAlignment;
 import javafx.ui.Insets;
 import javax.swing.JButton;
+import com.sun.javafx.api.ui.XButton;
 /**
  * An implementation of a "push" button. Encapsulates javax.swing.JButton.
  */
 public class Button extends Widget, ActionWidget {
-    private attribute button: JButton = bind new JButton();
+    private attribute button: XButton = bind new XButton();
 
     /** Determines whether this is the default button within a dialog. */
     public attribute defaultButton: Boolean on replace {
-        //button.setDefault(defaultButton);        
+        button.setDefault(defaultButton);        
     };
 
     /** Determines whether this is the default cancel button within a dialog. */
     public attribute defaultCancelButton: Boolean on replace {
-	//        button.setDefaultClose(defaultCancelButton);
+	button.setDefaultClose(defaultCancelButton);
     };
 
     /** Sets this button's text. */
