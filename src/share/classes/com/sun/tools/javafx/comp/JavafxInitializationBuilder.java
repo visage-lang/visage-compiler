@@ -397,7 +397,6 @@ public class JavafxInitializationBuilder {
      * Return all this as a JavafxClassModel for use in translation.
      * */
    JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl, List<TranslatedAttributeInfo> translatedAttrInfo) {
-        boolean classIsFinal = (cDecl.getModifiers().flags & Flags.FINAL) != 0;
         boolean classOnly = cDecl.generateClassOnly();
         
         CollectAttributeAndMethods collection = new CollectAttributeAndMethods(cDecl.sym);        
@@ -469,7 +468,7 @@ public class JavafxInitializationBuilder {
 
             // add proxies which redirect to the static implementation for every concrete method
             for (MethodSymbol mth : collection.needDispatchMethods) {
-                    if ((!classIsFinal && (mth.flags() & (Flags.STATIC)) == 0L) || mth.owner != cDecl.sym) { //TODO: this test is wrong
+                    if ((!classOnly && (mth.flags() & (Flags.STATIC)) == 0L) || mth.owner != cDecl.sym) { //TODO: this test is wrong
                         if (!bound || JavafxToJava.generateBoundVoidFunctions || mth.getReturnType() != syms.voidType) {
                             cDefinitions.append(makeMethod(cDecl, mth, makeDispatchBody(cDecl, mth, bound, false), bound));
                         }
@@ -477,7 +476,7 @@ public class JavafxInitializationBuilder {
             }
             
             for (MethodSymbol mth : collection.needStaticDispatchMethods) {
-                    if ((!classIsFinal && (mth.flags() & (Flags.STATIC)) == 0L) || mth.owner != cDecl.sym) {  //TODO: this test is wrong
+                    if ((!classOnly && (mth.flags() & (Flags.STATIC)) == 0L) || mth.owner != cDecl.sym) {  //TODO: this test is wrong
                         if (!bound || JavafxToJava.generateBoundVoidFunctions || mth.getReturnType() != syms.voidType) {
                             cDefinitions.append(makeMethod(cDecl, mth, makeDispatchBody(cDecl, mth, bound, true), bound));
                         }
@@ -1001,6 +1000,7 @@ public class JavafxInitializationBuilder {
            while (!classesToVisit.isEmpty()) {
                ClassSymbol cSym = classesToVisit.get(0);
                classesToVisit.remove(0);
+               boolean compound = (cSym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0;
                if (types.isJFXClass(cSym)) {
                    JFXClassDeclaration cDecl = types.getFxClass(cSym); // get the corresponding AST, null if from class file
                    if (cDecl == null) { 
@@ -1009,7 +1009,7 @@ public class JavafxInitializationBuilder {
                            // we want to base this solely on (non-empty) implementation (not interfaces)
                            for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
                                if (e.sym.kind == Kinds.MTH) {
-                                   processMethodFromClassFile((MethodSymbol) e.sym);
+                                   processMethodFromClassFile((MethodSymbol) e.sym, compound);
                                }
                            }
                        }
@@ -1055,7 +1055,7 @@ public class JavafxInitializationBuilder {
            }
        }
        
-       private void processMethodFromClassFile(MethodSymbol meth) {
+       private void processMethodFromClassFile(MethodSymbol meth, boolean compound) {
            String methName = meth.name.toString();
            if (methName.startsWith(attributeGetMethodNamePrefix)) {
                // this is an attrubute get method, collect it as an attribute
@@ -1066,7 +1066,7 @@ public class JavafxInitializationBuilder {
                }
                else
                    shadowedAttributes.add(nameSig);
-           } else if (methName.endsWith(JavafxDefs.implFunctionSuffix)) {
+           } else if (compound && methName.endsWith(JavafxDefs.implFunctionSuffix)) {
                // implementation method
                methName = methName.substring(0, methName.length() - JavafxDefs.implFunctionSuffix.length());
                int cnt = 0;

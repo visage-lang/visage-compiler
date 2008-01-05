@@ -1170,7 +1170,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         state = new State();
 
         try {
-            boolean classIsFinal = (currentClass.getModifiers().flags & Flags.FINAL) != 0;
+            boolean classOnly = currentClass.generateClassOnly();
             // Made all the operations public. Per Brian's spec.
             // If they are left package level it interfere with Multiple Inheritance
             // The interface methods cannot be package level and an error is reported.
@@ -1178,12 +1178,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             long originalFlags = flags;
             flags &= ~(Flags.PROTECTED | Flags.PRIVATE);
             flags |=  Flags.PUBLIC;
-            if (((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) && !classIsFinal) {
+            if (((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) && !classOnly) {
                 flags |= Flags.STATIC;
             }
             flags &= ~Flags.SYNTHETIC;
             JCModifiers mods = make.Modifiers(flags);     
-            boolean isImplMethod = (originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0 && !classIsFinal;
+            boolean isImplMethod = (originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0 && !classOnly;
 
             DiagnosticPosition diagPos = tree.pos();
             MethodType mtype = (MethodType)tree.type;
@@ -1216,7 +1216,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
             ListBuffer<JCVariableDecl> params = ListBuffer.lb();
             if ((originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) {
-                if (classIsFinal) {
+                if (classOnly) {
                     // all implementation code is generated assuming a receiver parameter.
                     // in the final class case, there is no receiver param, so allow generated code
                     // to function by adding:   var receiver = this;
