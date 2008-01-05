@@ -1,6 +1,9 @@
 /*
  * SimpleApplet.fx
  *
+ * @test
+ * @run
+ *
  * Created on Dec 20, 2007, 2:49:07 PM
  */
 
