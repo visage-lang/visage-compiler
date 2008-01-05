@@ -254,9 +254,9 @@ public class Frame extends AbstractFrame {
 	    var state = frame.getExtendedState();
 	    var newState = 0;
 	    if (iconified) {
-		//newState = UIElement.getUIContext().setBit(state, frame.ICONIFIED);
+		newState = UIElement.getUIContext().setBit(state, frame.ICONIFIED);
 	    } else {
-		//newState = UIElement.getUIContext().clearBit(state, frame.ICONIFIED);
+		newState = UIElement.getUIContext().clearBit(state, frame.ICONIFIED);
 	    }
 	    if (state <> newState) {
 		frame.setExtendedState(newState);
