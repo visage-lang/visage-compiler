@@ -479,30 +479,35 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree);
 
         // Attribute qualifying package or class.
-        JCFieldAccess s = (JCFieldAccess) imp;
-        p = attr.
-            attribTree(s.selected,
+        // The code structure here is rather ugly, but we'll
+        // fix it when we do implicit-static-import.  FIXME.
+        if (imp instanceof JCFieldAccess) {
+            JCFieldAccess s = (JCFieldAccess) imp;
+            p = attr.
+                attribTree(s.selected,
                        localEnv,
                        tree.staticImport ? TYP : (TYP | PCK),
                        Type.noType).tsym;
-        if (name == names.asterisk) {
-            // Import on demand.
-            chk.checkCanonical(s.selected);
-            if (tree.staticImport)
-                importStaticAll(tree.pos, p, env);
-            else
-                importAll(tree.pos, p, env);
-        } else {
-            // Named type import.
-            if (tree.staticImport) {
-                importNamedStatic(tree.pos(), p, name, localEnv);
+            if (name == names.asterisk) {
+                // Import on demand.
                 chk.checkCanonical(s.selected);
+                if (tree.staticImport)
+                    importStaticAll(tree.pos, p, env);
+                else
+                    importAll(tree.pos, p, env);
+                return;
             } else {
-                TypeSymbol c = attribImportType(imp, localEnv).tsym;
-                chk.checkCanonical(imp);
-                importNamed(tree.pos(), c, env);
+                // Named type import.
+                if (tree.staticImport) {
+                    importNamedStatic(tree.pos(), p, name, localEnv);
+                    chk.checkCanonical(s.selected);
+                    return;
+                }
             }
         }
+        TypeSymbol c = attribImportType(imp, localEnv).tsym;
+        chk.checkCanonical(imp);
+        importNamed(tree.pos(), c, env);
     }
 
     /** Create a fresh environment for method bodies.
