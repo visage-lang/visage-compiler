@@ -36,7 +36,6 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -100,8 +99,12 @@ public class FXBean {
             throw new IllegalArgumentException("FXBean class must extend FXObject");
         }
         if(!beanClass.isInterface()) { // need to get the interface to support inheritence
-            String intfName = beanClass.getName() + "$Intf";
-            this.beanClass = beanClass.getClassLoader().loadClass(intfName);
+            try {
+                String intfName = beanClass.getName() + "$Intf";
+                this.beanClass = beanClass.getClassLoader().loadClass(intfName);
+            }catch(ClassNotFoundException ignore) {
+                this.beanClass = beanClass;
+            }
         }else {
             this.beanClass = beanClass;
         }
@@ -146,12 +149,26 @@ public class FXBean {
      */
     public void setBoolean(Object instance, String attribute, boolean value) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         PropertyDescriptor desc = getDescriptor(attribute);
-        if(desc.getPropertyType() != BooleanLocation.class) {
+        
+        if(desc.getPropertyType() == Boolean.TYPE || desc.getPropertyType() == Boolean.class) {
+            Method meth = desc.getWriteMethod();
+            if(meth != null) {
+                Boolean b = Boolean.valueOf(value);
+                meth.invoke(instance,b);
+            }else {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }
+        }else if(desc.getPropertyType() == BooleanLocation.class) {
+            Method meth = desc.getReadMethod();
+            if(meth != null) {
+                BooleanLocation location = (BooleanLocation) meth.invoke(instance);
+                location.set(value);
+            }else {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }
+        }else {
             throw new IllegalArgumentException(beanClass + "." + attribute + " is not a Boolean type");
-        }
-        Method meth = desc.getReadMethod();
-        BooleanLocation location = (BooleanLocation) meth.invoke(instance);
-        location.set(value);
+        }        
     }
     
     /**
@@ -167,12 +184,19 @@ public class FXBean {
      */
     public boolean getBoolean(Object instance, String attribute) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         PropertyDescriptor desc = getDescriptor(attribute);
-        if(desc.getPropertyType() != BooleanLocation.class) {
+        Method meth = desc.getReadMethod();
+        if(meth == null) {
+            throw new IllegalArgumentException("Attribute: " + attribute + " is not gettable");
+        }
+        if(desc.getPropertyType() == Boolean.TYPE || desc.getPropertyType() == Boolean.class) {
+            Boolean b = (Boolean)meth.invoke(instance);
+            return b.booleanValue();
+        }else if(desc.getPropertyType() == BooleanLocation.class) {
+            BooleanLocation location = (BooleanLocation) meth.invoke(instance);
+            return location.get();
+        }else {
             throw new IllegalArgumentException(beanClass + "." + attribute + " is not a Boolean type");
         }
-        Method meth = desc.getReadMethod();
-        BooleanLocation location = (BooleanLocation) meth.invoke(instance);
-        return location.get(); 
     }
     
     /**
@@ -188,12 +212,34 @@ public class FXBean {
      */
     public void setNumber(Object instance, String attribute, double value) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         PropertyDescriptor desc = getDescriptor(attribute);
-        if(desc.getPropertyType() != DoubleLocation.class) {
+        if(desc.getPropertyType() == Double.TYPE || desc.getPropertyType() == Double.class) {
+            Method meth = desc.getWriteMethod();
+            if(meth != null) {
+                Double d = new Double(value);
+                meth.invoke(instance, d);
+            }else {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }
+        }else if(desc.getPropertyType() == Float.TYPE || desc.getPropertyType() == Float.class) {
+            Method meth = desc.getWriteMethod();
+            if(meth != null) {
+                Float d = new Float(value);
+                meth.invoke(instance, d);
+            }else {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }
+        } else if(desc.getPropertyType() == DoubleLocation.class) {
+            Method meth = desc.getReadMethod();
+            if(meth != null) {
+                DoubleLocation location = (DoubleLocation) meth.invoke(instance);
+                location.set(value);  
+            }else {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }                
+        } else {
             throw new IllegalArgumentException(beanClass + "." + attribute + " is not a Number type");
         }
-        Method meth = desc.getReadMethod();
-        DoubleLocation location = (DoubleLocation) meth.invoke(instance);
-        location.set(value);
+
     }
     
     /**
@@ -208,12 +254,22 @@ public class FXBean {
      */
     public double getNumber(Object instance, String attribute) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         PropertyDescriptor desc = getDescriptor(attribute);
-        if(desc.getPropertyType() != DoubleLocation.class) {
+        Method meth = desc.getReadMethod();
+        if (meth == null) {
+            throw new IllegalArgumentException("Attribute: " + attribute + " is not gettable");
+        }
+        if (desc.getPropertyType() == Double.TYPE || desc.getPropertyType() == Double.class) {
+            Double d = (Double) meth.invoke(instance);
+            return d.doubleValue();
+        } else if (desc.getPropertyType() == Float.TYPE || desc.getPropertyType() == Float.class) {
+            Float d = (Float) meth.invoke(instance);
+            return d.doubleValue();
+        } else if (desc.getPropertyType() == DoubleLocation.class) {
+            DoubleLocation location = (DoubleLocation) meth.invoke(instance);
+            return location.get();
+        } else {
             throw new IllegalArgumentException(beanClass + "." + attribute + " is not a Number type");
         }
-        Method meth = desc.getReadMethod();
-        DoubleLocation location = (DoubleLocation) meth.invoke(instance);
-        return location.get(); 
     }    
     
     /**
@@ -228,12 +284,54 @@ public class FXBean {
      */
     public void setInteger(Object instance, String attribute, int value) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         PropertyDescriptor desc = getDescriptor(attribute);
-        if(desc.getPropertyType() != IntLocation.class) {
+        if(desc.getPropertyType() == Byte.TYPE || desc.getPropertyType() == Byte.class) {
+            Method meth = desc.getWriteMethod();
+            if(meth != null) {
+                Byte b = new Byte((byte)value);
+                meth.invoke(instance, b);
+            }else {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }
+        } else if(desc.getPropertyType() == Character.TYPE || desc.getPropertyType() == Character.class) {
+            Method meth = desc.getWriteMethod();
+            if(meth != null) {
+                Character b = Character.valueOf((char)value);
+                meth.invoke(instance, b);
+            }else {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }
+        } else if(desc.getPropertyType() == Short.TYPE || desc.getPropertyType() == Short.class) {
+            Method meth = desc.getWriteMethod();
+            if(meth != null) {
+                Short b = Short.valueOf((short)value);
+                meth.invoke(instance, b);
+            }else {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }
+        } else if(desc.getPropertyType() == Integer.TYPE || desc.getPropertyType() == Integer.class) {
+            Method meth = desc.getWriteMethod();
+            if(meth != null) {
+                Integer b = Integer.valueOf(value);
+                meth.invoke(instance, b);
+            }else {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }
+        } else if(desc.getPropertyType() == Long.TYPE || desc.getPropertyType() == Long.class) {
+            Method meth = desc.getWriteMethod();
+            if(meth != null) {
+                Long b = Long.valueOf(value);
+                meth.invoke(instance, b);
+            }else {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }
+        }else if(desc.getPropertyType() == IntLocation.class) {
+            Method meth = desc.getReadMethod();
+            IntLocation location = (IntLocation) meth.invoke(instance);
+            location.set(value);
+        } else {
             throw new IllegalArgumentException(beanClass + "." + attribute + " is not a Number type");
         }
-        Method meth = desc.getReadMethod();
-        IntLocation location = (IntLocation) meth.invoke(instance);
-        location.set(value);
+
     }
     
     /**
@@ -248,12 +346,31 @@ public class FXBean {
      */
     public int getInteger(Object instance, String attribute) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         PropertyDescriptor desc = getDescriptor(attribute);
-        if(desc.getPropertyType() != IntLocation.class) {
+        Method meth = desc.getReadMethod();
+        if (meth == null) {
+            throw new IllegalArgumentException("Attribute: " + attribute + " is not gettable");
+        }
+        if (desc.getPropertyType() == Byte.TYPE || desc.getPropertyType() == Byte.class) {
+            Byte b = (Byte) meth.invoke(instance);
+            return b.intValue();
+        } else if (desc.getPropertyType() == Character.TYPE || desc.getPropertyType() == Character.class) {
+            Character b = (Character) meth.invoke(instance);
+            return (int) b.charValue();
+        } else if (desc.getPropertyType() == Short.TYPE || desc.getPropertyType() == Short.class) {
+            Short b = (Short) meth.invoke(instance);
+            return b.intValue();
+        } else if (desc.getPropertyType() == Integer.TYPE || desc.getPropertyType() == Integer.class) {
+            Integer b = (Integer) meth.invoke(instance);
+            return b.intValue();
+        } else if (desc.getPropertyType() == Long.TYPE || desc.getPropertyType() == Long.class) {
+            Long b = (Long) meth.invoke(instance);
+            return b.intValue();
+        } else if (desc.getPropertyType() == IntLocation.class) {
+            IntLocation location = (IntLocation) meth.invoke(instance);
+            return location.get();
+        } else {
             throw new IllegalArgumentException(beanClass + "." + attribute + " is not a Number type");
         }
-        Method meth = desc.getReadMethod();
-        IntLocation location = (IntLocation) meth.invoke(instance);
-        return location.get(); 
     }    
     
     /**
@@ -267,9 +384,12 @@ public class FXBean {
      */
     public void setObject(Object instance, String attribute, Object value) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         PropertyDescriptor desc = getDescriptor(attribute);
-        Method meth = desc.getReadMethod();
         Class propertyType = desc.getPropertyType();
         if(propertyType == DoubleLocation.class) {
+            Method meth = desc.getReadMethod();
+            if(meth == null) {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }            
             DoubleLocation location = (DoubleLocation)meth.invoke(instance);
             double v = 0.0;
             if(instance instanceof Number) {
@@ -279,6 +399,10 @@ public class FXBean {
             }
             location.set(v);
         }else if (propertyType == IntLocation.class) {
+            Method meth = desc.getReadMethod();
+            if(meth == null) {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }            
             IntLocation location = (IntLocation)meth.invoke(instance);
             int v = 0;
             if(instance instanceof Number) {
@@ -288,6 +412,10 @@ public class FXBean {
             }
             location.set(v);
         }else if (propertyType == BooleanLocation.class) {
+            Method meth = desc.getReadMethod();
+            if(meth == null) {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }
             BooleanLocation location = (BooleanLocation)meth.invoke(instance);
             boolean v = false;
             if(instance instanceof Boolean) {
@@ -296,11 +424,20 @@ public class FXBean {
                 v = Boolean.valueOf(value.toString());
             }
             location.set(v);
-        }else if(desc.getPropertyType() != ObjectLocation.class) {
-            throw new IllegalArgumentException(beanClass + "." + attribute + " is not an Object type");
-        }else {
+        }else if(desc.getPropertyType() == ObjectLocation.class) {
+            Method meth = desc.getReadMethod();
+            if(meth == null) {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }
             ObjectLocation location = (ObjectLocation) meth.invoke(instance);
             location.set(value);
+        } else {
+            Method meth = desc.getWriteMethod();
+            if(meth != null) {
+                meth.invoke(instance, value);
+            }else {
+                throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
+            }   
         }
     }
     
@@ -316,6 +453,9 @@ public class FXBean {
     public Object getObject(Object instance, String attribute) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         PropertyDescriptor desc = getDescriptor(attribute);
         Method meth = desc.getReadMethod();
+        if(meth == null) {
+            throw new IllegalArgumentException("Attribute: " + attribute + " is not gettable");
+        }
         Class propertyType = desc.getPropertyType();
         if(propertyType == DoubleLocation.class) {
             DoubleLocation location = (DoubleLocation)meth.invoke(instance);
@@ -326,12 +466,12 @@ public class FXBean {
         }else if (propertyType == BooleanLocation.class) {
             BooleanLocation location = (BooleanLocation)meth.invoke(instance);
             return(Boolean.valueOf(location.get()));
-        }else if(desc.getPropertyType() != ObjectLocation.class) {
-            throw new IllegalArgumentException(beanClass + "." + attribute + " is not an Object type");
-        }else {
+        }else if(desc.getPropertyType() == ObjectLocation.class) {
             ObjectLocation location = (ObjectLocation) meth.invoke(instance);
             return location.get();
-        } 
+        } else {
+            return meth.invoke(instance);
+        }
     }  
     
     /**
