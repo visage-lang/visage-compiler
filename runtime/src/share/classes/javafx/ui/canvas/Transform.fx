@@ -93,8 +93,8 @@ public abstract class Transform {
 
 public class CompositeTransform extends Transform {
     public attribute transforms :Transform[];
-    private attribute txs :AffineTransform[] //TODO JXFC-152
-        //= bind for ( t in transforms) t.transform
+    private attribute txs :AffineTransform[] 
+        = bind for ( t in transforms) t.transform
     on insert  [indx] (newValue) {
         updateTransform();
     }
