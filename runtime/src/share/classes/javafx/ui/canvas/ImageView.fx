@@ -78,8 +78,7 @@ public class ImageView extends Node {
             var curImage = image;
             var im = curImage.getImage();
             if (preload) {
-                //TODO JFXC-332
-                //im = resizeImage(im);
+                im = resizeImage(im);
                 //loaded = sgimage.setImage(im); // TODO: return value
                 sgimage.setImage(im);
                 loaded = true;
@@ -87,8 +86,7 @@ public class ImageView extends Node {
                 //TODO DO LATER - this is a work around until a more permanent solution is provided
                 javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                           public function run():Void {
-                              //TODO JFXC-332
-                                //im = resizeImage(im);
+                                im = resizeImage(im);
                                 if (curImage == image) {
                                     //println("setting resized image");
                                     //loaded = sgimage.setImage(im);
@@ -104,8 +102,6 @@ public class ImageView extends Node {
         }
     }
 
-    //TODO JFXC-332
-    /************************************************8
     public function resizeImage(img:java.awt.Image): java.awt.Image {
         
         if (img == null) {
@@ -159,7 +155,6 @@ public class ImageView extends Node {
         }
         return thumb;
     }
-    *************** END OF JFXC-332 ********/
 
     public attribute preload: Boolean;
     public attribute antialias: Boolean = true;

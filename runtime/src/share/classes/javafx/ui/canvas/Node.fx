@@ -366,13 +366,12 @@ public abstract class Node extends CanvasElement, Transformable {
             if (scaleToFitCanvas) {
                 insert this into canvas.scaleToFitList;
             }
-            //TODO JXFC-249
-            //if (this instanceof SizeableCanvasElement) { // hack
-            //    var r = this as SizeableCanvasElement;
-            //    if (r.sizeToFitCanvas) {
-           //         insert r as Node into canvas.sizeToFitList;
-            //    }
-            //}
+            if (this instanceof SizeableCanvasElement) { // hack
+                var r = this as SizeableCanvasElement;
+                if (r.sizeToFitCanvas) {
+                    insert r into canvas.sizeToFitList;
+                }
+            }
             if (opacitySet and opacity <> 1.0) {
                 compositeFilter.setOpacity(clamp(opacity, 0, 1).floatValue());
             }

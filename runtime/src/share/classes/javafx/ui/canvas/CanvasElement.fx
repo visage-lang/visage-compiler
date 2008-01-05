@@ -38,10 +38,9 @@ public abstract class CanvasElement {
     public function getContainer(): Container{
         var p = parentCanvasElement;
         while (p <> null) {
-            //TODO JXFC-149
-            //if (p instanceof Container) {
-            //    return p as Container;
-            //}
+            if (p instanceof Container) {
+                return p as Container;
+            }
             p = p.parentCanvasElement;
         }
         return null;
