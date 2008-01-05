@@ -214,12 +214,13 @@ public class Button extends Widget, ActionWidget {
      * <li>TRAILING (the default)
      * </ul>
      */
-    public attribute horizontalTextPosition: HorizontalAlignment on replace {
-	if (horizontalTextPosition <> null) {
-	    button.setHorizontalTextPosition(horizontalTextPosition.id.intValue());
-	    button.revalidate();
-	}
-    };
+    public attribute horizontalTextPosition: HorizontalAlignment = HorizontalAlignment.TRAILING 
+        on replace {
+            if (horizontalTextPosition <> null) {
+                button.setHorizontalTextPosition(horizontalTextPosition.id.intValue());
+                button.revalidate();
+            }
+        };
 
     /**
      * Sets the vertical position of the text relative to the icon.<br></br>
@@ -230,12 +231,13 @@ public class Button extends Widget, ActionWidget {
      * <li>BOTTOM
      * </ul>
      */
-    public attribute verticalTextPosition: VerticalAlignment on replace {
-	if (verticalTextPosition <> null) {
-	    button.setVerticalTextPosition(verticalTextPosition.id.intValue());
-	    button.revalidate();
-	}
-    };
+    public attribute verticalTextPosition: VerticalAlignment  = VerticalAlignment.CENTER
+        on replace {
+            if (verticalTextPosition <> null) {
+                button.setVerticalTextPosition(verticalTextPosition.id.intValue());
+                button.revalidate();
+            }
+        };
 
     /**
      * Sets the horizontal alignment of the the icon and text.<br></br>
@@ -246,7 +248,8 @@ public class Button extends Widget, ActionWidget {
      * <li>TRAILING (the default)
      * </ul>
      */
-    public attribute horizontalAlignment: HorizontalAlignment on replace {
+    public attribute horizontalAlignment: HorizontalAlignment = HorizontalAlignment.CENTER 
+    on replace {
 	if (horizontalAlignment <> null) {
 	    button.setHorizontalAlignment(horizontalAlignment.id.intValue());
 	    button.revalidate();
@@ -263,12 +266,13 @@ public class Button extends Widget, ActionWidget {
      * <li>BOTTOM
      * </ul>
      */
-    public attribute verticalAlignment: VerticalAlignment on replace {
-	if (verticalAlignment <> null) {
-	    button.setVerticalAlignment(verticalAlignment.id.intValue());
-	    button.revalidate();
-	}
-    };
+    public attribute verticalAlignment: VerticalAlignment  = VerticalAlignment.CENTER
+        on replace {
+            if (verticalAlignment <> null) {
+                button.setVerticalAlignment(verticalAlignment.id.intValue());
+                button.revalidate();
+            }
+        };
     
     
     public function createComponent():javax.swing.JComponent { 

@@ -111,12 +111,26 @@ public class CheckBox extends Widget {
     public attribute margin:Insets on replace  {
         jcheckbox.setMargin(margin.awtinsets);
     };
-    public attribute horizontalTextPosition:HorizontalAlignment on replace {
-        jcheckbox.setHorizontalTextPosition(horizontalTextPosition.id.intValue());
-    };
-    public attribute verticalTextPosition:VerticalAlignment on replace {
-        jcheckbox.setVerticalTextPosition(verticalTextPosition.id.intValue());
-    };
+    public attribute horizontalTextPosition:HorizontalAlignment = HorizontalAlignment.TRAILING
+        on replace {
+            jcheckbox.setHorizontalTextPosition(horizontalTextPosition.id.intValue());
+            jcheckbox.revalidate(); 
+        };
+    public attribute verticalTextPosition:VerticalAlignment = VerticalAlignment.CENTER
+            on replace {
+                jcheckbox.setVerticalTextPosition(verticalTextPosition.id.intValue());
+                jcheckbox.revalidate(); 
+            };
+    public attribute horizontalAlignment:HorizontalAlignment = HorizontalAlignment.LEADING 
+        on replace {
+            jcheckbox.setHorizontalAlignment(horizontalAlignment.id.intValue());
+            jcheckbox.revalidate();
+        };
+    public attribute verticalAlignment:VerticalAlignment = VerticalAlignment.CENTER
+        on replace {
+            jcheckbox.setVerticalAlignment(verticalAlignment.id.intValue());
+            jcheckbox.revalidate(); 
+        };            
     public attribute onChange: function(newValue:Boolean):Void;
     public function createComponent():javax.swing.JComponent{
         return jcheckbox;

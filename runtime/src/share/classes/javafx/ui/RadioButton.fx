@@ -116,38 +116,41 @@ public class RadioButton extends SelectableButton {
     };
 
 
-    public attribute horizontalTextPosition:HorizontalAlignment on replace {
-        jradiobutton.setHorizontalTextPosition(horizontalTextPosition.id.intValue());
-        jradiobutton.revalidate();
-    };
-    public attribute verticalTextPosition:VerticalAlignment on replace {
-        jradiobutton.setVerticalTextPosition(verticalTextPosition.id.intValue());
-        jradiobutton.revalidate();
-    };
-    public attribute horizontalAlignment:HorizontalAlignment on replace {
-        jradiobutton.setHorizontalAlignment(horizontalAlignment.id.intValue());
-        jradiobutton.revalidate();
-    };
-    public attribute verticalAlignment:VerticalAlignment on replace {
-        jradiobutton.setVerticalAlignment(verticalAlignment.id.intValue());
-        jradiobutton.revalidate(); 
-    };
+    public attribute horizontalTextPosition:HorizontalAlignment = HorizontalAlignment.TRAILING 
+        on replace {
+            jradiobutton.setHorizontalTextPosition(horizontalTextPosition.id.intValue());
+            jradiobutton.revalidate();
+        };
+    public attribute verticalTextPosition:VerticalAlignment = VerticalAlignment.CENTER
+        on replace {
+            jradiobutton.setVerticalTextPosition(verticalTextPosition.id.intValue());
+            jradiobutton.revalidate();
+        };
+    public attribute horizontalAlignment:HorizontalAlignment = HorizontalAlignment.LEADING 
+        on replace {
+            jradiobutton.setHorizontalAlignment(horizontalAlignment.id.intValue());
+            jradiobutton.revalidate();
+        };
+    public attribute verticalAlignment:VerticalAlignment = VerticalAlignment.CENTER
+        on replace {
+            jradiobutton.setVerticalAlignment(verticalAlignment.id.intValue());
+            jradiobutton.revalidate(); 
+        };
 
     public function setSelected(value:Boolean):Void {
         jradiobutton.setSelected(value);
     }
 
     public function createComponent():javax.swing.JComponent{
+        var self = this;
         jradiobutton.addItemListener(java.awt.event.ItemListener {
                 public function itemStateChanged(e:java.awt.event.ItemEvent):Void {
                     var i = 0;// = select indexof x from x in buttonGroup.buttons where x == self;
                     for (ii in [0..sizeof buttonGroup.buttons exclusive]) {
-                        //TODO JXFC-270
-                        /********* 270 is "this" ***********/
-                        //if(buttonGroup.buttons[ii] == this) {
-                        //    i = ii;
-                        //     break;
-                        //}
+                        if(buttonGroup.buttons[ii] == self) {
+                            i = ii;
+                            break;
+                        }
                     }
                     selected = jradiobutton.isSelected();
                     if(onChange <> null){
