@@ -127,7 +127,7 @@ operation SourcePathDialog.show(win:UIElement) {
                 action: operation() {self.edit(dlg.content);}
                 selection: bind self.selectedSourcePath
                 cells: bind 
-                for (f in self.sourcePath) ListCell {text: f.canonicalPath}
+                foreach (f in self.sourcePath) ListCell {text: f.canonicalPath}
             }
             bottom: FlowPanel {
                 border: EmptyBorder {
