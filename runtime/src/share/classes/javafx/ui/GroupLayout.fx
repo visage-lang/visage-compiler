@@ -59,9 +59,7 @@ public class GroupLayout extends GroupElement {
             var pgroup = layout.createParallelGroup(i.alignment.id.intValue(), i.resizable);
             vgroup.add(pgroup);
             var comps:java.awt.Component[] = [];
-            //TODO JXFC-244
-            //for (j in content where j.row == i) {
-            for(j in content) { // Workaround
+            for (j in content where j.row == i) {
                 if (j instanceof Widget) {
                     var w =  j as Widget;
                     if (w.sizeToFitRow) {
@@ -114,9 +112,7 @@ public class GroupLayout extends GroupElement {
             var pgroup = layout.createParallelGroup(i.alignment.id.intValue(), i.resizable);
             hgroup.add(pgroup);
             var comps:java.awt.Component[] = [];
-            //TODO JXFC-244
-            //for (j in content where j.column == i) {
-            for(j in content) { // Workaround
+            for (j in content where j.column == i) {
                 if (j instanceof Widget) {
                     var w = j as Widget;
                     var c = w.getComponent();
