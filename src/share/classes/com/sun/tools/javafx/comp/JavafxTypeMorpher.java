@@ -325,7 +325,7 @@ public class JavafxTypeMorpher {
             List<Type> newActuals = List.<Type>nil();
             actualsLabel: for (Type t : actuals) {
                 if ((t.tsym instanceof ClassSymbol) &&
-                        types.isJFXClass((ClassSymbol)t.tsym)) {
+                        (t.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
                     String str = t.tsym.flatName().toString().replace("$", ".");
                     String strLookFor = str + interfaceSuffix;
                     Type tp = reader.enterClass(names.fromString(strLookFor)).type;

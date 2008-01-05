@@ -26,8 +26,10 @@
 package com.sun.tools.javafx.code;
 import com.sun.tools.javac.code.Flags;
 /**
+ * Some Javafx-specific flags for {@code Symbols}'s {@code flags_field}.
  *
  * @author llitchev
+ * @author Per Bothner
  */
 public class JavafxFlags {
     private JavafxFlags() {}
@@ -37,4 +39,9 @@ public class JavafxFlags {
 
     public static final long ASSIGNED_TO = LAST_JAVA_FLAG << 1;
     public static final long INNER_ACCESS = LAST_JAVA_FLAG << 2;
+    
+    /** If this is a class that gets translated to a class and an inteface.
+     * (This is used to implement multiple inheritance.)
+     */
+    public static final long COMPOUND_CLASS = ASSIGNED_TO;
 }

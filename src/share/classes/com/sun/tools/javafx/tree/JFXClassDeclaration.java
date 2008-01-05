@@ -28,6 +28,7 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.ClassDeclarationTree;
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.tree.JCTree;
@@ -125,8 +126,7 @@ public class JFXClassDeclaration extends JFXStatement implements ClassDeclaratio
     }
 
     public boolean generateClassOnly () {
-        // FIXME also return true if extending a Java class.
-        return (getModifiers().flags & Flags.FINAL) != 0;
+        return (sym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0;
     }
 
     @Override

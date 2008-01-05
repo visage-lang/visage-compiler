@@ -666,15 +666,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             
             // make the Java class corresponding to this FX class, and return it
             JCExpression jcExtending = null;
+            Type superType;
             if (tree.type instanceof ClassType &&
-                    ((ClassType)tree.type).supertype_field != null &&
-                    ((ClassType)tree.type).supertype_field.tsym instanceof ClassSymbol &&
-                    !types.isJFXClass(((ClassType)tree.type).supertype_field.tsym)) {
+                    (superType = ((ClassType)tree.type).supertype_field) != null &&
+                    superType.tsym instanceof ClassSymbol &&
+                    (superType.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0) {
                 jcExtending = makeTypeTree(((ClassType)tree.type).supertype_field, null, false);
             }
             else if ((tree.mods.flags & Flags.FINAL) != 0L && tree.getExtending().nonEmpty()) {
                 Symbol sym1 = TreeInfo.symbol(tree.getExtending().head);
-                if (sym1 != null && !types.isJFXClass(sym1))
+                if (sym1 != null &&
+                        (sym1.flags_field & JavafxFlags.COMPOUND_CLASS) == 0)
                     jcExtending = makeTypeTree(tree.getExtending().head.type, null, false);
             }
             
@@ -1931,8 +1933,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (t.tag == TypeTags.CLASS) {
             JCExpression texp = null;
 
-            if (makeIntf && t.tsym instanceof ClassSymbol && types.isJFXClass((ClassSymbol)t.tsym) &&
-                    !t.tsym.getQualifiedName().toString().endsWith(interfaceSuffix)) {
+            if (makeIntf && t.tsym instanceof ClassSymbol &&
+                    (t.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
                  texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString() + interfaceSuffix);
             }
             else {

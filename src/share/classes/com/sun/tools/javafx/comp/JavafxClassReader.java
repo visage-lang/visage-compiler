@@ -52,6 +52,7 @@ import static com.sun.tools.javac.code.TypeTags.*;
 import com.sun.tools.javac.jvm.ClassFile.NameAndType;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.FunctionType;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 
@@ -116,8 +117,7 @@ public class JavafxClassReader extends ClassReader {
                 Name className = names.fromUtf(signatureBuffer,
                                                          startSbp,
                                                          sbp - startSbp);
-                className = removeIntfPart(className);
-                ClassSymbol t = enterClass(className);
+                ClassSymbol t = enterClassNoIntfPart(className);
                 if (!keepClassFileSignatures()) {
                     if (t == typeMorpher.declLocation[TYPE_KIND_BOOLEAN].sym) {
                         sbp = startSbp;
@@ -142,8 +142,7 @@ public class JavafxClassReader extends ClassReader {
                 Name className = names.fromUtf(signatureBuffer,
                                                          startSbp,
                                                          sbp - startSbp);
-                className = removeIntfPart(className);
-                ClassSymbol t = enterClass(className);
+                ClassSymbol t = enterClassNoIntfPart(className);
                 List<Type> genericArgs = sigToTypes('>');
                 boolean keepSignatures = keepClassFileSignatures();
                 TypeSymbol erased = keepSignatures ? null : types.erasure(t.type).tsym;
@@ -278,14 +277,16 @@ public class JavafxClassReader extends ClassReader {
         
         return false;
     }
-
-    private Name removeIntfPart(Name className) {
-        if (className.toString().endsWith(interfaceSuffix)) {
-            String classNameStr = className.toString();
-            return names.fromString(classNameStr.substring(0, classNameStr.length() - interfaceSuffix.length()));
-        }
-
-        return className;
+    
+    public ClassSymbol enterClassNoIntfPart(Name className) {
+        String classNameStr = className.toString();
+        boolean compound = classNameStr.endsWith(interfaceSuffix);
+        if (compound)
+            className = names.fromString(classNameStr.substring(0, classNameStr.length() - interfaceSuffix.length()));
+        ClassSymbol cSym = enterClass(className);
+        if (compound)
+            cSym.flags_field |= JavafxFlags.COMPOUND_CLASS;
+        return cSym;
     }
 
     /** Define a new class given its name and owner.

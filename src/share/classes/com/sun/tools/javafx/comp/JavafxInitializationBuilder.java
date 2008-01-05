@@ -413,7 +413,8 @@ public class JavafxInitializationBuilder {
         for (ClassSymbol baseClass : baseClasses) {
             if (!baseClass.name.toString().endsWith(interfaceSuffix) && 
                     baseClass.fullname != names.fromString(fxObjectString) &&
-                    types.isJFXClass(baseClass) && baseClass.type != null) {
+                    (baseClass.flags_field & JavafxFlags.COMPOUND_CLASS) != 0 &&
+                    baseClass.type != null) {
                 implementing.append(toJava.makeTypeTree(baseClass.type, cDecl.pos(), true));
                 if (baseClass.type != null && baseClass.type.tsym != null &&
                         baseClass.type.tsym.packge() != syms.unnamedPackage) {    // Work around javac bug. the visitImport of Attr 

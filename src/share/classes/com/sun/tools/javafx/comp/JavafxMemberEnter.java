@@ -43,6 +43,7 @@ import static com.sun.tools.javac.tree.JCTree.SELECT;
 import com.sun.tools.javafx.tree.*;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 
@@ -791,13 +792,21 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             {
                 ListBuffer<JCExpression> extending = ListBuffer.<JCExpression>lb();
                 ListBuffer<JCExpression> implementing = ListBuffer.<JCExpression>lb();
+                boolean compound = (tree.getModifiers().flags & Flags.FINAL) == 0;
                 for (JCExpression supertype : tree.getSupertypes()) {
-                    if (attr.attribType(supertype, env).isInterface()) {
+                    Type st = attr.attribType(supertype, env);
+                    
+                    if (st.isInterface()) {
                         implementing.append(supertype);
                     } else {
-                        extending.append(supertype);                        
+                        extending.append(supertype); 
+                        if ((st.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0)
+                            compound = false;                        
                     }
                 }
+                if (compound)
+                    c.flags_field |= JavafxFlags.COMPOUND_CLASS;
+                        
                 tree.setDifferentiatedExtendingImplementing(extending.toList(), implementing.toList());
             }
             
