@@ -202,8 +202,6 @@ public abstract class Widget extends GroupElement, UIElement {
             while (target.getParent() <> null) {
                 target = target.getParent();
             }
-            //TODO JXFC-172
-            target;
         } else {
             target = w.component;
         }
@@ -775,22 +773,18 @@ public abstract class Widget extends GroupElement, UIElement {
     }
 
     /** Returns the current preferred size of this component */
-    //TODO JXFC-173
     public function getPreferredSize(): Dimension{
         return component.getPreferredSize();
     }
     /** Returns the current minimum size of this component */
-    //TODO JXFC-173
     public function getMinimumSize(): Dimension{
         return component.getMinimumSize();
     }
     /** Returns the current maximum size of this component */
-    //TODO JXFC-173
     public function getMaximumSize(): Dimension{
         return component.getMaximumSize();
     }
 
-    //TODO JXFC-173 resolve issue with size being an attribute and a function
     public function getSize(): Dimension {
         return component.getSize();
     }

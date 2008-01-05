@@ -34,14 +34,12 @@ public class CardPanel extends Widget {
         if (selection >= 0) {
             selectionGeneration = selectionGeneration + 1;
             //TODO JXFC-187
-            //var gen = selectionGeneration;
-            //var sel = selection;
+            var gen = selectionGeneration;
+            var sel = selection;
             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                  public function run():Void {
-                    //TODO JXFC-187
-                    //if (gen == selectionGeneration) {
-                        //var w = cards[sel];
-                        var w = cards[selection.intValue()];
+                    if (gen == selectionGeneration) {
+                        var w = cards[sel.intValue()];
                         if (sizeof w > 0) {
                             var comp = w.getComponent();
                             var id = "{java.lang.System.identityHashCode(comp)}";
@@ -52,7 +50,7 @@ public class CardPanel extends Widget {
                             }
                             layout.show(jpanel, id);
                         }
-                    //}
+                    }
                 }
             });
          }

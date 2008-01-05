@@ -199,8 +199,6 @@ public class Table extends ScrollableWidget {
                           selectionGeneration = selectionGeneration + 1;
                           var n = selectionGeneration;
                           var row = table.getSelectedRow();
-                          //TODO JXFC-333
-                          /*******
                             //TODO DO LATER - this is a work around until a more permanent solution is provided
                           javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                                       public function run():Void {
@@ -209,7 +207,6 @@ public class Table extends ScrollableWidget {
                                           }
                                       }
                           });   
-                           * ******/                       
                       }
                   }
               };

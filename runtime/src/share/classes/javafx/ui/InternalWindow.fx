@@ -58,10 +58,8 @@ class InternalWindow extends UIElement {
     // private:
     private function getRootPane(e:UIElement):JRootPane {
         var result: javax.swing.JRootPane;
-        //TODO JXFC-249
-        /**************************************************************************
         if (e instanceof Applet) {
-            return (e as Applet).applet.getRootPane();
+            return (e as Applet).getRootPane();
         }
         if (e instanceof Widget) {
             var c = (e as Widget).getComponent() as java.awt.Component;
@@ -92,7 +90,6 @@ class InternalWindow extends UIElement {
             result = (w as JWindow).getRootPane();
         } else {
         }
-**************************************************************************/
         return result;
     }
 

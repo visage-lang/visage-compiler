@@ -23,7 +23,6 @@
  * have any questions. 
  */  
  
-//TODO JXFC-284
 package javafx.ui; 
 
 import java.lang.Object;
