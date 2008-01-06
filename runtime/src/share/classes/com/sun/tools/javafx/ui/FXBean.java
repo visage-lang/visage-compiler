@@ -95,13 +95,14 @@ public class FXBean {
      * @throws java.lang.IllegalArgumentException if the class does not extend FXObject
      */
     public void setBeanClass(Class beanClass) throws IntrospectionException, ClassNotFoundException{
-        if(! FXObject.class.isAssignableFrom(beanClass) ) {
-            throw new IllegalArgumentException("FXBean class must extend FXObject");
-        }
         if(!beanClass.isInterface()) { // need to get the interface to support inheritence
             try {
                 String intfName = beanClass.getName() + "$Intf";
-                this.beanClass = beanClass.getClassLoader().loadClass(intfName);
+                if(beanClass.getClassLoader() != null) {
+                    this.beanClass = beanClass.getClassLoader().loadClass(intfName);
+                }else {
+                    this.beanClass = beanClass;
+                }
             }catch(ClassNotFoundException ignore) {
                 this.beanClass = beanClass;
             }
