@@ -23,27 +23,26 @@
  * have any questions.
  */ 
 
-
 package javafx.ui;
 
+import com.sun.javafx.api.ui.FXApplet;
+import java.lang.IllegalArgumentException;
 import javafx.ui.Widget;
 import javafx.ui.MenuBar;
 import javax.swing.*;
 
-public class Applet extends JApplet, Widget {
+public class Applet extends FXApplet {
     
     public attribute menubar: MenuBar on replace {
         setJMenuBar(menubar.getComponent() as JMenuBar);
     }
     
     public attribute content: Widget on replace  {
-        if (content.getComponent() <> null) {
-            setContentPane(content.getComponent());
-        }
+        setContentPane(content.getComponent());
     }
     
     public attribute glassPane: Widget on replace {
-        if (glassPane.getComponent() <> null) {
+        if (glassPane <> null) {
             setGlassPane(glassPane.getComponent());
         }
     }
@@ -58,13 +57,32 @@ public class Applet extends JApplet, Widget {
     }
     
     public function getWindow():java.awt.Window {
-        var self: Widget = this;
-        return SwingUtilities.getWindowAncestor(self.getComponent());
+        return SwingUtilities.getWindowAncestor(this);
     }
 
     public function createComponent():JComponent{
         return null;
     }
+
+    public function <<init>>(): Void {}
+    
+    public function start(): Void {}
+    
+    public function stop(): Void {}
+    
+    public function destroy(): Void {}
+    
+    protected function setContentAttribute(object: java.lang.Object): Void {
+        if (object instanceof Applet) {
+            var applet = object as Applet;
+            setContentPane(applet.content.getComponent());
+        } else if (object instanceof Widget) {
+            var widget = object as Widget;
+            setContentPane(widget.getComponent());
+        } else {
+            throw new IllegalArgumentException("bad content type: {object.getClass()}");
+        }
+    }
+    
+    private function log(s) { java.lang.System.out.println(s);}
 }
-
-
