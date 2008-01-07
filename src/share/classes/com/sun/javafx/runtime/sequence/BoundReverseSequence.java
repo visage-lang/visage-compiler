@@ -18,6 +18,7 @@ class BoundReverseSequence<T> extends AbstractBoundSequence<T> implements Sequen
 
     protected Sequence<T> computeInitial() {
         Sequence<T> sequence = location.get().reverse();
+
         location.addChangeListener(new SequenceReplaceListener<T>() {
             public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 int sliceSize = endPos - startPos;

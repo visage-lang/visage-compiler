@@ -124,9 +124,15 @@ public abstract class JavaFXTestCase extends TestCase {
     }
 
     protected void assertEquals(HistoryReplaceListener hl, String... values) {
-        assertEquals(values.length, hl.get().size());
-        for (int i=0; i<values.length; i++)
-            Assert.assertEquals(values[i], hl.get().get(i));
+        try {
+            assertEquals(values.length, hl.get().size());
+            for (int i=0; i<values.length; i++)
+                Assert.assertEquals(values[i], hl.get().get(i));
+        }
+        catch (AssertionError e) {
+            System.err.println("HistoryListener value was: " + hl.get());
+            throw e;
+        }
     }
 
     protected void assertEquals(HistoryReplaceListener hl, String value) {

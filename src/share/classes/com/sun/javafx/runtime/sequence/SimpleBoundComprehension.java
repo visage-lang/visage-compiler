@@ -10,38 +10,60 @@ import com.sun.javafx.runtime.location.SequenceReplaceListener;
  *
  * @author Brian Goetz
  */
-class SimpleBoundComprehension<T, V> extends AbstractBoundSequence<V> implements SequenceLocation<V> {
+abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequence<V> implements SequenceLocation<V> {
     private final SequenceLocation<T> sequenceLocation;
-    private final ElementGenerator<T, V> generator;
-
-    public interface ElementGenerator<T, V> {
-        public V getValue(T element, int index);
-    }
+    private final boolean dependsOnIndex;
 
     public SimpleBoundComprehension(Class<V> clazz,
                                     SequenceLocation<T> sequenceLocation,
-                                    ElementGenerator<T, V> generator) {
+                                    boolean dependsOnIndex) {
         super(clazz, false, false);
         this.sequenceLocation = sequenceLocation;
-        this.generator = generator;
+        this.dependsOnIndex = dependsOnIndex;
     }
+
+    public SimpleBoundComprehension(Class<V> clazz,
+                                    SequenceLocation<T> sequenceLocation) {
+        this(clazz, sequenceLocation, false);
+    }
+
+    abstract V computeElement(T element, int index);
 
     protected Sequence<V> computeInitial() {
         Sequence<T> sequence = sequenceLocation.get();
-        sequenceLocation.addChangeListener(new MyChangeListener());
         V[] intermediateResults = Util.<V>newObjectArray(sequence.size());
         for (int i = 0; i < intermediateResults.length; i++)
-            intermediateResults[i] = generator.getValue(sequence.get(i), i);
+            intermediateResults[i] = computeElement(sequence.get(i), i);
+
+        sequenceLocation.addChangeListener(new SequenceReplaceListener<T>() {
+            public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                // IF the closure depends on index, then an insertion or deletion causes recomputation of the whole
+                // trailing segment of the comprehension, so not only do we recompute the affected segment, but also
+                // the whole rest of the sequence too.
+
+                int directlyAffectedSize = Sequences.size(newElements);
+                int elementsAdded = directlyAffectedSize - (endPos - startPos + 1);
+                boolean updateTrailingElements = dependsOnIndex
+                        && (elementsAdded != 0)
+                        && (endPos + 1 < Sequences.size(oldValue));
+                int indirectlyAffectedStart=0, indirectlyAffectedEnd=0, indirectlyAffectedSize=0;
+                if (updateTrailingElements) {
+                    indirectlyAffectedStart = endPos + 1;
+                    indirectlyAffectedEnd = oldValue.size() - 1;
+                    indirectlyAffectedSize = indirectlyAffectedEnd - indirectlyAffectedStart + 1;
+                }
+                V[] ourNewElements = Util.<V>newObjectArray(directlyAffectedSize + indirectlyAffectedSize);
+                for (int i = 0; i < directlyAffectedSize; i++)
+                    ourNewElements[i] = computeElement(newElements.get(i), dependsOnIndex ? startPos + i : -1);
+                for (int i = 0; i < indirectlyAffectedSize; i++)
+                    ourNewElements[directlyAffectedSize + i]
+                            = computeElement(oldValue.get(indirectlyAffectedStart + i), indirectlyAffectedStart + i + elementsAdded);
+
+                Sequence<V> vSequence = Sequences.make(clazz, ourNewElements);
+                updateSlice(startPos, updateTrailingElements ? indirectlyAffectedEnd : endPos, vSequence);
+            }
+        });
         return Sequences.make(clazz, intermediateResults);
     }
 
-    private class MyChangeListener implements SequenceReplaceListener<T> {
-        public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-            V[] ourNewElements = Util.<V>newObjectArray(Sequences.size(newElements));
-            for (int i = 0; i < ourNewElements.length; i++)
-                ourNewElements[i] = generator.getValue(newElements.get(i), i);
-            Sequence<V> vSequence = Sequences.make(clazz, ourNewElements);
-            updateSlice(startPos, endPos, vSequence);
-        }
-    }
 }
