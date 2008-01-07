@@ -10,12 +10,20 @@ import com.sun.javafx.runtime.location.AbstractSequenceLocation;
  * @author Brian Goetz
  */
 public abstract class AbstractBoundSequence<T> extends AbstractSequenceLocation<T> {
+    private boolean initialized = false;
 
-    protected AbstractBoundSequence(Class<T> clazz, boolean valid, boolean lazy) {
-        super(clazz, valid, lazy);
+    // AbstractBoundSequences start out in the invalid state, and go to the valid state exactly once,
+    // and thereafter stay in the valid state.  They cannot be lazily bound.
+
+    protected AbstractBoundSequence(Class<T> clazz) {
+        super(clazz, false, false);
     }
 
-    protected abstract Sequence<T> computeInitial();
+    /** Called after construction to compute the value of the sequence */
+    protected abstract Sequence<T> computeValue();
+
+    /** Called once after construction so that listeners may be registered */
+    protected abstract void initialize();
 
     protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
         previousValue = value;
@@ -27,7 +35,9 @@ public abstract class AbstractBoundSequence<T> extends AbstractSequenceLocation<
 
     private void ensureValid() {
         if (!isValid()) {
-            value = computeInitial();
+            if (!initialized)
+                initialize();
+            value = computeValue();
             setValid(true);
         }
     }
@@ -58,8 +68,6 @@ public abstract class AbstractBoundSequence<T> extends AbstractSequenceLocation<
 
     @Override
     public void invalidate() {
-        if (isValid())
-            previousValue = value;
-        super.invalidate();
+        throw new UnsupportedOperationException();
     }
 }

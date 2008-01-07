@@ -14,10 +14,19 @@ abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequence<V> i
     private final SequenceLocation<T> sequenceLocation;
     private final boolean dependsOnIndex;
 
+    /**
+     * Create a bound list comprehension that meets the following criteria: no where clause, one dimension, and each
+     * iteration contributes exactly one value.  For each input element, the computeElement() method will be called to
+     * calculate the corresponding output element.
+     *
+     * @param clazz The Class of the resulting sequence element type
+     * @param sequenceLocation The input sequence
+     * @param dependsOnIndex Whether or not the computeElement makes use of the indexof operator
+     */
     public SimpleBoundComprehension(Class<V> clazz,
                                     SequenceLocation<T> sequenceLocation,
                                     boolean dependsOnIndex) {
-        super(clazz, false, false);
+        super(clazz);
         this.sequenceLocation = sequenceLocation;
         this.dependsOnIndex = dependsOnIndex;
     }
@@ -29,12 +38,15 @@ abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequence<V> i
 
     abstract V computeElement(T element, int index);
 
-    protected Sequence<V> computeInitial() {
+    protected Sequence<V> computeValue() {
         Sequence<T> sequence = sequenceLocation.get();
         V[] intermediateResults = Util.<V>newObjectArray(sequence.size());
         for (int i = 0; i < intermediateResults.length; i++)
             intermediateResults[i] = computeElement(sequence.get(i), i);
+        return Sequences.make(clazz, intermediateResults);
+    }
 
+    protected void initialize() {
         sequenceLocation.addChangeListener(new SequenceReplaceListener<T>() {
             public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 // IF the closure depends on index, then an insertion or deletion causes recomputation of the whole
@@ -63,7 +75,6 @@ abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequence<V> i
                 updateSlice(startPos, updateTrailingElements ? indirectlyAffectedEnd : endPos, vSequence);
             }
         });
-        return Sequences.make(clazz, intermediateResults);
     }
 
 }

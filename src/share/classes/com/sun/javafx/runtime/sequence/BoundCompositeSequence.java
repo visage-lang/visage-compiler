@@ -37,16 +37,15 @@ class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implements Sequ
     private final SequenceLocation<? extends T>[] locations;
     private final int[] startPositions;
 
-    BoundCompositeSequence(Class<T> clazz, boolean lazy, SequenceLocation<? extends T>... locations) {
-        super(clazz, false, lazy);
+    BoundCompositeSequence(Class<T> clazz, SequenceLocation<? extends T>... locations) {
+        super(clazz);
         this.locations = locations;
         this.startPositions = new int[locations.length];
     }
 
-    protected Sequence<T> computeInitial() {
+    protected Sequence<T> computeValue() {
         Sequence<? extends T>[] sequences = Util.newSequenceArray(locations.length);
         for (int i = 0, offset = 0; i < locations.length; i++) {
-            locations[i].addChangeListener(new MyListener(i));
             sequences[i] = locations[i].get();
             Class eClass = locations[i].get().getElementType();
             if (!clazz.isAssignableFrom(eClass))
@@ -58,23 +57,27 @@ class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implements Sequ
         return Sequences.concatenate(clazz, sequences);
     }
 
+    protected void initialize() {
+        class MyListener<V extends T> implements SequenceReplaceListener<V> {
+            private final int index;
 
-    private class MyListener<V extends T> implements SequenceReplaceListener<V> {
-        private final int index;
+            private MyListener(int index) {
+                this.index = index;
+            }
 
-        private MyListener(int index) {
-            this.index = index;
+            public void onReplace(int startPos, int endPos, Sequence<? extends V> newElements,
+                                  Sequence<V> oldValue, Sequence<V> newValue) {
+                int actualStart = startPositions[index] + startPos;
+                int actualEnd = startPositions[index] + endPos;
+                int delta = Sequences.size(newElements) - (endPos - startPos + 1);
+                if (delta != 0)
+                    for (int i = index + 1; i < startPositions.length; i++)
+                        startPositions[i] += delta;
+                updateSlice(actualStart, actualEnd, newElements);
+            }
         }
 
-        public void onReplace(int startPos, int endPos, Sequence<? extends V> newElements,
-                              Sequence<V> oldValue, Sequence<V> newValue) {
-            int actualStart = startPositions[index] + startPos;
-            int actualEnd = startPositions[index] + endPos;
-            int delta = Sequences.size(newElements) - (endPos - startPos + 1);
-            if (delta != 0)
-                for (int i = index + 1; i < startPositions.length; i++)
-                    startPositions[i] += delta;
-            updateSlice(actualStart, actualEnd, newElements);
-        }
+        for (int i = 0; i < locations.length; i++)
+            locations[i].addChangeListener(new MyListener(i));
     }
 }

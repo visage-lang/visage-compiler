@@ -40,7 +40,7 @@ public class BoundSequences {
      *  
      */
     public static <T> SequenceLocation<T> concatenate(Class<T> clazz, SequenceLocation<? extends T>... locations) {
-        return new BoundCompositeSequence<T>(clazz, false, locations);
+        return new BoundCompositeSequence<T>(clazz, locations);
     }
 
     /** Construct a bound sequence of the form
@@ -48,6 +48,6 @@ public class BoundSequences {
      * where x is a sequence.
      */
     public static<T> SequenceLocation<T> reverse(SequenceLocation<T> sequence) {
-        return new BoundReverseSequence<T>(sequence, false);
+        return new BoundReverseSequence<T>(sequence);
     }
 }
