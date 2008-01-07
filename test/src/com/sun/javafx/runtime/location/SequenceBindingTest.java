@@ -443,6 +443,40 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
     }
 
+    public void testBoundSingleton() {
+        IntLocation i = IntVar.make(0);
+        ObjectLocation<Integer> o = i.asObjectLocation();
+        SequenceLocation<Integer> s = BoundSequences.singleton(Integer.class, o);
+        HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
+        s.addChangeListener(hl);
+
+        assertEquals(s, 0);
+        i.set(1);
+        assertEquals(s, 1);
+        assertEqualsAndClear(hl, "[0, 0] => [ 1 ]");
+
+        o = ObjectVar.make(null);
+        s = BoundSequences.singleton(Integer.class, o);
+        s.addChangeListener(hl);
+
+        assertEquals(s);
+        o.set(1);
+        assertEquals(s, 1);
+        assertEqualsAndClear(hl, "[0, -1] => [ 1 ]");
+
+        o.set(2);
+        assertEquals(s, 2);
+        assertEqualsAndClear(hl, "[0, 0] => [ 2 ]");
+
+        o.set(null);
+        assertEquals(s);
+        assertEqualsAndClear(hl, "[0, 0] => [ ]");
+
+        o.set(3);
+        assertEquals(s, 3);
+        assertEqualsAndClear(hl, "[0, -1] => [ 3 ]");
+    }
+
     public void testSliceTriggers() {
         SequenceLocation<Integer> a = SequenceVar.make(Sequences.make(Integer.class, 1, 2, 3));
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();

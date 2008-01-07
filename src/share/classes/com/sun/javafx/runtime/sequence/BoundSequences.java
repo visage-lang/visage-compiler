@@ -25,6 +25,8 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.location.IntLocation;
+import com.sun.javafx.runtime.location.ObjectLocation;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
 /**
@@ -49,5 +51,21 @@ public class BoundSequences {
      */
     public static<T> SequenceLocation<T> reverse(SequenceLocation<T> sequence) {
         return new BoundReverseSequence<T>(sequence);
+    }
+
+    /** Construct a bound sequence of the form
+     *   bind [ x ]
+     * where x is an instance.
+     */
+    public static<T> SequenceLocation<T> singleton(Class<T> clazz, ObjectLocation<T> location) {
+        return new BoundSingletonSequence<T>(clazz, location);
+    }
+
+    /** Construct a bound sequence of the form
+     *   bind [ x ]
+     * where x is an Integer instance.
+     */
+    public static<T> SequenceLocation<Integer> singleton(IntLocation location) {
+        return new BoundSingletonSequence<Integer>(Integer.class, location.asObjectLocation());
     }
 }
