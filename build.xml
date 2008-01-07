@@ -327,7 +327,12 @@
     </target>
 
     <target name="runtime" depends="jar">
-        <ant dir="${runtime.dir}" antfile="build.xml" target="jar" inheritall="false" />
+        <ant dir="${runtime.dir}" antfile="build.xml" target="jar" inheritall="false">
+            <property name="tools.dir" value="${tools.dir}"/>
+            <propertyset>
+                <propertyref regex="^.*\.class\.path$$"/>
+            </propertyset>
+        </ant>
     </target>
     
     <target name="install-scripts">
