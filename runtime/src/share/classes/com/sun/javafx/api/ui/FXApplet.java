@@ -53,15 +53,19 @@ public class FXApplet extends JApplet {
 
     public FXApplet() {
         super();
-
+    }
+    
+    @Override
+    public void init() {
         // invoke the applet's JavaFX Script runtime entry point
         try {
             Class<?> appletClass = getAppletClass();
             if (appletClass != null) {
                 Method main = appletClass.getMethod("javafx$run$");
                 Object result = main.invoke(null);
-                if (result != null)
+                if (result != null) {
                     setContentAttribute(result);
+                }
             }
         } catch (Throwable t) {
             Logger.getLogger(FXApplet.class.getName()).log(Level.SEVERE, null, t);
@@ -87,7 +91,7 @@ public class FXApplet extends JApplet {
             clsname = getParameter("AppletClass");
         } catch (NullPointerException e) {
             // true if applet class is instantiated from test
-            return null;
+            clsname = null;
         }
         return clsname != null ? Class.forName(clsname) : getClass();
         

@@ -37,7 +37,7 @@ public class Applet extends FXApplet {
         setJMenuBar(menubar.getComponent() as JMenuBar);
     }
     
-    public attribute content: Widget on replace  {
+    public attribute content: Widget on replace {
         setContentPane(content.getComponent());
     }
     
@@ -63,26 +63,20 @@ public class Applet extends FXApplet {
     public function createComponent():JComponent{
         return null;
     }
-
-    public function <<init>>(): Void {}
     
     public function start(): Void {}
     
     public function stop(): Void {}
     
-    public function destroy(): Void {}
-    
     protected function setContentAttribute(object: java.lang.Object): Void {
         if (object instanceof Applet) {
             var applet = object as Applet;
-            setContentPane(applet.content.getComponent());
+            content = applet.content;
         } else if (object instanceof Widget) {
             var widget = object as Widget;
-            setContentPane(widget.getComponent());
+            content = widget;
         } else {
             throw new IllegalArgumentException("bad content type: {object.getClass()}");
         }
     }
-    
-    private function log(s) { java.lang.System.out.println(s);}
 }
