@@ -1955,7 +1955,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         } else if (t.tag == TypeTags.WILDCARD) {
             WildcardType wtype = (WildcardType) t;
             return make.at(diagPos).Wildcard(make.TypeBoundKind(wtype.kind),
-                    makeTypeTree(wtype.type, diagPos, makeIntf));
+                    wtype.kind == BoundKind.UNBOUND ? null
+                    : makeTypeTree(wtype.type, diagPos, makeIntf));
         } else if (t.tag == TypeTags.ARRAY) {
             return make.at(diagPos).TypeArray(makeTypeTree(types.elemtype(t), diagPos, makeIntf));
         } else {
