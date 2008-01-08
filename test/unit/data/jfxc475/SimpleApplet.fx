@@ -1,8 +1,5 @@
 /*
- * SimpleApplet.fx
- *
- * @test
- * @run
+ * SimpleApplet.fx, referenced by jfxc1
  *
  * Created on Dec 20, 2007, 2:49:07 PM
  */
