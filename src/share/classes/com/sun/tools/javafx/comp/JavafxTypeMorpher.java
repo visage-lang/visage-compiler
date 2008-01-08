@@ -286,8 +286,8 @@ public class JavafxTypeMorpher {
         defaultValueByKind = new Object[TYPE_KIND_COUNT];
         defaultValueByKind[TYPE_KIND_OBJECT] = null;
         defaultValueByKind[TYPE_KIND_DOUBLE] = new Double(0.0);
-        defaultValueByKind[TYPE_KIND_BOOLEAN] = new Integer(0);
-        defaultValueByKind[TYPE_KIND_INT] = new Integer(0);
+        defaultValueByKind[TYPE_KIND_BOOLEAN] = Integer.valueOf(0);
+        defaultValueByKind[TYPE_KIND_INT] = Integer.valueOf(0);
         defaultValueByKind[TYPE_KIND_SEQUENCE] = null; //TODO: empty sequence
     }
        

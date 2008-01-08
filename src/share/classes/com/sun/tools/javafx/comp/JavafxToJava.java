@@ -108,7 +108,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         Normal
     }
 
-    class State {
+    static class State {
 
         Wrapped wrap;
         Convert convert;
@@ -350,14 +350,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     JCStatement translateExpressionToStatement(JCExpression expr, Type targetType) {
         return translateExpressionToStatement(expr, state,  targetType);
-    }
-
-     private List<JCStatement> translateStatements(List<JCStatement> stmts, State newState) {
-        State prevState = state;
-        state = newState;
-        List<JCStatement> ret = translateStatements(stmts);
-        state = prevState;
-        return ret;
     }
 
    private  <T extends JCTree> T translate(T tree, Wrapped wrap, Convert convert) {
@@ -3009,7 +3001,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     // Fix up the owner of the ForeachInClause.var JFXVar symbol. When it is created it is set to be 
     // the outer ClassDeclaration and therefor is treated as an attribute instead of local var.
-    class ForEachInClauseOwnerFixer extends JavafxTreeScanner {
+    static class ForEachInClauseOwnerFixer extends JavafxTreeScanner {
         Symbol currentSymbol;
         
         @Override

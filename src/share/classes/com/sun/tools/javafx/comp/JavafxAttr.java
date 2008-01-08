@@ -257,16 +257,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     Symbol thisSym(DiagnosticPosition pos, JavafxEnv<JavafxAttrContext> env) {
         return rs.resolveSelf(pos, env, env.enclClass.sym, names._this);
     }
-
-    private JCTree breakTree = null;
-        
-    private static class BreakAttr extends RuntimeException {
-        static final long serialVersionUID = -6924771130405446405L;
-        private JavafxEnv<JavafxAttrContext> env;
-        private BreakAttr(JavafxEnv<JavafxAttrContext> env) {
-            this.env = env;
-        }
-    }
    
 /* ************************************************************************
  * Visitor methods
@@ -315,8 +305,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             this.pt = pt;
             this.pSequenceness = pSequenceness;
             tree.accept(this);
-            if (tree == breakTree)
-                throw new BreakAttr(env);
             return result;
         } catch (CompletionFailure ex) {
             tree.type = syms.errType;
@@ -916,7 +904,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         lhsSym.flags_field |= JavafxFlags.ASSIGNED_TO;        
         result = check(tree, capturedType, VAL, pkind, pt, pSequenceness);
 
-        if (lhsSym != null && tree.rhs != null) {
+        if (tree.rhs != null) {
             JFXVar lhsVar = varSymToTree.get(lhsSym);
             if (lhsVar != null && (lhsVar.getJFXType() instanceof JFXTypeUnknown)) {
                 if ((lhsVar.type == null || lhsVar.type == syms.javafx_AnyType)) {
@@ -1281,8 +1269,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             ? ((JCTypeApply) clazz).clazz
             : clazz;
 
-        JCExpression clazzid1 = clazzid; // The same in fully qualified form
-
         // Attribute clazz expression and store
         // symbol + type back into the attributed tree.
         Type clazztype = chk.checkClassType(
@@ -1406,8 +1392,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
               owntype = clazz.type;  // this give declared type, where clazztype would give anon type
         }
 
-        //Scope members = owntype.tsym.members();  //TODO: should see new members
-        Scope members = clazz.type.tsym.members();
         for (JFXObjectLiteralPart pt : tree.getParts()) {
             JFXObjectLiteralPart part = (JFXObjectLiteralPart)pt;
             Symbol memberSym = rs.findIdentInType(env, clazz.type, part.name, VAR);
@@ -1611,11 +1595,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             paramTypes = paramTypes.append(var.type);
         }
         
-        if (m != null) {
-            m.params = paramSyms;
-            if (m.type != null && m.type instanceof MethodType) {
-               ((MethodType)m.type).argtypes = paramTypes;
-            }
+        m.params = paramSyms;
+        if (m.type != null && m.type instanceof MethodType) {
+           ((MethodType)m.type).argtypes = paramTypes;
         }
     }
 
@@ -2531,7 +2513,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             else {
                 supType = supSym.type;
             }
-            if (!supType.isInterface() && 
+            if (supType != null && !supType.isInterface() && 
                     !types.isJFXClass(supType.tsym) && 
                     !supType.isPrimitive() &&
                     javafxClassSymbol.type instanceof ClassType) {
@@ -3518,7 +3500,7 @@ public
                 if (setReturnType != null) {
                     JFXType oldType = tree.operation.getJFXReturnType();
                     tree.operation.rettype = make.TypeClass(make.TypeIdent(typeTag), oldType.getCardinality());
-                    if (mt != null && mt instanceof MethodType) {
+                    if (mt instanceof MethodType) {
                         ((MethodType)mt).restype = setReturnType;
                     }
                     
