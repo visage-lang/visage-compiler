@@ -26,18 +26,15 @@
 package com.sun.tools.javafx.script;
 
 import com.sun.javafx.api.*;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Writer;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.tools.*;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.io.File;
-import java.io.LineNumberReader;
-import java.io.StringReader;
 /**
  * Simple interface to the JavaFX Script compiler using JSR 199 Compiler API, 
  * based on https://scripting.dev.java.net's JavaCompiler by A. Sundararajan.
@@ -52,9 +49,9 @@ public class JavaFXScriptCompiler {
         tool = JavafxcTool.create();
     }
 
-    public Map<String, byte[]> compile(String source, String fileName) {
+    public Map<String, byte[]> compile(String filename, String source) {
         PrintWriter err = new PrintWriter(System.err);
-        return compile(source, fileName, err, null, null);
+        return compile(filename, source, err, null, null);
     }
 
     public Map<String, byte[]> compile(String fileName, String source, 
@@ -72,6 +69,12 @@ public class JavaFXScriptCompiler {
                                     String classPath) {
         return compile(fileName, source, err, sourcePath, classPath,
                 new DiagnosticCollector<JavaFileObject>(), true);
+    }
+
+    public Map<String, byte[]> compile(String filename) throws IOException {
+        String source = readFully(new FileReader(filename));
+        PrintWriter err = new PrintWriter(System.err);
+        return compile(filename, source, err, null, null);
     }
 
     /**
@@ -160,6 +163,17 @@ public class JavaFXScriptCompiler {
         for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
             log.report((com.sun.tools.javac.util.JCDiagnostic)diagnostic);
         }
+    }
+
+    // read a Reader fully and return the content as string
+    private String readFully(Reader reader) throws IOException {
+        char[] arr = new char[8*1024]; // 8K at a time
+        StringBuilder buf = new StringBuilder();
+        int numChars;
+        while ((numChars = reader.read(arr, 0, arr.length)) > 0) {
+            buf.append(arr, 0, numChars);
+        }
+        return buf.toString();
     }
     
     private static class RedirectedLog extends com.sun.tools.javac.util.Log {

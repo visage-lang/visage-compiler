@@ -54,8 +54,6 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
 
     private SequenceVar(Sequence<T> value) {
         super(value.getElementType(), true, false);
-        if (value == null)
-            throw new NullPointerException();
         replaceValue(value);
     }
 
@@ -109,7 +107,9 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
     public void deleteValue(final T targetValue) {
         delete(new SequencePredicate<T>() {
             public boolean matches(Sequence<? extends T> sequence, int index, T value) {
-                return ((value == null && targetValue == null || value.equals(targetValue)));
+                if (value == null)
+                    return targetValue == null;
+                return value.equals(targetValue);
             }
         });
     }

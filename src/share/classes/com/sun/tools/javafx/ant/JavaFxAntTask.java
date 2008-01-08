@@ -82,8 +82,6 @@ public class JavaFxAntTask extends Javac {
      */
     @Override
     protected void compile() {
-        String compilerImpl = getCompiler();
-
         if (compileList.length > 0) {
             log("Compiling " + compileList.length + " source file"
                     + (compileList.length == 1 ? "" : "s")

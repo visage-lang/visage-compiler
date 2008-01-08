@@ -38,7 +38,7 @@ import com.sun.tools.javac.util.Name;
  */
 public class JFXSetAttributeToObjectBeingInitialized extends JFXStatement implements SetAttributeToObjectTree {
     private final Name name; // TODO: Tools might need position information. Make this an ident.
-    VarSymbol sym;
+    private final VarSymbol sym;
     
     protected JFXSetAttributeToObjectBeingInitialized(Name name,
             VarSymbol sym) {
@@ -61,5 +61,9 @@ public class JFXSetAttributeToObjectBeingInitialized extends JFXStatement implem
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
         return visitor.visitSetAttributeToObject(this, data);
+    }
+    
+    VarSymbol getSymbol() {
+        return sym;
     }
 }

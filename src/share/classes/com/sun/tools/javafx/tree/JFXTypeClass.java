@@ -38,7 +38,7 @@ import com.sun.tools.javac.tree.JCTree;
  */
 public class JFXTypeClass extends JFXType implements TypeClassTree {
     private final JCExpression className;
-    ClassSymbol sym;
+    private final ClassSymbol sym;
     
     /*
      * @param cardinality one of the cardinality constants
@@ -73,5 +73,9 @@ public class JFXTypeClass extends JFXType implements TypeClassTree {
     @Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitTypeClass(this, d);
+    }
+    
+    ClassSymbol getSymbol() {
+        return sym;
     }
 }

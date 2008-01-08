@@ -76,7 +76,6 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
      * A file object used to represent a Java class coming from the parent class loader
      */
     private static class ClassResource extends SimpleJavaFileObject {
-	String className;
 	URL url;
 	static URI toURI(URL u) {
 	    try {
@@ -85,12 +84,12 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
 		throw new RuntimeException(e);
 	    }
 	}
-	public ClassResource(String className, URL u) {
+	public ClassResource(URL u) {
 	    super(toURI(u), Kind.CLASS);
-	    this.className = className;
 	    this.url = u;
 	}
 
+        @Override
         public InputStream openInputStream() throws IOException {
             return url.openStream();
         }
@@ -219,7 +218,7 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
 		parentClassLoader.getResource(className.replace('.', '/') + ".class");
 	    if (res != null) {
 		System.out.println("creating class resource "+className);
-		return new ClassResource(className, res);
+		return new ClassResource(res);
 	    }
 	}
 	return super.getJavaFileForInput(location, className, kind);
@@ -254,7 +253,7 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
 	for (SimpleJavaFileObject b : buffers) {
 	    String name = b.getName().replace("/", ".");
 	    name = name.substring(1, name.length() - (name.endsWith(EXT) ? EXT.length() : 0));
-	    if (prefix == "") {
+	    if (prefix.length() == 0) {
 		if (!name.contains(".")) {
 		    results.add(b);
 		}
@@ -276,6 +275,7 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
         return buffer;
     }
 
+    @Override
     public String inferBinaryName(Location location, JavaFileObject file) {
 	if (file instanceof StringInputBuffer) {
 	    return ((StringInputBuffer)file).getBinaryName();
