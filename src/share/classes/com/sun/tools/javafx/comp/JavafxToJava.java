@@ -75,6 +75,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     final JavafxTypeMorpher typeMorpher;
     private final JavafxDefs defs;
     final private JavafxResolve rs;
+    final private JavafxAttr attr;
     
     static final private String privateAnnotationStr = "com.sun.javafx.runtime.Private";
     static final private String protectedAnnotationStr = "com.sun.javafx.runtime.Protected";
@@ -194,6 +195,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         target = Target.instance(context);
         rs = JavafxResolve.instance(context);
         defs = JavafxDefs.instance(context);
+        attr = (JavafxAttr)JavafxAttr.instance(context);
     }
     
     /** Visitor method: Translate a single node.
@@ -1382,7 +1384,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         DiagnosticPosition diagPos = tree.pos();
         JCExpression selected = tree.getExpression();
         Type selectedType = selected.type;
-        
+
+        // Support for calling super methods as described in JFXC-333
+        if (attr.superSelects.contains(tree)) {
+            result = make.Select(make.TypeCast(makeTypeTree(selected.type, diagPos, false), make.Ident(defs.receiverName)), tree.name);
+            result.type = tree.type;
+            ((JCFieldAccess)result).sym = tree.sym;
+            return;
+        }
+
         // this may or may not be in a LHS but in either
         // event the selector is a value expression
         JCExpression translatedSelected = translate(selected, Wrapped.InNothing);
@@ -1482,7 +1492,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 result = make.at(diagPos).Ident(tree.type.tsym.name);
             }
             else {
-                JCFieldAccess superSelect = make.at(diagPos).Select(make.at(diagPos).Ident(defs.receiverName), tree.name);
+               JCFieldAccess superSelect = make.at(diagPos).Select(make.at(diagPos).Ident(defs.receiverName), tree.name);
                 superSelect.type = tree.type;
                 superSelect.sym = tree.sym;
                 result = superSelect;
@@ -2387,7 +2397,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                                                                  && ((JCIdent) transMeth).sym instanceof MethodSymbol 
                                                                                  && isInnerFunction((MethodSymbol) ((JCIdent) transMeth).sym));
 
-            private final boolean testForNull =  generateNullChecks && msym!=null  && !sym.isStatic() && selector!=null && !superCall && !thisCall && !useInvoke;
+            private final boolean testForNull =  generateNullChecks && msym!=null  &&
+                    !sym.isStatic() && selector!=null && !superCall && 
+                    !thisCall && !useInvoke &&
+                    !attr.superSelects.contains(tree.meth);
 
             private final boolean callBound = generateBoundFunctions
                     && state.isBound()

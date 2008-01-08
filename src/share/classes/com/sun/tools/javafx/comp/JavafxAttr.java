@@ -91,7 +91,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     private final Target target;
     private final JavafxTypes types;
     private final Annotate annotate;
-    private JavafxInitializationBuilder initBuilder;
 
     /*
      * other instance information
@@ -104,6 +103,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     private final Source source;
 
     private Map<JavafxVarSymbol, JFXVar> varSymToTree = new HashMap<JavafxVarSymbol, JFXVar>();
+    Set<JCFieldAccess> superSelects = new HashSet<JCFieldAccess>();
     
     public static JavafxAttr instance(Context context) {
         JavafxAttr instance = context.get(javafxAttrKey);
@@ -128,7 +128,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         target = Target.instance(context);
         types = JavafxTypes.instance(context);
         annotate = Annotate.instance(context);
-        initBuilder = JavafxInitializationBuilder.instance(context);
 
         Options options = Options.instance(context);
 
@@ -730,8 +729,28 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 if ((sym.flags() & STATIC) == 0 &&
                     sym.name != names._super &&
                     (sym.kind == VAR || sym.kind == MTH)) {
-                    rs.access(rs.new StaticError(sym),
+
+                    boolean isSuperCall = false;
+                    if (sitesym != null && env != null && env.enclClass != null) { 
+                        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+                        Set superSet = new HashSet<Type>();
+                        supertypes.append(env.enclClass.type);
+                        superSet.add(env.enclClass.type);
+
+                        rs.getSupertypes(env.enclClass.sym, types, supertypes, superSet);
+
+                        if (superSet.contains(sitesym.type)) {
+                            isSuperCall = true;
+                        }
+                    }
+                    
+                    if (!isSuperCall) {
+                        rs.access(rs.new StaticError(sym),
                               tree.pos(), site, sym.name, true);
+                    }
+                    else {
+                        superSelects.add(tree);
+                    }
                 }
             }
         }
@@ -3415,6 +3434,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     public void clearCaches() {
         varSymToTree = null;
+        superSelects = null;
     }
 
     void fixOverride(JFXOperationDefinition tree, MethodSymbol m) {
