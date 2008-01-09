@@ -37,7 +37,7 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
         addChangeListener(new SequenceReplaceListener<T>() {
             public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 int newSize = Sequences.size(newElements);
-                if (endPos-startPos+1 == newSize) {
+                if (endPos-startPos+1 == newSize && newSize == 1) {
                     for (int i=startPos; i<=endPos; i++)
                         listener.onReplace(i, oldValue.get(i), newValue.get(i));
                 }

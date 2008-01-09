@@ -375,7 +375,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
         a.set(Sequences.range(1, 2));
         assertEquals(c, 1, 2, 3, 5, 19);
-        assertEqualsAndClear(hl, "r-0-2-1", "r-1-9-2");
+        assertEqualsAndClear(hl, "d-1-9", "d-0-2", "i-0-1", "i-1-2");
 
         b.set(Sequences.range(3, 4));
         assertEquals(c, 1, 2, 3, 4);
