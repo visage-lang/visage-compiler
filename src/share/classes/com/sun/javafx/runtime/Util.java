@@ -19,4 +19,11 @@ public class Util {
         return (Sequence<T>[]) new Sequence[size];
 
     }
+
+    public static int powerOfTwo(int current, int desired) {
+        int capacity = current;
+        while (capacity < desired)
+            capacity <<= 1;
+        return capacity;
+    }
 }

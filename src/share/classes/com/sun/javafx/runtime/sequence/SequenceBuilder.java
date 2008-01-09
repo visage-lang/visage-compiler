@@ -50,19 +50,12 @@ public class SequenceBuilder<T> {
      * initialSize elements. */
     public SequenceBuilder(Class<T> clazz, int initialSize) {
         this.clazz = clazz;
-        array = Util.<T>newObjectArray(powerOfTwo(1, initialSize));
-    }
-
-    private int powerOfTwo(int current, int desired) {
-        int capacity = current;
-        while (capacity < desired)
-            capacity <<= 1;
-        return capacity;
+        array = Util.<T>newObjectArray(Util.powerOfTwo(1, initialSize));
     }
 
     private void ensureSize(int newSize) {
         if (array.length < newSize) {
-            int newCapacity = powerOfTwo(array.length, newSize);
+            int newCapacity = Util.powerOfTwo(array.length, newSize);
             T[] newArray = Util.<T>newObjectArray(newCapacity);
             System.arraycopy(array, 0, newArray, 0, size);
             array = newArray;
@@ -97,7 +90,7 @@ public class SequenceBuilder<T> {
 
     /** Erase the current contents of the SequenceBuilder */
     public void clear() {
-        array = Util.<T>newObjectArray(powerOfTwo(1, DEFAULT_SIZE));
+        array = Util.<T>newObjectArray(Util.powerOfTwo(1, DEFAULT_SIZE));
         size = 0;
     }
 
