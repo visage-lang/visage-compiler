@@ -77,7 +77,7 @@ public class Main {
      */
     public static int compile(String[] args) {
 	com.sun.tools.javafx.main.Main compiler =
-	    new com.sun.tools.javafx.main.Main("javafx");
+	    new com.sun.tools.javafx.main.Main("javafxc");
 	return compiler.compile(args);
     }
 

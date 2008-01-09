@@ -83,16 +83,16 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     /** The current version number as a string.
      */
     public static String version() {
-        return version("javafx.version");
+        return version("release");
     }
 
     /** The current full version number as a string.
      */
     public static String fullVersion() {
-        return version("javafx.full"); // mm.mm.oo[-milestone]-build
+        return version("full"); // mm.mm.oo[-milestone]-build
     }
 
-    private static final String versionRBName = "com.sun.tools.javafx.resources.javafxcompiler";
+    private static final String versionRBName = "com.sun.tools.javafx.resources.version";
     private static ResourceBundle versionRB;
 
     private static String version(String key) {

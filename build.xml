@@ -116,12 +116,14 @@
     <target name="generate-parserv2" unless="parserv2.uptodate" >
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
             <arg value="${antlr.grammarv2.file}" />
+            <jvmarg value="-Xmx256m"/>
         </java>
     </target>
 
     <target name="generate-parserv3" unless="parserv3.uptodate" >
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
             <arg value="${antlr.grammarv3.file}" />
+            <jvmarg value="-Xmx256m"/>
         </java>
     </target>
 
@@ -130,6 +132,7 @@
             <arg value="${antlr.grammarv3w.file}" />
             <arg value="-lib" />
             <arg value="${antlr.src.dir}" />
+            <jvmarg value="-Xmx256m"/>
         </java>
     </target>
 
@@ -147,14 +150,31 @@
             <arg value="png" />
             <arg value="-o" />
             <arg value="${syntax.diagrams.dir}" />
+            <jvmarg value="-Xmx256m"/>
         </java>
     </target>
 
     <target name="-do-compile" depends="init,deps-jar,-pre-pre-compile,-pre-compile" if="have.sources">
+        <pcompile srcdir="${src.classes.dir}/com"
+                  destdir="${build.generated.dir}/com"
+                  includes="${includes}"/>
+        <copy todir="${build.generated.dir}">
+            <fileset dir="${src.classes.dir}" includes="${includes}"/>
+            <globmapper from="*.properties-template" to="*.properties"/>
+            <filterset begintoken="$(" endtoken=")">
+                <filter token="RELEASE" value="${release}"/>
+                <filter token="FULL_VERSION" value="${full.version}"/>
+            </filterset>
+        </copy>
+        <pcompile srcdir="${build.generated.dir}"
+                  destdir="${build.generated.dir}"
+                  includes="**/*.properties"/>
         <javac compiler="modern" fork="true"
-               srcdir="${src.classes.dir}" destdir="${build.classes.dir}"
+               destdir="${build.classes.dir}"
                debug="${javac.debug}" deprecation="${javac.deprecation}"
                source="${javac.source}" target="${javac.target}" includeantruntime="false">
+            <src path="${src.classes.dir}"/>
+            <src path="${build.generated.dir}"/>
             <classpath>
                 <path path="${javac.classpath}"/>
             </classpath>
@@ -190,7 +210,7 @@
         <uptodate property="parserv3.uptodate" srcfile="${antlr.grammarv3.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv3}Parser.java" />
         <uptodate property="parserv3w.uptodate" srcfile="${antlr.grammarv3w.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv3w}.java" />
     </target>
-    <target name="-pre-compile" depends="generate-parserv2,generate-parserv3,generate-parserv3w"/>
+    <target name="-pre-compile" depends="generate-parserv2,generate-parserv3,generate-parserv3w,-def-pcompile"/>
     <target name="-post-compile" depends="compile-runtime-fx" />
     <target depends="init" name="-javadoc-build">
         <mkdir dir="${dist.javadoc.dir}"/>
@@ -200,6 +220,16 @@
                 <path path="${javac.classpath}"/>
             </classpath>
         </javadoc>
+    </target>
+    
+    <target name="-def-pcompile">
+        <mkdir dir="${build.buildtools.dir}"/>
+        <javac srcdir="${src.buildtools.dir}/CompileProperties"
+               destdir="${build.buildtools.dir}/"
+               classpath="${ant.home}/lib/ant.jar"/>
+        <taskdef name="pcompile"
+                 classname="CompilePropertiesTask" 
+                 classpath="${build.buildtools.dir}/"/>
     </target>
 
     <!-- Stuff dealing with adding coverage to JUnit execution -->
@@ -277,7 +307,7 @@
                  classpathref="findbugs.class.path" />
         <mkdir dir="${dist.findbugs.dir}"/>
         <findbugs output="xml" outputFile="${build.dir}/findbugs.xml" home="${findbugs.dir}" jvmargs="-Xmx512m"
-                  excludeFilter="findbugs-exclude.xml">
+                  projectName="OpenJFX compiler ${full.version}" excludeFilter="findbugs-exclude.xml">
             <class location="${build.classes.dir}"/>
             <auxclasspath path="${javac.classpath}"/>
             <sourcepath path="${src.classes.dir}"/>
@@ -341,7 +371,7 @@
         </copy>
         <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>
     </target>
-
+    
     <target name="runtime-clean" >
         <ant dir="${runtime.dir}" antfile="build.xml" target="clean" inheritall="false" />
     </target>
@@ -352,5 +382,9 @@
         <ant antfile="bootstrap.xml" target="prepare"/>
         <antcall target="clean"/>
         <ant antfile="bootstrap.xml" target="clean"/>
-    </target>        
+    </target>
+    
+    <target name="dist" description="Build distribution zip file" depends="all">
+        
+    </target>
 </project>
