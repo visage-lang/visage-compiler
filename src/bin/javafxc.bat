@@ -15,6 +15,8 @@ goto setArguments
 :noJavaHome
 if "%_JAVACMD%" == "" set _JAVACMD=java.exe
 
+if "%1" == "" goto printhelp
+
 :setArguments
 if "%CLASSPATH%" == "" set _CP_=.
 if not "%CLASSPATH%" == "" set _CP_=.;%CLASSPATH%
@@ -52,8 +54,12 @@ set _VAL=
 set _CMP=
 
 "%_JAVACMD%" %_JVM_ARGS% "-Xbootclasspath/p:%_JAVAFXC_HOME%\javafxc.jar;%_JAVAFXC_HOME%\javafxrt.jar" com.sun.tools.javafx.Main -classpath "%_CLASSPATH%" %_FX_ARGS%
+goto cleanup
 
-REM cleanup
+:printhelp
+"%_JAVACMD%" "-Xbootclasspath/p:%_JAVAFXC_HOME%\javafxc.jar" com.sun.tools.javafx.Main -help
+
+:cleanup
 if not "%_JAVAFXC_HOME"=="" set _JAVAFXC_HOME=
 if not "%_JAVACMD%"=="" set _JAVACMD=
 if not "%_JVM_ARGS%"=="" set _JVM_ARGS=

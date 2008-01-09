@@ -45,6 +45,13 @@ if [ ! -x "$JAVA_CMD" ] ; then
   exit 1
 fi
 
+bootclasspath=$HOME/javafxc.jar:$HOME/javafxrt.jar 
+
+if [ $# -eq 0 ] ; then
+    "$JAVA_CMD" -Xbootclasspath/p:"$bootclasspath" com.sun.tools.javafx.Main -help
+    exit 1
+fi
+
 if [ -z "$CLASSPATH" ] ; then
   USER_CP="."
 else
@@ -64,8 +71,6 @@ while [ $# -gt 0 ] ; do
     shift
 done
 } 
-
-bootclasspath=$HOME/javafxc.jar:$HOME/javafxrt.jar 
 
 parse_args "$@" # process arguments on the command line
 
