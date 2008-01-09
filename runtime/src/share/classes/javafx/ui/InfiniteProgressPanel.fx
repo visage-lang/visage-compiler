@@ -28,22 +28,21 @@ package javafx.ui;
 /**
  * Romain Guy's glass pane progress panel
  */
-
-class InfiniteProgressPanel extends Widget {
+public class InfiniteProgressPanel extends Widget {
     attribute root:javax.swing.JRootPane;
-    attribute backgroundOpacity: Number = 160 on replace {
+    public attribute backgroundOpacity: Number = 160 on replace {
         pane.setOpacity(backgroundOpacity.intValue());
     };
     attribute pane:com.sun.javafx.api.ui.HiPerfInfiniteProgressPanel;
-    attribute progress: Boolean on replace {
+    public attribute progress: Boolean on replace {
         if (content <> null) {
             pane.setVisible(progress);
         }
     };
-    attribute text: String on replace {
+    public attribute text: String on replace {
         pane.setText(text);
     };
-    attribute content: Widget on replace  {
+    public attribute content: Widget on replace  {
         root.setContentPane(content.getComponent());
     };
     public function createComponent():javax.swing.JComponent {
