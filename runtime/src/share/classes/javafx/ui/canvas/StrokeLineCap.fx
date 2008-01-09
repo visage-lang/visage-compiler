@@ -27,7 +27,7 @@
 package javafx.ui.canvas;
 import java.awt.BasicStroke;
 
-class StrokeLineCap {
+public class StrokeLineCap {
     attribute id: Number;
     attribute name: String;
 

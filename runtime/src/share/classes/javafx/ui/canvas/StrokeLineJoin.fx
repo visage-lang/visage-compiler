@@ -27,7 +27,7 @@
 package javafx.ui.canvas;
 import java.awt.BasicStroke;
 
-class StrokeLineJoin {
+public class StrokeLineJoin {
     attribute id: Number;
     attribute name: String;
     

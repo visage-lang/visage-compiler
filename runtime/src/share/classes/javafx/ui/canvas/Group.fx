@@ -40,7 +40,9 @@ public class Group extends Node, Container {
     public attribute content: Node[] on insert [indx] (newValue) {
         newValue.parentCanvasElement = this as CanvasElement;
         if (sggroup <> null) {
-            sggroup.add(indx, newValue.getNode());
+            if (newValue <> null) { // hack: bug workaround
+                sggroup.add(indx, newValue.getNode());
+            }
         }
     } on replace [indx] (oldValue) {
         var newValue = content[indx];
@@ -54,7 +56,9 @@ public class Group extends Node, Container {
                        //println("remove: {e} old={old}");
                    }
                 }
-                sggroup.add(indx, newValue.getNode());
+                if (newValue <> null) { // hack: bug workaround
+                    sggroup.add(indx, newValue.getNode());
+                }
             }
             
             if (oldValue.parentCanvasElement == (this as CanvasElement)) {
@@ -79,8 +83,10 @@ public class Group extends Node, Container {
     public function createNode(): SGNode {
         sggroup  = new SGGroup();
         for (i in content) {
-            i.parentCanvasElement = this as CanvasElement;
-            sggroup.add(i.getNode());
+            if (i <> null) {
+                i.parentCanvasElement = this as CanvasElement;
+                sggroup.add(i.getNode());
+            }
         }
         return sggroup;
     }
