@@ -24,7 +24,7 @@ public class EntryTest {
     }
 
     @Test
-    public void testEntry() {
+    public void testEntry() throws Throwable {
         Entry.start(TestApp.class);
     }
 }
