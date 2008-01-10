@@ -56,6 +56,53 @@ public abstract class AbstractGeneratedParser extends Parser {
     /** The name table. */
     protected Name.Table names;
     
+    protected String[][] ruleMap = { 
+            {"module", "the module contents"},
+            {"moduleItems", "the module contents"},
+            {"moduleItem", "the module contents"},
+            {"packageDecl", "a package declaration"},
+            {"importDecl", "an import declaration"},
+            {"importId", "an import declaration"},
+            {"classDefinition", "a class declaration"},
+            {"supers", "the 'extends' part of a class declaration"},
+            {"classMembers", "the members of a class declaration"},
+            {"classMember", "the members of a class declaration"},
+            {"functionDefinition", "a function declaration"},
+            {"initDefinition", "an 'init' block"},
+            {"postInitDefinition", "a 'postinit' block"},
+            {"functionModifierFlags", " the modifiers on a function declaration"},
+            {"functionModifier", " the modifiers on a function declaration"},
+            {"varModifierFlags", " the modifiers on an attribute/var declaration"},
+            {"varModifier", " the modifiers on an attribute/var declaration"},
+            {"classModifierFlags", " the modifiers on a class declaration"},
+            {"classModifier", " the modifiers on a class declaration"},
+            {"accessModifier", "an access modifier"},
+            {"formalParameters", " the parameters of a function declaration"},
+            {"formalParameter", " a formal parameter"},
+            {"blockExpression", "a block expression"},
+            {"blockComponent", "a component of a block"},
+            {"variableDeclaration", "an attribute/variable declaration"},
+            {"variableLabel", "an attribute/variable declaration"},
+            {"boundExpression", "an expression"},
+            {"inClause", "the 'in' clause of a 'for' expression"},
+            {"elseClause", "the 'else' clause of an 'if' expression"},
+            {"assignmentOpExpression", "an operator assignment expression"},
+            {"primaryExpression", "an expression"},
+            {"stringExpressionInner", "a string expression"},
+            {"bracketExpression", "a sequence creation expression"},
+            {"expressionList", "a list of expressions"},
+            {"expressionListOpt", "a list of expressions"},
+            {"type", "a type specification"},
+            {"typeArgList", "a type specification"},
+            {"typeArg", "a type specification"},
+            {"typeReference", "a type specification"},
+            {"cardinality", "a type specification"},
+            {"typeName", "a type specification"},
+            {"genericArgument", "a type specification"},
+            {"qualident", "an identifier"},
+            {"name", "an identifier"} 
+    };
+    
     
     /* ---------- error recovery -------------- */
     
@@ -73,18 +120,60 @@ public abstract class AbstractGeneratedParser extends Parser {
         super(input);
     }
     
+    protected String stackPositionDescription(String ruleName) {
+        // optimize for the non-error case: do sequential search
+        for (String[] pair : ruleMap) {
+            if (pair[0].equals(ruleName)) {
+                return pair[1];
+            }
+        }
+        StringBuffer sb = new StringBuffer(ruleName.length()+1);
+        switch (ruleName.charAt(0)) {
+            case 'a': case 'e': case 'i': case 'o': case 'u': 
+                 sb.append("an ");
+                break;
+            default:
+                sb.append("a ");
+                break;
+        }
+        for (char ch : ruleName.toCharArray()) {
+            if (Character.isUpperCase(ch)) {
+                sb.append(' ');
+                sb.append(Character.toLowerCase(ch));
+            } else {
+                sb.append(ch);
+            }
+        }
+        return sb.toString();
+    }
+    
     public String getErrorMessage(RecognitionException e, String[] tokenNames) {
         java.util.List stack = getRuleInvocationStack(e, this.getClass().getName());
-        String msg = null;
-        if (e instanceof NoViableAltException) {
+        String stackTop = stack.get(stack.size()-1).toString();
+        String posDescription = stackPositionDescription(stackTop);
+        StringBuffer mb = new StringBuffer();
+        if (e instanceof MismatchedTokenException) {
+            MismatchedTokenException mte = (MismatchedTokenException) e;
+            
+            mb.append("Sorry, I was trying to understand ");
+            mb.append(posDescription);
+            mb.append(" but I got confused when I saw ");
+            mb.append(getTokenErrorDisplay(e.token));
+            if (mte.expecting != Token.EOF) {
+                mb.append(".\n Perhaps you are missing a ");
+                mb.append(tokenNames[mte.expecting]);
+            }
+        } else if (e instanceof NoViableAltException) {
             NoViableAltException nvae = (NoViableAltException) e;
-            msg = " no viable alt; token=" + e.token + " (decision=" 
-                    + nvae.decisionNumber + " state " + nvae.stateNumber + ")" 
-                    + " decision=<<" + nvae.grammarDecisionDescription + ">>";
+            
+            mb.append("Sorry, I was trying to understand ");
+            mb.append(posDescription);
+            mb.append(" but I got confused when I saw ");
+            mb.append(getTokenErrorDisplay(e.token));
         } else {
-            msg = super.getErrorMessage(e, tokenNames);
+            mb.append( super.getErrorMessage(e, tokenNames) );
         }
-        return stack + " " + msg;
+        return  mb.toString();
     }
 
 /**

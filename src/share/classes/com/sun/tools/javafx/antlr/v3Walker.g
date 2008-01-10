@@ -155,9 +155,6 @@ varModifier returns [long flag]
 classModifier returns [long flag]
 	:  ABSTRACT        				{ flag = Flags.ABSTRACT; }
 	;
-memberSelector  returns [JFXMemberSelector value]
-	: ^(MEMBERSELECTOR n1=name n2=name)		{ $value = F.at(pos($MEMBERSELECTOR)).MemberSelector($n1.value, $n2.value); } 
-	;
 formalParameters  returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]
 	: ^(LPAREN (formalParameter			{ params.append($formalParameter.var); } )* )
 	;

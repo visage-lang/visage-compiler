@@ -136,7 +136,6 @@ tokens {
    // these are imaginary tokens
    MODULE;
    MODIFIER;
-   MEMBERSELECTOR;
    PARAM;
    FUNC_EXPR;
    STATEMENT;
@@ -566,9 +565,6 @@ varModifier
 classModifier 
 	:  ABSTRACT        			
 	;
-memberSelector
-	: n1=name DOT n2=name			-> ^(MEMBERSELECTOR[$DOT] $n1 $n2)
-	;
 formalParameters
 	: LPAREN ( formalParameter (COMMA formalParameter)* )?  RPAREN
 						-> ^(LPAREN formalParameter*)
@@ -856,17 +852,6 @@ cardinality
 	: (LBRACKET)=>LBRACKET RBRACKET 	-> RBRACKET
 	|                         		->
 	;
-literal  
-	: STRING_LITERAL	
-	| DECIMAL_LITERAL	
-	| OCTAL_LITERAL		
-	| HEX_LITERAL			
-	| FLOATING_POINT_LITERAL 
-	| TRUE   		
-	| FALSE   		
-	| NULL 		
-	;
-	
 typeName  
 	: qualident 		
 		(LT genericArgument (COMMA genericArgument)* GT
@@ -882,7 +867,16 @@ genericArgument
 		 typeName		
 	       )?				-> ^(QUES EXTENDS? SUPER? typeName?)
 	;
-	
+literal  
+	: STRING_LITERAL	
+	| DECIMAL_LITERAL	
+	| OCTAL_LITERAL		
+	| HEX_LITERAL			
+	| FLOATING_POINT_LITERAL 
+	| TRUE   		
+	| FALSE   		
+	| NULL 		
+	;
 qualident 
 	: ( name				-> name )
           ( (DOT)=> DOT nn=name     		-> ^(DOT $qualident $nn)
