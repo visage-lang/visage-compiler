@@ -134,7 +134,7 @@ textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);</programlisting></para>
 
     <para><emphasis role="bold">TO-DO: Provide discuss</emphasis><emphasis
     role="bold">ion that Integer and Number are NOT java.lang.Integer and
-    java.lang.Num</emphasis>ber; </para>
+    java.lang.Num</emphasis>ber;</para>
 
     <para><emphasis role="bold">String IS java.lang.String, Boolean MIGHT be
     java.lang.Boolean but it's still TBD (JFXC-446.)</emphasis></para>
