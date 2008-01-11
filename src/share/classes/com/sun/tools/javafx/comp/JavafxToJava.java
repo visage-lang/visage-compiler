@@ -639,7 +639,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
             if (tree.isModuleClass) {
                 // Add main method...
-                translatedDefs.append(makeMainMethod(diagPos));
+                translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
             }
 
             // build the list of implemented interfaces
@@ -1706,10 +1706,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return Name.fromString(names, syntheticNamePrefix + syntheticNameCounter++ + kind);
     }
 
-    JCMethodDecl makeMainMethod(DiagnosticPosition diagPos) {
+    JCMethodDecl makeMainMethod(DiagnosticPosition diagPos, Name className) {
             List<JCExpression> emptyExpressionList = List.nil();
-            JCIdent runIdent = make.at(diagPos).Ident(defs.runMethodName);
-            JCMethodInvocation runCall = make.at(diagPos).Apply(emptyExpressionList, runIdent, emptyExpressionList);
+            JCExpression classIdent = make.at(diagPos).Ident(className);
+            JCExpression classConstant = make.at(diagPos).Select(classIdent, names._class);
+            JCExpression startIdent = makeQualifiedTree(diagPos, defs.startMethodString);
+            ListBuffer<JCExpression>args = new ListBuffer<JCExpression>();
+            args.append(classConstant);
+            JCMethodInvocation runCall = make.at(diagPos).Apply(emptyExpressionList, startIdent, args.toList());
             List<JCStatement> mainStats = List.<JCStatement>of(make.at(diagPos).Exec(runCall));
             List<JCVariableDecl> paramList = List.nil();
             paramList = paramList.append(make.at(diagPos).VarDef(make.Modifiers(0), 

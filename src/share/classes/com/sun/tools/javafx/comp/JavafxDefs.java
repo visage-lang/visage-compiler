@@ -46,6 +46,7 @@ public class JavafxDefs {
     public static final String interfaceSuffix = "$Intf";
     public static final String equalsMethodString = "com.sun.javafx.runtime.Checks.equals";
     public static final String isNullMethodString = "com.sun.javafx.runtime.Checks.isNull";
+    public static final String startMethodString = "com.sun.javafx.runtime.Entry.start";
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
     public static final String runMethodString = "javafx$run$";

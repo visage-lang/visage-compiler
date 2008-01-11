@@ -24,6 +24,7 @@
  */
 package com.sun.javafx.runtime;
 
+import com.sun.tools.javafx.comp.JavafxDefs;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
@@ -35,10 +36,10 @@ import java.util.Iterator;
  */
 public class Entry {
 
-    public static void start(Class<?> app, String... args) throws Throwable {
+    public static void start(Class<?> app) throws Throwable {
         Method main = null;
-        main = app.getDeclaredMethod("javafx$run$", new Class[0]);
-
+        main = app.getDeclaredMethod(JavafxDefs.runMethodString, new Class[0]);
+        main.setAccessible(true);
         RuntimeProvider provider = runtimeProviderLocator(app);
         if (provider != null && provider.usesRuntimeLibrary(app)) {
             provider.run(main);

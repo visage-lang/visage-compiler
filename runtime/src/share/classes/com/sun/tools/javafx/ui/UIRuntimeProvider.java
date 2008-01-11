@@ -38,8 +38,11 @@ public class UIRuntimeProvider implements RuntimeProvider {
 
             // scan constant pool for javafx.ui class and package references
             for (int i = 1; i < constantPoolCount; i++) { // constantPool[0] reserved
-                if (hasJavaFXUIReference(classFile))
+                byte type = classFile.readByte();
+                if (hasJavaFXUIReference(type, classFile))
                     return true;
+                if (type == CONSTANT_Double || type == CONSTANT_Long)
+                    i++;  // doubles and longs take two constant pool slots
             }
             return false;
         } catch (IOException ex) {
@@ -79,13 +82,12 @@ public class UIRuntimeProvider implements RuntimeProvider {
     static final int CONSTANT_InterfaceMethodRef = 11;
     static final int CONSTANT_NameAndType = 12;
 
-    private boolean hasJavaFXUIReference(DataInputStream dis)
+    private boolean hasJavaFXUIReference(byte type, DataInputStream dis)
             throws IOException {
-        byte type = dis.readByte();
         switch (type) {
           case CONSTANT_Utf8: {
               String s = dis.readUTF();
-              if (s.startsWith("Ljavafx/ui/"))
+              if (s.startsWith("javafx/ui/") || s.startsWith("Ljavafx/ui/"))
                   return true;
               break;
           }
