@@ -18,9 +18,23 @@
     <target name="default" depends="jar,runtime,install-scripts"
             description="Build javafxc compiler and runtime distribution"/>
 
-    <target name="all" depends="jar, runtime, spec, javadoc, test, findbugs"
+    <target name="all" depends="jar, runtime, test, spec, javadoc, findbugs"
             description="Build and test all project artifacts"/>
+            
+    <target name="dist" description="Build distribution bundles" depends="dist-init,dist-zip,dist-tgz"/>
+    
+    <target name="dist-zip" description="Build distribution zip file" depends="jar, runtime, install-scripts, spec, javadoc, demos">
+        <zip basedir="dist" compress="true" destfile="${zip.bundle}" includes="${dist.includes}"/>
+    </target>
+    
+    <target name="dist-tgz" description="Build distribution gzipped tar file" depends="jar, runtime, install-scripts, spec, javadoc, demos">
+        <tar basedir="dist" longfile="fail" compression="gzip" destfile="${tgz.bundle}" includes="${dist.includes}"/>
+    </target>
 
+    <target name="dist-init" depends="init">
+        <mkdir dir="${bundle.dir}"/>
+    </target>
+    
     <target name="hudson-all" depends="coverage, all, coverage-report, hudson-post-build"
             description="Build and test all project artifacts"/>
 
@@ -293,6 +307,7 @@
         <delete dir="${syntax.diagrams.dir}" />
         <delete dir="${build.instrumented.dir}"/>
         <delete file="cobertura.ser" />
+        <delete dir="bundles"/>
     </target>
 
     <target name="spec" depends="syntax-diagrams" description="Build JavaFX Script specification.">
@@ -372,6 +387,38 @@
         <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>
     </target>
     
+    <target name="demos" depends="jar,runtime">
+        <path id="javafxc.class.path" path="${dist.jar}"/>
+        <path id="javafxrt.class.path" path="${dist.javafxrt.jar}"/>
+        <property name="file.reference.javafxc.jar" refid="javafxc.class.path"/>
+        <property name="file.reference.javafxrt.jar" refid="javafxrt.class.path"/>
+        <ant dir="demos/Calculator" inheritall="false">
+            <property name="file.reference.javafxc.jar" refid="javafxc.class.path"/>
+            <property name="file.reference.javafxrt.jar" refid="javafxrt.class.path"/>
+            <property name="file.reference.scenegraph.jar" value="${file.reference.scenegraph.jar}"/>
+        </ant>
+        <ant antfile="demos/Guitar/build.xml" inheritall="false">
+            <property name="file.reference.javafxc.jar" refid="javafxc.class.path"/>
+            <property name="file.reference.javafxrt.jar" refid="javafxrt.class.path"/>
+            <property name="file.reference.scenegraph.jar" value="${file.reference.scenegraph.jar}"/>
+        </ant>
+        <ant antfile="demos/javafxballs/build.xml" inheritall="false">
+            <property name="file.reference.javafxc.jar" refid="javafxc.class.path"/>
+            <property name="file.reference.javafxrt.jar" refid="javafxrt.class.path"/>
+            <property name="file.reference.scenegraph.jar" value="${file.reference.scenegraph.jar}"/>
+        </ant>
+        <copy todir="dist/demos">
+            <fileset dir="demos" excludes="**/build/,**/dist/,**/lib/"/>
+        </copy>
+    </target>
+    
+    <target name="demos-clean">
+        <ant dir="demos/Calculator" target="clean" inheritall="false"/>
+        <ant antfile="demos/Guitar/build.xml" target="clean" inheritall="false"/>
+        <ant antfile="demos/javafxballs/build.xml" target="clean" inheritall="false"/>
+        <delete dir="dist/demos" failonerror="false"/>
+    </target>
+    
     <target name="runtime-clean" >
         <ant dir="${runtime.dir}" antfile="build.xml" target="clean" inheritall="false" />
     </target>
@@ -384,7 +431,7 @@
         <ant antfile="bootstrap.xml" target="clean"/>
     </target>
     
-    <target name="dist" description="Build distribution zip file" depends="all">
+    <target name="weekly" description="Weekly build target" depends="dist">
         
     </target>
 </project>
