@@ -38,7 +38,9 @@ public class Applet extends FXApplet {
     }
     
     public attribute content: Widget on replace {
-        setContentPane(content.getComponent());
+        if (content <> null) {
+            setContentPane(content.getComponent());
+        }
     }
     
     public attribute glassPane: Widget on replace {
