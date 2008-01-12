@@ -284,7 +284,7 @@ expression  returns [JCExpression expr]
 	| ^(DOT e0=expression name)			{ $expr = F.at(pos($DOT)).Select($e0.expr, $name.value); }
 	| ^(FUNC_APPLY e0=expression expressionList)	{ $expr = F.at(pos($FUNC_APPLY)).Apply(null, $e0.expr, $expressionList.args.toList()); } 
 	| ^(SEQ_INDEX seq=expression idx=expression)	{ $expr = F.at(pos($SEQ_INDEX)).SequenceIndexed($seq.expr, $idx.expr); }
-	| ^(OBJECT_LIT qualident objectLiteral)		{ $expr = F.at(pos($OBJECT_LIT)).Instanciate($qualident.expr, null, $objectLiteral.parts.toList()); } 
+	| ^(OBJECT_LIT i=qualident objectLiteral)	{ $expr = F.at($i.expr.pos).Instanciate($qualident.expr, null, $objectLiteral.parts.toList()); } 
        	| ^(FUNC_EXPR formalParameters type blockExpression)
        							{ $expr = F.at(pos($FUNC_EXPR)).OperationValue($type.type, $formalParameters.params.toList(),
                                                								$blockExpression.expr); }
@@ -350,7 +350,7 @@ objectLiteral  returns [ListBuffer<JCTree> parts = ListBuffer.<JCTree>lb()]
 	: ( objectLiteralPart  				{ $parts.append($objectLiteralPart.value); } ) * 
 	;
 objectLiteralPart  returns [JCTree value]
-	: ^(OBJECT_LIT_PART name boundExpression)	{ $value = F.at(pos($OBJECT_LIT_PART)).ObjectLiteralPart($name.value,
+	: ^(OBJECT_LIT_PART n=name boundExpression)	{ $value = F.at($n.pos).ObjectLiteralPart($name.value,
 								 $boundExpression.expr, $boundExpression.status); }
        	| variableDeclaration				{ $value = $variableDeclaration.value; }
        	| functionDefinition				{ $value = $functionDefinition.value; }
