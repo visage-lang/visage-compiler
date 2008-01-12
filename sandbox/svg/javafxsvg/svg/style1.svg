@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<!--
+  $Id$
+ 
+  Copyright 2007 Sun Microsystems, Inc. All rights reserved.
+  SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+
+<svg xmlns="http://www.w3.org/2000/svg" height="200">
+  <circle cx="100" cy="100" r="1cm" id="circ" style="fill:red;"/>
+</svg>

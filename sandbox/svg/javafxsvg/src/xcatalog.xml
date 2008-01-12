@@ -1,0 +1,13 @@
+<?xml version='1.0'?>
+
+<!--
+  $Id$
+ 
+  Copyright 2007 Sun Microsystems, Inc. All rights reserved.
+  SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+
+
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+		<system systemId="http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" uri="svg-dtd/svg11.dtd"/>
+</catalog>

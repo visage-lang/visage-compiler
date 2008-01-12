@@ -1,0 +1,20 @@
+<?xml version="1.0" standalone="no"?>
+
+<!--
+  $Id$
+ 
+  Copyright 2007 Sun Microsystems, Inc. All rights reserved.
+  SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="4in" height="3in" version="1.1"
+     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <desc>This graphic links to an external image
+  </desc>
+  <image x="100" y="100" width="575px" height="326px"
+         xlink:href="http://www.sun.com/images/b1/b1_solaris-market_d.jpg">
+    <title>Sun Microsystems</title>
+  </image>
+</svg>

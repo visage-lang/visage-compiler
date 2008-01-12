@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) TinyLine 2002-2004. All rights reserved. -->
+<!-- Copyright (C) Edik Mitgartz 2004. All rights reserved. -->
+<!-- Generator: Mobile Designer 1.0 -->
+<svg width="176" height="208" viewBox="-88 -104 176 208" stroke-miterlimit="2"
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	xml:space="preserve" version="1.1" baseProfile="tiny">
+
+<!-- Movie Background -->
+<rect fill="#fff" x="-88" y="-104" width="176" height="208"/>
+
+<!-- Scene 1 -->
+<g id="Scene_1">
+	<rect id="Rectangle_47" x="-93" y="-108" width="184" height="63" fill="#cdebff"/>
+	<path id="Free_Hand_48" fill="#fff"
+		d="M-145.55 -74.67 c-5.76 -34.4 53.93 -40.47 50.43 -3.62 c8.49 -15.08 33.05 -0.61 24.85 14.16
+			c17.63 -13.23 41.77 7.58 35.79 27.02 c8.17 -6.27 20.94 -7.51 28.78 -0.1
+			c-1.01 -11.84 11.65 -41.1 27.55 -31.74 c-8.14 -40.47 49.38 -39.85 48.58 -2.68
+			c33.41 -30.77 48 43.63 8.73 42.88 c-24.27 9.53 -50.01 9.15 -75.2 14.14
+			c-48.89 -14.03 -99.71 -15.18 -149.45 -24.36 c-30.55 -3.86 -28.05 -57.13 7.06 -47.37"/>
+
+	<!-- Animation -->
+	<g id="Animation_3" transform="translate(6.74,-5.25) scale(0.890625,0.890625)">
+		<path id="Bezier_57" fill="#a9a9a9"
+			d="M48 -56.5 c0 0.5 5 -6.5 5 -6.5 c0 0 5.5 0 5.5 0
+				c0 0 -5.5 6.5 -5.5 6.5 c0 0 -5 0.5 -5 0 Z"
+			transform="translate(1.87,-21.2) scale(0.833333,0.666667)"/>
+		<path id="Bezier_57_copy" fill="#a9a9a9"
+			d="M40.87 -58.87 c0 0.33 4.16 -4.33 4.16 -4.33 c0 0 4.58 0 4.58 0
+				c0 0 -4.58 4.33 -4.58 4.33 c0 0 -4.16 0.33 -4.16 0 Z"
+			transform="translate(9.25,-0.12)"/>
+		<path id="Bezier_57_copy_2" fill="#a9a9a9"
+			d="M40.87 -58.87 c0 0.33 4.16 -4.33 4.16 -4.33 c0 0 4.58 0 4.58 0
+				c0 0 -4.58 4.33 -4.58 4.33 c0 0 -4.16 0.33 -4.16 0 Z"
+			transform="translate(17.37,0)"/>
+		<polyline id="Line_58" fill="none" stroke="#c1c1c1" stroke-linejoin="bevel"
+			 points="25,-54.5 26.5,-68 "/>
+		<polyline id="Line_59" fill="none" stroke="#c1c1c1" stroke-linejoin="bevel"
+			 points="72.5,-54 73.5,-63.5 "
+			transform="translate(0,-2)"/>
+		<polyline id="Line_60" fill="none" stroke="#c1c1c1" stroke-linejoin="bevel"
+			 points="37.5,-60 38.5,-66 "
+			transform="translate(0,-2)"/>
+		<path id="Bezier_56" fill="#e1e1e1"
+			d="M33.5 -54 c0 0 1 -6 1 -6 c0 0 5 0 5 0
+				c0 0 -0.5 3 -0.5 3 c0 0 27.5 0 27.5 0
+				c0 0 0.5 3.5 0.5 3.5 c0 0 -33.5 -0.5 -33.5 -0.5 Z"
+			transform="translate(0,-2)"/>
+		<path id="Bezier_55" fill="#999"
+			d="M20 -54.5 c0 1 60 0 60 0 c0 0 -1 6.5 -1 6.5
+				c0 0 -61 0 -61 0 c0 0 2 -5.5 2 -6.5 Z"
+			transform="translate(0,-2)"/>
+		<path id="Bezier_63" fill="#ffcf86"
+			d="M18 -50.5 c0.5 0.5 62 0 62 0 c0 0 0 4 0 4
+				c0 0 -63.5 -0.5 -63.5 -0.5 c0 0 2 -3 1.5 -3.5 Z"
+			transform="translate(0,-2)"/>
+		<polyline id="Line_69" fill="none" stroke="#fc6" stroke-linejoin="bevel"
+			 points="45.5,-62.25 49,-62.25 "
+			transform="translate(-0.62,-0.25)"/>
+		<polyline id="Line_69_copy" fill="none" stroke="#fc6" stroke-linejoin="bevel"
+			 points="44.87,-62.5 48.37,-62.5 "
+			transform="translate(7.5,0.75)"/>
+		<polyline id="Line_69_copy_2" fill="none" stroke="#fc6" stroke-linejoin="bevel"
+			 points="44.87,-62.5 48.37,-62.5 "
+			transform="translate(16.12,0.37)"/>
+	</g>
+	<path id="Bezier_45" fill="#6cf"
+		d="M-91 -51 c-1 0 185 0 185 0 c0 0 0 163 0 163
+			c0 0 -193 0 -193 0 c0 0 7 -163 8 -163 Z"/>
+	<path id="Bezier_44" fill="#ff9"
+		d="M-92 112 c0 -2 194 -6 194 -6 c0 0 -194 -59 -194 -59
+			c0 0 0 63 0 65 Z"/>
+	<path id="Bezier_49" fill="#cfcf7c"
+		d="M-62 90 c0 -1 -35 21 -35 21 c0 0 85 0 85 0
+			c0 0 -3 -16 -3 -16 c0 0 -47 -6 -47 -5 Z"/>
+	<path id="Bezier_50" fill="#cfcf7c"
+		d="M36 98 c1 -1 -27 15 -27 15 c0 0 20 -1 20 -1
+			c0 0 23 -15 23 -15 c0 0 -15 0 -16 1 Z"/>
+	<path id="Bezier_51" fill="#cfcf7c"
+		d="M-78 92 c-2 0 -31 14 -31 14 c0 0 6 -13 6 -13
+			c0 0 23 -1 25 -1 Z"/>
+
+	<!-- Animation -->
+	<g id="Animation_2">
+		<path id="Bezier_41" fill="#c6c"
+			d="M4.83 42.41 c0.21 0.43 -2.65 1.03 -1.88 -1.51 c1.61 -5.39 8.36 -13.81 8.36 -13.81
+				c0 0 2.46 -1.36 4.04 2.59 c0.64 1.61 -10.3 13.16 -10.52 12.73 Z"/>
+		<path id="Bezier_24" fill="#e1b487"
+			d="M-63 36.5 c-0.42 6.96 -8.5 29.5 -8.5 29.5 c0 0 -3.5 -0.5 -8.62 22.25
+				c0 0 -5.5 0.75 -8.25 4.12 c0 0 12.53 2.37 13.37 -1
+				c0.12 -0.5 -2.65 -1.26 -1.62 -3.12 c3.25 -5.87 9.92 -16.12 10 -18.62
+				c0.25 -8.75 7.62 -32.62 7.62 -32.62 c0 0 -3.78 -3.97 -4 -0.5 Z"/>
+		<path id="Free_Hand_11" fill="#fc9"
+			d="M-66.89 47.56 c-11.89 -11.87 8.88 -26.84 16.91 -12.84 c12.31 3.73 4.57 24.03 -7.32 18.51"/>
+		<path id="Bezier_9" fill="#e1b487"
+			d="M-31.25 65.75 c4.02 -3.41 26.09 -15.56 31.75 -14.5 c8 1.5 39.25 39.25 39.25 39.25
+				c0 0 4.49 0.99 13.5 7 c1.21 0.8 -13.39 2.32 -19.5 0.5
+				c-0.75 -0.22 1.98 -4.69 0.25 -6.5 c-6.5 -6.75 -29.14 -8.42 -35.75 -25.75
+				c-0.67 -1.77 -4.25 8 -31 21.5 c0 0 -1.24 -19.16 1.5 -21.5 Z"/>
+		<path id="Bezier_7" fill="#c03"
+			d="M-69.5 45.5 c-0.34 -2.57 24.5 -6 24.5 -6 c0 0 7.87 9 -4.25 14.75
+				c0 0 -3.95 9.81 7.62 18.25 c12.87 9.37 1.55 23.82 -1.87 24
+				c-19.62 1 -18.86 -8.5 -19 -11 c-0.25 -4.5 1.97 -7.45 0.75 -10.75
+				c-6.99 -18.81 -5.79 -14.74 -7.75 -29.25 Z"/>
+		<path id="Bezier_10" fill="#fc9"
+			d="M-32.25 66.25 c18.57 -19.56 31.9 -21.96 35 -20.25 c11.25 6.25 16.07 16.48 35.62 47.25
+				c0.54 0.85 10.91 2.07 15.12 7 c0.68 0.8 -10.16 0.05 -20.5 -0.25
+				c-3.61 -0.1 3.75 -5.31 0.75 -7.5 c-36.5 -26.5 -29.59 -22.76 -34.25 -35
+				c-0.17 -0.45 -6.5 15.25 -26.25 31 c0 0 -9.08 -18.47 -5.5 -22.25 Z"/>
+		<path id="Bezier_8" fill="#c03"
+			d="M-47.62 81.37 c10.62 -16.12 32.62 -31 32.62 -31 c0 0 7.15 12 2.62 24.87
+				c-3.12 8.87 -4.68 17.83 -0.87 20.12 c4.33 2.6 -4.13 2.15 -9.62 2.5 c-15.75 1 -37 -3 -28.5 -2.62"/>
+		<path id="Bezier_12" fill="#fc9"
+			d="M-67.5 33.5 c20.04 -31.89 19 -26 19 -26 c0 0 6 5.5 6 5.5
+				c0 0 -6 6.5 -10 20 c0 0 -17.58 4.6 -15 0.5 Z"/>
+		<ellipse id="Ellipse_21" cx="-39.12" cy="6.37" rx="15.37" ry="15.37" fill="#fc9"/>
+		<path id="Free_Hand_20" fill="#c63"
+			d="M-21.39 -5.83 c-8.94 -11.82 -43.87 -11.44 -38.32 4.74 c2.95 8.62 11.15 17.07 19.5 19.35 c-11.33 -20.22 23.42 -7.44 19.33 -24.04"/>
+		<path id="Bezier_22" fill="#fc9"
+			d="M-65 40.5 c0 0 35.5 20 35.5 20 c0 0 29.71 -12.33 32 -14
+				c6.5 -4.75 1.63 1.51 7.75 -5.25 c3.53 -3.91 1.66 -9.83 1.25 -10
+				c-0.32 -0.13 -10 11.75 -10 11.75 c0 0 -18.5 3.5 -28.75 10.25
+				c0 0 -19.75 -14.5 -32.75 -17.25 c0 0 -5 4.5 -5 4.5 Z"/>
+		<path id="Free_Hand_26" fill="none" stroke="#c03" stroke-linejoin="bevel"
+			d="M-53.37 35.88 c-3.84 -4.81 -13.53 2.08 -10.06 7.64"/>
+		<polyline id="Free_Hand_39" fill="none" stroke="#e1b487" stroke-linejoin="bevel"
+			 points="-13.25,54 2.62,46.56 "/>
+		<polyline id="Line_42" fill="#c0c" stroke="#c6c" stroke-linejoin="bevel"
+			 points="14.12,29.75 17.75,24.25 "/>
+	</g>
+	<text x="-85.5" y="-87.6" id="Text_01_copy" font-size="18" font-family="Arial" fill="#6f7472">TinyLine</text>
+</g>
+
+</svg>
+

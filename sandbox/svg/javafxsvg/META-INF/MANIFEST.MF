@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: net.java.javafx.svg.translator.main.Main
+Class-Path: lib/batik-awk-util.jar lib/batik-parser.jar lib/batik-util.jar lib/resolver.jar
+

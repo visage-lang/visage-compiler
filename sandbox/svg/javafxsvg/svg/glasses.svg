@@ -1,0 +1,23 @@
+<!--
+  $Id$
+ 
+  Copyright 2007 Sun Microsystems, Inc. All rights reserved.
+  SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+
+<svg width="400" height="200" xmlns="http://www.w3.org/2000/svg">
+	<desc>Overlapping shapes</desc>
+	<g>
+		<ellipse cx="125" cy="50" rx="50" ry="25" fill="none" stroke="black" />
+		<circle cx="125" cy="50" r="25" fill="dodgerblue" />
+		<circle cx="125" cy="50" r="10" fill="black" />
+		<ellipse cx="250" cy="50" rx="50" ry="25" fill="none" stroke="black" />
+		<circle cx="250" cy="50" r="25" fill="dodgerblue" />
+		<circle cx="250" cy="50" r="10" fill="black" />
+		<polygon points="65,50 185,50 185,75, 150,100
+100,100 65,75" fill="none" stroke="purple" stroke-width="4" />
+		<polygon points="190,50 310,50 310,75, 275,100
+225,100 190,75" fill="none" stroke="purple" stroke-width="4" />
+		<line x1="65" y1="50" x2="310" y2="50" stroke="plum" stroke-width="2" />
+	</g>
+</svg>

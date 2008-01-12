@@ -1,0 +1,18 @@
+<?xml version='1.0'?>
+<inkscape-extension>
+    <_name>F3 Output</_name>
+    <id>org.inkscape.output.F3</id>
+    <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
+    <dependency type="executable">cmd</dependency>
+    <output>
+        <extension>.f3</extension>
+        <mimetype>text/plain</mimetype>
+        <_filetypename>F3 Format (*.f3)</_filetypename>
+        <_filetypetooltip>F3 script format</_filetypetooltip>
+        <dataloss>TRUE</dataloss>
+    </output>
+    <script>
+        <command reldir="path">cmd /c share\extensions\svg2f3.bat</command>
+        <helper_extension>org.inkscape.output.svg.inkscape</helper_extension>
+    </script>
+</inkscape-extension>
