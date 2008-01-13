@@ -28,7 +28,7 @@ package javafx.ui;
 
 public class GridCell {
     protected attribute constraint: java.awt.GridBagConstraints = new java.awt.GridBagConstraints();
-    public attribute insets: Insets on replace  {
+    public attribute insets: Insets = Insets{} on replace  {
         constraint.insets = insets.awtinsets;
     };
     public attribute anchor: Anchor = Anchor.CENTER on replace  {
