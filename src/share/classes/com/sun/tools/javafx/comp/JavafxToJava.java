@@ -1825,7 +1825,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             // Build the type declaration expression for the sequence builder
             if (elemType.tsym != null &&
                     elemType.tsym instanceof ClassSymbol &&
-                    types.isJFXClass((ClassSymbol)elemType.tsym)) {
+                    (elemType.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
                 String str = elemType.tsym.flatName().toString().replace("$", ".");
                 String strLookFor = str + interfaceSuffix;
                 elemType = typeMorpher.reader.enterClass(names.fromString(strLookFor)).type;
