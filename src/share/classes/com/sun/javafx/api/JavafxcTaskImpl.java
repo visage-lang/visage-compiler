@@ -203,7 +203,7 @@ class JavafxcTaskImpl extends JavafxcTask {
 
     private boolean parsed = false;
 
-    private void enter() throws IOException {
+    void enter() throws IOException {
         prepareCompiler();
 
         ListBuffer<JCCompilationUnit> roots = null;
@@ -294,5 +294,13 @@ class JavafxcTaskImpl extends JavafxcTask {
             throw new IllegalStateException();
         }
         return JavacTypes.instance(context);
+    }
+
+    /**
+     * For internal use by Sun Microsystems only.  This method will be
+     * removed without warning.
+     */
+    public Context getContext() {
+        return context;
     }
 }
