@@ -31,15 +31,17 @@ import java.awt.Rectangle;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.JComponent;
+import java.lang.System;
 
 public class BookPanel extends Widget {
     private attribute bookPanel: JBookPanel;
     public attribute pages: Widget[];
     public attribute leftPageIndex: Integer on replace {
-        bookPanel.setLeftPageIndex(leftPageIndex);
+        if(bookPanel <> null) {
+            bookPanel.setLeftPageIndex(leftPageIndex);
+        }
     }
-    public attribute pageBounds: Rectangle = 
-        Rectangle {x: 70, y: 80, width: 210, height: 342};
+    public attribute pageBounds: Rectangle = new Rectangle (70, 80, 210, 342);
     public attribute refreshSpeed: Number = 20;
     public attribute darkShadowColor: Color;
     public attribute neutralShadowColor: Color;
@@ -56,6 +58,8 @@ public class BookPanel extends Widget {
                     return sizeof pages;
                 }
                 public function getPage(i:Integer):JComponent {
+                    if(i < 0) i = 0;
+                    if(i >= sizeof pages) i = sizeof pages - 1;
                     return pages[i].getComponent();
                 }
             });
