@@ -41,12 +41,12 @@ shift
 goto jvmoptsLoop
 
 :jvmoptsDone
-set _CLASSPATH=%_JAVAFX_LIBS%\javafxrt.jar;%_JAVAFX_LIBS%\@SCENEGRAPH_JAR@;%_CP_%
+set _CLASSPATH=%_JAVAFX_LIBS%\javafxrt.jar;%_JAVAFX_LIBS%\Scenario-0.4.jar;%_CP_%
 set _CP_=
 set _VAL=
 set _CMP=
 
-"%_JAVACMD%" "-Xbootclasspath/p:%_JAVAFX_LIBS%\javafxrt.jar" -classpath "%_CLASSPATH%" %_FX_ARGS%
+"%_JAVACMD%" -classpath "%_CLASSPATH%" %_FX_ARGS%
 
 REM cleanup
 set _CLASSPATH=
