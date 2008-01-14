@@ -23,11 +23,11 @@
             
     <target name="dist" description="Build distribution bundles" depends="dist-init,dist-zip,dist-tgz"/>
     
-    <target name="dist-zip" description="Build distribution zip file" depends="jar, runtime, install-scripts, spec, javadoc, demos">
+    <target name="dist-zip" description="Build distribution zip file" depends="jar, runtime, test, install-scripts, spec, javadoc, demos">
         <zip basedir="dist" compress="true" destfile="${zip.bundle}" includes="${dist.includes}"/>
     </target>
     
-    <target name="dist-tgz" description="Build distribution gzipped tar file" depends="jar, runtime, install-scripts, spec, javadoc, demos">
+    <target name="dist-tgz" description="Build distribution gzipped tar file" depends="jar, runtime, test, install-scripts, spec, javadoc, demos">
         <tar basedir="dist" longfile="fail" compression="gzip" destfile="${tgz.bundle}" includes="${dist.includes}"/>
     </target>
 
