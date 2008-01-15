@@ -204,11 +204,13 @@ public class UIContextImpl implements UIContext {
                                 if (is != null) {
                                     try {
                                         URL imageUrl = loader.getResource(src.getPath());
-                                        String srcName = src.toString().toLowerCase();
                                         try {
+                                            /** Do not use Toolkit with scenegraph
+                                            String srcName = src.toString().toLowerCase();
                                             if (!srcName.endsWith(".bmp")) {
                                                 result = Toolkit.getDefaultToolkit().createImage(imageUrl);
                                             }
+                                             ****/
                                             if (result == null) {
                                                 result = ImageIO.read(imageUrl);
                                             }
@@ -244,14 +246,18 @@ public class UIContextImpl implements UIContext {
                                         result = mApplet.getImage(u);
                                     } else {
                                         try {
+                                            
+                                            /* with Scenegraph use ImageIO only 
+                                             * *************
                                             String srcName = u.toString().toLowerCase();
                                             if (!srcName.endsWith(".bmp")) {
-                                                if ("http".equals(u.getProtocol())) {
+                                                if ("http".equals(u.getProtocol()) || "https".equals(u.getProtocol())) {
                                                     result = Toolkit.getDefaultToolkit().createImage(new CachedImage(UIContextImpl.this, u));
                                                 } else {
                                                     result = Toolkit.getDefaultToolkit().createImage(u);
                                                 }
                                             }
+                                            ***********************/
                                             if (result == null) {
                                                 result = ImageIO.read(u);
                                             }
@@ -2426,7 +2432,7 @@ public class UIContextImpl implements UIContext {
 
     }
     InputStream getInputStream(final URL u, final ImageDownloadObserver observer) throws IOException {
-        if (!"http".equals(u.getProtocol())) {
+        if (!"http".equals(u.getProtocol()) && !"https".equals(u.getProtocol())) {
             return u.openStream();
         }
         return new InputStream() {
@@ -2469,7 +2475,7 @@ public class UIContextImpl implements UIContext {
         String contentEncoding = (String)fileCache.get(u.toString());
         boolean download = contentEncoding == null || cache == null || !cache.exists();
         if (download) {
-            if (!"http".equals(u.getProtocol())) {
+            if (!"http".equals(u.getProtocol()) && !"https".equals(u.getProtocol())) {
                 return u.openStream();
             }
             //System.out.println("download requested...");
