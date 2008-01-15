@@ -31,12 +31,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import java.io.OutputStreamWriter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
@@ -58,7 +52,9 @@ import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.attributeGetMethodNamePrefix;
 import static com.sun.tools.javafx.comp.JavafxDefs.interfaceSuffix;
 import com.sun.tools.javafx.comp.JavafxToJava.Wrapped;
-import com.sun.tools.javafx.tree.*/**
+import com.sun.tools.javafx.tree.*;
+
+/**
  *
  * @author Robert Field
  */

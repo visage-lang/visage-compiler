@@ -44,6 +44,7 @@ public class FXCompilerTest extends TestSuite {
     private static final String[] TEST_ROOTS = {
             "test/features",
             "test/regress",
+            "test/fxunit",
             "test/should-fail",
             "test/currently-failing"
     };
