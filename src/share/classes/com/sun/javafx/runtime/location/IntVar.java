@@ -76,8 +76,8 @@ public class IntVar extends AbstractLocation implements IntLocation, MutableLoca
         throw new UnsupportedOperationException();
     }
 
-    public ObjectLocation<Integer> asObjectLocation() {
-        return Locations.asMutableObjectLocation(this);
+    public ObjectLocation<Integer> asIntegerObjectLocation() {
+        return Locations.asObjectLocation(this);
     }
 
     public DoubleLocation asDoubleLocation() {

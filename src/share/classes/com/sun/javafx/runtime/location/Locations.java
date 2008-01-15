@@ -18,28 +18,27 @@ public class Locations {
     }
 
     public static ObjectLocation<Integer> asObjectLocation(IntLocation loc) {
-        return new IntObjectLocation(loc);
-    }
-
-    public static ObjectLocation<Integer> asMutableObjectLocation(IntLocation loc) {
-        return new IntObjectMutableLocation(loc);
+        return loc instanceof MutableLocation
+                ? new IntObjectMutableLocation(loc)
+                : new IntObjectLocation(loc);
     }
 
     public static ObjectLocation<Double> asObjectLocation(DoubleLocation loc) {
-        return new DoubleObjectLocation(loc);
-    }
-
-    public static ObjectLocation<Double> asMutableObjectLocation(DoubleLocation loc) {
-        return new DoubleObjectMutableLocation(loc);
+        return loc instanceof MutableLocation
+                ? new DoubleObjectMutableLocation(loc)
+                : new DoubleObjectLocation(loc);
     }
 
     public static ObjectLocation<Boolean> asObjectLocation(BooleanLocation loc) {
-        return new BooleanObjectLocation(loc);
+        return loc instanceof MutableLocation
+                ? new BooleanObjectMutableLocation(loc)
+                : new BooleanObjectLocation(loc);
     }
 
-    public static ObjectLocation<Boolean> asMutableObjectLocation(BooleanLocation loc) {
-        return new BooleanObjectMutableLocation(loc);
+    public static DoubleLocation asDoubleLocation(IntLocation loc) {
+        return new IntDoubleLocation(loc);
     }
+
 
     public static IntLocation unmodifiableLocation(IntLocation loc) {
         return new UnmodifiableIntLocation(loc);
@@ -59,10 +58,6 @@ public class Locations {
 
     public static<T> SequenceLocation<T> unmodifiableLocation(SequenceLocation<T> loc) {
         return new UnmodifiableSequenceLocation<T>(loc);
-    }
-
-    public static DoubleLocation asDoubleLocation(IntLocation loc) {
-        return new IntDoubleLocation(loc);
     }
 
 
@@ -180,7 +175,7 @@ public class Locations {
             return location;
         }
 
-        public ObjectLocation<Double> asObjectLocation() {
+        public ObjectLocation<Double> asDoubleObjectLocation() {
             return new DoubleObjectLocation(this);
         }
     }
@@ -220,7 +215,7 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public ObjectLocation<Integer> asObjectLocation() {
+        public ObjectLocation<Integer> asIntegerObjectLocation() {
             return new IntObjectLocation(this);
         }
 
@@ -296,7 +291,7 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public ObjectLocation<Double> asObjectLocation() {
+        public ObjectLocation<Double> asDoubleObjectLocation() {
             return new DoubleObjectLocation(this);
         }
 
@@ -372,7 +367,7 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public ObjectLocation<Boolean> asObjectLocation() {
+        public ObjectLocation<Boolean> asBooleanObjectLocation() {
             return new BooleanObjectLocation(this);
         }
 

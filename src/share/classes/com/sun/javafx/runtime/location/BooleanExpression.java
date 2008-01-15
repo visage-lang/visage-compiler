@@ -74,7 +74,7 @@ public abstract class BooleanExpression extends AbstractLocation implements Bool
         super.invalidate();
     }
 
-    public ObjectLocation<Boolean> asObjectLocation() {
+    public ObjectLocation<Boolean> asBooleanObjectLocation() {
         return Locations.asObjectLocation(this);
     }
 }

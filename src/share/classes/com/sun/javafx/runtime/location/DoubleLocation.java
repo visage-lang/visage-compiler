@@ -41,6 +41,6 @@ public interface DoubleLocation extends Location {
     double setAsDouble(double value);
 
     /** Get a reference to an ObjectLocation<Double> that describes the same location */
-    public ObjectLocation<Double> asObjectLocation();
+    public ObjectLocation<Double> asDoubleObjectLocation();
 
 }

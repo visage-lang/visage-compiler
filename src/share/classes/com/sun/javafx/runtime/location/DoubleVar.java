@@ -76,7 +76,7 @@ public class DoubleVar extends AbstractLocation implements DoubleLocation, Mutab
         throw new UnsupportedOperationException();
     }
 
-    public ObjectLocation<Double> asObjectLocation() {
-        return Locations.asMutableObjectLocation(this);
+    public ObjectLocation<Double> asDoubleObjectLocation() {
+        return Locations.asObjectLocation(this);
     }
 }

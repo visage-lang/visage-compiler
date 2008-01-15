@@ -75,7 +75,7 @@ public abstract class DoubleExpression extends AbstractLocation implements Doubl
         super.invalidate();
     }
 
-    public ObjectLocation<Double> asObjectLocation() {
+    public ObjectLocation<Double> asDoubleObjectLocation() {
         return Locations.asObjectLocation(this);
     }
 }

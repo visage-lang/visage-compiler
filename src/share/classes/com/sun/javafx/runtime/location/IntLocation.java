@@ -41,5 +41,5 @@ public interface IntLocation extends Location {
     public int setAsInt(int value);
 
     /** Get a reference to an ObjectLocation<Integer> that describes the same location */
-    public ObjectLocation<Integer> asObjectLocation();
+    public ObjectLocation<Integer> asIntegerObjectLocation();
 }

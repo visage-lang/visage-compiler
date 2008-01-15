@@ -40,8 +40,8 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
                 return i.getAsInt() + 1;
             }
         };
-        final ObjectLocation<Integer> oi = i.asObjectLocation();
-        final ObjectLocation<Integer> oie = ie.asObjectLocation();
+        final ObjectLocation<Integer> oi = i.asIntegerObjectLocation();
+        final ObjectLocation<Integer> oie = ie.asIntegerObjectLocation();
 
         assertTrue(oi instanceof MutableLocation);
         assertFalse(oie instanceof MutableLocation);
@@ -83,8 +83,8 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
                 return i.getAsDouble() + 1;
             }
         };
-        final ObjectLocation<Double> oi = i.asObjectLocation();
-        final ObjectLocation<Double> oie = ie.asObjectLocation();
+        final ObjectLocation<Double> oi = i.asDoubleObjectLocation();
+        final ObjectLocation<Double> oie = ie.asDoubleObjectLocation();
 
         assertTrue(oi instanceof MutableLocation);
         assertFalse(oie instanceof MutableLocation);
@@ -126,8 +126,8 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
                 return !i.getAsBoolean();
             }
         };
-        final ObjectLocation<Boolean> oi = i.asObjectLocation();
-        final ObjectLocation<Boolean> oie = ie.asObjectLocation();
+        final ObjectLocation<Boolean> oi = i.asBooleanObjectLocation();
+        final ObjectLocation<Boolean> oie = ie.asBooleanObjectLocation();
 
         assertTrue(oi instanceof MutableLocation);
         assertFalse(oie instanceof MutableLocation);
