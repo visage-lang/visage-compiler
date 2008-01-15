@@ -17,7 +17,7 @@ while [ -h "$PRG" ]; do
     fi
 done
 
-HOME=`dirname "$PRG"`/../lib
+JFX_HOME=`dirname "$PRG"`/../lib
 
 # detect Darwin and Cygwin environments
 darwin=false;
@@ -51,7 +51,7 @@ else
   USER_CP="$CLASSPATH"
 fi 
 classpath="$USER_CP"
-bootclasspath="$HOME/javafxrt.jar:$HOME/@SCENEGRAPH_JAR@"
+bootclasspath="$JFX_HOME/javafxrt.jar:$JFX_HOME/@SCENEGRAPH_JAR@"
 
 args=""
 jargs=""
