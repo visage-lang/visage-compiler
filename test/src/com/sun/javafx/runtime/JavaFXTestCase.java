@@ -95,12 +95,12 @@ public abstract class JavaFXTestCase extends TestCase {
     }
 
     protected <T> void assertEquals(SequenceLocation<T> sequence, T... values) {
-        assertEquals(sequence.get(), values);
+        assertEquals(sequence.getAsSequence(), values);
     }
 
     protected <T> void assertEquals(SequenceLocation<T> sequence, T value) {
-        assertEquals(1, sequence.get().size());
-        assertEquals(value, sequence.get().get(0));
+        assertEquals(1, sequence.getAsSequence().size());
+        assertEquals(value, sequence.getAsSequence().get(0));
     }
 
     protected void assertEquals(HistorySequenceListener hl, String... values) {
@@ -151,23 +151,23 @@ public abstract class JavaFXTestCase extends TestCase {
 
     protected void assertEquals(int value, IntLocation loc) {
         assertTrue(loc.isValid());
-        assertEquals(value, loc.get());
+        assertEquals(value, loc.getAsInt());
     }
 
     protected void assertEqualsLazy(int value, IntLocation loc) {
         assertFalse(loc.isValid());
-        assertEquals(value, loc.get());
+        assertEquals(value, loc.getAsInt());
         assertTrue(loc.isValid());
     }
 
     protected void assertEquals(double value, DoubleLocation loc) {
         assertTrue(loc.isValid());
-        assertEquals(value, loc.get());
+        assertEquals(value, loc.getAsDouble());
     }
 
     protected void assertEqualsLazy(double value, DoubleLocation loc) {
         assertFalse(loc.isValid());
-        assertEquals(value, loc.get());
+        assertEquals(value, loc.getAsDouble());
         assertTrue(loc.isValid());
     }
 

@@ -54,7 +54,7 @@ public class ObjectVar<T> extends AbstractLocation implements ObjectLocation<T>,
         return value;
     }
 
-    public T getPreviousValue() {
+    public T getPrevious() {
         return previousValue;
     }
 

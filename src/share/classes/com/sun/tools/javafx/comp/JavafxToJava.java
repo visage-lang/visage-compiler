@@ -224,7 +224,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             Name arrName = getSyntheticName("arr");
             ListBuffer<JCStatement> stats = ListBuffer.lb();
             DiagnosticPosition diagPos = tree.pos();
-            JCExpression vartype = null;
             JCExpression init = (JCExpression) translate(tree);
             Type elemType = types.elemtype(type);
             if (elemType.isPrimitive()) {
@@ -1309,7 +1308,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         } else if (shouldMorph(vsym)) {
             // we are setting a var Location, call the set method
             JCExpression lhs = translate(tree.lhs, Wrapped.InLocation);
-            JCFieldAccess setSelect = make.Select(lhs, defs.setMethodName);
+            JCFieldAccess setSelect = make.Select(lhs, defs.locationSetMethodName[typeMorpher.typeMorphInfo(vsym.type).getTypeKind()]);
             List<JCExpression> setArgs = List.of(rhs);
             result = make.at(diagPos).Apply(null, setSelect, setArgs);
         } else {
@@ -1362,7 +1361,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         } else if (shouldMorph(vsym)) {
             // we are setting a var Location, call the set method
             JCExpression targetLHS = translate(tree.lhs, Wrapped.InLocation);
-            JCFieldAccess setSelect = make.Select(targetLHS, defs.setMethodName);
+            JCFieldAccess setSelect = make.Select(targetLHS, defs.locationSetMethodName[typeMorpher.typeMorphInfo(vsym.type).getTypeKind()]);
             List<JCExpression> setArgs = List.of(combined);
             result = make.at(diagPos).Apply(null, setSelect, setArgs);
         } else {
@@ -2521,21 +2520,22 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 Name tmpName = getSyntheticName("loc");
                 JCExpression cond = make.at(diagPos).Binary(JCTree.EQ, make.at(diagPos).Ident(tmpName), make.Literal(TypeTags.BOT, null));
                 JCExpression initLocation = callExpression(diagPos, 
-                                                                    null, 
-                                                                    defs.addStaticDependentName, 
+                                                                    null,
+                                                                    defs.addStaticDependentName,
                                                                     make.at(diagPos).Assign(make.at(diagPos).Ident(tmpName), applyExpression));
-                Type morphedReturnType = typeMorpher.typeMorphInfo(msym.getReturnType()).getMorphedType();
+                JavafxTypeMorpher.TypeMorphInfo tmi = typeMorpher.typeMorphInfo(msym.getReturnType());
+                Type morphedReturnType = tmi.getMorphedType();
                 bindingExpressionDefs.append(make.VarDef(
-                                                                    make.Modifiers(Flags.PRIVATE), 
-                                                                    tmpName, 
-                                                                    makeTypeTree(morphedReturnType, diagPos), 
+                                                                    make.Modifiers(Flags.PRIVATE),
+                                                                    tmpName,
+                                                                    makeTypeTree(morphedReturnType, diagPos),
                                                                     make.Literal(TypeTags.BOT, null)));
                 JCExpression funcLoc = make.at(diagPos).Conditional(cond, 
                                                                     initLocation, 
                                                                     make.at(diagPos).Ident(tmpName));
                 return state.wantLocation() ? funcLoc : callExpression(diagPos, 
-                                                                    make.at(diagPos).Parens(funcLoc), 
-                                                                    defs.getMethodName);
+                                                                    make.at(diagPos).Parens(funcLoc),
+                                                                    defs.locationGetMethodName[tmi.getTypeKind()]);
             }
 
         }).doit();
@@ -2615,7 +2615,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             
             private JCExpression callSetMethod(JCExpression target, List<JCExpression> args) {
                 JCExpression transTarget = translate(target, Wrapped.InLocation); // must be Location
-                JCFieldAccess setSelect = make.Select(transTarget, defs.setMethodName);
+                JCFieldAccess setSelect = make.Select(transTarget,
+                                                      args.size() == 1
+                                                              ? defs.locationSetMethodName[typeMorpher.typeMorphInfo(target.type).getTypeKind()]
+                                                              : defs.setMethodName);
                 return make.at(diagPos).Apply(null, setSelect, args);
             }
 
@@ -3162,17 +3165,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCModifiers ret = mods;
         ListBuffer<JCAnnotation> annotations;
         if ((flags & Flags.PUBLIC) != 0) {
-            annotations = ListBuffer.<JCAnnotation>lb();
+            annotations = ListBuffer.lb();
             annotations.append(make.Annotation(make.Identifier(publicAnnotationStr), List.<JCExpression>nil()));
             ret = make.Modifiers(mods.flags, annotations.toList());
         }
         else if ((flags & Flags.PRIVATE) != 0) {
-            annotations = ListBuffer.<JCAnnotation>lb();
+            annotations = ListBuffer.lb();
             annotations.append(make.Annotation(make.Identifier(privateAnnotationStr), List.<JCExpression>nil()));
             ret = make.Modifiers(mods.flags, annotations.toList());
         }
         else if ((flags & Flags.PROTECTED) != 0) {        
-            annotations = ListBuffer.<JCAnnotation>lb();
+            annotations = ListBuffer.lb();
             annotations.append(make.Annotation(make.Identifier(protectedAnnotationStr), List.<JCExpression>nil()));
             ret = make.Modifiers(mods.flags, annotations.toList());
         }                

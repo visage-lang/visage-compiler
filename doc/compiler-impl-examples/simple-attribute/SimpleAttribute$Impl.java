@@ -35,14 +35,14 @@ public class SimpleAttribute$Impl implements SimpleAttribute$Intf {
 
         receiver.get$a().addChangeListener(new ChangeListener() {
             public boolean onChange(Location location) {
-                System.out.println("a is now " + receiver.get$a().get());
+                System.out.println("a is now " + receiver.get$a().getAsInt());
                 return true;
             }
         });
     }
 
     protected static void userInit$(final SimpleAttribute$Intf receiver) {
-        System.out.println("a = " + receiver.get$a().get());
+        System.out.println("a = " + receiver.get$a().getAsInt());
     }
 
     public void initialize$() {
@@ -55,12 +55,12 @@ public class SimpleAttribute$Impl implements SimpleAttribute$Intf {
     public static void main(String[] args) {
         SimpleAttribute$Impl instance = new SimpleAttribute$Impl();
         instance.initialize$();
-        System.out.println(instance.get$a().get());
+        System.out.println(instance.get$a().getAsInt());
 
         instance = new SimpleAttribute$Impl();
         instance.init$a(IntVar.make(4));
         instance.initialize$();
-        System.out.println(instance.get$a().get());
+        System.out.println(instance.get$a().getAsInt());
     }
 }
 

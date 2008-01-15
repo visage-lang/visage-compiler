@@ -104,9 +104,9 @@ public class BijectiveBindTest extends JavaFXTestCase {
             public Integer mapBackwards(Integer b) { return b - 1; }
         });
         assertEquals(6, i);
-        j.set(9);
+        j.setAsInt(9);
         assertEquals(8, i);
-        i.set(4);
+        i.setAsInt(4);
         assertEquals(5, j);
 
         assertEquals(Bindings.getPeerLocations(i), new Location[] { j });
@@ -126,11 +126,11 @@ public class BijectiveBindTest extends JavaFXTestCase {
             }
         });
 
-        assertEquals(7, i.get());
-        i.set(9);
+        assertEquals(7, i.getAsInt());
+        i.setAsInt(9);
         assertEquals("9", s.get());
         s.set("11");
-        assertEquals(11, i.get());
+        assertEquals(11, i.getAsInt());
 
         assertEquals(Bindings.getPeerLocations(i), new Location[] { s });
         assertEquals(Bindings.getPeerLocations(s), new Location[] { i });
@@ -138,7 +138,7 @@ public class BijectiveBindTest extends JavaFXTestCase {
 
     public void testGarbageCollection() {
         final IntLocation i = IntVar.make(0);
-        if (i.get() == 0) {
+        if (i.getAsInt() == 0) {
             final IntLocation j = IntVar.make(7);
             Bindings.bijectiveBind(i, j, new Bijection<Integer, Integer>() {
                 public Integer mapForwards(Integer a) { return a + 1; }
@@ -151,7 +151,7 @@ public class BijectiveBindTest extends JavaFXTestCase {
 
         System.gc();
         assertEquals(1, ((AbstractLocation) i).getListenerCount());
-        i.set(3);
+        i.setAsInt(3);
         assertEquals(0, ((AbstractLocation) i).getListenerCount());            
 
         assertEquals(Bindings.getPeerLocations(i) /* empty */);
@@ -169,24 +169,24 @@ public class BijectiveBindTest extends JavaFXTestCase {
             public Integer mapForwards(Integer a) { return a + 1; }
             public Integer mapBackwards(Integer b) { return b - 1; }
         });
-        assertEquals(7, i.get());
-        assertEquals(8, j.get());
-        assertEquals(9, k.get());
+        assertEquals(7, i.getAsInt());
+        assertEquals(8, j.getAsInt());
+        assertEquals(9, k.getAsInt());
 
-        i.set(0);
-        assertEquals(0, i.get());
-        assertEquals(1, j.get());
-        assertEquals(2, k.get());
+        i.setAsInt(0);
+        assertEquals(0, i.getAsInt());
+        assertEquals(1, j.getAsInt());
+        assertEquals(2, k.getAsInt());
 
-        j.set(5);
-        assertEquals(4, i.get());
-        assertEquals(5, j.get());
-        assertEquals(6, k.get());
+        j.setAsInt(5);
+        assertEquals(4, i.getAsInt());
+        assertEquals(5, j.getAsInt());
+        assertEquals(6, k.getAsInt());
 
-        k.set(11);
-        assertEquals(9, i.get());
-        assertEquals(10, j.get());
-        assertEquals(11, k.get());
+        k.setAsInt(11);
+        assertEquals(9, i.getAsInt());
+        assertEquals(10, j.getAsInt());
+        assertEquals(11, k.getAsInt());
 
         assertEquals(Bindings.getPeerLocations(i), j, k);
         assertEquals(Bindings.getPeerLocations(j), i, k);

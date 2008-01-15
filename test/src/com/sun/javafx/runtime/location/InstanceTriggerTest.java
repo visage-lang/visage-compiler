@@ -40,9 +40,9 @@ public class InstanceTriggerTest extends JavaFXTestCase {
         CountingListener cl = new CountingListener();
         v.addChangeListener(cl);
         assertEquals(0, cl.count);
-        v.set(4);
+        v.setAsInt(4);
         assertEquals(1, cl.count);
-        v.set(4);
+        v.setAsInt(4);
         assertEquals(1, cl.count);
     }
 
@@ -53,9 +53,9 @@ public class InstanceTriggerTest extends JavaFXTestCase {
         CountingListener cl = new CountingListener();
         v.addChangeListener(cl);
         assertEquals(0, cl.count);
-        v.set(otherSeq);
+        v.setAsSequence(otherSeq);
         assertEquals(1, cl.count);
-        v.set(otherButEqualSeq);
+        v.setAsSequence(otherButEqualSeq);
         assertEquals(1, cl.count);
     }
 
@@ -68,25 +68,25 @@ public class InstanceTriggerTest extends JavaFXTestCase {
             CountingListener cl = new CountingListener();
             v.addWeakListener(cl);
             assertEquals(0, cl.count);
-            v.set(v.get() + 1);
+            v.setAsInt(v.getAsInt() + 1);
             assertEquals(1, cl.count);
             assertEquals(i+1, ((AbstractLocation) v).getListenerCount());
         }
 
         // "Force" GC, make sure weak listener goes away
         System.gc();
-        v.set(0);
+        v.setAsInt(0);
         assertEquals(0, ((AbstractLocation) v).getListenerCount());
 
         // "Force" GC, make sure weak listener stays around
         CountingListener cl = new CountingListener();
         v.addWeakListener(cl);
         assertEquals(0, cl.count);
-        v.set(2);
+        v.setAsInt(2);
         assertEquals(1, cl.count);
         assertEquals(1, ((AbstractLocation) v).getListenerCount());
         System.gc();
-        v.set(5);
+        v.setAsInt(5);
         assertEquals(1, ((AbstractLocation) v).getListenerCount());
 
         // "Force" GC, make sure strong but out-of-scope listener stays around
@@ -95,11 +95,11 @@ public class InstanceTriggerTest extends JavaFXTestCase {
             cl = new CountingListener();
             v.addChangeListener(cl);
             assertEquals(0, cl.count);
-            v.set(v.get() + 1);
+            v.setAsInt(v.getAsInt() + 1);
             assertEquals(1, cl.count);
         }
         System.gc();
-        v.set(0);
+        v.setAsInt(0);
         assertEquals(1, ((AbstractLocation) v).getListenerCount());
     }
 
@@ -108,16 +108,16 @@ public class InstanceTriggerTest extends JavaFXTestCase {
         final int[] last = new int[1];
         v.addChangeListener(new ChangeListener() {
             public boolean onChange(Location location) {
-                last[0] = ((IntLocation) location).getPreviousValue();
+                last[0] = ((IntLocation) location).getPreviousAsInt();
                 return true;
             }
         });
 
-        v.set(3);
+        v.setAsInt(3);
         assertEquals(0, last[0]);
-        v.set(4);
+        v.setAsInt(4);
         assertEquals(3, last[0]);
-        v.set(5);
+        v.setAsInt(5);
         assertEquals(4, last[0]);
     }
 }

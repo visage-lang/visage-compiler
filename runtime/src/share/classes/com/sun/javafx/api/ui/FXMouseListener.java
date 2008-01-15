@@ -25,27 +25,21 @@
 
 package com.sun.javafx.api.ui;
 
-import com.sun.javafx.runtime.location.BooleanLocation;
-import com.sun.scenario.scenegraph.JSGPanel;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-import java.lang.reflect.InvocationTargetException;
-import java.util.IdentityHashMap;
-import java.util.Set;
-import com.sun.scenario.scenegraph.SGNode;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelListener;
-import java.awt.Point;
+import java.awt.*;
+import java.awt.event.*;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.sun.javafx.runtime.location.BooleanLocation;
+import com.sun.scenario.scenegraph.JSGPanel;
+import com.sun.scenario.scenegraph.SGNode;
 
 public class FXMouseListener implements MouseListener, MouseMotionListener, MouseWheelListener {
     static Class targetClass = null;
@@ -101,7 +95,7 @@ public class FXMouseListener implements MouseListener, MouseMotionListener, Mous
         try {
             Method meth = desc.getReadMethod();
             BooleanLocation location = (BooleanLocation) meth.invoke(obj);
-            location.set(value);
+            location.setAsBoolean(value);
         } catch (IllegalAccessException ex) {
             Logger.getLogger(FXMouseListener.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IllegalArgumentException ex) {
@@ -115,7 +109,7 @@ public class FXMouseListener implements MouseListener, MouseMotionListener, Mous
         try {
             Method meth = desc.getReadMethod();
             BooleanLocation location = (BooleanLocation) meth.invoke(obj);
-            return location.get();
+            return location.getAsBoolean();
         } catch (IllegalAccessException ex) {
             Logger.getLogger(FXMouseListener.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IllegalArgumentException ex) {

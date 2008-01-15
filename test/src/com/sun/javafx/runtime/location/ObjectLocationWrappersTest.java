@@ -37,7 +37,7 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
         final IntLocation i = IntVar.make(0);
         final IntLocation ie = new IntExpression(false) {
             public int computeValue() {
-                return i.get() + 1;
+                return i.getAsInt() + 1;
             }
         };
         final ObjectLocation<Integer> oi = i.asObjectLocation();
@@ -46,27 +46,27 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
         assertTrue(oi instanceof MutableLocation);
         assertFalse(oie instanceof MutableLocation);
 
-        assertEquals(i.get(), oi.get().intValue());
-        i.set(0);
-        assertEquals(i.get(), oi.get().intValue());
-        i.set(Integer.MAX_VALUE);
-        assertEquals(i.get(), oi.get().intValue());
-        i.set(Integer.MIN_VALUE);
-        assertEquals(i.get(), oi.get().intValue());
+        assertEquals(i.getAsInt(), oi.get().intValue());
+        i.setAsInt(0);
+        assertEquals(i.getAsInt(), oi.get().intValue());
+        i.setAsInt(Integer.MAX_VALUE);
+        assertEquals(i.getAsInt(), oi.get().intValue());
+        i.setAsInt(Integer.MIN_VALUE);
+        assertEquals(i.getAsInt(), oi.get().intValue());
         oi.set(0);
-        assertEquals(i.get(), oi.get().intValue());
+        assertEquals(i.getAsInt(), oi.get().intValue());
         oi.set(Integer.MAX_VALUE);
-        assertEquals(i.get(), oi.get().intValue());
+        assertEquals(i.getAsInt(), oi.get().intValue());
         oi.set(Integer.MIN_VALUE);
-        assertEquals(i.get(), oi.get().intValue());
+        assertEquals(i.getAsInt(), oi.get().intValue());
 
-        i.set(0);
-        assertEquals(1, ie.get());
+        i.setAsInt(0);
+        assertEquals(1, ie.getAsInt());
         assertEquals(1, oie.get().intValue());
 
         assertThrows(UnsupportedOperationException.class, new VoidCallable() {
             public void call() throws Exception {
-                ie.set(3);
+                ie.setAsInt(3);
             }
         });
         assertThrows(UnsupportedOperationException.class, new VoidCallable() {
@@ -80,7 +80,7 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
         final DoubleLocation i = DoubleVar.make(0);
         final DoubleLocation ie = new DoubleExpression(false) {
             public double computeValue() {
-                return i.get() + 1;
+                return i.getAsDouble() + 1;
             }
         };
         final ObjectLocation<Double> oi = i.asObjectLocation();
@@ -89,27 +89,27 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
         assertTrue(oi instanceof MutableLocation);
         assertFalse(oie instanceof MutableLocation);
 
-        assertEquals(i.get(), oi.get().doubleValue());
-        i.set(0);
-        assertEquals(i.get(), oi.get().doubleValue());
-        i.set(Integer.MAX_VALUE);
-        assertEquals(i.get(), oi.get().doubleValue());
-        i.set(Integer.MIN_VALUE);
-        assertEquals(i.get(), oi.get().doubleValue());
+        assertEquals(i.getAsDouble(), oi.get().doubleValue());
+        i.setAsDouble(0);
+        assertEquals(i.getAsDouble(), oi.get().doubleValue());
+        i.setAsDouble(Integer.MAX_VALUE);
+        assertEquals(i.getAsDouble(), oi.get().doubleValue());
+        i.setAsDouble(Integer.MIN_VALUE);
+        assertEquals(i.getAsDouble(), oi.get().doubleValue());
         oi.set(0.0);
-        assertEquals(i.get(), oi.get().doubleValue());
+        assertEquals(i.getAsDouble(), oi.get().doubleValue());
         oi.set(Double.MAX_VALUE);
-        assertEquals(i.get(), oi.get().doubleValue());
+        assertEquals(i.getAsDouble(), oi.get().doubleValue());
         oi.set(Double.MIN_VALUE);
-        assertEquals(i.get(), oi.get().doubleValue());
+        assertEquals(i.getAsDouble(), oi.get().doubleValue());
 
-        i.set(0);
-        assertEquals(1.0, ie.get());
+        i.setAsDouble(0);
+        assertEquals(1.0, ie.getAsDouble());
         assertEquals(1.0, oie.get().doubleValue());
 
         assertThrows(UnsupportedOperationException.class, new VoidCallable() {
             public void call() throws Exception {
-                ie.set(3);
+                ie.setAsDouble(3);
             }
         });
         assertThrows(UnsupportedOperationException.class, new VoidCallable() {
@@ -123,7 +123,7 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
         final BooleanLocation i = BooleanVar.make(true);
         final BooleanLocation ie = new BooleanExpression(false) {
             public boolean computeValue() {
-                return !i.get();
+                return !i.getAsBoolean();
             }
         };
         final ObjectLocation<Boolean> oi = i.asObjectLocation();
@@ -132,23 +132,23 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
         assertTrue(oi instanceof MutableLocation);
         assertFalse(oie instanceof MutableLocation);
 
-        assertEquals(i.get(), oi.get().booleanValue());
-        i.set(false);
-        assertEquals(i.get(), oi.get().booleanValue());
-        i.set(true);
-        assertEquals(i.get(), oi.get().booleanValue());
+        assertEquals(i.getAsBoolean(), oi.get().booleanValue());
+        i.setAsBoolean(false);
+        assertEquals(i.getAsBoolean(), oi.get().booleanValue());
+        i.setAsBoolean(true);
+        assertEquals(i.getAsBoolean(), oi.get().booleanValue());
         oi.set(true);
-        assertEquals(i.get(), oi.get().booleanValue());
+        assertEquals(i.getAsBoolean(), oi.get().booleanValue());
         oi.set(false);
-        assertEquals(i.get(), oi.get().booleanValue());
+        assertEquals(i.getAsBoolean(), oi.get().booleanValue());
 
-        i.set(false);
-        assertEquals(true, ie.get());
+        i.setAsBoolean(false);
+        assertEquals(true, ie.getAsBoolean());
         assertEquals(true, oie.get().booleanValue());
 
         assertThrows(UnsupportedOperationException.class, new VoidCallable() {
             public void call() throws Exception {
-                ie.set(false);
+                ie.setAsBoolean(false);
             }
         });
         assertThrows(UnsupportedOperationException.class, new VoidCallable() {

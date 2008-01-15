@@ -25,56 +25,13 @@
 
 package com.sun.javafx.api.ui;
 
-import com.sun.javafx.api.ui.UIContextImpl.FXTreeModel;
-import com.sun.javafx.api.ui.UIContextImpl.InvisibleCaret;
-import com.sun.javafx.runtime.FXObject;
-import com.sun.javafx.runtime.location.BooleanLocation;
-import com.sun.javafx.runtime.location.ObjectLocation;
-import com.sun.javafx.runtime.location.SequenceLocation;
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Composite;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.Paint;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.Toolkit;
-import java.awt.Transparency;
+import java.awt.*;
 import java.awt.datatransfer.Transferable;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
+import java.awt.dnd.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -86,76 +43,32 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.*;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JApplet;
-import javax.swing.JComponent;
-import javax.swing.JDesktopPane;
-import javax.swing.JFileChooser;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JTree;
-import javax.swing.JViewport;
-import javax.swing.Scrollable;
-import javax.swing.SpinnerModel;
-import javax.swing.SwingUtilities;
-import javax.swing.ToolTipManager;
+import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.*;
 import javax.swing.plaf.TabbedPaneUI;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.Document;
+import javax.swing.text.*;
 import javax.swing.text.Position.Bias;
-import javax.swing.text.View;
-import javax.swing.text.ViewFactory;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.*;
 import javax.swing.text.html.HTMLEditorKit.HTMLFactory;
-import javax.swing.text.html.StyleSheet;
-import javax.swing.text.Element;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultCaret;
-import javax.swing.text.DefaultFormatterFactory;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.NumberFormatter;
-import javax.swing.text.Position;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.html.HTML;
-import javax.swing.text.html.ImageView;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+
+import com.sun.javafx.runtime.FXObject;
+import com.sun.javafx.runtime.location.BooleanLocation;
+import com.sun.javafx.runtime.location.ObjectLocation;
+import com.sun.javafx.runtime.location.SequenceLocation;
 
 /**
  *
@@ -697,7 +610,7 @@ public class UIContextImpl implements UIContext {
             //Value value = (Value)parent;
             //return value.getCardinality(mCells);
                 SequenceLocation location = (SequenceLocation) mCells.invoke(parent);
-                return location.get().size();
+                return location.getAsSequence().size();
             } catch (Throwable ex) {
                 Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
             }                
@@ -726,7 +639,7 @@ public class UIContextImpl implements UIContext {
             *****/
             try {
                 SequenceLocation location = (SequenceLocation) mCells.invoke(parent);
-                int size =  location.get().size();
+                int size =  location.getAsSequence().size();
                 for(int i = 0; i < size; i++) {
                     if(location.get(i) == child) {
                         return i;
@@ -797,13 +710,13 @@ public class UIContextImpl implements UIContext {
             Method inSelMethod = getProperty(FXTreeModel.treeMethods, "inSelectionChange");
             Method selectedMethod = getProperty(treeCellMethods, "selected");
             BooleanLocation inSelectionChangeLoc = (BooleanLocation)inSelMethod.invoke(mTree);
-            inSelectionChangeLoc.set(true);            
+            inSelectionChangeLoc.setAsBoolean(true);
             //mTree.setBoolean("inSelectionChange", 0, true);
             if (old != null) {
                 Object oldLead = old.getLastPathComponent();
                 if (oldLead != null) {
                     BooleanLocation selectedLoc = (BooleanLocation)selectedMethod.invoke(oldLead);
-                    selectedLoc.set(false);
+                    selectedLoc.setAsBoolean(false);
                     //oldLead.setBoolean("selected", 0, false);
                 }
             }
@@ -812,12 +725,12 @@ public class UIContextImpl implements UIContext {
                 Object newLead = p.getLastPathComponent();
                 if (newLead != null) {
                     BooleanLocation selectedLoc = (BooleanLocation)selectedMethod.invoke(newLead);
-                    selectedLoc.set(true);
+                    selectedLoc.setAsBoolean(true);
                     //newLead.setBoolean("selected", 0, true);
                 }
             }
             //mTree.setBoolean("inSelectionChange", 0, false);
-            inSelectionChangeLoc.set(false);
+            inSelectionChangeLoc.setAsBoolean(false);
             } catch (Throwable ex) {
                 Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
             } 

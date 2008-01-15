@@ -32,13 +32,13 @@ package com.sun.javafx.runtime.location;
  */
 public interface DoubleLocation extends Location {
     /** Retrieve the current value of this location, recomputing if necessary */
-    double get();
+    double getAsDouble();
 
     /** Retrieve the previous value of this location; only defined while change listeners are being notified */
-    public double getPreviousValue();
+    public double getPreviousAsDouble();
 
     /** Set the current value of this location, recomputing if necessary */
-    double set(double value);
+    double setAsDouble(double value);
 
     /** Get a reference to an ObjectLocation<Double> that describes the same location */
     public ObjectLocation<Double> asObjectLocation();

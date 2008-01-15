@@ -54,15 +54,15 @@ public class IntVar extends AbstractLocation implements IntLocation, MutableLoca
     }
 
 
-    public int get() {
+    public int getAsInt() {
         return value;
     }
 
-    public int getPreviousValue() {
+    public int getPreviousAsInt() {
         return previousValue;
     }
 
-    public int set(int value) {
+    public int setAsInt(int value) {
         if (this.value != value) {
             previousValue = this.value;
             this.value = value;

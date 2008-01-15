@@ -46,8 +46,8 @@ class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implements Sequ
     protected Sequence<T> computeValue() {
         Sequence<? extends T>[] sequences = Util.newSequenceArray(locations.length);
         for (int i = 0, offset = 0; i < locations.length; i++) {
-            sequences[i] = locations[i].get();
-            Class eClass = locations[i].get().getElementType();
+            sequences[i] = locations[i].getAsSequence();
+            Class eClass = locations[i].getAsSequence().getElementType();
             if (!clazz.isAssignableFrom(eClass))
                 throw new ClassCastException("cannot cast " + eClass.getName()
                         + " segment to " + clazz.getName() + " sequence");

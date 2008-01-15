@@ -32,13 +32,13 @@ package com.sun.javafx.runtime.location;
  */
 public interface BooleanLocation extends Location {
     /** Retrieve the current value of this location, recomputing if necessary */
-    boolean get();
+    boolean getAsBoolean();
 
     /** Retrieve the previous value of this location; only defined while change listeners are being notified */
-    public boolean getPreviousValue();
+    public boolean getPreviousAsBoolean();
 
     /** Set the current value of this location, recomputing if necessary */
-    boolean set(boolean value);
+    boolean setAsBoolean(boolean value);
 
     /** Get a reference to an ObjectLocation<Boolean> that describes the same location */
     public ObjectLocation<Boolean> asObjectLocation();

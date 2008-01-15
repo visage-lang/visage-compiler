@@ -35,7 +35,7 @@ public interface ObjectLocation<T> extends Location {
     T get();
 
     /** Retrieve the previous value of this location; only defined while change listeners are being notified */
-    public T getPreviousValue();
+    public T getPrevious();
 
     /** Modify the value associated with this Location */
     T set(T value);

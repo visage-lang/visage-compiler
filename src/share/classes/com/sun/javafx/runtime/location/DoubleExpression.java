@@ -43,17 +43,17 @@ public abstract class DoubleExpression extends AbstractLocation implements Doubl
         addDependencies(dependencies);
     }
 
-    public double get() {
+    public double getAsDouble() {
         if (!isValid())
             update();
         return value;
     }
 
-    public double getPreviousValue() {
+    public double getPreviousAsDouble() {
         return previousValue;
     }
 
-    public double set(double value) {
+    public double setAsDouble(double value) {
         throw new UnsupportedOperationException();
     }
 

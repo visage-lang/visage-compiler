@@ -54,15 +54,15 @@ public class DoubleVar extends AbstractLocation implements DoubleLocation, Mutab
     }
 
 
-    public double get() {
+    public double getAsDouble() {
         return value;
     }
 
-    public double getPreviousValue() {
+    public double getPreviousAsDouble() {
         return previousValue;
     }
 
-    public double set(double value) {
+    public double setAsDouble(double value) {
         if (this.value != value) {
             previousValue = this.value;
             this.value = value;

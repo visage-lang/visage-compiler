@@ -55,14 +55,14 @@ public class DumbMutableSequenceTest extends JavaFXTestCase {
         for (int i = 0; i < 10; i++) {
             replaceSlice(ds, ds.size(), ds.size() - 1, i);
             seq.insert(i);
-            assertEquals(seq.get(), ds.get(Integer.class));
+            assertEquals(seq.getAsSequence(), ds.get(Integer.class));
             ds.testValid();
         }
 
         for (int i = 0; i < 10; i++) {
             replaceSlice(ds, 0, -1, i);
             seq.insertFirst(i);
-            assertEquals(seq.get(), ds.get(Integer.class));
+            assertEquals(seq.getAsSequence(), ds.get(Integer.class));
             ds.testValid();
         }
 
@@ -70,7 +70,7 @@ public class DumbMutableSequenceTest extends JavaFXTestCase {
             int n = r.nextInt(ds.size());
             replaceSlice(ds, n, n);
             seq.delete(n);
-            assertEquals(seq.get(), ds.get(Integer.class));
+            assertEquals(seq.getAsSequence(), ds.get(Integer.class));
             ds.testValid();
         }
     }
@@ -84,7 +84,7 @@ public class DumbMutableSequenceTest extends JavaFXTestCase {
             int n = r.nextInt(ds.size() + 1);
             replaceSlice(ds, n, n-1, i);
             seq.replaceSlice(n, n-1, Sequences.make(Integer.class, i));
-            assertEquals(seq.get(), ds.get(Integer.class));
+            assertEquals(seq.getAsSequence(), ds.get(Integer.class));
             ds.testValid();
         }
 
@@ -92,7 +92,7 @@ public class DumbMutableSequenceTest extends JavaFXTestCase {
             int n = r.nextInt(ds.size());
             replaceSlice(ds, n, n, i, i);
             seq.replaceSlice(n, n, Sequences.make(Integer.class, i, i));
-            assertEquals(seq.get(), ds.get(Integer.class));
+            assertEquals(seq.getAsSequence(), ds.get(Integer.class));
             ds.testValid();
         }
     }

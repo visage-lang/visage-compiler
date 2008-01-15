@@ -27,19 +27,19 @@ public class SequenceElementLocation<T> extends AbstractLocation implements Obje
         return value;
     }
 
-    public T getPreviousValue() {
+    public T getPrevious() {
         return previousValue;
     }
 
     public T set(T value) {
-        return seq.set(index.get(), value);
+        return seq.set(index.getAsInt(), value);
     }
 
     @Override
     public void update() {
         if (!isValid()) {
-            indexValue = index.get();
-            value = seq.get().get(indexValue);
+            indexValue = index.getAsInt();
+            value = seq.getAsSequence().get(indexValue);
             // @@@ Should this be .equals() ?
             setValid(previousValue != value);
         }

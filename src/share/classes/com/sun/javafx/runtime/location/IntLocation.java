@@ -32,13 +32,13 @@ package com.sun.javafx.runtime.location;
  */
 public interface IntLocation extends Location {
     /** Retrieve the current value of this location, recomputing if necessary */
-    public int get();
+    public int getAsInt();
 
     /** Retrieve the previous value of this location; only defined while change listeners are being notified */
-    public int getPreviousValue();
+    public int getPreviousAsInt();
 
     /** Set the current value of this location, recomputing if necessary */
-    public int set(int value);
+    public int setAsInt(int value);
 
     /** Get a reference to an ObjectLocation<Integer> that describes the same location */
     public ObjectLocation<Integer> asObjectLocation();

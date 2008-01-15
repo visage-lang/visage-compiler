@@ -61,9 +61,9 @@ public abstract class AbstractBoundSequence<T> extends AbstractSequenceLocation<
     }
 
     @Override
-    public Sequence<T> get() {
+    public Sequence<T> getAsSequence() {
         ensureValid();
-        return super.get();
+        return super.getAsSequence();
     }
 
     @Override

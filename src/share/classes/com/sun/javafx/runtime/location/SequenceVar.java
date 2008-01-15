@@ -70,7 +70,7 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
     }
 
     @Override
-    public Sequence<T> set(Sequence<? extends T> newValue) {
+    public Sequence<T> setAsSequence(Sequence<? extends T> newValue) {
         if (equals(value, newValue))
             return value;
         else
@@ -100,7 +100,7 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
 
     @Override
     public void deleteAll() {
-        set(Sequences.emptySequence((Class<T>) value.getElementType()));
+        setAsSequence(Sequences.emptySequence((Class<T>) value.getElementType()));
     }
 
     @Override

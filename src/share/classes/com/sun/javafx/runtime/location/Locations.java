@@ -134,15 +134,15 @@ public class Locations {
         }
 
         public Integer get() {
-            return location.get();
+            return location.getAsInt();
         }
 
-        public Integer getPreviousValue() {
-            return location.getPreviousValue();
+        public Integer getPrevious() {
+            return location.getPreviousAsInt();
         }
 
         public Integer set(Integer value) {
-            return location.set(value);
+            return location.setAsInt(value);
         }
 
         public Location getUnderlyingLocation() {
@@ -164,15 +164,15 @@ public class Locations {
             this.location = location;
         }
 
-        public double get() {
-            return location.get();
+        public double getAsDouble() {
+            return location.getAsInt();
         }
 
-        public double getPreviousValue() {
-            return location.getPreviousValue();
+        public double getPreviousAsDouble() {
+            return location.getPreviousAsInt();
         }
 
-        public double set(double value) {
+        public double setAsDouble(double value) {
             throw new UnsupportedOperationException();
         }
 
@@ -208,15 +208,15 @@ public class Locations {
             this.location = location;
         }
 
-        public int get() {
-            return location.get();
+        public int getAsInt() {
+            return location.getAsInt();
         }
 
-        public int getPreviousValue() {
-            return location.getPreviousValue();
+        public int getPreviousAsInt() {
+            return location.getPreviousAsInt();
         }
 
-        public int set(int value) {
+        public int setAsInt(int value) {
             throw new UnsupportedOperationException();
         }
 
@@ -245,15 +245,15 @@ public class Locations {
         }
 
         public Double get() {
-            return location.get();
+            return location.getAsDouble();
         }
 
-        public Double getPreviousValue() {
-            return location.getPreviousValue();
+        public Double getPrevious() {
+            return location.getPreviousAsDouble();
         }
 
         public Double set(Double value) {
-            return location.set(value);
+            return location.setAsDouble(value);
         }
 
         public Location getUnderlyingLocation() {
@@ -284,15 +284,15 @@ public class Locations {
             this.location = location;
         }
 
-        public double get() {
-            return location.get();
+        public double getAsDouble() {
+            return location.getAsDouble();
         }
 
-        public double getPreviousValue() {
-            return location.getPreviousValue();
+        public double getPreviousAsDouble() {
+            return location.getPreviousAsDouble();
         }
 
-        public double set(double value) {
+        public double setAsDouble(double value) {
             throw new UnsupportedOperationException();
         }
 
@@ -321,15 +321,15 @@ public class Locations {
         }
 
         public Boolean get() {
-            return location.get();
+            return location.getAsBoolean();
         }
 
-        public Boolean getPreviousValue() {
-            return location.getPreviousValue();
+        public Boolean getPrevious() {
+            return location.getPreviousAsBoolean();
         }
 
         public Boolean set(Boolean value) {
-            return location.set(value);
+            return location.setAsBoolean(value);
         }
 
         public Location getUnderlyingLocation() {
@@ -360,15 +360,15 @@ public class Locations {
             this.location = location;
         }
 
-        public boolean get() {
-            return location.get();
+        public boolean getAsBoolean() {
+            return location.getAsBoolean();
         }
 
-        public boolean getPreviousValue() {
-            return location.getPreviousValue();
+        public boolean getPreviousAsBoolean() {
+            return location.getPreviousAsBoolean();
         }
 
-        public boolean set(boolean value) {
+        public boolean setAsBoolean(boolean value) {
             throw new UnsupportedOperationException();
         }
 
@@ -399,8 +399,8 @@ public class Locations {
             return location.get();
         }
 
-        public T getPreviousValue() {
-            return location.getPreviousValue();
+        public T getPrevious() {
+            return location.getPrevious();
         }
 
         public T set(T value) {
@@ -435,19 +435,19 @@ public class Locations {
             return location.get(position);
         }
 
-        public Sequence<T> get() {
-            return location.get();
+        public Sequence<T> getAsSequence() {
+            return location.getAsSequence();
         }
 
-        public Sequence<T> getPreviousValue() {
-            return location.getPreviousValue();
+        public Sequence<T> getPreviousAsSequence() {
+            return location.getPreviousAsSequence();
         }
 
         public Iterator<T> iterator() {
             return location.iterator();
         }
 
-        public Sequence<T> set(Sequence<? extends T> value) {
+        public Sequence<T> setAsSequence(Sequence<? extends T> value) {
             throw new UnsupportedOperationException();
         }
 

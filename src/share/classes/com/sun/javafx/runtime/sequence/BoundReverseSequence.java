@@ -12,12 +12,12 @@ class BoundReverseSequence<T> extends AbstractBoundSequence<T> implements Sequen
     private final SequenceLocation<T> location;
 
     BoundReverseSequence(SequenceLocation<T> location) {
-        super(location.get().getElementType());
+        super(location.getAsSequence().getElementType());
         this.location = location;
     }
 
     protected Sequence<T> computeValue() {
-        return location.get().reverse();
+        return location.getAsSequence().reverse();
     }
 
     protected void initialize() {

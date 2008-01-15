@@ -42,17 +42,17 @@ public abstract class BooleanExpression extends AbstractLocation implements Bool
         addDependencies(dependencies);
     }
 
-    public boolean get() {
+    public boolean getAsBoolean() {
         if (!isValid())
             update();
         return value;
     }
 
-    public boolean getPreviousValue() {
+    public boolean getPreviousAsBoolean() {
         return previousValue;
     }
 
-    public boolean set(boolean value) {
+    public boolean setAsBoolean(boolean value) {
         throw new UnsupportedOperationException();
     }
 

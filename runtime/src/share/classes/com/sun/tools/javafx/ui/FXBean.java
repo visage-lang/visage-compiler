@@ -25,13 +25,6 @@
 
 package com.sun.tools.javafx.ui;
 
-import com.sun.javafx.runtime.FXObject;
-import com.sun.javafx.runtime.location.BooleanLocation;
-import com.sun.javafx.runtime.location.DoubleLocation;
-import com.sun.javafx.runtime.location.IntLocation;
-import com.sun.javafx.runtime.location.ObjectLocation;
-import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.sequence.Sequence;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -40,6 +33,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.sun.javafx.runtime.location.*;
+import com.sun.javafx.runtime.sequence.Sequence;
 
 /**
  * A Bean utill class to support FX clases
@@ -163,7 +159,7 @@ public class FXBean {
             Method meth = desc.getReadMethod();
             if(meth != null) {
                 BooleanLocation location = (BooleanLocation) meth.invoke(instance);
-                location.set(value);
+                location.setAsBoolean(value);
             }else {
                 throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
             }
@@ -190,11 +186,10 @@ public class FXBean {
             throw new IllegalArgumentException("Attribute: " + attribute + " is not gettable");
         }
         if(desc.getPropertyType() == Boolean.TYPE || desc.getPropertyType() == Boolean.class) {
-            Boolean b = (Boolean)meth.invoke(instance);
-            return b.booleanValue();
+            return (Boolean)meth.invoke(instance);
         }else if(desc.getPropertyType() == BooleanLocation.class) {
             BooleanLocation location = (BooleanLocation) meth.invoke(instance);
-            return location.get();
+            return location.getAsBoolean();
         }else {
             throw new IllegalArgumentException(beanClass + "." + attribute + " is not a Boolean type");
         }
@@ -216,7 +211,7 @@ public class FXBean {
         if(desc.getPropertyType() == Double.TYPE || desc.getPropertyType() == Double.class) {
             Method meth = desc.getWriteMethod();
             if(meth != null) {
-                Double d = new Double(value);
+                Double d = value;
                 meth.invoke(instance, d);
             }else {
                 throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
@@ -233,7 +228,7 @@ public class FXBean {
             Method meth = desc.getReadMethod();
             if(meth != null) {
                 DoubleLocation location = (DoubleLocation) meth.invoke(instance);
-                location.set(value);  
+                location.setAsDouble(value);
             }else {
                 throw new IllegalArgumentException("Attribute: " + attribute + " is not settable");
             }                
@@ -260,14 +255,13 @@ public class FXBean {
             throw new IllegalArgumentException("Attribute: " + attribute + " is not gettable");
         }
         if (desc.getPropertyType() == Double.TYPE || desc.getPropertyType() == Double.class) {
-            Double d = (Double) meth.invoke(instance);
-            return d.doubleValue();
+            return (Double) meth.invoke(instance);
         } else if (desc.getPropertyType() == Float.TYPE || desc.getPropertyType() == Float.class) {
             Float d = (Float) meth.invoke(instance);
             return d.doubleValue();
         } else if (desc.getPropertyType() == DoubleLocation.class) {
             DoubleLocation location = (DoubleLocation) meth.invoke(instance);
-            return location.get();
+            return location.getAsDouble();
         } else {
             throw new IllegalArgumentException(beanClass + "." + attribute + " is not a Number type");
         }
@@ -328,7 +322,7 @@ public class FXBean {
         }else if(desc.getPropertyType() == IntLocation.class) {
             Method meth = desc.getReadMethod();
             IntLocation location = (IntLocation) meth.invoke(instance);
-            location.set(value);
+            location.setAsInt(value);
         } else {
             throw new IllegalArgumentException(beanClass + "." + attribute + " is not a Number type");
         }
@@ -361,14 +355,13 @@ public class FXBean {
             Short b = (Short) meth.invoke(instance);
             return b.intValue();
         } else if (desc.getPropertyType() == Integer.TYPE || desc.getPropertyType() == Integer.class) {
-            Integer b = (Integer) meth.invoke(instance);
-            return b.intValue();
+            return (Integer) meth.invoke(instance);
         } else if (desc.getPropertyType() == Long.TYPE || desc.getPropertyType() == Long.class) {
             Long b = (Long) meth.invoke(instance);
             return b.intValue();
         } else if (desc.getPropertyType() == IntLocation.class) {
             IntLocation location = (IntLocation) meth.invoke(instance);
-            return location.get();
+            return location.getAsInt();
         } else {
             throw new IllegalArgumentException(beanClass + "." + attribute + " is not a Number type");
         }
@@ -398,7 +391,7 @@ public class FXBean {
             }else {
                 v = Double.valueOf(value.toString());
             }
-            location.set(v);
+            location.setAsDouble(v);
         }else if (propertyType == IntLocation.class) {
             Method meth = desc.getReadMethod();
             if(meth == null) {
@@ -411,7 +404,7 @@ public class FXBean {
             }else {
                 v = Integer.valueOf(value.toString());
             }
-            location.set(v);
+            location.setAsInt(v);
         }else if (propertyType == BooleanLocation.class) {
             Method meth = desc.getReadMethod();
             if(meth == null) {
@@ -424,7 +417,7 @@ public class FXBean {
             }else {
                 v = Boolean.valueOf(value.toString());
             }
-            location.set(v);
+            location.setAsBoolean(v);
         }else if(desc.getPropertyType() == ObjectLocation.class) {
             Method meth = desc.getReadMethod();
             if(meth == null) {
@@ -460,13 +453,13 @@ public class FXBean {
         Class propertyType = desc.getPropertyType();
         if(propertyType == DoubleLocation.class) {
             DoubleLocation location = (DoubleLocation)meth.invoke(instance);
-            return new Double(location.get());
+            return location.getAsDouble();
         }else if (propertyType == IntLocation.class) {
             IntLocation location = (IntLocation)meth.invoke(instance);
-            return new Integer(location.get());
+            return location.getAsInt();
         }else if (propertyType == BooleanLocation.class) {
             BooleanLocation location = (BooleanLocation)meth.invoke(instance);
-            return(Boolean.valueOf(location.get()));
+            return(location.getAsBoolean());
         }else if(desc.getPropertyType() == ObjectLocation.class) {
             ObjectLocation location = (ObjectLocation) meth.invoke(instance);
             return location.get();
@@ -640,7 +633,7 @@ public class FXBean {
         }
         Method meth = desc.getReadMethod();
         SequenceLocation location = (SequenceLocation) meth.invoke(instance);
-        return location.get().size();
+        return location.getAsSequence().size();
     }  
     
     
@@ -662,7 +655,7 @@ public class FXBean {
         }
         Method meth = desc.getReadMethod();
         SequenceLocation location = (SequenceLocation) meth.invoke(instance);
-        return location.get().flatten().get(index);
+        return location.getAsSequence().flatten().get(index);
     }   
     
     /**
@@ -682,7 +675,7 @@ public class FXBean {
         }
         Method meth = desc.getReadMethod();
         SequenceLocation location = (SequenceLocation) meth.invoke(instance);
-        location.set(value);
+        location.setAsSequence(value);
     }
     
     /**
@@ -717,7 +710,7 @@ public class FXBean {
      */
     public Sequence getSequence(Object instance, String attribute) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         SequenceLocation location = getSequenceLocation(instance, attribute);
-        return location.get(); 
+        return location.getAsSequence();
     }    
     
     /**

@@ -37,9 +37,10 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypes;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
-import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 
@@ -66,7 +67,6 @@ public class JavafxInitializationBuilder {
     final Name postInitName;
     private final Name getNumFieldsName;
     private final Name initHelperName;
-    private final Name getPreviousValueName;
     private static final String assertNonNullName = "assertNonNull";
     private static final String addName = "add";
     private final Name initializeNonSyntheticName;
@@ -104,7 +104,6 @@ public class JavafxInitializationBuilder {
         postInitName = names.fromString("postInit$");
         getNumFieldsName = names.fromString("getNumFields$");
         initHelperName = names.fromString("initHelper$");
-        getPreviousValueName = names.fromString("getPreviousValue");
         initializeNonSyntheticName = names.fromString("initialize");
         onChangeArgName = names.fromString("$location");
         outerAccessorName = names.fromString("accessOuter$");
@@ -299,7 +298,7 @@ public class JavafxInitializationBuilder {
                                 make.at(diagPos).TypeCast(   // cast to the specific Location type -- eg: (IntLocation) $location
                                     toJava.makeTypeTree(locationType, diagPos, types.isJFXClass(locationType.tsym)),
                                     make.at(diagPos).Ident(onChangeArgName)),
-                                getPreviousValueName),
+                                defs.getPreviousMethodName[vmi.getTypeKind()]),
                             List.<JCExpression>nil()        // no args
                             )));
         }

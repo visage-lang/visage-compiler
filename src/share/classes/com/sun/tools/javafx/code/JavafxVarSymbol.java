@@ -42,6 +42,8 @@ public class JavafxVarSymbol extends VarSymbol {
     public static final int TYPE_KIND_INT = 3;
     public static final int TYPE_KIND_SEQUENCE = 4;
     public static final int TYPE_KIND_COUNT = 5;
+
+    public static final String[] accessorSuffixes = new String[] { "", "AsDouble", "AsBoolean", "AsInt", "AsSequence" };
     
     /** Creates a new instance of JavafxVarSymbol */
     public JavafxVarSymbol(long flags,

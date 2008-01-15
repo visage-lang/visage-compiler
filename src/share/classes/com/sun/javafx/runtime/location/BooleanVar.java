@@ -54,15 +54,15 @@ public class BooleanVar extends AbstractLocation implements BooleanLocation, Mut
     }
 
 
-    public boolean get() {
+    public boolean getAsBoolean() {
         return value;
     }
 
-    public boolean getPreviousValue() {
+    public boolean getPreviousAsBoolean() {
         return previousValue;
     }
 
-    public boolean set(boolean value) {
+    public boolean setAsBoolean(boolean value) {
         if (this.value != value) {
             previousValue = this.value;
             this.value = value;

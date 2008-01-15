@@ -38,7 +38,7 @@ public class PointerTest extends JavaFXTestCase {
         final SequenceLocation<Integer> seqvar = SequenceVar.make(Sequences.range(1, 3));
         final SequenceLocation<Integer> seqexp = new SequenceExpression<Integer>(Integer.class, false, seqvar) {
           public Sequence<? extends Integer> computeValue() {
-            return seqvar.get();
+            return seqvar.getAsSequence();
           }
         };
         final IntLocation intvar1 = IntVar.make(3);
@@ -62,7 +62,7 @@ public class PointerTest extends JavaFXTestCase {
         assertEquals((Integer) 3, pintvar2.get());
         assertEquals((Integer) 3, anotherPintvar2.get());
         pintvar2.set(5);
-        assertEquals(5, intvar2.get());
+        assertEquals(5, intvar2.getAsInt());
         assertEquals((Integer) 5, pintvar2.get());
         assertEquals((Integer) 5, anotherPintvar2.get());
 

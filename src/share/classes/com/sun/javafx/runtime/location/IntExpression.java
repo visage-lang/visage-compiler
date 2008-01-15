@@ -42,17 +42,17 @@ public abstract class IntExpression extends AbstractLocation implements IntLocat
         addDependencies(dependencies);
     }
 
-    public int get() {
+    public int getAsInt() {
         if (!isValid())
             update();
         return value;
     }
 
-    public int getPreviousValue() {
+    public int getPreviousAsInt() {
         return previousValue;
     }
 
-    public int set(int value) {
+    public int setAsInt(int value) {
         throw new UnsupportedOperationException();
     }
 

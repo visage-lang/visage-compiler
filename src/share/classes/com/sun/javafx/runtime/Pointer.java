@@ -57,13 +57,13 @@ public class Pointer implements Property<Object> {
     public Object get() {
         switch (type) {
             case INTEGER:
-                return ((IntLocation) location).get();
+                return ((IntLocation) location).getAsInt();
             case DOUBLE:
-                return ((DoubleLocation) location).get();
+                return ((DoubleLocation) location).getAsDouble();
             case BOOLEAN:
-                return ((BooleanLocation) location).get();
+                return ((BooleanLocation) location).getAsBoolean();
             case SEQUENCE:
-                return ((SequenceLocation<?>) location).get();
+                return ((SequenceLocation<?>) location).getAsSequence();
             default:
                 return ((ObjectLocation<?>) location).get();
         }
@@ -72,16 +72,16 @@ public class Pointer implements Property<Object> {
     public void set(Object value) {
         switch (type) {
             case INTEGER:
-                ((IntLocation) location).set((Integer) value);
+                ((IntLocation) location).setAsInt((Integer) value);
                 break;
             case DOUBLE:
-                ((DoubleLocation) location).set((Double) value);
+                ((DoubleLocation) location).setAsDouble((Double) value);
                 break;
             case BOOLEAN:
-                ((BooleanLocation) location).set((Boolean) value);
+                ((BooleanLocation) location).setAsBoolean((Boolean) value);
                 break;
             case SEQUENCE:
-                ((SequenceLocation) location).set((Sequence) value);
+                ((SequenceLocation) location).setAsSequence((Sequence) value);
                 break;
             case OBJECT:
                 ((ObjectLocation) location).set(value);

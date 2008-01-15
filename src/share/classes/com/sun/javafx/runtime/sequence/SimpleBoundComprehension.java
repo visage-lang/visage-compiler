@@ -39,7 +39,7 @@ abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequence<V> i
     abstract V computeElement(T element, int index);
 
     protected Sequence<V> computeValue() {
-        Sequence<T> sequence = sequenceLocation.get();
+        Sequence<T> sequence = sequenceLocation.getAsSequence();
         V[] intermediateResults = Util.<V>newObjectArray(sequence.size());
         for (int i = 0; i < intermediateResults.length; i++)
             intermediateResults[i] = computeElement(sequence.get(i), i);

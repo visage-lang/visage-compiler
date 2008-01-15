@@ -23,7 +23,7 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
         this.clazz = clazz;
     }
 
-    public Sequence<T> getPreviousValue() {
+    public Sequence<T> getPreviousAsSequence() {
         return previousValue;
     }
 
@@ -94,12 +94,12 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     }
 
     @Override
-    public Sequence<T> get() {
+    public Sequence<T> getAsSequence() {
         return value;
     }
 
     @Override
-    public Sequence<T> set(Sequence<? extends T> value) {
+    public Sequence<T> setAsSequence(Sequence<? extends T> value) {
         throw new UnsupportedOperationException();
     }
 

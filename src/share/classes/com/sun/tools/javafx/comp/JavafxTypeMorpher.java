@@ -25,6 +25,18 @@
 
 package com.sun.tools.javafx.comp;
 
+import java.io.OutputStreamWriter;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import java.io.OutputStreamWriter;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
@@ -38,27 +50,22 @@ import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javafx.code.*;
+import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.attributeGetMethodNamePrefix;
 import static com.sun.tools.javafx.comp.JavafxDefs.interfaceSuffix;
 import com.sun.tools.javafx.comp.JavafxToJava.Wrapped;
-import com.sun.tools.javafx.tree.*;
-
-import java.io.OutputStreamWriter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-/**
+import com.sun.tools.javafx.tree.*/**
  *
  * @author Robert Field
  */
 public class JavafxTypeMorpher {
     protected static final Context.Key<JavafxTypeMorpher> typeMorpherKey =
             new Context.Key<JavafxTypeMorpher>();
-    
+
     private final JavafxDefs defs;
     private final Name.Table names;
     final ClassReader reader;
@@ -67,18 +74,18 @@ public class JavafxTypeMorpher {
     private final Log log;
     private final JavafxToJava toJava;
     private final JavafxTypes types;
-    
+
     public static final String locationPackageName = "com.sun.javafx.runtime.location.";
-    
+
     public LocationNameSymType[] varLocation;
     public LocationNameSymType[] exprLocation;
     public LocationNameSymType[] declLocation;
     public LocationNameSymType[] holder;
     public LocationNameSymType   baseLocation;
-    
+
     private final Type[] realTypeByKind;
     private final Object[] defaultValueByKind;
-        
+
     public class LocationNameSymType {
         public final Name name;
         public final ClassSymbol sym;
@@ -86,12 +93,12 @@ public class JavafxTypeMorpher {
         LocationNameSymType(String which) {
             name = Name.fromString(names, locationPackageName + which);
             sym = reader.enterClass(name);
-            type = sym.type;      
+            type = sym.type;
         }
     }
-    
+
     private Map<Symbol, VarMorphInfo> vmiMap = new HashMap<Symbol, VarMorphInfo>();
-    
+
     class VarMorphInfo extends TypeMorphInfo {
         private final Symbol sym;
         private final boolean isMethod;
@@ -99,13 +106,13 @@ public class JavafxTypeMorpher {
         private boolean haveDeterminedMorphability = false;
         private boolean isBoundTo = false;
         private boolean isAssignedTo = false;
-        
+
         VarMorphInfo(Symbol sym) {
             super((sym.kind == Kinds.MTH)? ((MethodType)sym.type).getReturnType() : sym.type);
             this.sym = sym;
             this.isMethod = (sym.kind == Kinds.MTH);
         }
-        
+
             private void determineMorphability() {
            if (!isMethod) {
                Symbol owner = getSymbol().owner;
@@ -135,7 +142,7 @@ public class JavafxTypeMorpher {
            }
            return mustMorph;
        }
-        
+
         private void markMustMorph() { mustMorph = true; }
         private void markDeterminedMorphability() { haveDeterminedMorphability = true; }
         private boolean haveDeterminedMorphability() { return haveDeterminedMorphability; }
@@ -148,13 +155,13 @@ public class JavafxTypeMorpher {
             return sym;
         }
     }
-    
+
     class TypeMorphInfo {
         final Type realType;
         final Type morphedType;
         int typeKind;
         Type elementType = null;
-        
+
         TypeMorphInfo(Type symType) {
             TypeSymbol realTsym = symType.tsym;
             //check if symbol is already a Location, needed for source class
@@ -212,7 +219,7 @@ public class JavafxTypeMorpher {
                 this.morphedType = symType == syms.voidType? symType : generifyIfNeeded(declLocationType(typeKind), this);
             }
         }
-        
+
         protected boolean isSequence() {
             return types.erasure(realType) == syms.javafx_SequenceTypeErasure;
         }
@@ -224,7 +231,7 @@ public class JavafxTypeMorpher {
 
         public int getTypeKind() { return typeKind; }
     }
-    
+
     VarMorphInfo varMorphInfo(Symbol sym) {
         VarMorphInfo vmi = vmiMap.get(sym);
         if (vmi == null) {
@@ -233,21 +240,21 @@ public class JavafxTypeMorpher {
         }
         return vmi;
     }
-    
+
     TypeMorphInfo typeMorphInfo(Type type) {
         return new TypeMorphInfo(type);
     }
-    
+
     public static JavafxTypeMorpher instance(Context context) {
         JavafxTypeMorpher instance = context.get(typeMorpherKey);
         if (instance == null)
             instance = new JavafxTypeMorpher(context);
         return instance;
     }
-    
+
     protected JavafxTypeMorpher(Context context) {
         context.put(typeMorpherKey, this);
-        
+
         defs = JavafxDefs.instance(context);
         syms = (JavafxSymtab)(JavafxSymtab.instance(context));
         types = JavafxTypes.instance(context);
@@ -273,32 +280,32 @@ public class JavafxTypeMorpher {
             exprLocation[kind] = new LocationNameSymType(locClass[kind] + "Expression");
             declLocation[kind] = new LocationNameSymType(locClass[kind] + "Location");
         }
-        
+
         baseLocation = new LocationNameSymType("Location");
-                
+
         realTypeByKind = new Type[TYPE_KIND_COUNT];
         realTypeByKind[TYPE_KIND_OBJECT] = syms.objectType;
         realTypeByKind[TYPE_KIND_DOUBLE] = syms.doubleType;
         realTypeByKind[TYPE_KIND_BOOLEAN] = syms.booleanType;
         realTypeByKind[TYPE_KIND_INT] = syms.intType;
         realTypeByKind[TYPE_KIND_SEQUENCE] = syms.javafx_SequenceType;
-        
+
         defaultValueByKind = new Object[TYPE_KIND_COUNT];
         defaultValueByKind[TYPE_KIND_OBJECT] = null;
-        defaultValueByKind[TYPE_KIND_DOUBLE] = new Double(0.0);
-        defaultValueByKind[TYPE_KIND_BOOLEAN] = Integer.valueOf(0);
-        defaultValueByKind[TYPE_KIND_INT] = Integer.valueOf(0);
+        defaultValueByKind[TYPE_KIND_DOUBLE] = 0.0;
+        defaultValueByKind[TYPE_KIND_BOOLEAN] = 0;
+        defaultValueByKind[TYPE_KIND_INT] = 0;
         defaultValueByKind[TYPE_KIND_SEQUENCE] = null; //TODO: empty sequence
     }
-       
+
     Type declLocationType(int typeKind) {
         return declLocation[typeKind].type;
     }
-    
+
     Type varLocationType(int typeKind) {
         return varLocation[typeKind].type;
     }
-    
+
     Type expressionLocationType(int typeKind) {
         return exprLocation[typeKind].type;
     }
@@ -307,23 +314,22 @@ public class JavafxTypeMorpher {
         LocationNameSymType lnst = lnsta[typeKind];
         return ((JavafxTreeMaker)make).at(diagPos).Identifier(lnst.name);
     }
-    
+
     JCExpression castToReal(Type realType, JCExpression expr) {
         // cast the expression so that boxing works
         JCExpression typeExpr = make.Type(realType);
-        JCExpression result = make.TypeCast(typeExpr, expr);     
-        return result;
+        return make.TypeCast(typeExpr, expr);
     }
-    
+
     private Type generifyIfNeeded(Type aLocationType, TypeMorphInfo tmi) {
         Type newType;
-        if (tmi.getTypeKind() == TYPE_KIND_OBJECT || 
+        if (tmi.getTypeKind() == TYPE_KIND_OBJECT ||
                 tmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
             List<Type> actuals = List.of(tmi.getElementType());
             Type clazzOuter = declLocationType(tmi.getTypeKind()).getEnclosingType();
 
-            List<Type> newActuals = List.<Type>nil();
-            actualsLabel: for (Type t : actuals) {
+            List<Type> newActuals = List.nil();
+            for (Type t : actuals) {
                 if ((t.tsym instanceof ClassSymbol) &&
                         (t.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
                     String str = t.tsym.flatName().toString().replace("$", ".");
@@ -332,24 +338,24 @@ public class JavafxTypeMorpher {
                     if (tp != null) {
                         tp.tsym.completer = null;
                         newActuals = newActuals.append(tp);
-                        break actualsLabel;
+                        break;
                     }
                 }
-                
+
                 newActuals = newActuals.append(t);
             }
- 
+
             newType = new ClassType(clazzOuter, newActuals, aLocationType.tsym);
         } else {
             newType = aLocationType;
         }
         return newType;
     }
-        
+
     public JCExpression convertVariableReference(DiagnosticPosition diagPos,
-                                                                                            JCExpression varRef, Symbol sym, boolean staticReference,
-                                                                                            boolean wantLocation, boolean createDynamicDependencies) {
-        
+                                                 JCExpression varRef, Symbol sym, boolean staticReference,
+                                                 boolean wantLocation, boolean createDynamicDependencies) {
+
         JCExpression expr = varRef;
 
         if (sym instanceof VarSymbol) {
@@ -370,12 +376,12 @@ public class JavafxTypeMorpher {
                     if (createDynamicDependencies) {
                         expr = toJava.callExpression(diagPos, null, defs.addDynamicDependentName, expr);
                     }
-                }   
+                }
                 if (wantLocation) {
                     // already in correct form-- leave it
                 } else {
                     // non-bind context -- want v1.get()
-                    JCFieldAccess getSelect = make.Select(expr, defs.getMethodName);
+                    JCFieldAccess getSelect = make.Select(expr, defs.locationGetMethodName[vmi.getTypeKind()]);
                     List<JCExpression> getArgs = List.nil();
                     expr = make.at(diagPos).Apply(null, getSelect, getArgs);
                 }
@@ -393,7 +399,7 @@ public class JavafxTypeMorpher {
         }
          return expr;
     }
-    
+
     private void pretty(JCTree tree) {
         OutputStreamWriter osw = new OutputStreamWriter(System.out);
         Pretty pretty = new Pretty(osw, false);
@@ -410,7 +416,7 @@ public class JavafxTypeMorpher {
             System.err.println("Pretty print got: " + ex);
         }
     }
-    
+
     private void fxPretty(JCTree tree) {
         OutputStreamWriter osw = new OutputStreamWriter(System.out);
         Pretty pretty = new JavafxPretty(osw, false);
@@ -427,12 +433,12 @@ public class JavafxTypeMorpher {
             System.err.println("Pretty print got: " + ex);
         }
     }
-    
+
     //========================================================================================================================
     // Bound Expression support
     //========================================================================================================================
-    
-    /** Make an attributed tree representing a literal. This will be 
+
+    /** Make an attributed tree representing a literal. This will be
      *  a Literal node.
      *  @param type       The literal's type.
      *  @param value      The literal's value.
@@ -441,11 +447,11 @@ public class JavafxTypeMorpher {
         int tag = value==null? TypeTags.BOT : type.tag;
         return make.at(diagPos).Literal(tag, value).setType(type.constType(value));
     }
-    
+
     public BindAnalysis bindAnalysis(JCExpression expr) {
         return new BindAnalysis(expr);
     }
-    
+
     class BindAnalysis extends JavafxTreeScanner {
 
         boolean iterationSeen = false;
@@ -468,11 +474,11 @@ public class JavafxTypeMorpher {
             }
             scan(expr);
         }
-        
+
         boolean isBindPermeable() {
             return !(iterationSeen || assignmentSeen || exceptionHandlingSeen || nonTerminalReturnSeen);
         }
-        
+
         @Override
         public void visitApply(JCMethodInvocation tree) {
             super.visitApply(tree);
@@ -483,7 +489,7 @@ public class JavafxTypeMorpher {
                 javaCallSeen = true;
             }
         }
-        
+
         @Override
         public void visitForExpression(JFXForExpression tree) {
             super.visitForExpression(tree);
@@ -545,7 +551,7 @@ public class JavafxTypeMorpher {
             // don't decend into classes
         }
     }
-    
+
     /**
      * Build a list of dependencies for an expression.  It should include
      * any references to variables (which are Locations) but exclude
@@ -555,7 +561,7 @@ public class JavafxTypeMorpher {
     List<JCExpression> buildDependencies(JCExpression expr) {
         final Map<VarSymbol, JCExpression> refMap = new HashMap<VarSymbol, JCExpression>();
         final Set<VarSymbol> internalSet = new HashSet<VarSymbol>();
-        
+
         JavafxTreeScanner ts = new JavafxTreeScanner() {
             @Override
             public void visitIdent(JCIdent tree)   {
@@ -576,10 +582,10 @@ public class JavafxTypeMorpher {
                     VarSymbol ivsym = (VarSymbol)tree.sym;
                     VarMorphInfo vmi = varMorphInfo(ivsym);
                     if (toJava.shouldMorph(vmi)) {
-                         if (ivsym.isStatic()) { 
+                         if (ivsym.isStatic()) {
                              // this is a static reference, set up for a static dependency
                              // otherwise, this will be handled as a dynamic dependency
-                             refMap.put(ivsym, tree); 
+                             refMap.put(ivsym, tree);
                         }
                     }
                 }
@@ -593,28 +599,28 @@ public class JavafxTypeMorpher {
             }
         };
         ts.scan(expr);
-        
-        ListBuffer<JCExpression> depend = ListBuffer.<JCExpression>lb();
+
+        ListBuffer<JCExpression> depend = ListBuffer.lb();
         for (Map.Entry<VarSymbol, JCExpression> ref : refMap.entrySet()) {
             if (!internalSet.contains(ref.getKey())) {
                 depend.append( toJava.translate( ref.getValue(), Wrapped.InLocation ) );
             }
         }
-        
+
         return depend.toList();
     }
-    
+
     /**
      * Create an ExpressionLocation from "stmt" which is the translation of the expression into
      * a statement.  The ExpressionLocation is created with an anonymous binding expression
      * instance and the static dependencies.
      */
-    JCExpression buildExpression(DiagnosticPosition diagPos, 
+    JCExpression buildExpression(DiagnosticPosition diagPos,
             TypeMorphInfo tmi,
-            JCStatement stmt, 
-            boolean isLazy, 
+            JCStatement stmt,
+            boolean isLazy,
             List<JCExpression> staticDependencies) {
-    
+
         JCStatement clearStmt = toJava.callStatement(diagPos, null, defs.clearDynamicDependenciesName);
         List<JCStatement> stmts;
         if (stmt.getTag() == JavafxTag.BLOCK) {
@@ -622,7 +628,7 @@ public class JavafxTypeMorpher {
             stmts = block.getStatements();
             stmts = stmts.prepend(clearStmt);
         } else {
-            stmts = List.<JCStatement>of(clearStmt, stmt);
+            stmts = List.of(clearStmt, stmt);
         }
         JCBlock body = make.at(diagPos).Block(0, stmts);
 

@@ -15,8 +15,8 @@ class Outer implements Outer$Intf {
 
         final class Listener$1 extends Listener {
             public void onEvent() {
-                System.out.println(Middle$1.this.get$a().get()
-                    + Outer.this.get$o().get());
+                System.out.println(Middle$1.this.get$a().getAsInt()
+                    + Outer.this.get$o().getAsInt());
             }
         }
     }

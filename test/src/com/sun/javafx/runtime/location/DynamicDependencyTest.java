@@ -39,17 +39,17 @@ public class DynamicDependencyTest extends JavaFXTestCase {
         final IntLocation b = IntVar.make(1);
         final IntLocation c = new IntExpression(false, a, b) {
             public int computeValue() {
-                return a.get() + b.get();
+                return a.getAsInt() + b.getAsInt();
             }
         };
 
-        assertEquals(2, c.get());
+        assertEquals(2, c.getAsInt());
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
 
-        a.set(3);
-        b.set(3);
+        a.setAsInt(3);
+        b.setAsInt(3);
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
@@ -67,7 +67,7 @@ public class DynamicDependencyTest extends JavaFXTestCase {
                 clearDynamicDependencies();
                 addDynamicDependent(a);
                 addDynamicDependent(b);
-                return a.get() + b.get();
+                return a.getAsInt() + b.getAsInt();
             }
         };
 
@@ -75,7 +75,7 @@ public class DynamicDependencyTest extends JavaFXTestCase {
         assertEquals(0, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
 
-        assertEquals(2, c.get());
+        assertEquals(2, c.getAsInt());
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
@@ -85,18 +85,18 @@ public class DynamicDependencyTest extends JavaFXTestCase {
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
 
-        a.set(3);
+        a.setAsInt(3);
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
 
-        assertEquals(4, c.get());
-        b.set(3);
+        assertEquals(4, c.getAsInt());
+        b.setAsInt(3);
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
 
-        assertEquals(6, c.get());
+        assertEquals(6, c.getAsInt());
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
@@ -112,7 +112,7 @@ public class DynamicDependencyTest extends JavaFXTestCase {
             public int computeValue() {
                 clearDynamicDependencies();
                 addDynamicDependent(b);
-                return a.get() + b.get();
+                return a.getAsInt() + b.getAsInt();
             }
         };
 
@@ -120,7 +120,7 @@ public class DynamicDependencyTest extends JavaFXTestCase {
         assertEquals(0, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
 
-        assertEquals(2, c.get());
+        assertEquals(2, c.getAsInt());
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
@@ -130,18 +130,18 @@ public class DynamicDependencyTest extends JavaFXTestCase {
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
 
-        a.set(3);
+        a.setAsInt(3);
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
 
-        assertEquals(4, c.get());
-        b.set(3);
+        assertEquals(4, c.getAsInt());
+        b.setAsInt(3);
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
 
-        assertEquals(6, c.get());
+        assertEquals(6, c.getAsInt());
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());

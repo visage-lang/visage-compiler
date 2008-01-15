@@ -27,6 +27,7 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 
 /**
  * Shared definitions
@@ -81,12 +82,10 @@ public class JavafxDefs {
     final Name computeValueName;
     final Name initDefName;
     final Name postInitDefName;
+    final Name[] locationGetMethodName;
+    final Name[] locationSetMethodName;
+    final Name[] getPreviousMethodName;
 
-    /**
-     * For internal use of this class
-     */
-    private final Name.Table names;
-    
     /**
      * Context set-up
      */
@@ -102,7 +101,7 @@ public class JavafxDefs {
 
     protected JavafxDefs(Context context) {
         context.put(jfxDefsKey, this);
-        names = Name.Table.instance(context);
+        Name.Table names = Name.Table.instance(context);
 
         runMethodName = names.fromString(runMethodString);
         receiverName = names.fromString(receiverNameString);
@@ -118,5 +117,13 @@ public class JavafxDefs {
         computeValueName = names.fromString("computeValue");
         initDefName = names.fromString("$init$def$name");
         postInitDefName = names.fromString("$postinit$def$name");
+        locationGetMethodName = new Name[JavafxVarSymbol.accessorSuffixes.length];
+        locationSetMethodName = new Name[JavafxVarSymbol.accessorSuffixes.length];
+        getPreviousMethodName = new Name[JavafxVarSymbol.accessorSuffixes.length];
+        for (int i=0; i< JavafxVarSymbol.accessorSuffixes.length; i++) {
+            locationGetMethodName[i] = names.fromString("get" + JavafxVarSymbol.accessorSuffixes[i]);
+            locationSetMethodName[i] = names.fromString("set" + JavafxVarSymbol.accessorSuffixes[i]);
+            getPreviousMethodName[i] = names.fromString("getPrevious" + JavafxVarSymbol.accessorSuffixes[i]);
+        }
     }
 }

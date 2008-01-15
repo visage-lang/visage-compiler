@@ -84,9 +84,9 @@ public abstract class SequenceExpression<T> extends AbstractSequenceLocation<T> 
     }
 
     @Override
-    public Sequence<T> get() {
+    public Sequence<T> getAsSequence() {
         ensureValid();
-        return super.get();
+        return super.getAsSequence();
     }
 
     @Override

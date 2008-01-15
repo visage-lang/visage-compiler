@@ -48,7 +48,7 @@ public abstract class ObjectExpression<T> extends AbstractLocation implements Ob
         return value;
     }
 
-    public T getPreviousValue() {
+    public T getPrevious() {
         return previousValue;
     }
 

@@ -41,7 +41,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         final IntLocation loc = IntVar.make(3);
         assertTrue(!loc.isLazy());
         assertEquals(3, loc);
-        loc.set(5);
+        loc.setAsInt(5);
         assertEquals(5, loc);
         assertUOE(loc, "invalidate");
     }
@@ -53,7 +53,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         final IntLocation a = IntVar.make(0);
         final IntLocation b = new IntExpression(false, a) {
             public int computeValue() {
-                return a.get() + 1;
+                return a.getAsInt() + 1;
             }
         };
 
@@ -72,12 +72,12 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         final IntLocation a = IntVar.make(0);
         final IntLocation b = new IntExpression(false, a) {
             public int computeValue() {
-                return a.get() + 1;
+                return a.getAsInt() + 1;
             }
         };
         final IntLocation c = new IntExpression(false, b) {
             public int computeValue() {
-                return b.get();
+                return b.getAsInt();
             }
         };
 
@@ -87,9 +87,9 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         assertTrue(a.isValid());
         assertFalse(b.isValid());
         assertFalse(c.isValid());
-        assertEquals(0, a.get());
+        assertEquals(0, a.getAsInt());
 
-        a.set(3);
+        a.setAsInt(3);
         assertEquals(3, a);
         assertEquals(4, b);
         assertEquals(4, c);
@@ -103,11 +103,11 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         final IntLocation a = IntVar.make(0);
         final IntLocation b = new IntExpression(true, a) {
             public int computeValue() {
-                return a.get() + 1;
+                return a.getAsInt() + 1;
             }
         };
 
-        a.set(2);
+        a.setAsInt(2);
         assertEquals(2, a);
         assertEqualsLazy(3, b);
     }
@@ -121,20 +121,20 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         final IntLocation b = IntVar.make(0);
         final IntLocation c = new IntExpression(true, a, b) {
             public int computeValue() {
-                return a.get() + b.get();
+                return a.getAsInt() + b.getAsInt();
             }
         };
 final IntLocation d = new IntExpression(false, c) {
             public int computeValue() {
-                return c.get() + 1;
+                return c.getAsInt() + 1;
             }
         };
 
         assertTrue(c.isLazy());
         assertFalse(d.isLazy());
 
-        a.set(3);
-        b.set(4);
+        a.setAsInt(3);
+        b.setAsInt(4);
         assertEquals(8, d);
         assertEquals(7, c);
     }
@@ -147,13 +147,13 @@ final IntLocation d = new IntExpression(false, c) {
         final DoubleLocation b = DoubleVar.make(0);
         final DoubleLocation c = new DoubleExpression(false, a, b) {
             public double computeValue() {
-                return a.get() + b.get();
+                return a.getAsDouble() + b.getAsDouble();
             }
         };
         assertEqualsLazy(0.0, c);
-        a.set(1.2);
+        a.setAsDouble(1.2);
         assertEquals(1.2, c);
-        b.set(4.2);
+        b.setAsDouble(4.2);
         assertEquals(5.4, c);
     }
 
@@ -179,23 +179,23 @@ final IntLocation d = new IntExpression(false, c) {
         final IntLocation v = IntVar.make(3);
         IntLocation vPlusOne = new IntExpression(false, v) {
             public int computeValue() {
-                return v.get() + 1;
+                return v.getAsInt() + 1;
             }
         };
         assertEqualsLazy(4, vPlusOne);
-        v.set(5);
+        v.setAsInt(5);
         assertEquals(6, vPlusOne);
         assertEquals(1, ((AbstractLocation) v).getListenerCount());
 
         // "Force" GC, make sure listener stays around
         System.gc();
-        v.set(5);
+        v.setAsInt(5);
         assertEquals(1, ((AbstractLocation) v).getListenerCount());
 
         // "Force" GC, make sure listener goes away
         vPlusOne = null;
         System.gc();
-        v.set(0);
+        v.setAsInt(0);
         assertEquals(0, ((AbstractLocation) v).getListenerCount());
     }
 
@@ -206,17 +206,17 @@ final IntLocation d = new IntExpression(false, c) {
         final IntLocation d = IntVar.make(0);
         final IntLocation x = new IntExpression(false, a, b) {
             public int computeValue() {
-                return a.get() + b.get();
+                return a.getAsInt() + b.getAsInt();
             }
         };
         final IntLocation y = new IntExpression(false, c, d) {
             public int computeValue() {
-                return c.get() + d.get();
+                return c.getAsInt() + d.getAsInt();
             }
         };
         final IntLocation z = new IntExpression(false, x, y) {
             public int computeValue() {
-                return x.get() + y.get();
+                return x.getAsInt() + y.getAsInt();
             }
         };
         CountingListener aCounter = new CountingListener();
@@ -234,10 +234,10 @@ final IntLocation d = new IntExpression(false, c) {
         y.addChangeListener(yCounter);
         z.addChangeListener(zCounter);
 
-        a.set(1);
-        assertEquals(x.get(), 1);
-        assertEquals(y.get(), 0);
-        assertEquals(z.get(), 1);
+        a.setAsInt(1);
+        assertEquals(x.getAsInt(), 1);
+        assertEquals(y.getAsInt(), 0);
+        assertEquals(z.getAsInt(), 1);
         assertEquals(1, aCounter.count);
         assertEquals(0, bCounter.count);
         assertEquals(0, cCounter.count);
@@ -246,10 +246,10 @@ final IntLocation d = new IntExpression(false, c) {
         assertEquals(0, yCounter.count);
         assertEquals(1, zCounter.count);
 
-        a.set(1);
-        assertEquals(x.get(), 1);
-        assertEquals(y.get(), 0);
-        assertEquals(z.get(), 1);
+        a.setAsInt(1);
+        assertEquals(x.getAsInt(), 1);
+        assertEquals(y.getAsInt(), 0);
+        assertEquals(z.getAsInt(), 1);
         assertEquals(1, aCounter.count);
         assertEquals(0, bCounter.count);
         assertEquals(0, cCounter.count);
@@ -258,10 +258,10 @@ final IntLocation d = new IntExpression(false, c) {
         assertEquals(0, yCounter.count);
         assertEquals(1, zCounter.count);
 
-        b.set(1);
-        assertEquals(x.get(), 2);
-        assertEquals(y.get(), 0);
-        assertEquals(z.get(), 2);
+        b.setAsInt(1);
+        assertEquals(x.getAsInt(), 2);
+        assertEquals(y.getAsInt(), 0);
+        assertEquals(z.getAsInt(), 2);
         assertEquals(1, aCounter.count);
         assertEquals(1, bCounter.count);
         assertEquals(0, cCounter.count);
