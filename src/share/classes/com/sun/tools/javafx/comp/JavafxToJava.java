@@ -414,9 +414,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                  if (!((JCImport)def).isStatic()) {
                     if (((JCImport)def).getQualifiedIdentifier().getTag() == JCTree.SELECT) {
                         JCFieldAccess select = (JCFieldAccess)((JCImport)def).getQualifiedIdentifier();
-                        if (select.name != names.asterisk && 
-                                ((select.sym) instanceof ClassSymbol) &&
-                                types.isJFXClass((ClassSymbol)(select.sym))) {
+                        if (select.name != names.asterisk &&
+                                types.isCompoundClass(select.sym)) {
                            imports.append(make.Import(make.Select(
                                         translate( select.selected ), 
                                         names.fromString(select.name.toString() + interfaceSuffix)), 
@@ -424,9 +423,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         }
                     }  else if (((JCImport)def).getQualifiedIdentifier().getTag() == JCTree.IDENT) {
                         JCIdent ident = (JCIdent)((JCImport)def).getQualifiedIdentifier();
-                        if (ident.name != names.asterisk && 
-                                ((ident.sym) instanceof ClassSymbol) &&
-                                types.isJFXClass((ClassSymbol)(ident.sym))) {
+                        if (ident.name != names.asterisk &&
+                                types.isCompoundClass(ident.sym)) {
                             imports.append(make.Import(make.Ident(names.fromString(ident.name.toString() + interfaceSuffix)), false));
                         }
                     }
@@ -983,7 +981,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
         // Convert initializers returning Java arrays to sequences.
         if (type.tag == TypeTags.ARRAY) {
-            JCExpression newTree = ((JCExpression)makeTypeTree(((ArrayType)type).elemtype, diagPos, types.isJFXClass(((ArrayType)type).elemtype.tsym)));
+            JCExpression newTree = ((JCExpression)makeTypeTree(((ArrayType)type).elemtype, diagPos, types.isCompoundClass(((ArrayType)type).elemtype.tsym)));
             newTree.type = ((ArrayType)type).elemtype;
             WildcardType tpType = new WildcardType(newTree.type, BoundKind.EXTENDS, type.tsym);
             ClassType classType = new ClassType(((JavafxSymtab)syms).javafx_SequenceType, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
@@ -1477,7 +1475,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             return;
         } else if (tree.name == names._super) {
             if (tree.type != null &&
-                    types.isJFXClass(tree.type.tsym)) {
+                    types.isCompoundClass(tree.type.tsym)) {
                 // "super" become just the class where the static implementation method is defined
                 //  the rest of the implementation is in visitApply
                 result = make.at(diagPos).Ident(tree.type.tsym.name);
@@ -1498,7 +1496,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
                 tree.sym.owner.kind == Kinds.TYP &&
                 !tree.sym.isStatic()) {
-            if (types.isJFXClass(tree.sym.owner)) {
+            if (types.isCompoundClass(tree.sym.owner)) {
                 convert = make.at(diagPos).Select(makeReceiver(diagPos, tree.sym, attrEnv.enclClass.sym), tree.name);
             }
             else {
@@ -1822,9 +1820,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         JCStatement makeTmpVar() {
             // Build the type declaration expression for the sequence builder
-            if (elemType.tsym != null &&
-                    elemType.tsym instanceof ClassSymbol &&
-                    (elemType.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
+            if (elemType.tsym != null && types.isCompoundClass(elemType.tsym)) {
                 String str = elemType.tsym.flatName().toString().replace("$", ".");
                 String strLookFor = str + interfaceSuffix;
                 elemType = typeMorpher.reader.enterClass(names.fromString(strLookFor)).type;

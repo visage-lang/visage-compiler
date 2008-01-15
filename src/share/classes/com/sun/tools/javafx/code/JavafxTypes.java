@@ -122,6 +122,11 @@ public class JavafxTypes extends Types {
 
         return false;
     }
+    
+    public boolean isCompoundClass(Symbol sym) {
+        return sym instanceof ClassSymbol &&
+                (sym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0;
+    }
 
     public boolean isJFXClass(Symbol sym) {
         if (!(sym instanceof ClassSymbol)) {
