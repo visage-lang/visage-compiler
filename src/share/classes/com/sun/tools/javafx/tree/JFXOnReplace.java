@@ -34,11 +34,25 @@ import com.sun.javafx.api.tree.OnReplaceTree;
  * @author Robert Field
  */
 public class JFXOnReplace extends JFXAbstractOnChange implements OnReplaceTree {
+    int endKind;
+    public static final int END_INCLUSIVE = 0;
+    // Maybe future:  public static final int END_EXCLUSIVE = 1;
+    // Maybe future:  public static final int END_IS_COUNT = 2;
+    JFXVar lastIndex;
+    JFXVar newElements;
 
     public JFXOnReplace( JFXVar oldValue, JCBlock body) {
         super(null, oldValue, body);
     }
 
+    public JFXOnReplace(JFXVar oldValue, JFXVar firstIndex, JFXVar lastIndex,
+            int endKind, JFXVar newElements, JCBlock body) {
+        super(firstIndex, oldValue, body);
+        this.lastIndex = lastIndex;
+        this.newElements = newElements;
+        this.endKind = endKind;
+    }
+    
     public void accept(JavafxVisitor v) {
         v.visitOnReplace(this);
     }
@@ -48,6 +62,18 @@ public class JFXOnReplace extends JFXAbstractOnChange implements OnReplaceTree {
     public int getTag() {
         return JavafxTag.ON_REPLACE;
     }
+    
+    public JFXVar getFirstIndex () {
+        return getIndex();
+    }
+
+    public JFXVar getLastIndex () {
+        return lastIndex;
+    }
+
+    public JFXVar getNewElements () {
+        return newElements;
+    }
 
     public JavaFXKind getJavaFXKind() {
         return JavaFXKind.ON_REPLACE;
@@ -55,5 +81,9 @@ public class JFXOnReplace extends JFXAbstractOnChange implements OnReplaceTree {
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
         return visitor.visitOnReplace(this, data);
+    }
+    
+    public int getEndKind () {
+        return endKind;
     }
 }

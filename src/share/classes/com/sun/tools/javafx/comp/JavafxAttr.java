@@ -1005,6 +1005,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 	        if (oldValue != null && oldValue.type == null) {
                     oldValue.type = onc instanceof JFXOnReplace ? tree.type : elemType;
                 }
+                if (onc instanceof JFXOnReplace) {
+                   JFXVar newElements = ((JFXOnReplace) onc).getNewElements();
+                   if (newElements != null && newElements.type == null)
+                       newElements.type = tree.type;
+                }
 
                 if (env.info.scope.owner.kind == TYP) {
                     // var is a static;
@@ -1043,6 +1048,17 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitOnReplace(JFXOnReplace tree) {
+        JFXVar lastIndex = tree.getLastIndex();
+        if (lastIndex != null) {
+            lastIndex.mods.flags |= Flags.FINAL;
+            attribVar(lastIndex, env);
+            tree.getIndex().sym.type = syms.intType;
+        }
+        JFXVar newElements = tree.getNewElements();
+        if (newElements != null) {
+            newElements.mods.flags |= Flags.FINAL;
+            attribVar(newElements, env); 
+        }
         visitAbstractOnChange(tree);
     }
     

@@ -1000,9 +1000,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         boolean prev = inOperationDef;
         try {
             inOperationDef = true;
-            JFXVar oldVal = tree.getOldValue();
             result = ((JavafxTreeMaker)make).OnReplace(
-                oldVal,
+                tree.getOldValue(), tree.getIndex(), tree.getLastIndex(),
+                tree.getEndKind(), tree.getNewElements(),
                 translate(tree.getBody()));
         }
         finally {

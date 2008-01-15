@@ -585,8 +585,25 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     @Override
     public void visitOnReplace(JFXOnReplace tree) {
         try {
-            print(" on replace ");
-            visitAbstractOnChange(tree);
+            print(" on replace");
+            if (tree.getOldValue() != null) {
+                print(" ");
+                printExpr(tree.getOldValue());
+            }
+            if (tree.getIndex() != null) {
+                print("[");
+                printExpr(tree.getIndex());
+                if (tree.getLastIndex() != null) {
+                    print(" .. ");
+                    printExpr(tree.getLastIndex());
+                }
+                print(" ]");
+            }
+            if (tree.getNewElements() != null) {
+                print("= ");
+                printExpr(tree.getNewElements());
+            }
+            print(" ");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }      

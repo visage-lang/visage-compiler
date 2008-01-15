@@ -308,6 +308,20 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
+     public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
+             JFXVar lastIndex, JFXVar newElements, JCBlock body) {
+         return OnReplace(oldValue, firstIndex, lastIndex,
+                 JFXOnReplace.END_INCLUSIVE, newElements, body);
+    }
+
+     public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
+             JFXVar lastIndex, int endKind, JFXVar newElements, JCBlock body) {
+         JFXOnReplace tree = new JFXOnReplace(oldValue, firstIndex, lastIndex,
+                 endKind, newElements, body);
+        tree.pos = pos;
+        return tree;
+    }
+    
     public JFXOnReplaceElement OnReplaceElement(JFXVar index, JFXVar oldValue, JCBlock body) {
          JFXOnReplaceElement tree = new JFXOnReplaceElement(index, oldValue, body);
         tree.pos = pos;
