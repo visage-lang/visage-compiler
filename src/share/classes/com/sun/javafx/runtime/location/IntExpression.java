@@ -56,6 +56,18 @@ public abstract class IntExpression extends AbstractLocation implements IntLocat
         throw new UnsupportedOperationException();
     }
 
+    public Integer get() {
+        return getAsInt();
+    }
+
+    public Integer getPrevious() {
+        return getPreviousAsInt();
+    }
+
+    public Integer set(Integer value) {
+        return setAsInt(value);
+    }
+
     /** Calculate the current value of the expression */
     protected abstract int computeValue();
 
@@ -68,6 +80,10 @@ public abstract class IntExpression extends AbstractLocation implements IntLocat
         }
     }
 
+    public boolean isNull() {
+        return false;
+    }
+
     @Override
     public void invalidate() {
         if (isValid())
@@ -75,7 +91,4 @@ public abstract class IntExpression extends AbstractLocation implements IntLocat
         super.invalidate();
     }
 
-    public ObjectLocation<Integer> asIntegerObjectLocation() {
-        return Locations.asObjectLocation(this);
-    }
 }

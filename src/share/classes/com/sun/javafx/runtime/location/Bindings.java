@@ -25,10 +25,10 @@
 
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.CircularBindingException;
-
 import java.lang.ref.WeakReference;
 import java.util.*;
+
+import com.sun.javafx.runtime.CircularBindingException;
 
 /**
  * Bindings -- helper class for setting up bijective bindings.
@@ -40,10 +40,6 @@ import java.util.*;
  * collected, the next time the other is updated, the listeners observe that and return false from the
  * onChange() method to detach the listener.
  *
- * Implementation note: to avoid a combinatorial explosion, the bidirectional binding machinery is defined in terms
- * of a pair of object locations.  For primitive-valued locations (e.g., IntLocation), the factory methods wrap
- * them with a wrapper that implements ObjectLocation<PrimitiveWrapperClass>.
- *
  * @author Brian Goetz
  */
 public class Bindings {
@@ -51,36 +47,6 @@ public class Bindings {
     /** Creation a bijective binding between objects of type T and U */
     public static <T, U> void bijectiveBind(ObjectLocation<T> a, ObjectLocation<U> b, Bijection<T, U> mapper) {
         new BijectiveBinding<T, U>(a, b, mapper);
-    }
-
-    /** Convenience method for bijection between IntLocation and IntLocation */
-    public static void bijectiveBind(IntLocation a, IntLocation b, Bijection<Integer, Integer> mapper) {
-        new BijectiveBinding<Integer, Integer>(a.asIntegerObjectLocation(), b.asIntegerObjectLocation(), mapper);
-    }
-
-    /** Convenience method for bijection between IntLocation and ObjectLocation */
-    public static<T> void bijectiveBind(IntLocation a, ObjectLocation<T> b, Bijection<Integer, T> mapper) {
-        new BijectiveBinding<Integer, T>(a.asIntegerObjectLocation(), b, mapper);
-    }
-
-    /** Convenience method for bijection between IntLocation and ObjectLocation */
-    public static<T> void bijectiveBind(ObjectLocation<T> a, IntLocation b, Bijection<T, Integer> mapper) {
-        new BijectiveBinding<T, Integer>(a, b.asIntegerObjectLocation(), mapper);
-    }
-
-    /** Convenience method for bijection between DoubleLocation and DoubleLocation */
-    public static void bijectiveBind(DoubleLocation a, DoubleLocation b, Bijection<Double, Double> mapper) {
-        new BijectiveBinding<Double, Double>(a.asDoubleObjectLocation(), b.asDoubleObjectLocation(), mapper);
-    }
-
-    /** Convenience method for bijection between DoubleLocation and ObjectLocation */
-    public static<T> void bijectiveBind(DoubleLocation a, ObjectLocation<T> b, Bijection<Double, T> mapper) {
-        new BijectiveBinding<Double, T>(a.asDoubleObjectLocation(), b, mapper);
-    }
-
-    /** Convenience method for bijection between DoubleLocation and ObjectLocation */
-    public static<T> void bijectiveBind(ObjectLocation<T> a, DoubleLocation b, Bijection<T, Double> mapper) {
-        new BijectiveBinding<T, Double>(a, b.asDoubleObjectLocation(), mapper);
     }
 
     /** Return the set of locations that are "peered" with this one through a chain of bidirectional bindings */

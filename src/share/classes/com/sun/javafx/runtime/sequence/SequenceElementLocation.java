@@ -24,6 +24,8 @@ public class SequenceElementLocation<T> extends AbstractLocation implements Obje
     }
 
     public T get() {
+        if (isValid())
+            update();
         return value;
     }
 
@@ -43,6 +45,10 @@ public class SequenceElementLocation<T> extends AbstractLocation implements Obje
             // @@@ Should this be .equals() ?
             setValid(previousValue != value);
         }
+    }
+
+    public boolean isNull() {
+        return get() == null;
     }
 
     @Override

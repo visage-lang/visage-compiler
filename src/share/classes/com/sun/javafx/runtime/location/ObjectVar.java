@@ -75,6 +75,10 @@ public class ObjectVar<T> extends AbstractLocation implements ObjectLocation<T>,
         return value;
     }
 
+    public boolean isNull() {
+        return value == null;
+    }
+
     @Override
     public void invalidate() {
         throw new UnsupportedOperationException();

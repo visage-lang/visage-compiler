@@ -25,6 +25,8 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.ErrorHandler;
+
 /**
  * DoubleVar represents a simple double variable as a Location.  New DoubleVars are constructed with the make() factory
  * method.  DoubleVar values are always valid; it is an error to invalidate an DoubleVar.
@@ -71,12 +73,31 @@ public class DoubleVar extends AbstractLocation implements DoubleLocation, Mutab
         return value;
     }
 
+    public Double get() {
+        return value;
+    }
+
+    public Double getPrevious() {
+        return previousValue;
+    }
+
+    public Double set(Double value) {
+        if (value == null) {
+            ErrorHandler.nullToPrimitiveCoercion("Number");
+            setAsDouble(0);
+        }
+        else
+            setAsDouble(value);
+        return value;
+    }
+
+    public boolean isNull() {
+        return false;
+    }
+
     @Override
     public void invalidate() {
         throw new UnsupportedOperationException();
     }
 
-    public ObjectLocation<Double> asDoubleObjectLocation() {
-        return Locations.asObjectLocation(this);
-    }
 }

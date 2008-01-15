@@ -192,4 +192,8 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
         throw new UnsupportedOperationException();
     }
+
+    public boolean isNull() {
+        return Sequences.size(getAsSequence()) == 0;
+    }
 }

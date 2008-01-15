@@ -66,6 +66,6 @@ public class BoundSequences {
      * where x is an Integer instance.
      */
     public static<T> SequenceLocation<Integer> singleton(IntLocation location) {
-        return new BoundSingletonSequence<Integer>(Integer.class, location.asIntegerObjectLocation());
+        return new BoundSingletonSequence<Integer>(Integer.class, location);
     }
 }

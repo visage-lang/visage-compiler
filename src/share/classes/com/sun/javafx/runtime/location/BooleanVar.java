@@ -25,6 +25,8 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.ErrorHandler;
+
 /**
  * BooleanVar represents a simple boolean variable as a Location.  New BooleanVars are constructed with the make() factory
  * method.  BooleanVar values are always valid; it is an error to invalidate an BooleanVar.
@@ -71,12 +73,31 @@ public class BooleanVar extends AbstractLocation implements BooleanLocation, Mut
         return value;
     }
 
+    public Boolean get() {
+        return value;
+    }
+
+    public Boolean getPrevious() {
+        return previousValue;
+    }
+
+    public Boolean set(Boolean value) {
+        if (value == null) {
+            ErrorHandler.nullToPrimitiveCoercion("Boolean");
+            setAsBoolean(false);
+        }
+        else
+            setAsBoolean(value);
+        return value;
+    }
+
+    public boolean isNull() {
+        return false;
+    }
+
     @Override
     public void invalidate() {
         throw new UnsupportedOperationException();
     }
 
-    public ObjectLocation<Boolean> asBooleanObjectLocation() {
-        return Locations.asObjectLocation(this);
-    }
 }

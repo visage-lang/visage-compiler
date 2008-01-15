@@ -25,6 +25,8 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.ErrorHandler;
+
 /**
  * IntVar represents a simple Integer variable as a Location.  New IntVars are constructed with the make() factory
  * method.  IntVar values are always valid; it is an error to invalidate an IntVar.
@@ -44,7 +46,7 @@ public class IntVar extends AbstractLocation implements IntLocation, MutableLoca
     }
 
     public static IntLocation makeUnmodifiable(int value) {
-        return Locations.unmodifiableLocation(new IntVar(value));
+        return Locations.unmodifiableLocation((IntLocation) new IntVar(value));
     }
 
 
@@ -71,13 +73,31 @@ public class IntVar extends AbstractLocation implements IntLocation, MutableLoca
         return value;
     }
 
+    public Integer get() {
+        return value;
+    }
+
+    public Integer getPrevious() {
+        return previousValue;
+    }
+
+    public Integer set(Integer value) {
+        if (value == null) {
+            ErrorHandler.nullToPrimitiveCoercion("Integer");
+            setAsInt(0);
+        }
+        else
+            setAsInt(value);
+        return value;
+    }
+
+    public boolean isNull() {
+        return false;
+    }
+
     @Override
     public void invalidate() {
         throw new UnsupportedOperationException();
-    }
-
-    public ObjectLocation<Integer> asIntegerObjectLocation() {
-        return Locations.asObjectLocation(this);
     }
 
     public DoubleLocation asDoubleLocation() {

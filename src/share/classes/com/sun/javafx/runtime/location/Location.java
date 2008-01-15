@@ -46,6 +46,9 @@ public interface Location {
     /** Is the value associated with this location currently valid, or would it have to be recomputed? */
     public boolean isValid();
 
+    /** Is the value assicated with this location null? */
+    public boolean isNull();
+
     /** Is this location lazy? */
     public boolean isLazy();
 

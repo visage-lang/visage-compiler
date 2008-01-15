@@ -57,6 +57,19 @@ public abstract class DoubleExpression extends AbstractLocation implements Doubl
         throw new UnsupportedOperationException();
     }
 
+    public Double get() {
+        return getAsDouble();
+    }
+
+    public Double getPrevious() {
+        return getPreviousAsDouble();
+    }
+
+    public Double set(Double value) {
+        return setAsDouble(value);
+    }
+
+
     /** Calculate the current value of the expression */
     protected abstract double computeValue();
 
@@ -68,6 +81,10 @@ public abstract class DoubleExpression extends AbstractLocation implements Doubl
         }
     }
 
+    public boolean isNull() {
+        return false;
+    }
+
     @Override
     public void invalidate() {
         if (isValid())
@@ -75,7 +92,4 @@ public abstract class DoubleExpression extends AbstractLocation implements Doubl
         super.invalidate();
     }
 
-    public ObjectLocation<Double> asDoubleObjectLocation() {
-        return Locations.asObjectLocation(this);
-    }
 }

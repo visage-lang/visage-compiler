@@ -56,6 +56,18 @@ public abstract class BooleanExpression extends AbstractLocation implements Bool
         throw new UnsupportedOperationException();
     }
 
+    public Boolean get() {
+        return getAsBoolean();
+    }
+
+    public Boolean getPrevious() {
+        return getPreviousAsBoolean();
+    }
+
+    public Boolean set(Boolean value) {
+        return setAsBoolean(value);
+    }
+
     /** Calculate the current value of the expression */
     protected abstract boolean computeValue();
 
@@ -67,6 +79,10 @@ public abstract class BooleanExpression extends AbstractLocation implements Bool
         }
     }
 
+    public boolean isNull() {
+        return false;
+    }
+
     @Override
     public void invalidate() {
         if (isValid())
@@ -74,7 +90,4 @@ public abstract class BooleanExpression extends AbstractLocation implements Bool
         super.invalidate();
     }
 
-    public ObjectLocation<Boolean> asBooleanObjectLocation() {
-        return Locations.asObjectLocation(this);
-    }
 }

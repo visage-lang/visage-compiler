@@ -30,7 +30,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface BooleanLocation extends Location {
+public interface BooleanLocation extends Location, ObjectLocation<Boolean> {
     /** Retrieve the current value of this location, recomputing if necessary */
     boolean getAsBoolean();
 
@@ -39,7 +39,4 @@ public interface BooleanLocation extends Location {
 
     /** Set the current value of this location, recomputing if necessary */
     boolean setAsBoolean(boolean value);
-
-    /** Get a reference to an ObjectLocation<Boolean> that describes the same location */
-    public ObjectLocation<Boolean> asBooleanObjectLocation();
 }

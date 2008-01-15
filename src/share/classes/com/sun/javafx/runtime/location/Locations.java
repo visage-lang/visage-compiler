@@ -52,14 +52,13 @@ public class Locations {
         return new UnmodifiableBooleanLocation(loc);
     }
 
-    public static<T> ObjectLocation<T> unmodifiableLocation(ObjectLocation<T> loc) {
+    public static <T> ObjectLocation<T> unmodifiableLocation(ObjectLocation<T> loc) {
         return new UnmodifiableObjectLocation<T>(loc);
     }
 
-    public static<T> SequenceLocation<T> unmodifiableLocation(SequenceLocation<T> loc) {
+    public static <T> SequenceLocation<T> unmodifiableLocation(SequenceLocation<T> loc) {
         return new UnmodifiableSequenceLocation<T>(loc);
     }
-
 
 
     private static abstract class LocationWrapper implements Location {
@@ -67,6 +66,10 @@ public class Locations {
 
         public boolean isValid() {
             return getLocation().isValid();
+        }
+
+        public boolean isNull() {
+            return getLocation().isNull();
         }
 
         public boolean isLazy() {
@@ -171,13 +174,22 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
+        public Double get() {
+            return getAsDouble();
+        }
+
+        public Double getPrevious() {
+            return getPreviousAsDouble();
+        }
+
+        public Double set(Double value) {
+            throw new UnsupportedOperationException();
+        }
+
         public Location getUnderlyingLocation() {
             return location;
         }
 
-        public ObjectLocation<Double> asDoubleObjectLocation() {
-            return new DoubleObjectLocation(this);
-        }
     }
 
     /**
@@ -215,11 +227,19 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public ObjectLocation<Integer> asIntegerObjectLocation() {
-            return new IntObjectLocation(this);
+        public void invalidate() {
+            throw new UnsupportedOperationException();
         }
 
-        public void invalidate() {
+        public Integer get() {
+            return getAsInt();
+        }
+
+        public Integer getPrevious() {
+            return getPreviousAsInt();
+        }
+
+        public Integer set(Integer value) {
             throw new UnsupportedOperationException();
         }
     }
@@ -291,8 +311,16 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public ObjectLocation<Double> asDoubleObjectLocation() {
-            return new DoubleObjectLocation(this);
+        public Double get() {
+            return getAsDouble();
+        }
+
+        public Double getPrevious() {
+            return getPreviousAsDouble();
+        }
+
+        public Double set(Double value) {
+            throw new UnsupportedOperationException();
         }
 
         public void invalidate() {
@@ -367,8 +395,16 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public ObjectLocation<Boolean> asBooleanObjectLocation() {
-            return new BooleanObjectLocation(this);
+        public Boolean get() {
+            return getAsBoolean();
+        }
+
+        public Boolean getPrevious() {
+            return getPreviousAsBoolean();
+        }
+
+        public Boolean set(Boolean value) {
+            throw new UnsupportedOperationException();
         }
 
         public void invalidate() {

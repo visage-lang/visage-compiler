@@ -30,7 +30,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface IntLocation extends Location {
+public interface IntLocation extends Location, ObjectLocation<Integer> {
     /** Retrieve the current value of this location, recomputing if necessary */
     public int getAsInt();
 
@@ -39,7 +39,4 @@ public interface IntLocation extends Location {
 
     /** Set the current value of this location, recomputing if necessary */
     public int setAsInt(int value);
-
-    /** Get a reference to an ObjectLocation<Integer> that describes the same location */
-    public ObjectLocation<Integer> asIntegerObjectLocation();
 }

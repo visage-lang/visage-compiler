@@ -68,6 +68,10 @@ public abstract class ObjectExpression<T> extends AbstractLocation implements Ob
         }
     }
 
+    public boolean isNull() {
+        return get() == null;
+    }
+
     @Override
     public void invalidate() {
         if (isValid())
