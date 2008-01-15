@@ -47,9 +47,9 @@ fi
 
 bootclasspath=$HOME/javafxc.jar:$HOME/javafxrt.jar 
 
+noopts=false;
 if [ $# -eq 0 ] ; then
-    "$JAVA_CMD" -Xbootclasspath/p:"$bootclasspath" com.sun.tools.javafx.Main -help
-    exit 1
+    noopts=true
 fi
 
 if [ -z "$CLASSPATH" ] ; then
@@ -71,6 +71,9 @@ while [ $# -gt 0 ] ; do
     shift
 done
 } 
+if [ "$noopts" == true ] ; then
+    args="-help"
+fi
 
 parse_args "$@" # process arguments on the command line
 
