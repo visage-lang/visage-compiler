@@ -247,6 +247,11 @@ public abstract class Node extends CanvasElement, Transformable {
 
     private attribute alignmentFilter: SGAlignment;
     attribute transformFilter: SGTransform.Affine;
+    // TODO JXFC-329 - This is a work around waiting for proper bind semantics.
+    public attribute clip: Clip on replace {
+        clipNode = clip.shape;
+        antialiasClip = clip.antialias;
+    };
     private attribute clipFilter: SGClip;
     private attribute clipNode: VisualNode /*TODO:JFXC-329 = bind if (clip == null) null else clip.shape*/ on replace {
         if (clipNode <> null)
@@ -392,7 +397,7 @@ public abstract class Node extends CanvasElement, Transformable {
     }
     protected abstract function createNode(): SGNode;
     
-    public attribute clip: Clip;
+
 
     //TODO: implement properly...
     public attribute toolTipText: String on replace  {
