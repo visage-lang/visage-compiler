@@ -141,6 +141,9 @@ tokens {
    STATEMENT;
    EXPRESSION;
    BLOCK;
+   MISSING_NAME;
+   SLICE_CLAUSE;
+   ON_REPLACE_SLICE;
    ON_REPLACE;
    ON_REPLACE_ELEMENT;
    ON_INSERT_ELEMENT;
@@ -605,8 +608,10 @@ variableDeclaration
 	    					-> ^(VAR variableLabel varModifierFlags name typeReference boundExpression? onChangeClause*)
 	;
 onChangeClause  
-	: ON REPLACE (LPAREN oldv=formalParameter RPAREN)? block
-						-> ^(ON_REPLACE[$ON] $oldv? block)
+	: ON REPLACE oldval=paramNameOpt clause=sliceClause? block
+						-> ^(ON_REPLACE_SLICE[$ON] $oldval $clause? block)
+	| ON REPLACE LPAREN oldv=formalParameter RPAREN block
+						-> ^(ON_REPLACE[$ON] $oldv block)
 	| ON REPLACE LBRACKET index=formalParameter RBRACKET (LPAREN oldv=formalParameter RPAREN)? block
 						-> ^(ON_REPLACE_ELEMENT[$ON] $index $oldv? block)
 	| ON INSERT LBRACKET index=formalParameter RBRACKET (LPAREN newv=formalParameter RPAREN)? block
@@ -614,6 +619,14 @@ onChangeClause
 	| ON DELETE LBRACKET index=formalParameter RBRACKET (LPAREN oldv=formalParameter RPAREN)? block
 						-> ^(ON_DELETE_ELEMENT[$ON] $index $oldv? block)
 	;
+sliceClause
+	: LBRACKET first=name DOTDOT last=name RBRACKET EQ newElements=name
+						-> ^(SLICE_CLAUSE $first $last $newElements)
+	;
+paramNameOpt
+        : name                                  -> name
+        |                                       -> MISSING_NAME
+        ;
 variableLabel 
 	: VAR	
 	| LET	

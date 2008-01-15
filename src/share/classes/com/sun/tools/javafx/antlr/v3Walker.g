@@ -198,7 +198,11 @@ onChanges   returns [ListBuffer<JFXAbstractOnChange> listb = ListBuffer.<JFXAbst
 	: ( onChangeClause				{ listb.append($onChangeClause.value); } )*
 	;
 onChangeClause     returns [JFXAbstractOnChange value]
-	: ^(ON_REPLACE oldv=formalParameterOpt block)
+	: ^(ON_REPLACE_SLICE oldv=paramNameOpt
+	       (^(SLICE_CLAUSE first=paramNameOpt last=paramNameOpt newElements=paramNameOpt))?
+	    block)
+							{ $value = F.at(pos($ON_REPLACE_SLICE)).OnReplace($oldv.var, $first.var, $last.var, $newElements.var, $block.value); }
+	| ^(ON_REPLACE oldv=formalParameterOpt block)
 							{ $value = F.at(pos($ON_REPLACE)).OnReplace($oldv.var, $block.value); }
 	| ^(ON_REPLACE_ELEMENT index=formalParameter oldv=formalParameterOpt block)
 							{ $value = F.at(pos($ON_REPLACE_ELEMENT)).OnReplaceElement($index.var, $oldv.var, $block.value); }
@@ -206,6 +210,10 @@ onChangeClause     returns [JFXAbstractOnChange value]
 							{ $value = F.at(pos($ON_INSERT_ELEMENT)).OnInsertElement($index.var, $newv.var, $block.value); }
 	| ^(ON_DELETE_ELEMENT index=formalParameter oldv=formalParameterOpt block)
 							{ $value = F.at(pos($ON_DELETE_ELEMENT)).OnDeleteElement($index.var, $oldv.var, $block.value); }
+	;
+paramNameOpt returns [JFXVar var]
+	: name						{ $var = F.at($name.pos).Param($name.value, F.TypeUnknown()); }
+	| MISSING_NAME					{ $var = null; }
 	;
 variableLabel    returns [boolean local, int pos]
 	: VAR						{ $local = true; $pos = pos($VAR); }
