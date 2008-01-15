@@ -27,6 +27,7 @@ package javafx.ui.canvas;
 
 
 import java.awt.Dimension;
+import java.awt.RenderingHints;
 import javafx.ui.Image;
 import javafx.ui.Stretch;
 import javafx.ui.StretchDirection;
@@ -38,20 +39,21 @@ import com.sun.scenario.scenegraph.SGNode;
  * A node that contains an Image. 
  */
 public class ImageView extends Node {
+    private attribute sgimage: SGImage = new SGImage();
     // Seems to be something wrong with this bind as
     // when image changes, awtImage does not get updated
     // after the original creation.
     private attribute awtImage: java.awt.Image //= bind image.getImage() 
     on replace {
-        //java.lang.System.out.println("ImageView.awtImage on replace");
+        //java.lang.System.out.println("ImageView.awtImage on replace: sgimage = {sgimage}");
         if (sgimage <> null) {
             this.getImage();
         }
     };
-    private attribute sgimage: SGImage;
+    
     private attribute needsScaling: Boolean;
     public attribute image: Image on replace {
-        //java.lang.System.out.println("ImageView.image on replace");
+        //java.lang.System.out.println("ImageView.image on replace image = {image}, sgimage = {sgimage}");
         awtImage = image.getImage();
         if (sgimage <> null) {
             this.getImage();
@@ -157,12 +159,21 @@ public class ImageView extends Node {
     }
 
     public attribute preload: Boolean;
-    public attribute antialias: Boolean = true;
+    public attribute antialias: Boolean = true on replace {
+        updateInterpolationHint();
+    }
     public attribute accelerate: Boolean;
     public attribute drawImmediately: Boolean = true;
     
+    public function updateInterpolationHint() : Void {
+        if (antialias) {
+            sgimage.setInterpolationHint(RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        } else {
+            sgimage.setInterpolationHint(RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+        }
+    }
     init {
-        sgimage = new SGImage();
+        //sgimage = new SGImage();
         // TODO: do we need SGImage.setImageListener()
         /*
         sgimage.setImageListener(ZImageListener {
@@ -176,6 +187,7 @@ public class ImageView extends Node {
     }
     public function createNode(): SGNode {
         getImage();
+        updateInterpolationHint();
         return sgimage;
     }
 }
