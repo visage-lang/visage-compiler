@@ -31,8 +31,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public class ObjectVar<T> extends AbstractLocation implements ObjectLocation<T>, MutableLocation {
-    private T value, previousValue;
+public class ObjectVar<T> extends AbstractObjectLocation<T> implements ObjectLocation<T>, MutableLocation {
 
 
     public static <T> ObjectLocation<T> make(T value) {
@@ -45,25 +44,9 @@ public class ObjectVar<T> extends AbstractLocation implements ObjectLocation<T>,
 
 
     private ObjectVar(T value) {
-        super(true, false);
-        this.value = value;
+        super(true, false, value);
     }
 
-
-    public T get() {
-        return value;
-    }
-
-    public T getPrevious() {
-        return previousValue;
-    }
-
-    boolean changed(T oldValue, T newValue) {
-        if (oldValue == null) {
-            return newValue != null;
-        } else
-            return !oldValue.equals(newValue);
-    }
 
     public T set(T value) {
         if (changed(this.value, value)) {
@@ -77,10 +60,6 @@ public class ObjectVar<T> extends AbstractLocation implements ObjectLocation<T>,
 
     public void setDefault() {
         set(null);
-    }
-
-    public boolean isNull() {
-        return value == null;
     }
 
     @Override

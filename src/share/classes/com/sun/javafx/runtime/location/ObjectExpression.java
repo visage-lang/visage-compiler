@@ -34,8 +34,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class ObjectExpression<T> extends AbstractLocation implements ObjectLocation<T> {
-    private T value, previousValue;
+public abstract class ObjectExpression<T> extends AbstractObjectLocation<T> implements ObjectLocation<T> {
 
     public ObjectExpression(boolean lazy, Location... dependencies) {
         super(false, lazy);
@@ -48,18 +47,6 @@ public abstract class ObjectExpression<T> extends AbstractLocation implements Ob
         return value;
     }
 
-    public T getPrevious() {
-        return previousValue;
-    }
-
-    public T set(T value) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setDefault() {
-        throw new UnsupportedOperationException();
-    }
-
     /** Calculate the current value of the expression */
     protected abstract T computeValue();
 
@@ -70,10 +57,6 @@ public abstract class ObjectExpression<T> extends AbstractLocation implements Ob
             setValid(!equals(value, previousValue));
             previousValue = null;
         }
-    }
-
-    public boolean isNull() {
-        return get() == null;
     }
 
     @Override

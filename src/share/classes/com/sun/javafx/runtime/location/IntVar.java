@@ -33,9 +33,7 @@ import com.sun.javafx.runtime.ErrorHandler;
  *
  * @author Brian Goetz
  */
-public class IntVar extends AbstractLocation implements IntLocation, MutableLocation {
-    private int value, previousValue;
-
+public class IntVar extends AbstractIntLocation implements IntLocation, MutableLocation {
 
     public static IntLocation make() {
         return make(0);
@@ -56,14 +54,6 @@ public class IntVar extends AbstractLocation implements IntLocation, MutableLoca
     }
 
 
-    public int getAsInt() {
-        return value;
-    }
-
-    public int getPreviousAsInt() {
-        return previousValue;
-    }
-
     public int setAsInt(int value) {
         if (this.value != value) {
             previousValue = this.value;
@@ -77,34 +67,18 @@ public class IntVar extends AbstractLocation implements IntLocation, MutableLoca
         setAsInt(0);
     }
 
-    public Integer get() {
-        return value;
-    }
-
-    public Integer getPrevious() {
-        return previousValue;
-    }
-
     public Integer set(Integer value) {
         if (value == null) {
             ErrorHandler.nullToPrimitiveCoercion("Integer");
-            setAsInt(0);
+            setDefault();
         }
         else
             setAsInt(value);
         return value;
     }
 
-    public boolean isNull() {
-        return false;
-    }
-
     @Override
     public void invalidate() {
         throw new UnsupportedOperationException();
-    }
-
-    public DoubleLocation asDoubleLocation() {
-        return Locations.asDoubleLocation(this);
     }
 }

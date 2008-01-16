@@ -48,7 +48,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         SequenceLocation<Integer> loc = SequenceVar.make(seq);
         if (! seq.equals(loc.getAsSequence())) {
           Class cl1 = seq.getElementType();
-          Class cl2 = loc.getAsSequence().getElementType();
+          Class<Integer> cl2 = loc.getAsSequence().getElementType();
           System.err.println("unb cl1:"+cl1+" cl2:"+cl2
                              +" ass:"+cl2.isAssignableFrom(cl1));
         }
@@ -184,7 +184,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(1, cl.deleteCount);
         assertEquals(cl.deleted, 9);
 //        assertEquals(cl.changeCount, 11);
-        assertEqualsAndClear(hl, new String[]{});
+        assertEqualsAndClear(hl);
 
         hl.clear();
         seq.delete(100); // no effect
@@ -192,7 +192,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(1, cl.deleteCount);
         assertEquals(cl.deleted, 9);
 //        assertEquals(cl.changeCount, 11);
-        assertEqualsAndClear(hl, new String[]{});
+        assertEqualsAndClear(hl);
 
         seq.delete(3);
         assertEquals(seq, 1, 9, 1, 3, 8, 1, 2, 3, 10, 2, 3, 1, 2, 3, 4, 9, 1, 9, 1, 2, 3, 8, 2, 1, 2, 3, 10, 3, 9, 1, 9, 1, 2, 3, 2, 3);
@@ -441,6 +441,36 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(r, 2, 1);
         assertEqualsAndClear(hl, "[0, 2] => [ 2, 1 ]");
 
+    }
+
+    public void testChainedSequenceBind() {
+        final SequenceLocation<Integer> a = SequenceVar.make(Sequences.make(Integer.class, 1, 2, 3));
+        final SequenceLocation<Integer> b = new SequenceExpression<Integer>(Integer.class, false, a) {
+            protected Sequence<Integer> computeValue() {
+                return a.getAsSequence();
+            }
+        };
+        IntLocation i = new IntExpression(false, b) {
+            protected int computeValue() {
+                return b.getAsSequence().size();
+            }
+        };
+        IntLocation j = new IntExpression(false, b) {
+            protected int computeValue() {
+                return a.getAsSequence().size();
+            }
+        };
+
+        assertEquals(b, 1, 2, 3);
+        assertEquals(3, i);
+        a.insert(4);
+        assertEquals(b, 1, 2, 3, 4);
+        assertEquals(4, i);
+        assertEquals(4, j);
+        a.setAsSequence(Sequences.make(Integer.class, 1));
+        assertEquals(b, 1);
+        assertEquals(1, i);
+        assertEquals(1, j);
     }
 
     public void testBoundSingleton() {

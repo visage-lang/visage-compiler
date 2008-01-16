@@ -34,8 +34,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class IntExpression extends AbstractLocation implements IntLocation {
-    private int value, previousValue;
+public abstract class IntExpression extends AbstractIntLocation implements IntLocation {
 
     public IntExpression(boolean lazy, Location... dependencies) {
         super(false, lazy);
@@ -45,31 +44,7 @@ public abstract class IntExpression extends AbstractLocation implements IntLocat
     public int getAsInt() {
         if (!isValid())
             update();
-        return value;
-    }
-
-    public int getPreviousAsInt() {
-        return previousValue;
-    }
-
-    public int setAsInt(int value) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setDefault() {
-        throw new UnsupportedOperationException();
-    }
-
-    public Integer get() {
-        return getAsInt();
-    }
-
-    public Integer getPrevious() {
-        return getPreviousAsInt();
-    }
-
-    public Integer set(Integer value) {
-        return setAsInt(value);
+        return super.getAsInt();
     }
 
     /** Calculate the current value of the expression */
@@ -82,10 +57,6 @@ public abstract class IntExpression extends AbstractLocation implements IntLocat
             // @@@ Should this be .equals() ?
             setValid(previousValue != value);
         }
-    }
-
-    public boolean isNull() {
-        return false;
     }
 
     @Override

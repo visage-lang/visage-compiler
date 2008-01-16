@@ -33,9 +33,7 @@ import com.sun.javafx.runtime.ErrorHandler;
  *
  * @author Brian Goetz
  */
-public class BooleanVar extends AbstractLocation implements BooleanLocation, MutableLocation {
-    private boolean value, previousValue;
-
+public class BooleanVar extends AbstractBooleanLocation implements BooleanLocation, MutableLocation {
 
     public static BooleanLocation make() {
         return make(false);
@@ -51,18 +49,9 @@ public class BooleanVar extends AbstractLocation implements BooleanLocation, Mut
 
 
     private BooleanVar(boolean value) {
-        super(true, false);
-        this.value = value;
+        super(true, false, value);
     }
 
-
-    public boolean getAsBoolean() {
-        return value;
-    }
-
-    public boolean getPreviousAsBoolean() {
-        return previousValue;
-    }
 
     public boolean setAsBoolean(boolean value) {
         if (this.value != value) {
@@ -77,26 +66,14 @@ public class BooleanVar extends AbstractLocation implements BooleanLocation, Mut
         setAsBoolean(false);
     }
 
-    public Boolean get() {
-        return value;
-    }
-
-    public Boolean getPrevious() {
-        return previousValue;
-    }
-
     public Boolean set(Boolean value) {
         if (value == null) {
             ErrorHandler.nullToPrimitiveCoercion("Boolean");
-            setAsBoolean(false);
+            setDefault();
         }
         else
             setAsBoolean(value);
         return value;
-    }
-
-    public boolean isNull() {
-        return false;
     }
 
     @Override

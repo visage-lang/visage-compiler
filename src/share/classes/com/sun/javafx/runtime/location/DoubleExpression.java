@@ -34,9 +34,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class DoubleExpression extends AbstractLocation implements DoubleLocation {
-
-    private double value, previousValue;
+public abstract class DoubleExpression extends AbstractDoubleLocation implements DoubleLocation {
 
     public DoubleExpression(boolean lazy, Location... dependencies) {
         super(false, lazy);
@@ -46,33 +44,8 @@ public abstract class DoubleExpression extends AbstractLocation implements Doubl
     public double getAsDouble() {
         if (!isValid())
             update();
-        return value;
+        return super.getAsDouble();
     }
-
-    public double getPreviousAsDouble() {
-        return previousValue;
-    }
-
-    public double setAsDouble(double value) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setDefault() {
-        throw new UnsupportedOperationException();
-    }
-
-    public Double get() {
-        return getAsDouble();
-    }
-
-    public Double getPrevious() {
-        return getPreviousAsDouble();
-    }
-
-    public Double set(Double value) {
-        return setAsDouble(value);
-    }
-
 
     /** Calculate the current value of the expression */
     protected abstract double computeValue();
@@ -83,10 +56,6 @@ public abstract class DoubleExpression extends AbstractLocation implements Doubl
             value = computeValue();
             setValid(previousValue != value);
         }
-    }
-
-    public boolean isNull() {
-        return false;
     }
 
     @Override

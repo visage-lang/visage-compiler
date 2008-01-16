@@ -34,8 +34,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class BooleanExpression extends AbstractLocation implements BooleanLocation {
-    private boolean value, previousValue;
+public abstract class BooleanExpression extends AbstractBooleanLocation implements BooleanLocation {
 
     public BooleanExpression(boolean lazy, Location... dependencies) {
         super(false, lazy);
@@ -45,31 +44,7 @@ public abstract class BooleanExpression extends AbstractLocation implements Bool
     public boolean getAsBoolean() {
         if (!isValid())
             update();
-        return value;
-    }
-
-    public boolean getPreviousAsBoolean() {
-        return previousValue;
-    }
-
-    public boolean setAsBoolean(boolean value) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setDefault() {
-        throw new UnsupportedOperationException();
-    }
-
-    public Boolean get() {
-        return getAsBoolean();
-    }
-
-    public Boolean getPrevious() {
-        return getPreviousAsBoolean();
-    }
-
-    public Boolean set(Boolean value) {
-        return setAsBoolean(value);
+        return super.getAsBoolean();
     }
 
     /** Calculate the current value of the expression */
@@ -81,10 +56,6 @@ public abstract class BooleanExpression extends AbstractLocation implements Bool
             value = computeValue();
             setValid(previousValue != value);
         }
-    }
-
-    public boolean isNull() {
-        return false;
     }
 
     @Override

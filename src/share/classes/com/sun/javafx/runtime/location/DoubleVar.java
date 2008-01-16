@@ -33,9 +33,7 @@ import com.sun.javafx.runtime.ErrorHandler;
  *
  * @author Brian Goetz
  */
-public class DoubleVar extends AbstractLocation implements DoubleLocation, MutableLocation {
-    private double value, previousValue;
-
+public class DoubleVar extends AbstractDoubleLocation implements DoubleLocation, MutableLocation {
 
     public static DoubleLocation make() {
         return make(0);
@@ -51,18 +49,9 @@ public class DoubleVar extends AbstractLocation implements DoubleLocation, Mutab
 
 
     private DoubleVar(double value) {
-        super(true, false);
-        this.value = value;
+        super(true, false, value);
     }
 
-
-    public double getAsDouble() {
-        return value;
-    }
-
-    public double getPreviousAsDouble() {
-        return previousValue;
-    }
 
     public double setAsDouble(double value) {
         if (this.value != value) {
@@ -77,26 +66,14 @@ public class DoubleVar extends AbstractLocation implements DoubleLocation, Mutab
         setAsDouble(0.0);
     }
 
-    public Double get() {
-        return value;
-    }
-
-    public Double getPrevious() {
-        return previousValue;
-    }
-
     public Double set(Double value) {
         if (value == null) {
             ErrorHandler.nullToPrimitiveCoercion("Number");
-            setAsDouble(0);
+            setDefault();
         }
         else
             setAsDouble(value);
         return value;
-    }
-
-    public boolean isNull() {
-        return false;
     }
 
     @Override
