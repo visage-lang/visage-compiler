@@ -20,8 +20,21 @@ class Foo {
 		System.out.println(seq);
 		delete seq;
 	}
-}
 
+	var seq2 = [100..110] 
+	   on replace oldValue[indx  .. lastIndex]=newElements
+          { System.out.println("replaced {oldValue}[{indx}..{lastIndex}] by {newElements}")};
+	function doit2() {
+		seq2[3] = 88;
+		insert 77 into seq2;
+		delete 109 from seq2;
+		delete seq2[6];
+		System.out.println(seq2);
+		delete seq2;
+	}
+};
 var foo = new Foo;
+System.out.println("doit - with element triggers:");
 foo.doit();
-
+System.out.println("doit - with slice triggers:");
+foo.doit2();

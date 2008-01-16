@@ -1,3 +1,4 @@
+doit - with element triggers:
 replaced 103 at 3 with 88
 insert 77 at 11
 delete 109 from 9
@@ -13,3 +14,10 @@ delete 88 from 3
 delete 102 from 2
 delete 101 from 1
 delete 100 from 0
+doit - with slice triggers:
+replaced [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 ][3..3] by [ 88 ]
+replaced [ 100, 101, 102, 88, 104, 105, 106, 107, 108, 109, 110 ][11..10] by [ 77 ]
+replaced [ 100, 101, 102, 88, 104, 105, 106, 107, 108, 109, 110, 77 ][9..9] by null
+replaced [ 100, 101, 102, 88, 104, 105, 106, 107, 108, 110, 77 ][6..6] by null
+[ 100, 101, 102, 88, 104, 105, 107, 108, 110, 77 ]
+replaced [ 100, 101, 102, 88, 104, 105, 107, 108, 110, 77 ][0..9] by [ ]
