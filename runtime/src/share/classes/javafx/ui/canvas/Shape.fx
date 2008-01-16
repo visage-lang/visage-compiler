@@ -63,7 +63,6 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
     public function length(): Number {
         var shape = this.getTransformedShape();
         if (shape <> null) {
-            System.out.println("Shape.length() //TODO BATIK");
             return pathLength.lengthOfPath();
         }
         return java.lang.Double.NaN;
@@ -71,7 +70,6 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
     public function pointAt(length: Number): java.awt.geom.Point2D {
         var shape = this.getTransformedShape();
         if (shape <> null) {
-            System.out.println("Shape.pointAt() //TODO BATIK");
             return pathLength.pointAtLength(length.floatValue());
         }
         return null;
@@ -79,7 +77,6 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
     public function angleAt(length: Number): Number {
         var shape = this.getTransformedShape();
         if (shape <> null) {
-            System.out.println("Shape.angleAt() //TODO BATIK");
             var angle = pathLength.angleAtLength(length.floatValue());
             return Math.toDegrees(angle);
         }
@@ -89,7 +86,6 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
         var pt = pointAt(length);
         var angle = angleAt(length);
         //TODO JXFC-339
-        System.out.println("Shape.transformAt() //TODO JFXC-339");
         return [Transform.CompositeTransform {
             transforms: /*bind*/ [
                 Transform.translate(pt.getX(), pt.getY()) as Transform, 
@@ -100,7 +96,6 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
 
     public function toPath(): Path{
        var path = Path {};
-       System.out.println("Shape.toPath() //TODO BATIK");
        var p = new PathLength(getTransformedShape());
        //var segs:PathLength.PathSegment[] = p.getSegments();
        var numSegs = p.getNumberOfSegments();
