@@ -28,6 +28,8 @@ package javafx.ui;
 import java.awt.event.ActionEvent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JTextField;
+import java.lang.Object;
+import java.awt.Component;
 
 public class TextField extends Widget {
     private attribute textField: JTextField = new JFormattedTextField();
@@ -151,40 +153,43 @@ public class TextField extends Widget {
                                     });
 
         if (true) {      // ????
-            //TODO Transfer Handler
-            /*********************************************
                     UIElement.context.addTransferHandler(textField,
-                                                            :String,
-                                                            new com.sun.javafx.api.ui.ValueGetter() {
-                                                                function get() {
+                                                            value.getClass(),
+                                                            com.sun.javafx.api.ui.ValueGetter {
+                                                                public function get():Object {
                                                                     return value;
                                                                 }
                                                             },
-                                                            new com.sun.javafx.api.ui.ValueSetter() {
-                                                                function set(value) {
+                                                            com.sun.javafx.api.ui.ValueSetter {
+                                                                public function set(value:Object):Void {
                                                                     value = "{value}";
 
                                                                 }
                                                             },
-                                                            new com.sun.javafx.api.ui.ValueAcceptor() {
-                                                                function accept(value) {
+                                                            com.sun.javafx.api.ui.ValueAcceptor {
+                                                                public function accept(value:Object):Boolean {
                                                                     return enableDND;
                                                                 }
+                                                                public function dragEnter(value:Object):Void {
+                                                                }
+                                                                public function dragExit(value:Object):Void {
+                                                                }
                                                             },
-                                                            new com.sun.javafx.api.ui.VisualRepresentation() {
-                                                                function getComponent(value) {
+                                                            com.sun.javafx.api.ui.VisualRepresentation {
+                                                                public function getComponent(value:Object):Component {
                                                                     var label = TextField {
-                                                                        value: value
+                                                                        value: "{value}"
                                                                         border: border
                                                                         foreground: foreground
                                                                         background: background
                                                                         columns: columns
-                                                                        value: value
                                                                     };
                                                                     return label.getComponent();
                                                                 }
+                                                                public function getIcon(list:Object):javax.swing.Icon {
+                                                                    return null;
+                                                                }
                                                             });
-         ******************/
         }
 
         var documentListener = javax.swing.event.DocumentListener {
