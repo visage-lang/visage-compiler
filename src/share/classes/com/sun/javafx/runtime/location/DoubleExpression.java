@@ -57,6 +57,10 @@ public abstract class DoubleExpression extends AbstractLocation implements Doubl
         throw new UnsupportedOperationException();
     }
 
+    public void setDefault() {
+        throw new UnsupportedOperationException();
+    }
+
     public Double get() {
         return getAsDouble();
     }

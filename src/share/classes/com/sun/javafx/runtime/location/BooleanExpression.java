@@ -56,6 +56,10 @@ public abstract class BooleanExpression extends AbstractLocation implements Bool
         throw new UnsupportedOperationException();
     }
 
+    public void setDefault() {
+        throw new UnsupportedOperationException();
+    }
+
     public Boolean get() {
         return getAsBoolean();
     }

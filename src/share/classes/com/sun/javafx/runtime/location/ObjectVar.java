@@ -75,6 +75,10 @@ public class ObjectVar<T> extends AbstractLocation implements ObjectLocation<T>,
         return value;
     }
 
+    public void setDefault() {
+        set(null);
+    }
+
     public boolean isNull() {
         return value == null;
     }

@@ -146,6 +146,10 @@ public class Locations {
         public Location getUnderlyingLocation() {
             return location;
         }
+
+        public void setDefault() {
+            location.setDefault();
+        }
     }
 
     /**
@@ -171,6 +175,10 @@ public class Locations {
         }
 
         public double setAsDouble(double value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setDefault() {
             throw new UnsupportedOperationException();
         }
 
@@ -227,6 +235,10 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
+        public void setDefault() {
+            throw new UnsupportedOperationException();
+        }
+
         public void invalidate() {
             throw new UnsupportedOperationException();
         }
@@ -271,6 +283,10 @@ public class Locations {
             return location.setAsDouble(value);
         }
 
+        public void setDefault() {
+            location.setDefault();
+        }
+
         public Location getUnderlyingLocation() {
             return location;
         }
@@ -308,6 +324,10 @@ public class Locations {
         }
 
         public double setAsDouble(double value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setDefault() {
             throw new UnsupportedOperationException();
         }
 
@@ -355,6 +375,10 @@ public class Locations {
             return location.setAsBoolean(value);
         }
 
+        public void setDefault() {
+            location.setDefault();
+        }
+
         public Location getUnderlyingLocation() {
             return location;
         }
@@ -392,6 +416,10 @@ public class Locations {
         }
 
         public boolean setAsBoolean(boolean value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setDefault() {
             throw new UnsupportedOperationException();
         }
 
@@ -435,6 +463,10 @@ public class Locations {
         }
 
         public T set(T value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setDefault() {
             throw new UnsupportedOperationException();
         }
 

@@ -39,4 +39,7 @@ public interface ObjectLocation<T> extends Location {
 
     /** Modify the value associated with this Location */
     T set(T value);
+
+    /** Set this location to its default value */
+    public void setDefault();
 }

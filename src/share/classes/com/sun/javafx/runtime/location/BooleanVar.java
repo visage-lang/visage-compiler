@@ -73,6 +73,10 @@ public class BooleanVar extends AbstractLocation implements BooleanLocation, Mut
         return value;
     }
 
+    public void setDefault() {
+        setAsBoolean(false);
+    }
+
     public Boolean get() {
         return value;
     }

@@ -34,7 +34,11 @@ public class SequenceElementLocation<T> extends AbstractLocation implements Obje
     }
 
     public T set(T value) {
-        return seq.set(index.getAsInt(), value);
+        throw new UnsupportedOperationException();
+    }
+
+    public void setDefault() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

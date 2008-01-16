@@ -39,4 +39,7 @@ public interface IntLocation extends Location, ObjectLocation<Integer> {
 
     /** Set the current value of this location, recomputing if necessary */
     public int setAsInt(int value);
+
+    /** Set this location to its default value */
+    public void setDefault();
 }

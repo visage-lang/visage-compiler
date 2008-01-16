@@ -56,6 +56,10 @@ public abstract class IntExpression extends AbstractLocation implements IntLocat
         throw new UnsupportedOperationException();
     }
 
+    public void setDefault() {
+        throw new UnsupportedOperationException();
+    }
+
     public Integer get() {
         return getAsInt();
     }

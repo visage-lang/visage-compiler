@@ -73,6 +73,10 @@ public class IntVar extends AbstractLocation implements IntLocation, MutableLoca
         return value;
     }
 
+    public void setDefault() {
+        setAsInt(0);
+    }
+
     public Integer get() {
         return value;
     }

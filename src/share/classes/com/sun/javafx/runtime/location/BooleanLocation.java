@@ -39,4 +39,7 @@ public interface BooleanLocation extends Location, ObjectLocation<Boolean> {
 
     /** Set the current value of this location, recomputing if necessary */
     boolean setAsBoolean(boolean value);
+
+    /** Set this location to its default value */
+    public void setDefault();
 }

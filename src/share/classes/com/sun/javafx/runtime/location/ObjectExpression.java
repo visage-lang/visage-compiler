@@ -56,6 +56,10 @@ public abstract class ObjectExpression<T> extends AbstractLocation implements Ob
         throw new UnsupportedOperationException();
     }
 
+    public void setDefault() {
+        throw new UnsupportedOperationException();
+    }
+
     /** Calculate the current value of the expression */
     protected abstract T computeValue();
 

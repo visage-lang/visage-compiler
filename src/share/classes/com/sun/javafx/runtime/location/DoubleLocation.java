@@ -39,4 +39,7 @@ public interface DoubleLocation extends Location, ObjectLocation<Double> {
 
     /** Set the current value of this location, recomputing if necessary */
     double setAsDouble(double value);
+
+    /** Set this location to its default value */
+    public void setDefault();
 }

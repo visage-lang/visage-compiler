@@ -73,6 +73,10 @@ public class DoubleVar extends AbstractLocation implements DoubleLocation, Mutab
         return value;
     }
 
+    public void setDefault() {
+        setAsDouble(0.0);
+    }
+
     public Double get() {
         return value;
     }

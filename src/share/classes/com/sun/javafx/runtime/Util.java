@@ -26,4 +26,15 @@ public class Util {
             capacity <<= 1;
         return capacity;
     }
+
+    public static<T> T defaultValue(Class<T> clazz) {
+        if (clazz == Integer.class)
+            return (T) Integer.valueOf(0);
+        else if (clazz == Double.class)
+            return (T) Double.valueOf(0.0);
+        else if (clazz == Boolean.class)
+            return (T) Boolean.FALSE;
+        else
+            return null;
+    }
 }
