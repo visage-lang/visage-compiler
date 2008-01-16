@@ -39,8 +39,8 @@ import javafx.ui.canvas.VisualNode;
 import com.sun.scenario.scenegraph.SGShape;
 import com.sun.scenario.scenegraph.SGAbstractShape;
 import javafx.ui.canvas.Transform.CompositeTransform;
-//TODO BATIK
-//TODO BATIK import net.java.javafx.ui.batik.PathLength;
+import com.sun.javafx.api.ui.path.ext.awt.geom.PathLength;
+import com.sun.javafx.api.ui.path.ext.awt.geom.PathLength.PathSegment;
 
 /**
  * The <code>Shape</code> interface provides definitions for objects 
@@ -64,7 +64,7 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
         var shape = this.getTransformedShape();
         if (shape <> null) {
             System.out.println("Shape.length() //TODO BATIK");
-            //TODO BATIK return pathLength.lengthOfPath();
+            return pathLength.lengthOfPath();
         }
         return java.lang.Double.NaN;
     }
@@ -72,7 +72,7 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
         var shape = this.getTransformedShape();
         if (shape <> null) {
             System.out.println("Shape.pointAt() //TODO BATIK");
-            //TODO BATIK return pathLength.pointAtLength(length);
+            return pathLength.pointAtLength(length.floatValue());
         }
         return null;
     }
@@ -80,8 +80,8 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
         var shape = this.getTransformedShape();
         if (shape <> null) {
             System.out.println("Shape.angleAt() //TODO BATIK");
-            //TODO BATIK var angle = pathLength.angleAtLength(length);
-            //TODO BATIK return Math.toDegrees(angle);
+            var angle = pathLength.angleAtLength(length.floatValue());
+            return Math.toDegrees(angle);
         }
         return java.lang.Double.NaN;
     }
@@ -90,37 +90,36 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
         var angle = angleAt(length);
         //TODO JXFC-339
         System.out.println("Shape.transformAt() //TODO JFXC-339");
-        return [/*****Transform.CompositeTransform {
-            transforms: bind [
-                Translate.translate(pt.getX(), pt.getY()) as Transform, 
-                Rotate.rotate(angle, 0, 0) as Transform] 
-        } as Transform *****/];
+        return [Transform.CompositeTransform {
+            transforms: /*bind*/ [
+                Transform.translate(pt.getX(), pt.getY()) as Transform, 
+                Transform.rotate(angle, 0, 0) as Transform] 
+        } as Transform ];
        
     }
 
     public function toPath(): Path{
-        var path = Path {};
-        System.out.println("Shape.toPath() //TODO BATIK");
-       //TODO BATIK 
-       /****************
-        var p = new PathLength(getTransformedShape());
-       var segs = p.getSegments();
-       
-       for (seg in segs) {
+       var path = Path {};
+       System.out.println("Shape.toPath() //TODO BATIK");
+       var p = new PathLength(getTransformedShape());
+       //var segs:PathLength.PathSegment[] = p.getSegments();
+       var numSegs = p.getNumberOfSegments();
+       //for (seg in segs) {
+       for (i in [0..numSegs exclusive]) {
+           var seg = p.getSegment(i);
            if (seg.getSegType() == PathIterator.SEG_MOVETO) {
                insert MoveTo {x: seg.getX(), y: seg.getY()} into path.d;
            } else if (seg.getSegType() == PathIterator.SEG_LINETO) {
                insert LineTo {x: seg.getX(), y: seg.getY()} into path.d;
            } else {
                // close
-               insert ClosePath into path.d;
+               insert ClosePath{} into path.d;
            }
        }
-       *******************/
        return path;
     }
     public attribute fillRule: FillRule;
-    //TODO BATIK  private attribute pathLength: PathLength = bind lazy new PathLength(awtTransformedShape);
+    private attribute pathLength: PathLength = bind lazy new PathLength(awtTransformedShape);
     private attribute awtTransformedShape: java.awt.Shape  = 
                 bind lazy getAWTTransformedShape(awtTransform, awtShape);
     private attribute awtShape: java.awt.Shape;
