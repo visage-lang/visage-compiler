@@ -211,12 +211,14 @@ public class JavafxInitializationBuilder {
                 (onReplace.getLastIndex() != null || onReplace.getNewElements() != null)) {
             ListBuffer<JCStatement> setUpStmts = ListBuffer.lb();
             changeListener = make.at(diagPos).Identifier(sequenceReplaceListenerInterfaceName);
+            changeListener = make.TypeApply(changeListener, List.of(toJava.makeTypeTree(info.elemType(), diagPos)));
+            Type seqValType = types.sequenceType(info.elemType(), false);
             List<JCVariableDecl> onChangeArgs = List.of(
                 makeIndexParam(diagPos, onReplace),
                 makeParam(diagPos, syms.intType, onReplace.getLastIndex(), "$lastIndex$"),
                 makeParam(diagPos, info.type(), onReplace.getNewElements(), "$newElements$"),
-                makeParam(diagPos, info.type(), onReplace.getOldValue(), "$oldValue$"),
-                makeParam(diagPos, info.type(), null, "$newValue$"));
+                makeParam(diagPos, seqValType, onReplace.getOldValue(), "$oldValue$"),
+                makeParam(diagPos, seqValType, null, "$newValue$"));
             members.append(makeChangeListenerMethod(
                 diagPos,
                 onReplace, 

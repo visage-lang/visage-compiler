@@ -67,9 +67,13 @@ public class JavafxTypes extends Types {
     }
 
     public Type sequenceType(Type elemType) {
+        return sequenceType(elemType, true);
+    }
+     public Type sequenceType(Type elemType, boolean withExtends) {
         if (elemType.isPrimitive())
             elemType = boxedClass(elemType).type;
-        elemType = new WildcardType(elemType, BoundKind.EXTENDS, syms.boundClass);
+        if (withExtends)
+            elemType = new WildcardType(elemType, BoundKind.EXTENDS, syms.boundClass);
         Type seqtype = syms.javafx_SequenceType;
         List<Type> actuals = List.of(elemType);
         Type clazzOuter = seqtype.getEnclosingType();
