@@ -52,6 +52,8 @@ public interface SequenceLocation<T> extends Location, Iterable<T> {
 
     public T set(int position, T value);
 
+    public Sequence<T> getSlice(int startPos, int endPos);
+
     public void replaceSlice(int startPos, int endPos, Sequence<T> newValues);
 
     public void delete(int position);

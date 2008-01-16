@@ -526,6 +526,11 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
+        @Override
+        public Sequence<T> getSlice(int startPos, int endPos) {
+            return getAsSequence().getSlice(startPos, endPos);
+        }
+
         public void replaceSlice(int startPos, int endPos, Sequence<T> newValues) {
             throw new UnsupportedOperationException();
         }

@@ -109,6 +109,11 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     }
 
     @Override
+    public Sequence<T> getSlice(int startPos, int endPos) {
+        return getAsSequence().getSlice(startPos, endPos);
+    }
+
+    @Override
     public void replaceSlice(int startPos, int endPos, Sequence<T> newValues) {
         throw new UnsupportedOperationException();
     }
