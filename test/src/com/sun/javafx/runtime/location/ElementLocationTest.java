@@ -37,9 +37,5 @@ public class ElementLocationTest extends JavaFXTestCase {
         seq.delete(3);
         assertEquals(cl.count, 3);
         assertEquals((int) second.get(), 1);
-
-        second.set(0);
-        assertEquals(seq.getAsSequence(), 0, 2, 3);
-        assertEquals((int) second.get(), 0);
     }
 }
