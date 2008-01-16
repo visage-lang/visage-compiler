@@ -2106,7 +2106,7 @@ public class UIContextImpl implements UIContext {
                 }
 
                 protected void notifyDragEnter() {
-                    System.out.println("notify drag enter " + comp);
+                    //System.out.println("notify drag enter " + comp);
                     if (acceptor != null) {
                         acceptor.dragEnter(null);
                     }
@@ -2116,7 +2116,7 @@ public class UIContextImpl implements UIContext {
                 }
 
                 protected void notifyDragExit() {
-                    System.out.println("notify drag exit");
+                    //System.out.println("notify drag exit");
                     if (acceptor != null) {
                         acceptor.dragExit(null);
                     }
