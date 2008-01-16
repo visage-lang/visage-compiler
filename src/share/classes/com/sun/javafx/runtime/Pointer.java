@@ -2,14 +2,14 @@ package com.sun.javafx.runtime;
 
 import com.sun.javafx.runtime.location.*;
 import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.scenario.animation.Property;
+
 
 /**
  * Pointers
  *
  * @author Brian Goetz
  */
-public class Pointer implements Property<Object> {
+public class Pointer {
     public enum Type {
         INTEGER, DOUBLE, BOOLEAN, SEQUENCE, OBJECT
     }
@@ -72,10 +72,10 @@ public class Pointer implements Property<Object> {
     public void set(Object value) {
         switch (type) {
             case INTEGER:
-                ((IntLocation) location).setAsInt((Integer) value);
+                ((IntLocation) location).setAsInt(((Number)value).intValue());
                 break;
             case DOUBLE:
-                ((DoubleLocation) location).setAsDouble((Double) value);
+                ((DoubleLocation) location).setAsDouble(((Number)value).doubleValue());
                 break;
             case BOOLEAN:
                 ((BooleanLocation) location).setAsBoolean((Boolean) value);
