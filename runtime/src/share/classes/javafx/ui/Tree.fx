@@ -184,10 +184,12 @@ public class Tree extends ScrollableWidget {
     attribute tree: javax.swing.JTree;
     private attribute treemodel: FXTreeModel;
     public attribute selection: TreePath on replace {
-        selectedValue = selection.nodes[sizeof selection.nodes-1];
-        if (treemodel <> null) {
-            this.selectionUpdate(selection);
-        }        
+        if(sizeof selection.nodes > 0) {
+            selectedValue = selection.nodes[sizeof selection.nodes-1];
+            if (treemodel <> null) {
+                this.selectionUpdate(selection);
+            }    
+        }
     };
     public attribute selectedValue:Object;
     public attribute leadSelectionPath: Object[]
