@@ -38,7 +38,7 @@ public class Table extends ScrollableWidget {
     private attribute selectionListener:javax.swing.event.ListSelectionListener;
     private attribute selectionGeneration: Number;
     attribute tableModel: com.sun.javafx.api.ui.UIContextImpl.XTableCellModel;
-    private attribute table:javax.swing.JTable;
+    private attribute table:javax.swing.JTable = createTable();;
     private attribute rowcount: Number;
     private attribute dirty: Boolean;
 
@@ -89,11 +89,13 @@ public class Table extends ScrollableWidget {
         
     };
 
-    public attribute rowHeight: Number on replace {
-        table.setRowHeight(rowHeight.intValue());
+    public attribute rowHeight: Number = UNSET on replace {
+        if(rowHeight > 0)
+            table.setRowHeight(rowHeight.intValue());
     };
-    public attribute rowMargin: Number on replace {
-        table.setRowMargin(rowMargin.intValue());
+    public attribute rowMargin: Number = UNSET on replace {
+        if(rowMargin >= 0)
+            table.setRowMargin(rowMargin.intValue());
     };
     public attribute rowSelectionAllowed:Boolean on replace {
         table.setRowSelectionAllowed(rowSelectionAllowed);
@@ -111,7 +113,8 @@ public class Table extends ScrollableWidget {
     public attribute onSelectionChange: function():Void;
 
     public attribute gridColor: Color on replace {
-        table.setGridColor(gridColor.getColor());
+        if(gridColor <> null and gridColor.getColor() <> null)
+            table.setGridColor(gridColor.getColor());
     };
     public attribute columns: TableColumn[];
     public attribute cells: TableCell[]
@@ -133,7 +136,8 @@ public class Table extends ScrollableWidget {
             }
         };
     public attribute intercellSpacing: Dimension on replace {
-        table.setIntercellSpacing(intercellSpacing);
+        if(table <> null and intercellSpacing <> null)
+            table.setIntercellSpacing(intercellSpacing);
     };
     protected function createTable(): javax.swing.JTable {
         return UIElement.context.createTable();
@@ -183,7 +187,6 @@ public class Table extends ScrollableWidget {
         showHorizontalLines = true;
         showVerticalLines = true;
         showGrid = true;
-        table = this.createTable();
         UIElement.context.installXTableCellRenderer(table);
         table.setOpaque(false);
         //table.getTableHeader().setOpaque(true);
