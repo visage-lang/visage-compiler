@@ -29,8 +29,8 @@ import javax.swing.JPanel;
 
 public class BorderPanel extends Widget {
     private attribute jpanel: JPanel;
-    //TODO JFXC-267
-    public attribute top:Widget /************** on replace (oldValue)  {
+    
+    public attribute top:Widget on replace (oldValue)  {
         if (jpanel <> null) {
             if (oldValue <> null) {
                 jpanel.remove(oldValue.getComponent());
@@ -41,10 +41,10 @@ public class BorderPanel extends Widget {
             jpanel.revalidate();
             jpanel.repaint();
         }
-    }**********/;
+    };
 
-    //TODO JFXC-267
-    public attribute left:Widget /**************on replace (oldValue)  {
+    
+    public attribute left:Widget on replace (oldValue)  {
         if (jpanel <> null) {
             if (oldValue <> null) {
                 jpanel.remove(oldValue.getComponent());
@@ -55,9 +55,9 @@ public class BorderPanel extends Widget {
             jpanel.revalidate();
             jpanel.repaint();
         }
-    }**********/;
-    //TODO JFXC-267
-    public attribute bottom:Widget /**************on replace (oldValue) {
+    };
+    
+    public attribute bottom:Widget on replace (oldValue) {
         if (jpanel <> null) {
             if (oldValue <> null) {
                 jpanel.remove(oldValue.getComponent());
@@ -68,9 +68,9 @@ public class BorderPanel extends Widget {
             jpanel.revalidate();
             jpanel.repaint();
         }
-    }**********/;
-    //TODO JFXC-267
-    public attribute right:Widget /**************on replace (oldValue)  {
+    };
+    
+    public attribute right:Widget on replace (oldValue)  {
         if (jpanel <> null) {
             if (oldValue <> null) {
                 jpanel.remove(oldValue.getComponent());
@@ -81,9 +81,8 @@ public class BorderPanel extends Widget {
             jpanel.revalidate();
             jpanel.repaint();
         }
-    }**********/;  
-    //TODO JFXC-267
-    public attribute center:Widget /**************on replace (oldValue)  {
+    };  
+    public attribute center:Widget on replace (oldValue)  {
         if (jpanel <> null) {
             if (oldValue <> null) {
                 jpanel.remove(oldValue.getComponent());
@@ -94,7 +93,56 @@ public class BorderPanel extends Widget {
             jpanel.revalidate();
             jpanel.repaint();
         }
-    }**********/;
+    };
+    
+    public attribute pageStart: Widget on replace (oldValue)  {
+        if (jpanel <> null) {
+            if (oldValue <> null) {
+                jpanel.remove(oldValue.getComponent());
+            }
+            if (center <> null) {
+                jpanel.add(center.getComponent(), java.awt.BorderLayout.PAGE_START);
+            }
+            jpanel.revalidate();
+            jpanel.repaint();
+        }
+    };
+    public attribute pageEnd:Widget on replace (oldValue)  {
+        if (jpanel <> null) {
+            if (oldValue <> null) {
+                jpanel.remove(oldValue.getComponent());
+            }
+            if (center <> null) {
+                jpanel.add(center.getComponent(), java.awt.BorderLayout.PAGE_END);
+            }
+            jpanel.revalidate();
+            jpanel.repaint();
+        }
+    };
+    public attribute lineStart:Widget on replace (oldValue)  {
+        if (jpanel <> null) {
+            if (oldValue <> null) {
+                jpanel.remove(oldValue.getComponent());
+            }
+            if (center <> null) {
+                jpanel.add(center.getComponent(), java.awt.BorderLayout.LINE_START);
+            }
+            jpanel.revalidate();
+            jpanel.repaint();
+        }
+    };
+    public attribute lineEnd:Widget on replace (oldValue)  {
+        if (jpanel <> null) {
+            if (oldValue <> null) {
+                jpanel.remove(oldValue.getComponent());
+            }
+            if (center <> null) {
+                jpanel.add(center.getComponent(), java.awt.BorderLayout.LINE_END);
+            }
+            jpanel.revalidate();
+            jpanel.repaint();
+        }
+    };
     
     public function createComponent():javax.swing.JComponent {
         jpanel = UIElement.context.createPanel();
@@ -116,6 +164,18 @@ public class BorderPanel extends Widget {
         if (right <> null) {
             jpanel.add(right.getComponent(), java.awt.BorderLayout.EAST);
         }
+        if (lineStart <> null) {
+            jpanel.add(lineStart.getComponent(), java.awt.BorderLayout.LINE_START);
+        }
+        if (lineEnd <> null) {
+            jpanel.add(lineEnd.getComponent(), java.awt.BorderLayout.LINE_END);
+        }
+        if (pageStart <> null) {
+            jpanel.add(pageStart.getComponent(), java.awt.BorderLayout.PAGE_START);
+        }
+        if (pageEnd <> null) {
+            jpanel.add(pageEnd.getComponent(), java.awt.BorderLayout.PAGE_END);
+        }        
         jpanel;
     }    
     public attribute focusable:Boolean = false;    
