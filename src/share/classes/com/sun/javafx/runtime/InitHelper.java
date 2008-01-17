@@ -25,6 +25,7 @@
 
 package com.sun.javafx.runtime;
 
+import com.sun.javafx.runtime.location.AbstractLocation;
 import com.sun.javafx.runtime.location.Location;
 import com.sun.javafx.runtime.location.MutableLocation;
 
@@ -46,8 +47,10 @@ public class InitHelper {
     public void initialize() {
         for (Location loc : initOrder) {
             if (loc != null) {
-                if (loc instanceof MutableLocation)
+                if (loc instanceof MutableLocation) {
                     loc.valueChanged();
+                    ((AbstractLocation) loc).fireInitialTriggers();
+                }
                 else if (!loc.isLazy())
                     loc.update();
             }

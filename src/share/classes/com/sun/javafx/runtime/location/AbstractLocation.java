@@ -87,6 +87,10 @@ public abstract class AbstractLocation implements Location {
         invalidateDependencies();
     }
 
+    /** For use only by InitHelper; to be overridden by subclasses */
+    public void fireInitialTriggers() {
+    }
+
     private void purgeDeadDependencies() {
         if (dependentLocations != null) {
             for (Iterator<WeakReference<Location>> iterator = dependentLocations.iterator(); iterator.hasNext();) {

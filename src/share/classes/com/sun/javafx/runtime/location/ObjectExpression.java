@@ -52,17 +52,7 @@ public abstract class ObjectExpression<T> extends AbstractObjectLocation<T> impl
 
     @Override
     public void update() {
-        if (!isValid()) {
-            $value = computeValue();
-            setValid(!equals($value, $previousValue));
-            $previousValue = null;
-        }
-    }
-
-    @Override
-    public void invalidate() {
-        if (isValid())
-            $previousValue = $value;
-        super.invalidate();
+        if (!isValid())
+            replaceValue(computeValue());
     }
 }

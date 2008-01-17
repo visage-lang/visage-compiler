@@ -26,18 +26,17 @@ public abstract class AbstractBoundSequence<T> extends AbstractSequenceLocation<
     protected abstract void initialize();
 
     protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
-        previousValue = value;
-        value = value.replaceSlice(startPos, endPos, newValues);
-        notifyListeners(startPos, endPos, newValues, previousValue, value);
+        Sequence<T> oldValue = $value;
+        $value = $value.replaceSlice(startPos, endPos, newValues);
+        notifyListeners(startPos, endPos, newValues, oldValue, $value);
         valueChanged();
-        previousValue = null;
     }
 
     private void ensureValid() {
         if (!isValid()) {
             if (!initialized)
                 initialize();
-            value = computeValue();
+            $value = computeValue();
             setValid(true);
         }
     }

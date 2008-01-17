@@ -86,7 +86,6 @@ public class JavafxDefs {
     final Name postInitDefName;
     final Name[] locationGetMethodName;
     final Name[] locationSetMethodName;
-    final Name[] getPreviousMethodName;
 
     /**
      * Context set-up
@@ -123,11 +122,9 @@ public class JavafxDefs {
         postInitDefName = names.fromString("$postinit$def$name");
         locationGetMethodName = new Name[JavafxVarSymbol.accessorSuffixes.length];
         locationSetMethodName = new Name[JavafxVarSymbol.accessorSuffixes.length];
-        getPreviousMethodName = new Name[JavafxVarSymbol.accessorSuffixes.length];
         for (int i=0; i< JavafxVarSymbol.accessorSuffixes.length; i++) {
             locationGetMethodName[i] = names.fromString("get" + JavafxVarSymbol.accessorSuffixes[i]);
             locationSetMethodName[i] = names.fromString("set" + JavafxVarSymbol.accessorSuffixes[i]);
-            getPreviousMethodName[i] = names.fromString("getPrevious" + JavafxVarSymbol.accessorSuffixes[i]);
         }
     }
 }

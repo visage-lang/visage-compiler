@@ -52,17 +52,7 @@ public abstract class BooleanExpression extends AbstractBooleanLocation implemen
 
     @Override
     public void update() {
-        if (!isValid()) {
-            $value = computeValue();
-            setValid($previousValue != $value);
-        }
+        if (!isValid())
+            replaceValue(computeValue());
     }
-
-    @Override
-    public void invalidate() {
-        if (isValid())
-            $previousValue = $value;
-        super.invalidate();
-    }
-
 }

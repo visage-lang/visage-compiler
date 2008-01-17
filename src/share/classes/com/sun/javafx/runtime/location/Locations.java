@@ -135,10 +135,6 @@ public class Locations {
             return location.getAsInt();
         }
 
-        public Integer getPrevious() {
-            return location.getPreviousAsInt();
-        }
-
         public Integer set(Integer value) {
             return location.setAsInt(value);
         }
@@ -149,6 +145,10 @@ public class Locations {
 
         public void setDefault() {
             location.setDefault();
+        }
+
+        public void addChangeListener(ObjectChangeListener<Integer> listener) {
+            location.addChangeListener(listener);
         }
     }
 
@@ -170,10 +170,6 @@ public class Locations {
             return location.getAsInt();
         }
 
-        public double getPreviousAsDouble() {
-            return location.getPreviousAsInt();
-        }
-
         public double setAsDouble(double value) {
             throw new UnsupportedOperationException();
         }
@@ -186,10 +182,6 @@ public class Locations {
             return getAsDouble();
         }
 
-        public Double getPrevious() {
-            return getPreviousAsDouble();
-        }
-
         public Double set(Double value) {
             throw new UnsupportedOperationException();
         }
@@ -198,6 +190,21 @@ public class Locations {
             return location;
         }
 
+        public void addChangeListener(final DoubleChangeListener listener) {
+            location.addChangeListener(new IntChangeListener() {
+                public void onChange(int oldValue, int newValue) {
+                    listener.onChange(oldValue, newValue);
+                }
+            });
+        }
+
+        public void addChangeListener(final ObjectChangeListener<Double> listener) {
+            location.addChangeListener(new IntChangeListener() {
+                public void onChange(int oldValue, int newValue) {
+                    listener.onChange((double) oldValue, (double) newValue);
+                }
+            });
+        }
     }
 
     /**
@@ -227,8 +234,12 @@ public class Locations {
             return location.getAsInt();
         }
 
-        public int getPreviousAsInt() {
-            return location.getPreviousAsInt();
+        public void addChangeListener(IntChangeListener listener) {
+            location.addChangeListener(listener);
+        }
+
+        public void addChangeListener(ObjectChangeListener<Integer> listener) {
+            location.addChangeListener(listener);
         }
 
         public int setAsInt(int value) {
@@ -245,10 +256,6 @@ public class Locations {
 
         public Integer get() {
             return getAsInt();
-        }
-
-        public Integer getPrevious() {
-            return getPreviousAsInt();
         }
 
         public Integer set(Integer value) {
@@ -275,10 +282,6 @@ public class Locations {
             return location.getAsDouble();
         }
 
-        public Double getPrevious() {
-            return location.getPreviousAsDouble();
-        }
-
         public Double set(Double value) {
             return location.setAsDouble(value);
         }
@@ -289,6 +292,10 @@ public class Locations {
 
         public Location getUnderlyingLocation() {
             return location;
+        }
+
+        public void addChangeListener(ObjectChangeListener<Double> listener) {
+            location.addChangeListener(listener);
         }
     }
 
@@ -319,10 +326,6 @@ public class Locations {
             return location.getAsDouble();
         }
 
-        public double getPreviousAsDouble() {
-            return location.getPreviousAsDouble();
-        }
-
         public double setAsDouble(double value) {
             throw new UnsupportedOperationException();
         }
@@ -335,16 +338,20 @@ public class Locations {
             return getAsDouble();
         }
 
-        public Double getPrevious() {
-            return getPreviousAsDouble();
-        }
-
         public Double set(Double value) {
             throw new UnsupportedOperationException();
         }
 
         public void invalidate() {
             throw new UnsupportedOperationException();
+        }
+
+        public void addChangeListener(DoubleChangeListener listener) {
+            location.addChangeListener(listener);
+        }
+
+        public void addChangeListener(ObjectChangeListener<Double> listener) {
+            location.addChangeListener(listener);
         }
     }
 
@@ -367,10 +374,6 @@ public class Locations {
             return location.getAsBoolean();
         }
 
-        public Boolean getPrevious() {
-            return location.getPreviousAsBoolean();
-        }
-
         public Boolean set(Boolean value) {
             return location.setAsBoolean(value);
         }
@@ -381,6 +384,10 @@ public class Locations {
 
         public Location getUnderlyingLocation() {
             return location;
+        }
+
+        public void addChangeListener(ObjectChangeListener<Boolean> listener) {
+            location.addChangeListener(listener);
         }
     }
 
@@ -411,10 +418,6 @@ public class Locations {
             return location.getAsBoolean();
         }
 
-        public boolean getPreviousAsBoolean() {
-            return location.getPreviousAsBoolean();
-        }
-
         public boolean setAsBoolean(boolean value) {
             throw new UnsupportedOperationException();
         }
@@ -427,16 +430,20 @@ public class Locations {
             return getAsBoolean();
         }
 
-        public Boolean getPrevious() {
-            return getPreviousAsBoolean();
-        }
-
         public Boolean set(Boolean value) {
             throw new UnsupportedOperationException();
         }
 
         public void invalidate() {
             throw new UnsupportedOperationException();
+        }
+
+        public void addChangeListener(BooleanChangeListener listener) {
+            location.addChangeListener(listener);
+        }
+
+        public void addChangeListener(ObjectChangeListener<Boolean> listener) {
+            location.addChangeListener(listener);
         }
     }
 
@@ -458,10 +465,6 @@ public class Locations {
             return location.get();
         }
 
-        public T getPrevious() {
-            return location.getPrevious();
-        }
-
         public T set(T value) {
             throw new UnsupportedOperationException();
         }
@@ -472,6 +475,10 @@ public class Locations {
 
         public void invalidate() {
             throw new UnsupportedOperationException();
+        }
+
+        public void addChangeListener(ObjectChangeListener<T> listener) {
+            location.addChangeListener(listener);
         }
     }
 
@@ -500,10 +507,6 @@ public class Locations {
 
         public Sequence<T> getAsSequence() {
             return location.getAsSequence();
-        }
-
-        public Sequence<T> getPreviousAsSequence() {
-            return location.getPreviousAsSequence();
         }
 
         public Iterator<T> iterator() {

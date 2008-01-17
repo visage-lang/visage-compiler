@@ -34,12 +34,11 @@ public interface DoubleLocation extends Location, ObjectLocation<Double> {
     /** Retrieve the current value of this location, recomputing if necessary */
     double getAsDouble();
 
-    /** Retrieve the previous value of this location; only defined while change listeners are being notified */
-    public double getPreviousAsDouble();
-
     /** Set the current value of this location, recomputing if necessary */
     double setAsDouble(double value);
 
     /** Set this location to its default value */
     public void setDefault();
+
+    public void addChangeListener(DoubleChangeListener listener);
 }

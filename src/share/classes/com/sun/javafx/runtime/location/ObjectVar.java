@@ -49,12 +49,8 @@ public class ObjectVar<T> extends AbstractObjectLocation<T> implements ObjectLoc
 
 
     public T set(T value) {
-        if (changed(this.$value, value)) {
-            $previousValue = this.$value;
-            this.$value = value;
-            valueChanged();
-            $previousValue = null;
-        }
+        if (changed(this.$value, value))
+            replaceValue(value);
         return value;
     }
 

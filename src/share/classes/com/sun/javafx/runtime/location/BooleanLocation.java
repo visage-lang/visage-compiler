@@ -34,12 +34,11 @@ public interface BooleanLocation extends Location, ObjectLocation<Boolean> {
     /** Retrieve the current value of this location, recomputing if necessary */
     boolean getAsBoolean();
 
-    /** Retrieve the previous value of this location; only defined while change listeners are being notified */
-    public boolean getPreviousAsBoolean();
-
     /** Set the current value of this location, recomputing if necessary */
     boolean setAsBoolean(boolean value);
 
     /** Set this location to its default value */
     public void setDefault();
+
+    public void addChangeListener(BooleanChangeListener listener);
 }

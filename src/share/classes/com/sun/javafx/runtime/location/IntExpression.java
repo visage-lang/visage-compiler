@@ -52,18 +52,7 @@ public abstract class IntExpression extends AbstractIntLocation implements IntLo
 
     @Override
     public void update() {
-        if (!isValid()) {
-            $value = computeValue();
-            // @@@ Should this be .equals() ?
-            setValid($previousValue != $value);
-        }
+        if (!isValid())
+            replaceValue(computeValue());
     }
-
-    @Override
-    public void invalidate() {
-        if (isValid())
-            $previousValue = $value;
-        super.invalidate();
-    }
-
 }

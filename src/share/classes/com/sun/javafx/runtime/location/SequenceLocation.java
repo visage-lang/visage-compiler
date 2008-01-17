@@ -41,9 +41,6 @@ public interface SequenceLocation<T> extends Location, Iterable<T> {
 
     Sequence<T> getAsSequence();
 
-    /** Retrieve the previous value of this location; only defined while change listeners are being notified */
-    public Sequence<T> getPreviousAsSequence();
-
     public void addChangeListener(SequenceReplaceListener<T> listener);
 
     public void addChangeListener(SequenceChangeListener<T> listener);

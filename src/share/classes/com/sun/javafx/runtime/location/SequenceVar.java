@@ -71,36 +71,36 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
 
     @Override
     public Sequence<T> setAsSequence(Sequence<? extends T> newValue) {
-        if (equals(value, newValue))
-            return value;
+        if (equals($value, newValue))
+            return $value;
         else
-            return SequenceMutator.replaceSlice(value, mutationListener, 0, Sequences.size(value) - 1, newValue);
+            return SequenceMutator.replaceSlice($value, mutationListener, 0, Sequences.size($value) - 1, newValue);
     }
 
     @Override
     public T set(int position, T newValue) {
-        SequenceMutator.set(value, mutationListener, position, newValue);
+        SequenceMutator.set($value, mutationListener, position, newValue);
         return newValue;
     }
 
     @Override
     public void replaceSlice(int startPos, int endPos, Sequence<T> newValues) {
-        SequenceMutator.replaceSlice(value, mutationListener, startPos, endPos, newValues);
+        SequenceMutator.replaceSlice($value, mutationListener, startPos, endPos, newValues);
     }
 
     @Override
     public void delete(int position) {
-        SequenceMutator.delete(value, mutationListener, position);
+        SequenceMutator.delete($value, mutationListener, position);
     }
 
     @Override
     public void delete(SequencePredicate<T> sequencePredicate) {
-        SequenceMutator.delete(value, mutationListener, sequencePredicate);
+        SequenceMutator.delete($value, mutationListener, sequencePredicate);
     }
 
     @Override
     public void deleteAll() {
-        setAsSequence(Sequences.emptySequence((Class<T>) value.getElementType()));
+        setAsSequence(Sequences.emptySequence((Class<T>) $value.getElementType()));
     }
 
     @Override
@@ -116,70 +116,66 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
 
     @Override
     public void insert(T value) {
-        SequenceMutator.insert(this.value, mutationListener, value);
+        SequenceMutator.insert(this.$value, mutationListener, value);
     }
 
     @Override
     public void insert(Sequence<? extends T> values) {
-        SequenceMutator.insert(value, mutationListener, values);
+        SequenceMutator.insert($value, mutationListener, values);
     }
 
     public void insertFirst(T value) {
-        SequenceMutator.insertFirst(this.value, mutationListener, value);
+        SequenceMutator.insertFirst(this.$value, mutationListener, value);
     }
 
     @Override
     public void insertFirst(Sequence<? extends T> values) {
-        SequenceMutator.insertFirst(value, mutationListener, values);
+        SequenceMutator.insertFirst($value, mutationListener, values);
     }
 
     @Override
     public void insertBefore(T value, int position) {
-        SequenceMutator.insertBefore(this.value, mutationListener, value, position);
+        SequenceMutator.insertBefore(this.$value, mutationListener, value, position);
     }
 
     @Override
     public void insertBefore(T value, SequencePredicate<T> sequencePredicate) {
-        SequenceMutator.insertBefore(this.value, mutationListener, value, sequencePredicate);
+        SequenceMutator.insertBefore(this.$value, mutationListener, value, sequencePredicate);
     }
 
     @Override
     public void insertBefore(Sequence<? extends T> values, int position) {
-        SequenceMutator.insertBefore(value, mutationListener, values, position);
+        SequenceMutator.insertBefore($value, mutationListener, values, position);
     }
 
     @Override
     public void insertBefore(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
-        SequenceMutator.insertBefore(value, mutationListener, values, sequencePredicate);
+        SequenceMutator.insertBefore($value, mutationListener, values, sequencePredicate);
     }
 
     @Override
     public void insertAfter(T value, int position) {
-        SequenceMutator.insertAfter(this.value, mutationListener, value, position);
+        SequenceMutator.insertAfter(this.$value, mutationListener, value, position);
     }
 
     @Override
     public void insertAfter(T value, SequencePredicate<T> sequencePredicate) {
-        SequenceMutator.insertAfter(this.value, mutationListener, value, sequencePredicate);
+        SequenceMutator.insertAfter(this.$value, mutationListener, value, sequencePredicate);
     }
 
     @Override
     public void insertAfter(Sequence<? extends T> values, int position) {
-        SequenceMutator.insertAfter(value, mutationListener, values, position);
+        SequenceMutator.insertAfter($value, mutationListener, values, position);
     }
 
     @Override
     public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
-        SequenceMutator.insertAfter(value, mutationListener, values, sequencePredicate);
+        SequenceMutator.insertAfter($value, mutationListener, values, sequencePredicate);
     }
 
     private class MutationListener implements SequenceMutator.Listener<T> {
         public void onReplaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-            previousValue = value;
-            value = newValue;
-            valueChanged();
-            SequenceVar.this.notifyListeners(startPos, endPos, newElements, oldValue, newValue);
-            previousValue = null;
+            SequenceVar.this.replaceSlice(startPos, endPos, newElements, newValue);
         }
     }
 }

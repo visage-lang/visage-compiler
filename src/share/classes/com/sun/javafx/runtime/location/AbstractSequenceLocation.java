@@ -14,23 +14,19 @@ import com.sun.javafx.runtime.sequence.Sequences;
  * @author Brian Goetz
  */
 public abstract class AbstractSequenceLocation<T> extends AbstractLocation implements SequenceLocation<T> {
-    protected Sequence<T> value, previousValue;
+    protected Sequence<T> $value;
     protected final Class<T> clazz;
-    protected List<SequenceReplaceListener<T>> sequenceListeners;
+    protected List<SequenceReplaceListener<T>> replaceListeners;
 
     public AbstractSequenceLocation(Class<T> clazz, boolean valid, boolean lazy) {
         super(valid, lazy);
         this.clazz = clazz;
     }
 
-    public Sequence<T> getPreviousAsSequence() {
-        return previousValue;
-    }
-
     public void addChangeListener(SequenceReplaceListener<T> listener) {
-        if (sequenceListeners == null)
-            sequenceListeners = new ArrayList<SequenceReplaceListener<T>>();
-        sequenceListeners.add(listener);
+        if (replaceListeners == null)
+            replaceListeners = new ArrayList<SequenceReplaceListener<T>>();
+        replaceListeners.add(listener);
     }
 
     public void addChangeListener(final SequenceChangeListener<T> listener) {
@@ -57,45 +53,54 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
      */
     protected Sequence<T> replaceValue(Sequence<T> newValue) {
         if (newValue == null)
-            throw new NullPointerException();
-        Sequence<T> oldValue = value;
+            newValue = Sequences.emptySequence(clazz);
+        return replaceSlice(0, Sequences.size($value)-1, newValue, newValue);
+    }
+
+    protected Sequence<T> replaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> newValue) {
+        Sequence<T> oldValue = $value;
         if (!equals(oldValue, newValue)) {
-            previousValue = value;
-            this.value = newValue;
+            $value = newValue;
             valueChanged();
-            if (sequenceListeners != null)
-                notifyListeners(0, Sequences.size(oldValue)-1, newValue, oldValue, newValue);
-            previousValue = null;
+            if (replaceListeners != null)
+                notifyListeners(startPos, endPos, newElements, oldValue, newValue);
         }
+        if (!isValid())
+            setValid(false);
         return newValue;
     }
 
     protected void notifyListeners(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-        if (sequenceListeners != null) {
-            for (SequenceReplaceListener<T> listener : sequenceListeners) {
+        if (replaceListeners != null) {
+            for (SequenceReplaceListener<T> listener : replaceListeners) {
                 listener.onReplace(startPos, endPos, newElements, oldValue, newValue);
             }
         }
     }
 
+    public void fireInitialTriggers() {
+        if (Sequences.size($value) != 0)
+            notifyListeners(0, -1, $value, null, $value);
+    }
+    
     @Override
     public String toString() {
-        return value.toString();
+        return $value.toString();
     }
 
     @Override
     public Iterator<T> iterator() {
-        return value.iterator();
+        return $value.iterator();
     }
 
     @Override
     public T get(int position) {
-        return value.get(position);
+        return $value.get(position);
     }
 
     @Override
     public Sequence<T> getAsSequence() {
-        return value;
+        return $value;
     }
 
     @Override

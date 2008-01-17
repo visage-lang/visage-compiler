@@ -8,10 +8,9 @@ import com.sun.javafx.runtime.location.*;
  *
  * @author Brian Goetz
  */
-public class SequenceElementLocation<T> extends AbstractLocation implements ObjectLocation<T> {
-    private SequenceLocation<T> seq;
-    private IntLocation index;
-    private T value, previousValue;
+public class SequenceElementLocation<T> extends AbstractObjectLocation<T> implements ObjectLocation<T> {
+    private final SequenceLocation<T> seq;
+    private final IntLocation index;
     private int indexValue;
 
     public SequenceElementLocation(SequenceLocation<T> seq, IntLocation index) {
@@ -26,28 +25,14 @@ public class SequenceElementLocation<T> extends AbstractLocation implements Obje
     public T get() {
         if (isValid())
             update();
-        return value;
-    }
-
-    public T getPrevious() {
-        return previousValue;
-    }
-
-    public T set(T value) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setDefault() {
-        throw new UnsupportedOperationException();
+        return super.get();
     }
 
     @Override
     public void update() {
         if (!isValid()) {
             indexValue = index.getAsInt();
-            value = seq.getAsSequence().get(indexValue);
-            // @@@ Should this be .equals() ?
-            setValid(previousValue != value);
+            replaceValue(seq.getAsSequence().get(indexValue));
         }
     }
 
@@ -55,11 +40,8 @@ public class SequenceElementLocation<T> extends AbstractLocation implements Obje
         return get() == null;
     }
 
-    @Override
-    public void invalidate() {
-        if (isValid())
-            previousValue = value;
-        super.invalidate();
+    public void addChangeListener(ObjectChangeListener<T> listener) {
+        // @@@ NYI @@@
     }
 
     private class MySequenceListener implements SequenceChangeListener<T> {

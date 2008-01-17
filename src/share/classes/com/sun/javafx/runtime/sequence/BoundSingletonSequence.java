@@ -29,7 +29,7 @@ public class BoundSingletonSequence<T> extends AbstractBoundSequence<T> implemen
         location.addChangeListener(new ChangeListener() {
             public boolean onChange(Location t) {
                 // @@@ optimize away null update?  
-                updateSlice(0, value.size() - 1, computeValue());
+                updateSlice(0, $value.size() - 1, computeValue());
                 return true;
             }
         });

@@ -106,10 +106,9 @@ public class InstanceTriggerTest extends JavaFXTestCase {
     public void testPrevValue() {
         final IntLocation v = IntVar.make();
         final int[] last = new int[1];
-        v.addChangeListener(new ChangeListener() {
-            public boolean onChange(Location location) {
-                last[0] = ((IntLocation) location).getPreviousAsInt();
-                return true;
+        v.addChangeListener(new IntChangeListener() {
+            public void onChange(int oldValue, int newValue) {
+                last[0] = oldValue;
             }
         });
 

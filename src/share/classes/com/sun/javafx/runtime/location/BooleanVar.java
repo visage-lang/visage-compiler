@@ -54,11 +54,8 @@ public class BooleanVar extends AbstractBooleanLocation implements BooleanLocati
 
 
     public boolean setAsBoolean(boolean value) {
-        if (this.$value != value) {
-            $previousValue = this.$value;
-            this.$value = value;
-            valueChanged();
-        }
+        if (this.$value != value)
+            replaceValue(value);
         return value;
     }
 

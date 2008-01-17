@@ -1,3 +1,15 @@
+insert 100 at 0
+insert 101 at 1
+insert 102 at 2
+insert 103 at 3
+insert 104 at 4
+insert 105 at 5
+insert 106 at 6
+insert 107 at 7
+insert 108 at 8
+insert 109 at 9
+insert 110 at 10
+replaced null[0..-1] by [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 ]
 doit - with element triggers:
 replaced 103 at 3 with 88
 insert 77 at 11

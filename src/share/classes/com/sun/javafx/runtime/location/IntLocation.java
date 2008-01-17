@@ -34,12 +34,11 @@ public interface IntLocation extends Location, ObjectLocation<Integer> {
     /** Retrieve the current value of this location, recomputing if necessary */
     public int getAsInt();
 
-    /** Retrieve the previous value of this location; only defined while change listeners are being notified */
-    public int getPreviousAsInt();
-
     /** Set the current value of this location, recomputing if necessary */
     public int setAsInt(int value);
 
     /** Set this location to its default value */
     public void setDefault();
+
+    public void addChangeListener(IntChangeListener listener);
 }

@@ -25,10 +25,10 @@
 
 package com.sun.javafx.runtime.location;
 
+import java.util.Iterator;
+
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
-
-import java.util.Iterator;
 
 /**
  * SequenceExpression represents an integer-value bound expression.  Associated with an SequenceExpression is an expression
@@ -51,13 +51,8 @@ public abstract class SequenceExpression<T> extends AbstractSequenceLocation<T> 
 
     @Override
     public void update() {
-        if (!isValid()) {
-            Sequence<T> v = Sequences.upcast(clazz, computeValue());
-            if (!equals(v, previousValue))
-                replaceValue(v);
-            setValid(false);
-            previousValue = null;
-        }
+        if (!isValid()) 
+            replaceValue(Sequences.upcast(clazz, computeValue()));
     }
 
     private void ensureValid() {
@@ -87,12 +82,5 @@ public abstract class SequenceExpression<T> extends AbstractSequenceLocation<T> 
     public Sequence<T> getAsSequence() {
         ensureValid();
         return super.getAsSequence();
-    }
-
-    @Override
-    public void invalidate() {
-        if (isValid())
-            previousValue = value;
-        super.invalidate();
     }
 }

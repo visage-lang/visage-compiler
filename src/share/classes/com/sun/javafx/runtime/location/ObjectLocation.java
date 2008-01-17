@@ -34,12 +34,11 @@ public interface ObjectLocation<T> extends Location {
     /** Retrieve the current value associated with this Location, recomputing if necessary */
     public T get();
 
-    /** Retrieve the previous value of this location; only defined while change listeners are being notified */
-    public T getPrevious();
-
     /** Modify the value associated with this Location */
     public T set(T value);
 
     /** Set this location to its default value */
     public void setDefault();
+
+    public void addChangeListener(ObjectChangeListener<T> listener);
 }

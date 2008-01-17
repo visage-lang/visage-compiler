@@ -54,11 +54,8 @@ public class DoubleVar extends AbstractDoubleLocation implements DoubleLocation,
 
 
     public double setAsDouble(double value) {
-        if (this.$value != value) {
-            $previousValue = this.$value;
-            this.$value = value;
-            valueChanged();
-        }
+        if (this.$value != value)
+            replaceValue(value);
         return value;
     }
 

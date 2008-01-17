@@ -50,16 +50,13 @@ public class IntVar extends AbstractIntLocation implements IntLocation, MutableL
 
     private IntVar(int value) {
         super(true, false);
-        this.$value = value;
+        setAsInt(value);
     }
 
 
     public int setAsInt(int value) {
-        if (this.$value != value) {
-            $previousValue = this.$value;
-            this.$value = value;
-            valueChanged();
-        }
+        if (this.$value != value)
+            replaceValue(value);
         return value;
     }
 
