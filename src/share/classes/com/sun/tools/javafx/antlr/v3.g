@@ -303,6 +303,14 @@ import org.antlr.runtime.*;
     	setText(StringLiteralProcessor.convert( log, getCharIndex(), getText() ));
     }
 
+    void processTranslationKey() {
+        String text = getText().substring(2); // remove '##'
+        if (text.length() > 0) {
+            text = StringLiteralProcessor.convert( log, getCharIndex(), text );
+        }
+        setText(text);
+    }
+
     // quote context --
     static final int CUR_QUOTE_CTX	= 0;	// 0 = use current quote context
     static final int SNG_QUOTE_CTX	= 1;	// 1 = single quote quote context
@@ -376,6 +384,15 @@ NextIsPercent[int quoteContext]
 FORMAT_STRING_LITERAL		: 				{ BraceQuoteTracker.percentIsFormat() }?=>
 				  '%' (~' ')* 			{ BraceQuoteTracker.resetPercentIsFormat(); }
 				;
+TRANSLATION_KEY                 : '##' 
+                                  ( 
+                                    '[' TranslationKeyBody ']'
+                                  )?                            { processTranslationKey(); }
+				;
+
+fragment
+TranslationKeyBody              : (~('[' | ']' | '\\')|'\\' .)+
+                                ;
  
 DECIMAL_LITERAL : ('0' | '1'..'9' '0'..'9'*) ;
 
@@ -802,11 +819,24 @@ objectLiteralPart
        	| functionDefinition 	(COMMA | SEMI)?			-> functionDefinition
        	;
 stringExpression  
-	: QUOTE_LBRACE_STRING_LITERAL
+	: TRANSLATION_KEY
+	  STRING_LITERAL			-> ^(TRANSLATION_KEY
+                                                        STRING_LITERAL)
+	| QUOTE_LBRACE_STRING_LITERAL
 	  stringFormat	
 	  expression 	
 	  stringExpressionInner*   
 	  RBRACE_QUOTE_STRING_LITERAL		-> ^(QUOTE_LBRACE_STRING_LITERAL 
+	  							stringFormat expression 
+	  							stringExpressionInner* 
+	  							RBRACE_QUOTE_STRING_LITERAL)
+	| TRANSLATION_KEY
+          QUOTE_LBRACE_STRING_LITERAL
+	  stringFormat	
+	  expression 	
+	  stringExpressionInner*   
+	  RBRACE_QUOTE_STRING_LITERAL		-> ^(TRANSLATION_KEY
+                                                                QUOTE_LBRACE_STRING_LITERAL 
 	  							stringFormat expression 
 	  							stringExpressionInner* 
 	  							RBRACE_QUOTE_STRING_LITERAL)

@@ -355,6 +355,8 @@ NextIsPercent[int quoteContext]
 FORMAT_STRING_LITERAL		: 				{ BraceQuoteTracker.percentIsFormat() }?=>
 				  '%' (~' ')* 			{ BraceQuoteTracker.resetPercentIsFormat(); }
 				;
+POUNDPOUND                      : '##'
+				;
  
 QUOTED_IDENTIFIER 
 		:	'<<' (~'>'| '>' ~'>')* '>'* '>>'   	{ setText(getText().substring(2, getText().length()-2)); };
@@ -831,8 +833,13 @@ objectLiteralPart  returns [JCTree value]
        	| functionDefinition 	(COMMA | SEMI)?			{ $value = $functionDefinition.value; }
        	;
 stringExpression  returns [JCExpression expr] 
-@init { ListBuffer<JCExpression> strexp = new ListBuffer<JCExpression>(); }
-	: ql=QUOTE_LBRACE_STRING_LITERAL	{ strexp.append(F.at(pos($ql)).Literal(TypeTags.CLASS, $ql.text)); }
+@init { ListBuffer<JCExpression> strexp = new ListBuffer<JCExpression>(); 
+        String translationKey = null;}
+	: (  POUNDPOUND                         
+            ( LBRACKET IDENTIFIER RBRACKET      { translationKey = $IDENTIFIER.text;}
+            )?
+          )?
+          ql=QUOTE_LBRACE_STRING_LITERAL	{ strexp.append(F.at(pos($ql)).Literal(TypeTags.CLASS, $ql.text)); }
 	  f1=stringFormat			{ strexp.append($f1.expr); }
 	  e1=expression 			{ strexp.append($e1.expr); }
 	  (  rl=RBRACE_LBRACE_STRING_LITERAL	{ strexp.append(F.at(pos($rl)).Literal(TypeTags.CLASS, $rl.text)); }
@@ -840,7 +847,7 @@ stringExpression  returns [JCExpression expr]
 	     en=expression 			{ strexp.append($en.expr); }
 	  )*   
 	  rq=RBRACE_QUOTE_STRING_LITERAL	{ strexp.append(F.at(pos($rq)).Literal(TypeTags.CLASS, $rq.text)); }
-	  					{ $expr = F.at(pos($ql)).StringExpression(strexp.toList()); }
+	  					{ $expr = F.at(pos($ql)).StringExpression(strexp.toList(), translationKey); }
 	;
 stringFormat  returns [JCExpression expr] 
 	: fs=FORMAT_STRING_LITERAL		{ $expr = F.at(pos($fs)).Literal(TypeTags.CLASS, $fs.text); }
@@ -926,7 +933,6 @@ literal  returns [JCExpression expr]
 	| t=FALSE   			{ $expr = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 0); }
 	| t=NULL 			{ $expr = F.at(pos($t)).Literal(TypeTags.BOT, null); } 
 	;
-	
 typeName  returns [JCExpression expr]
 	: qualident 			{ $expr = $qualident.expr; }
 		(typeArguments		{ $expr = F.TypeApply($expr, $typeArguments.exprbuff.toList()); }

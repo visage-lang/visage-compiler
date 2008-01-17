@@ -227,8 +227,9 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXStringExpression StringExpression(List<JCExpression> parts) {
-        JFXStringExpression tree = new JFXStringExpression(parts);
+    public JFXStringExpression StringExpression(List<JCExpression> parts,
+                                        String translationKey) {
+        JFXStringExpression tree = new JFXStringExpression(parts, translationKey);
         tree.pos = pos;
         return tree;
     }

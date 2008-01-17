@@ -333,8 +333,13 @@ pipeExpression  returns [JCExpression expr] //TODO: this is a hack
 							}
 	;
 stringExpression  returns [JCExpression expr] 
-@init { ListBuffer<JCExpression> strexp = new ListBuffer<JCExpression>(); }
-	: ^(QUOTE_LBRACE_STRING_LITERAL			{ strexp.append(F.at(pos($QUOTE_LBRACE_STRING_LITERAL)).Literal(TypeTags.CLASS,
+@init { ListBuffer<JCExpression> strexp = new ListBuffer<JCExpression>(); 
+        String translationKey = null; }
+	: ^(tk=TRANSLATION_KEY                          { translationKey = $tk.text; }
+            STRING_LITERAL                              { strexp.append(F.at(pos($STRING_LITERAL)).Literal(TypeTags.CLASS, $STRING_LITERAL.text)); }
+		  					{ $expr = F.at(pos($STRING_LITERAL)).StringExpression(strexp.toList(), translationKey); }
+           )
+	| ^(QUOTE_LBRACE_STRING_LITERAL			{ strexp.append(F.at(pos($QUOTE_LBRACE_STRING_LITERAL)).Literal(TypeTags.CLASS,
 												 $QUOTE_LBRACE_STRING_LITERAL.text)); }
 		  f1=stringFormat			{ strexp.append($f1.expr); }
 		  e1=expression 			{ strexp.append($e1.expr); }
@@ -343,7 +348,19 @@ stringExpression  returns [JCExpression expr]
 		     en=expression 			{ strexp.append($en.expr); }
 		  )*   
 		  rq=RBRACE_QUOTE_STRING_LITERAL	{ strexp.append(F.at(pos($rq)).Literal(TypeTags.CLASS, $rq.text)); }
-		  					{ $expr = F.at(pos($QUOTE_LBRACE_STRING_LITERAL)).StringExpression(strexp.toList()); }
+		  					{ $expr = F.at(pos($QUOTE_LBRACE_STRING_LITERAL)).StringExpression(strexp.toList(), translationKey); }
+	    )
+	| ^(tk=TRANSLATION_KEY                          { translationKey = $tk.text; }
+            QUOTE_LBRACE_STRING_LITERAL			{ strexp.append(F.at(pos($QUOTE_LBRACE_STRING_LITERAL)).Literal(TypeTags.CLASS,
+												 $QUOTE_LBRACE_STRING_LITERAL.text)); }
+		  f1=stringFormat			{ strexp.append($f1.expr); }
+		  e1=expression 			{ strexp.append($e1.expr); }
+		  (  rl=RBRACE_LBRACE_STRING_LITERAL	{ strexp.append(F.at(pos($rl)).Literal(TypeTags.CLASS, $rl.text)); }
+		     fn=stringFormat			{ strexp.append($fn.expr); }
+		     en=expression 			{ strexp.append($en.expr); }
+		  )*   
+		  rq=RBRACE_QUOTE_STRING_LITERAL	{ strexp.append(F.at(pos($rq)).Literal(TypeTags.CLASS, $rq.text)); }
+		  					{ $expr = F.at(pos($QUOTE_LBRACE_STRING_LITERAL)).StringExpression(strexp.toList(), translationKey); }
 	    )
 	;
 stringFormat  returns [JCExpression expr] 

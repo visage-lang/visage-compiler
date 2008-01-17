@@ -804,7 +804,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitStringExpression(JFXStringExpression tree) {
-       StringBuffer sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer();
         List<JCExpression> parts = tree.getParts();
         ListBuffer<JCExpression> values = new ListBuffer<JCExpression>();
         
@@ -827,11 +827,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             parts = parts.tail;
         }
         JCLiteral formatLiteral = make.at(tree.pos).Literal(TypeTags.CLASS, sb.toString());
-        JCExpression formatter = make.Ident(Name.fromString(names, "java"));
-        for (String s : new String[] {"lang", "String", "format"}) {
-            formatter = make.Select(formatter, Name.fromString(names, s));
-        }
         values.prepend(formatLiteral);
+        JCExpression formatter;
+        if (tree.translationKey != null) {
+            formatter = make.Ident(Name.fromString(names, "com"));
+            for (String s : new String[] {"sun", "javafx", "runtime", "i18n", "StringTranslation", "getTranslation"}) {
+                formatter = make.Select(formatter, Name.fromString(names, s));
+            }
+            values.prepend(make.Literal(TypeTags.CLASS, tree.translationKey));
+            values.prepend(make.Literal(TypeTags.CLASS, currentClass.getName().toString()));
+        } else {
+            formatter = make.Ident(Name.fromString(names, "java"));
+            for (String s : new String[] {"lang", "String", "format"}) {
+                formatter = make.Select(formatter, Name.fromString(names, s));
+            }
+        }
         result = make.Apply(null, formatter, values.toList());
     }
 

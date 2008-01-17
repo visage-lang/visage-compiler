@@ -140,6 +140,8 @@ public class FXRunAndCompareWrapper extends TestCase {
         Path p = commandLine.createClasspath(project);
         p.createPathElement().setPath(System.getProperty("java.class.path"));
         p.createPathElement().setPath(buildDir.getPath());
+        // for possible .fxproperties files in the test source directory
+        p.createPathElement().setPath(testFile.getParent());
 
         PumpStreamHandler sh = new PumpStreamHandler(new FileOutputStream(outputFileName), new FileOutputStream(errorFileName));
         Execute exe = new Execute(sh);

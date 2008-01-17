@@ -39,9 +39,11 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
  */
 public class JFXStringExpression extends JFXExpression implements StringExpressionTree {
     public List<JCExpression> parts;
+    public String translationKey;
 
-    JFXStringExpression(List<JCExpression> parts) {
+    JFXStringExpression(List<JCExpression> parts, String translationKey) {
         this.parts = parts;
+        this.translationKey = translationKey;
     }
     
     public void accept(JavafxVisitor v) { v.visitStringExpression(this);}

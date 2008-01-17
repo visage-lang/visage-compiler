@@ -415,6 +415,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
+    @Override
     public void visitStringExpression(JFXStringExpression tree) {
         try {
             int i;
