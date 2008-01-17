@@ -44,7 +44,7 @@ public abstract class ObjectExpression<T> extends AbstractObjectLocation<T> impl
     public T get() {
         if (!isValid())
             update();
-        return value;
+        return $value;
     }
 
     /** Calculate the current value of the expression */
@@ -53,16 +53,16 @@ public abstract class ObjectExpression<T> extends AbstractObjectLocation<T> impl
     @Override
     public void update() {
         if (!isValid()) {
-            value = computeValue();
-            setValid(!equals(value, previousValue));
-            previousValue = null;
+            $value = computeValue();
+            setValid(!equals($value, $previousValue));
+            $previousValue = null;
         }
     }
 
     @Override
     public void invalidate() {
         if (isValid())
-            previousValue = value;
+            $previousValue = $value;
         super.invalidate();
     }
 }

@@ -5,25 +5,27 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class AbstractBooleanLocation extends AbstractLocation {
-    protected boolean value;
-    protected boolean previousValue;
+public abstract class AbstractBooleanLocation extends AbstractLocation implements BooleanLocation {
+    public static final boolean DEFAULT = false;
 
-    public AbstractBooleanLocation(boolean valid, boolean lazy, boolean value) {
+    protected boolean $value = DEFAULT;
+    protected boolean $previousValue = DEFAULT;
+
+    protected AbstractBooleanLocation(boolean valid, boolean lazy, boolean value) {
         super(valid, lazy);
-        this.value = value;
+        this.$value = value;
     }
 
-    public AbstractBooleanLocation(boolean valid, boolean lazy) {
+    protected AbstractBooleanLocation(boolean valid, boolean lazy) {
         super(valid, lazy);
     }
 
     public boolean getAsBoolean() {
-        return value;
+        return $value;
     }
 
     public boolean getPreviousAsBoolean() {
-        return previousValue;
+        return $previousValue;
     }
 
     public Boolean get() {

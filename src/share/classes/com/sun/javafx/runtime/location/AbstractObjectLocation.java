@@ -5,29 +5,29 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class AbstractObjectLocation<T> extends AbstractLocation {
-    protected T value;
-    protected T previousValue;
+public abstract class AbstractObjectLocation<T> extends AbstractLocation implements ObjectLocation<T> {
+    protected T $value;
+    protected T $previousValue;
 
-    public AbstractObjectLocation(boolean valid, boolean lazy, T value) {
+    protected AbstractObjectLocation(boolean valid, boolean lazy, T value) {
         super(valid, lazy);
-        this.value = value;
+        this.$value = value;
     }
 
-    public AbstractObjectLocation(boolean valid, boolean lazy) {
+    protected AbstractObjectLocation(boolean valid, boolean lazy) {
         super(valid, lazy);
     }
 
     public T get() {
-        return value;
+        return $value;
     }
 
     public T getPrevious() {
-        return previousValue;
+        return $previousValue;
     }
 
     public boolean isNull() {
-        return value == null;
+        return $value == null;
     }
 
     protected boolean changed(T oldValue, T newValue) {

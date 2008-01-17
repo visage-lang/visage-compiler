@@ -32,13 +32,13 @@ package com.sun.javafx.runtime.location;
  */
 public interface ObjectLocation<T> extends Location {
     /** Retrieve the current value associated with this Location, recomputing if necessary */
-    T get();
+    public T get();
 
     /** Retrieve the previous value of this location; only defined while change listeners are being notified */
     public T getPrevious();
 
     /** Modify the value associated with this Location */
-    T set(T value);
+    public T set(T value);
 
     /** Set this location to its default value */
     public void setDefault();

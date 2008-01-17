@@ -6,12 +6,14 @@ package com.sun.javafx.runtime.location;
  * @author Brian Goetz
  */
 public abstract class AbstractDoubleLocation extends AbstractLocation implements DoubleLocation {
-    protected double value;
-    protected double previousValue;
+    public static final double DEFAULT = 0.0;
+
+    protected double $value = DEFAULT;
+    protected double $previousValue = DEFAULT;
 
     protected AbstractDoubleLocation(boolean valid, boolean lazy, double value) {
         super(valid, lazy);
-        this.value = value;
+        this.$value = value;
     }
 
     protected AbstractDoubleLocation(boolean valid, boolean lazy) {
@@ -19,11 +21,11 @@ public abstract class AbstractDoubleLocation extends AbstractLocation implements
     }
 
     public double getAsDouble() {
-        return value;
+        return $value;
     }
 
     public double getPreviousAsDouble() {
-        return previousValue;
+        return $previousValue;
     }
 
     public double setAsDouble(double value) {

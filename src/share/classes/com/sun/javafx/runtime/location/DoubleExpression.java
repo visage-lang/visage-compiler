@@ -53,15 +53,15 @@ public abstract class DoubleExpression extends AbstractDoubleLocation implements
     @Override
     public void update() {
         if (!isValid()) {
-            value = computeValue();
-            setValid(previousValue != value);
+            $value = computeValue();
+            setValid($previousValue != $value);
         }
     }
 
     @Override
     public void invalidate() {
         if (isValid())
-            previousValue = value;
+            $previousValue = $value;
         super.invalidate();
     }
 

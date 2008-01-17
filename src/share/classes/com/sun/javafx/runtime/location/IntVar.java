@@ -36,7 +36,7 @@ import com.sun.javafx.runtime.ErrorHandler;
 public class IntVar extends AbstractIntLocation implements IntLocation, MutableLocation {
 
     public static IntLocation make() {
-        return make(0);
+        return make(DEFAULT);
     }
 
     public static IntLocation make(int value) {
@@ -44,27 +44,27 @@ public class IntVar extends AbstractIntLocation implements IntLocation, MutableL
     }
 
     public static IntLocation makeUnmodifiable(int value) {
-        return Locations.unmodifiableLocation((IntLocation) new IntVar(value));
+        return Locations.unmodifiableLocation(new IntVar(value));
     }
 
 
     private IntVar(int value) {
         super(true, false);
-        this.value = value;
+        this.$value = value;
     }
 
 
     public int setAsInt(int value) {
-        if (this.value != value) {
-            previousValue = this.value;
-            this.value = value;
+        if (this.$value != value) {
+            $previousValue = this.$value;
+            this.$value = value;
             valueChanged();
         }
         return value;
     }
 
     public void setDefault() {
-        setAsInt(0);
+        setAsInt(DEFAULT);
     }
 
     public Integer set(Integer value) {

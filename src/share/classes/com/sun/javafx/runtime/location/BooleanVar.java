@@ -36,7 +36,7 @@ import com.sun.javafx.runtime.ErrorHandler;
 public class BooleanVar extends AbstractBooleanLocation implements BooleanLocation, MutableLocation {
 
     public static BooleanLocation make() {
-        return make(false);
+        return make(DEFAULT);
     }
 
     public static BooleanLocation make(boolean value) {
@@ -54,16 +54,16 @@ public class BooleanVar extends AbstractBooleanLocation implements BooleanLocati
 
 
     public boolean setAsBoolean(boolean value) {
-        if (this.value != value) {
-            previousValue = this.value;
-            this.value = value;
+        if (this.$value != value) {
+            $previousValue = this.$value;
+            this.$value = value;
             valueChanged();
         }
         return value;
     }
 
     public void setDefault() {
-        setAsBoolean(false);
+        setAsBoolean(DEFAULT);
     }
 
     public Boolean set(Boolean value) {

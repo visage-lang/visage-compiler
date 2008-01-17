@@ -6,19 +6,21 @@ package com.sun.javafx.runtime.location;
  * @author Brian Goetz
  */
 public abstract class AbstractIntLocation extends AbstractLocation implements IntLocation {
-    protected int value;
-    protected int previousValue;
+    public static final int DEFAULT = 0;
+
+    protected int $value = DEFAULT;
+    protected int $previousValue = DEFAULT;
 
     protected AbstractIntLocation(boolean valid, boolean lazy) {
         super(valid, lazy);
     }
 
     public int getAsInt() {
-        return value;
+        return $value;
     }
 
     public int getPreviousAsInt() {
-        return previousValue;
+        return $previousValue;
     }
 
     public int setAsInt(int value) {
