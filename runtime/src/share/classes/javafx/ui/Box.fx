@@ -32,6 +32,10 @@ public class Box extends Widget {
     public attribute orientation: Orientation on replace {
         if (orientation == Orientation.HORIZONTAL) {
             box.setLayout(new javax.swing.BoxLayout(box, javax.swing.BoxLayout.X_AXIS));
+        } else if (orientation == Orientation.LINE) {
+            box.setLayout(new javax.swing.BoxLayout(box, javax.swing.BoxLayout.LINE_AXIS));
+        } else if (orientation == Orientation.PAGE) {
+            box.setLayout(new javax.swing.BoxLayout(box, javax.swing.BoxLayout.PAGE_AXIS));
         } else {
             box.setLayout(new javax.swing.BoxLayout(box, javax.swing.BoxLayout.Y_AXIS));
         }
@@ -52,8 +56,12 @@ public class Box extends Widget {
     public function createComponent():javax.swing.JComponent {
         box = UIElement.context.createPanel();
         box.setOpaque(false);
-        if (orientation <> Orientation.VERTICAL) {
+        if (orientation == Orientation.HORIZONTAL) {
             box.setLayout(new javax.swing.BoxLayout(box, javax.swing.BoxLayout.X_AXIS));
+        } else if (orientation == Orientation.LINE) {
+            box.setLayout(new javax.swing.BoxLayout(box, javax.swing.BoxLayout.LINE_AXIS));
+        } else if (orientation == Orientation.PAGE) {
+            box.setLayout(new javax.swing.BoxLayout(box, javax.swing.BoxLayout.PAGE_AXIS));
         } else {
             box.setLayout(new javax.swing.BoxLayout(box, javax.swing.BoxLayout.Y_AXIS));
         }
