@@ -207,5 +207,5 @@ public abstract class JavafxTag extends JCTree {
     /** time literal
      */
     public static final int TIME_LITERAL = LAZYOP + 1;
-    public static final int JFX_OP_LAST = LAZYOP;        
+    public static final int JFX_OP_LAST = TIME_LITERAL;        
 }
