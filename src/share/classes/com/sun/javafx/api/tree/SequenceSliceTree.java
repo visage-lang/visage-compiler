@@ -1,0 +1,58 @@
+/*
+ * Copyright 2005-2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ * CA 95054 USA or visit www.sun.com if you need additional information or
+ * have any questions.
+ */
+
+package com.sun.javafx.api.tree;
+
+import com.sun.source.tree.ExpressionTree;
+
+/**
+ * Common interface for statement nodes in an abstract syntax tree for the 
+ * JavaFX Script language.
+ *
+ * <p><b>WARNING:</b> This interface and its sub-interfaces are 
+ * subject to change as the JavaFX Script programming language evolves.
+ * These interfaces are implemented by Sun's JavaFX Script compiler (javafxc) 
+ * and should not be implemented either directly or indirectly by 
+ * other applications.
+ *
+ * @author Tom Ball
+ */
+public interface SequenceSliceTree extends JavaFXExpressionTree {
+    ExpressionTree getSequence();
+
+    /** An expression for the start of the slice. */
+    ExpressionTree getFirstIndex();
+
+    /** An expression for the end of the slice. */
+    ExpressionTree getLastIndex();
+
+    /** Return the end-point kind: inclusive, exclusive, ...
+     * Should return an enum, once we actually implement more than END_EXCLUSIVE.
+     */
+    int getEndKind();
+    public static final int END_INCLUSIVE = 0;
+    // Maybe future:  public static final int END_EXCLUSIVE = 1;
+    // Maybe future:  public static final int END_IS_COUNT = 2;
+}

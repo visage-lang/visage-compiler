@@ -139,6 +139,12 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
         scan(that.getIndex());
     }
     
+    public void visitSequenceSlice(JFXSequenceSlice that) {
+        scan(that.getSequence());
+        scan(that.getFirstIndex());
+        scan(that.getLastIndex());
+    }
+    
     @Override
     public void visitSequenceInsert(JFXSequenceInsert that) {
         scan(that.getSequence());

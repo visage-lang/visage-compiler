@@ -151,6 +151,11 @@ public interface JavaFXTree extends Tree {
          */
         SEQUENCE_INDEXED(SequenceIndexedTree.class),
 
+         /**
+         * Used for instances of {@link SequenceSliceTree}.
+         */
+        SEQUENCE_SLICE(SequenceSliceTree.class),
+
         /**
          * Used for instances of {@link SequenceInsertTree}.
          */

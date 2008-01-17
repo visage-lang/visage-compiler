@@ -292,6 +292,8 @@ expression  returns [JCExpression expr]
 	| ^(DOT e0=expression name)			{ $expr = F.at(pos($DOT)).Select($e0.expr, $name.value); }
 	| ^(FUNC_APPLY e0=expression expressionList)	{ $expr = F.at(pos($FUNC_APPLY)).Apply(null, $e0.expr, $expressionList.args.toList()); } 
 	| ^(SEQ_INDEX seq=expression idx=expression)	{ $expr = F.at(pos($SEQ_INDEX)).SequenceIndexed($seq.expr, $idx.expr); }
+	| ^(SEQ_SLICE seq=expression first=expression last=expression)
+	                                                { $expr = F.at(pos($SEQ_SLICE)).SequenceSlice($seq.expr, $first.expr, $last.expr); }
 	| ^(OBJECT_LIT i=qualident objectLiteral)	{ $expr = F.at($i.expr.pos).Instanciate($qualident.expr, null, $objectLiteral.parts.toList()); } 
        	| ^(FUNC_EXPR formalParameters type blockExpression)
        							{ $expr = F.at(pos($FUNC_EXPR)).OperationValue($type.type, $formalParameters.params.toList(),

@@ -197,6 +197,18 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
+    public JFXSequenceSlice SequenceSlice(JCExpression sequence, JCExpression firstIndex, JCExpression lastIndex) {
+        return SequenceSlice(sequence, firstIndex,
+                lastIndex, JFXSequenceSlice.END_INCLUSIVE);
+    }
+
+    public JFXSequenceSlice SequenceSlice(JCExpression sequence, JCExpression firstIndex, JCExpression lastIndex, int endKind) {
+        JFXSequenceSlice tree = new JFXSequenceSlice(sequence, firstIndex,
+                lastIndex, endKind);
+        tree.pos = pos;
+        return tree;
+    }
+
     public JFXSequenceInsert SequenceInsert(JCExpression sequence, JCExpression element) {
         JFXSequenceInsert tree = new JFXSequenceInsert(sequence, element);
         tree.pos = pos;
@@ -311,7 +323,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
      public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
              JFXVar lastIndex, JFXVar newElements, JCBlock body) {
          return OnReplace(oldValue, firstIndex, lastIndex,
-                 JFXOnReplace.END_INCLUSIVE, newElements, body);
+                 JFXSequenceSlice.END_INCLUSIVE, newElements, body);
     }
 
      public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,

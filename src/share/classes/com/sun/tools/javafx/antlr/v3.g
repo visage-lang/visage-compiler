@@ -154,6 +154,7 @@ tokens {
    POSTINCR;
    POSTDECR;
    SEQ_INDEX;
+   SEQ_SLICE;
    OBJECT_LIT;
    OBJECT_LIT_PART;
    SEQ_EMPTY;
@@ -769,7 +770,10 @@ postfixExpression
 	         )   
 	   | expressionList  					-> ^(FUNC_APPLY $postfixExpression expressionList)
 	   | LBRACKET name PIPE expression RBRACKET		-> ^(PIPE $postfixExpression name expression)
-	   | LBRACKET expression RBRACKET			-> ^(SEQ_INDEX $postfixExpression expression)
+	   | LBRACKET expression
+               (RBRACKET		                        -> ^(SEQ_INDEX $postfixExpression expression)
+	       | DOTDOT last=expression RBRACKET                -> ^(SEQ_SLICE $postfixExpression expression $last)
+               )
 	   ) * 
 	;
 primaryExpression  

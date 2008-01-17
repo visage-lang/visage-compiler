@@ -1303,6 +1303,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             JCFieldAccess select = make.Select(seq, defs.setMethodName);
             List<JCExpression> args = List.of(index, rhs);
             result = make.at(diagPos).Apply(null, select, args);
+        } else if (tree.lhs.getTag() == JavafxTag.SEQUENCE_SLICE) {
+            // assignment of a sequence slice --  s[i..j]=8, call the sequence set method
+            JFXSequenceSlice si = (JFXSequenceSlice)tree.lhs;
+            JCExpression seq = translate(si.getSequence(), Wrapped.InLocation); 
+            JCExpression firstIndex = translate(si.getFirstIndex());
+            JCExpression lastIndex = translate(si.getLastIndex());
+            JCFieldAccess select = make.Select(seq, defs.replaceSliceMethodName);
+            List<JCExpression> args = List.of(firstIndex, lastIndex, rhs);
+            result = make.at(diagPos).Apply(null, select, args);
         } else if (shouldMorph(vsym)) {
             // we are setting a var Location, call the set method
             JCExpression lhs = translate(tree.lhs, Wrapped.InLocation);
@@ -1571,6 +1580,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCExpression index = translate(tree.getIndex());
         JCFieldAccess select = make.at(diagPos).Select(seq, defs.getMethodName);
         List<JCExpression> args = List.of(index);
+        result = make.at(diagPos).Apply(null, select, args);
+    }
+
+    @Override
+    public void visitSequenceSlice(JFXSequenceSlice tree) {
+        DiagnosticPosition diagPos = tree.pos();
+        JCExpression seq = translate(tree.getSequence(), Wrapped.InLocation);  
+        JCExpression firstIndex = translate(tree.getFirstIndex());
+        JCExpression lastIndex = translate(tree.getLastIndex());
+        JCFieldAccess select = make.at(diagPos).Select(seq, defs.getSliceMethodName);
+        List<JCExpression> args = List.of(firstIndex, lastIndex);
         result = make.at(diagPos).Apply(null, select, args);
     }
 

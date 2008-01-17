@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,60 +27,58 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.OnReplaceTree;
+import com.sun.javafx.api.tree.SequenceSliceTree;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
 
 /**
  *
  * @author Robert Field
  */
-public class JFXOnReplace extends JFXAbstractOnChange implements OnReplaceTree {
-    int endKind;
+public class JFXSequenceSlice extends JFXExpression implements SequenceSliceTree {
+    private final JCExpression sequence;
+    private final JCExpression firstIndex;
+    private final JCExpression lastIndex;
+    private final int endKind;
 
-    JFXVar lastIndex;
-    JFXVar newElements;
-
-    public JFXOnReplace( JFXVar oldValue, JCBlock body) {
-        super(null, oldValue, body);
-    }
-
-    public JFXOnReplace(JFXVar oldValue, JFXVar firstIndex, JFXVar lastIndex,
-            int endKind, JFXVar newElements, JCBlock body) {
-        super(firstIndex, oldValue, body);
+    public JFXSequenceSlice(JCExpression sequence, JCExpression firstIndex,
+            JCExpression lastIndex, int endKind) {
+        this.sequence = sequence;
+        this.firstIndex = firstIndex;
         this.lastIndex = lastIndex;
-        this.newElements = newElements;
         this.endKind = endKind;
     }
-    
+
     public void accept(JavafxVisitor v) {
-        v.visitOnReplace(this);
+        v.visitSequenceSlice(this);
     }
 
-    @Override
-    public int getTag() {
-        return JavafxTag.ON_REPLACE;
+    public JCExpression getSequence() {
+        return sequence;
     }
     
-    public JFXVar getFirstIndex () {
-        return getIndex();
+    public JCExpression getFirstIndex() {
+        return firstIndex;
     }
-
-    public JFXVar getLastIndex () {
+    
+    public JCExpression getLastIndex() {
         return lastIndex;
-    }
-
-    public JFXVar getNewElements () {
-        return newElements;
-    }
-
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.ON_REPLACE;
-    }
-
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        return visitor.visitOnReplace(this, data);
     }
 
     public int getEndKind () {
         return endKind;
     }
+
+    @Override
+    public int getTag() {
+        return JavafxTag.SEQUENCE_SLICE;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.SEQUENCE_SLICE;
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitSequenceSlice(this, data);
+    }
 }
+

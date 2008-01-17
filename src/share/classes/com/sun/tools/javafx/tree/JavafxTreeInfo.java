@@ -363,6 +363,8 @@ public class JavafxTreeInfo extends TreeInfo {
             return symbol(((JCArrayAccess) tree).indexed);
         case JavafxTag.SEQUENCE_INDEXED:
             return symbol(((JFXSequenceIndexed) tree).getSequence());
+        case JavafxTag.SEQUENCE_SLICE:
+            return symbol(((JFXSequenceSlice) tree).getSequence());
 	default:
 	    return null;
 	}

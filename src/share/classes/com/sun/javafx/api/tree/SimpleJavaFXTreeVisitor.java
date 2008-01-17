@@ -118,6 +118,10 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
         return defaultAction(node, p);
     }
 
+    public R visitSequenceSlice(SequenceSliceTree node, P p) {
+        return defaultAction(node, p);
+    }
+
     public R visitSequenceInsert(SequenceInsertTree node, P p) {
         return defaultAction(node, p);
     }

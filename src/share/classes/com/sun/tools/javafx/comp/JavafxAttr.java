@@ -2704,6 +2704,16 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
+    public void visitSequenceSlice(JFXSequenceSlice tree) {
+        JCExpression seq = tree.getSequence();
+        Type seqType = attribExpr(seq, env);
+
+        attribExpr(tree.getFirstIndex(), env, syms.javafx_IntegerType);
+        attribExpr(tree.getLastIndex(), env, syms.javafx_IntegerType);
+        result = check(tree, seqType, VAR, pkind, pt, pSequenceness);
+    }
+    
+    @Override
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {
         JCExpression seq = tree.getSequence();
         Type seqType = attribExpr(seq, env);
