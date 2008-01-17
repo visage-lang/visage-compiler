@@ -48,6 +48,7 @@ public class FXCompilerTest extends TestSuite {
             "test/should-fail",
             "test/currently-failing"
     };
+    private static final String TEST_FX_INCLUDES = "test.fx.includes";
 
     /**
      * Creates a test suite for this directory's .fx source files.  This
@@ -69,13 +70,14 @@ public class FXCompilerTest extends TestSuite {
 
     public FXCompilerTest(List<Test> tests, List<String> orphans) {
         super();
-        addTest(new OrphanTestFinder(orphans));
+        if (System.getProperty(TEST_FX_INCLUDES) == null)
+            addTest(new OrphanTestFinder(orphans));
         for (Test t : tests)
             addTest(t);
     }
 
     private static void findTests(File dir, List<Test> tests, List<String> orphanFiles) throws Exception {
-        String pattern = System.getProperty("test.fx.includes");
+        String pattern = System.getProperty(TEST_FX_INCLUDES);
         DirectoryScanner ds = new DirectoryScanner();
         ds.setIncludes(new String[] { (pattern == null ? "**/*.fx" : pattern) });
         ds.setBasedir(dir);
