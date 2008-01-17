@@ -26,7 +26,9 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.javafx.api.tree.TimeLiteralTree.Duration;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
+import com.sun.source.tree.LiteralTree;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Types;
@@ -34,6 +36,7 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.*;
+import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 
 /* JavaFX version of tree maker
@@ -426,6 +429,36 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                 Select(tree, partName);
             lastInx = endInx + 1;
         } while (inx >= 0);
+        return tree;
+    }
+    
+    public JFXTimeLiteral TimeLiteral(String str) {
+        int i = 0;
+        char[] buf = str.toCharArray();
+        while (i < buf.length && (Character.isDigit(buf[i]) || buf[i] == '.'))
+            i++;
+        assert i > 0 && buf.length - i > 0; // lexer should only pass valid time strings
+        String dur = str.substring(i);
+        Duration duration = 
+                dur.equals("ms") ? Duration.MILLIS :
+                dur.equals("s") ? Duration.SECONDS :
+                dur.equals("m") ? Duration.MINUTES :
+                dur.equals("h") ? Duration.HOURS : null;
+        assert duration != null;
+        Object value;
+        try {
+            String s = str.substring(0, i);
+            if (s.indexOf('.') >= 0)
+                value = Double.valueOf(s) * duration.getMultiplier();
+            else 
+                value = Integer.valueOf(s) * duration.getMultiplier();
+        } catch (NumberFormatException ex) {
+            // error already reported in scanner
+            value = Double.NaN;
+        }
+        JCLiteral literal = Literal(value);
+        JFXTimeLiteral tree = new JFXTimeLiteral(literal, duration);
+        tree.pos = pos;
         return tree;
     }
 

@@ -202,6 +202,7 @@ import org.antlr.runtime.*;
       semiKind[DECIMAL_LITERAL] = INSERT_SEMI;
       semiKind[OCTAL_LITERAL] = INSERT_SEMI;
       semiKind[HEX_LITERAL] = INSERT_SEMI;
+      semiKind[TIME_LITERAL] = INSERT_SEMI;
       semiKind[FLOATING_POINT_LITERAL] = INSERT_SEMI;
       semiKind[IDENTIFIER] = INSERT_SEMI;
       
@@ -394,6 +395,8 @@ fragment
 TranslationKeyBody              : (~('[' | ']' | '\\')|'\\' .)+
                                 ;
  
+TIME_LITERAL : (DECIMAL_LITERAL | Digits '.' (Digits)? (Exponent)? ) ( 'ms' | 'm' | 's' | 'h' ) ;
+
 DECIMAL_LITERAL : ('0' | '1'..'9' '0'..'9'*) ;
 
 OCTAL_LITERAL : '0' ('0'..'7')+ ;
@@ -918,7 +921,8 @@ literal
 	: STRING_LITERAL	
 	| DECIMAL_LITERAL	
 	| OCTAL_LITERAL		
-	| HEX_LITERAL			
+	| HEX_LITERAL
+        | TIME_LITERAL			
 	| FLOATING_POINT_LITERAL 
 	| TRUE   		
 	| FALSE   		

@@ -203,4 +203,8 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
     public R visitTypeUnknown(TypeUnknownTree node, P p) {
         return null;
     }
+
+    public R visitTimeLiteral(TimeLiteralTree node, P p) {
+        return null;
+    }
 }

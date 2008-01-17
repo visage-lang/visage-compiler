@@ -203,5 +203,9 @@ public abstract class JavafxTag extends JCTree {
     /** internal lazy bind unary operator
      */
     public static final int LAZYOP = BINDOP + 1;
+
+    /** time literal
+     */
+    public static final int TIME_LITERAL = LAZYOP + 1;
     public static final int JFX_OP_LAST = LAZYOP;        
 }

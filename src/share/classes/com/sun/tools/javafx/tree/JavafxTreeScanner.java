@@ -30,6 +30,7 @@ import com.sun.source.tree.Tree;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.TypeBoundKind;
 import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.util.List;
 
@@ -272,5 +273,8 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     @Override
     public void visitTree(JCTree that) {
         assert false : "Should not be here!!!";
+    }
+
+    public void visitTimeLiteral(JFXTimeLiteral tree) {
     }
 }

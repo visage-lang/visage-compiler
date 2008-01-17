@@ -153,4 +153,8 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
     public R visitTypeUnknown(TypeUnknownTree node, P p) {
         return defaultAction(node, p);
     }
+
+    public R visitTimeLiteral(TimeLiteralTree node, P p) {
+        return defaultAction(node, p);
+    }
 }

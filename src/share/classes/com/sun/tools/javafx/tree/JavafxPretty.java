@@ -739,4 +739,14 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
         return s.toString();
     }
+
+    public void visitTimeLiteral(JFXTimeLiteral tree) {
+        try {
+            Double d = ((Number)tree.value.value).doubleValue();
+            d /= tree.duration.getMultiplier();
+            print(d + tree.duration.getSuffix());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 }

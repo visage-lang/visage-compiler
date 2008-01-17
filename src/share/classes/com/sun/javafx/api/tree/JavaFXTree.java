@@ -175,6 +175,11 @@ public interface JavaFXTree extends Tree {
          * Used for instances of {@link StringExpressionTree}.
          */
         STRING_EXPRESSION(StringExpressionTree.class),
+        
+        /**
+         * Used for instances of {@link TimeLiteralTree}.
+         */
+        TIME_LITERAL(TimeLiteralTree.class),
 
         /**
          * Used for instances of {@link TypeAnyTree}.

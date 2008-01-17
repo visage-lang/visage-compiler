@@ -3539,4 +3539,8 @@ public
 
         return true;
     }
+
+    public void visitTimeLiteral(JFXTimeLiteral tree) {
+        result = check(tree, syms.javafx_TimeType, VAL, pkind, pt, pSequenceness);
+    }
 }

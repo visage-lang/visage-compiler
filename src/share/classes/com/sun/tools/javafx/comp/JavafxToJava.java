@@ -3200,4 +3200,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         return ret;
     }
+
+    public void visitTimeLiteral(JFXTimeLiteral tree) {
+        // convert time literal to a javafx.lang.Time object literal
+        JCFieldAccess clsname = (JCFieldAccess) makeQualifiedTree(tree.pos(), syms.javafx_TimeType.tsym.toString());
+        clsname.type = syms.javafx_TimeType;
+        clsname.sym = syms.javafx_TimeType.tsym;
+        Name attribute = names.fromString("millis");
+        Symbol symMillis = clsname.sym.members().lookup(attribute).sym;
+        JavafxTreeMaker fxmake = (JavafxTreeMaker)make;
+        JFXObjectLiteralPart objLiteral = fxmake.at(tree.pos()).ObjectLiteralPart(attribute, tree.value, JavafxBindStatus.UNBOUND);
+        objLiteral.sym = symMillis;
+        JFXInstanciate inst = fxmake.at(tree.pos).Instanciate(clsname, null, List.of((JCTree)objLiteral));
+        inst.type = clsname.type;
+        
+        // now convert that object literal to Java
+        visitInstanciate(inst); // sets result
+    }
 }

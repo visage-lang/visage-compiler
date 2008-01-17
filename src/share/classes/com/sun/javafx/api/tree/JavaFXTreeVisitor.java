@@ -78,6 +78,7 @@ public interface JavaFXTreeVisitor<R,P> extends TreeVisitor<R,P> {
     R visitSequenceRange(SequenceRangeTree node, P p);
     R visitSetAttributeToObject(SetAttributeToObjectTree node, P p);
     R visitStringExpression(StringExpressionTree node, P p);
+    R visitTimeLiteral(TimeLiteralTree node, P p);
     R visitTypeAny(TypeAnyTree node, P p);
     R visitTypeClass(TypeClassTree node, P p);
     R visitTypeFunctional(TypeFunctionalTree node, P p);

@@ -1,0 +1,6 @@
+Time object literal, millis=50 = 50.0ms
+500ms = 500.0ms
+5s = 5000.0ms
+1.5s = 1500.0ms
+2m = 120000.0ms
+1h = 3600000.0ms

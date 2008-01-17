@@ -314,6 +314,7 @@ expression  returns [JCExpression expr]
 	| t=OCTAL_LITERAL				{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 8)); }
 	| t=HEX_LITERAL					{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 16)); }
 	| t=FLOATING_POINT_LITERAL 			{ $expr = F.at(pos($t)).Literal(TypeTags.DOUBLE, Double.valueOf($t.text)); }
+	| t=TIME_LITERAL         			{ $expr = F.at(pos($t)).TimeLiteral($t.text); }
 	| t=TRUE   					{ $expr = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 1); }
 	| t=FALSE   					{ $expr = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 0); }
 	| t=NULL 					{ $expr = F.at(pos($t)).Literal(TypeTags.BOT, null); } 
