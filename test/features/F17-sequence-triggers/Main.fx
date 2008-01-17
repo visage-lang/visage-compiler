@@ -30,6 +30,7 @@ class Foo {
 		delete 109 from seq2;
 		delete seq2[6];
 		System.out.println(seq2);
+                seq2[4..8] = seq2[5..7];
 		delete seq2;
 	}
 };
