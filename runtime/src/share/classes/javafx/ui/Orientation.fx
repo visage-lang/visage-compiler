@@ -29,6 +29,8 @@ package javafx.ui;
 public class Orientation {
     public attribute name: String;
     
-    public static attribute VERTICAL = Orientation {name: "VERTICAL"};
+    public static attribute VERTICAL   = Orientation {name: "VERTICAL"};
     public static attribute HORIZONTAL = Orientation {name: "HORIZONTAL"};
+    public static attribute LINE       = Orientation {name: "LINE" };
+    public static attribute PAGE       = Orientation {name: "PAGE" };
 }
