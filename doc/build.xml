@@ -38,13 +38,19 @@
     </target>
 
     <target name="clean" description="Deletes all generated documentation.">
+        <delete file="langspec/langspec.xsl"/>
         <delete dir="${doc.build.dir}"/>
     </target>
 
     <!-- Abstract targets -->
 
+   <target name="langref.xsl">
+     <filter token="chunk-xsl" value="${chunk.style}"/>
+     <copy file="doc/langspec/langref.xsl-in" tofile="doc/langspec/langref.xsl" filtering="true"/>
+     </target>
+
     <!-- arg: doc.name -->
-    <target name="chunk-html" depends="prepare">
+    <target name="chunk-html" depends="prepare,langref.xsl">
         <makeurl property="doc.xml" file="${doc.src.dir}/${doc.name}.xml"/>
         <java classname="com.elharo.xml.xinclude.SAXXIncluder" fork="true" 
               dir="${doc.build.dir}/html" failonerror="true">
@@ -59,11 +65,12 @@
             <arg value="-o"/>
             <arg file="${doc.build.dir}/html/${doc.name}.html"/>
             <arg file="${doc.build.dir}/tmp/${doc.name}-xi-tmp.xml"/>
-            <arg value="${chunk.style}"/>
+            <arg value="${doc.src.dir}/langref.xsl"/>
             <arg value="use.id.as.filename=1"/>
             <arg value="chunk.section.depth=0"/>
             <arg value="chunk.fast=1"/>
         </java>
+	<copy file="doc/langspec/langref.css" tofile="${doc.build.dir}/html/langref.css"/>
     </target>
 
     <target name="copy-figures">
