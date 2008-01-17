@@ -1839,14 +1839,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         
         JCStatement makeTmpVar() {
-            // Build the type declaration expression for the sequence builder
-            if (elemType.tsym != null && types.isCompoundClass(elemType.tsym)) {
-                String str = elemType.tsym.flatName().toString().replace("$", ".");
-                String strLookFor = str + interfaceSuffix;
-                elemType = typeMorpher.reader.enterClass(names.fromString(strLookFor)).type;
-
-            }
-
             JCExpression builderTypeExpr = makeQualifiedTree(diagPos, sequenceBuilderString);
             List<JCExpression> btargs = List.of(makeTypeTree(elemType, diagPos));
             builderTypeExpr = make.at(diagPos).TypeApply(builderTypeExpr, btargs);
