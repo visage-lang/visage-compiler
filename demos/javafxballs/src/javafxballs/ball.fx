@@ -10,6 +10,7 @@ package javafxballs;
 import javafx.ui.UIElement;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
+import java.lang.System;
 
 public class ball extends CompositeNode {
     public function composeNode(): Node {
@@ -109,8 +110,11 @@ public class ball extends CompositeNode {
     function XMLID_6_(): Paint {
       return 
         RadialGradient {
-            cx: 156.7178
-            cy: 129.2988
+            //TODO JXFC-512 Gradients Broken
+            //cx: 156.7178
+            //cy: 129.2988
+            cx: 123.667
+            cy: 91.667   
             transform: Transform.matrix(1.19, 0.165, 0.165, 1.2813, -82.7876, -94.3076)
             //TODO: gradientUnits: GradientUnits.USER_SPACE_ON_USE
             radius: 53.625
