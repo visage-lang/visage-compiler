@@ -46,7 +46,7 @@
 
    <target name="langref.xsl">
      <filter token="chunk-xsl" value="${chunk.style}"/>
-     <copy file="doc/langspec/langref.xsl-in" tofile="doc/langspec/langref.xsl" filtering="true"/>
+     <copy file="doc/langspec/langref-in.xsl" tofile="doc/langspec/langref.xsl" filtering="true"/>
      </target>
 
     <!-- arg: doc.name -->
