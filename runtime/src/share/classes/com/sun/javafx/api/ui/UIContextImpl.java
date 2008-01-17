@@ -903,7 +903,7 @@ public class UIContextImpl implements UIContext {
         }
 
         public int getRowCount() {
-            if (mColumnNames == null) return 0;
+            if (mColumnNames == null || mColumnNames.length == 0) return 0;
             int result = mCells.size() / mColumnNames.length;
             return result;
        }
