@@ -32,6 +32,7 @@ import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.*;
 import java.io.IOException;
+import javax.annotation.processing.Processor;
 import javax.tools.JavaFileObject;
 
 /**
@@ -55,6 +56,11 @@ public class JavafxJavaCompiler extends JavaCompiler {
 
     protected JavafxJavaCompiler(Context context) {
         super(context);
+    }
+
+    @Override
+    public void initProcessAnnotations(Iterable<? extends Processor> arg0) {
+        // JavaFX Script doesn't support annotations
     }
 
     public void backEnd(List<JCCompilationUnit> externalModules, ListBuffer<JavaFileObject> results) throws IOException {
