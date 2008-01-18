@@ -79,6 +79,7 @@ public abstract class AbstractObjectLocation<T> extends AbstractLocation impleme
 
     @SuppressWarnings("unchecked")
     protected void notifyListeners(final T oldValue, final T newValue) {
+        valueChanged();
         if (replaceListeners != null) {
             if (isTriggersDeferred()) {
                 final ObjectChangeListener<T>[] listenerCopy = replaceListeners.toArray(new ObjectChangeListener[replaceListeners.size()]);
@@ -100,12 +101,11 @@ public abstract class AbstractObjectLocation<T> extends AbstractLocation impleme
         T oldValue = $value;
         if (changed(oldValue, newValue)) {
             $value = newValue;
-            valueChanged();
-            if (replaceListeners != null)
-                notifyListeners(oldValue, newValue);
+            setValid();
+            notifyListeners(oldValue, newValue);
         }
-        if (!isValid())
-            setValid(false);
+        else
+            setValid();
         return newValue;
     }
 

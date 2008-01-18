@@ -27,6 +27,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         derived.addChangeListener(hl);
 
         assertEquals(derived, 2, 4, 6);
+        assertEqualsAndClear(hl, "[0, -1] => [ 2, 4, 6 ]");
         assertEquals(3, len.getAsInt());
 
         base.insert(4);
@@ -72,6 +73,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         derived.addChangeListener(hl);
 
         assertEquals(derived, 4, 8, 12);
+        assertEqualsAndClear(hl, "[0, -1] => [ 4, 8, 12 ]");
         assertEquals(3, len.getAsInt());
 
         base.insert(4);
@@ -106,6 +108,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         derived.addChangeListener(hl);
 
         assertEquals(derived, 1, 12, 23);
+        assertEqualsAndClear(hl, "[0, -1] => [ 1, 12, 23 ]");
 
         base.insert(4);
         assertEquals(derived, 1, 12, 23, 34);

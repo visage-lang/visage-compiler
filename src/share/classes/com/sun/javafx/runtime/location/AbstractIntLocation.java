@@ -88,6 +88,7 @@ public abstract class AbstractIntLocation extends AbstractLocation implements In
     }
 
     protected void notifyListeners(final int oldValue, final int newValue) {
+        valueChanged();
         if (replaceListeners != null) {
             if (isTriggersDeferred()) {
                 final IntChangeListener[] listenerCopy = replaceListeners.toArray(new IntChangeListener[replaceListeners.size()]);
@@ -109,12 +110,11 @@ public abstract class AbstractIntLocation extends AbstractLocation implements In
         int oldValue = $value;
         if (oldValue != newValue) {
             $value = newValue;
-            valueChanged();
-            if (replaceListeners != null)
-                notifyListeners(oldValue, newValue);
+            setValid();
+            notifyListeners(oldValue, newValue);
         }
-        if (!isValid())
-            setValid(false);
+        else
+            setValid();
         return newValue;
     }
 

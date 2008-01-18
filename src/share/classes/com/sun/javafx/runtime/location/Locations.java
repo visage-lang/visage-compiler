@@ -96,10 +96,6 @@ public class Locations {
             return getLocation().getListeners();
         }
 
-        public void valueChanged() {
-            getLocation().valueChanged();
-        }
-
         public void addDependencies(Location... location) {
             getLocation().addDependencies(location);
         }

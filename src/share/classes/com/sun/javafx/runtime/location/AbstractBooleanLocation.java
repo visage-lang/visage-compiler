@@ -89,6 +89,7 @@ public abstract class AbstractBooleanLocation extends AbstractLocation implement
     }
 
     protected void notifyListeners(final boolean oldValue, final boolean newValue) {
+        valueChanged();
         if (replaceListeners != null) {
             if (isTriggersDeferred()) {
                 final BooleanChangeListener[] listenerCopy = replaceListeners.toArray(new BooleanChangeListener[replaceListeners.size()]);
@@ -110,12 +111,11 @@ public abstract class AbstractBooleanLocation extends AbstractLocation implement
         boolean oldValue = $value;
         if (oldValue != newValue) {
             $value = newValue;
-            valueChanged();
-            if (replaceListeners != null)
-                notifyListeners(oldValue, newValue);
+            setValid();
+            notifyListeners(oldValue, newValue);
         }
-        if (!isValid())
-            setValid(false);
+        else
+            setValid();
         return newValue;
     }
 

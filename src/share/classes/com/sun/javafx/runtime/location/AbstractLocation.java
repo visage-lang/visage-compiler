@@ -74,10 +74,8 @@ public abstract class AbstractLocation implements Location {
         return isLazy;
     }
 
-    protected void setValid(boolean changed) {
+    protected void setValid() {
         isValid = true;
-        if (changed)
-            notifyChangeListeners();
     }
 
     public void invalidate() {
@@ -109,7 +107,10 @@ public abstract class AbstractLocation implements Location {
         parent.defer(trigger);
     }
 
-    public void valueChanged() {
+    /** Notify change triggers that the value has changed.  This should be done automatically by mutative methods,
+     * and is also used at object initialization time to defer notification of changes until the values provided
+     * in the object literal are all set.  */
+    protected void valueChanged() {
         notifyChangeListeners();
         invalidateDependencies();
     }

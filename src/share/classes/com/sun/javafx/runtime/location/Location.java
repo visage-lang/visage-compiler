@@ -77,11 +77,6 @@ public interface Location {
     /** Return the collection of change listeners */
     public Collection<ChangeListener> getListeners();
 
-    /** Notify change triggers that the value has changed.  This should be done automatically by mutative methods,
-     * and is also used at object initialization time to defer notification of changes until the values provided
-     * in the object literal are all set. */
-    public void valueChanged();
-
     /** Add this location as a dependency of zero or more other Locations */
     public void addDependencies(Location... location);
 

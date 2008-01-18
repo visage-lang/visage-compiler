@@ -34,10 +34,10 @@ public abstract class AbstractBoundSequence<T> extends AbstractSequenceLocation<
 
     private void ensureValid() {
         if (!isValid()) {
+            Sequence<T> value = computeValue();
             if (!initialized)
                 initialize();
-            $value = computeValue();
-            setValid(true);
+            replaceValue(value);
         }
     }
 

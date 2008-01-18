@@ -48,7 +48,6 @@ public class InitHelper {
         for (Location loc : initOrder) {
             if (loc != null) {
                 if (loc instanceof MutableLocation) {
-                    loc.valueChanged();
                     ((AbstractLocation) loc).fireInitialTriggers();
                 }
                 else if (!loc.isLazy())

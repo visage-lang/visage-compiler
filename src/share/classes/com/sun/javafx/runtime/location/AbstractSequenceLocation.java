@@ -47,6 +47,7 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     public AbstractSequenceLocation(Class<T> clazz, boolean valid, boolean lazy) {
         super(valid, lazy);
         this.clazz = clazz;
+        $value = Sequences.emptySequence(clazz);
     }
 
     public void addChangeListener(SequenceReplaceListener<T> listener) {
@@ -87,17 +88,19 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
         Sequence<T> oldValue = $value;
         if (!equals(oldValue, newValue)) {
             $value = newValue;
-            valueChanged();
-            if (replaceListeners != null)
-                notifyListeners(startPos, endPos, newElements, oldValue, newValue);
+            setValid();
+            notifyListeners(startPos, endPos, newElements, oldValue, newValue);
         }
-        if (!isValid())
-            setValid(false);
+        else
+            setValid();
         return newValue;
     }
 
     @SuppressWarnings("unchecked")
     protected void notifyListeners(final int startPos, final int endPos, final Sequence<? extends T> newElements, final Sequence<T> oldValue, final Sequence<T> newValue) {
+        if (endPos - startPos + 1 == 0 && Sequences.size(newElements) == 0)
+            return;
+        valueChanged();
         if (replaceListeners != null) {
             if (isTriggersDeferred()) {
                 final SequenceReplaceListener<T>[] listenerCopy = replaceListeners.toArray(new SequenceReplaceListener[replaceListeners.size()]);

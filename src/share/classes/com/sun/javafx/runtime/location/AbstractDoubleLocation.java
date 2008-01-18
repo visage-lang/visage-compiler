@@ -89,6 +89,7 @@ public abstract class AbstractDoubleLocation extends AbstractLocation implements
     }
 
     protected void notifyListeners(final double oldValue, final double newValue) {
+        valueChanged();
         if (replaceListeners != null) {
             if (isTriggersDeferred()) {
                 final DoubleChangeListener[] listenerCopy = replaceListeners.toArray(new DoubleChangeListener[replaceListeners.size()]);
@@ -110,12 +111,11 @@ public abstract class AbstractDoubleLocation extends AbstractLocation implements
         double oldValue = $value;
         if (oldValue != newValue) {
             $value = newValue;
-            valueChanged();
-            if (replaceListeners != null)
-                notifyListeners(oldValue, newValue);
+            setValid();
+            notifyListeners(oldValue, newValue);
         }
-        if (!isValid())
-            setValid(false);
+        else
+            setValid();
         return newValue;
     }
 
