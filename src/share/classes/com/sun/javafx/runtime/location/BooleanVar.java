@@ -26,6 +26,7 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.ErrorHandler;
+import com.sun.javafx.runtime.InitializationContext;
 
 /**
  * BooleanVar represents a simple boolean variable as a Location.  New BooleanVars are constructed with the make() factory
@@ -37,6 +38,12 @@ public class BooleanVar extends AbstractBooleanLocation implements BooleanLocati
 
     public static BooleanLocation make() {
         return make(DEFAULT);
+    }
+
+    public static BooleanLocation make(InitializationContext parent) {
+        BooleanVar loc = new BooleanVar(DEFAULT);
+        loc.setParent(parent);
+        return loc;
     }
 
     public static BooleanLocation make(boolean value) {

@@ -25,6 +25,8 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.InitializationContext;
+
 /**
  * ObjectVar represents an object-valued variable as a Location.  New ObjectVars are constructed with the make() factory
  * method.  ObjectVar values are always valid; it is an error to invalidate an ObjectVar.
@@ -34,8 +36,14 @@ package com.sun.javafx.runtime.location;
 public class ObjectVar<T> extends AbstractObjectLocation<T> implements ObjectLocation<T>, MutableLocation {
 
 
-    public static <T> ObjectLocation<T> make(T value) {
+    public static<T> ObjectLocation<T> make(T value) {
         return new ObjectVar<T>(value);
+    }
+
+    public static<T> ObjectLocation<T> make(InitializationContext parent) {
+        ObjectVar<T> loc = new ObjectVar<T>(null);
+        loc.setParent(parent);
+        return loc;
     }
 
     public static <T> ObjectLocation<T> makeUnmodifiable(T value) {

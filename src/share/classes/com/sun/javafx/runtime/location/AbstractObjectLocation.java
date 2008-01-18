@@ -1,7 +1,34 @@
+/*
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ * CA 95054 USA or visit www.sun.com if you need additional information or
+ * have any questions.
+ */
+
 package com.sun.javafx.runtime.location;
 
 import java.util.List;
 import java.util.ArrayList;
+
+import com.sun.javafx.runtime.DeferredTrigger;
 
 /**
  * AbstractObjectLocation
@@ -50,10 +77,21 @@ public abstract class AbstractObjectLocation<T> extends AbstractLocation impleme
         replaceListeners.add(listener);
     }
 
-    protected void notifyListeners(T oldValue, T newValue) {
+    @SuppressWarnings("unchecked")
+    protected void notifyListeners(final T oldValue, final T newValue) {
         if (replaceListeners != null) {
-            for (ObjectChangeListener<T> listener : replaceListeners) {
-                listener.onChange(oldValue, newValue);
+            if (isTriggersDeferred()) {
+                final ObjectChangeListener<T>[] listenerCopy = replaceListeners.toArray(new ObjectChangeListener[replaceListeners.size()]);
+                deferTrigger(new DeferredTrigger() {
+                    public void run() {
+                        for (ObjectChangeListener<T> listener : listenerCopy)
+                                listener.onChange(oldValue, newValue);
+                    }
+                });
+            }
+            else {
+                for (ObjectChangeListener<T> listener : replaceListeners)
+                    listener.onChange(oldValue, newValue);
             }
         }
     }
@@ -69,6 +107,14 @@ public abstract class AbstractObjectLocation<T> extends AbstractLocation impleme
         if (!isValid())
             setValid(false);
         return newValue;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void inherit(AbstractLocation otherLocation) {
+        super.inherit(otherLocation);
+        if (replaceListeners != null)
+            for (ObjectChangeListener<T> listener : ((AbstractObjectLocation<T>) otherLocation).replaceListeners)
+                addChangeListener(listener);
     }
 
     public void fireInitialTriggers() {

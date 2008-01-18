@@ -28,6 +28,9 @@ package com.sun.javafx.runtime.location;
 import java.lang.ref.WeakReference;
 import java.util.*;
 
+import com.sun.javafx.runtime.DeferredTrigger;
+import com.sun.javafx.runtime.InitializationContext;
+
 /**
  * AbstractLocation is a base class for Location implementations, handling change listener notification and lazy updates.
  *
@@ -36,6 +39,8 @@ import java.util.*;
 public abstract class AbstractLocation implements Location {
     private boolean isValid;
     private final boolean isLazy;
+
+    private InitializationContext parent;
 
     // We separate listeners from dependent locations because updating of dependent locations is split into an
     // invalidation phase and an update phase (this is to support lazy locations.)  So there are times when we want
@@ -82,6 +87,28 @@ public abstract class AbstractLocation implements Location {
             update();
     }
 
+    public void setParent(InitializationContext parent) {
+        this.parent = parent;
+    }
+
+    public void inherit(AbstractLocation otherLocation) {
+        setParent(otherLocation.parent);
+        if (otherLocation.listeners != null)
+            for (ChangeListener listener : otherLocation.listeners)
+                addChangeListener(listener);
+        if (otherLocation.dependentLocations != null)
+            for (WeakReference<Location> wl : dependentLocations)
+                addDependentLocation(wl);
+    }
+
+    protected boolean isTriggersDeferred() {
+        return (parent != null) && parent.isDeferred();
+    }
+
+    protected void deferTrigger(DeferredTrigger trigger) {
+        parent.defer(trigger);
+    }
+
     public void valueChanged() {
         notifyChangeListeners();
         invalidateDependencies();
@@ -104,33 +131,57 @@ public abstract class AbstractLocation implements Location {
 
     private void invalidateDependencies() {
         if (dependentLocations != null) {
-            try {
-                ++iterationDepth;
-                for (Iterator<WeakReference<Location>> iterator = dependentLocations.iterator(); iterator.hasNext();) {
-                    WeakReference<Location> locationRef = iterator.next();
-                    Location loc = locationRef.get();
-                    if (loc == null)
-                        iterator.remove();
-                    else
-                        loc.invalidate();
-                }
+            if (isTriggersDeferred()) {
+                deferTrigger(new DeferredTrigger() {
+                    public void run() {
+                        doInvalidateDependencies();
+                    }
+                });
             }
-            finally {
-                --iterationDepth;
-                if (iterationDepth == 0 && deferredDependencies != null && deferredDependencies.size() > 0) {
-                    dependentLocations.addAll(deferredDependencies);
-                    deferredDependencies.clear();
-                }
+            else {
+                doInvalidateDependencies();
+            }
+        }
+    }
+
+    private void doInvalidateDependencies() {
+        try {
+            ++iterationDepth;
+            for (Iterator<WeakReference<Location>> iterator = dependentLocations.iterator(); iterator.hasNext();) {
+                WeakReference<Location> locationRef = iterator.next();
+                Location loc = locationRef.get();
+                if (loc == null)
+                    iterator.remove();
+                else
+                    loc.invalidate();
+            }
+        }
+        finally {
+            --iterationDepth;
+            if (iterationDepth == 0 && deferredDependencies != null && deferredDependencies.size() > 0) {
+                dependentLocations.addAll(deferredDependencies);
+                deferredDependencies.clear();
             }
         }
     }
 
     private void notifyChangeListeners() {
         if (listeners != null) {
-            for (Iterator<ChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
-                ChangeListener listener = iterator.next();
-                if (!listener.onChange(this))
-                    iterator.remove();
+            if (isTriggersDeferred()) {
+                final ChangeListener[] listenerCopy = listeners.toArray(new ChangeListener[listeners.size()]);
+                deferTrigger(new DeferredTrigger() {
+                    public void run() {
+                        for (ChangeListener listener : listenerCopy)
+                            listener.onChange(AbstractLocation.this);
+                    }
+                });
+            }
+            else {
+                for (Iterator<ChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
+                    ChangeListener listener = iterator.next();
+                    if (!listener.onChange(this))
+                        iterator.remove();
+                }
             }
         }
     }

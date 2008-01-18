@@ -1,3 +1,28 @@
+/*
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ * CA 95054 USA or visit www.sun.com if you need additional information or
+ * have any questions.
+ */
+
 package com.sun.javafx.runtime.location;
 
 import java.util.ArrayList;
@@ -7,6 +32,7 @@ import java.util.List;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.runtime.DeferredTrigger;
 
 /**
  * AbstractSequenceLocation
@@ -70,12 +96,32 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
         return newValue;
     }
 
-    protected void notifyListeners(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+    @SuppressWarnings("unchecked")
+    protected void notifyListeners(final int startPos, final int endPos, final Sequence<? extends T> newElements, final Sequence<T> oldValue, final Sequence<T> newValue) {
         if (replaceListeners != null) {
-            for (SequenceReplaceListener<T> listener : replaceListeners) {
-                listener.onReplace(startPos, endPos, newElements, oldValue, newValue);
+            if (isTriggersDeferred()) {
+                final SequenceReplaceListener<T>[] listenerCopy = replaceListeners.toArray(new SequenceReplaceListener[replaceListeners.size()]);
+                deferTrigger(new DeferredTrigger() {
+                    public void run() {
+                        for (SequenceReplaceListener<T> listener : listenerCopy) {
+                            listener.onReplace(startPos, endPos, newElements, oldValue, newValue);
+                        }
+                    }
+                });
+            }
+            else {
+                for (SequenceReplaceListener<T> listener : replaceListeners)
+                    listener.onReplace(startPos, endPos, newElements, oldValue, newValue);
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void inherit(AbstractLocation otherLocation) {
+        super.inherit(otherLocation);
+        if (replaceListeners != null)
+            for (SequenceReplaceListener<T> listener : ((AbstractSequenceLocation<T>) otherLocation).replaceListeners)
+                addChangeListener(listener);
     }
 
     public void fireInitialTriggers() {
