@@ -490,11 +490,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 for (JCTree def : tree.getMembers()) {
                     switch(def.getTag()) {
                         case JavafxTag.INIT_DEF: {
+                            inOperationDef = true;
                             translatedInitBlocks.append(translate((JCBlock) ((JFXInitDefinition) def).getBody()));
+                            inOperationDef = false;
                             break;
                         }
                         case JavafxTag.POSTINIT_DEF: {
+                            inOperationDef = true;
                             translatedPostInitBlocks.append(translate((JCBlock) ((JFXPostInitDefinition) def).getBody()));
+                            inOperationDef = false;
                             break;
                         }
                         case JavafxTag.VAR_DEF: {
