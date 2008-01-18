@@ -104,7 +104,6 @@ public class FXApplet extends JApplet {
         }
         Class<?> cls = clsname != null ? Class.forName(clsname) : getClass();
         if (cls != null && FXObject.class.isAssignableFrom(cls)) {
-            System.out.println("found applet class " + cls);
             return cls;
         }
         return null;
