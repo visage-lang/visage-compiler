@@ -32,6 +32,7 @@
 
 package com.sun.javafx.api.ui;
 
+import com.sun.tools.javafx.comp.JavafxDefs;
 import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,8 +43,10 @@ import javax.swing.JApplet;
  * @author tball
  */
 public class FXApplet extends JApplet {
+    public static final String APPLETCLASS_PARAMETER = "AppletClass";
+    
     private static final String[][] paramInfo = {
-        { "AppletClass", "String", "applet classname" }
+        { APPLETCLASS_PARAMETER, "String", "applet classname" }
     };
 
     @Override
@@ -61,7 +64,7 @@ public class FXApplet extends JApplet {
         try {
             Class<?> appletClass = getAppletClass();
             if (appletClass != null) {
-                Method main = appletClass.getMethod("javafx$run$");
+                Method main = appletClass.getMethod(JavafxDefs.runMethodString);
                 Object result = main.invoke(null);
                 if (result != null) {
                     setContentAttribute(result);
@@ -88,7 +91,7 @@ public class FXApplet extends JApplet {
     private Class<?> getAppletClass() throws ClassNotFoundException {
         String clsname;
         try {
-            clsname = getParameter("AppletClass");
+            clsname = getParameter(APPLETCLASS_PARAMETER);
         } catch (NullPointerException e) {
             // true if applet class is instantiated from test
             clsname = null;
