@@ -32,7 +32,9 @@
 
 package com.sun.javafx.api.ui;
 
+import com.sun.javafx.runtime.FXObject;
 import com.sun.tools.javafx.comp.JavafxDefs;
+import java.awt.EventQueue;
 import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -65,9 +67,13 @@ public class FXApplet extends JApplet {
             Class<?> appletClass = getAppletClass();
             if (appletClass != null) {
                 Method main = appletClass.getMethod(JavafxDefs.runMethodString);
-                Object result = main.invoke(null);
+                final Object result = main.invoke(null);
                 if (result != null) {
-                    setContentAttribute(result);
+                    EventQueue.invokeLater(new Runnable() {
+                        public void run() {
+                            setContentAttribute(result);
+                        }
+                    });
                 }
             }
         } catch (Throwable t) {
@@ -96,8 +102,12 @@ public class FXApplet extends JApplet {
             // true if applet class is instantiated from test
             clsname = null;
         }
-        return clsname != null ? Class.forName(clsname) : getClass();
-        
+        Class<?> cls = clsname != null ? Class.forName(clsname) : getClass();
+        if (cls != null && FXObject.class.isAssignableFrom(cls)) {
+            System.out.println("found applet class " + cls);
+            return cls;
+        }
+        return null;
     }
     
     protected void setContentAttribute(Object o) {}
