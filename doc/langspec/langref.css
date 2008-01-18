@@ -1,1 +1,14 @@
-h2 { background-color: lightblue; } 
+h2 { 
+     font-family: sans-serif;
+     font-weight: bold;
+     font-size: 120%;
+     color: blue; 
+    } 
+    
+h3 { 
+     font-family: sans-serif;
+     font-weight: bold;
+     font-style: italic;
+     font-size: 112%;
+     color: blue; 
+    } 
