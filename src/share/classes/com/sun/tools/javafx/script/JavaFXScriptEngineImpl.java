@@ -547,4 +547,16 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                     }
                 });
     }
+
+    // Workarounds for backward compatibility with old JSR-223 api on mac os
+
+    public Object invoke(String name, Object...args) throws ScriptException, NoSuchMethodException
+    {
+	return invokeFunction(name, args);
+    }
+
+    public Object invoke(Object thiz, String name, Object...args) throws ScriptException, NoSuchMethodException {
+	return invokeMethod(thiz, name, args);
+    }
+
 }
