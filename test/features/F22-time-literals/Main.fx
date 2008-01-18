@@ -20,3 +20,5 @@ t = 2m;
 System.out.println("2m = {t}");
 t = 1h;
 System.out.println("1h = {t}");
+System.out.println("t.toMinutes() = {t.toMinutes()}");
+System.out.println("2m.toSeconds() = {2m.toSeconds()}");

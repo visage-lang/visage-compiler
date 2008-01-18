@@ -4,3 +4,5 @@ Time object literal, millis=50 = 50.0ms
 1.5s = 1500.0ms
 2m = 120000.0ms
 1h = 3600000.0ms
+t.toMinutes() = 60.0
+2m.toSeconds() = 120.0
