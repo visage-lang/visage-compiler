@@ -578,9 +578,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 for (JCExpression parent : tree.getExtending()) {
                     if (! (parent instanceof JCIdent))
                         continue;
-                    JCIdent ident = (JCIdent) parent;
-                    if (types.isJFXClass(ident.sym)) {
-                        ClassSymbol cSym = (ClassSymbol) ident.sym;
+                    Symbol symbol = expressionSymbol(parent);
+                    if (types.isJFXClass(symbol)) {
+                        ClassSymbol cSym = (ClassSymbol) symbol;
                         String className = cSym.fullname.toString();
                         if (className.endsWith(interfaceSuffix)) {
                             className = className.substring(0, className.length() - interfaceSuffix.length());
@@ -616,9 +616,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 for (JCExpression parent : tree.getExtending()) {
                     if (! (parent instanceof JCIdent))
                         continue;
-                    JCIdent ident = (JCIdent) parent;
-                    if (types.isJFXClass(ident.sym)) {
-                        ClassSymbol cSym = (ClassSymbol) ident.sym;
+                    Symbol symbol = expressionSymbol(parent);
+                    if (types.isJFXClass(symbol)) {
+                        ClassSymbol cSym = (ClassSymbol) symbol;
                         String className = cSym.fullname.toString();
                         if (className.endsWith(interfaceSuffix)) {
                             className = className.substring(0, className.length() - interfaceSuffix.length());
