@@ -2395,7 +2395,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitLiteral(JCLiteral tree) {
-        result = make.at(tree.pos).Literal(tree.typetag, tree.value);
+        if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
+            Type elemType = elementType(tree.type);
+            result = makeEmptySequenceCreator(tree.pos(), elemType);
+        }
+        else
+            result = make.at(tree.pos).Literal(tree.typetag, tree.value);
     }
 
     public void visitMethodDef(JCMethodDecl tree) {

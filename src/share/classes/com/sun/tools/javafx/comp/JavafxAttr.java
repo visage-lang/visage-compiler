@@ -2228,8 +2228,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
     
     public void visitLiteral(JCLiteral tree) {
-        result = check(
-            tree, litType(tree.typetag), VAL, pkind, pt, pSequenceness);
+        if (tree.typetag == TypeTags.BOT && types.isSequence(pt))
+            tree.type = pt;
+        else
+            result = check(
+                tree, litType(tree.typetag), VAL, pkind, pt, pSequenceness);
     }
     //where
     /** Return the type of a literal with given type tag.
