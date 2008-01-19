@@ -171,7 +171,8 @@ abstract class MultipleGradientPaintContext implements PaintContext {
         }
 
         if (hints == null) {
-            throw new NullPointerException("RenderingHints cannot be null");
+            //can be null on MacOS
+            //throw new NullPointerException("RenderingHints cannot be null");
         }
 
         // The inverse transform is needed to go from device to user space.  
