@@ -847,7 +847,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 formatter = make.Select(formatter, Name.fromString(names, s));
             }
             values.prepend(make.Literal(TypeTags.CLASS, tree.translationKey));
-            values.prepend(make.Literal(TypeTags.CLASS, currentClass.getName().toString()));
+            values.prepend(make.Literal(TypeTags.CLASS, 
+                attrEnv.enclClass.sym.fullname.toString().replaceAll("\\.", "/")));
         } else {
             formatter = make.Ident(Name.fromString(names, "java"));
             for (String s : new String[] {"lang", "String", "format"}) {
