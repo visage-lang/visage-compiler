@@ -119,4 +119,20 @@ public class Time extends Comparable {
     public function toString(): String {
         return "{millis}ms";
     }
+
+    public function lt(other: Time):Boolean {
+        return compareTo(other) < 0;
+    }
+
+    public function le(other: Time):Boolean {
+        return compareTo(other) <= 0;
+    }
+
+    public function gt(other: Time):Boolean {
+        return compareTo(other) > 0;
+    }
+
+    public function ge(other: Time):Boolean {
+        return compareTo(other) >= 0;
+    }
 }

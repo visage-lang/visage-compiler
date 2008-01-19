@@ -2098,7 +2098,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
              * Return the translation for a == comparision
              */
             private JCExpression translateEqualsEquals() {
-                 final JCExpression lhs = translate( tree.lhs );
+                final JCExpression lhs = translate( tree.lhs );
                 final JCExpression rhs = translate( tree.rhs );
                 final Type lhsType = tree.lhs.type;
                 final Type rhsType = tree.rhs.type;
@@ -2146,8 +2146,50 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     return translateEqualsEquals();
                 } else if (tree.getTag() == JavafxTag.NE) {
                     return make.at(diagPos).Unary(JCTree.NOT, translateEqualsEquals());
-                } else {
+                }  else {
                     // anything other than == or <>
+
+                    // Time type operator overloading
+                    if ((tree.lhs.type == syms.javafx_TimeType ||
+                        tree.rhs.type == syms.javafx_TimeType) &&
+                        tree.operator == null) { // operator check is to try to get a decent error message by falling through if the Time method isn't matched
+                        JCExpression l = tree.lhs;
+                        JCExpression r = tree.rhs;
+                        switch (tree.getTag()) {
+                        case JavafxTag.PLUS:
+                            return make.at(diagPos).Apply(null,
+                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "add")), List.<JCExpression>of(translate(r)));
+                            // lhs.add(rhs);
+                        case JavafxTag.MINUS:
+                            // lhs.sub(rhs);
+                            return make.at(diagPos).Apply(null,
+                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "sub")), List.<JCExpression>of(translate(r)));
+                        case JavafxTag.DIV:
+                            // lhs.div(rhs);
+                            return make.at(diagPos).Apply(null,
+                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "div")), List.<JCExpression>of(translate(r)));
+                        case JavafxTag.MUL:
+                            // lhs.mul(rhs);
+                            if (l.type != syms.javafx_TimeType) {
+                                r = l;
+                                l = tree.rhs;
+                            }
+                            return make.at(diagPos).Apply(null,
+                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "mul")), List.<JCExpression>of(translate(r)));
+                        case JavafxTag.LT:
+                            return make.at(diagPos).Apply(null,
+                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "lt")), List.<JCExpression>of(translate(r)));
+                        case JavafxTag.LE:
+                            return make.at(diagPos).Apply(null,
+                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "le")), List.<JCExpression>of(translate(r)));
+                        case JavafxTag.GT:
+                            return make.at(diagPos).Apply(null,
+                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "gt")), List.<JCExpression>of(translate(r)));
+                        case JavafxTag.GE:
+                            return make.at(diagPos).Apply(null,
+                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "ge")), List.<JCExpression>of(translate(r)));
+                        }
+                    }
                     final JCExpression lhs = translate(tree.lhs);
                     final JCExpression rhs = translate(tree.rhs);
                     return makeBinary(tree.getTag(), lhs, rhs);

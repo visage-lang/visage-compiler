@@ -900,7 +900,7 @@ public class JavafxResolve {
     }
              
     private boolean isExactMatch(Type mtype, Symbol bestSoFar) {
-        if (bestSoFar.kind == MTH &&
+        if (bestSoFar.kind == MTH && (bestSoFar.type instanceof MethodType) &&
                 mtype.tag == TypeTags.METHOD ) {
             List<Type> actuals = ((MethodType)mtype).getParameterTypes();
             List<Type> formals = ((MethodType)bestSoFar.type).getParameterTypes();
@@ -1543,7 +1543,85 @@ public class JavafxResolve {
                                  JavafxEnv<JavafxAttrContext> env,
                                  Type left,
                                  Type right) {
+        // Time operator overloading
+        if (left == ((JavafxSymtab)syms).javafx_TimeType ||
+            right == ((JavafxSymtab)syms).javafx_TimeType) {
+            Type intf = left;
+            if (left == ((JavafxSymtab)syms).javafx_TimeType) { 
+                intf = ((JavafxSymtab)syms).javafx_TimeIntfType;
+            }
+            Symbol res = null;
+            switch (optag) {
+            case JCTree.PLUS:
+                res = resolveMethod(pos,  env,
+                                     names.fromString("add"),
+                                     intf, List.of(right));
+                break;
+            case JCTree.MINUS:
+                res =  resolveMethod(pos,  env,
+                                     names.fromString("sub"),
+                                     intf, List.of(right));
+                break;
+            case JCTree.MUL:
+                if (left != ((JavafxSymtab)syms).javafx_TimeType) {
+                    right = left;
+                    intf = right;
+                }
+                res =  resolveMethod(pos,  env,
+                                     names.fromString("mul"),
+                                     intf,
+                                     List.of(right));
+                break;
+            case JCTree.DIV:
+                res =  resolveMethod(pos,  env,
+                                     names.fromString("div"),
+                                     intf, List.of(right));
+                break;
+
+            //fix me...inline or move to static helper?
+            case JCTree.LT:
+                res =  resolveMethod(pos,  env,
+                                     names.fromString("lt"),
+                                     intf, List.of(right));
+                break;
+            case JCTree.LE:
+                res =  resolveMethod(pos,  env,
+                                     names.fromString("le"),
+                                     intf, List.of(right));
+                break;
+            case JCTree.GT:
+                res =  resolveMethod(pos,  env,
+                                     names.fromString("gt"),
+                                     intf, List.of(right));
+                break;
+            case JCTree.GE:
+                res =  resolveMethod(pos,  env,
+                                     names.fromString("ge"),
+                                     intf, List.of(right));
+                break;
+            }
+            if (res.kind == MTH) {
+                return res;
+            } // else fall through
+        }
         return resolveOperator(pos, optag, env, List.of(left, right));
+    }
+
+    Symbol resolveMethod(DiagnosticPosition pos,
+                         JavafxEnv<JavafxAttrContext> env, 
+                         Name name,
+                         Type type,
+                         List<Type> argtypes) {
+        Symbol sym = findMethod(env, type, name, argtypes,
+                                null, false, false, false);
+        if (boxingEnabled && sym.kind >= WRONG_MTHS)
+            sym = findMethod(env, type, name, argtypes,
+                             null, true, false, false);
+        if (sym.kind == MTH) { // skip access if method wasn't found
+            return access(sym, pos, env.enclClass.sym.type, name,
+                          false, argtypes, null);
+        }
+        return sym;
     }
 
     /**

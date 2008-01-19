@@ -2163,66 +2163,70 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             right = setBinaryTypes(tree.getTag(), (JCExpression)tree.rhs, rhsVarTree, rhsSym.type, rhsSym);
         }
 
-        // Find operator.
-        Symbol operator = tree.operator =
+        Symbol sym = 
             rs.resolveBinaryOperator(tree.pos(), tree.getTag(), env, left, right);
-
         Type owntype = syms.errType;
-        if (operator.kind == MTH) {
-            owntype = operator.type.getReturnType();
-            int opc = chk.checkOperator(tree.lhs.pos(),
-                                        (OperatorSymbol)operator,
-                                        tree.getTag(),
-                                        left,
-                                        right);
-
-            // If both arguments are constants, fold them.
-            if (left.constValue() != null && right.constValue() != null) {
-                Type ctype = cfolder.fold2(opc, left, right);
-                if (ctype != null) {
-                    owntype = cfolder.coerce(ctype, owntype);
-
-                    // Remove constant types from arguments to
-                    // conserve space. The parser will fold concatenations
-                    // of string literals; the code here also
-                    // gets rid of intermediate results when some of the
-                    // operands are constant identifiers.
-                    if (tree.lhs.type.tsym == syms.stringType.tsym) {
-                        tree.lhs.type = syms.stringType;
-                    }
-                    if (tree.rhs.type.tsym == syms.stringType.tsym) {
-                        tree.rhs.type = syms.stringType;
-                    }
-                }
-            }
-
-            // Check that argument types of a reference ==, != are
-            // castable to each other, (JLS???).
-            if ((opc == ByteCodes.if_acmpeq || opc == ByteCodes.if_acmpne)) {
-                if (!types.isCastable(left, right, new Warner(tree.pos()))) {
-                    boolean isError = true;
-                    if (right.tsym != null && right.tsym instanceof JavafxClassSymbol) {
-                        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-                        Set superSet = new HashSet<Type>();
-                        supertypes.append(right);
-                        superSet.add(right);
-
-                        rs.getSupertypes(right.tsym, types, supertypes, superSet);
-                        for (Type baseType : supertypes) {
-                            if (types.isCastable(left, baseType, new Warner(tree.pos()))){
-                                isError = false;
-                                break;
-                            }
+        if (sym instanceof OperatorSymbol) {
+            // Find operator.
+            Symbol operator = tree.operator = sym;
+                
+            if (operator.kind == MTH) {
+                owntype = operator.type.getReturnType();
+                int opc = chk.checkOperator(tree.lhs.pos(),
+                                            (OperatorSymbol)operator,
+                                            tree.getTag(),
+                                            left,
+                                            right);
+                
+                // If both arguments are constants, fold them.
+                if (left.constValue() != null && right.constValue() != null) {
+                    Type ctype = cfolder.fold2(opc, left, right);
+                    if (ctype != null) {
+                        owntype = cfolder.coerce(ctype, owntype);
+                        
+                        // Remove constant types from arguments to
+                        // conserve space. The parser will fold concatenations
+                        // of string literals; the code here also
+                        // gets rid of intermediate results when some of the
+                        // operands are constant identifiers.
+                        if (tree.lhs.type.tsym == syms.stringType.tsym) {
+                            tree.lhs.type = syms.stringType;
+                        }
+                        if (tree.rhs.type.tsym == syms.stringType.tsym) {
+                            tree.rhs.type = syms.stringType;
                         }
                     }
-
-                    if (isError) {
-                        log.error(tree.pos(), "incomparable.types", left, right);
+                }
+                
+                // Check that argument types of a reference ==, != are
+                // castable to each other, (JLS???).
+                if ((opc == ByteCodes.if_acmpeq || opc == ByteCodes.if_acmpne)) {
+                    if (!types.isCastable(left, right, new Warner(tree.pos()))) {
+                        boolean isError = true;
+                        if (right.tsym != null && right.tsym instanceof JavafxClassSymbol) {
+                            ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+                            Set superSet = new HashSet<Type>();
+                            supertypes.append(right);
+                            superSet.add(right);
+                            
+                            rs.getSupertypes(right.tsym, types, supertypes, superSet);
+                            for (Type baseType : supertypes) {
+                                if (types.isCastable(left, baseType, new Warner(tree.pos()))){
+                                    isError = false;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (isError) {
+                            log.error(tree.pos(), "incomparable.types", left, right);
+                        }
                     }
                 }
+                chk.checkDivZero(tree.rhs.pos(), operator, right);
             }
-
-            chk.checkDivZero(tree.rhs.pos(), operator, right);
+        } else {
+            owntype = sym.type.getReturnType();
         }
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
