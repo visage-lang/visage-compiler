@@ -57,7 +57,7 @@ if [ -z "$CLASSPATH" ] ; then
 else
   USER_CP="$CLASSPATH"
 fi 
-classpath="$HOME/javafxrt.jar:$HOME/@SCENEGRAPH_JAR@:$USER_CP"
+classpath="$HOME/javafxrt.jar:$HOME/Scenario-0.4.1.jar:$USER_CP"
 
 args=""
 jargs=""
@@ -71,7 +71,7 @@ while [ $# -gt 0 ] ; do
     shift
 done
 } 
-if [ "$noopts" == true ] ; then
+if [ "$noopts" = true ] ; then
     args="-help"
 fi
 
