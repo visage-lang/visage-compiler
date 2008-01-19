@@ -1527,6 +1527,21 @@ public class JavafxResolve {
      *  @param arg       The type of the operand.
      */
     Symbol resolveUnaryOperator(DiagnosticPosition pos, int optag, JavafxEnv<JavafxAttrContext> env, Type arg) {
+        // check for Time unary minus
+        if (types.isSameType(arg, ((JavafxSymtab)syms).javafx_TimeType)) {
+            Type intf = ((JavafxSymtab)syms).javafx_TimeIntfType;
+            Symbol res = null;
+            switch (optag) {
+            case JCTree.NEG:
+                res = resolveMethod(pos,  env,
+                                    names.fromString("negate"),
+                                    intf, List.<Type>nil());
+                break;
+            }
+            if (res != null && res.kind == MTH) {
+                return res;
+            }
+        }
         return resolveOperator(pos, optag, env, List.of(arg));
     }
 

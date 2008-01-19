@@ -2745,6 +2745,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         return doIncDec(JCTree.PLUS, true);
                     case JCTree.POSTDEC:
                         return doIncDec(JCTree.MINUS, true);
+                    case JCTree.NEG:
+                        if (types.isSameType(tree.type, syms.javafx_TimeType)) {
+                            return make.at(diagPos).Apply(null,
+                                                          make.at(diagPos).Select(translate(tree.arg), Name.fromString(names, "negate")), List.<JCExpression>nil());
+                        }
                     default:
                         return doVanilla();
                 }

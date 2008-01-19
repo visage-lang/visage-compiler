@@ -116,6 +116,12 @@ public class Time extends Comparable {
         }
     }
 
+    public function negate():Time {
+        return Time {
+            millis: -millis;
+        }
+    }
+
     public function toString(): String {
         return "{millis}ms";
     }
