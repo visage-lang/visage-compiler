@@ -1600,7 +1600,7 @@ public class JavafxResolve {
                                      intf, List.of(right));
                 break;
             }
-            if (res.kind == MTH) {
+            if (res != null && res.kind == MTH) {
                 return res;
             } // else fall through
         }
