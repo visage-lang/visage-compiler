@@ -1544,10 +1544,10 @@ public class JavafxResolve {
                                  Type left,
                                  Type right) {
         // Time operator overloading
-        if (left == ((JavafxSymtab)syms).javafx_TimeType ||
-            right == ((JavafxSymtab)syms).javafx_TimeType) {
+        if (types.isSameType(left, ((JavafxSymtab)syms).javafx_TimeType) ||
+            types.isSameType(right, ((JavafxSymtab)syms).javafx_TimeType)) {
             Type intf = left;
-            if (left == ((JavafxSymtab)syms).javafx_TimeType) { 
+            if (types.isSameType(left, ((JavafxSymtab)syms).javafx_TimeType)) {
                 intf = ((JavafxSymtab)syms).javafx_TimeIntfType;
             }
             Symbol res = null;
@@ -1563,7 +1563,7 @@ public class JavafxResolve {
                                      intf, List.of(right));
                 break;
             case JCTree.MUL:
-                if (left != ((JavafxSymtab)syms).javafx_TimeType) {
+                if (!types.isSameType(left, ((JavafxSymtab)syms).javafx_TimeType)) {
                     right = left;
                     intf = right;
                 }
@@ -1613,10 +1613,7 @@ public class JavafxResolve {
                          Type type,
                          List<Type> argtypes) {
         Symbol sym = findMethod(env, type, name, argtypes,
-                                null, false, false, false);
-        if (boxingEnabled && sym.kind >= WRONG_MTHS)
-            sym = findMethod(env, type, name, argtypes,
-                             null, true, false, false);
+                                null, true, false, false);
         if (sym.kind == MTH) { // skip access if method wasn't found
             return access(sym, pos, env.enclClass.sym.type, name,
                           false, argtypes, null);

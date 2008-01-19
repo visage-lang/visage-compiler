@@ -2150,8 +2150,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     // anything other than == or <>
 
                     // Time type operator overloading
-                    if ((tree.lhs.type == syms.javafx_TimeType ||
-                        tree.rhs.type == syms.javafx_TimeType) &&
+                    if ((types.isSameType(tree.lhs.type, syms.javafx_TimeType) ||
+                         types.isSameType(tree.rhs.type, syms.javafx_TimeType)) &&
                         tree.operator == null) { // operator check is to try to get a decent error message by falling through if the Time method isn't matched
                         JCExpression l = tree.lhs;
                         JCExpression r = tree.rhs;
@@ -2170,7 +2170,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                                           make.at(diagPos).Select(translate(l), Name.fromString(names, "div")), List.<JCExpression>of(translate(r)));
                         case JavafxTag.MUL:
                             // lhs.mul(rhs);
-                            if (l.type != syms.javafx_TimeType) {
+                            if (!types.isSameType(l.type, syms.javafx_TimeType)) {
                                 r = l;
                                 l = tree.rhs;
                             }
