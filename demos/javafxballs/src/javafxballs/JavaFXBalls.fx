@@ -29,8 +29,8 @@ class BallsTest {
             insert JavaFxBall{img:ball{}} into balls; 
         }
 
-        System.out.println("New number of balls is {_N}");
-        System.out.println("sizeof balls is {sizeof balls}");
+        System.out.println(##"New number of balls is {_N}");
+        System.out.println(##"sizeof balls is {sizeof balls}");
     };
 
     attribute timerListener:ActionListener =  ActionListener {
@@ -47,7 +47,7 @@ class BallsTest {
     attribute fpsListener:ActionListener = ActionListener {
         public function actionPerformed(evt:ActionEvent): Void {
             if (_is_running) {
-                fps = "{Math.round( 1000*_frames/(System.currentTimeMillis() - _startTime) )} fps";
+                fps = ##"{Math.round( 1000*_frames/(System.currentTimeMillis() - _startTime) )} fps";
                 _frames = 0;
                 _startTime = System.currentTimeMillis();
             } else {
@@ -72,7 +72,7 @@ class BallsTest {
         _frames = _frames + 1;
     };
 
-    attribute fps:String = "-- fps";
+    attribute fps:String = ##"-- fps";
     
     function start(): Void {
         timer.start();
@@ -84,7 +84,7 @@ class BallsTest {
             _is_running = false;
             timer.stop();
             fpsTimer.stop();
-            fps = "-- fps";
+            fps = ##"-- fps";
         }
     }
 }
@@ -92,7 +92,7 @@ class BallsTest {
 var test = new BallsTest();
 
 var win = Frame {
-        title: "JavaFX Balls"
+        title: ##"JavaFX Balls"
         width: 510
         height: 366
         content: BorderPanel {
@@ -107,7 +107,7 @@ var win = Frame {
                             x: 4
                             y: 4
                             content: bind test.fps
-                            font: Font {faceName: "Arial", size: 14}
+                            font: Font {faceName: ##"Arial", size: 14}
                         },
                         Group {
                             content: bind for (b in test.balls) (b.img as java.lang.Object) as Node
@@ -119,13 +119,13 @@ var win = Frame {
                 alignment: Alignment.LEADING
                 content: [
                     Button{
-                        text: bind if (not test._is_running) then "Start" else "Stop"
+                        text: bind if (not test._is_running) then ##"Start" else ##"Stop"
                         action: function() {
                             test._is_running = not test._is_running;
                         }
                     },
                     Label {
-                        text: "# of balls:"
+                        text: ##"# of balls:"
                     }, 
                     Spinner {
                       min: 2
