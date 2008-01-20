@@ -17,6 +17,9 @@
             <compilerarg value="-J-Xbootclasspath/p:${basedir}${file.separator}lib${file.separator}javac.jar"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
     </target>
 
 </project>

@@ -28,8 +28,11 @@
 package com.sun.xmldoclet;
 
 import com.sun.javadoc.*;
+import com.sun.tools.javafxdoc.ClassDocImpl;
 import java.io.*;
 import java.lang.reflect.Modifier;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 import javax.xml.parsers.*;
@@ -46,6 +49,23 @@ public class XMLDoclet {
     private Transformer serializer;
     private TransformerHandler hd;
     private AttributesImpl attrs;
+    
+    // option values
+    private static String outFileName = "javadoc.xml";
+    private static boolean includeAuthorTags = false;
+    private static boolean includeDeprecatedTags = true;
+    private static boolean includeSinceTags = true;
+    private static boolean includeVersionTags = false;
+    
+    private static ResourceBundle messageRB = null;
+    
+    static final Option[] options = {
+        new Option("-o", getString("out.file.option"), getString("out.file.description")),
+        new Option("-version", getString("version.description")),
+        new Option("-author", getString("author.description")),
+        new Option("-nosince", getString("nosince.description")),
+        new Option("-nodeprecated", getString("nodeprecated.description"))
+    };
 
     /**
      * Generate documentation here.
@@ -78,17 +98,21 @@ public class XMLDoclet {
      *         option not known.  Negative value means error occurred.
      */
     public static int optionLength(String option) {
+        if (option.equals("-help")) {
+            System.out.println(getString("help.header"));
+            for (Option o : options)
+                System.out.println(o.help());
+            return 1;
+        }
+        for (Option o : options) {
+            if (o.name().equals(option))
+                return o.length();
+        }
         return 0;  // default is option unknown
     }
 
     /**
      * Check that options have the correct arguments.
-     * <P>
-     * This method is not required, but is recommended,
-     * as every option will be considered valid if this method
-     * is not present.  It will default gracefully (to true)
-     * if absent.
-     * <P>
      * Printing option related error messages (using the provided
      * DocErrorReporter) is the responsibility of this method.
      *
@@ -96,7 +120,19 @@ public class XMLDoclet {
      */
     public static boolean validOptions(String options[][],
                                        DocErrorReporter reporter) {
-        return true;  // default is options are valid
+        for (String[] option : options) {
+            if (option[0].equals("-d"))
+                outFileName = option[1];
+            else if (option[0].equals("-version"))
+                includeVersionTags = true;
+            else if (option[0].equals("-author"))
+                includeAuthorTags = true;
+            else if (option[0].equals("-nosince"))
+                includeSinceTags = false;
+            else if (option[0].equals("-nodeprecated"))
+                includeDeprecatedTags = false;
+        }
+        return true;
     }
 
     /**
@@ -126,7 +162,7 @@ public class XMLDoclet {
             if (exec instanceof MethodDoc)
                 attrs.addAttribute("", "", "varargs", "CDATA", Boolean.toString(exec.isVarArgs()));
             hd.startElement("", "", kind, attrs);
-            generateComment(exec.inlineTags());
+            generateComment(exec);
             generateAnnotations(exec.annotations());
             generateModifiers(exec);
             generateTypeParameters(exec.typeParameters());
@@ -155,14 +191,14 @@ public class XMLDoclet {
         }
     }
 
-    private void generateField(FieldDoc field) throws SAXException {
+    private void generateField(FieldDoc field, String kind) throws SAXException {
         if (!field.isSynthetic()) {
             attrs.clear();
             attrs.addAttribute("", "", "name", "CDATA", field.name());
             attrs.addAttribute("", "", "qualifiedName", "CDATA", field.qualifiedName());
             attrs.addAttribute("", "", "enumConstant", "CDATA", Boolean.toString(field.isEnumConstant()));
-            hd.startElement("", "", "field", attrs);
-            generateComment(field.inlineTags());
+            hd.startElement("", "", kind, attrs);
+            generateComment(field);
             generateAnnotations(field.annotations());
             generateModifiers(field);
             generateTypeRef(field.type(), "type");
@@ -171,7 +207,9 @@ public class XMLDoclet {
                 attrs.clear();
                 attrs.addAttribute("", "", "value", "CDATA", constantValue);
                 hd.startElement("", "", "constant", attrs);
+                hd.endElement("", "", "constant");
             }
+            hd.endElement("", "", kind);
         }
     }
 
@@ -179,7 +217,7 @@ public class XMLDoclet {
         attrs.clear();
         attrs.addAttribute("", "", "name", "CDATA", pkg.name());
         hd.startElement("", "", "package", attrs);
-        generateComment(pkg.inlineTags());
+        generateComment(pkg);
         generateAnnotations(pkg.annotations());
         for (ClassDoc cls : pkg.allClasses())
             generateClass(cls);
@@ -187,6 +225,7 @@ public class XMLDoclet {
     }
 
     private void generateClass(ClassDoc cls) throws SAXException {
+        boolean fxClass = ((ClassDocImpl)cls).isJFXClass();
         String classType = 
                 cls.isAnnotationType() ? "annotation" :
                 cls.isEnum() ? "enum" :
@@ -197,7 +236,7 @@ public class XMLDoclet {
         attrs.addAttribute("", "", "name", "CDATA", cls.name());
         attrs.addAttribute("", "", "qualifiedName", "CDATA", cls.qualifiedName());
         hd.startElement("", "", classType, attrs);
-        generateComment(cls.inlineTags());
+        generateComment(cls);
         generateAnnotations(cls.annotations());
         generateModifiers(cls);
         generateTypeParameters(cls.typeParameters());
@@ -209,12 +248,14 @@ public class XMLDoclet {
         hd.endElement("", "", "interfaces");
         for (ClassDoc inner : cls.innerClasses())
             generateClass(inner);
-        for (ConstructorDoc cons : cls.constructors())
-            generateExecutableMember(cons, "constructor");
+        if (!fxClass) {
+            for (ConstructorDoc cons : cls.constructors())
+                generateExecutableMember(cons, "constructor");
+        }
         for (MethodDoc meth : cls.methods())
-            generateExecutableMember(meth, "method");
+            generateExecutableMember(meth, fxClass ? "function" : "method");
         for (FieldDoc field : cls.fields())
-            generateField(field);
+            generateField(field, fxClass ? "attribute" : "field");
         hd.endElement("", "", classType);
     }
     
@@ -272,6 +313,7 @@ public class XMLDoclet {
             hd.startElement("", "", "parameter", attrs);
             generateTypeRef(p.type(), "type");
             generateAnnotations(p.annotations());
+            hd.endElement("", "", "parameter");
         }
         hd.endElement("", "", "parameters");
     }
@@ -303,30 +345,57 @@ public class XMLDoclet {
         }
     }
     
-    private void generateComment(Tag[] tags) throws SAXException {
-        if (tags.length > 0) {
+    private void generateComment(Doc doc) throws SAXException {
+        String rawCommentText = doc.getRawCommentText();
+        if (rawCommentText.length() > 0) {
             attrs.clear();
-            hd.startElement("", "", "comment", attrs);
-            generateTags(tags);
-            hd.endElement("", "", "comment");
+            hd.startElement("", "", "docComment", attrs);
+            hd.startElement("", "", "rawCommentText", attrs);
+            hd.characters(rawCommentText.toCharArray(), 0, rawCommentText.length());
+            hd.endElement("", "", "rawCommentText");
+
+            String commentText = doc.commentText();
+            hd.startElement("", "", "commentText", attrs);
+            hd.characters(commentText.toCharArray(), 0, commentText.length());
+            hd.endElement("", "", "commentText");
+            
+            generateTags(doc.tags(), "tags");
+            generateTags(doc.firstSentenceTags(), "firstSentenceTags");
+            generateTags(doc.seeTags(), "seeTags");
+            generateTags(doc.inlineTags(), "inlineTags");
+            
+            hd.endElement("", "", "docComment");
         }
     }
 
-    private void generateTags(Tag[] tags) throws SAXException, SAXException {
+    private void generateTags(Tag[] tags, String tagKind) throws SAXException, SAXException {
+        if (tags.length == 0)
+            return;
+        attrs.clear();
+        hd.startElement("", "", tagKind, attrs);
         for (Tag t : tags) {
+            String kind = t.kind();
+            if (kind.equals("@author") && !includeAuthorTags)
+                continue;
+            if (kind.equals("@deprecated") && !includeDeprecatedTags)
+                continue;
+            if (kind.equals("@since") && !includeSinceTags)
+                continue;
+            if (kind.equals("@version") && !includeVersionTags)
+                continue;
             attrs.clear();
             attrs.addAttribute("", "", "name", "CDATA", t.name());
-            String kind = t.kind();
             hd.startElement("", "", kind, attrs);
             Tag[] inlineTags = t.inlineTags();
             if (inlineTags.length <= 1) {
                 String text = t.text();
                 hd.characters(text.toCharArray(), 0, text.length());
             } else {
-                generateTags(inlineTags);
+                generateTags(inlineTags, "inlineTags");
             }
             hd.endElement("", "", kind);
         }
+        hd.endElement("", "", tagKind);
     }
     
     private void generateAnnotations(AnnotationDesc[] annotations) throws SAXException {
@@ -376,10 +445,55 @@ public class XMLDoclet {
         serializer.setOutputProperty(OutputKeys.INDENT, "yes");
 
         //TODO: replace with output option
-        out = new PrintWriter(new BufferedWriter(new FileWriter("javadoc-output.xml")));
+        out = new PrintWriter(new BufferedWriter(new FileWriter(outFileName)));
         StreamResult streamResult = new StreamResult(out);
         attrs = new AttributesImpl();        
         hd.setResult(streamResult);
         hd.startDocument();
+    }
+    
+    static String getString(String key) {
+        ResourceBundle msgRB = messageRB;
+        if (msgRB == null) {
+            try {
+                messageRB = msgRB =
+                    ResourceBundle.getBundle("com.sun.xmldoclet.resources.xmldoclet");
+            } catch (MissingResourceException e) {
+                throw new Error("Fatal: Resource for javafxdoc is missing");
+            }
+        }
+        return msgRB.getString(key);
+    }
+
+    static class Option {
+        String[] fields;
+        String help;
+        private static final int DESCRIPTION_COLUMN = 
+            Integer.valueOf(getString("help.description.column"));
+        
+        Option(String field, String help) {
+            fields = new String[] { field };
+            this.help = help;
+        }
+        Option(String field, String param, String help) {
+            fields = new String[] { field, param };
+            this.help = help;
+        }
+        int length() {
+            return fields.length;
+        }
+        String name() {
+            return fields[0];
+        }
+        String description() {
+            return fields.length == 1 ? fields[0] : fields[0] + ' ' + fields[1];
+        }
+        String help() {
+            StringBuffer sb = new StringBuffer(description());
+            while (sb.length() < DESCRIPTION_COLUMN)
+                sb.append(' ');
+            sb.append(help);
+            return sb.toString();
+        }
     }
 }

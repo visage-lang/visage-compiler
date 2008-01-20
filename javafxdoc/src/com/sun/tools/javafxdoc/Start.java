@@ -59,7 +59,7 @@ class Start {
      */
     private final String defaultDocletClassName;
 
-    private static final String javadocName = "javadoc";
+    private static final String javafxdocName = "javafxdoc";
 
     private static final String standardDocletClassName =
         "com.sun.tools.doclets.standard.Standard";
@@ -107,7 +107,7 @@ class Start {
     }
 
     Start() {
-        this(javadocName);
+        this(javafxdocName);
     }
 
     /**

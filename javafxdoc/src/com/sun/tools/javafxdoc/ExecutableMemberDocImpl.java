@@ -199,11 +199,12 @@ public abstract class ExecutableMemberDocImpl
      * Return an empty array if there are none.
      */
     public TypeVariable[] typeParameters() {
-        if (env.legacyDoclet) {
+        if (env.legacyDoclet || sym.type == null) {
             return new TypeVariable[0];
         }
-        TypeVariable res[] = new TypeVariable[sym.type.getTypeArguments().length()];
-        TypeMaker.getTypes(env, sym.type.getTypeArguments(), res);
+        List<Type> typeargs = sym.type.getTypeArguments();
+        TypeVariable res[] = new TypeVariable[typeargs.length()];
+        TypeMaker.getTypes(env, typeargs, res);
         return res;
     }
 

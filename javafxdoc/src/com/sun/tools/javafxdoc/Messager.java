@@ -25,7 +25,6 @@
 
 package com.sun.tools.javafxdoc;
 
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
@@ -140,7 +139,7 @@ public class Messager extends Log implements DocErrorReporter {
                     ResourceBundle.getBundle(
                           "com.sun.tools.javafxdoc.resources.javafxdoc");
             } catch (MissingResourceException e) {
-                throw new Error("Fatal: Resource for javadoc is missing");
+                throw new Error("Fatal: Resource for javafxdoc is missing");
             }
         }
         return msgRB.getString(key);
@@ -157,7 +156,7 @@ public class Messager extends Log implements DocErrorReporter {
             String message = getString(key);
             return MessageFormat.format(message, (Object[])args);
         } catch (MissingResourceException e) {
-            return "********** Resource for javadoc is broken. There is no " +
+            return "********** Resource for javafxdoc is broken. There is no " +
                 key + " key in resource.";
         }
     }
@@ -237,20 +236,8 @@ public class Messager extends Log implements DocErrorReporter {
     }
 
     @Override
-    public void error(DiagnosticPosition pos, String key, Object... args) {
-        super.error(pos, key, args);
-        nerrors++;
-    }
-
-    @Override
-    public void note(DiagnosticPosition pos, String key, Object... args) {
-        super.note(pos, key, args);
-    }
-
-    @Override
-    public void warning(DiagnosticPosition pos, String key, Object... args) {
-        super.warning(pos, key, args);
-        nwarnings++;
+    public void error(String key, Object... arg1) {
+        printError(getText(key, arg1));
     }
 
     /**

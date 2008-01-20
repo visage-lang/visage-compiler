@@ -1259,4 +1259,8 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
                                        (tree==null) ? Position.NOPOS : tree.pos,
                                        lineMap);
     }
+    
+    public boolean isJFXClass() {
+        return env.isJFXSymbol(tsym);
+    }
 }

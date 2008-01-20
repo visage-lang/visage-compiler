@@ -33,10 +33,13 @@ import com.sun.javadoc.*;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.comp.Check;
+import com.sun.tools.javac.parser.DocCommentScanner;
+import com.sun.tools.javac.parser.Token;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Position;
+import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxAttr;
 import com.sun.tools.javafx.tree.JFXClassDeclaration;
 import com.sun.tools.javafx.tree.JFXOperationDefinition;
@@ -103,7 +106,10 @@ public class DocEnv {
     boolean quiet = false;
 
     Check chk;
-    Types types;
+    JavafxTypes types;
+    
+    /** scanner factory for converting raw doc-comment text */
+    com.sun.tools.javac.parser.Scanner.Factory scannerFactory;
 
     /** Allow documenting from class files? */
     boolean docClasses = false;
@@ -133,7 +139,8 @@ public class DocEnv {
         names = Name.Table.instance(context);
         externalizableSym = reader.enterClass(names.fromString("java.io.Externalizable"));
         chk = Check.instance(context);
-        types = Types.instance(context);
+        types = JavafxTypes.instance(context);
+        scannerFactory = DocCommentScanner.Factory.instance(context);
 
         // Default.  Should normally be reset with setLocale.
         this.doclocale = new DocLocale(this, "", breakiterator);
@@ -542,6 +549,7 @@ public class DocEnv {
      */
     void makePackageDoc(PackageSymbol pack, String docComment, JCCompilationUnit tree) {
         PackageDocImpl result = packageMap.get(pack);
+        docComment = processDocComment(docComment);
         if (result != null) {
             if (docComment != null) result.setRawCommentText(docComment);
             if (tree != null) result.setTree(tree);
@@ -570,6 +578,7 @@ public class DocEnv {
      */
     void makeClassDoc(ClassSymbol clazz, String docComment, JFXClassDeclaration tree, Position.LineMap lineMap) {
         ClassDocImpl result = classMap.get(clazz);
+        docComment = processDocComment(docComment);
         if (result != null) {
             if (docComment != null) result.setRawCommentText(docComment);
             if (tree != null) result.setTree(tree);
@@ -596,6 +605,7 @@ public class DocEnv {
      */
     void makeFieldDoc(VarSymbol var, String docComment, JCVariableDecl tree, Position.LineMap lineMap) {
         FieldDocImpl result = fieldMap.get(var);
+        docComment = processDocComment(docComment);
         if (result != null) {
             if (docComment != null) result.setRawCommentText(docComment);
             if (tree != null) result.setTree(tree);
@@ -614,6 +624,7 @@ public class DocEnv {
     void makeFunctionDoc(MethodSymbol meth, String docComment,
                        JFXOperationDefinition tree, Position.LineMap lineMap) {
         FunctionDocImpl result = (FunctionDocImpl)methodMap.get(meth);
+        docComment = processDocComment(docComment);
         if (result != null) {
             if (docComment != null) result.setRawCommentText(docComment);
             if (tree != null) result.setTree(tree);
@@ -642,8 +653,10 @@ public class DocEnv {
     void makeConstructorDoc(MethodSymbol meth, String docComment,
                             JFXOperationDefinition tree, Position.LineMap lineMap) {
         ConstructorDocImpl result = (ConstructorDocImpl)methodMap.get(meth);
+        docComment = processDocComment(docComment);
         if (result != null) {
-            if (docComment != null) result.setRawCommentText(docComment);
+            if (docComment != null) 
+                result.setRawCommentText(docComment);
             if (tree != null) result.setTree(tree);
         } else {
             result = new ConstructorDocImpl(this, meth, docComment, tree, lineMap);
@@ -706,5 +719,27 @@ public class DocEnv {
         if ((flags & Flags.VOLATILE) != 0)
             result |= Modifier.VOLATILE;
         return result;
+    }
+    
+    protected boolean isJFXSymbol(Symbol sym) {
+        ClassSymbol cls = sym instanceof ClassSymbol ? (ClassSymbol)sym : sym.enclClass();
+        return types.isJFXClass(cls);
+    }
+
+    /**
+     * Strips a raw docComment of its opening asterisks and whitespace, using
+     * the javac DocCommentScanner.
+     * @param rawText  the original comment text
+     * @return  the comment text, minus blocking characters
+     */
+    protected String processDocComment(String rawText) {
+        if (rawText == null)
+            return null;
+        com.sun.tools.javac.parser.Scanner scanner = scannerFactory.newScanner(rawText);
+        do { 
+            scanner.nextToken(); 
+        } while (scanner.token() != Token.EOF);
+        String ret = scanner.docComment().trim();
+        return ret != null ? ret : rawText; // true if comment was already processed
     }
 }
