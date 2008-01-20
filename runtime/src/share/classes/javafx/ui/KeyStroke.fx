@@ -61,25 +61,25 @@ public class KeyStroke {
 
     /**
      * Constant for the non-numpad <b>left</b> arrow key.
-     * @see #VK_KP_LEFT
+     * @see java.awt.event.KeyEvent#VK_KP_LEFT
      */
     public static attribute LEFT = KeyStroke {id: java.awt.event.KeyEvent.VK_LEFT };
 
     /**
      * Constant for the non-numpad <b>up</b> arrow key.
-     * @see #VK_KP_UP
+     * @see java.awt.event.KeyEvent#VK_KP_UP
      */
     public static attribute UP = KeyStroke {id: java.awt.event.KeyEvent.VK_UP };
 
     /**
      * Constant for the non-numpad <b>right</b> arrow key.
-     * @see #VK_KP_RIGHT
+     * @see java.awt.event.KeyEvent#VK_KP_RIGHT
      */
     public static attribute RIGHT = KeyStroke {id: java.awt.event.KeyEvent.VK_RIGHT };
 
     /**
      * Constant for the non-numpad <b>down</b> arrow key.
-     * @see #VK_KP_DOWN
+     * @see java.awt.event.KeyEvent#VK_KP_DOWN
      */
     public static attribute DOWN = KeyStroke {id: java.awt.event.KeyEvent.VK_DOWN };
 
@@ -185,7 +185,7 @@ public class KeyStroke {
     /** 
      * This constant is obsolete, and is included only for backwards
      * compatibility.
-     * @see #VK_SEPARATOR
+     * @see java.awt.event.KeyEvent#VK_SEPARATOR
      */
     public static attribute SEPARATER = KeyStroke {id: java.awt.event.KeyEvent.VK_SEPARATER };
 
@@ -321,28 +321,28 @@ public class KeyStroke {
 
     /**
      * Constant for the numeric keypad <b>up</b> arrow key.
-     * @see #VK_UP
+     * @see java.awt.event.KeyEvent#VK_UP
      * @since 1.2
      */
     public static attribute KP_UP = KeyStroke {id: java.awt.event.KeyEvent.VK_KP_UP };
 
     /**
      * Constant for the numeric keypad <b>down</b> arrow key.
-     * @see #VK_DOWN
+     * @see java.awt.event.KeyEvent#VK_DOWN
      * @since 1.2
      */
     public static attribute KP_DOWN = KeyStroke {id: java.awt.event.KeyEvent.VK_KP_DOWN };
 
     /**
      * Constant for the numeric keypad <b>left</b> arrow key.
-     * @see #VK_LEFT
+     * @see java.awt.event.KeyEvent#VK_LEFT
      * @since 1.2
      */
     public static attribute KP_LEFT = KeyStroke {id: java.awt.event.KeyEvent.VK_KP_LEFT };
 
     /**
      * Constant for the numeric keypad <b>right</b> arrow key.
-     * @see #VK_RIGHT
+     * @see java.awt.event.KeyEvent#VK_RIGHT
      * @since 1.2
      */
     public static attribute KP_RIGHT = KeyStroke {id: java.awt.event.KeyEvent.VK_KP_RIGHT };
@@ -438,7 +438,7 @@ public class KeyStroke {
     /**
      * Constant for the Microsoft Windows "Windows" key.
      * It is used for both the left and right version of the key.  
-     * @see #getKeyLocation()
+     * @see java.awt.event.KeyEvent#VK_WINDOWS
      * @since 1.5
      */
     public static attribute WINDOWS = KeyStroke {id: java.awt.event.KeyEvent.VK_WINDOWS };

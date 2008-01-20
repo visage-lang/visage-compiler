@@ -109,7 +109,7 @@ public class DocumentBuilder {
      * to build a DOM tree with.
      *
      * @return A new instance of a DOM Document object.
-     * @see javax.xml.parsers.DocumentBuilder.newDocument()
+     * @see javax.xml.parsers.DocumentBuilder#newDocument()
      */
     public function createDocument():Document {
         var document = builder.newDocument();
@@ -121,7 +121,7 @@ public class DocumentBuilder {
      * document and return a new DOM {@link Document} object.
      * @param file the File containing the XML content
      * @return <code>Document</code> result of parsing 
-     * @see javax.xml.parsers.DocumentBuilder.parse(java.io.File)
+     * @see javax.xml.parsers.DocumentBuilder#parse(java.io.File)
      */
     public function parseFile(file:File):Document {
         var document = builder.parse(file);

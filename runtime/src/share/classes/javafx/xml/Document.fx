@@ -123,7 +123,7 @@ public class Document {
      * Creates an element of the type specified.
      * @param tagName The name of the element type to instantiate
      * @return A new <code>Element</code>.
-     * @see org.w3c.dom.Document#createElement()
+     * @see org.w3c.dom.Document#createElement
      */
     public function createElement(tagName:String):Element{
         var elem = document.createElement(tagName);
@@ -136,7 +136,7 @@ public class Document {
      * @param namespaceURI The namespace URI of the element to create.
      * @param qualifiedName The qualified name of the element type to instantiate.
      * @return A new <code>Element</code> 
-     * @see org.w3c.dom.Document#createElementNS()
+     * @see org.w3c.dom.Document#createElementNS
      */
     public function createElementNS(namespaceURI:String, qualifiedName:String):Element{
         var elem = document.createElementNS(namespaceURI, qualifiedName);
@@ -147,7 +147,7 @@ public class Document {
      * Creates a <code>Text</code> node given the specified string.
      * @param data The data for the node.
      * @return The new <code>Text</code> node.
-     * @see org.w3c.dom.Document#createTextNode()
+     * @see org.w3c.dom.Document#createTextNode
      */    
     public function createText(data:String):Text {
         var txtNode = document.createTextNode(data);
@@ -158,7 +158,7 @@ public class Document {
      * Creates an <code>Attr</code> of the given name.
      * @param name The name of the attribute.
      * @return A new <code>Attr</code> node.
-     * @see org.w3c.dom.Document#createAttribute()
+     * @see org.w3c.dom.Document#createAttribute
      */
     public function createAttribute(name:String, value:String):Attribute {
         var attr = document.createAttribute(name);
@@ -173,7 +173,7 @@ public class Document {
      * @param qualifiedName The qualified name of the attribute to
      *   instantiate.
      * @return A new <code>Attr</code> node.
-     * @see org.w3c.dom.Document#createAttributeNS()
+     * @see org.w3c.dom.Document#createAttributeNS
      */
     public function createAttributeNS(namespaceURI:String, qualifiedName:String, value:String):Attribute {
         var attr = document.createAttributeNS(namespaceURI, qualifiedName);
@@ -185,7 +185,7 @@ public class Document {
      * Creates a <code>Comment</code> node given the specified string.
      * @param comment The comment data for the node.
      * @return The new <code>Comment</code> node.
-     * @see org.w3c.dom.Document#createComment()
+     * @see org.w3c.dom.Document#createComment
      */    
     public function createComment(comment:String):Comment {
         var node = document.createComment(comment);
@@ -197,7 +197,7 @@ public class Document {
      * string.
      * @param data The data for the <code>CDATASection</code> contents.
      * @return The new <code>CDATASection</code> node.
-     * @see org.w3c.dom.Document#createCDATASection()
+     * @see org.w3c.dom.Document#createCDATASection
      */
     public function createCDATASection(cdata:String):Node {
         var node = document.createCDATASection(cdata);
@@ -208,7 +208,7 @@ public class Document {
      * Creates an <code>EntityReference</code> object. 
      * @param name The name of the entity to reference.
      * @return The new <code>EntityReference</code> node.
-     * @see org.w3c.dom.Document#createEntityReference()
+     * @see org.w3c.dom.Document#createEntityReference
      */
     public function createEntityReference(name:String):Node {
         var node = document.createEntityReference(name);
@@ -220,7 +220,7 @@ public class Document {
      * @param target The target part of the processing instruction.
      * @param data The data for the node.
      * @return The new <code>ProcessingInstruction</code> node.
-     * @see org.w3c.dom.Document#createProcessingInstruction()
+     * @see org.w3c.dom.Document#createProcessingInstruction
      */
     public function createProcessingInstruction(target:String, data:String):Node {
         var node = document.createProcessingInstruction(target, data);
@@ -234,7 +234,7 @@ public class Document {
      * is returned is undefined.
      * @param elementId The unique <code>id</code> value for an element.
      * @return The matching element or <code>null</code> if there is none.
-     * @see org.w3c.dom.Document#getElementById()
+     * @see org.w3c.dom.Document#getElementById
      */
     public function getElementById(elementId:String) : Element {
         var elem = document.getElementById(elementId);
@@ -252,7 +252,7 @@ public class Document {
      *   markup language in use.
      * @return A new sequence containing all the matched
      *   <code>Elements</code>.
-     * @see org.w3c.dom.Document#getElementsByTagName()
+     * @see org.w3c.dom.Document#getElementsByTagName
      */
     public function getElementsByTagName(tagName:String) : Element[] {
         var elements:Element[] = [];
@@ -278,7 +278,7 @@ public class Document {
      *   special value "*" matches all local names.
      * @return A new sequence containing all the matched
      *   <code>Elements</code>.
-     * @see org.w3c.dom.Document#getElementsByTagNameNS()
+     * @see org.w3c.dom.Document#getElementsByTagNameNS
      */
     public function getElementsByTagNameNS(namespaceURI:String, localName:String): Element[] {
         var elements:Element[] = [];

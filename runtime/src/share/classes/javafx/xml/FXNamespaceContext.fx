@@ -53,7 +53,7 @@ public class FXNamespaceContext extends  NamespaceContext {
      * for a given prefix get its assocationed URI
      * @param prefix the prefix
      * @return the URI
-     * @see javax.xml.namespace.NamespaceContext.getNamespaceURI()
+     * @see javax.xml.namespace.NamespaceContext#getNamespaceURI
      */
     public function getNamespaceURI(prefix:String):String {
         if(prefix == null) {
@@ -66,7 +66,7 @@ public class FXNamespaceContext extends  NamespaceContext {
      * for a given uri get its associated prefix
      * @param uri the uri
      * @return the prefix
-     * @see javax.xml.namespace.NamespaceContext.getPrefix()
+     * @see javax.xml.namespace.NamespaceContext#getPrefix()
      */
     public function getPrefix( uri:String ):String  {
         if(uri == null) {
