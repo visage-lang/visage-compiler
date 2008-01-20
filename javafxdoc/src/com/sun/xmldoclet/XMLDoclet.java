@@ -337,9 +337,19 @@ public class XMLDoclet {
     private void generateTypeRef(Type type, String kind) throws SAXException {
         if (type != null) {
             attrs.clear();
-            attrs.addAttribute("", "", "typeName", "CDATA", type.typeName());
-            attrs.addAttribute("", "", "simpleTypeName", "CDATA", type.simpleTypeName());
-            attrs.addAttribute("", "", "qualifiedTypeName", "CDATA", type.qualifiedTypeName());
+            ClassDocImpl cdi = (ClassDocImpl)type.asClassDoc();
+            if (cdi != null && cdi.isSequence()) {
+                ClassDocImpl seqType = cdi.sequenceType();
+                attrs.addAttribute("", "", "typeName", "CDATA", seqType.typeName());
+                attrs.addAttribute("", "", "simpleTypeName", "CDATA", seqType.simpleTypeName());
+                attrs.addAttribute("", "", "qualifiedTypeName", "CDATA", seqType.qualifiedTypeName());
+                attrs.addAttribute("", "", "sequence", "CDATA", "true");
+            } else {
+                attrs.addAttribute("", "", "typeName", "CDATA", type.typeName());
+                attrs.addAttribute("", "", "simpleTypeName", "CDATA", type.simpleTypeName());
+                attrs.addAttribute("", "", "qualifiedTypeName", "CDATA", type.qualifiedTypeName());
+                attrs.addAttribute("", "", "sequence", "CDATA", "false");
+            }
             hd.startElement("", "", kind, attrs);
             hd.endElement("", "", kind);
         }

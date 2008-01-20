@@ -725,6 +725,14 @@ public class DocEnv {
         ClassSymbol cls = sym instanceof ClassSymbol ? (ClassSymbol)sym : sym.enclClass();
         return types.isJFXClass(cls);
     }
+    
+    protected boolean isSequence(Symbol sym) {
+        return types.isSequence(sym.type);
+    }
+    
+    protected com.sun.tools.javac.code.Type sequenceType(com.sun.tools.javac.code.Type type) {
+        return types.sequenceType(type);
+    }
 
     /**
      * Strips a raw docComment of its opening asterisks and whitespace, using

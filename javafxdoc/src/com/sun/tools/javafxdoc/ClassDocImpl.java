@@ -1263,4 +1263,17 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
     public boolean isJFXClass() {
         return env.isJFXSymbol(tsym);
     }
+    
+    public boolean isSequence() {
+        return env.isSequence(tsym);
+    }
+    
+    public ClassDocImpl sequenceType() {
+        if (isSequence()) {
+            Type seqType = env.sequenceType(type);
+            ClassDocImpl seqClass = env.getClassDoc((ClassSymbol)seqType.tsym);
+            return seqClass;
+        }
+        return null;
+    }
 }
