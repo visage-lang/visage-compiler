@@ -830,8 +830,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             String format = (String)lit.value;
             sb.append(format.length() == 0? "%s" : format);
             parts = parts.tail;
-            
-            values.append(translate(parts.head));           // expression
+            JCExpression exp = parts.head;
+            if (exp != null &&
+                types.isSameType(exp.type, syms.javafx_TimeType)) {
+                exp = make.Apply(null,
+                                 make.Select(translate(exp), Name.fromString(names, "toDate")), 
+                                 List.<JCExpression>nil());
+            } else {
+                exp = translate(exp);
+            }
+            values.append(exp);
             parts = parts.tail;
             
             lit = (JCLiteral)(parts.head);                  // }...{  or  }..."

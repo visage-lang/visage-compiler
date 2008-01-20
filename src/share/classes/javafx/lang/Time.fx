@@ -40,6 +40,7 @@ import java.lang.Math;
     Time t = 2500ms;</pre></code>
  */
 public class Time extends Comparable {
+
     /** The period of time, as expressed in milliseconds. */
     public attribute millis: Number;
 
@@ -140,5 +141,9 @@ public class Time extends Comparable {
 
     public function ge(other: Time):Boolean {
         return compareTo(other) >= 0;
+    }
+
+    public function toDate():java.util.Date {
+        return new java.util.Date(millis.longValue());
     }
 }

@@ -27,7 +27,8 @@ package com.sun.javafx.runtime.sequence;
 
 import java.util.BitSet;
 import java.util.Iterator;
-
+import java.util.Formattable;
+import java.util.Formatter;
 import com.sun.javafx.runtime.sequence.SequenceMutator.Listener;
 
 /**
@@ -37,7 +38,7 @@ import com.sun.javafx.runtime.sequence.SequenceMutator.Listener;
  *
  * @author Brian Goetz
  */
-public abstract class AbstractSequence<T> implements Sequence<T> {
+public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
     protected final Class<T> clazz;
 
     protected AbstractSequence(Class<T> clazz) {
@@ -241,5 +242,22 @@ public abstract class AbstractSequence<T> implements Sequence<T> {
 
     public final Sequence<T> insertAfter(Sequence<? extends T> values, SequencePredicate<? super T> predicate) {
         return SequenceMutator.insertAfter(this, null, values, predicate);
+    }
+
+    
+    // Allow sequences to be formatted - toString() is just for debugging
+    // i.e
+    // var seq = [1, 2];
+    // for (i in seq) "{%d i}"
+    // should yield: "12"
+    // not: "[1, 2]"
+    public void formatTo(Formatter formatter,
+                         int flags,
+                         int width, 
+                         int precision) {
+        // TBD handle flags, width, and precision
+        for (int i = 0; i < size(); i++) {
+            formatter.format("%s", get(i));
+        }
     }
 }
