@@ -9,9 +9,9 @@ import java.lang.System;
 
 class Foo {
 	var seq = [100..110] 
-		on replace [indx] (oldValue) { System.out.println("replaced {oldValue} at {indx} with {seq[indx]}"); }
-		on insert [indx] (newValue) { System.out.println("insert {newValue} at {indx}"); }
-		on delete [indx] (oldValue) { System.out.println("delete {oldValue} from {indx}"); };
+		on replace [indx] (oldValue) { System.out.println("replaced {String.valueOf(oldValue)} at {indx} with {seq[indx]}"); }
+		on insert [indx] (newValue) { System.out.println("insert {String.valueOf(newValue)} at {indx}"); }
+		on delete [indx] (oldValue) { System.out.println("delete {String.valueOf(oldValue)} from {indx}"); };
 	function doit() {
 		seq[3] = 88;
 		insert 77 into seq;
@@ -23,7 +23,7 @@ class Foo {
 
 	var seq2 = [100..110] 
 	   on replace oldValue[indx  .. lastIndex]=newElements
-          { System.out.println("replaced {oldValue}[{indx}..{lastIndex}] by {newElements}")};
+          { System.out.println("replaced {String.valueOf(oldValue)}[{indx}..{lastIndex}] by {String.valueOf(newElements)}")};
 	function doit2() {
 		seq2[3] = 88;
 		insert 77 into seq2;
