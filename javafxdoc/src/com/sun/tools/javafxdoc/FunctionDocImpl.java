@@ -99,6 +99,11 @@ public class FunctionDocImpl
         sym.complete();
         return TypeMaker.getType(env, sym.type.getReturnType(), false);
     }
+    
+    public com.sun.tools.javac.code.Type rawReturnType() {
+        sym.complete();
+        return sym.type; 
+    }
 
     /**
      * Return the class that originally defined the method that

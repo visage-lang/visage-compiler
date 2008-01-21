@@ -92,6 +92,11 @@ public class FieldDocImpl extends MemberDocImpl implements FieldDoc {
         sym.complete();
         return TypeMaker.getType(env, sym.type, false);
     }
+    
+    public com.sun.tools.javac.code.Type rawType() {
+        sym.complete();
+        return sym.type; 
+    }
 
     /**
      * Get the value of a constant field.

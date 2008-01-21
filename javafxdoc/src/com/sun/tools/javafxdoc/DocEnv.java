@@ -727,11 +727,11 @@ public class DocEnv {
     }
     
     protected boolean isSequence(Symbol sym) {
-        return types.isSequence(sym.type);
+        return sym != null && types.isSequence(sym.type);
     }
     
-    protected com.sun.tools.javac.code.Type sequenceType(com.sun.tools.javac.code.Type type) {
-        return types.sequenceType(type);
+    protected com.sun.tools.javac.code.Type sequenceElementType(com.sun.tools.javac.code.Type type) {
+        return types.elementType(type);
     }
 
     /**

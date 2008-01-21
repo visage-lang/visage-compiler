@@ -28,7 +28,10 @@
 package com.sun.xmldoclet;
 
 import com.sun.javadoc.*;
+import com.sun.tools.javafxdoc.FieldDocImpl;
 import com.sun.tools.javafxdoc.ClassDocImpl;
+import com.sun.tools.javafxdoc.FunctionDocImpl;
+import com.sun.tools.javafxdoc.ParameterImpl;
 import java.io.*;
 import java.lang.reflect.Modifier;
 import java.util.MissingResourceException;
@@ -172,12 +175,12 @@ public class XMLDoclet {
                 attrs.clear();
                 hd.startElement("", "", "thrownExceptions", attrs);
                 for (Type t : exceptions)
-                    generateTypeRef(t, "exception");
+                    generateTypeRef(t, "exception", null);
                 hd.endElement("", "", "thrownExceptions");
             }
             if (exec instanceof MethodDoc) {
                 MethodDoc m = (MethodDoc)exec;
-                generateTypeRef(m.returnType(), "returns");
+                generateTypeRef(m.returnType(), "returns", ((FunctionDocImpl)m).rawReturnType());
                 MethodDoc overridden = m.overriddenMethod();
                 if (overridden != null) {
                     String name = overridden.qualifiedName();
@@ -201,7 +204,7 @@ public class XMLDoclet {
             generateComment(field);
             generateAnnotations(field.annotations());
             generateModifiers(field);
-            generateTypeRef(field.type(), "type");
+            generateTypeRef(field.type(), "type", ((FieldDocImpl)field).rawType());
             String constantValue = field.constantValueExpression();
             if (constantValue != null) {
                 attrs.clear();
@@ -240,11 +243,11 @@ public class XMLDoclet {
         generateAnnotations(cls.annotations());
         generateModifiers(cls);
         generateTypeParameters(cls.typeParameters());
-        generateTypeRef(cls.superclass(), "superclass");
+        generateTypeRef(cls.superclass(), "superclass", null);
         attrs.clear();
         hd.startElement("", "", "interfaces", attrs);
         for (Type intf : cls.interfaces())
-            generateTypeRef(intf, "interface");
+            generateTypeRef(intf, "interface", null);
         hd.endElement("", "", "interfaces");
         for (ClassDoc inner : cls.innerClasses())
             generateClass(inner);
@@ -311,7 +314,7 @@ public class XMLDoclet {
             attrs.clear();
             attrs.addAttribute("", "", "name", "CDATA", p.name());
             hd.startElement("", "", "parameter", attrs);
-            generateTypeRef(p.type(), "type");
+            generateTypeRef(p.type(), "type", ((ParameterImpl)p).rawType());
             generateAnnotations(p.annotations());
             hd.endElement("", "", "parameter");
         }
@@ -334,12 +337,15 @@ public class XMLDoclet {
         }
     }
     
-    private void generateTypeRef(Type type, String kind) throws SAXException {
+    private void generateTypeRef(Type type, String kind, 
+                                 com.sun.tools.javac.code.Type rawType) throws SAXException {
         if (type != null) {
             attrs.clear();
             ClassDocImpl cdi = (ClassDocImpl)type.asClassDoc();
             if (cdi != null && cdi.isSequence()) {
-                ClassDocImpl seqType = cdi.sequenceType();
+                if (rawType == null)
+                    throw new AssertionError("unknown sequence type");
+                Type seqType = cdi.sequenceElementType(rawType);
                 attrs.addAttribute("", "", "typeName", "CDATA", seqType.typeName());
                 attrs.addAttribute("", "", "simpleTypeName", "CDATA", seqType.simpleTypeName());
                 attrs.addAttribute("", "", "qualifiedTypeName", "CDATA", seqType.qualifiedTypeName());

@@ -171,6 +171,7 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
                 // Enter symbols for all files
                 docenv.notice("main.Building_tree");
                 enterTrees(classTrees.toList().appendList(packTrees.toList()));
+                attribute();
             }
         } catch (Abort ex) {}
 

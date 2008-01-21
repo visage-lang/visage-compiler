@@ -37,7 +37,7 @@ import com.sun.tools.javac.code.Symbol.VarSymbol;
  * @author Robert Field (rewrite)
  * @author Scott Seligman (generics, annotations)
  */
-class ParameterImpl implements Parameter {
+public class ParameterImpl implements Parameter {
 
     private final DocEnv env;
     private final VarSymbol sym;
@@ -57,6 +57,11 @@ class ParameterImpl implements Parameter {
      */
     public com.sun.javadoc.Type type() {
         return type;
+    }
+    
+    public com.sun.tools.javac.code.Type rawType() {
+        sym.complete();
+        return sym.type; 
     }
 
     /**
