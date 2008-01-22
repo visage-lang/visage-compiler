@@ -34,7 +34,7 @@ import java.lang.Object;
  * Non-visual node that defines a new coordinate space for its child nodes.
  */
 public class Group extends Node, Container {
-    /** The child members of this group */
+   /** The child members of this group */
     protected attribute sggroup: SGGroup;
 
     public attribute content: Node[] on insert [indx] (newValue) {

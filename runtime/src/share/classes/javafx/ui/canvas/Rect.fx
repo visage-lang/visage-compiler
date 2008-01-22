@@ -28,6 +28,7 @@ package javafx.ui.canvas;
 import javafx.ui.Canvas;
 import javafx.ui.canvas.SizeableCanvasElement;
 import com.sun.scenario.scenegraph.SGShape;
+import java.lang.System;
 
 /**
  * The <code>Rect</code> class defines a rectangle with
@@ -93,10 +94,6 @@ public class Rect extends Shape, SizeableCanvasElement {
         return sgshape;
     }
 
-// TODO:  this method should be deleted, as getCanvas() should be resolved by Node superclass
-    public function getCanvas(): Canvas {
-        return Node.getCanvas(this as Node);
-    }
 }
 
 

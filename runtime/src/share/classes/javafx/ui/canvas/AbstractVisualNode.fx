@@ -43,6 +43,8 @@ public abstract class AbstractVisualNode {
      */
     public attribute fill: Paint;
 
+    public attribute fillOpacity: Number = 1;
+
     /**
      * <code>strokeLineCap</code> specifies the shape to be used at the end 
      * of open subpaths when they are stroked. Defaults to <code>SQUARE</code>.

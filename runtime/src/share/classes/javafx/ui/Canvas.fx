@@ -292,7 +292,7 @@ public class Canvas extends Widget, CanvasElement, Container {
 
     public attribute border: Border = EmptyBorder {top: 5, left: 5, right: 5, bottom: 5};
 
-    protected function getCanvas() {
+    public function getCanvas() {
         return this;
     }
 

@@ -30,9 +30,13 @@ import javafx.ui.Color;
 import javafx.ui.Font;
 import javafx.ui.Paint;
 import javafx.ui.canvas.VisualNode;
-import com.sun.scenario.scenegraph.SGAbstractShape;
-import com.sun.scenario.scenegraph.SGText;
+import com.sun.scenario.scenegraph.SGShape;
 import com.sun.scenario.scenegraph.SGText.VAlign;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.AffineTransform;
+import java.awt.font.*;
+import java.text.*;
+import java.lang.System;
 
 /**
  * A canvas node that displays text defined by a location (x, y),
@@ -41,69 +45,63 @@ import com.sun.scenario.scenegraph.SGText.VAlign;
  * use a View with a Label or SimpleLabel to represent text (for example,
  * in that case you can use HTML markup).
  */
-public class Text extends VisualNode {
-    // private:
-    private attribute sgtext: SGText = new SGText();
+public class Text extends Shape {
+
+    private attribute textShape:SGShape;
+
     private attribute awtFont: java.awt.Font = bind font.getFont() on replace {
-        if (sgtext <> null)
-            sgtext.setFont(awtFont);
+        updateText();
     };
 
     // public
     /** The character content of this text. */
     public attribute content: String on replace {
-        if (sgtext <> null)
-            sgtext.setText(content);
+        updateText();
     };
     
     /** The x coordinate of the location of this text. */
     public attribute x: Number on replace {
-        if (sgtext <> null)
-            updateLocation();
+        updateText();
     };
     
     /** The y coordinate of the location of this text. */
     public attribute y: Number on replace {
-        if (sgtext <> null)
-            updateLocation();
+        updateText();
     };
     
     /** The font used to render the characters of this text. */
     public attribute font: Font;
 
-    public attribute verticalAlignment: Alignment = Alignment.LEADING on replace {
-        updateVerticalAlignment();
-    };
-
     public attribute fill: Paint = Color.BLACK;
-    public attribute stroke: Paint = null;
 
-    private function updateLocation() {
-        if (sgtext <> null) {
-            sgtext.setLocation(new java.awt.geom.Point2D.Double(x, y));
-        }
+    public attribute verticalAlignment: Alignment = Alignment.LEADING on replace {
+        updateText();
     };
 
-    private function updateVerticalAlignment() {
-        if (sgtext <> null) {
+    private function updateText():Void {
+        if (textShape <> null and content <> null) {
+            var layout = new TextLayout(content, awtFont, FRC);
+            var b = layout.getBounds();
+            var tx = x - b.getX();
+            var ty = y - b.getY();
             if (verticalAlignment == Alignment.BASELINE) {
-                sgtext.setVerticalAlignment(VAlign.BASELINE);
-            } else if (verticalAlignment == Alignment.LEADING) {
-                sgtext.setVerticalAlignment(VAlign.TOP);
-            } else {
-                sgtext.setVerticalAlignment(VAlign.BOTTOM);
+                ty += b.getY();
+            } else if (verticalAlignment == Alignment.TRAILING) {
+                ty -= layout.getAscent() + layout.getDescent();
             }
+            var t = AffineTransform.getTranslateInstance(tx, ty);
+            var tshape = layout.getOutline(t);
+            textShape.setShape(tshape);
         }
-    };
+    }
+
+    private static attribute FRC = new FontRenderContext(null, true, true);
 
 
-    public function createVisualNode(): SGAbstractShape {
-        sgtext.setAntialiasingHint(java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        sgtext.setText(content);
-        sgtext.setFont(awtFont);
-        updateLocation();
-        updateVerticalAlignment();
-        return sgtext;
+    protected function createShape(): SGShape {
+        textShape = new SGShape();
+        updateText();
+        return textShape;
     }
 
 }

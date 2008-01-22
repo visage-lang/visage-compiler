@@ -28,28 +28,25 @@ package javafx.ui.canvas;
 import javafx.ui.*;
 
 public class HBox extends CompositeNode {
-    private attribute holders: Group[] = 
-          bind for (ndx in [0..sizeof content exclusive])
-             Group {
-                  content: [ content[ndx] ]
-                  //var prev = if (ndx > 0 and hasParent() )
-                 //                then holders[ndx-1] else null
-                 // var x = if (prev == null)
-                 //           then 0 else prev.currentX + prev.currentWidth
-                  transform: bind [ Translate.translate(
-                            (if (ndx > 0 and hasParent() )
-                                then holders[ndx-1].currentX + holders[ndx-1].currentWidth
-                                else 0)                            
-                            +(if (ndx > 0) then spacing else 0), 0.0) as Transform ]
+    private attribute holders: HBoxHolder[] = bind lazy for (i in content) HBoxHolder {
+            hbox: this, content: i
+    }
+    function doLayout():Void {
+             var x = 0;
+             var j = 0;
+             for (i in content) {
+                 holders[j].transform = [Transform.translate(x, 0)];
+                 x += i.currentX  + i.currentWidth + spacing;
+                 j++;
              }
-        ;
+    }
     public attribute content: Node[];
     public attribute spacing: Number;
+    
     public function composeNode(): Node {
-        Group {
+        return  Group {
             content: bind holders
         };
     }
 }
-
 

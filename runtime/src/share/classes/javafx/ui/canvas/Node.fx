@@ -42,12 +42,13 @@ import javax.swing.SwingUtilities;
 import javafx.ui.Canvas;
 import javafx.ui.Cursor;
 import javafx.ui.KeyEvent;
+import javafx.ui.KeyModifier;
 import javafx.ui.HorizontalAlignment;
 import javafx.ui.VerticalAlignment;
 import javafx.ui.XY;
 import javafx.ui.filter.Filter;
-import javafx.ui.KeyModifier;
-import com.sun.javafx.api.ui.FXNodeListener;
+import com.sun.scenario.scenegraph.event.SGNodeListener;
+import com.sun.scenario.scenegraph.event.SGNodeEvent;
 import com.sun.scenario.scenegraph.SGAlignment;
 import com.sun.scenario.scenegraph.SGComposite;
 import com.sun.scenario.scenegraph.SGClip;
@@ -60,7 +61,7 @@ import com.sun.scenario.scenegraph.SGTransform;
 import com.sun.scenario.scenegraph.SGTransform.Affine;
 import com.sun.scenario.scenegraph.event.SGMouseListener;
 import com.sun.scenario.scenegraph.event.SGMouseAdapter;
-
+import java.lang.System;
 
 /**
  * Common base class for all objects that appear in a Canvas.
@@ -74,7 +75,7 @@ public abstract class Node extends CanvasElement, Transformable {
        return Math.max(Math.min(n, max), min);
     }
     // private:
-    private attribute cachedCanvas: Canvas;
+
     protected attribute mouseListener: SGMouseListener;
     protected   function setCursor():Void {
          getCanvas().jsgpanel.setCursor(cursor.getCursor(), false);
@@ -97,6 +98,7 @@ public abstract class Node extends CanvasElement, Transformable {
                     }
 
                     public function mouseEntered(e:MouseEvent, node:SGNode):Void {
+                        hover = true;
                         if (cursor <> null) {
                             setCursor();        
                         } 
@@ -107,6 +109,7 @@ public abstract class Node extends CanvasElement, Transformable {
                     }
 
                     public function mouseExited(e:MouseEvent, node:SGNode):Void {
+                        hover = false;
                         if (onMouseExited <> null) {
                             (onMouseExited)(makeCanvasMouseEvent(e));
                         } 
@@ -293,7 +296,7 @@ public abstract class Node extends CanvasElement, Transformable {
         return null;
     }
 
-    private function getScreenLocation(component:java.awt.Component): java.awt.Point{
+    private static function getScreenLocation(component:java.awt.Component): java.awt.Point{
         var comp = component;
         while (comp <> null and not (comp instanceof java.awt.Frame) and 
                not (comp instanceof java.awt.Window) and
@@ -327,11 +330,37 @@ public abstract class Node extends CanvasElement, Transformable {
 
             effectFilter = new SGImageOp();
             effectFilter.setChild(contentNode);
-            cacheFilter = SGRenderCache.createCache(effectFilter);
-            cacheFilter.setEnabled(false);
+            //
+            // scenario workaround:
+            // leave out render cache: which currently inappropriately
+            // pads the bounds
+            // 
+            //cacheFilter = SGRenderCache.createCache(effectFilter);
+            //cacheFilter.setEnabled(false);
+            // 
             compositeFilter = new SGComposite();
-            compositeFilter.setChild(cacheFilter);
-            clipFilter = new SGClip();
+            compositeFilter.setChild(effectFilter);
+            clipFilter = SGClip {
+                // scenario workaround:
+                // include clip in bounds calculation
+                // not a good solution however, as caching is lost.
+                // however, no reasonable way to preserve that right now
+                // due to scenario methods being non-public
+                //
+                public function getBounds(transform:AffineTransform):Rectangle2D {
+                    var b = getChild().getBounds(transform);
+                    var s = getShape();
+                    if (s <> null) {
+                        var clipBounds = s.getBounds2D();
+                        if (transform <> null) {
+                            clipBounds = transform.createTransformedShape(clipBounds).getBounds2D();
+                        }
+                        b = clipBounds.createIntersection(b);
+                    }
+                    return b;
+                }
+                
+            };
             clipFilter.setChild(compositeFilter);
             transformFilter = SGTransform.createAffine(new AffineTransform(), clipFilter);
             transformFilter.putAttribute("FX", this);
@@ -345,7 +374,9 @@ public abstract class Node extends CanvasElement, Transformable {
             if (valign <> null) {
                 alignmentFilter.setVerticalAlignment(valign.id.intValue());
             }
-
+            if (clip <> null) {
+                clipNode = clip.shape;
+            }
             if (clipNode <> null) {
                 clipFilter.setShape(clipNode.getVisualNode().getShape());
             }
@@ -387,7 +418,7 @@ public abstract class Node extends CanvasElement, Transformable {
             if (id <> null) {
                 alignmentFilter.putAttribute("id", id); // TODO: use ID
             }
-            var b = alignmentFilter.getBounds();
+            var b = transformFilter.getBounds();
             currentX = b.getX();
             currentY = b.getY();
             currentWidth = b.getWidth();
@@ -663,32 +694,7 @@ public abstract class Node extends CanvasElement, Transformable {
             contentNode.setID(id);   
     };
 
-    public function getCanvas(): Canvas {
-        var n = this.parentCanvasElement;
-        while (n <> null) {
-            if (n instanceof Canvas) {
-                cachedCanvas = n as Canvas;
-                return cachedCanvas;
-            }
-            n = n.parentCanvasElement;
-        }
-        return cachedCanvas;
-    }
-    
-    //TODO: remove once Rect.getCanvas() can be deleted
-    static function getCanvas(node:Node): Canvas {
-        var n = node.parentCanvasElement;
-        while (n <> null) {
-            if (n instanceof Canvas) {
-                node.cachedCanvas = n as Canvas;
-                return node.cachedCanvas;
-            }
-            n = n.parentCanvasElement;
-        }
-        return node.cachedCanvas;
-    }
-
-    public static attribute LISTENER:FXNodeListener = FXNodeListener{};
+    public static attribute LISTENER:FXNodeListener = FXNodeListener {};
     
     init {
         onTransformChanged = function (t:AffineTransform):Void {

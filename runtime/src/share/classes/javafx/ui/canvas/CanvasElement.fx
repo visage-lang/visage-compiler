@@ -26,14 +26,21 @@
 package javafx.ui.canvas; 
 
 import javafx.ui.Canvas;
-
+import java.lang.System;
 /** Abstract interface of objects that appear in a canvas. */
 
 public abstract class CanvasElement {
     /** The containing element of this element. */
     public attribute parentCanvasElement: CanvasElement;
     /** Convenience method to obtain the containing canvas. */
-    protected abstract function getCanvas(): Canvas;
+    public function getCanvas(): Canvas {
+        var n = this.parentCanvasElement;
+        if (n == null) {
+            return null;
+        }
+        return n.getCanvas();
+    }
+    
     /** Returns the canvas element that contains this element */
     public function getContainer(): Container{
         var p = parentCanvasElement;

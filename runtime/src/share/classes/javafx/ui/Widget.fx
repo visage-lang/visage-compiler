@@ -46,7 +46,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
 import javafx.ui.KeyStroke;
 import javafx.ui.canvas.*;
-
+import java.lang.System;
 /**
  * Base class for non-window javafx graphical components
  * Encapsulates javax.swing.JComponent
@@ -109,14 +109,14 @@ public abstract class Widget extends GroupElement, UIElement {
         if (mouseWheelListener == null) {
             mouseWheelListener = MouseWheelListener {
                     public function mouseWheelMoved(e:java.awt.event.MouseWheelEvent):Void {
-    //println("mouse wheel {e}");
+
                         if(onMouseWheelMoved <> null)
                             (onMouseWheelMoved)(makeMouseWheelEvent(e));
                     }
                 };
-            //println("created mouse wheel listener");
+
             if (component <> null) {
-                //println("adding mouse wheel listener");
+
                 this.getNonScrollPaneComponent().addMouseWheelListener(mouseWheelListener);
             }
         }
@@ -306,7 +306,6 @@ public abstract class Widget extends GroupElement, UIElement {
     /** Sets width of this component. Has no effect unless contained in a Panel.  */
     public attribute width: Number on replace {
         if (component <> null and not inBoundsListener) {
-            //println("width {getComponent()} = {n}");
             var b = this.getBounds();
             b.width = width.intValue();
             this.setBounds(b);
@@ -316,7 +315,6 @@ public abstract class Widget extends GroupElement, UIElement {
     /** Sets the height of this component. Has no effect unless contained in a Panel.  */
     public attribute height: Number on replace {
         if (component <> null and not inBoundsListener) {
-            //println("height {getComponent()} = {n}");
             var b = this.getBounds();
             b.height = height.intValue();
             this.setBounds(b);
@@ -706,7 +704,6 @@ public abstract class Widget extends GroupElement, UIElement {
                 c.addMouseMotionListener(mouseMotionListener);
             }
             if (mouseWheelListener <> null) {
-                //println("adding mouse wheel...");
                 c.addMouseWheelListener(mouseWheelListener);
             }
             //TODO how to tell if you need to override?
@@ -730,7 +727,6 @@ public abstract class Widget extends GroupElement, UIElement {
                 if (bounds.height == 0) {
                     bounds.height = comp.getPreferredSize().height;
                 }
-                //println("setting bounds to {bounds}");
                 comp.setBounds(bounds);
             //}
             inBoundsListener = true;

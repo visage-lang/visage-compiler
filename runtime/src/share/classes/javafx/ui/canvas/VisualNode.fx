@@ -37,37 +37,43 @@ import com.sun.scenario.scenegraph.SGNode;
  * Abstract base class for visual elements that appear in the canvas.
 
  */
-public abstract class VisualNode extends Node, AbstractVisualNode {
+public abstract class VisualNode extends Node {
     private attribute sgvisualnode: SGAbstractShape;
     public attribute stroke: Paint on replace {
         if(stroke <> null) {
             awtStroke = stroke.getPaint();
+        } else {
+            awtStroke = null;
         }
+        updateStroke();
+        updateMode();
     };
     public attribute fill: Paint on replace {
         if(fill <> null) {
             awtFill = fill.getPaint();
+        } else {
+            awtFill = null;
         }
+        updateMode();
     };
     private attribute awtStroke: java.awt.Paint  //TODO:JFXC-329 = bind if (stroke <> null) then stroke.getPaint() else null
         on replace  {
             if (sgvisualnode <> null and awtStroke <> null) {
                 sgvisualnode.setDrawPaint(awtStroke);
             }
-            updateMode();
+            updateStroke();
         };
     private attribute awtFill: java.awt.Paint //TODO:JFXC-329 = bind if (fill <> null) then fill.getPaint() else null
         on replace {
             if (sgvisualnode <> null and awtFill <> null) {
                 sgvisualnode.setFillPaint(awtFill);
             }
-            updateMode();
         };
 
     public abstract function createVisualNode(): SGAbstractShape;
     public function getVisualNode(): SGAbstractShape{
         if (sgvisualnode == null) {
-            this.createNode();
+            this.getNode();
         }
         return sgvisualnode;
     }
@@ -76,63 +82,79 @@ public abstract class VisualNode extends Node, AbstractVisualNode {
         if (sgvisualnode <> null) {
             if (awtFill <> null and awtStroke <> null) {
                 sgvisualnode.setMode(SGAbstractShape.Mode.STROKE_FILL);
-            } else if (awtFill <> null) {
-                sgvisualnode.setMode(SGAbstractShape.Mode.FILL);
+            } else if (awtStroke <> null) {
+                 sgvisualnode.setMode(SGAbstractShape.Mode.STROKE);
             } else {
-                sgvisualnode.setMode(SGAbstractShape.Mode.STROKE);
+                // should have Mode.NONE
+                // however there's not so use FILL to avoid
+                // drawing a bogus stroke
+                sgvisualnode.setMode(SGAbstractShape.Mode.FILL);
             }
         }
     }
 
+    static private attribute TRANSPARENT_FILL:java.awt.Color = 
+       new java.awt.Color(0, 0, 0, 0);
+
+    static private attribute NO_STROKE = new BasicStroke(0.0.floatValue());
+
     public function updateStroke():Void {
         if (sgvisualnode <> null) {
-            var basic = new BasicStroke(strokeWidth.floatValue(),
-                       strokeLineCap.id.intValue(),
-                       strokeLineJoin.id.intValue(),
-                       strokeMiterLimit.floatValue(),
-                       strokeDashArray,
-                       strokeDashOffset.floatValue());
-            sgvisualnode.setDrawStroke(basic);
-            updateMode();
-            
+            if (awtStroke <> null) {
+                var basic = new BasicStroke(strokeWidth.floatValue(),
+                                            strokeLineCap.id.intValue(),
+                                            strokeLineJoin.id.intValue(),
+                                            strokeMiterLimit.floatValue(),
+                                            strokeDashArray,
+                                            strokeDashOffset.floatValue());
+                sgvisualnode.setDrawStroke(basic);
+            } else {
+                sgvisualnode.setDrawStroke(NO_STROKE);
+            }
         }
     }
 
-    
     public function createNode(): SGNode {
         sgvisualnode = this.createVisualNode();
-        if(awtFill == null and fill <> null) {
+        if(fill <> null) {
             awtFill = fill.getPaint();
         }
         if (awtFill <> null) {
             sgvisualnode.setFillPaint(awtFill);
         }
-        if(awtStroke == null and stroke <> null) {
+        if(stroke <> null) {
             awtStroke = stroke.getPaint();
         }
         if (awtStroke <> null) {
             sgvisualnode.setDrawPaint(awtStroke);
         }
-        updateStroke(); // will also call updateMode()...
-
+        updateStroke(); 
+        updateMode();
         return sgvisualnode;
     }
     
-    public attribute strokeWidth:Number = 1.0;
-    public attribute strokeLineJoin:StrokeLineJoin = StrokeLineJoin.MITER;
-    public attribute strokeLineCap:StrokeLineCap = StrokeLineCap.SQUARE;
-    public attribute strokeMiterLimit:Number = 10.0;
-    public attribute strokeDashArray:Number[] = [1.0];
-    public attribute strokeDashOffset:Number = 0.0;
+    public attribute strokeWidth:Number = 1.0 on replace {
+        updateStroke();
+    };
+    public attribute strokeLineJoin:StrokeLineJoin = StrokeLineJoin.MITER 
+    on replace {
+        updateStroke();
+    };
+    public attribute strokeLineCap:StrokeLineCap = StrokeLineCap.SQUARE 
+    on replace {
+        updateStroke();
+    };
+    public attribute strokeMiterLimit:Number = 10.0 on replace {
+        updateStroke();
+    };
+    public attribute strokeDashArray:Number[] = [1.0] on replace [a..b] = slice {
+        updateStroke();
+    };
+    public attribute strokeDashOffset:Number = 0.0 on replace {
+        updateStroke();
+    };
 
-    init {
-        strokeWidth = 1.0;
-        strokeLineJoin = StrokeLineJoin.MITER;
-        strokeLineCap = StrokeLineCap.SQUARE;
-        strokeMiterLimit = 10.0;
-        strokeDashArray = [1.0];
-        strokeDashOffset = 0.0;
-    }
 }
+ 
 
 

@@ -1,3 +1,4 @@
+
 /* 
  * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved. 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER. 
@@ -24,30 +25,25 @@
  */  
  
 package javafx.ui.canvas; 
+import com.sun.scenario.scenegraph.event.*;
 
-import javafx.ui.*;
-import java.lang.System;
+public class FXNodeListener extends SGNodeListener {
 
-public class VBox extends CompositeNode {
-    private attribute holders: VBoxHolder[] = bind lazy for (i in content) VBoxHolder {
-            vbox: this, content: i
-    }
-    function doLayout():Void {
-             var y = 0;
-             var j = 0;
-             for (i in content) {
-                  holders[j].transform = [Transform.translate(0, y)];
-                  y += i.currentY  + i.currentHeight + spacing;
-                  j++;
-             }
-    }
-    public attribute content: Node[];
-    public attribute spacing: Number;
-    
-    public function composeNode(): Node {
-        return  Group {
-            content: bind holders
-        };
+    public function boundsChanged(e:SGNodeEvent):Void {
+        if (e.isConsumed()) {
+            return;
+        }
+        var n = e.getNode();
+        if (n == null) {
+            return;
+        }
+        var b = n.getBounds();
+        var node = n.getAttribute("FX") as Node;
+        if (node <> null) {
+            node.currentX = b.getX();
+            node.currentY = b.getY();
+            node.currentWidth = b.getWidth();
+            node.currentHeight = b.getHeight();
+        }
     }
 }
-

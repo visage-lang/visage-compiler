@@ -114,6 +114,10 @@ public class Color extends AbstractColor, UIElement{
     public function getColor():java.awt.Color {
         return awtColor;
     }
+
+    public static function color(r:Number, g:Number, b:Number, a:Number):Color {
+        return Color { red: r, green: g, blue: b, opacity: a };
+    }
     
     public static function rgb(r:Number, g:Number, b:Number):Color {
         return Color {red: r/255, green: g/255, blue: b/255, opacity: 1};
