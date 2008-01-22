@@ -8,61 +8,40 @@ import com.sun.javafx.runtime.location.*;
  *
  * @author Brian Goetz
  */
-public class SequenceElementLocation<T> extends AbstractObjectLocation<T> implements ObjectLocation<T> {
+public class SequenceElementLocation<T> extends ObjectExpression<T> implements ObjectLocation<T> {
     private final SequenceLocation<T> seq;
     private final IntLocation index;
-    private int indexValue;
+    private int lastIndex;
 
     public SequenceElementLocation(SequenceLocation<T> seq, IntLocation index) {
-        super(false, false);
+        super(false, index);
         this.seq = seq;
         this.index = index;
-        addDependencies(index);
+        lastIndex = index.get();
         seq.addChangeListener(new MySequenceListener());
-        update();
     }
 
-    public T get() {
-        if (isValid())
-            update();
-        return super.get();
-    }
-
-    @Override
-    public void update() {
-        if (!isValid()) {
-            indexValue = index.getAsInt();
-            replaceValue(seq.getAsSequence().get(indexValue));
-        }
-    }
-
-    public boolean isNull() {
-        return get() == null;
-    }
-
-    public void addChangeListener(ObjectChangeListener<T> listener) {
-        // @@@ NYI @@@
+    protected T computeValue() {
+        lastIndex = index.get();
+        return seq.getAsSequence().get(lastIndex);
     }
 
     private class MySequenceListener implements SequenceChangeListener<T> {
         public void onInsert(int position, T element) {
-            if (position <= indexValue) {
+            if (position <= lastIndex) {
                 invalidate();
-                update();
             }
         }
 
         public void onDelete(int position, T element) {
-            if (position <= indexValue) {
+            if (position <= lastIndex) {
                 invalidate();
-                update();
             }
         }
 
         public void onReplace(int position, T oldValue, T newValue) {
-            if (position == indexValue) {
+            if (position == lastIndex) {
                 invalidate();
-                update();
             }
         }
     }

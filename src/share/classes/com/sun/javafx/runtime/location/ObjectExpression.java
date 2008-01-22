@@ -44,7 +44,13 @@ public abstract class ObjectExpression<T> extends AbstractObjectLocation<T> impl
     public T get() {
         if (!isValid())
             update();
-        return $value;
+        return super.get();
+    }
+
+    public boolean isNull() {
+        if (!isValid())
+            update();
+        return super.isNull();
     }
 
     /** Calculate the current value of the expression */
