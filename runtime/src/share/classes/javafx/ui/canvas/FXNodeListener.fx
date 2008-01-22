@@ -26,6 +26,7 @@
  
 package javafx.ui.canvas; 
 import com.sun.scenario.scenegraph.event.*;
+import java.awt.geom.Rectangle2D;
 
 public class FXNodeListener extends SGNodeListener {
 
@@ -38,12 +39,28 @@ public class FXNodeListener extends SGNodeListener {
             return;
         }
         var b = n.getBounds();
-        var node = n.getAttribute("FX") as Node;
+        readonly var node = n.getAttribute("FX") as Node;
         if (node <> null) {
-            node.currentX = b.getX();
-            node.currentY = b.getY();
-            node.currentWidth = b.getWidth();
-            node.currentHeight = b.getHeight();
+            // really shouldn't invoke later here, but scenario
+            // gets confused if you modify a parent node
+            // from the event call back, which we may do below.
+            // remove invokeLater once scenario's fixed as you'll
+            // see noticeable flashing the way it is.
+            javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                    public function run():Void {
+                        var oldBounds = new Rectangle2D.Double(node.currentX,
+                                                               node.currentY,
+                                                               node.currentWidth,
+                                                               node.currentHeight);
+                        if (not oldBounds.equals(b)) {
+                            node.currentX = b.getX();
+                            node.currentY = b.getY();
+                            node.currentWidth = b.getWidth();
+                            node.currentHeight = b.getHeight();
+                            node.realign();
+                        }
+                    }
+                });
         }
     }
 }

@@ -703,5 +703,16 @@ public abstract class Node extends CanvasElement, Transformable {
             } 
         }
     }
+
+    function realign():Void {
+        if (alignmentFilter <> null) {
+            if (halign <> null and halign <> HorizontalAlignment.LEADING) {
+                alignmentFilter.setHorizontalAlignment(halign.id.intValue());
+            }
+            if (valign <> null and valign <> VerticalAlignment.TOP) {
+                alignmentFilter.setVerticalAlignment(valign.id.intValue());
+            }
+        }
+    }
 }
 
