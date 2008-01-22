@@ -67,6 +67,8 @@ import java.lang.System;
  * Common base class for all objects that appear in a Canvas.
  */
 public abstract class Node extends CanvasElement, Transformable {
+
+    // fix me: these can't be static
     public static attribute MOUSE_PRESS:MouseEvent = null;
     public static attribute MOUSE_DRAG:MouseEvent = null;
     public static attribute MOUSE_DRAG_SCREEN:Point = null;
@@ -77,8 +79,12 @@ public abstract class Node extends CanvasElement, Transformable {
     // private:
 
     protected attribute mouseListener: SGMouseListener;
-    protected   function setCursor():Void {
-         getCanvas().jsgpanel.setCursor(cursor.getCursor(), false);
+    protected function setCursor():Void {
+        if (hover) {
+            getCanvas().jsgpanel.setCursor(cursor.getCursor(), false);
+        } else {
+            getCanvas().jsgpanel.resetCursor();
+        }
     }
     protected function installMouseListener() {
         if (mouseListener == null) {
@@ -98,7 +104,7 @@ public abstract class Node extends CanvasElement, Transformable {
                     }
 
                     public function mouseEntered(e:MouseEvent, node:SGNode):Void {
-                        hover = true;
+
                         if (cursor <> null) {
                             setCursor();        
                         } 
@@ -109,7 +115,7 @@ public abstract class Node extends CanvasElement, Transformable {
                     }
 
                     public function mouseExited(e:MouseEvent, node:SGNode):Void {
-                        hover = false;
+
                         if (onMouseExited <> null) {
                             (onMouseExited)(makeCanvasMouseEvent(e));
                         } 
@@ -155,6 +161,8 @@ public abstract class Node extends CanvasElement, Transformable {
                         if (cursor <> null) {
                             setCursor();
                         }
+                        var localPt = alignmentFilter.globalToLocal(e.getPoint(), null);
+
                         if (not (onMouseDragged == null and onMouseMoved == null and not isSelectionRoot)) {
                             e.consume();
                         }
@@ -428,7 +436,7 @@ public abstract class Node extends CanvasElement, Transformable {
     }
     protected abstract function createNode(): SGNode;
     
-
+    public attribute hover: Boolean;
 
     //TODO: implement properly...
     public attribute toolTipText: String on replace  {
@@ -498,7 +506,7 @@ public abstract class Node extends CanvasElement, Transformable {
         }
     };
     /** Determines the horizontal alignment of this node relative to its origin. */
-    attribute halign: HorizontalAlignment on replace  {
+    public attribute halign: HorizontalAlignment on replace  {
         if (halign == null) {
             halign = HorizontalAlignment.LEADING;
         }
@@ -688,7 +696,7 @@ public abstract class Node extends CanvasElement, Transformable {
     public function getGlobalBounds(): Rectangle2D{
         return alignmentFilter.getGlobalBounds(); // TODO: hmm
     }
-    public attribute hover: Boolean;
+
     public attribute id: String on replace {
         if (contentNode <> null)
             contentNode.setID(id);   
