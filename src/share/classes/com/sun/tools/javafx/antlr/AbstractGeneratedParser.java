@@ -120,7 +120,17 @@ public abstract class AbstractGeneratedParser extends Parser {
         super(input);
     }
     
-    protected String stackPositionDescription(String ruleName) {
+    protected AbstractGeneratedParser(TokenStream input, RecognizerSharedState state) {
+        super(input, state);
+    }
+   
+    protected void mismatch(IntStream input, int ttype, BitSet follow)
+            throws RecognitionException {
+        //System.err.println("Mismatch: " + ttype  + ", Set: " + follow);
+        super.mismatch(input, ttype, follow);
+    }
+
+protected String stackPositionDescription(String ruleName) {
         // optimize for the non-error case: do sequential search
         for (String[] pair : ruleMap) {
             if (pair[0].equals(ruleName)) {

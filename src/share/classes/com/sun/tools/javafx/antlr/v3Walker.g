@@ -102,10 +102,9 @@ classDefinition  returns [JFXClassDeclaration value]
 	;
 supers  returns [ListBuffer<JCExpression> ids = new ListBuffer<JCExpression>()]
 	: ^(EXTENDS (typeName           		{ $ids.append($typeName.expr); } )* )
-	|						{ /* add nothing */ }
 	;	  					
 classMembers  returns [ListBuffer<JCTree> mems = new ListBuffer<JCTree>()]
-	: ( classMember					{ $mems.append($classMember.member); } )*
+	: ^(CLASS_MEMBERS ( classMember			{ $mems.append($classMember.member); } )* )
 	;
 classMember  returns [JCTree member]
 	: initDefinition				{ $member = $initDefinition.value; } 
@@ -394,7 +393,7 @@ type  returns [JFXType type]
  	| TYPE_UNKNOWN					{ $type = F.TypeUnknown(); }
  	;
 typeArgList   returns [ListBuffer<JFXType> ptypes = ListBuffer.<JFXType>lb(); ]
- 	: (typeArg					{ ptypes.append($typeArg.type); } )*
+ 	: ^(TYPED_ARG_LIST (typeArg			{ ptypes.append($typeArg.type); } )* )
 	;
 typeArg  returns [JFXType type]
  	: ^(COLON name? type)				{ $type = $type.type; }

@@ -220,11 +220,11 @@ import org.antlr.runtime.*;
         int ttype = token.getType();
         //System.err.println("::: " + ttype + " --- " + token.getText());
         if (previousTokenType == RBRACE && (ttype == EOF || semiKind[ttype] == INSERT_SEMI)) {
-            this.token = syntheticSemi;
+            state.token = syntheticSemi;
             tokens.add(syntheticSemi);
             //System.err.println("INSERTING in front of: " + ttype);
         } else {
-            this.token = token;
+            state.token = token;
         }
     	tokens.add(token);
 
@@ -392,7 +392,7 @@ FLOATING_POINT_LITERAL
 
 fragment
 RangeDots 
-	:	'..'
+	:	DOTDOT
 	;
 fragment
 Digits	:	('0'..'9')+ 

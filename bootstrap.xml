@@ -37,7 +37,7 @@
     <property name="xincluder.tgzfile" value="${bootstrap.dir}/xincluder-${xincluder.ver}.tgz"/>
     <property name="xincluder.tarfile" value="${bootstrap.dir}/xincluder-${xincluder.ver}.tar"/>
 
-    <property name="antlr.url" value="http://antlr.org/download/antlr-${antlr.ver}.tar.gz"/>
+    <property name="antlr.url" value="http://www.antlr.org/download/build/antlr-${antlr.ver}.tar.gz"/>
     <property name="antlr.tgzfile" value="${bootstrap.dir}/antlr-${antlr.ver}.tar.gz"/>
     <property name="antlr.tarfile" value="${bootstrap.dir}/antlr-${antlr.ver}.tar"/>
 

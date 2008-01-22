@@ -74,6 +74,10 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
         super(input);
     }
     
+    protected AbstractGeneratedTreeParser(TreeNodeStream input, RecognizerSharedState state) {
+        super(input, state);
+    }
+    
     public String getErrorMessage(RecognitionException e, String[] tokenNames) {
         java.util.List stack = getRuleInvocationStack(e, this.getClass().getName());
         String msg = null;

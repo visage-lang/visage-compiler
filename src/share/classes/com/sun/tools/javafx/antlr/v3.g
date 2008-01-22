@@ -136,6 +136,7 @@ tokens {
    // these are imaginary tokens
    MODULE;
    MODIFIER;
+   CLASS_MEMBERS;
    PARAM;
    FUNC_EXPR;
    STATEMENT;
@@ -165,6 +166,7 @@ tokens {
    TYPE_ANY;
    TYPE_UNKNOWN;
    TYPE_ARG;
+   TYPED_ARG_LIST;
    DOC_COMMENT;
 }
 
@@ -226,11 +228,11 @@ import org.antlr.runtime.*;
         int ttype = token.getType();
         //System.err.println("::: " + ttype + " --- " + token.getText());
         if (previousTokenType == RBRACE && (ttype == EOF || semiKind[ttype] == INSERT_SEMI)) {
-            this.token = syntheticSemi;
+            state.token = syntheticSemi;
             tokens.add(syntheticSemi);
             //System.err.println("INSERTING in front of: " + ttype);
         } else {
-            this.token = token;
+            state.token = token;
         }
     	tokens.add(token);
 
@@ -428,7 +430,7 @@ FLOATING_POINT_LITERAL
 
 fragment
 RangeDots 
-	:	'..'
+	:	DOTDOT
 	;
 fragment
 Digits	:	('0'..'9')+ 
@@ -525,18 +527,18 @@ classDefinition
 @after { Tree docComment = getDocComment($classDefinition.start);
          $classDefinition.tree.addChild(docComment); }
 	: classModifierFlags  CLASS name supers LBRACE classMembers RBRACE
-	  					-> ^(CLASS classModifierFlags name supers? classMembers)
+	  					-> ^(CLASS classModifierFlags name supers classMembers)
 	;
 supers 
-	: (EXTENDS typeName
+	: EXTENDS typeName
            ( COMMA typeName )* 			-> ^(EXTENDS typeName*)
-	  )?
+	|                                       -> ^(EXTENDS)
 	;	  					
 classMembers 
 	: classMember ?
 	  (SEMI
 	     classMember ?
-	  ) *					-> classMember*
+	  ) *					-> ^(CLASS_MEMBERS classMember*)
 	;
 classMember
 	: initDefinition	
@@ -888,7 +890,8 @@ type
  	| STAR cardinality			-> ^(TYPE_ANY[$STAR] cardinality?)
  	;
 typeArgList
- 	: (typeArg (COMMA typeArg)* )?		-> typeArg*
+ 	: typeArg (COMMA typeArg)*		-> ^(TYPED_ARG_LIST typeArg*)
+ 	| /* emprty list */			-> ^(TYPED_ARG_LIST)
 	;
 typeArg 
  	: name? COLON type			-> ^(COLON name? type)	

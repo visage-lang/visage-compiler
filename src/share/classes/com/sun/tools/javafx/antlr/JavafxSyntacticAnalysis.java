@@ -81,26 +81,34 @@ public class JavafxSyntacticAnalysis {
                 // Invoke the module rule in get return value
                 v3Parser.module_return comReturn = parser.module();
                 CommonTree comTree = (CommonTree) comReturn.getTree();
-                // Walk resulting tree; create treenode stream first
-                CommonTreeNodeStream nodes = new CommonTreeNodeStream(comTree);
-                // AST nodes have payloads that point into token stream
-                nodes.setTokenStream(tokens);
-                // Create a tree Walker attached to the nodes stream
-                v3Walker walker = new v3Walker(nodes);
-                // Set the context
-                walker.initialize(context);
-                // Invoke the start symbol, rule module
-                unit = walker.module();
+                if (errorCount() == 0) {
+                    // Walk resulting tree; create treenode stream first
+                    CommonTreeNodeStream nodes = new CommonTreeNodeStream(comTree);
+                    // AST nodes have payloads that point into token stream
+                    nodes.setTokenStream(tokens);
+                    // Create a tree Walker attached to the nodes stream
+                    v3Walker walker = new v3Walker(nodes);
+                    // Set the context
+                    walker.initialize(context);
+                    // Invoke the start symbol, rule module
+                    unit = walker.module();                   
+                }
                 String treeChoice = options.get("tree");
                 if (treeChoice != null) {
                     printTree(comTree, "---");
                 }            
             } catch (Throwable thr) {
-                System.err.println("Error in syntactix analysis:");
+                System.err.println("Error in syntactic analysis:");
                 thr.printStackTrace(System.err);
             }
         }
         return unit;
+    }
+
+    /** The number of errors reported so far.
+     */
+    public int errorCount() {
+        return log.nerrors;
     }
 
     private void printTree(Tree tree, String prefix) {
