@@ -828,7 +828,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
             lit = (JCLiteral)(parts.head);                  // optional format (or null)
             String format = (String)lit.value;
-            sb.append(format.length() == 0? "%s" : format);
             parts = parts.tail;
             JCExpression exp = parts.head;
             if (exp != null &&
@@ -836,8 +835,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 exp = make.Apply(null,
                                  make.Select(translate(exp), Name.fromString(names, "toDate")), 
                                  List.<JCExpression>nil());
+                sb.append(format.length() == 0? "%tQms" : format);
             } else {
                 exp = translate(exp);
+                sb.append(format.length() == 0? "%s" : format);
             }
             values.append(exp);
             parts = parts.tail;
