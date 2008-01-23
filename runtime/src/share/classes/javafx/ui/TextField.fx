@@ -30,6 +30,11 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JTextField;
 import java.lang.Object;
 import java.awt.Component;
+import java.util.List;
+import java.lang.StringBuffer;
+import java.awt.MouseInfo;
+import java.lang.System;
+import java.awt.Point;
 
 public class TextField extends Widget {
     private attribute textField: JTextField = new JFormattedTextField();
@@ -40,8 +45,12 @@ public class TextField extends Widget {
         if (value <> textField.getText()) {
             textField.setText(value);
         }
+        if(value <> text) text = value;
     };
-    public attribute text: String = value;
+    public attribute text: String on replace {
+        if(text <> value)
+            value = text;
+    }
     public attribute onChange: function(newValue:String) on replace (old){
         if (old == null and onChange <> null) {
             textField.addPropertyChangeListener(propertyChangeListener);
@@ -56,9 +65,147 @@ public class TextField extends Widget {
     public attribute editable: Boolean = true on replace {
         textField.setEditable(editable);
     };
+    /***************************************************************
+     * Drag N Drop
+     **************************************************************/  
+    /**
+     * inidicates if a color drop changes the foreground color of the
+     * selected text, if false, it changes the background color.
+     * If not text is selected the entire text is changed.
+     */
+    public attribute colorDropChangesForeground:Boolean = true;
+    
+    /**
+     * Indicates the drop mode which specifies which 
+     * default drop action will occur. Only valid values for 
+     * TextComponents are USE_SELECTION and INSERT
+     */
+    public attribute dropMode:DropMode = DropMode.USE_SELECTION on replace {
+        if(dropMode <> DropMode.USE_SELECTION and dropMode <> DropMode.INSERT) {
+            System.out.println("Illegal drop mode for text component,");
+            System.out.println("only USE_SELECTION and INSERT are allowed.");
+            System.out.println("Reverting to USE_SELECTION");
+            dropMode = DropMode.USE_SELECTION;
+        }else {
+            if(textField <> null)
+                UIElement.context.setDropMode(dropMode.id, textField);
+        }
+    };
+    
+    /**
+     * Indicates if Drag and Drop is enabled.
+     */
     public attribute enableDND: Boolean = true on replace {
         textField.setDragEnabled(enableDND);
     };
+    
+
+    /**
+     * Optional handler called when the user drops an object
+     */
+    public attribute onDrop: function(e:DropEvent):Void = function (e:DropEvent):Void {
+        var values = e.transferData;
+        for(val in values) {
+            if(val instanceof java.awt.Color) {
+                if(colorDropChangesForeground) {
+                    textField.setForeground(val as java.awt.Color);
+                }else {
+                    textField.setBackground(val as java.awt.Color);
+                }
+            }else {
+                var valStr:String;
+                if(val instanceof List) {
+                    var sb = new StringBuffer();
+                    var iter = (val as List).iterator();
+                    var firstTime = true;
+                    while(iter.hasNext()) {
+                        if(not firstTime) {
+                            sb.append(", ");
+                        }
+                        sb.append("{iter.next()}");
+                        firstTime = false;
+                    }
+                    valStr = "{sb}";
+                }else if (val instanceof javax.swing.tree.TreePath) {
+                    var comp = (val as javax.swing.tree.TreePath).getLastPathComponent();
+                    valStr = "{comp}";
+                }else {
+                    valStr = "{val}";
+                }
+                if(dropMode == DropMode.INSERT) {
+                    var dropPoint = new Point(e.x, e.y);
+                    var insertPos = textField.viewToModel(dropPoint);
+                    if(insertPos < 0) 
+                        insertPos = textField.getCaretPosition();
+                    if(insertPos == 0) {
+                        value = "{valStr}{value}";
+                    }else if (insertPos == value.length()) {
+                        value = "{value}{valStr}";
+                    }else {
+                        var sb = new StringBuffer(value);
+                        sb.<<insert>>(insertPos, valStr);
+                        value = "{sb}";
+                    }
+                }else { //if(dropMode == DropMode.USE_SELECTION) {
+                    textField.replaceSelection(valStr);
+                    value = textField.getText();
+                }
+            }
+        }
+    };
+    
+    /**
+     * Optional filter for the types of objects that may be dropped onto this textfield.
+     * 
+     */
+    public attribute dropType: java.lang.Class;
+    /**
+     * <code>attribute acceptDrop: function(value): Boolean</code><br></br>
+     * Optional handler called when the user drops an object onto this textfield.
+     * If it returns false, the drop is rejected. 
+     */
+    public attribute canAcceptDrop: function(e:DropEvent):Boolean = function (e:DropEvent):Boolean {
+        return enableDND;
+    };
+    
+    private function acceptDrop(value:Object):Boolean{
+        if (this.canAcceptDrop <> null) {
+            var info = MouseInfo.getPointerInfo();
+            var location = textField.getLocationOnScreen();
+            var p = info.getLocation();
+            var x = p.getX() - location.getX();
+            var y = p.getY() - location.getY();
+            p.setLocation(x, y);
+            var e = DropEvent {
+                x: p.getX()
+                y: p.getY()
+                transferData: value
+            };
+            return (this.canAcceptDrop)(e);
+        }
+        return onDrop <> null;
+    }
+    
+    private function setDropValue(value:Object):Void {
+        if (onDrop <> null) {
+            var info = MouseInfo.getPointerInfo();
+            var location = textField.getLocationOnScreen();
+            var p = info.getLocation();
+            var x = p.getX() - location.getX();
+            var y = p.getY() - location.getY();
+            p.setLocation(x, y);
+            var e = DropEvent {
+                x: p.getX()
+                y: p.getY()
+                transferData: value
+            };
+            onDrop(e);
+        }
+    }    
+    /***************************************************************
+     * END Drag N Drop
+     **************************************************************/    
+    
     public attribute verify: function(newValue:String):Boolean on replace  {
         if (verifier == null) {
             verifier = new com.sun.javafx.api.ui.XInputVerifierImpl();
@@ -152,45 +299,49 @@ public class TextField extends Widget {
                                         }       
                                     });
 
-        if (true) {      // ????
-                    UIElement.context.addTransferHandler(textField,
-                                                            value.getClass(),
-                                                            com.sun.javafx.api.ui.ValueGetter {
-                                                                public function get():Object {
-                                                                    return value;
-                                                                }
-                                                            },
-                                                            com.sun.javafx.api.ui.ValueSetter {
-                                                                public function set(value:Object):Void {
-                                                                    value = "{value}";
+        UIElement.context.addTransferHandler(textField,
+            null,//value.getClass(),
+            com.sun.javafx.api.ui.ValueGetter {
+                public function get():Object {
+                    return textField.getSelectedText();
+                }
+            },
+            com.sun.javafx.api.ui.ValueSetter {
+                public function set(val:Object):Void {
+                    if(onDrop <> null) {
+                        setDropValue(val);
+                    }
 
-                                                                }
-                                                            },
-                                                            com.sun.javafx.api.ui.ValueAcceptor {
-                                                                public function accept(value:Object):Boolean {
-                                                                    return enableDND;
-                                                                }
-                                                                public function dragEnter(value:Object):Void {
-                                                                }
-                                                                public function dragExit(value:Object):Void {
-                                                                }
-                                                            },
-                                                            com.sun.javafx.api.ui.VisualRepresentation {
-                                                                public function getComponent(value:Object):Component {
-                                                                    var label = TextField {
-                                                                        value: "{value}"
-                                                                        border: border
-                                                                        foreground: foreground
-                                                                        background: background
-                                                                        columns: columns
-                                                                    };
-                                                                    return label.getComponent();
-                                                                }
-                                                                public function getIcon(list:Object):javax.swing.Icon {
-                                                                    return null;
-                                                                }
-                                                            });
-        }
+                }
+            },
+            com.sun.javafx.api.ui.ValueAcceptor {
+                public function accept(value:Object):Boolean {
+                    return if(onDrop <> null and enableDND) {
+                        acceptDrop(value);
+                    } else {
+                        enableDND;
+                    };
+                }
+                public function dragEnter(value:Object):Void {
+                }
+                public function dragExit(value:Object):Void {
+                }
+            },
+            com.sun.javafx.api.ui.VisualRepresentation {
+                public function getComponent(value:Object):Component {
+                    var label = TextField {
+                        value: "{textField.getSelectedText()}"
+                        border: border
+                        foreground: foreground
+                        background: background
+                        columns: columns
+                    };
+                    return label.getComponent();
+                }
+                public function getIcon(list:Object):javax.swing.Icon {
+                    return null;
+                }
+            });
 
         var documentListener = javax.swing.event.DocumentListener {
                                         public function insertUpdate(e:javax.swing.event.DocumentEvent):Void {

@@ -30,4 +30,5 @@ public class DropEvent {
     public attribute x: Number;
     public attribute y: Number;
     public attribute transferData:java.lang.Object[];
+    public attribute dropMode:DropMode;
 }

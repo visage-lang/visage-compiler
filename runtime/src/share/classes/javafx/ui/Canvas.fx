@@ -138,7 +138,7 @@ public class Canvas extends Widget, CanvasElement, Container {
      */
     public attribute canAcceptDrop: function(e:CanvasDropEvent):Boolean;
 
-    private function acceptDrop(value):Boolean {
+    private function acceptDrop(value:Object):Boolean {
         var info = MouseInfo.getPointerInfo();
         var p = info.getLocation();
         var location = jsgpanel.getLocationOnScreen();

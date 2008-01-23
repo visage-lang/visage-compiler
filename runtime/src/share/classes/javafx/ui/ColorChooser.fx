@@ -40,6 +40,13 @@ public class ColorChooser extends Widget {
     public attribute owner: UIElement;
     public attribute initialColor: Color = Color.WHITE;
     public attribute selectedColor: Color;
+    /**
+     * Indicates if Drag and Drop is enabled.
+     */
+    public attribute enableDND: Boolean = true on replace {
+        if(jcolorchooser <> null)
+            jcolorchooser.setDragEnabled(enableDND);
+    };    
     function show():Void {
         var result = javax.swing.JColorChooser.showDialog(owner.getWindow(), 
                                                               title,
@@ -52,6 +59,7 @@ public class ColorChooser extends Widget {
 
     public function createComponent():javax.swing.JComponent {
         jcolorchooser = new JColorChooser(initialColor.getColor());
+        jcolorchooser.setDragEnabled(enableDND);
         jcolorchooser.getSelectionModel().addChangeListener(javax.swing.event.ChangeListener {
                 public function stateChanged(e:javax.swing.event.ChangeEvent):Void {
                     selectedColor = Color.fromAWTColor(jcolorchooser.getColor());

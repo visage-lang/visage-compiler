@@ -26,6 +26,7 @@
 package javafx.ui; 
 
 import java.lang.Object;
+import java.lang.System;
 import javax.swing.*;
 import javafx.ui.ScrollableWidget;
 import javafx.ui.ListCell;
@@ -34,22 +35,68 @@ import javafx.ui.MultiSelection;
 import javafx.ui.Border;
 import javafx.ui.LineBorder;
 import javafx.ui.Label;
-import java.awt.MouseInfo;
-import javax.swing.TransferHandler;
 
-class ListDropEvent extends DropEvent {
-    public attribute listIndex: Integer;
-}
+import java.awt.MouseInfo;
+import java.awt.Point;
+import javax.swing.TransferHandler;
+import java.util.List;
+
+
 /**
  * A component that allows the user to select one or more objects from a
  * list. Encapsulates javax.swing.JList.
  */
 
 public class ListBox extends ScrollableWidget {
-    private attribute transferHandler: TransferHandler;
+    
     private attribute selectedCell:ListCell;
     attribute updateGeneration: Number;
     private attribute selectionGeneration: Number;
+    
+    /***************************************************************
+     * Drag N Drop
+     **************************************************************/  
+    private attribute transferHandler: TransferHandler;
+    /**
+     * inidicates if a color drop changes the foreground color of the
+     * selected text, if false, it changes the background color.
+     * If not text is selected the entire text is changed.
+     */
+    public attribute colorDropChangesForeground:Boolean = true;
+    
+    /**
+     * Indicates the drop mode which specifies which 
+     * default drop action will occur. Only valid values for 
+     * TextComponents are USE_SELECTION, ON, INSERT or ON_OR_INSERT
+     */
+    public attribute dropMode:DropMode = DropMode.USE_SELECTION on replace {
+        if(dropMode <> DropMode.USE_SELECTION and dropMode <> DropMode.INSERT and
+            dropMode <> DropMode.ON and dropMode <> DropMode.ON_OR_INSERT) {
+            System.out.println("Illegal drop mode for text component,");
+            System.out.println("only USE_SELECTION,INSERT, ON, or ON_OR_INSERT are allowed.");
+            System.out.println("Reverting to USE_SELECTION");
+            dropMode = DropMode.USE_SELECTION;
+        }else {
+            if(list <> null)
+                UIElement.context.setDropMode(dropMode.id, list);
+        }
+    };
+    
+    /**
+     * Indicates if Drag and Drop is enabled.
+     */    
+    public attribute enableDND: Boolean on replace {
+        if (enableDND) {
+            if (transferHandler == null and list <> null) {
+                addTransferHandler();
+            }
+            if(list <> null)
+                list.setDragEnabled(true);
+        } else if (list <> null) {
+            list.setDragEnabled(false);
+        }
+    };
+    
     private function acceptDrop(value:Object):Boolean{
         if (this.canAcceptDrop <> null) {
             var info = MouseInfo.getPointerInfo();
@@ -114,6 +161,182 @@ public class ListBox extends ScrollableWidget {
             onDrop(e);
         }
     }
+
+    
+    private  function addTransferHandler():Void {
+        UIElement.context.addTransferHandler(list,
+            dropType,
+            com.sun.javafx.api.ui.ValueGetter {
+                public
+                function get():Object {
+                    return getDragValue();
+                }
+            },
+            com.sun.javafx.api.ui.ValueSetter {
+                public  function set(value:Object):Void {
+                    if(onDrop <> null) {
+                        setDropValue(value);
+                    }
+                }
+            },
+            com.sun.javafx.api.ui.ValueAcceptor {
+                public
+                function accept(value:Object):Boolean {
+                    return if(onDrop <> null and enableDND) {
+                        acceptDrop(value);
+                    } else {
+                        enableDND;
+                    };
+                }
+                public
+                function dragEnter(value:Object):Void{/* empty */ }
+                public
+                function dragExit(value:Object):Void{/* empty */ }
+            },
+            com.sun.javafx.api.ui.VisualRepresentation {
+                public
+                function getComponent(value:Object):java.awt.Component {
+                    var label = Label {
+                        opaque: true
+                        border: LineBorder {
+                            lineColor: Color.BLACK
+                        }
+                        text: getDragText()
+                    };
+                    return label.getComponent();
+                }
+                public
+                function getIcon(list:Object):javax.swing.Icon { return null; }
+            });
+        transferHandler = list.getTransferHandler();
+    }
+    
+    /**
+     * Optional handler called when the user drops an object
+     */
+    public attribute onDrop: function(e:ListDropEvent):Void = function (e:ListDropEvent):Void {
+        var values:Object[] = e.transferData;
+        var selectedNdx = selection;
+        for(value in values) {
+            if(value instanceof java.awt.Color) {
+                if(colorDropChangesForeground) {
+                    cellForeground = Color.fromAWTColor(value as java.awt.Color);
+                }else {
+                    cellBackground = Color.fromAWTColor(value as java.awt.Color);
+                }
+            }else {
+                var newCells:ListCell[] = [];
+                if (value instanceof List) {
+                    var iter = (value as List).iterator();
+
+                    while(iter.hasNext()) {
+                        var c = iter.next();
+                        if(c instanceof ListCell) {
+                            insert (c as ListCell) into newCells;
+                        }else {
+                            insert ListCell {text:"{c}", value:c} into newCells;
+                        }
+                    }
+                }else if (value instanceof javax.swing.tree.TreePath) {
+                    var comp = (value as javax.swing.tree.TreePath).getLastPathComponent();
+                    var newCell = ListCell {text:"{comp}", value:comp };
+                    insert  newCell into newCells;
+                }else if (value instanceof ListCell) {
+                    insert (value as ListCell) into newCells;
+                }else {
+                    var newCell = ListCell {text:"{value}", value:value };
+                    insert  newCell into newCells;
+                }                            
+                if(dropMode == DropMode.INSERT) {
+                    var ndx = e.listIndex;
+                    var dropPoint = new Point(e.x, e.y);
+                    var r = list.getCellBounds(ndx,ndx);
+                    if(r <> null) {
+                        if(r.y+r.height/2 > e.y) { //insert before
+                            var head = for(i in [0..ndx.intValue() exclusive]) cells[i];
+                            var tail =  for(i in [ndx.intValue()..sizeof cells exclusive]) cells[i];
+                            cells = [ head, newCells, tail];
+                        }else { // insert after
+                            var head = for(i in [0..ndx.intValue()]) cells[i];
+                            var next = ndx + 1;
+                            var tail =  for(i in [next.intValue()..sizeof cells exclusive]) cells[i];
+                            cells = [ head, newCells, tail]; 
+                        }
+                    }else {
+                        insert newCells into cells;
+                    }                              
+                }else if(dropMode == DropMode.ON) { //TODO
+                    var ndx = e.listIndex;
+                    if(ndx < 0) {
+                        insert newCells into cells;
+                    }else {
+                        var head = for(i in [0..ndx.intValue() exclusive]) cells[i];
+                        var next = ndx + 1;
+                        var tail:ListCell[] = [];
+                        if(next < sizeof cells)
+                            tail =  for(i in [next.intValue()..sizeof cells exclusive]) cells[i];
+                        cells = [ head, newCells, tail];
+                    }                 
+                }else if(dropMode == DropMode.ON_OR_INSERT) { //TODO
+                    // When we go to JDK 1.6 it would be better to use the DropLocation
+                    // but, for now, we fudge it from the drop point, +- 5.
+                    var ndx = e.listIndex;
+                    var dropPoint = new Point(e.x, e.y);
+                    var r = list.getCellBounds(ndx,ndx);
+                    if(r <> null) {
+                        if(r.y+5 > e.y) { //insert before
+                            var head = for(i in [0..ndx.intValue() exclusive]) cells[i];
+                            var tail =  for(i in [ndx.intValue()..sizeof cells exclusive]) cells[i];
+                            cells = [ head, newCells, tail];
+                        }else if(e.y > r.y+r.height-5) { // insert after
+                            var head = for(i in [0..ndx.intValue()]) cells[i];
+                            var next = ndx + 1;
+                            var tail =  for(i in [next.intValue()..sizeof cells exclusive]) cells[i];
+                            cells = [ head, newCells, tail]; 
+                        } else  { // ON
+                            var head = for(i in [0..ndx.intValue() exclusive]) cells[i];
+                            var next = ndx + 1;
+                            var tail:ListCell[] = [];
+                            if(next < sizeof cells)
+                                tail =  for(i in [next.intValue()..sizeof cells exclusive]) cells[i];
+                            cells = [ head, newCells, tail];
+                        }
+                    }else {
+                        insert newCells into cells;
+                    }
+                }else { // if(dropMode == DropMode.USE_SELECTION) {
+                    if(selectedNdx < 0) {
+                        insert newCells into cells;
+                    }else {
+                        var head = for(i in [0..selectedNdx.intValue() exclusive]) cells[i];
+                        var next = selectedNdx + 1;
+                        var tail:ListCell[] = [];
+                        if(next < sizeof cells)
+                            tail =  for(i in [next.intValue()..sizeof cells exclusive]) cells[i];
+                        cells = [ head, newCells, tail];
+                    }                             
+                }                            
+            }
+        }
+    };
+    /**
+     * Optional filter for the types of objects that may be dropped onto this textfield.
+     * 
+     */
+    public attribute dropType: java.lang.Class;
+    /**
+     * <code>attribute acceptDrop: function(value): Boolean</code><br></br>
+     * Optional handler called when the user drops an object onto this textfield.
+     * If it returns false, the drop is rejected. 
+     */
+    public attribute canAcceptDrop: function(e:ListDropEvent):Boolean = function (e:ListDropEvent):Boolean {
+        return enableDND;
+    };  
+    
+    
+    /***************************************************************
+     * END Drag N Drop
+     **************************************************************/        
     private attribute dirty: Boolean;
     private attribute keyListener: java.awt.event.KeyListener;
     private attribute listMouseListener: java.awt.event.MouseListener;
@@ -121,53 +344,28 @@ public class ListBox extends ScrollableWidget {
     private attribute selectionListener:javax.swing.event.ListSelectionListener;
     attribute listeners:javax.swing.event.ListDataListener[];
     private attribute listmodel:javax.swing.ListModel;
-    public attribute cellBackground: AbstractColor;
-    public attribute cellForeground: AbstractColor;
-    public attribute selectedCellBackground: AbstractColor;
-    public attribute selectedCellForeground: AbstractColor;
-
-    public attribute enableDND: Boolean on replace {
-        if (enableDND) {
-            if (transferHandler == null) {
-                UIElement.context.addTransferHandler(list,
-                    dropType,
-                    com.sun.javafx.api.ui.ValueGetter {
-                        public function get():Object {
-                            return getDragValue();
-                        }
-                    },
-                    com.sun.javafx.api.ui.ValueSetter {
-                        public function set(value:Object):Void {
-                            setDropValue(value);
-                        }
-                    },
-                    com.sun.javafx.api.ui.ValueAcceptor {
-                        public function accept(value:Object):Boolean {
-                            return acceptDrop(value);
-                        }
-                        public function dragEnter(value:Object):Void{/* empty */ }
-                        public function dragExit(value:Object):Void{/* empty */ }
-                    },
-                    com.sun.javafx.api.ui.VisualRepresentation {
-                        public function getComponent(value:Object):java.awt.Component {
-                            var label = Label {
-                                opaque: true
-                                border: LineBorder {
-                                    lineColor: Color.BLACK
-                                }
-                                text: getDragText()
-                            };
-                            return label.getComponent();
-                        }
-                        public function getIcon(list:Object):javax.swing.Icon { return null; }
-                    });
-                transferHandler = list.getTransferHandler();
-            }
-            list.setDragEnabled(true);
-        } else {
-            list.setDragEnabled(false);
+    public attribute cellBackground: AbstractColor on replace {
+        if(list <> null) {
+            list.setCellRenderer(makeCellRenderer());
         }
     };
+    public attribute cellForeground: AbstractColor on replace {
+        if(list <> null) {
+            list.setCellRenderer(makeCellRenderer());
+        }
+    };
+    public attribute selectedCellBackground: AbstractColor on replace {
+        if(list <> null) {
+            list.setCellRenderer(makeCellRenderer());
+        }
+    };
+    public attribute selectedCellForeground: AbstractColor on replace {
+        if(list <> null) {
+            list.setCellRenderer(makeCellRenderer());
+        }
+    };
+
+
     /** 
      * If true the list will not reflect changes to its cells attribute. 
      * When changed back to false synchronization will occur. Can be used 
@@ -245,7 +443,9 @@ public class ListBox extends ScrollableWidget {
             list.removeListSelectionListener(selectionListener);
             list.setSelectedIndex(selection.intValue());
             if (selection >= 0) {
-                cells[old.intValue()].selected = false;
+                if(old >= 0) {
+                    cells[old.intValue()].selected = false;
+                }
                 cells[selection.intValue()].selected = true;
                 list.ensureIndexIsVisible(selection.intValue());
             }
@@ -361,21 +561,7 @@ public class ListBox extends ScrollableWidget {
             list.addMouseListener(listMouseListener);
         }
     };
-    /**
-     * Optional handler called when the user drops an object into this list.
-     */
-    public attribute onDrop: function(e:ListDropEvent);
-    /**
-     * Optional filter for the types of objects that may be dropped into this
-     * list.
-     */
-    public attribute dropType: java.lang.Class;
-    /**
-     * <code>attribute acceptDrop: function(value): Boolean</code><br></br>
-     * Optional handler called when the user drops an object into this list.
-     * If it returns false, the drop is rejected. 
-     */
-    public attribute canAcceptDrop: function(e:ListDropEvent):Boolean;
+
 
     public function locationToIndex(x:Number, y:Number):Integer {
         return list.locationToIndex(new java.awt.Point(x.intValue(), y.intValue()));
@@ -384,29 +570,9 @@ public class ListBox extends ScrollableWidget {
         var pt = list.indexToLocation(i.intValue());
         return XY {x: pt.getX(), y: pt.getY()};
     }
-
-    public function createView():javax.swing.JComponent {
-        layoutOrientation = ListLayoutOrientation.VERTICAL;
-        list = javax.swing.JList{};
-        //TODO MULTIPLE SELECTION
-        // fix me...
-        list.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        selection = -1;
-        listmodel = javax.swing.ListModel {
-            public function getSize():Integer {
-                return sizeof cells;
-            }
-            public function getElementAt(i:Integer):Object {
-                return cells[i];
-            }
-            public function addListDataListener(l:javax.swing.event.ListDataListener):Void {
-                insert l into listeners;
-            }
-            public function removeListDataListener(l:javax.swing.event.ListDataListener):Void {
-                delete l from listeners;
-            }
-        };
-        list.setCellRenderer(javax.swing.ListCellRenderer {
+    
+    private function makeCellRenderer():javax.swing.ListCellRenderer{
+            javax.swing.ListCellRenderer {
                  public function getListCellRendererComponent(jlist:javax.swing.JList, obj:Object,
                                                         i:Integer, selected:Boolean, focused:Boolean):java.awt.Component {
                      var listCell = obj as ListCell;
@@ -442,10 +608,33 @@ public class ListBox extends ScrollableWidget {
                     //label.setOpaque(list.isOpaque());
                     return label;
                  }
-                 public function equals(o:Object):Boolean {
-                     return o == this;
-                 }
-             });
+             };
+    }
+
+    public function createView():javax.swing.JComponent {
+        layoutOrientation = ListLayoutOrientation.VERTICAL;
+        list = javax.swing.JList{};
+        list.setDragEnabled(enableDND);
+        UIElement.context.setDropMode(dropMode.id, list);
+        //TODO MULTIPLE SELECTION
+        // fix me...
+        list.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        selection = -1;
+        listmodel = javax.swing.ListModel {
+            public function getSize():Integer {
+                return sizeof cells;
+            }
+            public function getElementAt(i:Integer):Object {
+                return cells[i];
+            }
+            public function addListDataListener(l:javax.swing.event.ListDataListener):Void {
+                insert l into listeners;
+            }
+            public function removeListDataListener(l:javax.swing.event.ListDataListener):Void {
+                delete l from listeners;
+            }
+        };
+        list.setCellRenderer(makeCellRenderer());
              //TODO ToolTip
         //javax.swing.ToolTipManager.sharedInstance().registerComponent(list);
         list.setModel(listmodel);
@@ -457,6 +646,12 @@ public class ListBox extends ScrollableWidget {
                   }
               }
           };
+          
+        if (transferHandler == null) {
+            addTransferHandler();
+        }else {
+              list.setTransferHandler(transferHandler);
+        }          
         //do later {
             locked = false;
         //}

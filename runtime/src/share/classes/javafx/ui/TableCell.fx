@@ -119,6 +119,10 @@ public class TableCell {
             }
         } 
     };
+    
+    public function toString():String {
+        return text;
+    }
 }
 
 

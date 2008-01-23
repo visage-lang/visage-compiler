@@ -47,8 +47,11 @@ public class TreeCell {
 
 
     public attribute text: String on replace {
+        if(dragText == null or dragText == "")
+            dragText = text;
         this.getTree().fireNodeValueChanged(this);
     };
+    public attribute dragText: String;
     public attribute toolTipText: String;
     public attribute cells: TreeCell[]
         on insert [ndx] (row) {
@@ -82,6 +85,10 @@ public class TreeCell {
             }
         }        
     };
+    
+    public function toString():String {
+        return text;
+    }
 
 }
 

@@ -84,6 +84,10 @@ public class ListCell {
             }
         }
     };
+    
+    public function toString():String {
+        return text;
+    }
 }
 
 
