@@ -190,7 +190,8 @@ public class SequenceMutator {
      */
     public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
                                                T value, int position) {
-        if (position < 0 || position >= target.size())
+        // Extra validity check needed for insertBefore
+        if (position >= target.size())
             return target;
         else
             return replaceSlice(target, listener, position, position-1, value);
@@ -202,7 +203,11 @@ public class SequenceMutator {
      */
     public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
                                                Sequence<? extends T> values, int position) {
-        return replaceSlice(target, listener, position, position-1, values);
+        // Extra validity check needed for insertBefore
+        if (position >= target.size())
+            return target;
+        else
+            return replaceSlice(target, listener, position, position-1, values);
     }
 
     /**
@@ -320,7 +325,7 @@ public class SequenceMutator {
         int curPos = firstBit > 0 ? firstBit : 0;
         for (int i = firstBit, j = bits.nextSetBit(i + 1); i >= 0; i = j, j = bits.nextSetBit(j + 1)) {
             nextValue = replaceSlice(nextValue, listener, curPos, curPos-1, values);
-            curPos += ((j > 0) ? (j - i) : (target.size() - i)) + values.size();
+            curPos += ((j > 0) ? (j - i) : (target.size() - i)) + Sequences.size(values);
         }
         return nextValue;
     }
@@ -333,7 +338,7 @@ public class SequenceMutator {
         assert (bits.cardinality() > 1);
         Sequence<T> nextValue = target;
         for (int j = bits.nextSetBit(0), iteration=0; j >= 0; j = bits.nextSetBit(j + 1), iteration++) {
-            int curPos = j + (iteration * values.size()) + 1;
+            int curPos = j + (iteration * Sequences.size(values)) + 1;
             nextValue = replaceSlice(nextValue, listener, curPos, curPos-1, values);
         }
         return nextValue;

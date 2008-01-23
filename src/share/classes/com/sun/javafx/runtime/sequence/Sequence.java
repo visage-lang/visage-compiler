@@ -134,12 +134,6 @@ public interface Sequence<T> extends Iterable<T> {
 
     /** Reverse the elements of the sequence */
     public Sequence<T> reverse();
-    
-    /** Is this sequence equal to the specified sequence?  Two sequences are equal if their element types are equal,
-     * their sizes are equal, and for each 0 <= n < size(), the nth element of each are equal according to the element's
-     * equals() method.  Sequences implement an equals() method that uses isEqual().  
-     */
-    public boolean isEqual(Sequence<T> other);
 
     /** Many sequences are represented as trees to reduce copying costs; if the current sequence has depth > 0, 
      * copy the elements into a new sequence of depth == 0.

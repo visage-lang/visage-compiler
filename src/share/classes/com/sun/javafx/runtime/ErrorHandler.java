@@ -15,6 +15,10 @@ public class ErrorHandler {
         return strict;
     }
 
+    public static boolean isDebug() {
+        return debug;
+    }
+
     /** Called when attempting to insert an element into a sequence at an out-of-bounds location */
     public static<T> void outOfBoundsInsert(Sequence<T> seq, int index, T value) {
 
@@ -42,9 +46,9 @@ public class ErrorHandler {
 
     /** Called when attempting to coerce a null numeric or boolean value to a primitive */
     public static void nullToPrimitiveCoercion(String type) {
-        if (strict)
+        if (isStrict())
             throw new NullPointerException("strict: cannot assign null to " + type);
-        else if (debug)
+        else if (isDebug())
             System.err.println("Coercing " + type + " to null");
 
     }

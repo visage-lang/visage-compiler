@@ -50,6 +50,10 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
         $value = Sequences.emptySequence(clazz);
     }
 
+    protected static boolean equals(Sequence a, Sequence b) {
+        return ((a == null) && (b == null)) || ((a != null) && a.equals(b));
+    }
+
     public void addChangeListener(SequenceReplaceListener<T> listener) {
         if (replaceListeners == null)
             replaceListeners = new ArrayList<SequenceReplaceListener<T>>();

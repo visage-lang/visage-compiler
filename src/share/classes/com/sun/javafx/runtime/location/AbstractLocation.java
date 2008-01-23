@@ -261,10 +261,6 @@ public abstract class AbstractLocation implements Location {
         }
     }
 
-    protected static boolean equals(Object a, Object b) {
-        return ((a == null) && (b == null)) || ((a != null) && a.equals(b));
-    }
-
     // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
     int getListenerCount() {
         purgeDeadDependencies();
