@@ -1,0 +1,4 @@
+This demo implements a JavaFX version of the BasicDnD example,
+found in "Introduction to Drag and Drop and Data Transfer" @
+"http://java.sun.com/docs/books/tutorial/uiswing/dnd/intro.html".
+
