@@ -25,6 +25,7 @@
 
 package com.sun.javafx.api.ui;
 
+import com.sun.javafx.runtime.sequence.Sequence;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -36,6 +37,7 @@ import java.awt.dnd.*;
 import javax.swing.*;
 import java.io.File;
 import java.util.List;
+import javax.swing.tree.TreePath;
 
 abstract public class ValueTransferHandler extends TransferHandler {
 
@@ -58,7 +60,12 @@ abstract public class ValueTransferHandler extends TransferHandler {
     
     @Override
     protected Transferable createTransferable(JComponent c) {
-        return new ValueSelection(exportValue(c));
+        Object t = exportValue(c);
+        if(t != null) {
+            return new ValueSelection(t);
+        }else {
+            return null;
+        }
     }
     
     @Override
@@ -77,12 +84,13 @@ abstract public class ValueTransferHandler extends TransferHandler {
                         String s = (String)t.getTransferData(flavors[i]);
                         importValue(c, s);
                         return true;
-                    } else if (flavors[i].equals(DataFlavor.javaFileListFlavor)) {
+                    /***} else if (flavors[i].equals(DataFlavor.javaFileListFlavor)) {
                         List list = (List)t.getTransferData(flavors[i]);
                         File[] arr = new File[list.size()];
                         list.toArray(arr);
                         importValue(c, arr);
                         return true;
+                     * ****/
                     } else {
                         Object obj = t.getTransferData(flavors[i]);
                         importValue(c, obj);
@@ -153,7 +161,15 @@ abstract public class ValueTransferHandler extends TransferHandler {
         try {
             for (int i = 0; i < flavors.length; i++) {
                 DataFlavor f = flavors[i];
-                if (f.equals(DataFlavor.stringFlavor)) {
+                if(f.equals(ValueSelection.SEQUENCE_FLAVOR)) {
+                    if (type == null || type == Sequence.class) {
+                        if (t == null) {
+                            return true;
+                        }
+                        Object obj = t.getTransferData(f);
+                        return canImport(obj);
+                    }                    
+                } else if (f.equals(DataFlavor.stringFlavor)) {
                     if (type == null || type == String.class) {
                         if (t == null) {
                             return true;
@@ -168,10 +184,36 @@ abstract public class ValueTransferHandler extends TransferHandler {
                         }
                         
                         List list = (List)t.getTransferData(f);
-                        return canImport(list.toArray());
+                        return canImport(list);
                     }
+                } else if (f.equals(ValueSelection.COLOR_FLAVOR)) {
+                    if (type == null || type == Color.class ) {
+                        if (t == null) {
+                            return true;
+                        }
+                        
+                        Color color = (Color)t.getTransferData(f);
+                        return canImport(color);
+                    }
+                } else if (f.equals(ValueSelection.TREEPATH_FLAVOR)) {
+                    if (type == null || type == TreePath.class ) {
+                        if (t == null) {
+                            return true;
+                        }
+                        
+                        TreePath path = (TreePath)t.getTransferData(f);
+                        return canImport(path);
+                    }                    
+                } else if (f.equals(DataFlavor.imageFlavor)) {
+                    if (type == null || type == Image.class || type == ImageIcon.class) {
+                        if (t == null) {
+                            return true;
+                        }
+                        
+                        Image image = (Image)t.getTransferData(f);
+                        return canImport(image);
+                    }                    
                 } else {
-                    //System.out.println("got data flavor: " + f);
                     if (t == null) {
                         return true;
                     }
@@ -345,7 +387,7 @@ abstract public class ValueTransferHandler extends TransferHandler {
     }
         
     static TransferHandler getTransferHandler(JComponent c) {
-        return (TransferHandler)c.getClientProperty("JComponent_TRANSFER_HANDLER");
+        return c.getTransferHandler();
     }
 
     SwingDragGestureRecognizer recognizer;

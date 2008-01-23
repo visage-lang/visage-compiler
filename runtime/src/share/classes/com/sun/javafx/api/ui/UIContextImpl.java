@@ -35,6 +35,7 @@ import java.io.*;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -2099,14 +2100,12 @@ public class UIContextImpl implements UIContext {
                 Object dragValue = null;
 
                 public boolean canImport(Object valueList) {
-                    System.out.println("can import " + comp);
                     dragValue = valueList;
                     boolean result = acceptor == null ? importer != null : acceptor.accept(valueList);
                     return result;
                 }
 
                 protected void notifyDragEnter() {
-                    //System.out.println("notify drag enter " + comp);
                     if (acceptor != null) {
                         acceptor.dragEnter(null);
                     }
@@ -2116,7 +2115,6 @@ public class UIContextImpl implements UIContext {
                 }
 
                 protected void notifyDragExit() {
-                    //System.out.println("notify drag exit");
                     if (acceptor != null) {
                         acceptor.dragExit(null);
                     }
@@ -2134,14 +2132,12 @@ public class UIContextImpl implements UIContext {
                 }
 
                 protected void importValue(JComponent c, Object value) {
-                    System.out.println("import value" + c);
                     if (importer != null) {
                         importer.set(value);
                     }
                 }
 
                 protected void cleanup(JComponent c, boolean remove) {
-                    //System.out.println("cleanup called");
                     Object value = dragValue;
                     dragValue = null;
                     if (remove) {
@@ -2166,8 +2162,9 @@ public class UIContextImpl implements UIContext {
                     return null;
                 }
             };
-            comp.putClientProperty("JComponent_TRANSFER_HANDLER", handler);
-            handler.installDropTargetListener(comp);
+            //comp.putClientProperty("JComponent_TRANSFER_HANDLER", handler);
+            comp.setTransferHandler(handler);
+            //handler.installDropTargetListener(comp);
 
         } catch (SecurityException securityException) {
             // applet running in 1.5, give up...
@@ -2623,6 +2620,123 @@ public class UIContextImpl implements UIContext {
             cacheDir = null;
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    private static Object[] dropClassEnums;
+    private static Method setDropModeJList = null;
+    private static Method setDropModeJTable = null;
+    private static Method setDropModeJTree = null;
+    private static Method setDropModeJTextComponent = null;
+    private static Method convertRowIndexToModelMethod = null;
+    private static Method convertRowIndexToViewMethod = null;
+    
+    static {
+        try {
+            Class dropModeClass = Class.forName("javax.swing.DropMode");
+            dropClassEnums = dropModeClass.getEnumConstants();
+            
+            try {
+                Class klass = Class.forName("javax.swing.JList");
+                setDropModeJList = klass.getDeclaredMethod("setDropMode", dropModeClass);
+                klass = Class.forName("javax.swing.JTable");
+                setDropModeJTable = klass.getDeclaredMethod("setDropMode", dropModeClass);
+                convertRowIndexToModelMethod = klass.getDeclaredMethod("convertRowIndexToModel", Integer.TYPE);
+                convertRowIndexToViewMethod  = klass.getDeclaredMethod("convertRowIndexToView", Integer.TYPE);
+                klass = Class.forName("javax.swing.JTree");
+                setDropModeJTree = klass.getDeclaredMethod("setDropMode", dropModeClass);
+                klass = Class.forName("javax.swing.text.JTextComponent");
+                setDropModeJTextComponent = klass.getDeclaredMethod("setDropMode", dropModeClass);                
+            }catch(NoSuchMethodException ex) {
+                dropClassEnums = null;
+                ex.printStackTrace();
+            }
+            
+        }catch(ClassNotFoundException ignore) {
+            // ignore this is jdk 1.5
+        }
+    }
+    
+    /**
+     *  In JDK 1.6, table rows can be sorted, so this provides a map
+     *  of the view row to the model row.
+     *  For JDK 1.5, this just returns row.
+     * @param table
+     * @param row
+     * @return the model row.
+     */
+    public int convertRowIndexToModel(JTable table, int row) {
+        if(convertRowIndexToModelMethod != null) {
+            try {
+                Integer result = (Integer) convertRowIndexToModelMethod.invoke(table, row);
+                return result.intValue();
+            } catch (IllegalAccessException ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InvocationTargetException ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return -1;
+        }else {
+            return row;
+        }
+    }
+    
+    /**
+     *  In JDK 1.6, table rows can be sorted, so this provides a map
+     *  of the model row to the view row.
+     *  For JDK 1.5, this just returns row.
+     * @param table
+     * @param row
+     * @return the view row.
+     */    
+    public int convertRowIndexToView(JTable table, int row) {
+        if(convertRowIndexToViewMethod != null) {
+            try {
+                Integer result = (Integer) convertRowIndexToViewMethod.invoke(table, row);
+                return result.intValue();
+            } catch (IllegalAccessException ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InvocationTargetException ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return -1;
+        }else {
+            return row;
+        }  
+    }
+    
+    /**
+     * Supports setting the Drop mode when using JDK 1.6
+     * FOR JDK 1.6 this sets the DropMode on the component
+     * FOR JDK 1.5 this does nothing.
+     * 
+     * @param id the DropMode identifier that maps to the order or the javax.swing.DropMode enums
+     * @param component the component
+     */
+    public void setDropMode(int id, Object component)  {
+        if(dropClassEnums != null) { // Only defined in 1.6
+            Object dropEnum = dropClassEnums[id];
+            try {            
+                if(component instanceof JList) {
+                    setDropModeJList.invoke(component, dropEnum);
+                }else if(component instanceof JTable) {
+                    setDropModeJTable.invoke(component, dropEnum);
+                }else if(component instanceof JTree) {
+                    setDropModeJTree.invoke(component, dropEnum);
+                }else if(component instanceof javax.swing.text.JTextComponent) {
+                    setDropModeJTextComponent.invoke(component, dropEnum);
+                }
+            } catch (IllegalAccessException ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InvocationTargetException ex) {
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }            
         }
     }
 

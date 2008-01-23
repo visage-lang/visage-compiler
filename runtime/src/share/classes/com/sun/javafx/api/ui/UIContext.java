@@ -110,4 +110,7 @@ public interface UIContext {
     public JTree createTree();
     public void installXTableCellRenderer(JTable table);
     public void installTableHeaderRenderer(JTable table);
+    public int convertRowIndexToModel(JTable table, int row);
+    public int convertRowIndexToView(JTable table, int row);
+    public void setDropMode(int id, Object component);
 }
