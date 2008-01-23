@@ -132,7 +132,7 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
         docenv.setLocale(doclocale);
         docenv.setEncoding(encoding);
         docenv.docClasses = docClasses;
-        docenv.legacyDoclet = legacyDoclet;
+        docenv.legacyDoclet = true; // legacyDoclet;  always true for FX classes
         clsreader.sourceCompleter = docClasses ? null : this;
 
         ListBuffer<String> filenames = new ListBuffer<String>();
