@@ -2524,6 +2524,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     block.value = app;
                     fresult = block;
                 }
+                // If we are to yield a Location, and this isn't going to happen as
+                // a return of using a bound call (for example, if this is a Java call)
+                // then convert into a Location
+                if (state.wantLocation() && !callBound && msym != null) {
+                    TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(msym.getReturnType());
+                    fresult = makeIntoLocation(diagPos, returnTypeInfo, fresult);
+                }
                 if (testForNull && !selector.type.isPrimitive()) {
                     // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
                     JCExpression cond = make.at(diagPos).Binary(JCTree.NE, translate(selector), make.Literal(TypeTags.BOT, null));
@@ -2541,10 +2548,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     } else {
                         // it has a non-void return type, convert it to a conditional expression
                         // if it would dereference null, then instead give the default value
-                        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(msym.getReturnType());
-                        JCExpression defaultExpr = makeDefaultValue(diagPos, tmi);
+                        TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(msym.getReturnType());
+                        JCExpression defaultExpr = makeDefaultValue(diagPos, returnTypeInfo);
                         if (state.wantLocation()) {
-                            defaultExpr = makeIntoLocation(diagPos, tmi, defaultExpr);
+                            defaultExpr = makeIntoLocation(diagPos, returnTypeInfo, defaultExpr);
                         }
                         return make.at(diagPos).Conditional(cond, fresult, defaultExpr);
                     }
