@@ -213,8 +213,7 @@ public class JavafxInitializationBuilder {
                                   "$oldValue$")), 
                     TypeTags.VOID));
         }
-        else if (onReplace != null &&
-                (onReplace.getLastIndex() != null || onReplace.getNewElements() != null)) {
+        else if (types.isSequence(info.type())) {
             ListBuffer<JCStatement> setUpStmts = ListBuffer.lb();
             changeListener = make.at(diagPos).Identifier(sequenceReplaceListenerInterfaceName);
             changeListener = make.TypeApply(changeListener, List.of(toJava.makeTypeTree(info.elemType(), diagPos)));
