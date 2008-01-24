@@ -356,16 +356,18 @@ public abstract class Node extends CanvasElement, Transformable {
                 // due to scenario methods being non-public
                 //
                 public function getBounds(transform:AffineTransform):Rectangle2D {
-                    var b = getChild().getBounds(transform);
                     var s = getShape();
                     if (s <> null) {
+                        var b = getChild().getBounds(transform);
                         var clipBounds = s.getBounds2D();
                         if (transform <> null) {
                             clipBounds = transform.createTransformedShape(clipBounds).getBounds2D();
                         }
                         b = clipBounds.createIntersection(b);
+                        return b;
+                    } else {
+                        return getChild().getBounds(transform);
                     }
-                    return b;
                 }
                 
             };
@@ -431,6 +433,7 @@ public abstract class Node extends CanvasElement, Transformable {
             currentY = b.getY();
             currentWidth = b.getWidth();
             currentHeight = b.getHeight();
+            //alignmentFilter.setPickable(selectable);
         }
         return alignmentFilter;
     }
@@ -450,12 +453,7 @@ public abstract class Node extends CanvasElement, Transformable {
     // public:
     /** Determines whether this node responds to mouse events, or other picking functions. */
     public attribute selectable: Boolean  = true on replace  {
-        // TODO: are these needed
-        /*
-        sg.setPickable(value);
-        tg.setPickable(value);
-        ag.setPickable(value);
-        */
+        //alignmentFilter.setPickable(selectable);
     };
     public attribute isSelectionRoot: Boolean on replace {
         if (isSelectionRoot) {

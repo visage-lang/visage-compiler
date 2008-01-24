@@ -33,31 +33,42 @@ import com.sun.scenario.scenegraph.SGShape;
  * and <code>(x2,&nbsp;y2)</code>.
  */
 public class Line extends Shape {
-    private attribute awtLine: java.awt.geom.Line2D.Double;
+
+    private attribute awtLine: java.awt.geom.Line2D;
+
+    private function updateLine():Void {
+        if (awtLine <> null) {
+            awtLine.setLine(x1, y1, x2, y2);
+            if (sgshape <> null) {
+                sgshape.setShape(awtLine);
+            }
+        }
+    }
 
     /** The first point's <i>x</i> coordinate. */
     public attribute x1: Number on replace {
-        awtLine.setLine(x1, y1, x2, y2);
-        sgshape.setShape(awtLine);
+        updateLine();
     };
+
     /** The first point's <i>y</i> coordinate. */
     public attribute y1: Number on replace {
-        awtLine.setLine(x1, y1, x2, y2);
-        sgshape.setShape(awtLine);
+        updateLine();
     };
+
     /** The second point's <i>x</i> coordinate. */
     public attribute x2: Number on replace {
-        awtLine.setLine(x1, y1, x2, y2);
-        sgshape.setShape(awtLine);
+        updateLine();
     };
+
     /** The second point's <i>y</i> coordinate. */
     public attribute y2: Number on replace {
-        awtLine.setLine(x1, y1, x2, y2);
-        sgshape.setShape(awtLine);
+        updateLine();
     };
+
     public function createShape(): SGShape {
-        awtLine = new java.awt.geom.Line2D.Double(x1, y1, x2, y2);
         var sgshape = new SGShape();
+        awtLine = new java.awt.geom.Line2D.Double();
+        updateLine();
         sgshape.setShape(awtLine);
         return sgshape;
     }

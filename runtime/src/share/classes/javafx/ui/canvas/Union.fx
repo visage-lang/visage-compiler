@@ -43,12 +43,18 @@ public class Union extends Shape {
             if (sizeof content == 1) {
                sgshape.setShape(content[0].getTransformedShape());
             } else if (sizeof content > 1) {
-                var area = new java.awt.geom.Area(content[0].getTransformedShape());
+                var s0 = content[0].getTransformedShape();
+                if (s0 == null) {
+                    s0 = new java.awt.geom.Rectangle2D.Double();
+                }
+                var area = new java.awt.geom.Area(s0);
                 var i = 0;
                 for (c in content) {
                     if (i > 0) {
                         var s1 = c.getTransformedShape();
-                        area.add(new java.awt.geom.Area(s1));
+                        if (s1 <> null) {
+                            area.add(new java.awt.geom.Area(s1));
+                        }
                     }
                     i = i + 1;
                 }

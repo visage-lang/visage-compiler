@@ -49,15 +49,32 @@ import com.sun.javafx.api.ui.path.ext.awt.geom.PathLength.PathSegment;
 public abstract class Shape extends VisualNode, AbstractPathElement {
     protected attribute sgshape: SGShape;
     protected abstract function createShape(): SGShape; // TODO: could return Shape here instead?
-    public function getShape(): SGShape{
+    public function getShape(): SGShape {
         if (sgshape == null) {
             sgshape = this.createShape();
+            // fix  me: this fails to handle modifications to shape
+            awtTransformedShape = affineTransform.createTransformedShape(sgshape.getShape());
             sgshape.setAntialiasingHint(java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
         }
         return sgshape;
     }
-    public function getTransformedShape(): java.awt.Shape{
-        return if (awtTransformedShape == null) then getAWTShape() else awtTransformedShape;
+    protected attribute affineTransform:AffineTransform on replace {
+            // fix  me: this fails to handle modifications to shape
+           awtTransformedShape = 
+               affineTransform.createTransformedShape(getShape().getShape());
+    }
+    public function getTransformedShape(): java.awt.Shape {
+        getNode(); // hack
+        if (awtTransformedShape == null) {
+            var t = affineTransform;
+            var s = getShape().getShape();
+            if (t <> null) {
+                awtTransformedShape = t.createTransformedShape(s);
+            } else {
+                awtTransformedShape = s;
+            }
+        }
+        return awtTransformedShape;
     }
     public attribute outline: Boolean = false;
     public function length(): Number {
@@ -115,40 +132,8 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
     }
     public attribute fillRule: FillRule;
     private attribute pathLength: PathLength = bind lazy new PathLength(awtTransformedShape);
-    private attribute awtTransformedShape: java.awt.Shape  = 
-                bind lazy getAWTTransformedShape(awtTransform, awtShape);
-    private attribute awtShape: java.awt.Shape;
-    private attribute awtTransform: AffineTransform;
-    //private attribute transformListener: ZTransformListener; // TODO: implement?
-    private function getAWTTransformedShape(t:AffineTransform, s:java.awt.Shape):java.awt.Shape{
-        return t.createTransformedShape(s);
-    }
-    // TODO: implement properly
-    private function getAWTShape(): java.awt.Shape{
-        getNode();
-    /*
-        if (transformListener == null) {
-            var self = this;
-            zshape.addChangeListener(new ChangeListener() {
-                    function stateChanged(e) {
-                        self.awtShape = null;
-                        self.awtShape = self.zshape.getShape();
-                    }
-            });
-            transformListener = new ZTransformListener() {
-                    function transformChanged(e) {
-                        self.awtTransform = self.tg.getTransform();
-                    }
-                };
-            tg.addTransformListener(transformListener);
-        }
-    */
-        awtTransform = new AffineTransform();
-        transformFilter.getTransform(awtTransform);
-        awtShape = getShape().getShape();
-        return awtTransformedShape;
-    }
-
+    private attribute awtTransformedShape: java.awt.Shape;
+    
     /*
     function Shape.transformAtUnitInterval(ui: Number) {
         return transformAt(ui*length());
