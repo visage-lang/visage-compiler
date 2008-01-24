@@ -2755,11 +2755,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             public JCTree doit() {
                 switch (tree.getTag()) {
                     case JavafxTag.SIZEOF:
-                        if (types.isSequence(expr.type)) {
-                            return callExpression(diagPos, transExpr, "size");
-                        } else {
-                            return callExpression(diagPos, makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"), "size", transExpr);
-                        }
+                        return callExpression(diagPos, makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"), "size", transExpr);
                     case JCTree.PREINC:
                         return doIncDec(JCTree.PLUS, false);
                     case JCTree.PREDEC:
