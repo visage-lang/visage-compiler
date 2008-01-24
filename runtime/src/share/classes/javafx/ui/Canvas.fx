@@ -53,7 +53,7 @@ public class Canvas extends Widget, CanvasElement, Container {
     // private:
     public attribute scaleToFitList: Node[];
     public attribute sizeToFitList: SizeableCanvasElement[];
-    public attribute jsgpanel: JSGPanel = new JSGPanel();
+    public attribute jsgpanel: JSGPanel;
     protected attribute root: SGGroup;   
     protected attribute focusRect: Rect;
     protected attribute focusBounds: Rectangle2D  = bind if (focusedNode == null) null else focusedNode.bounds;
@@ -364,13 +364,35 @@ public class Canvas extends Widget, CanvasElement, Container {
 
     public function createComponent():javax.swing.JComponent {
         root = new SGGroup();
+        jsgpanel = JSGPanel {
+            attribute prefSize:java.awt.Dimension;
+            public function setPreferredSize(d:java.awt.Dimension):Void {
+                // hack 
+                prefSize = d;
+            }
+            public function getPreferredSize():java.awt.Dimension {
+                //if (isPreferredSizeSet()) {
+                //    return super.getPreferredSize(); // fails to compile
+                //}
+                if (prefSize <> null) {return prefSize;}
+                var b = root.getBounds();
+                var insets = getInsets();
+                var w:Number = insets.left + insets.right;
+                var h:Number = insets.top + insets.bottom;
+                w += b.getX() + b.getWidth() + 0.5;
+                h += b.getY() + b.getHeight() + 0.5;
+                return new java.awt.Dimension(w.intValue(),
+                                              h.intValue());
+                
+            }
+        };
         jsgpanel.setCursor(java.awt.Cursor.getDefaultCursor());
         jsgpanel.setOpaque(false);
-        jsgpanel.setScene(root);
         for (i in content) {
             i.parentCanvasElement = this;
             root.add(i.getNode());
         }
+        jsgpanel.setScene(root);
         var hoverListener = new FXMouseListener();
         jsgpanel.addMouseListener(hoverListener);
         jsgpanel.addMouseMotionListener(hoverListener);

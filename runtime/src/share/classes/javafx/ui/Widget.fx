@@ -357,18 +357,18 @@ public abstract class Widget extends GroupElement, UIElement {
     /**
      * Sets the background color of this component.
      */
-    public attribute background: AbstractColor on replace {
+    public attribute background: Color on replace {
         if (component <> null) {
             var c = this.getNonScrollPaneComponent();
             if (background <> null) {
                 opaque = true;
             }
-            //c.setBackground(awtBackground);
+            c.setBackground(awtBackground);
         }
     };
 
    
-    protected attribute awtBackground: java.awt.Color /*TODO:JFXC-329 = bind if (background == null) null else background.getColor()*/;
+    protected attribute awtBackground: java.awt.Color = bind if (background == null) null else background.getColor();
     /**
      * Sets the foreground color of this component.
      */
@@ -376,12 +376,12 @@ public abstract class Widget extends GroupElement, UIElement {
         if (component <> null) {
             var c = this.getNonScrollPaneComponent();
             if (foreground <> null) {
-                //c.setForeground(awtForeground);
+                c.setForeground(awtForeground);
             }
         }
     };
     
-    protected attribute awtForeground: java.awt.Color /*TODO:JFXC-329 = bind if (foreground == null) null else foreground.getColor()*/;
+    protected attribute awtForeground: java.awt.Color = bind if (foreground == null) null else foreground.getColor();
     
     /**
      * If true the component paints every pixel within its bounds. 
@@ -397,10 +397,10 @@ public abstract class Widget extends GroupElement, UIElement {
      */
     public attribute font: Font;
     
-    protected attribute awtFont: java.awt.Font /*TODO:JFXC-329 = bind if (font == null) null else font.getFont()*/ on replace {
+    protected attribute awtFont: java.awt.Font = bind if (font == null) null else font.getFont() on replace {
         if (component <> null) {
             var c = this.getNonScrollPaneComponent();
-            //c.setFont(awtFont);
+            c.setFont(awtFont);
         }
     };
 
@@ -619,21 +619,20 @@ public abstract class Widget extends GroupElement, UIElement {
             if (cursor <> null) {
                 c.setCursor(cursor.getCursor());
             }
-            //TODO ToolTip Scenegraph
-            //if (toolTipText <> null ) {
-            //    c.setToolTipText(toolTipText);
-            //}
+            if (toolTipText <> null ) {
+                c.setToolTipText(toolTipText);
+            }
             c.setVisible(visible);
             c.setOpaque(opaque);
             if (background <> null) {
-                //c.setBackground(background.getColor());
+                c.setBackground(background.getColor());
                 c.setOpaque(true);
             }
             if (foreground <> null) {
-                //c.setForeground(foreground.getColor());
+                c.setForeground(foreground.getColor());
             }
             if (awtFont <> null) {
-                //c.setFont(awtFont);
+                c.setFont(awtFont);
             }
             if (focusable <> c.isFocusable()) {
                c.setFocusable(focusable);
@@ -706,21 +705,20 @@ public abstract class Widget extends GroupElement, UIElement {
             if (mouseWheelListener <> null) {
                 c.addMouseWheelListener(mouseWheelListener);
             }
-            //TODO how to tell if you need to override?
-            //if (x <> null or y <> null or height <> null or width <> null) {
+            if (x <> 0 or y <> 0 or height <> 0 or width <> 0) {
                 var bounds = comp.getBounds();
-                //if (x <> null) {
+                if (x <> 0) {
                     bounds.x = x.intValue();
-                //} 
-                //if (y <> null) {
+                } 
+                if (y <> 0) {
                     bounds.y = y.intValue();
-                //}
-                //f (width <> null) {
+                }
+                if (width <> 0) {
                     bounds.width = width.intValue();
-               // }
-                //if (height <> null) {
+                }
+                if (height <> 0) {
                     bounds.height = height.intValue();
-                //}
+                }
                 if (bounds.width == 0) {
                     bounds.width = comp.getPreferredSize().width;
                 }
@@ -728,7 +726,7 @@ public abstract class Widget extends GroupElement, UIElement {
                     bounds.height = comp.getPreferredSize().height;
                 }
                 comp.setBounds(bounds);
-            //}
+            }
             inBoundsListener = true;
             x = comp.getX();
             y = comp.getY();
