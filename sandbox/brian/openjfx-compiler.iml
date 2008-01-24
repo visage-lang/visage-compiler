@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module relativePaths="true" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/doc/compiler-impl-examples/extend-java-class" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/doc/compiler-impl-examples/inner-class" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/doc/compiler-impl-examples/method-dispatch" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/doc/compiler-impl-examples/mult-inheritance" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/doc/compiler-impl-examples/simple-attribute" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/runtime/src/share/classes" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/share/classes" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test/src" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/save" />
+    </content>
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="javac" level="project" />
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="library" name="ant" level="application" />
+    <orderEntry type="library" name="antlr-runtime-3.0.1" level="project" />
+    <orderEntry type="library" name="scenario" level="project" />
+    <orderEntry type="library" name="ant" level="application" />
+    <orderEntry type="library" name="junit-4.4" level="application" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/src/share/classes" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/build/sandbox" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="javafxrt" level="project" />
+    <orderEntryProperties />
+  </component>
+</module>
+
