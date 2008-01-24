@@ -2568,20 +2568,26 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 List<JCExpression> args;
                 if (callBound) {
                     ListBuffer<JCExpression> targs = ListBuffer.lb();
+                    List<Type> formal = formals;
                     for (JCExpression arg : tree.args) {
                         switch (arg.getTag()) {
                             case JavafxTag.IDENT:
                             case JavafxTag.SELECT:
                             case JavafxTag.APPLY:
-                                targs.append(translate(arg, Wrapped.InLocation));
-                                break;
+                                // A KLUDGE - we need to make sure Integer gets converted to Number,
+                                // since IntLocation can't get conevrfted to DoubleLocation.
+                                if (! (arg.type.tag == TypeTags.INT && formal.head.tag == TypeTags.DOUBLE)) {
+                                    targs.append(translate(arg, Wrapped.InLocation));
+                                    break;
+                                }
+                                // Otherwise, presumably a conversion will work.
                             default:
                                 {
                                     ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
                                     bindingExpressionDefs = ListBuffer.lb();
                                     targs.append(typeMorpher.buildExpression(
                                                                     arg.pos(), 
-                                                                    typeMorpher.typeMorphInfo(arg.type), 
+                                                                    typeMorpher.typeMorphInfo(formal.head),
                                                                     translateExpressionToStatement(arg, arg.type), 
                                                                     false, 
                                                                     typeMorpher.buildDependencies(arg)));
@@ -2590,6 +2596,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                     break;
                                 }
                         }
+                        formal = formal.tail;
                     }
                     args = targs.toList();
                 } else {
