@@ -88,19 +88,11 @@ public class Timeline {
             var list = new LinkedList();
             for (j in i.keyValues) {
                 var k = animator.createKeyValue(j.target,
-                                                j.value,
+                                                j.getValue(),
                                                 Evaluator {
                                                     public function evaluate(prop:Object, oldValue:Object, newValue:Object, t:Number):Object {
-                                                        if (j.interpolate == null) {
-                                                            if (t == 1.0) {
-                                                                Timeline.setTarget(j.target, j.value);
-                                                            } else {
-                                                                Timeline.setTarget(j.target, oldValue);
-                                                            }
-                                                        } else {
-                                                            Timeline.setTarget(j.target,
-                                                                               j.interpolate.interpolate(oldValue, j.value, t));
-                                                        }
+                                                        Timeline.setTarget(j.target,
+                                                                           j.getInterpolatedValue(oldValue, t));
                                                         return newValue;
                                                     }
                                                 });

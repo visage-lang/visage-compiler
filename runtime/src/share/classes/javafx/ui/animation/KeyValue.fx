@@ -24,12 +24,13 @@
  */ 
 
 package javafx.ui.animation;
-
+import com.sun.javafx.runtime.Pointer;
 import java.lang.Object;
 
-public class KeyValue {
-    public attribute target: Object;
-    public attribute value: Object;
-    public attribute interpolate: Interpolator;
+
+public abstract class KeyValue {
+    public attribute target: Pointer;
+    public abstract function getInterpolatedValue(oldValue: Object, t:Number):Object;
+    public abstract function getValue():Object;
 }
 

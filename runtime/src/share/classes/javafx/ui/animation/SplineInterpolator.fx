@@ -24,12 +24,10 @@
  */ 
 
 package javafx.ui.animation;
-
 import com.sun.scenario.animation.Interpolators;
 import java.lang.Object;
-import java.lang.Double;
 
-class SplineInterpolator extends Interpolator {
+public class SplineInterpolator extends NumberInterpolator {
     attribute x1: Number;
     attribute y1: Number;
     attribute x2: Number;
@@ -37,49 +35,17 @@ class SplineInterpolator extends Interpolator {
     attribute spline: com.sun.scenario.animation.Interpolator;
     init {
         spline = Interpolators.getSplineInstance(x1.floatValue(),
-                                        y1.floatValue(), 
-                                        x2.floatValue(), 
-                                        y2.floatValue());
+                                                 y1.floatValue(), 
+                                                 x2.floatValue(), 
+                                                 y2.floatValue());
     }
-    public function interpolate(oldValue:Object,
-                                newValue:Object,
-                                t:Number):Object 
+    public function interpolate(oldValue:Number,
+                                newValue:Number,
+                                t:Number):Number
     {
-    
-        return NUMBER.LINEAR.interpolate(oldValue, newValue,
-                                         spline.interpolate(t.floatValue()));
+        
+        return NumberValue.LINEAR.interpolate(oldValue, newValue,
+                                              spline.interpolate(t.floatValue()));
     }
 }
 
-public class NUMBER {
-    public static attribute LINEAR:Interpolator = Interpolator {
-        public function interpolate(oldValue:Object,
-                                    newValue:Object,
-                                    t:Number):Object 
-        {
-            var x1 = (oldValue as java.lang.Number).doubleValue(); // hack
-            var x2 = (newValue as java.lang.Number).doubleValue(); // hack
-            return x1 + (x2 - x1)*t;
-        }
-    };
-
-    public static function SPLINE(x1:Number,
-                                  y1:Number,
-                                  x2:Number,
-                                  y2:Number): Interpolator {
-        return SplineInterpolator {
-            x1: x1;
-            y1: y1;
-            x2: x2;
-            y2: y2;
-        };
-    }
-}
-
-public abstract class Interpolator {
-
-    public abstract function interpolate(oldValue:Object,
-                                         newValue:Object,
-                                         t:Number):Object;
-
-}
