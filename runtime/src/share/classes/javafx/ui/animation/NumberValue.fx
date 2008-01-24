@@ -27,6 +27,140 @@ package javafx.ui.animation;
 import com.sun.scenario.animation.Interpolators;
 import java.lang.Object;
 
+class QuadEaseIn extends NumberInterpolator {
+    private static function linear(oldValue:Number, newValue:Number, t:Number):Number {
+        return oldValue + (newValue-oldValue)*t;
+    }
+    public function interpolate(oldValue:Number, newValue:Number, t:Number):Number {
+        return linear(oldValue, newValue, t*t);
+    }
+}
+
+class QuadEaseOut extends NumberInterpolator {
+    private static function linear(oldValue:Number, newValue:Number, t:Number):Number {
+        return oldValue + (newValue-oldValue)*t;
+    }
+    public function interpolate(oldValue:Number, newValue:Number, t:Number):Number {
+        return linear(oldValue, newValue, -1*t*(t-2));
+    }
+}
+
+class QuadEaseBoth extends NumberInterpolator {
+    private static function linear(oldValue:Number, newValue:Number, t:Number):Number {
+        return oldValue + (newValue-oldValue)*t;
+    }
+    public function interpolate(oldValue:Number, newValue:Number, t:Number):Number {
+        t /= 0.5;
+        if (t < 1) {
+            t = 0.5*t*t;
+        } else {
+            t--;
+            t = -0.5 * (t*(t-2) - 1);
+        }
+        return linear(oldValue, newValue, t);
+    }
+}
+
+public class QuadEase {
+    public static attribute EASEIN = QuadEaseIn {};
+    public static attribute EASEOUT = QuadEaseOut {};
+    public static attribute EASEBOTH = QuadEaseBoth {};
+}
+
+class CubicEaseIn extends NumberInterpolator {
+    private static function linear(oldValue:Number, newValue:Number, t:Number):Number {
+        return oldValue + (newValue-oldValue)*t;
+    }
+    public function interpolate(oldValue:Number, newValue:Number, t:Number):Number {
+        return linear(oldValue, newValue, t*t*t);
+    }
+}
+
+class CubicEaseOut extends NumberInterpolator {
+    private static function linear(oldValue:Number, newValue:Number, t:Number):Number {
+        return oldValue + (newValue-oldValue)*t;
+    }
+    public function interpolate(oldValue:Number, newValue:Number, t:Number):Number {
+        t = t - 1;
+        return linear(oldValue, newValue, t*t*t + 1);
+    }
+}
+
+class CubicEaseBoth extends NumberInterpolator {
+    private static function linear(oldValue:Number, newValue:Number, t:Number):Number {
+        return oldValue + (newValue-oldValue)*t;
+    }
+    public function interpolate(oldValue:Number, newValue:Number, t:Number):Number {
+        t /= 0.5;
+        if (t < 1) {
+            t = 0.5*t*t*t;
+        } else {
+            t -= 2;
+            t = 0.5*(t*t*t+2);
+        }
+        return linear(oldValue, newValue, t);
+    }
+}
+
+public class CubicEase {
+
+    public static attribute EASEIN:NumberInterpolator = CubicEaseIn {};
+
+    public static attribute EASEOUT:NumberInterpolator = CubicEaseOut {};
+
+    public static attribute EASEBOTH:NumberInterpolator = CubicEaseBoth {};
+
+}
+
+
+class QuintEaseIn extends NumberInterpolator {
+    private static function linear(oldValue:Number, newValue:Number, t:Number):Number {
+        return oldValue + (newValue-oldValue)*t;
+    }
+
+    public function interpolate(oldValue:Number, newValue:Number, t:Number):Number {
+        return linear(oldValue, newValue, t*t*t*t*t);
+    }
+}
+
+class QuintEaseOut extends NumberInterpolator {
+    private static function linear(oldValue:Number, newValue:Number, t:Number):Number {
+        return oldValue + (newValue-oldValue)*t;
+    }
+
+    public function interpolate(oldValue:Number, newValue:Number, t:Number):Number {
+        t = t - 1;
+        return linear(oldValue, newValue, t*t*t*t*t + 1);
+    }
+}
+
+class QuintEaseBoth extends NumberInterpolator {
+    private static function linear(oldValue:Number, newValue:Number, t:Number):Number {
+        return oldValue + (newValue-oldValue)*t;
+    }
+
+    public function interpolate(oldValue:Number, newValue:Number, t:Number):Number {
+        t /= 0.5;
+        if (t < 1) {
+            t = 0.5*t*t*t*t*t;
+        } else {
+            t -= 2;
+            t = 0.5*(t*t*t*t*t+2);
+        }
+        return linear(oldValue, newValue, t);
+    }
+}
+
+public class QuintEase {
+    
+    public static attribute EASEIN:NumberInterpolator = QuintEaseIn {};
+
+    public static attribute EASEOUT:NumberInterpolator = QuintEaseOut {};
+
+    public static attribute EASEBOTH:NumberInterpolator = QuintEaseBoth {};
+
+}
+
 public class NumberValue extends KeyValue {
 
     public attribute value: Number;       

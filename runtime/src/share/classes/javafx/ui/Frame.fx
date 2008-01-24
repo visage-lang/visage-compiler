@@ -111,7 +111,6 @@ public class Frame extends AbstractFrame {
 		this.pack();
                 frame.getPreferredSize();
 		var dim = frame.getSize();
-                System.out.println("dim={dim}");
 		if (height <> UNSET) {
 		    dim.height = height.intValue();
 		}
