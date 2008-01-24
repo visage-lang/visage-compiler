@@ -5,7 +5,7 @@ import javafx.ui.canvas.*;
 import javafx.ui.filter.*;
 import java.lang.System;
 import javafx.ui.animation.*;
-import javafx.ui.animation.Interpolator.NUMBER;
+import javafx.ui.animation.*;
 import com.sun.javafx.runtime.PointerFactory;
 import com.sun.javafx.runtime.Pointer;
 import java.lang.Object;
@@ -15,7 +15,6 @@ var pf = PointerFactory {};
 
 Frame {
     title: "Ball";
-    height: 485; width: 802;
     onClose: function() { System.exit(0); }
     visible: true
     content:
@@ -87,7 +86,7 @@ Frame {
                         [KeyFrame {
                                 keyTime: 0s
                                 keyValues: 
-                                KeyValue {
+                                NumberValue {
                                     target: px;
                                     value: 0.0
                                 }
@@ -95,10 +94,10 @@ Frame {
                         KeyFrame {
                                 keyTime: 10s
                                 keyValues: 
-                                KeyValue {
+                                NumberValue {
                                     target: px;
                                     value: 700.0
-                                    interpolate: NUMBER.LINEAR
+                                    interpolate: NumberValue.LINEAR
                                 }
                         }]
                         autoReverse: true
@@ -112,7 +111,7 @@ Frame {
                         [KeyFrame {
                                 keyTime: 0s
                                 keyValues: 
-                                KeyValue {
+                                NumberValue {
                                     target: py;
                                     value: 0.0
                                 }
@@ -120,16 +119,16 @@ Frame {
                         KeyFrame {
                                 keyTime: 2.2s
                                 keyValues: 
-                                KeyValue {
+                                NumberValue {
                                     target: py;
                                     value: 375.0;
-                                    interpolate: NUMBER.SPLINE(0, 0, .5, 0)
+                                    interpolate: NumberValue.SPLINE(0, 0, .5, 0)
                                 }
                         },
                         KeyFrame {
                                 keyTime: 2.25s;
                                 keyValues: 
-                                KeyValue {
+                                NumberValue {
                                     target: py;
                                     value: 375.0;
                                 }
@@ -137,10 +136,10 @@ Frame {
                         KeyFrame {
                                 keyTime: 4.5s
                                 keyValues: 
-                                KeyValue {
+                                NumberValue {
                                     target: py;
                                     value: 0.0;
-                                    interpolate: NUMBER.SPLINE(0, 0, 0, 0.5)
+                                    interpolate: NumberValue.SPLINE(0, 0, 0, 0.5)
                                 }
                         }]
                     }
@@ -152,11 +151,11 @@ Frame {
                         [KeyFrame {
                                 keyTime: 2s
                                 keyValues: 
-                                [KeyValue {
+                                [NumberValue {
                                     target: psx;
                                     value: 1.0
                                 },
-                                KeyValue {
+                                NumberValue {
                                     target: psy;
                                     value: 1.0
                                 }]
@@ -164,39 +163,39 @@ Frame {
                         KeyFrame {
                                 keyTime: 2.25s
                                 keyValues: 
-                                [KeyValue {
+                                [NumberValue {
                                     target: psx;
                                     value: 1.2;
-                                    interpolate: NUMBER.LINEAR;
+                                    interpolate: NumberValue.LINEAR;
                                 },
-                                KeyValue {
+                                NumberValue {
                                     target: psy;
                                     value: 0.7;
-                                    interpolate: NUMBER.LINEAR;
+                                    interpolate: NumberValue.LINEAR;
                                 }]
                         },
                         KeyFrame {
                                 keyTime: 2.5s
                                 keyValues: 
-                                [KeyValue {
+                                [NumberValue {
                                     target: psx;
                                     value: 1.0;
-                                    interpolate: NUMBER.LINEAR;
+                                    interpolate: NumberValue.LINEAR;
                                 },
-                                KeyValue {
+                                NumberValue {
                                     target: psy;
                                     value: 1.0;
-                                    interpolate: NUMBER.LINEAR;
+                                    interpolate: NumberValue.LINEAR;
                                 }]
                         },
                         KeyFrame {
                                 keyTime: 4.5s
                                 keyValues: 
-                                [KeyValue {
+                                [NumberValue {
                                     target: psx;
                                     value: 1.0;
                                 },
-                                KeyValue {
+                                NumberValue {
                                     target: psy;
                                     value: 1.0;
                                 }]
