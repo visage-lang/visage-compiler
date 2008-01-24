@@ -26,22 +26,16 @@ public class SequenceElementLocation<T> extends ObjectExpression<T> implements O
         return seq.getAsSequence().get(lastIndex);
     }
 
-    private class MySequenceListener implements SequenceChangeListener<T> {
-        public void onInsert(int position, T element) {
-            if (position <= lastIndex) {
-                invalidate();
+    private class MySequenceListener implements SequenceReplaceListener<T> {
+        public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+            int deltaSize = (endPos-startPos+1) - Sequences.size(newElements);
+            if (deltaSize != 0) {
+                if (startPos <= lastIndex)
+                    invalidate();
             }
-        }
-
-        public void onDelete(int position, T element) {
-            if (position <= lastIndex) {
-                invalidate();
-            }
-        }
-
-        public void onReplace(int position, T oldValue, T newValue) {
-            if (position == lastIndex) {
-                invalidate();
+            else {
+                if (startPos <= lastIndex && lastIndex <= endPos)
+                    invalidate();
             }
         }
     }
