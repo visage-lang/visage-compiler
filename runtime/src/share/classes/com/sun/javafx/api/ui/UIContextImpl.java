@@ -184,7 +184,7 @@ public class UIContextImpl implements UIContext {
                                             icon.paintIcon(mFileChooser, g, 0, 0) ;
                                         }
                                     } else {
-                                        result = EMPTY_16x16_IMAGE;
+                                        result = getErrorImage();
                                     }
                                 }
                             } catch (Exception e) {
@@ -1858,22 +1858,17 @@ public class UIContextImpl implements UIContext {
         return result;
     }
 
-    static Image EMPTY_16x16_IMAGE;
-    static {
-        try {
-            EMPTY_16x16_IMAGE =
-                ImageIO.read(UIContextImpl.class.getResourceAsStream("resources/empty.gif"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public Image getTransparentImage(int width, int height) {
-        return EMPTY_16x16_IMAGE.getScaledInstance(width,
-                                                   height,
-                                                   Image.SCALE_SMOOTH);
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gs = ge.getDefaultScreenDevice();
+        GraphicsConfiguration gc = gs.getDefaultConfiguration();
+        return gc.createCompatibleImage(width, height, Transparency.BITMASK);        
     }
-         
+    
+    Image getErrorImage() {
+        return getTransparentImage(16, 16);
+    }
+    
 
     Image getImage0(String url) {
         try {
@@ -1889,7 +1884,7 @@ public class UIContextImpl implements UIContext {
                         } catch (Exception e) {
                             System.out.println("Invalid image data:"+imageData);
                             e.printStackTrace();
-                            return EMPTY_16x16_IMAGE;
+                            return getErrorImage();
                         }
                     }
                 }
@@ -1897,7 +1892,7 @@ public class UIContextImpl implements UIContext {
             return (Image)mImageCache.get(makeURL(url));
         } catch (Exception e) {
             System.out.println("invalid url: " + url);
-            return EMPTY_16x16_IMAGE;
+            return getErrorImage();
         }
         //return null;
     }
@@ -1944,7 +1939,7 @@ public class UIContextImpl implements UIContext {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("invalid url: " + url);
-            return EMPTY_16x16_IMAGE;
+            return getErrorImage();
         }
         //return null;
     }
@@ -2649,7 +2644,10 @@ public class UIContextImpl implements UIContext {
                 setDropModeJTextComponent = klass.getDeclaredMethod("setDropMode", dropModeClass);                
             }catch(NoSuchMethodException ex) {
                 dropClassEnums = null;
-                ex.printStackTrace();
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SecurityException ex) {
+                dropClassEnums = null;
+                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
             
         }catch(ClassNotFoundException ignore) {
