@@ -2352,7 +2352,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
     
     public void visitIndexof(JFXIndexof that) {
-        System.err.println("tr.visit indexof "+that.fname);
         result = make.at(that.pos()).Ident(indexVarName(that.clause));
     }
 
