@@ -60,6 +60,10 @@ public class Locations {
         return new UnmodifiableSequenceLocation<T>(loc);
     }
 
+    public static<T, V extends T> ObjectLocation<T> upcast(ObjectLocation<V> loc) {
+        return new UpcastLocation<T, V>(loc);
+    }
+
 
     private static abstract class LocationWrapper implements Location {
         protected abstract Location getLocation();
@@ -478,6 +482,38 @@ public class Locations {
         }
     }
 
+    private static class UpcastLocation<T, V extends T> extends LocationWrapper implements ObjectLocation<T> {
+        private final ObjectLocation<V> location;
+
+        public UpcastLocation(ObjectLocation<V> location) {
+            this.location = location;
+        }
+
+        protected Location getLocation() {
+            return location;
+        }
+
+        public V get() {
+            return location.get();
+        }
+
+        public V set(T value) {
+            // Alternately; allow the set to proceed after passing a runtime type check; would require T.class
+            throw new UnsupportedOperationException();
+        }
+
+        public void setDefault() {
+            throw new UnsupportedOperationException();
+        }
+
+        public void addChangeListener(final ObjectChangeListener<T> listener) {
+            location.addChangeListener(new ObjectChangeListener<V>() {
+                public void onChange(V oldValue, V newValue) {
+                    listener.onChange(oldValue, newValue);
+                }
+            });
+        }
+    }
 
     /**
      * Wrapper class that wraps a SequenceLocation so it cannot be modified
