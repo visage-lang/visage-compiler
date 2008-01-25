@@ -90,6 +90,8 @@ public class SequenceMutator {
                         target.subsequence(0, startPos), newValues, target.subsequence(startPos, size));
         }
         else if (Sequences.size(newValues) == 0) {
+            if (newValues == null)
+                newValues = Sequences.emptySequence(target.getElementType());
             // Deletion from startPos to endPos inclusive
             if (endPos == startPos-1)
                 result = target;
