@@ -204,8 +204,12 @@ public abstract class JavafxTag extends JCTree {
      */
     public static final int LAZYOP = BINDOP + 1;
 
+    /** The 'indexof name' operator.
+     */
+    public static final int INDEXOF = LAZYOP + 1;
+
     /** time literal
      */
-    public static final int TIME_LITERAL = LAZYOP + 1;
+    public static final int TIME_LITERAL = INDEXOF + 1;
     public static final int JFX_OP_LAST = TIME_LITERAL;        
 }

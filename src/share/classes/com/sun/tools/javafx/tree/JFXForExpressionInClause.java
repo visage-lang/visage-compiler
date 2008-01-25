@@ -38,6 +38,7 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
     public JFXVar var; 
     public JCExpression seqExpr;
     public JCExpression whereExpr;
+    boolean indexUsed;
 
     protected JFXForExpressionInClause(
             JFXVar var, 
@@ -53,6 +54,9 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
     public JavaFXVariableTree getVariable() { return var; }
     public JCExpression getSequenceExpression() { return seqExpr; }
     public JCExpression getWhereExpression() { return whereExpr; }
+    
+    public boolean getIndexUsed() { return indexUsed; }
+    public void setIndexUsed(boolean indexUsed) { this.indexUsed = indexUsed; }
 
     @Override
     public int getTag() {

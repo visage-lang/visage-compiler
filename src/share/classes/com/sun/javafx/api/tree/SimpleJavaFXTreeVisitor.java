@@ -50,6 +50,10 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
         return defaultAction(node, p);
     }
 
+    public R visitIndexof(IndexofTree node, P p) {
+        return defaultAction(node, p);
+    }
+
     public R visitForExpressionInClause(ForExpressionInClauseTree node, P p) {
         return defaultAction(node, p);
     }

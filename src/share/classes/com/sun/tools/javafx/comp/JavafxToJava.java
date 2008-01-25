@@ -2306,9 +2306,23 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             JCVariableDecl finalVar = make.VarDef(
                     make.Modifiers(Flags.FINAL), 
                     var.getName(), 
-                    makeTypeTree(var.type, var, true), 
+                    makeTypeTree(var.type, var), 
                     make.Ident(tmpVarName));
-            stmt = make.Block(0L, List.of(finalVar, stmt));
+            Name tmpIndexVarName;
+            if (clause.getIndexUsed()) {
+                Name indexVarName = indexVarName(clause);
+                tmpIndexVarName = getSyntheticName(indexVarName.toString());
+                JCVariableDecl finalIndexVar = make.VarDef(
+                    make.Modifiers(Flags.FINAL),
+                    indexVarName, 
+                    makeTypeTree(syms.javafx_IntegerType, var),
+                    make.Unary(JCTree.POSTINC, make.Ident(tmpIndexVarName)));
+                stmt = make.Block(0L, List.of(finalIndexVar, finalVar, stmt));
+            }                
+            else {
+                tmpIndexVarName = null;
+                stmt = make.Block(0L, List.of(finalVar, stmt));
+            }
             stmt = make.at(clause).ForeachLoop(
                     // loop variable is synthetic should not be bound
                     // even if we are in a bind context
@@ -2319,10 +2333,29 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         null),
                     translate(clause.getSequenceExpression()),
                     stmt);
+            if (clause.getIndexUsed()) {
+                JCVariableDecl tmpIndexVar =
+                        make.VarDef(
+                        make.Modifiers(0L), 
+                        tmpIndexVarName, 
+                        makeTypeTree(syms.javafx_IntegerType, var), 
+                        make.Literal(Integer.valueOf(0)));
+                stmt = make.Block(0L, List.of(tmpIndexVar, stmt));
+            }
         }
         return stmt;
     }
     
+    public Name indexVarName (JFXForExpressionInClause clause) {
+        Name forVar = clause.getVar().getName();
+        return names.fromString("$indexof$"+forVar.toString());
+    }
+    
+    public void visitIndexof(JFXIndexof that) {
+        System.err.println("tr.visit indexof "+that.fname);
+        result = make.at(that.pos()).Ident(indexVarName(that.clause));
+    }
+
     public void visitConditional(JCConditional tree) {
         final DiagnosticPosition diagPos = tree.pos();
         JCExpression cond = translate(tree.getCondition());

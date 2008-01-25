@@ -269,6 +269,10 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
         scan(that.stats);
         scan(that.value);
     }
+    
+    @Override
+    public void visitIndexof(JFXIndexof that) {
+    }
 
     @Override
     public void visitTree(JCTree that) {

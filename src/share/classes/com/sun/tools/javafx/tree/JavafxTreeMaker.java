@@ -432,6 +432,12 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
+    public JFXIndexof Indexof (Name name) {
+        JFXIndexof tree = new JFXIndexof(name);
+        tree.pos = pos;
+        return tree;
+    }
+    
     public JFXTimeLiteral TimeLiteral(String str) {
         int i = 0;
         char[] buf = str.toCharArray();

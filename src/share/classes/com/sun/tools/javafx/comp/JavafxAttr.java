@@ -28,6 +28,7 @@ package com.sun.tools.javafx.comp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.Set;
 import javax.lang.model.element.ElementKind;
 import javax.tools.JavaFileObject;
@@ -1082,13 +1083,20 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         visitAbstractOnChange(tree);
     }
     
+    ArrayList<JFXForExpressionInClause> forClauses = null;
+    
     @Override
     public void visitForExpression(JFXForExpression tree) {
         JavafxEnv<JavafxAttrContext> forExprEnv =
             env.dup(tree, env.info.dup(env.info.scope.dup()));
         
+        if (forClauses == null)
+            forClauses = new ArrayList<JFXForExpressionInClause>();
+        int forClausesOldSize = forClauses.size();
+        
         for (ForExpressionInClauseTree cl : tree.getInClauses()) {
             JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
+            forClauses.add(clause);
             Type exprType = types.upperBound(attribExpr((JCExpression)clause.getSequenceExpression(), forExprEnv));
             if (clause.getVar() != null &&
                 clause.getVar().getJFXType() instanceof JFXTypeUnknown &&
@@ -1142,7 +1150,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             types.isSequence(bodyType) ?
             bodyType :
             types.sequenceType(bodyType);
-
+        while (forClauses.size() > forClausesOldSize)
+            forClauses.remove(forClauses.size()-1);
         forExprEnv.info.scope.leave();
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
@@ -1150,6 +1159,22 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         assert false : "should not reach here";
+    }
+
+    public void visitIndexof(JFXIndexof tree) {
+        if (forClauses != null) {
+            int nClauses = forClauses.size();
+            for (int i = nClauses;  --i >= 0; ) {
+                JFXForExpressionInClause clause = forClauses.get(i);
+                if (clause.getVar().getName() == tree.fname) {
+                    tree.type = syms.javafx_IntegerType;
+                    tree.clause = clause;
+                    clause.setIndexUsed(true);
+                    return;
+                }
+            }
+        }
+        log.error(tree.pos(), "javafx.indexof.not.found", tree.fname);
     }
 
     public void visitSkip(JCSkip tree) {

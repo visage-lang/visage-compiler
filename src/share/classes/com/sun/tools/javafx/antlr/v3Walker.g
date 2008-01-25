@@ -298,6 +298,7 @@ expression  returns [JCExpression expr]
        							{ $expr = F.at(pos($FUNC_EXPR)).OperationValue($type.type, $formalParameters.params.toList(),
                                                								$blockExpression.expr); }
 	| ^(NEW typeName expressionList)		{ $expr = F.at(pos($NEW)).Instanciate($typeName.expr, $expressionList.args.toList(), null); }
+       	| ^(INDEXOF name)                      		{ $expr = F.at(pos($INDEXOF)).Indexof($name.value); }
 	| pipeExpression				{ $expr = $pipeExpression.expr; }
 	| blockExpression				{ $expr = $blockExpression.expr; }
        	| stringExpression				{ $expr = $stringExpression.expr; }

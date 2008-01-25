@@ -59,5 +59,6 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitSequenceDelete(JFXSequenceDelete tree);
     public void visitForExpression(JFXForExpression tree);
     public void visitForExpressionInClause(JFXForExpressionInClause tree);
+    public void visitIndexof(JFXIndexof tree);
     public void visitTimeLiteral(JFXTimeLiteral tree);
 }

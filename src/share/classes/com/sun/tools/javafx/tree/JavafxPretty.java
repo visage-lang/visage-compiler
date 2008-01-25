@@ -689,7 +689,16 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             throw new UncheckedIOException(e);
         }
     }
-    
+
+    public void visitIndexof(JFXIndexof that) {
+        try {
+            print("indexof ");
+            print(that.fname);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }      
+    }
+
     @Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         assert false : "should not reach here";

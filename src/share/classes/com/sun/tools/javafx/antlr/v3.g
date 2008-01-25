@@ -776,7 +776,8 @@ unaryExpression
 	| NOT      e=unaryExpression				-> ^(NOT $e)		
 	| SIZEOF   e=unaryExpression				-> ^(SIZEOF $e)	
 	| PLUSPLUS e=unaryExpression				-> ^(PLUSPLUS $e)   	
-	| SUBSUB   e=unaryExpression				-> ^(SUBSUB $e) 
+	| SUBSUB   e=unaryExpression				-> ^(SUBSUB $e)
+        | INDEXOF  name                      			-> ^(INDEXOF name)	
 	;
 suffixedExpression 
 	: postfixExpression
