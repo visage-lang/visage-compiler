@@ -75,7 +75,7 @@ public class Font {
     public function italic(): Font {
         Font{faceName:faceName, style:[FontStyle.ITALIC], size:size};
     }
-    private attribute awtFont: java.awt.Font 
+    private attribute awtFont: java.awt.Font
     /*TODO: NPE in initialization 
      =  bind
                  if(face <> null and face.url <> null  ) {

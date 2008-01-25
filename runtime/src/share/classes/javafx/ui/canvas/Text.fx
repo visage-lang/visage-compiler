@@ -70,7 +70,7 @@ public class Text extends Shape {
     };
     
     /** The font used to render the characters of this text. */
-    public attribute font: Font;
+    public attribute font: Font = Font {size:16};
 
     public attribute fill: Paint = Color.BLACK;
 
