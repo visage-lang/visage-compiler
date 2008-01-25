@@ -29,7 +29,7 @@ import java.util.BitSet;
 
 /**
  * Helper methods for modifying sequences and notifying sequence change listeners.  The helper methods only call the
- * onInsert/onDelete/onReplace methods; if the underlying sequence is modified then the caller is responsible for
+ * sequence trigger methods; if the underlying sequence is modified then the caller is responsible for
  * calling the onChanged() method.
  *
  * @author Brian Goetz
@@ -153,7 +153,7 @@ public class SequenceMutator {
      * Delete the element at the specified position.  If the position is out of range, the sequence is not modified.
      */
     public static <T> Sequence<T> delete(Sequence<T> target, Listener<T> listener, int position) {
-        return replaceSlice(target, listener, position, position, (Sequence<T>) null);
+        return replaceSlice(target, listener, position, position, Sequences.emptySequence(target.getElementType()));
     }
 
     /**
@@ -250,7 +250,7 @@ public class SequenceMutator {
                 if (!bits.get(i)) {
                     partialBits.flip(i);
                     Sequence<T> nextValue = Sequences.filter(target, partialBits);
-                    listener.onReplaceSlice(i, i, null, lastValue, nextValue);
+                    listener.onReplaceSlice(i, i, Sequences.emptySequence(target.getElementType()), lastValue, nextValue);
                     lastValue = nextValue;
                 }
             }
