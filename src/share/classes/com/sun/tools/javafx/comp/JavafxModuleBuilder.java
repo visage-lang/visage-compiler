@@ -153,7 +153,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
 
         if (moduleClass == null) {
             moduleClass =  make.ClassDeclaration(
-                make.Modifiers(0),   //TODO: maybe?  make.Modifiers(PUBLIC), 
+                make.Modifiers(PUBLIC),   //public access needed for applet initialization 
                 moduleClassName, 
                 List.<JCExpression>nil(),             // no supertypes
                 moduleClassDefs.toList());
