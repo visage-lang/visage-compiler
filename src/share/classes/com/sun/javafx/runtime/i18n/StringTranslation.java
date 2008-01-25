@@ -42,13 +42,14 @@ public class StringTranslation {
                     translation = literal;
                 }
             } else {
-                translation = rb.getString(literal);
+                translation = rb.getString(literal.replaceAll("\r\n|\r|\n", "\n"));
             }
 
             if (embeddedExpr.length != 0) {
                 translation = String.format(translation, embeddedExpr);
             }
         } catch (Exception e) {
+System.out.println(e);
             e.printStackTrace();
         }
 

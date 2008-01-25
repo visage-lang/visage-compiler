@@ -19,3 +19,12 @@
 // explicit key tests
 "FILE_VERB" = "Hokan suru"
 "FILE_NOUN" = "shorui"
+
+// multiple line tests
+'Unix style
+new line' = 'Unix keishiki no
+kaigyo'
+'Windows style
+new line' = 'Windows keishiki no
+kaigyo'
+'Mac stylenew line' = 'Mac keishiki nokaigyo'

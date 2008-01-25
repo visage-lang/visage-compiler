@@ -26,5 +26,12 @@ System.out.println(##[FILE_VERB]'File');
 System.out.println(##[FILE_NOUN]'File');
 System.out.println(##[NON_EXISTENT_KEY]'non-existent');
 
+// multiple line tests
+System.out.println(##'Unix style
+new line');
+System.out.println(##'Windows style
+new line');
+System.out.println(##'Mac stylenew line');
+
 // restore the default locale
 Locale.setDefault(curLoc);
