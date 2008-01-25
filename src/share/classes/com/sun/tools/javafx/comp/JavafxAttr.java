@@ -2634,7 +2634,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             log.error(tree.pos(), "array.req.but.found", pt); //TODO: msg
             result = syms.errType;
         } else {
-            Type owntype = pt.tag == NONE? pt : isSeq? pt : types.sequenceType(pt);
+            Type owntype = pt.tag == NONE? syms.botType : isSeq? pt : types.sequenceType(pt);
             result = check(tree, owntype, VAL, pkind, Type.noType, pSequenceness);
         }
     }
@@ -2778,10 +2778,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         attribExpr(parts.head, env, syms.javafx_StringType);
         parts = parts.tail;
         while (parts.nonEmpty()) {
+            // First the format specifier:
             attribExpr(parts.head, env, syms.javafx_StringType);
             parts = parts.tail;
-            attribExpr(parts.head, env, Type.noType);
+            // Next the enclosed expression:
+            chk.checkNonVoid(parts.head.pos(), attribExpr(parts.head, env, Type.noType));
             parts = parts.tail;
+            // Next the following string literal part:
             attribExpr(parts.head, env, syms.javafx_StringType);
             parts = parts.tail;
         }
