@@ -153,8 +153,14 @@ public abstract class AbstractLocation implements Location {
                 Location loc = locationRef.get();
                 if (loc == null)
                     iterator.remove();
-                else
+                else {
                     loc.invalidate();
+                    // try for early removal of "weakme" dynamic dependency.
+                    // in that case invalidate() will have cleared the ref
+                    if (locationRef.get() == null) {
+                        iterator.remove();
+                    }
+                }
             }
         }
         finally {
