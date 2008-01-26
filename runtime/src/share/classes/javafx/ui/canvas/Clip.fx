@@ -33,6 +33,8 @@ import com.sun.scenario.scenegraph.SGGroup;
 import com.sun.scenario.scenegraph.SGNode;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Point2D;
+
 /** 
  * A group node that provides an arbitrary clipping region.  Only the subset
  * of its content that intersects its <code>shape</code> attribute 
@@ -85,7 +87,12 @@ public class Clip extends Node, Container {
     protected function createNode(): SGNode {
         clipFilter = SGClip {
                 public function getBounds(transform:AffineTransform):Rectangle2D {
-                    var b = getChild().getBounds(transform);
+                    var b:Rectangle2D; 
+                    if (getChild() <> null) {
+                        b = getChild().getBounds(transform);
+                    } else {
+                        return new Rectangle2D.Double();
+                    }
                     var s = getShape();
                     if (s <> null) {
                         var clipBounds = s.getBounds2D();
@@ -95,6 +102,18 @@ public class Clip extends Node, Container {
                         b = clipBounds.createIntersection(b);
                     }
                     return b;
+                }
+                public function contains(point:Point2D):Boolean {
+                      var s = getShape();
+                      if (s <> null) {
+                           if (not s.contains(point)) {
+                               return false;
+                           }
+                      }
+                      if (getChild() <> null) {
+                          return getChild().contains(point);
+                      }
+                      return false;
                 }
             };
         clipFilter.setShape(shape.getVisualNode().getShape());

@@ -233,8 +233,12 @@ public abstract class Node extends CanvasElement, Transformable {
         }
     }
     protected function makeCanvasMouseEvent(e:MouseEvent) {
-        var info = MouseInfo.getPointerInfo();
+        //var info = MouseInfo.getPointerInfo();
         var pt = new java.awt.geom.Point2D.Double(e.getX(), e.getY());
+        var c = getCanvas();
+        var loc = c.getComponent().getLocationOnScreen();
+        var screenX = loc.getX() + e.getX();
+        var screenY = loc.getY() + e.getY();
         var result = CanvasMouseEvent {
             modifiers: [if (e.isAltDown()) then KeyModifier.ALT else null,
                         if (e.isControlDown()) then KeyModifier.CTRL else null, 
@@ -247,8 +251,8 @@ public abstract class Node extends CanvasElement, Transformable {
             localY: pt.getY()
             x: e.getX()
             y: e.getY()
-            screenx: info.getLocation().getX()
-            screeny: info.getLocation().getY()
+            screenx: screenX
+            screeny: screenY
             //percolate: e.percolate // TODO: percolate not implemented
             percolate: false
             source: e
