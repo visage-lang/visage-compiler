@@ -312,25 +312,12 @@ public final class LinearGradientPaint extends MultipleGradientPaint {
         // incorporate the gradient transform
         transform.concatenate(gradientTransform); 
 
-        if ((fractions.length == 2) &&
-            (cycleMethod != CycleMethod.REPEAT) &&
-            (colorSpace == ColorSpaceType.SRGB))
-        {
-            // faster to use the basic GradientPaintContext for this
-            // common case
-            boolean cyclic = (cycleMethod != CycleMethod.NO_CYCLE);
-            return new GradientPaintContext(cm, start, end,
-                                            transform,
-                                            colors[0], colors[1],
-                                            cyclic);
-        } else {
-            return new LinearGradientPaintContext(this, cm,
-                                                  deviceBounds, userBounds,
-                                                  transform, hints,
-                                                  start, end,
-                                                  fractions, colors,
-                                                  cycleMethod, colorSpace);
-        }
+        return new LinearGradientPaintContext(this, cm,
+                                              deviceBounds, userBounds,
+                                              transform, hints,
+                                              start, end,
+                                              fractions, colors,
+                                              cycleMethod, colorSpace);
     }
     
     /**
