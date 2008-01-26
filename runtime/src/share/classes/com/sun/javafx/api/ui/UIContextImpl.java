@@ -2647,7 +2647,7 @@ public class UIContextImpl implements UIContext {
                 Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
             } catch (SecurityException ex) {
                 dropClassEnums = null;
-                Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(UIContextImpl.class.getName()).warning("Drag&Drop disabled due to Applet security restrictions");
             }
             
         }catch(ClassNotFoundException ignore) {
