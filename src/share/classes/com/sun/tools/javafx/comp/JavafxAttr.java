@@ -1162,19 +1162,20 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitIndexof(JFXIndexof tree) {
-        if (forClauses != null) {
-            int nClauses = forClauses.size();
-            for (int i = nClauses;  --i >= 0; ) {
-                JFXForExpressionInClause clause = forClauses.get(i);
-                if (clause.getVar().getName() == tree.fname) {
-                    tree.type = syms.javafx_IntegerType;
-                    tree.clause = clause;
-                    clause.setIndexUsed(true);
-                    return;
-                }
+        for (int n = forClauses == null ? 0 : forClauses.size(); ; ) {
+            if (--n < 0) {
+                 log.error(tree.pos(), "javafx.indexof.not.found", tree.fname);
+                 break;
+            }
+            JFXForExpressionInClause clause = forClauses.get(n);
+            if (clause.getVar().getName() == tree.fname) {
+                tree.clause = clause;
+                clause.setIndexUsed(true);
+                break;
             }
         }
-        log.error(tree.pos(), "javafx.indexof.not.found", tree.fname);
+        result = check(tree, syms.javafx_IntegerType, VAL,
+                pkind, pt, pSequenceness);
     }
 
     public void visitSkip(JCSkip tree) {
