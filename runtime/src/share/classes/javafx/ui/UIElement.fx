@@ -24,7 +24,7 @@
  */ 
 
 package javafx.ui;
-import com.sun.javafx.runtime.awt.GradientPaint;
+
 import java.awt.RenderingHints;
 import java.lang.Object;
 import java.lang.Throwable;
