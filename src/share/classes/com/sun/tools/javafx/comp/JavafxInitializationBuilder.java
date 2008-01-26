@@ -1035,10 +1035,11 @@ public class JavafxInitializationBuilder {
                    } else {
                        // this is a JavaFX source file
                        for (JCTree def : cDecl.getMembers()) {
-                           if (def.getTag() == JavafxTag.FUNCTION_DEF) {
-                               processFunctionFromSource((JFXOperationDefinition) def);
-                           } else if (def.getTag() == JavafxTag.VAR_DEF) {
+                           if (def.getTag() == JavafxTag.VAR_DEF) {
                                processAttributeFromSource((JFXVar) def);
+                           }
+                           else if (compound && def.getTag() == JavafxTag.FUNCTION_DEF) {
+                               processFunctionFromSource((JFXOperationDefinition) def);
                            }
                        }
                        // now visit the super-types
