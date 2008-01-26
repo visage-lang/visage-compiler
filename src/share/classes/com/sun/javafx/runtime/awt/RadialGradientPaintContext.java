@@ -123,7 +123,7 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
                                CycleMethod cycleMethod,
                                ColorSpaceType colorSpace)
     {               
-        super(cm, deviceBounds, userBounds, t, hints,
+        super(paint, cm, deviceBounds, userBounds, t, hints,
               fractions, colors, cycleMethod, colorSpace);
 
         // copy some parameters

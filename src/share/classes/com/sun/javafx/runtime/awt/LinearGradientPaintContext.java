@@ -90,7 +90,7 @@ final class LinearGradientPaintContext extends MultipleGradientPaintContext {
                                CycleMethod cycleMethod,
                                ColorSpaceType colorSpace)
     {        
-        super(cm, deviceBounds, userBounds, t, hints, fractions,
+        super(paint, cm, deviceBounds, userBounds, t, hints, fractions,
               colors, cycleMethod, colorSpace);
 
         // A given point in the raster should take on the same color as its
