@@ -391,6 +391,8 @@ public class XMLDoclet {
         hd.startElement("", "", tagKind, attrs);
         for (Tag t : tags) {
             String kind = t.kind();
+            if (kind.startsWith("@"))
+                kind = kind.substring(1);
             if (kind.equals("@author") && !includeAuthorTags)
                 continue;
             if (kind.equals("@deprecated") && !includeDeprecatedTags)
