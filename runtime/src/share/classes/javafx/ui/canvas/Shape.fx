@@ -102,13 +102,11 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
     public function transformAt(length: Number): Transform[] {
         var pt = pointAt(length);
         var angle = angleAt(length);
-        //TODO JXFC-339
         return [Transform.CompositeTransform {
-            transforms: /*bind*/ [
-                Transform.translate(pt.getX(), pt.getY()) as Transform, 
-                Transform.rotate(angle, 0, 0) as Transform] 
-        } as Transform ];
-       
+            transforms: bind [
+                Transform.translate(pt.getX(), pt.getY()), 
+                Transform.rotate(angle, 0, 0)] 
+        } ];
     }
 
     public function toPath(): Path{
