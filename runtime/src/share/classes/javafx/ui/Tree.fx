@@ -93,7 +93,7 @@ public class Tree extends ScrollableWidget {
             }
             var children:Object[] = [ row ];
             var childIndices:Integer[] = [ i.intValue()];
-            var event = new javax.swing.event.TreeModelEvent(treemodel as Object,
+            var event = new javax.swing.event.TreeModelEvent(treemodel,
                                                                  rpath,
                                                                  childIndices,
                                                                  children);
@@ -126,7 +126,7 @@ public class Tree extends ScrollableWidget {
             }           
             var children:Object[] = [ row ];
             var childIndices:Integer[] = [ i.intValue()];
-            var event = new javax.swing.event.TreeModelEvent(treemodel as Object,
+            var event = new javax.swing.event.TreeModelEvent(treemodel,
                                                                  rpath,
                                                                  childIndices,
                                                                  children);
@@ -146,7 +146,7 @@ public class Tree extends ScrollableWidget {
             for( j in [sizeof path -1 ..0]){
                 insert path[j] into rpath;
             }            
-            var event = new javax.swing.event.TreeModelEvent(treemodel as Object,
+            var event = new javax.swing.event.TreeModelEvent(treemodel,
                                                                  rpath,
                                                                  null,
                                                                  null);
@@ -178,7 +178,7 @@ public class Tree extends ScrollableWidget {
             }  
             var children:Object[] = [ row ];
             var childIndices:Integer[] = [ i.intValue()];            
-            var event = new javax.swing.event.TreeModelEvent(treemodel as Object,
+            var event = new javax.swing.event.TreeModelEvent(treemodel,
                                                                  rpath,
                                                                  childIndices,
                                                                  children);

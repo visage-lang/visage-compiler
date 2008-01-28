@@ -33,7 +33,7 @@ public class Keyboard {
 
     public function getKeyStroke(id:Integer): KeyStroke {
 
-        return this.keyMap.get(id as Object) as KeyStroke;
+        return this.keyMap.get(id) as KeyStroke;
     }
     
     function putKeyStroke(id:Integer, key:KeyStroke) {

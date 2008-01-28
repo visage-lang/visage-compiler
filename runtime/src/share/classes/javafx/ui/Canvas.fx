@@ -73,7 +73,7 @@ public class Canvas extends Widget, CanvasElement, Container {
     // public:
     public attribute content: Node[]
         on insert [indx] (newValue) {
-            newValue.parentCanvasElement = this as CanvasElement;
+            newValue.parentCanvasElement = this;
 
             if (root <> null) {
                 root.add(newValue.getNode());
@@ -257,7 +257,7 @@ public class Canvas extends Widget, CanvasElement, Container {
     public function doExportAsDrag(e:CanvasDragEvent) {
          //dragNode = e.source;
          dragNode = e.dragView;
-         dragValue = e.dragValue as Object;
+         dragValue = e.dragValue as Object;  //TODO: fix sequences so this doesn't need the cast
     }
 
     attribute dragNode: Node;
@@ -406,7 +406,7 @@ public class Canvas extends Widget, CanvasElement, Container {
             });
         javax.swing.ToolTipManager.sharedInstance().registerComponent(jsgpanel);
         var javaVersion = System.getProperty("java.version") as java.lang.String;
-        var javaBroken = javaVersion.startsWith("1.5.0_0") as Boolean;
+        var javaBroken = javaVersion.startsWith("1.5.0_0");
         UIElement.context.addTransferHandler(
             jsgpanel, dropType,
             com.sun.javafx.api.ui.ValueGetter {

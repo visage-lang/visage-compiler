@@ -32,7 +32,7 @@ public class RadioButtonMenuItem extends MenuItem, SelectableButton {
     private attribute jradiobuttonmenuitem:javax.swing.JRadioButtonMenuItem;
     
     public function createMenuItem():javax.swing.JMenuItem  {
-        var self = this as SelectableButton;
+        var self = this;
         jradiobuttonmenuitem.addChangeListener(javax.swing.event.ChangeListener {
                     public function stateChanged(e:javax.swing.event.ChangeEvent):Void {
                         var i = -1;

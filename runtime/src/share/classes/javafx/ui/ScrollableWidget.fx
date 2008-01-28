@@ -48,7 +48,7 @@ public abstract class ScrollableWidget extends Widget {
      */
     public attribute rowHeader:Widget on replace  {
         if (scrollpane <> null) {
-            var x = rowHeader.getNonScrollPaneComponent() as java.awt.Component;
+            var x = rowHeader.getNonScrollPaneComponent();
             scrollpane.setRowHeaderView(x);
         }
     };
@@ -59,7 +59,7 @@ public abstract class ScrollableWidget extends Widget {
      */
     public attribute columnHeader:Widget on replace  {
         if (scrollpane <> null) {
-            var x = columnHeader.getNonScrollPaneComponent() as java.awt.Component;
+            var x = columnHeader.getNonScrollPaneComponent();
             scrollpane.setColumnHeaderView(x);
         }
     };
@@ -70,7 +70,7 @@ public abstract class ScrollableWidget extends Widget {
      */
     public attribute lowerLeftCorner:Widget  on replace {
         if (scrollpane <> null) {
-            var x = lowerLeftCorner.getNonScrollPaneComponent() as java.awt.Component;
+            var x = lowerLeftCorner.getNonScrollPaneComponent();
             scrollpane.setCorner(scrollpane.LOWER_LEFT_CORNER, x);
         }
     };
@@ -81,7 +81,7 @@ public abstract class ScrollableWidget extends Widget {
      */
     public attribute lowerRightCorner:Widget on replace  {
         if (scrollpane <> null) {
-            var x = lowerRightCorner.getNonScrollPaneComponent() as java.awt.Component;
+            var x = lowerRightCorner.getNonScrollPaneComponent();
             scrollpane.setCorner(scrollpane.LOWER_RIGHT_CORNER, x);
         }
     };
@@ -92,7 +92,7 @@ public abstract class ScrollableWidget extends Widget {
      */
     public attribute upperLeftCorner:Widget on replace {
         if (scrollpane <> null) {
-            var x = upperLeftCorner.getNonScrollPaneComponent() as java.awt.Component;
+            var x = upperLeftCorner.getNonScrollPaneComponent();
             scrollpane.setCorner(scrollpane.UPPER_LEFT_CORNER, x);
         }
     };
@@ -103,7 +103,7 @@ public abstract class ScrollableWidget extends Widget {
      */
     public attribute upperRightCorner:Widget on replace {
         if (scrollpane <> null) {
-            var x = upperRightCorner.getNonScrollPaneComponent() as java.awt.Component;
+            var x = upperRightCorner.getNonScrollPaneComponent();
             scrollpane.setCorner(scrollpane.UPPER_RIGHT_CORNER, x);
         }
     };
