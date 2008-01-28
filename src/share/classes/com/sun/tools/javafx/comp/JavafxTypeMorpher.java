@@ -217,7 +217,7 @@ public class JavafxTypeMorpher {
         }
 
         protected boolean isSequence() {
-            return types.erasure(realType) == syms.javafx_SequenceTypeErasure;
+            return types.isSequence(realType);
         }
 
         public Type getRealType() { return realType; }
@@ -319,9 +319,11 @@ public class JavafxTypeMorpher {
 
     private Type generifyIfNeeded(Type aLocationType, TypeMorphInfo tmi) {
         Type newType;
-        if (tmi.getTypeKind() == TYPE_KIND_OBJECT ||
-                tmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
-            List<Type> actuals = List.of(tmi.getElementType());
+        Type elemType = tmi.getElementType();
+        if ((tmi.getTypeKind() == TYPE_KIND_OBJECT ||
+                tmi.getTypeKind() == TYPE_KIND_SEQUENCE) && 
+             elemType != null /* handles library which doesn't have element type */) {
+            List<Type> actuals = List.of(elemType);
             Type clazzOuter = declLocationType(tmi.getTypeKind()).getEnclosingType();
 
             List<Type> newActuals = List.nil();

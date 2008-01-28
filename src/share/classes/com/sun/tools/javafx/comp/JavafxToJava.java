@@ -2606,13 +2606,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                             case JavafxTag.IDENT:
                             case JavafxTag.SELECT:
                             case JavafxTag.APPLY:
-                                // A KLUDGE - we need to make sure Integer gets converted to Number,
-                                // since IntLocation can't get conevrfted to DoubleLocation.
-                                if (! (arg.type.tag == TypeTags.INT && formal.head.tag == TypeTags.DOUBLE)) {
+                                // This arg expression is one that will translate into a Location;
+                                // since that is needed for a this into Location, do so.
+                                // However, if the types need to by changed (subclass), this won't
+                                // directly work.
+                                // Also, if this is a mismatched sequence type, we will need
+                                // to do some different
+                                if (arg.type.equals(formal.head) || 
+                                        types.isSequence(formal.head)) {
                                     targs.append(translate(arg, Wrapped.InLocation));
                                     break;
                                 }
-                                // Otherwise, presumably a conversion will work.
+                                //TODO: handle sequence subclasses
+                                //TODO: use more efficient mechanism (use currently apears rare)
+                                //System.err.println("Not match: " + arg.type + " vs " + formal.head);
+                                // Otherwise, fall-through, presumably a conversion will work.
                             default:
                                 {
                                     ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;

@@ -415,11 +415,11 @@ public class JavafxCheck {
 	    return instantiatePoly(pos, (ForAll)found, req, convertWarner(pos, found, req));
 	if (req.tag == NONE || req == syms.javafx_UnspecifiedType)
 	    return found;
-        if (isSequence(req)) {  
+        if (types.isSequence(req)) {  
             req = types.elementType(req);
             pSequenceness = Sequenceness.REQUIRED;
         }
-        if (isSequence(found)) {  
+        if (types.isSequence(found)) {  
             if (pSequenceness != Sequenceness.DISALLOWED) {
                 found = types.elementType(found);
             } else {
@@ -454,13 +454,6 @@ public class JavafxCheck {
 	}
 	return typeError(pos, JCDiagnostic.fragment("incompatible.types"), found, req);
     }
-
-    boolean isSequence(Type type) {
-        return type != Type.noType && type != null 
-                && type.tag != ERROR 
-                && type.tag != METHOD && type.tag != FORALL
-                && types.erasure(type) == syms.javafx_SequenceTypeErasure;
-    }   
 
     /** Instantiate polymorphic type to some prototype, unless
      *  prototype is `anyPoly' in which case polymorphic type
