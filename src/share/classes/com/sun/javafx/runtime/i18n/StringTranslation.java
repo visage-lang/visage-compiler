@@ -49,7 +49,6 @@ public class StringTranslation {
                 translation = String.format(translation, embeddedExpr);
             }
         } catch (Exception e) {
-System.out.println(e);
             e.printStackTrace();
         }
 
