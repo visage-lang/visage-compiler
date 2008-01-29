@@ -46,5 +46,5 @@ public interface RuntimeProvider {
      * 
      * @param entryPoint the application method to execute.
      */
-    Object run(Method entryPoint, String... args);
+    Object run(Method entryPoint, String... args) throws Throwable;
 }

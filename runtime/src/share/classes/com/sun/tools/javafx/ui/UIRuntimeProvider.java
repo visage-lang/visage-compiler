@@ -50,7 +50,8 @@ public class UIRuntimeProvider implements RuntimeProvider {
         }
     }
 
-    public Object run(final Method entry, final String... args) {
+    public Object run(final Method entry, final String... args) throws Throwable {
+        Throwable error = null;
         try {
             final Object[] result = new Object[1];
             EventQueue.invokeAndWait(new Runnable() {
@@ -59,14 +60,28 @@ public class UIRuntimeProvider implements RuntimeProvider {
                     try {
                         result[0] = entry.invoke(null);
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        result[0] = e.getCause();
                     }
                 }
             });
-            return result[0];
+            if (result[0] instanceof Throwable)
+                error = (Throwable)result[0];
+            else
+                return result[0];
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            error = e;
         }
+        assert error != null;
+        StackTraceElement[] stack = error.getStackTrace();
+        int n = 0;
+        while (n < stack.length) {
+            if (stack[n++].getMethodName().equals(entry.getName()))
+                break;
+        }
+        StackTraceElement[] shortStack = new StackTraceElement[n];
+        System.arraycopy(stack, 0, shortStack, 0, n);
+        error.setStackTrace(shortStack);
+        throw error;
     }
     
     // Constant Type enums (JVM spec table 4.3)
