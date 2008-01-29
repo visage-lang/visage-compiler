@@ -55,6 +55,7 @@ public class JavafxDefs {
     public static final String initializeNameString ="initialize$";
     public static final String getMethodNameString = "get";
     public static final String setMethodNameString ="set";
+    public static final String sizeMethodNameString ="size";
     public static final String addStaticDependentNameString = "addStaticDependent";
     public static final String addDynamicDependentNameString = "addDynamicDependent";
     public static final String clearDynamicDependenciesNameString = "clearDynamicDependencies";
@@ -75,6 +76,7 @@ public class JavafxDefs {
     final Name getSliceMethodName;
     final Name replaceSliceMethodName;
     final Name setMethodName;
+    final Name sizeMethodName;
     final Name addStaticDependentName;
     final Name addDynamicDependentName;
     final Name clearDynamicDependenciesName;
@@ -111,6 +113,7 @@ public class JavafxDefs {
         getSliceMethodName = names.fromString("getSlice");
         replaceSliceMethodName = names.fromString("replaceSlice");
         setMethodName = Name.fromString(names, setMethodNameString);
+        sizeMethodName = Name.fromString(names, sizeMethodNameString);
         addStaticDependentName = names.fromString(addStaticDependentNameString);
         addDynamicDependentName = names.fromString(addDynamicDependentNameString);
         clearDynamicDependenciesName = names.fromString(clearDynamicDependenciesNameString);

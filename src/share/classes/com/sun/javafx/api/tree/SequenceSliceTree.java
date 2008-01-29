@@ -53,6 +53,6 @@ public interface SequenceSliceTree extends JavaFXExpressionTree {
      */
     int getEndKind();
     public static final int END_INCLUSIVE = 0;
-    // Maybe future:  public static final int END_EXCLUSIVE = 1;
+    public static final int END_EXCLUSIVE = 1;
     // Maybe future:  public static final int END_IS_COUNT = 2;
 }

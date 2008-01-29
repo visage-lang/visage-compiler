@@ -200,11 +200,6 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXSequenceSlice SequenceSlice(JCExpression sequence, JCExpression firstIndex, JCExpression lastIndex) {
-        return SequenceSlice(sequence, firstIndex,
-                lastIndex, JFXSequenceSlice.END_INCLUSIVE);
-    }
-
     public JFXSequenceSlice SequenceSlice(JCExpression sequence, JCExpression firstIndex, JCExpression lastIndex, int endKind) {
         JFXSequenceSlice tree = new JFXSequenceSlice(sequence, firstIndex,
                 lastIndex, endKind);

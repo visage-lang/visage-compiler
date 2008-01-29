@@ -2746,7 +2746,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         Type seqType = attribExpr(seq, env);
 
         attribExpr(tree.getFirstIndex(), env, syms.javafx_IntegerType);
-        attribExpr(tree.getLastIndex(), env, syms.javafx_IntegerType);
+        if (tree.getLastIndex() != null) {
+            attribExpr(tree.getLastIndex(), env, syms.javafx_IntegerType);
+        }
         result = check(tree, seqType, VAR, pkind, pt, pSequenceness);
     }
     
