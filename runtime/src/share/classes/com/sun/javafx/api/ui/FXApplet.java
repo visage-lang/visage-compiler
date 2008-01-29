@@ -64,6 +64,14 @@ public class FXApplet extends JApplet {
     public void init() {
         // invoke the applet's JavaFX Script runtime entry point
         try {
+            if (this instanceof FXObject) {
+                final FXObject fxo = (FXObject)this;
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        fxo.initialize$();
+                    }
+                });
+            }
             Class<?> appletClass = getAppletClass();
             if (appletClass != null) {
                 Method main = appletClass.getMethod(JavafxDefs.runMethodString);
