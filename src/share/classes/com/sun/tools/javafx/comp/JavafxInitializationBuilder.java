@@ -103,7 +103,7 @@ public class JavafxInitializationBuilder {
                     = names.fromString(JavafxTypeMorpher.locationPackageName + JavafxVarSymbol.typePrefixes[i] + "ChangeListener");
         sequenceReplaceListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "SequenceReplaceListener");
         sequenceChangeListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "SequenceChangeListener");
-        locationName = names.fromString("location");
+        locationName = names.fromString("location$");
         setDefaultsName = names.fromString("setDefaults$");
         addTriggersName = names.fromString("addTriggers$");
         userInitName = names.fromString("userInit$");
