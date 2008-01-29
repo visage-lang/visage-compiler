@@ -667,7 +667,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitForExpression(JFXForExpression tree) {
         try {
             boolean first = true;
-            print("foreach (");
+            print("for (");
             for (ForExpressionInClauseTree cl : tree.getInClauses()) {
                 JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
                 if (first) {
