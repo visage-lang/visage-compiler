@@ -2116,7 +2116,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     if (lhsType.getKind() == TypeKind.NULL) {
                         if (rhsType.getKind() == TypeKind.NULL) {
                             // both are known to be null
-                            return make.at(diagPos).Literal(true);
+                            return make.at(diagPos).Literal(TypeTags.BOOLEAN, 1);
                         } else if (rhsType.isPrimitive()) {
                             // lhs is null, rhs is primitive, do default check
                             return makePrimitiveNullCheck(rhsType, rhs);
