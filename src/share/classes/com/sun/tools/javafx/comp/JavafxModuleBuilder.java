@@ -25,9 +25,12 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree;
 import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.TypeTags;
 import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.TypeTags.BOT;
 import static com.sun.tools.javac.code.TypeTags.VOID;
@@ -150,6 +153,9 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
                 
         // Add run() method... If the class can be a module class.
         moduleClassDefs.prepend(makeMethod(defs.runMethodName, stats.toList(), value, syms.objectType));
+        
+        // FIXME: commented out until JFXC-592 addresses initialization of module variables
+        //addPseudoVariables(moduleClassName, module, moduleClassDefs);
 
         if (moduleClass == null) {
             moduleClass =  make.ClassDeclaration(
@@ -168,6 +174,35 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         module.defs = topLevelDefs.toList();
     }
     
+    private void addPseudoVariables(Name moduleClassName, JCCompilationUnit module,
+            ListBuffer<JCTree> moduleClassDefs) {
+        // java.net.URL __FILE__;
+        JCExpression moduleClassFQN = module.pid != null ?
+            make.Select(module.pid, moduleClassName) : make.Ident(moduleClassName);
+        JCExpression urlFQN = make.Identifier("java.net.URL");
+        JFXType urlType = make.TypeClass(urlFQN, TypeTree.Cardinality.SINGLETON);
+        Name __FILE__ = names.fromString("__FILE__");
+        JCExpression getFile = make.Identifier("com.sun.javafx.runtime.Util.get__FILE__");
+        List<JCExpression> args = List.<JCExpression>of(make.Literal(moduleClassFQN));
+        JCExpression getFileURL = make.Apply(List.<JCExpression>nil(), getFile, args);
+        moduleClassDefs.append(
+            make.Var(__FILE__, urlType, 
+                     make.Modifiers(Flags.PUBLIC | Flags.STATIC), 
+                     false, getFileURL, JavafxBindStatus.UNBOUND, 
+                     List.<JFXAbstractOnChange>nil()));
+        
+        // java.net.URL __DIR__;
+        Name __DIR__ = names.fromString("__DIR__");
+        JCExpression getDir = make.Identifier("com.sun.javafx.runtime.Util.get__DIR__");
+        args = List.<JCExpression>of(make.Ident(__FILE__));
+        JCExpression getDirURL = make.Apply(List.<JCExpression>nil(), getDir, args);
+        moduleClassDefs.append(
+            make.Var(__DIR__, urlType, 
+                     make.Modifiers(Flags.PUBLIC | Flags.STATIC), 
+                     false, getDirURL, JavafxBindStatus.UNBOUND, 
+                     List.<JFXAbstractOnChange>nil()));
+    }
+
     /**
      * Create the init method now so that all the classes in a compilation
      * unit can be detected to be JavaFX.
