@@ -136,8 +136,6 @@ public class RootDocImpl extends DocImpl implements RootDoc {
             if (pkg != null) {
                 pkg.isIncluded = true;
                 packlist.append(pkg);
-            } else {
-                env.warning(null, "main.no_source_files_for_package", name);
             }
         }
         cmdLinePackages = packlist.toList();

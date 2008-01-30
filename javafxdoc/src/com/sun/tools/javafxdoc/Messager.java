@@ -260,6 +260,11 @@ public class Messager extends Log implements DocErrorReporter {
         printWarning(pos, getText(key, args));
     }
 
+    @Override
+    public void warning(String key, Object... args) {
+        printWarning(getText(key, args));
+    }
+
     /**
      * Print a message.
      *

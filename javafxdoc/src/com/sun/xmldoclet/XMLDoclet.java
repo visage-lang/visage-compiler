@@ -28,11 +28,8 @@
 package com.sun.xmldoclet;
 
 import com.sun.javadoc.*;
-import com.sun.tools.javafxdoc.FieldDocImpl;
-import com.sun.tools.javafxdoc.ClassDocImpl;
-import com.sun.tools.javafxdoc.FunctionDocImpl;
-import com.sun.tools.javafxdoc.ParameterImpl;
 import java.io.*;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -124,7 +121,7 @@ public class XMLDoclet {
     public static boolean validOptions(String options[][],
                                        DocErrorReporter reporter) {
         for (String[] option : options) {
-            if (option[0].equals("-d"))
+            if (option[0].equals("-o"))
                 outFileName = option[1];
             else if (option[0].equals("-version"))
                 includeVersionTags = true;
@@ -180,7 +177,7 @@ public class XMLDoclet {
             }
             if (exec instanceof MethodDoc) {
                 MethodDoc m = (MethodDoc)exec;
-                generateTypeRef(m.returnType(), "returns", ((FunctionDocImpl)m).rawReturnType());
+                generateTypeRef(m.returnType(), "returns", rawReturnType(m));
                 MethodDoc overridden = m.overriddenMethod();
                 if (overridden != null) {
                     String name = overridden.qualifiedName();
@@ -204,7 +201,7 @@ public class XMLDoclet {
             generateComment(field);
             generateAnnotations(field.annotations());
             generateModifiers(field);
-            generateTypeRef(field.type(), "type", ((FieldDocImpl)field).rawType());
+            generateTypeRef(field.type(), "type", rawType(field));
             String constantValue = field.constantValueExpression();
             if (constantValue != null) {
                 attrs.clear();
@@ -228,7 +225,7 @@ public class XMLDoclet {
     }
 
     private void generateClass(ClassDoc cls) throws SAXException {
-        boolean fxClass = ((ClassDocImpl)cls).isJFXClass();
+        boolean fxClass = isJFXClass(cls);
         String classType = 
                 cls.isAnnotationType() ? "annotation" :
                 cls.isEnum() ? "enum" :
@@ -238,6 +235,7 @@ public class XMLDoclet {
         attrs.clear();
         attrs.addAttribute("", "", "name", "CDATA", cls.name());
         attrs.addAttribute("", "", "qualifiedName", "CDATA", cls.qualifiedName());
+        attrs.addAttribute("", "", "language", "CDATA", fxClass ? "javafx" : "java");
         hd.startElement("", "", classType, attrs);
         generateComment(cls);
         generateAnnotations(cls.annotations());
@@ -314,7 +312,7 @@ public class XMLDoclet {
             attrs.clear();
             attrs.addAttribute("", "", "name", "CDATA", p.name());
             hd.startElement("", "", "parameter", attrs);
-            generateTypeRef(p.type(), "type", ((ParameterImpl)p).rawType());
+            generateTypeRef(p.type(), "type", rawType(p));
             generateAnnotations(p.annotations());
             hd.endElement("", "", "parameter");
         }
@@ -341,11 +339,11 @@ public class XMLDoclet {
                                  com.sun.tools.javac.code.Type rawType) throws SAXException {
         if (type != null) {
             attrs.clear();
-            ClassDocImpl cdi = (ClassDocImpl)type.asClassDoc();
-            if (cdi != null && cdi.isSequence()) {
+            ClassDoc cd = type.asClassDoc();
+            if (cd != null && isSequence(cd)) {
                 if (rawType == null)
                     throw new AssertionError("unknown sequence type");
-                Type seqType = cdi.sequenceElementType(rawType);
+                Type seqType = sequenceElementType(cd, rawType);
                 attrs.addAttribute("", "", "typeName", "CDATA", seqType.typeName());
                 attrs.addAttribute("", "", "simpleTypeName", "CDATA", seqType.simpleTypeName());
                 attrs.addAttribute("", "", "qualifiedTypeName", "CDATA", seqType.qualifiedTypeName());
@@ -481,6 +479,59 @@ public class XMLDoclet {
             }
         }
         return msgRB.getString(key);
+    }
+    
+    private static boolean isJFXClass(ClassDoc clsDoc) {
+        return probe(clsDoc, "isJFXClass");
+    }
+    
+    private static boolean isSequence(ClassDoc clsDoc) {
+        return probe(clsDoc, "isSequence");
+    }
+    
+    private static boolean probe(ClassDoc clsDoc, String method) {
+        try {
+            Class<?> cls = clsDoc.getClass();
+            Method m = cls.getDeclaredMethod(method);
+            Object result = m.invoke(clsDoc);
+            return ((Boolean)result).booleanValue();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    private static com.sun.tools.javac.code.Type rawType(FieldDoc field) {
+        return rawType(field, "rawType");
+    }
+    
+    private static com.sun.tools.javac.code.Type rawType(Parameter param) {
+        return rawType(param, "rawType");
+    }
+    
+    private static com.sun.tools.javac.code.Type rawReturnType(MethodDoc method) {
+        return rawType(method, "rawReturnType");
+    }
+    
+    private static com.sun.tools.javac.code.Type rawType(Object o, String method) {
+        try {
+            Class<?> cls = o.getClass();
+            Method m = cls.getDeclaredMethod(method);
+            Object result = m.invoke(o);
+            return (com.sun.tools.javac.code.Type)result;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    private static Type sequenceElementType(ClassDoc cd, com.sun.tools.javac.code.Type rawType) {
+        try {
+            Class<?> cls = cd.getClass();
+            Method m = cls.getDeclaredMethod("sequenceElementType", com.sun.tools.javac.code.Type.class);
+            Object result = m.invoke(cd, (Object)rawType);
+            return (Type)result;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     static class Option {
