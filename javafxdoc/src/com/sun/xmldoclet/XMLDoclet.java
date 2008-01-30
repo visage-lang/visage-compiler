@@ -28,6 +28,7 @@
 package com.sun.xmldoclet;
 
 import com.sun.javadoc.*;
+import com.sun.xhtmldoclet.XHTMLProcessingUtils;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -56,6 +57,7 @@ public class XMLDoclet {
     private static boolean includeDeprecatedTags = true;
     private static boolean includeSinceTags = true;
     private static boolean includeVersionTags = false;
+    private static boolean processXSLT = false;
     
     private static ResourceBundle messageRB = null;
     
@@ -64,7 +66,8 @@ public class XMLDoclet {
         new Option("-version", getString("version.description")),
         new Option("-author", getString("author.description")),
         new Option("-nosince", getString("nosince.description")),
-        new Option("-nodeprecated", getString("nodeprecated.description"))
+        new Option("-nodeprecated", getString("nodeprecated.description")),
+        new Option("-processxslt", getString("processxslt.description"))
     };
 
     /**
@@ -77,6 +80,11 @@ public class XMLDoclet {
         try {
             XMLDoclet doclet = new XMLDoclet();
             doclet.generateXML(root);
+            
+            if(processXSLT) {
+                XHTMLProcessingUtils.main(null);
+            }
+            
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -131,6 +139,8 @@ public class XMLDoclet {
                 includeSinceTags = false;
             else if (option[0].equals("-nodeprecated"))
                 includeDeprecatedTags = false;
+            else if (option[0].equals("-processxslt"))
+                processXSLT = true;
         }
         return true;
     }
