@@ -796,8 +796,8 @@ postfixExpression
 	   | LBRACKET name PIPE expression RBRACKET		-> ^(PIPE $postfixExpression name expression)
 	   | LBRACKET first=expression
                (RBRACKET					-> ^(SEQ_INDEX $postfixExpression $first)
-	       | DOTDOT last=expression? RBRACKET		-> ^(SEQ_SLICE $postfixExpression $first $last)
-	       | DOTDOT LT last=expression? RBRACKET		-> ^(SEQ_SLICE_EXCLUSIVE $postfixExpression $first $last)
+	       | DOTDOT last=expression? RBRACKET		-> ^(SEQ_SLICE $postfixExpression $first $last?)
+	       | DOTDOT LT last=expression? RBRACKET		-> ^(SEQ_SLICE_EXCLUSIVE $postfixExpression $first $last?)
                )
 	   ) * 
 	;

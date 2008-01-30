@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.lang.model.type.TypeKind;
 
 import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.tools.javac.code.*;
 import static com.sun.tools.javac.code.Flags.*;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
@@ -1341,7 +1342,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             JFXSequenceSlice si = (JFXSequenceSlice)tree.lhs;
             JCExpression seq = translate(si.getSequence(), Wrapped.InLocation); 
             JCExpression firstIndex = translate(si.getFirstIndex());
-            JCExpression lastIndex = translate(si.getLastIndex());
+            JCExpression lastIndex = makeSliceLastIndex(si);
             JCFieldAccess select = make.Select(seq, defs.replaceSliceMethodName);
             List<JCExpression> args = List.of(firstIndex, lastIndex, rhs);
             result = make.at(diagPos).Apply(null, select, args);
@@ -1621,7 +1622,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         DiagnosticPosition diagPos = tree.pos();
         JCExpression seq = translate(tree.getSequence(), Wrapped.InLocation);  
         JCExpression firstIndex = translate(tree.getFirstIndex());
-        JCExpression lastIndex = translate(tree.getLastIndex());
+        JCExpression lastIndex = makeSliceLastIndex(tree);
         JCFieldAccess select = make.at(diagPos).Select(seq, defs.getSliceMethodName);
         List<JCExpression> args = List.of(firstIndex, lastIndex);
         result = make.at(diagPos).Apply(null, select, args);
@@ -1656,6 +1657,22 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     /**** utility methods ******/
+    
+    JCExpression makeSliceLastIndex(JFXSequenceSlice tree) {
+        JCExpression lastIndex = tree.getLastIndex() == null ? 
+                callExpression(tree, 
+                    translate(tree.getSequence()),
+                    defs.sizeMethodName) : 
+                translate(tree.getLastIndex());
+        int decr = 
+                (tree.getEndKind() == SequenceSliceTree.END_EXCLUSIVE ? 1 : 0) +
+                (tree.getLastIndex() == null ? 1 : 0);
+        if (decr > 0) {
+            lastIndex = make.at(tree).Binary(JavafxTag.MINUS,
+                    lastIndex, make.Literal(TypeTags.INT, decr));
+        }
+        return lastIndex;
+    }
     
     /**
      * For an attribute "attr" make an access to it via the receiver and getter  
@@ -2795,7 +2812,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             public JCTree doit() {
                 switch (tree.getTag()) {
                     case JavafxTag.SIZEOF:
-                        return callExpression(diagPos, makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"), "size", transExpr);
+                        return callExpression(diagPos, 
+                                makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"), 
+                                defs.sizeMethodName, transExpr);
                     case JCTree.PREINC:
                         return doIncDec(JCTree.PLUS, false);
                     case JCTree.PREDEC:
