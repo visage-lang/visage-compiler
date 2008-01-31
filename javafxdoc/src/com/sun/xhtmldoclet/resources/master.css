@@ -1,0 +1,193 @@
+/* 
+    Document   : master
+    Created on : Jan 30, 2008, 9:34:34 PM
+    Author     : joshy
+    Description:
+        Purpose of the stylesheet follows.
+*/
+body {
+	margin: 0px;
+	background-color: #ace0b8;
+}
+
+
+#classList, #packageList {
+	border-style: none;
+	padding: 0px;
+	margin: .5em;
+	list-style-type: none;
+}
+#classList a, #packageList a {
+	font-family: Helvetica, Verdana, Arial, sans-serif;
+	font-style: normal;
+	font-weight: normal;
+	text-align: left;
+	font-size: 90%;
+	text-decoration: none;
+}
+#classList a:hover, #packageList a:hover {
+	text-decoration: underline;
+}
+
+
+body {
+	font-family: Helvetica, Verdana, Arial, sans-serif;
+	padding: 0em;
+	margin: 0px;
+	background-color: #d1dfd1;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+#header {
+	font-size: 80%;
+	padding: .5em;
+	margin: 0px;
+	font-style: normal;
+	font-weight: normal;
+	font-family: Helvetica, Verdana, Arial, sans-serif;
+	color: white;
+	background-color: #1a3656;
+}
+
+#header .modifiers {
+}
+
+#header .classname {
+	font-style: normal;
+	font-weight: normal;
+	font-size: 250%;
+}
+
+#navigation {
+	margin-left: 0px;
+	margin-bottom: 1em;
+	margin-right: 0px;
+	margin-top: 0px;
+	text-align: right;
+	padding: .3em;
+	font-family: Helvetica, Verdana, Arial, sans-serif;
+	font-size: 100%;
+	color: #454545;
+	background-color: #6d819d;
+}
+
+#navigation a {
+	text-decoration: none;
+	color: black;
+}
+
+#navigation a:hover {
+	text-decoration: underline;
+}
+
+#class-comment {
+	font-size: 90%;
+	margin: .5em;
+}
+
+#toc h3 {
+	color: #1a3656;
+	margin-left: .5em;
+}
+
+#toc li {
+	padding-bottom: .5em;
+	color: #1a3656;
+}
+
+ #toc li i {
+	font-size: 90%;
+	color: #454545;
+	font-style: italic;
+}
+
+#toc li a {
+	color: #1a3656;
+}
+
+#toc li b {
+	color: #1a3656;
+	font-weight: bold;
+}
+
+div.methods {
+	margin: .5em;
+}
+
+div.methods h2 {
+	margin-top: 5em;
+	text-shadow: 0px 2px 3px #73706e;
+	margin-right: 3em;
+	padding-left: 1em;
+	border-left-width: 0px;
+	border-bottom-width: 1px;
+	border-right-width: 0px;
+	border-top-width: 0px;
+	border-style: solid;
+	color: #454545;
+}
+
+div.methods div {
+	margin: 1em;
+}
+
+div.methods div h4 {
+	padding-top: 10px;
+	border-style: solid;
+	border-left-width: 0px;
+	border-bottom-width: 0px;
+	border-right-width: 0px;
+	border-top-width: 1px;
+	margin-top: 5em;
+	color: #73706e;
+	font-size: 90%;
+	font-style: normal;
+	font-weight: normal;
+}
+
+div.methods div h4 .parameters b {
+	color: #1a3656;
+	font-weight: bold;
+}
+
+div.methods div h4 b {
+	color: #1a3656;
+}
+
+div.methods .comment, div.methods pre {
+	margin-left: 1em;
+	font-size: 90%;
+}
+
+div.methods pre {
+	padding: .5em;
+	background-color: white;
+	border-color: #73706e;
+	border-style: solid;
+	border-width: 1px;
+}
+
+div.methods pre i {
+	color: #326913;
+}
+
+div.methods pre b {
+	color: #1a3656;
+}
+
+div.methods div img {
+	text-shadow: 5px 5px 5px black;
+	border-color: black;
+	border-style: solid;
+	border-width: 1px;
+	background-color: white;
+	padding: 2px;
+}
+

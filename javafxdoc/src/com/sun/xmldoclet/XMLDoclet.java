@@ -60,6 +60,7 @@ public class XMLDoclet {
     private static boolean processXSLT = false;
     
     private static ResourceBundle messageRB = null;
+    public static String xsltFileName = null;
     
     static final Option[] options = {
         new Option("-o", getString("out.file.option"), getString("out.file.description")),
@@ -67,7 +68,8 @@ public class XMLDoclet {
         new Option("-author", getString("author.description")),
         new Option("-nosince", getString("nosince.description")),
         new Option("-nodeprecated", getString("nodeprecated.description")),
-        new Option("-processxslt", getString("processxslt.description"))
+        new Option("-processxslt", getString("processxslt.description")),
+        new Option("-xsltfile", getString("xsltfile.description"), "<file>")
     };
 
     /**
@@ -128,6 +130,11 @@ public class XMLDoclet {
      */
     public static boolean validOptions(String options[][],
                                        DocErrorReporter reporter) {
+        for(int i=0; i< options.length; i++) {
+            for(int j=0; j<options[i].length; j++) {
+                System.out.println("got: " + options[i][j]);
+            }
+        }
         for (String[] option : options) {
             if (option[0].equals("-o"))
                 outFileName = option[1];
@@ -141,6 +148,8 @@ public class XMLDoclet {
                 includeDeprecatedTags = false;
             else if (option[0].equals("-processxslt"))
                 processXSLT = true;
+            else if (option[0].equals("-xsltfile"))
+                xsltFileName = option[1];
         }
         return true;
     }
@@ -263,6 +272,7 @@ public class XMLDoclet {
             for (ConstructorDoc cons : cls.constructors())
                 generateExecutableMember(cons, "constructor");
         }
+        
         for (MethodDoc meth : cls.methods())
             generateExecutableMember(meth, fxClass ? "function" : "method");
         for (FieldDoc field : cls.fields())
