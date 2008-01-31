@@ -34,8 +34,13 @@ import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
 import java.awt.dnd.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.List;
 import javax.swing.tree.TreePath;
 
@@ -110,6 +115,20 @@ abstract public class ValueTransferHandler extends TransferHandler {
     @Override
     protected void exportDone(JComponent c, Transferable data, int action) {
         cleanup(c, action == MOVE);
+    }
+
+
+    private Object getString(Reader reader) {
+        StringBuffer sb = new StringBuffer();
+        try {
+            char[] cbuf = new char[8192];
+            for (int nbytes = reader.read(cbuf); nbytes >= 0; nbytes = reader.read(cbuf)) {
+                sb.append(cbuf, 0, nbytes);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(ValueTransferHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return sb.toString();
     }
 
     class MyDropTargetListener implements DropTargetListener {
@@ -218,6 +237,13 @@ abstract public class ValueTransferHandler extends TransferHandler {
                         return true;
                     }
                     Object obj = t.getTransferData(f);
+                    if(obj instanceof InputStream) {
+                        obj = getString(new InputStreamReader((InputStream)obj));
+                    }else if(obj instanceof Reader) {
+                        obj = getString((Reader)obj);
+                    }else if (obj instanceof byte[]){
+                        obj = new String((byte[])obj);
+                    }
                     return canImport(obj);
                 }
             }
