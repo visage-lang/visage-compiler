@@ -257,18 +257,20 @@ public class XMLDoclet {
         attrs.addAttribute("", "", "language", "CDATA", fxClass ? "javafx" : "java");
         hd.startElement("", "", classType, attrs);
         generateComment(cls);
-        generateAnnotations(cls.annotations());
         generateModifiers(cls);
-        generateTypeParameters(cls.typeParameters());
+        if (!fxClass) {
+            generateAnnotations(cls.annotations());
+            generateTypeParameters(cls.typeParameters());
+        }
         generateTypeRef(cls.superclass(), "superclass", null);
         attrs.clear();
         hd.startElement("", "", "interfaces", attrs);
         for (Type intf : cls.interfaces())
             generateTypeRef(intf, "interface", null);
         hd.endElement("", "", "interfaces");
-        for (ClassDoc inner : cls.innerClasses())
-            generateClass(inner);
         if (!fxClass) {
+            for (ClassDoc inner : cls.innerClasses())
+                generateClass(inner);
             for (ConstructorDoc cons : cls.constructors())
                 generateExecutableMember(cons, "constructor");
         }
