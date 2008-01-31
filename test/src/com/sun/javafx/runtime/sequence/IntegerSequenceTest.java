@@ -93,6 +93,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(0, seq.size());
         assertTrue(seq.isEmpty());
         assertEquals(seq, seq);
+        assertTrue(Sequences.isEqual(seq, null));
+        assertTrue(Sequences.isEqual(null, seq));
         assertEquals(0, seq.hashCode());
         assertThrows(IndexOutOfBoundsException.class,
                 new VoidCallable() { public void call() throws Exception {

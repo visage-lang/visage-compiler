@@ -25,8 +25,8 @@
 
 package com.sun.javafx.runtime;
 
-import com.sun.javafx.runtime.sequence.AbstractSequence;
 import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
 
 /**
  * Various runtime checks too messy to do inline
@@ -55,7 +55,7 @@ public class Checks {
      * @return true if they are equal
      */
     public static boolean equals(Sequence a, Sequence b) {
-        return AbstractSequence.isEqual(a, b);
+        return Sequences.isEqual(a, b);
     }
 
     /**

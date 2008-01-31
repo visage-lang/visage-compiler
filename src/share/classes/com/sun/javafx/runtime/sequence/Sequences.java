@@ -303,4 +303,18 @@ public final class Sequences {
             unboxed[i] = seq.get(i);
         return unboxed;
     }
+
+    public static<T> boolean isEqual(Sequence<T> one, Sequence<T> other) {
+        int oneSize = size(one);
+        if (oneSize == 0)
+            return size(other) == 0;
+        else if (oneSize != size(other))
+            return false;
+        else
+            for (int i = 0; i < oneSize; i++) {
+                if (!one.get(i).equals(other.get(i)))
+                    return false;
+        }
+        return true;
+    }
 }

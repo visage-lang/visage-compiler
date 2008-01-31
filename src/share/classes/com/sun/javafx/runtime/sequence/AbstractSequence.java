@@ -115,7 +115,7 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         if (!(obj instanceof Sequence))
             return false;
         Sequence other = (Sequence) obj;
-        return (other.getElementType().isAssignableFrom(getElementType())) && isEqual(this, (Sequence<T>) other);
+        return (other.getElementType().isAssignableFrom(getElementType())) && Sequences.isEqual(this, (Sequence<T>) other);
     }
 
     @Override
@@ -126,16 +126,6 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
             hash = 31 * hash + (val != null ? val.hashCode() : 0);
         }
         return hash;
-    }
-
-    public static<T> boolean isEqual(Sequence<T> one, Sequence<T> other) {
-        if (Sequences.size(one) != Sequences.size(other))
-            return false;
-        for (int i = 0; i < one.size(); i++) {
-            if (!one.get(i).equals(other.get(i)))
-                return false;
-        }
-        return true;
     }
 
 
