@@ -10,6 +10,7 @@
             <body>
                 <xsl:apply-templates select="/class"/>
                 <xsl:apply-templates select="/abstractClass"/>
+                <xsl:apply-templates select="/interface"/>
             </body>
         </html>
     </xsl:template>
@@ -18,6 +19,9 @@
         <xsl:call-template name="classOutput"/>
     </xsl:template>
     <xsl:template match="abstractClass">
+        <xsl:call-template name="classOutput"/>
+    </xsl:template>
+    <xsl:template match="interface">
         <xsl:call-template name="classOutput"/>
     </xsl:template>
     
@@ -91,7 +95,7 @@
             
             <div class="methods">
                 <h2>Methods</h2>
-                <xsl:for-each select="methods">
+                <xsl:for-each select="method">
                     <xsl:sort select="@name" order="ascending"/>
                     <xsl:apply-templates select="."/>
                 </xsl:for-each>
@@ -102,7 +106,7 @@
 
     <xsl:template match="docComment/commentText">
         <p class="comment">
-            <xsl:value-of select="."/>
+            <xsl:value-of select="." disable-output-escaping="yes"/>
         </p>
     </xsl:template>
     
@@ -244,8 +248,8 @@
                 (
                 <i class="parameters">
                 <xsl:for-each select="parameters/parameter">
-                    <b><xsl:value-of select="@name"/></b>:
-                    <i><xsl:value-of select="type/@qualifiedTypeName"/></i>,
+                    <i><xsl:value-of select="type/@qualifiedTypeName"/></i>
+                    <b><xsl:value-of select="@name"/></b>,
                 </xsl:for-each>
                 </i>
                 )

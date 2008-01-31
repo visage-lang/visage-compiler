@@ -93,6 +93,9 @@ public class XHTMLProcessingUtils {
 
         copy(XHTMLProcessingUtils.class.getResource("resources/frameset.html"), new File(docsdir, "frameset.html"));
         copy(XHTMLProcessingUtils.class.getResource("resources/demo.css"), new File(docsdir, "demo.css"));
+        File images = new File(docsdir,"images");
+        images.mkdir();
+        copy(XHTMLProcessingUtils.class.getResource("resources/quote-background-1.gif"), new File(images, "quote-background-1.gif"));
         //copy(new File("demo.css"), new File(docsdir, "demo.css"));
 
         p("transforming");
@@ -158,7 +161,7 @@ public class XHTMLProcessingUtils {
         packageDir.mkdir();
         //classes
         NodeList classesNodeList = (NodeList) xpath.evaluate(
-                    "*[name() = 'class' or name() = 'abstractClass']",
+                    "*[name() = 'class' or name() = 'abstractClass' or name() = 'interface']",
                     pkg, XPathConstants.NODESET);
         List<Element> classes = sort(classesNodeList);
         p("classes = " + classes.size());

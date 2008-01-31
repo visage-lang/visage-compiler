@@ -17,13 +17,28 @@ div {
 	margin: 0;
 }
 
-.class-comment {
 
+/* === top overview comment section === */
+div.class-comment {
 	font-family: Georgia, "Times New Roman", Times, serif;
-
 	margin: 0em;
-
+	padding: .5em;
+	background-color: white;
+	margin: 1em;
 }
+
+div.class-comment pre code {
+	padding: .5em;
+	border-left-width: 3px;
+	border-bottom-width: 0px;
+	border-right-width: 0px;
+	border-top-width: 0px;
+	border-color: #878787;
+	border-style: solid;
+	background-image: url(../images/quote-background-1.gif);
+}
+
+
 
 /* == top header == */
 .class h1.classname {
