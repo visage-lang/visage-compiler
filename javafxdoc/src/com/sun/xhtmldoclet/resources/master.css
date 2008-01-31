@@ -161,6 +161,33 @@ div.methods div h4 b {
 	color: #1a3656;
 }
 
+
+div.method h5 {
+	margin: 0px;
+}
+
+div.method .parameter-list {
+	list-style-type: none;
+	margin-left: 2em;
+	margin-bottom: 0em;
+	margin-right: 0em;
+	margin-top: 0em;
+	padding: 0px;
+}
+div.method .parameter-list li {
+	list-style-type: none;
+    }
+
+div.method .return-list {
+	margin-left: 2em;
+	margin-bottom: 0px;
+	margin-right: 0px;
+	margin-top: 0px;
+	list-style-type: none;
+	padding: 0px;
+}
+
+
 div.methods .comment, div.methods pre {
 	margin-left: 1em;
 	font-size: 90%;

@@ -7,49 +7,61 @@
     
     <xsl:template match="/">
         <html>
-                <xsl:apply-templates select="/class"/>
-                <xsl:apply-templates select="/abstractClass"/>
-                <xsl:apply-templates select="/interface"/>
-                <xsl:apply-templates select="/classList"/>
-                <xsl:apply-templates select="/packageList"/>
+            <xsl:apply-templates select="/class"/>
+            <xsl:apply-templates select="/abstractClass"/>
+            <xsl:apply-templates select="/interface"/>
+            <xsl:apply-templates select="/classList"/>
+            <xsl:apply-templates select="/packageList"/>
         </html>
     </xsl:template>
     
+    
+    
+    
+    
     <xsl:template match="packageList">
-            <head>
-                <link href="master.css" rel="stylesheet"/>
-            </head>
-            <body>
-        <ul id="packageList">
-            <xsl:for-each select="package">
-                <li>
-                    <a target='classListFrame'>
-                        <xsl:attribute name="href"><xsl:value-of select="@name"/>/classes.html</xsl:attribute>
-                        <xsl:value-of select="@name"/>
-                    </a>
-                </li>
-            </xsl:for-each>
-        </ul>
-            </body>
+        <head>
+            <link href="master.css" rel="stylesheet"/>
+        </head>
+        <body>
+            <ul id="packageList">
+                <xsl:for-each select="package">
+                    <li>
+                        <a target='classListFrame'>
+                            <xsl:attribute name="href"><xsl:value-of select="@name"/>/classes.html</xsl:attribute>
+                            <xsl:value-of select="@name"/>
+                        </a>
+                    </li>
+                </xsl:for-each>
+            </ul>
+        </body>
     </xsl:template>
     
+    
+    
+    
     <xsl:template match="classList">
-            <head>
-                <link href="../master.css" rel="stylesheet"/>
-            </head>
-            <body>
-        <ul id="classList">
-            <xsl:for-each select="class">
-                <li>
-                    <a target='classFrame'>
-                        <xsl:attribute name="href"><xsl:value-of select="@qualifiedName"/>.html</xsl:attribute>
-                        <xsl:value-of select="@name"/>
-                    </a>
-                </li>
-            </xsl:for-each>
-        </ul>
-            </body>
+        <head>
+            <link href="../master.css" rel="stylesheet"/>
+        </head>
+        <body>
+            <ul id="classList">
+                <xsl:for-each select="class">
+                    <li>
+                        <a target='classFrame'>
+                            <xsl:attribute name="href"><xsl:value-of select="@qualifiedName"/>.html</xsl:attribute>
+                            <xsl:value-of select="@name"/>
+                        </a>
+                    </li>
+                </xsl:for-each>
+            </ul>
+        </body>
     </xsl:template>
+    
+    
+    
+    
+    
     
     <xsl:template match="class">
         <xsl:call-template name="classOutput"/>
@@ -62,11 +74,13 @@
     </xsl:template>
     
     
+    
+    
     <xsl:template name="classOutput">
-            <head>
-                <link href="../master.css" rel="stylesheet"/>
-            </head>
-            <body>
+        <head>
+            <link href="../master.css" rel="stylesheet"/>
+        </head>
+        <body>
             <h1 id="header">
                 <i class="modifiers">
                     <xsl:value-of select="modifiers/@text"/>
@@ -199,9 +213,9 @@
                 </div>
             </xsl:if>
             
-            </body>
+        </body>
     </xsl:template>
-
+    
     
     <!-- class comments -->
     <xsl:template match="docComment/commentText">
@@ -210,7 +224,7 @@
         </p>
     </xsl:template>
     
-
+    
     
     
     
