@@ -34,8 +34,13 @@ import javafx.ui.AbstractMenuItem;
 
 public class MenuItem extends AbstractMenuItem {
     protected attribute jmenuitem:javax.swing.JMenuItem;
+    public attribute actionCommand:javax.swing.Action on replace {
+        if(jmenuitem <> null) {
+            jmenuitem.setAction(actionCommand);
+        }
+    }
     protected function createMenuItem():javax.swing.JMenuItem{
-        var menuItem = new javax.swing.JMenuItem();
+        var menuItem = new javax.swing.JMenuItem(actionCommand);
         //TODO Widget  UIContext
         //menuItem.setIcon(new javax.swing.ImageIcon(context.getTransparentImage(13, 13)));
         return menuItem;
@@ -69,6 +74,8 @@ public class MenuItem extends AbstractMenuItem {
     }
     public attribute action: function():Void;
     
+    
+    
     public function createComponent():javax.swing.JComponent {
         jmenuitem = this.createMenuItem();
         jmenuitem.setOpaque(false);
@@ -97,5 +104,50 @@ public class MenuItem extends AbstractMenuItem {
             jmenuitem.setText(text);
         }
         return jmenuitem;
+    }  
+    
+    /**
+     * Creates a "copy" MenuItem 
+     * 
+     * @return returns a MenuItem with text="Copy", mnemonic="C", 
+     * and action = DefaultEditorKit.CopyAction
+     * @see javax.swing.text.DefaultEditorKit.CopyAction
+     */
+    public static function copyMenuItem():MenuItem {
+        MenuItem {
+          text: "Copy"
+          mnemonic: KeyStroke.C
+          actionCommand: new javax.swing.text.DefaultEditorKit.CopyAction()
+        };
+    }
+    
+    /**
+     * Creates a "cut" MenuItem 
+     * 
+     * @return returns a MenuItem with text="Cut", mnemonic="T", 
+     * and action = DefaultEditorKit.CitAction
+     * @see javax.swing.text.DefaultEditorKit.CutAction
+     */    
+    public static function cutMenuItem():MenuItem {
+        MenuItem {
+            text: "Cut"
+            mnemonic: KeyStroke.T
+            actionCommand: new javax.swing.text.DefaultEditorKit.CutAction()
+        };
+    } 
+    
+    /**
+     * Creates a "paste" MenuItem 
+     * 
+     * @return returns a MenuItem with text="Paste", mnemonic="P", 
+     * and action = DefaultEditorKit.PasteAction
+     * @see javax.swing.text.DefaultEditorKit.PasteAction
+     */    
+    public static function pasteMenuItem():MenuItem {
+        return MenuItem {
+            text: "Paste"
+            mnemonic: KeyStroke.P 
+            actionCommand: new javax.swing.text.DefaultEditorKit.PasteAction()
+        };
     }    
 }
