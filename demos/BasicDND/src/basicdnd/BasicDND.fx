@@ -139,12 +139,37 @@ var checkBox = CheckBox {
     }
 };
 
-
 Frame {
     title: "JavaFX BasicDND"
     onClose: function() {System.exit(0);}
     visible: true  
-   
+    menubar: MenuBar {
+        menus: [ Menu {
+                text: 'File'
+                mnemonic: KeyStroke.F
+                items: [
+                    MenuSeparator{},
+                    MenuItem {
+                        text: 'Exit'
+                        mnemonic: KeyStroke.X
+                        action: function() {
+                             java.lang.System.exit(0);
+                         }
+
+                    }
+                ]
+            },
+            Menu {
+                text: 'Edit'
+                mnemonic: KeyStroke.E
+                items: [
+                    MenuItem.cutMenuItem(),
+                    MenuItem.copyMenuItem(),
+                    MenuItem.pasteMenuItem()
+                ]
+            }
+            ]
+    }
     content: BorderPanel {
         border: EmptyBorder {top: 5 , left: 5, bottom: 5, right: 5}
         center: SplitPane {
