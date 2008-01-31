@@ -14,12 +14,15 @@
             <classpath>
                 <path path="${javac.classpath}"/>
             </classpath>
-            <compilerarg value="-J-Xbootclasspath/p:${basedir}${file.separator}lib${file.separator}javac.jar"/>
+            <compilerarg value="-J-Xbootclasspath/p:${file.reference.javac.jar}"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <copy todir="${build.classes.dir}">
             <fileset dir="${src.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
     </target>
+
+    <!-- don't generate any javadoc, since there is no public API -->
+    <target name="javadoc"/>
 
 </project>

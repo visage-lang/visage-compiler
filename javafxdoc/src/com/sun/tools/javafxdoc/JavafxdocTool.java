@@ -132,7 +132,7 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
         docenv.setLocale(doclocale);
         docenv.setEncoding(encoding);
         docenv.docClasses = docClasses;
-        docenv.legacyDoclet = true; // legacyDoclet;  always true for FX classes
+        docenv.legacyDoclet = legacyDoclet;
         clsreader.sourceCompleter = docClasses ? null : this;
 
         ListBuffer<String> filenames = new ListBuffer<String>();
@@ -171,7 +171,6 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
                 // Enter symbols for all files
                 docenv.notice("main.Building_tree");
                 enterTrees(classTrees.toList().appendList(packTrees.toList()));
-                attribute();
             }
         } catch (Abort ex) {}
 
@@ -362,7 +361,7 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
         ListBuffer<JCClassDecl> result = new ListBuffer<JCClassDecl>();
         for (JCCompilationUnit t : trees) {
             for (JCTree def : t.defs) {
-                if (def.tag == JCTree.CLASSDEF)
+                if (def.getTag() == JCTree.CLASSDEF)
                     result.append((JCClassDecl)def);
             }
         }

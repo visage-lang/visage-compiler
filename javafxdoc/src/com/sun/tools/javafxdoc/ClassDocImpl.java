@@ -1042,7 +1042,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
 
         Name asterisk = tsym.name.table.asterisk;
         for (JCTree t : compenv.toplevel.defs) {
-            if (t.tag == JCTree.IMPORT) {
+            if (t.getTag() == JCTree.IMPORT) {
                 JCTree imp = ((JCImport) t).qualid;
                 if ((TreeInfo.name(imp) != asterisk) &&
                         (imp.type.tsym.kind & Kinds.TYP) != 0) {
@@ -1083,7 +1083,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
         if (compenv == null) return new PackageDocImpl[0];
 
         for (JCTree t : compenv.toplevel.defs) {
-            if (t.tag == JCTree.IMPORT) {
+            if (t.getTag() == JCTree.IMPORT) {
                 JCTree imp = ((JCImport) t).qualid;
                 if (TreeInfo.name(imp) == names.asterisk) {
                     JCFieldAccess sel = (JCFieldAccess)imp;
@@ -1258,22 +1258,5 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
         return SourcePositionImpl.make(tsym.sourcefile.toString(),
                                        (tree==null) ? Position.NOPOS : tree.pos,
                                        lineMap);
-    }
-    
-    public boolean isJFXClass() {
-        return env.isJFXSymbol(tsym);
-    }
-    
-    public boolean isSequence() {
-        return env.isSequence(tsym);
-    }
-    
-    public com.sun.javadoc.Type sequenceElementType(com.sun.tools.javac.code.Type rawType) {
-        if (isSequence()) {
-            com.sun.tools.javac.code.Type rawSeqType = env.sequenceElementType(rawType);
-            com.sun.javadoc.Type seqType = TypeMaker.getType(env, rawSeqType, false);
-            return seqType;
-        }
-        return null;
     }
 }
