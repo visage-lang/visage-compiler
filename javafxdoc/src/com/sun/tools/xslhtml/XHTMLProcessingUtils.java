@@ -2,10 +2,8 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.sun.xhtmldoclet;
+package com.sun.tools.xslhtml;
 
-import com.sun.javadoc.RootDoc;
-import com.sun.xmldoclet.XMLDoclet;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -53,10 +51,10 @@ public class XHTMLProcessingUtils {
         // TODO code application logic here
         
         //hack to get this to work on the mac
-//       System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-//            "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
-//        System.setProperty("jajavaxvax.xml.parsers.SAXParserFactory",
-//            "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+            "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
+        System.setProperty("javax.xml.parsers.SAXParserFactory",
+            "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
         
         
         
@@ -92,7 +90,7 @@ public class XHTMLProcessingUtils {
         p("copying");
 
         copy(XHTMLProcessingUtils.class.getResource("resources/frameset.html"), new File(docsdir, "frameset.html"));
-        copy(XHTMLProcessingUtils.class.getResource("resources/master.css"), new File(docsdir, "master.css"));
+        copy(XHTMLProcessingUtils.class.getResource("resources/demo.css"), new File(docsdir, "demo.css"));
         File images = new File(docsdir,"images");
         images.mkdir();
         copy(XHTMLProcessingUtils.class.getResource("resources/quote-background-1.gif"), new File(images, "quote-background-1.gif"));
@@ -101,12 +99,9 @@ public class XHTMLProcessingUtils {
         p("transforming");
 
 
-        URL xslturl = XHTMLProcessingUtils.class.getResource("resources/javadoc.xsl");
-        if(XMLDoclet.xsltFileName != null) {
-            xslturl = new File(XMLDoclet.xsltFileName).toURL();
-        }
-        p("reading xslt from: " + xslturl);
-        Source xslt = new StreamSource(xslturl.openStream());
+        //File xsltFile = new File("javadoc.xsl");
+        //p("reading xslt exists in: " + xsltFile.exists());
+        Source xslt = new StreamSource(XHTMLProcessingUtils.class.getResourceAsStream("resources/javadoc.xsl"));
         Transformer trans = TransformerFactory.newInstance().newTransformer(xslt);
         trans.setErrorListener(new ErrorListener() {
 
@@ -138,63 +133,51 @@ public class XHTMLProcessingUtils {
         // packages
         NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET);
         p("doing packages: " + packages.getLength());
-        
+        FileOutputStream packages_html = new FileOutputStream(new File(docsdir, "packages.html"));
+        Writer packages_writer = new OutputStreamWriter(packages_html);
+        packages_writer.write("<html><head><link href='demo.css' rel='stylesheet'/></head><body><ul class='package-list'>");
+        FileOutputStream classes_html = new FileOutputStream(new File(docsdir, "classes.html"));
+        Writer classes_writer = new OutputStreamWriter(classes_html);
+        classes_writer.write("<html><head><link href='../demo.css' rel='stylesheet'/></head><body><ul>");
 
-        Document packagesDoc = builder.newDocument();
-        Element packagesList = packagesDoc.createElement("packageList");
-        packagesDoc.appendChild(packagesList);
-        
-        
         for (int i = 0; i < packages.getLength(); i++) {
             Element pkg = ((Element) packages.item(i));
             String name = pkg.getAttribute("name");
-            Element packageElement = packagesDoc.createElement("package");
-            packageElement.setAttribute("name", name);
-            packagesList.appendChild(packageElement);
-            processPackage(name, pkg, xpath, docsdir, trans, builder);
+            packages_writer.write("<li><a href='"+name+"/classes.html' target='classListFrame'>" + name + "</a></li>");
+            processPackage(name, pkg, xpath, docsdir, trans);
         }
 
-        
-        
-        File xhtmlFile = new File(docsdir, "packages.html");
-        Result xhtmlResult = new StreamResult(xhtmlFile);
-        Source xmlSource = new DOMSource(packagesDoc);
-        trans.transform(xmlSource, xhtmlResult);
+        classes_writer.write("</ul></body></html>");
+        classes_writer.close();
+        packages_writer.write("</ul></body></html>");
+        packages_writer.close();
     }
 
 
-    private static void processPackage(String packageName, Element pkg, XPath xpath, File docsdir, Transformer trans, DocumentBuilder builder)
-            throws TransformerException, XPathExpressionException, IOException, FileNotFoundException {
+    private static void processPackage(String packageName, Element pkg, XPath xpath, File docsdir, Transformer trans) throws TransformerException, XPathExpressionException, IOException, FileNotFoundException {
         File packageDir = new File(docsdir, packageName);
         packageDir.mkdir();
-        
-        
+        //classes
         NodeList classesNodeList = (NodeList) xpath.evaluate(
                     "*[name() = 'class' or name() = 'abstractClass' or name() = 'interface']",
                     pkg, XPathConstants.NODESET);
         List<Element> classes = sort(classesNodeList);
         p("classes = " + classes.size());
-        
-        Document classListDoc = builder.newDocument();
-        Element classListElement = classListDoc.createElement("classList");
-        classListDoc.appendChild(classListElement);
+        FileOutputStream package_classes_html = new FileOutputStream(new File(packageDir, "classes.html"));
+        Writer package_classes_writer = new OutputStreamWriter(package_classes_html);
+        package_classes_writer.write("<html><head><link href='../demo.css' rel='stylesheet'/></head><body><ul class='class-list'>");
         for(Element clazz : classes) {
-            processClass(clazz, classListElement, trans, packageDir);
+            processClass(clazz, package_classes_writer,trans, packageDir);
         }
-        File xhtmlFile = new File(packageDir, "classes.html");
-        Result xhtmlResult = new StreamResult(xhtmlFile);
-        Source xmlSource = new DOMSource(classListDoc);
-        trans.transform(xmlSource, xhtmlResult);
+        package_classes_writer.write("</ul></body></html>");
+        package_classes_writer.close();
     }
 
     
-    private static void processClass(Element clazz, Element pkg, Transformer trans, File packageDir) throws TransformerException, IOException {
+    private static void processClass(Element clazz, Writer package_classes_writer, Transformer trans, File packageDir) throws TransformerException, IOException {
         String qualifiedName = clazz.getAttribute("qualifiedName");
         String name = clazz.getAttribute("name");
-        Element classElement = pkg.getOwnerDocument().createElement("class");
-        classElement.setAttribute("qualifiedName", qualifiedName);
-        classElement.setAttribute("name", name);
-        pkg.appendChild(classElement);
+        package_classes_writer.write("<li><a href='" + qualifiedName + ".html" + "' target='classFrame'>" + name + "</a>\n");
         File xhtmlFile = new File(packageDir, qualifiedName + ".html");
         Result xhtmlResult = new StreamResult(xhtmlFile);
         Source xmlSource = new DOMSource(clazz);

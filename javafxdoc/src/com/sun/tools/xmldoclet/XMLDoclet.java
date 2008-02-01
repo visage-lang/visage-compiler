@@ -25,10 +25,10 @@
  * have any questions.
  */
 
-package com.sun.xmldoclet;
+package com.sun.tools.xmldoclet;
 
 import com.sun.javadoc.*;
-import com.sun.xhtmldoclet.XHTMLProcessingUtils;
+import com.sun.tools.xslhtml.XHTMLProcessingUtils;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -62,6 +62,8 @@ public class XMLDoclet {
     private static ResourceBundle messageRB = null;
     public static String xsltFileName = null;
     
+    private static final boolean debug = false;
+    
     static final Option[] options = {
         new Option("-o", getString("out.file.option"), getString("out.file.description")),
         new Option("-version", getString("version.description")),
@@ -69,7 +71,7 @@ public class XMLDoclet {
         new Option("-nosince", getString("nosince.description")),
         new Option("-nodeprecated", getString("nodeprecated.description")),
         new Option("-processxslt", getString("processxslt.description")),
-        new Option("-xsltfile", getString("xsltfile.description"), "<file>")
+        new Option("-xsltfile", getString("out.file.option"), getString("xsltfile.description"))
     };
 
     /**
@@ -130,9 +132,11 @@ public class XMLDoclet {
      */
     public static boolean validOptions(String options[][],
                                        DocErrorReporter reporter) {
-        for(int i=0; i< options.length; i++) {
-            for(int j=0; j<options[i].length; j++) {
-                System.out.println("got: " + options[i][j]);
+        if (debug) {
+            for(int i=0; i< options.length; i++) {
+                for(int j=0; j<options[i].length; j++) {
+                    System.out.println("got: " + options[i][j]);
+                }
             }
         }
         for (String[] option : options) {
@@ -482,8 +486,9 @@ public class XMLDoclet {
         //TODO: serializer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM,"???.dtd");
         serializer.setOutputProperty(OutputKeys.INDENT, "yes");
 
-        //TODO: replace with output option
-        out = new PrintWriter(new BufferedWriter(new FileWriter(outFileName)));
+        File f = new File(outFileName);
+        f.getParentFile().mkdirs();
+        out = new PrintWriter(new BufferedWriter(new FileWriter(f)));
         StreamResult streamResult = new StreamResult(out);
         attrs = new AttributesImpl();        
         hd.setResult(streamResult);
@@ -495,7 +500,7 @@ public class XMLDoclet {
         if (msgRB == null) {
             try {
                 messageRB = msgRB =
-                    ResourceBundle.getBundle("com.sun.xmldoclet.resources.xmldoclet");
+                    ResourceBundle.getBundle("com.sun.tools.xmldoclet.resources.xmldoclet");
             } catch (MissingResourceException e) {
                 throw new Error("Fatal: Resource for javafxdoc is missing");
             }

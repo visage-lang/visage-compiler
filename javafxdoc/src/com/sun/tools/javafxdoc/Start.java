@@ -62,7 +62,7 @@ class Start {
     private static final String javafxdocName = "javafxdoc";
 
     private static final String standardDocletClassName =
-        "com.sun.tools.doclets.standard.Standard";
+        "com.sun.tools.xmldoclet.XMLDoclet";
 
     private ListBuffer<String[]> options = new ListBuffer<String[]>();
 
