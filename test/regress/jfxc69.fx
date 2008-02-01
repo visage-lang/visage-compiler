@@ -1,5 +1,5 @@
 /**
- * regression test:  unary operators don't destroy the type of a variable.
+ * regression test:  Default value for String is "", not null.
  * @test
  * @run
  */
