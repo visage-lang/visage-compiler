@@ -45,9 +45,13 @@ import org.xml.sax.SAXParseException;
  */
 public class XHTMLProcessingUtils {
     /**
-     * @param args the command line arguments
+     * Transform XMLDoclet output to XHTML using XSLT.
+     * 
+     * @param xmlInputPath the path of the XMLDoclet output to transform
+     * @param xsltStream the XSLT to implement the transformation, as an input stream.
+     * @throws java.lang.Exception
      */
-    public static void main(String[] args) throws Exception {
+    public static void process(String xmlInputPath, InputStream xsltStream) throws Exception {
         // TODO code application logic here
         
         //hack to get this to work on the mac
@@ -56,9 +60,10 @@ public class XHTMLProcessingUtils {
         System.setProperty("javax.xml.parsers.SAXParserFactory",
             "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
         
+        if (xsltStream == null)
+            xsltStream = XHTMLProcessingUtils.class.getResourceAsStream("resources/javadoc.xsl");
         
-        
-        File file = new File("javadoc.xml");
+        File file = new File(xmlInputPath);
         p("reading doc:  " + file.getAbsolutePath());
         p("exists: " + file.exists());
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -101,7 +106,7 @@ public class XHTMLProcessingUtils {
 
         //File xsltFile = new File("javadoc.xsl");
         //p("reading xslt exists in: " + xsltFile.exists());
-        Source xslt = new StreamSource(XHTMLProcessingUtils.class.getResourceAsStream("resources/javadoc.xsl"));
+        Source xslt = new StreamSource(xsltStream);
         Transformer trans = TransformerFactory.newInstance().newTransformer(xslt);
         trans.setErrorListener(new ErrorListener() {
 
@@ -236,5 +241,12 @@ public class XHTMLProcessingUtils {
 
     private static void p(String string) {
         System.out.println(string);
+    }
+
+    /**
+     * Command-line/debugging entry
+     */
+    public static void main(String[] args) throws Exception {
+        process("javadoc.xml", null);
     }
 }

@@ -1259,4 +1259,21 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
                                        (tree==null) ? Position.NOPOS : tree.pos,
                                        lineMap);
     }
+    
+    public boolean isJFXClass() {
+        return env.isJFXSymbol(tsym);
+    }
+    
+    public boolean isSequence() {
+        return env.isSequence(tsym);
+    }
+    
+    public com.sun.javadoc.Type sequenceElementType(com.sun.tools.javac.code.Type rawType) {
+        if (isSequence()) {
+            com.sun.tools.javac.code.Type rawSeqType = env.sequenceElementType(rawType);
+            com.sun.javadoc.Type seqType = TypeMaker.getType(env, rawSeqType, false);
+            return seqType;
+        }
+        return null;
+    }
 }
