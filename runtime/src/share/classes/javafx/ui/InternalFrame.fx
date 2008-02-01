@@ -27,7 +27,7 @@ package javafx.ui;
 
 public class InternalFrame extends Widget {
     // private
-    private attribute jinternalframe: javax.swing.JInternalFrame;
+    private attribute jinternalframe: javax.swing.JInternalFrame = new javax.swing.JInternalFrame();;
     // public
     public attribute isPalette: Boolean on replace {
         jinternalframe.putClientProperty("JInternalFrame.isPalette", true);
@@ -74,21 +74,6 @@ public class InternalFrame extends Widget {
     };
 
     public function createComponent():javax.swing.JComponent {
-        jinternalframe = new javax.swing.JInternalFrame();
-        if (title <> null) {
-            jinternalframe.setTitle(title);
-        }
-        if (menubar <> null) {
-            jinternalframe.setJMenuBar(menubar.getComponent() as javax.swing.JMenuBar);
-        }
-        if (isPalette) {
-            jinternalframe.putClientProperty("JInternalFrame.isPalette", true);
-        }
-        if (content <> null) {
-            jinternalframe.setContentPane(content.getComponent());
-            content.getComponent().setOpaque(true);
-        }
-        //T
         var self = this;
         jinternalframe.addInternalFrameListener(javax.swing.event.InternalFrameAdapter {
             public function internalFrameActivated(e:javax.swing.event.InternalFrameEvent):Void {
