@@ -36,7 +36,7 @@
                 <i class="classname"><xsl:value-of select="@name"/></i>
                 extends
                 <i class="superclass">
-                    <xsl:value-of select="superclass/@qualifiedTypeName"/>
+                    <xsl:value-of select="superclass/@toString"/>
                 </i>
                 <!--
                 implements
@@ -49,57 +49,88 @@
             
             <div class="toc">
                 
+                <xsl:if test="count(attribute) > 0">
+                    <h3>Attributes</h3>
+                    <table class="attributes">
+                        <tr><th>public</th><th>name</th><th>type</th></tr>
+                        <xsl:for-each select="attribute">
+                            <xsl:sort select="@name" order="ascending"/>
+                            <xsl:apply-templates select="." mode="toc"/>
+                        </xsl:for-each>
+                    </table>
+                </xsl:if>
+                                
+                <xsl:if test="count(field) > 0">
+                    <h3>Fields</h3>
+                    <table class="fields">
+                        <tr><th>public</th><th>name</th><th>type</th></tr>
+                        <xsl:for-each select="field">
+                            <xsl:sort select="@name" order="ascending"/>
+                            <xsl:apply-templates select="." mode="toc"/>
+                        </xsl:for-each>
+                    </table>
+                </xsl:if>
+
+                <xsl:if test="count(function) > 0">
+                    <h3>Functions</h3>
+                    <ul>
+                        <xsl:for-each select="function">
+                            <xsl:sort select="@name" order="ascending"/>
+                            <xsl:apply-templates select="." mode="toc"/>
+                        </xsl:for-each>
+                    </ul>
+                </xsl:if>
                 
-                <h3>Attributes</h3>
-                <table class="attributes">
-                    <tr><th>public</th><th>name</th><th>type</th></tr>
+                <xsl:if test="count(method) > 0">
+                    <h3>Methods</h3>
+                    <ul>
+                        <xsl:for-each select="method">
+                            <xsl:sort select="@name" order="ascending"/>
+                            <xsl:apply-templates select="." mode="toc"/>
+                        </xsl:for-each>
+                    </ul>
+                </xsl:if>
+            </div>
+            
+            <xsl:if test="count(attribute) > 0">
+                <div class="attributes">
+                    <h2>Attributes</h2>
                     <xsl:for-each select="attribute">
                         <xsl:sort select="@name" order="ascending"/>
-                        <xsl:apply-templates select="." mode="toc"/>
+                        <xsl:apply-templates select="."/>
                     </xsl:for-each>
-                </table>
-                
-                
-                <h3>Functions</h3>
-                <ul>
+                </div>
+            </xsl:if>
+            
+            <xsl:if test="count(field) > 0">
+                <div class="fields">
+                    <h2>Fields</h2>
+                    <xsl:for-each select="field">
+                        <xsl:sort select="@name" order="ascending"/>
+                        <xsl:apply-templates select="."/>
+                    </xsl:for-each>
+                </div>
+            </xsl:if>
+
+            <xsl:if test="count(function) > 0">
+                <div class="functions">
+                    <h2>functions</h2>
                     <xsl:for-each select="function">
                         <xsl:sort select="@name" order="ascending"/>
-                        <xsl:apply-templates select="." mode="toc"/>
+                        <xsl:apply-templates select="."/>
                     </xsl:for-each>
-                </ul>
-                
-                <h3>Methods</h3>
-                <ul>
+                </div>
+            </xsl:if>
+            
+            <xsl:if test="count(method) > 0">
+                <div class="methods">
+                    <h2>Methods</h2>
                     <xsl:for-each select="method">
                         <xsl:sort select="@name" order="ascending"/>
-                        <xsl:apply-templates select="." mode="toc"/>
+                        <xsl:apply-templates select="."/>
                     </xsl:for-each>
-                </ul>
-            </div>
-            
-            <div class="attributes">
-                <h2>Attributes</h2>
-                <xsl:for-each select="attribute">
-                    <xsl:sort select="@name" order="ascending"/>
-                    <xsl:apply-templates select="."/>
-                </xsl:for-each>
-            </div>
-            
-            <div class="functions">
-                <h2>functions</h2>
-                <xsl:for-each select="function">
-                    <xsl:sort select="@name" order="ascending"/>
-                    <xsl:apply-templates select="."/>
-                </xsl:for-each>
-            </div>
-            
-            <div class="methods">
-                <h2>Methods</h2>
-                <xsl:for-each select="method">
-                    <xsl:sort select="@name" order="ascending"/>
-                    <xsl:apply-templates select="."/>
-                </xsl:for-each>
-            </div>
+                </div>
+            </xsl:if>
             
         </div>
     </xsl:template>
@@ -130,7 +161,8 @@
                     </a>
                 </td>
                 <td>
-                    <i class="type"><xsl:value-of select="type/@simpleTypeName"/></i>
+                    <i class="type"><xsl:value-of select="type/@simpleTypeName"/>
+                                    <xsl:value-of select="type/@dimension"/></i>
                 </td>
             </tr>
          </div>
@@ -147,7 +179,8 @@
                     <xsl:text> </xsl:text>
                     <b class="name"><xsl:value-of select="@name"/></b>
                     <xsl:text>: </xsl:text>
-                    <i class="type"><xsl:value-of select="type/@SimpleTypeName"/></i>
+                    <i class="type"><xsl:value-of select="type/@SimpleTypeName"/>
+                                    <xsl:value-of select="type/@dimension"/></i>
             </h4>
                 </a>
             
@@ -175,12 +208,13 @@
                 <i class="parameters">
                 <xsl:for-each select="parameters/parameter">
                     <b><xsl:value-of select="@name"/></b>:
-                    <i><xsl:value-of select="type/@qualifiedTypeName"/></i>,
+                    <i><xsl:value-of select="type/@toString"/></i>,
                 </xsl:for-each>
                 </i>
                 )
                 :
-                <i><xsl:value-of select="returns/@simpleTypeName"/></i>
+                <i><xsl:value-of select="returns/@simpleTypeName"/>
+                   <xsl:value-of select="type/@dimension"/></i>
                 </a>
             </li>
         </div>  
@@ -198,12 +232,13 @@
                 <i class="parameters">
                 <xsl:for-each select="parameters/parameter">
                     <b><xsl:value-of select="@name"/></b>:
-                    <i><xsl:value-of select="type/@qualifiedTypeName"/></i>,
+                    <i><xsl:value-of select="type/@toString"/></i>,
                 </xsl:for-each>
                 </i>
                 )
                 :
-                <i><xsl:value-of select="returns/@simpleTypeName"/></i>
+                <i><xsl:value-of select="returns/@simpleTypeName"/>
+                   <xsl:value-of select="type/@dimension"/></i>
             </a>
             </h4>
         </div>  
@@ -226,12 +261,13 @@
                 <i class="parameters">
                 <xsl:for-each select="parameters/parameter">
                     <b><xsl:value-of select="@name"/></b>:
-                    <i><xsl:value-of select="type/@qualifiedTypeName"/></i>,
+                    <i><xsl:value-of select="type/@toString"/></i>,
                 </xsl:for-each>
                 </i>
                 )
                 :
-                <i><xsl:value-of select="returns/@simpleTypeName"/></i>
+                <i><xsl:value-of select="returns/@simpleTypeName"/>
+                   <xsl:value-of select="type/@dimension"/></i>
                 </a>
             </li>
         </div>  
@@ -248,13 +284,14 @@
                 (
                 <i class="parameters">
                 <xsl:for-each select="parameters/parameter">
-                    <i><xsl:value-of select="type/@qualifiedTypeName"/></i>
+                    <i><xsl:value-of select="type/@toString"/></i>
                     <b><xsl:value-of select="@name"/></b>,
                 </xsl:for-each>
                 </i>
                 )
                 :
-                <i><xsl:value-of select="returns/@simpleTypeName"/></i>
+                <i><xsl:value-of select="returns/@simpleTypeName"/>
+                   <xsl:value-of select="type/@dimension"/></i>
             </a>
             </h4>
         </div>  

@@ -32,6 +32,7 @@ import com.sun.javadoc.*;
 
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.comp.Check;
 import com.sun.tools.javac.parser.DocCommentScanner;
 import com.sun.tools.javac.parser.Token;
@@ -39,6 +40,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Position;
+import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxAttr;
 import com.sun.tools.javafx.tree.JFXClassDeclaration;
@@ -732,6 +734,36 @@ public class DocEnv {
     
     protected com.sun.tools.javac.code.Type sequenceElementType(com.sun.tools.javac.code.Type type) {
         return types.elementType(type);
+    }
+    
+    protected String simpleFunctionalTypeName(com.sun.tools.javac.code.Type type) {
+        if (type instanceof FunctionType) {
+            FunctionType func = (FunctionType)type;
+            MethodType mtype = func.asMethodType();
+            StringBuilder s = new StringBuilder();
+            s.append("function(");
+            if (mtype == null)
+                s.append("???");
+            else {
+                com.sun.tools.javac.util.List<com.sun.tools.javac.code.Type> args = mtype.argtypes;
+                for (com.sun.tools.javac.util.List<com.sun.tools.javac.code.Type> l = args; 
+                        l.nonEmpty(); l = l.tail) {
+                    if (l != args)
+                        s.append(',');
+                    s.append(':');
+                    s.append(simpleName(l.head.tsym));
+                }
+            }
+            s.append("):");
+            s.append(mtype == null ? "???" : simpleName(mtype.restype.tsym));
+            return s.toString();
+        } else
+            return type.toString();
+    }
+    
+    private String simpleName(TypeSymbol tsym) {
+        // print Void correctly as FX type
+        return tsym.type.tag == TypeTags.VOID ? "Void" : tsym.getSimpleName().toString();
     }
 
     /**

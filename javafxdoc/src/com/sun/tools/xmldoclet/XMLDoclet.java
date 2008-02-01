@@ -28,6 +28,7 @@
 package com.sun.tools.xmldoclet;
 
 import com.sun.javadoc.*;
+import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.xslhtml.XHTMLProcessingUtils;
 import java.io.*;
 import java.lang.reflect.Method;
@@ -378,20 +379,27 @@ public class XMLDoclet {
         if (type != null) {
             attrs.clear();
             ClassDoc cd = type.asClassDoc();
-            if (cd != null && isSequence(cd)) {
-                if (rawType == null)
-                    throw new AssertionError("unknown sequence type");
-                Type seqType = sequenceElementType(cd, rawType);
-                attrs.addAttribute("", "", "typeName", "CDATA", seqType.typeName());
-                attrs.addAttribute("", "", "simpleTypeName", "CDATA", seqType.simpleTypeName());
-                attrs.addAttribute("", "", "qualifiedTypeName", "CDATA", seqType.qualifiedTypeName());
-                attrs.addAttribute("", "", "sequence", "CDATA", "true");
-            } else {
-                attrs.addAttribute("", "", "typeName", "CDATA", type.typeName());
-                attrs.addAttribute("", "", "simpleTypeName", "CDATA", type.simpleTypeName());
-                attrs.addAttribute("", "", "qualifiedTypeName", "CDATA", type.qualifiedTypeName());
-                attrs.addAttribute("", "", "sequence", "CDATA", "false");
+            boolean isSequence = false;
+            if (cd != null) {
+                isSequence = isSequence(cd);
+                if (isSequence) {
+                    if (rawType == null)
+                        throw new AssertionError("unknown sequence type");
+                    type = sequenceElementType(cd, rawType);
+                }
             }
+            boolean isFunctionType = rawType instanceof FunctionType;
+            attrs.addAttribute("", "", "typeName", "CDATA", type.typeName());
+            String simpleName = isFunctionType ? 
+                simpleFunctionalTypeName(cd, rawType) : type.simpleTypeName();
+            attrs.addAttribute("", "", "simpleTypeName", "CDATA", simpleName);
+            attrs.addAttribute("", "", "qualifiedTypeName", "CDATA", type.qualifiedTypeName());
+            String dim = isSequence ? "[]" : type.dimension();
+            attrs.addAttribute("", "", "dimension", "CDATA", dim);
+            String s = type.toString() + (isSequence ? "[]" : "");
+            attrs.addAttribute("", "", "toString", "CDATA", s);
+            attrs.addAttribute("", "", "sequence", "CDATA", Boolean.toString(isSequence));
+            attrs.addAttribute("", "", "functionType", "CDATA", Boolean.toString(isFunctionType));
             hd.startElement("", "", kind, attrs);
             hd.endElement("", "", kind);
         }
@@ -568,6 +576,17 @@ public class XMLDoclet {
             Method m = cls.getDeclaredMethod("sequenceElementType", com.sun.tools.javac.code.Type.class);
             Object result = m.invoke(cd, (Object)rawType);
             return (Type)result;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    private static String simpleFunctionalTypeName(ClassDoc cd, com.sun.tools.javac.code.Type rawType) {
+        try {
+            Class<?> cls = cd.getClass();
+            Method m = cls.getDeclaredMethod("simpleFunctionalTypeName", com.sun.tools.javac.code.Type.class);
+            Object result = m.invoke(cd, (Object)rawType);
+            return (String)result;
         } catch (Exception e) {
             return null;
         }

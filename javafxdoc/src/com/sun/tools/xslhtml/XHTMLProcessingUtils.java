@@ -11,12 +11,24 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
+import java.text.ChoiceFormat;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.ErrorListener;
@@ -39,11 +51,22 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import static java.util.logging.Level.*;
+
 /**
  *
  * @author joshy
  */
 public class XHTMLProcessingUtils {
+
+    private static ResourceBundle messageRB = null;
+    private static Logger logger = Logger.getLogger(XHTMLProcessingUtils.class.getName());;
+    
+    static {
+        // set verbose for initial development
+        logger.setLevel(ALL); //TODO: remove or set to INFO when finished
+    }
+
     /**
      * Transform XMLDoclet output to XHTML using XSLT.
      * 
@@ -52,6 +75,7 @@ public class XHTMLProcessingUtils {
      * @throws java.lang.Exception
      */
     public static void process(String xmlInputPath, InputStream xsltStream) throws Exception {
+        System.out.println(getString("transforming.to.html"));
         // TODO code application logic here
         
         //hack to get this to work on the mac
@@ -64,22 +88,22 @@ public class XHTMLProcessingUtils {
             xsltStream = XHTMLProcessingUtils.class.getResourceAsStream("resources/javadoc.xsl");
         
         File file = new File(xmlInputPath);
-        p("reading doc:  " + file.getAbsolutePath());
-        p("exists: " + file.exists());
+        p(INFO, MessageFormat.format(getString("reading.doc"), file.getAbsolutePath()));
+        p(FINE, "exists: " + file.exists());
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         builder.setErrorHandler(new ErrorHandler() {
 
             public void warning(SAXParseException exception) throws SAXException {
-                p("error: " + exception.getLineNumber());
+                p(WARNING, "error: " + exception.getLineNumber());
             }
 
             public void error(SAXParseException exception) throws SAXException {
-                p("error: " + exception.getLineNumber());
+                p(SEVERE, "error: " + exception.getLineNumber());
             }
 
             public void fatalError(SAXParseException exception) throws SAXException {
-                p("error: " + exception.getLineNumber());
+                p(SEVERE, "error: " + exception.getLineNumber());
             }
         });
         Document doc = builder.parse(file);
@@ -92,7 +116,7 @@ public class XHTMLProcessingUtils {
             docsdir.mkdir();
         }
 
-        p("copying");
+        p(INFO, getString("copying"));
 
         copy(XHTMLProcessingUtils.class.getResource("resources/frameset.html"), new File(docsdir, "frameset.html"));
         copy(XHTMLProcessingUtils.class.getResource("resources/demo.css"), new File(docsdir, "demo.css"));
@@ -101,7 +125,7 @@ public class XHTMLProcessingUtils {
         copy(XHTMLProcessingUtils.class.getResource("resources/quote-background-1.gif"), new File(images, "quote-background-1.gif"));
         //copy(new File("demo.css"), new File(docsdir, "demo.css"));
 
-        p("transforming");
+        p(INFO, getString("transforming"));
 
 
         //File xsltFile = new File("javadoc.xsl");
@@ -111,14 +135,13 @@ public class XHTMLProcessingUtils {
         trans.setErrorListener(new ErrorListener() {
 
             public void warning(TransformerException exception) throws TransformerException {
-                p("warning: " + exception);
+                p(WARNING, "warning: " + exception);
             }
 
             public void error(TransformerException exception) throws TransformerException {
                 Throwable thr = exception;
                 while (true) {
-                    p("error: " + exception.getMessageAndLocation());
-                    p("cause = " + thr.getCause());
+                    p(SEVERE, "error: " + exception.getMessageAndLocation(), thr.getCause());
                     if (thr.getCause() != null) {
                         thr = thr.getCause();
                     } else {
@@ -129,15 +152,15 @@ public class XHTMLProcessingUtils {
             }
 
             public void fatalError(TransformerException exception) throws TransformerException {
-                p("fatal error: " + exception.getLocationAsString() + " " + exception.getMessageAndLocation());
+                p(SEVERE, "fatal error: " + exception.getMessageAndLocation(), exception);
             }
         });
 
         XPath xpath = XPathFactory.newInstance().newXPath();
 
         // packages
-        NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET);
-        p("doing packages: " + packages.getLength());
+        NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET); MessageFormat form = new MessageFormat("The disk \"{1}\" contains {0}.");
+        p(INFO, MessageFormat.format(getString("creating.packages"), packages.getLength()));
         FileOutputStream packages_html = new FileOutputStream(new File(docsdir, "packages.html"));
         Writer packages_writer = new OutputStreamWriter(packages_html);
         packages_writer.write("<html><head><link href='demo.css' rel='stylesheet'/></head><body><ul class='package-list'>");
@@ -156,8 +179,8 @@ public class XHTMLProcessingUtils {
         classes_writer.close();
         packages_writer.write("</ul></body></html>");
         packages_writer.close();
+        System.out.println(getString("finished"));
     }
-
 
     private static void processPackage(String packageName, Element pkg, XPath xpath, File docsdir, Transformer trans) throws TransformerException, XPathExpressionException, IOException, FileNotFoundException {
         File packageDir = new File(docsdir, packageName);
@@ -167,7 +190,7 @@ public class XHTMLProcessingUtils {
                     "*[name() = 'class' or name() = 'abstractClass' or name() = 'interface']",
                     pkg, XPathConstants.NODESET);
         List<Element> classes = sort(classesNodeList);
-        p("classes = " + classes.size());
+        p(INFO, MessageFormat.format(getString("creating.classes"), classes.size()));
         FileOutputStream package_classes_html = new FileOutputStream(new File(packageDir, "classes.html"));
         Writer package_classes_writer = new OutputStreamWriter(package_classes_html);
         package_classes_writer.write("<html><head><link href='../demo.css' rel='stylesheet'/></head><body><ul class='class-list'>");
@@ -212,8 +235,8 @@ public class XHTMLProcessingUtils {
     
     
     private static void copy(URL url, File file) throws FileNotFoundException, IOException {
-        p("copying from: " + url);
-        p("copying to: " + file.getAbsolutePath());
+        p(FINE, "copying from: " + url);
+        p(FINE, "copying to: " + file.getAbsolutePath());
         InputStream in = url.openStream();
         FileOutputStream out = new FileOutputStream(file);
         byte[] buf = new byte[1024];
@@ -238,9 +261,42 @@ public class XHTMLProcessingUtils {
             out.write(buf, 0, n);
         }
     }
+    
+    static String getString(String key) {
+        ResourceBundle msgRB = messageRB;
+        if (msgRB == null) {
+            try {
+                messageRB = msgRB =
+                    ResourceBundle.getBundle("com.sun.tools.xslhtml.resources.xslhtml");
+            } catch (MissingResourceException e) {
+                throw new Error("Fatal: Resource for javafxdoc is missing");
+            }
+        }
+        return msgRB.getString(key);
+    }
 
-    private static void p(String string) {
-        System.out.println(string);
+    private static void p(Level level, String string) {
+        if (level.intValue() >= logger.getLevel().intValue())
+            System.err.println(string);
+    }
+
+    private static void p(Level level, String string, Throwable t) {
+        if (level.intValue() >= logger.getLevel().intValue()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(string);
+            if (t != null) {
+                sb.append(System.getProperty("line.separator"));
+                try {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    t.printStackTrace(pw);
+                    pw.close();
+                    sb.append(sw.toString());
+                } catch (Exception ex) {
+                }
+            }
+            System.err.println(sb.toString());
+        }
     }
 
     /**
