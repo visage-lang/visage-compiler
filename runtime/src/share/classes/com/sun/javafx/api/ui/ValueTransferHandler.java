@@ -83,24 +83,16 @@ abstract public class ValueTransferHandler extends TransferHandler {
     public boolean importData(JComponent c, Transferable t) {
         if (canImport(c, t.getTransferDataFlavors(), t)) {
             try {
+                if(t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                    String s = (String)t.getTransferData(DataFlavor.stringFlavor);
+                    importValue(c, s);
+                    return true;
+                }
                 DataFlavor[] flavors = t.getTransferDataFlavors();
                 for (int i = 0; i < flavors.length; i++) {
-                    if (flavors[i].equals(DataFlavor.stringFlavor)) {
-                        String s = (String)t.getTransferData(flavors[i]);
-                        importValue(c, s);
-                        return true;
-                    /***} else if (flavors[i].equals(DataFlavor.javaFileListFlavor)) {
-                        List list = (List)t.getTransferData(flavors[i]);
-                        File[] arr = new File[list.size()];
-                        list.toArray(arr);
-                        importValue(c, arr);
-                        return true;
-                     * ****/
-                    } else {
-                        Object obj = t.getTransferData(flavors[i]);
-                        importValue(c, obj);
-                        return true;
-                    }
+                    Object obj = stringify(t.getTransferData(flavors[i]));
+                    importValue(c, obj);
+                    return true;
                 }
             } catch (UnsupportedFlavorException ufe) {
                 ufe.printStackTrace();
@@ -118,6 +110,11 @@ abstract public class ValueTransferHandler extends TransferHandler {
     }
 
 
+    /**
+     * Get a string from a reader
+     * @param reader
+     * @return the string
+     */
     private Object getString(Reader reader) {
         StringBuffer sb = new StringBuffer();
         try {
@@ -129,6 +126,22 @@ abstract public class ValueTransferHandler extends TransferHandler {
             Logger.getLogger(ValueTransferHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         return sb.toString();
+    }
+
+    /**
+     * Checks to see if the object is of a known type to convert to a string.
+     * @param obj
+     * @return the string version if the obj is recognized.
+     */
+    private Object stringify(Object obj) {
+        if (obj instanceof InputStream) {
+            obj = getString(new InputStreamReader((InputStream) obj));
+        } else if (obj instanceof Reader) {
+            obj = getString((Reader) obj);
+        } else if (obj instanceof byte[]) {
+            obj = new String((byte[]) obj);
+        } 
+        return obj;
     }
 
     class MyDropTargetListener implements DropTargetListener {
@@ -175,76 +188,91 @@ abstract public class ValueTransferHandler extends TransferHandler {
         return canImport(c, flavors, null);
     }
 
-    public boolean canImport(JComponent c, DataFlavor[] flavors, 
-                             Transferable t) {
+    public boolean canImport(JComponent c, DataFlavor[] flavors,
+            Transferable t) {
         try {
-            for (int i = 0; i < flavors.length; i++) {
-                DataFlavor f = flavors[i];
-                if(f.equals(ValueSelection.SEQUENCE_FLAVOR)) {
+            // Do priority flavors first
+            if (t != null) {
+                if (t.isDataFlavorSupported(ValueSelection.SEQUENCE_FLAVOR)) {
                     if (type == null || type == Sequence.class) {
                         if (t == null) {
                             return true;
                         }
-                        Object obj = t.getTransferData(f);
-                        return canImport(obj);
-                    }                    
-                } else if (f.equals(DataFlavor.stringFlavor)) {
+                        Object obj = stringify(t.getTransferData(ValueSelection.SEQUENCE_FLAVOR));
+                        if (canImport(obj)) {
+                            return true;
+                        }
+                    }
+                }
+                if (t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                     if (type == null || type == String.class) {
                         if (t == null) {
                             return true;
                         }
-                        Object obj = t.getTransferData(f);
-                        return canImport(obj);
+                        Object obj = stringify(t.getTransferData(DataFlavor.stringFlavor));
+                        if (canImport(obj)) {
+                            return true;
+                        }
                     }
-                } else if (f.equals(DataFlavor.javaFileListFlavor)) {
+                }
+                if (t.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
                     if (type == null || type == File.class) {
                         if (t == null) {
                             return true;
                         }
-                        
-                        List list = (List)t.getTransferData(f);
-                        return canImport(list);
+
+                        List list = (List) t.getTransferData(DataFlavor.javaFileListFlavor);
+                        if (canImport(list)) {
+                            return true;
+                        }
                     }
-                } else if (f.equals(ValueSelection.COLOR_FLAVOR)) {
-                    if (type == null || type == Color.class ) {
+                }
+                if (t.isDataFlavorSupported(ValueSelection.COLOR_FLAVOR)) {
+                    if (type == null || type == Color.class) {
                         if (t == null) {
                             return true;
                         }
-                        
-                        Color color = (Color)t.getTransferData(f);
-                        return canImport(color);
+
+                        Color color = (Color) t.getTransferData(ValueSelection.COLOR_FLAVOR);
+                        if (canImport(color)) {
+                            return true;
+                        }
                     }
-                } else if (f.equals(ValueSelection.TREEPATH_FLAVOR)) {
-                    if (type == null || type == TreePath.class ) {
+                }
+                if (t.isDataFlavorSupported(ValueSelection.TREEPATH_FLAVOR)) {
+                    if (type == null || type == TreePath.class) {
                         if (t == null) {
                             return true;
                         }
-                        
-                        TreePath path = (TreePath)t.getTransferData(f);
-                        return canImport(path);
-                    }                    
-                } else if (f.equals(DataFlavor.imageFlavor)) {
+
+                        TreePath path = (TreePath) t.getTransferData(ValueSelection.TREEPATH_FLAVOR);
+                        if (canImport(path)) {
+                            return true;
+                        }
+                    }
+                }
+                if (t.isDataFlavorSupported(DataFlavor.imageFlavor)) {
                     if (type == null || type == Image.class || type == ImageIcon.class) {
                         if (t == null) {
                             return true;
                         }
-                        
-                        Image image = (Image)t.getTransferData(f);
-                        return canImport(image);
-                    }                    
-                } else {
-                    if (t == null) {
-                        return true;
+
+                        Image image = (Image) t.getTransferData(DataFlavor.imageFlavor);
+                        if (canImport(image)) {
+                            return true;
+                        }
                     }
-                    Object obj = t.getTransferData(f);
-                    if(obj instanceof InputStream) {
-                        obj = getString(new InputStreamReader((InputStream)obj));
-                    }else if(obj instanceof Reader) {
-                        obj = getString((Reader)obj);
-                    }else if (obj instanceof byte[]){
-                        obj = new String((byte[])obj);
-                    }
-                    return canImport(obj);
+                }
+            }
+            // left overs.
+            for (int i = 0; i < flavors.length; i++) {
+                DataFlavor f = flavors[i];
+                if (t == null) {
+                    return true;
+                }
+                Object obj = stringify(t.getTransferData(f));
+                if (canImport(obj)) {
+                    return true;
                 }
             }
         } catch (Exception e) {
