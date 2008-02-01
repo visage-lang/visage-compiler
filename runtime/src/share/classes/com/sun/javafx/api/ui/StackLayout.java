@@ -118,10 +118,11 @@ public class StackLayout implements LayoutManager2 {
 
     public void layoutContainer(Container parent) {
         synchronized (parent.getTreeLock()) {
-            int width = parent.getWidth();
-            int height = parent.getHeight();
+            Insets insets = parent.getInsets();
+            int width = parent.getWidth() - (insets.left + insets.right);
+            int height = parent.getHeight() - (insets.top + insets.bottom);
             
-            Rectangle bounds = new Rectangle(0, 0, width, height);
+            Rectangle bounds = new Rectangle(insets.left, insets.top, width, height);
 
             int componentsCount = components.size();
             
