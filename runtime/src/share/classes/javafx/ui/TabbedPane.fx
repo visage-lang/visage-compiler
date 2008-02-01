@@ -28,7 +28,7 @@ package javafx.ui;
 import javax.swing.JTabbedPane;
 
 public class TabbedPane extends Widget {
-    protected attribute tabbedpane: javax.swing.JTabbedPane;
+    protected attribute tabbedpane: javax.swing.JTabbedPane =  UIElement.context.createTabbedPane();
     private attribute changeListener: javax.swing.event.ChangeListener;
     public attribute selectedIndex: Number = -1 on replace {
         if (component <> null and selectedIndex <> -1) {
@@ -102,10 +102,8 @@ public class TabbedPane extends Widget {
     public attribute opaque: Boolean = true;
     public attribute focusable: Boolean = false;
     public function createComponent():javax.swing.JComponent{
-        if(tabbedpane == null) {
-            tabbedpane = UIElement.context.createTabbedPane();
+        if(changeListener == null) {
             tabbedpane.setOpaque(false);
-            selectedIndex = 0;
             changeListener = javax.swing.event.ChangeListener {
                 public function stateChanged(e:javax.swing.event.ChangeEvent):Void {
                     selection = WidgetInitiatedMultiSelection {
