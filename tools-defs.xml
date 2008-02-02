@@ -7,7 +7,7 @@
     <property name="ant.ver" value="1.7.0"/>
     <property name="ant.dir" value="${tools.dir}/ant-${ant.ver}"/>
     
-    <property name="scenegraph.ver" value="Scenario-0.4.1"/>
+    <property name="scenegraph.ver" value="Scenario-0.5"/>
     <property name="scenegraph.jar" value="${scenegraph.ver}.jar"/>
     <property name="scenegraph.dir" value="${tools.dir}/${scenegraph.ver}"/>
 
