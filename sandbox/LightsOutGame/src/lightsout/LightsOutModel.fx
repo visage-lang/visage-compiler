@@ -16,9 +16,9 @@ public class LightsOutModel extends Group {
     function randomize():Void{
         if(sizeof rows > 0) {
             //clear first
-            for(i in [0.. sizeof rows exclusive]) {
-                for(j in [0.. sizeof rows[i].lights exclusive]) {
-                    rows[i].lights[j].setSelected(false);
+            for(row in rows) {
+                for(light in row.lights]) {
+                    light.setSelected(false);
                 }
             }
             if(sizeof rows > 3) {
@@ -34,9 +34,9 @@ public class LightsOutModel extends Group {
 
     function checkFinished(){
         var won = true;
-        for(i in [0..sizeof rows exclusive]) {
-            for(j in [0..sizeof rows[i].lights exclusive]) {
-                if(rows[i].lights[j].selected) {
+        for(row in rows) {
+            for(light in row.lights]) {
+                if(light.selected) {
                     won = false;
                 }
             }

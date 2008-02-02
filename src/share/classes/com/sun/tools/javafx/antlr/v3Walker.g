@@ -307,8 +307,8 @@ expression  returns [JCExpression expr]
 	| blockExpression				{ $expr = $blockExpression.expr; }
        	| stringExpression				{ $expr = $stringExpression.expr; }
 	| explicitSequenceExpression			{ $expr = $explicitSequenceExpression.expr; }
-	| ^(DOTDOT from=expression to=expression step=expression? EXCLUSIVE?)
-							{ $expr = F.at(pos($DOTDOT)).RangeSequence($from.expr, $to.expr, $step.expr, $EXCLUSIVE!=null); }
+	| ^(DOTDOT from=expression to=expression step=expression? LT?)
+							{ $expr = F.at(pos($DOTDOT)).RangeSequence($from.expr, $to.expr, $step.expr, $LT!=null); }
 	| SEQ_EMPTY					{ $expr = F.at(pos($SEQ_EMPTY)).EmptySequence(); }
        	| THIS						{ $expr = F.at(pos($THIS)).Ident(names._this); }
        	| SUPER						{ $expr = F.at(pos($SUPER)).Ident(names._super); }

@@ -17,9 +17,9 @@ var strs = ["hi", "yo"];
 var bars = [ Bar { name: "James" }, Bar { name: "Nancy" }, Bar { name: "Raymond" } ];
 var range = [19..11];
 var rangeStep = [0..1000 step 100];
-var rangeStepE = [0..1000 step 100 exclusive];
+var rangeStepE = [0..<1000 step 100];
 var nRange = [12.5..18.5 step 0.5];
-var nRangeE = [12.5..18.5 step 0.5 exclusive];
+var nRangeE = [12.5..<18.5 step 0.5];
 var toZ = [1..0 step -0.1];
 
 var emptyStart : Integer[] = [];
