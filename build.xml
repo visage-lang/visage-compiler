@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- You may freely edit this file. See commented blocks below for -->
-<!-- some examples of how to customize the build. -->
-<!-- (If you delete it and reopen the project it will be recreated.) -->
 <project name="JavaFX Compiler" default="default" basedir=".">
-    <description>Builds, tests, and runs the project JavaFX.</description>
+    <description>Builds, tests, and runs the openjfx-compiler project.</description>
 
     <property name="tools.dir" value="${basedir}/tools"/>
     <property name="runtime.dir" value="${basedir}/runtime"/>
@@ -18,7 +15,7 @@
     <target name="default" depends="jar,runtime,install-scripts"
             description="Build javafxc compiler and runtime distribution"/>
 
-    <target name="all" depends="jar, runtime, test, spec, javadoc, findbugs"
+    <target name="all" depends="jar, runtime, test, install-scripts, spec, javadoc, demos"
             description="Build and test all project artifacts"/>
             
     <target name="dist" description="Build distribution bundles" depends="dist-init,dist-zip,dist-tgz"/>
@@ -35,10 +32,10 @@
         <mkdir dir="${bundle.dir}"/>
     </target>
     
-    <target name="hudson-all" depends="coverage, all, coverage-report, hudson-post-build"
+    <target name="hudson-all" depends="coverage, all, findbugs, coverage-report, hudson-post-build"
             description="Build and test all project artifacts"/>
 
-    <target name="all-with-coverage" depends="coverage, all, coverage-report"
+    <target name="all-with-coverage" depends="coverage, all, findbugs, coverage-report"
             description="Build and test all project artifacts with coverage"/>
 
     <target name="compiler-only" depends="jar"
