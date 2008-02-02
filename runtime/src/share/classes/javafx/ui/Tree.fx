@@ -69,7 +69,7 @@ public class Tree extends ScrollableWidget {
         }
         if (node <> null and sizeof path > 0) {
             var tp = new javax.swing.tree.TreePath(path[0]);
-            for (i in [1..sizeof path exclusive]) {
+            for (i in [1..<sizeof path]) {
                 tp = tp.pathByAddingChild(path[i]);
             }
             tree.clearSelection();
@@ -166,7 +166,7 @@ public class Tree extends ScrollableWidget {
             }
             //var i = select indexof x from x in row.parent.cells where x == row;
             var i = -1;
-            for(ii in [0..sizeof row.parent.cells exclusive]) {
+            for(ii in [0..<sizeof row.parent.cells]) {
                 if(row.parent.cells[ii] == row) {
                     i = ii;
                     break;
@@ -177,7 +177,7 @@ public class Tree extends ScrollableWidget {
                 insert path[j] into rpath;
             }  
             var children:Object[] = [ row ];
-            var childIndices:Integer[] = [ i.intValue()];            
+            var childIndices:Integer[] = [i];            
             var event = new javax.swing.event.TreeModelEvent(treemodel,
                                                                  rpath,
                                                                  childIndices,
@@ -207,7 +207,7 @@ public class Tree extends ScrollableWidget {
                if (sizeof leadSelectionPath > 0 and root.value == leadSelectionPath[0]) {
                    var tp = new javax.swing.tree.TreePath(root);
                    var p = root;
-                   for (i in [1..sizeof leadSelectionPath exclusive]) {
+                   for (i in [1..<sizeof leadSelectionPath]) {
                        var cell:TreeCell = null;
                        for (c in p.cells) {
                            if(c.value == leadSelectionPath[i]) {
@@ -232,7 +232,7 @@ public class Tree extends ScrollableWidget {
                if (sizeof leadSelectionPath > 0 and root.value == leadSelectionPath[0]) {
                    var tp = new javax.swing.tree.TreePath(root);
                    var p = root;
-                   for (i in [1..sizeof leadSelectionPath exclusive]) {
+                   for (i in [1..<sizeof leadSelectionPath]) {
                        var cell:TreeCell = null;
                        for (c in p.cells) {
                            if(c.value == leadSelectionPath[i]) {
@@ -256,7 +256,7 @@ public class Tree extends ScrollableWidget {
                if (sizeof leadSelectionPath > 0 and root.value == leadSelectionPath[0]) {
                    var tp = new javax.swing.tree.TreePath(root);
                    var p = root;
-                   for (i in [1..sizeof leadSelectionPath exclusive]) {
+                   for (i in [1..<sizeof leadSelectionPath]) {
                        var cell:TreeCell = null;
                        for (c in p.cells) {
                            if(c.value == leadSelectionPath[i]) {
@@ -411,15 +411,15 @@ public class Tree extends ScrollableWidget {
                 System.out.flush();
                 if(dropMode == DropMode.INSERT) {
                     var ndx = -1;
-                    for(i in [0..sizeof parent.cells exclusive]) {
+                    for(i in [0..<sizeof parent.cells]) {
                         if(parent.cells[i] == dropCell) {
                             ndx = i;
                             break;
                         }
                     }
                     if(ndx >= 0) {
-                        var head = for(i in [0..ndx.intValue() exclusive]) parent.cells[i];
-                        var tail = for(i in [ndx.intValue()..sizeof parent.cells exclusive]) parent.cells[i];
+                        var head = parent.cells[0..<ndx];
+                        var tail = parent.cells[ndx..];
                         parent.cells = [ head, newCells, tail];
                     }else {
                         insert newCells into parent.cells;
@@ -437,31 +437,31 @@ public class Tree extends ScrollableWidget {
                                 insert newCells into dropCell.cells;
                             }else if(e.x < r.x or e.y < r.y) { // insert before
                                 var ndx = -1;
-                                for(i in [0..sizeof parent.cells exclusive]) {
+                                for(i in [0..<sizeof parent.cells]) {
                                     if(parent.cells[i] == dropCell) {
                                         ndx = i;
                                         break;
                                     }
                                 }
                                 if(ndx >= 0) {
-                                    var head = for(i in [0..ndx.intValue() exclusive]) parent.cells[i];
-                                    var tail = for(i in [ndx.intValue()..sizeof parent.cells exclusive]) parent.cells[i];
+                                    var head = parent.cells[0..<ndx];
+                                    var tail = parent.cells[ndx..];
                                     parent.cells = [ head, newCells, tail];
                                 }else {
                                     insert newCells into parent.cells;
                                 }   
                             }else { //insert after
                                 var ndx = -1;
-                                for(i in [0..sizeof parent.cells exclusive]) {
+                                for(i in [0..<sizeof parent.cells]) {
                                     if(parent.cells[i] == selectedCell) {
                                         ndx = i;
                                         break;
                                     }
                                 }
                                 if(ndx >= 0) {
-                                    var head = for(i in [0..ndx.intValue()]) parent.cells[i];
+                                    var head = parent.cells[0..ndx];
                                     var next = ndx + 1;
-                                    var tail = for(i in [next.intValue()..sizeof parent.cells exclusive]) parent.cells[i];
+                                    var tail = parent.cells[next..];
                                     parent.cells = [ head, newCells, tail];
                                 }else {
                                     insert newCells into parent.cells;

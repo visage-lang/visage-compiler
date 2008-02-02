@@ -32,7 +32,7 @@ public class CompoundBorder  extends Border {
     public function getBorder():javax.swing.border.Border {
         var result = new javax.swing.border.CompoundBorder(borders[0].getBorder(),
                                                         borders[1].getBorder());
-        //for (i in [2..sizeof borders exlusive]) {
+        //for (i in [2..<sizeof borders) {
         //TODO fix sizeof
         //var numBorders = sizeof borders - 1;
         //WORK AROUND
@@ -40,7 +40,7 @@ public class CompoundBorder  extends Border {
         for(b in borders) numBorders = numBorders + 1;  //TODO: revert to ++ when that works
         // END WORK AROUND
         if(numBorders > 2) {
-            for (i in [2..numBorders exclusive]) {
+            for (i in [2..<numBorders]) {
                 result = new javax.swing.border.CompoundBorder(result,
                                                             borders[i].getBorder());
             };

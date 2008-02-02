@@ -253,13 +253,13 @@ public class ListBox extends ScrollableWidget {
                     var r = list.getCellBounds(ndx,ndx);
                     if(r <> null) {
                         if(r.y+r.height/2 > e.y) { //insert before
-                            var head = for(i in [0..ndx.intValue() exclusive]) cells[i];
-                            var tail =  for(i in [ndx.intValue()..sizeof cells exclusive]) cells[i];
+                            var head = cells[0..<ndx];
+                            var tail =  cells[ndx..];
                             cells = [ head, newCells, tail];
                         }else { // insert after
-                            var head = for(i in [0..ndx.intValue()]) cells[i];
+                            var head = cells[0..ndx];
                             var next = ndx + 1;
-                            var tail =  for(i in [next.intValue()..sizeof cells exclusive]) cells[i];
+                            var tail =  cells[next..];
                             cells = [ head, newCells, tail]; 
                         }
                     }else {
@@ -270,11 +270,11 @@ public class ListBox extends ScrollableWidget {
                     if(ndx < 0) {
                         insert newCells into cells;
                     }else {
-                        var head = for(i in [0..ndx.intValue() exclusive]) cells[i];
+                        var head = cells[0..<ndx];
                         var next = ndx + 1;
                         var tail:ListCell[] = [];
                         if(next < sizeof cells)
-                            tail =  for(i in [next.intValue()..sizeof cells exclusive]) cells[i];
+                            tail = cells[next..];
                         cells = [ head, newCells, tail];
                     }                 
                 }else if(dropMode == DropMode.ON_OR_INSERT) { //TODO
@@ -285,20 +285,20 @@ public class ListBox extends ScrollableWidget {
                     var r = list.getCellBounds(ndx,ndx);
                     if(r <> null) {
                         if(r.y+5 > e.y) { //insert before
-                            var head = for(i in [0..ndx.intValue() exclusive]) cells[i];
-                            var tail =  for(i in [ndx.intValue()..sizeof cells exclusive]) cells[i];
+                            var head = cells[0..<ndx];
+                            var tail =  cells[ndx..];
                             cells = [ head, newCells, tail];
                         }else if(e.y > r.y+r.height-5) { // insert after
-                            var head = for(i in [0..ndx.intValue()]) cells[i];
+                            var head = cells[0..ndx];
                             var next = ndx + 1;
-                            var tail =  for(i in [next.intValue()..sizeof cells exclusive]) cells[i];
+                            var tail = cells[next..];
                             cells = [ head, newCells, tail]; 
                         } else  { // ON
-                            var head = for(i in [0..ndx.intValue() exclusive]) cells[i];
+                            var head = cells[0..<ndx];
                             var next = ndx + 1;
                             var tail:ListCell[] = [];
                             if(next < sizeof cells)
-                                tail =  for(i in [next.intValue()..sizeof cells exclusive]) cells[i];
+                                tail = cells[next..];
                             cells = [ head, newCells, tail];
                         }
                     }else {
@@ -308,11 +308,11 @@ public class ListBox extends ScrollableWidget {
                     if(selectedNdx < 0) {
                         insert newCells into cells;
                     }else {
-                        var head = for(i in [0..selectedNdx.intValue() exclusive]) cells[i];
-                        var next = selectedNdx + 1;
+                        var head = cells[0..<selectedNdx.intValue()];
+                        var next = selectedNdx.intValue() + 1;
                         var tail:ListCell[] = [];
                         if(next < sizeof cells)
-                            tail =  for(i in [next.intValue()..sizeof cells exclusive]) cells[i];
+                            tail = cells[next..];
                         cells = [ head, newCells, tail];
                     }                             
                 }                            

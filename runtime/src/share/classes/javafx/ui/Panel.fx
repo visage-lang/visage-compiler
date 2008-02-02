@@ -57,7 +57,7 @@ public class Panel extends Widget {
         jpanel = new javax.swing.JPanel();
         jpanel.setOpaque(false);
         jpanel.setLayout(null);
-        for (i in [0..sizeof content exclusive]) {
+        for (i in [0..<sizeof content]) {
             jpanel.add(content[i].getComponent(), i);
         }
         return jpanel;

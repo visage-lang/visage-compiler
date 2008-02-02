@@ -257,7 +257,7 @@ public class Document {
     public function getElementsByTagName(tagName:String) : Element[] {
         var elements:Element[] = [];
         var result:NodeList = document.getElementsByTagName(tagName);
-        for( i in [0..result.getLength() exclusive]) {
+        for( i in [0..<result.getLength()]) {
             var n = result.item(i);
             var fxnode = n.getUserData("FX") as Element;
             if(fxnode <> null) {
@@ -283,7 +283,7 @@ public class Document {
     public function getElementsByTagNameNS(namespaceURI:String, localName:String): Element[] {
         var elements:Element[] = [];
         var result:NodeList = document.getElementsByTagNameNS(namespaceURI, localName);
-        for( i in [0..result.getLength() exclusive]) {
+        for( i in [0..<result.getLength()]) {
             var n = result.item(i);
             var fxnode = n.getUserData("FX") as Element;
             if(fxnode <> null) {
@@ -310,7 +310,7 @@ public class Document {
         
         var result:NodeList = expr.evaluate(document, XPathConstants.NODESET) as NodeList;
         var nodes:Node[] = [];
-        for( i in [0..result.getLength() exclusive]) {
+        for( i in [0..<result.getLength()]) {
             var n = result.item(i);
             var fxnode = n.getUserData("FX") as Node;
             if(fxnode <> null) {

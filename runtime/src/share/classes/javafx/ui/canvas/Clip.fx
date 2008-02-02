@@ -127,7 +127,7 @@ public class Clip extends Node, Container {
     }
     private function selectIndex(n:Node):Integer {
         var a = -1;
-        for (i in [0..sizeof content exclusive]) {
+        for (i in [0..<sizeof content]) {
             if(n == content[i]){
                 a = i;
                 break;

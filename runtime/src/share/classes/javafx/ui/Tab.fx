@@ -45,7 +45,7 @@ public class Tab {
     public attribute icon: Icon on replace {
          if (tabbedPane <> null) {
             var i = 0;
-            for (ii in [0..sizeof tabbedPane.tabs exclusive] ) {
+            for (ii in [0..<sizeof tabbedPane.tabs] ) {
                     if(tabbedPane.tabs[i] == this){
                         i = ii;
                         break;
@@ -60,7 +60,7 @@ public class Tab {
     };
     public attribute title: String on replace {
         var i = 0;
-        for (ii in [0..sizeof tabbedPane.tabs exclusive] ) {
+        for (ii in [0..<sizeof tabbedPane.tabs] ) {
                 if(tabbedPane.tabs[i] == this){
                     i = ii;
                     break;

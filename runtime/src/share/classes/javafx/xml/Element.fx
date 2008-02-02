@@ -207,7 +207,7 @@ class Element extends Node {
         
         var attrs = domNode.getAttributes();
         if(attrs <> null) {
-            for(i in [0..attrs.getLength() exclusive]) {
+            for(i in [0..<attrs.getLength()]) {
                 var attrNode = Attribute { domNode:attrs.item(i), document:document};
                 insert attrNode into attributes;
             }

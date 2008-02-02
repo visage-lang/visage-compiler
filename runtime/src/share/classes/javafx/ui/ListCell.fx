@@ -47,7 +47,7 @@ public class ListCell {
             if (not listbox.locked) {
                 var e:javax.swing.event.ListDataEvent;
                 if (cacheGeneration < listbox.updateGeneration) {
-                    for (i in [0..sizeof listbox.cells exclusive ] ) {
+                    for (i in [0..<sizeof listbox.cells ] ) {
                         var c = listbox.cells[i];
                         c.myIndex = i;
                         c.cacheGeneration = listbox.updateGeneration;
@@ -69,7 +69,7 @@ public class ListCell {
         if (listbox <> null) {
             if (not listbox.locked) {
                 if (cacheGeneration < listbox.updateGeneration) {
-                    for ( i in [0..sizeof listbox.cells exclusive ] ) {
+                    for ( i in [0..<sizeof listbox.cells] ) {
                         var c = listbox.cells[i];
                         c.myIndex = i;
                         c.cacheGeneration = listbox.updateGeneration;

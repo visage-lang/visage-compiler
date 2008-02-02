@@ -63,7 +63,7 @@ public class TextPane extends ScrollableWidget {
         }
         on delete [ndx] (element) {
             var off = 0;
-            for (i in [0..ndx exclusive]) {
+            for (i in [0..<ndx]) {
                 var e = content[i];
                 if (e instanceof String) {
                     off += (e as String).length();

@@ -390,7 +390,7 @@ public class Table extends ScrollableWidget {
         tableModel.setColumnNames(cnames);        
         tableModel.setColumnAlignments(alignIds); 
         //for (i in cells) {
-        for( ii in [0..sizeof cells exclusive]) {
+        for( ii in [0..<sizeof cells]) {
             var i = cells[ii];
             tableModel.addCell(ii, i.text, i.toolTipText,
                                i.font.getFont(), i.background.getColor(), i.foreground.getColor(),
@@ -398,7 +398,7 @@ public class Table extends ScrollableWidget {
         }
         table.setModel(tableModel);
         var columnModel = table.getColumnModel();
-        for (i in [0..table.getColumnCount() exclusive]) {
+        for (i in [0..<table.getColumnCount()]) {
             var col = columns[i.intValue()];
             if (col.width <> UNSET) {
                 columnModel.getColumn(i.intValue()).setPreferredWidth(col.width.intValue());

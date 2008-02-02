@@ -102,8 +102,8 @@ public class DesktopPane extends Widget {
                 var h = (size.height/ rows).intValue();
                 var x = 0;
                 var y = 0;
-                for (i in [0..rows exclusive]) {
-                    for (j in [0..cols exclusive]) {
+                for (i in [0..<rows]) {
+                    for (j in [0..<cols]) {
                         var cell = (i * cols) + j;
                         if (cell >= sizeof dframes) {
                             break;

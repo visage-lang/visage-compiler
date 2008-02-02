@@ -384,67 +384,67 @@ class TabSlider extends Widget {
                 }
             });
         var selection = -1;
-        for (indx in [0..sizeof tabs exclusive] ) {
-            if (tabs[indx].button == null) {
-                tabs[indx].button = new Button(); 
-                if (tabs[indx].title <> null) {
-                    (tabs[indx].button as Button).text = tabs[indx].title;
+        for (tab in tabs) {
+            if (tab.button == null) {
+                tab.button = new Button(); 
+                if (tab.title <> null) {
+                    (tab.button as Button).text = tab.title;
                 }
-                if (tabs[indx].icon <> null) {
-                    (tabs[indx].button as Button).icon = tabs[indx].icon;
+                if (tab.icon <> null) {
+                    (tab.button as Button).icon = tab.icon;
                 }
-                if (tabs[indx].icon <> null) {
-                    (tabs[indx].button as Button).icon = tabs[indx].icon;
+                if (tab.icon <> null) {
+                    (tab.button as Button).icon = tab.icon;
                 }
             } 
-            tabs[indx].button.toolTipText = tabs[indx].toolTipText;
+            tab.button.toolTipText = tab.toolTipText;
 
-            tabs[indx].button.focusable = false;
-            tabs[indx].button.enabled = tabs[indx].enabled;
+            tab.button.focusable = false;
+            tab.button.enabled = tab.enabled;
             var dtlistener = DropTargetAdapter  {
                     public function dragOver(e:DropTargetDragEvent):Void {
                         if (not resizing) {
-                            tabs[indx].selected = true;
+                            tab.selected = true;
                         }
                     }
                     public function dragEnter(e:DropTargetDragEvent):Void {
                         if (not resizing) {
-                            tabs[indx].selected = true;
+                            tab.selected = true;
                         }
                     }
                     public function drop(e:DropTargetDropEvent):Void {
                         // empty
                     }
                 } as DropTargetListener;
-            if (tabs[indx].button instanceof RotatableWidget) {
-                var b =  tabs[indx].button as RotatableWidget;
+            if (tab.button instanceof RotatableWidget) {
+                var b =  tab.button as RotatableWidget;
                 b.rotation = if (orientation == Orientation.VERTICAL) then 0 else 90;
             }
-            if (tabs[indx].button instanceof ActionWidget) {
-                var b = tabs[indx].button as ActionWidget;
+            if (tab.button instanceof ActionWidget) {
+                var b = tab.button as ActionWidget;
                 b.action = function():Void {
                     if (not resizing) {
-                       tabs[indx].selected = not tabs[indx].selected;
+                       tab.selected = not tab.selected;
                     }
                 };
             }
-            new DropTarget(tabs[indx].button.getComponent(), dtlistener);
-            tabs[indx].button.opaque = true;
-            panel.add(tabs[indx].button.getComponent());
+            new DropTarget(tab.button.getComponent(), dtlistener);
+            tab.button.opaque = true;
+            panel.add(tab.button.getComponent());
             // make a non scrollable child for the viewport
             var sp = new ScrollablePanel();
             sp.setOpaque(false);
             sp.setLayout(new BorderLayout());
             sp.setScrollableTracksViewportHeight(true);
             sp.setScrollableTracksViewportWidth(true);
-            sp.add(tabs[indx].content.getComponent(), BorderLayout.CENTER);
-            tabs[indx].scrollable = sp;
-            tabs[indx].viewport = new JViewport();
-            tabs[indx].viewport.setOpaque(false);
-            tabs[indx].viewport.setView(sp);
-            panel.add(tabs[indx].viewport);
-            if (tabs[indx].selected) {
-                selection = indx;
+            sp.add(tab.content.getComponent(), BorderLayout.CENTER);
+            tab.scrollable = sp;
+            tab.viewport = new JViewport();
+            tab.viewport.setOpaque(false);
+            tab.viewport.setView(sp);
+            panel.add(tab.viewport);
+            if (tab.selected) {
+                selection = indexof tab;
             }
         }
         //TODO DO LATER - this is a work around until a more permanent solution is provided
@@ -464,7 +464,7 @@ class TabSlider extends Widget {
          if (not inSelection) {
             if (tab.selected) {
                 //var i = select indexof x from x in slider.tabs where x == this;
-                for (i in [0..sizeof tabs exclusive]) {
+                for (i in [0..<sizeof tabs]) {
                     if(tabs[i] == tab) {
                         selectedIndex = i;
                         break;

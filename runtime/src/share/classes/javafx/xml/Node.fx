@@ -107,7 +107,7 @@ public class Node {
         value = domNode.getNodeValue();
         type = NodeType.getNodeType(domNode.getNodeType());
         var nl:NodeList = domNode.getChildNodes();
-        for(i in [0..nl.getLength() exclusive]) {
+        for(i in [0..<nl.getLength()]) {
             var dnode:org.w3c.dom.Node = nl.item(i);
             if(dnode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
                 Element{domNode:dnode, document:document, parent:this};
@@ -268,7 +268,7 @@ public class Node {
      */
     protected function isChild(node:Node):Boolean {
         var nl = domNode.getChildNodes();
-        for( i in [0..nl.getLength() exclusive]) {
+        for( i in [0..<nl.getLength()]) {
             var n = nl.item(i) as org.w3c.dom.Node;
             if(node.domNode.isSameNode(n)) {
                 return true;
@@ -300,7 +300,7 @@ public class Node {
         var expr = xpath.compile(query);
         var result:NodeList = expr.evaluate(domNode, XPathConstants.NODESET) as NodeList;
         var nodes:Node[] = [];
-        for( i in [0..result.getLength() exclusive]) {
+        for( i in [0..<result.getLength()]) {
             var n = result.item(i);
             var fxnode = n.getUserData("FX") as Node;
             if(fxnode <> null) {
