@@ -385,6 +385,7 @@
     </target>
     
     <target name="demos" depends="jar,runtime">
+        <!-- tools.dir forwarding to demo projects needs to be fixed for continuous build
         <path id="javafxc.class.path" path="${dist.jar}"/>
         <path id="javafxrt.class.path" path="${dist.javafxrt.jar}"/>
         <property name="file.reference.javafxc.jar" refid="javafxc.class.path"/>
@@ -425,15 +426,19 @@
                 <propertyref regex="^.*\.class\.path$$"/>
             </propertyset>
         </ant>
+        -->
         <copy todir="dist/demos">
             <fileset dir="demos" excludes="**/build/,**/dist/,**/lib/"/>
         </copy>
     </target>
     
     <target name="demos-clean">
+        <ant dir="demos/anim" target="clean" inheritall="false"/>
+        <ant dir="demos/BasicDND" target="clean" inheritall="false"/>
+        <ant dir="demos/bounce" target="clean" inheritall="false"/>
         <ant dir="demos/Calculator" target="clean" inheritall="false"/>
-        <ant antfile="demos/Guitar/build.xml" target="clean" inheritall="false"/>
-        <ant antfile="demos/javafxballs/build.xml" target="clean" inheritall="false"/>
+        <ant dir="demos/Guitar" target="clean" inheritall="false"/>
+        <ant dir="demos/javafxballs" target="clean" inheritall="false"/>
         <delete dir="dist/demos" failonerror="false"/>
     </target>
     
