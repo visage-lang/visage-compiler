@@ -346,7 +346,7 @@
 
     <!-- Runs only if export.dir is set, which should only be set from the continuous build.
          Publishes build results to ${export.dir}.
-         Depends on Hudson environment params JOB_NAME and SVN_REVISION.
+         Depends on  environment params JOB_NAME and SVN_REVISION.
          Publishes result of findbugs analysis, where it can later be combined into
          a multi-version bug database. -->
     <target name="hudson-post-build" depends="init" if="export.dir">
@@ -389,20 +389,41 @@
         <path id="javafxrt.class.path" path="${dist.javafxrt.jar}"/>
         <property name="file.reference.javafxc.jar" refid="javafxc.class.path"/>
         <property name="file.reference.javafxrt.jar" refid="javafxrt.class.path"/>
+        <ant dir="demos/BasicDND" inheritall="false">
+            <property name="tools.dir" value="${tools.dir}"/>
+            <propertyset>
+                <propertyref regex="^.*\.class\.path$$"/>
+            </propertyset>
+        </ant>
         <ant dir="demos/Calculator" inheritall="false">
-            <property name="file.reference.javafxc.jar" refid="javafxc.class.path"/>
-            <property name="file.reference.javafxrt.jar" refid="javafxrt.class.path"/>
-            <property name="file.reference.scenegraph.jar" value="${file.reference.scenegraph.jar}"/>
+            <property name="tools.dir" value="${tools.dir}"/>
+            <propertyset>
+                <propertyref regex="^.*\.class\.path$$"/>
+            </propertyset>
         </ant>
-        <ant antfile="demos/Guitar/build.xml" inheritall="false">
-            <property name="file.reference.javafxc.jar" refid="javafxc.class.path"/>
-            <property name="file.reference.javafxrt.jar" refid="javafxrt.class.path"/>
-            <property name="file.reference.scenegraph.jar" value="${file.reference.scenegraph.jar}"/>
+        <ant dir="demos/Guitar" inheritall="false">
+            <property name="tools.dir" value="${tools.dir}"/>
+            <propertyset>
+                <propertyref regex="^.*\.class\.path$$"/>
+            </propertyset>
         </ant>
-        <ant antfile="demos/javafxballs/build.xml" inheritall="false">
-            <property name="file.reference.javafxc.jar" refid="javafxc.class.path"/>
-            <property name="file.reference.javafxrt.jar" refid="javafxrt.class.path"/>
-            <property name="file.reference.scenegraph.jar" value="${file.reference.scenegraph.jar}"/>
+        <ant dir="demos/anim" inheritall="false">
+            <property name="tools.dir" value="${tools.dir}"/>
+            <propertyset>
+                <propertyref regex="^.*\.class\.path$$"/>
+            </propertyset>
+        </ant>
+        <ant dir="demos/bounce" inheritall="false">
+            <property name="tools.dir" value="${tools.dir}"/>
+            <propertyset>
+                <propertyref regex="^.*\.class\.path$$"/>
+            </propertyset>
+        </ant>
+        <ant dir="demos/javafxballs" inheritall="false">
+            <property name="tools.dir" value="${tools.dir}"/>
+            <propertyset>
+                <propertyref regex="^.*\.class\.path$$"/>
+            </propertyset>
         </ant>
         <copy todir="dist/demos">
             <fileset dir="demos" excludes="**/build/,**/dist/,**/lib/"/>
