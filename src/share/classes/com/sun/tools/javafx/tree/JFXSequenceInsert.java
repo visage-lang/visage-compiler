@@ -37,10 +37,15 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
 public class JFXSequenceInsert extends JFXStatement implements SequenceInsertTree {
     private final JCExpression element;
     private final JCExpression sequence;
+    private final JCExpression position;
+    private final boolean after;
 
-    public JFXSequenceInsert(JCExpression sequence, JCExpression element) {
+    public JFXSequenceInsert(JCExpression sequence, JCExpression element, 
+            JCExpression position, boolean after) {
         this.element = element;
         this.sequence = sequence;
+        this.position = position;
+        this.after = after;
     }
 
     public void accept(JavafxVisitor v) {
@@ -53,6 +58,14 @@ public class JFXSequenceInsert extends JFXStatement implements SequenceInsertTre
     
     public JCExpression getSequence() {
         return sequence;
+    }
+    
+    public JCExpression getPosition() {
+        return position;
+    }
+    
+    public boolean shouldInsertAfter() {
+        return after;
     }
     
     @Override

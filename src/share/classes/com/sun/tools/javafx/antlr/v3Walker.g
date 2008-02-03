@@ -226,7 +226,11 @@ statement returns [JCStatement value]
 	| CONTINUE  	 	 			{ $value = F.at(pos($CONTINUE)).Continue(null); }
        	| ^(THROW expression)	   			{ $value = F.at(pos($THROW)).Throw($expression.expr); } 
 	| ^(WHILE expression block)			{ $value = F.at(pos($WHILE)).WhileLoop($expression.expr, $block.value); }
-	| ^(INSERT e1=expression e2=expression)		{ $value = F.at(pos($INSERT)).SequenceInsert($e2.expr, $e1.expr); } 
+	| ^(INTO elem=expression eseq=expression)	{ $value = F.at(pos($INTO)).SequenceInsert($eseq.expr, $elem.expr, null, false); } 
+	| ^(BEFORE elem=expression ^(SEQ_INDEX eseq=expression idx=expression))
+							{ $value = F.at(pos($BEFORE)).SequenceInsert($eseq.expr, $elem.expr, $idx.expr, false); } 
+	| ^(AFTER elem=expression ^(SEQ_INDEX eseq=expression idx=expression))
+							{ $value = F.at(pos($AFTER)).SequenceInsert($eseq.expr, $elem.expr, $idx.expr, true); } 
 	| ^(FROM e1=expression e2=expression)		{ $value = F.at(pos($FROM)).SequenceDelete($e2.expr,$e1.expr); } 
 	| ^(DELETE expression)				{ $value = F.at(pos($DELETE)).SequenceDelete($expression.expr); } 
 	| ^(RETURN expression?)				{ $value = F.at(pos($RETURN)).Return($expression.expr); } 

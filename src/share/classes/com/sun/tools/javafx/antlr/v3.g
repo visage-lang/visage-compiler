@@ -504,7 +504,7 @@ module
 	: packageDecl? moduleItems EOF 		-> ^(MODULE packageDecl? moduleItems)
        	;
 packageDecl 
-       	: PACKAGE qualident SEMI         	-> ^(PACKAGE qualident)
+       	: PACKAGE qualname SEMI         	-> ^(PACKAGE qualname)
 	;
 moduleItems    
 	: moduleItem (SEMI moduleItem )*	-> moduleItem*
@@ -520,7 +520,7 @@ importDecl
  	: IMPORT importId			-> ^(IMPORT importId)
 	;
 importId
- 	: ( identifier				-> identifier)
+ 	: ( name				-> name)
                  ( DOT name			-> ^(DOT $importId name) )* 
                  ( DOT STAR			-> ^(DOT $importId STAR) )?  
 	;
@@ -663,8 +663,11 @@ whileStatement
 	: WHILE LPAREN expression RPAREN block	-> ^(WHILE expression block)
 	;
 insertStatement  
-	: INSERT e1=expression INTO e2=expression 
-						-> ^(INSERT $e1 $e2)
+	: INSERT elem=expression
+		( INTO eseq=expression 		-> ^(INTO $elem $eseq )
+		| BEFORE where=expression	-> ^(BEFORE $elem $where)
+		| AFTER where=expression	-> ^(AFTER $elem $where)
+		)
 	;
 deleteStatement  
 	: DELETE  e1=expression  
@@ -805,9 +808,9 @@ postfixExpression
 	   ) * 
 	;
 primaryExpression  
-	: qualident					
-		( LBRACE  objectLiteralPart* RBRACE 		-> ^(OBJECT_LIT[$LBRACE] qualident objectLiteralPart*)
-		|						-> qualident
+	: qualname					
+		( LBRACE  objectLiteralPart* RBRACE 		-> ^(OBJECT_LIT[$LBRACE] qualname objectLiteralPart*)
+		|						-> qualname
 		)
        	| THIS							-> THIS
        	| SUPER							-> SUPER
@@ -911,10 +914,10 @@ cardinality
 	|                         		->
 	;
 typeName  
-	: qualident 		
+	: qualname 		
 		(LT genericArgument (COMMA genericArgument)* GT
-						-> ^(TYPE_ARG[$LT] qualident genericArgument+)
-		|				-> qualident
+						-> ^(TYPE_ARG[$LT] qualname genericArgument+)
+		|				-> qualname
 		)
 	;
 genericArgument 
@@ -936,13 +939,10 @@ literal
 	| FALSE   		
 	| NULL 		
 	;
-qualident 
+qualname 
 	: ( name				-> name )
-          ( (DOT)=> DOT nn=name     		-> ^(DOT $qualident $nn)
+          ( (DOT)=> DOT nn=name     		-> ^(DOT $qualname $nn)
           ) *  
-	;
-identifier 
-	: name              	
 	;
 name 
 	: IDENTIFIER						

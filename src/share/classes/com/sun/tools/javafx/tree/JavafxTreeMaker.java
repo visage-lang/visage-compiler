@@ -207,8 +207,8 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXSequenceInsert SequenceInsert(JCExpression sequence, JCExpression element) {
-        JFXSequenceInsert tree = new JFXSequenceInsert(sequence, element);
+    public JFXSequenceInsert SequenceInsert(JCExpression sequence, JCExpression element, JCExpression position, boolean after) {
+        JFXSequenceInsert tree = new JFXSequenceInsert(sequence, element, position, after);
         tree.pos = pos;
         return tree;
     }

@@ -63,3 +63,30 @@ nums = [0..10];
 delete nums[9..2];
 System.out.println(nums);
 
+nums = [0..10];
+insert 99 before nums[sizeof nums];
+insert 98 before nums[5];
+insert 97 before nums[0];
+System.out.println(nums);
+
+names = ["Evelyn", "Ann"];
+insert ["Daz", "Barb"] before names[sizeof names];
+insert ["Melissa", "Ron"] before names[1];
+insert ["Jim", "Marsha"] before names[0];
+System.out.println(names);
+
+nums = [0..10];
+insert 99 after nums[sizeof nums - 1];
+insert 98 after nums[5];
+insert 97 after nums[0];
+System.out.println(nums);
+
+names = ["Evelyn", "Ann"];
+insert ["Daz", "Barb"] after names[sizeof names - 1];
+insert ["Melissa", "Ron"] after names[1];
+insert ["Jim", "Marsha"] after names[0];
+System.out.println(names);
+
+
+
+

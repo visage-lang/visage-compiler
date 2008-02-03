@@ -657,7 +657,7 @@ variableLabel    returns [boolean local, int pos]
 	;
 insertStatement   returns [JCStatement value]
 	: INSERT e1=expression  INTO e2=expression 
-						{ $value = F.at(pos($INSERT)).SequenceInsert($e2.expr, $e1.expr); } 
+						{ $value = F.at(pos($INSERT)).SequenceInsert($e2.expr, $e1.expr, null, false); } 
 	;
 deleteStatement   returns [JCStatement value]
 	: DELETE  e1=expression  

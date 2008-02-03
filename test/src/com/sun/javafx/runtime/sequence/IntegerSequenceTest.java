@@ -511,7 +511,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(three.insertBefore(0, 0), 0, 1, 2, 3);
         assertEquals(three.insertBefore(0, 1), 1, 0, 2, 3);
         assertEquals(three.insertBefore(0, 2), 1, 2, 0, 3);
-        assertEquals(three.insertBefore(0, 3), 1, 2, 3);
+        assertEquals(three.insertBefore(0, 3), 1, 2, 3, 0);
         assertEquals(three.insertAfter(0, oneMatcher), 1, 0, 2, 3);
         assertEquals(three.insertBefore(0, oneMatcher), 0, 1, 2, 3);
         assertEquals(three.insertBefore(0, allMatcher), 0, 1, 0, 2, 0, 3);

@@ -1630,10 +1630,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
-        result = callStatement(tree, 
-                translate( tree.getSequence(), Wrapped.InLocation ), 
-                "insert", 
-                translate( tree.getElement() ));
+        DiagnosticPosition diagPos = tree.pos();
+        JCExpression seqLoc = translate(tree.getSequence(), Wrapped.InLocation);
+        JCExpression elem = translate( tree.getElement() );
+        if (tree.getPosition() == null) {
+            result = callStatement(diagPos, seqLoc, "insert", elem);
+        } else {
+            String meth = tree.shouldInsertAfter()? "insertAfter" : "insertBefore";
+            result = callStatement(diagPos, seqLoc, meth, 
+                    List.of(elem, translate(tree.getPosition())));
+        }
     }
     
     @Override

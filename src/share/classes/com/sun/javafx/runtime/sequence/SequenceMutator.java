@@ -193,7 +193,7 @@ public class SequenceMutator {
     public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
                                                T value, int position) {
         // Extra validity check needed for insertBefore
-        if (position >= target.size())
+        if (position > target.size())
             return target;
         else
             return replaceSlice(target, listener, position, position-1, value);
@@ -206,7 +206,7 @@ public class SequenceMutator {
     public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
                                                Sequence<? extends T> values, int position) {
         // Extra validity check needed for insertBefore
-        if (position >= target.size())
+        if (position > target.size())
             return target;
         else
             return replaceSlice(target, listener, position, position-1, values);

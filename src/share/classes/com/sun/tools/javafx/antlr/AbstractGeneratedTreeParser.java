@@ -79,17 +79,18 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
     }
     
     public String getErrorMessage(RecognitionException e, String[] tokenNames) {
-        java.util.List stack = getRuleInvocationStack(e, this.getClass().getName());
+        //java.util.List stack = getRuleInvocationStack(e, this.getClass().getName());
         String msg = null;
         if (e instanceof NoViableAltException) {
             NoViableAltException nvae = (NoViableAltException) e;
-            msg = " no viable alt; token=" + e.token + " (decision=" 
-                    + nvae.decisionNumber + " state " + nvae.stateNumber + ")" 
-                    + " decision=<<" + nvae.grammarDecisionDescription + ">>";
+            msg = "Trying to understand your program, I'm confused st the " + e.token + "\n" + nvae.grammarDecisionDescription;
+            //msg = " no viable alt; token=" + e.token + " (decision=" 
+            //        + nvae.decisionNumber + " state " + nvae.stateNumber + ")" 
+            //        + " decision=<<" + nvae.grammarDecisionDescription + ">>";
         } else {
             msg = super.getErrorMessage(e, tokenNames);
         }
-        return stack + " " + msg;
+        return msg;
     }
 
 /**
