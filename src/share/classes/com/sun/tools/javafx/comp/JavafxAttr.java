@@ -2780,14 +2780,24 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public void visitSequenceDelete(JFXSequenceDelete tree) {
         JCExpression seq = tree.getSequence();
         if (tree.getElement() == null) {
-            if (tree.getSequence() instanceof JFXSequenceIndexed) { 
+            if (seq instanceof JFXSequenceIndexed) { 
                 // delete seq[index];
-                JFXSequenceIndexed seqInd = (JFXSequenceIndexed)seq;
-                JCExpression seqseq = seqInd.getSequence();
-                JCExpression index = seqInd.getIndex();
-                tree.resetSequenceAndIndex(seqseq, index);
-                attribTree(seq, env, VAR, Type.noType, Sequenceness.REQUIRED); 
+                JFXSequenceIndexed si = (JFXSequenceIndexed)seq;
+                JCExpression seqseq = si.getSequence();
+                JCExpression index = si.getIndex();
+                attribTree(seqseq, env, VAR, Type.noType, Sequenceness.REQUIRED); 
                 attribExpr(index, env, syms.javafx_IntegerType);
+            } else if (seq instanceof JFXSequenceSlice) { 
+                // delete seq[first..last];
+                JFXSequenceSlice slice = (JFXSequenceSlice)seq;
+                JCExpression seqseq = slice.getSequence();
+                JCExpression first = slice.getFirstIndex();
+                JCExpression last = slice.getLastIndex();
+                attribTree(seqseq, env, VAR, Type.noType, Sequenceness.REQUIRED); 
+                attribExpr(first, env, syms.javafx_IntegerType);
+                if (last != null) {
+                    attribExpr(last, env, syms.javafx_IntegerType);
+                }
             } else {
                 // delete seq;   // that is, all the elements
                 attribTree(seq, env, VAR, Type.noType, Sequenceness.REQUIRED); 

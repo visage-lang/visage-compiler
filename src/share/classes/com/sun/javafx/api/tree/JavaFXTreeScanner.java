@@ -149,8 +149,7 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
 
     public R visitSequenceDelete(SequenceDeleteTree node, P p) {
         R r = scan(node.getSequence(), p);
-        r = scanAndReduce(node.getElement(), p, r);
-        return scanAndReduce(node.getIndex(), p, r);
+        return scanAndReduce(node.getElement(), p, r);
     }
 
     public R visitSequenceEmpty(SequenceEmptyTree node, P p) {

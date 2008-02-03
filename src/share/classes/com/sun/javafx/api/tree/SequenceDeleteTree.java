@@ -42,5 +42,4 @@ import com.sun.source.tree.ExpressionTree;
 public interface SequenceDeleteTree extends JavaFXStatementTree {
     ExpressionTree getSequence();
     ExpressionTree getElement();
-    ExpressionTree getIndex();
 }

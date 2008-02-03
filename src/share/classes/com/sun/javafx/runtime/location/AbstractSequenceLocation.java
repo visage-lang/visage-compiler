@@ -182,6 +182,11 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     }
 
     @Override
+    public void deleteSlice(int startPos, int endPos) {
+        replaceSlice(startPos, endPos, null);
+    }
+
+    @Override
     public void deleteAll() {
         throw new UnsupportedOperationException();
     }

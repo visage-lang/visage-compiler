@@ -46,3 +46,20 @@ for (a in [1..20]) { insert a*a into nums; };
 System.out.println(nums);
 for (a in [1..200]) { delete a*2 from nums; };
 System.out.println(nums);
+
+nums = [0..10];
+delete nums[3..7];
+System.out.println(nums);
+nums = [0..10];
+delete nums[3..<7];
+System.out.println(nums);
+nums = [0..10];
+delete nums[5..];
+System.out.println(nums);
+nums = [0..10];
+delete nums[5..<];
+System.out.println(nums);
+nums = [0..10];
+delete nums[9..2];
+System.out.println(nums);
+

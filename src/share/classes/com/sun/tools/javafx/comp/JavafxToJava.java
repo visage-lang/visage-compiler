@@ -1639,19 +1639,34 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
         JCExpression seq = tree.getSequence();
-        JCExpression seqLoc = translate(seq, Wrapped.InLocation);
-        if (tree.getIndex() != null) { 
-            result = callStatement(tree.pos(),  seqLoc,  "delete",   translate( tree.getIndex() ));
-        } else if (tree.getElement() != null) { 
-            result = callStatement(tree.pos(),  seqLoc,  "deleteValue",  translate( tree.getElement() ));
+
+        if (tree.getElement() != null) {
+            JCExpression seqLoc = translate(seq, Wrapped.InLocation);
+            result = callStatement(tree.pos(), seqLoc, "deleteValue", translate(tree.getElement()));
         } else {
-            if (types.isSequence(seq.type))
-                result = callStatement(tree.pos(), seqLoc,  "deleteAll");
-            else {
-                make.at(tree.pos());
-                // Bit of a KLUDGE ...
-                visitAssign(make.Assign(seq, make.Literal(TypeTags.BOT, null)));
-                result = make.Exec((JCExpression) result);
+            if (seq.getTag() == JavafxTag.SEQUENCE_INDEXED) {
+                // deletion of a sequence element -- delete s[i]
+                JFXSequenceIndexed si = (JFXSequenceIndexed) seq;
+                JCExpression seqseq = si.getSequence();
+                JCExpression seqLoc = translate(seqseq, Wrapped.InLocation);
+                JCExpression index = translate(si.getIndex());
+                result = callStatement(tree.pos(), seqLoc, "delete", index);
+            } else if (seq.getTag() == JavafxTag.SEQUENCE_SLICE) {
+                // deletion of a sequence slice --  delete s[i..j]=8
+                JFXSequenceSlice slice = (JFXSequenceSlice) seq;
+                JCExpression seqseq = slice.getSequence();
+                JCExpression seqLoc = translate(seqseq, Wrapped.InLocation);
+                JCExpression first = translate(slice.getFirstIndex());
+                JCExpression last = makeSliceLastIndex(slice);
+                result = callStatement(tree.pos(), seqLoc, "deleteSlice", List.of(first, last));
+            } else if (types.isSequence(seq.type)) {
+                JCExpression seqLoc = translate(seq, Wrapped.InLocation);
+                result = callStatement(tree.pos(), seqLoc, "deleteAll");
+            } else {
+                result = make.at(tree.pos()).Exec(
+                            make.Assign(
+                                translate(seq), 
+                                make.Literal(TypeTags.BOT, null)));
             }
         }
     }

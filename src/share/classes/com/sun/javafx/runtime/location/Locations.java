@@ -574,6 +574,10 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
+        public void deleteSlice(int startPos, int endPos) {
+            throw new UnsupportedOperationException();
+        }
+
         public void deleteAll() {
             throw new UnsupportedOperationException();
         }
