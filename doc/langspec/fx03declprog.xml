@@ -70,12 +70,8 @@
     identifiers) as class, variable, function, or attribute names. For
     example: <emphasis role="bold"></emphasis></para>
 
-    <para><emphasis></emphasis></para>
-
-    <para><emphasis role="bold">TBD: Has engineering deprecated the
-    &lt;&lt;&gt;&gt; convention? Their latest review raised this question
-    (JFXC-443.) </emphasis></para>
-
+    
+   
     <para><emphasis></emphasis></para>
 
     <para><emphasis role="bold">TBD: The rules for what makes a valid
@@ -125,10 +121,67 @@ textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);</programlisting></para>
     <code>Integer</code>. These types correspond to the Java programming
     language as follows:</para>
 
-    <para></para>
+   
+     <para>JavaFX Script types to correspond to the Java™ programming
+          language (TM) types listed on the table below:</para>
 
-    <para><emphasis role="bold">[to-do: insert table here from existing
-    doc]</emphasis></para>
+          <table cellpadding="5" cellspacing="5"
+                 style="border: medium groove ;">
+            <tbody>
+              <tr>
+                <th style="text-decoration: underline;">JavaFX</th>
+
+                <th style="text-decoration: underline;">Java</th>
+              </tr>
+
+              <tr>
+                <td>
+                  <code>String</code>
+                </td>
+
+                <td>
+                  <code>java.lang.String</code>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <code>Boolean</code>
+                </td>
+
+                <td>
+                  <code>java.lang.boolean</code>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <code>Number</code>
+                </td>
+
+                <td>
+                  <code>java.lang.Number</code>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <code>Integer</code>
+                </td>
+
+                <td>
+                  <code>byte,short,int,long,BigInteger</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+    
+    
+    
+    
+    
+    
+    
 
     <para></para>
 
