@@ -87,8 +87,9 @@ public class JavafxTreeInfo extends TreeInfo {
 	opname[JCTree.DIV     - JCTree.POS] = names.slash;
 	opname[JCTree.MOD     - JCTree.POS] = names.fromString("%");
 	opname[JavafxTag.XOR     - JCTree.POS] = names.fromString("xor");
-	opname[JavafxTag.BINDOP  - JCTree.POS] = names.fromString("bind");
-	opname[JavafxTag.LAZYOP  - JCTree.POS] = names.fromString("lazy");
+	opname[JavafxTag.SIZEOF  - JCTree.POS] = names.fromString("sizeof");
+	opname[JavafxTag.INDEXOF  - JCTree.POS] = names.fromString("indexof");
+	opname[JavafxTag.REVERSE  - JCTree.POS] = names.fromString("reverse");
     }    
 
     /** A DiagnosticPosition with the preferred position set to the 

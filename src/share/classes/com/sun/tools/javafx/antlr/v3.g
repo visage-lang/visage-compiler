@@ -781,6 +781,7 @@ unaryExpression
 	| SIZEOF   e=unaryExpression				-> ^(SIZEOF $e)	
 	| PLUSPLUS e=unaryExpression				-> ^(PLUSPLUS $e)   	
 	| SUBSUB   e=unaryExpression				-> ^(SUBSUB $e)
+	| REVERSE  e=unaryExpression				-> ^(REVERSE $e)
         | INDEXOF  name                      			-> ^(INDEXOF name)	
 	;
 suffixedExpression 

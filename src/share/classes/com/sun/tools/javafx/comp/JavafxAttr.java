@@ -2055,10 +2055,17 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitUnary(JCUnary tree) {
-        if (tree.getTag() == JavafxTag.SIZEOF) {
-             Type argtype = chk.checkNonVoid(tree.arg.pos(), attribExpr(tree.arg, env));
-             result = check(tree, syms.javafx_IntegerType, VAL, pkind, pt, pSequenceness);
-             return;
+        switch (tree.getTag()) {
+            case JavafxTag.SIZEOF: {
+                Type argtype = chk.checkNonVoid(tree.arg.pos(), attribExpr(tree.arg, env));
+                result = check(tree, syms.javafx_IntegerType, VAL, pkind, pt, pSequenceness);
+                return;
+            }
+            case JavafxTag.REVERSE: {
+                Type argtype = chk.checkNonVoid(tree.arg.pos(), attribExpr(tree.arg, env));
+                result = check(tree, argtype, VAL, pkind, pt, pSequenceness);
+                return;
+            }
         }
         // Attribute arguments.
         Type argtype = (JCTree.PREINC <= tree.getTag() && tree.getTag() <= JCTree.POSTDEC)

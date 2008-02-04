@@ -290,6 +290,7 @@ expression  returns [JCExpression expr]
 	| ^(SIZEOF e0=expression)			{ $expr = F.at(pos($SIZEOF)).Unary(JavafxTag.SIZEOF, $e0.expr); }
 	| ^(PLUSPLUS e0=expression)   			{ $expr = F.at(pos($PLUSPLUS)).Unary(JCTree.PREINC, $e0.expr); }
 	| ^(SUBSUB e0=expression) 			{ $expr = F.at(pos($SUBSUB)).Unary(JCTree.PREDEC, $e0.expr); }
+	| ^(REVERSE e0=expression) 			{ $expr = F.at(pos($REVERSE)).Unary(JavafxTag.REVERSE, $e0.expr); }
 	| ^(POSTINCR e0=expression)			{ $expr = F.at($e0.expr.pos).Unary(JCTree.POSTINC, $e0.expr); }
 	| ^(POSTDECR e0=expression)			{ $expr = F.at($e0.expr.pos).Unary(JCTree.POSTDEC, $e0.expr); }
 	| ^(DOT e0=expression name)			{ $expr = F.at(pos($DOT)).Select($e0.expr, $name.value); }

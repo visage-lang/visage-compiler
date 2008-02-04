@@ -16,6 +16,8 @@ System.out.println(x);    // 1, 2, 3
 System.out.println(x[1]); // 2
 
 System.out.println(sizeof x);
+
+System.out.println(reverse x);
                           // 3
 
 // @FIXME Currently throws NPE; awaiting clear spec on out-of-bounds access

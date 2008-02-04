@@ -2836,6 +2836,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         return callExpression(diagPos, 
                                 makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"), 
                                 defs.sizeMethodName, transExpr);
+                    case JavafxTag.REVERSE:
+                        return callExpression(diagPos, 
+                                makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"), 
+                                "reverse", transExpr);
                     case JCTree.PREINC:
                         return doIncDec(JCTree.PLUS, false);
                     case JCTree.PREDEC:

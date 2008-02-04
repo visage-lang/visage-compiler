@@ -196,20 +196,16 @@ public abstract class JavafxTag extends JCTree {
      */
     public static final int SIZEOF = XOR + 1;
 
-    /** internal bind unary operator
-     */
-    public static final int BINDOP = SIZEOF + 1;        
-
-    /** internal lazy bind unary operator
-     */
-    public static final int LAZYOP = BINDOP + 1;
-
     /** The 'indexof name' operator.
      */
-    public static final int INDEXOF = LAZYOP + 1;
+    public static final int INDEXOF = SIZEOF + 1;
+
+    /** reverse unary operator
+     */
+    public static final int REVERSE = INDEXOF + 1;
 
     /** time literal
      */
-    public static final int TIME_LITERAL = INDEXOF + 1;
+    public static final int TIME_LITERAL = REVERSE + 1;
     public static final int JFX_OP_LAST = TIME_LITERAL;        
 }
