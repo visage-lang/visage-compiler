@@ -46,7 +46,8 @@ public class FXCompilerTest extends TestSuite {
             "test/regress",
             "test/fxunit",
             "test/should-fail",
-            "test/currently-failing"
+            "test/currently-failing",
+            "test/functional"
     };
     private static final String TEST_FX_INCLUDES = "test.fx.includes";
 
