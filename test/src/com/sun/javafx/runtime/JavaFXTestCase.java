@@ -52,7 +52,7 @@ public abstract class JavaFXTestCase extends TestCase {
      */
     protected <T> void assertEquals(Sequence<T> sequence, T... values) {
         Sequence<T> newSeq = Sequences.<T>make(sequence.getElementType(), values);
-        assertEquals((Object) sequence, (Object) newSeq);
+        assertEquals(sequence, newSeq);
 
         StringBuffer sb = new StringBuffer();
         sb.append("[");
