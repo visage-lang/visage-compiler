@@ -26,7 +26,6 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.ErrorHandler;
-import com.sun.javafx.runtime.InitializationContext;
 
 /**
  * DoubleVar represents a simple double variable as a Location.  New DoubleVars are constructed with the make() factory
@@ -38,12 +37,6 @@ public class DoubleVar extends AbstractDoubleLocation implements DoubleLocation,
 
     public static DoubleLocation make() {
         return make(DEFAULT);
-    }
-
-    public static DoubleLocation make(InitializationContext parent) {
-        DoubleVar loc = new DoubleVar(DEFAULT);
-        loc.setParent(parent);
-        return loc;
     }
 
     public static DoubleLocation make(double value) {

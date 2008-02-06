@@ -28,8 +28,6 @@ package com.sun.javafx.runtime.location;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.javafx.runtime.DeferredTrigger;
-
 /**
  * AbstractBooleanLocation
  *
@@ -91,19 +89,8 @@ public abstract class AbstractBooleanLocation extends AbstractLocation implement
     protected void notifyListeners(final boolean oldValue, final boolean newValue) {
         valueChanged();
         if (replaceListeners != null) {
-            if (isTriggersDeferred()) {
-                final BooleanChangeListener[] listenerCopy = replaceListeners.toArray(new BooleanChangeListener[replaceListeners.size()]);
-                deferTrigger(new DeferredTrigger() {
-                    public void run() {
-                        for (BooleanChangeListener listener : listenerCopy)
-                                listener.onChange(oldValue, newValue);
-                    }
-                });
-            }
-            else {
-                for (BooleanChangeListener listener : replaceListeners)
-                    listener.onChange(oldValue, newValue);
-            }
+            for (BooleanChangeListener listener : replaceListeners)
+                listener.onChange(oldValue, newValue);
         }
     }
 
@@ -117,13 +104,6 @@ public abstract class AbstractBooleanLocation extends AbstractLocation implement
         else
             setValid();
         return newValue;
-    }
-
-    public void inherit(AbstractLocation otherLocation) {
-        super.inherit(otherLocation);
-        if (replaceListeners != null)
-            for (BooleanChangeListener listener : ((AbstractBooleanLocation) otherLocation).replaceListeners)
-                addChangeListener(listener);
     }
 
     public void fireInitialTriggers() {

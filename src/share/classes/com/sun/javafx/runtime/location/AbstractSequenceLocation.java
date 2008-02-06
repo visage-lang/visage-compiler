@@ -32,7 +32,6 @@ import java.util.List;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 import com.sun.javafx.runtime.sequence.Sequences;
-import com.sun.javafx.runtime.DeferredTrigger;
 
 /**
  * AbstractSequenceLocation
@@ -101,34 +100,16 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     }
 
     @SuppressWarnings("unchecked")
-    protected void notifyListeners(final int startPos, final int endPos, final Sequence<? extends T> newElements, final Sequence<T> oldValue, final Sequence<T> newValue) {
+    protected void notifyListeners(final int startPos, final int endPos,
+                                   final Sequence<? extends T> newElements,
+                                   final Sequence<T> oldValue, final Sequence<T> newValue) {
         if (endPos - startPos + 1 == 0 && Sequences.size(newElements) == 0)
             return;
         valueChanged();
         if (replaceListeners != null) {
-            if (isTriggersDeferred()) {
-                final SequenceReplaceListener<T>[] listenerCopy = replaceListeners.toArray(new SequenceReplaceListener[replaceListeners.size()]);
-                deferTrigger(new DeferredTrigger() {
-                    public void run() {
-                        for (SequenceReplaceListener<T> listener : listenerCopy) {
-                            listener.onReplace(startPos, endPos, newElements, oldValue, newValue);
-                        }
-                    }
-                });
-            }
-            else {
-                for (SequenceReplaceListener<T> listener : replaceListeners)
-                    listener.onReplace(startPos, endPos, newElements, oldValue, newValue);
-            }
+            for (SequenceReplaceListener<T> listener : replaceListeners)
+                listener.onReplace(startPos, endPos, newElements, oldValue, newValue);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    public void inherit(AbstractLocation otherLocation) {
-        super.inherit(otherLocation);
-        if (replaceListeners != null)
-            for (SequenceReplaceListener<T> listener : ((AbstractSequenceLocation<T>) otherLocation).replaceListeners)
-                addChangeListener(listener);
     }
 
     public void fireInitialTriggers() {

@@ -26,7 +26,6 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.ErrorHandler;
-import com.sun.javafx.runtime.InitializationContext;
 
 /**
  * IntVar represents a simple Integer variable as a Location.  New IntVars are constructed with the make() factory
@@ -38,12 +37,6 @@ public class IntVar extends AbstractIntLocation implements IntLocation, MutableL
 
     public static IntLocation make() {
         return make(DEFAULT);
-    }
-
-    public static IntLocation make(InitializationContext parent) {
-        IntVar loc = new IntVar(DEFAULT);
-        loc.setParent(parent);
-        return loc;
     }
 
     public static IntLocation make(int value) {

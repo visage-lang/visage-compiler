@@ -29,7 +29,6 @@ import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequenceMutator;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 import com.sun.javafx.runtime.sequence.Sequences;
-import com.sun.javafx.runtime.InitializationContext;
 
 /**
  * SequenceVar represents a sequence-valued variable as a Location.
@@ -43,12 +42,6 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
 
     public static <T> SequenceLocation<T> make(Sequence<T> value) {
         return new SequenceVar<T>(value);
-    }
-
-    public static<T> SequenceLocation<T> make(Class<T> clazz, InitializationContext parent) {
-        SequenceVar<T> loc = new SequenceVar<T>(clazz);
-        loc.setParent(parent);
-        return loc;
     }
 
     public static <T> SequenceLocation<T> make(Class<T> clazz, Sequence<? extends T> value) {

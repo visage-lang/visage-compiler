@@ -28,8 +28,6 @@ package com.sun.javafx.runtime.location;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.javafx.runtime.DeferredTrigger;
-
 /**
  * AbstractIntLocation
  *
@@ -90,19 +88,8 @@ public abstract class AbstractIntLocation extends AbstractLocation implements In
     protected void notifyListeners(final int oldValue, final int newValue) {
         valueChanged();
         if (replaceListeners != null) {
-            if (isTriggersDeferred()) {
-                final IntChangeListener[] listenerCopy = replaceListeners.toArray(new IntChangeListener[replaceListeners.size()]);
-                deferTrigger(new DeferredTrigger() {
-                    public void run() {
-                        for (IntChangeListener listener : listenerCopy)
-                                listener.onChange(oldValue, newValue);
-                    }
-                });
-            }
-            else {
-                for (IntChangeListener listener : replaceListeners)
-                    listener.onChange(oldValue, newValue);
-            }
+            for (IntChangeListener listener : replaceListeners)
+                listener.onChange(oldValue, newValue);
         }
     }
 
@@ -116,13 +103,6 @@ public abstract class AbstractIntLocation extends AbstractLocation implements In
         else
             setValid();
         return newValue;
-    }
-
-    public void inherit(AbstractLocation otherLocation) {
-        super.inherit(otherLocation);
-        if (replaceListeners != null)
-            for (IntChangeListener listener : ((AbstractIntLocation) otherLocation).replaceListeners)
-                addChangeListener(listener);
     }
 
     public void fireInitialTriggers() {
