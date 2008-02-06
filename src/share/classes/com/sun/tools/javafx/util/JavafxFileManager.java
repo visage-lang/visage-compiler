@@ -162,6 +162,13 @@ public class JavafxFileManager extends JavacFileManager {
             return delegate.getName();
         }
 
+        /** @deprecated see bug 6410637 */
+        @Deprecated @Override
+        public String getPath() {
+            return delegate instanceof BaseFileObject ? 
+                ((BaseFileObject)delegate).getPath() : getName();
+        }
+
         public InputStream openInputStream() throws IOException {
             return delegate.openInputStream();
         }
