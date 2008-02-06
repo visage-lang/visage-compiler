@@ -231,13 +231,13 @@ public class SequenceBindingTest extends JavaFXTestCase {
                 return Sequences.range(1, n.getAsInt());
             }
         };
-        assertEquals(oneToN.getAsSequence(), 1, 0);
+        assertEquals(oneToN.getAsSequence());
         n.setAsInt(3);
         assertEquals(oneToN.getAsSequence(), 1, 2, 3);
         n.setAsInt(1);
         assertEquals(oneToN.getAsSequence(), 1);
         n.setAsInt(-1);
-        assertEquals(oneToN.getAsSequence(), 1, 0, -1);
+        assertEquals(oneToN.getAsSequence());
 
         // oddN = bind select t from v where t % 2 == 1
         final SequenceLocation<Integer> v = SequenceVar.make(Sequences.range(1, 8));
@@ -293,13 +293,13 @@ public class SequenceBindingTest extends JavaFXTestCase {
                 });
             }
         };
-        assertEquals(evenN.getAsSequence(), 0);
+        assertEquals(evenN.getAsSequence());
         n.setAsInt(3);
         assertEquals(evenN.getAsSequence(), 2);
         n.setAsInt(11);
         assertEquals(evenN.getAsSequence(), 2, 4, 6, 8, 10);
         n.setAsInt(-1);
-        assertEquals(evenN.getAsSequence(), 0);
+        assertEquals(evenN.getAsSequence());
     }
 
     public void testDependentTrigger() {
