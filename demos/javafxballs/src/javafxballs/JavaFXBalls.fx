@@ -139,7 +139,7 @@ var win = Frame {
         resizable: false
         onClose: function() {
             test.stop();
-	    delete test;
+	    //delete test;
             System.exit(0);
         }
 };
