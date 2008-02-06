@@ -443,7 +443,9 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         // [ 0..<0 ] => [ 0 ]
         assertEquals(Sequences.rangeExclusive(0, 0), EMPTY_SEQUENCE);
         // [ 0..-1 ] => [ ]
-        assertEquals(Sequences.range(0, -1), 0, -1);
+        assertEquals(Sequences.range(0, -1));
+        // [ 0..-1 STEP -1 ] => [ 0, -1 ]
+        assertEquals(Sequences.range(0, -1, -1), 0, -1);
         // [ 0..0 STEP 3 ] => [ 0 ]
         assertEquals(Sequences.range(0, 0, 3), 0);
         // [ 0..<0 STEP 3 ] => [ 0 ]
