@@ -50,17 +50,26 @@ public final class Sequences {
 
     /** Factory for simple sequence generation */
     public static<T> Sequence<T> make(Class<T> clazz, T... values) {
-        return new ArraySequence<T>(clazz, values);
+        if (values == null || values.length == 0)
+            return emptySequence(clazz);
+        else
+            return new ArraySequence<T>(clazz, values);
     }
 
     /** Factory for simple sequence generation */
     public static<T> Sequence<T> make(Class<T> clazz, T[] values, int size) {
-        return new ArraySequence<T>(clazz, values, size);
+        if (values == null || size <= 0)
+            return emptySequence(clazz);
+        else
+            return new ArraySequence<T>(clazz, values, size);
     }
 
     /** Factory for simple sequence generation */
     public static<T> Sequence<T> make(Class<T> clazz, List<? extends T> values) {
-        return new ArraySequence<T>(clazz, values);
+        if (values == null || values.size() == 0)
+            return emptySequence(clazz);
+        else
+            return new ArraySequence<T>(clazz, values);
     }
 
     /** Concatenate two sequences into a new sequence.  */

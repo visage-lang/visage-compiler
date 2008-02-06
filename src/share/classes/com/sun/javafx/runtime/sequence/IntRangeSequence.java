@@ -44,21 +44,20 @@ class IntRangeSequence extends AbstractSequence<Integer> implements Sequence<Int
         this.step = step;
         if (Math.abs((long) start - (long) bound) + ((long) (exclusive ? 0 : 1)) > Integer.MAX_VALUE)
             throw new IllegalArgumentException("Range sequence too big");
-        int size;
         if (bound == start) {
-            size = exclusive ? 0 : 1;
-        }
-        else if (bound > start) {
-            size = step > 0 ? (((bound - start) / step) + 1) : 0;
-            if (exclusive && start + (size-1)*step >= bound)
-                --size;
+            this.size = exclusive ? 0 : 1;
         }
         else {
-            size = step < 0 ? (((start - bound) / -step) + 1) : 0;
-            if (exclusive && start + (size-1)*step <= bound)
-                --size;
+            int size = Math.max(0, ((bound - start) / step) + 1);
+            if (exclusive) {
+                boolean tooBig = (step > 0)
+                        ? (start + (size-1)*step >= bound)
+                        : (start + (size-1)*step <= bound);
+                if (tooBig && size > 0)
+                    --size;
+            }
+            this.size = (int) size;
         }
-        this.size = (int) size;
     }
 
     public IntRangeSequence(int start, int bound, int step) {
@@ -66,11 +65,11 @@ class IntRangeSequence extends AbstractSequence<Integer> implements Sequence<Int
     }
 
     public IntRangeSequence(int start, int bound) {
-        this(start, bound, (start < bound) ? 1 : -1, false);
+        this(start, bound, 1, false);
     }
 
     public IntRangeSequence(int start, int bound, boolean exclusive) {
-        this(start, bound, (start < bound) ? 1 : -1, exclusive);
+        this(start, bound, 1, exclusive);
     }
 
     @Override
