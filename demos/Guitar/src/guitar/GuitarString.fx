@@ -13,20 +13,25 @@ import javafx.ui.canvas.Translate;
 import javafx.ui.canvas.ImageView;
 import javafx.ui.canvas.CanvasMouseEvent;
 import javafx.ui.*;
-import com.sun.scenario.animation.*;
 import java.lang.Math;
 import java.lang.System;
 import java.net.URL;
 import java.applet.AudioClip;
+import javafx.ui.animation.*;
+import com.sun.javafx.runtime.PointerFactory;
+import com.sun.javafx.runtime.Pointer;
+
 /**
  * @author jclarke
  */
+
 
 public class GuitarString extends CompositeNode {
     attribute audioClip: AudioClip;
     attribute guitar: Guitar;
     attribute wound: Boolean = true;
     attribute note: String;
+    attribute pf: PointerFactory = PointerFactory{};
     attribute soundUrl: URL = bind if (note == null) then null else this.getClass().getResource("Resources/Wavs/{note}.wav")
         on replace {
            //TODO DO LATER - this is a work around until a more permanent solution is provided
@@ -50,11 +55,125 @@ public class GuitarString extends CompositeNode {
     public function composeNode(): Node {
         var self = this;
         Group {
+            var x = 0;
+            var bpx = bind pf.make(x)
+            var px = bpx.unwrap();
+
+            var clip = Timeline {
+                keyFrames: [
+                    KeyFrame {
+                        keyTime: 0s
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: 1.0
+                        }
+                    },
+                    KeyFrame {
+                        keyTime: 41ms
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: 0.0
+                        }
+                    },      
+                    KeyFrame {
+                        keyTime: 81ms
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: -1;
+                        }
+                    },
+                    KeyFrame {
+                        keyTime: 121ms
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: 0.0
+                        }
+                    },                            
+                    KeyFrame {
+                        keyTime: 161ms
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: 1.0
+                        }
+                    }, 
+                    KeyFrame {
+                        keyTime: 181ms
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: 0.0
+                        }
+                    },
+                    KeyFrame {
+                        keyTime: 221ms
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: -1.0
+                        }
+                    },
+                    KeyFrame {
+                        keyTime: 261ms
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: 0.0
+                        }
+                    },
+                    KeyFrame {
+                        keyTime: 301ms
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: 1.0
+                        }
+                    },
+                    KeyFrame {
+                        keyTime: 341ms
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: 0.0
+                        }
+                    },
+                    KeyFrame {
+                        keyTime: 361ms
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: -1.0
+                        }
+                    },   
+                    KeyFrame {
+                        keyTime: 361ms
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: -1.0
+                        }
+                    },
+                    KeyFrame {
+                        keyTime: 401ms
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: -1.0
+                        }
+                    },
+                    KeyFrame {
+                        keyTime: 441ms
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: 0.0
+                        }
+                    }, 
+                    KeyFrame {
+                        keyTime: 500ms
+                        keyValues:  NumberValue {
+                            target: px;
+                            value: 0.0
+                        }
+                    }                            
+                ]
+
+            };
+            
             content: [
             ImageView { 
                 cursor: Cursor.HAND
-                var tx = Translate {x: 0, y: 0}
-                transform: [tx]
+                transform: bind [Translate {x: x, y: 0}]
                 image: Image {
                     url: bind imageUrl
                 }
@@ -63,50 +182,9 @@ public class GuitarString extends CompositeNode {
                     if (playing) {return;}
 
                     guitar.play(self);
-
-                    /**
-                    var off = [59, 58, 57, 58, 59, 58, 57, 58, 59, 58, 57, 58, 59, 58];
-                    for (unitinterval t in dur 500 fps 60) {
-                        tx.x = off[t*sizeof off] -58;
-                        playing = t < 1;
-                    }
-                     * */
-                    var fps = 60;
-                    var resolution:Integer = (1000/ fps).intValue();
-                    //TODO JXFC-439 cannot resolve overloaded methods with float.
-                    // the below timingEvent function is not being called from the Animation
-                    // because of this.
-                    var animeClip:com.sun.scenario.animation.Clip  =  
-                        com.sun.scenario.animation.Clip.create(500, TimingTargetAdapter{
-                            public function timingEvent(fraction:java.lang.Float):Void {
-                                var x = Math.cos(fraction.doubleValue() * 10 * (Math.PI*2));
-                                System.out.println("timingEvent {this} x = {x}");
-                                tx.x = x;
-                                playing = true;
-                            }
-                            public function begin():Void {
-                                playing = true;
-                            };                            
-                            public function end():Void {
-                                playing = false;
-                            };
-                        });
-                    // Use a cosine wave to emulate the string being plucked
-                        //TODO JXFC-439 cannot resolve overloaded methods with float.
-                        /***
-                    animeClip.setInterpolator(Interpolator {
-                        // public float interpolate(float fraction)
-                        public function interpolate(fraction:Number):Number {
-                            return Math.cos(fraction * (Math.PI*2) + 1.0)/2.0;
-                        }
-                    });
-                         * ***/
-                    animeClip.setResolution(resolution);
-                    animeClip.start();
-                    
+                    clip.start();
                 }
-
             }]
-        };
+        }
     }
 }
