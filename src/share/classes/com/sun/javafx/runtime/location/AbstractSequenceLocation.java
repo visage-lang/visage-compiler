@@ -133,7 +133,7 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
 
     public void fireInitialTriggers() {
         if (Sequences.size($value) != 0)
-            notifyListeners(0, -1, $value, null, $value);
+            notifyListeners(0, -1, $value, Sequences.emptySequence(clazz), $value);
     }
     
     @Override
