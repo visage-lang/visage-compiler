@@ -42,18 +42,17 @@ public class Menu extends AbstractMenuItem {
     public attribute mnemonic: KeyStroke on replace  {
         jmenu.setMnemonic(mnemonic.id.intValue());
     };
-    public attribute items: AbstractMenuItem[]
-        on insert[ndx] (menuitem) {
-            this.getComponent();
+    public attribute items: AbstractMenuItem[]  on replace oldValue[lo..hi]=newVals {
+        this.getComponent();
+        for(k in [lo..hi]) { 
+            jmenu.remove(lo);
+        }
+        var ndx = lo;
+        for(menuitem in newVals) {
             jmenu.add(menuitem.getComponent(), ndx);
+            ndx++
         }
-        on delete [ndx] (menuitem) {
-            jmenu.remove(ndx);
-        }
-        on replace [ndx] (oldItem) {
-            jmenu.remove(ndx);
-            jmenu.add(items[ndx].getComponent(), ndx);
-        };
+    };
     public function onSetOpaque(value:Boolean):Void {
         if (not value) {
             origrollover = jmenu.isRolloverEnabled();

@@ -31,16 +31,17 @@ import java.lang.System;
 import java.awt.Dimension;
 
 public class SplitView {
+    protected  attribute id: String = "{System.identityHashCode(this)}";
     protected attribute splitpane: SplitPane;
-    protected  attribute splitnode: com.sun.javafx.api.ui.MultiSplitLayout.Leaf;
+    protected  attribute splitnode: com.sun.javafx.api.ui.MultiSplitLayout.Leaf
+        = new com.sun.javafx.api.ui.MultiSplitLayout.Leaf(id);
     public attribute weight: Number on replace {
         if (splitnode <> null) {
             splitnode.setWeight(weight);
         }
     };
-    protected  attribute id: String = "{System.identityHashCode(this)}";
-    //TODO JFXC-267
-    public attribute content: Widget /**************on replace (old) {
+    
+    public attribute content: Widget on replace (old) {
         content.getComponent().setMinimumSize(new Dimension(0, 0));
         if (splitpane <> null) {
             if (old <> null) {
@@ -50,12 +51,8 @@ public class SplitView {
                 splitpane.getComponent().add(content.getComponent(), id);
             }
         }
-    }**************/;
+    };
     protected function getSplitNode(): com.sun.javafx.api.ui.MultiSplitLayout.Node{
-       if (splitnode == null) {
-           splitnode = new com.sun.javafx.api.ui.MultiSplitLayout.Leaf(id);
-           splitnode.setWeight(weight);
-       }
        return splitnode;
     }
 }

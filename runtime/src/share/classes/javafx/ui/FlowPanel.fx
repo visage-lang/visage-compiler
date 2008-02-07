@@ -61,31 +61,20 @@ public class FlowPanel extends Widget {
         if (layout <> null)
             layout.setHgap(hgap.intValue());
     };
-    public attribute content: Widget[]
-        on insert [ndx] (newalue) {
-            if (panel <> null) {
-                panel.add(newalue.getComponent(), ndx);
-                panel.revalidate();
-                panel.repaint();
+    public attribute content: Widget[] on replace oldValue[lo..hi]=newVals {
+        if(panel <> null) {
+            for(k in [lo..hi]) { 
+                panel.remove(lo);
             }
         }
-
-        on delete[ndx] (oldValue) {
-            if (panel <> null) {
-                panel.remove(ndx);
-                panel.revalidate();
-                panel.repaint();
-            }
+        var ndx = lo;
+        for(n in newVals) {
+            panel.add(n.getComponent(), ndx);
+            ndx++
         }
-
-        on replace [ndx] (oldValue) {
-            if (panel <> null) {
-                panel.remove(ndx);
-                panel.add(content[ndx].getComponent(), ndx);
-                panel.revalidate();
-                panel.repaint();
-            }
-        };
+        panel.revalidate();
+        panel.repaint();        
+    };
 
     public function createComponent():javax.swing.JComponent {
         panel = com.sun.javafx.api.ui.ScrollablePanel{};

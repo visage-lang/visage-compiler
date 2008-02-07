@@ -145,19 +145,13 @@ public class RadioButton extends SelectableButton {
         var self = this;
         jradiobutton.addItemListener(java.awt.event.ItemListener {
                 public function itemStateChanged(e:java.awt.event.ItemEvent):Void {
-                    var i = 0;// = select indexof x from x in buttonGroup.buttons where x == self;
-                    for (ii in [0..<sizeof buttonGroup.buttons]) {
-                        if(buttonGroup.buttons[ii] == self) {
-                            i = ii;
-                            break;
-                        }
-                    }
+                    var i = for(x in buttonGroup.buttons where x == self) indexof x;
                     selected = jradiobutton.isSelected();
                     if(onChange <> null){
                         (onChange)(selected);
                      }
                     if (selected) {
-                        buttonGroup.selection = i;
+                        buttonGroup.selection = i[0];
                     }
                 }
             });

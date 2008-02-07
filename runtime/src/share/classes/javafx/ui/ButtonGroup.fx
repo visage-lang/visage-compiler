@@ -32,33 +32,26 @@ public class ButtonGroup {
     private attribute buttongroup:javax.swing.ButtonGroup = 
         javax.swing.ButtonGroup{};
 
-    public attribute buttons: SelectableButton[] 
-        on insert [indx] (newValue) {
-            newValue.buttonGroup = this;
-            var c = newValue.getComponent();
-            buttongroup.add(c as javax.swing.AbstractButton);
-            if (newValue.selected) {
-                selection = indx;
-            } else if (indx == selection) {
-                newValue.selected = true;
-            }  
-
-        }
-        on replace [indx] (oldValue) {
-            buttongroup.remove(oldValue.getComponent() as javax.swing.AbstractButton);
-            var newValue = buttons[indx];
-            newValue.buttonGroup = this;
-            var c = newValue.getComponent();
-            buttongroup.add(c as javax.swing.AbstractButton);
-            if (newValue.selected) {
-                selection = indx;
-            } else if (indx == selection) {
-                newValue.selected = true;
+    public attribute buttons: SelectableButton[] on replace oldValue[lo..hi]=newVals {
+        //if (oldValue <> null) {
+            for(n in oldValue[lo..hi]) {
+                java.lang.System.out.println("oldValue = {n} lo = {lo}, hi={hi}");
+                buttongroup.remove(n.getComponent() as javax.swing.AbstractButton); 
             }
+       // }
+        var ndx = lo;
+        for(n in newVals) {
+            n.buttonGroup = this;
+            var c = n.getComponent();
+            buttongroup.add(c as javax.swing.AbstractButton);
+            if (n.selected) {
+                selection = ndx;
+            } else if (ndx == selection) {
+                n.selected = true;
+            } 
+            ndx++
         }
-        on delete [indx] (oldValue) {
-            buttongroup.remove(oldValue.getComponent() as javax.swing.AbstractButton);
-        };
+    };
     public attribute selection: Number on replace (oldValue) {
         if (sizeof buttons > 0) {
             buttons[oldValue.intValue()].selected = false;

@@ -219,52 +219,31 @@ public abstract class Widget extends GroupElement, UIElement {
 	}
     };
     
-    public attribute keyboardAction: KeyboardAction[]
-        on insert [indx] (newValue)   {
-            var c = this.getNonScrollPaneComponent();
-            var inputMap = c.getInputMap();
-            var actionMap = c.getActionMap();
-            var k = newValue.keyStroke;
-            var a = newValue.action;
-            var j = javax.swing.KeyStroke.getKeyStroke(k.id, 0);
-            inputMap.put(j, newValue);
-            actionMap.put(newValue as Object, javax.swing.AbstractAction {
-                    public function isEnabled():Boolean {
-                        return newValue.enabled;
-                    }
-                    public function actionPerformed(e:java.awt.event.ActionEvent):Void {
-                        newValue.action();
-                    }
-                } as javax.swing.Action);
-        }
-        on delete [indx] (oldValue) {
-            var c = this.getNonScrollPaneComponent();
-            var inputMap = c.getInputMap();
-            var actionMap = c.getActionMap();
-            var k = oldValue.keyStroke;
+    public attribute keyboardAction: KeyboardAction[] on replace oldValue[lo..hi]=newVals {
+        var c = this.getNonScrollPaneComponent();
+        var inputMap = c.getInputMap();
+        var actionMap = c.getActionMap(); 
+        for(n in oldValue[lo..hi]) { 
+            var k = n.keyStroke;
             var j = javax.swing.KeyStroke.getKeyStroke(k.id, 0);
             inputMap.remove(j);
-            actionMap.remove(oldValue);
+            actionMap.remove(n);
         }
-        on replace [indx] (oldValue) {
-            var c = this.getNonScrollPaneComponent();
-            var inputMap = c.getInputMap();
-            var actionMap = c.getActionMap();
-            var newValue = keyboardAction[indx];
-            var k = newValue.keyStroke;
+        for(n in newVals) {
+            var k = n.keyStroke;
+            var a = n.action;
             var j = javax.swing.KeyStroke.getKeyStroke(k.id, 0);
-            inputMap.put(j, newValue);
-            actionMap.remove(oldValue);
-            actionMap.put(newValue as Object, javax.swing.AbstractAction {
+            inputMap.put(j, n);
+            actionMap.put(n as Object, javax.swing.AbstractAction {
                     public function isEnabled():Boolean {
-                        return newValue.enabled;
+                        return n.enabled;
                     }
                     public function actionPerformed(e:java.awt.event.ActionEvent):Void {
-                        newValue.action();
+                        n.action();
                     }
                 } as javax.swing.Action);
-        };
-    
+        }
+    };
 
     public attribute focusTraversalKeysEnabled: Boolean on replace {
         if (component <> null) {
@@ -623,7 +602,14 @@ public abstract class Widget extends GroupElement, UIElement {
                 c.setToolTipText(toolTipText);
             }
             c.setVisible(visible);
-            c.setOpaque(opaque);
+            if(c instanceof javax.swing.AbstractButton ) {
+                var b = c as javax.swing.AbstractButton;
+                if(not b.isContentAreaFilled()) {
+                    c.setOpaque(opaque);
+                }
+            }else {
+                c.setOpaque(opaque);
+            }
             if (background <> null) {
                 c.setBackground(background.getColor());
                 c.setOpaque(true);

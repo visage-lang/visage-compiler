@@ -30,24 +30,18 @@ import javafx.ui.Menu;
 
 public class MenuBar extends Widget {
     attribute jmenubar:javax.swing.JMenuBar= javax.swing.JMenuBar{};
-    public attribute menus: Menu[]
-        on insert [ndx] (menu) {
+    public attribute menus: Menu[] on replace oldValue[lo..hi]=newVals {
+        for(k in [lo..hi]) { 
+            jmenubar.remove(lo);
+        }
+        var ndx = lo;
+        for(menu in newVals) {
             jmenubar.add(menu.getComponent(), ndx);
-            jmenubar.revalidate();
-            jmenubar.repaint();
+            ndx++
         }
-        on delete [ndx] (menu) {
-            jmenubar.remove(ndx);
-            jmenubar.revalidate();
-            jmenubar.repaint();
-        }
-
-        on replace [ndx] (oldMenu) {
-            jmenubar.remove(ndx);
-            jmenubar.add(menus[ndx].getComponent(), ndx);
-            jmenubar.revalidate();
-            jmenubar.repaint();
-        };
+        jmenubar.revalidate();
+        jmenubar.repaint();        
+    };
     public function createComponent():javax.swing.JComponent {
         jmenubar.setOpaque(true);
         for (m in menus) {

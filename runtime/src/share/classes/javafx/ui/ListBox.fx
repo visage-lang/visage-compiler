@@ -340,7 +340,7 @@ public class ListBox extends ScrollableWidget {
     private attribute dirty: Boolean;
     private attribute keyListener: java.awt.event.KeyListener;
     private attribute listMouseListener: java.awt.event.MouseListener;
-    attribute list: javax.swing.JList;
+    attribute list: javax.swing.JList = javax.swing.JList{};
     private attribute selectionListener:javax.swing.event.ListSelectionListener;
     attribute listeners:javax.swing.event.ListDataListener[];
     private attribute listmodel:javax.swing.ListModel;
@@ -472,48 +472,12 @@ public class ListBox extends ScrollableWidget {
         list.setFixedCellWidth(fixedCellWidth.intValue());
     };
     /** The cells of this list. */
-    public attribute cells: ListCell[]
-        on insert [ndx] (cell) {
-            cell.listbox = this;
-            //TODO ++
-            //cell.cacheGeneration = ++updateGeneration;
-            updateGeneration = updateGeneration + 1;
-            cell.cacheGeneration =updateGeneration;
-            cell.myIndex = ndx;
-            if (not locked) {
-                var e:javax.swing.event.ListDataEvent;
-                var selected = ndx == selection or sizeof cells == 1 ;
-                e = new javax.swing.event.ListDataEvent(list, e.INTERVAL_ADDED, ndx, ndx);
-                var ls:javax.swing.event.ListDataListener[] = [];
-		insert listeners into ls;
-                for (j in ls) {
-                    j.intervalAdded(e);
-                }
-                if (selected or cell.selected) {
-                    list.removeListSelectionListener(selectionListener);
-                    list.setSelectedIndex(ndx);
-                    selection = ndx;
-                    list.addListSelectionListener(selectionListener);
-                }
-            } else {
-                dirty = true;
-            }
-        }
-
-        on delete [ndx] (cell) {
-            //TODO ++
-            //++updateGeneration;
+    public attribute cells: ListCell[] on replace oldValue[lo..hi]=newVals {
+        for(k in [lo..hi]) { 
             updateGeneration = updateGeneration + 1;
             if (not locked) {
-                var e:javax.swing.event.ListDataEvent;
                 var s = selection;
-                e = new javax.swing.event.ListDataEvent(list, e.INTERVAL_REMOVED, ndx, ndx);
-                var ls:javax.swing.event.ListDataListener[] = [];
-		insert listeners into ls;
-                for (j in ls) {
-                    j.intervalRemoved(e);
-                }
-                if (ndx == s) {
+                if (k == s) {
                     if (s >= sizeof cells) {
                         s = sizeof cells -1;
                     }
@@ -524,7 +488,49 @@ public class ListBox extends ScrollableWidget {
             } else {
                 dirty = true;
             }
-        };
+        }
+        if(lo < hi) {
+            var e:javax.swing.event.ListDataEvent =
+                e = new javax.swing.event.ListDataEvent(list, e.INTERVAL_REMOVED, lo, hi);
+            var ls:javax.swing.event.ListDataListener[] = [];
+            insert listeners into ls;
+            for (j in ls) {
+                j.intervalRemoved(e);
+            }
+        }
+        var ndx = lo;
+        for(cell in newVals) {
+            cell.listbox = this;
+            //TODO ++
+            //cell.cacheGeneration = ++updateGeneration;
+            updateGeneration = updateGeneration + 1;
+            cell.cacheGeneration = updateGeneration;
+            cell.myIndex = ndx;
+            if (not locked) {
+                var selected = ndx == selection or sizeof cells == 1 ;
+                if (selected or cell.selected) {
+                    list.removeListSelectionListener(selectionListener);
+                    list.setSelectedIndex(ndx);
+                    selection = ndx;
+                    list.addListSelectionListener(selectionListener);
+                }
+            } else {
+                dirty = true;
+            }
+            ndx++
+        }
+        if (sizeof newVals > 0 and not locked) {
+            var endNdx = sizeof newVals-1;
+            var e:javax.swing.event.ListDataEvent = 
+                new javax.swing.event.ListDataEvent(list, e.INTERVAL_ADDED, lo, lo + endNdx);
+            var ls:javax.swing.event.ListDataListener[] = [];
+            insert listeners into ls;
+            for (j in ls) {
+                j.intervalAdded(e);
+            }  
+        }
+    };
+    
     private attribute onSelectionChange: function(oldSelection:MultiSelection, newSelection:MultiSelection):Void;
     /** 
      * <code>attribute action: function()</code><br></br>
@@ -613,13 +619,12 @@ public class ListBox extends ScrollableWidget {
 
     public function createView():javax.swing.JComponent {
         layoutOrientation = ListLayoutOrientation.VERTICAL;
-        list = javax.swing.JList{};
         list.setDragEnabled(enableDND);
         UIElement.context.setDropMode(dropMode.id, list);
         //TODO MULTIPLE SELECTION
         // fix me...
         list.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        selection = -1;
+        //selection = -1;
         listmodel = javax.swing.ListModel {
             public function getSize():Integer {
                 return sizeof cells;
@@ -641,7 +646,13 @@ public class ListBox extends ScrollableWidget {
         selectionListener = javax.swing.event.ListSelectionListener {
               public function valueChanged(e:javax.swing.event.ListSelectionEvent):Void {
                   if (not e.getValueIsAdjusting()) {
-                          selection = list.getSelectedIndex();
+                      var listSelection = list.getSelectedIndex();
+                      if(listSelection < 0) {
+                          listSelection = 0;
+                      }else if (listSelection >= sizeof cells) {
+                          listSelection = sizeof cells - 1;
+                      }
+                      selection = listSelection;
 
                   }
               }

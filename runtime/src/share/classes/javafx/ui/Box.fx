@@ -40,19 +40,13 @@ public class Box extends Widget {
             box.setLayout(new javax.swing.BoxLayout(box, javax.swing.BoxLayout.Y_AXIS));
         }
     };
-    public attribute content: Widget[]
-         on insert [indx] (newValue) {
-            box.add(newValue.getComponent(),indx);
-            box.validate();
-            box.repaint();
-        }
-
-        on delete [indx] (oldValue) { 
-            box.remove(indx);
-            box.validate();
-            box.repaint();
-        };    
-    
+    public attribute content: Widget[] on replace oldValue[lo..hi]=newVals {
+        for(k in [lo..hi]) { box.remove(lo) };
+        var ndx = lo;
+        for(n in newVals) box.add(n.getComponent(), ndx++);
+        box.validate();
+        box.repaint();
+    };
     public function createComponent():javax.swing.JComponent {
         box = UIElement.context.createPanel();
         box.setOpaque(false);

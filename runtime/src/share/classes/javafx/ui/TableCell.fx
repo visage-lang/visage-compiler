@@ -31,89 +31,65 @@ public class TableCell {
     protected attribute table:Table;
     public attribute text:String on replace {
         if (table.tableModel <> null) {
-            //var cr = select indexof x from x in table.cells where x == this;
-            var cr = -1;
-            for(i in [0..<sizeof table.cells]){
-                if(table.cells[i] == this) {
-                    cr = i;
-                    break;
-                }
-            }
-            table.tableModel.updateCell(cr, text, toolTipText, font.getFont(),
+            var seq = for(x in table.cells where x == this) indexof x;
+            if(sizeof seq > 0) {
+                var cr = seq[0];
+                table.tableModel.updateCell(cr, text, toolTipText, font.getFont(),
                                         background.getColor(), foreground.getColor(), border.getBorder());
+            }
         }        
     };
     public attribute toolTipText: String on replace {
         if (table.tableModel <> null) {
-            //var cr = select indexof x from x in table.cells where x == this;
-            var cr = -1;
-            for(i in [0..<sizeof table.cells]){
-                if(table.cells[i] == this) {
-                    cr = i;
-                    break;
-                }
-            }
-            table.tableModel.updateCell(cr, text, toolTipText, font.getFont(),
+            var seq = for(x in table.cells where x == this) indexof x;
+            if(sizeof seq > 0) {
+                var cr = seq[0];
+                table.tableModel.updateCell(cr, text, toolTipText, font.getFont(),
                                         background.getColor(), foreground.getColor(), border.getBorder());
+            }
         }        
     };
     public attribute background: Color on replace {
         if (table.tableModel <> null) {
-            //var cr = select indexof x from x in table.cells where x == this;
-            var cr = -1;
-            for(i in [0..<sizeof table.cells]){
-                if(table.cells[i] == this) {
-                    cr = i;
-                    break;
-                }
-            }
-            table.tableModel.updateCell(cr, text, toolTipText, font.getFont(),
+            var seq = for(x in table.cells where x == this) indexof x;
+            if(sizeof seq > 0) {
+                var cr = seq[0];
+                table.tableModel.updateCell(cr, text, toolTipText, font.getFont(),
                                         background.getColor(), foreground.getColor(), border.getBorder());
+            }
         }        
     };
     public attribute foreground: Color on replace {
         if (table.tableModel <> null) {
-            //var cr = select indexof x from x in table.cells where x == this;
-            var cr = -1;
-            for(i in [0..<sizeof table.cells]){
-                if(table.cells[i] == this) {
-                    cr = i;
-                    break;
-                }
-            }
-            table.tableModel.updateCell(cr, text, toolTipText, font.getFont(),
+            var seq = for(x in table.cells where x == this) indexof x;
+            if(sizeof seq > 0) {
+                var cr = seq[0];
+                table.tableModel.updateCell(cr, text, toolTipText, font.getFont(),
                                         background.getColor(), foreground.getColor(), border.getBorder());
+            }
         }        
     };
     public attribute font: Font on replace {
         if (table.tableModel <> null) {
-            //var cr = select indexof x from x in table.cells where x == this;
-            var cr = -1;
-            for(i in [0..<sizeof table.cells]){
-                if(table.cells[i] == this) {
-                    cr = i;
-                    break;
-                }
-            }
-            table.tableModel.updateCell(cr, text, toolTipText, font.getFont(),
+            var seq = for(x in table.cells where x == this) indexof x;
+            if(sizeof seq > 0) {
+                var cr = seq[0];
+                table.tableModel.updateCell(cr, text, toolTipText, font.getFont(),
                                         background.getColor(), foreground.getColor(), border.getBorder());
-        }        
+            }
+        }         
     };
     public attribute border: Border;
     public attribute value:Object;
     public attribute selected: Boolean on replace {
         if (table <> null) {
             if (selected) {
-                //var cr = select indexof x from x in table.cells where x == this;
-                var cr = -1;
-                for (i in [0..<sizeof table.cells]){
-                    if(table.cells[i] == this) {
-                        cr = i;
-                        break;
-                    }
+                var seq = for(x in table.cells where x == this) indexof x;
+                if(sizeof seq > 0) {
+                    var cr = seq[0];
+                    var row = (cr / sizeof table.columns).intValue();
+                    table.selection = row;                
                 }
-                var row = (cr / sizeof table.columns).intValue();
-                table.selection = row;
             } else {
                 table.selection = -1;
             }

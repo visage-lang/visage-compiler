@@ -45,34 +45,38 @@ public class Dialog extends AbstractFrame {
             p.add(content.getComponent(), java.awt.BorderLayout.CENTER);
         }
     };
-    public attribute buttons: Button[]
-        on insert [indx] (button) {
-            if (buttonpanel == null) {
-                buttonpanel = new javax.swing.JPanel();
-                buttonpanel.setLayout(new javax.swing.BoxLayout(buttonpanel,
-                                javax.swing.BoxLayout.X_AXIS));
-                buttonpanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 5, 0, 0));
-                buttonpanel.add(javax.swing.Box.createHorizontalGlue());
-                p.add(buttonpanel, java.awt.BorderLayout.SOUTH);
-            }
+    public attribute buttons: Button[] on replace  {
+        if (buttonpanel == null) {
+            buttonpanel = new javax.swing.JPanel();
+            buttonpanel.setLayout(new javax.swing.BoxLayout(buttonpanel,
+                            javax.swing.BoxLayout.X_AXIS));
+            buttonpanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 5, 0, 0));
+            buttonpanel.add(javax.swing.Box.createHorizontalGlue());
+            p.add(buttonpanel, java.awt.BorderLayout.SOUTH);
+        }else {
+            buttonpanel.removeAll();
+            buttonpanel.add(javax.swing.Box.createHorizontalGlue());
+        }
+        
+        var dim = new java.awt.Dimension(80,0);
+        for (i in buttons) {
             buttonpanel.add(javax.swing.Box.createRigidArea(new java.awt.Dimension(5,0)));
-            buttonpanel.add(button.getComponent());
-            var dim = new java.awt.Dimension(80,0);
-            for (i in buttons) {
-                var d = i.getComponent().getPreferredSize();
-                if (dim.height < d.height) {
-                    dim.height = d.height;
-                }
-                if (dim.width < d.width) {
-                    dim.width = d.width;
-                }
+            buttonpanel.add(i.getComponent());
+            
+            var d = i.getComponent().getPreferredSize();
+            if (dim.height < d.height) {
+                dim.height = d.height;
             }
-            for (i in buttons) {
-                i.getComponent().setPreferredSize(dim);
-                i.getComponent().setMinimumSize(dim);
-                i.getComponent().setMaximumSize(dim);
+            if (dim.width < d.width) {
+                dim.width = d.width;
             }
-        };
+        }
+        for (i in buttons) {
+            i.getComponent().setPreferredSize(dim);
+            i.getComponent().setMinimumSize(dim);
+            i.getComponent().setMaximumSize(dim);
+        }
+    };
     public attribute height:Number;
     public attribute width: Number;
     public attribute border: Border on replace {

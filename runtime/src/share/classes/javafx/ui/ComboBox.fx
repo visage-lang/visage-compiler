@@ -41,27 +41,36 @@ public class ComboBox extends Widget {
     attribute jcombobox:JComboBox;
 
     public attribute cells: ComboBoxCell[]= [ComboBoxCell{text: " "}]
-        on insert [ndx] (cell) {
-            cell.combobox = this;
-            var sel = selection;
-            var e:javax.swing.event.ListDataEvent;
-            e = new javax.swing.event.ListDataEvent(this, e.INTERVAL_ADDED,
-                                                        ndx, ndx);
-            for (i in listeners) {
-                i.intervalAdded(e);
-            }
-            if (ndx == sel) {
-                jcombobox.setSelectedIndex(ndx);
-            }
-        }
-        on delete [ndx] (cell) {
+    on replace oldValue[lo..hi]=newVals {
+        if(lo < hi) { 
             var e:javax.swing.event.ListDataEvent;
             e = new javax.swing.event.ListDataEvent(this, e.INTERVAL_REMOVED,
-                                                        ndx, ndx);
+                                                        lo, hi);
             for (i in listeners) {
                 i.intervalRemoved(e);
             }
         }
+        var ndx = lo;
+        for(cell in newVals) {
+            cell.combobox = this;
+            var sel = selection;
+
+            if (ndx == sel) {
+                jcombobox.setSelectedIndex(ndx);
+            }
+            ndx++
+        }
+        var newHi = sizeof newVals - 1;
+        if(newHi > 0) {
+            var e:javax.swing.event.ListDataEvent;
+            e = new javax.swing.event.ListDataEvent(this, e.INTERVAL_ADDED,
+                                                        lo, lo + newHi);
+            for (i in listeners) {
+                i.intervalAdded(e);
+            }
+        }
+    };
+    
     public attribute selection: Number on replace {
         if (selection >= 0 and selection < sizeof cells) {
             jcombobox.setSelectedIndex(selection.intValue());
@@ -140,19 +149,10 @@ public class ComboBox extends Widget {
                            delete l from listeners;
                        }
                        public function setSelectedItem(anItem:Object):Void {
-                           //var i = select indexof x from x in self.cells where x == (ComboBoxCell) anItem;
                            var cell = anItem as ComboBoxCell;
-                           var i = -1;
-                           var ii = 0;
-                           for (c in cells) {
-                               if(cell == c) {
-                                   i = ii;
-                                   break;
-                               }
-                               ii = ii + 1;
-                           }
-                           if(i >= 0) {
-                               selection = i;
+                           var i = for(x in cells where x == cell) indexof x; 
+                           if (sizeof i > 0) {
+                               selection = i[0];
                                jtextField.setText("{cells[selection.intValue()].value}");
                            }
                        }

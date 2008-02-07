@@ -53,21 +53,18 @@ public class TreeCell {
     };
     public attribute dragText: String;
     public attribute toolTipText: String;
-    public attribute cells: TreeCell[]
-        on insert [ndx] (row) {
+    public attribute cells: TreeCell[] on replace oldValue[lo..hi]=newVals {
+        for(n in oldValue[lo..hi]) { 
+            this.getTree().fireRowDeleted(n, lo);
+        }
+        var ndx = lo;
+        for(row in newVals) {
             row.parent = this;
             row.tree = this.getTree();
             this.getTree().fireRowInserted(row, ndx);
+            ndx++
         }
-        on replace [ndx] (oldrow) {
-            var row = cells[ndx];
-            row.parent = this;
-            row.tree = tree;
-            this.getTree().fireTreeStructureChanged(row);
-        }
-        on delete [ndx] (row) {
-            this.getTree().fireRowDeleted(row, ndx);
-        };
+    };
     public attribute value: Object;
     public attribute selected: Boolean on replace {
         if (tree <> null and not tree.inSelectionChange) {

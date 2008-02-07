@@ -29,23 +29,22 @@ import javafx.ui.InternalFrameDragMode;
 import javafx.ui.InternalFrame;
 
 public class DesktopPane extends Widget {
-    private attribute jdesk: javax.swing.JDesktopPane;
+    private attribute jdesk: javax.swing.JDesktopPane = new javax.swing.JDesktopPane();
 
     public attribute dragMode: InternalFrameDragMode = InternalFrameDragMode.LIVE on replace {
         jdesk.setDragMode(dragMode.id.intValue());
     };
-    public attribute frames: InternalFrame[]
-        on insert [ndx] (frame) {
-            frame.desk = this;
-            var i = frame;
+    public attribute frames: InternalFrame[] on replace oldValue[lo..hi] = newVals {
+        for(n in oldValue[lo..hi]) { jdesk.remove(n.getComponent()); }
+        for(n in newVals) {
+            n.desk = this;
+            var i = n;
             var b = new java.awt.Rectangle(i.x.intValue(), i.y.intValue(), i.width.intValue(), i.height.intValue());
-            jdesk.add(frame.getComponent(), frame.layer.intValue(), 0);
+            jdesk.add(n.getComponent(), n.layer.intValue(), 0);
             i.setBounds(b);
-            frame.getComponent().setVisible(true);
+            n.getComponent().setVisible(true);
         }
-        on delete [ndx] (frame) {
-            jdesk.remove(frame.getComponent());
-        }
+    };
     public attribute cascaded: Boolean on replace {
 
             if (cascaded) {
@@ -131,8 +130,6 @@ public class DesktopPane extends Widget {
     public attribute focusable: Boolean = false;
 
     public function createComponent():javax.swing.JComponent {
-    /**********
-        jdesk = new javax.swing.JDesktopPane();
         jdesk.setOpaque(false);
         jdesk.setDragMode(dragMode.id);
         for (i in frames) {
@@ -142,7 +139,6 @@ public class DesktopPane extends Widget {
             i.setBounds(b);
             i.getComponent().setVisible(true);
         }
-*********/
         return jdesk;
     }
 }

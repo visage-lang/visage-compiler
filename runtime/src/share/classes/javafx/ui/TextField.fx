@@ -35,6 +35,7 @@ import java.lang.StringBuffer;
 import java.awt.MouseInfo;
 import java.lang.System;
 import java.awt.Point;
+import java.io.*;
 
 public class TextField extends Widget {
     private attribute textField: JTextField = new JFormattedTextField();
@@ -273,9 +274,14 @@ public class TextField extends Widget {
         propertyChangeListener = java.beans.PropertyChangeListener {
             public function propertyChange(e:java.beans.PropertyChangeEvent):Void {
                 if (e.getPropertyName().equals("value")) {
-                    value = textField.getText();
-                    if(onChange <> null)
-                        onChange(textField.getText());
+                    javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                          public function run():Void {
+                                value  = textField.getText();
+                                if(onChange <> null)
+                                    onChange(textField.getText());
+                          }
+                     });
+
                 }
             }
         };

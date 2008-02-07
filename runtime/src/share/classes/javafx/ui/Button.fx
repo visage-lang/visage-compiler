@@ -33,6 +33,7 @@ import javafx.ui.VerticalAlignment;
 import javafx.ui.Insets;
 import javax.swing.JButton;
 import com.sun.javafx.api.ui.XButton;
+import java.lang.System;
 /**
  * An implementation of a "push" button. Encapsulates javax.swing.JButton.
  */
@@ -163,6 +164,7 @@ public class Button extends Widget, ActionWidget {
      * this to <code>false</code>. Defaults to <code>true</code>.
      */
     public attribute contentAreaFilled: Boolean = true on replace {
+        System.out.flush();
         button.setContentAreaFilled(contentAreaFilled);
         button.revalidate();
     };

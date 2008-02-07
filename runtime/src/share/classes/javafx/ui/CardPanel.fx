@@ -55,22 +55,25 @@ public class CardPanel extends Widget {
             });
          }
     };
-    public attribute cards: Widget[]
-       on insert [indx] (newValue) {
-            if (component <> null and indx == selection) {
-                var comp = newValue.getComponent();
+    public attribute cards: Widget[]on replace oldValue[lo..hi]=newVals {
+        for(n in oldValue[lo..hi]) { 
+            if (n.component <> null) {
+                jpanel.remove(n.component);
+            }
+        }
+        var ndx = lo;
+        for(n in newVals) {
+            if (component <> null and ndx == selection) {
+                var comp = n.getComponent();
                 var id = "{java.lang.System.identityHashCode(comp)}";
                 jpanel.add(comp, id);
                 layout.show(jpanel, id);
                 jpanel.validate();
                 jpanel.repaint();
             }
+            ndx++
         }
-        on delete [indx] (oldValue) {
-            if (oldValue.component <> null) {
-                jpanel.remove(oldValue.component);
-            }
-        };
+    };
 
     public function createComponent():javax.swing.JComponent {
         jpanel = UIElement.context.createPanel();

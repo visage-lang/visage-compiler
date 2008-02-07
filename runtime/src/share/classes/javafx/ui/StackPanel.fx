@@ -33,28 +33,19 @@ import javafx.ui.Widget;
 
 public class StackPanel extends Widget {
     private attribute jpanel: javax.swing.JPanel;
-    public attribute content: Widget[]
-        on insert [ndx] (w) {
-            if (jpanel <> null) {
+    public attribute content: Widget[] on replace oldValue[lo..hi]=newVals {
+        if (jpanel <> null) {
+            for(k in [lo..hi]) { 
+                jpanel.remove(lo);
+            }
+            var ndx = lo;
+            for(w in newVals) {
                 jpanel.add(w.getComponent(), ndx);
-                jpanel.validate();
+                ndx++
             }
+            jpanel.validate();
         }
-
-        on replace [ndx] (old) {
-            if (jpanel <> null) {
-                jpanel.remove(ndx);
-                jpanel.add(content[ndx].getComponent(), ndx);
-                jpanel.validate();
-            }
-        }
-
-        on delete [ndx] (old) {
-            if (jpanel <> null) {
-                jpanel.remove(ndx);
-                jpanel.validate();
-            }
-        };
+    };
 
     public attribute focusable: Boolean = false;
 

@@ -33,21 +33,14 @@ public class ComboBoxCell {
     public attribute text: String on replace {
         if (combobox <> null) {
             var e:javax.swing.event.ListDataEvent;
-            //var i = select indexof x from x in combobox.cells where x == this;
-           var i = -1;
-           var ii = 0;
-           for (c in combobox.cells) {
-               if(this == c) {
-                   i = ii;
-                   break;
-               }
-               ii = ii + 1;
+           var i = for(x in combobox.cells where x == this) indexof x; 
+           if (sizeof i > 0) {
+                e = new javax.swing.event.ListDataEvent(this, e.CONTENTS_CHANGED,
+                                                            i[0], i[0]);
+                for (j in combobox.listeners) {
+                    j.contentsChanged(e);
+                }
            }
-            e = new javax.swing.event.ListDataEvent(this, e.CONTENTS_CHANGED,
-                                                        i, i);
-            for (j in combobox.listeners) {
-                j.contentsChanged(e);
-            }
         }
     };
     public attribute toolTipText: String;

@@ -34,23 +34,18 @@ import javax.swing.event.PopupMenuEvent;
 public class PopupMenu {
     private attribute jpopupMenu: JPopupMenu;
     public attribute owner: Widget;
-    public attribute items: MenuItem[]
-        on insert [ndx] (item) {
-            if (jpopupMenu <> null) {
+    public attribute items: MenuItem[] on replace oldValue[lo..hi]=newVals {
+        if (jpopupMenu <> null) {
+            for(k in [lo..hi]) { 
+                jpopupMenu.remove(lo);
+            }
+            var ndx = lo;
+            for(item in newVals) {
                 jpopupMenu.add( item.getComponent(), ndx);
+                ndx++
             }
         }
-        on delete [ndx] (item) {
-            if (jpopupMenu <> null) {
-                jpopupMenu.remove(ndx);
-            }
-        }
-        on replace [ndx] (item) {
-            if (jpopupMenu <> null) {
-                jpopupMenu.remove(ndx);
-                jpopupMenu.add(items[ndx].getComponent(), ndx);
-            }
-        };
+    };
     public attribute x: Number;
     public attribute y: Number;
     public attribute visible: Boolean on replace {

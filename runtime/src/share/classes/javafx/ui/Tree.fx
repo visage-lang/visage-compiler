@@ -87,10 +87,7 @@ public class Tree extends ScrollableWidget {
                 insert r into path;
                 r = r.parent;
             }
-            var rpath:Object[] = [];
-            for( j in [sizeof path -1 ..0]){
-                insert path[j] into rpath;
-            }
+            var rpath:TreeCell[] = reverse path;
             var children:Object[] = [ row ];
             var childIndices:Integer[] = [ i.intValue()];
             var event = new javax.swing.event.TreeModelEvent(treemodel,
@@ -119,11 +116,7 @@ public class Tree extends ScrollableWidget {
                 insert r into path;
                 r = r.parent;
             }
-            var rpath:Object[] = [];
-            // reverse rpath
-            for( j in [sizeof path -1 ..0]){
-                insert path[j] into rpath;
-            }           
+            var rpath:TreeCell[] = reverse path;
             var children:Object[] = [ row ];
             var childIndices:Integer[] = [ i.intValue()];
             var event = new javax.swing.event.TreeModelEvent(treemodel,
@@ -142,10 +135,7 @@ public class Tree extends ScrollableWidget {
                 insert r into path;
                 r = r.parent;
             }
-            var rpath:TreeCell[] = [];
-            for( j in [sizeof path -1 ..0]){
-                insert path[j] into rpath;
-            }            
+            var rpath:TreeCell[] = reverse path;
             var event = new javax.swing.event.TreeModelEvent(treemodel,
                                                                  rpath,
                                                                  null,
@@ -164,18 +154,12 @@ public class Tree extends ScrollableWidget {
             if (path == null) { 
                return;
             }
-            //var i = select indexof x from x in row.parent.cells where x == row;
+            var seq = for(x in row.parent.cells where x == row) indexof x;
             var i = -1;
-            for(ii in [0..<sizeof row.parent.cells]) {
-                if(row.parent.cells[ii] == row) {
-                    i = ii;
-                    break;
-                }
+            if(sizeof seq > 0) {
+                i = seq[0];
             }
-            var rpath:TreeCell[] = [];
-            for( j in [sizeof path -1 ..0]){
-                insert path[j] into rpath;
-            }  
+            var rpath:TreeCell[] = reverse path;
             var children:Object[] = [ row ];
             var childIndices:Integer[] = [i];            
             var event = new javax.swing.event.TreeModelEvent(treemodel,
@@ -201,80 +185,30 @@ public class Tree extends ScrollableWidget {
         }
     };
     public attribute selectedValue:Object;
-    public attribute leadSelectionPath: Object[]
-        on insert [ndx] (e) {
-           if (not inSelectionChange) {
-               if (sizeof leadSelectionPath > 0 and root.value == leadSelectionPath[0]) {
-                   var tp = new javax.swing.tree.TreePath(root);
-                   var p = root;
-                   for (i in [1..<sizeof leadSelectionPath]) {
-                       var cell:TreeCell = null;
-                       for (c in p.cells) {
-                           if(c.value == leadSelectionPath[i]) {
-                               cell = c;
-                               break;
-                           }
-                       }
-                       if (cell <> null) {
-                           tp = tp.pathByAddingChild(cell);
-                       } else {
+    public attribute leadSelectionPath: Object[] on replace oldValue[lo..hi]=newVals  {
+       if (not inSelectionChange) {
+           if (sizeof leadSelectionPath > 0 and root.value == leadSelectionPath[0]) {
+               var tp = new javax.swing.tree.TreePath(root);
+               var p = root;
+               for (i in [1..<sizeof leadSelectionPath]) {
+                   var cell:TreeCell = null;
+                   for (c in p.cells) {
+                       if(c.value == leadSelectionPath[i]) {
+                           cell = c;
                            break;
                        }
-                       p = cell;
                    }
-                   tree.setLeadSelectionPath(tp);
-               }
-           }
-        }
-        on replace [ndx] (oldValue) {
-           if (not inSelectionChange) {
-               var newValue = leadSelectionPath[ndx];
-               if (sizeof leadSelectionPath > 0 and root.value == leadSelectionPath[0]) {
-                   var tp = new javax.swing.tree.TreePath(root);
-                   var p = root;
-                   for (i in [1..<sizeof leadSelectionPath]) {
-                       var cell:TreeCell = null;
-                       for (c in p.cells) {
-                           if(c.value == leadSelectionPath[i]) {
-                               cell = c;
-                               break;
-                           }
-                       }
-                       if (cell <> null) {
-                           tp = tp.pathByAddingChild(cell);
-                       } else {
-                           break;
-                       }
-                       p = cell;
+                   if (cell <> null) {
+                       tp = tp.pathByAddingChild(cell);
+                   } else {
+                       break;
                    }
-                   tree.setLeadSelectionPath(tp);
+                   p = cell;
                }
+               tree.setLeadSelectionPath(tp);
            }
-        }
-        on delete [ndx] (e) {
-           if (not inSelectionChange) {
-               if (sizeof leadSelectionPath > 0 and root.value == leadSelectionPath[0]) {
-                   var tp = new javax.swing.tree.TreePath(root);
-                   var p = root;
-                   for (i in [1..<sizeof leadSelectionPath]) {
-                       var cell:TreeCell = null;
-                       for (c in p.cells) {
-                           if(c.value == leadSelectionPath[i]) {
-                               cell = c;
-                               break;
-                           }
-                       }
-                       if (cell <> null) {
-                           tp = tp.pathByAddingChild(cell);
-                       } else {
-                           break;
-                       }
-                       p = cell;
-                   }
-                   tree.setLeadSelectionPath(tp);
-               }
-           }
-        };
+       }
+    };
     public attribute onSelectionChange:function():Void;
     public attribute showRootHandles:Boolean on replace {
         tree.setShowsRootHandles(showRootHandles);

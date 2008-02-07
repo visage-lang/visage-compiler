@@ -125,18 +125,15 @@ public class ToggleButton extends SelectableButton {
         var self = this;
         button.addItemListener(java.awt.event.ItemListener {
                 public function itemStateChanged(e:java.awt.event.ItemEvent):Void {
-                    //var i = select indexof x from x in buttonGroup.buttons where x == self;
-                    var i = 0;
-                    for (but in buttonGroup.buttons) {
-                        if(but == this) {
-                            i = indexof but;
-                            break;
-                        }
+                    var seq = for(x in buttonGroup.buttons where x == this) sizeof x;
+                    var ndx = 0;
+                    if(sizeof seq > 0) {
+                        ndx = seq[0];
                     }
                     selected = button.isSelected();
                     //onChange(selected);
                     if (selected) {
-                         buttonGroup.selection = i;
+                         buttonGroup.selection = ndx;
                     }
                 }
             });

@@ -33,37 +33,29 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class SplitPane extends Widget {
-    protected attribute split:com.sun.javafx.api.ui.MultiSplitPane;
-    protected attribute root: com.sun.javafx.api.ui.MultiSplitLayout.Split;
+    protected attribute split:com.sun.javafx.api.ui.MultiSplitPane
+                               = new com.sun.javafx.api.ui.MultiSplitPane();
+    protected attribute root: com.sun.javafx.api.ui.MultiSplitLayout.Split
+                               = com.sun.javafx.api.ui.MultiSplitLayout.Split{};
 
     public attribute orientation: Orientation = Orientation.HORIZONTAL on replace {
         if (root <> null) {
             root.setRowLayout(orientation == Orientation.HORIZONTAL);
         }
     };
-    public attribute content: SplitView[]
-        on replace [ndx] (old) {
-            var c = old.content.getComponent();
-            if (c <> null) {
-                split.remove(c);
+    public attribute content: SplitView[] on replace oldValue[lo..hi]=newVals {
+        if (split <> null) {
+            for(k in [lo..hi]) { 
+                split.remove(lo);
             }
-            split.add(content[ndx].id, content[ndx].content.getComponent());
-        }
-        on insert [ndx] (pane) {
-            pane.splitpane = this;
-            if (split <> null) {
+            for(pane in newVals) {
+                pane.splitpane = this;
                 split.add(pane.id, pane.content.getComponent());
-                root.setChildren(this.getModel());
-                split.getMultiSplitLayout().setModel(root);
             }
+            root.setChildren(this.getModel());
+            split.getMultiSplitLayout().setModel(root);            
         }
-        on delete [ndx] (pane) {
-            if (split <> null) {
-                split.remove(ndx);
-                root.setChildren(this.getModel());
-                split.getMultiSplitLayout().setModel(root);
-            }
-        };  
+    };
         
     private function getModel(): List {
         var n = for (p in content) p.getSplitNode();
@@ -82,9 +74,7 @@ public class SplitPane extends Widget {
     public attribute focusable: Boolean = false;
     
     public function createComponent():javax.swing.JComponent {
-        split = new com.sun.javafx.api.ui.MultiSplitPane();
         split.setOpaque(false);
-        root = com.sun.javafx.api.ui.MultiSplitLayout.Split{};
         root.setRowLayout(orientation == Orientation.HORIZONTAL);
         root.setWeight(1.0);
         root.setChildren(this.getModel());

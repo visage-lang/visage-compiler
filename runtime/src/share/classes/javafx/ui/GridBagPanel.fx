@@ -29,24 +29,14 @@ package javafx.ui;
 public class GridBagPanel extends Widget {
     private attribute jpanel: javax.swing.JPanel;
 
-    public attribute cells: GridCell[]
-    on insert [ndx] (cell) {
-        if (jpanel <> null) {
-            jpanel.add(cell.content.getComponent(), cell.constraint, ndx);
+    public attribute cells: GridCell[] on replace oldValue[lo..hi]=newVals {
+        for(k in [lo..hi]) { 
+            jpanel.remove(lo);
         }
-    }
-
-    on replace [ndx] (oldCell) {
-        if (jpanel <> null) {
-            var cell = cells[ndx];
-            jpanel.remove(ndx);
+        var ndx = lo;
+        for(cell in newVals) {
             jpanel.add(cell.content.getComponent(), cell.constraint, ndx);
-        }
-    }
-
-    on delete [ndx] (oldCell) {
-        if (jpanel <> null) {
-            jpanel.remove(ndx);
+            ndx++
         }
     };
     public function createComponent():javax.swing.JComponent{

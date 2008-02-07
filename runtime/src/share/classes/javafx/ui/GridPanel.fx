@@ -46,26 +46,20 @@ public class GridPanel extends Widget {
     public attribute vgap: Number = UNSET on replace {
         layout.setVgap(vgap.intValue());
     };
-    public attribute cells: Widget[]
-    on insert [ndx] (cell) {
-        if (jpanel <> null) {
-            jpanel.add(cell.getComponent(), ndx);
-            jpanel.validate();
-        }
-    }
-    on delete [ndx] (oldCell) {
-        if (jpanel <> null) {
-            jpanel.remove(ndx);
-            jpanel.validate();
-        }
-    }
-    on replace [ndx] (oldCell) {
-        if (jpanel <> null) {
-            jpanel.remove(ndx);
-            jpanel.add(cells[ndx].getComponent(), ndx);
+    public attribute cells: Widget[] on replace oldValue[lo..hi]=newVals {
+        if(jpanel <> null) {
+            for(k in [lo..hi]) { 
+                jpanel.remove(lo);
+            }
+            var ndx = lo;
+            for(cell in newVals) {
+                jpanel.add(cell.getComponent(), ndx);
+                ndx++
+            }
             jpanel.validate();
         }
     };
+    
     public function createComponent():javax.swing.JComponent {
         jpanel = javax.swing.JPanel{};
         jpanel.setOpaque(false);

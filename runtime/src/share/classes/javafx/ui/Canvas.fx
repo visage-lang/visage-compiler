@@ -70,28 +70,21 @@ public class Canvas extends Widget, CanvasElement, Container {
         return null;
     };
 
-    // public:
-    public attribute content: Node[]
-        on insert [indx] (newValue) {
-            newValue.parentCanvasElement = this;
-
-            if (root <> null) {
-                root.add(newValue.getNode());
+    public attribute content: Node[] on replace oldValue[lo..hi]=newVals {
+        if (root <> null and oldValue <> null) {
+            for(n in oldValue[lo..hi]) { 
+                root.remove(n.getNode()); 
             }
         }
-        on delete [indx] (oldValue) { 
+        var ndx = lo;
+        for(n in newVals) {
+            n.parentCanvasElement = this;
             if (root <> null) {
-                root.remove(oldValue.getNode());
+                root.add(ndx, n.getNode());
             }
-        }
-        on replace [indx] (oldValue) {
-            var newValue = content[indx];
-          newValue.parentCanvasElement = this;
-            if (root <> null) {
-                root.remove(oldValue.getNode());
-                root.add(newValue.getNode());
-            }
-        };
+            ndx++;
+        }        
+    };
 
     public attribute scale1ToFit: Boolean;
     public attribute viewport: CanvasViewport = CanvasViewport {};
@@ -297,69 +290,44 @@ public class Canvas extends Widget, CanvasElement, Container {
     }
 
     protected function raiseNode(n:Node):Void {
-        //TODO: need indexof
-        //var i = select indexof x from x in content where x == n;
-        var i = 0;
-        for(x in content) {
-            if(x == n) {
-                break;
-            }
-            i = i + 1;
-        }
-        if (i == sizeof content -1) {
+        var i = for(x in content where x == n) indexof x; 
+        if (sizeof i == 0) {
             return;
         }
-        var tmp = content[i];
-        content[i] = content[i+1];
-        content[i+1] = tmp;
+        var ndx = i[0];
+        var tmp = content[ndx];
+        content[ndx] = content[ndx+1];
+        content[ndx+1] = tmp;
     }
 
     protected function lowerNode(n:Node):Void {
-        //TODO: need indexof
-        //var i = select first indexof x from x in content where x == n;
-        var i = 0;
-        for(x in content) {
-            if(x == n) {
-                break;
-            }
-            i = i + 1;
-        }
-        if (i == 0) {
+        var i = for(x in content where x == n) indexof x; 
+        if (sizeof i == 0) {
             return;
         }
-        var tmp = content[i-1];
-        content[i-1] = content[i];
-        content[i] = tmp;
+        var ndx = i[0];
+        var tmp = content[ndx-1];
+        content[ndx-1] = content[ndx];
+        content[ndx] = tmp;
     }
 
     protected function moveNodeToFront(n:Node):Void {
-        //TODO: need indexof
-        //var i = select indexof x from x in content where x == n;
-        var i = 0;
-        for(x in content) {
-            if(x == n) {
-                break;
-            }
-            i = i + 1;
+        var i = for(x in content where x == n) indexof x; 
+        if (sizeof i > 0) {
+            var ndx = i[0];
+            delete content[ndx];
         }
-        delete content[i];
-        insert n  into content;
+        insert n into content;
         
     }
 
     protected function moveNodeToBack(n:Node):Void {
-        //TODO: need indexof
-        //var i = select indexof x from x in content where x == n;
-        var i = 0;
-        for(x in content) {
-            if(x == n) {
-                break;
-            }
-            i = i + 1;
+        var i = for(x in content where x == n) indexof x; 
+        if (sizeof i > 0) {
+            var ndx = i[0];
+            delete content[ndx];
         }
-        delete content[i];
-        //insert n as first into content;
-        content = [n, content];
+        insert n before content[0];
     }
 
     public function createComponent():javax.swing.JComponent {

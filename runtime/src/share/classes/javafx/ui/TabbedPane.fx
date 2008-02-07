@@ -28,7 +28,7 @@ package javafx.ui;
 import javax.swing.JTabbedPane;
 
 public class TabbedPane extends Widget {
-    protected attribute tabbedpane: javax.swing.JTabbedPane =  UIElement.context.createTabbedPane();
+    protected attribute tabbedpane: javax.swing.JTabbedPane = UIElement.context.createTabbedPane();
     private attribute changeListener: javax.swing.event.ChangeListener;
     public attribute selectedIndex: Number = -1 on replace {
         if (component <> null and selectedIndex <> -1) {
@@ -66,8 +66,12 @@ public class TabbedPane extends Widget {
             tabbedpane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         }
     };
-    public attribute tabs: Tab[]
-        on insert [ndx] (tab) {
+    public attribute tabs: Tab[] on replace oldValue[lo..hi]=newVals {
+        for(k in [lo..hi]) { 
+            tabbedpane.removeTabAt(lo);
+        }
+        var ndx = lo;
+        for(tab in newVals) {
             tab.tabbedPane = this;
             var sicon:javax.swing.Icon = null;
             if (tab.icon <> null) {
@@ -78,25 +82,9 @@ public class TabbedPane extends Widget {
                 tabbedpane.setSelectedIndex(selectedIndex.intValue());
                 selection = SingleSelection {anchorIndex: selectedIndex};
             }
+            ndx++
         }
-
-        on delete [ndx] (tab) {
-            tabbedpane.removeTabAt(ndx);
-        }
-
-        on replace [ndx] (old) { 
-            var tab = tabs[ndx];
-            tab.tabbedPane = this;
-            var sicon:javax.swing.Icon = null;
-            if (tab.icon <> null) {
-                sicon = tab.icon.getIcon();
-            }
-            var i = ndx;
-            tabbedpane.setTitleAt(i, tab.title);
-            tabbedpane.setIconAt(i, sicon);
-            tabbedpane.setToolTipTextAt(i, tab.toolTipText);
-            tabbedpane.setComponentAt(i, tab.panel);
-        }
+    };
 
 
     public attribute opaque: Boolean = true;
@@ -104,6 +92,7 @@ public class TabbedPane extends Widget {
     public function createComponent():javax.swing.JComponent{
         if(changeListener == null) {
             tabbedpane.setOpaque(false);
+            //selectedIndex = 0;
             changeListener = javax.swing.event.ChangeListener {
                 public function stateChanged(e:javax.swing.event.ChangeEvent):Void {
                     selection = WidgetInitiatedMultiSelection {

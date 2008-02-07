@@ -125,34 +125,26 @@ public class Table extends ScrollableWidget {
             table.setGridColor(gridColor.getColor());
     };
     public attribute columns: TableColumn[];
-    public attribute cells: TableCell[]
-        on insert [ndx] (cell) {
+    public attribute cells: TableCell[] on replace oldValue[lo..hi]=newVals {
+        var s = selection;
+        if (tableModel <> null) {
+            for(k in [lo..hi]) { 
+                tableModel.removeCell(lo);
+            }
+        }
+        var ndx = lo;
+        for(cell in newVals) {
             cell.table = this;
             if (tableModel <> null) {
-                var s = selection;
                 tableModel.addCell(ndx, cell.text, cell.toolTipText,
                                    cell.font.getFont(), cell.background.getColor(), cell.foreground.getColor(),
                                    cell.border.getBorder());
-                selection = s;
+                
             }
+            ndx++
         }
-        on delete [ndx] (cell) {
-            if (tableModel <> null) {
-                var s = selection;
-                tableModel.removeCell(ndx);
-                selection = s;
-            }
-        }
-        on replace [ndx] (oldCell) {
-            if (tableModel <> null) {
-                var s = selection;
-                var cell = cells[ndx];
-                tableModel.updateCell(ndx, cell.text, cell.toolTipText,
-                   cell.font.getFont(), cell.background.getColor(), cell.foreground.getColor(),
-                   cell.border.getBorder());
-                selection = s;
-            } 
-        };
+        selection = s;
+    };
     public attribute intercellSpacing: Dimension on replace {
         if(table <> null and intercellSpacing <> null)
             table.setIntercellSpacing(intercellSpacing);

@@ -86,23 +86,13 @@ public class Slider extends Widget {
             jslider.setPaintLabels(paintLabels);
         }
     };
-    public attribute labels: SliderLabel[]
-    on insert [ndx] (label) {
+    public attribute labels: SliderLabel[] on replace oldValue[lo..hi]=newVals {
         if(jslider <> null) {
             var dict = new java.util.Hashtable();
             for (i in labels) {
                 dict.put(i.value.intValue(), i.label.getComponent());
             }
             paintLabels = true;
-            jslider.setLabelTable(dict);
-        }
-    }
-    on delete [ndx] (label) {
-        if(jslider <> null) {
-            var dict = new java.util.Hashtable();
-            for (i in labels) {
-                dict.put(i.value.intValue(), i.label.getComponent());
-            }
             jslider.setLabelTable(dict);
         }
     };

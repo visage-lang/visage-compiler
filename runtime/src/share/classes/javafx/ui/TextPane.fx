@@ -36,48 +36,41 @@ public class TextPane extends ScrollableWidget {
     public attribute editable: Boolean on replace {
         jtextpane.setEditable(editable);
     };
-    public attribute content: Object[]
-        on insert [ndx] (element) {
-            var off = 0;
-            for (i in content) {
-                if (i == element) {
-                    break;
-                }
-                if (i instanceof String) {
-                    off += (i as String).length();
-                } else {
-                    off += 1;
-                }
-            }
-            jtextpane.select(off, off);
-            if (element instanceof Widget) {
-                jtextpane.insertComponent((element as Widget).getComponent());
-            } else if (element instanceof Icon) {
-                jtextpane.insertIcon((element as Icon).getIcon());
+    public attribute content: Object[] on replace oldValue[lo..hi]=newVals {
+        var off = 0;
+        for (i in [0..<lo]) {
+            var e = content[i];
+            if (e instanceof String) {
+                off += (e as String).length();
             } else {
-                jtextpane.replaceSelection("{element}");
+                off += 1;
             }
-        }
-        on replace [ndx] (oldValue) {
-               // nothing
-        }
-        on delete [ndx] (element) {
-            var off = 0;
-            for (i in [0..<ndx]) {
-                var e = content[i];
-                if (e instanceof String) {
-                    off += (e as String).length();
-                } else {
-                    off += 1;
-                }
-            }
+        }  
+        for(element in oldValue[lo..hi]) { 
             var endOff = off;
             if (element instanceof String) {
                 endOff += (element as String).length();
             }
             jtextpane.select(off, endOff);
             jtextpane.replaceSelection("");
-        };
+        }
+        
+        var ndx = lo;
+        for(element in newVals) {
+            jtextpane.select(off, off);
+            if (element instanceof Widget) {
+                jtextpane.insertComponent((element as Widget).getComponent());
+                off++;
+            } else if (element instanceof Icon) {
+                jtextpane.insertIcon((element as Icon).getIcon());
+                off++;
+            } else {
+                jtextpane.replaceSelection("{element}");
+                off += "{element}".length();
+            }
+            ndx++
+        }
+    };
     
     public attribute contentType: ContentType on replace {
         jtextpane.setContentType(contentType.mimeType);

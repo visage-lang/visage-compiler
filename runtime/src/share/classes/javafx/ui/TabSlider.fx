@@ -228,9 +228,10 @@ class TabSlider extends Widget {
             }
         }
     };
-    public attribute tabs: SlideTab[]
-        on insert [ndx] (t) {
-            t.slider = this;
+    public attribute tabs: SlideTab[] on replace oldValue[lo..hi]=newVals {
+            for(n in newVals) {
+                n.slider = this;
+            }
         };
     public attribute slideDuration: Number = 700;
 
@@ -463,13 +464,10 @@ class TabSlider extends Widget {
     function updateTabSelection(tab:SlideTab):Void {
          if (not inSelection) {
             if (tab.selected) {
-                //var i = select indexof x from x in slider.tabs where x == this;
-                for (i in [0..<sizeof tabs]) {
-                    if(tabs[i] == tab) {
-                        selectedIndex = i;
-                        break;
-                    }
-                }
+                var i = for(x in tabs where x == this) indexof x; 
+                if (sizeof i > 0) {
+                    selectedIndex = i[0];
+                }                
             } else {
                 selectedIndex = -1;
             }

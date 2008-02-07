@@ -35,23 +35,18 @@ import javafx.ui.Widget;
 public class Panel extends Widget {
     private attribute jpanel:javax.swing.JPanel;
     /** A list of the components contained in this panel */
-    public attribute content: Widget[]
-        on insert [ndx] (c) {
-            if (jpanel <> null) {
+    public attribute content: Widget[] on replace oldValue[lo..hi]=newVals {
+        if (jpanel <> null) {
+            for(k in [lo..hi]) { 
+                jpanel.remove(lo);
+            }
+            var ndx = lo;
+            for(c in newVals) {
                 jpanel.add(c.getComponent(), ndx);
+                ndx++
             }
         }
-        on delete [ndx] (w) {
-            if (jpanel <> null) {
-                jpanel.remove(ndx);
-            }
-        }
-        on replace [ndx] (oldWidget)  {
-            if (jpanel <> null) {
-                jpanel.remove(ndx);
-                jpanel.add(content[ndx].getComponent(), ndx);
-            }
-        };
+    };
     public attribute focusable: Boolean = false;
     public function createComponent():javax.swing.JComponent{
         jpanel = new javax.swing.JPanel();

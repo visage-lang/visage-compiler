@@ -52,13 +52,16 @@ public class ToolBar extends Widget {
             toolbar.setOrientation(javax.swing.JToolBar.VERTICAL);
     }
     };
-    public attribute buttons: Widget[]
-        on insert [ndx] (button) {
-            toolbar.add(button.getComponent(), ndx);
+    public attribute buttons: Widget[] on replace oldValue[lo..hi]=newVals {
+        for(k in [lo..hi]) { 
+            toolbar.remove(lo);
         }
-        on delete [ndx] (button) {
-            toolbar.remove(ndx);
-        };
+        var ndx = lo;
+        for(button in newVals) {
+            toolbar.add(button.getComponent(), ndx);
+            ndx++
+        }
+    };
     public attribute focusable: Boolean = false;
     
     public attribute opaque: Boolean = true;

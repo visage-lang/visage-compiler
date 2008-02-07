@@ -30,14 +30,7 @@ import javafx.ui.canvas.Transformable;
 public abstract class Gradient extends Transformable, Paint  {
     protected attribute gradient: java.awt.Paint;
     /** The ramp of colors to use on this gradient */
-    public attribute stops: Stop[] 
-        on replace [ndx] (oldVaue) {
-            createGradient();
-        }
-        on insert [ndx] (newValue) {
-            createGradient();
-        }
-        on delete [ndx] (oldVaue) {
+    public attribute stops: Stop[] on replace oldv[i..j]= foo{
             createGradient();
         };
     public attribute spreadMethod: SpreadMethod = SpreadMethod.PAD on replace {

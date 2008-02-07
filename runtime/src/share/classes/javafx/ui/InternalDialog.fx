@@ -65,14 +65,7 @@ class InternalDialog extends InternalWindow {
     attribute southPanel: JPanel;
     attribute centerPanel: JPanel;
 
-    public attribute buttons: Button[]
-        on replace [ndx] (oldValue) {
-            updateButtons();
-        }
-        on insert [ndx] (newValue) {
-            updateButtons();
-        }
-        on delete [ndx] (oldValue) {
+    public attribute buttons: Button[] on replace oldValue[lo..hi]=newVals{
             updateButtons();
         };
     init {
