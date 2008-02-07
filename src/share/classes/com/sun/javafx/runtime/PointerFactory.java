@@ -26,7 +26,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
     }
 
     public Pointer make(int value) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
     }
 
     public ObjectLocation<Pointer> make$$bound$int(IntLocation location) {
@@ -34,7 +34,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
     }
 
     public Pointer make(double value) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
     }
 
     public ObjectLocation<Pointer> make$$bound$double(DoubleLocation location) {
@@ -42,7 +42,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
     }
 
     public Pointer make(boolean value) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
     }
 
     public ObjectLocation<Pointer> make$$bound$boolean(BooleanLocation location) {
@@ -50,7 +50,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
     }
 
     public Pointer make(Object value) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
     }
 
     public ObjectLocation<Pointer> make$$bound$java_lang_Object(ObjectLocation location) {
@@ -58,7 +58,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
     }
 
     public Pointer make(Sequence value) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
     }
 
     public ObjectLocation<Pointer> make$$bound$com_sun_javafx_runtime_sequence_Sequence(SequenceLocation location) {
