@@ -27,6 +27,8 @@
 package javafx.ui;
 
 import com.sun.javafx.api.ui.GradientFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LinearGradient extends Gradient {
     public attribute startX:Number on replace {
@@ -45,11 +47,16 @@ public class LinearGradient extends Gradient {
     public function createGradient():Void {
         var fractions = getFractions();
         if (sizeof fractions >= 2) {
+            
             var colors = getColors();
             var start = new java.awt.geom.Point2D.Double(startX, startY);
             var end = new java.awt.geom.Point2D.Double(endX, endY);
-            gradient = GradientFactory.createLinearGradientPaint(start, end,
+            if(start <> end) {
+                gradient = GradientFactory.createLinearGradientPaint(start, end,
                     fractions, colors, spreadMethod.id, colorSpace.id, affineTransform);
+            } else {
+                Logger.getLogger(this.getClass().getName()).warning("The start point must be different from the end point, check attributes startX,startY and endX,endY");
+            }
         }
     }
 }
