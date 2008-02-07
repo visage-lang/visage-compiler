@@ -797,15 +797,16 @@ postfixExpression
 //TODO:		 | CLASS   					
 	         )   
 	   | expressionList  					-> ^(FUNC_APPLY $postfixExpression expressionList)
-	   | LBRACKET name PIPE expression RBRACKET		-> ^(PIPE $postfixExpression name expression)
-	   | LBRACKET first=expression
+	   | LBRACKET (name PIPE expression RBRACKET		-> ^(PIPE $postfixExpression name expression)
+	     | first=expression
                (RBRACKET					-> ^(SEQ_INDEX $postfixExpression $first)
 	       | DOTDOT (
-	                  LT last=expression? 			-> ^(SEQ_SLICE_EXCLUSIVE $postfixExpression $first $last?)
-	                | last=expression? 			-> ^(SEQ_SLICE $postfixExpression $first $last?)
+	                  LT last=expression? 			-> ^(SEQ_SLICE_EXCLUSIVE[$LBRACKET] $postfixExpression $first $last?)
+	                | last=expression? 			-> ^(SEQ_SLICE[$LBRACKET] $postfixExpression $first $last?)
 	                )
 	         RBRACKET
                )
+             )
 	   ) * 
 	;
 primaryExpression  
