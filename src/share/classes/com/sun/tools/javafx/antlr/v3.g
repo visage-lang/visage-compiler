@@ -544,7 +544,7 @@ classMembers
 classMember
 	: initDefinition	
 	| postInitDefinition
-	| variableDeclaration 
+	| attributeDeclaration 
 	| functionDefinition 
 	;
 functionDefinition
@@ -554,6 +554,12 @@ functionDefinition
 	    					-> ^(FUNCTION name functionModifierFlags 
 	    						formalParameters typeReference 
 	    						blockExpression?)
+	;
+attributeDeclaration   
+@after { Tree docComment = getDocComment($attributeDeclaration.start);
+         $attributeDeclaration.tree.addChild(docComment); }
+	: varModifierFlags ATTRIBUTE  name  typeReference (EQ boundExpression)? onChangeClause*
+	    					-> ^(VAR ATTRIBUTE varModifierFlags name typeReference boundExpression? onChangeClause*)
 	;
 initDefinition
 	: INIT block 				-> ^(INIT block)
@@ -654,7 +660,6 @@ paramNameOpt
 variableLabel 
 	: VAR	
 	| LET	
-	| ATTRIBUTE	
 	;
 throwStatement
 	: THROW expression 			-> ^(THROW expression)
@@ -832,6 +837,7 @@ newExpression
 objectLiteralPart  
 	: name COLON  boundExpression (COMMA | SEMI)?		-> ^(OBJECT_LIT_PART[$COLON] name boundExpression)
        	| variableDeclaration	(COMMA | SEMI)?			-> variableDeclaration
+       	| attributeDeclaration	(COMMA | SEMI)?			-> attributeDeclaration
        	| functionDefinition 	(COMMA | SEMI)?			-> functionDefinition
        	;
 stringExpression  

@@ -8,7 +8,7 @@
 import java.lang.System;
 
 class Foo {
-	var seq = [100..110] 
+	attribute seq = [100..110] 
 		on replace [indx] (oldValue) { System.out.println("replaced {String.valueOf(oldValue)} at {indx} with {seq[indx]}"); }
 		on insert [indx] (newValue) { System.out.println("insert {String.valueOf(newValue)} at {indx}"); }
 		on delete [indx] (oldValue) { System.out.println("delete {String.valueOf(oldValue)} from {indx}"); };
@@ -21,7 +21,7 @@ class Foo {
 		delete seq;
 	}
 
-	var seq2 = [100..110] 
+	attribute seq2 = [100..110] 
 	   on replace oldValue[indx  .. lastIndex]=newElements
           { System.out.println("replaced {String.valueOf(oldValue)}[{indx}..{lastIndex}] by {String.valueOf(newElements)}")};
 	function doit2() {
