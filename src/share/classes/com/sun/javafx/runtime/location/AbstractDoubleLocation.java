@@ -39,13 +39,13 @@ public abstract class AbstractDoubleLocation extends AbstractLocation implements
     protected double $value = DEFAULT;
     private List<DoubleChangeListener> replaceListeners;
 
-    protected AbstractDoubleLocation(boolean valid, boolean lazy, double value) {
-        super(valid, lazy);
+    protected AbstractDoubleLocation(boolean valid, double value) {
+        super(valid);
         setAsDouble(value);
     }
 
-    protected AbstractDoubleLocation(boolean valid, boolean lazy) {
-        super(valid, lazy);
+    protected AbstractDoubleLocation(boolean valid) {
+        super(valid);
     }
 
     public double getAsDouble() {

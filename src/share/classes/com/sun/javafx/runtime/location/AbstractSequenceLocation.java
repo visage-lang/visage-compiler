@@ -43,8 +43,8 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     protected final Class<T> clazz;
     protected List<SequenceReplaceListener<T>> replaceListeners;
 
-    public AbstractSequenceLocation(Class<T> clazz, boolean valid, boolean lazy) {
-        super(valid, lazy);
+    public AbstractSequenceLocation(Class<T> clazz, boolean valid) {
+        super(valid);
         this.clazz = clazz;
         $value = Sequences.emptySequence(clazz);
     }
@@ -79,7 +79,7 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
     }
 
     /**
-     * Update the held value, notifying change listeners and generating appropriate delete/insert events as necessary
+     * Update the held value, notifying change listeners
      */
     protected Sequence<T> replaceValue(Sequence<T> newValue) {
         if (newValue == null)

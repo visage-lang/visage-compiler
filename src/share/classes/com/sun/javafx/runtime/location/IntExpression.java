@@ -34,10 +34,15 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class IntExpression extends AbstractIntLocation implements IntLocation {
+public abstract class IntExpression extends AbstractIntLocation
+        implements IntLocation, BindableLocation<IntBindingExpression>, IntBindingExpression {
+
+    protected IntBindingExpression binding;
+    protected boolean isLazy;
 
     public IntExpression(boolean lazy, Location... dependencies) {
-        super(false, lazy);
+        super(false);
+        bind(this, lazy);
         addDependencies(dependencies);
     }
 
@@ -48,11 +53,26 @@ public abstract class IntExpression extends AbstractIntLocation implements IntLo
     }
 
     /** Calculate the current value of the expression */
-    protected abstract int computeValue();
+    public abstract int computeValue();
 
     @Override
     public void update() {
         if (!isValid())
             replaceValue(computeValue());
+    }
+
+    public void bind(IntBindingExpression binding, boolean lazy) {
+        if (isBound())
+            throw new IllegalStateException("Cannot rebind variable");
+        this.binding = binding;
+        isLazy = lazy;
+    }
+
+    public boolean isBound() {
+        return binding != null;
+    }
+
+    public boolean isLazy() {
+        return isLazy;
     }
 }

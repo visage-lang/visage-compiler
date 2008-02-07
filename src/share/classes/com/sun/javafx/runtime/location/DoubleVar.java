@@ -49,7 +49,7 @@ public class DoubleVar extends AbstractDoubleLocation implements DoubleLocation,
 
 
     private DoubleVar(double value) {
-        super(true, false, value);
+        super(true, value);
     }
 
 

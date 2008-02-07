@@ -18,7 +18,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
             }
         };
         IntLocation len = new IntExpression(false, derived) {
-            protected int computeValue() {
+            public int computeValue() {
                 return Sequences.size(derived.getAsSequence());
             }
         };
@@ -64,7 +64,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
             }
         };
         IntLocation len = new IntExpression(false, derived) {
-            protected int computeValue() {
+            public int computeValue() {
                 return Sequences.size(derived.getAsSequence());
             }
         };

@@ -124,7 +124,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
                 return a.getAsInt() + b.getAsInt();
             }
         };
-final IntLocation d = new IntExpression(false, c) {
+        final IntLocation d = new IntExpression(false, c) {
             public int computeValue() {
                 return c.getAsInt() + 1;
             }

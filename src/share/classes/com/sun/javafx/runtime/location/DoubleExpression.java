@@ -34,10 +34,15 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class DoubleExpression extends AbstractDoubleLocation implements DoubleLocation {
+public abstract class DoubleExpression extends AbstractDoubleLocation
+        implements DoubleLocation, BindableLocation<DoubleBindingExpression>, DoubleBindingExpression {
+
+    protected DoubleBindingExpression binding;
+    protected boolean isLazy;
 
     public DoubleExpression(boolean lazy, Location... dependencies) {
-        super(false, lazy);
+        super(false);
+        bind(this, lazy);
         addDependencies(dependencies);
     }
 
@@ -48,11 +53,26 @@ public abstract class DoubleExpression extends AbstractDoubleLocation implements
     }
 
     /** Calculate the current value of the expression */
-    protected abstract double computeValue();
+    public abstract double computeValue();
 
     @Override
     public void update() {
         if (!isValid())
             replaceValue(computeValue());
+    }
+
+    public void bind(DoubleBindingExpression binding, boolean lazy) {
+        if (isBound())
+            throw new IllegalStateException("Cannot rebind variable");
+        this.binding = binding;
+        isLazy = lazy;
+    }
+
+    public boolean isBound() {
+        return binding != null;
+    }
+
+    public boolean isLazy() {
+        return isLazy;
     }
 }

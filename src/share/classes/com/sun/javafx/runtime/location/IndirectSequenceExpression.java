@@ -48,7 +48,7 @@ public abstract class IndirectSequenceExpression<T> extends SequenceExpression<T
         helper = new IndirectLocationHelper<SequenceLocation<T>>(this, dependencies);
     }
 
-    protected final Sequence<T> computeValue() {
+    public final Sequence<T> computeValue() {
         return helper.get().getAsSequence();
     }
 

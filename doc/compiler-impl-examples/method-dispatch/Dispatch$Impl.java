@@ -45,7 +45,7 @@ class Base1$Impl implements Base1$Intf {
 
     public static IntLocation foo$bound(final Base1$Intf receiver, final IntLocation a) {
         return new IntExpression(false, a) {
-            protected int computeValue() {
+            public int computeValue() {
                 return a.getAsInt() + receiver.get$n().getAsInt() + 1;
             }
         };
@@ -111,7 +111,7 @@ public class Dispatch$Impl implements Dispatch$Intf {
     public static int foo(Dispatch$Intf receiver, int a) { return a + receiver.get$n().getAsInt() + 5; }
 
     public static IntLocation foo$bound(final Dispatch$Intf receiver, final IntLocation a) {
-        return new IntExpression(false,a ) {
+        return new IntExpression(false, a) {
             public int computeValue() {
                 return a.getAsInt() + receiver.get$n().getAsInt() + 5;
             }

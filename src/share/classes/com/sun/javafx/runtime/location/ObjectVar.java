@@ -44,7 +44,7 @@ public class ObjectVar<T> extends AbstractObjectLocation<T> implements ObjectLoc
 
 
     private ObjectVar(T value) {
-        super(true, false, value);
+        super(true, value);
     }
 
 

@@ -46,7 +46,7 @@ public abstract class IndirectObjectExpression<T> extends ObjectExpression<T> im
         helper = new IndirectLocationHelper<ObjectLocation<T>>(this, dependencies);
     }
 
-    protected final T computeValue() {
+    public final T computeValue() {
         return helper.get().get();
     }
 

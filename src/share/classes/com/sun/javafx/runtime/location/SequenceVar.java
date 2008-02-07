@@ -53,17 +53,17 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
     }
 
     private SequenceVar(Sequence<T> value) {
-        super(value.getElementType(), true, false);
+        super(value.getElementType(), true);
         replaceValue(value);
     }
 
     private SequenceVar(Class<T> clazz) {
-        super(clazz, true, false);
+        super(clazz, true);
         replaceValue(Sequences.emptySequence(clazz));
     }
 
     private SequenceVar(Class<T> clazz, Sequence<? extends T> value) {
-        super(clazz, true, false);
+        super(clazz, true);
         if (value == null)
             throw new NullPointerException();
         replaceValue(Sequences.upcast(clazz, value));

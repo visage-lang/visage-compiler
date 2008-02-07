@@ -46,7 +46,7 @@ public abstract class IndirectIntExpression extends IntExpression implements Ind
         helper = new IndirectLocationHelper<IntLocation>(this, dependencies);
     }
 
-    protected final int computeValue() {
+    public final int computeValue() {
         return helper.get().getAsInt();
     }
 

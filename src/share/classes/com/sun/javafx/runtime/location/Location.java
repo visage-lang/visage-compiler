@@ -49,7 +49,7 @@ public interface Location {
     /** Is the value assicated with this location null? */
     public boolean isNull();
 
-    /** Is this location lazy? */
+    /** Is this location lazy? @@@ Remove me; move to BindableLocation */
     public boolean isLazy();
 
     /** Invalidate the value associated with this location, and call all registered change listeners.  If the location

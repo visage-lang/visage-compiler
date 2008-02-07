@@ -49,7 +49,7 @@ public class BooleanVar extends AbstractBooleanLocation implements BooleanLocati
 
 
     private BooleanVar(boolean value) {
-        super(true, false, value);
+        super(true, value);
     }
 
 

@@ -39,8 +39,8 @@ public abstract class AbstractIntLocation extends AbstractLocation implements In
     protected int $value = DEFAULT;
     private List<IntChangeListener> replaceListeners;
 
-    protected AbstractIntLocation(boolean valid, boolean lazy) {
-        super(valid, lazy);
+    protected AbstractIntLocation(boolean valid) {
+        super(valid);
     }
 
     public int getAsInt() {

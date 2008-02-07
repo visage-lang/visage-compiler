@@ -16,7 +16,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractSequenceLocation<
     // and thereafter stay in the valid state.  They cannot be lazily bound.
 
     protected AbstractBoundSequence(Class<T> clazz) {
-        super(clazz, false, false);
+        super(clazz, false);
     }
 
     /** Called after construction to compute the value of the sequence */

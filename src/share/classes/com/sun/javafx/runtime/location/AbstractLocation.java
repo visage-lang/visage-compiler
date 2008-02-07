@@ -34,8 +34,7 @@ import java.util.*;
  * @author Brian Goetz
  */
 public abstract class AbstractLocation implements Location {
-    private boolean isValid;
-    private final boolean isLazy;
+    private boolean isValid, initialized;
 
     // We separate listeners from dependent locations because updating of dependent locations is split into an
     // invalidation phase and an update phase (this is to support lazy locations.)  So there are times when we want
@@ -56,21 +55,27 @@ public abstract class AbstractLocation implements Location {
     private int iterationDepth;
     private List<WeakReference<Location>> deferredDependencies;
 
-    protected AbstractLocation(boolean valid, boolean lazy) {
+    protected AbstractLocation(boolean valid) {
         isValid = valid;
-        isLazy = lazy;
+        initialized = isValid;
     }
 
     public boolean isValid() {
         return isValid;
     }
 
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    // @@@ Remove me when lazy is removed from Location
     public boolean isLazy() {
-        return isLazy;
+        return false;
     }
 
     protected void setValid() {
         isValid = true;
+        initialized = true;
     }
 
     public void invalidate() {
@@ -114,8 +119,8 @@ public abstract class AbstractLocation implements Location {
                         iterator.remove();
                     else {
                         loc.invalidate();
-                        // try for early removal of "weakme" dynamic dependency.
-                        // in that case invalidate() will have cleared the ref
+                        // Space optimization: try for early removal of dynamic dependencies, in the case that
+                        // the dependency is a "weakMe" reference for some object that has been cleared in update()
                         if (locationRef.get() == null) {
                             iterator.remove();
                         }

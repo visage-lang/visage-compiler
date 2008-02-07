@@ -49,7 +49,7 @@ public class IntVar extends AbstractIntLocation implements IntLocation, MutableL
 
 
     private IntVar(int value) {
-        super(true, false);
+        super(true);
         setAsInt(value);
     }
 

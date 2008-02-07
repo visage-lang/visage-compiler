@@ -447,17 +447,17 @@ public class SequenceBindingTest extends JavaFXTestCase {
     public void testChainedSequenceBind() {
         final SequenceLocation<Integer> a = SequenceVar.make(Sequences.make(Integer.class, 1, 2, 3));
         final SequenceLocation<Integer> b = new SequenceExpression<Integer>(Integer.class, false, a) {
-            protected Sequence<Integer> computeValue() {
+            public Sequence<Integer> computeValue() {
                 return a.getAsSequence();
             }
         };
         IntLocation i = new IntExpression(false, b) {
-            protected int computeValue() {
+            public int computeValue() {
                 return b.getAsSequence().size();
             }
         };
         IntLocation j = new IntExpression(false, b) {
-            protected int computeValue() {
+            public int computeValue() {
                 return a.getAsSequence().size();
             }
         };

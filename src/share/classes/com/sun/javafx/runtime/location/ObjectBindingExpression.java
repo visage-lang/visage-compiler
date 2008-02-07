@@ -26,29 +26,10 @@
 package com.sun.javafx.runtime.location;
 
 /**
- * Helper classes for indirect locations; maintains separate dependency paths for the static dependencies (passed into
- * the constructor) and the dynamic dependencies (embodied in the returned location from computeLocation()).  All
- * subclasses need to do is provide the computeLocation() method.
+ * ObjectBindingExpression
  *
  * @author Brian Goetz
  */
-public class IndirectLocationHelper<T extends Location> extends ObjectExpression<T> implements ObjectLocation<T> {
-    private final IndirectLocation<T> helped;
-
-    public IndirectLocationHelper(IndirectLocation<T> helped, Location... dependencies) {
-        super(true, dependencies);
-        this.helped = helped;
-    }
-
-    public T computeValue() {
-        helped.clearDynamicDependencies();
-        T location = helped.computeLocationInternal();
-        helped.addDynamicDependency(location);
-        return location;
-    }
-
-    public void invalidate() {
-        super.invalidate();
-        helped.invalidate();
-    }
+public interface ObjectBindingExpression<T> {
+    public T computeValue();
 }

@@ -18,7 +18,7 @@ public class NestedBindTest extends JavaFXTestCase {
 
     private ObjectLocation<Foo> makeFunctionNode(final IntLocation n) {
         return new ObjectExpression<Foo>(false, n) {
-            protected Foo computeValue() {
+            public Foo computeValue() {
                 clearDynamicDependencies();
                 return new Foo(n.get());
             }
@@ -29,7 +29,7 @@ public class NestedBindTest extends JavaFXTestCase {
         ObjectLocation<Foo> foo = new ObjectExpression<Foo>(false) {
             private ObjectLocation<Foo> internal;
 
-            protected Foo computeValue() {
+            public Foo computeValue() {
                 if (internal == null) {
                     internal = makeFunctionNode(IntVar.make(0));
                     addStaticDependent(internal);

@@ -21,7 +21,7 @@ public class SequenceElementLocation<T> extends ObjectExpression<T> implements O
         seq.addChangeListener(new MySequenceListener());
     }
 
-    protected T computeValue() {
+    public T computeValue() {
         lastIndex = index.get();
         return seq.getAsSequence().get(lastIndex);
     }

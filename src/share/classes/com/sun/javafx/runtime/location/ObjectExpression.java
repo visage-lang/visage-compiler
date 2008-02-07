@@ -34,10 +34,15 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class ObjectExpression<T> extends AbstractObjectLocation<T> implements ObjectLocation<T> {
+public abstract class ObjectExpression<T> extends AbstractObjectLocation<T>
+        implements ObjectLocation<T>, BindableLocation<ObjectBindingExpression<T>>, ObjectBindingExpression<T> {
+
+    protected ObjectBindingExpression<T> binding;
+    protected boolean isLazy;
 
     public ObjectExpression(boolean lazy, Location... dependencies) {
-        super(false, lazy);
+        super(false);
+        bind(this, lazy);
         addDependencies(dependencies);
     }
 
@@ -54,11 +59,26 @@ public abstract class ObjectExpression<T> extends AbstractObjectLocation<T> impl
     }
 
     /** Calculate the current value of the expression */
-    protected abstract T computeValue();
+    public abstract T computeValue();
 
     @Override
     public void update() {
         if (!isValid())
             replaceValue(computeValue());
+    }
+
+    public void bind(ObjectBindingExpression<T> binding, boolean lazy) {
+        if (isBound())
+            throw new IllegalStateException("Cannot rebind variable");
+        this.binding = binding;
+        isLazy = lazy;
+    }
+
+    public boolean isBound() {
+        return binding != null;
+    }
+
+    public boolean isLazy() {
+        return isLazy;
     }
 }

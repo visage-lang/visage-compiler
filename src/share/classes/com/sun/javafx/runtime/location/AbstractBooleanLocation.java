@@ -39,13 +39,13 @@ public abstract class AbstractBooleanLocation extends AbstractLocation implement
     protected boolean $value = DEFAULT;
     private List<BooleanChangeListener> replaceListeners;
 
-    protected AbstractBooleanLocation(boolean valid, boolean lazy, boolean value) {
-        super(valid, lazy);
+    protected AbstractBooleanLocation(boolean valid, boolean value) {
+        super(valid);
         setAsBoolean(value);
     }
 
-    protected AbstractBooleanLocation(boolean valid, boolean lazy) {
-        super(valid, lazy);
+    protected AbstractBooleanLocation(boolean valid) {
+        super(valid);
     }
 
     public boolean getAsBoolean() {

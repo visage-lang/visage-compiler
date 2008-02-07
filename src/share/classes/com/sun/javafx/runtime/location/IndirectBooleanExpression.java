@@ -46,7 +46,7 @@ public abstract class IndirectBooleanExpression extends BooleanExpression implem
         helper = new IndirectLocationHelper<BooleanLocation>(this, dependencies);
     }
 
-    protected final boolean computeValue() {
+    public final boolean computeValue() {
         return helper.get().getAsBoolean();
     }
 

@@ -46,7 +46,7 @@ public abstract class IndirectDoubleExpression extends DoubleExpression implemen
         helper = new IndirectLocationHelper<DoubleLocation>(this, dependencies);
     }
 
-    protected final double computeValue() {
+    public final double computeValue() {
         return helper.get().getAsDouble();
     }
 

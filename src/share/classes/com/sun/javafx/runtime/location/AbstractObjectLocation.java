@@ -37,13 +37,13 @@ public abstract class AbstractObjectLocation<T> extends AbstractLocation impleme
     protected T $value;
     private List<ObjectChangeListener<T>> replaceListeners;
 
-    protected AbstractObjectLocation(boolean valid, boolean lazy, T value) {
-        super(valid, lazy);
+    protected AbstractObjectLocation(boolean valid, T value) {
+        super(valid);
         set(value);
     }
 
-    protected AbstractObjectLocation(boolean valid, boolean lazy) {
-        super(valid, lazy);
+    protected AbstractObjectLocation(boolean valid) {
+        super(valid);
     }
 
     public T get() {

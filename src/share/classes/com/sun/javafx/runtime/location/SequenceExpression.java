@@ -39,15 +39,20 @@ import com.sun.javafx.runtime.sequence.Sequences;
  *
  * @author Brian Goetz
  */
-public abstract class SequenceExpression<T> extends AbstractSequenceLocation<T> implements SequenceLocation<T> {
+public abstract class SequenceExpression<T> extends AbstractSequenceLocation<T>
+        implements SequenceLocation<T>, BindableLocation<SequenceBindingExpression<T>>, SequenceBindingExpression<T> {
+
+    protected SequenceBindingExpression<T> binding;
+    protected boolean isLazy;
 
     public SequenceExpression(Class<T> clazz, boolean lazy, Location... dependencies) {
-        super(clazz, false, lazy);
+        super(clazz, false);
+        bind(this, lazy);
         addDependencies(dependencies);
     }
 
     /** Calculate the current value of the expression */
-    protected abstract Sequence<? extends T> computeValue();
+    public abstract Sequence<? extends T> computeValue();
 
     @Override
     public void update() {
@@ -83,4 +88,20 @@ public abstract class SequenceExpression<T> extends AbstractSequenceLocation<T> 
         ensureValid();
         return super.getAsSequence();
     }
+
+    public void bind(SequenceBindingExpression<T> binding, boolean lazy) {
+        if (isBound())
+            throw new IllegalStateException("Cannot rebind variable");
+        this.binding = binding;
+        isLazy = lazy;
+    }
+
+    public boolean isBound() {
+        return binding != null;
+    }
+
+    public boolean isLazy() {
+        return isLazy;
+    }
+
 }
