@@ -41,8 +41,11 @@ import java.util.EnumSet;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.NestingKind;
+import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
+import javax.tools.JavaFileManager.Location;
 import javax.tools.JavaFileObject;
+import javax.tools.JavaFileObject.Kind;
 
 public class JavafxFileManager extends JavacFileManager {
     
@@ -82,6 +85,14 @@ public class JavafxFileManager extends JavacFileManager {
     @Override
     public JavaFileObject getRegularFile(File file) {
         return new DelegateJavaFileObject(super.getRegularFile(file));
+    }
+
+    @Override
+    public JavaFileObject getJavaFileForOutput(Location location, String className, Kind kind, FileObject sibling) throws IOException {
+        if (sibling instanceof DelegateJavaFileObject) {
+            sibling = ((DelegateJavaFileObject)sibling).delegate;
+        }
+        return super.getJavaFileForOutput(location, className, kind, sibling);
     }
     
     @Override
