@@ -43,33 +43,22 @@ class Element extends Node {
     /**
      * Holds the node's attributes
      */
-    public attribute attributes:Attribute[] 
-        on replace [ndx] (oldValue) {
-            oldValue.parent = null;
-            var newValue = attributes[ndx];
-            newValue.parent = this;
+    public attribute attributes:Attribute[]  on replace oldValue[lo..hi]=newVals {
+        for(n in oldValue[lo..hi]) { 
+            n.parent = null;
             var elem = domNode as org.w3c.dom.Element;
-            if(elem.hasAttribute(oldValue.name)) {
-                elem.removeAttributeNode(oldValue.domNode as org.w3c.dom.Attr); 
-            }
-            if(not elem.hasAttribute(newValue.name)) {
-                elem.setAttributeNode(newValue.domNode as org.w3c.dom.Attr);
+            if(elem.hasAttribute(n.name)) {
+                elem.removeAttributeNode(n.domNode as org.w3c.dom.Attr); 
             }
         }
-        on insert [ndx] (newValue) {
-            newValue.parent = this;
+        for(n in newVals) {
+            n.parent = this;
             var elem = domNode as org.w3c.dom.Element;
-            if(not elem.hasAttribute(newValue.name)) {
-                elem.setAttributeNode(newValue.domNode as org.w3c.dom.Attr);
+            if(not elem.hasAttribute(n.name)) {
+                elem.setAttributeNode(n.domNode as org.w3c.dom.Attr);
             }
         }
-        on delete [ndx] (oldValue) {
-            oldValue.parent = null;
-            var elem = domNode as org.w3c.dom.Element;
-            if(elem.hasAttribute(oldValue.name)) {
-                elem.removeAttributeNode(oldValue.domNode as org.w3c.dom.Attr); 
-            }
-        };
+    };
     
     /**
      * Retrieves an attribute value by name.

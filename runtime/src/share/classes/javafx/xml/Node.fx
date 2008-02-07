@@ -137,53 +137,31 @@ public class Node {
      * When a new child node is added, the parent node
      * for the child node is set to this node.
      */
-    public attribute children:Node[] 
-        on insert [ndx] (newValue:Node) {
-            if(newValue.parent <> null and newValue.parent <> this) {
-                delete newValue from newValue.parent.children;
+    public attribute children:Node[]   on replace oldValue[lo..hi]=newVals {
+        for(n in oldValue[lo..hi]) { 
+            if(n.parent <> null) {
+                delete n from n.parent.children;
+                n.parent = null;
             }
-            if(newValue.parent <> this) {
-                newValue.parent = this;
-            }
-            if(not isChild(newValue)) {
-                if(newValue.domNode == null) {
-                    newValue.domNode = newValue.createNode();
-                }
-                domNode.appendChild(newValue.domNode);
+            if(isChild(n)) {
+                domNode.removeChild(n.domNode);
             }
         }
-        on delete [ndx] (oldValue:Node) {
-            if(oldValue.parent <> null) {
-                delete oldValue from oldValue.parent.children;
-                oldValue.parent = null;
+        for(n in newVals) {
+            if(n.parent <> null and n.parent <> this) {
+                delete n from n.parent.children;
             }
-            if(isChild(oldValue)) {
-                domNode.removeChild(oldValue.domNode);
+            if(n.parent <> this) {
+                n.parent = this;
             }
-            
-        }  
-        on replace [ndx] (oldValue:Node) {
-            if(oldValue.parent <> null) {
-                delete oldValue from oldValue.parent.children;
-                oldValue.parent = null;
+            if(not isChild(n)) {
+                if(n.domNode == null) {
+                    n.domNode = n.createNode();
+                }
+                domNode.appendChild(n.domNode);
             }
-            var newValue = children[ndx];
-            if(newValue.parent <> null and newValue.parent <> this) {
-                delete newValue from newValue.parent.children;
-            }
-            if(newValue.parent <> this) {
-                newValue.parent = this;
-            }
-            if(isChild(oldValue)) {
-                domNode.replaceChild(newValue.domNode, oldValue.domNode);
-            }
-            if (not isChild(newValue)) {
-                if(newValue.domNode == null) {
-                    newValue.domNode = newValue.createNode();
-                }                
-                domNode.appendChild(newValue.domNode);
-            }
-        };        
+        }
+    };
     
     /**
      *  holds the node's value
