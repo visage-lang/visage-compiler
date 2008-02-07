@@ -37,48 +37,29 @@ public class Group extends Node, Container {
    /** The child members of this group */
     protected attribute sggroup: SGGroup;
 
-    public attribute content: Node[] on insert [indx] (newValue) {
-        newValue.parentCanvasElement = this as CanvasElement;
-        if (sggroup <> null) {
-            if (newValue <> null) { // hack: bug workaround
-                sggroup.add(indx, newValue.getNode());
-            }
-        }
-    } on replace [indx] (oldValue) {
-        var newValue = content[indx];
-        if (newValue <> null) {
-            newValue.parentCanvasElement = this as CanvasElement;
+    public attribute content: Node[]  on replace oldValue[lo..hi]=newVals {
+        for(n in oldValue[lo..hi]) { 
             if (sggroup <> null) {
-                if (oldValue <> null) {
-                   try {
-                       sggroup.remove(indx);
-                   } catch (e) {
-                       //println("remove: {e} old={old}");
-                   }
-                }
-                if (newValue <> null) { // hack: bug workaround
-                    sggroup.add(indx, newValue.getNode());
+                try {
+                   sggroup.remove(lo);
+                } catch (e) {
+                     //println("e={e}");
                 }
             }
-            
-            if (oldValue.parentCanvasElement == (this as CanvasElement)) {
-                oldValue.parentCanvasElement = null;
+            if (n.parentCanvasElement == (this as CanvasElement)) {
+                n.parentCanvasElement = null;
             }
         }
-    }
-    on delete [indx] (oldValue) {
-        if (sggroup <> null and oldValue <> null) {
-            try {
-               sggroup.remove(indx);
-            } catch (e) {
-                 //println("e={e}");
+        var ndx = lo;
+        for(c in newVals) {
+            c.parentCanvasElement = this as CanvasElement;
+            if (sggroup <> null) {
+                sggroup.add(ndx, c.getNode());
             }
-        }
-        
-        if (oldValue.parentCanvasElement == (this as CanvasElement)) {
-            oldValue.parentCanvasElement = null;
+            ndx++
         }
     };
+    
 
     public function createNode(): SGNode {
         sggroup  = new SGGroup();
@@ -92,69 +73,41 @@ public class Group extends Node, Container {
     }
 
     public function raiseNode(n:Node):Void {
-        /*TODO: need select, index, delete
-        var i = select indexof x from x in content where x == n;
-        **/
-        var i = 0;
-        for ( ndx in [0..sizeof content -1] ) {
-            if(content[ndx] == n) {
-                break;
+        var seq = for(x in content where x == n) indexof x;
+        if(sizeof seq > 0) {
+            var i = seq[0];
+            if(i < sizeof content - 1) {
+                var tmp = content[i+1];
+                content[i+1] = content[i];
+                content[i] = tmp;  
             }
-            i = i + 1;
         }
-        if (i == sizeof content -1) {
-            return;
-        }
-
     }
     public function lowerNode(n:Node):Void {
-        /*TODO: need select, index, delete
-        var i = select first indexof x from x in content where x == n;
-         * */
-        var i = 0;
-        for ( ndx in [0..sizeof content -1] ) {
-            if(content[ndx] == n) {
-                break;
+        var seq = for(x in content where x == n) indexof x;
+        if(sizeof seq > 0) {
+            var i = seq[0];
+            if( i > 0) {
+                var tmp = content[i-1];
+                content[i-1] = content[i];
+                content[i] = tmp;  
             }
-            i = i + 1;
         }
-        if (i == 0) {
-            return;
-        }
-        var tmp = content[i-1];
-        content[i-1] = content[i];
-        content[i] = tmp;
     }
     
     public function moveNodeToFront(n:Node):Void {
-        /*TODO: need select, index, delete*/
-        if (content[sizeof content-1] == n) {
-            return;
-        }
-        var i = 0;
-        for ( ndx in [0..sizeof content -1] ) {
-            if(content[ndx] == n) {
-                break;
-            }
-            i = i + 1;
-        }
-        delete content[i];
+        var seq = for(x in content where x == n) indexof x;
+        if(sizeof seq > 0) {
+            delete content[seq[0]];
+        }        
         insert n into content;
     }
 
     public function moveNodeToBack(n:Node):Void {
-        /*TODO: need select, index, delete*/
-        if (content[0] == n) {
-            return;
-        }
-        var i = 0;
-        for ( ndx in [0..sizeof content -1] ) {
-            if(content[ndx] == n) {
-                break;
-            }
-            i = i + 1;
-        }
-        delete content[i];
-        content = [ n, content];        
+        var seq = for(x in content where x == n) indexof x;
+        if(sizeof seq > 0) {
+            delete content[seq[0]];
+        }        
+        insert n before content[0];       
     }
 }

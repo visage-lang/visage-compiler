@@ -474,17 +474,9 @@ public abstract class Node extends CanvasElement, Transformable {
      * filters (in order) to the new content. The generated image will then 
      * be used to paint the node.
      */
-    public attribute filter: Filter[]
-        on insert [ndx] (f) {
-            updateImageOps();
-        }
-        on delete [ndx] (f)  {
-            updateImageOps();
-        }
-
-        on replace [ndx] (f)  {
-            updateImageOps();
-        };
+    public attribute filter: Filter[] on replace {
+        updateImageOps();
+    };
     /** A number between 0 and 1, 0 being transparent and 1 opaque. */
     public attribute opacity: Number = 1 on replace {
         if (opacitySet == false and opacity <> 1) // ignore initial opaque setting

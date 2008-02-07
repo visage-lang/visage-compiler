@@ -109,16 +109,9 @@ public abstract class AbstractVisualNode {
      * even number of values. Thus, strokeDashArray: [5,3,2] is equivalent to
      * strokeDashArray: [5,3,2,5,3,2]. Defaults to [].
      */
-    public attribute strokeDashArray: Number[] 
-        on replace [ndx] (oldValue) {
-            updateStroke();
-        }
-        on insert [ndx] (newValue) {
-            updateStroke();
-        }
-        on delete [ndx] (oldValue) {
-            updateStroke();
-        };
+    public attribute strokeDashArray: Number[] on replace {
+        updateStroke();
+    };
    
     /** 
      * <code>strokeDashOffset</code> specifies the distance into the dash 

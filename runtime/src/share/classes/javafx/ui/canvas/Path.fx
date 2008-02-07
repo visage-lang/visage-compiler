@@ -59,18 +59,12 @@ public class Path extends Shape {
      * Path Data<br></br>
      * A list of commands and/or shapes which define this path.
      */
-    public attribute d: AbstractPathElement[]
-        on insert [ndx] (p) {
+    public attribute d: AbstractPathElement[] on replace oldValue[lo..hi]=newVals {
+        for(p in newVals) {
             p.path = this;
-            this.buildPath();
         }
-        on delete [ndx] (oldValue) {
-            this.buildPath();
-        }
-        on replace [ndx] (oldValue) {
-            d[ndx].path = this;
-            this.buildPath();
-        };
+        this.buildPath();
+    };
 
     public function toPath(): Path {
         return this;

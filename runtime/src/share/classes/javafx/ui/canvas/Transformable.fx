@@ -31,25 +31,19 @@ import java.awt.geom.AffineTransform;
  */
 public abstract class Transformable {
     /** A list of transformation functions that will be performed on this object. */
-    public attribute transform: Transform[]
-        on insert  [indx] (newValue) {
-            newValue.transformable = this;
-            updateTransform();   
-        }
-        on delete  [indx] (oldValue)  {
-            if (oldValue.transformable == this) {
-                oldValue.transformable = null;
+    public attribute transform: Transform[] on replace oldValue[lo..hi]=newVals {
+        for(n in oldValue[lo..hi]) { 
+            if (n.transformable == this) {
+                n.transformable = null;
             }
-            updateTransform();  
         }
-        on replace [indx] (oldValue) {
-            if (oldValue.transformable == this) {
-                oldValue.transformable = null;
-            }
-            transform[indx].transformable = this;
-            updateTransform();   
-        };
-    
+        var ndx = lo;
+        for(n in newVals) {
+            n.transformable = this;
+            ndx++
+        }
+        updateTransform();  
+    };
     protected attribute affineTransform: AffineTransform = new AffineTransform();
     
     protected function updateTransform() {

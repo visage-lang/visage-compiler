@@ -94,16 +94,9 @@ public abstract class Transform {
 public class CompositeTransform extends Transform {
     public attribute transforms :Transform[];
     private attribute txs :AffineTransform[] 
-        = bind for ( t in transforms) t.transform
-    on insert  [indx] (newValue) {
-        updateTransform();
-    }
-    on delete [indx] (oldValue) {
-        updateTransform();
-    }
-    on replace [indx] (oldValue) {
-        updateTransform();
-    };
+        = bind for ( t in transforms) t.transform on replace {
+            updateTransform();
+        };
     private function updateTransform() {
         var result = new AffineTransform();
         for (t in txs) {

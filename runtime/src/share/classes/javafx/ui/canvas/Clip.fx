@@ -54,29 +54,21 @@ public class Clip extends Node, Container {
         }
     };
     /** The content of this node */
-    public attribute content: Node[]
-        on insert [ndx] (c) {
+    public attribute content: Node[] on replace oldValue[lo..hi]=newVals {
+        if (childGroup <> null) {
+            for(k in [lo..hi]) { 
+                childGroup.remove(lo);
+            }
+        }
+        var ndx = lo;
+        for(c in newVals) {
             c.parentCanvasElement = this;
             if (childGroup <> null) {
                 childGroup.add(ndx, c.getNode());
             }
+            ndx++
         }
-        on replace [ndx] (old) {
-            var newValue = content[ndx];
-            newValue.parentCanvasElement = this;
-            if (childGroup <> null) {
-                if (old <> null) {
-                    childGroup.remove(ndx);
-                }
-                childGroup.add(ndx, newValue.getNode());
-            }
-
-        }
-        on delete [ndx] (oldValue) {
-            if (childGroup <> null) {
-                childGroup.remove(ndx);
-            }
-        };
+    };
     /** If true then clipping will be antialiased. Defaults to false */
     public attribute antialias: Boolean = false on replace {
         if (clipFilter <> null) {

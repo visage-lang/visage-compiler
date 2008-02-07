@@ -37,16 +37,9 @@ public class Polygon extends Shape {
     private attribute awtPath: java.awt.geom.GeneralPath;
 
     /** The list of points that define this polygon */
-    public attribute points: Number[]
-        on insert [ndx] (pt) {
-            updatePolygon();
-        }
-        on replace [ndx] (oldValue) {
-            updatePolygon();
-        }
-        on delete [ndx] (pt) {
-            updatePolygon();
-        };
+    public attribute points: Number[] on replace {
+        updatePolygon();
+    };
 
     private function updatePolygon() {
         //fix me: OPT

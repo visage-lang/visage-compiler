@@ -27,16 +27,9 @@ package javafx.ui.canvas;
 import com.sun.scenario.scenegraph.SGShape;
 
 public class Union extends Shape {
-    public attribute content: Shape[]
-        on insert  [ndx] (newValue) {
-            this.getArea();
-        }
-        on delete  [ndx] (oldValue) {
-            this.getArea();
-        }
-        on replace [ndx] (oldValue) {
-            this.getArea();
-        };
+    public attribute content: Shape[] on replace {
+        this.getArea();
+    };
 
     protected function getArea() {
         if (sgshape <> null) {

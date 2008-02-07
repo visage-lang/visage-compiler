@@ -39,16 +39,9 @@ public class Polyline extends Shape {
      * The list of points that make up this polyline. These are alternating
      * x and y coordinates.
      */
-    public attribute points: Number[]
-        on insert [ndx] (pt) {
-            updatePolyline();
-        }
-        on replace [ndx] (oldValue) {
-            updatePolyline();
-        }
-        on delete [ndx] (pt) {
-            updatePolyline();
-        };
+    public attribute points: Number[] on replace {
+        updatePolyline();
+    };
 
     private function updatePolyline() {
         //fix me: OPT
