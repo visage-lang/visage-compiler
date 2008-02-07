@@ -104,7 +104,7 @@ class TabSlider extends Widget {
                 oldTab.scrollable.setScrollableTracksViewportWidth(false);
                 oldTab.scrollable.setPreferredScrollableViewportSize(oldTab.viewport.getSize());
                 //TODO DUR
-                for (i in [oldTab.size..0]){ // (dur slideDuration) {
+                for (i in [oldTab.size..0 step -1]){ // (dur slideDuration) {
                     oldTab.size = i;
                     panel.validate();
                     panel.doLayout();
@@ -171,7 +171,7 @@ class TabSlider extends Widget {
                 oldTab.scrollable.setPreferredScrollableViewportSize(oldTab.viewport.getSize());
                 resizing = true;
                 //TODO DUR
-                for (i in [oldTab.size..0]){ // (dur slideDuration) {
+                for (i in [oldTab.size..0 step -1]){ // (dur slideDuration) {
                     oldTab.size = i;
                     panel.validate();
                     panel.doLayout();
