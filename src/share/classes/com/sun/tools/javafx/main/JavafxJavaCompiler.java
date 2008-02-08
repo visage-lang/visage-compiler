@@ -78,6 +78,7 @@ public class JavafxJavaCompiler extends JavaCompiler {
      * Override of JavaCompiler.generate() to catch list of generated class files.
      * Do not call directly.
      */
+    @Override
     public void generate(List<Pair<Env<AttrContext>, JCClassDecl>> list) {
         generate(list, results);
     }

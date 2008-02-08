@@ -31,13 +31,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.MissingResourceException;
 import com.sun.tools.javac.code.Source;
-import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javafx.main.JavafxOption.Option;
 import com.sun.tools.javac.util.*;
-import com.sun.tools.javafx.code.BlockExprSymtab;
 import com.sun.tools.javafx.main.RecognizedOptions.OptionHelper;
 import com.sun.tools.javafx.util.JavafxFileManager;
+import javax.tools.Diagnostic;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.DiagnosticListener;
@@ -304,11 +303,7 @@ public class Main {
     
     public void registerServices(Context context, String[] args) {
         Context backEndContext = new Context();
-	DiagnosticListener diagnosticListener = 
-	    (DiagnosticListener)context.get(DiagnosticListener.class);
-        if (diagnosticListener != null) {
-            backEndContext.put(DiagnosticListener.class, diagnosticListener);
-	}
+        backEndContext.put(DiagnosticListener.class, new DiagnosticForwarder(context));
         // add -target flag to backEndContext, if specified
         options = Options.instance(backEndContext);
         try {
@@ -383,13 +378,13 @@ public class Main {
                 return EXIT_CMDERR;
             }
 
-            List<File> filenames;
+            List<File> fnames;
             try {
-                filenames = processArgs(CommandLine.parse(args));
-                if (filenames == null) {
+                fnames = processArgs(CommandLine.parse(args));
+                if (fnames == null) {
                     // null signals an error in options, abort
                     return EXIT_CMDERR;
-                } else if (filenames.isEmpty() && fileObjects.isEmpty() && classnames.isEmpty()) {
+                } else if (fnames.isEmpty() && fileObjects.isEmpty() && classnames.isEmpty()) {
                     // it is allowed to compile nothing if just asking for help or version info
                     if (options.get("-help") != null
                         || options.get("-X") != null
@@ -419,12 +414,12 @@ public class Main {
             comp = JavafxCompiler.instance(context);
             if (comp == null) return EXIT_SYSERR;
 
-            if (!filenames.isEmpty()) {
+            if (!fnames.isEmpty()) {
                 // add filenames to fileObjects
                 comp = JavafxCompiler.instance(context);
                 List<JavaFileObject> otherFiles = List.nil();
                 JavacFileManager dfm = (JavacFileManager)fileManager;
-                for (JavaFileObject fo : dfm.getJavaFileObjectsFromFiles(filenames))
+                for (JavaFileObject fo : dfm.getJavaFileObjectsFromFiles(fnames))
                     otherFiles = otherFiles.prepend(fo);
                 for (JavaFileObject fo : otherFiles)
                     fileObjects = fileObjects.prepend(fo);
@@ -535,10 +530,11 @@ public class Main {
     public static void useRawMessages(boolean enable) {
         if (enable) {
             messages = new Messages(javacBundleName) {
-                    public String getLocalizedString(String key, Object... args) {
-                        return key;
-                    }
-                };
+                @Override
+                public String getLocalizedString(String key, Object... args) {
+                    return key;
+                }
+            };
         } else {
             messages = new Messages(javacBundleName);
         }
@@ -551,4 +547,17 @@ public class Main {
         "com.sun.tools.javafx.resources.javafxcompiler";
 
     private static Messages messages;
+
+    private static class DiagnosticForwarder implements DiagnosticListener {
+        Context otherContext;
+
+        public DiagnosticForwarder(Context context) {
+            otherContext = context;
+        }
+
+        public void report(Diagnostic diag) {
+            Log log = Log.instance(otherContext);
+            log.report((JCDiagnostic)diag);
+        }
+    }
 }
