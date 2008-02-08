@@ -272,8 +272,8 @@ public class JavafxTypeMorpher {
         declLocation = new LocationNameSymType[TYPE_KIND_COUNT];
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
-            varLocation[kind]  = new LocationNameSymType(locClass[kind] + "Var");
-            exprLocation[kind] = new LocationNameSymType(locClass[kind] + "Expression");
+            varLocation[kind]  = new LocationNameSymType("Legacy" + locClass[kind] + "Var");
+            exprLocation[kind] = new LocationNameSymType("Legacy" + locClass[kind] + "Expression");
             declLocation[kind] = new LocationNameSymType(locClass[kind] + "Location");
         }
 

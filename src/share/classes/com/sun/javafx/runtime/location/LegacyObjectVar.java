@@ -23,27 +23,43 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime;
+package com.sun.javafx.runtime.location;
 
 /**
- * CircularBindingException
+ * ObjectVar represents an object-valued variable as a Location.  New ObjectVars are constructed with the make() factory
+ * method.  ObjectVar values are always valid; it is an error to invalidate an ObjectVar.
  *
  * @author Brian Goetz
  */
-public class CircularBindingException extends FXRuntimeException {
+public class LegacyObjectVar<T> extends AbstractObjectLocation<T> implements ObjectLocation<T>, MutableLocation {
 
-    public CircularBindingException() {
+
+    public static<T> ObjectLocation<T> make(T value) {
+        return new LegacyObjectVar<T>(value);
     }
 
-    public CircularBindingException(String message) {
-        super(message);
+    public static <T> ObjectLocation<T> makeUnmodifiable(T value) {
+        return Locations.unmodifiableLocation(new LegacyObjectVar<T>(value));
     }
 
-    public CircularBindingException(String message, Throwable cause) {
-        super(message, cause);
+
+    private LegacyObjectVar(T value) {
+        super(true, value);
     }
 
-    public CircularBindingException(Throwable cause) {
-        super(cause);
+
+    public T set(T value) {
+        if (changed(this.$value, value))
+            replaceValue(value);
+        return value;
+    }
+
+    public void setDefault() {
+        set(null);
+    }
+
+    @Override
+    public void invalidate() {
+        throw new UnsupportedOperationException();
     }
 }

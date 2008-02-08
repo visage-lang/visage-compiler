@@ -1,9 +1,6 @@
 import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.InitHelper;
-import com.sun.javafx.runtime.location.ChangeListener;
-import com.sun.javafx.runtime.location.IntLocation;
-import com.sun.javafx.runtime.location.IntVar;
-import com.sun.javafx.runtime.location.Location;
+import com.sun.javafx.runtime.location.*;
 
 /**
  * SimpleAttribute
@@ -30,7 +27,7 @@ public class SimpleAttribute$Impl implements SimpleAttribute$Intf {
     }
 
     protected static void setDefaults$(final SimpleAttribute$Intf receiver) {
-        if (receiver.get$a() == null) receiver.init$a(IntVar.make(3));
+        if (receiver.get$a() == null) receiver.init$a(LegacyIntVar.make(3));
         // @@@ FIXME: need to set up bindings and then set up dependencies
 
         receiver.get$a().addChangeListener(new ChangeListener() {
@@ -58,7 +55,7 @@ public class SimpleAttribute$Impl implements SimpleAttribute$Intf {
         System.out.println(instance.get$a().getAsInt());
 
         instance = new SimpleAttribute$Impl();
-        instance.init$a(IntVar.make(4));
+        instance.init$a(LegacyIntVar.make(4));
         instance.initialize$();
         System.out.println(instance.get$a().getAsInt());
     }

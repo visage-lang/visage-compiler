@@ -18,21 +18,15 @@ public class Locations {
     }
 
     public static ObjectLocation<Integer> asObjectLocation(IntLocation loc) {
-        return loc instanceof MutableLocation
-                ? new IntObjectMutableLocation(loc)
-                : new IntObjectLocation(loc);
+        return new IntObjectLocation(loc);
     }
 
     public static ObjectLocation<Double> asObjectLocation(DoubleLocation loc) {
-        return loc instanceof MutableLocation
-                ? new DoubleObjectMutableLocation(loc)
-                : new DoubleObjectLocation(loc);
+        return new DoubleObjectLocation(loc);
     }
 
     public static ObjectLocation<Boolean> asObjectLocation(BooleanLocation loc) {
-        return loc instanceof MutableLocation
-                ? new BooleanObjectMutableLocation(loc)
-                : new BooleanObjectLocation(loc);
+        return new BooleanObjectLocation(loc);
     }
 
     public static DoubleLocation asDoubleLocation(IntLocation loc) {
@@ -78,6 +72,10 @@ public class Locations {
 
         public boolean isLazy() {
             return getLocation().isLazy();
+        }
+
+        public boolean isMutable() {
+            return getLocation().isMutable();
         }
 
         public void invalidate() {
@@ -208,15 +206,6 @@ public class Locations {
     }
 
     /**
-     * Wrapper class that creates an ObjectLocation<Integer> view of a mutable IntLocation
-     */
-    private static class IntObjectMutableLocation extends IntObjectLocation implements MutableLocation {
-        public IntObjectMutableLocation(IntLocation location) {
-            super(location);
-        }
-    }
-
-    /**
      * Wrapper class that wraps an IntLocation so it cannot be modified
      */
     private static class UnmodifiableIntLocation extends LocationWrapper implements IntLocation {
@@ -228,6 +217,10 @@ public class Locations {
 
         public UnmodifiableIntLocation(IntLocation location) {
             this.location = location;
+        }
+
+        public boolean isMutable() {
+            return false;
         }
 
         public int getAsInt() {
@@ -300,15 +293,6 @@ public class Locations {
     }
 
     /**
-     * Wrapper class that creates an ObjectLocation<Double> view of a mutable DoubleLocation
-     */
-    private static class DoubleObjectMutableLocation extends DoubleObjectLocation implements MutableLocation {
-        public DoubleObjectMutableLocation(DoubleLocation location) {
-            super(location);
-        }
-    }
-
-    /**
      * Wrapper class that wraps a DoubleLocation so it cannot be modified
      */
     private static class UnmodifiableDoubleLocation extends LocationWrapper implements DoubleLocation {
@@ -320,6 +304,10 @@ public class Locations {
 
         public UnmodifiableDoubleLocation(DoubleLocation location) {
             this.location = location;
+        }
+
+        public boolean isMutable() {
+            return false;
         }
 
         public double getAsDouble() {
@@ -392,15 +380,6 @@ public class Locations {
     }
 
     /**
-     * Wrapper class that creates an ObjectLocation<Boolean> view of a mutable BooleanLocation
-     */
-    private static class BooleanObjectMutableLocation extends BooleanObjectLocation implements MutableLocation {
-        public BooleanObjectMutableLocation(BooleanLocation location) {
-            super(location);
-        }
-    }
-
-    /**
      * Wrapper class that wraps a BooleanLocation so it cannot be modified
      */
     private static class UnmodifiableBooleanLocation extends LocationWrapper implements BooleanLocation {
@@ -412,6 +391,10 @@ public class Locations {
 
         public UnmodifiableBooleanLocation(BooleanLocation location) {
             this.location = location;
+        }
+
+        public boolean isMutable() {
+            return false;
         }
 
         public boolean getAsBoolean() {
@@ -459,6 +442,10 @@ public class Locations {
 
         public ObjectLocation<T> getLocation() {
             return location;
+        }
+
+        public boolean isMutable() {
+            return false;
         }
 
         public T get() {
@@ -531,6 +518,10 @@ public class Locations {
 
         public void invalidate() {
             throw new UnsupportedOperationException();
+        }
+
+        public boolean isMutable() {
+            return false;
         }
 
         public T get(int position) {

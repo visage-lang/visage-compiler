@@ -1,7 +1,7 @@
 import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.InitHelper;
 import com.sun.javafx.runtime.location.IntLocation;
-import com.sun.javafx.runtime.location.IntVar;
+import com.sun.javafx.runtime.location.LegacyIntVar;
 
 
 interface Base$Intf extends FXObject {
@@ -41,7 +41,7 @@ class Base$Impl implements Base$Intf {
     }
 
     protected static void setDefaults$(final Base$Intf receiver) {
-        if (receiver.get$a() == null) receiver.init$a(IntVar.make(3));
+        if (receiver.get$a() == null) receiver.init$a(LegacyIntVar.make(3));
     }
 
     public static void userInit$(final Base$Intf receiver) { }
@@ -72,7 +72,7 @@ class OtherBase$Impl implements OtherBase$Intf {
     }
 
     protected static void setDefaults$(final OtherBase$Intf receiver) {
-        if (receiver.get$b() == null) receiver.init$b(IntVar.make(4));
+        if (receiver.get$b() == null) receiver.init$b(LegacyIntVar.make(4));
     }
 
     public static void userInit$(final OtherBase$Intf receiver) { }
@@ -119,7 +119,7 @@ public class Subclass$Impl implements Subclass$Intf {
     protected static void setDefaults$(final Subclass$Intf receiver) {
         Base$Impl.setDefaults$(receiver);
         OtherBase$Impl.setDefaults$(receiver);
-        if (receiver.get$c() == null) receiver.init$c(IntVar.make(5));
+        if (receiver.get$c() == null) receiver.init$c(LegacyIntVar.make(5));
     }
 
     public static void userInit$(final Subclass$Intf receiver) {
@@ -137,8 +137,8 @@ public class Subclass$Impl implements Subclass$Intf {
 
     public static void main(String[] args) {
         Subclass$Impl instance = new Subclass$Impl();
-        instance.init$a(IntVar.make(1));
-        instance.init$b(IntVar.make(2));
+        instance.init$a(LegacyIntVar.make(1));
+        instance.init$b(LegacyIntVar.make(2));
         instance.initialize$();
     }
 }

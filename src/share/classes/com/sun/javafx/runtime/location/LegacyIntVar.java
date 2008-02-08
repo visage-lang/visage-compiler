@@ -23,27 +23,55 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime;
+package com.sun.javafx.runtime.location;
+
+import com.sun.javafx.runtime.ErrorHandler;
 
 /**
- * CircularBindingException
+ * IntVar represents a simple Integer variable as a Location.  New IntVars are constructed with the make() factory
+ * method.  IntVar values are always valid; it is an error to invalidate an IntVar.
  *
  * @author Brian Goetz
  */
-public class CircularBindingException extends FXRuntimeException {
+public class LegacyIntVar extends AbstractIntLocation implements IntLocation, MutableLocation {
 
-    public CircularBindingException() {
+    public static IntLocation make() {
+        return make(DEFAULT);
     }
 
-    public CircularBindingException(String message) {
-        super(message);
+    public static IntLocation make(int value) {
+        return new LegacyIntVar(value);
     }
 
-    public CircularBindingException(String message, Throwable cause) {
-        super(message, cause);
+
+    private LegacyIntVar(int value) {
+        super(true);
+        setAsInt(value);
     }
 
-    public CircularBindingException(Throwable cause) {
-        super(cause);
+
+    public int setAsInt(int value) {
+        if (this.$value != value)
+            replaceValue(value);
+        return value;
+    }
+
+    public void setDefault() {
+        setAsInt(DEFAULT);
+    }
+
+    public Integer set(Integer value) {
+        if (value == null) {
+            ErrorHandler.nullToPrimitiveCoercion("Integer");
+            setDefault();
+        }
+        else
+            setAsInt(value);
+        return value;
+    }
+
+    @Override
+    public void invalidate() {
+        throw new UnsupportedOperationException();
     }
 }
