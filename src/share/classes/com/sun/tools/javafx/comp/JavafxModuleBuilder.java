@@ -168,7 +168,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
                     usesDir[0] = true;
             }
         }.scan(module.defs);
-        //addPseudoVariables(moduleClassName, module, stats, usesFile[0], usesDir[0]);
+        addPseudoVariables(moduleClassName, module, stats, usesFile[0], usesDir[0]);
                 
         // Add run() method... If the class can be a module class.
         moduleClassDefs.prepend(makeMethod(defs.runMethodName, stats.toList(), value, syms.objectType));        
