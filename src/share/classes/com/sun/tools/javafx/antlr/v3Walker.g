@@ -186,7 +186,7 @@ variableDeclaration    returns [JCStatement value]
 	: ^(VAR variableLabel varModifierFlags name type boundExpressionOpt onChanges DOC_COMMENT?)
 	    						{ $value = F.at(pos($VAR)).Var($name.value, 
 	    							$type.type, 
-	    							F.at($variableLabel.pos).Modifiers($varModifierFlags.flags),
+	    							F.at($variableLabel.pos).Modifiers($varModifierFlags.flags | $variableLabel.modifiers),
 	    							$variableLabel.local,
 	    							$boundExpressionOpt.expr, 
 	    							$boundExpressionOpt.status, 
@@ -214,10 +214,10 @@ paramNameOpt returns [JFXVar var]
 	: name						{ $var = F.at($name.pos).Param($name.value, F.TypeUnknown()); }
 	| MISSING_NAME					{ $var = null; }
 	;
-variableLabel    returns [boolean local, int pos]
-	: VAR						{ $local = true; $pos = pos($VAR); }
-	| LET						{ $local = true; $pos = pos($LET); }
-	| ATTRIBUTE					{ $local = false; $pos = pos($ATTRIBUTE); }
+variableLabel    returns [boolean local, long modifiers, int pos]
+	: VAR						{ $local = true; $modifiers = 0L; $pos = pos($VAR); }
+	| LET						{ $local = true; $modifiers = Flags.FINAL; $pos = pos($LET); }
+	| ATTRIBUTE					{ $local = false; $modifiers = 0L; $pos = pos($ATTRIBUTE); }
 	;
 statement returns [JCStatement value]
 	: variableDeclaration				{ $value = $variableDeclaration.value; }

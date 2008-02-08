@@ -60,4 +60,4 @@ jframe.setLocation(new Point(screenX, screenY));
     } 
 } 
 
-var f = Frame {height: 500, width: 400, visible: true}; 
+let f = Frame {height: 500, width: 400, visible: true}; 
