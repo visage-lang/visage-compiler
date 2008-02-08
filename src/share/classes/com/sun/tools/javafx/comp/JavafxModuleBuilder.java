@@ -66,6 +66,8 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     private JavafxSymtab syms;
     Name tmpRunReturnName;
     private Set<Name> topLevelNamesSet;
+    private Name pseudoFile;
+    private Name pseudoDir;
 
     public static JavafxModuleBuilder instance(Context context) {
         JavafxModuleBuilder instance = context.get(javafxModuleBuilderKey);
@@ -82,6 +84,8 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         toJava = JavafxToJava.instance(context);
         tmpRunReturnName = names.fromString("run$return$");
+        pseudoFile = names.fromString("__FILE__");
+        pseudoDir = names.fromString("__DIR__");
     }
 
    @Override
@@ -150,12 +154,24 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
                 break;
             }
         }
+        
+        // check for references to pseudo variables and if found, declare them
+        final boolean[] usesFile = new boolean[1];
+        final boolean[] usesDir = new boolean[1];
+        new JavafxTreeScanner() {
+            @Override
+            public void visitIdent(JCIdent id) {
+                super.visitIdent(id);
+                if (id.name.equals(pseudoFile))
+                    usesFile[0] = true;
+                if (id.name.equals(pseudoDir))
+                    usesDir[0] = true;
+            }
+        }.scan(module.defs);
+        //addPseudoVariables(moduleClassName, module, stats, usesFile[0], usesDir[0]);
                 
         // Add run() method... If the class can be a module class.
-        moduleClassDefs.prepend(makeMethod(defs.runMethodName, stats.toList(), value, syms.objectType));
-        
-        // FIXME: commented out until JFXC-592 addresses initialization of module variables
-        //addPseudoVariables(moduleClassName, module, moduleClassDefs);
+        moduleClassDefs.prepend(makeMethod(defs.runMethodName, stats.toList(), value, syms.objectType));        
 
         if (moduleClass == null) {
             moduleClass =  make.ClassDeclaration(
@@ -175,32 +191,40 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     }
     
     private void addPseudoVariables(Name moduleClassName, JCCompilationUnit module,
-            ListBuffer<JCTree> moduleClassDefs) {
-        // java.net.URL __FILE__;
-        JCExpression moduleClassFQN = module.pid != null ?
-            make.Select(module.pid, moduleClassName) : make.Ident(moduleClassName);
-        JCExpression urlFQN = make.Identifier("java.net.URL");
-        JFXType urlType = make.TypeClass(urlFQN, TypeTree.Cardinality.SINGLETON);
-        Name __FILE__ = names.fromString("__FILE__");
-        JCExpression getFile = make.Identifier("com.sun.javafx.runtime.Util.get__FILE__");
-        List<JCExpression> args = List.<JCExpression>of(make.Literal(moduleClassFQN));
-        JCExpression getFileURL = make.Apply(List.<JCExpression>nil(), getFile, args);
-        moduleClassDefs.append(
-            make.Var(__FILE__, urlType, 
-                     make.Modifiers(Flags.PUBLIC | Flags.STATIC), 
-                     false, getFileURL, JavafxBindStatus.UNBOUND, 
-                     List.<JFXAbstractOnChange>nil()));
+            ListBuffer<JCStatement> stats, boolean usesFile, boolean usesDir) {
+        if (usesFile) {
+            // java.net.URL __FILE__ = Util.get__FILE__(moduleClass);
+            JCExpression moduleClassFQN = module.pid != null ?
+                make.Select(module.pid, moduleClassName) : make.Ident(moduleClassName);
+            JCExpression getFile = make.Identifier("com.sun.javafx.runtime.Util.get__FILE__");
+            JCExpression forName = make.Identifier("java.lang.Class.forName");
+            List<JCExpression> args = List.<JCExpression>of(make.Literal(moduleClassFQN.toString()));
+            JCExpression loaderCall = make.Apply(List.<JCExpression>nil(), forName, args);
+            args = List.<JCExpression>of(loaderCall);
+            JCExpression getFileURL = make.Apply(List.<JCExpression>nil(), getFile, args);
+            stats.prepend(
+                make.Var(pseudoFile, getURLType(), 
+                         make.Modifiers(Flags.FINAL), 
+                         false, getFileURL, JavafxBindStatus.UNBOUND, 
+                         List.<JFXAbstractOnChange>nil()));
+        }
         
         // java.net.URL __DIR__;
-        Name __DIR__ = names.fromString("__DIR__");
-        JCExpression getDir = make.Identifier("com.sun.javafx.runtime.Util.get__DIR__");
-        args = List.<JCExpression>of(make.Ident(__FILE__));
-        JCExpression getDirURL = make.Apply(List.<JCExpression>nil(), getDir, args);
-        moduleClassDefs.append(
-            make.Var(__DIR__, urlType, 
-                     make.Modifiers(Flags.PUBLIC | Flags.STATIC), 
-                     false, getDirURL, JavafxBindStatus.UNBOUND, 
-                     List.<JFXAbstractOnChange>nil()));
+        if (usesDir) {
+            JCExpression getDir = make.Identifier("com.sun.javafx.runtime.Util.get__DIR__");
+            List<JCExpression>args = List.<JCExpression>of(make.Ident(pseudoDir));
+            JCExpression getDirURL = make.Apply(List.<JCExpression>nil(), getDir, args);
+            stats.prepend(
+                make.Var(pseudoDir, getURLType(), 
+                         make.Modifiers(Flags.FINAL), 
+                         false, getDirURL, JavafxBindStatus.UNBOUND, 
+                         List.<JFXAbstractOnChange>nil()));
+        }
+    }
+    
+    private JFXType getURLType() {
+        JCExpression urlFQN = make.Identifier("java.net.URL");
+        return make.TypeClass(urlFQN, TypeTree.Cardinality.SINGLETON);
     }
 
     /**
@@ -245,6 +269,10 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     private void checkName(int pos, Name name) {
         if (topLevelNamesSet == null) {
             topLevelNamesSet = new HashSet<Name>();
+            
+            // make sure no one tries to declare these reserved names
+            topLevelNamesSet.add(pseudoFile);
+            topLevelNamesSet.add(pseudoDir);
         }
         
         if (topLevelNamesSet.contains(name)) {

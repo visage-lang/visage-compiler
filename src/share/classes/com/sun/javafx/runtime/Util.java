@@ -47,11 +47,10 @@ public class Util {
      * @param moduleClass the fully-qualified name of the module class
      * @return the resource URL to the module's class
      */
-    public static URL get__FILE__(String moduleClass) {
+    public static URL get__FILE__(Class<?> moduleClass) {
         try {
-            Class<?> target = Class.forName(moduleClass);
-            String resource = moduleClass.replace(".", "/") + ".class";
-            return target.getClassLoader().getResource(resource);
+            String resource = moduleClass.getName().replace(".", "/") + ".class";
+            return moduleClass.getClassLoader().getResource(resource);
         } catch (Throwable t) {
             return null;
         }
