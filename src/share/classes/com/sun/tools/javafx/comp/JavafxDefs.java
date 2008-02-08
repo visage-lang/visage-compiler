@@ -84,6 +84,7 @@ public class JavafxDefs {
     final Name invokeName;
     final Name lambdaName;
     final Name computeValueName;
+    final Name computeElementName;
     final Name initDefName;
     final Name postInitDefName;
     final Name[] locationGetMethodName;
@@ -121,6 +122,7 @@ public class JavafxDefs {
         invokeName = names.fromString(invokeNameString);
         lambdaName = names.fromString(lambdaNameString);
         computeValueName = names.fromString("computeValue");
+        computeElementName = names.fromString("computeElement$");
         initDefName = names.fromString("$init$def$name");
         postInitDefName = names.fromString("$postinit$def$name");
         locationGetMethodName = new Name[JavafxVarSymbol.accessorSuffixes.length];

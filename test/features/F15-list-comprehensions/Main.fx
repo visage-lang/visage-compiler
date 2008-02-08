@@ -21,3 +21,21 @@ System.out.println(res);
 System.out.println(s);
 System.out.println(db);
 System.out.println(wh);
+
+var xs = ["a","b","c"];
+var ys = bind for (x in xs) { System.out.println("body {indexof x}->{x}"); "<{x}>"};
+System.out.println("ys:{for (y in ys) " {y}"}");
+xs[1]="w";
+System.out.println("ys:{for (y in ys) " {y}"}");
+//insert "v" before xs[1];
+//System.out.println("ys:{for (y in ys) " {y}"}");
+
+
+import java.lang.System;
+var xis = [3,4,5,6];
+var yis = bind for (x in xis) { System.out.println("body ->{x}"); "<{x}>"};
+System.out.println("yis:{for (y in yis) " {y}"}");
+xis[2]=9;
+System.out.println("yis:{for (y in yis) " {y}"}");
+insert 7 before xis[1];
+System.out.println("yis:{for (y in yis) " {y}"}");

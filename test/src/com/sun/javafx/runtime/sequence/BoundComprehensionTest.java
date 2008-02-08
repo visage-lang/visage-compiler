@@ -13,7 +13,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
     public void testSimpleComprehension() {
         SequenceLocation<Integer> base = SequenceVar.make(Sequences.range(1, 3));
         final SequenceLocation<Integer> derived = new SimpleBoundComprehension<Integer, Integer>(Integer.class, base) {
-            Integer computeElement(Integer element, int index) {
+            protected Integer computeElement$(Integer element, int index) {
                 return element * 2;
             }
         };
@@ -54,12 +54,12 @@ public class BoundComprehensionTest extends JavaFXTestCase {
     public void testSimpleChainedComprehension() {
         SequenceLocation<Integer> base = SequenceVar.make(Sequences.range(1, 3));
         final SequenceLocation<Integer> middle = new SimpleBoundComprehension<Integer, Integer>(Integer.class, base) {
-            Integer computeElement(Integer element, int index) {
+            protected Integer computeElement$(Integer element, int index) {
                 return element * 2;
             }
         };
         final SequenceLocation<Integer> derived = new SimpleBoundComprehension<Integer, Integer>(Integer.class, middle) {
-            Integer computeElement(Integer element, int index) {
+            protected Integer computeElement$(Integer element, int index) {
                 return element * 2;
             }
         };
@@ -100,7 +100,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
     public void testSimpleIndex() {
         SequenceLocation<Integer> base = SequenceVar.make(Sequences.range(1, 3));
         final SequenceLocation<Integer> derived = new SimpleBoundComprehension<Integer, Integer>(Integer.class, base, true) {
-            Integer computeElement(Integer element, int index) {
+            protected Integer computeElement$(Integer element, int index) {
                 return index * 10 + element;
             }
         };

@@ -880,19 +880,66 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 List<JCExpression> dependencies = typeMorpher.buildDependencies(init);
                 List<JCExpression> initDependencies;
 
-                if (isAttribute) {
+                boolean fbind = init instanceof JFXForExpression;
+                initExpr = null; // FIXME
+                if (fbind) {
+                    // Temporary hacks to implement 'bind for' in a limited way.
+                    JFXForExpression fexp = (JFXForExpression) init;
+                    List<JFXForExpressionInClause> fClauses = fexp.inClauses;
+                    JCExpression fbody = fexp.getBodyExpression();
+                    Type bodyType = fbody.type;
+ 
+                    if (fClauses.size() != 1 || types.isSequence(bodyType)
+                            || fClauses.head.whereExpr != null)
+                        fbind = false;
+                    else {
+                        Type forType = elementType(fClauses.head.seqExpr.type);
+                        JCVariableDecl param1 = make.VarDef(make.Modifiers(0), fClauses.head.var.name,
+                            makeTypeTree(forType, diagPos), null);
+                        JCVariableDecl param2 = make.VarDef(make.Modifiers(0), indexVarName(fClauses.head),
+                            makeTypeTree(syms.javafx_IntegerType, diagPos), null);
+                        boolean dependsOnIndex = fClauses.head.getIndexUsed();
+                    
+                    JCStatement stmt = translateExpressionToStatement(fbody, Wrapped.InNothing, Convert.Normal, vmi.getRealType());
+                    JCMethodDecl computeElementMethod = make.at(diagPos).MethodDef(
+                            make.at(diagPos).Modifiers(Flags.PROTECTED), 
+                            defs.computeElementName, 
+                            makeTypeTree(bodyType, diagPos, true), 
+                            List.<JCTypeParameter>nil(), 
+                            List.<JCVariableDecl>of(param1, param2), 
+                            List.<JCExpression>nil(), 
+                            make.Block(0L, List.of(stmt)), 
+                            null);
+                    JCExpression t = makeQualifiedTree(null,
+                            "com.sun.javafx.runtime.sequence.SimpleBoundComprehension");
+                    JCExpression clazz = make.TypeApply(t, List.<JCExpression>of(makeTypeTree(forType, diagPos),
+                            makeTypeTree(bodyType, diagPos)));
+                    JCClassDecl cl = make.AnonymousClassDef(make.Modifiers(0),
+                            List.<JCTree>of(computeElementMethod));
+                    List<JCExpression> args = List.<JCExpression>of(
+                            make.at(diagPos).Select(makeTypeTree(bodyType, diagPos, true), names._class),
+                            translate(fClauses.head.seqExpr, Wrapped.InLocation, Convert.ToBound),
+                            make.at(diagPos).Literal(TypeTags.BOOLEAN, dependsOnIndex ? 1 : 0));
+          
+                    initExpr = make.NewClass(null/*encl*/, List.<JCExpression>nil(), clazz, args, cl);
+                }
+                }
+                ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
+                if (! fbind)
+                {
+                   if (isAttribute) {
                     initDependencies = List.nil();
                     returnedDependencies = dependencies;
                 } else {
                     initDependencies = dependencies;
                     returnedDependencies = null;
                 }
-                ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
+
                 bindingExpressionDefs = ListBuffer.lb();
-
-                JCStatement stmt = translateExpressionToStatement(init, Wrapped.InNothing, Convert.ToBound, vmi.getRealType());
-                initExpr = typeMorpher.buildExpression(diagPos, vmi, stmt, bindStatus.isLazy(), initDependencies);
-
+                
+                    JCStatement stmt = translateExpressionToStatement(init, Wrapped.InNothing, Convert.ToBound, vmi.getRealType());
+                    initExpr = typeMorpher.buildExpression(diagPos, vmi, stmt, bindStatus.isLazy(), initDependencies);
+                }
                 assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
                 bindingExpressionDefs = prevBindingExpressionDefs;
             } else if (bindStatus.isBidiBind()) {

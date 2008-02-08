@@ -10,7 +10,7 @@ import com.sun.javafx.runtime.location.SequenceReplaceListener;
  *
  * @author Brian Goetz
  */
-abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequence<V> implements SequenceLocation<V> {
+public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequence<V> implements SequenceLocation<V> {
     private final SequenceLocation<T> sequenceLocation;
     private final boolean dependsOnIndex;
 
@@ -21,7 +21,7 @@ abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequence<V> i
      *
      * @param clazz The Class of the resulting sequence element type
      * @param sequenceLocation The input sequence
-     * @param dependsOnIndex Whether or not the computeElement makes use of the indexof operator
+     * @param dependsOnIndex Whether or not the computeElement$ makes use of the indexof operator
      */
     public SimpleBoundComprehension(Class<V> clazz,
                                     SequenceLocation<T> sequenceLocation,
@@ -36,13 +36,13 @@ abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequence<V> i
         this(clazz, sequenceLocation, false);
     }
 
-    abstract V computeElement(T element, int index);
+    protected abstract V computeElement$(T element, int index);
 
     protected Sequence<V> computeValue() {
         Sequence<T> sequence = sequenceLocation.getAsSequence();
         V[] intermediateResults = Util.<V>newObjectArray(sequence.size());
         for (int i = 0; i < intermediateResults.length; i++)
-            intermediateResults[i] = computeElement(sequence.get(i), i);
+            intermediateResults[i] = computeElement$(sequence.get(i), i);
         return Sequences.make(clazz, intermediateResults);
     }
 
@@ -66,10 +66,10 @@ abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequence<V> i
                 }
                 V[] ourNewElements = Util.<V>newObjectArray(directlyAffectedSize + indirectlyAffectedSize);
                 for (int i = 0; i < directlyAffectedSize; i++)
-                    ourNewElements[i] = computeElement(newElements.get(i), dependsOnIndex ? startPos + i : -1);
+                    ourNewElements[i] = computeElement$(newElements.get(i), dependsOnIndex ? startPos + i : -1);
                 for (int i = 0; i < indirectlyAffectedSize; i++)
                     ourNewElements[directlyAffectedSize + i]
-                            = computeElement(oldValue.get(indirectlyAffectedStart + i), indirectlyAffectedStart + i + elementsAdded);
+                            = computeElement$(oldValue.get(indirectlyAffectedStart + i), indirectlyAffectedStart + i + elementsAdded);
 
                 Sequence<V> vSequence = Sequences.make(clazz, ourNewElements);
                 updateSlice(startPos, updateTrailingElements ? indirectlyAffectedEnd : endPos, vSequence);
