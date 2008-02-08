@@ -28,7 +28,6 @@ package com.sun.javafx.runtime.location;
 import java.lang.ref.WeakReference;
 import java.util.*;
 
-import com.sun.javafx.runtime.BindingException;
 import com.sun.javafx.runtime.CircularBindingException;
 
 /**
@@ -85,8 +84,8 @@ public class Bindings {
         private U lastB;
 
         public BijectiveBinding(ObjectLocation<T> a, ObjectLocation<U> b, Bijection<T, U> mapper) {
-            if (!(a.isMutable()) || !(b.isMutable()))
-                throw new BindingException("Both components of bijective bind must be mutable");
+            if (!(a instanceof MutableLocation) || !(b instanceof MutableLocation))
+                throw new IllegalArgumentException("Both components of bijective bind must be mutable");
             if (isPeerLocation(a, b))
                 throw new CircularBindingException("Binding circularity detected");
             

@@ -8,7 +8,7 @@ import com.sun.javafx.runtime.location.*;
  *
  * @author Brian Goetz
  */
-public class SequenceElementLocation<T> extends LegacyObjectExpression<T> implements ObjectLocation<T> {
+public class SequenceElementLocation<T> extends ObjectExpression<T> implements ObjectLocation<T> {
     private final SequenceLocation<T> seq;
     private final IntLocation index;
     private int lastIndex;

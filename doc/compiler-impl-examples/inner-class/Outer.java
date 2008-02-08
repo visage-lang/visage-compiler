@@ -1,8 +1,8 @@
 import com.sun.javafx.runtime.InitHelper;
 import com.sun.javafx.runtime.location.IntLocation;
-import com.sun.javafx.runtime.location.LegacyIntVar;
+import com.sun.javafx.runtime.location.IntVar;
 import com.sun.javafx.runtime.location.ObjectLocation;
-import com.sun.javafx.runtime.location.LegacyObjectVar;
+import com.sun.javafx.runtime.location.ObjectVar;
 
 class Outer implements Outer$Intf {
     private static final int NUM$FIELDS = 1;
@@ -22,12 +22,12 @@ class Outer implements Outer$Intf {
     }
 
     public void foo() {
-        ObjectLocation<Middle$Intf> v = LegacyObjectVar.make(null);
+        ObjectLocation<Middle$Intf> v = ObjectVar.make(null);
         Middle$1 tmp = new Middle$1();
-        tmp.init$a(LegacyIntVar.make(1));
+        tmp.init$a(IntVar.make(1));
         Listener tmp2 = tmp.new Listener$1();
         tmp2.initialize$();
-        tmp.init$listener(LegacyObjectVar.make((Listener$Intf) tmp2));
+        tmp.init$listener(ObjectVar.make((Listener$Intf) tmp2));
         tmp.initialize$();
         v.set(tmp);
     }

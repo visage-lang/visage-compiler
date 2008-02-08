@@ -30,7 +30,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
     }
 
     public ObjectLocation<Pointer> make$$bound$int(IntLocation location) {
-        return LegacyObjectVar.make(Pointer.make(location));
+        return ObjectVar.make(Pointer.make(location));
     }
 
     public Pointer make(double value) {
@@ -38,7 +38,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
     }
 
     public ObjectLocation<Pointer> make$$bound$double(DoubleLocation location) {
-        return LegacyObjectVar.make(Pointer.make(location));
+        return ObjectVar.make(Pointer.make(location));
     }
 
     public Pointer make(boolean value) {
@@ -46,7 +46,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
     }
 
     public ObjectLocation<Pointer> make$$bound$boolean(BooleanLocation location) {
-        return LegacyObjectVar.make(Pointer.make(location));
+        return ObjectVar.make(Pointer.make(location));
     }
 
     public Pointer make(Object value) {
@@ -54,7 +54,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
     }
 
     public ObjectLocation<Pointer> make$$bound$java_lang_Object(ObjectLocation location) {
-        return LegacyObjectVar.make(Pointer.make(location));
+        return ObjectVar.make(Pointer.make(location));
     }
 
     public Pointer make(Sequence value) {
@@ -62,6 +62,6 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
     }
 
     public ObjectLocation<Pointer> make$$bound$com_sun_javafx_runtime_sequence_Sequence(SequenceLocation location) {
-        return LegacyObjectVar.make(Pointer.make(location));
+        return ObjectVar.make(Pointer.make(location));
     }
 }
