@@ -489,7 +489,7 @@ public class ListBox extends ScrollableWidget {
                 dirty = true;
             }
         }
-        if(lo < hi) {
+        if(lo <= hi) {
             var e:javax.swing.event.ListDataEvent =
                 e = new javax.swing.event.ListDataEvent(list, e.INTERVAL_REMOVED, lo, hi);
             var ls:javax.swing.event.ListDataListener[] = [];
