@@ -119,7 +119,8 @@ public class XHTMLProcessingUtils {
         p(INFO, getString("copying"));
 
         copy(XHTMLProcessingUtils.class.getResource("resources/frameset.html"), new File(docsdir, "frameset.html"));
-        copy(XHTMLProcessingUtils.class.getResource("resources/demo.css"), new File(docsdir, "demo.css"));
+        copy(XHTMLProcessingUtils.class.getResource("resources/master.css"), new File(docsdir, "master.css"));
+        copy(XHTMLProcessingUtils.class.getResource("resources/styled.css"), new File(docsdir, "styled.css"));
         File images = new File(docsdir,"images");
         images.mkdir();
         copy(XHTMLProcessingUtils.class.getResource("resources/quote-background-1.gif"), new File(images, "quote-background-1.gif"));

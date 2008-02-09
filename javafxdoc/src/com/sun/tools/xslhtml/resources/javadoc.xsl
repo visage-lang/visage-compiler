@@ -21,7 +21,7 @@
     
     <xsl:template match="packageList">
         <head>
-            <link href="demo.css" rel="stylesheet"/>
+            <link href="master.css" rel="stylesheet"/>
         </head>
         <body>
             <ul id="packageList">
@@ -81,7 +81,7 @@
     
     <xsl:template name="classOutput">
         <head>
-            <link href="../styled.css" rel="stylesheet"/>
+            <link href="../master.css" rel="stylesheet"/>
             <style type="text/css">
 
 
