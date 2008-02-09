@@ -1688,6 +1688,17 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             falsepartType = syms.voidType;
         } else {
             falsepartType = attribExpr(tree.falsepart, env);
+            
+            if (pt.tag == UNKNOWN) {
+                // A kludge, which can go away if we change things so that
+                // the compiler and runtime accepts null and [] equivalently.
+                if (tree.truepart instanceof JFXSequenceEmpty
+                        || tree.truepart.type.tag == BOT)
+                    tree.truepart.type = falsepartType;
+                else if (tree.falsepart instanceof JFXSequenceEmpty
+                        || falsepartType.tag == BOT)
+                    falsepartType = tree.falsepart.type = tree.truepart.type;
+            }
         }
         result = check(tree,
                        capture(condType(tree.pos(), tree.cond.type,
