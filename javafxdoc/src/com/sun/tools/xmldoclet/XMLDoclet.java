@@ -33,6 +33,8 @@ import com.sun.tools.xslhtml.XHTMLProcessingUtils;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -66,6 +68,7 @@ public class XMLDoclet {
     private static String xsltFileName = null;
     
     private static final boolean debug = false;
+    private static final Map<String,String> params = new HashMap<String, String>();
     
     static final Option[] options = {
         new Option("-o", getString("out.file.option"), getString("out.file.description")),
@@ -74,7 +77,8 @@ public class XMLDoclet {
         new Option("-nosince", getString("nosince.description")),
         new Option("-nodeprecated", getString("nodeprecated.description")),
         new Option("-nohtml", getString("nohtml.description")),
-        new Option("-xsltfile", getString("out.file.option"), getString("xsltfile.description"))
+        new Option("-xsltfile", getString("out.file.option"), getString("xsltfile.description")),
+        new Option("-mastercss", getString("out.file.option"), getString("xsltfile.description"))
     };
 
     /**
@@ -91,7 +95,7 @@ public class XMLDoclet {
             if(processXSLT) {
                 FileInputStream xsltStream = xsltFileName != null ? 
                     new FileInputStream(xsltFileName) : null;
-                XHTMLProcessingUtils.process(outFileName, xsltStream);
+                XHTMLProcessingUtils.process(outFileName, xsltStream, params);
             }
             
             return true;
@@ -159,6 +163,8 @@ public class XMLDoclet {
                 processXSLT = false;
             else if (option[0].equals("-xsltfile"))
                 xsltFileName = option[1];
+            else if (option[0].equals("-mastercss"))
+                params.put("master-css",option[1]);
         }
         if (outFileName == null) {
             try {

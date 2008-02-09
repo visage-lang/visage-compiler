@@ -15,20 +15,17 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
-import java.text.ChoiceFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.ErrorListener;
@@ -74,7 +71,9 @@ public class XHTMLProcessingUtils {
      * @param xsltStream the XSLT to implement the transformation, as an input stream.
      * @throws java.lang.Exception
      */
-    public static void process(String xmlInputPath, InputStream xsltStream) throws Exception {
+    public static void process(String xmlInputPath, InputStream xsltStream,
+            Map<String,String> parameters
+            ) throws Exception {
         System.out.println(getString("transforming.to.html"));
         // TODO code application logic here
         
@@ -120,7 +119,7 @@ public class XHTMLProcessingUtils {
 
         copy(XHTMLProcessingUtils.class.getResource("resources/frameset.html"), new File(docsdir, "frameset.html"));
         copy(XHTMLProcessingUtils.class.getResource("resources/master.css"), new File(docsdir, "master.css"));
-        copy(XHTMLProcessingUtils.class.getResource("resources/styled.css"), new File(docsdir, "styled.css"));
+        copy(XHTMLProcessingUtils.class.getResource("resources/demo.css"), new File(docsdir, "demo.css"));
         File images = new File(docsdir,"images");
         images.mkdir();
         copy(XHTMLProcessingUtils.class.getResource("resources/quote-background-1.gif"), new File(images, "quote-background-1.gif"));
@@ -133,6 +132,10 @@ public class XHTMLProcessingUtils {
         //p("reading xslt exists in: " + xsltFile.exists());
         Source xslt = new StreamSource(xsltStream);
         Transformer trans = TransformerFactory.newInstance().newTransformer(xslt);
+        for(String key : parameters.keySet()) {
+            System.out.println("using key: " + key + " " + parameters.get(key));
+            trans.setParameter(key, parameters.get(key));
+        }
         trans.setErrorListener(new ErrorListener() {
 
             public void warning(TransformerException exception) throws TransformerException {
@@ -304,6 +307,6 @@ public class XHTMLProcessingUtils {
      * Command-line/debugging entry
      */
     public static void main(String[] args) throws Exception {
-        process("javadoc.xml", null);
+        process("javadoc.xml", null, new HashMap<String, String>());
     }
 }

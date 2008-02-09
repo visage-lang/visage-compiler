@@ -4,6 +4,7 @@
     <xsl:output method="html"/>
     
     <xsl:variable name="use-toc-tables">true</xsl:variable>
+    <xsl:param name="master-css">../master.css</xsl:param>
     
     <xsl:template match="/">
         <html>
@@ -21,7 +22,7 @@
     
     <xsl:template match="packageList">
         <head>
-            <link href="master.css" rel="stylesheet"/>
+            <link href="{$master-css}" rel="stylesheet"/>
         </head>
         <body>
             <ul id="packageList">
@@ -42,7 +43,7 @@
     
     <xsl:template match="classList">
         <head>
-            <link href="../master.css" rel="stylesheet"/>
+            <link href="{$master-css}" rel="stylesheet"/>
         </head>
         <body>
             <ul id="classList">
@@ -81,16 +82,12 @@
     
     <xsl:template name="classOutput">
         <head>
-            <link href="../master.css" rel="stylesheet"/>
+            <link href="{$master-css}" rel="stylesheet"/>
             <style type="text/css">
-
-
-
             </style>
         </head>
         <body>
             <xsl:call-template name="header"/>
-            
             <div id="content">
                 <a id="overview"><h3>Overview</h3></a>
                 <div class="overview">
