@@ -326,4 +326,8 @@ public final class Sequences {
         }
         return true;
     }
+
+  public static<T> Sequence<? extends T> forceNonNull(Class<T> clazz, Sequence<? extends T> seq) {
+    return seq == null ?  emptySequence(clazz) : seq;
+  }
 }

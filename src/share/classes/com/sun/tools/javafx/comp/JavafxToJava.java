@@ -2408,7 +2408,18 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 tmpIndexVarName = null;
                 stmt = make.Block(0L, List.of(finalVar, stmt));
             }
-            stmt = make.at(clause).ForeachLoop(
+    
+            DiagnosticPosition diagPos = clause.seqExpr;
+            if (types.isSequence(clause.seqExpr.type)) {
+                // It would be more efficient to move the Iterable.iterator call
+                // to a static method, which can also check for null.
+                // But that requires expanding the ForeachLoop by hand.  Later.
+                JCExpression seq = callExpression(diagPos,
+                    makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
+                    "forceNonNull",
+                    List.of(make.at(diagPos).Select(makeTypeTree(syms.boxIfNeeded(var.type), diagPos, true), names._class),
+                        translate(clause.seqExpr)));
+                stmt = make.at(clause).ForeachLoop(
                     // loop variable is synthetic should not be bound
                     // even if we are in a bind context
                     make.VarDef(
@@ -2416,8 +2427,23 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         tmpVarName, 
                         makeTypeTree(var.type, var, true), 
                         null),
-                    translate(clause.getSequenceExpression()),
+                    seq,
                     stmt);
+            } else {
+                // The "sequence" isn't a Sequence.
+                // Compile: { var tmp = seq; if (tmp!=null) stmt; }
+                if (! var.type.isPrimitive())
+                    stmt = make.If(make.Binary(JCTree.NE, make.Ident(tmpVarName),
+                                make.Literal(TypeTags.BOT, null)),
+                            stmt, null);
+                stmt = make.at(diagPos).Block(0,
+                    List.of(make.at(diagPos).VarDef(
+                        make.Modifiers(0L), 
+                        tmpVarName, 
+                        makeTypeTree(var.type, var, true), 
+                        translate(clause.seqExpr)),
+                        stmt));
+            }
             if (clause.getIndexUsed()) {
                 JCVariableDecl tmpIndexVar =
                         make.VarDef(

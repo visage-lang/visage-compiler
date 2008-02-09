@@ -1111,8 +1111,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             // must implement Sequence<T>?
             Type base = types.asSuper(exprType, syms.javafx_SequenceType.tsym);
             if (base == null) {
-                //TODO: fix error message
-                elemtype = syms.errType;
+                elemtype = exprType;
             } else {
                 List<Type> iterableParams = base.allparams();
                 if (iterableParams.isEmpty()) {
@@ -1123,6 +1122,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             }
             if (elemtype == syms.errType) {
                 log.error(((JCTree)(clause.getSequenceExpression())).pos(), "foreach.not.applicable.to.type");
+            } else if (elemtype == syms.botType || elemtype == syms.unreachableType) {
+                elemtype = syms.objectType;
             } else {
                 // if it is a primitive type, unbox it
                 Type unboxed = types.unboxedType(elemtype);
