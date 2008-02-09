@@ -1,0 +1,316 @@
+
+/* general */
+body {
+    font-size: 90%;
+    padding: 0em;
+    font-family: Helvetica, Verdana, Arial, sans-serif;
+    margin: 0px;
+    background-color: #e6e6e6;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+
+
+
+
+
+/* header and nav */
+#nav {
+    top: 0px;
+    padding: 0px;
+    width: 100%;
+    position: fixed;
+    margin: 0px;
+}
+
+
+h1 a {
+    border-width: 0px;
+    border-color: #c9c9c9;
+    border-style: solid;
+    font-weight: normal;
+    font-family: Helvetica, Verdana, Arial, sans-serif;
+    background-color: #454545;
+    font-style: normal;
+    color: #d9d9d9;
+}
+h1 a b {
+    font-style: normal;
+}
+
+
+h2 {
+    padding-left: 0em;
+    padding-bottom: .2em;
+    padding-right: .5em;
+    padding-top: 0em;
+    text-align: right;
+    color: #73706e;
+    background-color: #454545;
+    font-size: 80%;
+    margin: 0px;
+    font-style: normal;
+    font-weight: normal;
+}
+
+h2 a {
+    text-decoration: none;
+    color: #c9c9c9;
+}
+
+h1 {
+    font-weight: normal;
+    font-family: Helvetica, Verdana, Arial, sans-serif;
+    padding-left: .5em;
+    padding-bottom: 0em;
+    padding-right: .5em;
+    padding-top: .5em;
+    margin: 0em;
+    background-color: #454545;
+    font-style: normal;
+    color: #878787;
+}
+
+#nav ul {
+    color: black;
+    font-family: Helvetica, Verdana, Arial, sans-serif;
+    border-left-width: 0px;
+    border-bottom-width: 1px;
+    border-right-width: 0px;
+    border-top-width: 1px;
+    border-color: black;
+    border-style: solid;
+    padding: 0px;
+    margin: 0px;
+    background-color: #73706e;
+}
+
+#nav ul li {
+    border-width: 0px;
+    border-color: black;
+    border-style: solid;
+    display: inline;
+    padding: 0em;
+    margin: 0px;
+    list-style-type: none;
+}
+
+#nav ul a {
+    padding-left: 1em;
+    padding-right: 1em;
+    border-left-width: 0px;
+    border-bottom-width: 0px;
+    border-right-width: 1px;
+    border-top-width: 0px;
+    margin: 0px;
+    border-color: black;
+    border-style: solid;
+    display: inline;
+    color: black;
+    text-decoration: none;
+}
+
+#nav li a:hover {
+    background-color: #c9c9c9;
+}
+
+
+
+
+
+
+
+
+/* more general */
+
+body div {
+    margin: 1em;
+}
+
+body div div {
+    margin: 0px;
+}
+
+
+
+pre {
+    border-color: #454545;
+    border-style: solid;
+    border-width: 1px;
+    background-color: white;
+}
+
+pre code i {
+    color: #5d6e87;
+}
+
+pre code b {
+    color: #326913;
+}
+
+
+
+p img {
+    background-color: white;
+    padding: 3px;
+    margin: 1em;
+    border-color: #73706e;
+    border-style: solid;
+    border-width: 1px;
+}
+
+
+
+
+
+/* table of contents */
+#toc h3, #methods h3, #overview h3, #functions h3, #attributes h3 {
+    color: #454545;
+}
+
+#toc li {
+    padding: .2em;
+    list-style-position: outside;
+    list-style-type: none;
+}
+
+#toc li a {
+    color: #454545;
+    padding: .2em;
+    text-decoration: none;
+}
+
+#toc li a:hover {
+    background-color: #d1dfd1;
+    text-decoration: underline;
+}
+
+#toc li a b {
+    color: black;
+}
+
+#toc table {
+    border-collapse: collapse;
+    border-style: solid;
+    border-width: 1px;
+    background-color: #c9c9c9;
+    font-size: 90%;
+}
+
+#toc table th {
+    text-transform: none;
+    font-style: normal;
+    font-size: 120%;
+    font-family: Helvetica, Verdana, Arial, sans-serif;
+    font-weight: normal;
+    color: white;
+    background-color: #454545;
+}
+
+#toc table td, #toc table th {
+    border-color: #878787;
+    border-style: solid;
+    border-width: 1px;
+}
+
+#toc table a {
+    color: black;
+}
+
+
+
+
+#functions h3, #methods h3 {
+    padding-top: 100px;
+}
+
+
+
+
+/* general members: methods, functions, attributes, and fields, and constructors */
+
+
+.member {
+    padding: 0px;
+    margin-top: 10em;
+}
+
+.member h4 {
+    padding-left: 0px;
+    padding-bottom: .5em;
+    padding-right: .5em;
+    padding-top: 8em;
+    border-color: #73706e;
+    border-left-width: 0px;
+    border-bottom-width: 1px;
+    border-right-width: 0px;
+    border-top-width: 0px;
+    border-style: solid;
+    font-style: normal;
+    font-weight: normal;
+}
+
+.member h5 {
+    border-color: #d1dfd1;
+    border-style: solid;
+    border-left-width: 0px;
+    border-bottom-width: 1px;
+    border-right-width: 0px;
+    border-top-width: 0px;
+}
+
+.member dl {
+    border-width: 1px;
+    border-color: #93af93;
+    border-style: solid;
+    padding: .5em;
+    margin: .5em;
+    width: 15em;
+    clear: both;
+    float: right;
+    background-color: #c9c9c9;
+}
+
+.member dt, .member dd {
+    font-size: 80%;
+}
+
+.member dt {
+    font-weight: bold;
+}
+
+.member p {
+    clear: none;
+}
+
+.member pre {
+    clear: both;
+}
+
+#overview h3, #toc h3 {
+	border-width: 0px;
+	padding-top: 8em;
+	border-style: solid;
+}
+
+
+h1 a b, h1 a strong {
+	font-weight: normal;
+	font-style: normal;
+}
+
+h2 b {
+	font-style: normal;
+	font-weight: normal;
+}
+
+h2 strong {
+	display: none;
+}
