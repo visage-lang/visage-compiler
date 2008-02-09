@@ -1,0 +1,86 @@
+#nav ul {
+	display: none;
+}
+
+#nav {
+	border-color: #878787;
+	border-style: groove;
+	border-left-width: 0px;
+	border-bottom-width: 2px;
+	border-right-width: 0px;
+	border-top-width: 0px;
+}
+
+h3 {
+	padding: .2em;
+	border-color: #73706e;
+	border-style: ridge;
+	border-width: 2px;
+	font-size: 150%;
+	background-color: #cbcdfc;
+}
+
+#toc table {
+	border-collapse: collapse;
+	border-color: #73706e;
+	border-style: ridge;
+	border-width: 2px;
+}
+
+#toc table th {
+	background-color: #cbcdfc;
+}
+
+#toc table td, #toc table th {
+	border-color: #73706e;
+	border-style: ridge;
+	border-width: 2px;
+}
+
+#toc dt, #toc dd {
+	padding: .2em;
+	border-color: #73706e;
+	border-style: ridge;
+	border-width: 2px;
+}
+
+#toc dt {
+	border-bottom-width: 0px;
+}
+
+#toc dd {
+	margin: 0px;
+	border-bottom-width: 0px;
+	border-top-width: 0px;
+}
+
+#toc dl {
+	border-left-width: 0px;
+	border-bottom-width: 2px;
+	border-right-width: 0px;
+	border-top-width: 0px;
+	border-color: #73706e;
+	border-style: ridge;
+}
+
+.member {
+	border-color: white;
+	border-left-width: 0px;
+	border-bottom-width: 0px;
+	border-right-width: 0px;
+	border-top-width: 2px;
+	border-style: ridge;
+}
+
+.member dl {
+	font-weight: bold;
+}
+
+.member dl * {
+	font-style: normal;
+	font-weight: normal;
+}
+
+.member dt {
+	font-family: "Courier New", Courier, Monaco, monospace;
+}

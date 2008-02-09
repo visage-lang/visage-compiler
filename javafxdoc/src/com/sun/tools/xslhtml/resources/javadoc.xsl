@@ -2,18 +2,69 @@
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
     <xsl:output method="html"/>
+    
+    <xsl:variable name="use-toc-tables">true</xsl:variable>
+    
     <xsl:template match="/">
         <html>
-            <head>
-                <link href="../demo.css" rel="stylesheet"/>
-            </head>
-            <body>
-                <xsl:apply-templates select="/class"/>
-                <xsl:apply-templates select="/abstractClass"/>
-                <xsl:apply-templates select="/interface"/>
-            </body>
+            <xsl:apply-templates select="/class"/>
+            <xsl:apply-templates select="/abstractClass"/>
+            <xsl:apply-templates select="/interface"/>
+            <xsl:apply-templates select="/classList"/>
+            <xsl:apply-templates select="/packageList"/>
         </html>
     </xsl:template>
+    
+    
+    
+    <!-- indexes -->
+    
+    <xsl:template match="packageList">
+        <head>
+            <link href="demo.css" rel="stylesheet"/>
+        </head>
+        <body>
+            <ul id="packageList">
+                <xsl:for-each select="package">
+                    <li>
+                        <a target='classListFrame'>
+                            <xsl:attribute name="href"><xsl:value-of select="@name"/>/classes.html</xsl:attribute>
+                            <xsl:value-of select="@name"/>
+                        </a>
+                    </li>
+                </xsl:for-each>
+            </ul>
+        </body>
+    </xsl:template>
+    
+    
+    
+    
+    <xsl:template match="classList">
+        <head>
+            <link href="../master.css" rel="stylesheet"/>
+        </head>
+        <body>
+            <ul id="classList">
+                <xsl:for-each select="class">
+                    <li>
+                        <a target='classFrame'>
+                            <xsl:attribute name="href"><xsl:value-of select="@qualifiedName"/>.html</xsl:attribute>
+                            <xsl:value-of select="@name"/>
+                        </a>
+                    </li>
+                </xsl:for-each>
+            </ul>
+        </body>
+    </xsl:template>
+    
+    
+    
+    
+    
+    
+    
+    
     
     <xsl:template match="class">
         <xsl:call-template name="classOutput"/>
@@ -26,115 +77,32 @@
     </xsl:template>
     
     
+    <!-- the actual class -->
+    
     <xsl:template name="classOutput">
-        <div class="class">
-            <h1 class="classname">
-                <i class="modifiers">
-                    <xsl:value-of select="modifiers/@text"/>
-                </i>
-                class
-                <i class="classname"><xsl:value-of select="@name"/></i>
-                extends
-                <i class="superclass">
-                    <xsl:value-of select="superclass/@toString"/>
-                </i>
-                <!--
-                implements
-                -->
-            </h1>
-            
-            <div class="class-comment">
-                <xsl:apply-templates select="docComment/commentText"/>
-            </div>
-            
-            <div class="toc">
-                
-                <xsl:if test="count(attribute) > 0">
-                    <h3>Attributes</h3>
-                    <table class="attributes">
-                        <tr><th>public</th><th>name</th><th>type</th></tr>
-                        <xsl:for-each select="attribute">
-                            <xsl:sort select="@name" order="ascending"/>
-                            <xsl:apply-templates select="." mode="toc"/>
-                        </xsl:for-each>
-                    </table>
-                </xsl:if>
-                                
-                <xsl:if test="count(field) > 0">
-                    <h3>Fields</h3>
-                    <table class="fields">
-                        <tr><th>public</th><th>name</th><th>type</th></tr>
-                        <xsl:for-each select="field">
-                            <xsl:sort select="@name" order="ascending"/>
-                            <xsl:apply-templates select="." mode="toc"/>
-                        </xsl:for-each>
-                    </table>
-                </xsl:if>
+        <head>
+            <link href="../styled.css" rel="stylesheet"/>
+            <style type="text/css">
 
-                <xsl:if test="count(function) > 0">
-                    <h3>Functions</h3>
-                    <ul>
-                        <xsl:for-each select="function">
-                            <xsl:sort select="@name" order="ascending"/>
-                            <xsl:apply-templates select="." mode="toc"/>
-                        </xsl:for-each>
-                    </ul>
-                </xsl:if>
-                
-                <xsl:if test="count(method) > 0">
-                    <h3>Methods</h3>
-                    <ul>
-                        <xsl:for-each select="method">
-                            <xsl:sort select="@name" order="ascending"/>
-                            <xsl:apply-templates select="." mode="toc"/>
-                        </xsl:for-each>
-                    </ul>
-                </xsl:if>
-            </div>
-            
-            <xsl:if test="count(attribute) > 0">
-                <div class="attributes">
-                    <h2>Attributes</h2>
-                    <xsl:for-each select="attribute">
-                        <xsl:sort select="@name" order="ascending"/>
-                        <xsl:apply-templates select="."/>
-                    </xsl:for-each>
-                </div>
-            </xsl:if>
-            
-            <xsl:if test="count(field) > 0">
-                <div class="fields">
-                    <h2>Fields</h2>
-                    <xsl:for-each select="field">
-                        <xsl:sort select="@name" order="ascending"/>
-                        <xsl:apply-templates select="."/>
-                    </xsl:for-each>
-                </div>
-            </xsl:if>
 
-            <xsl:if test="count(function) > 0">
-                <div class="functions">
-                    <h2>functions</h2>
-                    <xsl:for-each select="function">
-                        <xsl:sort select="@name" order="ascending"/>
-                        <xsl:apply-templates select="."/>
-                    </xsl:for-each>
-                </div>
-            </xsl:if>
+
+            </style>
+        </head>
+        <body>
+            <xsl:call-template name="header"/>
             
-            <xsl:if test="count(method) > 0">
-                <div class="methods">
-                    <h2>Methods</h2>
-                    <xsl:for-each select="method">
-                        <xsl:sort select="@name" order="ascending"/>
-                        <xsl:apply-templates select="."/>
-                    </xsl:for-each>
+            <div id="content">
+                <a id="overview"><h3>Overview</h3></a>
+                <div class="overview">
+                    <xsl:apply-templates select="docComment/commentText"/>
                 </div>
-            </xsl:if>
-            
-        </div>
+                <xsl:call-template name="toc"/>
+                <xsl:call-template name="inherited"/>
+                <xsl:call-template name="members"/>
+            </div>
+        </body>
     </xsl:template>
-
+    
     <xsl:template match="docComment/commentText">
         <p class="comment">
             <xsl:value-of select="." disable-output-escaping="yes"/>
@@ -142,132 +110,295 @@
     </xsl:template>
     
     
+    <!-- header -->
+    <xsl:template name="header">
+        <div id="nav">
+            <h1 class="classname">
+                <i class="modifiers">
+                    <xsl:value-of select="modifiers/@text"/>
+                </i>
+                class
+                <a class="classname">
+                    <strong><xsl:value-of select="@packageName"/>.</strong>
+                    <b><xsl:value-of select="@name"/></b>
+                </a>
+            </h1>
+            
+            
+            <h2>
+                <a href="#">
+                    <strong><xsl:value-of select="superclass/@packageName"/>.</strong>
+                    <b><xsl:value-of select="superclass/@simpleTypeName"/></b>
+                </a>
+                &gt;
+                <a href="#">
+                    <strong><xsl:value-of select="@packageName"/>.</strong>
+                    <b><xsl:value-of select="@name"/></b>
+                </a>
+            </h2>
+            
+            <xsl:if test="@language='javafx'">
+                <ul>
+                    <li><a href="#overview">overview</a></li><li><a href="#fields-summary">attributes</a></li><li><a href="#methods-summary">functions</a></li>
+                </ul>
+            </xsl:if>
+            <xsl:if test="@language='java'">
+                <ul>
+                    <li><a href="#overview">overview</a></li><li><a href="#fields-summary">fields</a></li><li><a href="#constructors-summary">constructors</a></li><li><a href="#methods-summary">methods</a></li>
+                </ul>
+            </xsl:if>
+            
+        </div>
+    </xsl:template>
     
+    
+    
+    <!--   ====  The Table of Contents ====  -->
+    
+    <xsl:template name="toc">
+        <div id="toc">
+            
+            <xsl:if test="count(attribute) > 0">
+                <a id="fields-summary"><h3>Attribute Summary</h3></a>
+                <table>
+                    <tr><th>name</th><th>type</th><th>description</th></tr>
+                    <tr><th colspan="3">Public</th></tr>
+                    <xsl:for-each select="attribute[modifiers/public]">
+                        <xsl:sort select="@name" order="ascending"/>
+                        <xsl:apply-templates select="." mode="toc"/>
+                    </xsl:for-each>
+                    <tr><th colspan="3">Protected</th></tr>
+                    <xsl:for-each select="attribute[modifiers/protected]">
+                        <xsl:sort select="@name" order="ascending"/>
+                        <xsl:apply-templates select="." mode="toc"/>
+                    </xsl:for-each>
+                </table>
+            </xsl:if>
+            
+            <xsl:if test="count(field) > 0">
+                <a id="fields-summary"><h3>Field Summary</h3></a>
+                <table class="fields">
+                    <tr><th>public</th><th>name</th><th>type</th></tr>
+                    <xsl:for-each select="field">
+                        <xsl:sort select="@name" order="ascending"/>
+                        <xsl:apply-templates select="." mode="toc"/>
+                    </xsl:for-each>
+                </table>
+            </xsl:if>
+            
+            <xsl:if test="count(function) > 0">
+                <a id="methods-summary"><h3>Function Summary</h3></a>
+                <dl>
+                    <xsl:for-each select="function">
+                        <xsl:sort select="@name" order="ascending"/>
+                        <xsl:call-template name="method-like-toc"/>
+                    </xsl:for-each>
+                </dl>
+            </xsl:if>
+            
+            <xsl:if test="count(method) > 0">
+                <a id="methods-summary"><h3>Method Summary</h3></a>
+                <ul>
+                    <xsl:for-each select="method">
+                        <xsl:sort select="@name" order="ascending"/>
+                        <xsl:call-template name="method-like-toc"/>
+                    </xsl:for-each>
+                </ul>
+            </xsl:if>
+        </div>
+        
+    </xsl:template>
+    
+    
+    <!--  ==== Member details: attributes, fields, functions, methods === -->
+    
+    <xsl:template name="members">
+        <xsl:if test="count(attribute) > 0">
+            <div id="attributes">
+                <h3>Attributes</h3>
+                <xsl:for-each select="attribute">
+                    <xsl:sort select="@name" order="ascending"/>
+                    <xsl:apply-templates select="."/>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        
+        <xsl:if test="count(field) > 0">
+            <div id="fields">
+                <h3>Fields</h3>
+                <xsl:for-each select="field">
+                    <xsl:sort select="@name" order="ascending"/>
+                    <xsl:apply-templates select="."/>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        
+        <xsl:if test="count(function) > 0">
+            <div id="functions">
+                <h3>Functions</h3>
+                <xsl:for-each select="function">
+                    <xsl:sort select="@name" order="ascending"/>
+                    <xsl:call-template name="method-like"/>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        
+        <xsl:if test="count(method) > 0">
+            <div id="methods">
+                <h3>Methods</h3>
+                <xsl:for-each select="method">
+                    <xsl:sort select="@name" order="ascending"/>
+                    <xsl:call-template name="method-like"/>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+    </xsl:template>
+    
+    
+    <xsl:template name="inherited"/>
     
     
     <!-- Attributes -->
     
     <xsl:template match="attribute" mode="toc">
-        <div class="attribute">
-            <tr>
-                <td>
-                    <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
-                </td>
-                
-                <td>
-                    <a>
-                        <xsl:attribute name="href">#attribute_<xsl:value-of select="@name"/></xsl:attribute>
-                        <b class="name"><xsl:value-of select="@name"/></b>
-                    </a>
-                </td>
-                <td>
-                    <i class="type"><xsl:value-of select="type/@simpleTypeName"/>
-                                    <xsl:value-of select="type/@dimension"/></i>
-                </td>
-            </tr>
-         </div>
+        <tr class="attribute">
+            <td>
+                <a>
+                    <xsl:attribute name="href">#attribute_<xsl:value-of select="@name"/></xsl:attribute>
+                    <b class="name"><xsl:value-of select="@name"/></b>
+                </a>
+            </td>
+            <td>
+                <i class="type"><xsl:value-of select="type/@simpleTypeName"/></i>
+            </td>
+            <td>
+                <xsl:value-of select="docComment/firstSentenceTags/Text"
+                              disable-output-escaping="yes"/>
+            </td>
+        </tr>
     </xsl:template>
     
     
     
     <xsl:template match="attribute">
-        <div class="attribute">
-                <a>
-            <h4>
+        <div class="attribute member">
+            <a>
+                <h4>
                     <xsl:attribute name="id">attribute_<xsl:value-of select="@name"/></xsl:attribute>
                     <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
                     <xsl:text> </xsl:text>
                     <b class="name"><xsl:value-of select="@name"/></b>
                     <xsl:text>: </xsl:text>
-                    <i class="type"><xsl:value-of select="type/@SimpleTypeName"/>
-                                    <xsl:value-of select="type/@dimension"/></i>
+                    <i class="type"><xsl:value-of select="type/@simpleTypeName"/></i>
+                </h4>
+            </a>
+            
+            <xsl:apply-templates select="docComment/commentText"/>
+        </div>
+    </xsl:template>
+    
+    
+    
+    
+    
+    
+    <!--  Functions -->
+    
+    <xsl:template name="method-like-toc">
+        <dt>
+            <a>
+                <xsl:attribute name="href">#method_<xsl:value-of select="@name"/></xsl:attribute>
+                
+                <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
+                <xsl:text> </xsl:text>
+                <b><xsl:value-of select="@name"/></b>
+                (
+                <i class="parameters">
+                    <xsl:for-each select="parameters/parameter">
+                        <b><xsl:value-of select="@name"/></b>:
+                        <i><xsl:value-of select="type/@toString"/></i>,
+                    </xsl:for-each>
+                </i>
+                )
+                :
+                <i><xsl:value-of select="returns/@simpleTypeName"/>
+                <xsl:value-of select="type/@dimension"/></i>
+            </a>
+         </dt>
+         <dd>
+                <xsl:value-of select="docComment/firstSentenceTags/Text"
+                              disable-output-escaping="yes"/>
+                          </dd>
+    </xsl:template>
+    
+    <xsl:template name="method-like">
+        <div class="method member">
+                <a>
+                    <xsl:attribute name="id">method_<xsl:value-of select="@name"/></xsl:attribute>
+            <h4>
+                    <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
+                    <xsl:text> </xsl:text>
+                    <b><xsl:value-of select="@name"/></b>
+                    (
+                    <i class="parameters">
+                        <xsl:for-each select="parameters/parameter">
+                            <b><xsl:value-of select="@name"/></b>:
+                            <i><xsl:value-of select="type/@toString"/></i>,
+                        </xsl:for-each>
+                    </i>
+                    )
+                    :
+                    <i><xsl:value-of select="returns/@simpleTypeName"/>
+                    <xsl:value-of select="type/@dimension"/></i>
             </h4>
                 </a>
             
+            
+            <xsl:if test="parameters/parameter">
+                <dl class="parameters">
+                    Parameters
+                    <xsl:for-each select="parameters/parameter">
+                        <dt><xsl:value-of select="@name"/></dt>
+                        <dd><xsl:value-of select="type/@toString"/></dd>
+                    </xsl:for-each>
+                </dl>
+            </xsl:if>
+            
+            <dl class="returns">
+                Returns
+                <dt><xsl:value-of select="returns/@simpleTypeName"/></dt>
+                <dd><xsl:value-of select="type/@dimension"/></dd>
+            </dl>
+            
             <xsl:apply-templates select="docComment/commentText"/>
-         </div>
-    </xsl:template>
-    
-    
-    
-    
-    
-    
-    <!--  Functions -->
-    
-    <xsl:template match="function" mode="toc">
-        <div class="function">
-            <li>
-                <a>
-                <xsl:attribute name="href">#function_<xsl:value-of select="@name"/></xsl:attribute>
-
-                <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
-                <xsl:text> </xsl:text>
-                <b><xsl:value-of select="@name"/></b>
-                (
-                <i class="parameters">
-                <xsl:for-each select="parameters/parameter">
-                    <b><xsl:value-of select="@name"/></b>:
-                    <i><xsl:value-of select="type/@toString"/></i>,
-                </xsl:for-each>
-                </i>
-                )
-                :
-                <i><xsl:value-of select="returns/@simpleTypeName"/>
-                   <xsl:value-of select="type/@dimension"/></i>
-                </a>
-            </li>
-        </div>  
-    </xsl:template>
-    
-    <xsl:template match="function">
-        <div class="function">
-            <h4>
-                <a>
-                <xsl:attribute name="id">function_<xsl:value-of select="@name"/></xsl:attribute>
-                <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
-                <xsl:text> </xsl:text>
-                <b><xsl:value-of select="@name"/></b>
-                (
-                <i class="parameters">
-                <xsl:for-each select="parameters/parameter">
-                    <b><xsl:value-of select="@name"/></b>:
-                    <i><xsl:value-of select="type/@toString"/></i>,
-                </xsl:for-each>
-                </i>
-                )
-                :
-                <i><xsl:value-of select="returns/@simpleTypeName"/>
-                   <xsl:value-of select="type/@dimension"/></i>
-            </a>
-            </h4>
+            
         </div>  
     </xsl:template>
     
     
     
     <!--  Functions -->
-    
+    <!--    
     <xsl:template match="method" mode="toc">
         <div class="function">
             <li>
                 <a>
-                <xsl:attribute name="href">#method_<xsl:value-of select="@name"/></xsl:attribute>
-
-                <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
-                <xsl:text> </xsl:text>
-                <b><xsl:value-of select="@name"/></b>
-                (
-                <i class="parameters">
-                <xsl:for-each select="parameters/parameter">
-                    <b><xsl:value-of select="@name"/></b>:
-                    <i><xsl:value-of select="type/@toString"/></i>,
-                </xsl:for-each>
-                </i>
-                )
-                :
-                <i><xsl:value-of select="returns/@simpleTypeName"/>
-                   <xsl:value-of select="type/@dimension"/></i>
+                    <xsl:attribute name="href">#method_<xsl:value-of select="@name"/></xsl:attribute>
+                    
+                    <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
+                    <xsl:text> </xsl:text>
+                    <b><xsl:value-of select="@name"/></b>
+                    (
+                    <i class="parameters">
+                        <xsl:for-each select="parameters/parameter">
+                            <b><xsl:value-of select="@name"/></b>:
+                            <i><xsl:value-of select="type/@toString"/></i>,
+                        </xsl:for-each>
+                    </i>
+                    )
+                    :
+                    <i><xsl:value-of select="returns/@simpleTypeName"/>
+                    <xsl:value-of select="type/@dimension"/></i>
                 </a>
             </li>
         </div>  
@@ -277,23 +408,25 @@
         <div class="function">
             <h4>
                 <a>
-                <xsl:attribute name="id">method_<xsl:value-of select="@name"/></xsl:attribute>
-                <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
-                <xsl:text> </xsl:text>
-                <b><xsl:value-of select="@name"/></b>
-                (
-                <i class="parameters">
-                <xsl:for-each select="parameters/parameter">
-                    <i><xsl:value-of select="type/@toString"/></i>
-                    <b><xsl:value-of select="@name"/></b>,
-                </xsl:for-each>
-                </i>
-                )
-                :
-                <i><xsl:value-of select="returns/@simpleTypeName"/>
-                   <xsl:value-of select="type/@dimension"/></i>
-            </a>
+                    <xsl:attribute name="id">method_<xsl:value-of select="@name"/></xsl:attribute>
+                    <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
+                    <xsl:text> </xsl:text>
+                    <b><xsl:value-of select="@name"/></b>
+                    (
+                    <i class="parameters">
+                        <xsl:for-each select="parameters/parameter">
+                            <i><xsl:value-of select="type/@toString"/></i>
+                            <b><xsl:value-of select="@name"/></b>,
+                        </xsl:for-each>
+                    </i>
+                    )
+                    :
+                    <i><xsl:value-of select="returns/@simpleTypeName"/>
+                    <xsl:value-of select="type/@dimension"/></i>
+                </a>
             </h4>
         </div>  
     </xsl:template>
+    
+    -->
 </xsl:stylesheet>
