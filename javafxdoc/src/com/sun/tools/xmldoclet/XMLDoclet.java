@@ -271,6 +271,7 @@ public class XMLDoclet {
         attrs.clear();
         attrs.addAttribute("", "", "name", "CDATA", cls.name());
         attrs.addAttribute("", "", "qualifiedName", "CDATA", cls.qualifiedName());
+        attrs.addAttribute("", "", "packageName", "CDATA", cls.containingPackage().name());
         attrs.addAttribute("", "", "language", "CDATA", fxClass ? "javafx" : "java");
         hd.startElement("", "", classType, attrs);
         generateComment(cls);
@@ -394,6 +395,9 @@ public class XMLDoclet {
                 simpleFunctionalTypeName(cd, rawType) : type.simpleTypeName();
             attrs.addAttribute("", "", "simpleTypeName", "CDATA", simpleName);
             attrs.addAttribute("", "", "qualifiedTypeName", "CDATA", type.qualifiedTypeName());
+            if(cd != null) {
+                attrs.addAttribute("", "", "packageName", "CDATA", cd.containingPackage().name());
+            }
             String dim = isSequence ? "[]" : type.dimension();
             attrs.addAttribute("", "", "dimension", "CDATA", dim);
             String s = type.toString() + (isSequence ? "[]" : "");
