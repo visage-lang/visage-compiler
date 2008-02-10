@@ -76,5 +76,4 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
             }
         });
     }
-
 }

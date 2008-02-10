@@ -432,6 +432,9 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(five.set(4, C), 0, 1, 2, 3, C, 5);
         assertEquals(five.set(5, C), 0, 1, 2, 3, 4, C);
         assertEquals(five.set(6, C), 0, 1, 2, 3, 4, 5);
+        assertEquals(five.set(0, null), 1, 2, 3, 4, 5);  // set(null) => delete
+        assertEquals(five.set(-1, null), 0, 1, 2, 3, 4, 5);  // set(null) => delete
+        assertEquals(five.set(6, null), 0, 1, 2, 3, 4, 5);  // set(null) => delete
     }
 
     /**

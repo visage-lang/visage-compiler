@@ -128,6 +128,8 @@ public class SequenceMutator {
         int size = Sequences.size(target);
         if (startPos > size || startPos < 0)
             return target;
+        if (newValue == null)
+            return replaceSlice(target, listener, startPos, endPos, Sequences.emptySequence(target.getElementType()));
 
         Sequence<T> result;
         Sequence<T> singleton = Sequences.singleton(target.getElementType(), newValue);
