@@ -750,8 +750,8 @@ orExpression
 	;
 typeExpression 
 	: relationalExpression		
-	   (   INSTANCEOF itn=typeName				-> ^(INSTANCEOF relationalExpression $itn)
-	   |   AS atn=typeName					-> ^(AS relationalExpression $atn)
+	   (   INSTANCEOF itn=type				-> ^(INSTANCEOF relationalExpression $itn)
+	   |   AS atn=type					-> ^(AS relationalExpression $atn)
 	   | 							-> relationalExpression
 	   )
 	;

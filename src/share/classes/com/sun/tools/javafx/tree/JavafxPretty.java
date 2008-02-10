@@ -32,6 +32,7 @@ import java.util.Map;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.Pretty;
@@ -493,7 +494,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
 
     public void visitTypeAny(JFXTypeAny tree) {
         try {
-            print(": * ");
+            print("* ");
             print(ary(tree));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -511,9 +512,19 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
+    public void printTypeSpecifier(JFXType type) {
+        try {
+            if (type instanceof JFXTypeUnknown
+                    && type.getCardinality() == Cardinality.SINGLETON)
+                    return;
+            print(": ");
+            printExpr(type);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
     public void visitTypeClass(JFXTypeClass tree) {
         try {
-            print(": ");
             print(tree.getClassName());
             print(ary(tree));
         } catch (IOException e) {
@@ -523,10 +534,17 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
 
     public void visitTypeFunctional(JFXTypeFunctional tree) {
         try {
-            print(": (");
-            printExprs(tree.getParams());
+            print("(");
+            List<JFXType> params = tree.getParams();
+            if (params.nonEmpty()) {
+                printTypeSpecifier(params.head);
+                for (List<JFXType> l = params.tail; l.nonEmpty(); l = l.tail) {
+                    print(", ");
+                    printTypeSpecifier(l.head);
+                }
+            }
             print(")");
-            printExpr((JFXType)tree.getReturnType());
+            printTypeSpecifier((JFXType)tree.getReturnType());
             print(ary(tree));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -564,7 +582,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             else if (variableScope != SCOPE_PARAMS)
                 print("var ");
             print(tree.getName());
-            printExpr(tree.getJFXType());
+            printTypeSpecifier(tree.getJFXType());
             if (variableScope != SCOPE_PARAMS) {
                 if (tree.getInitializer() != null) {
                     print(" = ");
