@@ -801,7 +801,7 @@ postfixExpression
 	   ( DOT ( name						-> ^(DOT $postfixExpression name)
 //TODO:		 | CLASS   					
 	         )   
-	   | expressionList  					-> ^(FUNC_APPLY $postfixExpression expressionList)
+	   | LPAREN expressionList RPAREN           		-> ^(FUNC_APPLY[$LPAREN] $postfixExpression expressionList)
 	   | LBRACKET (name PIPE expression RBRACKET		-> ^(PIPE $postfixExpression name expression)
 	     | first=expression
                (RBRACKET					-> ^(SEQ_INDEX $postfixExpression $first)
@@ -889,12 +889,12 @@ bracketExpression
 	    )
 	  RBRACKET 
 	;
-expressionList  
-	: LPAREN (expression (COMMA expression)*)? RPAREN
-						-> ^(EXPR_LIST[$LPAREN] expression*)
+expressionList
+	: (expression (COMMA expression)*)?
+						-> ^(EXPR_LIST expression*)
 	;
 expressionListOpt  
-	: (LPAREN)=> expressionList		-> expressionList
+	: LPAREN expressionList RPAREN		-> expressionList
 	|					-> ^(EXPR_LIST)
 	;
 type 
