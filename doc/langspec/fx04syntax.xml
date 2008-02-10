@@ -339,12 +339,11 @@
           <td>conditional expression</td>
 
           <td>
-            <code><emphasis>e1</emphasis> ? <emphasis>e2</emphasis> :
-            <emphasis>e3</emphasis></code>
+            <code>if <emphasis>e1</emphasis> e2 <emphasis>[else  e3]</emphasis></code>
           </td>
         </tr>
 
-        <tr>
+   <!--     <tr>
           <td>
             <code>select</code>
           </td>
@@ -354,7 +353,7 @@
           <td>
             <code>n/a</code>
           </td>
-        </tr>
+        </tr> 
 
         <tr>
           <td>
@@ -366,7 +365,7 @@
           <td>
             <code>n/a</code>
           </td>
-        </tr>
+        </tr>  -->
 
         <tr>
           <td>
@@ -501,7 +500,7 @@
             <code>n/a</code>
           </td>
         </tr>
-
+<!-- 
         <tr>
           <td>
             <code>{}</code>
@@ -512,7 +511,9 @@
           <td>
             <code>n/a</code>
           </td>
-        </tr>
+        </tr> 
+	
+	-->
 
         <tr>
           <td>
@@ -913,12 +914,12 @@ System.out.println(s);
 <para>This section lists and defines the logical expressions available in JavaFX&trade; Script. </para>
 	
         <sect2 id="if">
-          <title><code>if</code> Statement</title>
+          <title><code>if</code> Expression</title>
 
-          <para>The <code>if</code> statement is like the statement in the Java&trade; programming language, except
+          <para>The <code>if</code> expression is like the expression in the Java&trade; programming language, except
           that curly braces are always required around the <code>then</code> and <code>else</code>
           clauses, unless the the <code>else</code> clause is another <code>if</code>
-          statement.</para>
+          expression.</para>
 
           <para><emphasis role="bold">Example:</emphasis></para>
 
@@ -932,7 +933,7 @@ System.out.println(s);
 </programlisting>
         
 </sect2>
-	
+	                                                  
 	
 <sect2 id="while">
           <title><code>While</code> Statement</title>
@@ -981,6 +982,8 @@ System.out.println(s);
 
         <sect2 id="for">
           <title><code>for</code> Statement</title>
+	  
+	  <para><emphasis role="bold">QUESTION: We need a new intro to go with the 'for' statement.</emphasis></para>
 
           <para>The header of the JavaFX Script <code>for</code> statement uses the same syntax as the <code>foreach</code> list comprehension operator.<!-- This needs to be linked to the list comprehension discussion in the Arrays chapter -->
           However; in this case the body of the statement is executed for each
@@ -1089,6 +1092,8 @@ System.out.println(s);
 </programlisting>
           </sect2>
 
+	  
+	  <!--  
           <sect2 id="do">
             <title><code>do</code> Statement</title>
 
@@ -1175,10 +1180,9 @@ thread. This mimics the functionality of
 </programlisting>
           </sect2>
 
-
-
-
-    <para><emphasis role="bold">Block Expressions</emphasis></para>
+-->
+<sect2 id="block">
+  <title>Block Expressions</title>
 
     
 
@@ -1227,9 +1231,12 @@ System.out.println(s);
 
     <para>Thanks to block expressions, the JavaFX "if" expression takes the
     place of both.</para>
-
-    <para><emphasis role="bold">Range Expressions</emphasis></para>
-
+    
+    </sect2>
+    
+    <sect2 id="range">
+  <title>Range Expressions</title>
+    
     <para>As mentioned in chapter two <emphasis role="bold">[TO-DO: confirm
     that location and provide link]</emphasis> it is possible to define a
     sequence of numeric values forming an arithmetic series using the
@@ -1269,6 +1276,7 @@ System.out.println(nums == [0,1,2,3]); // prints true
 System.out.println(nums == [3,2,1,0]); // prints true
 </programlisting>
 
+</sect2>
   </sect1>
   </section>
 </chapter>
