@@ -7,8 +7,7 @@ import java.lang.System;
 import java.lang.Math;
 
 function isPrime(n:Integer):Boolean {
-	if(n==2) { return true; } else {		
-    	return (sizeof (for(i in [2 .. Math.sqrt(n)] where n%i == 0) i) == 0) }
+    	return (sizeof (for(i in [2 .. Math.sqrt(n)] where n%i == 0) i) == 0);
 }
 function roundMe(src:Number, digits:Integer) {
 	src *= Math.pow(10,digits);
