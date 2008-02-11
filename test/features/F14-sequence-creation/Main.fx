@@ -22,6 +22,8 @@ var rangeStepE = [0..<1000 step 100];
 var nRange = [12.5..18.5 step 0.5];
 var nRangeE = [12.5..<18.5 step 0.5];
 var toZ = [1..0 step -0.1];
+var negRangeFrac = [2..1.02];
+
 
 var emptyStart : Integer[] = [];
 insert 1234 into emptyStart;
@@ -39,6 +41,7 @@ System.out.println(rangeStepE);
 System.out.println(nRange);
 System.out.println(nRangeE);
 System.out.println(toZ);
+System.out.println(negRangeFrac);
 System.out.println(emptyStart);
 
 System.out.println(nums[3]);
