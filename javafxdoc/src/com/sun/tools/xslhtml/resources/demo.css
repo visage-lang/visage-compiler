@@ -175,24 +175,24 @@ p img {
     color: #454545;
 }
 
-#toc li {
+#toc dt {
     padding: .2em;
     list-style-position: outside;
     list-style-type: none;
 }
 
-#toc li a {
+#toc dt a {
     color: #454545;
     padding: .2em;
     text-decoration: none;
 }
 
-#toc li a:hover {
+#toc dt a:hover {
     background-color: #d1dfd1;
     text-decoration: underline;
 }
 
-#toc li a b {
+#toc dt a b {
     color: black;
 }
 
@@ -313,4 +313,15 @@ h2 b {
 
 h2 strong {
 	display: none;
+}
+
+
+
+
+
+/* === package list === */
+
+#packageList, #classList {
+	padding-left: 1em;
+	list-style-type: none;
 }

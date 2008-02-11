@@ -28,6 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -117,7 +118,8 @@ public class XHTMLProcessingUtils {
 
         p(INFO, getString("copying"));
 
-        copy(XHTMLProcessingUtils.class.getResource("resources/frameset.html"), new File(docsdir, "frameset.html"));
+        copy(XHTMLProcessingUtils.class.getResource("resources/index.html"), new File(docsdir, "index.html"));
+        copy(XHTMLProcessingUtils.class.getResource("resources/empty.html"), new File(docsdir, "empty.html"));
         copy(XHTMLProcessingUtils.class.getResource("resources/master.css"), new File(docsdir, "master.css"));
         copy(XHTMLProcessingUtils.class.getResource("resources/demo.css"), new File(docsdir, "demo.css"));
         File images = new File(docsdir,"images");
@@ -165,28 +167,26 @@ public class XHTMLProcessingUtils {
         // packages
         NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET); MessageFormat form = new MessageFormat("The disk \"{1}\" contains {0}.");
         p(INFO, MessageFormat.format(getString("creating.packages"), packages.getLength()));
-        FileOutputStream packages_html = new FileOutputStream(new File(docsdir, "packages.html"));
-        Writer packages_writer = new OutputStreamWriter(packages_html);
-        packages_writer.write("<html><head><link href='demo.css' rel='stylesheet'/></head><body><ul class='package-list'>");
-        FileOutputStream classes_html = new FileOutputStream(new File(docsdir, "classes.html"));
-        Writer classes_writer = new OutputStreamWriter(classes_html);
-        classes_writer.write("<html><head><link href='../demo.css' rel='stylesheet'/></head><body><ul>");
+        
+        
+        Document packages_doc = builder.newDocument();
+        Element package_list_elem = packages_doc.createElement("packageList");
+        packages_doc.appendChild(package_list_elem);
 
         for (int i = 0; i < packages.getLength(); i++) {
             Element pkg = ((Element) packages.item(i));
             String name = pkg.getAttribute("name");
-            packages_writer.write("<li><a href='"+name+"/classes.html' target='classListFrame'>" + name + "</a></li>");
+            Element package_elem = packages_doc.createElement("package");
+            package_elem.setAttribute("name", name);
+            package_list_elem.appendChild(package_elem);
             processPackage(name, pkg, xpath, docsdir, trans);
         }
 
-        classes_writer.write("</ul></body></html>");
-        classes_writer.close();
-        packages_writer.write("</ul></body></html>");
-        packages_writer.close();
+        trans.transform(new DOMSource(packages_doc), new StreamResult(new File(docsdir,"packages.html")));
         System.out.println(getString("finished"));
     }
 
-    private static void processPackage(String packageName, Element pkg, XPath xpath, File docsdir, Transformer trans) throws TransformerException, XPathExpressionException, IOException, FileNotFoundException {
+    private static void processPackage(String packageName, Element pkg, XPath xpath, File docsdir, Transformer trans) throws TransformerException, XPathExpressionException, IOException, FileNotFoundException, ParserConfigurationException {
         File packageDir = new File(docsdir, packageName);
         packageDir.mkdir();
         //classes
@@ -195,21 +195,29 @@ public class XHTMLProcessingUtils {
                     pkg, XPathConstants.NODESET);
         List<Element> classes = sort(classesNodeList);
         p(INFO, MessageFormat.format(getString("creating.classes"), classes.size()));
-        FileOutputStream package_classes_html = new FileOutputStream(new File(packageDir, "classes.html"));
-        Writer package_classes_writer = new OutputStreamWriter(package_classes_html);
-        package_classes_writer.write("<html><head><link href='../demo.css' rel='stylesheet'/></head><body><ul class='class-list'>");
+        
+        Document classes_doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Element class_list = classes_doc.createElement("classList");
+        class_list.setAttribute("packageName", packageName);
+        classes_doc.appendChild(class_list);
+        
         for(Element clazz : classes) {
-            processClass(clazz, package_classes_writer,trans, packageDir);
+            processClass(clazz, class_list, trans, packageDir);
         }
-        package_classes_writer.write("</ul></body></html>");
-        package_classes_writer.close();
+        trans.transform(new DOMSource(classes_doc), new StreamResult(new File(packageDir,"classes.html")));
     }
 
     
-    private static void processClass(Element clazz, Writer package_classes_writer, Transformer trans, File packageDir) throws TransformerException, IOException {
+    private static void processClass(Element clazz, Element class_list, Transformer trans, File packageDir) throws TransformerException, IOException {
         String qualifiedName = clazz.getAttribute("qualifiedName");
         String name = clazz.getAttribute("name");
-        package_classes_writer.write("<li><a href='" + qualifiedName + ".html" + "' target='classFrame'>" + name + "</a>\n");
+        
+        //add to class list
+        Element class_elem = class_list.getOwnerDocument().createElement("class");
+        class_list.appendChild(class_elem);
+        class_elem.setAttribute("name", name);
+        class_elem.setAttribute("qualifiedName", qualifiedName);
+        
         File xhtmlFile = new File(packageDir, qualifiedName + ".html");
         Result xhtmlResult = new StreamResult(xhtmlFile);
         Source xmlSource = new DOMSource(clazz);

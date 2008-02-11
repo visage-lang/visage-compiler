@@ -4,7 +4,7 @@
     <xsl:output method="html"/>
     
     <xsl:variable name="use-toc-tables">true</xsl:variable>
-    <xsl:param name="master-css">../master.css</xsl:param>
+    <xsl:param name="master-css">master.css</xsl:param>
     
     <xsl:template match="/">
         <html>
@@ -43,9 +43,10 @@
     
     <xsl:template match="classList">
         <head>
-            <link href="{$master-css}" rel="stylesheet"/>
+            <link href="../{$master-css}" rel="stylesheet"/>
         </head>
         <body>
+            <p><b><xsl:value-of select="@packageName"/></b></p>
             <ul id="classList">
                 <xsl:for-each select="class">
                     <li>
@@ -82,7 +83,7 @@
     
     <xsl:template name="classOutput">
         <head>
-            <link href="{$master-css}" rel="stylesheet"/>
+            <link href="../{$master-css}" rel="stylesheet"/>
             <style type="text/css">
             </style>
         </head>
@@ -321,18 +322,18 @@
                 <i><xsl:value-of select="returns/@simpleTypeName"/>
                 <xsl:value-of select="type/@dimension"/></i>
             </a>
-         </dt>
-         <dd>
-                <xsl:value-of select="docComment/firstSentenceTags/Text"
-                              disable-output-escaping="yes"/>
-                          </dd>
+        </dt>
+        <dd>
+            <xsl:value-of select="docComment/firstSentenceTags/Text"
+                          disable-output-escaping="yes"/>
+        </dd>
     </xsl:template>
     
     <xsl:template name="method-like">
         <div class="method member">
-                <a>
-                    <xsl:attribute name="id">method_<xsl:value-of select="@name"/></xsl:attribute>
-            <h4>
+            <a>
+                <xsl:attribute name="id">method_<xsl:value-of select="@name"/></xsl:attribute>
+                <h4>
                     <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
                     <xsl:text> </xsl:text>
                     <b><xsl:value-of select="@name"/></b>
@@ -347,8 +348,8 @@
                     :
                     <i><xsl:value-of select="returns/@simpleTypeName"/>
                     <xsl:value-of select="type/@dimension"/></i>
-            </h4>
-                </a>
+                </h4>
+            </a>
             
             
             <xsl:if test="parameters/parameter">

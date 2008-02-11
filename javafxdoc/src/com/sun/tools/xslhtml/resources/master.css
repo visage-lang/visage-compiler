@@ -84,3 +84,13 @@ h3 {
 .member dt {
 	font-family: "Courier New", Courier, Monaco, monospace;
 }
+
+
+
+
+/* === package list === */
+
+#packageList, #classList {
+	padding-left: 0px;
+	list-style-type: none;
+}
