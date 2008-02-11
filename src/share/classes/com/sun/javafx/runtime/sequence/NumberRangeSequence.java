@@ -47,7 +47,11 @@ class NumberRangeSequence extends AbstractSequence<Double> implements Sequence<D
             this.size = exclusive ? 0 : 1;
         }
         else {
-            long size = Math.max(0, (((long) ((bound - start) / step)) + 1));
+
+            long size = ((bound < start  && step > 0.0) ||
+                    (bound > start && step < 0.0))? 
+                        0
+                :Math.max(0, (((long) ((bound - start) / step)) + 1));
             if (exclusive) {
                 boolean tooBig = (step > 0)
                         ? (start + (size-1)*step >= bound)
