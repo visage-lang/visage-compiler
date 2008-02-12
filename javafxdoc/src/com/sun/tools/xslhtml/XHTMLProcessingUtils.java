@@ -10,10 +10,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -138,34 +136,13 @@ public class XHTMLProcessingUtils {
             System.out.println("using key: " + key + " " + parameters.get(key));
             trans.setParameter(key, parameters.get(key));
         }
-        trans.setErrorListener(new ErrorListener() {
-
-            public void warning(TransformerException exception) throws TransformerException {
-                p(WARNING, "warning: " + exception);
-            }
-
-            public void error(TransformerException exception) throws TransformerException {
-                Throwable thr = exception;
-                while (true) {
-                    p(SEVERE, "error: " + exception.getMessageAndLocation(), thr.getCause());
-                    if (thr.getCause() != null) {
-                        thr = thr.getCause();
-                    } else {
-                        break;
-                    }
-
-                }
-            }
-
-            public void fatalError(TransformerException exception) throws TransformerException {
-                p(SEVERE, "fatal error: " + exception.getMessageAndLocation(), exception);
-            }
-        });
+        trans.setErrorListener(new MainErrorListener());
 
         XPath xpath = XPathFactory.newInstance().newXPath();
 
         // packages
-        NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET); MessageFormat form = new MessageFormat("The disk \"{1}\" contains {0}.");
+        NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET); 
+        MessageFormat form = new MessageFormat("The disk \"{1}\" contains {0}.");
         p(INFO, MessageFormat.format(getString("creating.packages"), packages.getLength()));
         
         
@@ -182,13 +159,14 @@ public class XHTMLProcessingUtils {
             processPackage(name, pkg, xpath, docsdir, trans);
         }
 
-        trans.transform(new DOMSource(packages_doc), new StreamResult(new File(docsdir,"packages.html")));
+        trans.transform(new DOMSource(packages_doc), new StreamResult(new File(docsdir,"overview-frame.html")));
         System.out.println(getString("finished"));
     }
 
     private static void processPackage(String packageName, Element pkg, XPath xpath, File docsdir, Transformer trans) throws TransformerException, XPathExpressionException, IOException, FileNotFoundException, ParserConfigurationException {
         File packageDir = new File(docsdir, packageName);
         packageDir.mkdir();
+        
         //classes
         NodeList classesNodeList = (NodeList) xpath.evaluate(
                     "*[name() = 'class' or name() = 'abstractClass' or name() = 'interface']",
@@ -204,7 +182,7 @@ public class XHTMLProcessingUtils {
         for(Element clazz : classes) {
             processClass(clazz, class_list, trans, packageDir);
         }
-        trans.transform(new DOMSource(classes_doc), new StreamResult(new File(packageDir,"classes.html")));
+        trans.transform(new DOMSource(classes_doc), new StreamResult(new File(packageDir,"package-frame.html")));
     }
 
     
@@ -220,7 +198,8 @@ public class XHTMLProcessingUtils {
         
         File xhtmlFile = new File(packageDir, qualifiedName + ".html");
         Result xhtmlResult = new StreamResult(xhtmlFile);
-        Source xmlSource = new DOMSource(clazz);
+        Source xmlSource = new DOMSource(clazz.getOwnerDocument());
+        trans.setParameter("target-class", qualifiedName);
         trans.transform(xmlSource, xhtmlResult);
     }
 
@@ -316,5 +295,31 @@ public class XHTMLProcessingUtils {
      */
     public static void main(String[] args) throws Exception {
         process("javadoc.xml", null, new HashMap<String, String>());
+    }
+
+    private static class MainErrorListener implements ErrorListener {
+
+        public MainErrorListener() {
+        }
+
+        public void warning(TransformerException exception) throws TransformerException {
+            p(WARNING, "warning: " + exception);
+        }
+
+        public void error(TransformerException exception) throws TransformerException {
+            Throwable thr = exception;
+            while (true) {
+                p(SEVERE, "error: " + exception.getMessageAndLocation(), thr.getCause());
+                if (thr.getCause() != null) {
+                    thr = thr.getCause();
+                } else {
+                    break;
+                }
+            }
+        }
+
+        public void fatalError(TransformerException exception) throws TransformerException {
+            p(SEVERE, "fatal error: " + exception.getMessageAndLocation(), exception);
+        }
     }
 }

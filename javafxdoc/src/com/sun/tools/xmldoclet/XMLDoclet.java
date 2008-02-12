@@ -279,7 +279,8 @@ public class XMLDoclet {
         attrs.addAttribute("", "", "qualifiedName", "CDATA", cls.qualifiedName());
         attrs.addAttribute("", "", "packageName", "CDATA", cls.containingPackage().name());
         attrs.addAttribute("", "", "language", "CDATA", fxClass ? "javafx" : "java");
-        hd.startElement("", "", classType, attrs);
+        attrs.addAttribute("", "", "classType","CDATA",classType);
+        hd.startElement("", "", "class", attrs);
         generateComment(cls);
         generateModifiers(cls);
         if (!fxClass) {
@@ -303,7 +304,7 @@ public class XMLDoclet {
             generateExecutableMember(meth, fxClass ? "function" : "method");
         for (FieldDoc field : cls.fields())
             generateField(field, fxClass ? "attribute" : "field");
-        hd.endElement("", "", classType);
+        hd.endElement("", "", "class");
     }
     
     private void generateModifiers(ProgramElementDoc element) throws SAXException {

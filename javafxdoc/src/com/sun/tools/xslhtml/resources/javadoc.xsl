@@ -5,15 +5,23 @@
     
     <xsl:variable name="use-toc-tables">true</xsl:variable>
     <xsl:param name="master-css">master.css</xsl:param>
+    <xsl:param name="target-class">javafx.ui.ToggleButton</xsl:param>
+
+    
     
     <xsl:template match="/">
-        <html>
-            <xsl:apply-templates select="/class"/>
-            <xsl:apply-templates select="/abstractClass"/>
-            <xsl:apply-templates select="/interface"/>
-            <xsl:apply-templates select="/classList"/>
-            <xsl:apply-templates select="/packageList"/>
-        </html>
+        
+        <xsl:if test="not (/classList)">
+            <xsl:apply-templates select="//class[@qualifiedName=$target-class]"/>
+            <!--
+            <xsl:apply-templates select="//abstractClass[@qualifiedName=$target-class]"/>
+            <xsl:apply-templates select="//interface[@qualifiedName=$target-class]"/>
+            -->
+        </xsl:if>
+        
+        <xsl:apply-templates select="/classList"/>
+        <xsl:apply-templates select="/packageList"/>
+        
     </xsl:template>
     
     
@@ -21,49 +29,48 @@
     <!-- indexes -->
     
     <xsl:template match="packageList">
-        <head>
-            <link href="{$master-css}" rel="stylesheet"/>
-        </head>
-        <body>
-            <ul id="packageList">
-                <xsl:for-each select="package">
-                    <li>
-                        <a target='classListFrame'>
-                            <xsl:attribute name="href"><xsl:value-of select="@name"/>/classes.html</xsl:attribute>
-                            <xsl:value-of select="@name"/>
-                        </a>
-                    </li>
-                </xsl:for-each>
-            </ul>
-        </body>
+        <html>
+            <head>
+                <link href="{$master-css}" rel="stylesheet"/>
+            </head>
+            <body>
+                <ul id="packageList">
+                    <xsl:for-each select="package">
+                        <li>
+                            <a target='classListFrame'>
+                                <xsl:attribute name="href"><xsl:value-of select="@name"/>/package-frame.html</xsl:attribute>
+                                <xsl:value-of select="@name"/>
+                            </a>
+                        </li>
+                    </xsl:for-each>
+                </ul>
+            </body>
+        </html>
     </xsl:template>
     
     
     
     
     <xsl:template match="classList">
-        <head>
-            <link href="../{$master-css}" rel="stylesheet"/>
-        </head>
-        <body>
-            <p><b><xsl:value-of select="@packageName"/></b></p>
-            <ul id="classList">
-                <xsl:for-each select="class">
-                    <li>
-                        <a target='classFrame'>
-                            <xsl:attribute name="href"><xsl:value-of select="@qualifiedName"/>.html</xsl:attribute>
-                            <xsl:value-of select="@name"/>
-                        </a>
-                    </li>
-                </xsl:for-each>
-            </ul>
-        </body>
+        <html>
+            <head>
+                <link href="../{$master-css}" rel="stylesheet"/>
+            </head>
+            <body>
+                <p><b><xsl:value-of select="@packageName"/></b></p>
+                <ul id="classList">
+                    <xsl:for-each select="class">
+                        <li>
+                            <a target='classFrame'>
+                                <xsl:attribute name="href"><xsl:value-of select="@qualifiedName"/>.html</xsl:attribute>
+                                <xsl:value-of select="@name"/>
+                            </a>
+                        </li>
+                    </xsl:for-each>
+                </ul>
+            </body>
+        </html>
     </xsl:template>
-    
-    
-    
-    
-    
     
     
     
@@ -82,29 +89,42 @@
     <!-- the actual class -->
     
     <xsl:template name="classOutput">
-        <head>
-            <link href="../{$master-css}" rel="stylesheet"/>
-            <style type="text/css">
-            </style>
-        </head>
-        <body>
-            <xsl:call-template name="header"/>
-            <div id="content">
-                <a id="overview"><h3>Overview</h3></a>
-                <div class="overview">
-                    <xsl:apply-templates select="docComment/commentText"/>
+        <html>
+            <head>
+                <link href="../{$master-css}" rel="stylesheet"/>
+                <style type="text/css">
+                </style>
+            </head>
+            <body>
+                <xsl:call-template name="header"/>
+                <div id="content">
+                    <a id="overview"><h3>Overview</h3></a>
+                    <div class="overview">
+                        <xsl:apply-templates select="docComment/commentText"/>
+                    </div>
+                    <xsl:call-template name="toc"/>
+                    <xsl:call-template name="inherited"/>
+                    <xsl:call-template name="members"/>
                 </div>
-                <xsl:call-template name="toc"/>
-                <xsl:call-template name="inherited"/>
-                <xsl:call-template name="members"/>
-            </div>
-        </body>
+            </body>
+        </html>
     </xsl:template>
     
     <xsl:template match="docComment/commentText">
         <p class="comment">
             <xsl:value-of select="." disable-output-escaping="yes"/>
         </p>
+    </xsl:template>
+    
+    <xsl:template match="class" mode="super">
+        <xsl:variable name="super" select="superclass/@qualifiedTypeName"/>
+        <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="super"/>
+        &gt;
+        <a>
+            <xsl:attribute name="href">../<xsl:value-of select="@packageName"/>/<xsl:value-of select="@packageName"/>.<xsl:value-of select="@name"/>.html</xsl:attribute>
+            <strong><xsl:value-of select="@packageName"/>.</strong>
+            <b><xsl:value-of select="@name"/></b>
+        </a>
     </xsl:template>
     
     
@@ -124,10 +144,8 @@
             
             
             <h2>
-                <a href="#">
-                    <strong><xsl:value-of select="superclass/@packageName"/>.</strong>
-                    <b><xsl:value-of select="superclass/@simpleTypeName"/></b>
-                </a>
+                <xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>
+                <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="super"/>
                 &gt;
                 <a href="#">
                     <strong><xsl:value-of select="@packageName"/>.</strong>
