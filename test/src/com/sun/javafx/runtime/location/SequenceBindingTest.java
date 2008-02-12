@@ -343,7 +343,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     public void testBoundConcat() {
         SequenceLocation<Integer> a = SequenceVar.make(Sequences.range(1, 2));
         SequenceLocation<Integer> b = SequenceVar.make(Sequences.range(3, 4));
-        SequenceLocation<Integer> c = BoundSequences.concatenate(Integer.class, a, b);
+        BoundCompositeSequence<Integer> c = new BoundCompositeSequence<Integer>(Integer.class, a, b);
         HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
         c.addChangeListener(hl);
 
@@ -355,6 +355,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         b.set(1, 5);
         assertEquals(c, 0, 2, 3, 5);
         assertEqualsAndClear(hl, "r-3-4-5");
+        c.validate();
 
         a.insert(9);
         assertEquals(c, 0, 2, 9, 3, 5);
@@ -365,6 +366,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         b.insertFirst(100);
         assertEquals(c, 0, 2, 9, 100, 3, 5, 19);
         assertEqualsAndClear(hl, "i-3-100");
+        c.validate();
 
         a.delete(0);
         assertEquals(c, 2, 9, 100, 3, 5, 19);
@@ -372,30 +374,76 @@ public class SequenceBindingTest extends JavaFXTestCase {
         b.delete(0);
         assertEquals(c, 2, 9, 3, 5, 19);
         assertEqualsAndClear(hl, "d-2-100");
+        c.validate();
 
         a.setAsSequence(Sequences.range(1, 2));
         assertEquals(c, 1, 2, 3, 5, 19);
         assertEqualsAndClear(hl, "d-1-9", "d-0-2", "i-0-1", "i-1-2");
+        c.validate();
 
         b.setAsSequence(Sequences.range(3, 4));
         assertEquals(c, 1, 2, 3, 4);
         assertEqualsAndClear(hl, "d-4-19", "d-3-5", "d-2-3", "i-2-3", "i-3-4");
+        c.validate();
 
         a.deleteAll();
         assertEquals(c, 3, 4);
         assertEqualsAndClear(hl, "d-1-2", "d-0-1");
+        c.validate();
 
         b.deleteAll();
         assertEquals(0, c.getAsSequence().size());
         assertEqualsAndClear(hl, "d-1-4", "d-0-3");
+        c.validate();
 
         a.setAsSequence(Sequences.range(1, 2));
         assertEquals(c, 1, 2);
         assertEqualsAndClear(hl, "i-0-1", "i-1-2");
+        c.validate();
 
         b.setAsSequence(Sequences.range(3, 4));
         assertEquals(c, 1, 2, 3, 4);
         assertEqualsAndClear(hl, "i-2-3", "i-3-4");
+        c.validate();
+
+        SequenceLocation<Integer> d = SequenceVar.make(Sequences.range(9, 10));
+        c.replaceSlice(0, 0, new SequenceLocation[] { d });
+        assertEquals(c, 9, 10, 3, 4);
+        assertEqualsAndClear(hl, "d-1-2", "d-0-1", "i-0-9", "i-1-10");
+        a.deleteAll();
+        assertEquals(c, 9, 10, 3, 4);
+        assertEqualsAndClear(hl);
+        c.validate();
+
+        d.insert(11);
+        assertEquals(c, 9, 10, 11, 3, 4);
+        assertEqualsAndClear(hl, "i-2-11");
+        c.validate();
+
+        c.replaceSlice(2, 1, new SequenceLocation[] { d });
+        assertEquals(c, 9, 10, 11, 3, 4, 9, 10, 11);
+        assertEqualsAndClear(hl, "i-5-9", "i-6-10", "i-7-11");
+        c.validate();
+
+        d.delete(2);
+        assertEquals(c, 9, 10, 3, 4, 9, 10);
+        assertEqualsAndClear(hl, "d-2-11", "d-6-11");
+        c.validate();
+
+        b.insert(5);
+        assertEquals(c, 9, 10, 3, 4, 5, 9, 10);
+        assertEqualsAndClear(hl, "i-4-5");
+        c.validate();
+
+        c.replaceSlice(0, 0, new SequenceLocation[] { });
+        assertEquals(c, 3, 4, 5, 9, 10);
+        assertEqualsAndClear(hl, "d-1-10", "d-0-9");
+        c.validate();
+
+        b.insert(6);
+        assertEquals(c, 3, 4, 5, 6, 9, 10);
+        assertEqualsAndClear(hl, "i-3-6");
+        c.validate();
     }
 
     public void testBoundReverse() {

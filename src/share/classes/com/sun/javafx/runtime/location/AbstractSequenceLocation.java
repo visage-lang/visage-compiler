@@ -59,6 +59,11 @@ public abstract class AbstractSequenceLocation<T> extends AbstractLocation imple
         replaceListeners.add(listener);
     }
 
+    public void removeChangeListener(SequenceReplaceListener<T> listener) {
+        if (replaceListeners != null)
+            replaceListeners.remove(listener);
+    }
+
     public void addChangeListener(final SequenceChangeListener<T> listener) {
         addChangeListener(new SequenceReplaceListener<T>() {
             public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {

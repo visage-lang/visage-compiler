@@ -553,6 +553,10 @@ public class Locations {
             location.addChangeListener(sequenceReplaceListener);
         }
 
+        public void removeChangeListener(SequenceReplaceListener<T> sequenceReplaceListener) {
+            location.removeChangeListener(sequenceReplaceListener);
+        }
+
         public void addChangeListener(SequenceChangeListener<T> listener) {
             location.addChangeListener(listener);
         }

@@ -68,4 +68,14 @@ public class BoundSequences {
     public static<T> SequenceLocation<Integer> singleton(IntLocation location) {
         return new BoundSingletonSequence<Integer>(Integer.class, location);
     }
+
+    public static<T> SequenceLocation<T> empty(Class<T> clazz) {
+        return new AbstractBoundSequence<T>(clazz) {
+            protected Sequence<T> computeValue() {
+                return Sequences.emptySequence(clazz);
+            }
+
+            protected void initialize() { }
+        };
+    }
 }

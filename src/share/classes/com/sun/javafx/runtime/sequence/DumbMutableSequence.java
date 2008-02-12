@@ -1,5 +1,6 @@
 package com.sun.javafx.runtime.sequence;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import com.sun.javafx.runtime.Util;
@@ -14,42 +15,55 @@ public class DumbMutableSequence<T> implements Iterable<T> {
     private T[] array;
     private int size;
 
+    public DumbMutableSequence(T[] initialValues) {
+        this(initialValues.length);
+        System.arraycopy(initialValues, 0, array, 0, initialValues.length);
+        size = initialValues.length;
+    }
+
     public DumbMutableSequence(int initialSize) {
         this.array = Util.<T>newObjectArray(Util.powerOfTwo(1, initialSize));
+        size = 0;
     }
 
     public DumbMutableSequence() {
         this(8);
     }
 
-    public void replaceSlice(int startPos, int endPos, Sequence<? extends T> newElements) {
-        int insertedCount = Sequences.size(newElements);
+    public T get(int i) {
+        return (i < 0 || i > size)
+                ? null
+                : array[i];
+    }
+
+    public void replaceSlice(int startPos, int endPos, T[] newElements) {
+        int insertedCount = newElements.length;
         int deletedCount = endPos - startPos + 1;
         int netAdded = insertedCount - deletedCount;
-        if (netAdded == 0) {
-            for (int i = startPos; i <= endPos; i++)
-                array[i] = newElements.get(i - startPos);
-        }
+        if (netAdded == 0)
+            System.arraycopy(newElements, 0, array, startPos, insertedCount);
         else if (size + netAdded < array.length) {
             System.arraycopy(array, endPos + 1, array, endPos + 1 + netAdded, size - (endPos + 1));
-            for (int i = 0; i < insertedCount; i++)
-                array[startPos + i] = newElements.get(i);
-            if (netAdded < 0) {
-                for (int i = 0; i < -netAdded; i++)
-                    array[size + netAdded + i] = null;
-            }
+            System.arraycopy(newElements, 0, array, startPos, insertedCount);
+            if (netAdded < 0)
+                Arrays.fill(array, size + netAdded, size, null);
             size += netAdded;
         }
         else {
             int newSize = size + netAdded;
             T[] temp = Util.<T>newObjectArray(Util.powerOfTwo(size, newSize));
             System.arraycopy(array, 0, temp, 0, startPos);
-            for (int i = 0; i < insertedCount; i++)
-                temp[startPos + i] = newElements.get(i);
+            System.arraycopy(newElements, 0, temp, startPos, insertedCount);
             System.arraycopy(array, endPos + 1, temp, startPos + insertedCount, size - (endPos + 1));
             array = temp;
             size = newSize;
         }
+    }
+
+    public void replaceSlice(int startPos, int endPos, Sequence<? extends T> newElements) {
+        T[] temp = Util.<T>newObjectArray(Sequences.size(newElements));
+        newElements.toArray(temp, 0);
+        replaceSlice(startPos, endPos, temp);
     }
 
     public Sequence<T> get(Class<T> clazz) {

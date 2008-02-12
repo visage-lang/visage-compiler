@@ -1,8 +1,10 @@
 package com.sun.javafx.runtime;
 
-import com.sun.javafx.runtime.sequence.Sequence;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import com.sun.javafx.runtime.sequence.Sequence;
 
 /**
  * Utility class for various static utility methods, such as methods that launder generic type errors that are
@@ -39,6 +41,23 @@ public class Util {
             return (T) Boolean.FALSE;
         else
             return null;
+    }
+
+    public static<T> T[] replaceSlice(T[] array, int startPos, int endPos, T[] newElements) {
+        int insertedCount = newElements.length;
+        int deletedCount = endPos - startPos + 1;
+        int netAdded = insertedCount - deletedCount;
+        if (netAdded == 0) {
+            System.arraycopy(newElements, 0, array, startPos, insertedCount);
+            return array;
+        }
+        else {
+            T[] temp = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length + netAdded);
+            System.arraycopy(array, 0, temp, 0, startPos);
+            System.arraycopy(newElements, 0, temp, startPos, insertedCount);
+            System.arraycopy(array, endPos + 1, temp, startPos + insertedCount, array.length - (endPos + 1));
+            return temp;
+        }
     }
 
     /**
