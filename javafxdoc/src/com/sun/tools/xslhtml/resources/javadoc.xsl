@@ -6,7 +6,7 @@
     <xsl:variable name="use-toc-tables">true</xsl:variable>
     <xsl:param name="master-css">master.css</xsl:param>
     <xsl:param name="target-class">javafx.ui.ToggleButton</xsl:param>
-
+    
     
     
     <xsl:template match="/">
@@ -202,6 +202,10 @@
                 </table>
             </xsl:if>
             
+        <xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>
+            <h3>Inherited Attributes</h3>
+            <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="inherited-field"/>
+        
             <xsl:if test="count(function) > 0">
                 <a id="methods-summary"><h3>Function Summary</h3></a>
                 <dl>
@@ -221,6 +225,9 @@
                     </xsl:for-each>
                 </ul>
             </xsl:if>
+            
+            <h3>Inherited Functions</h3>
+            <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="inherited-method"/>
         </div>
         
     </xsl:template>
@@ -271,7 +278,60 @@
     </xsl:template>
     
     
-    <xsl:template name="inherited"/>
+    <xsl:template name="inherited">
+    </xsl:template>
+    
+    <xsl:template match="class" mode="inherited-field">
+        <xsl:if test="count(attribute) > 0">
+            <h4><xsl:value-of select="@qualifiedName"/></h4>
+            <ul class="inherited-field">
+                <xsl:for-each select="attribute">
+                    <xsl:sort select="@name" order="ascending"/>
+                    <li><a>
+                            <xsl:attribute name="href">
+                                <xsl:text>../</xsl:text>
+                                <xsl:value-of select="../@packageName"/>
+                                <xsl:text>/</xsl:text>
+                                <xsl:value-of select="../@packageName"/>
+                                <xsl:text>.</xsl:text>
+                                <xsl:value-of select="../@name"/>
+                                <xsl:text>.html#attribute_</xsl:text>
+                                <xsl:value-of select="@name"/>
+                            </xsl:attribute>
+                            <xsl:value-of select="@name"/>
+                    </a></li>
+                </xsl:for-each>
+            </ul>
+        </xsl:if>
+        <xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>
+        <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="inherited-field"/>
+    </xsl:template>
+    
+    <xsl:template match="class" mode="inherited-method">
+        <xsl:if test="count(function) > 0">
+            <h4><xsl:value-of select="@qualifiedName"/></h4>
+            <ul class="inherited-method">
+                <xsl:for-each select="function">
+                    <xsl:sort select="@name" order="ascending"/>
+                    <li><a>
+                            <xsl:attribute name="href">
+                                <xsl:text>../</xsl:text>
+                                <xsl:value-of select="../@packageName"/>
+                                <xsl:text>/</xsl:text>
+                                <xsl:value-of select="../@packageName"/>
+                                <xsl:text>.</xsl:text>
+                                <xsl:value-of select="../@name"/>
+                                <xsl:text>.html#method_</xsl:text>
+                                <xsl:value-of select="@name"/>
+                            </xsl:attribute>
+                            <xsl:value-of select="@name"/>
+                    </a></li>
+                </xsl:for-each>
+            </ul>
+        </xsl:if>
+        <xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>
+        <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="inherited-method"/>
+    </xsl:template>
     
     
     <!-- Attributes -->
@@ -444,5 +504,6 @@
         </div>  
     </xsl:template>
     
-    -->
-</xsl:stylesheet>
+                    -->
+                </xsl:stylesheet>
+                
