@@ -125,6 +125,7 @@ public class XHTMLProcessingUtils {
         copy(XHTMLProcessingUtils.class.getResource("resources/empty.html"), new File(docsdir, "empty.html"));
         copy(XHTMLProcessingUtils.class.getResource("resources/master.css"), new File(docsdir, "master.css"));
         copy(XHTMLProcessingUtils.class.getResource("resources/demo.css"), new File(docsdir, "demo.css"));
+        copy(XHTMLProcessingUtils.class.getResource("resources/navigation.js"), new File(docsdir, "navigation.js"));
         File images = new File(docsdir,"images");
         images.mkdir();
         copy(XHTMLProcessingUtils.class.getResource("resources/quote-background-1.gif"), new File(images, "quote-background-1.gif"));

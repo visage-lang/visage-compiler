@@ -1,3 +1,15 @@
+@import url("qTip.css");
+
+/* toggle support */
+.advanced {
+	display: none;
+	background-color: red;
+}
+.toggle-advanced {
+	background-color: transparent;
+}
+
+
 
 /* general */
 body {

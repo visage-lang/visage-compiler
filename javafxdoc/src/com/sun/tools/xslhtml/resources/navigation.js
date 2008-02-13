@@ -44,12 +44,17 @@ function togglecss(myclass,element,value,value2) {
         CSSRules = 'cssRules'
     }
 
-    for (var i = 0; i < document.styleSheets[0][CSSRules].length; i++) {
-        if (document.styleSheets[0][CSSRules][i].selectorText == myclass) {
-            if(document.styleSheets[0][CSSRules][i].style[element] == value) {
-                document.styleSheets[0][CSSRules][i].style[element] = value2
-            } else {
-                document.styleSheets[0][CSSRules][i].style[element] = value
+    //alert("len = " + document.styleSheets.length);
+    for(var j = 0; j< document.styleSheets.length; j++) {
+        //alert("sheet rules len = " + document.styleSheets[j][CSSRules].length);
+        for (var i = 0; i < document.styleSheets[j][CSSRules].length; i++) {
+            if (document.styleSheets[j][CSSRules][i].selectorText == myclass) {
+    
+                if(document.styleSheets[j][CSSRules][i].style[element] == value) {
+                    document.styleSheets[j][CSSRules][i].style[element] = value2
+                } else {
+                    document.styleSheets[j][CSSRules][i].style[element] = value
+                }
             }
         }
     }	
