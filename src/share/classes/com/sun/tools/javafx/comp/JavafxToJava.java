@@ -2577,7 +2577,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitTypeCast(JCTypeCast tree) {
-        JCTree clazz = this.makeTypeTree(tree.clazz.type, tree);
+        Type clazztype = tree.clazz.type;
+        if (clazztype.isPrimitive() && ! tree.expr.type.isPrimitive())
+            clazztype = types.boxedClass(clazztype).type;
+        JCTree clazz = this.makeTypeTree(clazztype, tree);
         JCExpression expr = translate(tree.expr);
         result = make.at(tree.pos).TypeCast(clazz, expr);
     }

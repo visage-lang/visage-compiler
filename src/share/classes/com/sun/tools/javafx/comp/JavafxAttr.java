@@ -523,6 +523,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public void visitTypeCast(JCTypeCast tree) {
         Type clazztype = attribType(tree.clazz, env);
         Type exprtype = attribExpr(tree.expr, env, Infer.anyPoly);
+        if (clazztype.isPrimitive() && ! exprtype.isPrimitive())
+            clazztype = types.boxedClass(clazztype).type;
         Type owntype = chk.checkCastable(tree.expr.pos(), exprtype, clazztype);
         if (exprtype.constValue() != null)
             owntype = cfolder.coerce(exprtype, owntype);
