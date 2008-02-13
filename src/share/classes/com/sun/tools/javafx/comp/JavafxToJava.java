@@ -887,7 +887,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     JFXForExpression fexp = (JFXForExpression) init;
                     List<JFXForExpressionInClause> fClauses = fexp.inClauses;
                     JCExpression fbody = fexp.getBodyExpression();
-                    Type bodyType = fbody.type;
+                    // Actually, bodyType is fbody.type.  But if the type
+                    // required by the context (vmi) is a super-type of the
+                    // fbody.type, when we get a type error, because the
+                    // various SequenceLocation types don't use the necessary
+                    // wildcare.  Also, using the context type avoids the
+                    // compiler having to create a bridge method.
+                    Type bodyType = vmi.getElementType();
  
                     if (fClauses.size() != 1 || types.isSequence(bodyType)
                             || fClauses.head.whereExpr != null)
