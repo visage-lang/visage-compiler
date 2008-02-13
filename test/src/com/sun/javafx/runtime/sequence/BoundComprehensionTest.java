@@ -129,6 +129,65 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         base.insertAfter(0, 1); // 0, 2, 0, 3, 4
         assertEquals(derived, 0, 12, 20, 33, 44);
         assertEqualsAndClear(hl, "[2, 3] => [ 20, 33, 44 ]");
+    }
 
+    public void testBoundComprehension() {
+        SequenceLocation<Integer> base = SequenceVar.make(Sequences.range(1, 3));
+        final SequenceLocation<Integer> derived = new BoundComprehension<Integer, Integer>(Integer.class, base, false) {
+
+            protected ComprehensionElement<Integer, Integer> processElement$(final Integer element, final int index) {
+                ComprehensionElement<Integer, Integer> ce = new AbstractComprehensionElement<Integer, Integer>(Integer.class) {
+                    private Integer x;
+                    private int xIndex;
+
+                    public void setElement(Integer element) {
+                        x = element;
+                    }
+
+                    public void setIndex(int index) {
+                        xIndex = index;
+                    }
+
+                    public Sequence<Integer> computeValue() {
+                        return Sequences.make(Integer.class, x * 2);
+                    }
+                };
+                ce.setElement(element);
+                ce.setIndex(index);
+                return ce;
+            }
+        };
+        IntLocation len = new IntExpression(false, derived) {
+            public int computeValue() {
+                return Sequences.size(derived.getAsSequence());
+            }
+        };
+
+        HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
+        derived.addChangeListener(hl);
+
+        assertEquals(derived, 2, 4, 6);
+        assertEqualsAndClear(hl, "[0, -1] => [ 2, 4, 6 ]");
+        assertEquals(3, len.getAsInt());
+
+        base.insert(4);
+        assertEquals(derived, 2, 4, 6, 8);
+        assertEquals(4, len.getAsInt());
+        assertEqualsAndClear(hl, "[3, 2] => [ 8 ]");
+
+        base.delete(0);
+        assertEquals(derived, 4, 6, 8);
+        assertEquals(3, len.getAsInt());
+        assertEqualsAndClear(hl, "[0, 0] => [ ]");
+
+        base.set(0, 0);
+        assertEquals(derived, 0, 6, 8);
+        assertEquals(3, len.getAsInt());
+        assertEqualsAndClear(hl, "[0, 0] => [ 0 ]");
+
+        base.insertFirst(-1);
+        assertEquals(derived, -2, 0, 6, 8);
+        assertEquals(4, len.getAsInt());
+        assertEqualsAndClear(hl, "[0, -1] => [ -2 ]");
     }
 }
