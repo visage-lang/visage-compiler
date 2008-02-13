@@ -153,11 +153,14 @@
         <xsl:variable name="super" select="superclass/@qualifiedTypeName"/>
         <!-- if super can't be found -->
         <xsl:if test="not(//class[@qualifiedName=$super])">
+            <!-- be sure to skip java.lang.Object -->
+            <xsl:if test="not($super='java.lang.Object')">
             <a>
                 <xsl:attribute name="title"><xsl:value-of select="superclass/@packageName"/>.<xsl:value-of select="superclass/@typeName"/></xsl:attribute>
                 <strong><xsl:value-of select="superclass/@packageName"/>.</strong>
                 <b><xsl:value-of select="superclass/@typeName"/></b>
             </a>
+            </xsl:if>
         </xsl:if>
         
         <!-- if super can be found -->
@@ -188,7 +191,7 @@
             
             
             <h2>
-                <xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>
+                <!--<xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>-->
                 <!--//class[@qualifiedName=$blah]"-->
                 <xsl:apply-templates select="." mode="super"/>
             </h2>
@@ -198,11 +201,13 @@
                     <li><a href="#overview">overview</a></li><li><a href="#fields-summary">attributes</a></li><li><a href="#methods-summary">functions</a></li>
                 </ul>
             </xsl:if>
+            
             <xsl:if test="@language='java'">
                 <ul id="tabs">
                     <li><a href="#overview">overview</a></li><li><a href="#fields-summary">fields</a></li><li><a href="#constructors-summary">constructors</a></li><li><a href="#methods-summary">methods</a></li>
                 </ul>
             </xsl:if>
+            
             <ul id="toggles">
                 <li><a class="toggle-advanced" 
                        href="javascript:togglecss('.advanced','display','block','none');togglecss('.toggle-advanced','backgroundColor','transparent','red');">advanced</a></li>
