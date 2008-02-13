@@ -2757,7 +2757,30 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     }
                     args = targs.toList();
                 } else {
-                    args = translate(tree.args, formals);
+                    boolean varargs = tree.args != null && msym != null &&
+                            (msym.flags() & VARARGS) != 0 &&
+                            (formals.size() != tree.args.size() ||
+                             types.isConvertible(tree.args.last().type,
+                                 types.elemtype(formals.last())));
+                    ListBuffer<JCExpression> translated = ListBuffer.lb();
+                    boolean handlingVarargs = false;
+                    Type formal = null;
+                    List<Type> t = formals;
+	            for (List<JCExpression> l = tree.args; l.nonEmpty();  l = l.tail) {
+                        if (! handlingVarargs) {
+                            formal = t.head;
+                            t = t.tail;
+                            if (varargs && t.isEmpty()) {
+                                formal = types.elemtype(formal);
+                                handlingVarargs = true;
+                            }
+                        }
+                        JCExpression tree = translate(l.head, formal);
+                        if (tree != null) {
+                            translated.append( tree );
+                        }
+                    }
+	            args = translated.toList();
                 }
 
                // if this is a super.foo(x) call, "super" will be translated to referenced class,
