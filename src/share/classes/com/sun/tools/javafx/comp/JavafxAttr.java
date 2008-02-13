@@ -713,34 +713,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     site.tsym == env.enclClass.sym) {
                     chk.earlyRefError(tree.pos(), sym);
                 }
-            } else {
-                // Check if type-qualified fields or methods are static (JLS)
-                if ((sym.flags() & STATIC) == 0 &&
-                    sym.name != names._super &&
-                    (sym.kind == VAR || sym.kind == MTH)) {
-
-                    boolean isSuperCall = false;
-                    if (sitesym != null && env != null && env.enclClass != null) { 
-                        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-                        Set superSet = new HashSet<Type>();
-                        supertypes.append(env.enclClass.type);
-                        superSet.add(env.enclClass.type);
-
-                        rs.getSupertypes(env.enclClass.sym, types, supertypes, superSet);
-
-                        if (superSet.contains(sitesym.type)) {
-                            isSuperCall = true;
-                        }
-                    }
-                    
-                    if (!isSuperCall) {
-                        rs.access(rs.new StaticError(sym),
-                              tree.pos(), site, sym.name, true);
-                    }
-                    else {
-                        superSelects.add(tree);
-                    }
-                }
             }
         }
 
@@ -2258,7 +2230,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                             supertypes.append(right);
                             superSet.add(right);
                             
-                            rs.getSupertypes(right.tsym, types, supertypes, superSet);
+                            types.getSupertypes(right.tsym, supertypes, superSet);
                             for (Type baseType : supertypes) {
                                 if (types.isCastable(left, baseType, new Warner(tree.pos()))){
                                     isError = false;
@@ -3388,20 +3360,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         chk.validateTypeParams(tree.getEmptyTypeParameters());
         chk.validate(tree.getSupertypes());
 
-        if ((c.flags() & ANNOTATION) != 0) {
-            if (tree.getImplementing().nonEmpty())
-                log.error(tree.getImplementing().head.pos(),
-                          "cant.extend.intf.annotation");
-            if (tree.getEmptyTypeParameters().nonEmpty())
-                log.error(tree.getEmptyTypeParameters().head.pos(),
-                          "intf.annotation.cant.have.type.params");
-        } else {
-            // Check that all extended classes and interfaces
-            // are compatible (i.e. no two define methods with same arguments
-            // yet different return types).  (JLS 8.4.6.3)
-            chk.checkCompatibleSupertypes(tree.pos(), c.type);
-        }
-
         // Check that class does not import the same parameterized interface
         // with two different argument lists.
         chk.checkClassBounds(tree.pos(), c.type);
@@ -3418,7 +3376,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         // Check that a generic class doesn't extend Throwable
         if (!c.type.allparams().isEmpty() && types.isSubtype(c.type, syms.throwableType))
-            log.error(tree.getFirstExtendingHack().pos(), "generic.throwable");
+            log.error(tree.getExtending().head.pos(), "generic.throwable");
 
         for (List<JCTree> l = tree.getMembers(); l.nonEmpty(); l = l.tail) {
             // Attribute declaration
@@ -3443,6 +3401,20 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if ((c.flags() & (ABSTRACT | INTERFACE)) == 0) {
             if (!relax)
                 chk.checkAllDefined(tree.pos(), c);
+        }
+
+        if ((c.flags() & ANNOTATION) != 0) {
+            if (tree.getImplementing().nonEmpty())
+                log.error(tree.getImplementing().head.pos(),
+                          "cant.extend.intf.annotation");
+            if (tree.getEmptyTypeParameters().nonEmpty())
+                log.error(tree.getEmptyTypeParameters().head.pos(),
+                          "intf.annotation.cant.have.type.params");
+        } else {
+            // Check that all extended classes and interfaces
+            // are compatible (i.e. no two define methods with same arguments
+            // yet different return types).  (JLS 8.4.6.3)
+            chk.checkCompatibleSupertypes(tree.pos(), c.type);
         }
 
         // Check that all methods which implement some
@@ -3528,8 +3500,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 	    }
 
         ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-            Set superSet = new HashSet<Type>();
-            rs.getSupertypes(origin, types, supertypes, superSet);
+        Set superSet = new HashSet<Type>();
+        types.getSupertypes(origin, supertypes, superSet);
 
         for (Type t : supertypes) {
             if (t.tag == CLASS) {

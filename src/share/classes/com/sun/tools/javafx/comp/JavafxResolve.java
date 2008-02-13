@@ -63,7 +63,7 @@ public class JavafxResolve {
     Infer infer;
     ClassReader reader;
     TreeInfo treeinfo;
-    Types types;
+    JavafxTypes types;
     public final boolean boxingEnabled; // = source.allowBoxing();
     public final boolean varargsEnabled; // = source.allowVarargs();
     private final boolean debugResolve;
@@ -96,7 +96,7 @@ public class JavafxResolve {
         infer = Infer.instance(context);
         reader = ClassReader.instance(context);
         treeinfo = TreeInfo.instance(context);
-        types = Types.instance(context);
+        types = JavafxTypes.instance(context);
         Source source = Source.instance(context);
         boxingEnabled = source.allowBoxing();
         varargsEnabled = source.allowVarargs();
@@ -745,7 +745,6 @@ public class JavafxResolve {
                           name,
                           newMethTemplate(argtypes, typeargtypes),
                           site.tsym.type,
-                          true,
                           methodNotFound,
                           allowBoxing,
                           useVarargs,
@@ -764,7 +763,6 @@ public class JavafxResolve {
                           name,
                           expected,
                           site.tsym.type,
-                          true,
                           methodNotFound,
                           allowBoxing,
                           useVarargs,
@@ -776,7 +774,6 @@ public class JavafxResolve {
                               Name name,
                               Type expected,
                               Type intype,
-                              boolean abstractok,
                               Symbol bestSoFar,
                               boolean allowBoxing,
                               boolean useVarargs,
@@ -787,8 +784,6 @@ public class JavafxResolve {
         boolean checkArgs = mtype instanceof MethodType || mtype instanceof ForAll;
         for (Type ct = intype; ct.tag == CLASS; ct = types.supertype(ct)) {
             ClassSymbol c = (ClassSymbol)ct.tsym;
-            if ((c.flags() & (ABSTRACT | INTERFACE)) == 0)
-                abstractok = false;
             for (Scope.Entry e = c.members().lookup(name);
                  e.scope != null;
                  e = e.next()) {
@@ -821,22 +816,20 @@ public class JavafxResolve {
                 bestSoFar.kind != ABSENT_VAR && bestSoFar.kind != ABSENT_MTH) {
                 return bestSoFar;
             }
-            if (abstractok) {
-                Symbol concrete = methodNotFound;
-                if ((bestSoFar.flags() & ABSTRACT) == 0)
-                    concrete = bestSoFar;
-                for (List<Type> l = types.interfaces(c.type);
-                     l.nonEmpty();
-                     l = l.tail) {
-                    bestSoFar = findMethod(env, site, name, expected,
-                                           l.head, abstractok, bestSoFar,
-                                           allowBoxing, useVarargs, operator);
-                }
-                if (concrete != bestSoFar &&
-                    concrete.kind < ERR  && bestSoFar.kind < ERR &&
-                    types.isSubSignature(concrete.type, bestSoFar.type))
-                    bestSoFar = concrete;
+            Symbol concrete = methodNotFound;
+            if ((bestSoFar.flags() & ABSTRACT) == 0)
+                concrete = bestSoFar;
+            for (List<Type> l = types.interfaces(c.type);
+                 l.nonEmpty();
+                 l = l.tail) {
+                bestSoFar = findMethod(env, site, name, expected,
+                                       l.head, bestSoFar,
+                                       allowBoxing, useVarargs, operator);
             }
+            if (concrete != bestSoFar &&
+                concrete.kind < ERR  && bestSoFar.kind < ERR &&
+                types.isSubSignature(concrete.type, bestSoFar.type))
+                bestSoFar = concrete;
         }
 
         // We failed to find the field in the single Java class supertype of the 
@@ -847,8 +840,6 @@ public class JavafxResolve {
             for (Type tp : supertypes) {
                 for (Type ct = tp; ct.tag == CLASS; ct = types.supertype(ct)) {
                     ClassSymbol c = (ClassSymbol)ct.tsym;
-                    if ((c.flags() & (ABSTRACT | INTERFACE)) == 0)
-                        abstractok = false;
                     for (Scope.Entry e = c.members().lookup(name);
                          e.scope != null;
                          e = e.next()) {
@@ -871,22 +862,6 @@ public class JavafxResolve {
                     if (! checkArgs &&
                         bestSoFar.kind != ABSENT_VAR && bestSoFar.kind != ABSENT_MTH) {
                         return bestSoFar;
-                    }
-                    if (abstractok) {
-                        Symbol concrete = methodNotFound;
-                        if ((bestSoFar.flags() & ABSTRACT) == 0)
-                            concrete = bestSoFar;
-                        for (List<Type> l = types.interfaces(c.type);
-                             l.nonEmpty();
-                             l = l.tail) {
-                            bestSoFar = findMethod(env, site, name, expected,
-                                                   l.head, abstractok, bestSoFar,
-                                                   allowBoxing, useVarargs, operator);
-                        }
-                        if (concrete != bestSoFar &&
-                            concrete.kind < ERR  && bestSoFar.kind < ERR &&
-                            types.isSubSignature(concrete.type, bestSoFar.type))
-                            bestSoFar = concrete;
                     }
                 }
                 
@@ -2085,7 +2060,7 @@ public class JavafxResolve {
         }
     }
 
-    public boolean isInheritedIn(Symbol sym, Symbol clazz, Types types) {
+    public boolean isInheritedIn(Symbol sym, Symbol clazz, JavafxTypes types) {
         switch ((int)(sym.flags_field & Flags.AccessFlags)) {
         default: // error recovery
         case PUBLIC:
@@ -2103,7 +2078,7 @@ public class JavafxResolve {
                 supertypes.append(clazz.type);
                 superSet.add(clazz.type);
             }
-            getSupertypes(clazz, types, supertypes, superSet);
+            types.getSupertypes(clazz, supertypes, superSet);
 
             boolean foundInherited = false;
             for (Type supType : supertypes.toList()) {
@@ -2119,28 +2094,6 @@ public class JavafxResolve {
                 }
             }
             return foundInherited && (clazz.flags() & INTERFACE) == 0;
-        }
-    }
-    
-    public void getSupertypes(Symbol clazz, Types types, ListBuffer<Type> supertypes,Set<Type> dupSet) {
-        ListBuffer<Type> ret = ListBuffer.<Type>lb();
-        if (clazz != null) {
-            Type supType = types.supertype(clazz.type);
-            if (supType != null && supType != Type.noType && !dupSet.contains(supType)) {
-                supertypes.append(supType);
-                dupSet.add(supType);
-                getSupertypes(supType.tsym, types, supertypes,dupSet);
-            }
-
-            if (clazz instanceof JavafxClassSymbol) {
-                for (Type superType : ((JavafxClassSymbol)clazz).getSuperTypes()) {
-                    if (!dupSet.contains(superType)) {
-                        supertypes.append(superType);
-                        dupSet.add(superType);
-                        getSupertypes(superType.tsym, types, supertypes,dupSet);
-                    }
-                }
-            }
         }
     }
 }

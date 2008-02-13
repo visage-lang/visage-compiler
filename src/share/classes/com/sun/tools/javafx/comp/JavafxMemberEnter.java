@@ -793,20 +793,29 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
             // create an environment for evaluating the base clauses
             JavafxEnv<JavafxAttrContext> baseEnv = baseEnv(tree, env);
-
+            Type supertype = null, solesupertype = null;
+            ListBuffer<Type> interfaces = new ListBuffer<Type>();
+            Set<Type> interfaceSet = new HashSet<Type>();
             {
                 ListBuffer<JCExpression> extending = ListBuffer.<JCExpression>lb();
                 ListBuffer<JCExpression> implementing = ListBuffer.<JCExpression>lb();
                 boolean compound = (tree.getModifiers().flags & Flags.FINAL) == 0;
-                for (JCExpression supertype : tree.getSupertypes()) {
-                    Type st = attr.attribType(supertype, env);
+                for (JCExpression stype : tree.getSupertypes()) {
+                    Type st = attr.attribType(stype, env);
                     
                     if (st.isInterface()) {
-                        implementing.append(supertype);
+                        implementing.append(stype);
                     } else {
-                        extending.append(supertype); 
-                        if ((st.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0)
-                            compound = false;                        
+                        solesupertype = extending.isEmpty() ? st : null;
+                        extending.append(stype); 
+                        if ((st.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0) {
+                            compound = false;
+                            supertype = st;
+                        }
+                        else {
+                            interfaces.append(st);
+                            chk.checkNotRepeated(stype.pos(), types.erasure(st), interfaceSet);
+                        }
                     }
                 }
                 if (compound)
@@ -815,11 +824,9 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 tree.setDifferentiatedExtendingImplementing(extending.toList(), implementing.toList());
             }
             
-            // Determine supertype.
-            Type supertype =
-               (tree.getFirstExtendingHack() != null)  //TODO: we may extend more than one class
-                ? attr.attribBase(tree.getFirstExtendingHack(), baseEnv, true, false, true)
-                : ((tree.mods.flags & Flags.ENUM) != 0 && !target.compilerBootstrap(c))
+            if (supertype == null)
+                supertype =
+                ((tree.mods.flags & Flags.ENUM) != 0 && !target.compilerBootstrap(c))
                 ? attr.attribBase(enumBase(tree.pos, c), baseEnv,
                                   true, false, false)
                 : (c.fullname == names.java_lang_Object)
@@ -828,8 +835,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             ct.supertype_field = supertype;
 
             // Determine interfaces.
-            ListBuffer<Type> interfaces = new ListBuffer<Type>();
-            Set<Type> interfaceSet = new HashSet<Type>();
             List<JCExpression> interfaceTrees = tree.getImplementing();
             if ((tree.mods.flags & Flags.ENUM) != 0 && target.compilerBootstrap(c)) {
                 // add interface Comparable<T>
@@ -854,8 +859,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 ct.interfaces_field = interfaces.toList();
 
             if (c.fullname == names.java_lang_Object) {
-                if (tree.getFirstExtendingHack() != null) {
-                    chk.checkNonCyclic(tree.getFirstExtendingHack().pos(),
+                if (tree.getExtending().head != null) {
+                    chk.checkNonCyclic(tree.getExtending().head.pos(),
                                        supertype);
                     ct.supertype_field = Type.noType;
                 }
@@ -886,10 +891,10 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                     new VarSymbol(FINAL | HASINIT, names._this, c.type, c);
                 thisSym.pos = Position.FIRSTPOS;
                 env.info.scope.enter(thisSym);
-                if (ct.supertype_field.tag == CLASS) {
+                if (ct.supertype_field.tag == CLASS && solesupertype != null) {
                     VarSymbol superSym =
                         new VarSymbol(FINAL | HASINIT, names._super,
-                                      ct.supertype_field, c);
+                                      solesupertype, c);
                     superSym.pos = Position.FIRSTPOS;
                     env.info.scope.enter(superSym);
                 }

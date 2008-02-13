@@ -435,7 +435,7 @@ public class JavafxCheck {
         supertypes.append(found);
         superSet.add(found);
 
-        rs.getSupertypes(found.tsym, types, supertypes, superSet);
+        types.getSupertypes(found.tsym, supertypes, superSet);
 
         for (Type baseType : supertypes) {
             if (types.isAssignable(baseType, req, convertWarner(pos, found, req)))
@@ -510,7 +510,7 @@ public class JavafxCheck {
             supertypes.append(found);
             superSet.add(found);
 
-            rs.getSupertypes(found.tsym, types, supertypes, superSet);
+            types.getSupertypes(found.tsym, supertypes, superSet);
 
             for (Type baseType : supertypes) {
                 if (types.isCastable(baseType, req, castWarner(pos, found, req)))
@@ -524,7 +524,7 @@ public class JavafxCheck {
             supertypes.append(req);
             superSet.add(req);
 
-            rs.getSupertypes(req.tsym, types, supertypes, superSet);
+            types.getSupertypes(req.tsym, supertypes, superSet);
             for (Type baseType : supertypes) {
                 if (types.isCastable(baseType, found, castWarner(pos, found, req)))
                     return req;
@@ -1528,8 +1528,9 @@ public
 	for (Scope.Entry e1 = t1.tsym.members().elems; e1 != null; e1 = e1.sibling) {
 	    Symbol s1 = e1.sym;
 	    Type st1 = null;
-	    if (s1.kind != MTH || !s1.isInheritedIn(site.tsym, types)) continue;
-            Symbol impl = ((MethodSymbol)s1).implementation(site.tsym, types, false);
+	    if (s1.kind != MTH || s1.name == defs.runMethodName ||
+                    !s1.isInheritedIn(site.tsym, types)) continue;
+            Symbol impl = types.implementation((MethodSymbol)s1, site.tsym, false);
             if (impl != null && (impl.flags() & ABSTRACT) == 0) continue;
 	    for (Scope.Entry e2 = t2.tsym.members().lookup(s1.name); e2.scope != null; e2 = e2.next()) {
 		Symbol s2 = e2.sym;
@@ -1571,7 +1572,7 @@ public
 	    }
             ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
             Set superSet = new HashSet<Type>();
-            rs.getSupertypes(origin, types, supertypes, superSet);
+            types.getSupertypes(origin, supertypes, superSet);
 
         for (Type t : supertypes) {
             if (t.tag == CLASS) {
@@ -1631,9 +1632,10 @@ public
 		    if (e.sym.kind == MTH &&
 			(e.sym.flags() & (ABSTRACT|IPROXY)) == ABSTRACT) {
 			MethodSymbol absmeth = (MethodSymbol)e.sym;
-			MethodSymbol implmeth = absmeth.implementation(impl, types, true);
-			if (implmeth == null || implmeth == absmeth)
-			    undef = absmeth;
+			MethodSymbol implmeth = types.implementation(absmeth, impl, true);
+			if (implmeth == null || implmeth == absmeth) {
+                            undef = absmeth;
+                        }
 		    }
 		}
 		if (undef == null) {
@@ -1647,7 +1649,7 @@ public
 		    undef = firstUndef(impl, (ClassSymbol)l.head.tsym);
 		}
 	    }
-	    return undef;
+            return undef;
 	}
 
     /** Check for cyclic references. Issue an error if the

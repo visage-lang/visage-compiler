@@ -103,15 +103,6 @@ public class JFXClassDeclaration extends JFXStatement implements ClassDeclaratio
         return extending;
     }
 
-    //TODO: remove this method and all references to it.
-    /**
-     * Because of multiple inheritance, we may extend many classes.
-     * This is a hack to work around assumptions that we only extend a single class.
-     * */
-    public JCTree getFirstExtendingHack() {
-        return extending.size() == 0? null : extending.head;
-    }
-
     public void setDifferentiatedExtendingImplementing(List<JCExpression> extending, List<JCExpression> implementing) {
         this.extending = extending;
         this.implementing = implementing;

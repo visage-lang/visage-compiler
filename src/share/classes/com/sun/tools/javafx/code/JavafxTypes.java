@@ -29,7 +29,12 @@ import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.code.Type.*;
 import java.util.HashMap;
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
+import com.sun.tools.javac.code.Symbol.*;
+import static com.sun.tools.javac.code.Kinds.*;
+import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.javac.code.TypeTags.*;
+import java.util.HashSet;
+import java.util.Set;
 /**
  *
  * @author bothner
@@ -93,8 +98,55 @@ public class JavafxTypes extends Types {
             elemType = unboxed;
         return elemType;
     }
- 
+
+    public void getSupertypes(Symbol clazz, ListBuffer<Type> supertypes,Set<Type> dupSet) {
+        ListBuffer<Type> ret = ListBuffer.<Type>lb();
+        if (clazz != null) {
+            Type supType = supertype(clazz.type);
+            if (supType != null && supType != Type.noType && !dupSet.contains(supType)) {
+                supertypes.append(supType);
+                dupSet.add(supType);
+                getSupertypes(supType.tsym, supertypes,dupSet);
+            }
+
+            if (clazz instanceof JavafxClassSymbol) {
+                for (Type superType : ((JavafxClassSymbol)clazz).getSuperTypes()) {
+                    if (!dupSet.contains(superType)) {
+                        supertypes.append(superType);
+                        dupSet.add(superType);
+                        getSupertypes(superType.tsym, supertypes,dupSet);
+                    }
+                }
+            }
+        }
+    }
+    
+    public boolean isSuperType (Type maybeSuper, ClassSymbol sym) {
+        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+        Set superSet = new HashSet<Type>();
+        supertypes.append(sym.type);
+        superSet.add(sym.type);
+        getSupertypes(sym, supertypes, superSet);
+        return superSet.contains(maybeSuper);
+    }
+
+    public Type asSuper(Type t, Symbol sym) {
+        if (isCompoundClass(t.tsym)) {
+            JavafxClassSymbol tsym = (JavafxClassSymbol) t.tsym;
+            List<Type> supers = tsym.getSuperTypes();
+            for (List<Type> l = supers; l.nonEmpty(); l = l.tail) {
+                Type x = asSuper(l.head, sym);
+                if (x != null)
+                    return x;
+            }
+        }
+        return super.asSuper(t, sym);
+    }
+
     public boolean isConvertible (Type t, Type s, Warner warn) {
+        if (isCompoundClass(t.tsym)) {
+            ClassSymbol tsym = (JavafxClassSymbol) t.tsym;
+        }
         if (super.isConvertible(t, s, warn))
             return true;
         if (isSequence(t) && isArray(s))
@@ -128,7 +180,7 @@ public class JavafxTypes extends Types {
     }
     
     public boolean isCompoundClass(Symbol sym) {
-        return sym instanceof ClassSymbol &&
+        return sym instanceof JavafxClassSymbol &&
                 (sym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0;
     }
 
@@ -172,6 +224,37 @@ public class JavafxTypes extends Types {
     
     public JFXClassDeclaration getFxClass (ClassSymbol csym) {
        return fxClasses.get(csym);
+    }
+    
+    /** The implementation of this (abstract) symbol in class origin;
+     *  null if none exists. Synthetic methods are not considered
+     *  as possible implementations.
+     *  Based on the Javac implementation method in MethodSymbol,
+     *  but modified to handle multiple inheritance.
+     */
+    public MethodSymbol implementation(MethodSymbol msym, TypeSymbol origin, boolean checkResult) {
+        if (isCompoundClass(origin)) {
+            JavafxClassSymbol c = (JavafxClassSymbol) origin;
+            for (Scope.Entry e = c.members().lookup(msym.name);
+                     e.scope != null;
+                     e = e.next()) {
+                if (e.sym.kind == MTH) {
+                        MethodSymbol m = (MethodSymbol) e.sym;
+                        if (m.overrides(msym, origin, this, checkResult) &&
+                            (m.flags() & SYNTHETIC) == 0)
+                            return m;
+                }
+            }
+            List<Type> supers = c.getSuperTypes();
+            for (List<Type> l = supers; l.nonEmpty(); l = l.tail) {
+                MethodSymbol m = implementation(msym, l.head.tsym, checkResult);
+                if (m != null)
+                    return m;
+            }
+            return null;
+        }
+        else
+            return msym.implementation(origin, this, checkResult);
     }
 
     public void clearCaches() {

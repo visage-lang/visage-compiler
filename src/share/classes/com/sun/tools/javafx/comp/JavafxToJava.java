@@ -1464,14 +1464,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCExpression selected = tree.getExpression();
         Type selectedType = selected.type;
 
-        // Support for calling super methods as described in JFXC-333
-        if (attr.superSelects.contains(tree)) {
-            result = make.Select(make.TypeCast(makeTypeTree(selected.type, diagPos, false), make.Ident(defs.receiverName)), tree.name);
-            result.type = tree.type;
-            ((JCFieldAccess)result).sym = tree.sym;
-            return;
-        }
-
         // this may or may not be in a LHS but in either
         // event the selector is a value expression
         JCExpression translatedSelected = translate(selected, Wrapped.InNothing);
@@ -2613,10 +2605,19 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             private final MethodSymbol msym = (sym instanceof MethodSymbol)? (MethodSymbol)sym : null;
             private final Name selectorIdName = (selector != null && selector.getTag() == JavafxTag.IDENT)? ((JCIdent) selector).getName() : null;
             private final boolean superCall = selectorIdName == names._super;
+            private final boolean namedSuperCall =
+                    selector != null && msym!= null && ! msym.isStatic() &&
+                    expressionSymbol(selector) instanceof ClassSymbol &&
+                    // FIXME should also allow other enclosing classes:
+                    types.isSuperType(expressionSymbol(selector).type, currentClass.sym);
+            private final boolean renameToSuper = namedSuperCall && ! types.isCompoundClass(currentClass.sym);
+            private final boolean superToStatic = (superCall || namedSuperCall) && ! renameToSuper;
             private final boolean thisCall = selectorIdName == names._this;
             private final List<Type> formals = meth.type.getParameterTypes();
 
-            private JCExpression transMeth = translate(meth);
+            private JCExpression transMeth =
+                    renameToSuper ? make.at(selector).Select(make.Select(makeTypeTree(currentClass.sym.type, selector, false), names._super), sym)
+                    : translate(meth);
 
             private final boolean useInvoke = meth.type instanceof FunctionType 
                                                                     || (transMeth instanceof JCIdent
@@ -2624,9 +2625,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                                                                  && isInnerFunction((MethodSymbol) ((JCIdent) transMeth).sym));
 
             private final boolean testForNull =  generateNullChecks && msym!=null  &&
-                    !sym.isStatic() && selector!=null && !superCall && 
-                    !thisCall && !useInvoke &&
-                    !attr.superSelects.contains(tree.meth);
+                    !sym.isStatic() && selector!=null && !superCall && !namedSuperCall &&
+                    !thisCall && !useInvoke;
 
             private final boolean callBound = generateBoundFunctions
                     && state.isBound()
@@ -2637,8 +2637,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
             public JCTree doit() {
                  // translate the method name -- e.g., foo  to foo$bound or foo$impl
-                if (superCall || callBound) {
-                    Name name = functionName(msym, superCall, callBound);
+                if (superToStatic || (callBound && ! renameToSuper)) {
+                    Name name = functionName(msym, superToStatic, callBound);
                     if (transMeth.getTag() == JavafxTag.IDENT) {
                         transMeth = make.at(diagPos).Ident(name);
                     } else if (transMeth.getTag() == JavafxTag.SELECT) {
@@ -2756,7 +2756,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
                // if this is a super.foo(x) call, "super" will be translated to referenced class,
                 // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
-                if (superCall) {
+                if (superToStatic) {
                     args = args.prepend(make.Ident(defs.receiverName));
                 }
 
@@ -3140,7 +3140,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     }
 
                     if (siteCursor.kind == Kinds.TYP) {
-                        rs.getSupertypes(siteCursor, types, supertypes, superSet);
+                        types.getSupertypes(siteCursor, supertypes, superSet);
                     }
 
                     if (superSet.contains(treeSym.owner.type)) {
@@ -3404,17 +3404,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     boolean foundOuterOwner = false;
                     while (outerSym != null) {
                         if (outerSym.kind == Kinds.TYP) {
-                            ListBuffer<Type> supertypes = ListBuffer.lb();
-                            Set<Type> superSet = new HashSet<Type>();
-                            supertypes.append(outerSym.type);
-                            superSet.add(outerSym.type);
-                            rs.getSupertypes(outerSym, types, supertypes, superSet);
-
-                            if (superSet.contains(sym.owner.type)) {
+                            ClassSymbol outerCSym = (ClassSymbol) outerSym;
+                            if (types.isSuperType(sym.owner.type, outerCSym)) {
                                 foundOuterOwner = true;
                                 break;
                              }
-                            potentialOuters.append((ClassSymbol)outerSym);
+                            potentialOuters.append(outerCSym);
                         }
                         else if (sym.owner == outerSym)
                             break;
