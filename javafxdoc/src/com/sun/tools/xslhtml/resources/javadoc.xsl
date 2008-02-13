@@ -5,6 +5,9 @@
     
     <xsl:variable name="use-toc-tables">true</xsl:variable>
     <xsl:param name="master-css">master.css</xsl:param>
+    <xsl:param name="extra-css"/>
+    <xsl:param name="extra-js"/>
+    <xsl:param name="extra-js2"/> <!-- josh: this is a hack -->
     <xsl:param name="target-class">javafx.ui.ToggleButton</xsl:param>
     
     
@@ -32,6 +35,12 @@
         <html>
             <head>
                 <link href="{$master-css}" rel="stylesheet"/>
+                <xsl:if test="$extra-css">
+                    <link href="{$extra-css}" rel="stylesheet"/>
+                </xsl:if>
+                <xsl:if test="$extra-js">
+                    <script src="{$extra-js}"></script>
+                </xsl:if>
             </head>
             <body>
                 <ul id="packageList">
@@ -55,6 +64,12 @@
         <html>
             <head>
                 <link href="../{$master-css}" rel="stylesheet"/>
+                <xsl:if test="$extra-css">
+                    <link href="../{$extra-css}" rel="stylesheet"/>
+                </xsl:if>
+                <xsl:if test="$extra-js">
+                    <script src="../{$extra-js}"></script>
+                </xsl:if>
             </head>
             <body>
                 <p><b><xsl:value-of select="@packageName"/></b></p>
@@ -94,6 +109,16 @@
                 <link href="../{$master-css}" rel="stylesheet"/>
                 <style type="text/css">
                 </style>
+                <xsl:if test="$extra-css">
+                    <link href="../{$extra-css}" rel="stylesheet"/>
+                </xsl:if>
+                <xsl:if test="$extra-js">
+                    <script src="../{$extra-js}"></script>
+                </xsl:if>
+                <xsl:if test="$extra-js2">
+                    <script src="../{$extra-js2}"></script>
+                </xsl:if>
+                <script src="../navigation.js"></script>
             </head>
             <body>
                 <xsl:call-template name="header"/>
@@ -116,11 +141,30 @@
         </p>
     </xsl:template>
     
+    
+    
+    
+    
+    
+    
+    
+    
     <xsl:template match="class" mode="super">
         <xsl:variable name="super" select="superclass/@qualifiedTypeName"/>
+        <!-- if super can't be found -->
+        <xsl:if test="not(//class[@qualifiedName=$super])">
+            <a>
+                <xsl:attribute name="title"><xsl:value-of select="superclass/@packageName"/>.<xsl:value-of select="superclass/@typeName"/></xsl:attribute>
+                <strong><xsl:value-of select="superclass/@packageName"/>.</strong>
+                <b><xsl:value-of select="superclass/@typeName"/></b>
+            </a>
+        </xsl:if>
+        
+        <!-- if super can be found -->
         <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="super"/>
         &gt;
         <a>
+            <xsl:attribute name="title"><xsl:value-of select="@packageName"/>.<xsl:value-of select="@name"/></xsl:attribute>
             <xsl:attribute name="href">../<xsl:value-of select="@packageName"/>/<xsl:value-of select="@packageName"/>.<xsl:value-of select="@name"/>.html</xsl:attribute>
             <strong><xsl:value-of select="@packageName"/>.</strong>
             <b><xsl:value-of select="@name"/></b>
@@ -145,24 +189,24 @@
             
             <h2>
                 <xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>
-                <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="super"/>
-                &gt;
-                <a href="#">
-                    <strong><xsl:value-of select="@packageName"/>.</strong>
-                    <b><xsl:value-of select="@name"/></b>
-                </a>
+                <!--//class[@qualifiedName=$blah]"-->
+                <xsl:apply-templates select="." mode="super"/>
             </h2>
             
             <xsl:if test="@language='javafx'">
-                <ul>
+                <ul id="tabs">
                     <li><a href="#overview">overview</a></li><li><a href="#fields-summary">attributes</a></li><li><a href="#methods-summary">functions</a></li>
                 </ul>
             </xsl:if>
             <xsl:if test="@language='java'">
-                <ul>
+                <ul id="tabs">
                     <li><a href="#overview">overview</a></li><li><a href="#fields-summary">fields</a></li><li><a href="#constructors-summary">constructors</a></li><li><a href="#methods-summary">methods</a></li>
                 </ul>
             </xsl:if>
+            <ul id="toggles">
+                <li><a class="toggle-advanced" 
+                       href="javascript:togglecss('.advanced','display','block','none');togglecss('.toggle-advanced','backgroundColor','transparent','red');">advanced</a></li>
+            </ul>
             
         </div>
     </xsl:template>
@@ -202,10 +246,34 @@
                 </table>
             </xsl:if>
             
-        <xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>
+            
+            <!-- inherited attributes -->
+            <xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>
             <h3>Inherited Attributes</h3>
             <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="inherited-field"/>
-        
+
+            
+            
+            
+            <!-- constructors -->
+            
+            <xsl:if test="count(constructor) > 0">
+                <a id="constructors-summary"><h3>Constructor Summary</h3></a>
+                <dl>
+                    <xsl:for-each select="constructor">
+                        <xsl:sort select="@name" order="ascending"/>
+                        <xsl:call-template name="method-like-toc"/>
+                    </xsl:for-each>
+                </dl>
+            </xsl:if>
+            
+            
+            
+            
+            
+            <!-- methods and functions -->
+            
+            <!-- functions -->
             <xsl:if test="count(function) > 0">
                 <a id="methods-summary"><h3>Function Summary</h3></a>
                 <dl>
@@ -216,16 +284,19 @@
                 </dl>
             </xsl:if>
             
+            
+            <!-- methods -->
             <xsl:if test="count(method) > 0">
                 <a id="methods-summary"><h3>Method Summary</h3></a>
-                <ul>
+                <dl>
                     <xsl:for-each select="method">
                         <xsl:sort select="@name" order="ascending"/>
                         <xsl:call-template name="method-like-toc"/>
                     </xsl:for-each>
-                </ul>
+                </dl>
             </xsl:if>
             
+            <!-- inherited -->
             <h3>Inherited Functions</h3>
             <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="inherited-method"/>
         </div>
@@ -252,6 +323,16 @@
                 <xsl:for-each select="field">
                     <xsl:sort select="@name" order="ascending"/>
                     <xsl:apply-templates select="."/>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        
+        <xsl:if test="count(constructor) > 0">
+            <div id="constructors">
+                <h3>Constructors</h3>
+                <xsl:for-each select="constructor">
+                    <xsl:sort select="@name" order="ascending"/>
+                    <xsl:call-template name="method-like"/>
                 </xsl:for-each>
             </div>
         </xsl:if>
@@ -382,6 +463,9 @@
     
     <xsl:template name="method-like-toc">
         <dt>
+            <xsl:if test="docComment/tags/advanced">
+                <xsl:attribute name="class">advanced</xsl:attribute>
+            </xsl:if>
             <a>
                 <xsl:attribute name="href">#method_<xsl:value-of select="@name"/></xsl:attribute>
                 
@@ -402,6 +486,9 @@
             </a>
         </dt>
         <dd>
+            <xsl:if test="docComment/tags/advanced">
+                <xsl:attribute name="class">advanced</xsl:attribute>
+            </xsl:if>
             <xsl:value-of select="docComment/firstSentenceTags/Text"
                           disable-output-escaping="yes"/>
         </dd>

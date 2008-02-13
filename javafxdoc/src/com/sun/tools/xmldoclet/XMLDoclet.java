@@ -58,6 +58,7 @@ public class XMLDoclet {
     
     // option values
     private static String outFileName = null;
+    private static File outDocsDir = new File("fxdocs");
     private static boolean includeAuthorTags = false;
     private static boolean includeDeprecatedTags = true;
     private static boolean includeSinceTags = true;
@@ -78,7 +79,11 @@ public class XMLDoclet {
         new Option("-nodeprecated", getString("nodeprecated.description")),
         new Option("-nohtml", getString("nohtml.description")),
         new Option("-xsltfile", getString("out.file.option"), getString("xsltfile.description")),
-        new Option("-mastercss", getString("out.file.option"), getString("xsltfile.description"))
+        new Option("-mastercss", getString("out.file.option"), getString("xsltfile.description")),
+        new Option("-extracss", getString("out.file.option"), getString("xsltfile.description")),
+        new Option("-extrajs", getString("out.file.option"), getString("xsltfile.description")),
+        new Option("-extrajs2", getString("out.file.option"), getString("xsltfile.description")),
+        new Option("-docsdir", getString("out.dir.option"), getString("out.dir.description"))
     };
 
     /**
@@ -95,7 +100,8 @@ public class XMLDoclet {
             if(processXSLT) {
                 FileInputStream xsltStream = xsltFileName != null ? 
                     new FileInputStream(xsltFileName) : null;
-                XHTMLProcessingUtils.process(outFileName, xsltStream, params);
+                
+                XHTMLProcessingUtils.process(outFileName, xsltStream, outDocsDir, params);
             }
             
             return true;
@@ -165,6 +171,14 @@ public class XMLDoclet {
                 xsltFileName = option[1];
             else if (option[0].equals("-mastercss"))
                 params.put("master-css",option[1]);
+            else if (option[0].equals("-extracss"))
+                params.put("extra-css",option[1]);
+            else if (option[0].equals("-extrajs"))
+                params.put("extra-js",option[1]);
+            else if (option[0].equals("-extrajs2"))
+                params.put("extra-js2",option[1]);
+            else if (option[0].equals("-docsdir"))
+                outDocsDir = new File(option[1]);
         }
         if (outFileName == null) {
             try {
@@ -456,6 +470,10 @@ public class XMLDoclet {
                 continue;
             if (kind.equals("@version") && !includeVersionTags)
                 continue;
+            if (!kind.matches("\\w+")) {
+                System.out.println("possible invalid tag kind: " + kind);
+                kind = "invalidtag";
+            }
             attrs.clear();
             attrs.addAttribute("", "", "name", "CDATA", t.name());
             hd.startElement("", "", kind, attrs);

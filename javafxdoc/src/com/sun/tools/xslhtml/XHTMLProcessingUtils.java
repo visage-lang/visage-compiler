@@ -70,7 +70,7 @@ public class XHTMLProcessingUtils {
      * @param xsltStream the XSLT to implement the transformation, as an input stream.
      * @throws java.lang.Exception
      */
-    public static void process(String xmlInputPath, InputStream xsltStream,
+    public static void process(String xmlInputPath, InputStream xsltStream, File docsdir,
             Map<String,String> parameters
             ) throws Exception {
         System.out.println(getString("transforming.to.html"));
@@ -93,15 +93,20 @@ public class XHTMLProcessingUtils {
         builder.setErrorHandler(new ErrorHandler() {
 
             public void warning(SAXParseException exception) throws SAXException {
-                p(WARNING, "error: " + exception.getLineNumber());
+                pe(WARNING, "warning: ", exception);
             }
 
             public void error(SAXParseException exception) throws SAXException {
-                p(SEVERE, "error: " + exception.getLineNumber());
+                pe(SEVERE, "error: ", exception);
             }
 
             public void fatalError(SAXParseException exception) throws SAXException {
-                p(SEVERE, "error: " + exception.getLineNumber());
+                pe(SEVERE, "fatal error", exception);
+            }
+
+            private void pe(Level level, String string, SAXParseException exception) {
+                p(level, string + " line: " + exception.getLineNumber() + " column: " +
+                        exception.getColumnNumber() + " " + exception.getLocalizedMessage());
             }
         });
         Document doc = builder.parse(file);
@@ -109,7 +114,7 @@ public class XHTMLProcessingUtils {
 
 
 
-        File docsdir = new File("fxdocs");
+        //File docsdir = new File("fxdocs");
         if (!docsdir.exists()) {
             docsdir.mkdir();
         }
@@ -294,7 +299,7 @@ public class XHTMLProcessingUtils {
      * Command-line/debugging entry
      */
     public static void main(String[] args) throws Exception {
-        process("javadoc.xml", null, new HashMap<String, String>());
+        process("javadoc.xml", null, new File("fxdocs_test"), new HashMap<String, String>());
     }
 
     private static class MainErrorListener implements ErrorListener {
