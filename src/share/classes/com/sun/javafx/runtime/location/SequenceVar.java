@@ -89,8 +89,9 @@ public class SequenceVar<T> extends AbstractSequenceLocation<T> implements Seque
     }
 
     @Override
-    public void replaceSlice(int startPos, int endPos, Sequence<T> newValues) {
+    public Sequence<? extends T> replaceSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
         SequenceMutator.replaceSlice($value, mutationListener, startPos, endPos, newValues);
+        return newValues;
     }
 
     @Override

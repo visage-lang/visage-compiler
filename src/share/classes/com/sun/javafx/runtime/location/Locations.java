@@ -570,7 +570,7 @@ public class Locations {
             return getAsSequence().getSlice(startPos, endPos);
         }
 
-        public void replaceSlice(int startPos, int endPos, Sequence<T> newValues) {
+        public Sequence<? extends T> replaceSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
             throw new UnsupportedOperationException();
         }
 
