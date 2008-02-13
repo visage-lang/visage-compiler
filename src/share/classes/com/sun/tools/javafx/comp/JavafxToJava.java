@@ -894,9 +894,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         fbind = false;
                     else {
                         Type forType = elementType(fClauses.head.seqExpr.type);
-                        JCVariableDecl param1 = make.VarDef(make.Modifiers(0), fClauses.head.var.name,
+                        JCVariableDecl param1 = make.VarDef(make.Modifiers(Flags.FINAL), fClauses.head.var.name,
                             makeTypeTree(forType, diagPos), null);
-                        JCVariableDecl param2 = make.VarDef(make.Modifiers(0), indexVarName(fClauses.head),
+                        JCVariableDecl param2 = make.VarDef(make.Modifiers(Flags.FINAL), indexVarName(fClauses.head),
                             makeTypeTree(syms.javafx_IntegerType, diagPos), null);
                         boolean dependsOnIndex = fClauses.head.getIndexUsed();
                     
