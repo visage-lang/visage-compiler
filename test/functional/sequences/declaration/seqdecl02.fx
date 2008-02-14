@@ -3,7 +3,10 @@ import java.lang.Exception;
 
 /**
   * nested sequences are flattened.
-  */
+ *
+ * @test
+ * @run
+ */
 
 var week_days = ["Mon","Tue","Wed","Thur","Fri"];
 var weekend_days = ["Sat","Sun"];

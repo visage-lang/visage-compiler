@@ -9,6 +9,9 @@ import java.lang.System;
  * to get a sequence of 10 elements 10,9,8,7..,1.
  * seq2c show that seq2 = [10..1] is equivalent to [10..1 step 1], which apparently
  * mean go up from 10 by 1's, and there is none up from 10 in the sequence.
+ *
+ * @test
+ * @run
  */
 
 var seq1 = [1..10]; //implied 'step 1'
