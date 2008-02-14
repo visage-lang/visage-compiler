@@ -2,6 +2,7 @@ package com.sun.javafx.runtime.sequence;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.sun.javafx.runtime.Util;
 
@@ -84,7 +85,10 @@ public class DumbMutableSequence<T> implements Iterable<T> {
             }
 
             public T next() {
-                return array[index++];
+                if (hasNext())
+                    return array[index++];
+                else
+                    throw new NoSuchElementException();
             }
 
             public void remove() {

@@ -125,11 +125,11 @@ public class JavafxDefs {
         computeElementName = names.fromString("computeElement$");
         initDefName = names.fromString("$init$def$name");
         postInitDefName = names.fromString("$postinit$def$name");
-        locationGetMethodName = new Name[JavafxVarSymbol.accessorSuffixes.length];
-        locationSetMethodName = new Name[JavafxVarSymbol.accessorSuffixes.length];
-        for (int i=0; i< JavafxVarSymbol.accessorSuffixes.length; i++) {
-            locationGetMethodName[i] = names.fromString("get" + JavafxVarSymbol.accessorSuffixes[i]);
-            locationSetMethodName[i] = names.fromString("set" + JavafxVarSymbol.accessorSuffixes[i]);
+        locationGetMethodName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT];
+        locationSetMethodName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT];
+        for (int i=0; i< JavafxVarSymbol.TYPE_KIND_COUNT; i++) {
+            locationGetMethodName[i] = names.fromString("get" + JavafxVarSymbol.getAccessorSuffix(i));
+            locationSetMethodName[i] = names.fromString("set" + JavafxVarSymbol.getAccessorSuffix(i));
         }
     }
 }

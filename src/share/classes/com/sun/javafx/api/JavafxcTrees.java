@@ -169,7 +169,7 @@ public class JavafxcTrees {
     }
 
     public boolean isAccessible(Scope scope, TypeElement type) {
-        if (scope instanceof JavacScope && type instanceof ClassSymbol) {
+        if (scope instanceof JavafxcScope && type instanceof ClassSymbol) {
             Env<AttrContext> env = ((JavafxcScope) scope).env;
             return resolve.isAccessible(env, (ClassSymbol)type);
         } else
@@ -177,7 +177,7 @@ public class JavafxcTrees {
     }
 
     public boolean isAccessible(Scope scope, Element member, DeclaredType type) {
-        if (scope instanceof JavacScope
+        if (scope instanceof JavafxcScope
                 && member instanceof Symbol
                 && type instanceof com.sun.tools.javac.code.Type) {
             Env<AttrContext> env = ((JavafxcScope) scope).env;

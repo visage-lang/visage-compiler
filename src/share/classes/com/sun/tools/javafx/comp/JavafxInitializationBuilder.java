@@ -97,10 +97,10 @@ public class JavafxInitializationBuilder {
         typeMorpher = JavafxTypeMorpher.instance(context);
         
         addChangeListenerName = names.fromString("addChangeListener");
-        changeListenerInterfaceName = new Name[JavafxVarSymbol.accessorSuffixes.length];
-        for (int i=0; i< JavafxVarSymbol.accessorSuffixes.length; i++)
+        changeListenerInterfaceName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT];
+        for (int i=0; i< JavafxVarSymbol.TYPE_KIND_COUNT; i++)
             changeListenerInterfaceName[i]
-                    = names.fromString(JavafxTypeMorpher.locationPackageName + JavafxVarSymbol.typePrefixes[i] + "ChangeListener");
+                    = names.fromString(JavafxTypeMorpher.locationPackageName + JavafxVarSymbol.getTypePrefix(i) + "ChangeListener");
         sequenceReplaceListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "SequenceReplaceListener");
         sequenceChangeListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "SequenceChangeListener");
         locationName = names.fromString("location$");

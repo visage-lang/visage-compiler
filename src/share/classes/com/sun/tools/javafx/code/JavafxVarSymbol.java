@@ -42,9 +42,12 @@ public class JavafxVarSymbol extends VarSymbol {
     public static final int TYPE_KIND_INT = 3;
     public static final int TYPE_KIND_SEQUENCE = 4;
     public static final int TYPE_KIND_COUNT = 5;
-
-    public static final String[] typePrefixes = new String[] { "Object", "Double", "Boolean", "Int", "Sequence" };
-    public static final String[] accessorSuffixes = new String[] { "", "AsDouble", "AsBoolean", "AsInt", "AsSequence" };
+    
+    private static final String[] typePrefixes = new String[] { "Object", "Double", "Boolean", "Int", "Sequence" };
+    public static String getTypePrefix(int index) { return typePrefixes[index]; }
+    
+    private static final String[] accessorSuffixes = new String[] { "", "AsDouble", "AsBoolean", "AsInt", "AsSequence" };
+    public static String getAccessorSuffix(int index) { return accessorSuffixes[index]; }
 
     /** Creates a new instance of JavafxVarSymbol */
     public JavafxVarSymbol(long flags,
