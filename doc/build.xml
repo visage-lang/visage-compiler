@@ -45,7 +45,8 @@
     <!-- Abstract targets -->
 
    <target name="langref.xsl">
-     <filter token="chunk-xsl" value="${chunk.style}"/>
+     <makeurl property="chunk.url" file="${chunk.style}"/>
+     <filter token="chunk-xsl" value="${chunk.url}"/>
      <copy file="doc/langspec/langref-in.xsl" tofile="doc/langspec/langref.xsl" filtering="true"/>
      </target>
 
