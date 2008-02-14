@@ -1,4 +1,3 @@
-java -Xbootclasspath/p:c:\openjfx-compiler\openjfx-compiler\dist\lib\javafxc.jar;c:\openjfx-compiler\openjfx-compiler\dist\lib\javafxrt.jar;c:\openjfx-compiler\openjfx-compiler\dist\lib\Scenario-0.5.jar DescendingSequences
 Contents of seq1[1..10]: 12345678910, and size of seq1[1..10]: 10
 Contents of seq2[10..1]: , but size of seq2[10..1]: 0
 Contents of seq2b[10..1 step -1]: 10987654321; size of seq2b: 10
