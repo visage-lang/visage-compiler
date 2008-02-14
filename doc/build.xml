@@ -38,7 +38,7 @@
     </target>
 
     <target name="clean" description="Deletes all generated documentation.">
-        <delete file="langspec/langref.xsl"/>
+        <delete file="doc/langspec/langref.xsl"/>
         <delete dir="${doc.build.dir}"/>
     </target>
 
