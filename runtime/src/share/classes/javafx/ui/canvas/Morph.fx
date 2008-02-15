@@ -64,8 +64,6 @@ public class Morph extends Shape {
         }
     }
     private function updateFill() {
-        //TODO JXFC-XXX cannot locate attribute in super class with MI
-        /*****************/
         var fill1 = start.fill;
         var fill2 = end.fill;
         if ((fill1 instanceof Color) and (fill2 instanceof Color)) {
@@ -73,7 +71,6 @@ public class Morph extends Shape {
             var c2 = fill2 as Color;
             fill = c1.interpolate(c2, morph);
         }
-        /******************/
     }
 
     public function createShape(): SGShape  {
