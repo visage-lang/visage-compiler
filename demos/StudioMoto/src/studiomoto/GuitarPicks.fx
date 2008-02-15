@@ -2,6 +2,10 @@ package studiomoto;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
 import javafx.ui.filter.*;
+import javafx.ui.animation.*;
+import com.sun.javafx.runtime.PointerFactory;
+import com.sun.javafx.runtime.Pointer;
+
 
 public class GuitarPicks extends Intro {
     /** HTML label for the top pick */
@@ -20,9 +24,9 @@ public class GuitarPicks extends Intro {
     
     private attribute pick1: Node = Group {
         isSelectionRoot: true
-        cursor: HAND 
+        cursor: Cursor.HAND 
         
-        transform: bind [translate(0, y1), rotate(rot, 30, 80)]
+        transform: bind [Transform.translate(0, y1), Transform.rotate(rot, 30, 80)]
         
         onMouseClicked: function(e) {(this.action1)();}
         
@@ -31,10 +35,10 @@ public class GuitarPicks extends Intro {
             image: Image {url: "{__DIR__}/Image/90.png"}
         },
         View {
-            valign: MIDDLE, halign: CENTER
-            transform: translate(52, 50)
+            valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.CENTER
+            transform: Transform.translate(52, 50)
             content: SimpleLabel {
-                cursor: HAND
+                cursor: Cursor.HAND
                 text: bind label1
             }
         }]
@@ -42,27 +46,27 @@ public class GuitarPicks extends Intro {
     private attribute pick2: Node =
         Group {
             isSelectionRoot: true
-            cursor: HAND
+            cursor: Cursor.HAND
             onMouseClicked: function(e) {(this.action2)();}
             
-            transform: bind [translate(0, 70+y2), rotate(360-rot, 30, 80)]
+            transform: bind [Transform.translate(0, 70+y2), Transform.rotate(360-rot, 30, 80)]
             
             content:
             [ImageView {
                 image: Image {url: "{__DIR__}/Image/91.png"}
             },
             View {
-                valign: MIDDLE, halign: CENTER
-                transform: translate(52, 50)
+                valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.CENTER
+                transform: Transform.translate(52, 50)
                 content: SimpleLabel {
                     focusable: false
-                    cursor: HAND
+                    cursor: Cursor.HAND
                     text: bind label2
                 }
             }]
     };
     
-    private function doHover(pick:Node);
+    //private function doHover(pick:Node);
     
     private attribute pick1Hover: Boolean = bind pick1.hover
     on replace {
@@ -75,42 +79,94 @@ public class GuitarPicks extends Intro {
             hoverAnim.start();
     };
     
-    attribute hoverAnim: KeyFrameAnimation = KeyFrameAnimation {
-        keyFrames:
-        [at (0s) {
-            y2 => 0;
-            y1 => 0;
-        },
-        at (.25s) {
-            y2 => 12 tween LINEAR;
-            y1 => -12 tween LINEAR;
-            trigger { if (pick1.hover) pick1.toFront()else if (pick2.hover) pick2.toFront() }
-        },
-        at (.5s) {
-            y2 => 0 tween LINEAR;
-            y1 => 0 tween LINEAR;
-            
-        }]
+    private attribute pf: PointerFactory = PointerFactory{};
+    attribute hoverAnim: Timeline = Timeline {
+        var _y1 = pf.make(y1).unwrap();
+        var _y2 = pf.make(y2).unwrap();
+        keyFrames: [
+             KeyFrame {
+                keyTime: 0s
+                keyValues:  [
+                    NumberValue {
+                        target: _y1
+                        value: 0
+                    },
+                    NumberValue {
+                        target: _y2
+                        value: 0
+                    }
+                ]
+             },
+             KeyFrame {
+                keyTime: 250ms
+                keyValues:  [
+                    NumberValue {
+                        target: _y1
+                        value: -12
+                        interpolate: NumberValue.LINEAR
+                    },
+                    NumberValue {
+                        target: _y2
+                        value: 12
+                        interpolate: NumberValue.LINEAR
+                    }
+                ]
+                action: function() {
+                    if (pick1.hover) pick1.toFront()else if (pick2.hover) pick2.toFront();
+                }
+             },
+             KeyFrame {
+                keyTime: 500ms
+               keyValues:  [
+                    NumberValue {
+                        target: _y1
+                        value: 0
+                        interpolate: NumberValue.LINEAR
+                    },
+                    NumberValue {
+                        target: _y2
+                        value: 0
+                        interpolate: NumberValue.LINEAR
+                    }
+                ]
+             }             
+        ]
     };
-    attribute introAnim: KeyFrameAnimation = KeyFrameAnimation {
-        keyFrames:
-        [at (0s) {
-            rot => 90;
-        },
-        at (.5s) {
-            rot => 0 tween EASEBOTH;
-        }]
+    attribute introAnim: Timeline = Timeline {
+        var _rot = pf.make(rot).unwrap();
+        keyFrames: [
+             KeyFrame {
+                keyTime: 0s
+                keyValues:  [
+                    NumberValue {
+                        target: _rot
+                        value: 90
+                    }
+                ]
+             },
+             KeyFrame {
+               keyTime: 500ms
+               keyValues:  [
+                    NumberValue {
+                        target: _rot
+                        value: 0
+                        interpolate: NumberValue.EASEBOTH
+                    }
+                ]
+             }             
+        ]
     };
 
     function composeNode() : Node {
         Group {
             content:  
             [ImageView {
-                transform: translate(0, 40)
+                transform: Transform.translate(0, 40)
                 image: Image {url: "{__DIR__}/Image/89.png"}
             },
             pick2, pick1]
-    };
+        };
+    }
 
     function doIntro() {
         introAnim.start();
@@ -119,41 +175,42 @@ public class GuitarPicks extends Intro {
 
 // Example code
 
-function picks() =
-GuitarPicks {   
-    var: self
-    action1: operation() { self.doIntro(); }
-    label1: "<html><div style='font-size:12;color:#dfd010;font-weight:bold'>register</div><div style='font-size:9;color:white'>free downloads<br>and Motorola<br>exclusives.<br><br><br></div></html>"
-    label2: "<html><span style='font-size:12;color:#dfd010;font-weight:bold'>WAP</span><div style='font-size:9;color:white'><br>Coming Soon.<br></div></html>"
-};
+function picks() {
+    GuitarPicks {   
+        var self = this
+        action1: function() { self.doIntro(); }
+        label1: "<html><div style='font-size:12;color:#dfd010;font-weight:bold'>register</div><div style='font-size:9;color:white'>free downloads<br>and Motorola<br>exclusives.<br><br><br></div></html>"
+        label2: "<html><span style='font-size:12;color:#dfd010;font-weight:bold'>WAP</span><div style='font-size:9;color:white'><br>Coming Soon.<br></div></html>"
+    };
+}
 
 
 
-function pickPattern() = 
-
-Rect {
-    arcHeight: 30
-    arcWidth: 30
-    stroke: black
-    strokeWidth: 3
-    transform: translate(10, 0)
-    height: 300
-    width: 330
-    fill: Pattern {
-        content: picks()
-    }
-};
-
-
-function pickIcon() =
-
-View {
-    content: Button {
-        icon: CanvasIcon {
+function pickPattern(){
+    Rect {
+        arcHeight: 30
+        arcWidth: 30
+        stroke: Color.BLACK
+        strokeWidth: 3
+        transform: Transform.translate(10, 0)
+        height: 300
+        width: 330
+        fill: Pattern {
             content: picks()
         }
-    }
-};
+    };
+}
+
+
+function pickIcon() {
+    View {
+        content: Button {
+            icon: CanvasIcon {
+                content: picks()
+            }
+        }
+    };
+}
 
 // test it
 picks();

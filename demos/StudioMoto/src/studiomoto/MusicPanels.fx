@@ -10,7 +10,7 @@ public class MusicPanels extends CompositeNode {
     attribute pf: PointerFactory = PointerFactory{};
     attribute selection: Integer on replace {
         var newValue = selection;
-        var selectionClip = Timeline {
+        var selectionClip:Timeline = Timeline {
             keyFrames: [
                 KeyFrame {
                     keyTime: 0s
@@ -40,7 +40,7 @@ public class MusicPanels extends CompositeNode {
         };
         selectionClip.start();
     };
-    attribute panels: Node[] = [MusicPanel1, MusicPanel2, MusicPanel3];
+    attribute panels: Node[] = [MusicPanel1{}, MusicPanel2{}, MusicPanel3{}];
     attribute selectedPanel: Node = bind panels[selection];
     attribute alpha: Number = 1;
     attribute _alpha:Pointer = pf.make(alpha).unwrap();

@@ -3,6 +3,7 @@ import javafx.ui.*;
 import javafx.ui.canvas.*;
 import javafx.ui.filter.*;
 import javafx.ui.animation.*;
+import java.lang.System;
 
 public class MotoBottomPane extends Intro {
     attribute panels: Intro[];
@@ -24,7 +25,7 @@ public class MotoBottomPane extends Intro {
     };
     function doIntro() {
         selectedPanel.opacity = 1;
-        println("CALL INTRO { selection }");
+        System.out.println("CALL INTRO { selection }");
         selectedPanel.doIntro();
     }
 

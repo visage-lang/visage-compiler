@@ -21,7 +21,7 @@ public class MoreInfoButton extends CompositeNode {
                 
             },
             Text {
-                font: Font.Font("ARIAL", "BOLD", 11)
+                font: Font.Font("ARIAL", ["BOLD"], 11)
                 content: "MORE INFO"
                 transform: Transform.translate(115/2, 37/2)
                 valign: VerticalAlignment.MIDDLE

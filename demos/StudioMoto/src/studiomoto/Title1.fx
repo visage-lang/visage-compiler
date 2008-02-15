@@ -63,6 +63,14 @@ public class Title1 extends CompositeNode {
     attribute powerY: Number;
     
     function composeNode():Node {
+        power = View {
+            content: Label {
+                font: Font.Font("Arial", ["BOLD"], 10)
+                text: bind label3 //"power"
+                foreground: Color.YELLOW
+            }
+            transform: bind Transform.translate(1, -power.currentHeight + powerY)
+        };        
         Group {
             cursor: Cursor.HAND
             var mainGroup = this
@@ -70,12 +78,12 @@ public class Title1 extends CompositeNode {
             [Group {
                 transform: Transform.translate(logoGroup.currentWidth/2, 0)
                 content: logoGroup = Group {
-                    [HBox {
+                    content: [HBox {
                         content: 
                         [Group {
                             var poweredBy = View {
                                 content: Label {
-                                    font: Font.Font("Arial", "BOLD", 10)
+                                    font: Font.Font("Arial", ["BOLD"], 10)
                                     text: bind label1 //"powered by", 
                                     foreground: Color.rgba(1, 1, 1, .5)
                                 }
@@ -83,23 +91,14 @@ public class Title1 extends CompositeNode {
                             },
                             var motorola = View {
                                 content: Label {
-                                    font: Font.Font("Arial", "PLAIN", 18)
+                                    font: Font.Font("Arial", ["PLAIN"], 18)
                                     text: bind label2 //"Motorola", 
                                     foreground: Color.WHITE 
                                 }
                                 transform: bind Transform.translate(1, motorolaY)
 
-                            },
-                            var pow = View {
-                                attribute: power
-                                content: Label {
-                                    font: Font.Font("Arial", "BOLD", 10)
+                            };
 
-                                    text: bind label3 //"power"
-                                    foreground: Color.YELLOW
-                                }
-                                transform: bind Transform.translate(1, -power.currentHeight + powerY)
-                            }
                             content: 
                             [
                             Clip {
@@ -134,9 +133,12 @@ public class Title1 extends CompositeNode {
                 fill: Color.rgba(0, 0, 0,  0)
                 selectable: true
                 var rect = this
+                // TODO Trigger
+                /***************
                 trigger on (newValue = rect.hover) {
                     a.start();
                 }
+                 * ***********/
             }]
         };
 

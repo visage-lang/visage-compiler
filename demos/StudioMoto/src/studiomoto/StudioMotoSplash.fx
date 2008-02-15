@@ -25,7 +25,8 @@ class StudioMotoSplash extends CompositeNode {
           var _alpha = pf.make(alpha).unwrap();
           var _backgroundAlpha = pf.make(backgroundAlpha).unwrap();
           var _phoneY = pf.make(phoneY).unwrap();
-          var _motoX = pf.make(motoX).unwrap();          
+          var _motoX = pf.make(motoX).unwrap(); 
+          var _studioX = pf.make(studioX).unwrap(); 
 	  keyFrames:
 	  [ KeyFrame {
                 keyTime: 0s
@@ -188,8 +189,7 @@ class StudioMotoSplash extends CompositeNode {
                     }                   
               ]               
 	  }]
-      }
-};
+      };
 
     
     function composeNode():Node {
@@ -222,7 +222,7 @@ class StudioMotoSplash extends CompositeNode {
                 Group {
                     transform: Transform.translate(536/2, 631/2+5)
                     opacity: bind alpha
-                    var font = Font.Font("ARIAL", "BOLD", 16)
+                    var font = Font.Font("ARIAL", ["BOLD"], 16)
                     content:
                     [HBox {
                         content:

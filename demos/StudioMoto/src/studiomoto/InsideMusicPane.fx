@@ -11,7 +11,7 @@ public class InsideMusicPane extends MotoPanel {
             }
         },
         Text {content: "COURTESY OF ROLLING STONE", fill: Color.WHITE,
-            font: Font.Font("Arial", "PLAIN", 8),
+            font: Font.Font("Arial", ["PLAIN"], 8),
             halign: HorizontalAlignment.TRAILING
             transform: bind Transform.translate(width-30, 8)
         }]

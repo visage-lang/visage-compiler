@@ -9,12 +9,12 @@ public class PromotionsPanel extends CompositeNode {
             [VBox {
                 content:
                 [Text {
-                    font: Font.Font("ARIAL", "BOLD", 11)
+                    font: Font.Font("ARIAL", ["BOLD"], 11)
                     content: "Motorola Talk and Tunes HT820Bundle"
                     fill: bind if (hover) then Color.YELLOW else Color.WHITE
                 },
                 Text {
-                    font: Font.Font("ARIAL", "PLAIN", 11)
+                    font: Font.Font("ARIAL", ["PLAIN"], 11)
 
                     fill: bind if (hover) then Color.WHITE else Color.YELLOW
                     transform: Transform.translate(0, 5)
@@ -39,7 +39,7 @@ public class PromotionsPanel extends CompositeNode {
 
                     },
                     Text {
-                        font: Font.Font("ARIAL", "BOLD", 11)
+                        font: Font.Font("ARIAL", ["BOLD"], 11)
                         content: "MORE INFO"
                         transform: Transform.translate(115/2, 37/2)
                         valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.CENTER
@@ -54,7 +54,7 @@ public class PromotionsPanel extends CompositeNode {
 }
 
 Canvas {
-    background: black
+    background: Color.BLACK
     content: PromotionsPanel {}
 }
 

@@ -128,15 +128,9 @@ public class MotoProducts extends MotoPanel {
               KeyFrame {
                   keyTime: 100ms
                   relative: true
-                  // TODO how to handle Boolean value?????
-                  /********
-                  keyValues:  NumberValue {
-                      target: pf.make(productVisible).unwrap();
-                      value: true
-                      interpolate: NumberValue.EASEBOTH
-                  }                  
-                  productVisible => true;
-                   ********/
+                  action: function() {
+                      productVisible = true;
+                  }
               },
               KeyFrame {
                   keyTime: 5s

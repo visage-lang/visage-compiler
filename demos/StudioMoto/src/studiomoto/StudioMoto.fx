@@ -17,11 +17,14 @@ Frame {
     var frame = this
     var splash = StudioMotoSplash {
         var self = this;
-        attribute showing = bind frame.showing
+        // TODO adding attribute
+        /************
+        attribute showing:Boolean = bind frame.showing
         on replace {
             selection = -1;
             self.doSplash();
         };
+         *********/
         onDone: function() {selection = 0;}
     }
     
@@ -93,7 +96,7 @@ Frame {
                                     var home = this
                                     var ys = [[0..-18 step -1],[-18..-12]]
                                     //TODO Animation
-                                    var homeY = bind if (selection > 0) (if (home.hover) {ys animation {dur: 300ms}} else {reverse ys animation {dur: 300ms}}) else 30
+                                    var homeY = 30 //bind if (selection > 0) (if (home.hover) {ys animation {dur: 300ms}} else {reverse ys animation {dur: 300ms}}) else 30
                                     transform: bind Transform.translate(-5, -10 + homeY)
                                     action: function() {selection = 0;}
                                 }]
@@ -150,7 +153,7 @@ Frame {
             MotoBottomPane {
                 transform: Transform.translate(100, 400)
                 selection: bind selection
-                var: self
+                var self = this
                 panels:
                 [MotoBottomPanel {
                     panelHeight: 170

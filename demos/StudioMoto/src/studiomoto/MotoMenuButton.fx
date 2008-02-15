@@ -2,6 +2,9 @@ package studiomoto;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
 import java.lang.Math;
+import javafx.ui.animation.*;
+import com.sun.javafx.runtime.PointerFactory;
+import com.sun.javafx.runtime.Pointer;
 
 public class MotoMenuButton extends CompositeNode {
     public attribute anim: MotoMenuAnimation;
@@ -9,65 +12,88 @@ public class MotoMenuButton extends CompositeNode {
     public attribute label2: String;
     public attribute action: function();
     attribute mouseOver: Boolean;
+    attribute pf: PointerFactory = PointerFactory{};
     attribute a: Timeline = Timeline {
+        var _y = pf.make(y).unwrap();
         toggle: true
-        keyFrames:
-        [at (0s) {
-            y => 0;
-        },
-        at (200ms) {
-            y => -12 tween EASEBOTH;
-        },
-        at (400ms) {
-            y => -10 tween EASEBOTH;
-        }]
+        keyFrames: [
+            KeyFrame {
+                keyTime: 0s
+                keyValues:  NumberValue {
+                    target: _y;
+                    value: 0
+                }
+            },
+            KeyFrame {
+                keyTime: 200ms
+                keyValues:  NumberValue {
+                    target: _y;
+                    value: -12
+                    interpolate: NumberValue.EASEBOTH
+                } 
+            },
+            KeyFrame {
+                keyTime: 400ms
+                keyValues:  NumberValue {
+                    target: _y;
+                    value: -10
+                    interpolate: NumberValue.EASEBOTH
+                }
+            }
+        ]
     };
 
     attribute y: Number;
 
-    function composeNode() {
+    function composeNode():Node {
         Group {
             content:
             [Group {
-                cursor: HAND
+                cursor: Cursor.HAND
+                //TODO Trigger
+                /*******************
                 trigger on (h = mouseOver) {
                     a.start();
                 }
+                ***************/
                 var w = 110
                 var h = 60
-                transform: bind translate(0, y)
+                transform: bind Transform.translate(0, y)
                 content: bind
                 [Rect {
                     selectable: true
                     width: w
                     height: h
-                    fill: black
+                    fill: Color.BLACK
                     arcHeight: 20
                     arcWidth: 20
-                    var: rect
+                    var rect = this
+                    //TODO Trigger
+                    /*******************
                     trigger on (newValue = rect.hover) {
                         mouseOver = newValue;
                     }
-                    onMouseClicked: function(e) {(this.action)();}
+                     * **************/
+                    onMouseClicked: function(e) {if(action <> null) action();}
                 },
                 Rect {
-                    clip: {shape: Rect {height: h*.25, width: w}}
+                    clip: Clip{shape: Rect {height: h*.25, width: w}}
                     width: w
                     height: h*.8
                     fill: LinearGradient {
-                        x2: 0, y2: 1
+                        endX: 0, endY: h*.8
                         stops:
                         [Stop {
                             offset: 0
-                            color: new Color(.7, .7, .7, 1)
+                            color: Color.rgba(.7, .7, .7, 1)
                         },
                         Stop {
                             offset: 0.05
-                            color: new Color(.2, .2, .2, 1)
+                            color: Color.rgba(.2, .2, .2, 1)
                         },
                         Stop {
                             offset: 0.5
-                            color: new Color(.1, .1, .1, 1)
+                            color: Color.rgba(.1, .1, .1, 1)
                         }]
                     }
                     arcHeight: 20
@@ -75,22 +101,22 @@ public class MotoMenuButton extends CompositeNode {
                 },
                 Group {
                     visible: bind not mouseOver    
-                    transform: translate(30, h*.3)
-                    valign: MIDDLE
+                    transform: Transform.translate(30, h*.3)
+                    valign: VerticalAlignment.MIDDLE
                     content:
                     VBox {
-                        var textColor = orangered: Color
-                        var font1 = Font {face: ARIAL, style: PLAIN size: 12}
-                        var font = Font {face: ARIAL, style: BOLD size: 12}
+                        var textColor = Color.ORANGERED
+                        var font1 = Font {face: FontFace.ARIAL, style: [FontStyle.PLAIN] size: 12}
+                        var font = Font {face: FontFace.ARIAL, style: [FontStyle.BOLD] size: 12}
                         content:
                         [Text {
                             font: font1
-                            fill: orange
+                            fill: Color.ORANGE
                             content: bind label1
                         },
                         Text {
-                            transform: translate(0, 3)
-                            fill: white
+                            transform: Transform.translate(0, 3)
+                            fill: Color.WHITE
                             font: font
                             content: bind label2
                         }]
@@ -100,10 +126,12 @@ public class MotoMenuButton extends CompositeNode {
                     visible: bind mouseOver
                     content: bind 
                     [Group {
-                        transform: translate(w -5, h*.4)
-                        valign: MIDDLE, halign: TRAILING
-                        content: bind if mouseOver then anim else null
+                        transform: Transform.translate(w -5, h*.4)
+                        valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.TRAILING
+                        content: bind if (mouseOver) then anim else null
                         var active = bind mouseOver
+                        // TODO Trigger
+                        /**************
                         trigger on (a = active) {
                             if (a) {
                                 anim.start();
@@ -112,33 +140,34 @@ public class MotoMenuButton extends CompositeNode {
                                 anim.stop();
                             }
                         }
+                         * **************/
                     },
                     HBox {
-                        transform: translate(w-5, h*.7)
-                        valign: CENTER, halign: TRAILING
-                        var textColor = orangered: Color
-                        var font = Font {face: ARIAL, style: BOLD size: 8}
+                        transform: Transform.translate(w-5, h*.7)
+                        valign: VerticalAlignment.CENTER, halign: HorizontalAlignment.TRAILING
+                        var textColor = Color.ORANGERED
+                        var font = Font {face: FontFace.ARIAL, style: [FontStyle.BOLD] size: 8}
                         content:
                         [Text {
                             font: font
-                            fill: orange
+                            fill: Color.ORANGE
                             content: bind label1.toUpperCase()
                         },
                         Text {
-                            transform: translate(2, 0)
-                            fill: white
+                            transform: Transform.translate(2, 0)
+                            fill: Color.WHITE
                             font: font
                             content: bind label2.toUpperCase()
                         }]
                     }]
                 },
                 Group {
-                    transform: translate(10, 5)
+                    transform: Transform.translate(10, 5)
                     content:
                     [ImageView {
                         visible: false //bind mouseOver
-                        transform: translate(-3, -3)
-                        image: {url: bind "{__DIR__}/Image/8.png"}
+                        transform: Transform.translate(-3, -3)
+                        image: Image{url: bind "{__DIR__}/Image/8.png"}
                     },
                     ImageView {
                         //clip: {shape: Rect {width: 10, height: 24}}            
@@ -148,8 +177,8 @@ public class MotoMenuButton extends CompositeNode {
                         image: Image {url: "{__DIR__}/Image/7.png"}
                     },
                     ImageView {
-                        opacity: bind if mouseOver then 0.5 else 0
-                        transform: translate(-3, -3)
+                        opacity: bind if (mouseOver) then 0.5 else 0
+                        transform: Transform.translate(-3, -3)
                         image: Image {url: bind "{__DIR__}/Image/8.png"}
                     }]
                 }]
@@ -162,6 +191,6 @@ public class MotoMenuButton extends CompositeNode {
 MotoMenuButton { 
     label1: "Test", 
     label2: "Test 2" , 
-    transform: translate(100, 100)
+    transform: Transform.translate(100, 100)
     anim: MotoMenuAnimation {active: true}
 };

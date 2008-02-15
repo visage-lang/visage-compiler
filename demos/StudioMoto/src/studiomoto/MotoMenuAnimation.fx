@@ -1,7 +1,9 @@
 package studiomoto;
+import java.lang.System;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
 import java.lang.Math;
+import javafx.ui.animation.*;
 
 public class MotoMenuAnimation extends CompositeNode {
     attribute active: Boolean
@@ -10,11 +12,13 @@ public class MotoMenuAnimation extends CompositeNode {
     function start() { active = true }
     attribute t: Number;
     attribute anim: Timeline = Timeline {
-        repeatCount: INFINITY
-	keyFrames:
-	        after (1s) {
-		        trigger {t++;}
-	        }
+        repeatCount: java.lang.Integer.MAX_VALUE
+	keyFrames: KeyFrame {
+            keyTime: 1s
+            action: function() {
+                t++;
+            }
+        }
     };
 
     function composeNode() {
@@ -27,22 +31,25 @@ public class MotoMenuAnimation extends CompositeNode {
                 for (j in [1..16]) 
                 VBox {
         	    var rand = 0
+                    //TODO Trigger
+                    /***********
                     trigger on (newValue = t) {     
                         rand = makeRandom();
                     }
-                    transform: translate(1.2, 0)
+                    ***********/
+                    transform: Transform.translate(1.2, 0)
                     content:
-                    foreach (i in [1..n])
+                    for (i in [1..n])
                     Rect {
-                        var: self
+                        var self = this
                         attribute xrand = bind rand
                         on replace {
-                            println("rand={xrand}" );
+                            System.out.println("rand={xrand}" );
                             if (xrand % 2 == indexof j % 2) {
                                 self.opacity = if (xrand <= indexof i) 1 else 0;
                             }
                         }
-                        transform: translate(0, .5)
+                        transform: Transform.translate(0, .5)
                         var r = (1- (indexof i/n))*.5
                         height: 1.5
                         width: 4

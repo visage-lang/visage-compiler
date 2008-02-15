@@ -50,7 +50,8 @@ public class MusicPanel2 extends CompositeNode {
     }
 }
 
-//TODO
+//TODO Trigger
+/*************
 trigger on MusicPanel2.hover = newValue {
     var d = 500;
     if (newValue) {
@@ -61,5 +62,6 @@ trigger on MusicPanel2.hover = newValue {
         softY = ys animation {dur: d*1ms,  condition: bind hover == newValue, interpolate: EASEBOTH:Number};
     }
 }
+ * **********/
 
 MusicPanel2 {}

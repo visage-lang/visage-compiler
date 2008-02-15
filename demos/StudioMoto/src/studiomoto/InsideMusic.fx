@@ -10,8 +10,8 @@ public class InsideMusic extends MotoPanel {
                     text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>Inside</span><span style='color:yellow;'>Music</span></div></html>"
                 }
             },
-            Text {content: "COURTESY OF ROLLING STONE", fill: white,
-                font: Font.Font("Arial", "PLAIN", 8),
+            Text {content: "COURTESY OF ROLLING STONE", fill: Color.WHITE,
+                font: Font.Font("Arial", ["PLAIN"], 8),
                 halign: HorizontalAlignment.TRAILING
                 transform: bind Transform.translate(width-30, 8)
             }]

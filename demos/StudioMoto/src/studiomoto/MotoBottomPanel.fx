@@ -1,8 +1,11 @@
 package studiomoto;
+import java.lang.System;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
 import javafx.ui.filter.*;
 import javafx.ui.animation.*;
+import com.sun.javafx.runtime.PointerFactory;
+import com.sun.javafx.runtime.Pointer;
 
 public class MotoBottomPanel extends Intro {
     attribute panelWidth: Number;
@@ -14,7 +17,7 @@ public class MotoBottomPanel extends Intro {
     attribute insideMusic: Intro;
     attribute guitarPicks: Intro;
     attribute pf: PointerFactory = PointerFactory{};
-    private attribute introAnim: Timeline = bind TimeLine {
+    private attribute introAnim: Timeline = bind Timeline {
         var size = sizeof panels;
         keyFrames: [
             KeyFrame {
@@ -26,7 +29,7 @@ public class MotoBottomPanel extends Intro {
                     }
                 }
                 action: function() {
-                    println(" panels = {sizeof panels}");
+                    System.out.println(" panels = {sizeof panels}");
                 }
             },
             KeyFrame {
@@ -38,7 +41,9 @@ public class MotoBottomPanel extends Intro {
                     }
                 }
                 action: function() {
-                     p.doIntro(); println("doing intro...");
+                    for (p in panels) {
+                     p.doIntro(); System.out.println("doing intro...");
+                   }
                 }
             }
         ]
@@ -53,21 +58,17 @@ public class MotoBottomPanel extends Intro {
             content:
             HBox {
                 content:
-                [MotoPanel {
-                    attribute: promotions
+                [promotions = MotoPanel {
                     height: bind panelHeight
                     width: bind panelWidth
-                    title: Text {content: "Promotions", fill: Color.WHITE, font: Font.Font("VERDANA", "PLAIN", 14)}
-                    content: 
-                    PromotionsPanel
+                    title: Text {content: "Promotions", fill: Color.WHITE, font: Font.Font("VERDANA", ["PLAIN"], 14)}
+                    content: PromotionsPanel{}
                 },
                 Group {
                     var selection = bind 0
                     content: 
 
-                    [MotoPanel {
-
-                        attribute: musicStuff
+                    [musicStuff = MotoPanel {
                         transform: bind Transform.translate(panelMargin, 0)
                         height: bind panelHeight
                         width: bind panelWidth
@@ -96,14 +97,13 @@ public class MotoBottomPanel extends Intro {
                             var fillColor:Color = bind if (selection == indexof i) Color.WHITE else Color.YELLOW
                             content:
                             [Rect {height: 15, width: 12, fill: Color.rgba(0, 0, 0, 0), selectable: true},
-                            Text {content: "{i}", fill: bind fillColor, font: Fonrt.Font("ARIAL", "BOLD", 11)},
+                            Text {content: "{i}", fill: bind fillColor, font: Font.Font("ARIAL", ["BOLD"], 11)},
                             Line {x1: -2, x2: 7, y1: 12, y2: 12, stroke: bind fillColor, visible: bind num.hover}]
                         }
                     }]
                 },
-                InsideMusicPane {height: 180, width: 250, attribute: insideMusic},
-                GuitarPicks {
-                    attribute: guitarPicks
+                insideMusic = InsideMusicPane {height: 180, width: 250},
+                guitarPicks = GuitarPicks {
                     transform: bind Transform.translate(panelMargin, 0)
                     label1: "<html><div style='font-size:12;color:#dfd010;font-weight:bold'>register</div><div style='font-size:9;color:white'>free downloads<br>and Motorola<br>exclusives.<br><br><br></div></html>"
                     label2: "<html><span style='font-size:12;color:#dfd010;font-weight:bold'>WAP</span><div style='font-size:9;color:white'><br>Coming Soon.<br></div></html>"

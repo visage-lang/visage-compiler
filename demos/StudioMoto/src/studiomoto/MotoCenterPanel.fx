@@ -2,30 +2,43 @@ package studiomoto;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
 import javafx.ui.filter.*;
+import javafx.ui.animation.*;
+import com.sun.javafx.runtime.PointerFactory;
+import com.sun.javafx.runtime.Pointer;
 
 public class MotoCenterPanel extends CompositeNode {
     attribute height: Number = 300;
     attribute width: Number = 500;
+    function makeGlowAnim(filt:Filter):Timeline{
+        Timeline {
+            keyFrames:
+            [KeyFrame {
+                keyTime: 0s
+                action: function() {
+                    //TODO GLOW FILTER
+                    //filt = Glow;
+                }
 
-    function composeNode() {
+            },
+            KeyFrame {
+                keyTime: 400ms
+                action: function() {
+                    filt = null;
+                }
+            }]
+         }
+    }  
+    attribute pf: PointerFactory = PointerFactory{};
+    function composeNode():Node {
         Clip {
             
             content:
             Group {
                 
-                function makeGlowAnim(filt:Filter) = KeyFrameAnimation {
-                    
-                    keyFrames:
-                    [at (0s) {
-                        filt => Glow;
-                    },
-                    at (.4s) {
-                        filt => null;
-                    }]
-                };
+
                 content:
                 [ImageView {
-                    transform: bind translate(width/2, height/2)
+                    transform: bind Transform.translate(width/2, height/2)
                     valign: VerticalAlignment.MIDDLE
                     halign: HorizontalAlignment.CENTER
                     image: Image {url: "{__DIR__}/Image/73.png"}
@@ -39,15 +52,18 @@ public class MotoCenterPanel extends CompositeNode {
                         }
                     },
                     Group {
-                        var: box
-                        var filt : Filter = null
+                        var box = this
+                        var filt = null as Filter;
                         var glowAnim = bind makeGlowAnim(filt)
+                        //TODO TRIGGER
+                        /************
                         trigger on (h = box.hover) {
                             if (h) { glowAnim.start(); } else { glowAnim.stop(); filt = null;}
                         }
+                        **********/
                         filter: bind filt
-                        var: g
-                        cursor: HAND
+                        var g = this;
+                        cursor: Cursor.HAND
                         content:
                         [ImageView {
                             //visible: bind not g.hover
@@ -59,34 +75,37 @@ public class MotoCenterPanel extends CompositeNode {
                             image: Image {url: "{__DIR__}/Image/75.png"}
                         },
                         Text {
-                            transform: translate(56/2, 35/2)
+                            transform: Transform.translate(56/2, 35/2)
                             valign: VerticalAlignment.MIDDLE
                             halign: HorizontalAlignment.CENTER
-                            fill: bind if (g.hover) black else white
+                            fill: bind if (g.hover) Color.BLACK else Color.WHITE
                             content: "GO"
-                            font: new Font("ARIAL", "BOLD", 11)
+                            font: Font.Font("ARIAL", ["BOLD"], 11)
                         }]
                     }]
                 },
                 VBox {
-                    transform: translate(width/2+30, height)
+                    transform: Transform.translate(width/2+30, height)
                     valign: VerticalAlignment.BOTTOM
                     halign: HorizontalAlignment.LEADING
                     content:
                     [Group {
-                        transform: translate(120, 0)
+                        transform: Transform.translate(120, 0)
                         
                         content:
                         [Group {
-                            var: g
-                            var: box
-                            var filt = (Filter)null
-                            var glowAnim = bind makeGlowAnim(filt)
+                            var g = this
+                            var box = this
+                            var filt = null as Filter;
+                            var glowAnim = bind makeGlowAnim(filt);
+                            //TODO trigger
+                            /**************
                             trigger on (h = box.hover) {
                                 if (h) { glowAnim.start(); }
                             }
+                            ********************/
                             filter: bind filt
-                            cursor: HAND
+                            cursor: Cursor.HAND
                             content:
                             [ImageView {
                                 //visible: bind not g.hover
@@ -98,10 +117,10 @@ public class MotoCenterPanel extends CompositeNode {
                                 image: Image {url: "{__DIR__}/Image/75.png"}
                             },
                             Text {
-                                transform: translate(56/2, 35/2)
+                                transform: Transform.translate(56/2, 35/2)
                                 valign: VerticalAlignment.MIDDLE
                                 halign: HorizontalAlignment.CENTER
-                                fill: bind if (g.hover) black else white
+                                fill: bind if (g.hover) Color.BLACK else Color.WHITE
                                 content: "GO"
                                 font: new Font("ARIAL", "BOLD", 11)
                             }]
@@ -111,21 +130,33 @@ public class MotoCenterPanel extends CompositeNode {
                             height: 135,
                             width: 156
                             var alpha = .5
-                            var: rect
-                            var fade = KeyFrameAnimation {
+                            var rect = this;
+                            var fade = Timeline {
                                 toggle: true
-                                keyFrames:
-                                [at (0s) {
-                                    alpha => .5;
-                                },
-                                at (100ms) {
-                                    alpha => 1 tween EASEBOTH;
-                                }]
-                            }
+                                var _alpha = pf.make(alpha).unwrap()
+                                keyFrames: [
+                                    KeyFrame {
+                                        keyTime: 0s
+                                        keyValues: NumberValue {
+                                            target: _alpha;
+                                            value: .5
+                                        }                                        
+                                    },
+                                    KeyFrame {
+                                        keyTime: 100ms
+                                        keyValues: NumberValue {
+                                            target: _alpha;
+                                            value: 1
+                                            interpolate: NumberValue.EASEBOTH
+                                        }                                          
+                                    }
+                                ]
+                            };
                             var fill1 = RadialGradient {radius: 50, cx: 156/2, cy: 135/2, 
-                                stops: [{offset: 0.3, color: new Color(1, 1, 1, .6)}, {offset: .7, color: new Color(1, 1, 1, 0)}]
+                                stops: [Stop{offset: 0.3, color: Color.rgba(1, 1, 1, .6)}, Stop{offset: .7, color: Color.rgba(1, 1, 1, 0)}]
                             }
-                            trigger on (h = rect.hover) { fade.start(); }
+                            //TODO Trigger
+                            //trigger on (h = rect.hover) { fade.start(); }
                             opacity: bind alpha
                             fill: fill1
                             arcHeight: 20
@@ -145,7 +176,7 @@ public class MotoCenterPanel extends CompositeNode {
 }
     
 Canvas {
-    background: brown
+    background: Color.BROWN
     content:
     MotoCenterPanel {
         height: 300
