@@ -7,12 +7,12 @@ public class GuitarPicks extends Intro {
     /** HTML label for the top pick */
     public attribute label1: String;
     /** action when you click the top pick */
-    public attribute action1: operation();
+    public attribute action1: function();
     
     /** HTML label for the bottom pick */
     public attribute label2: String;
     /** action when you click the bottom pick */
-    public attribute action2: operation();
+    public attribute action2: function();
     
     private attribute rot: Number; 
     private attribute y1: Number;
@@ -23,25 +23,22 @@ public class GuitarPicks extends Intro {
     
     private operation doHover(pick:Node);
     
-    private attribute pick1Hover: Boolean;
-    private attribute pick2Hover: Boolean;
+    private attribute pick1Hover: Boolean = bind pick1.hover;
+    private attribute pick2Hover: Boolean = bind pick2.hover;
     
     attribute hoverAnim: KeyFrameAnimation;
     attribute introAnim: KeyFrameAnimation;
+
+    function composeNode() : Node {
+        Group {
+            content:  
+            [ImageView {
+                transform: translate(0, 40)
+                image: Image {url: "{__DIR__}/Image/89.png"}
+            },
+            pick2, pick1]
+    };
 }
-
-function GuitarPicks.composeNode() =
-Group {
-    content:  
-    [ImageView {
-        transform: translate(0, 40)
-        image: {url: "{__DIR__}/Image/89.png"}
-    },
-    pick2, pick1]
-};
-
-attribute GuitarPicks.pick1Hover = bind pick1.hover;
-attribute GuitarPicks.pick2Hover = bind pick2.hover;
 
 trigger on GuitarPicks.pick1Hover = newValue {
     if (newValue) {
