@@ -213,7 +213,9 @@ public class XMLDoclet {
     
     void generateXML(RootDoc root) throws IOException, TransformerException, SAXException {
         initTransformer();
+        attrs.clear();
         hd.startElement("", "", "javadoc", attrs);
+        generateComment(root);
         for (PackageDoc pkg : root.specifiedPackages())
             generatePackage(pkg);
         hd.endElement("","","javadoc");
