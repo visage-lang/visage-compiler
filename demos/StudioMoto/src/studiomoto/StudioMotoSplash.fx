@@ -22,11 +22,11 @@ class StudioMotoSplash extends CompositeNode {
     attribute onDone: function();
     
     private attribute pf: PointerFactory = PointerFactory{};
-    private attribute _alpha = pf.make(alpha).unwrap();
-    private attribute _backgroundAlpha = pf.make(backgroundAlpha).unwrap();
-    private attribute _phoneY = pf.make(phoneY).unwrap();
-    private attribute _motoX = pf.make(motoX).unwrap();
-    private attribute _studioX = pf.make(studioX).unwrap();   
+    private attribute _alpha = bind pf.make(alpha).unwrap();
+    private attribute _backgroundAlpha = bind pf.make(backgroundAlpha).unwrap();
+    private attribute _phoneY = bind pf.make(phoneY).unwrap();
+    private attribute _motoX = bind pf.make(motoX).unwrap();
+    private attribute _studioX = bind pf.make(studioX).unwrap();   
     attribute anim: Timeline= Timeline {
  
 	  keyFrames:
