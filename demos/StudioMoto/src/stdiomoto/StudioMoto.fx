@@ -7,27 +7,27 @@ import studiomoto.MotoMenuButton;
 
 Frame {
     centerOnScreen: true
-    onClose: operation() {System.exit(0);}
+    onClose: function() {System.exit(0);}
     title: "JavaFX - Motorola Music"
     height: 700
     width: 1100
     visible: true 
     var selection = bind 0
-    var: frame
+    var frame = this
     var splash = StudioMotoSplash {
-        var: self
+        var self = this
         trigger on (newValue = frame.showing) {
             selection = -1;
             self.doSplash();
         }
-        onDone: operation() {selection = 0;}
+        onDone: function() {selection = 0;}
     }
     
-    background: black
+    background: Color.BLACK
     content:
     Canvas {
-        background: black
-        var: canvas
+        background: Color.BLACK
+        var canvas = this
         var w = 1300
         var h = 700
         content:
@@ -36,26 +36,26 @@ Frame {
             [HBox {
                 content: 
                 [ImageView {
-                    image: {url: "{__DIR__}/Image/1.jpg"}
+                    image: Image{url: "{__DIR__}/Image/1.jpg"}
                 },
                 ImageView {
-                    image: {url: "{__DIR__}/Image/1.jpg"}
+                    image: Image{url: "{__DIR__}/Image/1.jpg"}
                 }]
-                onMouseClicked: operation(e) {splash.doSplash();}
+                onMouseClicked: function(e) {splash.doSplash();}
             },
             Group {
                 isSelectionRoot: true
-                transform: translate(60, 70)
+                transform: Transform.translate(60, 70)
                 content:
                 [ImageView {
                     //982x527
-                    //transform: translate(527/2, 40)
+                    //transform: Transform.translate(527/2, 40)
                     
-                    //halign: CENTER
-                    image: {url: "{__DIR__}/Image/4.png"}
+                    //halign: HorizontalAlignment.CENTER
+                    image: Image{url: "{__DIR__}/Image/4.png"}
                 },
                 Group {
-                    transform: translate(30, 20)
+                    transform: Transform.translate(30, 20)
                     content:
                     [Title1 {
                         height: 50
@@ -66,61 +66,62 @@ Frame {
                     }],
                 },
                 Group {
-                    //transform: bind translate(canvas.width/2, h/2)
-                    transform: translate(17, 50)
-                    //halign: CENTER
-                    //valign: MIDDLE, halign: CENTER
+                    //transform: bind Transform.translate(canvas.width/2, h/2)
+                    transform: Transform.translate(17, 50)
+                    //halign: HorizontalAlignment.CENTER
+                    //valign: MIDDLE, halign: HorizontalAlignment.CENTER
                     content: //if true then null else
                     [Group {
-                        transform: translate(700, 0)
-                        halign: CENTER
+                        transform: Transform.translate(700, 0)
+                        halign: HorizontalAlignment.CENTER
                         content: HBox {
-                            clip: {shape: Rect {y: -50, height: 100, width: w}}
+                            clip: Clip{shape: Rect {y: -50, height: 100, width: w}}
                             var labels1 = ["about", "inside", "music", "moto", "site"]
                             var labels2 = ["studiomoto", "music", "playtime", "products", "support"]
-                            var a = new MotoMenuAnimation()
+                            var a = MotoMenuAnimation{}
                             var dummy = a.getNode()
                             content: 
                             [Group {
                                 
                                 isSelectionRoot: true
                                 content:
-                                [Rect {height: 30+68, width: 139, selectable: true, fill: new Color(0, 0, 0, 0), visible: bind selection > 0},
+                                [Rect {height: 30+68, width: 139, selectable: true, fill: Color.rgba(0, 0, 0, 0), visible: bind selection > 0},
                                 HomeButton {
                                     
-                                    var: home
-                                    var ys = [[0..-18],[-18..-12]]
-                                    var homeY = bind if selection > 0 then if home.hover then ys animation {dur: 300ms} else reverse ys animation {dur: 300ms} else 30
-                                    transform: bind translate(-5, -10 + homeY)
-                                    action: operation() {selection = 0;}
+                                    var home = this
+                                    var ys = [[0..-18 step -1],[-18..-12]]
+                                    //TODO Animation
+                                    var homeY = bind if (selection > 0) then if home.hover then ys animation {dur: 300ms} else reverse ys animation {dur: 300ms} else 30
+                                    transform: bind Transform.translate(-5, -10 + homeY)
+                                    action: function() {selection = 0;}
                                 }]
                             },
                             
-                            foreach (i in [0..sizeof labels1-1]) 
+                            for (i in [0..sizeof labels1-1]) 
                             MotoMenuButton {
                                 anim: a
-                                action: operation() {selection = indexof i+1;}
+                                action: function() {selection = indexof i+1;}
                                 label1: labels1[i]
                                 label2: labels2[i]
-                                transform: translate(5, 0)
+                                transform: Transform.translate(5, 0)
                             }]
                         }
                     },            
                     Group {
-                        transform: translate(0, 28)
+                        transform: Transform.translate(0, 28)
                         content:
                         [Group {
                             content:
                             [ImageView {
-                                image: {url: "{__DIR__}/Image/71.png"}
+                                image: Image{url: "{__DIR__}/Image/71.png"}
                             },
                             ImageView {
-                                transform: translate(22, 17)
-                                image: {url: "{__DIR__}/Image/72.png"}
+                                transform: Transform.translate(22, 17)
+                                image: Image{url: "{__DIR__}/Image/72.png"}
                             },
                             MotoCenterPanel {
-                                transform: translate(957/2+15, 20)
-                                halign: CENTER
+                                transform: Transform.translate(957/2+15, 20)
+                                halign: HorizontalAlignment.CENTER
                                 height: 220
                                 width: 400
                             }]
@@ -129,7 +130,7 @@ Frame {
                 }]
             },
             Group {
-                transform: translate(875, 100)
+                transform: Transform.translate(875, 100)
                 content:
                 [Title1 {
                     height: 50
@@ -139,13 +140,13 @@ Frame {
                     label3: "<html>power</html>"
                 },
                 ImageView {
-                    transform: translate(80, 0)
+                    transform: Transform.translate(80, 0)
                     // 42x42
-                    image: {url: "{__DIR__}/Image/5.png"}
+                    image: Image{url: "{__DIR__}/Image/5.png"}
                 }]
             },
             MotoBottomPane {
-                transform: translate(100, 400)
+                transform: Transform.translate(100, 400)
                 selection: bind selection
                 var: self
                 panels:

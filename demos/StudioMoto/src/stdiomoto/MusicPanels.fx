@@ -46,12 +46,12 @@ public class MusicPanels extends CompositeNode {
     attribute _alpha:Pointer = pf.make(alpha).unwrap();
     
     function composeNode():Node {
-    Group {
-        //todo GLOW filter: bind if (alpha == 1) then select Glow[i] from i in [0, 1] animation {dur: 300ms} else null
-        opacity: bind alpha
-        content: bind selectedPanel
+        Group {
+            //todo GLOW filter: bind if (alpha == 1) then select Glow[i] from i in [0, 1] animation {dur: 300ms} else null
+            opacity: bind alpha
+            content: bind selectedPanel
 
-    };  
+        };  
     }
 }
 
