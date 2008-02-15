@@ -18,9 +18,12 @@ public class MotoPanel extends Intro {
     attribute alpha1: Number;
     
     private attribute pf: PointerFactory = PointerFactory{};
-    private attribute _titleX = pf.make(titleX).unwrap();
-    private attribute _contentY = pf.make(contentY).unwrap();
-    private attribute _alpha1 = pf.make(alpha1).unwrap();    
+    private attribute _titleXp = bind pf.make(titleX);
+    private attribute _titleX = _titleXp.unwrap();
+    private attribute _contentYp = bind pf.make(contentY);
+    private attribute _contentY = _contentYp.unwrap();
+    private attribute _alpha1p = bind pf.make(alpha1);    
+    private attribute _alpha1 = _alpha1p.unwrap();    
     
     attribute intro: Timeline = Timeline {
 
