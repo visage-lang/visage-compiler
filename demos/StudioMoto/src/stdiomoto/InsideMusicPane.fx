@@ -28,13 +28,13 @@ Group {
     },
     ImageView {
         transform: bind translate(0, 120)
-        image: {url: "{__DIR__}/Image/95.png"}
+        image: Image {url: "{__DIR__}/Image/95.png"}
     },
     ImageView {
         halign: TRAILING
         valign: BOTTOM
         transform: bind translate(width -30, height -35)
-        image: {url: "{__DIR__}/Image/88.png"}
+        image: Image {url: "{__DIR__}/Image/88.png"}
     }]
 };
 

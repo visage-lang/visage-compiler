@@ -11,7 +11,8 @@ public class HomeButton extends CompositeNode {
         content: ImageView {
             onMouseClicked: function(e) {(this.action)();}
             image: Image {url: "{__DIR__}/Image/94.png"}
-        }
+        }}
+    }
 };
 
 HomeButton {}
