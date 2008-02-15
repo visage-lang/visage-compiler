@@ -23,7 +23,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime.i18n.backport;
+package com.sun.javafx.runtime.util.backport;
 
 import java.util.Enumeration;
 import java.util.Iterator;

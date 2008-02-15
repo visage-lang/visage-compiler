@@ -38,7 +38,7 @@
  *
  */
 
-package com.sun.javafx.runtime.i18n.backport;
+package com.sun.javafx.runtime.util.backport;
 
 import java.util.*;
 

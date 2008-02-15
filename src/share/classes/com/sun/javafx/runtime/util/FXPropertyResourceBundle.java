@@ -23,7 +23,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime.i18n;
+package com.sun.javafx.runtime.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -50,10 +51,10 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-import com.sun.javafx.runtime.i18n.backport.ResourceBundle;
-import com.sun.javafx.runtime.i18n.backport.ResourceBundleEnumeration;
+import com.sun.javafx.runtime.util.backport.ResourceBundle;
+import com.sun.javafx.runtime.util.backport.ResourceBundleEnumeration;
 
-class JavaFXPropertyResourceBundle extends ResourceBundle {
+class FXPropertyResourceBundle extends ResourceBundle {
 
     private static final String CHARTAG = "@charset \"";
     private static final List<String> FORMAT_FXPROPERTIES
@@ -76,12 +77,12 @@ class JavaFXPropertyResourceBundle extends ResourceBundle {
     // to be removed if we discard JDK 5 support
     private static final Locale ROOTLOCALE = new Locale("");
 
-    public JavaFXPropertyResourceBundle(InputStream is, String resourceName) 
+    public FXPropertyResourceBundle(InputStream is, String resourceName) 
                                                         throws IOException {
         this(getReader(is), resourceName);
     }
 
-    public JavaFXPropertyResourceBundle(Reader reader, String resourceName)
+    public FXPropertyResourceBundle(Reader reader, String resourceName)
                                                         throws IOException {
         lookup = new ConcurrentHashMap<String, Object>();
         initialize(reader, resourceName);
@@ -337,25 +338,42 @@ class JavaFXPropertyResourceBundle extends ResourceBundle {
     }
 
     private static Reader getReader(InputStream is) throws IOException {
-        String charset = "UTF-8";
+        Charset charset = null;
         BufferedInputStream bis = new BufferedInputStream(is);
         bis.mark(256);
         byte[] ba = new byte[CHARTAG.length()];
         if (bis.read(ba, 0, CHARTAG.length()) == ba.length) {
-            String possibleCharsetTag = new String(ba, charset);
+            String possibleCharsetTag = new String(ba, "UTF-8");
             if (possibleCharsetTag.equals(CHARTAG)) {
                 StringBuilder sb = new StringBuilder();
                 byte b;
-                while ((b = (byte)bis.read()) != '"') {
-                    sb.append((char)b);
-                }
-                if ((char)bis.read() == ';') {
-                    // conforms to the CSS encoding declaration
-                    charset = sb.toString();
-                    while (true) {
-                        b = (byte)bis.read();
-                        if (b == '\r' || b == '\n') {
-                            break;
+                boolean found = false;
+                while (true) {
+                    b = (byte)bis.read();
+                    
+                    if (b == '\r' || b == '\n') {
+                        if (!found) {
+                            log(Level.WARNING, 
+                                "Incorrect format in @charset tag");
+                        }
+                        break;
+                    }
+
+                    if (b != '"') {
+                        sb.append((char)b);
+                    } else {
+                        found = true;
+                        if ((char)bis.read() == ';') {
+                            // conforms to the CSS encoding declaration
+                            try {
+                                charset = Charset.forName(sb.toString());
+                            } catch (Exception e) {
+                                log(Level.WARNING, 
+                                    "charset '" + sb.toString() + "' was not available");
+                            }
+                        } else {
+                            log(Level.WARNING, 
+                                "Incorrect format in @charset tag");
                         }
                     }
                 }
@@ -363,6 +381,11 @@ class JavaFXPropertyResourceBundle extends ResourceBundle {
                 bis.reset();
             }
         }
+
+        if (charset == null) {
+            charset = Charset.forName("UTF-8");
+        }
+
         return new InputStreamReader(bis, charset);
     }
 
@@ -396,10 +419,10 @@ class JavaFXPropertyResourceBundle extends ResourceBundle {
 	}
     }
 
-    static class JavaFXPropertiesControl extends ResourceBundle.Control {
-	static final JavaFXPropertiesControl INSTANCE = new JavaFXPropertiesControl();
+    static class FXPropertiesControl extends ResourceBundle.Control {
+	static final FXPropertiesControl INSTANCE = new FXPropertiesControl();
 
-	private JavaFXPropertiesControl() {
+	private FXPropertiesControl() {
 	}
 
         @Override
@@ -408,9 +431,17 @@ class JavaFXPropertyResourceBundle extends ResourceBundle {
                 throw new NullPointerException();
             }
  
-            return JavaFXPropertyResourceBundle.FORMAT_FXPROPERTIES;
+            return FXPropertyResourceBundle.FORMAT_FXPROPERTIES;
         }
- 
+
+        @Override
+        public Locale getFallbackLocale(String baseName, Locale locale) {
+            if (baseName == null || locale == null) {
+                throw new NullPointerException();
+            }
+            return null;
+        }
+
         @Override
         public ResourceBundle newBundle(String baseName, Locale locale, String format,
             			ClassLoader classLoader, boolean reloadFlag)
@@ -421,7 +452,7 @@ class JavaFXPropertyResourceBundle extends ResourceBundle {
 
             String bundleName = toBundleName(baseName, locale);
             ResourceBundle bundle = null;
-	    final String resourceName = bundleName+".fxproperties";
+	    final String resourceName = toResourceName(bundleName, "fxproperties");
 	    final ClassLoader loader = classLoader;
 	    final boolean reload = reloadFlag;
 	    InputStream stream = null;
@@ -453,7 +484,7 @@ class JavaFXPropertyResourceBundle extends ResourceBundle {
 
 	    if (stream != null) {
 	        try {
-		    bundle = new JavaFXPropertyResourceBundle(stream, resourceName);
+		    bundle = new FXPropertyResourceBundle(stream, resourceName);
 	        } finally {
 		    stream.close();
 	        }
@@ -471,7 +502,7 @@ class JavaFXPropertyResourceBundle extends ResourceBundle {
 
     private static void log(Level l, String msg) {
         if (logger == null) {
-            logger = Logger.getLogger("com.sun.javafx.runtime.i18n.JavaFXPropertyResourceBundle");
+            logger = Logger.getLogger("com.sun.javafx.runtime.util.FXPropertyResourceBundle");
         }
 
 
