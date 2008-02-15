@@ -13,13 +13,15 @@ Frame {
     width: 1100
     visible: true 
     var selection = bind 0
+    private attribute tshowing = bind showing
     var frame = this
     var splash = StudioMotoSplash {
-        var self = this
-        trigger on (newValue = frame.showing) {
+        var self = this;
+        attribute showing = bind frame.showing
+        on replace {
             selection = -1;
             self.doSplash();
-        }
+        };
         onDone: function() {selection = 0;}
     }
     
@@ -91,7 +93,7 @@ Frame {
                                     var home = this
                                     var ys = [[0..-18 step -1],[-18..-12]]
                                     //TODO Animation
-                                    var homeY = bind if (selection > 0) then if home.hover then ys animation {dur: 300ms} else reverse ys animation {dur: 300ms} else 30
+                                    var homeY = bind if (selection > 0) (if (home.hover) {ys animation {dur: 300ms}} else {reverse ys animation {dur: 300ms}}) else 30
                                     transform: bind Transform.translate(-5, -10 + homeY)
                                     action: function() {selection = 0;}
                                 }]

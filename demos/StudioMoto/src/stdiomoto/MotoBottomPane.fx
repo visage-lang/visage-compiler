@@ -17,7 +17,7 @@ public class MotoBottomPane extends Intro {
         keyFrames:
             KeyFrame {
                 keyTime: 500ms
-                action: funtion() {
+                action: function() {
                     doIntro();
                 }
         }

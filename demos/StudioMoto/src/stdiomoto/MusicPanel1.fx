@@ -19,9 +19,8 @@ public class MusicPanel1 extends CompositeNode {
                 },
                 ImageView {
                     transform: Transform.translate(0, 0)
-                    image: {url: "{__DIR__}/Image/82.png"}
+                    image: Image {url: "{__DIR__}/Image/82.png"}
                 },
-                ,
                 VBox {
                     transform: Transform.translate(150, 0)
                     content:

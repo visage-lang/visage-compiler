@@ -35,10 +35,11 @@ public class MotoMenuAnimation extends CompositeNode {
                     foreach (i in [1..n])
                     Rect {
                         var: self
-                        trigger on (newValue = rand) {     
-                            println("rand={rand}" );
-                            if (rand % 2 == indexof j % 2) {
-                                self.opacity = if (rand  <= indexof i) 1 else 0;
+                        attribute xrand = bind rand
+                        on replace {
+                            println("rand={xrand}" );
+                            if (xrand % 2 == indexof j % 2) {
+                                self.opacity = if (xrand <= indexof i) 1 else 0;
                             }
                         }
                         transform: translate(0, .5)

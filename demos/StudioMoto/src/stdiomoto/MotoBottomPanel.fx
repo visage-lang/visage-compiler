@@ -28,7 +28,7 @@ public class MotoBottomPanel extends Intro {
                 action: function() {
                     println(" panels = {sizeof panels}");
                 }
-            }
+            },
             KeyFrame {
                 keyTime: 200ms
                 keyValues: for(p in panels) {
@@ -36,9 +36,9 @@ public class MotoBottomPanel extends Intro {
                         target: pf.make(p.opacity).unwrap()
                         value: 1
                     }
-                    action: function() {
-                         p.doIntro(); println("doing intro...");
-                    }
+                }
+                action: function() {
+                     p.doIntro(); println("doing intro...");
                 }
             }
         ]
@@ -89,11 +89,11 @@ public class MotoBottomPanel extends Intro {
                         content:
                         for (i in [1, 2, 3])
                         Group {
-                            onMouseClicked: operation(e) {selection = indexof i;}
+                            onMouseClicked: function(e) {selection = indexof i;}
                             var num = this
                             cursor: Cursor.HAND
                             transform: Transform.translate(5, 0)
-                            var fillColor:Color = bind if selection == indexof i then Color.WHITE else Color.YELLOW
+                            var fillColor:Color = bind if (selection == indexof i) Color.WHITE else Color.YELLOW
                             content:
                             [Rect {height: 15, width: 12, fill: Color.rgba(0, 0, 0, 0), selectable: true},
                             Text {content: "{i}", fill: bind fillColor, font: Fonrt.Font("ARIAL", "BOLD", 11)},
@@ -111,9 +111,8 @@ public class MotoBottomPanel extends Intro {
             }
         };
 
-    }  
+    }
 }
-
 
 
 Canvas {

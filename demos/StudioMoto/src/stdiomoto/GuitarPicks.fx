@@ -18,16 +18,89 @@ public class GuitarPicks extends Intro {
     private attribute y1: Number;
     private attribute y2: Number;
     
-    private attribute pick1: Node;
-    private attribute pick2: Node;
+    private attribute pick1: Node = Group {
+        isSelectionRoot: true
+        cursor: HAND 
+        
+        transform: bind [translate(0, y1), rotate(rot, 30, 80)]
+        
+        onMouseClicked: function(e) {(this.action1)();}
+        
+        content:
+        [ImageView {
+            image: Image {url: "{__DIR__}/Image/90.png"}
+        },
+        View {
+            valign: MIDDLE, halign: CENTER
+            transform: translate(52, 50)
+            content: SimpleLabel {
+                cursor: HAND
+                text: bind label1
+            }
+        }]
+    };
+    private attribute pick2: Node =
+        Group {
+            isSelectionRoot: true
+            cursor: HAND
+            onMouseClicked: function(e) {(this.action2)();}
+            
+            transform: bind [translate(0, 70+y2), rotate(360-rot, 30, 80)]
+            
+            content:
+            [ImageView {
+                image: Image {url: "{__DIR__}/Image/91.png"}
+            },
+            View {
+                valign: MIDDLE, halign: CENTER
+                transform: translate(52, 50)
+                content: SimpleLabel {
+                    focusable: false
+                    cursor: HAND
+                    text: bind label2
+                }
+            }]
+    };
     
-    private operation doHover(pick:Node);
+    private function doHover(pick:Node);
     
-    private attribute pick1Hover: Boolean = bind pick1.hover;
-    private attribute pick2Hover: Boolean = bind pick2.hover;
+    private attribute pick1Hover: Boolean = bind pick1.hover
+    on replace {
+        if (pick1Hover)
+            hoverAnim.start();
+    };
+    private attribute pick2Hover: Boolean = bind pick2.hover
+    on replace {
+        if (pick2Hover)
+            hoverAnim.start();
+    };
     
-    attribute hoverAnim: KeyFrameAnimation;
-    attribute introAnim: KeyFrameAnimation;
+    attribute hoverAnim: KeyFrameAnimation = KeyFrameAnimation {
+        keyFrames:
+        [at (0s) {
+            y2 => 0;
+            y1 => 0;
+        },
+        at (.25s) {
+            y2 => 12 tween LINEAR;
+            y1 => -12 tween LINEAR;
+            trigger { if (pick1.hover) pick1.toFront()else if (pick2.hover) pick2.toFront() }
+        },
+        at (.5s) {
+            y2 => 0 tween LINEAR;
+            y1 => 0 tween LINEAR;
+            
+        }]
+    };
+    attribute introAnim: KeyFrameAnimation = KeyFrameAnimation {
+        keyFrames:
+        [at (0s) {
+            rot => 90;
+        },
+        at (.5s) {
+            rot => 0 tween EASEBOTH;
+        }]
+    };
 
     function composeNode() : Node {
         Group {
@@ -38,101 +111,15 @@ public class GuitarPicks extends Intro {
             },
             pick2, pick1]
     };
-}
 
-trigger on GuitarPicks.pick1Hover = newValue {
-    if (newValue) {
-        hoverAnim.start();
+    function doIntro() {
+        introAnim.start();
     }
-}
-
-trigger on GuitarPicks.pick2Hover = newValue {
-    if (newValue) {
-        hoverAnim.start();
-    }
-}
-
-attribute GuitarPicks.pick1 = Group {
-    isSelectionRoot: true
-    cursor: HAND 
-    
-    transform: bind [translate(0, y1), rotate(rot, 30, 80)]
-    
-    onMouseClicked: operation(e) {(this.action1)();}
-    
-    content:
-    [ImageView {
-        image: {url: "{__DIR__}/Image/90.png"}
-    },
-    View {
-        valign: MIDDLE, halign: CENTER
-        transform: translate(52, 50)
-        content: SimpleLabel {
-            cursor: HAND
-            text: bind label1
-        }
-    }]
-};
-
-attribute GuitarPicks.pick2 =
-Group {
-    isSelectionRoot: true
-    cursor: HAND
-    onMouseClicked: operation(e) {(this.action2)();}
-    
-    transform: bind [translate(0, 70+y2), rotate(360-rot, 30, 80)]
-    
-    content:
-    [ImageView {
-        image: {url: "{__DIR__}/Image/91.png"}
-    },
-    View {
-        valign: MIDDLE, halign: CENTER
-        transform: translate(52, 50)
-        content: SimpleLabel {
-            focusable: false
-            cursor: HAND
-            text: bind label2
-        }
-    }] 
-};
-
-attribute GuitarPicks.hoverAnim = KeyFrameAnimation {
-    keyFrames:
-    [at (0s) {
-        y2 => 0;
-        y1 => 0;
-    },
-    at (.25s) {
-        y2 => 12 tween LINEAR;
-        y1 => -12 tween LINEAR;
-        trigger { if (pick1.hover) { pick1.toFront(); }  else if (pick2.hover) { pick2.toFront(); } }
-    },
-    at (.5s) {
-        y2 => 0 tween LINEAR;
-        y1 => 0 tween LINEAR;
-        
-    }]
-};
-
-attribute GuitarPicks.introAnim = KeyFrameAnimation {
-    keyFrames:
-    [at (0s) {
-        rot => 90;
-    },
-    at (.5s) {
-        rot => 0 tween EASEBOTH;
-    }]
-};
-
-operation GuitarPicks.doIntro() {
-    introAnim.start();
 }
 
 // Example code
 
 function picks() =
-
 GuitarPicks {   
     var: self
     action1: operation() { self.doIntro(); }

@@ -22,7 +22,6 @@ public class MusicPanel3 extends CompositeNode {
                     transform: Transform.translate(80, 0)
                     image: Image{url: "{__DIR__}/Image/86.png"}
                 },
-                ,
                 VBox {
                     transform: Transform.translate(150, 5)
                     content:

@@ -21,7 +21,7 @@ public class PromotionsPanel extends CompositeNode {
                     content: "Listen to music wherever you go"
                 },
                 ImageView {
-                    image: {url: "{__DIR__}/Image/78.png"}
+                    image: Image {url: "{__DIR__}/Image/78.png"}
                 },
                 Group {
                     transform: Transform.translate(0, -20)
@@ -30,12 +30,12 @@ public class PromotionsPanel extends CompositeNode {
                     content:
                     [ImageView {
                         // 115x37
-                        image: Image{url: "{__DIR__}/Image/80.png"}
+                        image: Image {url: "{__DIR__}/Image/80.png"}
 
                     },
                     ImageView {
                         visible: bind hover
-                        image: Image{url: "{__DIR__}/Image/81.png"}
+                        image: Image {url: "{__DIR__}/Image/81.png"}
 
                     },
                     Text {
@@ -43,7 +43,7 @@ public class PromotionsPanel extends CompositeNode {
                         content: "MORE INFO"
                         transform: Transform.translate(115/2, 37/2)
                         valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.CENTER
-                        fill: bind if (hover) then Color.BLACK else Color.WHITE
+                        fill: bind if (hover) Color.BLACK else Color.WHITE
                     }
                     ]
                 }
