@@ -682,7 +682,7 @@ public class JavafxResolve {
                     return new AmbiguityError(m1, m2);
                 // both abstract, neither overridden; merge throws clause and result type
                 Symbol result;
-                Type result2 = mt2.getReturnType();;
+                Type result2 = mt2.getReturnType();
                 if (mt2.tag == FORALL)
                     result2 = types.subst(result2, ((ForAll)mt2).tvars, ((ForAll)mt1).tvars);
                 if (types.isSubtype(mt1.getReturnType(), result2)) {
@@ -1838,6 +1838,7 @@ public class JavafxResolve {
 
         /** Print the (debug only) name of the kind of error.
          */
+        @Override
         public String toString() {
             return debugName + " wrongSym=" + wrongSym + " explanation=" + explanation;
         }
@@ -1858,6 +1859,7 @@ public class JavafxResolve {
             return this;
         }
 
+        @Override
         public boolean exists() {
             switch (kind) {
             case HIDDEN:
@@ -1962,6 +1964,7 @@ public class JavafxResolve {
          *  @param typeargtypes  The invocation's type arguments,
          *                   if we looked for a method.
          */
+        @Override
         void report(Log log, DiagnosticPosition pos, Type site, Name name,
                     List<Type> argtypes, List<Type> typeargtypes) {
             if (sym.owner.type.tag != ERROR) {
@@ -2002,6 +2005,7 @@ public class JavafxResolve {
          *  @param typeargtypes  The invocation's type arguments,
          *                   if we looked for a method.
          */
+        @Override
         void report(Log log,
                     DiagnosticPosition pos,
                     Type site,
@@ -2038,6 +2042,7 @@ public class JavafxResolve {
          *  @param typeargtypes  The invocation's type arguments,
          *                   if we looked for a method.
          */
+        @Override
         void report(Log log, DiagnosticPosition pos, Type site, Name name,
                     List<Type> argtypes, List<Type> typeargtypes) {
             AmbiguityError pair = this;
@@ -2071,7 +2076,6 @@ public class JavafxResolve {
             // we model interfaces as extending Object
             return (clazz.flags() & INTERFACE) == 0;
         case 0:
-            PackageSymbol thisPackage = sym.packge();
             ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
             Set superSet = new HashSet<Type>();
             if (clazz.type != null) {

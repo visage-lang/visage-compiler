@@ -100,7 +100,6 @@ public class JavafxTypes extends Types {
     }
 
     public void getSupertypes(Symbol clazz, ListBuffer<Type> supertypes,Set<Type> dupSet) {
-        ListBuffer<Type> ret = ListBuffer.<Type>lb();
         if (clazz != null) {
             Type supType = supertype(clazz.type);
             if (supType != null && supType != Type.noType && !dupSet.contains(supType)) {
@@ -130,6 +129,7 @@ public class JavafxTypes extends Types {
         return superSet.contains(maybeSuper);
     }
 
+    @Override
     public Type asSuper(Type t, Symbol sym) {
         if (isCompoundClass(t.tsym)) {
             JavafxClassSymbol tsym = (JavafxClassSymbol) t.tsym;
@@ -143,10 +143,8 @@ public class JavafxTypes extends Types {
         return super.asSuper(t, sym);
     }
 
+    @Override
     public boolean isConvertible (Type t, Type s, Warner warn) {
-        if (isCompoundClass(t.tsym)) {
-            ClassSymbol tsym = (JavafxClassSymbol) t.tsym;
-        }
         if (super.isConvertible(t, s, warn))
             return true;
         if (isSequence(t) && isArray(s))
@@ -233,7 +231,7 @@ public class JavafxTypes extends Types {
      *  but modified to handle multiple inheritance.
      */
     public MethodSymbol implementation(MethodSymbol msym, TypeSymbol origin, boolean checkResult) {
-        if (isCompoundClass(origin)) {
+        if (origin instanceof JavafxClassSymbol && isCompoundClass(origin)) {
             JavafxClassSymbol c = (JavafxClassSymbol) origin;
             for (Scope.Entry e = c.members().lookup(msym.name);
                      e.scope != null;

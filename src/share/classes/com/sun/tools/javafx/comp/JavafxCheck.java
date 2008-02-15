@@ -116,7 +116,6 @@ public class JavafxCheck {
 	lint = Lint.instance(context);
         treeinfo = (JavafxTreeInfo)JavafxTreeInfo.instance(context);
 
-	Source source = Source.instance(context);
 	allowGenerics = source.allowGenerics();
 	allowAnnotations = source.allowAnnotations();
 	complexInference = options.get("-complexinference") != null;
@@ -497,7 +496,7 @@ public class JavafxCheck {
     public
 // JavaFX change
     Type checkCastable(DiagnosticPosition pos, Type found, Type req) {
-	if (found.tag == FORALL) {
+	if (found.tag == FORALL && found instanceof ForAll) {
 	    instantiatePoly(pos, (ForAll) found, req, castWarner(pos, found, req));
 	    return req;
 	} else if (types.isCastable(found, req, castWarner(pos, found, req))) {
@@ -632,7 +631,7 @@ public class JavafxCheck {
 	    while (args.nonEmpty()) {
 		if (args.head.tag == WILDCARD)
 		    return typeTagError(pos,
-					log.getLocalizedString("type.req.exact"),
+					Log.getLocalizedString("type.req.exact"),
 					args.head);
 		args = args.tail;
 	    }
@@ -865,8 +864,10 @@ public class JavafxCheck {
                 this.specialized = false;
             };
 		
+            @Override
             public void visitTree(JCTree tree) { /* no-op */ }
-		
+	
+            @Override
             public void visitVarDef(JCVariableDecl tree) {
                 if ((tree.mods.flags & ENUM) != 0) {
                     if (tree.init instanceof JCNewClass &&
@@ -879,8 +880,8 @@ public class JavafxCheck {
 
         SpecialTreeVisitor sts = new SpecialTreeVisitor();
         JFXClassDeclaration cdef = (JFXClassDeclaration) tree;
-        for (JCTree defs: cdef.getMembers()) {
-            defs.accept(sts);
+        for (JCTree localDefs: cdef.getMembers()) {
+            localDefs.accept(sts);
             if (sts.specialized) return 0;
         }
         return FINAL;
@@ -941,10 +942,12 @@ public
      */
     class Validator extends JavafxTreeScanner {
 
+        @Override
         public void visitTypeArray(JCArrayTypeTree tree) {
 	    validate(tree.elemtype);
 	}
 
+        @Override
         public void visitTypeApply(JCTypeApply tree) {
 	    if (tree.type.tag == CLASS) {
 		List<Type> formals = tree.type.tsym.type.getTypeArguments();
@@ -998,6 +1001,7 @@ public
 	    }
 	}
 
+        @Override
         public void visitTypeParameter(JCTypeParameter tree) {
 	    validate(tree.bounds);
 	    checkClassBounds(tree.pos(), tree.type);
@@ -1009,6 +1013,7 @@ public
 		validate(tree.inner);
 	}
 
+        @Override
         public void visitSelect(JCFieldAccess tree) {
 	    if (tree.type.tag == CLASS) {
                 visitSelectInternal(tree);
@@ -1034,6 +1039,7 @@ public
 
 	/** Default visitor method: do nothing.
 	 */
+	@Override
 	public void visitTree(JCTree tree) {
 	}
     }
@@ -2345,10 +2351,11 @@ public
 	    this.expected = expected;
 	}
 
+	@Override
 	public void warnUnchecked() {
-            boolean warned = this.warned;
+            boolean localWarned = this.warned;
             super.warnUnchecked();
-            if (warned) return; // suppress redundant diagnostics
+            if (localWarned) return; // suppress redundant diagnostics
 	    Object problem = JCDiagnostic.fragment(key);
 	    JavafxCheck.this.warnUnchecked(pos(), "prob.found.req", problem, found, expected);
 	}

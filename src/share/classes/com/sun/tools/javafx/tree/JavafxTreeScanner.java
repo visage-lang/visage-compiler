@@ -30,7 +30,6 @@ import com.sun.source.tree.Tree;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
-import com.sun.tools.javac.tree.JCTree.TypeBoundKind;
 import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.util.List;
 
@@ -51,12 +50,14 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
 
     /** Visitor method: Scan a single node.
    */
+    @Override
     public void scan(JCTree tree) {
 	if(tree!=null) tree.accept(this);
     }
 
     /** Visitor method: scan a list of nodes.
      */
+    @Override
     public void scan(List<? extends JCTree> trees) {
 	if (trees != null)
 	for (List<? extends JCTree> l = trees; l.nonEmpty(); l = l.tail)

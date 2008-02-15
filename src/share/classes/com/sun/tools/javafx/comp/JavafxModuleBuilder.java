@@ -64,7 +64,6 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     private final JavafxToJava toJava;
     private Log log;
     private JavafxSymtab syms;
-    Name tmpRunReturnName;
     private Set<Name> topLevelNamesSet;
     private Name pseudoFile;
     private Name pseudoDir;
@@ -83,7 +82,6 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         log = Log.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         toJava = JavafxToJava.instance(context);
-        tmpRunReturnName = names.fromString("run$return$");
         pseudoFile = names.fromString("__FILE__");
         pseudoDir = names.fromString("__DIR__");
     }

@@ -98,12 +98,14 @@ public class JavafxEnter extends JavafxTreeScanner {
 
     /** Visitor method: Scan a single node.
      */
+    @Override
     public void scan(JCTree tree) {
 	if(tree!=null) tree.accept(this);
     }
 
     /** Visitor method: scan a list of nodes.
      */
+    @Override
     public void scan(List<? extends JCTree> trees) {
 	if (trees != null)
 	for (List<? extends JCTree> l = trees; l.nonEmpty(); l = l.tail)
@@ -228,6 +230,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 	return ts.toList();
     }
 
+    @Override
     public void visitTopLevel(JCCompilationUnit tree) {
 	JavaFileObject prev = log.useSource(tree.sourcefile);
         boolean addEnv = false;
@@ -247,13 +250,13 @@ public class JavafxEnter extends JavafxTreeScanner {
 	    tree.packge = syms.unnamedPackage;
 	}
 	tree.packge.complete(); // Find all classes in package.
-        JavafxEnv<JavafxAttrContext> env = topLevelEnv(tree);
+        JavafxEnv<JavafxAttrContext> localEnv = topLevelEnv(tree);
 
 	// Save environment of package-info.java file.
 	if (isPkgInfo) {
 	    JavafxEnv<JavafxAttrContext> env0 = typeEnvs.get(tree.packge);
 	    if (env0 == null) {
-		typeEnvs.put(tree.packge, env);
+		typeEnvs.put(tree.packge, localEnv);
 	    } else {
 		JCCompilationUnit tree0 = env0.toplevel;
                 if (!fileManager.isSameFile(tree.sourcefile, tree0.sourcefile)) {
@@ -264,14 +267,14 @@ public class JavafxEnter extends JavafxTreeScanner {
 		    if (addEnv || (tree0.packageAnnotations.isEmpty() &&
 				   tree.docComments != null &&
 				   tree.docComments.get(tree) != null)) {
-			typeEnvs.put(tree.packge, env);
+			typeEnvs.put(tree.packge, localEnv);
 		    }
 		}
 	    }
 	}
-	classEnter(tree.defs, env);
+	classEnter(tree.defs, localEnv);
         if (addEnv) {
-            todo.append(env);
+            todo.append(localEnv);
         }
 	log.useSource(prev);
 	result = null;
@@ -370,6 +373,7 @@ public class JavafxEnter extends JavafxTreeScanner {
      *	Enter a symbol for type parameter in local scope, after checking that it
      *	is unique.
      */
+    @Override
     public void visitTypeParameter(JCTypeParameter tree) {
 	TypeVar a = (tree.type != null)
 	    ? (TypeVar)tree.type
@@ -383,6 +387,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 
     /** Default class enter visitor method: do nothing.
      */
+    @Override
     public void visitTree(JCTree tree) {
 	result = null;
     }
@@ -424,10 +429,10 @@ public class JavafxEnter extends JavafxTreeScanner {
 		for (JCCompilationUnit tree : trees) {
 		    if (tree.starImportScope.elems == null) {
 			JavaFileObject prev = log.useSource(tree.sourcefile);
-			JavafxEnv<JavafxAttrContext> env = typeEnvs.get(tree);
-			if (env == null)
-			    env = topLevelEnv(tree);
-			memberEnter.memberEnter(tree, env);
+			JavafxEnv<JavafxAttrContext> localEnv = typeEnvs.get(tree.packge);
+			if (localEnv == null)
+			    localEnv = topLevelEnv(tree);
+			memberEnter.memberEnter(tree, localEnv);
 			log.useSource(prev);
 		    }
 		}

@@ -41,14 +41,12 @@ import static com.sun.tools.javac.code.TypeTags.*;
 import static com.sun.tools.javac.tree.JCTree.SELECT;
 
 import com.sun.tools.javafx.tree.*;
-import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 
 import javax.tools.JavaFileObject;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -206,6 +204,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         annotate.earlier(new JavafxAnnotate.Annotator() {
             Set<Symbol> processed = new HashSet<Symbol>();
 
+            @Override
             public String toString() {
                 return "import static " + tsym + ".*" + " in " + sourcefile;
             }
@@ -301,6 +300,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             Set<Symbol> processed = new HashSet<Symbol>();
             boolean found = false;
 
+            @Override
             public String toString() {
                 return "import static " + tsym + "." + name;
             }
@@ -524,6 +524,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         return localEnv;
     }
 
+    @Override
     public void scan(JCTree tree) {
     }
 
@@ -541,7 +542,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             localEnv.info.staticLevel++;
         }
 
-        Scope enclScope = enter.enterScope(env);
+        Scope enclScope = JavafxEnter.enterScope(env);
         VarSymbol v = new JavafxVarSymbol(0, tree.name, null, enclScope.owner);
         tree.sym = v;
         SymbolCompleter completer = new SymbolCompleter();
@@ -563,6 +564,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         v.pos = tree.pos;
     }
 
+    @Override
     public void visitMethodDef(JCMethodDecl tree) {
         assert false;
     }
@@ -594,7 +596,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
     @Override
     public void visitOperationDefinition(JFXOperationDefinition tree) {
-            Scope enclScope = enter.enterScope(env);
+            Scope enclScope = JavafxEnter.enterScope(env);
             MethodSymbol m = new MethodSymbol(0, tree.name, null, enclScope.owner);
             m.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, m, tree);
             tree.sym = m;
@@ -658,6 +660,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         if (annotations.isEmpty()) return;
         if (s.kind != PCK) s.attributes_field = null; // mark it incomplete for now
         annotate.later(new JavafxAnnotate.Annotator() {
+                @Override
                 public String toString() {
                     return "annotate " + annotations + " onto " + s + " in " + s.owner;
                 }
@@ -726,6 +729,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                                    final JavafxEnv<JavafxAttrContext> localEnv,
                                    final MethodSymbol m) {
         annotate.later(new JavafxAnnotate.Annotator() {
+               @Override
                 public String toString() {
                     return "annotate " + m.owner + "." +
                         m + " default " + defaultValue;
