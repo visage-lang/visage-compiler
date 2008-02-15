@@ -2,6 +2,7 @@ package studiomoto;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
 import javafx.ui.filter.*;
+import javafx.ui.animation.*;
 
 public class MotoBottomPane extends Intro {
     attribute panels: Intro[];
