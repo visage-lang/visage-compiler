@@ -1,0 +1,90 @@
+#!/bin/sh
+#
+# JavaFX Script doc generation script for Linux/Solaris/OS X.
+#
+# Uses the same core arguments as the JDK's javadoc command, but uses 
+# the XMLDoclet and an XSLT translator to generate documentation.  Run
+# javafxdoc without arguments to see the XMLDoclet options.
+#
+
+# resolve symlinks
+PRG=$0
+while [ -h "$PRG" ]; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '^.*-> \(.*\)$' 2>/dev/null`
+    if expr "$link" : '^/' 2> /dev/null >/dev/null; then
+	PRG="$link"
+    else
+	PRG="`dirname "$PRG"`/$link"
+    fi
+done
+
+HOME=`dirname "$PRG"`/../lib
+
+# detect Darwin and Cygwin environments
+darwin=false;
+cygwin=false;
+case "`uname`" in
+  Darwin*) darwin=true;
+           if [ -z "$JAVA_HOME" ] ; then
+              JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Home
+           fi
+           ;;
+  CYGWIN*) cygwin=true ;;
+esac
+
+if [ -n "$JAVA_HOME"  ] ; then
+    JAVA_CMD="$JAVA_HOME/bin/java"
+else
+  JAVA_CMD=`which java 2> /dev/null `
+  if [ -z "$JAVA_CMD" ] ; then
+      JAVA_CMD=java
+  fi
+fi
+
+if [ ! -x "$JAVA_CMD" ] ; then
+  echo 'Error: JAVA_HOME is not defined, cannot find "java" command.'
+  exit 1
+fi
+
+bootclasspath=$HOME/javafxc.jar:$HOME/javafxdoc.jar
+
+noopts=false;
+if [ $# -eq 0 ] ; then
+    noopts=true
+fi
+
+if [ -z "$CLASSPATH" ] ; then
+  USER_CP="."
+else
+  USER_CP="$CLASSPATH"
+fi 
+classpath="$USER_CP"
+
+args=""
+jargs=""
+parse_args() {
+while [ $# -gt 0 ] ; do
+    case "$1" in
+        -J*) jopt=`expr "X-$1" : 'X--J\(.*\)'`; jargs="$jargs '$jopt'";;
+        -cp | -classpath) shift; classpath="$classpath:$1";;
+        *) args="$args $1";;
+    esac
+    shift
+done
+} 
+if [ "$noopts" = true ] ; then
+    args="-help"
+fi
+
+parse_args "$@" # process arguments on the command line
+
+# Under Cygwin, convert certain environment variables back to Windows format
+if $cygwin ; then
+  classpath=`cygpath --path --windows "$classpath"`
+  bootclasspath=`cygpath --path --windows "$bootclasspath"`
+  JAVA_CMD=`cygpath --unix "$JAVA_CMD"`
+fi
+
+"$JAVA_CMD" $jargs -Xbootclasspath/p:"$bootclasspath" com.sun.tools.javafxdoc.Main -classpath "$classpath" $args
+

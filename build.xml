@@ -4,6 +4,7 @@
 
     <property name="tools.dir" value="${basedir}/tools"/>
     <property name="runtime.dir" value="${basedir}/runtime"/>
+    <property name="javafxdoc.dir" value="${basedir}/javafxdoc"/>
     <property environment="env" />
     <import file="tools-defs.xml"/>
     <property name="antlr.grammarv2" value="v2" />
@@ -12,10 +13,10 @@
 
     <import file="nbproject/build-impl.xml"/>
 
-    <target name="default" depends="jar,runtime,install-scripts"
+    <target name="default" depends="jar,runtime,javafxdoc,install-scripts"
             description="Build javafxc compiler and runtime distribution"/>
 
-    <target name="all" depends="jar, runtime, test, install-scripts, spec, javadoc, demos"
+    <target name="all" depends="jar, runtime, test, javafxdoc, install-scripts, spec, javadoc, demos"
             description="Build and test all project artifacts"/>
             
     <target name="dist" description="Build distribution bundles" depends="dist-init,dist-zip,dist-tgz"/>
@@ -297,7 +298,7 @@
         <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>
     </target>
 
-    <target name="-post-clean" depends="runtime-clean">
+    <target name="-post-clean" depends="runtime-clean,javafxdoc-clean,spec-clean">
         <!-- Delete ANTLR-generated files -->
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v2*.*" excludes="**/v2.g"/>
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v3*.*" excludes="**/v3.g **/v3Walker.g"/>
@@ -377,6 +378,10 @@
         </ant>
     </target>
     
+    <target name="javafxdoc" depends="jar">
+        <ant dir="${javafxdoc.dir}" antfile="build.xml" target="jar" inheritall="false"/>
+    </target>
+    
     <target name="install-scripts">
         <copy todir="dist/bin">
             <fileset dir="src/bin"/>
@@ -428,7 +433,7 @@
         </ant>
         -->
         <copy todir="dist/demos">
-            <fileset dir="demos" excludes="**/build/,**/dist/,**/lib/"/>
+            <fileset dir="demos" excludes="StudioMoto/**,**/build/,**/dist/,**/lib/"/>
         </copy>
     </target>
     
@@ -444,6 +449,14 @@
     
     <target name="runtime-clean" >
         <ant dir="${runtime.dir}" antfile="build.xml" target="clean" inheritall="false" />
+    </target>
+    
+    <target name="javafxdoc-clean">
+        <ant dir="${javafxdoc.dir}" antfile="build.xml" target="clean" inheritall="false" />
+    </target>
+
+    <target name="spec-clean">
+        <ant dir="doc" antfile="build.xml" target="clean" inheritall="false" />
     </target>
 
     <target name="real-clean">

@@ -1,3 +1,0 @@
-This is a very preliminary port of javadoc to support JavaFX Script.
-It does not generate useful documentation yet, because a version of
-the standard doclet needs to be created for JavaFX Script.
