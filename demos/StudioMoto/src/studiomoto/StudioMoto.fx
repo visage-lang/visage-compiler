@@ -8,8 +8,8 @@ import studiomoto.MotoMenuButton;
 var frame:Frame;
 var canvas:Canvas;
 var home:HomeButton;
+var base: java.net.URL = __DIR__;
 frame = Frame {
-    var base: java.net.URL; // work around for __DIR__
     centerOnScreen: true
     onClose: function() {System.exit(0);}
     title: "JavaFX - Motorola Music"
