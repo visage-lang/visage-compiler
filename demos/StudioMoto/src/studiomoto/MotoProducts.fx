@@ -167,7 +167,7 @@ public class MotoProducts extends MotoPanel {
     
     // NOTE: these were all var's in the original code, 
     // but they don't work that way in the interpreter, bug??
-    private attribute open:Boolean = bind false;
+    private attribute open:Boolean = false;
     private attribute margin:Integer = 3;
     private attribute  transparentFill = Color.rgba(0, 0, 0, 0);
     private attribute row:Group;
