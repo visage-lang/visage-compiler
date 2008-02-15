@@ -7,7 +7,7 @@ public class MoreInfoButton extends CompositeNode {
 
     function composeNode() {
         Group {
-            cursor: HAND
+            cursor: Cursor.HAND
             onMouseClicked: function(e) {(this.action)();}
             content:
             [ImageView {
@@ -21,9 +21,9 @@ public class MoreInfoButton extends CompositeNode {
                 
             },
             Text {
-                font: new Font("ARIAL", "BOLD", 11)
+                font: Font.Font("ARIAL", "BOLD", 11)
                 content: "MORE INFO"
-                transform: translate(115/2, 37/2)
+                transform: Transform.translate(115/2, 37/2)
                 valign: VerticalAlignment.MIDDLE
                 halign:  HorizontalAlignment.CENTER
                 fill: bind if (hover) Color.BLACK else Color.WHITE
