@@ -232,6 +232,7 @@
                 <path path="${javac.classpath}"/>
             </classpath>
         </javadoc>
+        <ant dir="${runtime.dir}" antfile="build.xml" target="javadoc" inheritall="false"/>
     </target>
     
     <target name="-def-pcompile">

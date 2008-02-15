@@ -73,8 +73,23 @@
         </jar>
         <copy file="${file.reference.scenegraph.jar}" todir="${dist.jar.dir}"/>
     </target>
+    
+    <target name="-javadoc-build" depends="init">
+        <mkdir dir="${dist.javadoc.dir}"/>
+        <path id="bootpath" path="${javac.classpath}"/>
+        <property name="bootjars" refid="bootpath"/>
+        <java jar="../dist/lib/javafxdoc.jar" fork="true">
+            <arg line="-d ${dist.javadoc.dir}"/>
+            <arg line="-sourcepath ${src.classes.dir}"/>
+            <arg line="-subpackages javafx.ui"/>
+            <classpath>
+                <path path="${build.classes.dir}:${javac.test.classpath}"/>
+            </classpath>
+            <jvmarg line="-Xbootclasspath/p:${bootjars}"/>
+        </java>
+    </target>
 
-    <target depends="init" name="-do-clean">
+    <target name="-do-clean" depends="init">
         <delete dir="${build.dir}"/>
         <delete dir="${dist.jar}"/>
         <delete dir="${build.test.dir}"/>

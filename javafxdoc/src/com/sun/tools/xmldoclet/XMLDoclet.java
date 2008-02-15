@@ -84,7 +84,7 @@ public class XMLDoclet {
         new Option("-extrajs", getString("out.file.option"), getString("xsltfile.description")),
         new Option("-extrajs2", getString("out.file.option"), getString("xsltfile.description")),
         new Option("-xsl:name=value", getString("xslproperty.description")),
-        new Option("-docsdir", getString("out.dir.option"), getString("out.dir.description"))
+        new Option("-d", getString("out.dir.option"), getString("out.dir.description"))
     };
 
     /**
@@ -178,7 +178,7 @@ public class XMLDoclet {
                 params.put("extra-js",option[1]);
             else if (option[0].equals("-extrajs2"))
                 params.put("extra-js2",option[1]);
-            else if (option[0].equals("-docsdir"))
+            else if (option[0].equals("-d"))
                 outDocsDir = new File(option[1]);
             else if (option[0].startsWith("-xsl:")) {
                 String s = option[0].substring(5);
@@ -196,6 +196,7 @@ public class XMLDoclet {
                 outFileName = f.getPath();
             } catch (IOException ex) {
                 Logger.getLogger(XMLDoclet.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
             }
         }
         return true;
