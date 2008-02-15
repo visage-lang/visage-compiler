@@ -40,7 +40,7 @@ public class MusicPanels extends CompositeNode {
         };
         selectionClip.start();
     };
-    attribute panels: Node[] = [MusicPanel1{}, MusicPanel2{}, MusicPanel3{}];
+    attribute panels: Node[] = [MusicPanel1{} as Node, MusicPanel2{}  as Node, MusicPanel3{}  as Node];
     attribute selectedPanel: Node = bind panels[selection];
     attribute alpha: Number = 1;
     attribute _alpha:Pointer = pf.make(alpha).unwrap();
@@ -57,3 +57,4 @@ public class MusicPanels extends CompositeNode {
 
 
 MusicPanels {}
+

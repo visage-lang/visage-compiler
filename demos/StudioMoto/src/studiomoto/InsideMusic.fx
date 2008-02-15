@@ -36,3 +36,4 @@ Canvas {
     content:
     InsideMusic {height: 180, width: 250}
 }
+

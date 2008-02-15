@@ -3,6 +3,7 @@ import javafx.ui.*;
 import javafx.ui.canvas.*;
 
 public class InsideMusicPane extends MotoPanel {
+    attribute base: java.net.URL; // work around for __DIR__
     attribute title: Node = Group {
         content:
         [View {
@@ -23,13 +24,13 @@ public class InsideMusicPane extends MotoPanel {
         },
         ImageView {
             transform: bind Transform.translate(0, 120)
-            image: Image {url: "{__DIR__}/Image/95.png"}
+            image: Image {url: "{base}/Image/95.png"}
         },
         ImageView {
             halign: HorizontalAlignment.TRAILING
             valign: VerticalAlignment.BOTTOM
             transform: bind Transform.translate(width -30, height -35)
-            image: Image {url: "{__DIR__}/Image/88.png"}
+            image: Image {url: "{base}/Image/88.png"}
         }]
     };
 }
@@ -41,3 +42,4 @@ Canvas {
     content:
     InsideMusic {height: 180, width: 250}
 }
+

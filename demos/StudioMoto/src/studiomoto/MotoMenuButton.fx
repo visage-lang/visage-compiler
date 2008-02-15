@@ -7,14 +7,16 @@ import com.sun.javafx.runtime.PointerFactory;
 import com.sun.javafx.runtime.Pointer;
 
 public class MotoMenuButton extends CompositeNode {
+    attribute base: java.net.URL; // work around for __DIR__
     public attribute anim: MotoMenuAnimation;
     public attribute label1: String;
     public attribute label2: String;
     public attribute action: function();
     attribute mouseOver: Boolean;
-    attribute pf: PointerFactory = PointerFactory{};
+    private attribute pf: PointerFactory = PointerFactory{};
+    private attribute _y = pf.make(y).unwrap();
     attribute a: Timeline = Timeline {
-        var _y = pf.make(y).unwrap();
+        
         toggle: true
         keyFrames: [
             KeyFrame {
@@ -128,7 +130,7 @@ public class MotoMenuButton extends CompositeNode {
                     [Group {
                         transform: Transform.translate(w -5, h*.4)
                         valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.TRAILING
-                        content: bind if (mouseOver) then anim else null
+                        content: bind if (mouseOver) then anim as Node else null
                         var active = bind mouseOver
                         // TODO Trigger
                         /**************
@@ -167,19 +169,19 @@ public class MotoMenuButton extends CompositeNode {
                     [ImageView {
                         visible: false //bind mouseOver
                         transform: Transform.translate(-3, -3)
-                        image: Image{url: bind "{__DIR__}/Image/8.png"}
+                        image: Image{url: bind "{base}/Image/8.png"}
                     },
                     ImageView {
                         //clip: {shape: Rect {width: 10, height: 24}}            
                         //var u = bind if mouseOver then unitinterval in dur 1000 fps 5 while mouseOver continue if true  else 0
                         //var i = bind if (false and mouseOver) (11 + u * 55).intValue() else 7
-                        //image: Image {url: bind "{__DIR__}/Image/{i}.png"}
-                        image: Image {url: "{__DIR__}/Image/7.png"}
+                        //image: Image {url: bind "{base}/Image/{i}.png"}
+                        image: Image {url: "{base}/Image/7.png"}
                     },
                     ImageView {
                         opacity: bind if (mouseOver) then 0.5 else 0
                         transform: Transform.translate(-3, -3)
-                        image: Image {url: bind "{__DIR__}/Image/8.png"}
+                        image: Image {url: bind "{base}/Image/8.png"}
                     }]
                 }]
             }]
@@ -194,3 +196,4 @@ MotoMenuButton {
     transform: Transform.translate(100, 100)
     anim: MotoMenuAnimation {active: true}
 };
+

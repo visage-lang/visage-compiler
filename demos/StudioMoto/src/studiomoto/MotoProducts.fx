@@ -12,6 +12,7 @@ public class Product {
 }
 
 public class MotoProducts extends MotoPanel {
+    attribute base: java.net.URL; // work around for __DIR__
     attribute products: Product[];
     attribute consoleY: Number  = -200;
     attribute phoneY: Number = -200;
@@ -41,7 +42,7 @@ public class MotoProducts extends MotoPanel {
     attribute pf: PointerFactory = PointerFactory{};
     
     function getImage(n:Integer): Image {
-        Image {url: "{__DIR__}/products/Image/{n}.png"};
+        Image {url: "{base}/products/Image/{n}.png"};
     }
     function makeDropStoryBoard(target:Pointer, start:Number, end:Number, bounce:Boolean): Timeline {
         Timeline {
@@ -164,8 +165,15 @@ public class MotoProducts extends MotoPanel {
         }
     };
     
+    // NOTE: these were all var's in the original code, 
+    // but they don't work that way in the interpreter, bug??
+    private attribute open:Boolean = bind false;
+    private attribute margin:Integer = 3;
+    private attribute  transparentFill = Color.rgba(0, 0, 0, 0);
+    private attribute row:Group;
     attribute content: Node = Group {
-        ///var shadowImage = Image {url: "{__DIR__}/Image/
+        
+        ///var shadowImage = Image {url: "{base}/Image/
         content: HBox {
             transform: Transform.translate(0, 10)
             content:
@@ -177,8 +185,6 @@ public class MotoProducts extends MotoPanel {
                     fill: Color.WHITE
                 },
                 Group {
-
-                    var open = bind false
                     content:
                     [Group {
                         //TODO trigger
@@ -194,14 +200,14 @@ public class MotoProducts extends MotoPanel {
                             visible: bind not open
                             cursor: Cursor.HAND
                             onMouseClicked: function(e) {open = true;}
-                            image: Image{url: "{__DIR__}/Image/97.png"}
+                            image: Image{url: "{base}/Image/97.png"}
                         },
                         VBox {
                             visible: bind open
                             content:
                             [ImageView {              
                                 cursor: Cursor.DEFAULT
-                                image: Image{url: "{__DIR__}/Image/99.png"}
+                                image: Image{url: "{base}/Image/99.png"}
                             },
                             Group {
                                 transform: Transform.translate(11, -7.5)
@@ -214,30 +220,25 @@ public class MotoProducts extends MotoPanel {
                                     fill: Color.rgba(0, 0, 0, .8)
                                 },
                                 VBox {
+                                    
                                     transform: Transform.translate(5, 5)
-                                    var transparentFill = Color.rgba(0, 0, 0, 0)
-                                    var margin = 3
-                                    var textColor = Color.rgba(.8, .8, .8, 1)
-                                    var hoverTextColor:Color = Color.YELLOW
-                                    var textFont = Font {face: FontFace.ARIAL, size: 11}
-                                    content: bind for (p in products)
-                                    Group {
-                                        var row = this
-                                        transform: Transform.translate(0, margin)
-                                        var titleText = Text {
-                                            content: bind p.title
-                                            font: textFont
-                                            fill: bind if (row.hover) then hoverTextColor else textColor
-                                        }
-                                        content:
-                                        [Rect {
-                                            cursor: Cursor.HAND
-                                            selectable: true
-                                            height: 12//bind titleText.currentHeight
-                                            width: 200
-                                            fill: transparentFill
-                                        },
-                                        titleText]
+                                    content: bind for (p in products) {
+                                        row = Group {
+                                            transform: Transform.translate(0, margin)
+                                            content:
+                                            [Rect {
+                                                cursor: Cursor.HAND
+                                                selectable: true
+                                                height: 12//bind titleText.currentHeight
+                                                width: 200
+                                                fill: transparentFill
+                                            },
+                                            Text {
+                                                content: bind p.title
+                                                font: Font {face: FontFace.ARIAL, size: 11}
+                                                fill: bind if (row.hover) then Color.YELLOW else Color.rgba(.8, .8, .8, 1)
+                                            }]
+                                        };
                                     }
                                 }]
                             }]
@@ -324,4 +325,5 @@ Canvas {
         }]
     }
 }
+
 

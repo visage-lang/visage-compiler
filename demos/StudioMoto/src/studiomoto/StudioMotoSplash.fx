@@ -8,6 +8,7 @@ import com.sun.javafx.runtime.Pointer;
 
 
 class StudioMotoSplash extends CompositeNode {
+    attribute base: java.net.URL; // work around for __DIR__
     attribute motoX: Number = -40;
     attribute studioX: Number = 50;
     attribute phoneY: Number = -120;
@@ -20,13 +21,14 @@ class StudioMotoSplash extends CompositeNode {
     }
     attribute onDone: function();
     
-    attribute pf: PointerFactory = PointerFactory{};
+    private attribute pf: PointerFactory = PointerFactory{};
+    private attribute _alpha = pf.make(alpha).unwrap();
+    private attribute _backgroundAlpha = pf.make(backgroundAlpha).unwrap();
+    private attribute _phoneY = pf.make(phoneY).unwrap();
+    private attribute _motoX = pf.make(motoX).unwrap();
+    private attribute _studioX = pf.make(studioX).unwrap();   
     attribute anim: Timeline= Timeline {
-          var _alpha = pf.make(alpha).unwrap();
-          var _backgroundAlpha = pf.make(backgroundAlpha).unwrap();
-          var _phoneY = pf.make(phoneY).unwrap();
-          var _motoX = pf.make(motoX).unwrap(); 
-          var _studioX = pf.make(studioX).unwrap(); 
+ 
 	  keyFrames:
 	  [ KeyFrame {
                 keyTime: 0s
@@ -211,11 +213,11 @@ class StudioMotoSplash extends CompositeNode {
                 [Group {
                     content:  
                     [ImageView {
-                        image: Image{url: "{__DIR__}/Image/2.jpg"}
+                        image: Image{url: "{base}/Image/2.jpg"}
                     },
                     ImageView {
                         transform: bind Transform.translate(636/2, phoneY)
-                        image: Image{url: "{__DIR__}/Image/3.png"}
+                        image: Image{url: "{base}/Image/3.png"}
                         halign: HorizontalAlignment.CENTER
                     }]
                 },
@@ -261,3 +263,4 @@ function testSplash():StudioMotoSplash {
     s.doSplash();
     return s;
 }
+

@@ -8,6 +8,7 @@ import com.sun.javafx.runtime.Pointer;
 
 
 public class MotoPanel extends Intro {
+    attribute base: java.net.URL; // work around for __DIR__
     attribute width: Number;
     attribute height: Number;
     attribute titleX: Number;
@@ -16,12 +17,13 @@ public class MotoPanel extends Intro {
     attribute content: Node;
     attribute alpha1: Number;
     
-    attribute pf: PointerFactory = PointerFactory{};
+    private attribute pf: PointerFactory = PointerFactory{};
+    private attribute _titleX = pf.make(titleX).unwrap();
+    private attribute _contentY = pf.make(contentY).unwrap();
+    private attribute _alpha1 = pf.make(alpha1).unwrap();    
     
     attribute intro: Timeline = Timeline {
-        var _titleX = pf.make(titleX).unwrap();
-        var _contentY = pf.make(contentY).unwrap();
-        var _alpha1 = pf.make(alpha1).unwrap();
+
         keyFrames:
            [ KeyFrame {
                 keyTime: 0s
@@ -83,7 +85,7 @@ public class MotoPanel extends Intro {
             content:
             [ImageView {
                 transform: Transform.translate(0, 2)
-                image: Image {url: "{__DIR__}/Image/77.png"}
+                image: Image {url: "{base}/Image/77.png"}
             },
             Circle {
                 opacity: bind alpha1
@@ -102,7 +104,7 @@ public class MotoPanel extends Intro {
                     },
                     Stop {
                         offset: 1
-                        color: new Color(1, 1, 1, 0)
+                        color: Color.rgba(1, 1, 1, 0)
                     }]
                 }
             },
@@ -124,7 +126,7 @@ public class MotoPanel extends Intro {
                         content:
                         ImageView {
                             clip: bind Clip{shape: Rect {height: 5, width: bind width}}
-                            image: Image {url: "{__DIR__}/Image/95.png"}
+                            image: Image {url: "{base}/Image/95.png"}
                         }
                     },
                     Group {
@@ -148,6 +150,7 @@ Canvas {
         
     }
 }
+
 
 
 

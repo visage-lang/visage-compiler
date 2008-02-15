@@ -13,11 +13,12 @@ public class Title1 extends CompositeNode {
     attribute height: Number;
     attribute width: Number;
     attribute power: Node;
+    private attribute pf: PointerFactory = PointerFactory{};
+    private attribute _poweredByY = pf.make(poweredByY).unwrap();
+    private attribute _motorolaY = pf.make(motorolaY).unwrap();
+    private attribute _powerY = pf.make(powerY).unwrap();   
     attribute a: Timeline = Timeline {
-        var pf: PointerFactory = PointerFactory{};
-        var _poweredByY = pf.make(poweredByY).unwrap();
-        var _motorolaY = pf.make(motorolaY).unwrap();
-        var _powerY = pf.make(powerY).unwrap();
+
         toggle: true
         keyFrames:
         [ KeyFrame {
@@ -145,3 +146,4 @@ public class Title1 extends CompositeNode {
     }       
     
 }
+

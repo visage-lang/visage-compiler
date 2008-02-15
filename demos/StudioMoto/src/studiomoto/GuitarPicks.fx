@@ -8,6 +8,7 @@ import com.sun.javafx.runtime.Pointer;
 
 
 public class GuitarPicks extends Intro {
+    attribute base: java.net.URL; // work around for __DIR__
     /** HTML label for the top pick */
     public attribute label1: String;
     /** action when you click the top pick */
@@ -32,7 +33,7 @@ public class GuitarPicks extends Intro {
         
         content:
         [ImageView {
-            image: Image {url: "{__DIR__}/Image/90.png"}
+            image: Image {url: "{base}/Image/90.png"}
         },
         View {
             valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.CENTER
@@ -53,7 +54,7 @@ public class GuitarPicks extends Intro {
             
             content:
             [ImageView {
-                image: Image {url: "{__DIR__}/Image/91.png"}
+                image: Image {url: "{base}/Image/91.png"}
             },
             View {
                 valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.CENTER
@@ -80,9 +81,9 @@ public class GuitarPicks extends Intro {
     };
     
     private attribute pf: PointerFactory = PointerFactory{};
+    private attribute _y1 = pf.make(y1).unwrap();
+    private attribute _y2 = pf.make(y2).unwrap();    
     attribute hoverAnim: Timeline = Timeline {
-        var _y1 = pf.make(y1).unwrap();
-        var _y2 = pf.make(y2).unwrap();
         keyFrames: [
              KeyFrame {
                 keyTime: 0s
@@ -132,8 +133,8 @@ public class GuitarPicks extends Intro {
              }             
         ]
     };
+    private attribute _rot = pf.make(rot).unwrap();
     attribute introAnim: Timeline = Timeline {
-        var _rot = pf.make(rot).unwrap();
         keyFrames: [
              KeyFrame {
                 keyTime: 0s
@@ -162,7 +163,7 @@ public class GuitarPicks extends Intro {
             content:  
             [ImageView {
                 transform: Transform.translate(0, 40)
-                image: Image {url: "{__DIR__}/Image/89.png"}
+                image: Image {url: "{base}/Image/89.png"}
             },
             pick2, pick1]
         };
@@ -175,10 +176,10 @@ public class GuitarPicks extends Intro {
 
 // Example code
 
-function picks() {
-    GuitarPicks {   
-        var self = this
-        action1: function() { self.doIntro(); }
+function picks():GuitarPicks {
+    var gp:GuitarPicks;
+    gp = GuitarPicks {   
+        action1: function() { gp.doIntro(); }
         label1: "<html><div style='font-size:12;color:#dfd010;font-weight:bold'>register</div><div style='font-size:9;color:white'>free downloads<br>and Motorola<br>exclusives.<br><br><br></div></html>"
         label2: "<html><span style='font-size:12;color:#dfd010;font-weight:bold'>WAP</span><div style='font-size:9;color:white'><br>Coming Soon.<br></div></html>"
     };

@@ -21,7 +21,7 @@ public class MotoMenuAnimation extends CompositeNode {
         }
     };
 
-    function composeNode() {
+    function composeNode():Node {
         Group {
             content: 
             [HBox {
@@ -53,9 +53,10 @@ public class MotoMenuAnimation extends CompositeNode {
                         var r = (1- (indexof i/n))*.5
                         height: 1.5
                         width: 4
-                        fill: new Color(1, .5+r, 0, 1)
+                        fill: Color.rgba(1, .5+r, 0, 1)
                 }
             }
         }
     ]}}
 }
+

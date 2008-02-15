@@ -7,23 +7,24 @@ import com.sun.javafx.runtime.PointerFactory;
 import com.sun.javafx.runtime.Pointer;
 
 public class MotoCenterPanel extends CompositeNode {
+    attribute base: java.net.URL; // work around for __DIR__
     attribute height: Number = 300;
     attribute width: Number = 500;
-    function makeGlowAnim(filt:Filter):Timeline{
+    function makeGlowAnim(filt:Pointer):Timeline{
         Timeline {
             keyFrames:
             [KeyFrame {
                 keyTime: 0s
                 action: function() {
                     //TODO GLOW FILTER
-                    //filt = Glow;
+                    //filt.set(Glow{});
                 }
 
             },
             KeyFrame {
                 keyTime: 400ms
                 action: function() {
-                    filt = null;
+                    filt.set(null);
                 }
             }]
          }
@@ -41,7 +42,7 @@ public class MotoCenterPanel extends CompositeNode {
                     transform: bind Transform.translate(width/2, height/2)
                     valign: VerticalAlignment.MIDDLE
                     halign: HorizontalAlignment.CENTER
-                    image: Image {url: "{__DIR__}/Image/73.png"}
+                    image: Image {url: "{base}/Image/73.png"}
                 },
                 VBox {
                     content:
@@ -54,7 +55,7 @@ public class MotoCenterPanel extends CompositeNode {
                     Group {
                         var box = this
                         var filt = null as Filter;
-                        var glowAnim = bind makeGlowAnim(filt)
+                        var glowAnim = bind makeGlowAnim(pf.make(filt).unwrap());
                         //TODO TRIGGER
                         /************
                         trigger on (h = box.hover) {
@@ -68,11 +69,11 @@ public class MotoCenterPanel extends CompositeNode {
                         [ImageView {
                             //visible: bind not g.hover
                             // 56x35
-                            image: Image {url: "{__DIR__}/Image/74.png"}
+                            image: Image {url: "{base}/Image/74.png"}
                         },
                         ImageView {
                             visible: bind g.hover
-                            image: Image {url: "{__DIR__}/Image/75.png"}
+                            image: Image {url: "{base}/Image/75.png"}
                         },
                         Text {
                             transform: Transform.translate(56/2, 35/2)
@@ -97,7 +98,7 @@ public class MotoCenterPanel extends CompositeNode {
                             var g = this
                             var box = this
                             var filt = null as Filter;
-                            var glowAnim = bind makeGlowAnim(filt);
+                            var glowAnim = bind makeGlowAnim(pf.make(filt).unwrap());
                             //TODO trigger
                             /**************
                             trigger on (h = box.hover) {
@@ -110,11 +111,11 @@ public class MotoCenterPanel extends CompositeNode {
                             [ImageView {
                                 //visible: bind not g.hover
                                 // 56x35
-                                image: Image {url: "{__DIR__}/Image/74.png"}
+                                image: Image {url: "{base}/Image/74.png"}
                             },
                             ImageView {
                                 visible: bind g.hover
-                                image: Image {url: "{__DIR__}/Image/75.png"}
+                                image: Image {url: "{base}/Image/75.png"}
                             },
                             Text {
                                 transform: Transform.translate(56/2, 35/2)
@@ -122,7 +123,7 @@ public class MotoCenterPanel extends CompositeNode {
                                 halign: HorizontalAlignment.CENTER
                                 fill: bind if (g.hover) Color.BLACK else Color.WHITE
                                 content: "GO"
-                                font: new Font("ARIAL", "BOLD", 11)
+                                font: Font.Font("ARIAL", ["BOLD"], 11)
                             }]
                         },
                         Rect {visible: false
@@ -177,9 +178,8 @@ public class MotoCenterPanel extends CompositeNode {
     
 Canvas {
     background: Color.BROWN
-    content:
-    MotoCenterPanel {
+    content: MotoCenterPanel {
         height: 300
         width: 500
-    }
+    } as Node
 }

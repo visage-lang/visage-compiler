@@ -3,6 +3,7 @@ import javafx.ui.*;
 import javafx.ui.canvas.*;
 
 public class PromotionsPanel extends CompositeNode {
+    attribute base: java.net.URL; // work around for __DIR__
     function composeNode():Node {
         Group {
             content:
@@ -21,7 +22,7 @@ public class PromotionsPanel extends CompositeNode {
                     content: "Listen to music wherever you go"
                 },
                 ImageView {
-                    image: Image {url: "{__DIR__}/Image/78.png"}
+                    image: Image {url: "{base}/Image/78.png"}
                 },
                 Group {
                     transform: Transform.translate(0, -20)
@@ -30,12 +31,12 @@ public class PromotionsPanel extends CompositeNode {
                     content:
                     [ImageView {
                         // 115x37
-                        image: Image {url: "{__DIR__}/Image/80.png"}
+                        image: Image {url: "{base}/Image/80.png"}
 
                     },
                     ImageView {
                         visible: bind hover
-                        image: Image {url: "{__DIR__}/Image/81.png"}
+                        image: Image {url: "{base}/Image/81.png"}
 
                     },
                     Text {
@@ -55,7 +56,8 @@ public class PromotionsPanel extends CompositeNode {
 
 Canvas {
     background: Color.BLACK
-    content: PromotionsPanel {}
+    content: PromotionsPanel {} as Node
 }
+
 
 

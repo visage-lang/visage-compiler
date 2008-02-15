@@ -5,7 +5,11 @@ import javafx.ui.filter.*;
 import java.lang.System;
 import studiomoto.MotoMenuButton;
 
-Frame {
+var frame:Frame;
+var canvas:Canvas;
+var home:HomeButton;
+frame = Frame {
+    var base: java.net.URL; // work around for __DIR__
     centerOnScreen: true
     onClose: function() {System.exit(0);}
     title: "JavaFX - Motorola Music"
@@ -14,15 +18,14 @@ Frame {
     visible: true 
     var selection = bind 0
     private attribute tshowing = bind showing
-    var frame = this
+    
     var splash = StudioMotoSplash {
-        var self = this;
         // TODO adding attribute
         /************
         attribute showing:Boolean = bind frame.showing
         on replace {
             selection = -1;
-            self.doSplash();
+            doSplash();
         };
          *********/
         onDone: function() {selection = 0;}
@@ -30,9 +33,8 @@ Frame {
     
     background: Color.BLACK
     content:
-    Canvas {
+    canvas = Canvas {
         background: Color.BLACK
-        var canvas = this
         var w = 1300
         var h = 700
         content:
@@ -41,10 +43,10 @@ Frame {
             [HBox {
                 content: 
                 [ImageView {
-                    image: Image{url: "{__DIR__}/Image/1.jpg"}
+                    image: Image{url: "{base}/Image/1.jpg"}
                 },
                 ImageView {
-                    image: Image{url: "{__DIR__}/Image/1.jpg"}
+                    image: Image{url: "{base}/Image/1.jpg"}
                 }]
                 onMouseClicked: function(e) {splash.doSplash();}
             },
@@ -57,7 +59,7 @@ Frame {
                     //transform: Transform.translate(527/2, 40)
                     
                     //halign: HorizontalAlignment.CENTER
-                    image: Image{url: "{__DIR__}/Image/4.png"}
+                    image: Image{url: "{base}/Image/4.png"}
                 },
                 Group {
                     transform: Transform.translate(30, 20)
@@ -68,7 +70,7 @@ Frame {
                         label1: "<html><span style='font-size:12;color:#dddddd'>welcome to</span></html>"
                         label2: "<html><div style='font-size:28;'><span style='color:white'>studio</span><span style='color:yellow;font-weight:bold;'>moto</span></div></html>"
                         label3: "<html><span style='font-size:12;color:white'>welcome to</span></html>"
-                    }],
+                    } as Node],
                 },
                 Group {
                     //transform: bind Transform.translate(canvas.width/2, h/2)
@@ -91,15 +93,13 @@ Frame {
                                 isSelectionRoot: true
                                 content:
                                 [Rect {height: 30+68, width: 139, selectable: true, fill: Color.rgba(0, 0, 0, 0), visible: bind selection > 0},
-                                HomeButton {
-                                    
-                                    var home = this
+                                (home = HomeButton {
                                     var ys = [[0..-18 step -1],[-18..-12]]
                                     //TODO Animation
                                     var homeY = 30 //bind if (selection > 0) (if (home.hover) {ys animation {dur: 300ms}} else {reverse ys animation {dur: 300ms}}) else 30
                                     transform: bind Transform.translate(-5, -10 + homeY)
                                     action: function() {selection = 0;}
-                                }]
+                                }) as Node ]
                             },
                             
                             for (i in [0..sizeof labels1-1]) 
@@ -109,7 +109,7 @@ Frame {
                                 label1: labels1[i]
                                 label2: labels2[i]
                                 transform: Transform.translate(5, 0)
-                            }]
+                            } as Node]
                         }
                     },            
                     Group {
@@ -118,18 +118,18 @@ Frame {
                         [Group {
                             content:
                             [ImageView {
-                                image: Image{url: "{__DIR__}/Image/71.png"}
+                                image: Image{url: "{base}/Image/71.png"}
                             },
                             ImageView {
                                 transform: Transform.translate(22, 17)
-                                image: Image{url: "{__DIR__}/Image/72.png"}
+                                image: Image{url: "{base}/Image/72.png"}
                             },
                             MotoCenterPanel {
                                 transform: Transform.translate(957/2+15, 20)
                                 halign: HorizontalAlignment.CENTER
                                 height: 220
                                 width: 400
-                            }]
+                            } as Node]
                         }]                    
                     }]
                 }]
@@ -143,17 +143,16 @@ Frame {
                     label1: "<html>powered by</html>"
                     label2: "<html>Motorola</html>"
                     label3: "<html>power</html>"
-                },
+                } as Node,
                 ImageView {
                     transform: Transform.translate(80, 0)
                     // 42x42
-                    image: Image{url: "{__DIR__}/Image/5.png"}
+                    image: Image{url: "{base}/Image/5.png"}
                 }]
             },
             MotoBottomPane {
                 transform: Transform.translate(100, 400)
                 selection: bind selection
-                var self = this
                 panels:
                 [MotoBottomPanel {
                     panelHeight: 170
@@ -184,8 +183,9 @@ Frame {
         },
         Group {
             visible: bind splash.backgroundAlpha > .01
-            content: splash
+            content: splash as Node
         }]
     }
 }
+
 

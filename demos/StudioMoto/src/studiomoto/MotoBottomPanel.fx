@@ -62,7 +62,7 @@ public class MotoBottomPanel extends Intro {
                     height: bind panelHeight
                     width: bind panelWidth
                     title: Text {content: "Promotions", fill: Color.WHITE, font: Font.Font("VERDANA", ["PLAIN"], 14)}
-                    content: PromotionsPanel{}
+                    content: PromotionsPanel{} as Node
                 },
                 Group {
                     var selection = bind 0
@@ -77,12 +77,9 @@ public class MotoBottomPanel extends Intro {
                                 text: "<html><div style='font-size:14pt;'><span style='color:white;'>Music</span><span style='color:yellow;'>Stuff</span></div></html>"
                             }
                         }  
-                        content: 
-                        MusicPanels {
-
+                        content: MusicPanels {
                             selection: bind selection
-
-                        }
+                        } as Node
                     },
                     HBox {
                         opacity: bind musicStuff.opacity
@@ -122,3 +119,4 @@ Canvas {
     content: [Rect {height: 300, width: 900, selectable:true fill: Color.BLACK, onMouseClicked: function(e) {p.doIntro();}}, p]
     
 }
+
