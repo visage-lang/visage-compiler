@@ -5,21 +5,15 @@ import java.lang.Math;
 
 
 class StudioMotoSplash extends CompositeNode {
-    attribute motoX: Number;
-    attribute studioX: Number;
-    attribute phoneY: Number;
+    attribute motoX: Number = -40;
+    attribute studioX: Number = 50;
+    attribute phoneY: Number = -120;
     attribute alpha: Number;
-    attribute backgroundAlpha: Number;
-    operation doSplash();
+    attribute backgroundAlpha: Number = 1;
+    function doSplash();
     attribute onDone: function();
     attribute anim: KeyFrameAnimation;
 }
-
-attribute StudioMotoSplash.backgroundAlpha = 1;
-attribute StudioMotoSplash.studioX = 50;
-attribute StudioMotoSplash.motoX = -40;
-
-attribute StudioMotoSplash.phoneY = -120;
 
 trigger on StudioMotoSplash.backgroundAlpha = newValue {
     if (newValue < 0.01) {(this.onDone)();}
