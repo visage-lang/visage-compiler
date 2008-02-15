@@ -192,7 +192,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     
     private void addPseudoVariables(Name moduleClassName, JCCompilationUnit module,
             ListBuffer<JCStatement> stats, boolean usesFile, boolean usesDir) {
-        if (usesFile) {
+        if (usesFile || usesDir) {
             // java.net.URL __FILE__ = Util.get__FILE__(moduleClass);
             JCExpression moduleClassFQN = module.pid != null ?
                 make.Select(module.pid, moduleClassName) : make.Ident(moduleClassName);
@@ -202,23 +202,25 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
             JCExpression loaderCall = make.Apply(List.<JCExpression>nil(), forName, args);
             args = List.<JCExpression>of(loaderCall);
             JCExpression getFileURL = make.Apply(List.<JCExpression>nil(), getFile, args);
-            stats.prepend(
+            JCStatement fileVar =
                 make.Var(pseudoFile, getURLType(), 
                          make.Modifiers(Flags.FINAL), 
                          false, getFileURL, JavafxBindStatus.UNBOUND, 
-                         List.<JFXAbstractOnChange>nil()));
-        }
-        
-        // java.net.URL __DIR__;
-        if (usesDir) {
-            JCExpression getDir = make.Identifier("com.sun.javafx.runtime.Util.get__DIR__");
-            List<JCExpression>args = List.<JCExpression>of(make.Ident(pseudoDir));
-            JCExpression getDirURL = make.Apply(List.<JCExpression>nil(), getDir, args);
-            stats.prepend(
-                make.Var(pseudoDir, getURLType(), 
-                         make.Modifiers(Flags.FINAL), 
-                         false, getDirURL, JavafxBindStatus.UNBOUND, 
-                         List.<JFXAbstractOnChange>nil()));
+                         List.<JFXAbstractOnChange>nil());
+
+            // java.net.URL __DIR__;
+            if (usesDir) {
+                JCExpression getDir = make.Identifier("com.sun.javafx.runtime.Util.get__DIR__");
+                args = List.<JCExpression>of(make.Ident(pseudoFile));
+                JCExpression getDirURL = make.Apply(List.<JCExpression>nil(), getDir, args);
+                stats.prepend(
+                    make.Var(pseudoDir, getURLType(), 
+                             make.Modifiers(Flags.FINAL), 
+                             false, getDirURL, JavafxBindStatus.UNBOUND, 
+                             List.<JFXAbstractOnChange>nil()));
+            }
+
+            stats.prepend(fileVar);  // must come before __DIR__ call
         }
     }
     
