@@ -24,7 +24,7 @@ public class MotoBottomPanel extends Intro {
                 keyTime: 0s
                 keyValues: for (p in panels) {
                     NumberValue {
-                        target: pf.make(p.opacity).unwrap()
+                        target: bind pf.make(p.opacity).unwrap();
                         value: 0
                     }
                 }
@@ -36,7 +36,7 @@ public class MotoBottomPanel extends Intro {
                 keyTime: 200ms
                 keyValues: for(p in panels) {
                     NumberValue {
-                        target: pf.make(p.opacity).unwrap()
+                        target: bind pf.make(p.opacity).unwrap()
                         value: 1
                     }
                 }
