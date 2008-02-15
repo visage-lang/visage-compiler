@@ -10,7 +10,6 @@ public class MotoPanel extends Intro {
     attribute contentY: Number;
     attribute title: Node;
     attribute content: Node;
-    operation doIntro();
     attribute alpha1: Number;
     attribute intro: TGimeline = Timeline {
         keyFrames:
@@ -34,7 +33,7 @@ public class MotoPanel extends Intro {
 
     function composeNode() {
         Clip {
-            filter: bind if hover then select Glow[i] from i in [0, 1] animation {dur: 300ms}  else null
+            filter: bind if (hover) select Glow[i] from i in [0, 1] animation {dur: 300ms}  else null
             shape: Rect {height: bind height, width: bind width}
             onMouseClicked: function(e) {doIntro();}
             content:
