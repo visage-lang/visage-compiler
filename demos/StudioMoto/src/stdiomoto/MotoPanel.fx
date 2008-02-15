@@ -2,6 +2,10 @@ package studiomoto;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
 import javafx.ui.filter.*;
+import javafx.ui.animation.*;
+import com.sun.javafx.runtime.PointerFactory;
+import com.sun.javafx.runtime.Pointer;
+
 
 public class MotoPanel extends Intro {
     attribute width: Number;
@@ -11,34 +15,74 @@ public class MotoPanel extends Intro {
     attribute title: Node;
     attribute content: Node;
     attribute alpha1: Number;
-    attribute intro: TGimeline = Timeline {
+    
+    attribute pf: PointerFactory = PointerFactory{};
+    
+    attribute intro: Timeline = Timeline {
+        var _titleX = pf.make(titleX).unwrap();
+        var _contentY = pf.make(contentY).unwrap();
+        var _alpha1 = pf.make(alpha1).unwrap();
         keyFrames:
-           [at (0s) {
-               titleX => width;
-               contentY => height;
-               alpha1 => 0;
-           },
-           at (.25s) {
-               alpha1 => 1 tween LINEAR;
-           },
-           at (1s) {
-               titleX => 0 tween EASEBOTH;
-               alpha1 => 0 tween LINEAR;
-               contentY => 0 tween EASEBOTH;
-           }]
+           [ KeyFrame {
+                keyTime: 0s
+                keyValues:  [
+                    NumberValue {
+                        target: _titleX
+                        value: width
+                    },
+                    NumberValue {
+                        target: _contentY
+                        value: height
+                    },
+                    NumberValue {
+                        target: _alpha1
+                        value: 0
+                    }
+                ]
+            },
+            KeyFrame {
+                keyTime: 250ms
+                keyValues:  NumberValue {
+                        target: _alpha1
+                        value: 1
+                        interpolate: NumberValue.LINEAR
+                    }
+            },
+            KeyFrame {
+                keyTime: 1s
+                keyValues:  [
+                    NumberValue {
+                        target: _titleX
+                        value: 0
+                        interpolate: NumberValue.EASEBOTH
+                    },
+                    NumberValue {
+                        target: _contentY
+                        value: 0
+                        interpolate: NumberValue.EASEBOTH
+                    },
+                    NumberValue {
+                        target: _alpha1
+                        value: 0
+                        interpolate: NumberValue.LINEAR
+                    }
+                ]
+            }
+         ]
     };
-    function doIntro() {
+    function doIntro():Void {
        intro.start();
     }
 
-    function composeNode() {
+    function composeNode():Node {
         Clip {
-            filter: bind if (hover) select Glow[i] from i in [0, 1] animation {dur: 300ms}  else null
+            //TODO GLOW animaton
+            //filter: bind if (hover) select Glow[i] from i in [0, 1] animation {dur: 300ms}  else null
             shape: Rect {height: bind height, width: bind width}
             onMouseClicked: function(e) {doIntro();}
             content:
             [ImageView {
-                transform: translate(0, 2)
+                transform: Transform.translate(0, 2)
                 image: Image {url: "{__DIR__}/Image/77.png"}
             },
             Circle {
@@ -46,7 +90,7 @@ public class MotoPanel extends Intro {
                 cx: 10.5
                 cy: 12.5
                                                                                                 radius: 10
-                fill: white
+                fill: Color.WHITE
                 fill:RadialGradient {
                     cx: 10
                     cy: 10
@@ -54,7 +98,7 @@ public class MotoPanel extends Intro {
                     stops:
                     [Stop {
                         offset: 0
-                        color: white
+                        color: Color.WHITE
                     },
                     Stop {
                         offset: 1
@@ -64,27 +108,27 @@ public class MotoPanel extends Intro {
             },
             Clip {
                 shape: Rect {height: bind title.currentHeight, width: bind width}
-                transform: bind translate(25+titleX, 18)
+                transform: bind Transform.translate(25+titleX, 18)
                                                                                                 content: bind title
-                valign: BOTTOM
+                valign: VerticalAlignment.BOTTOM
             },
             Clip {
-                transform: translate(20, 20)
+                transform: Transform.translate(20, 20)
                 shape: Rect {x: -50, height: bind height-20, width: bind width+50}
                 content:
                 Group {
-                    transform: bind translate(0, contentY)
+                    transform: bind Transform.translate(0, contentY)
                     content:
                     [Group {
 
                         content:
                         ImageView {
-                            clip: bind for (w in width) {shape: Rect {height: 5, width: w}}
+                            clip: bind Clip{shape: Rect {height: 5, width: bind width}}
                             image: Image {url: "{__DIR__}/Image/95.png"}
                         }
                     },
                     Group {
-                        transform: translate(5, 10)
+                        transform: Transform.translate(5, 10)
                         content: bind content
                     }]
                 }
@@ -94,13 +138,13 @@ public class MotoPanel extends Intro {
 };
 
 Canvas {
-    background: black
+    background: Color.BLACK
     content:
     MotoPanel {
         width: 200
         height: 200
-        title: Text {content: "Promotions", fill: white, font: Font{face: ARIAL, size: 14}}
-        content: Text {content: "Promotions", fill: white, font: Font{face: ARIAL, size: 14}}
+        title: Text {content: "Promotions", fill: Color.WHITE, font: Font{face: FontFace.ARIAL, size: 14}}
+        content: Text {content: "Promotions", fill: Color.WHITE, font: Font{face: FontFace.ARIAL, size: 14}}
         
     }
 }

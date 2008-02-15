@@ -2,6 +2,9 @@ package studiomoto;
 import javafx.ui.UIElement;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
+import javafx.ui.animation.*;
+import com.sun.javafx.runtime.PointerFactory;
+import com.sun.javafx.runtime.Pointer;
 
 public class Product {
     public attribute title: String;
@@ -9,288 +12,312 @@ public class Product {
 }
 
 public class MotoProducts extends MotoPanel {
-    attribute products: Product*;
-    attribute consoleY: Number;
-    attribute phoneY: Number;
-    attribute flipPhoneY: Number;
-    attribute pdaY: Number;
-    attribute headphonesY: Number;
+    attribute products: Product[];
+    attribute consoleY: Number  = -200;
+    attribute phoneY: Number = -200;
+    attribute flipPhoneY: Number = -200;
+    attribute pdaY: Number = -200;
+    attribute headphonesY: Number = -200;
     
-    attribute consoleShadowY: Number;
-    attribute flipPhoneShadowY: Number;
-    attribute pdaShadowY: Number;
-    attribute headphonesShadowY: Number;
-    attribute phoneShadowY: Number;
+    attribute consoleShadowY: Number  = -200;
+    attribute flipPhoneShadowY: Number = -200;
+    attribute pdaShadowY: Number = -200;
+    attribute headphonesShadowY: Number = -200;
+    attribute phoneShadowY: Number = -200;
     
-    attribute consoleImage: Image;
-    attribute phoneImage: Image;
-    attribute flipPhoneImage: Image;
-    attribute pdaImage: Image;
-    attribute headphonesImage: Image;
+    attribute consoleImage: Image = getImage(5);
+    attribute phoneImage: Image = getImage(6);
+    attribute flipPhoneImage: Image = getImage(7);
+    attribute pdaImage: Image = getImage(8);
+    attribute headphonesImage: Image = getImage(9);
     
-    attribute shadow1: Image;
-    attribute shadow2: Image;
-    attribute shadow3: Image;
-    attribute shadow4: Image;
+    attribute shadow1: Image = getImage(1);
+    attribute shadow2: Image = getImage(2);
+    attribute shadow3: Image = getImage(3);
+    attribute shadow4: Image = getImage(4);
     attribute introCount: Number;
     attribute productVisible: Boolean;
-    function getImage(n:Integer): Image;
-    operation makeDropStoryBoard(target:&Number, yStart:Number, yEnd:Number, bounce:Boolean): StoryBoard;
-    attribute introAnim: KeyFrameAnimation;
-}
-
-function MotoProducts.getImage(n) = Image {url: "{__DIR__}/products/Image/{n}.png"};
-
-attribute MotoProducts.shadow1 = getImage(1);
-attribute MotoProducts.shadow2 = getImage(2);
-attribute MotoProducts.shadow3 = getImage(3);
-attribute MotoProducts.shadow4 = getImage(4);
-attribute MotoProducts.consoleImage = getImage(5);
-attribute MotoProducts.phoneImage = getImage(6);
-attribute MotoProducts.flipPhoneImage = getImage(7);
-attribute MotoProducts.pdaImage = getImage(8);
-attribute MotoProducts.headphonesImage = getImage(9);
-/*
-attribute MotoProducts.consoleY  = 65;
-attribute MotoProducts.phoneY = 50;
-attribute MotoProducts.headphonesY = 20;
-attribute MotoProducts.flipPhoneY = 50;
-*/
-attribute MotoProducts.consoleY  = -200;
-attribute MotoProducts.phoneY = -200;
-attribute MotoProducts.headphonesY = -200;
-attribute MotoProducts.flipPhoneY = -200;
-attribute MotoProducts.pdaY = -200;
-
-attribute MotoProducts.consoleShadowY  = -200;
-attribute MotoProducts.phoneShadowY = -200;
-attribute MotoProducts.headphonesShadowY = -200;
-attribute MotoProducts.flipPhoneShadowY = -200;
-attribute MotoProducts.pdaShadowY = -200;
-
-function MotoProducts.makeDropStoryBoard(target:&Number, start:Number, end:Number, bounce:Boolean) = StoryBoard {
-         keyFrames:
-	 [at (0s) {
-	    	 *target => start;
-	 },
-	 if (bounce) 
-	 then
-	 after (1s) {
-	    	 *target => end tween EASEBOTH;
-	 }
-         else 
-	 after (1s) {
-	    	 *target => end tween EASEBOTH;
-	 }]
-};
-
-attribute MotoProducts.introAnim = KeyFrameAnimation {
-	  keyFrames:
-	  [at (0s) {
-	      makeDropStoryBoard(& consoleShadowY, -200, 85, false);
-	  },
-	  at (.1s) {
-	      makeDropStoryBoard(& consoleY, -200, 65, true);
-	  },
-	  at (.5s) {
-	      makeDropStoryBoard(& phoneShadowY, -200,  120, false);
-	  },
-	  after (.1s) {
-	      makeDropStoryBoard(& phoneY, -200, 53, true);
-	  },
-	  after (.1s) {
-	      makeDropStoryBoard(& headphonesShadowY, -200, 70, false);
-	  },
-	  after (.1s) {
-	      makeDropStoryBoard(& headphonesY, -200, 18, true);
-	  },
-	  after (.1s) {
-	      makeDropStoryBoard(& pdaShadowY, -200, 70, false);
-	  },
-	  after (.1s) {
-	      makeDropStoryBoard(& pdaY, -200, -5, true);
-	  },
-	  after (.1s) {
-	      makeDropStoryBoard(& flipPhoneShadowY, -200, 117, false);
-	  },
-	  after (.1s) {
-	      makeDropStoryBoard(& flipPhoneY, -200, 50, true);
-	  },
-	  at (.4s) {
-	      productVisible => true;
-	  },
-	  after (5s) {}]
-};
-
-operation MotoProducts.doIntro() {
-    productVisible = false;
-
-    consoleY = -200;
-    phoneY = -200;
-    flipPhoneY = -200;
-    pdaY = -200;
-    headphonesY = -200;
     
-    consoleShadowY = -200;
-    flipPhoneShadowY = -200;
-    pdaShadowY = -200;
-    headphonesShadowY = -200;
-    phoneShadowY = -200;
-    super.doIntro();
-    introAnim.start();
-}
-
-attribute MotoProducts.title = View {
-    content: Label {
-        text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>Moto</span><span style='color:yellow;'>Products</span></div></html>"
+    attribute pf: PointerFactory = PointerFactory{};
+    
+    function getImage(n:Integer): Image {
+        Image {url: "{__DIR__}/products/Image/{n}.png"};
     }
-};
-
-trigger on MotoProducts.productVisible = newValue {
-//    println("product visible = {newValue}");
-}
-
-attribute MotoProducts.content = Group {
-    ///var shadowImage = Image {url: "{__DIR__}/Image/
-    content: HBox {
-        transform: translate(0, 10)
-        content:
-        [VBox {
-            content:
-            [Text {
-                font: {face: ARIAL, size: 11}
-                content: "Get information on the latest Motorola products here."
-                fill: white
-            },
-            Group {
-                
-                var open = bind false
-                content:
-                [Group {
-                    trigger on (newValue = hover) {
-                        if (not newValue) {
-                            open = false;
+    function makeDropStoryBoard(target:Pointer, start:Number, end:Number, bounce:Boolean): Timeline {
+        Timeline {
+             keyFrames: [
+                    KeyFrame {
+                        keyTime: 0s
+                        keyValues:  NumberValue {
+                            target: target;
+                            value: start
                         }
+                    },
+                    //TODO What is different about bounce?
+                    if(bounce) {
+                        KeyFrame {
+                            keyTime: 1s
+                            keyValues:  NumberValue {
+                                target: target;
+                                value: end
+                                interpolate: NumberValue.EASEBOTH
+                            }
+                        };
+                    }else {
+                        KeyFrame {
+                            keyTime: 1s
+                            keyValues:  NumberValue {
+                                target: target;
+                                value: end
+                                interpolate: NumberValue.EASEBOTH
+                            }
+                        };
                     }
+                ]
+            };
+    }
+    attribute introAnim: Timeline = Timeline {
+         keyFrames:
+              [KeyFrame {
+                  keyTime: 0s
+                  timelines: makeDropStoryBoard(pf.make(consoleShadowY).unwrap(), -200, 85, false);
+              },
+              KeyFrame {
+                  keyTime: 100ms
+                  timelines: makeDropStoryBoard(pf.make(consoleY).unwrap(), -200, 65, true);
+              },
+              KeyFrame {
+                  keyTime: 500ms
+                  timelines: makeDropStoryBoard(pf.make(phoneShadowY).unwrap(), -200,  120, false);
+              },
+              KeyFrame {
+                  keyTime: 100ms
+                  relative: true
+                  timelines: makeDropStoryBoard(pf.make(phoneY).unwrap(), -200, 53, true);
+              },
+              KeyFrame {
+                  keyTime: 100ms
+                  relative: true
+                  timelines: makeDropStoryBoard(pf.make(headphonesShadowY).unwrap(), -200, 70, false);
+              },
+              KeyFrame {
+                  keyTime: 100ms
+                  relative: true
+                  timelines: makeDropStoryBoard(pf.make(headphonesY).unwrap(), -200, 18, true);
+              },
+              KeyFrame {
+                  keyTime: 100ms
+                  relative: true
+                  timelines: makeDropStoryBoard(pf.make(pdaShadowY).unwrap(), -200, 70, false);
+              },
+              KeyFrame {
+                  keyTime: 100ms
+                  relative: true
+                  timelines: makeDropStoryBoard(pf.make(pdaY).unwrap(), -200, -5, true);
+              },
+              KeyFrame {
+                  keyTime: 100ms
+                  relative: true
+                  timelines: makeDropStoryBoard(pf.make(flipPhoneShadowY).unwrap(), -200, 117, false);
+              },
+              KeyFrame {
+                  keyTime: 100ms
+                  relative: true
+                  timelines: makeDropStoryBoard(pf.make(flipPhoneY).unwrap(), -200, 50, true);
+              },
+              KeyFrame {
+                  keyTime: 100ms
+                  relative: true
+                  // TODO how to handle Boolean value?????
+                  /********
+                  keyValues:  NumberValue {
+                      target: pf.make(productVisible).unwrap();
+                      value: true
+                      interpolate: NumberValue.EASEBOTH
+                  }                  
+                  productVisible => true;
+                   ********/
+              },
+              KeyFrame {
+                  keyTime: 5s
+                  relative: true 
+              }
+              ]
+    };
+
+    function doIntro(){
+        productVisible = false;
+
+        consoleY = -200;
+        phoneY = -200;
+        flipPhoneY = -200;
+        pdaY = -200;
+        headphonesY = -200;
+
+        consoleShadowY = -200;
+        flipPhoneShadowY = -200;
+        pdaShadowY = -200;
+        headphonesShadowY = -200;
+        phoneShadowY = -200;
+        super.doIntro();
+        introAnim.start();
+    }
+    
+    // From MotoPanel
+    attribute title: Node = View {
+        content: Label {
+            text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>Moto</span><span style='color:yellow;'>Products</span></div></html>"
+        }
+    };
+    
+    attribute content: Node = Group {
+        ///var shadowImage = Image {url: "{__DIR__}/Image/
+        content: HBox {
+            transform: Transform.translate(0, 10)
+            content:
+            [VBox {
+                content:
+                [Text {
+                    font: Font{face: FontFace.ARIAL, size: 11}
+                    content: "Get information on the latest Motorola products here."
+                    fill: Color.WHITE
+                },
+                Group {
+
+                    var open = bind false
                     content:
-                    [ImageView {
-                        visible: bind not open
-                        cursor: HAND
-                        onMouseClicked: operation(e) {open = true;}
-                        image: {url: "{__DIR__}/Image/97.png"}
-                    },
-                    VBox {
-                        visible: bind open
+                    [Group {
+                        //TODO trigger
+                        /*****
+                        trigger on (newValue = hover) {
+                            if (not newValue) {
+                                open = false;
+                            }
+                        }
+                         *****/
                         content:
-                        [ImageView {              
-                            cursor: DEFAULT
-                            image: {url: "{__DIR__}/Image/99.png"}
+                        [ImageView {
+                            visible: bind not open
+                            cursor: Cursor.HAND
+                            onMouseClicked: function(e) {open = true;}
+                            image: Image{url: "{__DIR__}/Image/97.png"}
                         },
-                        Group {
-                            transform: translate(11, -7.5)
-                            
+                        VBox {
+                            visible: bind open
                             content:
-                            [Rect {
-                                selectable: true
-                                height: 300
-                                width: 225
-                                fill: new Color(0, 0, 0, .8)
+                            [ImageView {              
+                                cursor: Cursor.DEFAULT
+                                image: Image{url: "{__DIR__}/Image/99.png"}
                             },
-                            VBox {
-                                transform: translate(5, 5)
-                                var transparentFill = new Color(0, 0, 0, 0)
-                                var margin = 3
-                                var textColor = new Color(.8, .8, .8, 1)
-                                var hoverTextColor:Color = yellow
-                                var textFont = Font {face: ARIAL, size: 11}
-                                content: bind foreach (p in products)
-                                Group {
-                                    var: row
-                                    transform: translate(0, margin)
-                                    var titleText = Text {
-                                        content: bind p.title
-                                        font: textFont
-                                        fill: bind if row.hover then hoverTextColor else textColor
+                            Group {
+                                transform: Transform.translate(11, -7.5)
+
+                                content:
+                                [Rect {
+                                    selectable: true
+                                    height: 300
+                                    width: 225
+                                    fill: Color.rgba(0, 0, 0, .8)
+                                },
+                                VBox {
+                                    transform: Transform.translate(5, 5)
+                                    var transparentFill = Color.rgba(0, 0, 0, 0)
+                                    var margin = 3
+                                    var textColor = Color.rgba(.8, .8, .8, 1)
+                                    var hoverTextColor:Color = Color.YELLOW
+                                    var textFont = Font {face: FontFace.ARIAL, size: 11}
+                                    content: bind for (p in products)
+                                    Group {
+                                        var row = this
+                                        transform: Transform.translate(0, margin)
+                                        var titleText = Text {
+                                            content: bind p.title
+                                            font: textFont
+                                            fill: bind if (row.hover) then hoverTextColor else textColor
+                                        }
+                                        content:
+                                        [Rect {
+                                            cursor: Cursor.HAND
+                                            selectable: true
+                                            height: 12//bind titleText.currentHeight
+                                            width: 200
+                                            fill: transparentFill
+                                        },
+                                        titleText]
                                     }
-                                    content:
-                                    [Rect {
-                                        cursor: HAND
-                                        selectable: true
-                                        height: 12//bind titleText.currentHeight
-                                        width: 200
-                                        fill: transparentFill
-                                    },
-                                    titleText]
-                                }
+                                }]
                             }]
+                        },
+                        Text {
+                            content: "CHOOSE A PRODUCT"
+                            transform: Transform.translate(20, 37/2)
+                            valign: VerticalAlignment.MIDDLE
+                            fill: bind if (open) then Color.BLACK else Color.WHITE
+                            font: Font{face: FontFace.VERDANA, size: 11, style: FontStyle.BOLD}
                         }]
-                    },
-                    Text {
-                        content: "CHOOSE A PRODUCT"
-                        transform: translate(20, 37/2)
-                        valign: MIDDLE
-                        fill: bind if open then black else white
-                        font: {face: VERDANA, size: 11, style: BOLD}
                     }]
                 }]
+            },
+            Group {
+                opacity: bind if (productVisible) then 1 else 0
+
+                content:
+                [
+                ImageView {
+                    transform: bind Transform.translate(-15, flipPhoneShadowY)
+                    image: bind shadow4
+                },
+                ImageView {
+                    transform: bind Transform.translate(0, flipPhoneY)
+                    image: bind flipPhoneImage
+                },
+
+                ImageView {
+                    transform: bind Transform.translate(5, consoleShadowY)
+                    image: bind shadow1
+                },
+                ImageView {
+                    transform: bind Transform.translate(30, consoleY)
+                    image: bind consoleImage
+                },            
+
+                ImageView {
+                    transform: bind Transform.translate(40, pdaShadowY)
+                    image: bind shadow3
+                },
+                ImageView {
+                    transform: bind Transform.translate(55, pdaY)
+                    image: bind pdaImage
+                },
+
+                ImageView {
+                    transform: bind Transform.translate(140, headphonesShadowY)
+                    image: bind shadow2
+                },
+                ImageView {
+                    transform: bind Transform.translate(140, headphonesY)
+                    image: bind headphonesImage
+                },
+                ImageView {
+                    transform: bind Transform.translate(240, phoneY)
+                    image: bind phoneImage
+                },
+                ImageView {
+                    transform: bind Transform.translate(225, phoneShadowY)
+                    image: bind shadow4
+                }]
+
+
             }]
-        },
-        Group {
-            opacity: bind if productVisible then 1 else 0
-            
-            content:
-            [
-            ImageView {
-                transform: bind translate(-15, flipPhoneShadowY)
-                image: bind shadow4
-            },
-            ImageView {
-                transform: bind translate(0, flipPhoneY)
-                image: bind flipPhoneImage
-            },
-            
-            ImageView {
-                transform: bind translate(5, consoleShadowY)
-                image: bind shadow1
-            },
-            ImageView {
-                transform: bind translate(30, consoleY)
-                image: bind consoleImage
-            },            
-            
-            ImageView {
-                transform: bind translate(40, pdaShadowY)
-                image: bind shadow3
-            },
-            ImageView {
-                transform: bind translate(55, pdaY)
-                image: bind pdaImage
-            },
-            
-            ImageView {
-                transform: bind translate(140, headphonesShadowY)
-                image: bind shadow2
-            },
-            ImageView {
-                transform: bind translate(140, headphonesY)
-                image: bind headphonesImage
-            },
-            ImageView {
-                transform: bind translate(240, phoneY)
-                image: bind phoneImage
-            },
-            ImageView {
-                transform: bind translate(225, phoneShadowY)
-                image: bind shadow4
-            }]
-            
-            
-        }]
-    }
-};
+        }
+    };
+
+
+}
+
 
 Canvas {
-    background: red
+    background: Color.RED
     content: MotoProducts {
         height: 220
         width: 1000
