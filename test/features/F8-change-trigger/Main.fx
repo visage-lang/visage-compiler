@@ -10,7 +10,7 @@ import java.lang.System;
 
 class Foo {
     attribute x : Integer
-        on replace { System.out.println("x: {x}"); };
+        on replace = newV { System.out.println("x: =>{newV}={x}"); };
     attribute y : Integer
         on replace { System.out.println("y: {y}"); };
     attribute z : String = "Ralph"
@@ -27,9 +27,9 @@ class Foo2 {
     attribute x : Integer
         on replace (oldValue) { System.out.println("x: {oldValue} => {x}"); };
     attribute y : Integer
-        on replace (oldValue) { System.out.println("y: {oldValue} => {y}"); };
+        on replace oldValue { System.out.println("y: {oldValue} => {y}"); };
     attribute z : String = "Bert"
-        on replace (oldValue) { System.out.println("z: {oldValue} => {z}"); };
+        on replace oldValue = newValue { System.out.println("z: {oldValue} => {newValue}={z}"); };
 }
 
 var n2 = 3;

@@ -315,7 +315,18 @@ public class JavafxInitializationBuilder {
                         toJava.makeTypeTree(vmi.getRealType(), diagPos, types.isJFXClass(vmi.getRealType().tsym)),
                         make.Identifier(onChangeArgName1)));
         }
-        // @@@ Same for new value
+        if (onReplace != null && onReplace.getNewElements() != null) {
+            // Create the variable for the new value, using the specified name
+            JFXVar newValue = onReplace.getNewElements();
+            VarMorphInfo vmi = typeMorpher.varMorphInfo(newValue.sym);
+
+            setUpStmts.append( 
+                    make.at(diagPos).VarDef(
+                        make.Modifiers(0L), 
+                        newValue.getName(), 
+                        toJava.makeTypeTree(vmi.getRealType(), diagPos, types.isJFXClass(vmi.getRealType().tsym)),
+                        make.Identifier(onChangeArgName2)));
+        }
         return makeChangeListenerMethod(diagPos, onReplace, setUpStmts, "onChange", onChangeArgs, TypeTags.VOID);
     }
 

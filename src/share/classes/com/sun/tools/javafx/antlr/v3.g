@@ -652,6 +652,8 @@ onChangeClause
 sliceClause
 	: LBRACKET first=name DOTDOT last=name RBRACKET EQ newElements=name
 						-> ^(SLICE_CLAUSE $first $last $newElements)
+	| EQ newValue=name
+						-> ^(SLICE_CLAUSE MISSING_NAME MISSING_NAME $newValue)
 	;
 paramNameOpt
         : name                                  -> name
