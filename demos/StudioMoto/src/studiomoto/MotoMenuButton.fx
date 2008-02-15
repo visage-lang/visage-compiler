@@ -14,7 +14,7 @@ public class MotoMenuButton extends CompositeNode {
     public attribute action: function();
     attribute mouseOver: Boolean;
     private attribute pf: PointerFactory = PointerFactory{};
-    private attribute _y = pf.make(y).unwrap();
+    private attribute _y = bind pf.make(y).unwrap();
     attribute a: Timeline = Timeline {
         
         toggle: true

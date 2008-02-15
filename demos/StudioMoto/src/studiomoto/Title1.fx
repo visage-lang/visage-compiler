@@ -14,9 +14,12 @@ public class Title1 extends CompositeNode {
     attribute width: Number;
     attribute power: Node;
     private attribute pf: PointerFactory = PointerFactory{};
-    private attribute _poweredByY = pf.make(poweredByY).unwrap();
-    private attribute _motorolaY = pf.make(motorolaY).unwrap();
-    private attribute _powerY = pf.make(powerY).unwrap();   
+    private attribute _poweredByYp = bind pf.make(poweredByY);
+    private attribute _poweredByY = _poweredByYp.unwrap();
+    private attribute _motorolaYp = bind pf.make(motorolaY);
+    private attribute _motorolaY = _motorolaYp.unwrap();
+    private attribute _powerYp = bind pf.make(powerY);
+    private attribute _powerY = _powerYp.unwrap();
     attribute a: Timeline = Timeline {
 
         toggle: true
