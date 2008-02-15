@@ -14,7 +14,12 @@ public class MotoBottomPane extends Intro {
     }
     attribute introAnim: Timeline = Timeline {
         keyFrames:
-        after (.5s) { trigger { doIntro(); } }
+            KeyFrame {
+                keyTime: 500ms
+                action: funtion() {
+                    doIntro();
+                }
+        }
     };
     function doIntro() {
         selectedPanel.opacity = 1;
@@ -22,9 +27,10 @@ public class MotoBottomPane extends Intro {
         selectedPanel.doIntro();
     }
 
+    function composeNode():Node {
+        Group {
+            content: bind selectedPanel
+        };
+    }
 }
 
-function MotoBottomPane.composeNode() =
-Group {
-    content: bind selectedPanel
-};
