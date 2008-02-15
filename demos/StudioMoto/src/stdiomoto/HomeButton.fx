@@ -7,7 +7,7 @@ public class HomeButton extends CompositeNode {
     public attribute action: function();
     function composeNode() : Node {
         Group {
-        cursor: HAND
+        cursor: Cursor.HAND
         content: ImageView {
             onMouseClicked: function(e) {(this.action)();}
             image: Image {url: "{__DIR__}/Image/94.png"}
