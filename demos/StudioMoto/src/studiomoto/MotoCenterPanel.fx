@@ -30,13 +30,35 @@ public class MotoCenterPanel extends CompositeNode {
          }
     }  
     attribute pf: PointerFactory = PointerFactory{};
+    private attribute rect:Rect;
+    private attribute hover:Boolean = bind rect.hover on replace { fade.start(); }
+    private attribute alpha = .5;
+    private attribute _alpha = bind pf.make(alpha).unwrap();
+    private attribute fade = Timeline {
+        toggle: true
+        
+        keyFrames: [
+            KeyFrame {
+                keyTime: 0s
+                keyValues: NumberValue {
+                    target: _alpha;
+                    value: .5
+                }                                        
+            },
+            KeyFrame {
+                keyTime: 100ms
+                keyValues: NumberValue {
+                    target: _alpha;
+                    value: 1
+                    interpolate: NumberValue.EASEBOTH
+                }                                          
+            }
+        ]
+    };    
     function composeNode():Node {
         Clip {
-            
             content:
             Group {
-                
-
                 content:
                 [ImageView {
                     transform: bind Transform.translate(width/2, height/2)
@@ -56,7 +78,7 @@ public class MotoCenterPanel extends CompositeNode {
                         var box = this
                         var filt = null as Filter;
                         var glowAnim = bind makeGlowAnim(pf.make(filt).unwrap());
-                        //TODO TRIGGER
+                        //TODO TRIGGER - GLOW 
                         /************
                         trigger on (h = box.hover) {
                             if (h) { glowAnim.start(); } else { glowAnim.stop(); filt = null;}
@@ -99,7 +121,7 @@ public class MotoCenterPanel extends CompositeNode {
                             var box = this
                             var filt = null as Filter;
                             var glowAnim = bind makeGlowAnim(pf.make(filt).unwrap());
-                            //TODO trigger
+                            //TODO trigger - GLOW
                             /**************
                             trigger on (h = box.hover) {
                                 if (h) { glowAnim.start(); }
@@ -126,38 +148,15 @@ public class MotoCenterPanel extends CompositeNode {
                                 font: Font.Font("ARIAL", ["BOLD"], 11)
                             }]
                         },
-                        Rect {visible: false
+                        rect = Rect {visible: false
                             selectable: true
                             height: 135,
                             width: 156
-                            var alpha = .5
-                            var rect = this;
-                            var fade = Timeline {
-                                toggle: true
-                                var _alpha = pf.make(alpha).unwrap()
-                                keyFrames: [
-                                    KeyFrame {
-                                        keyTime: 0s
-                                        keyValues: NumberValue {
-                                            target: _alpha;
-                                            value: .5
-                                        }                                        
-                                    },
-                                    KeyFrame {
-                                        keyTime: 100ms
-                                        keyValues: NumberValue {
-                                            target: _alpha;
-                                            value: 1
-                                            interpolate: NumberValue.EASEBOTH
-                                        }                                          
-                                    }
-                                ]
-                            };
+                            
+
                             var fill1 = RadialGradient {radius: 50, cx: 156/2, cy: 135/2, 
                                 stops: [Stop{offset: 0.3, color: Color.rgba(1, 1, 1, .6)}, Stop{offset: .7, color: Color.rgba(1, 1, 1, 0)}]
                             }
-                            //TODO Trigger
-                            //trigger on (h = rect.hover) { fade.start(); }
                             opacity: bind alpha
                             fill: fill1
                             arcHeight: 20

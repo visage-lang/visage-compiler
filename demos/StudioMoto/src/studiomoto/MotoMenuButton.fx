@@ -1,4 +1,5 @@
 package studiomoto;
+import java.lang.System;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
 import java.lang.Math;
@@ -12,7 +13,15 @@ public class MotoMenuButton extends CompositeNode {
     public attribute label1: String;
     public attribute label2: String;
     public attribute action: function();
-    attribute mouseOver: Boolean;
+    attribute mouseOver: Boolean = bind rect.hover on replace {
+        a.start();
+        if (mouseOver) {
+            anim.start();
+        } else {
+            System.out.println("STOP");
+            anim.stop();
+        }        
+    };
     private attribute pf: PointerFactory = PointerFactory{};
     private attribute _y = bind pf.make(y).unwrap();
     attribute a: Timeline = Timeline {
@@ -46,36 +55,25 @@ public class MotoMenuButton extends CompositeNode {
     };
 
     attribute y: Number;
-
+    private attribute group:Group;
+    private attribute rect:Rect;
+    
     function composeNode():Node {
         Group {
             content:
-            [Group {
+            [group = Group {
                 cursor: Cursor.HAND
-                //TODO Trigger
-                /*******************
-                trigger on (h = mouseOver) {
-                    a.start();
-                }
-                ***************/
                 var w = 110
                 var h = 60
                 transform: bind Transform.translate(0, y)
                 content: bind
-                [Rect {
+                [rect = Rect {
                     selectable: true
                     width: w
                     height: h
                     fill: Color.BLACK
                     arcHeight: 20
                     arcWidth: 20
-                    var rect = this
-                    //TODO Trigger
-                    /*******************
-                    trigger on (newValue = rect.hover) {
-                        mouseOver = newValue;
-                    }
-                     * **************/
                     onMouseClicked: function(e) {if(action <> null) action();}
                 },
                 Rect {
@@ -132,17 +130,6 @@ public class MotoMenuButton extends CompositeNode {
                         valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.TRAILING
                         content: bind if (mouseOver) then anim as Node else null
                         var active = bind mouseOver
-                        // TODO Trigger
-                        /**************
-                        trigger on (a = active) {
-                            if (a) {
-                                anim.start();
-                            } else {
-                                println("STOP");
-                                anim.stop();
-                            }
-                        }
-                         * **************/
                     },
                     HBox {
                         transform: Transform.translate(w-5, h*.7)

@@ -65,7 +65,10 @@ public class Title1 extends CompositeNode {
     attribute motorolaY: Number;
     attribute poweredByY: Number;
     attribute powerY: Number;
-    
+    private attribute rect:Rect;
+    private attribute hover:Boolean = bind rect.hover on replace {
+        a.start();
+    };
     function composeNode():Node {
         power = View {
             content: Label {
@@ -128,7 +131,7 @@ public class Title1 extends CompositeNode {
                     }]
                 }
             },
-            Rect {
+            rect = Rect {
                 isSelectionRoot: true
                 cursor: Cursor.HAND
                 height: bind height
@@ -136,13 +139,7 @@ public class Title1 extends CompositeNode {
                 //stroke: Color.BLACK
                 fill: Color.rgba(0, 0, 0,  0)
                 selectable: true
-                var rect = this
-                // TODO Trigger
-                /***************
-                trigger on (newValue = rect.hover) {
-                    a.start();
-                }
-                 * ***********/
+
             }]
         };
 

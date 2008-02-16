@@ -77,54 +77,79 @@ public class MotoProducts extends MotoPanel {
                 ]
             };
     }
+    
+    
+    private attribute __consoleShadowY = bind pf.make(consoleShadowY);
+    private attribute _consoleShadowY = __consoleShadowY.unwrap();
+    private attribute __consoleY = bind pf.make(consoleY);
+    private attribute _consoleY = __consoleY.unwrap();
+    private attribute __phoneShadowY = bind pf.make(phoneShadowY);
+    private attribute _phoneShadowY = __phoneShadowY.unwrap();
+    private attribute __phoneY = bind pf.make(phoneY);
+    private attribute _phoneY = __phoneY.unwrap();
+    private attribute __headphonesShadowY = bind pf.make(headphonesShadowY);
+    private attribute _headphonesShadowY = __headphonesShadowY.unwrap();
+    private attribute __headphonesY = bind pf.make(headphonesY);
+    private attribute _headphonesY = __headphonesY.unwrap();
+    private attribute __pdaShadowY = bind pf.make(pdaShadowY);
+    private attribute _pdaShadowY = __pdaShadowY.unwrap();
+    private attribute __pdaY = bind pf.make(pdaY);
+    private attribute _pdaY = __pdaY.unwrap();
+    private attribute __flipPhoneShadowY = bind pf.make(flipPhoneShadowY);
+    private attribute _flipPhoneShadowY = __flipPhoneShadowY.unwrap();
+    private attribute __flipPhoneY = bind pf.make(flipPhoneY);
+    private attribute _flipPhoneY = __flipPhoneY.unwrap();
+                  
+                  
+                  
     attribute introAnim: Timeline = Timeline {
          keyFrames:
               [KeyFrame {
                   keyTime: 0s
-                  timelines: makeDropStoryBoard(pf.make(consoleShadowY).unwrap(), -200, 85, false);
+                  timelines: makeDropStoryBoard(_consoleShadowY, -200, 85, false);
               },
               KeyFrame {
                   keyTime: 100ms
-                  timelines: makeDropStoryBoard(pf.make(consoleY).unwrap(), -200, 65, true);
+                  timelines: makeDropStoryBoard(_consoleY, -200, 65, true);
               },
               KeyFrame {
                   keyTime: 500ms
-                  timelines: makeDropStoryBoard(pf.make(phoneShadowY).unwrap(), -200,  120, false);
+                  timelines: makeDropStoryBoard(_phoneShadowY, -200,  120, false);
               },
               KeyFrame {
                   keyTime: 100ms
                   relative: true
-                  timelines: makeDropStoryBoard(pf.make(phoneY).unwrap(), -200, 53, true);
+                  timelines: makeDropStoryBoard(_phoneY, -200, 53, true);
               },
               KeyFrame {
                   keyTime: 100ms
                   relative: true
-                  timelines: makeDropStoryBoard(pf.make(headphonesShadowY).unwrap(), -200, 70, false);
+                  timelines: makeDropStoryBoard(_headphonesShadowY, -200, 70, false);
               },
               KeyFrame {
                   keyTime: 100ms
                   relative: true
-                  timelines: makeDropStoryBoard(pf.make(headphonesY).unwrap(), -200, 18, true);
+                  timelines: makeDropStoryBoard(_headphonesY, -200, 18, true);
               },
               KeyFrame {
                   keyTime: 100ms
                   relative: true
-                  timelines: makeDropStoryBoard(pf.make(pdaShadowY).unwrap(), -200, 70, false);
+                  timelines: makeDropStoryBoard(_pdaShadowY, -200, 70, false);
               },
               KeyFrame {
                   keyTime: 100ms
                   relative: true
-                  timelines: makeDropStoryBoard(pf.make(pdaY).unwrap(), -200, -5, true);
+                  timelines: makeDropStoryBoard(_pdaY, -200, -5, true);
               },
               KeyFrame {
                   keyTime: 100ms
                   relative: true
-                  timelines: makeDropStoryBoard(pf.make(flipPhoneShadowY).unwrap(), -200, 117, false);
+                  timelines: makeDropStoryBoard(_flipPhoneShadowY, -200, 117, false);
               },
               KeyFrame {
                   keyTime: 100ms
                   relative: true
-                  timelines: makeDropStoryBoard(pf.make(flipPhoneY).unwrap(), -200, 50, true);
+                  timelines: makeDropStoryBoard(_flipPhoneY, -200, 50, true);
               },
               KeyFrame {
                   keyTime: 100ms
@@ -171,6 +196,12 @@ public class MotoProducts extends MotoPanel {
     private attribute margin:Integer = 3;
     private attribute  transparentFill = Color.rgba(0, 0, 0, 0);
     private attribute row:Group;
+    private attribute group:Group;
+    private attribute hover:Boolean = bind group.hover on replace { 
+        if(not hover) {
+            open = false;
+        }
+    };
     attribute content: Node = Group {
         
         ///var shadowImage = Image {url: "{base}/Image/
@@ -186,15 +217,7 @@ public class MotoProducts extends MotoPanel {
                 },
                 Group {
                     content:
-                    [Group {
-                        //TODO trigger
-                        /*****
-                        trigger on (newValue = hover) {
-                            if (not newValue) {
-                                open = false;
-                            }
-                        }
-                         *****/
+                    [group = Group {
                         content:
                         [ImageView {
                             visible: bind not open

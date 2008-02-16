@@ -135,7 +135,8 @@ public class GuitarPicks extends Intro {
              }             
         ]
     };
-    private attribute _rot = pf.make(rot).unwrap();
+    private attribute __rot = bind pf.make(rot);
+    private attribute _rot = __rot.unwrap();
     attribute introAnim: Timeline = Timeline {
         keyFrames: [
              KeyFrame {

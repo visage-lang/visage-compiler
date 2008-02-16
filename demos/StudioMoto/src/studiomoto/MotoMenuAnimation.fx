@@ -10,7 +10,9 @@ public class MotoMenuAnimation extends CompositeNode {
     on replace { if (active) anim.start() else anim.stop(); };
     function stop() { active = false }
     function start() { active = true }
-    attribute t: Number;
+    attribute t: Number on replace {     
+        rand = makeRandom();
+    };
     attribute anim: Timeline = Timeline {
         repeatCount: java.lang.Integer.MAX_VALUE
 	keyFrames: KeyFrame {
@@ -20,23 +22,16 @@ public class MotoMenuAnimation extends CompositeNode {
             }
         }
     };
-
+    private attribute n = 10;
+    private function makeRandom():Integer {return (Math.random()*n).intValue();}
+    private attribute rand:Integer = 0;
     function composeNode():Node {
         Group {
             content: 
             [HBox {
-                var n = 10
-                function makeRandom() {return (Math.random()*n).intValue();}
                 content:
                 for (j in [1..16]) 
                 VBox {
-        	    var rand = 0
-                    //TODO Trigger
-                    /***********
-                    trigger on (newValue = t) {     
-                        rand = makeRandom();
-                    }
-                    ***********/
                     transform: Transform.translate(1.2, 0)
                     content:
                     for (i in [1..n])

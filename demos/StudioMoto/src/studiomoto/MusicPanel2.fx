@@ -55,7 +55,9 @@ public class MusicPanel2 extends CompositeNode {
     }
     private attribute hoverClip:Timeline;
     private attribute pf: PointerFactory = PointerFactory{}; 
-    // From javafx.ui.Node
+    private attribute __softY = bind  pf.make(softY); 
+    private attribute _softY:Pointer = __softY.unwrap(); 
+    // From javafx.ui.Node        
     public attribute hover: Boolean on replace {
         if(hoverClip <> null) {
             // stop old clip, this assumes if old clip is already stopped
@@ -64,9 +66,6 @@ public class MusicPanel2 extends CompositeNode {
         }
         var d = 500;
         
-        //TODO JXFC-651
-        var __softY = /* bind */ pf.make(this.softY); 
-        var _softY:Pointer = __softY.unwrap(); 
         if (hover) {
             var ys = [[10..-2],[-2..0]]; 
             var interval = (d*1)/sizeof ys;

@@ -23,19 +23,15 @@ frame = Frame {
     width: 1100
     visible: true 
     var selection = bind 0
-    private attribute tshowing = bind showing
-    
     var splash = StudioMotoSplash {
-        // TODO adding attribute
-        /************
-        attribute showing:Boolean = bind frame.showing
-        on replace {
-            selection = -1;
-            doSplash();
-        };
-         *********/
         onDone: function() {selection = 0;}
-    }
+    }    
+    private attribute tshowing = bind showing on replace {
+            selection = -1;
+            splash.doSplash();
+    };
+    
+
     
     background: Color.BLACK
     content:

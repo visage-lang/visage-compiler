@@ -43,7 +43,8 @@ public class MusicPanels extends CompositeNode {
     attribute panels: Node[] = [MusicPanel1{} as Node, MusicPanel2{}  as Node, MusicPanel3{}  as Node];
     attribute selectedPanel: Node = bind panels[selection];
     attribute alpha: Number = 1;
-    attribute _alpha:Pointer = pf.make(alpha).unwrap();
+    private attribute __alpha = bind pf.make(alpha);
+    private attribute _alpha:Pointer = __alpha.unwrap();
     
     function composeNode():Node {
         Group {
