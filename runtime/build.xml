@@ -78,9 +78,15 @@
         <mkdir dir="${dist.javadoc.dir}"/>
         <path id="bootpath" path="${javac.classpath}"/>
         <property name="bootjars" refid="bootpath"/>
+        <path id="clspath" path="${build.classes.dir}:${javac.test.classpath}"/>
+        <property name="clsjars" refid="clspath"/>
         <java jar="../dist/lib/javafxdoc.jar" fork="true">
-            <arg line="-d ${dist.javadoc.dir}"/>
-            <arg line="-sourcepath ${src.classes.dir}"/>
+            <arg value="-d"/>
+            <arg value="${dist.javadoc.dir}"/>
+            <arg value="-sourcepath"/>
+            <arg value="${src.classes.dir}"/>
+            <arg value="-classpath"/>
+            <arg value="${clsjars}"/>
             <arg line="-subpackages javafx.ui"/>
             <classpath>
                 <path path="${build.classes.dir}:${javac.test.classpath}"/>
