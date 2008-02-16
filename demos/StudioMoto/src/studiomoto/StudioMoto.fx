@@ -4,10 +4,16 @@ import javafx.ui.canvas.*;
 import javafx.ui.filter.*;
 import java.lang.System;
 import studiomoto.MotoMenuButton;
+import javafx.ui.animation.*;
+import com.sun.javafx.runtime.PointerFactory;
+import com.sun.javafx.runtime.Pointer;
+import javafx.lang.Time;
+
 
 var frame:Frame;
 var canvas:Canvas;
 var home:HomeButton;
+var pf: PointerFactory = PointerFactory{};
 var base: java.net.URL = __DIR__;
 frame = Frame {
     centerOnScreen: true
@@ -94,9 +100,47 @@ frame = Frame {
                                 content:
                                 [Rect {height: 30+68, width: 139, selectable: true, fill: Color.rgba(0, 0, 0, 0), visible: bind selection > 0},
                                 (home = HomeButton {
-                                    var ys = [[0..-18 step -1],[-18..-12]]
-                                    //TODO Animation
-                                    var homeY = 30 //bind if (selection > 0) (if (home.hover) {ys animation {dur: 300ms}} else {reverse ys animation {dur: 300ms}}) else 30
+                                    var ys = [[0..-18 step -1],[-18..-12]];
+                                    var homeY:Number = 0;
+                                    var tmp:Number = if(selection > 0) {
+                                        var _homeY:Pointer = bind pf.make(homeY).unwrap(); 
+                                        if(home.hover) {
+                                            var seq = ys;
+                                            var interval = 300/sizeof seq;
+                                            var clip = Timeline {
+                                                keyFrames: for(s in seq) {
+                                                    KeyFrame {
+                                                        keyTime: Time {millis: interval}
+                                                        relative: true
+                                                        keyValues: NumberValue {
+                                                            target: _homeY
+                                                            value: s
+                                                        }
+                                                    }
+                                                }
+                                             };
+                                             clip.start();
+                                        }else {
+                                            var seq = reverse ys;
+                                            var interval = 300/sizeof seq;
+                                            var clip = Timeline {
+                                                keyFrames: for(s in seq) {
+                                                    KeyFrame {
+                                                        keyTime: Time {millis: interval}
+                                                        relative: true
+                                                        keyValues: NumberValue {
+                                                            target: _homeY
+                                                            value: s
+                                                        }
+                                                    }
+                                                }
+                                             };
+                                             clip.start();
+                                        }
+                                        0;
+                                    } else {
+                                        30;
+                                    }
                                     transform: bind Transform.translate(-5, -10 + homeY)
                                     action: function() {selection = 0;}
                                 }) as Node ]

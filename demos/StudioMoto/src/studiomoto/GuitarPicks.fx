@@ -81,8 +81,10 @@ public class GuitarPicks extends Intro {
     };
     
     private attribute pf: PointerFactory = PointerFactory{};
-    private attribute _y1 = pf.make(y1).unwrap();
-    private attribute _y2 = pf.make(y2).unwrap();    
+    private attribute __y1 = bind pf.make(y1);
+    private attribute _y1 = __y1.unwrap();
+    private attribute __y2 = bind pf.make(y2);
+    private attribute _y2 = __y2.unwrap();    
     attribute hoverAnim: Timeline = Timeline {
         keyFrames: [
              KeyFrame {

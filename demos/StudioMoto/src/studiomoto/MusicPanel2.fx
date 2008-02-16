@@ -1,9 +1,13 @@
 package studiomoto;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
+import javafx.ui.animation.*;
+import com.sun.javafx.runtime.PointerFactory;
+import com.sun.javafx.runtime.Pointer;
+import javafx.lang.Time;
 
 public class MusicPanel2 extends CompositeNode {
-    attribute base: java.net.URL; // work around for __DIR__
+    attribute base: java.net.URL;
     attribute softY: Number;
     function composeNode():Node {
         Clip {
@@ -49,21 +53,56 @@ public class MusicPanel2 extends CompositeNode {
         };
 
     }
+    private attribute hoverClip:Timeline;
+    private attribute pf: PointerFactory = PointerFactory{}; 
+    // From javafx.ui.Node
+    public attribute hover: Boolean on replace {
+        if(hoverClip <> null) {
+            // stop old clip, this assumes if old clip is already stopped
+            // then nothing bad will happen.
+            hoverClip.stop();
+        }
+        var d = 500;
+        
+        //TODO JXFC-651
+        var __softY = /* bind */ pf.make(this.softY); 
+        var _softY:Pointer = __softY.unwrap(); 
+        if (hover) {
+            var ys = [[10..-2],[-2..0]]; 
+            var interval = (d*1)/sizeof ys;
+            hoverClip = Timeline {
+                keyFrames: for(s in reverse ys) {
+                    KeyFrame {
+                        keyTime: Time {millis: interval}
+                        relative: true
+                        keyValues: NumberValue {
+                            target: _softY
+                            value: s
+                            interpolate: NumberValue.EASEBOTH
+                        }
+                    }
+                }
+             };
+        } else {
+            var ys = [[0..15],[15..10]];
+            var interval = (d*1)/sizeof ys;
+            hoverClip = Timeline {
+                keyFrames: for(s in ys) {
+                    KeyFrame {
+                        keyTime: Time {millis: interval}
+                        relative: true
+                        keyValues: NumberValue {
+                            target: _softY
+                            value: s
+                            interpolate: NumberValue.EASEBOTH
+                        }
+                    }
+                }
+             };            
+        }
+        hoverClip.start();
+    };
 }
-
-//TODO Trigger
-/*************
-trigger on MusicPanel2.hover = newValue {
-    var d = 500;
-    if (newValue) {
-        var ys = [[10..-2],[-2..0]]; 
-        softY = reverse ys animation {dur: d*1ms  condition: bind hover == newValue, interpolate: EASEBOTH:Number};
-    } else {
-        var ys = [[0..15],[15..10]];
-        softY = ys animation {dur: d*1ms,  condition: bind hover == newValue, interpolate: EASEBOTH:Number};
-    }
-}
- * **********/
 
 MusicPanel2 {}
 
