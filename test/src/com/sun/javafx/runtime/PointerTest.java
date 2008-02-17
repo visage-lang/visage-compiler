@@ -35,14 +35,15 @@ import com.sun.javafx.runtime.sequence.Sequences;
  */
 public class PointerTest extends JavaFXTestCase {
     public void testPointers() {
-        final SequenceLocation<Integer> seqvar = SequenceVar.make(Sequences.range(1, 3));
-        final SequenceLocation<Integer> seqexp = new SequenceExpression<Integer>(Integer.class, false, seqvar) {
-          public Sequence<? extends Integer> computeValue() {
-            return seqvar.getAsSequence();
-          }
-        };
-        final IntLocation intvar1 = IntVar.make(3);
-        final IntLocation intvar2 = IntVar.make(3);
+        final SequenceVariable<Integer> seqvar = SequenceVariable.make(Sequences.range(1, 3));
+        final SequenceVariable<Integer> seqexp = SequenceVariable.make(Integer.class, false,
+                                                                       new SequenceBindingExpression<Integer>() {
+                                                                           public Sequence<? extends Integer> computeValue() {
+                                                                               return seqvar.getAsSequence();
+                                                                           }
+                                                                       }, seqvar);
+        final IntVariable intvar1 = IntVariable.make(3);
+        final IntVariable intvar2 = IntVariable.make(3);
 
         Pointer pseqvar = Pointer.make(seqvar);
         Pointer pseqexp = Pointer.make(seqexp);

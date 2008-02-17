@@ -37,17 +37,18 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class IndirectIntExpression extends IntExpression implements IndirectLocation<IntLocation> {
+public abstract class IndirectIntExpression extends IntVariable implements IndirectLocation<IntLocation> {
 
     private final IndirectLocationHelper<IntLocation> helper;
 
     public IndirectIntExpression(boolean lazy, Location... dependencies) {
-        super(lazy);
+        super();
         helper = new IndirectLocationHelper<IntLocation>(this, dependencies);
-    }
-
-    public final int computeValue() {
-        return helper.get().getAsInt();
+        bind(lazy, new IntBindingExpression() {
+            public int computeValue() {
+                return helper.get().getAsInt();
+            }
+        });
     }
 
     public final IntLocation computeLocationInternal() {

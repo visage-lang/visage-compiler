@@ -31,8 +31,18 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface BindableLocation<V> extends Location {
-    public void bind(V binding, boolean lazy);
+public interface BindableLocation<T_LOCATION extends Location, T_BINDING extends AbstractBindingExpression>
+        extends Location {
+    public void bind(boolean lazy, T_BINDING binding, Location... dependencies);
+    public void bijectiveBind(T_LOCATION other);
     public boolean isBound();
     boolean isLazy();
+
+    /** Has the variable ever been initialized? */
+    boolean isInitialized();
+
+    void bijectiveBindFromLiteral(T_LOCATION other);
+
+    void bindFromLiteral(boolean lazy, T_BINDING binding, Location... dependencies);
+
 }

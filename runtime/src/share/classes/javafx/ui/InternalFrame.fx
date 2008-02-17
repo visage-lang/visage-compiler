@@ -62,7 +62,6 @@ public class InternalFrame extends Widget {
             jinternalframe.setVisible(deselected);
         }
     };
-    public attribute focusable: Boolean = false;
     public attribute closable: Boolean = true on replace  {
         jinternalframe.setClosable(closable);
     };
@@ -92,7 +91,11 @@ public class InternalFrame extends Widget {
     public function setBounds(b:java.awt.Rectangle):Void {
         jinternalframe.getDesktopPane().getDesktopManager().setBoundsForFrame(jinternalframe, b.x, b.y, b.width, b.height);
     }
-
+    
+    init {
+        // override defaults in superclass
+	focusable = false; //TODO: should be protected by not isInitialized
+    }
 }
 
 

@@ -47,7 +47,7 @@ public class Panel extends Widget {
             }
         }
     };
-    public attribute focusable: Boolean = false;
+
     public function createComponent():javax.swing.JComponent{
         jpanel = new javax.swing.JPanel();
         jpanel.setOpaque(false);
@@ -56,6 +56,12 @@ public class Panel extends Widget {
             jpanel.add(content[i].getComponent(), i);
         }
         return jpanel;
+    }
+
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	focusable = false;
     }
 }
 

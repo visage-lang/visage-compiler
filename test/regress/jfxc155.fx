@@ -18,8 +18,8 @@ public class AbstractVisualNode extends Node {
 public class VisualNode extends Node { 
 } 
 
-
-public class Shape extends VisualNode, AbstractVisualNode { 
+//TODO: extends order should be VisualNode first (JFXC-675)
+public class Shape extends AbstractVisualNode, VisualNode  { 
 } 
 
 public class Rect extends Shape { 
@@ -37,9 +37,11 @@ var t = Text {
 
 
 public class Text extends Shape { 
-    attribute fill:Paint = Color.black; 
+    //attribute fill:Paint = Color.black; 
+    init { fill = Color.black }
 } 
 
 public class MyRect extends Rect { 
-    attribute fill:Paint = new Color(0, 0, 255); 
+    //attribute fill:Paint = new Color(0, 0, 255); 
+    init { fill = new Color(0, 0, 255) }
 } 

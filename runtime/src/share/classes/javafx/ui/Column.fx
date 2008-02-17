@@ -27,5 +27,9 @@ package javafx.ui;
 
 
 public class Column extends ParallelGroup {
-    public attribute alignment: Alignment = Alignment.LEADING;
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	alignment = Alignment.LEADING;
+    }
 }

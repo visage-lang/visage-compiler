@@ -25,7 +25,7 @@ n = 10;
 
 class Foo2 {
     attribute x : Integer
-        on replace (oldValue) { System.out.println("x: {oldValue} => {x}"); };
+        on replace oldValue { System.out.println("x: {oldValue} => {x}"); };
     attribute y : Integer
         on replace oldValue { System.out.println("y: {oldValue} => {y}"); };
     attribute z : String = "Bert"

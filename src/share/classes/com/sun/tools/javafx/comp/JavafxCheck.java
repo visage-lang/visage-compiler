@@ -381,15 +381,15 @@ public class JavafxCheck {
 
     private Type deLocationize(Type external) {
 	if (external.tag == CLASS) {
-            if (types.erasure(external) == typeMorpher.declLocation[TYPE_KIND_OBJECT].type) {
+            if (types.erasure(external) == typeMorpher.variableNCT[TYPE_KIND_OBJECT].type) {
                 return ((ClassType)external).getTypeArguments().head;
-            } else if (types.erasure(external) == types.erasure(typeMorpher.declLocation[TYPE_KIND_SEQUENCE].type)) {
+            } else if (types.erasure(external) == types.erasure(typeMorpher.variableNCT[TYPE_KIND_SEQUENCE].type)) {
                 throw new AssertionError("At this point we should not have Location(s). This is most likely JavafxReader problem. It should convert all the Location types to the \"real\" types.");
-            } else if (external == typeMorpher.declLocation[TYPE_KIND_BOOLEAN].type) {
+            } else if (external == typeMorpher.variableNCT[TYPE_KIND_BOOLEAN].type) {
                 return syms.booleanType;
-            } else if (external == typeMorpher.declLocation[TYPE_KIND_DOUBLE].type) {
+            } else if (external == typeMorpher.variableNCT[TYPE_KIND_DOUBLE].type) {
                 return syms.doubleType;
-            } else if (external == typeMorpher.declLocation[TYPE_KIND_INT].type) {
+            } else if (external == typeMorpher.variableNCT[TYPE_KIND_INT].type) {
                 return syms.intType;
             }
         }

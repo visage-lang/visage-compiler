@@ -61,10 +61,8 @@ public class ToolBar extends Widget {
             toolbar.add(button.getComponent(), ndx);
             ndx++
         }
-    };
-    public attribute focusable: Boolean = false;
-    
-    public attribute opaque: Boolean = true;
+    }
+
     public function createComponent():javax.swing.JComponent{
         return panel;
     }
@@ -83,6 +81,13 @@ public class ToolBar extends Widget {
         toolbar.setOpaque(false);
         toolbar.setFloatable(false);
         panel.add(toolbar);
+    }
+
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	opaque = true;
+	focusable = false;
     }
 }
 

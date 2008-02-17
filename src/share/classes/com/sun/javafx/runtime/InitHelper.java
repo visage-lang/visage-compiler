@@ -25,10 +25,8 @@
 
 package com.sun.javafx.runtime;
 
-import com.sun.javafx.runtime.location.AbstractLocation;
-import com.sun.javafx.runtime.location.BindableLocation;
+import com.sun.javafx.runtime.location.AbstractVariable;
 import com.sun.javafx.runtime.location.Location;
-import com.sun.javafx.runtime.location.MutableLocation;
 
 /**
  * Helper class for initializing JavaFX instances from object literals.
@@ -46,17 +44,9 @@ public class InitHelper {
     public void add(Location loc) { initOrder[initIndex++] = loc; }
 
     public void initialize() {
-        for (Location loc : initOrder) {
-            if (loc != null) {
-                if (loc instanceof MutableLocation) {
-                    ((AbstractLocation) loc).fireInitialTriggers();
-                }
-                else if (loc instanceof BindableLocation) {
-                    if (!((BindableLocation) loc).isLazy())
-                        loc.update();
-                }
-            }
-        }
+        for (Location loc : initOrder)
+            if (loc != null)
+                ((AbstractVariable) loc).initialize();
     }
 
     public static void assertNonNull(Location location, String name) {
@@ -64,4 +54,8 @@ public class InitHelper {
             throw new IllegalStateException("Duplicate initialization for attribute: " + name);
     }
 
+    public static void finish(AbstractVariable[] attributes) {
+        for (AbstractVariable v : attributes)
+            v.initialize();
+    }
 }

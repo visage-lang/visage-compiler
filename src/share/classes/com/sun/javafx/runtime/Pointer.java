@@ -17,23 +17,23 @@ public class Pointer {
     private final Location location;
     private final Type type;
 
-    static Pointer make(IntLocation location) {
+    static Pointer make(IntVariable location) {
         return new Pointer(location, Type.INTEGER);
     }
 
-    static Pointer make(DoubleLocation location) {
+    static Pointer make(DoubleVariable location) {
         return new Pointer(location, Type.DOUBLE);
     }
 
-    static Pointer make(BooleanLocation location) {
+    static Pointer make(BooleanVariable location) {
         return new Pointer(location, Type.BOOLEAN);
     }
 
-    static Pointer make(SequenceLocation location) {
+    static Pointer make(SequenceVariable location) {
         return new Pointer(location, Type.SEQUENCE);
     }
 
-    static Pointer make(ObjectLocation location) {
+    static Pointer make(ObjectVariable location) {
         return new Pointer(location, Type.OBJECT);
     }
 
@@ -57,34 +57,34 @@ public class Pointer {
     public Object get() {
         switch (type) {
             case INTEGER:
-                return ((IntLocation) location).getAsInt();
+                return ((IntVariable) location).getAsInt();
             case DOUBLE:
-                return ((DoubleLocation) location).getAsDouble();
+                return ((DoubleVariable) location).getAsDouble();
             case BOOLEAN:
-                return ((BooleanLocation) location).getAsBoolean();
+                return ((BooleanVariable) location).getAsBoolean();
             case SEQUENCE:
-                return ((SequenceLocation<?>) location).getAsSequence();
+                return ((SequenceVariable<?>) location).getAsSequence();
             default:
-                return ((ObjectLocation<?>) location).get();
+                return ((ObjectVariable<?>) location).get();
         }
     }
 
     public void set(Object value) {
         switch (type) {
             case INTEGER:
-                ((IntLocation) location).setAsInt(((Number)value).intValue());
+                ((IntVariable) location).setAsInt(((Number)value).intValue());
                 break;
             case DOUBLE:
-                ((DoubleLocation) location).setAsDouble(((Number)value).doubleValue());
+                ((DoubleVariable) location).setAsDouble(((Number)value).doubleValue());
                 break;
             case BOOLEAN:
-                ((BooleanLocation) location).setAsBoolean((Boolean) value);
+                ((BooleanVariable) location).setAsBoolean((Boolean) value);
                 break;
             case SEQUENCE:
-                ((SequenceLocation) location).setAsSequence((Sequence) value);
+                ((SequenceVariable) location).setAsSequence((Sequence) value);
                 break;
             case OBJECT:
-                ((ObjectLocation) location).set(value);
+                ((ObjectVariable) location).set(value);
                 break;
         }
     }

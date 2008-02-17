@@ -71,8 +71,6 @@ public class SplitPane extends Widget {
         return result;
     }
     
-    public attribute focusable: Boolean = false;
-    
     public function createComponent():javax.swing.JComponent {
         split.setOpaque(false);
         root.setRowLayout(orientation == Orientation.HORIZONTAL);
@@ -85,6 +83,12 @@ public class SplitPane extends Widget {
         return split;
 
     }    
+
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	focusable = false;
+    }
 }
 
 

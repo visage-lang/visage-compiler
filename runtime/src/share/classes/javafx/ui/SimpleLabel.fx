@@ -57,7 +57,6 @@ public class SimpleLabel extends Widget {
         }
     };
     
-    public attribute focusable: Boolean = false;
     public function createComponent():javax.swing.JComponent{
         if (horizontalAlignment == null) {
             horizontalAlignment = HorizontalAlignment.LEADING;
@@ -74,6 +73,12 @@ public class SimpleLabel extends Widget {
             jlabel.setDisplayedMnemonic(mnemonic.id.intValue());
         }
         return jlabel;
+    }
+
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	focusable = false;
     }
 }
 

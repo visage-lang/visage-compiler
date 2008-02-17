@@ -34,7 +34,7 @@ import java.util.*;
  * @author Brian Goetz
  */
 public abstract class AbstractLocation implements Location {
-    private boolean isValid, initialized;
+    private boolean isValid;
 
     // We separate listeners from dependent locations because updating of dependent locations is split into an
     // invalidation phase and an update phase (this is to support lazy locations.)  So there are times when we want
@@ -55,34 +55,21 @@ public abstract class AbstractLocation implements Location {
     private int iterationDepth;
     private List<WeakReference<Location>> deferredDependencies;
 
-    protected AbstractLocation(boolean valid) {
-        isValid = valid;
-        initialized = isValid;
-    }
-
     public boolean isValid() {
         return isValid;
     }
 
-    public boolean isInitialized() {
-        return initialized;
-    }
-
-    // @@@ Remove me when lazy is removed from Location
-    public boolean isLazy() {
-        return false;
+    public boolean isMutable() {
+        return true;
     }
 
     protected void setValid() {
         isValid = true;
-        initialized = true;
     }
 
     public void invalidate() {
         isValid = false;
         invalidateDependencies();
-        if (!isLazy())
-            update();
     }
 
     /** Notify change triggers that the value has changed.  This should be done automatically by mutative methods,
@@ -91,10 +78,6 @@ public abstract class AbstractLocation implements Location {
     protected void valueChanged() {
         notifyChangeListeners();
         invalidateDependencies();
-    }
-
-    /** For use only by InitHelper; to be overridden by subclasses */
-    public void fireInitialTriggers() {
     }
 
     private void purgeDeadDependencies() {

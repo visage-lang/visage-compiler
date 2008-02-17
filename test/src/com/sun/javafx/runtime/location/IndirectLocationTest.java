@@ -34,9 +34,9 @@ import com.sun.javafx.runtime.JavaFXTestCase;
  */
 public class IndirectLocationTest extends JavaFXTestCase {
     public void testIf() {
-        final BooleanLocation bool = BooleanVar.make(true);
-        final IntLocation trueClause = IntVar.make(1);
-        final IntLocation falseClause = IntVar.make(2);
+        final BooleanLocation bool = BooleanVariable.make(true);
+        final IntLocation trueClause = IntVariable.make(1);
+        final IntLocation falseClause = IntVariable.make(2);
 
         IntLocation ifLoc = new IndirectIntExpression(false, bool) {
             protected IntLocation computeLocation() {

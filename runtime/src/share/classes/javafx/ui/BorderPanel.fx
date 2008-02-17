@@ -178,7 +178,11 @@ public class BorderPanel extends Widget {
         }        
         jpanel;
     }    
-    public attribute focusable:Boolean = false;    
+    
+    init {
+        // override defaults in superclass
+	focusable = false; //TODO: should be protected by not isInitialized
+    }
 }
 
 

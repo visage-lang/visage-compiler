@@ -34,5 +34,9 @@ public class Comment extends Node {
     /**
      * sets the node type to COMMENT
      */
-    public attribute type:NodeType = NodeType.COMMENT;
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	type = NodeType.COMMENT;
+    }
 }

@@ -313,8 +313,14 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     }
     
     
+    public JFXTrigger TriggerWrapper(JCIdent expr, JFXOnReplace onr) {
+        JFXTrigger tree = new JFXTrigger(expr, onr, null);
+        tree.pos = pos;
+        return tree;
+    }
+    
     public JFXOnReplace OnReplace(JFXVar oldValue, JCBlock body) {
-         JFXOnReplace tree = new JFXOnReplace(oldValue, body);
+        JFXOnReplace tree = new JFXOnReplace(oldValue, body);
         tree.pos = pos;
         return tree;
     }

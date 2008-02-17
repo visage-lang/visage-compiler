@@ -11,8 +11,8 @@ import com.sun.javafx.runtime.sequence.Sequences;
  */
 public class ElementLocationTest extends JavaFXTestCase {
     public void testElementLocation() {
-        SequenceLocation<Integer> seq = SequenceVar.make(Sequences.range(1, 3));
-        IntLocation index = IntVar.make(1);
+        SequenceLocation<Integer> seq = SequenceVariable.make(Sequences.range(1, 3));
+        IntLocation index = IntVariable.make(1);
         ObjectLocation<Integer> second = new SequenceElementLocation<Integer>(seq, index);
         CountingListener cl = new CountingListener();
         second.addChangeListener(cl);

@@ -3,19 +3,16 @@ import java.lang.System;
 /*
  * @test
  * @run
+ *
+ * README: This test is going to start failing when JFXC-108 is fixed; at that point, finer-grained sequence
+ * trigger propagation will result in smaller slice triggers
  */
 
 class X {
     attribute nums: Number[];
     attribute xs: Number[] = bind nums
-        on replace[idx](value) {
-            System.out.println("replace {idx} {value}");
-        }
-        on delete[idx](value) {
-            System.out.println("delete {idx} {value}");
-        }
-        on insert[idx](value) {
-            System.out.println("insert {idx} {value}");
+        on replace oldValue[begin..end]=newElements {
+            System.out.println("replace {oldValue.toString()}[{begin}..{end}] = {newElements.toString()}");
         }
 }
 

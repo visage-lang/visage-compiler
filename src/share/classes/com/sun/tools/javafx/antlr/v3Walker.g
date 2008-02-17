@@ -111,6 +111,7 @@ classMember  returns [JCTree member]
 	| postInitDefinition 				{ $member = $postInitDefinition.value; } 
 	| variableDeclaration 				{ $member = $variableDeclaration.value; } 
 	| functionDefinition 				{ $member = $functionDefinition.value; } 
+	| triggerDefinition 				{ $member = $triggerDefinition.value; } 
 	;
 functionDefinition  returns [JFXOperationDefinition value]
 	: ^(FUNCTION name functionModifierFlags formalParameters type blockExpression? DOC_COMMENT?)
@@ -125,6 +126,9 @@ initDefinition  returns [JFXInitDefinition value]
 	;
 postInitDefinition  returns [JFXPostInitDefinition value]
 	: ^(POSTINIT block)	 			{ $value = F.at(pos($POSTINIT)).PostInitDefinition($block.value); }
+	;
+triggerDefinition returns [JFXTrigger value]
+	: ^(WITH identifier onReplaceClause)		{ $value = F.at(pos($WITH)).TriggerWrapper($identifier.expr, $onReplaceClause.value); }
 	;
 functionModifierFlags  returns [long flags]
 	: ^(MODIFIER accessModifier?  functionModifier?)
@@ -197,18 +201,21 @@ onChanges   returns [ListBuffer<JFXAbstractOnChange> listb = ListBuffer.<JFXAbst
 	: ( onChangeClause				{ listb.append($onChangeClause.value); } )*
 	;
 onChangeClause     returns [JFXAbstractOnChange value]
-	: ^(ON_REPLACE_SLICE oldv=paramNameOpt
-	       (^(SLICE_CLAUSE first=paramNameOpt last=paramNameOpt newElements=paramNameOpt))?
-	    block)
-							{ $value = F.at(pos($ON_REPLACE_SLICE)).OnReplace($oldv.var, $first.var, $last.var, $newElements.var, $block.value); }
-	| ^(ON_REPLACE oldv=formalParameterOpt block)
-							{ $value = F.at(pos($ON_REPLACE)).OnReplace($oldv.var, $block.value); }
+	: onReplaceClause				{ $value = $onReplaceClause.value; } 
 	| ^(ON_REPLACE_ELEMENT index=formalParameter oldv=formalParameterOpt block)
 							{ $value = F.at(pos($ON_REPLACE_ELEMENT)).OnReplaceElement($index.var, $oldv.var, $block.value); }
 	| ^(ON_INSERT_ELEMENT index=formalParameter newv=formalParameterOpt block)
 							{ $value = F.at(pos($ON_INSERT_ELEMENT)).OnInsertElement($index.var, $newv.var, $block.value); }
 	| ^(ON_DELETE_ELEMENT index=formalParameter oldv=formalParameterOpt block)
 							{ $value = F.at(pos($ON_DELETE_ELEMENT)).OnDeleteElement($index.var, $oldv.var, $block.value); }
+	;
+onReplaceClause     returns [JFXOnReplace value]
+	: ^(ON_REPLACE_SLICE oldv=paramNameOpt
+	       (^(SLICE_CLAUSE first=paramNameOpt last=paramNameOpt newElements=paramNameOpt))?
+	    block)
+							{ $value = F.at(pos($ON_REPLACE_SLICE)).OnReplace($oldv.var, $first.var, $last.var, $newElements.var, $block.value); }
+	| ^(ON_REPLACE oldv=formalParameterOpt block)
+							{ $value = F.at(pos($ON_REPLACE)).OnReplace($oldv.var, $block.value); }
 	;
 paramNameOpt returns [JFXVar var]
 	: name						{ $var = F.at($name.pos).Param($name.value, F.TypeUnknown()); }
@@ -433,7 +440,7 @@ qualident  returns [JCExpression expr]
 	: name 				          	{ $expr = F.at($name.pos).Ident($name.value); } 
 	| ^(DOT id=qualident name)			{ $expr = F.at(pos($DOT)).Select($id.expr, $name.value); } 
 	;
-identifier  returns [JCExpression expr]
+identifier  returns [JCIdent expr]
 	: name 				          	{ $expr = F.at($name.pos).Ident($name.value); } 
 	;
 name returns [Name value, int pos]

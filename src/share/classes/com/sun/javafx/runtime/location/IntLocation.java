@@ -26,7 +26,8 @@
 package com.sun.javafx.runtime.location;
 
 /**
- * An integer-valued Location.  Provides int-valued get() and set() methods.
+ * An integer-valued Location.  Provides int-valued getAsInt() and setAsInt() methods; also provides object-valued
+ * methods so an IntLocation can be treated as an ObjectLocation<Integer>.
  *
  * @author Brian Goetz
  */
@@ -34,11 +35,15 @@ public interface IntLocation extends Location, ObjectLocation<Integer> {
     /** Retrieve the current value of this location, recomputing if necessary */
     public int getAsInt();
 
-    /** Set the current value of this location, recomputing if necessary */
+    /** Set the current value of this location */
     public int setAsInt(int value);
+
+    /** Special version of setAsInt for use from setDefaults$ methods during initialization */
+    public int setAsIntFromLiteral(int value);
 
     /** Set this location to its default value */
     public void setDefault();
 
+    /** Add a change listener to this Location */
     public void addChangeListener(IntChangeListener listener);
 }

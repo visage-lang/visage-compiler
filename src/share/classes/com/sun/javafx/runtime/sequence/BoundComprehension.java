@@ -28,10 +28,7 @@ package com.sun.javafx.runtime.sequence;
 import java.util.Iterator;
 
 import com.sun.javafx.runtime.Util;
-import com.sun.javafx.runtime.location.SequenceExpression;
-import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.location.SequenceReplaceListener;
-import com.sun.javafx.runtime.location.Location;
+import com.sun.javafx.runtime.location.*;
 
 /**
  * BoundComprehension -- one-dimensional bound list comprehension, supporting where clauses and variable number of
@@ -56,11 +53,17 @@ public abstract class BoundComprehension<T, V> extends AbstractBoundSequence<V> 
     public interface ComprehensionElement<T, V> extends SequenceLocation<V> {
         public void setElement(T element);
         public void setIndex(int index);
+        public Sequence<V> computeValue();
     }
 
-    public static abstract class AbstractComprehensionElement<T, V> extends SequenceExpression<V> implements ComprehensionElement<T, V> {
-        protected AbstractComprehensionElement(Class<V> clazz, Location... dependencies) {
-            super(clazz, false, dependencies);
+    public static abstract class AbstractComprehensionElement<T, V> extends SequenceVariable<V> implements ComprehensionElement<T, V> {
+        protected AbstractComprehensionElement(Class<V> clazz) {
+            super(clazz);
+            bind(false, new SequenceBindingExpression<V>() {
+                public Sequence<? extends V> computeValue() {
+                    return AbstractComprehensionElement.this.computeValue();
+                }
+            });
         }
     }
     
@@ -70,7 +73,7 @@ public abstract class BoundComprehension<T, V> extends AbstractBoundSequence<V> 
         Sequence<T> sequence = sequenceLocation.getAsSequence();
         ComprehensionElement<T, V>[] locationsArray = getComprehensionElements(sequence, 0);
         locations = Sequences.make(ComprehensionElement.class, locationsArray);
-        underlying = new BoundCompositeSequence<V>(clazz, locationsArray);
+        underlying = new BoundCompositeSequence<V>(getClazz(), locationsArray);
         return underlying.getAsSequence();
     }
 

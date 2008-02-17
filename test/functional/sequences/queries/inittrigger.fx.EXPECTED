@@ -1,3 +1,5 @@
+1. Replace Boolean old = false new = false
+2. Replace Integer old = 0 new = 0
 3. Replace Number old = 0.0 new = 3.14
 4. Replace Number old = null new = Hello, Dollie!
 6. Replace Number old =  new = truetruetrue

@@ -1,31 +1,4 @@
-insert 100 at 0
-insert 101 at 1
-insert 102 at 2
-insert 103 at 3
-insert 104 at 4
-insert 105 at 5
-insert 106 at 6
-insert 107 at 7
-insert 108 at 8
-insert 109 at 9
-insert 110 at 10
 replaced [ ][0..-1] by [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 ]
-doit - with element triggers:
-replaced 103 at 3 with 88
-insert 77 at 11
-delete 109 from 9
-delete 106 from 6
-[ 100, 101, 102, 88, 104, 105, 107, 108, 110, 77 ]
-delete 77 from 9
-delete 110 from 8
-delete 108 from 7
-delete 107 from 6
-delete 105 from 5
-delete 104 from 4
-delete 88 from 3
-delete 102 from 2
-delete 101 from 1
-delete 100 from 0
 doit - with slice triggers:
 replaced [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 ][3..3] by [ 88 ]
 replaced [ 100, 101, 102, 88, 104, 105, 106, 107, 108, 109, 110 ][11..10] by [ 77 ]

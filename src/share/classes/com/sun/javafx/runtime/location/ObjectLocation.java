@@ -26,7 +26,7 @@
 package com.sun.javafx.runtime.location;
 
 /**
- * An object-valued Location.  Provides object-valued get() and set() methods.
+ * An object-valued Location.  Provides object-valued get() and set() methods, plus methods for adding change listeners.
  *
  * @author Brian Goetz
  */
@@ -37,8 +37,12 @@ public interface ObjectLocation<T> extends Location {
     /** Modify the value associated with this Location */
     public T set(T value);
 
+    /** Special version of set for use from object literals during initialization */
+    public T setFromLiteral(T value);
+
     /** Set this location to its default value */
     public void setDefault();
 
+    /** Add a change listener to this Location */
     public void addChangeListener(ObjectChangeListener<T> listener);
 }

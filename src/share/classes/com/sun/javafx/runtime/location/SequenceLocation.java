@@ -35,7 +35,7 @@ import com.sun.javafx.runtime.sequence.SequencePredicate;
  *
  * @author Brian Goetz
  */
-public interface SequenceLocation<T> extends Location, Iterable<T> {
+public interface SequenceLocation<T> extends Location, Iterable<T>, ObjectLocation<Sequence<T>> {
     
     T get(int position);
 
@@ -48,6 +48,8 @@ public interface SequenceLocation<T> extends Location, Iterable<T> {
     public void addChangeListener(SequenceChangeListener<T> listener);
 
     public Sequence<T> setAsSequence(Sequence<? extends T> value);
+
+    public Sequence<T> setAsSequenceFromLiteral(Sequence<? extends T> value);
 
     public T set(int position, T value);
 

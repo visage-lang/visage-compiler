@@ -54,6 +54,10 @@ public class InfiniteProgressPanel extends Widget {
         pane.setText(text);
         return root;
     }
-    public attribute focusable:Boolean = false;
+    
+    init {
+        // override defaults in superclass
+	focusable = false; //TODO: should be protected by not isInitialized
+    }
 }
 

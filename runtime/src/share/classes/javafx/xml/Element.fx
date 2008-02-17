@@ -36,11 +36,6 @@ import java.lang.System;
 class Element extends Node {
     
     /**
-     * sets the node type to ELEMENT
-     */
-    public attribute type:NodeType = NodeType.ELEMENT;
-    
-    /**
      * Holds the node's attributes
      */
     public attribute attributes:Attribute[]  on replace oldValue[lo..hi]=newVals {
@@ -237,6 +232,12 @@ class Element extends Node {
                 elem.setAttributeNode(a.domNode as org.w3c.dom.Attr);
             }
         }
-    }
 
+    /**
+     * sets the node type to ELEMENT
+     */
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	type = NodeType.ELEMENT;
+    }
 }

@@ -30,6 +30,6 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface IntBindingExpression {
-    public int computeValue();
+public abstract class IntBindingExpression extends AbstractBindingExpression {
+    public abstract int computeValue();
 }

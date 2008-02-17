@@ -544,8 +544,9 @@ classMembers
 classMember
 	: initDefinition	
 	| postInitDefinition
-	| attributeDeclaration 
+	| variableDeclaration 
 	| functionDefinition 
+	| triggerDefinition
 	;
 functionDefinition
 @after { Tree docComment = getDocComment($functionDefinition.start);
@@ -555,17 +556,14 @@ functionDefinition
 	    						formalParameters typeReference 
 	    						blockExpression?)
 	;
-attributeDeclaration   
-@after { Tree docComment = getDocComment($attributeDeclaration.start);
-         $attributeDeclaration.tree.addChild(docComment); }
-	: varModifierFlags ATTRIBUTE  name  typeReference (EQ boundExpression)? onChangeClause*
-	    					-> ^(VAR ATTRIBUTE varModifierFlags name typeReference boundExpression? onChangeClause*)
-	;
 initDefinition
 	: INIT block 				-> ^(INIT block)
 	;
 postInitDefinition
 	: POSTINIT block 			-> ^(POSTINIT block)
+	;
+triggerDefinition
+	: WITH name onReplaceClause		-> ^(WITH name onReplaceClause)
 	;
 functionModifierFlags
 	: accessModifier functionModifier?	-> ^(MODIFIER accessModifier  functionModifier?)
@@ -638,8 +636,7 @@ variableDeclaration
 	    					-> ^(VAR variableLabel varModifierFlags name typeReference boundExpression? onChangeClause*)
 	;
 onChangeClause  
-	: ON REPLACE oldval=paramNameOpt clause=sliceClause? block
-						-> ^(ON_REPLACE_SLICE[$ON] $oldval $clause? block)
+	: onReplaceClause			-> onReplaceClause
 	| ON REPLACE LPAREN oldv=formalParameter RPAREN block
 						-> ^(ON_REPLACE[$ON] $oldv block)
 	| ON REPLACE LBRACKET index=formalParameter RBRACKET (LPAREN oldv=formalParameter RPAREN)? block
@@ -648,6 +645,10 @@ onChangeClause
 						-> ^(ON_INSERT_ELEMENT[$ON] $index $newv? block)
 	| ON DELETE LBRACKET index=formalParameter RBRACKET (LPAREN oldv=formalParameter RPAREN)? block
 						-> ^(ON_DELETE_ELEMENT[$ON] $index $oldv? block)
+	;
+onReplaceClause
+	: ON REPLACE oldval=paramNameOpt clause=sliceClause? block
+						-> ^(ON_REPLACE_SLICE[$ON] $oldval $clause? block)
 	;
 sliceClause
 	: LBRACKET first=name DOTDOT last=name RBRACKET EQ newElements=name
@@ -662,6 +663,7 @@ paramNameOpt
 variableLabel 
 	: VAR	
 	| LET	
+	| ATTRIBUTE	
 	;
 throwStatement
 	: THROW expression 			-> ^(THROW expression)
@@ -839,7 +841,6 @@ newExpression
 objectLiteralPart  
 	: name COLON  boundExpression (COMMA | SEMI)?		-> ^(OBJECT_LIT_PART[$COLON] name boundExpression)
        	| variableDeclaration	(COMMA | SEMI)?			-> variableDeclaration
-       	| attributeDeclaration	(COMMA | SEMI)?			-> attributeDeclaration
        	| functionDefinition 	(COMMA | SEMI)?			-> functionDefinition
        	;
 stringExpression  

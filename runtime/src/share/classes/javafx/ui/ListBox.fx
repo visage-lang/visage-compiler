@@ -338,7 +338,7 @@ public class ListBox extends ScrollableWidget {
      * END Drag N Drop
      **************************************************************/        
     private attribute dirty: Boolean;
-    private attribute keyListener: java.awt.event.KeyListener;
+    // in Widget: private attribute keyListener: java.awt.event.KeyListener;
     private attribute listMouseListener: java.awt.event.MouseListener;
     attribute list: javax.swing.JList = javax.swing.JList{};
     private attribute selectionListener:javax.swing.event.ListSelectionListener;

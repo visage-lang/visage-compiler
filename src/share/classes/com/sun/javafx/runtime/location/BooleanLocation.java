@@ -26,7 +26,8 @@
 package com.sun.javafx.runtime.location;
 
 /**
- * A boolean-valued Location.  Provides boolean-valued get() and set() methods.
+ * A boolean-valued Location.  Provides boolean-valued getAsBoolean() and setAsBoolean() methods; also provides object-valued
+ * methods so a BooleanLocation can be treated as an ObjectLocation<Boolean>.
  *
  * @author Brian Goetz
  */
@@ -40,5 +41,9 @@ public interface BooleanLocation extends Location, ObjectLocation<Boolean> {
     /** Set this location to its default value */
     public void setDefault();
 
+    /** Special version of setAsBoolean for use from object literals during initialization */
+    boolean setAsBooleanFromLiteral(boolean value);
+
+    /** Add a change listener to this Location */
     public void addChangeListener(BooleanChangeListener listener);
 }

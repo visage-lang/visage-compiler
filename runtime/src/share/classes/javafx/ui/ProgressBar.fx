@@ -72,7 +72,6 @@ public class ProgressBar extends Widget {
             jprogressbar.setIndeterminate(indeterminate);
         }
     };
-    public attribute focusable: Boolean = false;
     public function createComponent():javax.swing.JComponent{
         jprogressbar = new javax.swing.JProgressBar();
         jprogressbar.setIndeterminate(indeterminate);
@@ -86,6 +85,12 @@ public class ProgressBar extends Widget {
                                     then jprogressbar.VERTICAL
                                     else jprogressbar.HORIZONTAL);
         return jprogressbar;
+    }
+
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	focusable = false;
     }
 }
 

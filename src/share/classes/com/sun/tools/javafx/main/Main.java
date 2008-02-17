@@ -331,7 +331,7 @@ public class Main {
         
         JavaFileManager currentFileManager = context.get(JavaFileManager.class);
         if (currentFileManager == null)
-            JavafxFileManager.preRegister(backEndContext); 
+            JavacFileManager.preRegister(backEndContext); 
         else
             backEndContext.put(JavaFileManager.class, currentFileManager);
         

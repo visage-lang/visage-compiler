@@ -32,6 +32,6 @@ import com.sun.javafx.runtime.sequence.Sequence;
  *
  * @author Brian Goetz
  */
-public interface SequenceBindingExpression<T> {
-    public Sequence<? extends T> computeValue();
+public abstract class SequenceBindingExpression<T> extends AbstractBindingExpression {
+    public abstract Sequence<? extends T> computeValue();
 }

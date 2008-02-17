@@ -1007,6 +1007,40 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
     }
     
+    @Override
+    public void visitTrigger(JFXTrigger tree) {
+        //TODO: handle static triggers
+        JCIdent id = tree.getId();
+        JFXOnReplace onr = tree.getOnReplace();
+
+        // let the owner of the environment be a freshly
+        // created BLOCK-method.
+        JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
+        localEnv.info.scope.owner = new MethodSymbol(PUBLIC | BLOCK, names.empty, null, env.info.scope.owner);
+
+        Type type = attribExpr(id, localEnv);
+        tree.type = type;
+        Symbol sym = id.sym;
+
+        attribStat(onr, localEnv);
+        JFXVar oldValue = onr.getOldValue();
+        if (oldValue != null && oldValue.type == null) {
+            oldValue.type = type;
+        }
+        JFXVar newElements = onr.getNewElements();
+        if (newElements != null && newElements.type == null) {
+            newElements.type = type;
+        }
+
+        // Must reference an attribute
+        if (sym.kind != VAR) {
+            log.error(id.pos(), "javafx.must.be.an.attribute", id.name);
+        } else {
+            VarSymbol v = (VarSymbol) sym;
+            tree.sym = v;
+        }
+    }
+    
     public void visitAbstractOnChange(JFXAbstractOnChange tree) {
 	if (tree.getIndex() != null) {
             tree.getIndex().mods.flags |= Flags.FINAL;
@@ -3131,7 +3165,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
      *  @param env    The current environment.
      */
     void checkAssignable(DiagnosticPosition pos, VarSymbol v, JCTree base, JavafxEnv<JavafxAttrContext> env) {
-        if ((v.flags() & FINAL) != 0 &&
+        //TODO: for attributes they are always final -- this should really be checked in JavafxClassReader
+        if ((v.flags() & FINAL) != 0 && !types.isJFXClass(v.owner) &&
             ((v.flags() & HASINIT) != 0
              ||
              !((base == null ||

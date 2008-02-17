@@ -64,7 +64,11 @@ public class GroupPanel extends Widget, GroupLayout {
         layout.setVerticalGroup(vgroup);
         return panel;
     }
-    public attribute focusable:Boolean = false;
+    
+    init {
+        // override defaults in superclass
+	focusable = false; //TODO: should be protected by not isInitialized
+    }
 }
 
 

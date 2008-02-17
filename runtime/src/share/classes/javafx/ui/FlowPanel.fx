@@ -84,7 +84,10 @@ public class FlowPanel extends Widget {
         this.createLayout();
         return panel;
     }
-    public attribute focusable:Boolean = false;
-
+    
+    init {
+        // override defaults in superclass
+	focusable = false; //TODO: should be protected by not isInitialized
+    }
 }
 

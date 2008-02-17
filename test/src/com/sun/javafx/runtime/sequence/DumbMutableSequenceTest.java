@@ -4,7 +4,7 @@ import java.util.Random;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
 import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.location.SequenceVar;
+import com.sun.javafx.runtime.location.SequenceVariable;
 
 /**
  * DumbMutableSequenceTest
@@ -49,7 +49,7 @@ public class DumbMutableSequenceTest extends JavaFXTestCase {
 
     public void testGrowAndShrink() {
         DumbMutableSequence<Integer> ds = new DumbMutableSequence<Integer>();
-        SequenceLocation<Integer> seq = SequenceVar.make(Sequences.emptySequence(Integer.class));
+        SequenceLocation<Integer> seq = SequenceVariable.make(Sequences.emptySequence(Integer.class));
         Random r = new Random();
 
         for (int i = 0; i < 10; i++) {
@@ -77,7 +77,7 @@ public class DumbMutableSequenceTest extends JavaFXTestCase {
 
     public void testRandomInsert() {
         DumbMutableSequence<Integer> ds = new DumbMutableSequence<Integer>();
-        SequenceLocation<Integer> seq = SequenceVar.make(Sequences.emptySequence(Integer.class));
+        SequenceLocation<Integer> seq = SequenceVariable.make(Sequences.emptySequence(Integer.class));
         Random r = new Random();
 
         for (int i = 0; i < 100; i++) {

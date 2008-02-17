@@ -119,13 +119,13 @@ public class JavafxClassReader extends ClassReader {
                                                          sbp - startSbp);
                 ClassSymbol t = enterClassNoIntfPart(className);
                 if (!keepClassFileSignatures()) {
-                    if (t == typeMorpher.declLocation[TYPE_KIND_BOOLEAN].sym) {
+                    if (t == typeMorpher.variableNCT[TYPE_KIND_BOOLEAN].sym) {
                         sbp = startSbp;
                         return syms.booleanType;
-                    } else if (t == typeMorpher.declLocation[TYPE_KIND_DOUBLE].sym) {
+                    } else if (t == typeMorpher.variableNCT[TYPE_KIND_DOUBLE].sym) {
                         sbp = startSbp;
                         return syms.doubleType;
-                    } else if (t == typeMorpher.declLocation[TYPE_KIND_INT].sym) {
+                    } else if (t == typeMorpher.variableNCT[TYPE_KIND_INT].sym) {
                         sbp = startSbp;
                         return syms.intType;
                     }
@@ -147,7 +147,7 @@ public class JavafxClassReader extends ClassReader {
                 boolean keepSignatures = keepClassFileSignatures();
                 TypeSymbol erased = keepSignatures ? null : types.erasure(t.type).tsym;
                 if (!keepSignatures &&
-                               erased == typeMorpher.declLocation[TYPE_KIND_OBJECT].sym) {
+                               erased == typeMorpher.variableNCT[TYPE_KIND_OBJECT].sym) {
                     outer = genericArgs.head;
                 }
                 else if (!keepSignatures
@@ -156,7 +156,7 @@ public class JavafxClassReader extends ClassReader {
                     outer = ((JavafxSymtab) syms).makeFunctionType(genericArgs);
                 }
                 else if (!keepSignatures &&
-                               erased == typeMorpher.declLocation[TYPE_KIND_SEQUENCE].sym) {
+                               erased == typeMorpher.variableNCT[TYPE_KIND_SEQUENCE].sym) {
                     WildcardType tpType = new WildcardType(genericArgs.head, BoundKind.EXTENDS, genericArgs.head.tsym);
                     outer = new ClassType(((JavafxSymtab)syms).javafx_SequenceType, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
                 } else {
@@ -269,8 +269,7 @@ public class JavafxClassReader extends ClassReader {
     private boolean keepClassFileSignatures() {
         if (currentMethodName != null) {
             String currMethodName = currentMethodName.toString();
-            if (currMethodName.startsWith(attributeGetMethodNamePrefix) ||
-                    currMethodName.startsWith(attributeInitMethodNamePrefix)) {
+            if (currMethodName.startsWith(attributeGetMethodNamePrefix)) {
                 return true;
             }
         }

@@ -32,19 +32,19 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public class IndirectLocationHelper<T extends Location> extends ObjectExpression<T> implements ObjectLocation<T> {
+public class IndirectLocationHelper<T extends Location> extends ObjectVariable<T> implements ObjectLocation<T> {
     private final IndirectLocation<T> helped;
 
-    public IndirectLocationHelper(IndirectLocation<T> helped, Location... dependencies) {
-        super(true, dependencies);
+    public IndirectLocationHelper(final IndirectLocation<T> helped, Location... dependencies) {
+        super(true, new ObjectBindingExpression<T>() {
+            public T computeValue() {
+                helped.clearDynamicDependencies();
+                T location = helped.computeLocationInternal();
+                helped.addDynamicDependency(location);
+                return location;
+            }
+        }, dependencies);
         this.helped = helped;
-    }
-
-    public T computeValue() {
-        helped.clearDynamicDependencies();
-        T location = helped.computeLocationInternal();
-        helped.addDynamicDependency(location);
-        return location;
     }
 
     public void invalidate() {

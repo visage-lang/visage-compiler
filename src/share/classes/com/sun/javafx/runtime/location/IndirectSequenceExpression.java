@@ -39,17 +39,18 @@ import com.sun.javafx.runtime.sequence.Sequence;
  *
  * @author Brian Goetz
  */
-public abstract class IndirectSequenceExpression<T> extends SequenceExpression<T> implements IndirectLocation<SequenceLocation<T>> {
+public abstract class IndirectSequenceExpression<T> extends SequenceVariable<T> implements IndirectLocation<SequenceLocation<T>> {
 
-    private final ObjectLocation<SequenceLocation<T>> helper;
+    private final IndirectLocationHelper<SequenceLocation<T>> helper;
 
     public IndirectSequenceExpression(boolean lazy, Class<T> clazz, Location... dependencies) {
-        super(clazz, lazy);
+        super(clazz);
         helper = new IndirectLocationHelper<SequenceLocation<T>>(this, dependencies);
-    }
-
-    public final Sequence<T> computeValue() {
-        return helper.get().getAsSequence();
+        bind(lazy, new SequenceBindingExpression<T>() {
+            public Sequence<? extends T> computeValue() {
+                return helper.get().getAsSequence();
+            }
+        });
     }
 
     public final SequenceLocation<T> computeLocationInternal() {

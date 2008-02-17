@@ -30,6 +30,6 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface ObjectBindingExpression<T> {
-    public T computeValue();
+public abstract class ObjectBindingExpression<T> extends AbstractBindingExpression {
+    public abstract T computeValue();
 }

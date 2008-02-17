@@ -24,6 +24,7 @@
  */
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.BindingException;
 import com.sun.javafx.runtime.JavaFXTestCase;
 
 /**
@@ -34,17 +35,17 @@ import com.sun.javafx.runtime.JavaFXTestCase;
 public class ObjectLocationWrappersTest extends JavaFXTestCase {
 
     public void testIntObjectWrapper() {
-        final IntLocation i = IntVar.make(0);
-        final IntLocation ie = new IntExpression(false) {
+        final IntLocation i = IntVariable.make(0);
+        final IntLocation ie = IntVariable.make(new IntBindingExpression() {
             public int computeValue() {
                 return i.getAsInt() + 1;
             }
-        };
+        }, i);
         final ObjectLocation<Integer> oi = Locations.asObjectLocation(i);
         final ObjectLocation<Integer> oie = Locations.asObjectLocation(ie);
 
-        assertTrue(oi instanceof MutableLocation);
-        assertFalse(oie instanceof MutableLocation);
+        assertTrue(oi.isMutable());
+        assertFalse(oie.isMutable());
 
         assertEquals(i.getAsInt(), oi.get().intValue());
         i.setAsInt(0);
@@ -64,12 +65,12 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
         assertEquals(1, ie.getAsInt());
         assertEquals(1, oie.get().intValue());
 
-        assertThrows(UnsupportedOperationException.class, new VoidCallable() {
+        assertThrows(BindingException.class, new VoidCallable() {
             public void call() throws Exception {
                 ie.setAsInt(3);
             }
         });
-        assertThrows(UnsupportedOperationException.class, new VoidCallable() {
+        assertThrows(BindingException.class, new VoidCallable() {
             public void call() throws Exception {
                 oie.set(3);
             }
@@ -77,17 +78,17 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
     }
 
     public void testDoubleObjectWrapper() {
-        final DoubleLocation i = DoubleVar.make(0);
-        final DoubleLocation ie = new DoubleExpression(false) {
+        final DoubleLocation i = DoubleVariable.make(0);
+        final DoubleLocation ie = DoubleVariable.make(new DoubleBindingExpression() {
             public double computeValue() {
                 return i.getAsDouble() + 1;
             }
-        };
+        }, i);
         final ObjectLocation<Double> oi = Locations.asObjectLocation(i);
         final ObjectLocation<Double> oie = Locations.asObjectLocation(ie);
 
-        assertTrue(oi instanceof MutableLocation);
-        assertFalse(oie instanceof MutableLocation);
+        assertTrue(oi.isMutable());
+        assertFalse(oie.isMutable());
 
         assertEquals(i.getAsDouble(), oi.get().doubleValue());
         i.setAsDouble(0);
@@ -107,12 +108,12 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
         assertEquals(1.0, ie.getAsDouble());
         assertEquals(1.0, oie.get().doubleValue());
 
-        assertThrows(UnsupportedOperationException.class, new VoidCallable() {
+        assertThrows(BindingException.class, new VoidCallable() {
             public void call() throws Exception {
                 ie.setAsDouble(3);
             }
         });
-        assertThrows(UnsupportedOperationException.class, new VoidCallable() {
+        assertThrows(BindingException.class, new VoidCallable() {
             public void call() throws Exception {
                 oie.set(3.0);
             }
@@ -120,17 +121,17 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
     }
 
     public void testBooleanObjectWrapper() {
-        final BooleanLocation i = BooleanVar.make(true);
-        final BooleanLocation ie = new BooleanExpression(false) {
+        final BooleanLocation i = BooleanVariable.make(true);
+        final BooleanLocation ie = BooleanVariable.make(new BooleanBindingExpression() {
             public boolean computeValue() {
                 return !i.getAsBoolean();
             }
-        };
+        }, i);
         final ObjectLocation<Boolean> oi = Locations.asObjectLocation(i);
         final ObjectLocation<Boolean> oie = Locations.asObjectLocation(ie);
 
-        assertTrue(oi instanceof MutableLocation);
-        assertFalse(oie instanceof MutableLocation);
+        assertTrue(oi.isMutable());
+        assertFalse(oie.isMutable());
 
         assertEquals(i.getAsBoolean(), oi.get().booleanValue());
         i.setAsBoolean(false);
@@ -146,12 +147,12 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
         assertEquals(true, ie.getAsBoolean());
         assertEquals(true, oie.get().booleanValue());
 
-        assertThrows(UnsupportedOperationException.class, new VoidCallable() {
+        assertThrows(BindingException.class, new VoidCallable() {
             public void call() throws Exception {
                 ie.setAsBoolean(false);
             }
         });
-        assertThrows(UnsupportedOperationException.class, new VoidCallable() {
+        assertThrows(BindingException.class, new VoidCallable() {
             public void call() throws Exception {
                 oie.set(true);
             }

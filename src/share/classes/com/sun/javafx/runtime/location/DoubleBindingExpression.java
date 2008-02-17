@@ -30,6 +30,6 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface DoubleBindingExpression {
-    public double computeValue();
+public abstract class DoubleBindingExpression extends AbstractBindingExpression {
+    public abstract double computeValue();
 }

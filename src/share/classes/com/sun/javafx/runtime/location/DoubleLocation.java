@@ -26,7 +26,8 @@
 package com.sun.javafx.runtime.location;
 
 /**
- * A double--valued Location.  Provides double-valued get() and set() methods.
+ * A double-valued Location.  Provides double-valued getAsDouble() and setAsDouble() methods, also provides
+ * object-valued methods so a DoubleLocation can be treated as an ObjectLocation<Double>.
  *
  * @author Brian Goetz
  */
@@ -40,5 +41,9 @@ public interface DoubleLocation extends Location, ObjectLocation<Double> {
     /** Set this location to its default value */
     public void setDefault();
 
+    /** Special version of setAsDouble for use from object literals during initialization */
+    double setAsDoubleFromLiteral(double value);
+
+    /** Add a change listener to this Location */
     public void addChangeListener(DoubleChangeListener listener);
 }

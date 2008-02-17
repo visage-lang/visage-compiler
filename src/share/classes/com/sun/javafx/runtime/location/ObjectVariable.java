@@ -1,0 +1,118 @@
+package com.sun.javafx.runtime.location;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.sun.javafx.runtime.BindingException;
+
+/**
+ * ObjectVariable
+ *
+ * @author Brian Goetz
+ */
+public class ObjectVariable<T>
+        extends AbstractVariable<T, ObjectBindingExpression<T>>
+        implements ObjectLocation<T> {
+
+    protected T $value;
+    private List<ObjectChangeListener<T>> replaceListeners;
+
+    public static<T> ObjectVariable<T> make() {
+        return new ObjectVariable<T>();
+    }
+
+    public static<T> ObjectVariable<T> make(T value) {
+        return new ObjectVariable<T>(value);
+    }
+
+    public static<T> ObjectVariable<T> make(boolean lazy, ObjectBindingExpression<T> binding, Location... dependencies) {
+        return new ObjectVariable<T>(lazy, binding, dependencies);
+    }
+
+    public static<T> ObjectVariable<T> make(ObjectBindingExpression<T> binding, Location... dependencies) {
+        return new ObjectVariable<T>(false, binding, dependencies);
+    }
+
+    /** Create a bijectively bound variable */
+    public static<T> ObjectVariable<T> makeBijective(ObjectVariable<T> other) {
+        ObjectVariable<T> me = ObjectVariable.make();
+        me.bijectiveBind(other);
+        return me;
+    }
+
+    protected ObjectVariable() { }
+
+    protected ObjectVariable(T value) {
+        this();
+        $value = value;
+        setValid();
+    }
+
+    protected ObjectVariable(boolean lazy, ObjectBindingExpression<T> binding, Location... dependencies) {
+        this();
+        bind(lazy, binding);
+        addDependencies(dependencies);
+    }
+
+
+    public T get() {
+        if (isBound() && !isValid())
+            update();
+        return $value;
+    }
+
+    protected T replaceValue(T newValue) {
+        T oldValue = $value;
+        if (changed(oldValue, newValue) || !isInitialized()) {
+            $value = newValue;
+            setValid();
+            notifyListeners(oldValue, newValue);
+        }
+        else
+            setValid();
+        return newValue;
+    }
+
+    public T set(T value) {
+        if (isBound())
+            throw new BindingException("Cannot assign to bound variable");
+        return replaceValue(value);
+    }
+
+    public void setDefault() {
+        set(null);
+    }
+
+    @Override
+    public void update() {
+        if (isBound() && !isValid())
+            replaceValue(binding.computeValue());
+    }
+
+    public boolean isNull() {
+        return $value == null;
+    }
+
+    protected boolean changed(T oldValue, T newValue) {
+        if (oldValue == null) {
+            return newValue != null;
+        } else
+            return !oldValue.equals(newValue);
+    }
+
+    public void addChangeListener(ObjectChangeListener<T> listener) {
+        if (replaceListeners == null)
+            replaceListeners = new ArrayList<ObjectChangeListener<T>>();
+        replaceListeners.add(listener);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void notifyListeners(final T oldValue, final T newValue) {
+        valueChanged();
+        if (replaceListeners != null) {
+            for (ObjectChangeListener<T> listener : replaceListeners)
+                listener.onChange(oldValue, newValue);
+        }
+    }
+
+}

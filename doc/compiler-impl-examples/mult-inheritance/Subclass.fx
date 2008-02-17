@@ -3,7 +3,7 @@ class Base {
 }
 
 class OtherBase {
-    attribute c : Integer = 4;
+    attribute b : Integer = 4;
 }
 
 class Subclass extends Base, OtherBase {

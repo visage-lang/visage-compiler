@@ -64,7 +64,6 @@ public class Menu extends AbstractMenuItem {
             jmenu.setBackground(origbackground);
         }
     }
-    public attribute opaque: Boolean = true;
     public function createComponent():javax.swing.JComponent {
             jmenu = new javax.swing.JMenu();
             jmenu.setOpaque(true);
@@ -82,6 +81,11 @@ public class Menu extends AbstractMenuItem {
                 jmenu.add(i.getComponent());
             }
             return jmenu;
+    }
+
+    init {
+        // override default in superclass
+	opaque = true; //TODO: should be protected by not isInitialized
     }
 }
 

@@ -26,6 +26,7 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
 import com.sun.javafx.runtime.CircularBindingException;
+import com.sun.javafx.runtime.BindingException;
 
 /**
  * BijectiveBindTest
@@ -34,19 +35,19 @@ import com.sun.javafx.runtime.CircularBindingException;
  */
 public class BijectiveBindTest extends JavaFXTestCase {
     public void testFailures() {
-        final IntLocation i = IntVar.make(0);
-        final IntLocation ie = new IntExpression(false) {
+        final IntLocation i = IntVariable.make(0);
+        final IntLocation ie = IntVariable.make(new IntBindingExpression() {
             public int computeValue() {
                 return 0;
             }
-        };
-        final ObjectLocation<String> s = ObjectVar.make("");
-        final ObjectLocation<String> se = new ObjectExpression<String>(false) {
+        });
+        final ObjectLocation<String> s = ObjectVariable.make("");
+        final ObjectLocation<String> se = ObjectVariable.make(new ObjectBindingExpression<String>() {
             public String computeValue() {
                 return "";
             }
-        };
-        assertThrows(IllegalArgumentException.class, new VoidCallable() {
+        }, new Location[] {});
+        assertThrows(BindingException.class, new VoidCallable() {
             public void call() throws Exception {
                 Bindings.bijectiveBind(ie, ie, new Bijection<Integer, Integer>() {
                     public Integer mapForwards(Integer a) { return 0; }
@@ -54,7 +55,7 @@ public class BijectiveBindTest extends JavaFXTestCase {
                 });
             }
         });
-        assertThrows(IllegalArgumentException.class, new VoidCallable() {
+        assertThrows(BindingException.class, new VoidCallable() {
             public void call() throws Exception {
                 Bindings.bijectiveBind(i, ie, new Bijection<Integer, Integer>() {
                     public Integer mapForwards(Integer a) { return 0; }
@@ -62,7 +63,7 @@ public class BijectiveBindTest extends JavaFXTestCase {
                 });
             }
         });
-        assertThrows(IllegalArgumentException.class, new VoidCallable() {
+        assertThrows(BindingException.class, new VoidCallable() {
             public void call() throws Exception {
                 Bindings.bijectiveBind(ie, i, new Bijection<Integer, Integer>() {
                     public Integer mapForwards(Integer a) { return 0; }
@@ -70,7 +71,7 @@ public class BijectiveBindTest extends JavaFXTestCase {
                 });
             }
         });
-        assertThrows(IllegalArgumentException.class, new VoidCallable() {
+        assertThrows(BindingException.class, new VoidCallable() {
             public void call() throws Exception {
                 Bindings.bijectiveBind(se, se, new Bijection<String, String>() {
                     public String mapForwards(String a) { return ""; }
@@ -78,7 +79,7 @@ public class BijectiveBindTest extends JavaFXTestCase {
                 });
             }
         });
-        assertThrows(IllegalArgumentException.class, new VoidCallable() {
+        assertThrows(BindingException.class, new VoidCallable() {
             public void call() throws Exception {
                 Bindings.bijectiveBind(s, se, new Bijection<String, String>() {
                     public String mapForwards(String a) { return ""; }
@@ -86,7 +87,7 @@ public class BijectiveBindTest extends JavaFXTestCase {
                 });
             }
         });
-        assertThrows(IllegalArgumentException.class, new VoidCallable() {
+        assertThrows(BindingException.class, new VoidCallable() {
             public void call() throws Exception {
                 Bindings.bijectiveBind(se, s, new Bijection<String, String>() {
                     public String mapForwards(String a) { return ""; }
@@ -97,8 +98,8 @@ public class BijectiveBindTest extends JavaFXTestCase {
     }
 
     public void testIntBijection() {
-        final IntLocation i = IntVar.make(0);
-        final IntLocation j = IntVar.make(7);
+        final IntLocation i = IntVariable.make(0);
+        final IntLocation j = IntVariable.make(7);
         Bindings.bijectiveBind(i, j, new Bijection<Integer, Integer>() {
             public Integer mapForwards(Integer a) { return a + 1; }
             public Integer mapBackwards(Integer b) { return b - 1; }
@@ -114,8 +115,8 @@ public class BijectiveBindTest extends JavaFXTestCase {
     }
 
     public void testIntStringBijection() {
-        final IntLocation i = IntVar.make(0);
-        final ObjectLocation<String> s = ObjectVar.make("7");
+        final IntLocation i = IntVariable.make(0);
+        final ObjectLocation<String> s = ObjectVariable.make("7");
         Bindings.bijectiveBind(i, s, new Bijection<Integer, String>() {
             public String mapForwards(Integer a) {
                 return Integer.toString(a);
@@ -137,9 +138,9 @@ public class BijectiveBindTest extends JavaFXTestCase {
     }
 
     public void testGarbageCollection() {
-        final IntLocation i = IntVar.make(0);
+        final IntLocation i = IntVariable.make(0);
         if (i.getAsInt() == 0) {
-            final IntLocation j = IntVar.make(7);
+            final IntLocation j = IntVariable.make(7);
             Bindings.bijectiveBind(i, j, new Bijection<Integer, Integer>() {
                 public Integer mapForwards(Integer a) { return a + 1; }
                 public Integer mapBackwards(Integer b) { return b - 1; }
@@ -158,9 +159,9 @@ public class BijectiveBindTest extends JavaFXTestCase {
     }
 
     public void testChainedBijection() {
-        final IntLocation i = IntVar.make(0);
-        final IntLocation j = IntVar.make(7);
-        final IntLocation k = IntVar.make(9);
+        final IntLocation i = IntVariable.make(0);
+        final IntLocation j = IntVariable.make(7);
+        final IntLocation k = IntVariable.make(9);
         Bindings.bijectiveBind(i, j, new Bijection<Integer, Integer>() {
             public Integer mapForwards(Integer a) { return a + 1; }
             public Integer mapBackwards(Integer b) { return b - 1; }
@@ -200,8 +201,8 @@ public class BijectiveBindTest extends JavaFXTestCase {
     }
 
     public void testCircularBijection() {
-        final IntLocation i = IntVar.make(0);
-        final IntLocation j = IntVar.make(7);
+        final IntLocation i = IntVariable.make(0);
+        final IntLocation j = IntVariable.make(7);
         assertFalse(Bindings.isPeerLocation(i, j));
 
         Bindings.bijectiveBind(i, j, new Bijection<Integer, Integer>() {
@@ -231,7 +232,7 @@ public class BijectiveBindTest extends JavaFXTestCase {
             }
         });
 
-        final IntLocation k = IntVar.make(9);
+        final IntLocation k = IntVariable.make(9);
         Bindings.bijectiveBind(j, k, new Bijection<Integer, Integer>() {
             public Integer mapForwards(Integer a) { return a + 1; }
             public Integer mapBackwards(Integer b) { return b - 1; }
@@ -272,5 +273,17 @@ public class BijectiveBindTest extends JavaFXTestCase {
                 });
             }
         });
+    }
+
+
+    public void testIdentity() {
+        IntVariable a = IntVariable.make();
+        IntVariable b = IntVariable.make();
+        b.bijectiveBind(a);
+        assertEquals(0, a.getAsInt());
+        assertEquals(0, b.getAsInt());
+        b.set(1);
+        assertEquals(1, a.getAsInt());
+        assertEquals(1, b.getAsInt());
     }
 }

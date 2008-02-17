@@ -43,7 +43,11 @@ public abstract class CompositeWidget extends Widget {
         __panel__.add(c, BorderLayout.CENTER);
         return __panel__;
     }
-    public attribute focusable:Boolean = false;
+    
+    init {
+        // override defaults in superclass
+	focusable = false; //TODO: should be protected by not isInitialized
+    }
 }
 
 

@@ -84,11 +84,8 @@ public class TabbedPane extends Widget {
             }
             ndx++
         }
-    };
+    }
 
-
-    public attribute opaque: Boolean = true;
-    public attribute focusable: Boolean = false;
     public function createComponent():javax.swing.JComponent{
         if(changeListener == null) {
             tabbedpane.setOpaque(false);
@@ -111,6 +108,13 @@ public class TabbedPane extends Widget {
             tabbedpane.setSelectedIndex(selectedIndex.intValue());
         }
         return tabbedpane;
+    }
+
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	opaque = true;
+	focusable = false;
     }
 }
 

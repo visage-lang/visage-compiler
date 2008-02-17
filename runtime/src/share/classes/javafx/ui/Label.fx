@@ -84,7 +84,11 @@ public class Label extends Widget {
         jlabel.setPreloadImages(preloadImages);
         return jlabel;
     }
-    public attribute focusable:Boolean = false;
+    
+    init {
+        // override defaults in superclass
+	focusable = false; //TODO: should be protected by not isInitialized
+    }
 }
 
 

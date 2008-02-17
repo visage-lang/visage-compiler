@@ -127,7 +127,6 @@ public class DesktopPane extends Widget {
                 tiled = false;
             }
         };
-    public attribute focusable: Boolean = false;
 
     public function createComponent():javax.swing.JComponent {
         jdesk.setOpaque(false);
@@ -140,6 +139,11 @@ public class DesktopPane extends Widget {
             i.getComponent().setVisible(true);
         }
         return jdesk;
+    }
+    
+    init {
+        // override defaults in superclass
+	focusable = false; //TODO: should be protected by not isInitialized
     }
 }
 

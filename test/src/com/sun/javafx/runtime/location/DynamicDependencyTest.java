@@ -35,13 +35,13 @@ import com.sun.javafx.runtime.JavaFXTestCase;
 public class DynamicDependencyTest extends JavaFXTestCase {
 
     public void testStaticDependencies() {
-        final IntLocation a = IntVar.make(1);
-        final IntLocation b = IntVar.make(1);
-        final IntLocation c = new IntExpression(false, a, b) {
+        final IntLocation a = IntVariable.make(1);
+        final IntLocation b = IntVariable.make(1);
+        final IntLocation c = IntVariable.make(new IntBindingExpression() {
             public int computeValue() {
                 return a.getAsInt() + b.getAsInt();
             }
-        };
+        }, a, b);
 
         assertEquals(2, c.getAsInt());
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
@@ -60,16 +60,16 @@ public class DynamicDependencyTest extends JavaFXTestCase {
      * (lazily) removed from the listener list.
      */
     public void testDynamicOnly() {
-        final IntLocation a = IntVar.make(1);
-        final IntLocation b = IntVar.make(1);
-        final IntLocation c = new IntExpression(false) {
+        final IntLocation a = IntVariable.make(1);
+        final IntLocation b = IntVariable.make(1);
+        final IntLocation c = IntVariable.make(new IntBindingExpression() {
             public int computeValue() {
                 clearDynamicDependencies();
                 addDynamicDependent(a);
                 addDynamicDependent(b);
                 return a.getAsInt() + b.getAsInt();
             }
-        };
+        });
 
         assertEquals(0, ((AbstractLocation) a).getListenerCount());
         assertEquals(0, ((AbstractLocation) b).getListenerCount());
@@ -106,15 +106,15 @@ public class DynamicDependencyTest extends JavaFXTestCase {
      * (lazily) removed from the listener list.
      */
     public void testStaticAndDynamic() {
-        final IntLocation a = IntVar.make(1);
-        final IntLocation b = IntVar.make(1);
-        final IntLocation c = new IntExpression(false, a) {
+        final IntLocation a = IntVariable.make(1);
+        final IntLocation b = IntVariable.make(1);
+        final IntLocation c = IntVariable.make(new IntBindingExpression() {
             public int computeValue() {
                 clearDynamicDependencies();
                 addDynamicDependent(b);
                 return a.getAsInt() + b.getAsInt();
             }
-        };
+        }, a);
 
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
         assertEquals(0, ((AbstractLocation) b).getListenerCount());

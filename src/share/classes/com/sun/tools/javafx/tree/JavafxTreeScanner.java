@@ -216,6 +216,12 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
         scan(tree.getOnChanges());
     }
     
+    @Override
+    public void visitTrigger(JFXTrigger tree) {
+        scan(tree.getId());
+        scan(tree.getOnReplace());
+    }
+    
     public void visitAbstractOnChange(JFXAbstractOnChange tree) {
 	scan(tree.getIndex());
 	scan(tree.getOldValue());  

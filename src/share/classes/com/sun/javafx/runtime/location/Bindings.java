@@ -28,6 +28,7 @@ package com.sun.javafx.runtime.location;
 import java.lang.ref.WeakReference;
 import java.util.*;
 
+import com.sun.javafx.runtime.BindingException;
 import com.sun.javafx.runtime.CircularBindingException;
 
 /**
@@ -44,13 +45,38 @@ import com.sun.javafx.runtime.CircularBindingException;
  */
 public class Bindings {
 
-    /** Creation a bijective binding between objects of type T and U */
+    public static<T> Bijection<T, T> identityBinding() {
+        return new Bijection<T, T>() {
+            public T mapForwards(T a) {
+                return a;
+            }
+
+            public T mapBackwards(T b) {
+                return b;
+            }
+        };
+    }
+
+    /** Create a bijective binding between objects of type T and U */
     public static <T, U> void bijectiveBind(ObjectLocation<T> a, ObjectLocation<U> b, Bijection<T, U> mapper) {
         new BijectiveBinding<T, U>(a, b, mapper);
     }
 
+    /** Create a bijective binding between objects of type T and U */
+    public static <T> void bijectiveBind(ObjectLocation<T> a, ObjectLocation<T> b) {
+        Bijection<T, T> id = identityBinding();
+        bijectiveBind(a, b, id);
+    }
+
+    /** Create a new location that is bidirectionally bound to another */
+    public static<T> ObjectLocation<T> makeBijectiveBind(ObjectLocation<T> other) {
+        ObjectVariable<T> me = ObjectVariable.make();
+        bijectiveBind(me, other);
+        return me;
+    }
+
     /** Return the set of locations that are "peered" with this one through a chain of bidirectional bindings */
-    public static Collection<Location> getPeerLocations(Location location) {
+    static Collection<Location> getPeerLocations(Location location) {
         Collection<Location> newLocs = BijectiveBinding.getDirectPeers(location);
         if (newLocs.size() == 0)
             return newLocs;
@@ -69,7 +95,7 @@ public class Bindings {
         return knownLocs;
     }
 
-    public static boolean isPeerLocation(Location a, Location b) {
+    static boolean isPeerLocation(Location a, Location b) {
         Collection<Location> aPeers = getPeerLocations(a);
         while (b instanceof ViewLocation)
             b = ((ViewLocation) b).getUnderlyingLocation();
@@ -84,8 +110,8 @@ public class Bindings {
         private U lastB;
 
         public BijectiveBinding(ObjectLocation<T> a, ObjectLocation<U> b, Bijection<T, U> mapper) {
-            if (!(a instanceof MutableLocation) || !(b instanceof MutableLocation))
-                throw new IllegalArgumentException("Both components of bijective bind must be mutable");
+            if (!(a.isMutable()) || !(b.isMutable()))
+                throw new BindingException("Both components of bijective bind must be mutable");
             if (isPeerLocation(a, b))
                 throw new CircularBindingException("Binding circularity detected");
             

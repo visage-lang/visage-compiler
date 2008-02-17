@@ -78,7 +78,12 @@ public class Path extends Shape {
         this.buildPath();
         return sgshape;
     }
-    public attribute fillRule: FillRule = FillRule.NON_ZERO;
+
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	fillRule = FillRule.NON_ZERO;
+    }
 }
 
 

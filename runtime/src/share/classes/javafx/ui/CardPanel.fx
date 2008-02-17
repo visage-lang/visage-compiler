@@ -91,7 +91,11 @@ public class CardPanel extends Widget {
         }
         return jpanel;
     }
-    public attribute focusable:Boolean = false;
+    
+    init {
+        // override defaults in superclass
+	focusable = false; //TODO: should be protected by not isInitialized
+    }
 }
 
 

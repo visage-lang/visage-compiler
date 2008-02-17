@@ -97,6 +97,11 @@ public interface JavaFXTree extends Tree {
         OBJECT_LITERAL_PART(ObjectLiteralPartTree.class),
 
         /**
+         * Used for instances of {@link TriggerTree}.
+         */
+        TRIGGER_WRAPPER(TriggerTree.class),
+
+        /**
          * Used for instances of {@link OnDeleteAllTree}.
          */
         ON_DELETE_ALL(OnDeleteAllTree.class),

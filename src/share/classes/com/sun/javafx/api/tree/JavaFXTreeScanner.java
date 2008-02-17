@@ -130,6 +130,11 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
         return scanAndReduce(node.getBody(), p, r);
     }
 
+    public R visitTrigger(TriggerTree node, P p) {
+        R r = scan(node.getExpressionTree(), p);
+        return scanAndReduce(node.getOnReplaceTree(), p, r);
+    }
+
     public R visitOnReplaceElement(OnReplaceElementTree node, P p) {
         R r = scan(node.getIndex(), p);
         r = scanAndReduce(node.getOldValue(), p, r);

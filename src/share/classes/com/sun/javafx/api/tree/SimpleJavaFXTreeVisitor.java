@@ -90,6 +90,10 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
         return defaultAction(node, p);
     }
 
+    public R visitTrigger(TriggerTree node, P p) {
+        return defaultAction(node, p);
+    }
+
     public R visitOnReplace(OnReplaceTree node, P p) {
         return defaultAction(node, p);
     }

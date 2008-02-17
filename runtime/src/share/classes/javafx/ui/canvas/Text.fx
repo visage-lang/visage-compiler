@@ -72,8 +72,6 @@ public class Text extends Shape {
     /** The font used to render the characters of this text. */
     public attribute font: Font = Font {size:16};
 
-    public attribute fill: Paint = Color.BLACK;
-
     public attribute verticalAlignment: Alignment = Alignment.LEADING on replace {
         updateText();
     };
@@ -104,4 +102,9 @@ public class Text extends Shape {
         return textShape;
     }
 
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	fill = Color.BLACK;
+    }
 }

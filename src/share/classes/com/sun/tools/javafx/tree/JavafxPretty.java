@@ -588,15 +588,32 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
                     print(" = ");
                     printExpr(tree.getInitializer());
                 }
-                print(";");
-                if (variableScope == SCOPE_OUTER || variableScope == SCOPE_CLASS)
-                    println();
+            }
+            for (JCTree onc : tree.getOnChanges()) {
+                printExpr(onc);
+            }
+            print(";");
+            if (variableScope == SCOPE_OUTER || variableScope == SCOPE_CLASS) {
+                println();
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
+    @Override
+    public void visitTrigger(JFXTrigger tree) {
+        try {
+            print("with ");
+            printExpr(tree.getId());
+            print(" ");
+            align();
+            printExpr(tree.getOnReplace());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+    
     public void visitAbstractOnChange(JFXAbstractOnChange tree) {
         try {
             if (tree.getIndex() != null) {

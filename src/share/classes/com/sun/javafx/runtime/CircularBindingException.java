@@ -30,7 +30,7 @@ package com.sun.javafx.runtime;
  *
  * @author Brian Goetz
  */
-public class CircularBindingException extends RuntimeException {
+public class CircularBindingException extends BindingException {
 
     public CircularBindingException() {
     }

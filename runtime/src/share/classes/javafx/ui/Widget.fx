@@ -175,7 +175,7 @@ public abstract class Widget extends GroupElement, UIElement {
     protected attribute mouseListener: MouseListener;
     protected attribute mouseWheelListener: MouseWheelListener;
     private attribute focusListener: FocusListener;
-    private attribute keyListener: KeyListener;
+    protected attribute keyListener: KeyListener;
     protected attribute mouseMotionListener: MouseMotionListener;
     protected function onSetOpaque(value:Boolean):Void {
         if (component <> null) {
@@ -892,4 +892,8 @@ public abstract class Widget extends GroupElement, UIElement {
 	return getComponent();
     }
     
+    init {
+        // override defaults in superclass
+	focusable = false; //TODO: should be protected by not isInitialized
+    }
 }

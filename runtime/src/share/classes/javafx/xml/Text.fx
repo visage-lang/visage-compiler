@@ -34,5 +34,9 @@ public class Text extends Node {
     /**
      * sets the node type to TEXT
      */
-    public attribute type:NodeType = NodeType.TEXT;
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	type = NodeType.TEXT;
+    }
 }

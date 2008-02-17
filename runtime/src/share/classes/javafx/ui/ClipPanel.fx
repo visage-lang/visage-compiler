@@ -97,6 +97,10 @@ public class ClipPanel extends Widget {
         p.setOpaque(false);
         return p;
     }
-    public attribute focusable:Boolean = false;
+    
+    init {
+        // override defaults in superclass
+	focusable = false; //TODO: should be protected by not isInitialized
+    }
 }
 

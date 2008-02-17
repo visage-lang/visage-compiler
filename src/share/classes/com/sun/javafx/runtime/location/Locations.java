@@ -17,22 +17,36 @@ public class Locations {
     private Locations() {
     }
 
+    public static IntLocation constant(int value) {
+        return IntConstant.make(value);
+    }
+
+    public static DoubleLocation constant(double value) {
+        return DoubleConstant.make(value);
+    }
+
+    public static BooleanLocation constant(boolean value) {
+        return BooleanConstant.make(value);
+    }
+
+    public static<T> ObjectLocation<T> constant(T value) {
+        return ObjectConstant.make(value);
+    }
+
+    public static<T> SequenceLocation<T> constant(Sequence<T> value) {
+        return SequenceConstant.make(value);
+    }
+
     public static ObjectLocation<Integer> asObjectLocation(IntLocation loc) {
-        return loc instanceof MutableLocation
-                ? new IntObjectMutableLocation(loc)
-                : new IntObjectLocation(loc);
+        return loc;
     }
 
     public static ObjectLocation<Double> asObjectLocation(DoubleLocation loc) {
-        return loc instanceof MutableLocation
-                ? new DoubleObjectMutableLocation(loc)
-                : new DoubleObjectLocation(loc);
+        return loc;
     }
 
     public static ObjectLocation<Boolean> asObjectLocation(BooleanLocation loc) {
-        return loc instanceof MutableLocation
-                ? new BooleanObjectMutableLocation(loc)
-                : new BooleanObjectLocation(loc);
+        return loc;
     }
 
     public static DoubleLocation asDoubleLocation(IntLocation loc) {
@@ -76,8 +90,8 @@ public class Locations {
             return getLocation().isNull();
         }
 
-        public boolean isLazy() {
-            return getLocation().isLazy();
+        public boolean isMutable() {
+            return getLocation().isMutable();
         }
 
         public void invalidate() {
@@ -118,41 +132,6 @@ public class Locations {
     }
 
     /**
-     * Wrapper class that creates an ObjectLocation<Integer> view of an IntLocation
-     */
-    private static class IntObjectLocation extends LocationWrapper implements ObjectLocation<Integer>, ViewLocation {
-        private final IntLocation location;
-
-        protected IntLocation getLocation() {
-            return location;
-        }
-
-        public IntObjectLocation(IntLocation location) {
-            this.location = location;
-        }
-
-        public Integer get() {
-            return location.getAsInt();
-        }
-
-        public Integer set(Integer value) {
-            return location.setAsInt(value);
-        }
-
-        public Location getUnderlyingLocation() {
-            return location;
-        }
-
-        public void setDefault() {
-            location.setDefault();
-        }
-
-        public void addChangeListener(ObjectChangeListener<Integer> listener) {
-            location.addChangeListener(listener);
-        }
-    }
-
-    /**
      * Wrapper class that creates a DoubleLocation view of an IntLocation
      */
     private static class IntDoubleLocation extends LocationWrapper implements DoubleLocation, ViewLocation {
@@ -170,7 +149,19 @@ public class Locations {
             return location.getAsInt();
         }
 
+        public void addChangeListener(IntChangeListener listener) {
+            location.addChangeListener(listener);
+        }
+
+        public Double get() {
+            return getAsDouble();
+        }
+
         public double setAsDouble(double value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public double setAsDoubleFromLiteral(double value) {
             throw new UnsupportedOperationException();
         }
 
@@ -178,11 +169,11 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public Double get() {
-            return getAsDouble();
+        public Double set(Double value) {
+            throw new UnsupportedOperationException();
         }
 
-        public Double set(Double value) {
+        public Double setFromLiteral(Double value) {
             throw new UnsupportedOperationException();
         }
 
@@ -205,14 +196,17 @@ public class Locations {
                 }
             });
         }
-    }
 
-    /**
-     * Wrapper class that creates an ObjectLocation<Integer> view of a mutable IntLocation
-     */
-    private static class IntObjectMutableLocation extends IntObjectLocation implements MutableLocation {
-        public IntObjectMutableLocation(IntLocation location) {
-            super(location);
+        public int getAsInt() {
+            return location.getAsInt();
+        }
+
+        public int setAsInt(int value) {
+            return location.setAsInt(value);
+        }
+
+        public int setAsIntFromDefault(int value) {
+            return location.setAsIntFromLiteral(value);
         }
     }
 
@@ -230,8 +224,16 @@ public class Locations {
             this.location = location;
         }
 
+        public boolean isMutable() {
+            return false;
+        }
+
         public int getAsInt() {
             return location.getAsInt();
+        }
+
+        public Integer get() {
+            return getAsInt();
         }
 
         public void addChangeListener(IntChangeListener listener) {
@@ -246,67 +248,27 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
+        public int setAsIntFromLiteral(int value) {
+            throw new UnsupportedOperationException();
+        }
+
         public void setDefault() {
+            throw new UnsupportedOperationException();
+        }
+
+        public Integer set(Integer value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Integer setFromLiteral(Integer value) {
             throw new UnsupportedOperationException();
         }
 
         public void invalidate() {
             throw new UnsupportedOperationException();
         }
-
-        public Integer get() {
-            return getAsInt();
-        }
-
-        public Integer set(Integer value) {
-            throw new UnsupportedOperationException();
-        }
     }
 
-
-    /**
-     * Wrapper class that creates an ObjectLocation<Double> view of a DoubleLocation
-     */
-    private static class DoubleObjectLocation extends LocationWrapper implements ObjectLocation<Double>, ViewLocation {
-        private final DoubleLocation location;
-
-        protected Location getLocation() {
-            return location;
-        }
-
-        public DoubleObjectLocation(DoubleLocation location) {
-            this.location = location;
-        }
-
-        public Double get() {
-            return location.getAsDouble();
-        }
-
-        public Double set(Double value) {
-            return location.setAsDouble(value);
-        }
-
-        public void setDefault() {
-            location.setDefault();
-        }
-
-        public Location getUnderlyingLocation() {
-            return location;
-        }
-
-        public void addChangeListener(ObjectChangeListener<Double> listener) {
-            location.addChangeListener(listener);
-        }
-    }
-
-    /**
-     * Wrapper class that creates an ObjectLocation<Double> view of a mutable DoubleLocation
-     */
-    private static class DoubleObjectMutableLocation extends DoubleObjectLocation implements MutableLocation {
-        public DoubleObjectMutableLocation(DoubleLocation location) {
-            super(location);
-        }
-    }
 
     /**
      * Wrapper class that wraps a DoubleLocation so it cannot be modified
@@ -322,28 +284,16 @@ public class Locations {
             this.location = location;
         }
 
+        public boolean isMutable() {
+            return false;
+        }
+
         public double getAsDouble() {
             return location.getAsDouble();
         }
 
-        public double setAsDouble(double value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void setDefault() {
-            throw new UnsupportedOperationException();
-        }
-
         public Double get() {
             return getAsDouble();
-        }
-
-        public Double set(Double value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void invalidate() {
-            throw new UnsupportedOperationException();
         }
 
         public void addChangeListener(DoubleChangeListener listener) {
@@ -353,52 +303,32 @@ public class Locations {
         public void addChangeListener(ObjectChangeListener<Double> listener) {
             location.addChangeListener(listener);
         }
-    }
 
-
-    /**
-     * Wrapper class that creates an ObjectLocation<Boolean> view of a BooleanLocation
-     */
-    private static class BooleanObjectLocation extends LocationWrapper implements ObjectLocation<Boolean>, ViewLocation {
-        private final BooleanLocation location;
-
-        protected Location getLocation() {
-            return location;
+        public double setAsDouble(double value) {
+            throw new UnsupportedOperationException();
         }
 
-        public BooleanObjectLocation(BooleanLocation location) {
-            this.location = location;
-        }
-
-        public Boolean get() {
-            return location.getAsBoolean();
-        }
-
-        public Boolean set(Boolean value) {
-            return location.setAsBoolean(value);
+        public double setAsDoubleFromLiteral(double value) {
+            throw new UnsupportedOperationException();
         }
 
         public void setDefault() {
-            location.setDefault();
+            throw new UnsupportedOperationException();
         }
 
-        public Location getUnderlyingLocation() {
-            return location;
+        public Double set(Double value) {
+            throw new UnsupportedOperationException();
         }
 
-        public void addChangeListener(ObjectChangeListener<Boolean> listener) {
-            location.addChangeListener(listener);
+        public Double setFromLiteral(Double value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void invalidate() {
+            throw new UnsupportedOperationException();
         }
     }
 
-    /**
-     * Wrapper class that creates an ObjectLocation<Boolean> view of a mutable BooleanLocation
-     */
-    private static class BooleanObjectMutableLocation extends BooleanObjectLocation implements MutableLocation {
-        public BooleanObjectMutableLocation(BooleanLocation location) {
-            super(location);
-        }
-    }
 
     /**
      * Wrapper class that wraps a BooleanLocation so it cannot be modified
@@ -414,28 +344,16 @@ public class Locations {
             this.location = location;
         }
 
+        public boolean isMutable() {
+            return false;
+        }
+
         public boolean getAsBoolean() {
             return location.getAsBoolean();
         }
 
-        public boolean setAsBoolean(boolean value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void setDefault() {
-            throw new UnsupportedOperationException();
-        }
-
         public Boolean get() {
             return getAsBoolean();
-        }
-
-        public Boolean set(Boolean value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void invalidate() {
-            throw new UnsupportedOperationException();
         }
 
         public void addChangeListener(BooleanChangeListener listener) {
@@ -444,6 +362,30 @@ public class Locations {
 
         public void addChangeListener(ObjectChangeListener<Boolean> listener) {
             location.addChangeListener(listener);
+        }
+
+        public boolean setAsBoolean(boolean value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean setAsBooleanFromLiteral(boolean value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setDefault() {
+            throw new UnsupportedOperationException();
+        }
+
+        public Boolean set(Boolean value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Boolean setFromLiteral(Boolean value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void invalidate() {
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -461,6 +403,10 @@ public class Locations {
             return location;
         }
 
+        public boolean isMutable() {
+            return false;
+        }
+
         public T get() {
             return location.get();
         }
@@ -469,16 +415,20 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public void setDefault() {
+        public T setFromLiteral(T value) {
             throw new UnsupportedOperationException();
         }
 
-        public void invalidate() {
+        public void setDefault() {
             throw new UnsupportedOperationException();
         }
 
         public void addChangeListener(ObjectChangeListener<T> listener) {
             location.addChangeListener(listener);
+        }
+
+        public void invalidate() {
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -499,6 +449,10 @@ public class Locations {
 
         public V set(T value) {
             // Alternately; allow the set to proceed after passing a runtime type check; would require T.class
+            throw new UnsupportedOperationException();
+        }
+
+        public T setFromLiteral(T value) {
             throw new UnsupportedOperationException();
         }
 
@@ -533,6 +487,10 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
+        public boolean isMutable() {
+            return false;
+        }
+
         public T get(int position) {
             return location.get(position);
         }
@@ -541,12 +499,36 @@ public class Locations {
             return location.getAsSequence();
         }
 
+        public Sequence<T> get() {
+            return location.get();
+        }
+
+        public Sequence<T> set(Sequence<T> value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Sequence<T> setFromLiteral(Sequence<T> value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setDefault() {
+            throw new UnsupportedOperationException();
+        }
+
         public Iterator<T> iterator() {
             return location.iterator();
         }
 
         public Sequence<T> setAsSequence(Sequence<? extends T> value) {
             throw new UnsupportedOperationException();
+        }
+
+        public Sequence<T> setAsSequenceFromLiteral(Sequence<? extends T> value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void addChangeListener(ObjectChangeListener<Sequence<T>> listener) {
+            location.addChangeListener(listener);
         }
 
         public void addChangeListener(SequenceReplaceListener<T> sequenceReplaceListener) {

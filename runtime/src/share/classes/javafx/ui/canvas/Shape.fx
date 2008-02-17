@@ -53,20 +53,21 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
         if (sgshape == null) {
             sgshape = this.createShape();
             // fix  me: this fails to handle modifications to shape
-            awtTransformedShape = affineTransform.createTransformedShape(sgshape.getShape());
+            awtTransformedShape = affineTransformHACK.createTransformedShape(sgshape.getShape());
             sgshape.setAntialiasingHint(java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
         }
         return sgshape;
     }
-    protected attribute affineTransform:AffineTransform on replace {
+//TODO: Hack until JFXC-675 is addressed
+    protected attribute affineTransformHACK :AffineTransform on replace {
             // fix  me: this fails to handle modifications to shape
            awtTransformedShape = 
-               affineTransform.createTransformedShape(getShape().getShape());
+               affineTransformHACK.createTransformedShape(getShape().getShape());
     }
     public function getTransformedShape(): java.awt.Shape {
         getNode(); // hack
         if (awtTransformedShape == null) {
-            var t = affineTransform;
+            var t = affineTransformHACK ;
             var s = getShape().getShape();
             if (t <> null) {
                 awtTransformedShape = t.createTransformedShape(s);
@@ -157,7 +158,11 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
         return this.getShape();
     }
 
-    public attribute selectable: Boolean = false;
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	selectable = false;
+    }
 }
 
 

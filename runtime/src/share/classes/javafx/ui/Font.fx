@@ -122,7 +122,7 @@ public class Font {
         }
         return f.deriveFont(style, size);
     }
-    private static attribute fontCache: Map = new WeakHashMap();
+    private static var fontCache: Map = new WeakHashMap();
 
     public attribute ascent: Number;
     public attribute descent: Number;

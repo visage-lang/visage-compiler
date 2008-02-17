@@ -39,7 +39,6 @@ public class RootPane extends Widget {
         }
     };
 
-    public attribute focusable: Boolean = false;
     public function createComponent():javax.swing.JComponent {
         jrootpane = new javax.swing.JRootPane();
         if (menubar <> null) {
@@ -49,6 +48,12 @@ public class RootPane extends Widget {
             jrootpane.setContentPane(content.getComponent());
         }
         return jrootpane;
+    }
+
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	focusable = false;
     }
 }
 

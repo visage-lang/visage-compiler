@@ -69,7 +69,7 @@ public class BoundSequences {
         return new BoundSingletonSequence<Integer>(Integer.class, location);
     }
 
-    public static<T> SequenceLocation<T> empty(Class<T> clazz) {
+    public static<T> SequenceLocation<T> empty(final Class<T> clazz) {
         return new AbstractBoundSequence<T>(clazz) {
             protected Sequence<T> computeValue() {
                 return Sequences.emptySequence(clazz);

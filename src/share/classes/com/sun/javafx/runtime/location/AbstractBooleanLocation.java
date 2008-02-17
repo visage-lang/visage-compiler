@@ -25,40 +25,14 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * AbstractBooleanLocation
  *
  * @author Brian Goetz
  */
-public abstract class AbstractBooleanLocation extends AbstractLocation implements BooleanLocation {
-    public static final boolean DEFAULT = false;
+public abstract class AbstractBooleanLocation extends AbstractLocation {
 
-    protected boolean $value = DEFAULT;
-    private List<BooleanChangeListener> replaceListeners;
-
-    protected AbstractBooleanLocation(boolean valid, boolean value) {
-        super(valid);
-        setAsBoolean(value);
-    }
-
-    protected AbstractBooleanLocation(boolean valid) {
-        super(valid);
-    }
-
-    public boolean getAsBoolean() {
-        return $value;
-    }
-
-    public Boolean get() {
-        return getAsBoolean();
-    }
-
-    public boolean isNull() {
-        return false;
-    }
+    protected AbstractBooleanLocation() { }
 
     public boolean setAsBoolean(boolean value) {
         throw new UnsupportedOperationException();
@@ -72,42 +46,4 @@ public abstract class AbstractBooleanLocation extends AbstractLocation implement
         throw new UnsupportedOperationException();
     }
 
-    public void addChangeListener(BooleanChangeListener listener) {
-        if (replaceListeners == null)
-            replaceListeners = new ArrayList<BooleanChangeListener>();
-        replaceListeners.add(listener);
-    }
-
-    public void addChangeListener(final ObjectChangeListener<Boolean> listener) {
-        addChangeListener(new BooleanChangeListener() {
-            public void onChange(boolean oldValue, boolean newValue) {
-                listener.onChange(oldValue, newValue);
-            }
-        });
-    }
-
-    protected void notifyListeners(final boolean oldValue, final boolean newValue) {
-        valueChanged();
-        if (replaceListeners != null) {
-            for (BooleanChangeListener listener : replaceListeners)
-                listener.onChange(oldValue, newValue);
-        }
-    }
-
-    protected boolean replaceValue(boolean newValue) {
-        boolean oldValue = $value;
-        if (oldValue != newValue) {
-            $value = newValue;
-            setValid();
-            notifyListeners(oldValue, newValue);
-        }
-        else
-            setValid();
-        return newValue;
-    }
-
-    public void fireInitialTriggers() {
-        if ($value != DEFAULT)
-            notifyListeners(DEFAULT, $value);
-    }
 }

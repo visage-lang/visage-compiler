@@ -50,6 +50,7 @@ import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.JavafxClassModel;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedAttributeInfo;
+import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedTriggerInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.BindAnalysis;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
@@ -481,6 +482,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             ListBuffer<JCStatement> translatedPostInitBlocks = ListBuffer.lb();
             ListBuffer<JCTree> translatedDefs = ListBuffer.lb();
             ListBuffer<TranslatedAttributeInfo> attrInfo = ListBuffer.lb();
+            ListBuffer<TranslatedTriggerInfo> triggerInfo = ListBuffer.lb();
 
            // translate all the definitions that make up the class.
            // collect any prepended definitions, and prepend then to the tranlations
@@ -505,14 +507,22 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         case JavafxTag.VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
                             JCTree trans = translate(attrDef);
-                            JCExpressionTupple exprTupple = translateVarInit(attrDef, true);
-                            attrInfo.append(new TranslatedAttributeInfo(
+                            boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
+                            JCStatement init = translateDefinitionalAssignmentToSet(attrDef.pos(), 
+                                    attrDef.init, attrDef.getBindStatus(), attrDef.sym,
+                                    isStatic? null : make.Ident(defs.receiverName), FROM_DEFAULT_MILIEU);
+                            attrInfo.append(initBuilder.translatedAttributeInfo(
                                     attrDef,
-                                    elementType(attrDef.type),
-                                    exprTupple.first,
-                                    exprTupple.args,
+                                    init,
                                     translate(attrDef.getOnChanges())));
-                            translatedDefs.append(trans);
+                            //translatedDefs.append(trans);
+                            break;
+                        }
+                        case JavafxTag.TRIGGER_DEF: {
+                            JFXTrigger trigger = (JFXTrigger) def;
+                            triggerInfo.append(initBuilder.translatedTriggerInfo(
+                                    trigger,
+                                    translate(trigger.getOnReplace())));
                             break;
                         }
                        case JavafxTag.FUNCTION_DEF : {
@@ -548,7 +558,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
 
             boolean classOnly = tree.generateClassOnly();
-            JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList());
+            JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList(), triggerInfo.toList());
             additionalImports.appendList(model.additionalImports);
        
             boolean classIsFinal = (tree.getModifiers().flags & Flags.FINAL) != 0;
@@ -561,7 +571,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
                     JCClassDecl cInterface = make.ClassDef(mods,
                             model.interfaceName, List.<JCTypeParameter>nil(), null,
-                            model.interfaces.toList(), model.iDefinitions);
+                            model.interfaces, model.iDefinitions);
 
                     prependToDefinitions.append(cInterface); // prepend to the enclosing class or top-level
                 }
@@ -653,14 +663,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
 
             // build the list of implemented interfaces
-            ListBuffer<JCExpression> implementing;
+            List<JCExpression> implementing;
             if (classOnly) {
                 implementing = model.interfaces;
             }
             else {
-                implementing = ListBuffer.lb();
-                implementing.append(make.Ident(model.interfaceName));
-                implementing.append(makeIdentifier(fxObjectString));
+                implementing = List.of(make.Ident(model.interfaceName), makeIdentifier(fxObjectString));
             }
             
             long flags = tree.mods.flags & (Flags.PUBLIC | Flags.PRIVATE | Flags.PROTECTED | Flags.FINAL | Flags.ABSTRACT);
@@ -689,12 +697,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     tree.getName(),
                     tree.getEmptyTypeParameters(), 
                     jcExtending,
-                    implementing.toList(), 
+                    implementing, 
                     translatedDefs.toList());
             res.sym = tree.sym;
             res.type = tree.type;
             result = res;
-            addBaseAttributes(tree.sym, res, model.attributes);  //TODO: remove this
         }
         finally {
             attrEnv.enclClass = prevEnclClass;
@@ -781,6 +788,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     JCExpression init = olpart.getExpression();
                     VarSymbol vsym = (VarSymbol) olpart.sym;
                     VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+                    assert shouldMorph(vmi);
 
                     // Lift JFXObjectLiteralPart if needed
                     if (types.isSequence(olpart.type)) {
@@ -791,14 +799,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                          }
                     }
 
-                    if (shouldMorph(vmi)) {
-                        init = translateDefinitionalAssignment(diagPos, init, bindStatus, vsym, false).first;
-                    }
-
                     JCIdent ident1 = make.at(diagPos).Ident(tmpName);
-                    JCStatement lastStatement = callStatement(diagPos, ident1, attributeInitMethodNamePrefix + olpart.getName().toString(), init);
+                    JCStatement lastStatement = translateDefinitionalAssignmentToSet(diagPos, init, bindStatus, vsym, ident1, FROM_LITERAL_MILIEU);
                     stats.append(lastStatement); 
-
                 }
 
                 JCIdent ident3 = make.Ident(tmpName);   
@@ -869,104 +872,89 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = make.Apply(null, formatter, values.toList());
     }
 
-    private JCExpressionTupple translateDefinitionalAssignment(DiagnosticPosition diagPos, JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, boolean isAttribute) {
-        List<JCExpression> returnedDependencies = null;
-        JCExpression initExpr;
+    // Temporary hack to implement 'bind for' in a limited way.
+    private JCExpression attemptBoundForExpressionHack(DiagnosticPosition diagPos, JCExpression init, VarMorphInfo vmi) {
+        if (!(init instanceof JFXForExpression)) {
+            return null; // cannot do hack, abort
+        }
+        JFXForExpression fexp = (JFXForExpression) init;
+        List<JFXForExpressionInClause> fClauses = fexp.inClauses;
+        JCExpression fbody = fexp.getBodyExpression();
+        // Actually, bodyType is fbody.type.  But if the type
+        // required by the context (vmi) is a super-type of the
+        // fbody.type, when we get a type error, because the
+        // various SequenceLocation types don't use the necessary
+        // wildcare.  Also, using the context type avoids the
+        // compiler having to create a bridge method.
+        Type bodyType = vmi.getElementType();
 
-        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        if (shouldMorph(vmi)) {
+        if (fClauses.size() != 1 || types.isSequence(bodyType) || fClauses.head.whereExpr != null) {
+            return null;  // cannot do hack, abort
+        }
+        Type forType = elementType(fClauses.head.seqExpr.type);
+        JCVariableDecl param1 = make.VarDef(make.Modifiers(Flags.FINAL), fClauses.head.var.name,
+                makeTypeTree(forType, diagPos), null);
+        JCVariableDecl param2 = make.VarDef(make.Modifiers(Flags.FINAL), indexVarName(fClauses.head),
+                makeTypeTree(syms.javafx_IntegerType, diagPos), null);
+        boolean dependsOnIndex = fClauses.head.getIndexUsed();
 
-            if (bindStatus.isUnidiBind()) {
-                List<JCExpression> dependencies = typeMorpher.buildDependencies(init);
-                List<JCExpression> initDependencies;
+        JCStatement stmt = translateExpressionToStatement(fbody, Wrapped.InNothing, Convert.Normal, vmi.getRealType());
+        JCMethodDecl computeElementMethod = make.at(diagPos).MethodDef(
+                make.at(diagPos).Modifiers(Flags.PROTECTED),
+                defs.computeElementName,
+                makeTypeTree(bodyType, diagPos, true),
+                List.<JCTypeParameter>nil(),
+                List.<JCVariableDecl>of(param1, param2),
+                List.<JCExpression>nil(),
+                make.Block(0L, List.of(stmt)),
+                null);
+        JCExpression t = makeQualifiedTree(null,
+                "com.sun.javafx.runtime.sequence.SimpleBoundComprehension");
+        JCExpression clazz = make.TypeApply(t, List.<JCExpression>of(makeTypeTree(forType, diagPos),
+                makeTypeTree(bodyType, diagPos)));
+        JCClassDecl cl = make.AnonymousClassDef(make.Modifiers(0),
+                List.<JCTree>of(computeElementMethod));
+        List<JCExpression> args = List.<JCExpression>of(
+                make.at(diagPos).Select(makeTypeTree(bodyType, diagPos, true), names._class),
+                translate(fClauses.head.seqExpr, Wrapped.InLocation, Convert.ToBound),
+                make.at(diagPos).Literal(TypeTags.BOOLEAN, dependsOnIndex ? 1 : 0));
 
-                boolean fbind = init instanceof JFXForExpression;
-                initExpr = null; // FIXME
-                if (fbind) {
-                    // Temporary hacks to implement 'bind for' in a limited way.
-                    JFXForExpression fexp = (JFXForExpression) init;
-                    List<JFXForExpressionInClause> fClauses = fexp.inClauses;
-                    JCExpression fbody = fexp.getBodyExpression();
-                    // Actually, bodyType is fbody.type.  But if the type
-                    // required by the context (vmi) is a super-type of the
-                    // fbody.type, when we get a type error, because the
-                    // various SequenceLocation types don't use the necessary
-                    // wildcare.  Also, using the context type avoids the
-                    // compiler having to create a bridge method.
-                    Type bodyType = vmi.getElementType();
- 
-                    if (fClauses.size() != 1 || types.isSequence(bodyType)
-                            || fClauses.head.whereExpr != null)
-                        fbind = false;
-                    else {
-                        Type forType = elementType(fClauses.head.seqExpr.type);
-                        JCVariableDecl param1 = make.VarDef(make.Modifiers(Flags.FINAL), fClauses.head.var.name,
-                            makeTypeTree(forType, diagPos), null);
-                        JCVariableDecl param2 = make.VarDef(make.Modifiers(Flags.FINAL), indexVarName(fClauses.head),
-                            makeTypeTree(syms.javafx_IntegerType, diagPos), null);
-                        boolean dependsOnIndex = fClauses.head.getIndexUsed();
-                    
-                    JCStatement stmt = translateExpressionToStatement(fbody, Wrapped.InNothing, Convert.Normal, vmi.getRealType());
-                    JCMethodDecl computeElementMethod = make.at(diagPos).MethodDef(
-                            make.at(diagPos).Modifiers(Flags.PROTECTED), 
-                            defs.computeElementName, 
-                            makeTypeTree(bodyType, diagPos, true), 
-                            List.<JCTypeParameter>nil(), 
-                            List.<JCVariableDecl>of(param1, param2), 
-                            List.<JCExpression>nil(), 
-                            make.Block(0L, List.of(stmt)), 
-                            null);
-                    JCExpression t = makeQualifiedTree(null,
-                            "com.sun.javafx.runtime.sequence.SimpleBoundComprehension");
-                    JCExpression clazz = make.TypeApply(t, List.<JCExpression>of(makeTypeTree(forType, diagPos),
-                            makeTypeTree(bodyType, diagPos)));
-                    JCClassDecl cl = make.AnonymousClassDef(make.Modifiers(0),
-                            List.<JCTree>of(computeElementMethod));
-                    List<JCExpression> args = List.<JCExpression>of(
-                            make.at(diagPos).Select(makeTypeTree(bodyType, diagPos, true), names._class),
-                            translate(fClauses.head.seqExpr, Wrapped.InLocation, Convert.ToBound),
-                            make.at(diagPos).Literal(TypeTags.BOOLEAN, dependsOnIndex ? 1 : 0));
-          
-                    initExpr = make.NewClass(null/*encl*/, List.<JCExpression>nil(), clazz, args, cl);
-                }
-                }
-                ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
-                if (! fbind)
-                {
-                   if (isAttribute) {
-                    initDependencies = List.nil();
-                    returnedDependencies = dependencies;
-                } else {
-                    initDependencies = dependencies;
-                    returnedDependencies = null;
-                }
+        return make.NewClass(null/*encl*/, List.<JCExpression>nil(), clazz, args, cl);
+    }
+    
+    private List<JCExpression> translateDefinitionalAssignmentToArgs(DiagnosticPosition diagPos,
+            JCExpression init, JavafxBindStatus bindStatus, VarMorphInfo vmi) {
+        if (bindStatus.isUnidiBind()) {
+            assert (shouldMorph(vmi));
 
-                bindingExpressionDefs = ListBuffer.lb();
-                
-                    JCStatement stmt = translateExpressionToStatement(init, Wrapped.InNothing, Convert.ToBound, vmi.getRealType());
-                    initExpr = typeMorpher.buildExpression(diagPos, vmi, stmt, bindStatus.isLazy(), initDependencies);
+            {
+                JCExpression forLocation = attemptBoundForExpressionHack(diagPos, init, vmi);
+                if (forLocation != null) {
+                    return List.of(forLocation);
                 }
-                assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
-                bindingExpressionDefs = prevBindingExpressionDefs;
-            } else if (bindStatus.isBidiBind()) {
-                // Bi-directional bind translate so it stays in a Location
-                initExpr = translate(init, Wrapped.InLocation, Convert.ToBound);
-            } else {
-                // normal init -- unbound -- but it is setting a Location
-                if (init == null) {
-                    // no initializing expression determine a default value from the type
-                    initExpr = makeDefaultValue(diagPos, vmi);
-                } else {
-                    // do a vanilla translation of the expression
-                    initExpr = translate(init, new State());
-                }
-                // convert the expression to a Location
-                initExpr = makeIntoLocation(diagPos, vmi, initExpr);
             }
+            // normal case (no for expression binding hack)
+            ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
+            bindingExpressionDefs = ListBuffer.lb();
+
+            JCStatement stmt = translateExpressionToStatement(init, Wrapped.InNothing, Convert.ToBound, vmi.getRealType());
+            JCExpression binding = typeMorpher.buildExpression(diagPos, vmi, stmt);
+
+            ListBuffer<JCExpression> argValues = ListBuffer.lb();
+            argValues.append(make.Literal(TypeTags.BOOLEAN, bindStatus.isLazy() ? 1 : 0));
+            argValues.append(binding);
+            argValues.appendList( typeMorpher.buildDependencies(init) );
+
+            assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
+            bindingExpressionDefs = prevBindingExpressionDefs;
+            return argValues.toList();
+        } else if (bindStatus.isBidiBind()) {
+            assert (shouldMorph(vmi));
+            // Bi-directional bind translate so it stays in a Location
+            return List.<JCExpression>of( translate(init, Wrapped.InLocation, Convert.ToBound) );
         } else {
-            // normal init -- unbound -- setting a non-Location
-            assert !state.isBound();
-            assert !bindStatus.isBound();
+            JCExpression initExpr;
+            // normal init -- unbound -- but it is setting a Location
             if (init == null) {
                 // no initializing expression determine a default value from the type
                 initExpr = makeDefaultValue(diagPos, vmi);
@@ -974,22 +962,73 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 // do a vanilla translation of the expression
                 initExpr = translate(init, new State());
             }
+            return List.<JCExpression>of( initExpr );
         }
-
-        return new JCExpressionTupple(initExpr, returnedDependencies);
     }
 
-    public JCExpressionTupple translateVarInit(JFXVar tree, boolean isAttribute) {
-        return translateDefinitionalAssignment(tree.pos(), tree.init, 
-                                                tree.getBindStatus(), tree.sym, isAttribute);
+    private JCExpression translateDefinitionalAssignmentToValue(DiagnosticPosition diagPos,
+            JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
+        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+        List<JCExpression> args = translateDefinitionalAssignmentToArgs(diagPos, init, bindStatus, vmi);
+        Name makeName = defs.makeMethodName;
+        if (bindStatus.isBidiBind()) {
+            makeName = defs.makeBijectiveMethodName;
+        }
+        if (shouldMorph(vmi)) {
+            return typeMorpher.makeLocationVariable(vmi, diagPos, args, makeName);
+        } else {
+            assert (!bindStatus.isBound());
+            return args.head;
+        }
     }
 
-    JCExpression makeIntoLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi, JCExpression expr) {
+    private JCStatement translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
+            JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
+            JCExpression instance, int milieu) {
+        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+        List<JCExpression> args = translateDefinitionalAssignmentToArgs(diagPos, init, bindStatus, vmi);
+        JCExpression attr;
+        if ((vsym.flags() & STATIC) != 0) {
+            // statics are accessed directly
+            attr = make.Ident(vsym);
+        } else {
+            String attrAccess = attributeGetMethodNamePrefix + vsym;
+            attr = callExpression(diagPos, instance, attrAccess);
+        }
+        Name methName;
+        if (bindStatus.isUnidiBind()) {
+            methName = defs.locationBindMilieuMethodName[milieu];
+        } else if (bindStatus.isBidiBind()) {
+            methName = defs.locationBijectiveBindMilieuMethodName[milieu];
+        } else {
+            methName = defs.locationSetMilieuMethodName[vmi.getTypeKind()][milieu];
+        }
+        return callStatement(diagPos, attr, methName, args);
+    }
+
+    JCExpression makeUnboundLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi, JCExpression expr) {
         List<JCExpression> makeArgs = List.of(expr);
-        if (tmi.typeKind == TYPE_KIND_SEQUENCE) {
-            makeArgs = makeArgs.prepend(  makeSequenceClassArg(diagPos, tmi) );
-        }
-        return  typeMorpher.makeCall(tmi, diagPos, makeArgs, typeMorpher.varLocation, defs.makeMethodName);
+        return typeMorpher.makeLocationLocalVariable(tmi, diagPos, makeArgs);
+    }
+
+    /**
+     * Call Variable "make" to create a bound expression.
+     * Use "stmt" which is the translation of the expression into
+     * a statement.  The Variable is created with an anonymous binding expression
+     * instance and the static dependencies.
+     */
+    JCExpression makeBoundLocation(DiagnosticPosition diagPos,
+            TypeMorphInfo tmi,
+            JCStatement stmt,
+            boolean isLazy,
+            List<JCExpression> staticDependencies) {
+
+        JCExpression binding = typeMorpher.buildExpression(diagPos, tmi, stmt);
+        ListBuffer<JCExpression> argValues = ListBuffer.lb();
+        argValues.append(make.Literal(TypeTags.BOOLEAN, isLazy ? 1 : 0));
+        argValues.append(binding);
+        argValues.appendList(staticDependencies);
+        return typeMorpher.makeLocationLocalVariable(tmi, diagPos, argValues.toList());
     }
 
     JCExpression makeSequence(DiagnosticPosition diagPos, JCExpression expr, Type type) {
@@ -1026,7 +1065,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         DiagnosticPosition diagPos = tree.pos();
         Type type = tree.type;
         JCModifiers mods = tree.getModifiers();
-        long modFlags = mods==null? 0L : mods.flags;
+        long modFlags = mods == null ? 0L : mods.flags;
         VarSymbol vsym = tree.sym;
         boolean isClassVar = vsym.owner.kind == Kinds.TYP;
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
@@ -1042,30 +1081,34 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
         }
         if (shouldMorph(vmi) || forceTypeMorph) {
+            // convert the type to the Location type
             type = vmi.getMorphedType();
 
-            // local variables need to be final so they can be referenced
-            // attributes cannot be final since they are initialized outside of the constructor
-            if (isClassVar) {
-                modFlags &= ~Flags.FINAL;
-            } else {
-                modFlags |= Flags.FINAL;
-            }
+            // Locations are never overwritten
+            modFlags |= Flags.FINAL;
         }
-        
+
         mods = make.at(diagPos).Modifiers(modFlags);
         JCExpression typeExpression = makeTypeTree(type, diagPos, true);
 
-        // for class vars, initialization happens during class init, so remove
-        // from here.  For local vars translate as definitional
-        JCExpression init = null;
-        if (!isClassVar && ((vsym.flags() & Flags.PARAMETER) == 0)) {
+        // for class vars, initialization happens during class init, so set to
+        // default Location.  For local vars translate as definitional
+        JCExpression init;
+        if (isClassVar) {
+            // use default constructor to init attributes
+            init = typeMorpher.makeLocationAttributeVariable(vmi, diagPos);
+        } else if ((vsym.flags() & Flags.PARAMETER) != 0) {
+            // parameters aren't initialized
+            init = null;
+        } else {
             if (isBound && locallyBound != null) {
                 locallyBound.add(vsym);
             }
-            init = translateVarInit(tree, false).first;
+            init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
+                    tree.getBindStatus(), tree.sym);
         }
 
+        //TODO: this is broken: init doesn't have type
         // Convert initializers returning Java arrays to sequences.
         if (type.tag == TypeTags.ARRAY) {
             JCExpression newTree = ((JCExpression)makeTypeTree(((ArrayType)type).elemtype, diagPos, types.isCompoundClass(((ArrayType)type).elemtype.tsym)));
@@ -1073,13 +1116,18 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             WildcardType tpType = new WildcardType(newTree.type, BoundKind.EXTENDS, type.tsym);
             ClassType classType = new ClassType(((JavafxSymtab)syms).javafx_SequenceType, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
             typeExpression = makeTypeTree(classType, diagPos, false);
-            
+
             if (init.type != ((JavafxSymtab)syms).javafx_SequenceType) {
                 init = makeSequence(diagPos, init, newTree.type);
             }
         }
 
-        result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);         
+        result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
+    }
+
+    @Override
+    public void visitTrigger(JFXTrigger tree) {
+        // handled in visitClassDeclaration
     }
 
     @Override
@@ -1537,7 +1585,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             TypeMorphInfo tmi = typeMorpher.typeMorphInfo(tree.type);
             JCExpression defaultExpr = makeDefaultValue(diagPos, tmi);
             if (state.wantLocation()) {
-                defaultExpr = makeIntoLocation(diagPos, tmi, defaultExpr);
+                defaultExpr = makeUnboundLocation(diagPos, tmi, defaultExpr);
             }
             JCExpression cond = make.at(diagPos).Binary(
                 JCTree.EQ, 
@@ -1744,10 +1792,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      * For an attribute "attr" make an access to it via the receiver and getter  
      *      "receiver$.get$attr()"
      * */
-   JCExpression makeAttributeAccess(DiagnosticPosition diagPos, JFXVar attrib) {
+   JCExpression makeAttributeAccess(DiagnosticPosition diagPos, String attribName) {
        return callExpression(diagPos, 
                 make.Ident(defs.receiverName),
-                attributeGetMethodNamePrefix + attrib.getName());
+                attributeGetMethodNamePrefix + attribName);
    }
    
    /**
@@ -2681,7 +2729,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 // then convert into a Location
                 if (state.wantLocation() && !callBound && msym != null) {
                     TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(msym.getReturnType());
-                    fresult = makeIntoLocation(diagPos, returnTypeInfo, fresult);
+                    fresult = makeUnboundLocation(diagPos, returnTypeInfo, fresult);
                 }
                 if (testForNull && !selector.type.isPrimitive()) {
                     // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
@@ -2703,7 +2751,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(msym.getReturnType());
                         JCExpression defaultExpr = makeDefaultValue(diagPos, returnTypeInfo);
                         if (state.wantLocation()) {
-                            defaultExpr = makeIntoLocation(diagPos, returnTypeInfo, defaultExpr);
+                            defaultExpr = makeUnboundLocation(diagPos, returnTypeInfo, defaultExpr);
                         }
                         return make.at(diagPos).Conditional(cond, fresult, defaultExpr);
                     }
@@ -2745,7 +2793,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                 {
                                     ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
                                     bindingExpressionDefs = ListBuffer.lb();
-                                    targs.append(typeMorpher.buildExpression(
+                                    targs.append(makeBoundLocation(
                                                                     arg.pos(), 
                                                                     typeMorpher.typeMorphInfo(formal.head),
                                                                     translateExpressionToStatement(arg, arg.type), 
@@ -3075,7 +3123,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
     
     JCExpression makeBoundExpression(JCExpression expr, TypeMorphInfo tmi, boolean isLazy) {
-        return typeMorpher.buildExpression(
+        return makeBoundLocation(
                     expr.pos(), tmi, 
                     translateExpressionToStatement(expr, expr.type), 
                     isLazy, 
@@ -3259,35 +3307,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return sb.toString();
     }
 
-    //TODO: destructive -- remove
-    private void addBaseAttributes(ClassSymbol sym, JCClassDecl result, java.util.List<Symbol> attrSyms) {
-        if (attrSyms != null) {
-            for (Symbol attrSym : attrSyms) {
-                if (attrSym.kind == Kinds.MTH) {
-                    VarSymbol varSym = new VarSymbol(0L, attrSym.name, ((MethodType)attrSym.type).restype, attrSym.owner);
-                    VarMorphInfo vmi = typeMorpher.varMorphInfo(varSym);
-                    result.defs = result.defs.append(make.VarDef(make.Modifiers(0L), 
-                            names.fromString(attrSym.name.toString().substring(attributeGetMethodNamePrefix.length())),
-                           makeTypeTree(vmi.getMorphedType(), result), null));
-                }
-                else if (attrSym.kind == Kinds.VAR && attrSym.owner != sym) {
-                    JCVariableDecl var = make.VarDef((VarSymbol)attrSym, null);
-                    // Made all the operations public. Per Brian's spec.
-                    // If they are left package level it interfere with Multiple Inheritance
-                    // The interface methods cannot be package level and an error is reported.
-                    {
-                        var.mods.flags &= ~Flags.PROTECTED;
-                        var.mods.flags &= ~Flags.PRIVATE;
-                        var.mods.flags |= Flags.PUBLIC;
-                    }
-                    VarMorphInfo vmi = typeMorpher.varMorphInfo((VarSymbol)attrSym);
-                    var.vartype = makeTypeTree(vmi.getMorphedType(), result);
-                    result.defs = result.defs.append(var);
-                }
-            }
-        }
-    }
-    
     static class JCExpressionTupple {
         JCExpression first;
         List<JCExpression> args;

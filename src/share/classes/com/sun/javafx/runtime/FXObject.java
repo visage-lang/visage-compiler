@@ -34,4 +34,7 @@ package com.sun.javafx.runtime;
 public interface FXObject {
     /** Set default values, set up change triggers, and run init blocks */
     public void initialize$();
+
+    /** Inform the object that the object literal has intialized a Location */
+    // public void setInitialized(Location loc);
 }

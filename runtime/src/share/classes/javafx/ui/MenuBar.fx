@@ -50,8 +50,12 @@ public class MenuBar extends Widget {
         return jmenubar;
     }
 
-    public attribute opaque: Boolean = true;
-    public attribute focusable: Boolean = false;
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	opaque = true;
+	focusable = false;
+    }
 }
 
 

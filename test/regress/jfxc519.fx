@@ -7,8 +7,8 @@ import java.lang.System;
 
 class Foo { 
   attribute x : Integer[] = [ 0 ]
-    on insert [ndx] (f) { 
-      System.out.println(f); 
+    on replace { 
+      System.out.println("x: {x.toString()}");
     };
   attribute y : Integer
     on replace { 

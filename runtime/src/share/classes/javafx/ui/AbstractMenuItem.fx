@@ -26,5 +26,8 @@
 package javafx.ui;
 
 public abstract class AbstractMenuItem extends Widget {
-    public attribute opaque: Boolean = true;
+    init {
+        // override default in superclass
+	opaque = true; //TODO: should be protected by not isInitialized
+    }
 }

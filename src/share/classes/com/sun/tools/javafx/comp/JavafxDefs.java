@@ -43,7 +43,6 @@ public class JavafxDefs {
     public static final String boundFunctionDollarSuffix = "$$bound$";
     public static final String implFunctionSuffix = "$impl";
     public static final String attributeGetMethodNamePrefix = "get$";
-    public static final String attributeInitMethodNamePrefix = "init$";
     public static final String interfaceSuffix = "$Intf";
     public static final String equalsMethodString = "com.sun.javafx.runtime.Checks.equals";
     public static final String isNullMethodString = "com.sun.javafx.runtime.Checks.isNull";
@@ -51,6 +50,7 @@ public class JavafxDefs {
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
     public static final String runMethodString = "javafx$run$";
+    public static final String attributesFieldNameString = "attributes$";
     public static final String receiverNameString = "receiver$";
     public static final String initializeNameString ="initialize$";
     public static final String getMethodNameString = "get";
@@ -59,9 +59,19 @@ public class JavafxDefs {
     public static final String addStaticDependentNameString = "addStaticDependent";
     public static final String addDynamicDependentNameString = "addDynamicDependent";
     public static final String clearDynamicDependenciesNameString = "clearDynamicDependencies";
+    public static final String trySetFromLiteralMethodNameString = "needDefault";
+    public static final String makeAttributeMethodNameString = "makeAttribute";
     public static final String makeMethodNameString = "make";
+    public static final String makeBijectiveMethodNameString = "makeBijective";
     public static final String invokeNameString = "invoke";
     public static final String lambdaNameString = "lambda";
+    
+    public static final String[] milieuNames = { "", "FromLiteral" };
+    
+    static final int VANILLA_MILIEU = 0;
+    static final int FROM_DEFAULT_MILIEU = 0;  // for now, same as vanilla
+    static final int FROM_LITERAL_MILIEU = 1;
+    static final int MILIEU_COUNT = 2;
     
     public char typeCharToEscape = '.';
     public char escapeTypeChar = '_';
@@ -70,6 +80,7 @@ public class JavafxDefs {
      * Name definitions
      */
     final Name runMethodName;
+    final Name attributesFieldName;
     final Name receiverName;
     final Name initializeName;
     final Name getMethodName;
@@ -80,7 +91,10 @@ public class JavafxDefs {
     final Name addStaticDependentName;
     final Name addDynamicDependentName;
     final Name clearDynamicDependenciesName;
+    final Name trySetFromLiteralMethodName;
+    final Name makeAttributeMethodName;
     final Name makeMethodName;
+    final Name makeBijectiveMethodName;
     final Name invokeName;
     final Name lambdaName;
     final Name computeValueName;
@@ -89,6 +103,9 @@ public class JavafxDefs {
     final Name postInitDefName;
     final Name[] locationGetMethodName;
     final Name[] locationSetMethodName;
+    final Name[][] locationSetMilieuMethodName;
+    final Name[] locationBindMilieuMethodName;
+    final Name[] locationBijectiveBindMilieuMethodName;
 
     /**
      * Context set-up
@@ -108,6 +125,7 @@ public class JavafxDefs {
         Name.Table names = Name.Table.instance(context);
 
         runMethodName = names.fromString(runMethodString);
+        attributesFieldName = names.fromString(attributesFieldNameString);
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);
         getMethodName = Name.fromString(names, getMethodNameString);
@@ -118,7 +136,10 @@ public class JavafxDefs {
         addStaticDependentName = names.fromString(addStaticDependentNameString);
         addDynamicDependentName = names.fromString(addDynamicDependentNameString);
         clearDynamicDependenciesName = names.fromString(clearDynamicDependenciesNameString);
+        trySetFromLiteralMethodName = names.fromString(trySetFromLiteralMethodNameString);
+        makeAttributeMethodName = Name.fromString(names, makeAttributeMethodNameString);
         makeMethodName = Name.fromString(names, makeMethodNameString);
+        makeBijectiveMethodName = Name.fromString(names, makeBijectiveMethodNameString);
         invokeName = names.fromString(invokeNameString);
         lambdaName = names.fromString(lambdaNameString);
         computeValueName = names.fromString("computeValue");
@@ -127,9 +148,19 @@ public class JavafxDefs {
         postInitDefName = names.fromString("$postinit$def$name");
         locationGetMethodName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT];
         locationSetMethodName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT];
-        for (int i=0; i< JavafxVarSymbol.TYPE_KIND_COUNT; i++) {
+        locationSetMilieuMethodName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT][MILIEU_COUNT];
+        locationBindMilieuMethodName = new Name[MILIEU_COUNT];
+        locationBijectiveBindMilieuMethodName = new Name[MILIEU_COUNT];
+        for (int i = 0; i < JavafxVarSymbol.TYPE_KIND_COUNT; i++) {
+            for (int m = 0; m < MILIEU_COUNT; ++m) {
+                locationSetMilieuMethodName[i][m] = names.fromString("set" + JavafxVarSymbol.getAccessorSuffix(i) + milieuNames[m]);
+            }
             locationGetMethodName[i] = names.fromString("get" + JavafxVarSymbol.getAccessorSuffix(i));
-            locationSetMethodName[i] = names.fromString("set" + JavafxVarSymbol.getAccessorSuffix(i));
+            locationSetMethodName[i] = locationSetMilieuMethodName[i][VANILLA_MILIEU];
+        }
+        for (int m = 0; m < MILIEU_COUNT; ++m) {
+            locationBindMilieuMethodName[m] = names.fromString("bind" + milieuNames[m]);
+            locationBijectiveBindMilieuMethodName[m] = names.fromString("bijectiveBind" + milieuNames[m]);
         }
     }
 }

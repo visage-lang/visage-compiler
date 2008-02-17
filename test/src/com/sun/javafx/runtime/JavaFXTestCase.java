@@ -236,7 +236,7 @@ public abstract class JavaFXTestCase extends TestCase {
      * or a sequence of the form Lpackage.classname;
      * (for convenience, T is used for type parameters that erase to Object)
      */
-    protected void assertUOE(Object target, String methodName, Object... arguments) {
+    protected void assertException(Class<? extends Throwable> clazz, Object target, String methodName, Object... arguments) {
         Class[] classes = new Class[arguments.length];
         for (int i=0; i<arguments.length; i++)
             classes[i] = arguments[i].getClass();
@@ -282,15 +282,18 @@ public abstract class JavaFXTestCase extends TestCase {
         }
         try {
             m.invoke(target, arguments);
-            fail("Expected UOE");
+            fail("Expected exception " + clazz.getName());
         }
         catch (InvocationTargetException e) {
-            if (!e.getCause().getClass().getName().equals("java.lang.UnsupportedOperationException"))
-                fail("Expected UOE, got " + e.getCause().toString());
+            if (!e.getCause().getClass().getName().equals(clazz.getName()))
+                fail("Expected exception " + clazz.getName() + ", got " + e.getCause().toString());
         }
         catch (Exception e) {
             fail("Unexpected exception in invoke: " + e.toString());
         }
     }
 
+    protected void assertUOE(Object target, String methodName, Object... arguments) {
+        assertException(UnsupportedOperationException.class, target, methodName, arguments);
+    }
 }

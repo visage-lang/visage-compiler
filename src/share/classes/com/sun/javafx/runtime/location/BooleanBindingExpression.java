@@ -30,6 +30,6 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface BooleanBindingExpression {
-    public boolean computeValue();
+public abstract class BooleanBindingExpression extends AbstractBindingExpression {
+    public abstract boolean computeValue();
 }

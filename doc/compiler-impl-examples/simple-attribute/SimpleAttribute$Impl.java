@@ -1,8 +1,8 @@
 import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.InitHelper;
+import com.sun.javafx.runtime.location.AbstractVariable;
 import com.sun.javafx.runtime.location.ChangeListener;
-import com.sun.javafx.runtime.location.IntLocation;
-import com.sun.javafx.runtime.location.IntVar;
+import com.sun.javafx.runtime.location.IntVariable;
 import com.sun.javafx.runtime.location.Location;
 
 /**
@@ -11,28 +11,19 @@ import com.sun.javafx.runtime.location.Location;
  * @author Brian Goetz
  */
 public class SimpleAttribute$Impl implements SimpleAttribute$Intf {
-    private static final int NUM$FIELDS = 1;
-
-    public static int getNumFields$() {
-        return NUM$FIELDS;
+    public SimpleAttribute$Impl() {
+        addTriggers$(this);
     }
 
-    private IntLocation a;
-    private InitHelper initHelper = new InitHelper(NUM$FIELDS);
+    private final IntVariable a = IntVariable.make();
+    private AbstractVariable[] attributes = { a };
 
-    public IntLocation get$a() {
+    public IntVariable get$a() {
         return a;
     }
 
-    public void init$a(IntLocation location) {
-        InitHelper.assertNonNull(a, "SimpleAttribute.a");
-        initHelper.add(this.a = location);
-    }
-
-    protected static void setDefaults$(final SimpleAttribute$Intf receiver) {
-        if (receiver.get$a() == null) receiver.init$a(IntVar.make(3));
-        // @@@ FIXME: need to set up bindings and then set up dependencies
-
+    protected static void addTriggers$(final SimpleAttribute$Intf receiver) {
+        // Call superclass addTriggers$()
         receiver.get$a().addChangeListener(new ChangeListener() {
             public boolean onChange(Location location) {
                 System.out.println("a is now " + receiver.get$a().getAsInt());
@@ -41,15 +32,22 @@ public class SimpleAttribute$Impl implements SimpleAttribute$Intf {
         });
     }
 
+    protected static void initAttributes$(final SimpleAttribute$Intf receiver) {
+        // Call superclass setDefaults$()
+        if (receiver.get$a().needDefault())
+            receiver.get$a().setAsInt(3);
+    }
+
     protected static void userInit$(final SimpleAttribute$Intf receiver) {
+        // Call superclass userInit$()
         System.out.println("a = " + receiver.get$a().getAsInt());
     }
 
     public void initialize$() {
-        setDefaults$(this);
+        initAttributes$(this);
         userInit$(this);
-        initHelper.initialize();
-        initHelper = null;
+        InitHelper.finish(attributes);
+        attributes = null;
     }
 
     public static void main(String[] args) {
@@ -58,14 +56,12 @@ public class SimpleAttribute$Impl implements SimpleAttribute$Intf {
         System.out.println(instance.get$a().getAsInt());
 
         instance = new SimpleAttribute$Impl();
-        instance.init$a(IntVar.make(4));
+        instance.get$a().setAsInt(4);
         instance.initialize$();
         System.out.println(instance.get$a().getAsInt());
     }
 }
 
 interface SimpleAttribute$Intf extends FXObject {
-    public IntLocation get$a();
-
-    public void init$a(IntLocation location);
+    public IntVariable get$a();
 }

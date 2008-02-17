@@ -67,9 +67,7 @@ public class Spinner extends Widget {
                 def.getTextField().setFont(editorFont.getFont());
             }
         }
-    };
-
-    public attribute focusable: Boolean = false;
+    }
 
     public function createComponent():javax.swing.JComponent {
        return spinner;
@@ -81,5 +79,9 @@ public class Spinner extends Widget {
                 value = (spinner.getValue() as java.lang.Number).doubleValue();
             }
         });
+
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	focusable = false;
     }
 }

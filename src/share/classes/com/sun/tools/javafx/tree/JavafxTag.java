@@ -55,9 +55,13 @@ public abstract class JavafxTag extends JCTree {
      */
     public static final int VAR_DEF = POSTINIT_DEF + 1;
 
+    /** loose trigger wrapper
+     */
+    public static final int TRIGGER_DEF = VAR_DEF + 1;
+
     /** on change triggers
      */
-    public static final int ON_REPLACE = VAR_DEF + 1;        
+    public static final int ON_REPLACE = TRIGGER_DEF + 1;        
 
     /** on change triggers
      */

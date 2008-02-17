@@ -12,9 +12,9 @@ class Node {
 }
 
 class Foo {
+   attribute focusedNode : Node; //TODO: JFXC-707 (make last atribute)
    attribute focusBounds: Integer = bind focusedNode.bounds;
    attribute bidirectionalFocusBounds: Integer = bind focusedNode.bounds with inverse;
-   attribute focusedNode : Node; 
 }
 
 var n1 = Node { bounds: 9 }

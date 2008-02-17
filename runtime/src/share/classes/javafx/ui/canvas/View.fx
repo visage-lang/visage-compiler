@@ -66,9 +66,9 @@ public class View extends Node, SizeableCanvasElement {
                 baseline = Baseline.getBaseline(c as JComponent);
             }
         }
-    }
-    
-    public attribute bounds: Rectangle2D  on replace {
+    };
+
+    with bounds on replace {
         updateBaseline();
     }
     

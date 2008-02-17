@@ -235,8 +235,6 @@ class TabSlider extends Widget {
         };
     public attribute slideDuration: Number = 700;
 
-    public attribute focusable: Boolean = false;
-
     public function createComponent():javax.swing.JComponent {
         panel = new LayoutNotifier();
         panel.setOpaque(false);
@@ -474,6 +472,11 @@ class TabSlider extends Widget {
         }
     }
 
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	focusable = false;
+    }
 }
 
 

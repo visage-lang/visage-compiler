@@ -81,7 +81,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             infos[i].size = sequences[i].size();
             offset += sequences[i].size();
         }
-        return Sequences.concatenate(clazz, sequences);
+        return Sequences.concatenate(getClazz(), sequences);
     }
 
     protected void initialize() {
@@ -98,7 +98,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             affectedEnd = (endPos >= 0) ? (infos[endPos].startPosition + infos[endPos].size - 1) : affectedStart - 1;
         }
         else {
-            affectedStart = $value.size();
+            affectedStart = value().size();
             affectedEnd = affectedStart - 1;
         }
         int offset = affectedStart;
@@ -110,7 +110,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             offset += sequences[i].size();
             newInfos[i].addListener(new MyListener(i + startPos));
         }
-        Sequence<T> newSlice = Sequences.concatenate(clazz, sequences);
+        Sequence<T> newSlice = Sequences.concatenate(getClazz(), sequences);
         int deltaElements = newSlice.size() - (affectedEnd - affectedStart + 1);
         int deltaLocations = newValues.length - (endPos - startPos + 1);
         for (int i = endPos + 1; i < infos.length; i++) {

@@ -22,14 +22,14 @@ public class BoundSingletonSequence<T> extends AbstractBoundSequence<T> implemen
 
     protected Sequence<T> computeValue() {
         T element = location.get();
-        return (element == null) ? EMPTY : Sequences.singleton(clazz, element);
+        return (element == null) ? EMPTY : Sequences.singleton(getClazz(), element);
     }
 
     protected void initialize() {
         location.addChangeListener(new ChangeListener() {
             public boolean onChange(Location t) {
                 // @@@ optimize away null update?
-                updateSlice(0, $value.size() - 1, computeValue());
+                updateSlice(0, value().size() - 1, computeValue());
                 return true;
             }
         });

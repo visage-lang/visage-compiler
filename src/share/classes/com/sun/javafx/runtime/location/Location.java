@@ -49,8 +49,8 @@ public interface Location {
     /** Is the value assicated with this location null? */
     public boolean isNull();
 
-    /** Is this location lazy? @@@ Remove me; move to BindableLocation */
-    public boolean isLazy();
+    /** Can the value held by this location be changed by calling its mutative methods?  */
+    public boolean isMutable();
 
     /** Invalidate the value associated with this location, and call all registered change listeners.  If the location
      * is lazy, the value is not immediately recomputed, otherwise it is.

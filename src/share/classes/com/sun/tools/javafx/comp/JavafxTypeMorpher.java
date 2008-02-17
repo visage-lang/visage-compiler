@@ -73,10 +73,8 @@ public class JavafxTypeMorpher {
 
     public static final String locationPackageName = "com.sun.javafx.runtime.location.";
 
-    public LocationNameSymType[] varLocation;
-    public LocationNameSymType[] exprLocation;
-    public LocationNameSymType[] declLocation;
-    public LocationNameSymType[] holder;
+    public LocationNameSymType[] bindingNCT;
+    public LocationNameSymType[] variableNCT;
     public LocationNameSymType   baseLocation;
 
     private final Type[] realTypeByKind;
@@ -161,27 +159,28 @@ public class JavafxTypeMorpher {
         TypeMorphInfo(Type symType) {
             TypeSymbol realTsym = symType.tsym;
             //check if symbol is already a Location, needed for source class
-            Type locationType = null;
-            if (realTsym == declLocation[TYPE_KIND_OBJECT].sym) {
-                locationType = ((ClassType) symType).typarams_field.head;
+            Type wrappedType = null;
+            if (realTsym == variableNCT[TYPE_KIND_OBJECT].sym) {
+                wrappedType = ((ClassType) symType).typarams_field.head;
                 typeKind = TYPE_KIND_OBJECT;
-            } else if (realTsym == declLocation[TYPE_KIND_SEQUENCE].sym) {
-                locationType = ((ClassType) symType).typarams_field.head;
+            } else if (realTsym == variableNCT[TYPE_KIND_SEQUENCE].sym) {
+                wrappedType = ((ClassType) symType).typarams_field.head;
                 typeKind = TYPE_KIND_SEQUENCE;
-            } else if (realTsym == declLocation[TYPE_KIND_BOOLEAN].sym) {
-                locationType = syms.booleanType;
+                elementType = wrappedType;
+            } else if (realTsym == variableNCT[TYPE_KIND_BOOLEAN].sym) {
+                wrappedType = syms.booleanType;
                 typeKind = TYPE_KIND_BOOLEAN;
-            } else if (realTsym == declLocation[TYPE_KIND_DOUBLE].sym) {
-                locationType = syms.doubleType;
+            } else if (realTsym == variableNCT[TYPE_KIND_DOUBLE].sym) {
+                wrappedType = syms.doubleType;
                 typeKind = TYPE_KIND_DOUBLE;
-            } else if (realTsym == declLocation[TYPE_KIND_INT].sym) {
-                locationType = syms.intType;
+            } else if (realTsym == variableNCT[TYPE_KIND_INT].sym) {
+                wrappedType = syms.intType;
                 typeKind = TYPE_KIND_INT;
             }
-            if (locationType != null) {
+            if (wrappedType != null) {
                 // External module with a Location type
                 this.morphedType = symType;
-                this.realType = locationType;
+                this.realType = wrappedType;
             } else {
                 this.realType = symType;
 
@@ -212,7 +211,7 @@ public class JavafxTypeMorpher {
                 }
 
                 // must be called AFTER typeKind and realType are set in vsym
-                this.morphedType = symType == syms.voidType? symType : generifyIfNeeded(declLocationType(typeKind), this);
+                this.morphedType = symType == syms.voidType? symType : generifyIfNeeded(variableType(typeKind), this);
             }
         }
 
@@ -267,14 +266,12 @@ public class JavafxTypeMorpher {
         locClass[TYPE_KIND_INT] = "Int";
         locClass[TYPE_KIND_SEQUENCE] = "Sequence";
 
-        varLocation = new LocationNameSymType[TYPE_KIND_COUNT];
-        exprLocation = new LocationNameSymType[TYPE_KIND_COUNT];
-        declLocation = new LocationNameSymType[TYPE_KIND_COUNT];
+        variableNCT = new LocationNameSymType[TYPE_KIND_COUNT];
+        bindingNCT = new LocationNameSymType[TYPE_KIND_COUNT];
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
-            varLocation[kind]  = new LocationNameSymType(locClass[kind] + "Var");
-            exprLocation[kind] = new LocationNameSymType(locClass[kind] + "Expression");
-            declLocation[kind] = new LocationNameSymType(locClass[kind] + "Location");
+            variableNCT[kind] = new LocationNameSymType(locClass[kind] + "Variable");
+            bindingNCT[kind] = new LocationNameSymType(locClass[kind] + "BindingExpression");
         }
 
         baseLocation = new LocationNameSymType("Location");
@@ -294,21 +291,8 @@ public class JavafxTypeMorpher {
         defaultValueByKind[TYPE_KIND_SEQUENCE] = null; //TODO: empty sequence
     }
 
-    Type declLocationType(int typeKind) {
-        return declLocation[typeKind].type;
-    }
-
-    Type varLocationType(int typeKind) {
-        return varLocation[typeKind].type;
-    }
-
-    Type expressionLocationType(int typeKind) {
-        return exprLocation[typeKind].type;
-    }
-
-    JCExpression sharedLocationId(DiagnosticPosition diagPos, int typeKind, LocationNameSymType[] lnsta) {
-        LocationNameSymType lnst = lnsta[typeKind];
-        return ((JavafxTreeMaker)make).at(diagPos).Identifier(lnst.name);
+    Type variableType(int typeKind) {
+        return variableNCT[typeKind].type;
     }
 
     JCExpression castToReal(Type realType, JCExpression expr) {
@@ -324,7 +308,7 @@ public class JavafxTypeMorpher {
                 tmi.getTypeKind() == TYPE_KIND_SEQUENCE) && 
              elemType != null /* handles library which doesn't have element type */) {
             List<Type> actuals = List.of(elemType);
-            Type clazzOuter = declLocationType(tmi.getTypeKind()).getEnclosingType();
+            Type clazzOuter = variableType(tmi.getTypeKind()).getEnclosingType();
 
             List<Type> newActuals = List.nil();
             for (Type t : actuals) {
@@ -609,15 +593,12 @@ public class JavafxTypeMorpher {
     }
 
     /**
-     * Create an ExpressionLocation from "stmt" which is the translation of the expression into
-     * a statement.  The ExpressionLocation is created with an anonymous binding expression
-     * instance and the static dependencies.
+     * Create an BindingExpression from "stmt" which is the translation of the expression into
+     * a statement.  
      */
     JCExpression buildExpression(DiagnosticPosition diagPos,
             TypeMorphInfo tmi,
-            JCStatement stmt,
-            boolean isLazy,
-            List<JCExpression> staticDependencies) {
+            JCStatement stmt) {
 
         JCStatement clearStmt = toJava.callStatement(diagPos, null, defs.clearDynamicDependenciesName);
         List<JCStatement> stmts;
@@ -645,29 +626,38 @@ public class JavafxTypeMorpher {
                     make.at(diagPos).Modifiers(0), 
                     toJava.bindingExpressionDefs.toList());
         toJava.bindingExpressionDefs = null;
-        ListBuffer<JCExpression> argValues = ListBuffer.lb();
-        if (tmi.typeKind == TYPE_KIND_SEQUENCE)
-            argValues.append(toJava.makeSequenceClassArg(diagPos, tmi));
-        argValues.append(make.Literal(TypeTags.BOOLEAN, isLazy ? 1 : 0));
-        argValues.appendList(staticDependencies);
         Type expressionClass =
-                generifyIfNeeded(exprLocation[tmi.typeKind].type, tmi);
+                generifyIfNeeded(bindingNCT[tmi.typeKind].type, tmi);
         return make.at(diagPos).NewClass(
                 null,                       // enclosing
                 List.<JCExpression>nil(),   // type args
                 // class name
                 toJava.makeTypeTree(expressionClass, diagPos),
-                argValues.toList(),
+                List.<JCExpression>nil(),
                 anon);
     }
 
-    JCExpression makeCall(TypeMorphInfo tmi, 
+    JCExpression makeLocationLocalVariable(TypeMorphInfo tmi, 
+                                  DiagnosticPosition diagPos,
+                                  List<JCExpression> makeArgs) {
+        return makeLocationVariable(tmi, diagPos, makeArgs, defs.makeMethodName);
+    }
+
+    JCExpression makeLocationAttributeVariable(TypeMorphInfo tmi, 
+                                  DiagnosticPosition diagPos) {
+        return makeLocationVariable(tmi, diagPos, List.<JCExpression>nil(), defs.makeMethodName);
+    }
+
+    JCExpression makeLocationVariable(TypeMorphInfo tmi, 
                                   DiagnosticPosition diagPos,
                                   List<JCExpression> makeArgs,
-                                  LocationNameSymType[] lnsta,
-                                  Name makeName) {
-        JCExpression locationTypeExp = sharedLocationId(diagPos, tmi.getTypeKind(), lnsta);
-        JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, makeName);
+                                  Name makeMethod) {
+        if (tmi.typeKind == TYPE_KIND_SEQUENCE) {
+            makeArgs = makeArgs.prepend( toJava.makeSequenceClassArg(diagPos, tmi) );
+        }
+        Name locName = variableNCT[tmi.getTypeKind()].name;
+        JCExpression locationTypeExp = ((JavafxTreeMaker)make).at(diagPos).Identifier(locName);
+        JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, makeMethod);
         List<JCExpression> typeArgs = null;
         if (tmi.getTypeKind() == TYPE_KIND_OBJECT) {
             typeArgs = List.of(toJava.makeTypeTree(tmi.getRealType(), diagPos, true));

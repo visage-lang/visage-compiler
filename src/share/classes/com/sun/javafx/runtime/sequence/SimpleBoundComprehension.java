@@ -43,7 +43,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
         V[] intermediateResults = Util.<V>newObjectArray(sequence.size());
         for (int i = 0; i < intermediateResults.length; i++)
             intermediateResults[i] = computeElement$(sequence.get(i), i);
-        return Sequences.make(clazz, intermediateResults);
+        return Sequences.make(getClazz(), intermediateResults);
     }
 
     protected void initialize() {
@@ -71,7 +71,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
                     ourNewElements[directlyAffectedSize + i]
                             = computeElement$(oldValue.get(indirectlyAffectedStart + i), indirectlyAffectedStart + i + elementsAdded);
 
-                Sequence<V> vSequence = Sequences.make(clazz, ourNewElements);
+                Sequence<V> vSequence = Sequences.make(getClazz(), ourNewElements);
                 updateSlice(startPos, updateTrailingElements ? indirectlyAffectedEnd : endPos, vSequence);
             }
         });

@@ -103,8 +103,6 @@ public class Slider extends Widget {
         }
     };
 
-    public attribute focusable: Boolean = false;
-
     public function createComponent():javax.swing.JComponent {
         try {
             jslider = new javax.swing.JSlider(
@@ -143,4 +141,9 @@ public class Slider extends Widget {
         return jslider;
     }
 
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	focusable = false;
+    }
 }

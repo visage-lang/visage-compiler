@@ -36,7 +36,7 @@ import com.sun.javafx.runtime.sequence.Sequence;
 public class InstanceTriggerTest extends JavaFXTestCase {
 
     public void testChangeTrigger() {
-        final IntLocation v = IntVar.make(3);
+        final IntLocation v = IntVariable.make(3);
         CountingListener cl = new CountingListener();
         v.addChangeListener(cl);
         assertEquals(0, cl.count);
@@ -47,7 +47,7 @@ public class InstanceTriggerTest extends JavaFXTestCase {
     }
 
     public void testSequenceChangeTrigger() {
-        final SequenceLocation<Integer> v = SequenceVar.make(Sequences.make(Integer.class, 1, 2, 3));
+        final SequenceLocation<Integer> v = SequenceVariable.make(Sequences.make(Integer.class, 1, 2, 3));
         Sequence<Integer> otherSeq = Sequences.make(Integer.class, 1, 2, 3, 5);
         Sequence<Integer> otherButEqualSeq = Sequences.make(Integer.class, 1, 2, 3, 5);
         CountingListener cl = new CountingListener();
@@ -63,7 +63,7 @@ public class InstanceTriggerTest extends JavaFXTestCase {
      * (lazily) removed from the listener list.  
      */
     public void testWeakRef() {
-        final IntLocation v = IntVar.make(3);
+        final IntLocation v = IntVariable.make(3);
         for (int i=0; i<1; i++) {
             CountingListener cl = new CountingListener();
             v.addWeakListener(cl);
@@ -90,7 +90,7 @@ public class InstanceTriggerTest extends JavaFXTestCase {
         assertEquals(1, ((AbstractLocation) v).getListenerCount());
 
         // "Force" GC, make sure strong but out-of-scope listener stays around
-        final IntLocation u = IntVar.make(3);
+        final IntLocation u = IntVariable.make(3);
         for (int i=0; i<1; i++) {
             cl = new CountingListener();
             v.addChangeListener(cl);
@@ -104,7 +104,7 @@ public class InstanceTriggerTest extends JavaFXTestCase {
     }
 
     public void testPrevValue() {
-        final IntLocation v = IntVar.make();
+        final IntLocation v = IntVariable.make();
         final int[] last = new int[1];
         v.addChangeListener(new IntChangeListener() {
             public void onChange(int oldValue, int newValue) {

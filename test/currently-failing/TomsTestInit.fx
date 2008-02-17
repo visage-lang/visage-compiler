@@ -1,7 +1,6 @@
 /* Test for initializing shadowed attributes with def value coming from super class,
  * def value coming from this class, and a default value coming from an ObjectLiteral.
- * @test
- * @run
+ * @test/fail
  */
 import java.lang.System;
 

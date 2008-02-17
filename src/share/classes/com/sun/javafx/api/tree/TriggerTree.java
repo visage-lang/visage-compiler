@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2005-2006 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,43 +23,21 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime.location;
+package com.sun.javafx.api.tree;
 
 /**
- * ObjectVar represents an object-valued variable as a Location.  New ObjectVars are constructed with the make() factory
- * method.  ObjectVar values are always valid; it is an error to invalidate an ObjectVar.
+ * Common interface for trigger definition nodes in an abstract syntax tree for the 
+ * JavaFX Script language.
  *
- * @author Brian Goetz
+ * <p><b>WARNING:</b> This interface and its sub-interfaces are 
+ * subject to change as the JavaFX Script programming language evolves.
+ * These interfaces are implemented by Sun's JavaFX Script compiler (javafxc) 
+ * and should not be implemented either directly or indirectly by 
+ * other applications.
+ *
+ * @author Robert Field
  */
-public class ObjectVar<T> extends AbstractObjectLocation<T> implements ObjectLocation<T>, MutableLocation {
-
-
-    public static<T> ObjectLocation<T> make(T value) {
-        return new ObjectVar<T>(value);
-    }
-
-    public static <T> ObjectLocation<T> makeUnmodifiable(T value) {
-        return Locations.unmodifiableLocation(new ObjectVar<T>(value));
-    }
-
-
-    private ObjectVar(T value) {
-        super(true, value);
-    }
-
-
-    public T set(T value) {
-        if (changed(this.$value, value))
-            replaceValue(value);
-        return value;
-    }
-
-    public void setDefault() {
-        set(null);
-    }
-
-    @Override
-    public void invalidate() {
-        throw new UnsupportedOperationException();
-    }
+public interface TriggerTree extends JavaFXTree {
+    JavaFXExpressionTree getExpressionTree();
+    OnReplaceTree getOnReplaceTree();
 }

@@ -41,7 +41,6 @@ import java.awt.geom.Point2D;
  * will be painted.
  */
 public class Clip extends Node, Container {
-    private attribute clipFilter: SGClip;
     private attribute childGroup: SGGroup;
 
     /** Sets the shape that defines the visible region of the content*/

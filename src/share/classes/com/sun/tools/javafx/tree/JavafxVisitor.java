@@ -61,4 +61,5 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitForExpressionInClause(JFXForExpressionInClause tree);
     public void visitIndexof(JFXIndexof tree);
     public void visitTimeLiteral(JFXTimeLiteral tree);
+    public void visitTrigger(JFXTrigger tree);
 }

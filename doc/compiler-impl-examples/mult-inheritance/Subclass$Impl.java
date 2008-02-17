@@ -1,125 +1,106 @@
 import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.InitHelper;
-import com.sun.javafx.runtime.location.IntLocation;
-import com.sun.javafx.runtime.location.IntVar;
+import com.sun.javafx.runtime.location.AbstractVariable;
+import com.sun.javafx.runtime.location.IntVariable;
 
 
 interface Base$Intf extends FXObject {
-    public IntLocation get$a();
-
-    public void init$a(IntLocation location);
+    public IntVariable get$a();
 }
 
 interface OtherBase$Intf extends FXObject {
-    public IntLocation get$b();
-
-    public void init$b(IntLocation location);
+    public IntVariable get$b();
 }
 
 interface Subclass$Intf extends Base$Intf, OtherBase$Intf {
-    public IntLocation get$c();
-
-    public void init$c(IntLocation location);
+    public IntVariable get$c();
 }
 
 
 class Base$Impl implements Base$Intf {
-    private static final int NUM$FIELDS = 1;
+    private final IntVariable a = IntVariable.make();
 
-    public static int getNumFields$() {
-        return NUM$FIELDS;
+    public Base$Impl() {
+        addTriggers$(this);
     }
 
-    private IntLocation a;
-    private InitHelper initHelper = new InitHelper(NUM$FIELDS);
+    public IntVariable get$a() { return a; }
+    private AbstractVariable[] attributes = { a };
 
-    public IntLocation get$a() { return a; }
-
-    public void init$a(IntLocation location) {
-        InitHelper.assertNonNull(a, "Base.a");
-        initHelper.add(this.a = location);
+    protected static void addTriggers$(final Base$Intf receiver) {
+        // Call superclass addTriggers$()
+        // Add our triggers
     }
 
-    protected static void setDefaults$(final Base$Intf receiver) {
-        if (receiver.get$a() == null) receiver.init$a(IntVar.make(3));
+    protected static void initAttributes$(final Base$Intf receiver) {
+        if (receiver.get$a().needDefault())
+            receiver.get$a().set(3);
     }
 
     public static void userInit$(final Base$Intf receiver) { }
 
     public void initialize$() {
-        setDefaults$(this);
+        initAttributes$(this);
         userInit$(this);
-        initHelper.initialize();
-        initHelper = null;
+        InitHelper.finish(attributes);
+        attributes = null;
     }
 }
 
 class OtherBase$Impl implements OtherBase$Intf {
-    private static final int NUM$FIELDS = 1;
+    private final IntVariable b = IntVariable.make();
 
-    public static int getNumFields$() {
-        return NUM$FIELDS;
+    public OtherBase$Impl() {
+        addTriggers$(this);
     }
 
-    private IntLocation b;
-    private InitHelper initHelper = new InitHelper(NUM$FIELDS);
+    public IntVariable get$b() { return b; }
+    private AbstractVariable[] attributes = { b };
 
-    public IntLocation get$b() { return b; }
-
-    public void init$b(IntLocation location) {
-        InitHelper.assertNonNull(b, "OtherBase.b");
-        initHelper.add(this.b = location);
+    protected static void addTriggers$(final OtherBase$Intf receiver) {
+        // Call superclass addTriggers$()
+        // Add our triggers
     }
 
-    protected static void setDefaults$(final OtherBase$Intf receiver) {
-        if (receiver.get$b() == null) receiver.init$b(IntVar.make(4));
+    protected static void initAttributes$(final OtherBase$Intf receiver) {
+        if (receiver.get$b().needDefault())
+            receiver.get$b().set(4);
     }
 
     public static void userInit$(final OtherBase$Intf receiver) { }
 
     public void initialize$() {
-        setDefaults$(this);
+        initAttributes$(this);
         userInit$(this);
-        initHelper.initialize();
-        initHelper = null;
+        InitHelper.finish(attributes);
+        attributes = null;
     }
 }
 
 public class Subclass$Impl implements Subclass$Intf {
-    private static final int NUM$FIELDS = 1 + Base$Impl.getNumFields$() + OtherBase$Impl.getNumFields$();
+    private final IntVariable a = IntVariable.make();
+    private final IntVariable b = IntVariable.make();
+    private final IntVariable c = IntVariable.make();
+    private AbstractVariable[] attributes = { a, b, c };
 
-    public static int getNumFields$() {
-        return NUM$FIELDS;
+    public Subclass$Impl() {
+        addTriggers$(this);
     }
 
-    private IntLocation a;
-    private IntLocation b;
-    private IntLocation c;
-    private InitHelper initHelper = new InitHelper(NUM$FIELDS);
+    public IntVariable  get$a() { return a; }
+    public IntVariable  get$b() { return b; }
+    public IntVariable  get$c() { return c; }
 
-    public IntLocation get$a() { return a; }
-    public IntLocation get$b() { return b; }
-    public IntLocation get$c() { return c; }
-
-    public void init$a(IntLocation location) {
-        InitHelper.assertNonNull(b, "Subclass.a");
-        initHelper.add(this.a = location);
+    protected static void addTriggers$(final Subclass$Intf receiver) {
+        // Call superclass addTriggers$()
+        // Add our triggers
     }
 
-    public void init$b(IntLocation location) {
-        InitHelper.assertNonNull(b, "Subclass.b");
-        initHelper.add(this.b = location);
-    }
-
-    public void init$c(IntLocation location) {
-        InitHelper.assertNonNull(c, "Subclass.c");
-        initHelper.add(this.c = location);
-    }
-
-    protected static void setDefaults$(final Subclass$Intf receiver) {
-        Base$Impl.setDefaults$(receiver);
-        OtherBase$Impl.setDefaults$(receiver);
-        if (receiver.get$c() == null) receiver.init$c(IntVar.make(5));
+    protected static void initAttributes$(final Subclass$Intf receiver) {
+        Base$Impl.initAttributes$(receiver);
+        OtherBase$Impl.initAttributes$(receiver);
+        if (receiver.get$c().needDefault())
+            receiver.get$c().set(5);
     }
 
     public static void userInit$(final Subclass$Intf receiver) {
@@ -127,18 +108,17 @@ public class Subclass$Impl implements Subclass$Intf {
         OtherBase$Impl.userInit$(receiver);
     }
 
-
     public void initialize$() {
-        setDefaults$(this);
+        initAttributes$(this);
         userInit$(this);
-        initHelper.initialize();
-        initHelper = null;
+        InitHelper.finish(attributes);
+        attributes = null;
     }
 
     public static void main(String[] args) {
         Subclass$Impl instance = new Subclass$Impl();
-        instance.init$a(IntVar.make(1));
-        instance.init$b(IntVar.make(2));
+        instance.get$a().set(1);
+        instance.get$b().set(2);
         instance.initialize$();
     }
 }

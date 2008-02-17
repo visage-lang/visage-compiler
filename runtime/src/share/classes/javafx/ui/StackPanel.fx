@@ -47,8 +47,6 @@ public class StackPanel extends Widget {
         }
     };
 
-    public attribute focusable: Boolean = false;
-
     public function createComponent():javax.swing.JComponent {
         jpanel = new javax.swing.JPanel();
         jpanel.setLayout(new com.sun.javafx.api.ui.StackLayout());
@@ -58,6 +56,12 @@ public class StackPanel extends Widget {
             jpanel.add(i.getComponent());
         }
         return jpanel;
+    }
+
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	focusable = false;
     }
 }
 
