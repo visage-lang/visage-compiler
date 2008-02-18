@@ -46,7 +46,7 @@ public class LinearGradient extends Gradient {
 
     public function createGradient():Void {
         var fractions = getFractions();
-        if (sizeof fractions >= 2) {
+        if ((endX <> startX or endY <> startY) or sizeof fractions >= 2) {
             
             var colors = getColors();
             var start = new java.awt.geom.Point2D.Double(startX, startY);

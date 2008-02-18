@@ -26,6 +26,7 @@
 package javafx.ui; 
 
 import java.lang.Object;
+import java.lang.System;
 
 public class TreeCell {
     protected function getTree():Tree {

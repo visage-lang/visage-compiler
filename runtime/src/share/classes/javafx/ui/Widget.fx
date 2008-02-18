@@ -283,7 +283,7 @@ public abstract class Widget extends GroupElement, UIElement {
     };        
 
     /** Sets width of this component. Has no effect unless contained in a Panel.  */
-    public attribute width: Number on replace {
+    public attribute width: Number on replace  {
         if (component <> null and not inBoundsListener) {
             var b = this.getBounds();
             b.width = width.intValue();
