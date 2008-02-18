@@ -431,7 +431,7 @@ public class ListBox extends ScrollableWidget {
      * The default value of this property is <code>VERTICAL</code>.
      * <p>
      */
-    public attribute layoutOrientation: ListLayoutOrientation on replace {
+    public attribute layoutOrientation: ListLayoutOrientation = ListLayoutOrientation.VERTICAL on replace {
         if(layoutOrientation <> null) {
             list.setLayoutOrientation(layoutOrientation.id.intValue());
         }
@@ -455,20 +455,20 @@ public class ListBox extends ScrollableWidget {
     /**
      * Returns the preferred number of visible rows.
      */
-    public attribute visibleRowCount: Number on replace  {
+    public attribute visibleRowCount: Number = 8 on replace  {
         list.setVisibleRowCount(visibleRowCount.intValue());
         list.revalidate();
     };
     /**
      * If present, sets the height of every cell in the list. 
      */
-    public attribute fixedCellHeight: Number on replace {
+    public attribute fixedCellHeight: Number = -1 on replace {
         list.setFixedCellHeight(fixedCellHeight.intValue());
     };
     /**
      * If present, sets the width of every cell in the list. 
      */
-    public attribute fixedCellWidth: Number on replace {
+    public attribute fixedCellWidth: Number = -1 on replace {
         list.setFixedCellWidth(fixedCellWidth.intValue());
     };
     /** The cells of this list. */
@@ -618,7 +618,6 @@ public class ListBox extends ScrollableWidget {
     }
 
     public function createView():javax.swing.JComponent {
-        layoutOrientation = ListLayoutOrientation.VERTICAL;
         list.setDragEnabled(enableDND);
         UIElement.context.setDropMode(dropMode.id, list);
         //TODO MULTIPLE SELECTION
