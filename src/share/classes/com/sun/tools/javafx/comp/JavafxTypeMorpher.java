@@ -259,12 +259,7 @@ public class JavafxTypeMorpher {
         log = Log.instance(context);
         toJava = JavafxToJava.instance(context);
 
-        String[] locClass = new String[TYPE_KIND_COUNT];
-        locClass[TYPE_KIND_OBJECT] = "Object";
-        locClass[TYPE_KIND_DOUBLE] = "Double";
-        locClass[TYPE_KIND_BOOLEAN] = "Boolean";
-        locClass[TYPE_KIND_INT] = "Int";
-        locClass[TYPE_KIND_SEQUENCE] = "Sequence";
+        String[] locClass = JavafxVarSymbol.typePrefixes;
 
         variableNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         bindingNCT = new LocationNameSymType[TYPE_KIND_COUNT];
