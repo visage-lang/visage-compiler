@@ -1,8 +1,8 @@
 import jfxc169b;
 
 /*
- * SHOULD NOT FAIL -- compiler bug (JFXC-169)
- * @test
+ * Should fail with error on import line (JFXC-169)
+ * @test/fail
  * @compile jfxc169b.fx
  */
 
