@@ -49,12 +49,40 @@ public class KeyModifier {
     };
 
     public static attribute COMMAND = KeyModifier {
-        //TODO JFXC-43 var isMac is not recognized
-        //var isMac = java.lang.System.getProperty("os.name").toLowerCase().contains("mac")
-        //id: if (isMac) then java.awt.event.InputEvent.META_MASK else
-        //    java.awt.event.InputEvent.CTRL_MASK
+        id: if (java.lang.System.getProperty("os.name").toLowerCase().contains("mac")) 
+            then java.awt.event.InputEvent.META_MASK 
+            else java.awt.event.InputEvent.CTRL_MASK
             
         id: java.awt.event.InputEvent.CTRL_MASK
     };
+    
+    public static function isCTRL(modifiers:KeyModifier[]):Boolean {
+        var matches = for(m in modifiers where m == CTRL) m;
+        return sizeof matches > 0;
+    }
+    public static function isCONTROL(modifiers:KeyModifier[]):Boolean {
+        var matches = for(m in modifiers where m == CONTROL) m;
+        return sizeof matches > 0;
+    }    
+    
+    public static function isSHIFT(modifiers:KeyModifier[]):Boolean {
+        var matches = for(m in modifiers where m == SHIFT) m;
+        return sizeof matches > 0;
+    }  
+    
+    public static function isMETA(modifiers:KeyModifier[]):Boolean {
+        var matches = for(m in modifiers where m == META) m;
+        return sizeof matches > 0;
+    } 
+    
+    public static function isALT(modifiers:KeyModifier[]):Boolean {
+        var matches = for(m in modifiers where m == ALT) m;
+        return sizeof matches > 0;
+    } 
+    
+    public static function isCOMMAND(modifiers:KeyModifier[]):Boolean {
+        var matches = for(m in modifiers where m == COMMAND) m;
+        return sizeof matches > 0;
+    }     
                
 }
