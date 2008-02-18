@@ -98,10 +98,26 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     private void preProcessJfxTopLevel(JCCompilationUnit module) {
         Name moduleClassName = moduleName(module);
 
+        ListBuffer<JCTree> moduleClassDefs = new ListBuffer<JCTree>();
+        ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
+
+        // check for references to pseudo variables and if found, declare them
+        final boolean[] usesFile = new boolean[1];
+        final boolean[] usesDir = new boolean[1];
+        new JavafxTreeScanner() {
+            @Override
+            public void visitIdent(JCIdent id) {
+                super.visitIdent(id);
+                if (id.name.equals(pseudoFile))
+                    usesFile[0] = true;
+                if (id.name.equals(pseudoDir))
+                    usesDir[0] = true;
+            }
+        }.scan(module.defs);
+        addPseudoVariables(moduleClassName, module, moduleClassDefs, usesFile[0], usesDir[0]);
+
         // Divide module defs between run method body, Java compilation unit, and module class
         ListBuffer<JCTree> topLevelDefs = new ListBuffer<JCTree>();
-        ListBuffer<JCTree> moduleClassDefs = new ListBuffer<JCTree>();
-        ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();    
         JFXClassDeclaration moduleClass = null;
         JCExpression value = null;
         for (JCTree tree : module.defs) {
@@ -152,21 +168,6 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
                 break;
             }
         }
-        
-        // check for references to pseudo variables and if found, declare them
-        final boolean[] usesFile = new boolean[1];
-        final boolean[] usesDir = new boolean[1];
-        new JavafxTreeScanner() {
-            @Override
-            public void visitIdent(JCIdent id) {
-                super.visitIdent(id);
-                if (id.name.equals(pseudoFile))
-                    usesFile[0] = true;
-                if (id.name.equals(pseudoDir))
-                    usesDir[0] = true;
-            }
-        }.scan(module.defs);
-        addPseudoVariables(moduleClassName, module, stats, usesFile[0], usesDir[0]);
                 
         // Add run() method... If the class can be a module class.
         moduleClassDefs.prepend(makeMethod(defs.runMethodName, stats.toList(), value, syms.objectType));        
@@ -189,7 +190,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     }
     
     private void addPseudoVariables(Name moduleClassName, JCCompilationUnit module,
-            ListBuffer<JCStatement> stats, boolean usesFile, boolean usesDir) {
+            ListBuffer<JCTree> stats, boolean usesFile, boolean usesDir) {
         if (usesFile || usesDir) {
             // java.net.URL __FILE__ = Util.get__FILE__(moduleClass);
             JCExpression moduleClassFQN = module.pid != null ?
@@ -202,7 +203,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
             JCExpression getFileURL = make.Apply(List.<JCExpression>nil(), getFile, args);
             JCStatement fileVar =
                 make.Var(pseudoFile, getURLType(), 
-                         make.Modifiers(Flags.FINAL), 
+                         make.Modifiers(Flags.FINAL|Flags.STATIC), 
                          false, getFileURL, JavafxBindStatus.UNBOUND, 
                          List.<JFXAbstractOnChange>nil());
 
@@ -213,7 +214,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
                 JCExpression getDirURL = make.Apply(List.<JCExpression>nil(), getDir, args);
                 stats.prepend(
                     make.Var(pseudoDir, getURLType(), 
-                             make.Modifiers(Flags.FINAL), 
+                             make.Modifiers(Flags.FINAL|Flags.STATIC), 
                              false, getDirURL, JavafxBindStatus.UNBOUND, 
                              List.<JFXAbstractOnChange>nil()));
             }
