@@ -30,7 +30,7 @@ import com.sun.javadoc.*;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.util.Position;
-import com.sun.tools.javafx.tree.JFXOperationDefinition;
+import com.sun.tools.javafx.tree.JFXFunctionDefinition;
 
 /**
  * Represents a constructor of a java class.
@@ -54,7 +54,7 @@ public class ConstructorDocImpl
      * constructor.
      */
     public ConstructorDocImpl(DocEnv env, MethodSymbol sym,
-                              String docComment, JFXOperationDefinition tree, Position.LineMap lineMap) {
+                              String docComment, JFXFunctionDefinition tree, Position.LineMap lineMap) {
         super(env, sym, docComment, tree, lineMap);
     }
 

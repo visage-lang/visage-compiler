@@ -32,7 +32,7 @@ import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javafx.comp.JavafxMemberEnter;
-import com.sun.tools.javafx.tree.JFXOperationDefinition;
+import com.sun.tools.javafx.tree.JFXFunctionDefinition;
 import com.sun.tools.javafx.tree.JFXVar;
 
 /**
@@ -63,7 +63,7 @@ class JavafxdocMemberEnter extends JavafxMemberEnter {
     }
 
     @Override
-    public void visitOperationDefinition(JFXOperationDefinition tree) {
+    public void visitOperationDefinition(JFXFunctionDefinition tree) {
         super.visitOperationDefinition(tree);
         MethodSymbol meth = (MethodSymbol)tree.sym;
         if (meth == null || meth.kind != Kinds.MTH) return;

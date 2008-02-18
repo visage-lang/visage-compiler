@@ -34,7 +34,7 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.*;
 
-import com.sun.tools.javafx.tree.JFXOperationDefinition;
+import com.sun.tools.javafx.tree.JFXFunctionDefinition;
 import java.text.CollationKey;
 
 import java.lang.reflect.Modifier;
@@ -57,7 +57,7 @@ public abstract class ExecutableMemberDocImpl
      * Constructor.
      */
     public ExecutableMemberDocImpl(DocEnv env, MethodSymbol sym,
-                                   String rawDocs, JFXOperationDefinition tree, Position.LineMap lineMap) {
+                                   String rawDocs, JFXFunctionDefinition tree, Position.LineMap lineMap) {
         super(env, sym, rawDocs, tree, lineMap);
         this.sym = sym;
     }

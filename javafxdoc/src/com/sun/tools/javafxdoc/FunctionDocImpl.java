@@ -33,7 +33,7 @@ import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.util.Position;
 
-import com.sun.tools.javafx.tree.JFXOperationDefinition;
+import com.sun.tools.javafx.tree.JFXFunctionDefinition;
 import java.lang.reflect.Modifier;
 
 /**
@@ -58,7 +58,7 @@ public class FunctionDocImpl
      * constructor.
      */
     public FunctionDocImpl(DocEnv env, MethodSymbol sym,
-                         String docComment, JFXOperationDefinition tree, Position.LineMap lineMap) {
+                         String docComment, JFXFunctionDefinition tree, Position.LineMap lineMap) {
         super(env, sym, docComment, tree, lineMap);
     }
 

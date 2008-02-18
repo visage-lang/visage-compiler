@@ -44,7 +44,7 @@ import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxAttr;
 import com.sun.tools.javafx.tree.JFXClassDeclaration;
-import com.sun.tools.javafx.tree.JFXOperationDefinition;
+import com.sun.tools.javafx.tree.JFXFunctionDefinition;
 
 
 /**
@@ -624,7 +624,7 @@ public class DocEnv {
      * Should be called only on symbols representing methods.
      */
     void makeFunctionDoc(MethodSymbol meth, String docComment,
-                       JFXOperationDefinition tree, Position.LineMap lineMap) {
+                       JFXFunctionDefinition tree, Position.LineMap lineMap) {
         FunctionDocImpl result = (FunctionDocImpl)methodMap.get(meth);
         docComment = processDocComment(docComment);
         if (result != null) {
@@ -653,7 +653,7 @@ public class DocEnv {
      * Should be called only on symbols representing constructors.
      */
     void makeConstructorDoc(MethodSymbol meth, String docComment,
-                            JFXOperationDefinition tree, Position.LineMap lineMap) {
+                            JFXFunctionDefinition tree, Position.LineMap lineMap) {
         ConstructorDocImpl result = (ConstructorDocImpl)methodMap.get(meth);
         docComment = processDocComment(docComment);
         if (result != null) {
