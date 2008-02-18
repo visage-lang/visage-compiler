@@ -123,6 +123,11 @@ public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
         return mods;
     }
 
+    
+    public boolean isOverride() {
+        return false;
+    }
+
     public JavaFXKind getJavaFXKind() {
         throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
     }

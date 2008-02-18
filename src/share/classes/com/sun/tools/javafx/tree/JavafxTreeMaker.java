@@ -376,6 +376,16 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
+    public JFXOverrideAttribute OverrideAttribute(Name name,
+            JCExpression initializer,
+            JavafxBindStatus bindStatus,
+            List<JFXAbstractOnChange> onChanges) {
+        JFXOverrideAttribute tree = new JFXOverrideAttribute(name, TypeUnknown(), 
+                Modifiers(0L), initializer, bindStatus, onChanges, null);
+        tree.pos = pos;
+        return tree;
+    }
+    
     public JFXVar Param(Name name,
             JFXType type) {
         JFXVar tree = new JFXVar(name, type, 
