@@ -50,7 +50,7 @@ import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.JavafxClassModel;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedAttributeInfo;
-import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedTriggerInfo;
+import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedOverrideAttributeInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.BindAnalysis;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
@@ -482,7 +482,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             ListBuffer<JCStatement> translatedPostInitBlocks = ListBuffer.lb();
             ListBuffer<JCTree> translatedDefs = ListBuffer.lb();
             ListBuffer<TranslatedAttributeInfo> attrInfo = ListBuffer.lb();
-            ListBuffer<TranslatedTriggerInfo> triggerInfo = ListBuffer.lb();
+            ListBuffer<TranslatedOverrideAttributeInfo> overrideInfo = ListBuffer.lb();
 
            // translate all the definitions that make up the class.
            // collect any prepended definitions, and prepend then to the tranlations
@@ -518,15 +518,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                             //translatedDefs.append(trans);
                             break;
                         }
-                        case JavafxTag.TRIGGER_DEF: {
-                            JFXTrigger trigger = (JFXTrigger) def;
-                            triggerInfo.append(initBuilder.translatedTriggerInfo(
-                                    trigger,
-                                    translate(trigger.getOnReplace())));
+                        case JavafxTag.OVERRIDE_ATTRIBUTE_DEF: {
+                            JFXOverrideAttribute override = (JFXOverrideAttribute) def;
+                            overrideInfo.append(initBuilder.translatedOverrideAttributeInfo(
+                                    override,
+                                    translate(override.getOnReplace())));
                             break;
                         }
                        case JavafxTag.FUNCTION_DEF : {
-                           JFXOperationDefinition funcDef = (JFXOperationDefinition)def;
+                           JFXFunctionDefinition funcDef = (JFXFunctionDefinition)def;
                             translatedDefs.append(  translate(funcDef) );
                             if (generateBoundFunctions  && (generateBoundVoidFunctions || funcDef.type.getReturnType() != syms.voidType)) {
                                 if ((funcDef.sym.flags() & Flags.SYNTHETIC) == 0) {
@@ -558,7 +558,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
 
             boolean classOnly = tree.generateClassOnly();
-            JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList(), triggerInfo.toList());
+            JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList(), overrideInfo.toList());
             additionalImports.appendList(model.additionalImports);
        
             boolean classIsFinal = (tree.getModifiers().flags & Flags.FINAL) != 0;
@@ -1126,7 +1126,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
-    public void visitTrigger(JFXTrigger tree) {
+    public void visitOverrideAttribute(JFXOverrideAttribute tree) {
         // handled in visitClassDeclaration
     }
 
@@ -1196,12 +1196,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
-    public void visitOperationValue(JFXOperationValue tree) {
-        JFXOperationDefinition def = tree.definition;
+    public void visitOperationValue(JFXFunctionValue tree) {
+        JFXFunctionDefinition def = tree.definition;
         result = makeFunctionValue(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type);
     }
     
-   JCExpression makeFunctionValue (JCExpression meth, JFXOperationDefinition def, DiagnosticPosition diagPos, MethodType mtype) {
+   JCExpression makeFunctionValue (JCExpression meth, JFXFunctionDefinition def, DiagnosticPosition diagPos, MethodType mtype) {
         ListBuffer<JCTree> members = new ListBuffer<JCTree>();
         if (def != null)
             members.append(translate(def));
@@ -1264,7 +1264,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     * Translate JavaFX a class definition into a Java static implementation method.
     */
    @Override
-    public void visitOperationDefinition(JFXOperationDefinition tree) {
+    public void visitOperationDefinition(JFXFunctionDefinition tree) {
         if (isInnerFunction(tree.sym)) {
             // If tree's context is not a class, then translate:
             //   function foo(args) { body }
@@ -1279,7 +1279,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             DiagnosticPosition diagPos = tree.pos();
             MethodType mtype = (MethodType) tree.type;
             JCExpression typeExpression = makeTypeTree(syms.makeFunctionType(mtype), diagPos, true);
-            JFXOperationDefinition def = new JFXOperationDefinition(make.Modifiers(Flags.SYNTHETIC), tree.name, tree.operation);
+            JFXFunctionDefinition def = new JFXFunctionDefinition(make.Modifiers(Flags.SYNTHETIC), tree.name, tree.operation);
             def.type = mtype;
             def.sym = new MethodSymbol(0, def.name, mtype, tree.sym.owner.owner);
             JCExpression init =
@@ -1601,7 +1601,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
        DiagnosticPosition diagPos = tree.pos();
         if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
             MethodType mtype = (MethodType) tree.sym.type;
-            JFXOperationDefinition def = null; // FIXME
+            JFXFunctionDefinition def = null; // FIXME
             result = makeFunctionValue(make.Ident(functionName((MethodSymbol)tree.sym)), def, tree.pos(), mtype);
             return;
         }
@@ -3103,7 +3103,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      * or permeate the bind into the body.
      * The latter will be attempted when it is straight-line code with no assignments
      */
-    private JCBlock boundMethodBody(DiagnosticPosition diagPos, JFXBlockExpression bexpr, JFXOperationDefinition func) {
+    private JCBlock boundMethodBody(DiagnosticPosition diagPos, JFXBlockExpression bexpr, JFXFunctionDefinition func) {
         JCStatement ret;
         
         ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
@@ -3335,7 +3335,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         
         @Override
-        public void visitOperationDefinition(JFXOperationDefinition tree) {
+        public void visitOperationDefinition(JFXFunctionDefinition tree) {
             Symbol prevSymbol = currentSymbol;
             try {
                 currentSymbol = tree.sym;

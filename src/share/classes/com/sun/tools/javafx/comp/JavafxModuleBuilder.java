@@ -142,8 +142,8 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
                 break;
             }
             case FUNCTION_DEF: {
-                JFXOperationDefinition decl =
-                    (JFXOperationDefinition)tree;
+                JFXFunctionDefinition decl =
+                    (JFXFunctionDefinition)tree;
                 decl.mods.flags |= STATIC;
                 Name name = decl.name;
                 checkName(tree.pos, name);
@@ -237,7 +237,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         super.visitClassDeclaration(tree);
     }
 
-    private JFXOperationDefinition makeMethod(Name name, List<JCStatement> stats, JCExpression value, Type returnType) {
+    private JFXFunctionDefinition makeMethod(Name name, List<JCStatement> stats, JCExpression value, Type returnType) {
         List<JFXVar> emptyVarList = List.nil();
         JFXBlockExpression body = make.BlockExpression(0, stats, value);
         JCExpression rettree = toJava.makeTypeTree(returnType, null);

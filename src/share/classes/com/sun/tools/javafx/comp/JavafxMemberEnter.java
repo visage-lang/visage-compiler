@@ -514,7 +514,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
      *  @param tree     The method definition.
      *  @param env      The environment current outside of the method definition.
      */
-    JavafxEnv<JavafxAttrContext> methodEnv(JFXOperationDefinition tree, JavafxEnv<JavafxAttrContext> env) {
+    JavafxEnv<JavafxAttrContext> methodEnv(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> localEnv =
             env.dup(tree, env.info.dup(env.info.scope.dupUnshared()));
         localEnv.outer = env;
@@ -590,12 +590,12 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 attr.attribExpr(tree, env);
             }
             else
-                attr.finishOperationDefinition((JFXOperationDefinition) tree, env);  
+                attr.finishOperationDefinition((JFXFunctionDefinition) tree, env);  
         }
     }
 
     @Override
-    public void visitOperationDefinition(JFXOperationDefinition tree) {
+    public void visitOperationDefinition(JFXFunctionDefinition tree) {
             Scope enclScope = JavafxEnter.enterScope(env);
             MethodSymbol m = new MethodSymbol(0, tree.name, null, enclScope.owner);
             m.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, m, tree);

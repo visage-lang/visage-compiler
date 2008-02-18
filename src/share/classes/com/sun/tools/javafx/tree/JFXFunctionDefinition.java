@@ -24,58 +24,69 @@
  */
 
 package com.sun.tools.javafx.tree;
+
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.OperationValueTree;
+import com.sun.javafx.api.tree.OperationDefinitionTree;
+import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.TreeVisitor;
-import com.sun.source.tree.VariableTree;
+import com.sun.tools.javac.code.Symbol.MethodSymbol;
+import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.JCTree.*;
 
 /**
- *
- * @author bothner
+ * A function definition.
  */
-public class JFXOperationValue extends JFXExpression implements OperationValueTree {
-    public JFXType rettype;
-    public List<JFXVar> funParams;
-    public JFXBlockExpression bodyExpression;
-    public JFXOperationDefinition definition;
+public class JFXFunctionDefinition extends JFXStatement implements OperationDefinitionTree {
+    public JCModifiers mods;
+    public Name name;
+    public JFXFunctionValue operation;
+    public MethodSymbol sym;
 
-    public JFXOperationValue(JFXType rettype, 
-            List<JFXVar> params, 
+    public JFXFunctionDefinition(
+            JCModifiers mods, 
+            Name name,
+            JFXFunctionValue operation) {
+        this.mods = mods;
+        this.name = name;
+        this.operation = operation;
+    }
+
+    protected JFXFunctionDefinition(
+            JCModifiers mods, 
+            Name name, 
+            JFXType rettype, 
+            List<JFXVar> funParams, 
             JFXBlockExpression bodyExpression) {
-        this.rettype = rettype;
-        this.funParams = params;
-        this.bodyExpression = bodyExpression;
-    }
-
-    public JFXType getJFXReturnType() { return rettype; }
-    public JFXType getType() {
-        return rettype;
+        this.mods = mods;
+        this.name = name;
+        this.operation = new JFXFunctionValue(rettype, funParams, bodyExpression);
     }
     
-    public List<JFXVar> getParams() {
-        return funParams;
-    }
-    
-    public java.util.List<? extends VariableTree> getParameters() {
-        return (java.util.List)funParams;
-    }
-
     public JFXBlockExpression getBodyExpression() {
-        return bodyExpression;
+        return operation.getBodyExpression();
+    }
+    public JCModifiers getModifiers() { return mods; }
+    public Name getName() { return name; }
+    public JFXType getJFXReturnType() { return operation.rettype; }
+    public List<JFXVar> getParameters() { return operation.funParams; }
+    public JFXFunctionValue getOperationValue() {
+        return operation;
     }
 
-    public void accept(JavafxVisitor v) { v.visitOperationValue(this); }
-    
+    public void accept(JavafxVisitor v) {
+        v.visitOperationDefinition(this);
+    }
+
     @Override
     public void accept(Visitor v) {
         if (v instanceof JavafxVisitor) {
             this.accept((JavafxVisitor)v);
         } else if (v instanceof Pretty) {
-            JavafxPretty.visitOperationValue((Pretty) v, this);
+            JavafxPretty.visitOperationDefinition((Pretty) v, this);
         } else {
             assert false;
         }
@@ -83,14 +94,14 @@ public class JFXOperationValue extends JFXExpression implements OperationValueTr
 
     @Override
     public int getTag() {
-     return JavafxTag.FUNCTIONEXPRESSION;
+        return JavafxTag.FUNCTION_DEF;
     }
 
     public JavaFXKind getJavaFXKind() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return JavaFXKind.OPERATION_DEFINITION;
     }
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        return visitor.visitOperationValue(this, data);
+        return visitor.visitOperationDefinition(this, data);
     }
 }

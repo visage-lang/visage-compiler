@@ -1008,7 +1008,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
     
     @Override
-    public void visitTrigger(JFXTrigger tree) {
+    public void visitOverrideAttribute(JFXOverrideAttribute tree) {
         //TODO: handle static triggers
         JCIdent id = tree.getId();
         JFXOnReplace onr = tree.getOnReplace();
@@ -1482,9 +1482,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
     
     @Override
-    public void visitOperationValue(JFXOperationValue tree) {
+    public void visitOperationValue(JFXFunctionValue tree) {
         Scope enclScope = enter.enterScope(env);
-        JFXOperationDefinition def = new JFXOperationDefinition(make.Modifiers(Flags.SYNTHETIC), defs.lambdaName, tree);
+        JFXFunctionDefinition def = new JFXFunctionDefinition(make.Modifiers(Flags.SYNTHETIC), defs.lambdaName, tree);
         tree.definition = def;
         MethodSymbol m = new MethodSymbol(SYNTHETIC, def.name, null, enclScope.owner);
         // m.flags_field = chk.checkFlags(def.pos(), def.mods.flags, m, def);
@@ -1494,14 +1494,14 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
     
     @Override
-    public void visitOperationDefinition(JFXOperationDefinition tree) {
+    public void visitOperationDefinition(JFXFunctionDefinition tree) {
         MethodSymbol m = tree.sym;
         m.complete();
     }
 
-    public void finishOperationDefinition(JFXOperationDefinition tree, JavafxEnv<JavafxAttrContext> env) {
+    public void finishOperationDefinition(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
         MethodSymbol m = tree.sym;
-        JFXOperationValue opVal = tree.operation;
+        JFXFunctionValue opVal = tree.operation;
         JavafxEnv<JavafxAttrContext> localEnv = memberEnter.methodEnv(tree, env);
         Type returnType;
         // Create a new environment with local scope
@@ -3460,8 +3460,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         Scope enclScope = enter.enterScope(env);
         for (List<JCTree> l = tree.getMembers(); l.nonEmpty(); l = l.tail) {
-            if (l.head instanceof JFXOperationDefinition)
-                chk.checkUnique(l.head.pos(), ((JFXOperationDefinition) l.head).sym, enclScope);
+            if (l.head instanceof JFXFunctionDefinition)
+                chk.checkUnique(l.head.pos(), ((JFXFunctionDefinition) l.head).sym, enclScope);
         }
 
         // Check for cycles among non-initial constructors.
@@ -3528,7 +3528,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         superSelects = null;
     }
 
-    void fixOverride(JFXOperationDefinition tree, MethodSymbol m) {
+    void fixOverride(JFXFunctionDefinition tree, MethodSymbol m) {
 	ClassSymbol origin = (ClassSymbol)m.owner;
 	if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name))
 	    if (m.overrides(syms.enumFinalFinalize, origin, types, false)) {
@@ -3558,7 +3558,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 // Javafx modification
 public
 // Javafx modification
-    boolean fixOverride(JFXOperationDefinition tree,
+    boolean fixOverride(JFXFunctionDefinition tree,
 		       MethodSymbol m,
 		       MethodSymbol other,
 		       ClassSymbol origin) {

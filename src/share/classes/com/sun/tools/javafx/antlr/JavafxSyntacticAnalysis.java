@@ -56,17 +56,7 @@ public class JavafxSyntacticAnalysis {
         if (parserChoice == null) {
             parserChoice = "v3"; // default
         }
-        if (parserChoice.equals("v2")) {
-            // leave this default until the new stuff works
-            v2Parser generatedParser;
-            generatedParser = new v2Parser(context, content);
-            try {
-                unit = generatedParser.module();
-            } catch (Throwable thr) {
-                System.err.println("Got v2 Error:");
-                thr.printStackTrace(System.err);
-            }
-        } else {
+        {
             try {
                 // Create input stream from standard input
                 ANTLRStringStream input = new ANTLRStringStream(content.toString());

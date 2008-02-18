@@ -111,9 +111,9 @@ classMember  returns [JCTree member]
 	| postInitDefinition 				{ $member = $postInitDefinition.value; } 
 	| variableDeclaration 				{ $member = $variableDeclaration.value; } 
 	| functionDefinition 				{ $member = $functionDefinition.value; } 
-	| triggerDefinition 				{ $member = $triggerDefinition.value; } 
+	| overrideAttribute 				{ $member = $overrideAttribute.value; } 
 	;
-functionDefinition  returns [JFXOperationDefinition value]
+functionDefinition  returns [JFXFunctionDefinition value]
 	: ^(FUNCTION name functionModifierFlags formalParameters type blockExpression? DOC_COMMENT?)
 	    						{ $value = F.at(pos($FUNCTION)).OperationDefinition(
 	    						  F.at(pos($FUNCTION)).Modifiers($functionModifierFlags.flags),
@@ -127,7 +127,7 @@ initDefinition  returns [JFXInitDefinition value]
 postInitDefinition  returns [JFXPostInitDefinition value]
 	: ^(POSTINIT block)	 			{ $value = F.at(pos($POSTINIT)).PostInitDefinition($block.value); }
 	;
-triggerDefinition returns [JFXTrigger value]
+overrideAttribute returns [JFXOverrideAttribute value]
 	: ^(WITH identifier onReplaceClause)		{ $value = F.at(pos($WITH)).TriggerWrapper($identifier.expr, $onReplaceClause.value); }
 	;
 functionModifierFlags  returns [long flags]

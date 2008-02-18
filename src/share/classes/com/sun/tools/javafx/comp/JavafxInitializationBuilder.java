@@ -215,14 +215,14 @@ public class JavafxInitializationBuilder {
         }
     }  
   
-    TranslatedTriggerInfo translatedTriggerInfo(JFXTrigger trigger, JFXOnReplace onReplace) {
-        return new TranslatedTriggerInfo(trigger, onReplace);
+    TranslatedOverrideAttributeInfo translatedOverrideAttributeInfo(JFXOverrideAttribute override, JFXOnReplace onReplace) {
+        return new TranslatedOverrideAttributeInfo(override, onReplace);
     }
     
-    class TranslatedTriggerInfo extends AttributeInfo {
+    class TranslatedOverrideAttributeInfo extends AttributeInfo {
         private final JFXOnReplace onReplace;
-        TranslatedTriggerInfo(JFXTrigger trigger, JFXOnReplace onReplace) {
-            super(trigger.pos(), trigger.sym, true);
+        TranslatedOverrideAttributeInfo(JFXOverrideAttribute override, JFXOnReplace onReplace) {
+            super(override.pos(), override.sym, true);
             this.onReplace = onReplace;
         }
         
@@ -266,7 +266,7 @@ public class JavafxInitializationBuilder {
      * */
    JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl, 
            List<TranslatedAttributeInfo> translatedAttrInfo, 
-           List<TranslatedTriggerInfo> translatedTriggerInfo) {
+           List<TranslatedOverrideAttributeInfo> translatedTriggerInfo) {
         boolean classOnly = cDecl.generateClassOnly();
         DiagnosticPosition diagPos = cDecl.pos();
         
@@ -672,7 +672,7 @@ public class JavafxInitializationBuilder {
                                                JFXClassDeclaration cDecl,
                                                List<String> javafxClassNames,
                                                List<TranslatedAttributeInfo> translatedAttrInfo,
-                                               List<TranslatedTriggerInfo> translatedTriggerInfo) {
+                                               List<TranslatedOverrideAttributeInfo> translatedTriggerInfo) {
         boolean classIsFinal =(cDecl.getModifiers().flags & Flags.FINAL) != 0;
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
@@ -687,7 +687,7 @@ public class JavafxInitializationBuilder {
         }
 
         // add change listeners for "with" triggers
-        for (TranslatedTriggerInfo info : translatedTriggerInfo) {
+        for (TranslatedOverrideAttributeInfo info : translatedTriggerInfo) {
             JCStatement stat = makeChangeListenerCall(info);
             if (stat != null)
                 stmts.append(stat);
@@ -823,7 +823,7 @@ public class JavafxInitializationBuilder {
                                processAttributeFromSource((JFXVar) def, cDecl);
                            }
                            else if (compound && def.getTag() == JavafxTag.FUNCTION_DEF) {
-                               processFunctionFromSource((JFXOperationDefinition) def);
+                               processFunctionFromSource((JFXFunctionDefinition) def);
                            }
                        }
                        // now visit the super-types
@@ -920,7 +920,7 @@ public class JavafxInitializationBuilder {
            }
        }
      
-       private void processFunctionFromSource(JFXOperationDefinition def) {
+       private void processFunctionFromSource(JFXFunctionDefinition def) {
            MethodSymbol meth = def.sym;
            if (def.pos == Position.NOPOS) {
                return; //TODO: this looks REALLY dangerous, but this brabch is taken.  FIXME
@@ -1014,7 +1014,7 @@ public class JavafxInitializationBuilder {
     /**
      * Non-destructive creation of "on change" change listener set-up call.
      */
-    JCStatement makeChangeListenerCall(TranslatedTriggerInfo info) {
+    JCStatement makeChangeListenerCall(TranslatedOverrideAttributeInfo info) {
         return makeChangeListenerCall(info,
              info.onReplace(),
              null,

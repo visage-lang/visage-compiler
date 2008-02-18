@@ -25,38 +25,92 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.OnReplaceTree;
+import com.sun.javafx.api.tree.JavaFXExpressionTree;
+import com.sun.javafx.api.tree.TriggerTree;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.tree.JCTree.JCModifiers;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.javafx.api.JavafxBindStatus;
 
 /**
- * Override of an attribute declaration.
+ * Wrapper for loose triggers
  *
  * @author Robert Field
  */
-public class JFXOverrideAttribute extends JFXVar {
+public class JFXOverrideAttribute extends JFXStatement implements TriggerTree {
+    private final JCIdent expr;
+    private final JCExpression init;
+    private final JavafxBindStatus bindStatus;
+    private final JFXOnReplace onReplace;
     
-    protected JFXOverrideAttribute(Name name,
-            JFXType jfxtype,
-            JCModifiers mods,
+    public VarSymbol sym;
+    
+    protected JFXOverrideAttribute(JCIdent expr,
             JCExpression init,
             JavafxBindStatus bindStat,
-            List<JFXAbstractOnChange> onChanges,
+            JFXOnReplace onReplace,
             VarSymbol sym) {
-        super(name, 
-            jfxtype,
-            mods,
-            false,
-            init,
-            bindStat,
-            onChanges,
-            sym);
+        this.expr = expr;
+        this.init = init;
+        this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
+        this.onReplace = onReplace;
+        this.sym = sym;
     }
     
+    public void accept(JavafxVisitor v) { v.visitOverrideAttribute(this); }
+    
+    public JCIdent getId() {
+        return expr;
+    }
+
+    public JCExpression getInitializer() {
+        return init;
+    }
+
+    public JavaFXExpressionTree getExpressionTree() {
+        return (JavaFXExpressionTree)expr;
+    }
+
+    public JavafxBindStatus getBindStatus() {
+        return bindStatus;
+    }
+
+    public boolean isBound() {
+        return bindStatus.isBound();
+    }
+
+    public boolean isUnidiBind() {
+        return bindStatus.isUnidiBind();
+    }
+
+    public boolean isBidiBind() {
+        return bindStatus.isBidiBind();
+    }
+
+    public boolean isLazy() {
+        return bindStatus.isLazy();
+    }
+
+    public OnReplaceTree getOnReplaceTree() {
+        return (OnReplaceTree) onReplace;
+    }
+
+    public JFXOnReplace getOnReplace() {
+        return onReplace;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.TRIGGER_WRAPPER;
+    }
+
     @Override
-    public boolean isOverride() {
-        return true;
+    public int getTag() {
+        return JavafxTag.OVERRIDE_ATTRIBUTE_DEF;
+    }
+    
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitTrigger(this, data);
     }
 }

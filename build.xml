@@ -7,7 +7,6 @@
     <property name="javafxdoc.dir" value="${basedir}/javafxdoc"/>
     <property environment="env" />
     <import file="tools-defs.xml"/>
-    <property name="antlr.grammarv2" value="v2" />
     <property name="antlr.grammarv3" value="v3" />
     <property name="antlr.grammarv3w" value="v3Walker" />
 
@@ -108,7 +107,6 @@
     </target>
 
     <target name="-post-init">
-        <property name="antlr.grammarv2.file" value="${antlr.src.dir}/${antlr.grammarv2}.g" />
         <property name="antlr.grammarv3.file" value="${antlr.src.dir}/${antlr.grammarv3}.g" />
         <property name="antlr.grammarv3w.file" value="${antlr.src.dir}/${antlr.grammarv3w}.g" />
     </target>
@@ -123,13 +121,6 @@
                 <attribute name="Main-Class" value="${main.class}"/>
             </manifest>
         </jar>
-    </target>
-
-    <target name="generate-parserv2" unless="parserv2.uptodate" >
-        <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
-            <arg value="${antlr.grammarv2.file}" />
-            <jvmarg value="-Xmx256m"/>
-        </java>
     </target>
 
     <target name="generate-parserv3" unless="parserv3.uptodate" >
@@ -218,11 +209,10 @@
 
     <target depends="init,deps-jar" name="-pre-pre-compile">
         <mkdir dir="${build.classes.dir}"/>
-        <uptodate property="parserv2.uptodate" srcfile="${antlr.grammarv2.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv2}Parser.java" />
         <uptodate property="parserv3.uptodate" srcfile="${antlr.grammarv3.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv3}Parser.java" />
         <uptodate property="parserv3w.uptodate" srcfile="${antlr.grammarv3w.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv3w}.java" />
     </target>
-    <target name="-pre-compile" depends="generate-parserv2,generate-parserv3,generate-parserv3w,-def-pcompile"/>
+    <target name="-pre-compile" depends="generate-parserv3,generate-parserv3w,-def-pcompile"/>
     <target name="-post-compile" depends="compile-runtime-fx" />
     <target depends="init" name="-javadoc-build">
         <mkdir dir="${dist.javadoc.dir}"/>
@@ -301,7 +291,6 @@
 
     <target name="-post-clean" depends="runtime-clean,javafxdoc-clean,spec-clean">
         <!-- Delete ANTLR-generated files -->
-        <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v2*.*" excludes="**/v2.g"/>
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v3*.*" excludes="**/v3.g **/v3Walker.g"/>
         <delete dir="${syntax.diagrams.dir}" />
         <delete dir="${build.instrumented.dir}"/>

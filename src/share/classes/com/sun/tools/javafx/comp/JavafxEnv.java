@@ -67,7 +67,7 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
 
     /** The next enclosing method definition.
      */
-    public JFXOperationDefinition enclMethod;
+    public JFXFunctionDefinition enclMethod;
 
     /** A generic field for further information.
      */

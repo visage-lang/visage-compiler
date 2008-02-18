@@ -120,13 +120,13 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXOperationDefinition OperationDefinition(
+    public JFXFunctionDefinition OperationDefinition(
             JCModifiers modifiers,
             Name name,
             JFXType restype,
             List<JFXVar> params, 
             JFXBlockExpression bodyExpression) {
-        JFXOperationDefinition tree = new JFXOperationDefinition(
+        JFXFunctionDefinition tree = new JFXFunctionDefinition(
                 modifiers,
                 name,
                 restype,
@@ -137,11 +137,11 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXOperationValue OperationValue(
+    public JFXFunctionValue OperationValue(
             JFXType restype,
              List<JFXVar> params, 
             JFXBlockExpression bodyExpression) {
-        JFXOperationValue tree = new JFXOperationValue(
+        JFXFunctionValue tree = new JFXFunctionValue(
                 restype,
                 params,
                 bodyExpression);
@@ -313,8 +313,8 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     }
     
     
-    public JFXTrigger TriggerWrapper(JCIdent expr, JFXOnReplace onr) {
-        JFXTrigger tree = new JFXTrigger(expr, onr, null);
+    public JFXOverrideAttribute TriggerWrapper(JCIdent expr, JFXOnReplace onr) {
+        JFXOverrideAttribute tree = new JFXOverrideAttribute(expr, null, null, onr, null);
         tree.pos = pos;
         return tree;
     }
@@ -376,12 +376,12 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXOverrideAttribute OverrideAttribute(Name name,
+    public JFXOverrideAttribute OverrideAttribute(JCIdent expr, 
             JCExpression initializer,
             JavafxBindStatus bindStatus,
-            List<JFXAbstractOnChange> onChanges) {
-        JFXOverrideAttribute tree = new JFXOverrideAttribute(name, TypeUnknown(), 
-                Modifiers(0L), initializer, bindStatus, onChanges, null);
+            JFXOnReplace onr) {
+        JFXOverrideAttribute tree = new JFXOverrideAttribute(expr, initializer, 
+                bindStatus, onr, null);
         tree.pos = pos;
         return tree;
     }

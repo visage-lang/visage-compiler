@@ -153,7 +153,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-     public static void visitOperationValue(Pretty pretty, JFXOperationValue tree) {
+     public static void visitOperationValue(Pretty pretty, JFXFunctionValue tree) {
         try {
             pretty.println();
             pretty.align();
@@ -175,11 +175,11 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-  public void visitOperationValue(JFXOperationValue tree) {
+  public void visitOperationValue(JFXFunctionValue tree) {
           visitOperationValue(this, tree);
     }
 
-    public static void visitOperationDefinition(Pretty pretty, JFXOperationDefinition tree) {
+    public static void visitOperationDefinition(Pretty pretty, JFXFunctionDefinition tree) {
         try {
             JavafxPretty fxpretty = (JavafxPretty)pretty;
             int oldScope = fxpretty.variableScope;
@@ -207,7 +207,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
     
-    public void visitOperationDefinition(JFXOperationDefinition tree) {
+    public void visitOperationDefinition(JFXFunctionDefinition tree) {
         visitOperationDefinition(this, tree);
     }
 
@@ -602,10 +602,14 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     }
 
     @Override
-    public void visitTrigger(JFXTrigger tree) {
+    public void visitOverrideAttribute(JFXOverrideAttribute tree) {
         try {
-            print("with ");
+            print("override attribute ");
             printExpr(tree.getId());
+            if (tree.getInitializer() != null) {
+                print(" = ");
+                printExpr(tree.getInitializer());
+            }
             print(" ");
             align();
             printExpr(tree.getOnReplace());

@@ -29,7 +29,7 @@ package com.sun.tools.javafx.tree;
  */
 public interface JavafxVisitor extends JCVisitor {  
     public void visitClassDeclaration(JFXClassDeclaration tree);
-    public void visitOperationDefinition(JFXOperationDefinition tree);
+    public void visitOperationDefinition(JFXFunctionDefinition tree);
     public void visitInitDefinition(JFXInitDefinition tree);
     public void visitPostInitDefinition(JFXPostInitDefinition tree);
     public void visitMemberSelector(JFXMemberSelector tree);
@@ -49,7 +49,7 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitOnDeleteElement(JFXOnDeleteElement tree);
     public void visitOnDeleteAll(JFXOnDeleteAll tree);
     public void visitBlockExpression(JFXBlockExpression tree);
-    public void visitOperationValue(JFXOperationValue tree);
+    public void visitOperationValue(JFXFunctionValue tree);
     public void visitSequenceEmpty(JFXSequenceEmpty tree);
     public void visitSequenceRange(JFXSequenceRange tree);
     public void visitSequenceExplicit(JFXSequenceExplicit tree);
@@ -61,5 +61,5 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitForExpressionInClause(JFXForExpressionInClause tree);
     public void visitIndexof(JFXIndexof tree);
     public void visitTimeLiteral(JFXTimeLiteral tree);
-    public void visitTrigger(JFXTrigger tree);
+    public void visitOverrideAttribute(JFXOverrideAttribute tree);
 }
