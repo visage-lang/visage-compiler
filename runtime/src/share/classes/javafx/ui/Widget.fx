@@ -892,8 +892,5 @@ public abstract class Widget extends GroupElement, UIElement {
 	return getComponent();
     }
     
-    init {
-        // override defaults in superclass
-	focusable = false; //TODO: should be protected by not isInitialized
-    }
+
 }
