@@ -43,6 +43,7 @@ public class JavafxDefs {
     public static final String boundFunctionDollarSuffix = "$$bound$";
     public static final String implFunctionSuffix = "$impl";
     public static final String attributeGetMethodNamePrefix = "get$";
+    public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
     public static final String interfaceSuffix = "$Intf";
     public static final String equalsMethodString = "com.sun.javafx.runtime.Checks.equals";
     public static final String isNullMethodString = "com.sun.javafx.runtime.Checks.isNull";
@@ -91,7 +92,7 @@ public class JavafxDefs {
     final Name addStaticDependentName;
     final Name addDynamicDependentName;
     final Name clearDynamicDependenciesName;
-    final Name trySetFromLiteralMethodName;
+    final Name needDefaultsMethodName;
     final Name makeAttributeMethodName;
     final Name makeMethodName;
     final Name makeBijectiveMethodName;
@@ -136,7 +137,7 @@ public class JavafxDefs {
         addStaticDependentName = names.fromString(addStaticDependentNameString);
         addDynamicDependentName = names.fromString(addDynamicDependentNameString);
         clearDynamicDependenciesName = names.fromString(clearDynamicDependenciesNameString);
-        trySetFromLiteralMethodName = names.fromString(trySetFromLiteralMethodNameString);
+        needDefaultsMethodName = names.fromString(trySetFromLiteralMethodNameString);
         makeAttributeMethodName = Name.fromString(names, makeAttributeMethodNameString);
         makeMethodName = Name.fromString(names, makeMethodNameString);
         makeBijectiveMethodName = Name.fromString(names, makeBijectiveMethodNameString);
