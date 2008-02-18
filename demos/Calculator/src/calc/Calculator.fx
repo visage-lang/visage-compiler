@@ -29,7 +29,11 @@ class CalcButton extends CompositeNode {
         };
     }
     
-    public attribute isSelectionRoot: Boolean = true;
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	isSelectionRoot = true;
+    }
 }
 
 
@@ -120,17 +124,8 @@ public class Calculator extends CompositeNode {
         
     }
     
-    public attribute focusable = true;
-    public attribute onKeyDown: function(e:KeyEvent):Void = function(e:KeyEvent):Void {
-        if (e.keyStroke == KeyStroke.ENTER) {
-            input("=");
-        } else if (e.keyStroke == KeyStroke.BACK_SPACE) {        
-            input("del");
-        }
-    };
-    public attribute onKeyTyped: function(e:KeyEvent):Void = function(e:KeyEvent):Void {
-        input(e.keyChar);
-    };
+    
+
     public function composeNode(): Node {
         var n13 = [1,2,3];
         var n46 = [4,5,6];
@@ -211,7 +206,22 @@ public class Calculator extends CompositeNode {
                 action: function():Void {input("=");}    
             }as Object) as Node]
         };
-    }    
+    } 
+    init {
+        // override defaults in superclass
+	//TODO: should be protected by "not isInitialized"
+	focusable = true;
+        onKeyDown = function(e:KeyEvent):Void {
+            if (e.keyStroke == KeyStroke.ENTER) {
+                input("=");
+            } else if (e.keyStroke == KeyStroke.BACK_SPACE) {        
+                input("del");
+            }
+        };
+        onKeyTyped = function(e:KeyEvent):Void {
+            input(e.keyChar);
+        };        
+    }
 }
 
 
