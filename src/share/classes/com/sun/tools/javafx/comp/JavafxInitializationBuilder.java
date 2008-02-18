@@ -854,7 +854,7 @@ public class JavafxInitializationBuilder {
            ListBuffer<ClassSymbol> javaInterfacesBuff = ListBuffer.lb();
            ListBuffer<String> javafxClassNamesBuff = ListBuffer.lb();
            for (ClassSymbol cSym : baseClasses) {
-               String className = cSym.name.toString();
+               String className = cSym.fullname.toString();
                boolean isFXInterface = className.endsWith(interfaceSuffix);
                if (types.isJFXClass(cSym)) {
                    if (isFXInterface) {
