@@ -48,7 +48,7 @@ public class RadialGradient extends Gradient {
 
     public function createGradient():Void {
         var fractions = getFractions();
-        if (sizeof fractions >= 2) {
+        if (radius <> 0 and sizeof fractions >= 2) {
             var colors = getColors();
             var fx = if(focusX == -1) then cx else focusX;
             var fy = if(focusY == -1) then cy else focusY;
