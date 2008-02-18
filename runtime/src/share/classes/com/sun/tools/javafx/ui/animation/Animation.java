@@ -418,13 +418,15 @@ public class Animation {
 		Animator a = (Animator)owner.get();
 		if (a != this) {
 		    if (a != null) {
-			if (a.getPriority() < this.getPriority()) {
-			    System.out.println("You're canceled by: " + property);
-			    
-			    a.stop();
-			} else {
-			    return false;
-			}
+			if (a.isRunning()) {
+                            if (a.getPriority() < this.getPriority()) {
+                                System.out.println("You're canceled by: " + property);
+                                
+                                a.stop();
+                            } else {
+                                return false;
+                            }
+                        }
 		    }
 		    propertyMap.put(property, new WeakReference(this));
 		}

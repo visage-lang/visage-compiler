@@ -44,10 +44,14 @@ public class Timeline {
     public attribute duration: Time;
 
     public function start():Void {
-        if (animator == null) {
-            buildAnimator();
+        if (animator <> null and toggle) {
+            animator.<<reverse>>();
+        } else {
+            if (animator == null) {
+                buildAnimator();
+            }
+            animator.start();
         }
-        animator.start();
     }
     public function stop():Void {
         animator.stop();
