@@ -536,9 +536,6 @@ public class Tree extends ScrollableWidget {
 
     init {
         cellRenderer = tree.getCellRenderer() as FXTreeCellRenderer;    
-        tree.setModel(null);
-        
-        //var selectionCount = 0;
     }    
 }
 
