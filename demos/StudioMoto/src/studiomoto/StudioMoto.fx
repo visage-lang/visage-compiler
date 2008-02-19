@@ -15,6 +15,36 @@ var canvas:Canvas;
 var home:HomeButton;
 var pf: PointerFactory = PointerFactory{};
 var base: java.net.URL = __DIR__;
+
+var ys = [[0..-18 step -1],[-18..-12]];
+var homeY:Number = 0;
+var __homeY = bind pf.make(homeY);
+var _homeY = __homeY.unwrap();
+var interval = 300/sizeof ys;
+var homeSequence: Timeline = Timeline {
+        keyFrames: for(s in ys) {
+            KeyFrame {
+                keyTime: Time {millis: interval}
+                relative: true
+                keyValues: NumberValue {
+                    target: _homeY
+                    value: s
+                }
+            }
+        }
+     };
+var homeSequenceR:Timeline = Timeline {
+        keyFrames: for(s in reverse ys) {
+            KeyFrame {
+                keyTime: Time {millis: interval}
+                relative: true
+                keyValues: NumberValue {
+                    target: _homeY
+                    value: s
+                }
+            }
+        }
+     };
 frame = Frame {
     centerOnScreen: true
     onClose: function() {System.exit(0);}
@@ -81,7 +111,8 @@ frame = Frame {
                     //valign: MIDDLE, halign: HorizontalAlignment.CENTER
                     content: //if true then null else
                     [Group {
-                        transform: Transform.translate(700, 0)
+                        //transform: Transform.translate(700, 0)
+                        transform: Transform.translate(412, 0)
                         halign: HorizontalAlignment.CENTER
                         content: HBox {
                             clip: Clip{shape: Rect {y: -50, height: 100, width: w}}
@@ -91,58 +122,27 @@ frame = Frame {
                             var dummy = a.getNode()
                             content: 
                             [Group {
-                                
                                 isSelectionRoot: true
                                 content:
                                 [Rect {height: 30+68, width: 139, selectable: true, fill: Color.rgba(0, 0, 0, 0), visible: bind selection > 0},
                                 (home = HomeButton {
-                                    var ys = [[0..-18 step -1],[-18..-12]];
-                                    var homeY:Number = 0;
-                                    var tmp:Number = if(selection > 0) {
-                                        var _homeY:Pointer = bind pf.make(homeY).unwrap(); 
+                                    
+                                    var tmp:Number = bind if(selection > 0) {
                                         if(home.hover) {
-                                            var seq = ys;
-                                            var interval = 300/sizeof seq;
-                                            var clip = Timeline {
-                                                keyFrames: for(s in seq) {
-                                                    KeyFrame {
-                                                        keyTime: Time {millis: interval}
-                                                        relative: true
-                                                        keyValues: NumberValue {
-                                                            target: _homeY
-                                                            value: s
-                                                        }
-                                                    }
-                                                }
-                                             };
-                                             clip.start();
+                                             homeSequence.start();
                                         }else {
-                                            var seq = reverse ys;
-                                            var interval = 300/sizeof seq;
-                                            var clip = Timeline {
-                                                keyFrames: for(s in seq) {
-                                                    KeyFrame {
-                                                        keyTime: Time {millis: interval}
-                                                        relative: true
-                                                        keyValues: NumberValue {
-                                                            target: _homeY
-                                                            value: s
-                                                        }
-                                                    }
-                                                }
-                                             };
-                                             clip.start();
+                                             homeSequenceR.start();
                                         }
                                         0;
                                     } else {
-                                        30;
+                                        homeY = 30;
                                     }
                                     transform: bind Transform.translate(-5, -10 + homeY)
                                     action: function() {selection = 0;}
                                 }) as Node ]
                             },
                             
-                            for (i in [0..sizeof labels1-1]) 
+                            for (i in [0..<sizeof labels1]) 
                             MotoMenuButton {
                                 anim: a
                                 action: function() {selection = indexof i+1;}

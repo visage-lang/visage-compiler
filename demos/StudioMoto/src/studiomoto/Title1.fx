@@ -1,4 +1,6 @@
 package studiomoto;
+
+import java.lang.System;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
 import javafx.ui.animation.*;
@@ -10,9 +12,12 @@ public class Title1 extends CompositeNode {
     attribute label2: String;
     attribute label3: String;
     attribute logoGroup: Node;
-    attribute height: Number;
-    attribute width: Number;
+    attribute height: Number = bind currentHeight;
+    attribute width: Number = bind currentWidth;
     attribute power: Node;
+    attribute motorolaY: Number;
+    attribute poweredByY: Number;
+    attribute powerY: Number;    
     private attribute pf: PointerFactory = PointerFactory{};
     private attribute _poweredByYp = bind pf.make(poweredByY);
     private attribute _poweredByY = _poweredByYp.unwrap();
@@ -22,51 +27,59 @@ public class Title1 extends CompositeNode {
     private attribute _powerY = _powerYp.unwrap();
     attribute a: Timeline = Timeline {
 
-        toggle: true
+        toggle: false // true
         keyFrames:
         [ KeyFrame {
             keyTime: 0s
             keyValues:  [
                 NumberValue {
                     target: _poweredByY
-                    value: 0  
+                    value: bind if(lhover) 0 else power.currentHeight
                 },
                NumberValue {
                     target: _motorolaY
-                    value: 0 
+                    value: bind if(lhover) 0 else -(power.currentHeight/2)
                 },
                NumberValue {
                     target: _powerY
-                    value: 0
+                    value: bind if(lhover) 0 else power.currentHeight
                 }
             ]
+            action: function() {
+                System.out.println("set to 0");
+            }
         },
         KeyFrame {
             keyTime: 400ms
             keyValues:  [
                 NumberValue {
                     target: _poweredByY
-                    value: power.currentHeight  
+                    value: bind if(lhover)  power.currentHeight else 0
                     interpolate: NumberValue.EASEBOTH
                 },
                NumberValue {
                     target: _motorolaY
-                    value: -power.currentHeight/2
+                    value: bind if(lhover)  -(power.currentHeight/2) else 0
                     interpolate: NumberValue.EASEBOTH
                 },
                NumberValue {
                     target: _powerY
-                    value: power.currentHeight
+                    value: bind if(lhover)  power.currentHeight else 0
                     interpolate: NumberValue.EASEBOTH
                 }
             ]
+            action: function() {
+                System.out.println("power.currentHeight = {power.currentHeight}");
+                System.out.println("poweredByY = {poweredByY}");
+                System.out.println("motorolaY = {motorolaY}");
+                System.out.println("powerY = {powerY}");
+            }                
         }]
     };
-    attribute motorolaY: Number;
-    attribute poweredByY: Number;
-    attribute powerY: Number;
+
     private attribute rect:Rect;
     private attribute lhover:Boolean = bind rect.hover on replace {
+        java.lang.System.out.println("Title animation");
         a.start();
     };
     function composeNode():Node {
@@ -77,13 +90,14 @@ public class Title1 extends CompositeNode {
                 foreground: Color.YELLOW
             }
             transform: bind Transform.translate(1, -power.currentHeight + powerY)
-        };        
+        };  
+        var self = this;
         Group {
             cursor: Cursor.HAND
             var mainGroup = this
             content:
             [Group {
-                transform: Transform.translate(logoGroup.currentWidth/2, 0)
+                
                 content: logoGroup = Group {
                     content: [HBox {
                         content: 
@@ -105,6 +119,7 @@ public class Title1 extends CompositeNode {
                                 transform: bind Transform.translate(1, motorolaY)
 
                             };
+                            
 
                             content: 
                             [
@@ -130,12 +145,13 @@ public class Title1 extends CompositeNode {
 
                     }]
                 }
+                transform: bind Transform.translate(logoGroup.currentWidth/2, 0)
             },
             rect = Rect {
                 isSelectionRoot: true
                 cursor: Cursor.HAND
-                height: bind height
-                width:  bind width
+                height: bind self.height
+                width:  bind self.width
                 //stroke: Color.BLACK
                 fill: Color.rgba(0, 0, 0,  0)
                 selectable: true
