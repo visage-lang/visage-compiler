@@ -31,7 +31,7 @@ public class MotoCenterPanel extends CompositeNode {
     }  
     attribute pf: PointerFactory = PointerFactory{};
     private attribute rect:Rect;
-    private attribute hover:Boolean = bind rect.hover on replace { fade.start(); }
+    private attribute lhover:Boolean = bind rect.hover on replace { fade.start(); }
     private attribute alpha = .5;
     private attribute _alpha = bind pf.make(alpha).unwrap();
     private attribute fade = Timeline {

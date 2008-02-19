@@ -3,13 +3,15 @@ import javafx.ui.*;
 import javafx.ui.canvas.*;
 
 public class MusicPlaytime extends MotoPanel {
-    attribute title: Node = View {
+    init {
+        //TODO override
+    title = View {
         content: Label {
             text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>Music</span><span style='color:yellow;'>Playtime</span></div></html>"
         }
     };
 
-    attribute content: Node = View {
+    content = View {
         content: Label {
             text:
             "<html><div style='width:600;color:white;font-size:10pt;font-face:arial;'>Make your own music come to life, on your mobile phone. Create original animations, videos, ringtones and more with these interactive tools.
@@ -26,6 +28,8 @@ public class MusicPlaytime extends MotoPanel {
     </html>"
         }
     };
+    
+    }
 }
 
 Canvas {

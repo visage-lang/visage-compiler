@@ -20,13 +20,16 @@ public class SiteSupport extends MotoPanel {
             }
         }
     }    
-    attribute title: Node = View {
+    
+    init {
+        //TODO override
+     title = View {
             content: Label {
                 text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:Color.WHITE;'>Site</span><span style='color:Color.YELLOW;'>Support</span></div></html>"
             }
         };
     
-    attribute content: Node = VBox {
+     content = VBox {
     content:
     [View {
         content: Label {
@@ -54,6 +57,8 @@ public class SiteSupport extends MotoPanel {
         }]
     }]
 };
+
+}
 
 }
 

@@ -3,8 +3,10 @@ import javafx.ui.*;
 import javafx.ui.canvas.*;
 
 public class InsideMusicPane extends MotoPanel {
-    attribute base: java.net.URL; // work around for __DIR__
-    attribute title: Node = Group {
+    
+    init {
+        //TODO Override
+    title = Group {
         content:
         [View {
             content: Label {
@@ -17,7 +19,7 @@ public class InsideMusicPane extends MotoPanel {
             transform: bind Transform.translate(width-30, 8)
         }]
     };
-    attribute content: Node = Group {
+    content = Group {
         content:
         [Group {
         // items
@@ -33,6 +35,8 @@ public class InsideMusicPane extends MotoPanel {
             image: Image {url: "{base}/Image/88.png"}
         }]
     };
+    
+    }
 }
 
 

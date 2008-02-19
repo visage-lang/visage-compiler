@@ -66,7 +66,7 @@ public class Title1 extends CompositeNode {
     attribute poweredByY: Number;
     attribute powerY: Number;
     private attribute rect:Rect;
-    private attribute hover:Boolean = bind rect.hover on replace {
+    private attribute lhover:Boolean = bind rect.hover on replace {
         a.start();
     };
     function composeNode():Node {

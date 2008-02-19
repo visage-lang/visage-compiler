@@ -12,7 +12,6 @@ public class Product {
 }
 
 public class MotoProducts extends MotoPanel {
-    attribute base: java.net.URL; // work around for __DIR__
     attribute products: Product[];
     attribute consoleY: Number  = -200;
     attribute phoneY: Number = -200;
@@ -39,7 +38,6 @@ public class MotoProducts extends MotoPanel {
     attribute introCount: Number;
     attribute productVisible: Boolean;
     
-    attribute pf: PointerFactory = PointerFactory{};
     
     function getImage(n:Integer): Image {
         Image {url: "{base}/products/Image/{n}.png"};
@@ -183,26 +181,30 @@ public class MotoProducts extends MotoPanel {
         introAnim.start();
     }
     
-    // From MotoPanel
-    attribute title: Node = View {
-        content: Label {
-            text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>Moto</span><span style='color:yellow;'>Products</span></div></html>"
-        }
-    };
-    
+
     // NOTE: these were all var's in the original code, 
     // but they don't work that way in the interpreter, bug??
     private attribute open:Boolean = false;
     private attribute margin:Integer = 3;
-    private attribute  transparentFill = Color.rgba(0, 0, 0, 0);
+    private attribute transparentFill = Color.rgba(0, 0, 0, 0);
     private attribute row:Group;
     private attribute group:Group;
-    private attribute hover:Boolean = bind group.hover on replace { 
-        if(not hover) {
+    private attribute lhover:Boolean = bind group.hover on replace { 
+        if(not lhover) {
             open = false;
         }
     };
-    attribute content: Node = Group {
+    
+    // From MotoPanel
+    init {
+        //TODO override
+     title = View {
+        content: Label {
+            text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>Moto</span><span style='color:yellow;'>Products</span></div></html>"
+        }
+    };
+        
+     content = Group {
         
         ///var shadowImage = Image {url: "{base}/Image/
         content: HBox {
@@ -220,6 +222,7 @@ public class MotoProducts extends MotoPanel {
                     [group = Group {
                         content:
                         [ImageView {
+                            //TODO
                             visible: bind not open
                             cursor: Cursor.HAND
                             onMouseClicked: function(e) {open = true;}
@@ -329,6 +332,8 @@ public class MotoProducts extends MotoPanel {
             }]
         }
     };
+    
+    }
 
 
 }

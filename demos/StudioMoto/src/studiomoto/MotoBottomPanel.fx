@@ -11,7 +11,7 @@ public class MotoBottomPanel extends Intro {
     attribute panelWidth: Number;
     attribute panelHeight: Number;
     attribute panelMargin: Number;
-    attribute panels: Intro[] = bind [promotions, musicStuff, insideMusic, guitarPicks];
+    attribute panels: Intro[] = [promotions, musicStuff, insideMusic, guitarPicks];
     attribute promotions: Intro;
     attribute musicStuff: Intro;
     attribute insideMusic: Intro;

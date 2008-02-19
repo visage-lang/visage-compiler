@@ -17,7 +17,7 @@ public class MotoPanel extends Intro {
     attribute content: Node;
     attribute alpha1: Number;
     
-    private attribute pf: PointerFactory = PointerFactory{};
+    protected attribute pf: PointerFactory = PointerFactory{};
     private attribute _titleXp = bind pf.make(titleX);
     private attribute _titleX = _titleXp.unwrap();
     private attribute _contentYp = bind pf.make(contentY);
