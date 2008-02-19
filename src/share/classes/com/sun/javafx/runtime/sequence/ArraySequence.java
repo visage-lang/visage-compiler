@@ -25,10 +25,10 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.Util;
-
 import java.util.BitSet;
 import java.util.List;
+
+import com.sun.javafx.runtime.Util;
 
 /**
  * Sequence implementation class that stores sequence elements in an array.  To create array-based sequences, use
@@ -46,18 +46,21 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
         super(clazz);
         this.array = Util.<T>newObjectArray(values.length);
         System.arraycopy(values, 0, array, 0, values.length);
+        checkForNulls();
     }
 
     public ArraySequence(Class<T> clazz, T[] values, int size) {
         super(clazz);
         this.array =  Util.<T>newObjectArray(size);
         System.arraycopy(values, 0, array, 0, size);
+        checkForNulls();
     }
 
     @SuppressWarnings("unchecked")
     public ArraySequence(Class<T> clazz, List<? extends T> values) {
         super(clazz);
         this.array = (T[]) values.toArray();
+        checkForNulls();
     }
 
     public ArraySequence(Class<T> clazz, Sequence<? extends T>... sequences) {
@@ -71,6 +74,13 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
             seq.toArray(array, next);
             next += seq.size();
         }
+        checkForNulls();
+    }
+
+    private void checkForNulls() {
+        for (T v : array)
+            if (v == null)
+                throw new IllegalArgumentException("cannot create sequence with null values");
     }
 
     @Override

@@ -152,7 +152,10 @@ public final class Sequences {
 
     /** Create a sequence containing a single element, the specified value */
     public static<T> Sequence<T> singleton(Class<T> clazz, T t) {
-        return new SingletonSequence<T>(clazz, t);
+        if (t == null)
+            return emptySequence(clazz);
+        else
+            return new SingletonSequence<T>(clazz, t);
     }
 
     /** Create an empty sequence */
@@ -328,6 +331,6 @@ public final class Sequences {
     }
 
   public static<T> Sequence<? extends T> forceNonNull(Class<T> clazz, Sequence<? extends T> seq) {
-    return seq == null ?  emptySequence(clazz) : seq;
+    return seq == null ? emptySequence(clazz) : seq;
   }
 }
