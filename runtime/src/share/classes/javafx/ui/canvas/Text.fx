@@ -105,6 +105,7 @@ public class Text extends Shape {
     init {
         // override defaults in superclass
 	//TODO: should be protected by "not isInitialized"
-	fill = Color.BLACK;
+        if(fill == null)
+            fill = Color.BLACK;
     }
 }
