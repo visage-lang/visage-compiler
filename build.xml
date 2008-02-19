@@ -125,6 +125,8 @@
 
     <target name="generate-parserv3" unless="parserv3.uptodate" >
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+            <arg value="-o" />
+            <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv3.file}" />
             <jvmarg value="-Xmx256m"/>
         </java>
@@ -132,9 +134,11 @@
 
     <target name="generate-parserv3w" unless="parserv3w.uptodate" >
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+            <arg value="-o" />
+            <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv3w.file}" />
             <arg value="-lib" />
-            <arg value="${antlr.src.dir}" />
+            <arg value="${antlr.generated.dir}" />
             <jvmarg value="-Xmx256m"/>
         </java>
     </target>
