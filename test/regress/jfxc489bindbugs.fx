@@ -5,7 +5,7 @@ import javafx.ui.*;
 
 public class Model {
     attribute names: String[] = ["Chris", "Tom", "Per", "Robert", "Lubo", "Brian"];
-    attribute selection: Number = 0;
+    attribute selection: Integer = 0;
 }
 var model = Model {};
 Frame {
