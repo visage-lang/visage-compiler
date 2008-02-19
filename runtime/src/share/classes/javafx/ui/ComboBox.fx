@@ -38,7 +38,12 @@ import javax.swing.JComboBox;
 
 public class ComboBox extends Widget {
     attribute listeners:javax.swing.event.ListDataListener[];
-    attribute jcombobox:JComboBox;
+    attribute jcombobox:JComboBox = JComboBox {
+            public function toString():String {
+                //TODO not sure this is right, the original would have been the JCombox "this"
+                return getClass().getName()+"@"+System.identityHashCode(this);
+            }
+        };
 
     public attribute cells: ComboBoxCell[]= [ComboBoxCell{text: " "}]
     on replace oldValue[lo..hi]=newVals {
@@ -71,7 +76,7 @@ public class ComboBox extends Widget {
         }
     };
     
-    public attribute selection: Number on replace {
+    public attribute selection: Number = -1 on replace {
         if (selection >= 0 and selection < sizeof cells) {
             jcombobox.setSelectedIndex(selection.intValue());
             jcombobox.repaint();
@@ -91,17 +96,6 @@ public class ComboBox extends Widget {
     private attribute textField:TextField = TextField{value: bind value};
     private attribute jtextField:JTextField = textField.getComponent() as JTextField;
     public function createComponent():javax.swing.JComponent {
-        return jcombobox;
-    }
-    init {
-        cursor = Cursor.DEFAULT;
-        selection = -1;
-        jcombobox = JComboBox {
-            public function toString():String {
-                //TODO not sure this is right, the original would have been the JCombox "this"
-                return getClass().getName()+"@"+System.identityHashCode(this);
-            }
-        };
         //jcombobox.setLightWeightPopupEnabled(false);
         jcombobox.setSelectedIndex(-1);
         jcombobox.addActionListener(ActionListener {
@@ -181,7 +175,13 @@ public class ComboBox extends Widget {
                                     //TODO NOT Sure about this
                                      return o == this;
                                  }
-                              });
+                              });        
+        return jcombobox;
+    }
+    init {
+        if(cursor == null)
+            cursor = Cursor.DEFAULT;
+
     }
 }
 

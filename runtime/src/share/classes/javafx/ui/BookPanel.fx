@@ -79,7 +79,8 @@ public class BookPanel extends Widget {
     
     init {
         // override defaults in superclass
-	background = Color.WHITE; //TODO: should be protected by not isInitialized
+        if(background == null)
+            background = Color.WHITE; //TODO: should be protected by not isInitialized
 	focusable = false; //TODO: should be protected by not isInitialized
     }
 }

@@ -434,6 +434,7 @@ public class Canvas extends Widget, CanvasElement, Container {
     init {
         // override defaults in superclass
 	//TODO: should be protected by "not isInitialized"
-	border = EmptyBorder {top: 5, left: 5, right: 5, bottom: 5};
+        if(border == null)
+            border = EmptyBorder {top: 5, left: 5, right: 5, bottom: 5};
     }
 }

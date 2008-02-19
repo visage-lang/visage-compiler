@@ -27,7 +27,13 @@ package javafx.ui;
 
 
 public class Spinner extends Widget {
-    protected attribute spinner:javax.swing.JSpinner = UIElement.context.createSpinner();
+    protected attribute spinner:javax.swing.JSpinner = UIElement.context.createSpinner() on replace {
+        spinner.addChangeListener(javax.swing.event.ChangeListener {
+            public function stateChanged(e:javax.swing.event.ChangeEvent):Void {
+                value = (spinner.getValue() as java.lang.Number).doubleValue();
+            }
+        }); 
+    };
     public attribute min: Number on replace {
         (spinner.getModel() as com.sun.javafx.api.ui.BigDecimalSpinnerModel).setMinimum(min as java.lang.Number);
     };
@@ -74,11 +80,7 @@ public class Spinner extends Widget {
     }
 
     init {
-        spinner.addChangeListener(javax.swing.event.ChangeListener {
-            public function stateChanged(e:javax.swing.event.ChangeEvent):Void {
-                value = (spinner.getValue() as java.lang.Number).doubleValue();
-            }
-        });
+
 
         // override defaults in superclass
 	//TODO: should be protected by "not isInitialized"

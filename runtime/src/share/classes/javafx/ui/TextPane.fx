@@ -32,7 +32,29 @@ import java.lang.Object;
 public class TextPane extends ScrollableWidget {
     private attribute inUpdate:Boolean;
     private attribute documentListener:javax.swing.event.DocumentListener;
-    private attribute jtextpane: javax.swing.JTextPane;
+    private attribute jtextpane: javax.swing.JTextPane = javax.swing.JTextPane{} on replace {
+        jtextpane.getDocument().putProperty("imageCache",
+                                            UIElement.context.getImageCache());
+        editable = true;
+        documentListener = javax.swing.event.DocumentListener {
+            public function insertUpdate(e:javax.swing.event.DocumentEvent):Void {
+                inUpdate = true;
+
+                inUpdate = false;
+            }
+            public function removeUpdate(e:javax.swing.event.DocumentEvent):Void {
+                inUpdate = true;
+
+                inUpdate = false;
+            }
+            public function changedUpdate(e:javax.swing.event.DocumentEvent):Void {
+                inUpdate = true;
+
+                inUpdate = false;
+            }
+        };
+        jtextpane.getDocument().addDocumentListener(documentListener);          
+    };
     public attribute editable: Boolean on replace {
         jtextpane.setEditable(editable);
     };
@@ -82,28 +104,7 @@ public class TextPane extends ScrollableWidget {
 
     
     init {
-        jtextpane = javax.swing.JTextPane{};
-        jtextpane.getDocument().putProperty("imageCache",
-                                            UIElement.context.getImageCache());
-        editable = true;
-        documentListener = javax.swing.event.DocumentListener {
-            public function insertUpdate(e:javax.swing.event.DocumentEvent):Void {
-                inUpdate = true;
 
-                inUpdate = false;
-            }
-            public function removeUpdate(e:javax.swing.event.DocumentEvent):Void {
-                inUpdate = true;
-
-                inUpdate = false;
-            }
-            public function changedUpdate(e:javax.swing.event.DocumentEvent):Void {
-                inUpdate = true;
-
-                inUpdate = false;
-            }
-        };
-        jtextpane.getDocument().addDocumentListener(documentListener);  
     }
 }
 

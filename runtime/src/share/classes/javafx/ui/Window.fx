@@ -40,7 +40,19 @@ class Window extends AbstractFrame {
         frame.setLocation(new java.awt.Point(screenx.intValue(), screeny.intValue()));
     };
     public attribute owner: UIElement;
-    public attribute frame: javax.swing.JWindow;
+    public attribute frame: javax.swing.JWindow = javax.swing.JWindow{} on replace {
+        frame.setBackground(new java.awt.Color(0,0,0,0));
+        win = frame;
+        win.addWindowListener(java.awt.event.WindowAdapter  {
+              public function windowClosing(e:java.awt.event.WindowEvent) {
+                  if(onClose <> null)
+                        onClose();
+                  if (disposeOnClose) {
+                      frame.dispose();
+                  }
+              }
+          } as java.awt.event.WindowListener);        
+    }
     public attribute menubar: MenuBar on replace {
         //TODO
     };;
@@ -123,20 +135,7 @@ class Window extends AbstractFrame {
         frame = null;
     }
 
-    init {
-        frame = new javax.swing.JWindow;
-        frame.setBackground(new java.awt.Color(0,0,0,0));
-        win = frame;
-        win.addWindowListener(java.awt.event.WindowAdapter  {
-                                  public function windowClosing(e:java.awt.event.WindowEvent) {
-                                      if(onClose <> null)
-                                            onClose();
-                                      if (disposeOnClose) {
-                                          frame.dispose();
-                                      }
-                                  }
-                              } as java.awt.event.WindowListener);
-    }
+
 }
 
 

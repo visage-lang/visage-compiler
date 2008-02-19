@@ -112,7 +112,7 @@ public class ToggleButton extends SelectableButton {
         button.setSelected(value);
     }
     init {
-        
+        //TODO override
         button = UIElement.context.createToggleButton();
         enabled = true;
         button.setOpaque(false);

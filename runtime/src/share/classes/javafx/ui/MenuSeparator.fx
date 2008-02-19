@@ -27,13 +27,12 @@ package javafx.ui;
 
 
 public class MenuSeparator extends AbstractMenuItem {
-    private attribute jsep:javax.swing.JSeparator;
+    private attribute jsep:javax.swing.JSeparator = javax.swing.JPopupMenu.Separator{} 
+    on replace {
+        jsep.setOpaque(false);
+    };
     public function createComponent():javax.swing.JComponent {
         return jsep;
-    }
-    init {
-        jsep = javax.swing.JPopupMenu.Separator{};
-        jsep.setOpaque(false);
     }
 
 }

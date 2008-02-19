@@ -30,13 +30,25 @@ import javafx.ui.Insets;
 import javafx.ui.Orientation;
 
 public class ToolBar extends Widget {
-    private attribute panel: javax.swing.JPanel;
+    private attribute panel: javax.swing.JPanel = new javax.swing.JPanel() on replace {
+        panel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 0, 0));
+        panel.setBorder(null);
+        panel.setOpaque(true);
+        if (orientation == Orientation.HORIZONTAL) {	
+            toolbar = new javax.swing.JToolBar(javax.swing.JToolBar.HORIZONTAL);
+        } else {
+            toolbar = new javax.swing.JToolBar(javax.swing.JToolBar.VERTICAL);
+        }
+        toolbar.setOpaque(false);
+        toolbar.setFloatable(false);
+        panel.add(toolbar);
+    }
     protected attribute toolbar: javax.swing.JToolBar;
 
     public attribute floatable: Boolean on replace {
         toolbar.setFloatable(floatable);
     };
-    public attribute rollover: Boolean on replace {
+    public attribute rollover: Boolean = true on replace {
         toolbar.setRollover(rollover);
     };
     public attribute borderPainted: Boolean on replace {
@@ -67,22 +79,6 @@ public class ToolBar extends Widget {
         return panel;
     }
     
-    init {
-        rollover = true;
-        panel = new javax.swing.JPanel();
-        panel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 0, 0));
-        panel.setBorder(null);
-        panel.setOpaque(true);
-        if (orientation == Orientation.HORIZONTAL) {	
-            toolbar = new javax.swing.JToolBar(javax.swing.JToolBar.HORIZONTAL);
-        } else {
-            toolbar = new javax.swing.JToolBar(javax.swing.JToolBar.VERTICAL);
-        }
-        toolbar.setOpaque(false);
-        toolbar.setFloatable(false);
-        panel.add(toolbar);
-    }
-
     init {
         // override defaults in superclass
 	//TODO: should be protected by "not isInitialized"

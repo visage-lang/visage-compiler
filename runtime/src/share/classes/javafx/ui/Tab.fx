@@ -32,7 +32,10 @@ import java.awt.Dimension;
 
 public class Tab {
     protected attribute tabbedPane: TabbedPane;
-    attribute panel: javax.swing.JPanel;
+    attribute panel: javax.swing.JPanel = new javax.swing.JPanel() on replace {
+        panel.setOpaque(false);
+        panel.setLayout(new java.awt.BorderLayout());
+    };
     public function selectTab() {
         if (content <> null and panel.getComponentCount() == 0) {
             panel.add(content.getComponent(),
@@ -82,11 +85,6 @@ public class Tab {
         }
     };
 
-     init {
-        panel = new javax.swing.JPanel();
-        panel.setOpaque(false);
-        panel.setLayout(new java.awt.BorderLayout());
-    }
 }
 
 
