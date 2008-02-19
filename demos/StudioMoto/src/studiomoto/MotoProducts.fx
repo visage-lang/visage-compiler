@@ -40,7 +40,7 @@ public class MotoProducts extends MotoPanel {
     
     
     function getImage(n:Integer): Image {
-        Image {url: "{base}/products/Image/{n}.png"};
+        Image {url: "{__DIR__}/products/Image/{n}.png"};
     }
     function makeDropStoryBoard(target:Pointer, start:Number, end:Number, bounce:Boolean): Timeline {
         Timeline {
@@ -206,7 +206,7 @@ public class MotoProducts extends MotoPanel {
         
      content = Group {
         
-        ///var shadowImage = Image {url: "{base}/Image/
+        ///var shadowImage = Image {url: "{__DIR__}/Image/
         content: HBox {
             transform: Transform.translate(0, 10)
             content:
@@ -226,14 +226,14 @@ public class MotoProducts extends MotoPanel {
                             visible: bind not open
                             cursor: Cursor.HAND
                             onMouseClicked: function(e) {open = true;}
-                            image: Image{url: "{base}/Image/97.png"}
+                            image: Image{url: "{__DIR__}/Image/97.png"}
                         },
                         VBox {
                             visible: bind open
                             content:
                             [ImageView {              
                                 cursor: Cursor.DEFAULT
-                                image: Image{url: "{base}/Image/99.png"}
+                                image: Image{url: "{__DIR__}/Image/99.png"}
                             },
                             Group {
                                 transform: Transform.translate(11, -7.5)

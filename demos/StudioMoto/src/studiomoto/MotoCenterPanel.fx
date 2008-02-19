@@ -7,7 +7,6 @@ import com.sun.javafx.runtime.PointerFactory;
 import com.sun.javafx.runtime.Pointer;
 
 public class MotoCenterPanel extends CompositeNode {
-    attribute base: java.net.URL; // work around for __DIR__
     attribute height: Number = 300;
     attribute width: Number = 500;
     function makeGlowAnim(filt:Pointer):Timeline{
@@ -64,7 +63,7 @@ public class MotoCenterPanel extends CompositeNode {
                     transform: bind Transform.translate(width/2, height/2)
                     valign: VerticalAlignment.MIDDLE
                     halign: HorizontalAlignment.CENTER
-                    image: Image {url: "{base}/Image/73.png"}
+                    image: Image {url: "{__DIR__}/Image/73.png"}
                 },
                 VBox {
                     content:
@@ -91,11 +90,11 @@ public class MotoCenterPanel extends CompositeNode {
                         [ImageView {
                             //visible: bind not g.hover
                             // 56x35
-                            image: Image {url: "{base}/Image/74.png"}
+                            image: Image {url: "{__DIR__}/Image/74.png"}
                         },
                         ImageView {
                             visible: bind g.hover
-                            image: Image {url: "{base}/Image/75.png"}
+                            image: Image {url: "{__DIR__}/Image/75.png"}
                         },
                         Text {
                             transform: Transform.translate(56/2, 35/2)
@@ -133,11 +132,11 @@ public class MotoCenterPanel extends CompositeNode {
                             [ImageView {
                                 //visible: bind not g.hover
                                 // 56x35
-                                image: Image {url: "{base}/Image/74.png"}
+                                image: Image {url: "{__DIR__}/Image/74.png"}
                             },
                             ImageView {
                                 visible: bind g.hover
-                                image: Image {url: "{base}/Image/75.png"}
+                                image: Image {url: "{__DIR__}/Image/75.png"}
                             },
                             Text {
                                 transform: Transform.translate(56/2, 35/2)
