@@ -65,7 +65,7 @@ public class MotoBottomPanel extends Intro {
                     content: PromotionsPanel{} as Node
                 },
                 Group {
-                    var selection = bind 0
+                    var selection = /*bind*/ 0
                     content: 
 
                     [musicStuff = MotoPanel {

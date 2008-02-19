@@ -8,7 +8,7 @@ public class MoreInfoButton extends CompositeNode {
     function composeNode():Node {
         Group {
             cursor: Cursor.HAND
-            onMouseClicked: function(e) {(this.action)();}
+            onMouseClicked: function(e) {if(action <> null) action();}
             content:
             [ImageView {
                 // 115x37
