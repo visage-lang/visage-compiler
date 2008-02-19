@@ -33,7 +33,9 @@ import javafx.ui.HorizontalAlignment;
 import javafx.ui.VerticalAlignment;
 
 public class RadioButton extends SelectableButton {
-    private attribute jradiobutton: javax.swing.JRadioButton;
+    private attribute jradiobutton: javax.swing.JRadioButton = new javax.swing.JRadioButton() on replace {
+        jradiobutton.setOpaque(false);
+    };
     public attribute text:String on replace {
         jradiobutton.setText(text);
     };
@@ -165,10 +167,6 @@ public class RadioButton extends SelectableButton {
         return jradiobutton;
     }
 
-    init {
-        jradiobutton = new javax.swing.JRadioButton();
-        jradiobutton.setOpaque(false);
-    }
         
 }
 

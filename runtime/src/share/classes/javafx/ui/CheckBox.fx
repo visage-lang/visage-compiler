@@ -33,7 +33,20 @@ import javafx.ui.HorizontalAlignment;
 import javafx.ui.VerticalAlignment;
 
 public class CheckBox extends Widget {
-    private attribute jcheckbox: javax.swing.JCheckBox;
+    private attribute jcheckbox: javax.swing.JCheckBox = javax.swing.JCheckBox{} on replace {
+        jcheckbox.setOpaque(false);
+        jcheckbox.addActionListener(java.awt.event.ActionListener {
+                                        public function actionPerformed(e:java.awt.event.ActionEvent):Void {
+                                            selected = jcheckbox.isSelected();
+                                            if(onChange <> null) {
+                                                onChange(selected);
+                                            }
+                                            if(action <> null) {
+                                                action();
+                                            }
+                                        }
+                                    });
+    };
     public attribute text: String on replace  {
         jcheckbox.setText(text);
     };
@@ -136,20 +149,5 @@ public class CheckBox extends Widget {
         return jcheckbox;
     }
 
-    init {
-        jcheckbox = javax.swing.JCheckBox{};
-        jcheckbox.setOpaque(false);
-        jcheckbox.addActionListener(java.awt.event.ActionListener {
-                                        public function actionPerformed(e:java.awt.event.ActionEvent):Void {
-                                            selected = jcheckbox.isSelected();
-                                            if(onChange <> null) {
-                                                onChange(selected);
-                                            }
-                                            if(action <> null) {
-                                                action();
-                                            }
-                                        }
-                                    });
-    }
 }
 
