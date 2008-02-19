@@ -8,7 +8,6 @@ import com.sun.javafx.runtime.Pointer;
 
 
 class StudioMotoSplash extends CompositeNode {
-    attribute base: java.net.URL; // work around for __DIR__
     attribute motoX: Number = -40;
     attribute studioX: Number = 50;
     attribute phoneY: Number = -120;
@@ -213,11 +212,11 @@ class StudioMotoSplash extends CompositeNode {
                 [Group {
                     content:  
                     [ImageView {
-                        image: Image{url: "{base}/Image/2.jpg"}
+                        image: Image{url: "{__DIR__}Image/2.jpg"}
                     },
                     ImageView {
                         transform: bind Transform.translate(636/2, phoneY)
-                        image: Image{url: "{base}/Image/3.png"}
+                        image: Image{url: "{__DIR__}Image/3.png"}
                         halign: HorizontalAlignment.CENTER
                     }]
                 },

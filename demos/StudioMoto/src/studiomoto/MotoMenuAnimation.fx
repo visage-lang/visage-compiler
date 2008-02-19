@@ -31,27 +31,29 @@ public class MotoMenuAnimation extends CompositeNode {
             [HBox {
                 content:
                 for (j in [1..16]) 
-                VBox {
-                    transform: Transform.translate(1.2, 0)
-                    content:
-                    for (i in [1..n])
-                    Rect {
-                        var self = this
-                        attribute xrand = bind rand
-                        on replace {
-                            System.out.println("rand={xrand}" );
-                            if (xrand % 2 == indexof j % 2) {
-                                self.opacity = if (xrand <= indexof i) 1 else 0;
-                            }
+                    VBox {
+                        transform: Transform.translate(1.2, 0)
+                        content:
+                        for (i in [1..n]) {
+                            Rect {
+                                var self = this
+                                var xrand = bind rand
+                                on replace {
+                                    System.out.println("rand={xrand}" );
+                                    if (xrand % 2 == indexof j % 2) {
+                                        self.opacity = if (xrand <= indexof i) 1 else 0;
+                                    }
+                                }
+                                transform: Transform.translate(0, .5)
+                                var r = (1- (indexof i/n))*.5
+                                height: 1.5
+                                width: 4
+                                fill: Color.rgba(1, .5+r, 0, 1)
+                            };
                         }
-                        transform: Transform.translate(0, .5)
-                        var r = (1- (indexof i/n))*.5
-                        height: 1.5
-                        width: 4
-                        fill: Color.rgba(1, .5+r, 0, 1)
+                    }
                 }
-            }
-        }
-    ]}}
+        ]}
+    }
 }
 

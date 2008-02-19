@@ -4,7 +4,6 @@ import javafx.ui.canvas.*;
 
 
 public class MusicPanel3 extends CompositeNode {
-    attribute base: java.net.URL; // work around for __DIR__
     function composeNode():Node {
         Clip {
             shape: Rect {height: 160, width: 220}
@@ -17,11 +16,11 @@ public class MusicPanel3 extends CompositeNode {
                 ImageView {visible: false
                     transform: Transform.translate(230, 145)
                     valign: VerticalAlignment.BOTTOM, halign: HorizontalAlignment.TRAILING
-                    image: Image{url: "{base}/Image/83.png"}
+                    image: Image{url: "{__DIR__}Image/83.png"}
                 },
                 ImageView {
                     transform: Transform.translate(80, 0)
-                    image: Image{url: "{base}/Image/86.png"}
+                    image: Image{url: "{__DIR__}Image/86.png"}
                 },
                 VBox {
                     transform: Transform.translate(150, 5)

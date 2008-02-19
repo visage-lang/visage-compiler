@@ -99,7 +99,7 @@ public class MotoMenuButton extends CompositeNode {
                     arcWidth: 20
                 },
                 Group {
-                    visible: bind /*not*/ mouseOver    
+                    visible: bind not mouseOver    
                     transform: Transform.translate(30, h*.3)
                     valign: VerticalAlignment.MIDDLE
                     content:
@@ -155,19 +155,19 @@ public class MotoMenuButton extends CompositeNode {
                     [ImageView {
                         visible: false //bind mouseOver
                         transform: Transform.translate(-3, -3)
-                        image: Image{url: bind "{__DIR__}/Image/8.png"}
+                        image: Image{url: bind "{__DIR__}Image/8.png"}
                     },
                     ImageView {
                         //clip: {shape: Rect {width: 10, height: 24}}            
                         //var u = bind if mouseOver then unitinterval in dur 1000 fps 5 while mouseOver continue if true  else 0
                         //var i = bind if (false and mouseOver) (11 + u * 55).intValue() else 7
                         //image: Image {url: bind "{__DIR__}/Image/{i}.png"}
-                        image: Image {url: "{__DIR__}/Image/7.png"}
+                        image: Image {url: "{__DIR__}Image/7.png"}
                     },
                     ImageView {
                         opacity: bind if (mouseOver) then 0.5 else 0
                         transform: Transform.translate(-3, -3)
-                        image: Image {url: bind "{__DIR__}/Image/8.png"}
+                        image: Image {url: bind "{__DIR__}Image/8.png"}
                     }]
                 }]
             }]

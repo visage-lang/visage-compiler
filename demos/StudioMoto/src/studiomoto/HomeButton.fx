@@ -10,7 +10,7 @@ public class HomeButton extends CompositeNode {
         cursor: Cursor.HAND
         content: ImageView {
             onMouseClicked: function(e) {(this.action)();}
-            image: Image {url: "{__DIR__}/Image/94.png"}
+            image: Image {url: "{__DIR__}Image/94.png"}
         }}
     }
 };

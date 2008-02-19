@@ -3,7 +3,6 @@ import javafx.ui.*;
 import javafx.ui.canvas.*;
 
 public class MoreInfoButton extends CompositeNode {
-    attribute base: java.net.URL; // work around for __DIR__
     attribute action: function();
 
     function composeNode():Node {
@@ -13,12 +12,12 @@ public class MoreInfoButton extends CompositeNode {
             content:
             [ImageView {
                 // 115x37
-                image: Image {url: "{base}/Image/80.png"}
+                image: Image {url: "{__DIR__}Image/80.png"}
                 
             },
             ImageView {
                 visible: bind hover
-                image: Image {url: "{base}/Image/81.png"}
+                image: Image {url: "{__DIR__}Image/81.png"}
                 
             },
             Text {

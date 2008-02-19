@@ -8,7 +8,6 @@ import com.sun.javafx.runtime.Pointer;
 
 
 public class GuitarPicks extends Intro {
-    attribute base: java.net.URL; // work around for __DIR__
     /** HTML label for the top pick */
     public attribute label1: String;
     /** action when you click the top pick */
@@ -33,7 +32,7 @@ public class GuitarPicks extends Intro {
         
         content:
         [ImageView {
-            image: Image {url: "{base}/Image/90.png"}
+            image: Image {url: "{__DIR__}Image/90.png"}
         },
         View {
             valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.CENTER
@@ -54,7 +53,7 @@ public class GuitarPicks extends Intro {
             
             content:
             [ImageView {
-                image: Image {url: "{base}/Image/91.png"}
+                image: Image {url: "{__DIR__}Image/91.png"}
             },
             View {
                 valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.CENTER
@@ -166,7 +165,7 @@ public class GuitarPicks extends Intro {
             content:  
             [ImageView {
                 transform: Transform.translate(0, 40)
-                image: Image {url: "{base}/Image/89.png"}
+                image: Image {url: "{__DIR__}Image/89.png"}
             },
             pick2, pick1]
         };

@@ -26,13 +26,13 @@ public class InsideMusicPane extends MotoPanel {
         },
         ImageView {
             transform: bind Transform.translate(0, 120)
-            image: Image {url: "{base}/Image/95.png"}
+            image: Image {url: "{baseDir}Image/95.png"}
         },
         ImageView {
             halign: HorizontalAlignment.TRAILING
             valign: VerticalAlignment.BOTTOM
             transform: bind Transform.translate(width -30, height -35)
-            image: Image {url: "{base}/Image/88.png"}
+            image: Image {url: "{baseDir}Image/88.png"}
         }]
     };
     

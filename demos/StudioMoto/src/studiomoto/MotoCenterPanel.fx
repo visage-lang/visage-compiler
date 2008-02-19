@@ -63,7 +63,7 @@ public class MotoCenterPanel extends CompositeNode {
                     transform: bind Transform.translate(width/2, height/2)
                     valign: VerticalAlignment.MIDDLE
                     halign: HorizontalAlignment.CENTER
-                    image: Image {url: "{__DIR__}/Image/73.png"}
+                    image: Image {url: "{__DIR__}Image/73.png"}
                 },
                 VBox {
                     content:
@@ -90,11 +90,11 @@ public class MotoCenterPanel extends CompositeNode {
                         [ImageView {
                             //visible: bind not g.hover
                             // 56x35
-                            image: Image {url: "{__DIR__}/Image/74.png"}
+                            image: Image {url: "{__DIR__}Image/74.png"}
                         },
                         ImageView {
                             visible: bind g.hover
-                            image: Image {url: "{__DIR__}/Image/75.png"}
+                            image: Image {url: "{__DIR__}Image/75.png"}
                         },
                         Text {
                             transform: Transform.translate(56/2, 35/2)
@@ -132,11 +132,11 @@ public class MotoCenterPanel extends CompositeNode {
                             [ImageView {
                                 //visible: bind not g.hover
                                 // 56x35
-                                image: Image {url: "{__DIR__}/Image/74.png"}
+                                image: Image {url: "{__DIR__}Image/74.png"}
                             },
                             ImageView {
                                 visible: bind g.hover
-                                image: Image {url: "{__DIR__}/Image/75.png"}
+                                image: Image {url: "{__DIR__}Image/75.png"}
                             },
                             Text {
                                 transform: Transform.translate(56/2, 35/2)

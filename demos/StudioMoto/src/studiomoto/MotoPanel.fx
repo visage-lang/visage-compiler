@@ -8,7 +8,7 @@ import com.sun.javafx.runtime.Pointer;
 
 
 public class MotoPanel extends Intro {
-    attribute base: java.net.URL; // work around for __DIR__
+    protected attribute baseDir:java.net.URL = __DIR__;
     attribute width: Number;
     attribute height: Number;
     attribute titleX: Number;
@@ -88,7 +88,7 @@ public class MotoPanel extends Intro {
             content:
             [ImageView {
                 transform: Transform.translate(0, 2)
-                image: Image {url: "{base}/Image/77.png"}
+                image: Image {url: "{__DIR__}Image/77.png"}
             },
             Circle {
                 opacity: bind alpha1
@@ -129,7 +129,7 @@ public class MotoPanel extends Intro {
                         content:
                         ImageView {
                             clip: bind Clip{shape: Rect {height: 5, width: bind width}}
-                            image: Image {url: "{base}/Image/95.png"}
+                            image: Image {url: "{__DIR__}Image/95.png"}
                         }
                     },
                     Group {

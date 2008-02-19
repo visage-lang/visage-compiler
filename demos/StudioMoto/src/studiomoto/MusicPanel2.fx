@@ -7,7 +7,6 @@ import com.sun.javafx.runtime.Pointer;
 import javafx.lang.Time;
 
 public class MusicPanel2 extends CompositeNode {
-    attribute base: java.net.URL;
     attribute softY: Number;
     function composeNode():Node {
         Clip {
@@ -19,20 +18,20 @@ public class MusicPanel2 extends CompositeNode {
                 [ImageView {
                     transform: Transform.translate(-80, 150) 
                     valign: VerticalAlignment.BOTTOM
-                    image: Image {url: "{base}/Image/83.png"}
+                    image: Image {url: "{__DIR__}Image/83.png"}
                 },
                 ImageView {
                     transform: Transform.translate(260, 150)
                     valign: VerticalAlignment.BOTTOM, halign: HorizontalAlignment.TRAILING
-                    image: Image {url: "{base}/Image/83.png"}
+                    image: Image {url: "{__DIR__}Image/83.png"}
                 },
                 ImageView {
                     transform: Transform.translate(0, 50)
-                    image: Image {url: "{base}/Image/84.png"}
+                    image: Image {url: "{__DIR__}Image/84.png"}
                 },
                 ImageView {
                     transform: Transform.translate(75, 30+softY)
-                    image: Image {url: "{base}/Image/85.png"}
+                    image: Image {url: "{__DIR__}Image/85.png"}
                 },
 
                 HBox {
