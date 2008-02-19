@@ -122,14 +122,14 @@ public class ListBox extends ScrollableWidget {
         //for (i in selection) {
         //    insert cells[i].value into result;
         //}
-        insert cells[selection.intValue()] into result;
+        insert cells[selection] into result;
         
         return result as java.lang.Object;
     };
     private function getDragText(): String  {
-        return if(cells[selection.intValue()].dragText <> null) then
-            cells[selection.intValue()].dragText else
-            cells[selection.intValue()].text;
+        return if(cells[selection].dragText <> null) then
+            cells[selection].dragText else
+            cells[selection].text;
 
 //TODO MULTIPLE SELECTION
 /********************************
@@ -379,8 +379,8 @@ public class ListBox extends ScrollableWidget {
                 delete listeners;
                 list.setModel(new javax.swing.DefaultListModel()) ;
                 list.setModel(listmodel);
-                list.setSelectedIndex(selection.intValue());
-                list.ensureIndexIsVisible(selection.intValue());
+                list.setSelectedIndex(selection);
+                list.ensureIndexIsVisible(selection);
             }
             list.addListSelectionListener(selectionListener);
         } else {
@@ -438,16 +438,16 @@ public class ListBox extends ScrollableWidget {
     };
 //TODO MULTIPLE SELECTION
     /** Returns the index of the selected cell or -1 if no cell is selected. */
-    public attribute selection: Number = -1 on replace (old) {
+    public attribute selection:Integer = -1 on replace (old) {
         if (not locked) {
             list.removeListSelectionListener(selectionListener);
-            list.setSelectedIndex(selection.intValue());
+            list.setSelectedIndex(selection);
             if (selection >= 0) {
                 if(old >= 0) {
                     cells[old.intValue()].selected = false;
                 }
-                cells[selection.intValue()].selected = true;
-                list.ensureIndexIsVisible(selection.intValue());
+                cells[selection].selected = true;
+                list.ensureIndexIsVisible(selection);
             }
             list.addListSelectionListener(selectionListener);
         }

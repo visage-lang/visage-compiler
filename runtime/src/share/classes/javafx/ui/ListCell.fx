@@ -35,7 +35,7 @@ import javafx.ui.Label;
 
 public class ListCell {
     protected attribute cacheGeneration: Number;
-    protected attribute myIndex: Number;
+    protected attribute myIndex: Integer;
     protected attribute listbox: ListBox;
     public attribute dragText: String;
     public attribute value: java.lang.Object;
@@ -54,7 +54,7 @@ public class ListCell {
                     }
                 }
                 e = new javax.swing.event.ListDataEvent(listbox.list, 
-                        e.CONTENTS_CHANGED, myIndex.intValue(), 
+                        e.CONTENTS_CHANGED, myIndex, 
                         sizeof listbox.cells - 1);
                 var ls:javax.swing.event.ListDataListener[] = [];
                 insert listbox.listeners into ls;

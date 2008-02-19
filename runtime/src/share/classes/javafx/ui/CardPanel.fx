@@ -30,7 +30,7 @@ public class CardPanel extends Widget {
     protected attribute selectionGeneration: Number;
     private attribute jpanel:javax.swing.JPanel;
     private attribute layout:java.awt.CardLayout;
-    public attribute selection: Number = -1 on replace {
+    public attribute selection: Integer = -1 on replace {
         if (selection >= 0) {
             selectionGeneration = selectionGeneration + 1;
             //TODO JXFC-187
@@ -81,7 +81,7 @@ public class CardPanel extends Widget {
         jpanel.setLayout(layout);
         jpanel.setOpaque(false);
         if (selection <> -1) {
-            var w = cards[selection.intValue()];
+            var w = cards[selection];
             if (w <> null) {
                 var comp = w.getComponent();
                 var id = "{java.lang.System.identityHashCode(comp)}";

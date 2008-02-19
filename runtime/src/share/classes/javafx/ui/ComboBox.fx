@@ -76,9 +76,9 @@ public class ComboBox extends Widget {
         }
     };
     
-    public attribute selection: Number = -1 on replace {
+    public attribute selection: Integer = -1 on replace {
         if (selection >= 0 and selection < sizeof cells) {
-            jcombobox.setSelectedIndex(selection.intValue());
+            jcombobox.setSelectedIndex(selection);
             jcombobox.repaint();
         }
     };
@@ -113,7 +113,7 @@ public class ComboBox extends Widget {
                 }
                 public function getItem():Object {
                     //var str = jtextField.getText();
-                    return cells[selection.intValue()] as Object;
+                    return cells[selection] as Object;
                 }
                 public function selectAll():Void {
                     jtextField.selectAll();
@@ -147,11 +147,11 @@ public class ComboBox extends Widget {
                            var i = for(x in cells where x == cell) indexof x; 
                            if (sizeof i > 0) {
                                selection = i[0];
-                               jtextField.setText("{cells[selection.intValue()].value}");
+                               jtextField.setText("{cells[selection].value}");
                            }
                        }
                        public function getSelectedItem():Object {
-                           var i = selection.intValue();
+                           var i = selection;
                            return if (i >= 0) cells[i] else null;
                        }
                    });

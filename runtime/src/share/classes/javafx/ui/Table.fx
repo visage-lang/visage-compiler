@@ -59,7 +59,7 @@ public class Table extends ScrollableWidget {
 
     public attribute visibleRowCount: Number;
 
-    public attribute selection: Number = -1 on replace (old) {
+    public attribute selection: Integer = -1 on replace (old) {
         if (table <> null) {
             var model = table.getSelectionModel();
             if (old >= 0 and old < table.getRowCount()) {
@@ -78,7 +78,7 @@ public class Table extends ScrollableWidget {
             } else {
                 if (table.getSelectedRow() <> selection) {
                     inSetSelection = true;
-                    table.setRowSelectionInterval(selection.intValue(), selection.intValue());
+                    table.setRowSelectionInterval(selection, selection);
                     inSetSelection = false;
                 }
                 if (true) {
@@ -404,7 +404,7 @@ public class Table extends ScrollableWidget {
         }
         if (selection >= 0 and selection < table.getRowCount()) {
             table.clearSelection();
-            table.setRowSelectionInterval(selection.intValue(), selection.intValue());
+            table.setRowSelectionInterval(selection, selection);
         }
         return table;
     }   

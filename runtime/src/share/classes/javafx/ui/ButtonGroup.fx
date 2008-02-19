@@ -52,10 +52,10 @@ public class ButtonGroup {
             ndx++
         }
     };
-    public attribute selection: Number on replace (oldValue) {
+    public attribute selection: Integer on replace (oldValue) {
         if (sizeof buttons > 0) {
-            buttons[oldValue.intValue()].selected = false;
-            buttons[selection.intValue()].selected = true;
+            buttons[oldValue].selected = false;
+            buttons[selection].selected = true;
             if (this.onSelectionChange <> null) {
                 (this.onSelectionChange)(SingleSelection {
                                              anchorIndex: oldValue
