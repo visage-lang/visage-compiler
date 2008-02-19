@@ -95,6 +95,14 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
     
     @Override
+    public void visitBindExpression(JFXBindExpression tree) {
+        boolean wasInBindContext = inBindContext;
+        inBindContext |= true;
+        tree.getExpression().accept(this);
+        inBindContext = wasInBindContext;
+    }
+
+    @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         boolean wasInBindContext = inBindContext;
         inBindContext = tree.isBound();
@@ -102,7 +110,16 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         tree.getExpression().accept(this);
         inBindContext = wasInBindContext;
     }
-    
+
+    @Override
+    public void visitAssign(JCAssign tree) {
+        boolean wasLHS = inLHS;
+        inLHS = true;
+        scan(tree.lhs);
+        inLHS = wasLHS;
+        scan(tree.rhs);
+    }
+
     @Override
     public void visitIdent(JCIdent tree) {
         markVarUse(tree.sym);

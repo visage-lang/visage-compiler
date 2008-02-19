@@ -27,7 +27,8 @@ package com.sun.tools.javafx.tree;
 
 /** The visitor interface for JavaFX trees.
  */
-public interface JavafxVisitor extends JCVisitor {  
+public interface JavafxVisitor extends JCVisitor {
+    public void visitBindExpression(JFXBindExpression tree);
     public void visitClassDeclaration(JFXClassDeclaration tree);
     public void visitOperationDefinition(JFXFunctionDefinition tree);
     public void visitInitDefinition(JFXInitDefinition tree);

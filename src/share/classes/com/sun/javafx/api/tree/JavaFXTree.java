@@ -47,6 +47,11 @@ public interface JavaFXTree extends Tree {
     public enum JavaFXKind {
 
         /**
+         * Used for instances of {@link BindkExpressionTree}.
+         */
+        BIND_EXPRESSION(BindExpressionTree.class),
+
+         /**
          * Used for instances of {@link BlockExpressionTree}.
          */
         BLOCK_EXPRESSION(BlockExpressionTree.class),

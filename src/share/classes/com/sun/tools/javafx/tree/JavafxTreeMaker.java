@@ -113,6 +113,14 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
+    
+    public JFXBindExpression BindExpression(JCExpression expr, JavafxBindStatus bindStatus) {
+        if (bindStatus == null)
+            bindStatus = JavafxBindStatus.UNBOUND;
+        JFXBindExpression tree = new JFXBindExpression(expr, bindStatus);
+        tree.pos = pos;
+        return tree;
+    }
 
     public JFXBlockExpression BlockExpression(long flags, List<JCStatement> stats, JCExpression value) {
         JFXBlockExpression tree = new JFXBlockExpression(flags, stats, value);

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 1999-2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,26 +23,37 @@
  * have any questions.
  */
 
-package com.sun.tools.javafx.code;
-import com.sun.tools.javac.code.Flags;
+package com.sun.tools.javafx.tree;
+import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.BindExpressionTree;
+import com.sun.javafx.api.JavafxBindStatus;
+
 /**
- * Some Javafx-specific flags for {@code Symbols}'s {@code flags_field}.
  *
- * @author llitchev
  * @author Per Bothner
  */
-public class JavafxFlags {
-    private JavafxFlags() {}
-
-    // FIXME - should in Flags.java
-    protected static final long LAST_JAVA_FLAG = Flags.PROPRIETARY;
-
-    public static final long ASSIGNED_TO = LAST_JAVA_FLAG << 1;
-    public static final long INNER_ACCESS = LAST_JAVA_FLAG << 2;
-    public static final long DEFER_TYPE_ASSIGNMENT = LAST_JAVA_FLAG << 3;
+public class JFXBindExpression  extends JFXExpression implements BindExpressionTree {
+    JCExpression expr;
+    private JavafxBindStatus bindStatus;
+    protected JFXBindExpression (JCExpression expr, JavafxBindStatus bindStatus) {
+        this.expr = expr;
+        this.bindStatus = bindStatus;
+    }
+    public JCExpression getExpression() { return expr; }
+    public JavafxBindStatus getBindStatus() { return bindStatus; }
     
-    /** If this is a class that gets translated to a class and an inteface.
-     * (This is used to implement multiple inheritance.)
-     */
-    public static final long COMPOUND_CLASS = ASSIGNED_TO;
+    @Override
+    public int getTag() {
+        return JavafxTag.BIND_EXPRESSION;
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.BIND_EXPRESSION;
+    }
+
+    public void accept(JavafxVisitor v) { v.visitBindExpression(this); }
+    
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitBindExpression(this, data);
+    }
 }

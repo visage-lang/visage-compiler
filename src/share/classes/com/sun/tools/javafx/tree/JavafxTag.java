@@ -97,11 +97,15 @@ public abstract class JavafxTag extends JCTree {
     
     /** String expression "Hello { world() %s }"
      */
-    public static final int STRING_EXPRESSION = OBJECT_LITERAL + 1;     
+    public static final int STRING_EXPRESSION = OBJECT_LITERAL + 1;
+    
+    /** Bind expression 'bind expr'
+     */
+    public static final int BIND_EXPRESSION = STRING_EXPRESSION + 1;
 
     /** for expression 
      */
-    public static final int FOR_EXPRESSION = STRING_EXPRESSION + 1;     
+    public static final int FOR_EXPRESSION = BIND_EXPRESSION + 1;     
 
     /** for expression (x in seq where cond) clause
      */

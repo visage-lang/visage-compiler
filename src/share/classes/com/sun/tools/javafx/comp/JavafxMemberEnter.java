@@ -543,7 +543,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
 
         Scope enclScope = JavafxEnter.enterScope(env);
-        VarSymbol v = new JavafxVarSymbol(0, tree.name, null, enclScope.owner);
+        JavafxVarSymbol v = new JavafxVarSymbol(0, tree.name, null, enclScope.owner);
+        attr.varSymToTree.put(v, tree);
         tree.sym = v;
         SymbolCompleter completer = new SymbolCompleter();
             completer.env = env;

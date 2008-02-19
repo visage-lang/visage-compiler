@@ -53,6 +53,10 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
  * Visitor methods
  ****************************************************************************/
 
+    public R visitBindExpression(BindExpressionTree node, P p) {
+        return scan(node.getExpression(), p);
+    }
+
     public R visitBlockExpression(BlockExpressionTree node, P p) {
         R r = scan(node.getStatements(), p);
         return scanAndReduce(node.getValue(), p, r);

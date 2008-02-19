@@ -43,6 +43,7 @@ import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Name.Table;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import static com.sun.tools.javafx.code.JavafxFlags.*;
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.tree.JavafxTag.*;
 
@@ -153,10 +154,19 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
             }
             case VAR_DEF: {
                 JFXVar decl = (JFXVar) tree;
-                //decl.mods.flags |= STATIC;
-                checkName(tree.pos, decl.getName());
-                stats.append(decl);
-                //moduleClassDefs.append(tree);
+                Name name = decl.name;
+                checkName(tree.pos, name);
+                decl.mods.flags |= STATIC;
+                JCExpression init = decl.init;
+                if (init != null) {
+                    JavafxBindStatus bindStatus = decl.getBindStatus();
+                    if (bindStatus != JavafxBindStatus.UNBOUND)
+                            init = make.BindExpression(init, bindStatus);
+                    stats.append(make.at(tree).Exec(make.Assign(make.Ident(name), init)));
+                    decl.mods.flags |= DEFER_TYPE_ASSIGNMENT;
+                    decl.init = null;
+                }
+                moduleClassDefs.append(tree);
                 break;
             }
             default:

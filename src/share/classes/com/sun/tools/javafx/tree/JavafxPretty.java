@@ -236,6 +236,14 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             throw new UncheckedIOException(e);
         }
     }
+    public void visitBindExpression(JFXBindExpression tree) {
+        try {
+            printBind(tree.getBindStatus());
+            printExpr(tree.getExpression());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
     public void visitBlockExpression(JFXBlockExpression tree) {
         visitBlockExpression(this, tree);

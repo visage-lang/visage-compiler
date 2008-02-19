@@ -508,13 +508,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                             JFXVar attrDef = (JFXVar) def;
                             JCTree trans = translate(attrDef);
                             boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
-                            JCStatement init = translateDefinitionalAssignmentToSet(attrDef.pos(), 
+                            if ((attrDef.mods.flags & JavafxFlags.DEFER_TYPE_ASSIGNMENT) == 0) {
+                                JCExpression init = translateDefinitionalAssignmentToSet(attrDef.pos(), 
                                     attrDef.init, attrDef.getBindStatus(), attrDef.sym,
                                     isStatic? null : make.Ident(defs.receiverName), FROM_DEFAULT_MILIEU);
-                            attrInfo.append(initBuilder.translatedAttributeInfo(
+                                attrInfo.append(initBuilder.translatedAttributeInfo(
                                     attrDef,
-                                    init,
+                                    make.at(attrDef.pos()).Exec(init),
                                     translate(attrDef.getOnChanges())));
+                            }
                             //translatedDefs.append(trans);
                             break;
                         }
@@ -800,8 +802,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     }
 
                     JCIdent ident1 = make.at(diagPos).Ident(tmpName);
-                    JCStatement lastStatement = translateDefinitionalAssignmentToSet(diagPos, init, bindStatus, vsym, ident1, FROM_LITERAL_MILIEU);
-                    stats.append(lastStatement); 
+                    init = translateDefinitionalAssignmentToSet(diagPos, init, bindStatus, vsym, ident1, FROM_LITERAL_MILIEU);
+                    stats.append(make.at(diagPos).Exec(init)); 
                 }
 
                 JCIdent ident3 = make.Ident(tmpName);   
@@ -982,7 +984,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
     }
 
-    private JCStatement translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
+    private JCExpression translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
             JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
             JCExpression instance, int milieu) {
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
@@ -1003,7 +1005,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         } else {
             methName = defs.locationSetMilieuMethodName[vmi.getTypeKind()][milieu];
         }
-        return callStatement(diagPos, attr, methName, args);
+        return callExpression(diagPos, attr, methName, args);
     }
 
     JCExpression makeUnboundLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi, JCExpression expr) {
@@ -1382,6 +1384,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             inOperationDef = prevInOperDef;
         }
     }
+   
+    public void visitBindExpression(JFXBindExpression tree) {
+         throw new AssertionError(tree);
+    }
 
     public void visitBlockExpression(JFXBlockExpression tree) {
         DiagnosticPosition diagPos = tree.pos();
@@ -1428,6 +1434,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         Symbol sym = expressionSymbol(tree.lhs);
         VarSymbol vsym = (sym != null && (sym instanceof VarSymbol))? (VarSymbol)sym : null;
+
+        if (tree.rhs instanceof JFXBindExpression) {
+            JFXBindExpression bind = (JFXBindExpression) tree.rhs;
+            JCExpression lhs = translate(tree.lhs, Wrapped.InLocation);
+            result = translateDefinitionalAssignmentToSet(bind.pos(), 
+                                    bind.getExpression(), bind.getBindStatus(), vsym,
+                                    null /*for now*/, FROM_DEFAULT_MILIEU);
+            return;
+        }
         
         JCExpression rhs = translate(tree.rhs);
         if (tree.lhs.getTag() == JavafxTag.SEQUENCE_INDEXED) {

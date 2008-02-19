@@ -103,7 +103,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     private final Name voidTypeName;  // possibly temporary
     private final Source source;
 
-    private Map<JavafxVarSymbol, JFXVar> varSymToTree = new HashMap<JavafxVarSymbol, JFXVar>();
+    Map<JavafxVarSymbol, JFXVar> varSymToTree = new HashMap<JavafxVarSymbol, JFXVar>();
     Set<JCFieldAccess> superSelects = new HashSet<JCFieldAccess>();
     
     public static JavafxAttr instance(Context context) {
@@ -879,10 +879,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         lhsSym.flags_field |= JavafxFlags.ASSIGNED_TO;        
         result = check(tree, capturedType, VAL, pkind, pt, pSequenceness);
 
-        if (tree.rhs != null) {
+        if (tree.rhs != null && tree.lhs.getTag() == JCTree.IDENT) {
             JFXVar lhsVar = varSymToTree.get(lhsSym);
             if (lhsVar != null && (lhsVar.getJFXType() instanceof JFXTypeUnknown)) {
-                if ((lhsVar.type == null || lhsVar.type == syms.javafx_AnyType)) {
+                if (lhsVar.type == null ||
+                        lhsVar.type == syms.javafx_AnyType/* ??? */ ||
+                        lhsVar.type == syms.javafx_UnspecifiedType) {
                     if (tree.rhs.type != null && lhsVar.type != tree.rhs.type) {
                         lhsVar.type = lhsSym.type = tree.rhs.type;
                         JCExpression jcExpr = make.at(tree.pos()).Ident(lhsSym);
@@ -947,6 +949,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             }
             else if (tree.type != null)
                 initType = tree.type;
+            else if ((tree.mods.flags & JavafxFlags.DEFER_TYPE_ASSIGNMENT) != 0)
+                initType = syms.javafx_UnspecifiedType;
             else
                 initType = syms.objectType;  // nothing to go on, so we assume Object
             if (declType == syms.javafx_UnspecifiedType && v.type == null)
@@ -964,11 +968,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         Symbol sym = tree.sym;
         sym.complete();
         
-        if (sym instanceof JavafxVarSymbol) {
-            varSymToTree.put((JavafxVarSymbol)sym, tree);
-        }
- 
-        if (tree.getOnChanges() != null) {
+       if (tree.getOnChanges() != null) {
             Type elemType = null;
 
             if (types.isSequence(tree.type)) {
@@ -1189,6 +1189,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
     public void visitSkip(JCSkip tree) {
         result = null;
+    }
+
+    public void visitBindExpression(JFXBindExpression tree) {
+         Type owntype = attribTree(tree.getExpression(), env, VAL, pt);
+         result = check(tree, owntype, pkind, pkind, pt, pSequenceness);
     }
 
     public void visitBlock(JCBlock tree) {
