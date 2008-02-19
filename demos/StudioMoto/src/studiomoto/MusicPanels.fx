@@ -9,8 +9,17 @@ import com.sun.javafx.runtime.Pointer;
 public class MusicPanels extends CompositeNode {
     attribute pf: PointerFactory = PointerFactory{};
     attribute selection: Integer on replace {
-        var newValue = selection;
-        var selectionClip:Timeline = Timeline {
+        if(selectionClip <> null) {
+            selectionClip.stop();
+            selectionClip.start();
+        }
+    };
+    attribute panels: Node[] = [MusicPanel1{} as Node, MusicPanel2{}  as Node, MusicPanel3{}  as Node];
+    attribute selectedPanel: Node = bind panels[selection];
+    attribute alpha: Number = 1;
+    private attribute __alpha = bind pf.make(alpha);
+    private attribute _alpha:Pointer = __alpha.unwrap();
+    private attribute selectionClip:Timeline = Timeline {
             keyFrames: [
                 KeyFrame {
                     keyTime: 0s
@@ -18,11 +27,6 @@ public class MusicPanels extends CompositeNode {
                             target: _alpha
                             value: 0
                         }
-                    action: function() {
-                        if(selection <> newValue) {
-                            selectionClip.stop();
-                        }
-                    }
                 },
                 KeyFrame {
                     keyTime: 300ms
@@ -30,21 +34,9 @@ public class MusicPanels extends CompositeNode {
                             target: _alpha
                             value: 1
                         } 
-                    action: function() {
-                        if(selection <> newValue) {
-                            selectionClip.stop();
-                        }
-                    }                    
                 }
             ]
-        };
-        selectionClip.start();
-    };
-    attribute panels: Node[] = [MusicPanel1{} as Node, MusicPanel2{}  as Node, MusicPanel3{}  as Node];
-    attribute selectedPanel: Node = bind panels[selection];
-    attribute alpha: Number = 1;
-    private attribute __alpha = bind pf.make(alpha);
-    private attribute _alpha:Pointer = __alpha.unwrap();
+        };    
     
     function composeNode():Node {
         Group {

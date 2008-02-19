@@ -22,12 +22,12 @@ frame = Frame {
     height: 700
     width: 1100
     visible: true 
-    var selection = bind 0
+    var selection = /*bind*/ 0
     var splash = StudioMotoSplash {
         onDone: function() {selection = 0;}
     }    
     private attribute tshowing = bind showing on replace {
-            selection = -1;
+            selection = 0;
             splash.doSplash();
     };
     

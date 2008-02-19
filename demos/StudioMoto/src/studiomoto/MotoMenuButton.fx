@@ -66,7 +66,7 @@ public class MotoMenuButton extends CompositeNode {
                 var w = 110
                 var h = 60
                 transform: bind Transform.translate(0, y)
-                content: bind
+                content: /** bind **/
                 [rect = Rect {
                     selectable: true
                     width: w
@@ -100,7 +100,7 @@ public class MotoMenuButton extends CompositeNode {
                     arcWidth: 20
                 },
                 Group {
-                    visible: bind not mouseOver    
+                    visible: bind /*not*/ mouseOver    
                     transform: Transform.translate(30, h*.3)
                     valign: VerticalAlignment.MIDDLE
                     content:
