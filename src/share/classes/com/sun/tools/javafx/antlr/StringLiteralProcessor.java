@@ -201,6 +201,8 @@ public class StringLiteralProcessor {
                     putChar('\"'); scanChar(); break;
                 case '{':
                     putChar('{'); scanChar(); break;
+                case '}':
+                    putChar('}'); scanChar(); break;
                 case '\\':
                     putChar('\\'); scanChar(); break;
                 default:
