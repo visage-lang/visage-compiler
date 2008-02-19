@@ -8,7 +8,6 @@ public class HBoxHolder extends Node {
     attribute content: Node;
     attribute x:Number = bind content.currentX on replace { hbox.doLayout(); }
     attribute w:Number = bind content.currentWidth on replace { hbox.doLayout(); };
-    init {}
     protected function createNode():SGNode {
         content.parentCanvasElement = this;
         return content.getNode();
