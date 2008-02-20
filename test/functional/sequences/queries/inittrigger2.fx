@@ -10,17 +10,19 @@ public class InitTest {
     public attribute foo      : Boolean		 on replace (old){ System.out.println("1. Replace Boolean old = {old}; new = {foo}");    }
     public attribute ifoo     : Integer		 on replace (old){ System.out.println("2. Replace Integer old = {old}; new = {ifoo}");    }
     public attribute dfoo     : Number			 on replace (old){ System.out.println("3. Replace Number old = {old}; new = {dfoo}");    }
-    public attribute sfoo     : String			 on replace (old){ System.out.println("4. Replace String old = {old}; new = {sfoo}");    }
-	 public attribute tobject  : test_object	 on replace (old){ System.out.println("5. Replace test_object old = {old.name}; new = {tobject.name}");	 }
-    public attribute seqbfoo  : Boolean[]		 on replace (old){ System.out.println("6. Replace Boolean[] old = {old}; new = {seqbfoo}");    }
-    public attribute seqifoo  : Integer[]		 on replace (old){ System.out.println("7. Replace Integer [] old = {old}; new = {seqifoo}");    }
-    public attribute seqnfoo  : Number[]		 on replace (old){ System.out.println("8. Replace Number[] old = {old}; new = {seqnfoo}");    }
-    public attribute seqsfoo  : String[]		 on replace (old){ System.out.println("9. Replace String[] old = {old}; new = {seqsfoo}");    }
+    public attribute sfoo     : String			 on replace (old){ if(sfoo<>null)System.out.println("4. Replace String old = {old}; new = {sfoo}");    }
+	 public attribute tobject  : test_object	 on replace (old){  if(tobject<>null)System.out.println("5. Replace test_object old = {old.name}; new = {tobject.name}");	 }
+    public attribute seqbfoo  : Boolean[]		 on replace (old){  if(seqbfoo<>null)System.out.println("6. Replace Boolean[] old = {old}; new = {seqbfoo}");    }
+    public attribute seqifoo  : Integer[]		 on replace (old){ if(seqifoo<>null)System.out.println("7. Replace Integer [] old = {old}; new = {seqifoo}");    }
+    public attribute seqnfoo  : Number[]		 on replace (old){ if(seqnfoo<>null)System.out.println("8. Replace Number[] old = {old}; new = {seqnfoo}");    }
+    public attribute seqsfoo  : String[]		 on replace (old){ if(seqsfoo<>null)System.out.println("9. Replace String[] old = {old}; new = {seqsfoo}");    }
     public attribute seqTOfoo : test_object[] on replace (old){
+		 if(seqTOfoo<>null) {
 		 System.out.print("10. Replace test_object[] old = ");
 			 for (i in old) {System.out.print(" {i.name}"); }
 		 System.out.print(" ... with new = ");
 			 for (j in seqTOfoo) {System.out.print(" {j.name}"); }		 System.out.println();
+		 }
 	 }
 }
 
@@ -35,23 +37,23 @@ var i1 = InitTest {
     dfoo: 0.0
     sfoo: ""
     tobject: null
-    seqbfoo: null
-    seqifoo: null
-    seqnfoo: null
-    seqsfoo: null
-	 seqTOfoo: null
+    seqbfoo: []
+    seqifoo: []
+    seqnfoo: []
+    seqsfoo: []
+	 seqTOfoo: []
 };
 System.out.println("i1 After Create");
 System.out.println("1. i1.foo = {i1.foo}");
 System.out.println("2. i1.ifoo = {i1.ifoo}");
 System.out.println("3. i1.dfoo = {i1.dfoo}");
-System.out.println("4. i1.sfoo = {i1.sfoo}");
-System.out.println("5. i1.tobject = {i1.tobject.name}");
-System.out.println("6. i1.seqbfoo = {i1.seqbfoo}");
-System.out.println("7. i1.seqifoo = {i1.seqifoo}");
-System.out.println("8. i1.seqnfoo = {i1.seqnfoo}");
-System.out.println("9. i1.seqsfoo = {i1.seqsfoo}");
-System.out.print("10. i1.seqTOfoo = {i1.seqTOfoo}");
+if(i1.sfoo<>null)   System.out.println("4. i1.sfoo = {i1.sfoo}");
+if(i1.tobject<>null)System.out.println("5. i1.tobject = {i1.tobject.name}");
+if(i1.seqbfoo<>null)System.out.println("6. i1.seqbfoo = {i1.seqbfoo}");
+if(i1.seqifoo<>null)System.out.println("7. i1.seqifoo = {i1.seqifoo}");
+if(i1.seqnfoo<>null)System.out.println("8. i1.seqnfoo = {i1.seqnfoo}");
+if(i1.seqsfoo<>null)System.out.println("9. i1.seqsfoo = {i1.seqsfoo}");
+if(i1.seqTOfoo<>null)System.out.print("10. i1.seqTOfoo = {i1.seqTOfoo}");
 System.out.println();
 
 System.out.println("Test i2: non-defaults init...");

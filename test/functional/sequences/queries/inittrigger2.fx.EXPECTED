@@ -2,26 +2,16 @@ Test i0: default init...
 1. Replace Boolean old = false; new = false
 2. Replace Integer old = 0; new = 0
 3. Replace Number old = 0.0; new = 0.0
-4. Replace String old = null; new =
-5. Replace test_object old = ; new =
 
 Test i1: defaults re-init...
 1. Replace Boolean old = false; new = false
 2. Replace Integer old = 0; new = 0
 3. Replace Number old = 0.0; new = 0.0
-4. Replace String old = null; new =
-5. Replace test_object old = ; new =
 i1 After Create
 1. i1.foo = false
 2. i1.ifoo = 0
 3. i1.dfoo = 0.0
-4. i1.sfoo =
-5. i1.tobject =
-6. i1.seqbfoo =
-7. i1.seqifoo =
-8. i1.seqnfoo =
-9. i1.seqsfoo =
-10. i1.seqTOfoo =
+
 Test i2: non-defaults init...
 1. Replace Boolean old = false; new = true
 2. Replace Integer old = 0; new = 5
