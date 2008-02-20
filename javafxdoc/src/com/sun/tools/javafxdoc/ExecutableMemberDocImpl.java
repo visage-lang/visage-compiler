@@ -38,6 +38,7 @@ import com.sun.tools.javafx.tree.JFXFunctionDefinition;
 import java.text.CollationKey;
 
 import java.lang.reflect.Modifier;
+import java.util.logging.Logger;
 
 /**
  * Represents a method or constructor of a java class.
@@ -183,13 +184,18 @@ public abstract class ExecutableMemberDocImpl
      */
     public Parameter[] parameters() {
         // generate the parameters on the fly:  they're not cached
-        sym.complete();
-        List<VarSymbol> params = sym.params();
-        Parameter result[] = new Parameter[params.length()];
+        Parameter[] result = new Parameter[0];
+        try {
+            sym.complete();
+            List<VarSymbol> params = sym.params();
+            result = new Parameter[params.length()];
 
-        int i = 0;
-        for (VarSymbol param : params) {
-            result[i++] = new ParameterImpl(env, param);
+            int i = 0;
+            for (VarSymbol param : params) {
+                result[i++] = new ParameterImpl(env, param);
+            }
+        } catch (Exception e) {
+            Logger.getAnonymousLogger().warning(e.toString());
         }
         return result;
     }
