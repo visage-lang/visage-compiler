@@ -64,8 +64,10 @@ public class SequenceBuilder<T> {
 
     /** Add a single element to the sequence */
     public void add(T element) {
-        ensureSize(size + 1);
-        array[size++] = element;
+        if (element != null) {
+            ensureSize(size + 1);
+            array[size++] = element;
+        }
     }
 
     /** Add the contents of an existing sequence to the sequence */
