@@ -1,9 +1,5 @@
 /*
- * extended version of testcase for jfxc635
- *
- * trigger 1,2,5,10 do not fire
- *
- * when fixed, will need to change expected output :)
+ * init triggers with defaults
  *
  * @test
  * @run
@@ -28,8 +24,34 @@ public class InitTest {
 	 }
 }
 
-System.out.println("Test i1: default init...");
-var i1 = new InitTest;
+System.out.println("Test i0: default init...");
+var i0 = new InitTest;
+System.out.println();
+
+System.out.println("Test i1: defaults re-init...");
+var i1 = InitTest {
+    foo:false
+    ifoo: 0
+    dfoo: 0.0
+    sfoo: ""
+    tobject: null
+    seqbfoo: []
+    seqifoo: []
+    seqnfoo: []
+    seqsfoo: []
+	 seqTOfoo: []
+};
+System.out.println("i1 After Create");
+System.out.println("1. i1.foo = {i1.foo}");
+System.out.println("2. i1.ifoo = {i1.ifoo}");
+System.out.println("3. i1.dfoo = {i1.dfoo}");
+System.out.println("4. i1.sfoo = {i1.sfoo}");
+System.out.println("5. i1.tobject = {i1.tobject.name}");
+System.out.println("6. i1.seqbfoo = {i1.seqbfoo}");
+System.out.println("7. i1.seqifoo = {i1.seqifoo}");
+System.out.println("8. i1.seqnfoo = {i1.seqnfoo}");
+System.out.println("9. i1.seqsfoo = {i1.seqsfoo}");
+System.out.print("10. i1.seqTOfoo = {i1.seqTOfoo}");
 System.out.println();
 
 System.out.println("Test i2: non-defaults init...");

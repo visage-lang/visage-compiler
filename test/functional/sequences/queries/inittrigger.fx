@@ -1,10 +1,6 @@
 /*
  * extended version of testcase for jfxc635
  *
- * trigger 1,2,5,10 do not fire
- *
- * when fixed, will need to change expected output :)
- *
  * @test
  * @run
  */
