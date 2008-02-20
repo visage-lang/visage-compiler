@@ -7,7 +7,7 @@ import jfx.assortie.system.Sample;
 Module {
     name: "API"
     modules: [
-    "jfx.assortie.lang.api.widgets.Configuration",
     "jfx.assortie.lang.api.nodes.Configuration",
+    "jfx.assortie.lang.api.widgets.Configuration",
     ]
 }

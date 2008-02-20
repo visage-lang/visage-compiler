@@ -4,7 +4,8 @@ import javafx.ui.*;
 import java.lang.System;
 
 
-var n = 0.0;
+//var n = 0.0;
+var n = 0;
 
 Frame{
     width: 200

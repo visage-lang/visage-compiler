@@ -118,7 +118,7 @@ public class AssortieProject  extends CompositeWidget{
         
         treeCell = convert(moduleTreeNode);
         //  see JFX JFXC-658
-        samples = (((treeCell.cells[0].cells[0].cells[0]).value) as ProjectModule ).samples;
+        samples = (((treeCell.cells[0].cells[0].cells[1]).value) as ProjectModule ).samples;
     }
     
     function convert(treeNode: TreeNode): TreeCell{
@@ -209,6 +209,7 @@ public class AssortieProject  extends CompositeWidget{
                                     rootVisible: false
                                     root: treeCell
                                     //selectedValue: bind val
+                                    onSelectionChange: function(){ System.out.println("[tree] selection changed!");} 
                                 }
                             }
                         }, SplitView{
@@ -216,7 +217,7 @@ public class AssortieProject  extends CompositeWidget{
                             content: BorderPanel{
                                 top: Label { text: "Samples"}
                                 center: ListBox{
-                                    var n = 0.0
+                                    var n = 0
                                     selection: bind n with inverse
                                     cells: bind for( sample in samples)
                                         ListCell{

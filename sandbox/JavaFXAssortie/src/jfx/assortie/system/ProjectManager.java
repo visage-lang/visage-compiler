@@ -39,8 +39,8 @@ public class ProjectManager {
                 contents.append(System.getProperty("line.separator"));
             }
 
-            System.out.println("resource:");
-            System.out.println(contents);
+            //System.out.println("resource:");
+            //System.out.println(contents);
             return contents.toString();
             
         } catch (Throwable e) {
