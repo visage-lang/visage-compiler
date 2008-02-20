@@ -30,7 +30,16 @@ import javax.swing.JFileChooser;
 
 public class FileChooser extends Widget {
     private attribute propertyChangeListener: java.beans.PropertyChangeListener;
-    private attribute filechooser: JFileChooser;
+    private attribute filechooser: JFileChooser = this.createFileChooser() on replace {
+        propertyChangeListener = java.beans.PropertyChangeListener {
+            public function propertyChange(e:java.beans.PropertyChangeEvent):Void {
+                var prop = e.getPropertyName();
+                if (prop == JFileChooser.SELECTED_FILE_CHANGED_PROPERTY) {
+                    selectedFile = e.getNewValue() as File;
+                }
+            }
+        };   
+    }
     public attribute cwd: File;
     public attribute fileFilters: FileFilter[];
     public attribute title: String;
@@ -108,17 +117,6 @@ public class FileChooser extends Widget {
     }
 
     public function getComponent():javax.swing.JComponent {
-        if(filechooser == null) {
-            filechooser = this.createFileChooser();
-            propertyChangeListener = java.beans.PropertyChangeListener {
-                public function propertyChange(e:java.beans.PropertyChangeEvent):Void {
-                    var prop = e.getPropertyName();
-                    if (prop == JFileChooser.SELECTED_FILE_CHANGED_PROPERTY) {
-                        selectedFile = e.getNewValue() as File;
-                    }
-                }
-            };
-        }
         this.configure();
         return filechooser;
     }
