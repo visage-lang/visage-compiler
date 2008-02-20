@@ -187,7 +187,6 @@ public class MotoProducts extends MotoPanel {
     private attribute open:Boolean = false;
     private attribute margin:Integer = 3;
     private attribute transparentFill = Color.rgba(0, 0, 0, 0);
-    private attribute row:Group;
     private attribute group:Group;
     private attribute lhover:Boolean = bind group.hover on replace { 
         if(not lhover) {
@@ -249,6 +248,7 @@ public class MotoProducts extends MotoPanel {
                                     
                                     transform: Transform.translate(5, 5)
                                     content: bind for (p in products) {
+                                        var row:Group;
                                         row = Group {
                                             transform: Transform.translate(0, margin)
                                             content:

@@ -9,6 +9,8 @@ import com.sun.javafx.runtime.Pointer;
 public class MotoCenterPanel extends CompositeNode {
     attribute height: Number = 300;
     attribute width: Number = 500;
+    //TODO GLOW
+    /***************************************************
     function makeGlowAnim(filt:Pointer):Timeline{
         Timeline {
             keyFrames:
@@ -27,7 +29,8 @@ public class MotoCenterPanel extends CompositeNode {
                 }
             }]
          }
-    }  
+    }
+    ***************************************************/  
     attribute pf: PointerFactory = PointerFactory{};
     private attribute rect:Rect;
     private attribute lhover:Boolean = bind rect.hover on replace { fade.start(); }
@@ -55,6 +58,8 @@ public class MotoCenterPanel extends CompositeNode {
         ]
     };    
     function composeNode():Node {
+        var go1:Group;
+        var go2:Group;
         Clip {
             content:
             Group {
@@ -73,34 +78,35 @@ public class MotoCenterPanel extends CompositeNode {
                             text: "<html><div style='font-face:verdana;font-size:28;'><span style='color:white;'>moto</span><span style='color:yellow;font-style:italic;font-weight:bold;'>remix</span></div><div style='width:200;color:white;font-size:10;font-weight:bold;'>Mix a music video. Then show it off, or save it to your mobile phone.</html>"
                         }
                     },
-                    Group {
-                        var box = this
-                        var filt = null as Filter;
-                        var glowAnim = bind makeGlowAnim(pf.make(filt).unwrap());
+                    go1 = Group {
+                        
+                        
                         //TODO TRIGGER - GLOW 
                         /************
+                         * var filt = null as Filter;
+                        var glowAnim = bind makeGlowAnim(pf.make(filt).unwrap());
                         trigger on (h = box.hover) {
                             if (h) { glowAnim.start(); } else { glowAnim.stop(); filt = null;}
                         }
-                        **********/
                         filter: bind filt
-                        var g = this;
+                        **********/
+                        
                         cursor: Cursor.HAND
                         content:
                         [ImageView {
-                            //visible: bind not g.hover
+                            visible: bind not go1.hover
                             // 56x35
                             image: Image {url: "{__DIR__}Image/74.png"}
                         },
                         ImageView {
-                            visible: bind g.hover
+                            visible: bind go1.hover
                             image: Image {url: "{__DIR__}Image/75.png"}
                         },
                         Text {
                             transform: Transform.translate(56/2, 35/2)
                             valign: VerticalAlignment.MIDDLE
                             halign: HorizontalAlignment.CENTER
-                            fill: bind if (g.hover) Color.BLACK else Color.WHITE
+                            fill: bind if (go1.hover) Color.BLACK else Color.WHITE
                             content: "GO"
                             font: Font.Font("ARIAL", ["BOLD"], 11)
                         }]
@@ -115,34 +121,33 @@ public class MotoCenterPanel extends CompositeNode {
                         transform: Transform.translate(120, 0)
                         
                         content:
-                        [Group {
-                            var g = this
-                            var box = this
-                            var filt = null as Filter;
-                            var glowAnim = bind makeGlowAnim(pf.make(filt).unwrap());
+                        [go2 = Group {
                             //TODO trigger - GLOW
                             /**************
+                            var filt = null as Filter;
+                            var glowAnim = bind makeGlowAnim(pf.make(filt).unwrap());
                             trigger on (h = box.hover) {
                                 if (h) { glowAnim.start(); }
                             }
-                            ********************/
                             filter: bind filt
+                            ********************/
+                            
                             cursor: Cursor.HAND
                             content:
                             [ImageView {
-                                //visible: bind not g.hover
+                                visible: bind not go2.hover
                                 // 56x35
                                 image: Image {url: "{__DIR__}Image/74.png"}
                             },
                             ImageView {
-                                visible: bind g.hover
+                                visible: bind go2.hover
                                 image: Image {url: "{__DIR__}Image/75.png"}
                             },
                             Text {
                                 transform: Transform.translate(56/2, 35/2)
                                 valign: VerticalAlignment.MIDDLE
                                 halign: HorizontalAlignment.CENTER
-                                fill: bind if (g.hover) Color.BLACK else Color.WHITE
+                                fill: bind if (go2.hover) Color.BLACK else Color.WHITE
                                 content: "GO"
                                 font: Font.Font("ARIAL", ["BOLD"], 11)
                             }]

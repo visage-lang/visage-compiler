@@ -11,7 +11,7 @@ public class MotoBottomPanel extends Intro {
     attribute panelWidth: Number;
     attribute panelHeight: Number;
     attribute panelMargin: Number;
-    attribute panels: Intro[] = [promotions, musicStuff, insideMusic, guitarPicks];
+    attribute panels: Intro[];
     attribute promotions: Intro;
     attribute musicStuff: Intro;
     attribute insideMusic: Intro;
@@ -54,7 +54,7 @@ public class MotoBottomPanel extends Intro {
     }  
     
     function composeNode():Node {  
-        Group {
+        var group = Group {
             content:
             HBox {
                 content:
@@ -107,7 +107,8 @@ public class MotoBottomPanel extends Intro {
                 }]
             }
         };
-
+        panels = [promotions, musicStuff, insideMusic, guitarPicks];
+        group;
     }
 }
 

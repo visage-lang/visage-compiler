@@ -122,12 +122,14 @@ public class MotoMenuButton extends CompositeNode {
                     }
                 },
                 Group {
+                    var empty:Node[] = [];
                     visible: bind mouseOver
                     content: bind 
                     [Group {
                         transform: Transform.translate(w -5, h*.4)
-                        valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.TRAILING
-                        content: bind if (mouseOver) then anim as Node else null
+                        valign: VerticalAlignment.MIDDLE, 
+                        halign: HorizontalAlignment.TRAILING
+                        content: bind if (mouseOver) then [anim as Node] else empty
                         var active = bind mouseOver
                     },
                     HBox {

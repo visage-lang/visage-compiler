@@ -16,7 +16,7 @@ public class SiteSupport extends MotoPanel {
             transform: Transform.translate(10, 0)
             content: Label {
                 cursor: Cursor.HAND
-                text: "<html><div style='font-face:Arial;font-size:26pt;'><span style='color:Color.WHITE;'>moto</span><span style='color:Color.YELLOW;font-weight:bold;font-style:italic;'>{text}</span></div></html>"
+                text: "<html><div style='font-face:Arial;font-size:26pt;'><span style='color:white;'>moto</span><span style='color:yellow;font-weight:bold;font-style:italic;'>{text}</span></div></html>"
             }
         }
     }    
@@ -25,7 +25,7 @@ public class SiteSupport extends MotoPanel {
         //TODO override
      title = View {
             content: Label {
-                text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:Color.WHITE;'>Site</span><span style='color:Color.YELLOW;'>Support</span></div></html>"
+                text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>Site</span><span style='color:yellow;'>Support</span></div></html>"
             }
         };
     
@@ -34,7 +34,7 @@ public class SiteSupport extends MotoPanel {
     [View {
         content: Label {
             text:
-            "<html><div style='width:200;color:Color.WHITE;font-size:10pt;font-face:arial;'>Questions? We all need a little support sometimes. Get answers to questions you have about the STUDIOMOTO site and its features, right here. Select an application below
+            "<html><div style='width:200;color:white;font-size:10pt;font-face:arial;'>Questions? We all need a little support sometimes. Get answers to questions you have about the STUDIOMOTO site and its features, right here. Select an application below
 </div>
 </html>"
         }
