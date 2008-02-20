@@ -1,7 +1,6 @@
 package framework;
 
-import java.util.List;
-
+import java.util.Set;
 import junit.framework.TestCase;
 
 /**
@@ -10,9 +9,9 @@ import junit.framework.TestCase;
  * @author Brian Goetz
  */
 public class OrphanTestFinder extends TestCase {
-    private final List<String> orphanFiles;
+    private final Set<String> orphanFiles;
 
-    public OrphanTestFinder(List<String> orphanFiles) {
+    public OrphanTestFinder(Set<String> orphanFiles) {
         super("test");
         this.orphanFiles = orphanFiles;
     }

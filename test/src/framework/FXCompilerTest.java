@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import java.util.Set;
+import java.util.TreeSet;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.apache.tools.ant.DirectoryScanner;
@@ -60,7 +62,7 @@ public class FXCompilerTest extends TestSuite {
      */
     public static Test suite() throws Exception {
         List<Test> tests = new ArrayList<Test>();
-        List<String> orphans = new ArrayList<String>();
+        Set<String> orphans = new TreeSet<String>();
         for (String root : TEST_ROOTS) {
             File dir = new File(root);
             findTests(dir, tests, orphans);
@@ -69,7 +71,7 @@ public class FXCompilerTest extends TestSuite {
         return new FXCompilerTest(tests, orphans);
     }
 
-    public FXCompilerTest(List<Test> tests, List<String> orphans) {
+    public FXCompilerTest(List<Test> tests, Set<String> orphans) {
         super();
         if (System.getProperty(TEST_FX_INCLUDES) == null)
             addTest(new OrphanTestFinder(orphans));
@@ -77,13 +79,13 @@ public class FXCompilerTest extends TestSuite {
             addTest(t);
     }
 
-    private static void findTests(File dir, List<Test> tests, List<String> orphanFiles) throws Exception {
+    private static void findTests(File dir, List<Test> tests, Set<String> orphanFiles) throws Exception {
         String pattern = System.getProperty(TEST_FX_INCLUDES);
         DirectoryScanner ds = new DirectoryScanner();
         ds.setIncludes(new String[] { (pattern == null ? "**/*.fx" : pattern) });
         ds.setBasedir(dir);
         ds.scan();
-        final List<File> included = new ArrayList<File>();
+        final Set<File> included = new TreeSet<File>();
         for (String s : ds.getIncludedFiles())
             included.add(new File(dir, s));
         File[] children = dir.listFiles(new FileFilter() {
