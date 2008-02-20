@@ -51,7 +51,6 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.processing.*;
 import com.sun.tools.javafx.comp.*;
 import com.sun.tools.javafx.code.*;
-import java.util.Iterator;
 import static javax.tools.StandardLocation.CLASS_OUTPUT;
 import static com.sun.tools.javac.util.ListBuffer.lb;
 import com.sun.tools.javafx.antlr.JavafxSyntacticAnalysis;
@@ -260,7 +259,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     protected TaskListener taskListener;
 
     protected JavafxSyntacticAnalysis syntacticAnalysis;
-    protected JavafxModuleBuilder javafxModuleBuilder;
     protected JavafxVarUsageAnalysis varUsageAnalysis;
     protected JavafxToJava jfxToJava;
 
@@ -291,7 +289,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         fileManager = context.get(JavaFileManager.class);
 
         syntacticAnalysis = JavafxSyntacticAnalysis.instance(context);
-        javafxModuleBuilder = JavafxModuleBuilder.instance(context);
         varUsageAnalysis = JavafxVarUsageAnalysis.instance(context);
         jfxToJava = JavafxToJava.instance(context);
         prepForBackEnd = JavafxPrepForBackEnd.instance(context);
@@ -504,10 +501,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
 
         tree.sourcefile = filename;
-        
-        printJavafxSource(tree, content); 
 
-        javafxModuleBuilder.visitTopLevel(tree);
+        printJavafxSource(tree, content);
 
         if (content != null && taskListener != null) {
             TaskEvent e = new TaskEvent(TaskEvent.Kind.PARSE, tree);
@@ -737,21 +732,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 taskListener.finished(e);
             }
         }
-    }
-
-    public List<JCCompilationUnit> buildJavafxModule(List<JCCompilationUnit> cus, List<JavaFileObject> sourceFileObjects) {
-        Iterator<JavaFileObject> fileObjIterator = sourceFileObjects.iterator();
-        for (JCCompilationUnit cu : cus) {
-            JavaFileObject jfo = fileObjIterator.next();
-            JavaFileObject prev = log.useSource(jfo);
-            try {
-                javafxModuleBuilder.visitTopLevel(cu);
-            }
-            finally {
-                log.useSource(prev);
-            }
-        }
-        return cus;
     }
 
     /**

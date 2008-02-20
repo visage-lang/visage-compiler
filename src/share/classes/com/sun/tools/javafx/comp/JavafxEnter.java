@@ -61,6 +61,7 @@ public class JavafxEnter extends JavafxTreeScanner {
     private final JavaFileManager fileManager;
     private final JavafxTodo todo;
     private final JavafxTypes types;
+    private JavafxModuleBuilder javafxModuleBuilder;
     
     public static JavafxEnter instance(Context context) {
 	JavafxEnter instance = context.get(javafxEnterKey);
@@ -80,6 +81,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 	memberEnter = JavafxMemberEnter.instance(context);
 	annotate = JavafxAnnotate.instance(context);
 	lint = Lint.instance(context);
+        javafxModuleBuilder = JavafxModuleBuilder.instance(context);
 
 	predefClassDef = make.ClassDeclaration(
 	    make.Modifiers(PUBLIC),
@@ -251,6 +253,8 @@ public class JavafxEnter extends JavafxTreeScanner {
 	}
 	tree.packge.complete(); // Find all classes in package.
         JavafxEnv<JavafxAttrContext> localEnv = topLevelEnv(tree);
+        
+        javafxModuleBuilder.preProcessJfxTopLevel(tree);
 
 	// Save environment of package-info.java file.
 	if (isPkgInfo) {

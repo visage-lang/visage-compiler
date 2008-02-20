@@ -55,7 +55,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.tools.FileObject;
 
-public class JavafxModuleBuilder extends JavafxTreeScanner {
+public class JavafxModuleBuilder {
     protected static final Context.Key<JavafxModuleBuilder> javafxModuleBuilderKey =
         new Context.Key<JavafxModuleBuilder>();
 
@@ -87,16 +87,7 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         pseudoDir = names.fromString("__DIR__");
     }
 
-   @Override
-   public void visitTopLevel(JCCompilationUnit tree) {
-       try {
-            preProcessJfxTopLevel(tree);
-       } finally {
-            topLevelNamesSet = null;
-       }
-    }
-
-    private void preProcessJfxTopLevel(JCCompilationUnit module) {
+    public void preProcessJfxTopLevel(JCCompilationUnit module) {
         Name moduleClassName = moduleName(module);
 
         ListBuffer<JCTree> moduleClassDefs = new ListBuffer<JCTree>();
@@ -191,12 +182,13 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
         } else {
             moduleClass.appendToMembers(moduleClassDefs);
         }
-        moduleClass.accept((JavafxVisitor)this);
         moduleClass.isModuleClass = true;
 
         topLevelDefs.append(moduleClass);
         
         module.defs = topLevelDefs.toList();
+
+        topLevelNamesSet = null;
     }
     
     private void addPseudoVariables(Name moduleClassName, JCCompilationUnit module,
@@ -236,15 +228,6 @@ public class JavafxModuleBuilder extends JavafxTreeScanner {
     private JFXType getURLType() {
         JCExpression urlFQN = make.Identifier("java.net.URL");
         return make.TypeClass(urlFQN, TypeTree.Cardinality.SINGLETON);
-    }
-
-    /**
-     * Create the init method now so that all the classes in a compilation
-     * unit can be detected to be JavaFX.
-     */
-    @Override
-    public void visitClassDeclaration(JFXClassDeclaration tree) {
-        super.visitClassDeclaration(tree);
     }
 
     private JFXFunctionDefinition makeMethod(Name name, List<JCStatement> stats, JCExpression value, Type returnType) {
