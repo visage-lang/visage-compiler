@@ -93,4 +93,11 @@ public class Util {
             return null;
         }
     }
+
+    public static<T> boolean isEqual(T oldValue, T newValue) {
+        if (oldValue == null) {
+            return newValue == null;
+        } else
+            return oldValue.equals(newValue);
+    }
 }

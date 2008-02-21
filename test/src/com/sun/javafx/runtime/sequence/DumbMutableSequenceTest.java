@@ -47,6 +47,23 @@ public class DumbMutableSequenceTest extends JavaFXTestCase {
         ds.testValid();
     }
 
+    public void testSet() {
+        DumbMutableSequence<Integer> ds = new DumbMutableSequence<Integer>();
+
+        replaceSlice(ds, 0, -1, 1, 2, 3, 4);
+        assertEquals(ds, 1, 2, 3, 4);
+        ds.testValid();
+        for (int i=0; i<ds.size(); i++) {
+            ds.set(i, i);
+            assertEquals(i, (int) ds.get(i));
+            ds.testValid();
+        }
+        assertEquals(ds, 0, 1, 2, 3);
+        ds.set(4, 4);
+        assertEquals(ds, 0, 1, 2, 3, 4);
+        ds.testValid();
+    }
+
     public void testGrowAndShrink() {
         DumbMutableSequence<Integer> ds = new DumbMutableSequence<Integer>();
         SequenceLocation<Integer> seq = SequenceVariable.make(Sequences.emptySequence(Integer.class));

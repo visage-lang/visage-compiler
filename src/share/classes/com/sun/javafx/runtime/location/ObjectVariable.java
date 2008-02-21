@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sun.javafx.runtime.BindingException;
+import com.sun.javafx.runtime.Util;
 
 /**
  * ObjectVariable
@@ -63,7 +64,7 @@ public class ObjectVariable<T>
 
     protected T replaceValue(T newValue) {
         T oldValue = $value;
-        if (changed(oldValue, newValue) || !isInitialized()) {
+        if (!Util.isEqual(oldValue, newValue) || !isInitialized()) {
             $value = newValue;
             setValid();
             notifyListeners(oldValue, newValue);
@@ -91,13 +92,6 @@ public class ObjectVariable<T>
 
     public boolean isNull() {
         return $value == null;
-    }
-
-    protected boolean changed(T oldValue, T newValue) {
-        if (oldValue == null) {
-            return newValue != null;
-        } else
-            return !oldValue.equals(newValue);
     }
 
     public void addChangeListener(ObjectChangeListener<T> listener) {

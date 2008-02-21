@@ -32,9 +32,21 @@ public class DumbMutableSequence<T> implements Iterable<T> {
     }
 
     public T get(int i) {
-        return (i < 0 || i > size)
+        return (i < 0 || i >= size)
                 ? null
                 : array[i];
+    }
+
+    public void set(int i, T value) {
+        if (i < 0 && i > size)
+            throw new IndexOutOfBoundsException(Integer.toString(i));
+        if (i == size && size + 1 < array.length) {
+            T[] temp = Util.<T>newObjectArray(Util.powerOfTwo(size, size + 1));
+            System.arraycopy(array, 0, temp, 0, size);
+            array[size++] = value;
+        }
+        else
+            array[i] = value;
     }
 
     public void replaceSlice(int startPos, int endPos, T[] newElements) {
@@ -75,7 +87,7 @@ public class DumbMutableSequence<T> implements Iterable<T> {
     public int size() {
         return size;
     }
-    
+
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             private int index = 0;
@@ -98,10 +110,10 @@ public class DumbMutableSequence<T> implements Iterable<T> {
     }
 
     void testValid() {
-        for (int i=0; i<size; i++)
+        for (int i = 0; i < size; i++)
             if (array[i] == null)
                 throw new AssertionError("Null element at " + i);
-        for (int i=size; i<array.length; i++)
+        for (int i = size; i < array.length; i++)
             if (array[i] != null)
                 throw new AssertionError("Non-null element at " + i);
     }

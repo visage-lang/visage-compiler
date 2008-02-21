@@ -34,7 +34,7 @@ import java.util.*;
  * @author Brian Goetz
  */
 public abstract class AbstractLocation implements Location {
-    private boolean isValid;
+    private boolean isValid, mustRemoveDependencies;
 
     // We separate listeners from dependent locations because updating of dependent locations is split into an
     // invalidation phase and an update phase (this is to support lazy locations.)  So there are times when we want
@@ -99,22 +99,27 @@ public abstract class AbstractLocation implements Location {
                     WeakReference<Location> locationRef = iterator.next();
                     Location loc = locationRef.get();
                     if (loc == null)
-                        iterator.remove();
+                        mustRemoveDependencies = true;
                     else {
                         loc.invalidate();
                         // Space optimization: try for early removal of dynamic dependencies, in the case that
                         // the dependency is a "weakMe" reference for some object that has been cleared in update()
-                        if (locationRef.get() == null) {
-                            iterator.remove();
-                        }
+                        if (locationRef.get() == null)
+                            mustRemoveDependencies = true;
                     }
                 }
             }
             finally {
                 --iterationDepth;
-                if (iterationDepth == 0 && deferredDependencies != null && deferredDependencies.size() > 0) {
-                    dependentLocations.addAll(deferredDependencies);
-                    deferredDependencies.clear();
+                if (iterationDepth == 0) {
+                    if (deferredDependencies != null && deferredDependencies.size() > 0) {
+                        dependentLocations.addAll(deferredDependencies);
+                        deferredDependencies.clear();
+                    }
+                    if (mustRemoveDependencies) {
+                        purgeDeadDependencies();
+                        mustRemoveDependencies = false;
+                    }
                 }
             }
         }
@@ -192,23 +197,22 @@ public abstract class AbstractLocation implements Location {
     public void update() {
     }
 
-    private static class WeakListener extends WeakReference<ChangeListener> implements ChangeListener {
-
-        public WeakListener(ChangeListener referent) {
-            super(referent);
-        }
-
-        public boolean onChange(Location location) {
-            ChangeListener listener = get();
-            return listener == null ? false : listener.onChange(location);
-        }
-    }
-
     // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
     int getListenerCount() {
         purgeDeadDependencies();
         return (listeners == null ? 0 : listeners.size())
                 + (dependentLocations == null ? 0 : dependentLocations.size());
+    }
+}
+
+class WeakListener extends WeakReference<ChangeListener> implements ChangeListener {
+    public WeakListener(ChangeListener referent) {
+        super(referent);
+    }
+
+    public boolean onChange(Location location) {
+        ChangeListener listener = get();
+        return listener == null ? false : listener.onChange(location);
     }
 }
 

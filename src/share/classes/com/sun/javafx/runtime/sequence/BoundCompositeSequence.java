@@ -36,7 +36,7 @@ import com.sun.javafx.runtime.location.SequenceReplaceListener;
 public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implements SequenceLocation<T> {
     private Info<T>[] infos;
 
-    private static class Info<T> {
+    static class Info<T> {
         private final SequenceLocation<? extends T> location;
         private int startPosition, size;
         private IndexListener listener;
@@ -132,11 +132,11 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
 //            Assert.assertTrue(info.startPosition >= 0);
 //            Assert.assertTrue(info.size >= 0);
 //            Assert.assertEquals(info.size, info.location.getAsSequence().size());
-//            Assert.assertEquals($value.getSlice(info.startPosition, info.startPosition + info.size - 1), info.location.getAsSequence());
+//            Assert.assertEquals(value().getSlice(info.startPosition, info.startPosition + info.size - 1), info.location.getAsSequence());
 //            Assert.assertEquals(((MyListener) info.listener).index, i);
 //            offset += info.size;
 //        }
-//        Assert.assertEquals(offset, $value.size());
+//        Assert.assertEquals(offset, value().size());
     }
 
     private interface IndexListener<T> extends SequenceReplaceListener<T> {
