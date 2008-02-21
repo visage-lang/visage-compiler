@@ -798,7 +798,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
             // create an environment for evaluating the base clauses
             JavafxEnv<JavafxAttrContext> baseEnv = baseEnv(tree, env);
-            Type supertype = null, solesupertype = null;
+            //TODO: solesupertype implies a bug
+            Type supertype = null, solesupertype = null;  
             ListBuffer<Type> interfaces = new ListBuffer<Type>();
             Set<Type> interfaceSet = new HashSet<Type>();
             {

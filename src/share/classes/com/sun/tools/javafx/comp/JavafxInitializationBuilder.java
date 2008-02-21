@@ -24,11 +24,6 @@
  */
 package com.sun.tools.javafx.comp;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Scope.Entry;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
@@ -37,7 +32,6 @@ import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
@@ -46,6 +40,9 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.AttributeInfo;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedAttributeInfo;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideAttributeInfo;
 import com.sun.tools.javafx.tree.*;
 
 public class JavafxInitializationBuilder {
@@ -60,14 +57,14 @@ public class JavafxInitializationBuilder {
     private final JavafxSymtab syms;
     private final JavafxTypes types;
     private final JavafxTypeMorpher typeMorpher;
-    private final ClassReader reader;
+    private final JavafxClassReader reader;
     
     private final Name addChangeListenerName;
+    private final Name locationInitializeName;;
     private final Name[] changeListenerInterfaceName;
     private final Name sequenceReplaceListenerInterfaceName;
     private final Name sequenceChangeListenerInterfaceName;
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
-    private final Name initAttributesName;
     private final Name applyDefaultName;
     private final Name addTriggersName;
     final Name userInitName;
@@ -97,16 +94,16 @@ public class JavafxInitializationBuilder {
         syms = (JavafxSymtab)(JavafxSymtab.instance(context));
         types = JavafxTypes.instance(context);
         typeMorpher = JavafxTypeMorpher.instance(context);
-        reader = ClassReader.instance(context);
+        reader = (JavafxClassReader) JavafxClassReader.instance(context);
         
         addChangeListenerName = names.fromString("addChangeListener");
+        locationInitializeName = names.fromString("initialize");
         changeListenerInterfaceName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT];
         for (int i=0; i< JavafxVarSymbol.TYPE_KIND_COUNT; i++)
             changeListenerInterfaceName[i]
                     = names.fromString(JavafxTypeMorpher.locationPackageName + JavafxVarSymbol.getTypePrefix(i) + "ChangeListener");
         sequenceReplaceListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "SequenceReplaceListener");
         sequenceChangeListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "SequenceChangeListener");
-        initAttributesName = names.fromString("initAttributes$");
         applyDefaultName = names.fromString("applyDefault$");
         addTriggersName = names.fromString("addTriggers$");
         userInitName = names.fromString("userInit$");
@@ -127,108 +124,6 @@ public class JavafxInitializationBuilder {
             abstractVariableType = types.erasure( sym.type );
         }
     }
-    
-    class AttributeInfo {
-        private final DiagnosticPosition diagPos;
-        private final Symbol sym;
-        private final VarMorphInfo vmi;
-        private final Name name;
-        private final boolean isDirectOwner;
-        
-        AttributeInfo(DiagnosticPosition diagPos, Symbol attrSym, boolean isDirectOwner) {
-            this.diagPos = diagPos;
-            this.sym = attrSym;
-            this.vmi = typeMorpher.varMorphInfo(attrSym);
-            this.isDirectOwner = isDirectOwner;
-            if (attrSym.kind == Kinds.VAR) {
-                this.name = sym.name;
-            } else {
-                assert attrSym.kind == Kinds.MTH : "Invalid attribute type collected";
-                this.name = names.fromString(attrSym.name.toString().substring(attributeGetMethodNamePrefix.length()));
-            }
-        }
-
-        public Symbol getSymbol() {
-            return sym;
-        }
-
-        public DiagnosticPosition pos() {
-            return diagPos;
-        }
-
-        public Type getRealType() {
-            return vmi.getRealType();
-        }
-
-        public Type getMorphedType() {
-            return vmi.getMorphedType();
-        }
-
-        public Type getElementType() {
-            return vmi.getElementType();
-        }
-
-        public Name getName() {
-            return name;
-        }
-
-        public String getNameString() {
-            return name.toString();
-        }
-
-        public long getFlags() {
-            return sym.flags();
-        }
-        
-        public boolean isStatic() {
-            return (getFlags() & Flags.STATIC) != 0;
-        }
-
-        public VarMorphInfo getVMI() {
-            return vmi;
-        }
-
-        public boolean isDirectOwner() {
-            return isDirectOwner;
-        }
-        
-        public JCExpression makeMorphedTypeTree(DiagnosticPosition diagPos) {
-            return toJava.makeTypeTree(getMorphedType(), diagPos);
-        }
-    }
-    
-    TranslatedAttributeInfo translatedAttributeInfo(JFXVar attribute, 
-                JCStatement initStmt, List<JFXAbstractOnChange> onChanges) {
-        return new TranslatedAttributeInfo(attribute, initStmt, onChanges);
-    }
-    
-    class TranslatedAttributeInfo extends AttributeInfo {
-        final JFXVar attribute;
-        final JCStatement initStmt;
-        final List<JFXAbstractOnChange> onChanges;
-        TranslatedAttributeInfo(JFXVar attribute, 
-                JCStatement initStmt, List<JFXAbstractOnChange> onChanges) {
-            super(attribute.pos(), attribute.sym, true);
-            this.attribute = attribute;
-            this.initStmt = initStmt;
-            this.onChanges = onChanges;
-        }
-    }  
-  
-    TranslatedOverrideAttributeInfo translatedOverrideAttributeInfo(JFXOverrideAttribute override, JFXOnReplace onReplace) {
-        return new TranslatedOverrideAttributeInfo(override, onReplace);
-    }
-    
-    class TranslatedOverrideAttributeInfo extends AttributeInfo {
-        private final JFXOnReplace onReplace;
-        TranslatedOverrideAttributeInfo(JFXOverrideAttribute override, JFXOnReplace onReplace) {
-            super(override.pos(), override.sym, true);
-            this.onReplace = onReplace;
-        }
-        
-        JFXOnReplace onReplace() { return onReplace; }
-    }
-  
 
     /**
      * Hold the result of analyzing the class.
@@ -266,76 +161,120 @@ public class JavafxInitializationBuilder {
      * */
    JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl, 
            List<TranslatedAttributeInfo> translatedAttrInfo, 
-           List<TranslatedOverrideAttributeInfo> translatedTriggerInfo) {
+           List<TranslatedOverrideAttributeInfo> translatedOverrideAttrInfo) {
         boolean classOnly = cDecl.generateClassOnly();
         DiagnosticPosition diagPos = cDecl.pos();
-        
-        CollectAttributeAndMethods collection = new CollectAttributeAndMethods(diagPos, cDecl.sym);        
-        List<ClassSymbol> javaInterfaces = collection.javaInterfaces;
-        List<AttributeInfo> attributeInfos = collection.attributeInfos.toList();
-        List<String> javafxClassNames = collection.javafxClassNames;
-        
+
+        JavafxAnalyzeClass analysis = new JavafxAnalyzeClass(diagPos,
+                cDecl.sym, translatedAttrInfo, translatedOverrideAttrInfo,
+                log, names, types, reader, typeMorpher);
+        List<AttributeInfo> instanceAttributeInfos = analysis.instanceAttributeInfos();
+        List<ClassSymbol> javaInterfaces = immediateJavaInterfaceNames(cDecl);
+        List<ClassSymbol> immediateFxSupertypeNames = immediateJavafxSupertypes(cDecl);
+
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
-        cDefinitions.append( makeConstructor(diagPos) );
-        cDefinitions.appendList( makeAttributeFields(diagPos, attributeInfos) );
-        cDefinitions.append( makeAttributeListField(diagPos, attributeInfos) );
-        cDefinitions.append( makeTriggersMethod(diagPos, cDecl, javafxClassNames, translatedAttrInfo, translatedTriggerInfo) );
-        cDefinitions.append( makeInitAttributesMethod(diagPos, cDecl, javafxClassNames, translatedAttrInfo) );
-        cDefinitions.append( makeInitAttributesBlock(diagPos, cDecl, translatedAttrInfo) );
-        cDefinitions.append( makeInitializeMethod(diagPos, cDecl) );
-        cDefinitions.appendList( makeClassAttributeGetterMethods(diagPos, attributeInfos) );
-        cDefinitions.appendList( makeClassOuterAccessorMembers(cDecl) );
+        cDefinitions.append(makeConstructor(diagPos));
+        cDefinitions.appendList(makeAttributeFields(diagPos, instanceAttributeInfos));
+        cDefinitions.appendList(makeAttributeFields(diagPos, analysis.staticAttributeInfos()));
+        cDefinitions.appendList(makeClassAttributeGetterMethods(cDecl, instanceAttributeInfos));
+        cDefinitions.appendList(makeClassAttributeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
+        cDefinitions.append(makeInitStaticAttributesBlock(diagPos, cDecl, translatedAttrInfo));
+        cDefinitions.append(makeAttributeListField(diagPos, instanceAttributeInfos));
+        cDefinitions.append(makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
+        cDefinitions.appendList(makeClassOuterAccessorMembers(cDecl));
+        cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, immediateFxSupertypeNames, translatedAttrInfo, translatedOverrideAttrInfo));
+        cDefinitions.appendList( makeClassFunctionProxyMethods(cDecl, analysis.needDispatch()) );
 
         ListBuffer<JCTree> iDefinitions = ListBuffer.lb();
-        iDefinitions.appendList( makeInterfaceAttributeGetterMethods(diagPos, attributeInfos) );
-        iDefinitions.appendList( makeInterfaceOuterAccessorMembers(cDecl) );
+        if (!classOnly) {
+            iDefinitions.appendList(makeInterfaceAttributeGetterMethods(translatedAttrInfo));
+            iDefinitions.appendList(makeInterfaceFunctionMethods(cDecl));
+            iDefinitions.appendList(makeInterfaceOuterAccessorMembers(cDecl));
+        }
 
         Name interfaceName = classOnly ? null : interfaceName(cDecl);
 
-        //TODO: this needs to be cleanup, but that should wait for the "bound function" overhaul
-        for (boolean bound = JavafxToJava.generateBoundFunctions;  ; bound = false) {
-
-            // add interface methods for each method defined in this class
-            for (MethodSymbol mth : collection.needInterfaceMethods) {
-                    if (mth.owner == cDecl.sym) {
-                        if (!bound || JavafxToJava.generateBoundVoidFunctions || mth.getReturnType() != syms.voidType) {
-                            iDefinitions.append(makeMethod(cDecl, mth, null, bound));
-                        }
-                    }
-            }
-
-            // add proxies which redirect to the static implementation for every concrete method
-            for (MethodSymbol mth : collection.needDispatchMethods) {
-                    if ((!classOnly && (mth.flags() & (Flags.STATIC)) == 0L) || mth.owner != cDecl.sym) { //TODO: this test is wrong
-                        if (!bound || JavafxToJava.generateBoundVoidFunctions || mth.getReturnType() != syms.voidType) {
-                            cDefinitions.append(makeMethod(cDecl, mth, makeDispatchBody(cDecl, mth, bound, false), bound));
-                        }
-                    }
-            }
-            
-            for (MethodSymbol mth : collection.needStaticDispatchMethods) {
-                    if ((!classOnly && (mth.flags() & (Flags.STATIC)) == 0L) || mth.owner != cDecl.sym) {  //TODO: this test is wrong
-                        if (!bound || JavafxToJava.generateBoundVoidFunctions || mth.getReturnType() != syms.voidType) {
-                            cDefinitions.append(makeMethod(cDecl, mth, makeDispatchBody(cDecl, mth, bound, true), bound));
-                        }
-                    }
-            }
-            
-            if (!bound) {
-                break;
+        return new JavafxClassModel(
+                interfaceName,
+                makeImplementingInterfaces(diagPos, cDecl, javaInterfaces),
+                iDefinitions.toList(),
+                cDefinitions.toList(),
+                makeAdditionalImports(diagPos, javaInterfaces));
+    }
+   
+    private List<ClassSymbol> immediateJavafxSupertypes(JFXClassDeclaration cDecl) {
+        ListBuffer<ClassSymbol> javafxClassNamesBuff = ListBuffer.lb();
+        for (JCExpression stype : cDecl.getSupertypes()) {
+            Symbol sym = toJava.expressionSymbol(stype);
+            if (types.isJFXClass(sym)) {
+                ClassSymbol cSym = (ClassSymbol) sym;
+                javafxClassNamesBuff.append(cSym);
             }
         }
-
-
-        return new JavafxClassModel(
-                interfaceName, 
-                makeImplementingInterfaces(diagPos, cDecl, javaInterfaces), 
-                iDefinitions.toList(), 
-                cDefinitions.toList(), 
-                makeAdditionalImports(diagPos, javaInterfaces) );
+        return javafxClassNamesBuff.toList();
     }
- 
-    private List<JCExpression> makeImplementingInterfaces(DiagnosticPosition diagPos, 
+
+   
+    private List<ClassSymbol> immediateJavaInterfaceNames(JFXClassDeclaration cDecl) {
+        ListBuffer<ClassSymbol> javaInterfacesBuff = ListBuffer.lb();
+        for (JCExpression sup : cDecl.getSupertypes()) {
+            ClassSymbol cSym = (ClassSymbol) toJava.expressionSymbol(sup);
+            if (cSym != null) {
+                String className = cSym.fullname.toString();
+                boolean isFXInterface = className.endsWith(interfaceSuffix);
+
+                if (!isFXInterface &&
+                        cSym.fullname != names.fromString(fxObjectString) &&
+                        (cSym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0 &&
+                        cSym.type != null) {
+                    javaInterfacesBuff.append(cSym);
+                }
+            }
+        }
+        return javaInterfacesBuff.toList();
+    }
+
+    private List<JCTree> makeInterfaceFunctionMethods(JFXClassDeclaration cDecl) {
+        ListBuffer<JCTree> methods = ListBuffer.lb();
+        for (JCTree def : cDecl.getMembers()) {
+            if (def.getTag() == JavafxTag.FUNCTION_DEF) {
+                JFXFunctionDefinition func = (JFXFunctionDefinition) def;
+                MethodSymbol sym = func.sym;
+                if ((sym.flags() & (Flags.SYNTHETIC | Flags.STATIC)) == 0) {
+                    appendMethodClones(methods, cDecl, sym, false);
+                }
+            }
+        }
+        return methods.toList();
+    }
+    
+    /** add proxies which redirect to the static implementation for every concrete method
+     * 
+     * @param cDecl
+     * @param needDispatch
+     * @return
+     */
+    private List<JCTree> makeClassFunctionProxyMethods(JFXClassDeclaration cDecl, List<MethodSymbol> needDispatch) {
+        ListBuffer<JCTree> methods = ListBuffer.lb();
+        for (MethodSymbol sym : needDispatch) {
+            appendMethodClones(methods, cDecl, sym, true);
+        }
+        return methods.toList();
+    }
+    
+    private void appendMethodClone(ListBuffer<JCTree> methods, boolean isBound, JFXClassDeclaration cDecl, MethodSymbol sym, boolean withDispatch) {
+        JCBlock mthBody = withDispatch ? makeDispatchBody(cDecl, sym, isBound, sym.flags() == Flags.STATIC) : null;
+        methods.append(makeMethod(cDecl, sym, mthBody, isBound));
+    }
+
+    private void appendMethodClones(ListBuffer<JCTree> methods, JFXClassDeclaration cDecl, MethodSymbol sym, boolean withDispatch) {
+        appendMethodClone(methods, false, cDecl, sym, withDispatch);
+        if (JavafxToJava.generateBoundFunctions && (JavafxToJava.generateBoundVoidFunctions || sym.getReturnType() != syms.voidType)) {
+            appendMethodClone(methods, true, cDecl, sym, withDispatch);
+        }
+    }
+    
+    private List<JCExpression> makeImplementingInterfaces(DiagnosticPosition diagPos,
             JFXClassDeclaration cDecl, 
             List<ClassSymbol> baseInterfaces) {
         ListBuffer<JCExpression> implementing = ListBuffer.lb();
@@ -366,16 +305,8 @@ public class JavafxInitializationBuilder {
         return additionalImports.toList();
     }
    
-   /****
-    *         initializeStats.append(toJava.callStatement(
-                cDecl.pos(),
-                make.Ident(classIsFinal? names._this : cDecl.getName()),
-                addTriggersName,
-                make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
-    * ****/
    private JCMethodDecl makeConstructor(DiagnosticPosition diagPos) {
        ListBuffer<JCStatement> cStats = new ListBuffer<JCStatement>();
-       cStats.append(toJava.callStatement(diagPos, null, addTriggersName, make.at(diagPos).Ident(names._this)));
        return make.MethodDef(make.Modifiers(Flags.PUBLIC), 
                names.init, 
                make.TypeIdent(TypeTags.VOID), 
@@ -483,106 +414,176 @@ public class JavafxInitializationBuilder {
         return members.toList();
     }
 
-    private List<JCTree> makeInterfaceAttributeGetterMethods(DiagnosticPosition diagPos, List<AttributeInfo> attrInfos) {
+    private List<JCTree> makeInterfaceAttributeGetterMethods(List<? extends AttributeInfo> attrInfos) {
         ListBuffer<JCTree> getters = ListBuffer.lb();
-        for (AttributeInfo attrInfo : attrInfos) { 
-            if ((attrInfo.getFlags() & Flags.PRIVATE) != 0 && !attrInfo.isDirectOwner()) {
-                continue;
+        for (AttributeInfo ai : attrInfos) {
+            if (!ai.isStatic()) {
+                JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT);
+                mods = JavafxToJava.addAccessAnnotationModifiers(ai.getFlags(), mods, (JavafxTreeMaker) make);
+                getters.append(make.MethodDef(
+                        mods,
+                        names.fromString(attributeGetMethodNamePrefix + ai.getNameString()),
+                        toJava.makeTypeTree(ai.getMorphedType(), null),
+                        List.<JCTypeParameter>nil(),
+                        List.<JCVariableDecl>nil(),
+                        List.<JCExpression>nil(),
+                        null, null));
             }
-  
-            JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT);
-            mods = JavafxToJava.addAccessAnnotationModifiers(attrInfo.getFlags(), mods, (JavafxTreeMaker)make);
-            getters.append(make.MethodDef(
-                    mods,
-                    names.fromString(attributeGetMethodNamePrefix + attrInfo.getName().toString()),
-                    toJava.makeTypeTree(attrInfo.getMorphedType(), null),
-                    List.<JCTypeParameter>nil(), 
-                    List.<JCVariableDecl>nil(), 
-                    List.<JCExpression>nil(), 
-                    null, null));
         }
         return getters.toList();
     }
 
-    private List<JCTree> makeClassAttributeGetterMethods(DiagnosticPosition diagPos, List<AttributeInfo> attrInfos) {
+    private List<JCTree> makeClassAttributeGetterMethods(JFXClassDeclaration cDecl, List<? extends AttributeInfo> attrInfos) {
         ListBuffer<JCTree> getters = ListBuffer.lb();
-        for (AttributeInfo attrInfo : attrInfos) { 
-            // Add the return statement for the attribute
-            JCStatement returnStat = make.Return(make.Ident(attrInfo.getName()));
-            JCBlock statBlock = make.Block(0L, List.of(returnStat) );
-            
-            // Add the method for this class' attributes
-            JCModifiers mods = make.Modifiers(Flags.PUBLIC);
-            mods = JavafxToJava.addAccessAnnotationModifiers(attrInfo.getFlags(), mods, (JavafxTreeMaker)make);
-            getters.append(make.MethodDef(
-                    mods,
-                    names.fromString(attributeGetMethodNamePrefix + attrInfo.getNameString()),
-                    toJava.makeTypeTree(attrInfo.getMorphedType(), null),
-                    List.<JCTypeParameter>nil(), 
-                    List.<JCVariableDecl>nil(), 
-                    List.<JCExpression>nil(), 
-                    statBlock, 
-                    null));
+        for (AttributeInfo ai : attrInfos) {
+            if (ai.needsCloning()) {
+                long flags = ai.getFlags();
+                DiagnosticPosition diagPos = ai.pos();
+                Name attribName = ai.getName();
+                String attribString = ai.getNameString();
+                Name methodName = names.fromString(attributeGetMethodNamePrefix + attribString);
+
+                // Add the return statement for the attribute
+                JCExpression value = make.Ident(attribName);
+                JCStatement returnStat = make.at(diagPos).Return(value);
+                JCBlock statBlock = make.at(diagPos).Block(0L, List.of(returnStat));
+
+                // Add the method for this class' attributes
+                JCModifiers mods = make.Modifiers(Flags.PUBLIC);
+                mods = JavafxToJava.addAccessAnnotationModifiers(flags, mods, (JavafxTreeMaker) make);
+                getters.append(make.at(diagPos).MethodDef(
+                        mods,
+                        methodName,
+                        toJava.makeTypeTree(ai.getMorphedType(), null),
+                        List.<JCTypeParameter>nil(),
+                        List.<JCVariableDecl>nil(),
+                        List.<JCExpression>nil(),
+                        statBlock,
+                        null));
+            }
         }
         return getters.toList();
     }
         
+    private boolean isAttributeOriginClass(Symbol sym, Name attrName, Name getterName) {
+        if (types.isJFXClass(sym)) {
+            ClassSymbol supertypeSym = (ClassSymbol) sym;
+            for (Entry e = supertypeSym.members().elems; e != null && e.sym != null; e = e.sibling) { 
+                if ((e.sym.kind == Kinds.MTH && e.sym.name == getterName) ||
+                        (e.sym.kind == Kinds.VAR && e.sym.name == attrName)) {
+                    return true;
+                }
+            }
+            // not directly in this class, try in the superclass
+            for (Type supertype : supertypeSym.getInterfaces()) {
+                if (isAttributeOriginClass(supertype.tsym, attrName, getterName) ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+        
+    /**
+     * Construct the applyDefaults method
+     */
     private List<JCTree> makeClassAttributeApplyDefaultsMethods(DiagnosticPosition diagPos,
-            List<String> javafxClassNames,
-            List<AttributeInfo> attrInfos) {
-        ListBuffer<JCTree> getters = ListBuffer.lb();
-        for (AttributeInfo attrInfo : attrInfos) {
-            Name methodName = names.fromString(attributeApplyDefaultsMethodNamePrefix + attrInfo.getNameString());
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            JFXClassDeclaration cDecl,
+            List<? extends AttributeInfo> attrInfos) {
+        ListBuffer<JCTree> methods = ListBuffer.lb();
+        for (AttributeInfo ai : attrInfos) {
+            if (ai.needsCloning()) {
+                String attribString = ai.getNameString();
+                Name methodName = names.fromString(attributeApplyDefaultsMethodNamePrefix +  attribString);
+                ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-            for (String className : javafxClassNames) {
-                List<JCExpression> arg = List.<JCExpression>of(make.at(diagPos).Ident(defs.receiverName));
-                stmts.append(toJava.callStatement(diagPos, make.at(diagPos).Identifier(className), methodName, arg));
+                if (ai.getDefaultInitializtionStatement() != null) {
+                    // a default exists, either on the direct attribute or on an override
+                    stmts.append(ai.getDefaultInitializtionStatement());
+                } else {
+                    // no default, look for the supertype which defines it, and defer to it
+                    ClassSymbol attrParent = null;
+                    Name getterName = names.fromString(attributeGetMethodNamePrefix + attribString);
+                    for (JCExpression supertype : cDecl.getSupertypes()) {
+                        Symbol sym = supertype.type.tsym;
+                        if (isAttributeOriginClass(sym, ai.getName(), getterName) ) {
+                            attrParent = (ClassSymbol) sym;
+                            break;
+                        }
+                    }
+                    assert attrParent != null : "Parent supertype for attribute " + attribString + " not found";
+                    if (attrParent != null) {
+                        stmts.append( makeSuperCall(diagPos, attrParent, methodName) );
+                    }
+                }
+                JCBlock statBlock = make.at(diagPos).Block(0L, stmts.toList());
+
+                // Add the method for this class' attributes
+                JCModifiers mods = make.Modifiers(Flags.PUBLIC | (cDecl.generateClassOnly()? 0L : Flags.STATIC) );
+                methods.append(make.at(diagPos).MethodDef(
+                        mods,
+                        methodName,
+                        toJava.makeTypeTree(syms.voidType, null),
+                        List.<JCTypeParameter>nil(),
+                        List.<JCVariableDecl>of(toJava.makeReceiverParam(cDecl)),
+                        List.<JCExpression>nil(),
+                        statBlock,
+                        null));
             }
-
-            JCBlock statBlock = make.Block(0L, stmts.toList());
-
-            // Add the method for this class' attributes
-            JCModifiers mods = make.Modifiers(Flags.PUBLIC);
-            mods = JavafxToJava.addAccessAnnotationModifiers(attrInfo.getFlags(), mods, (JavafxTreeMaker) make);
-            getters.append(make.MethodDef(
-                    mods,
-                    methodName,
-                    toJava.makeTypeTree(attrInfo.getMorphedType(), null),
-                    List.<JCTypeParameter>nil(),
-                    List.<JCVariableDecl>nil(),
-                    List.<JCExpression>nil(),
-                    statBlock,
-                    null));
         }
-        return getters.toList();
+        return methods.toList();
     }
-        
+    
+    private JCStatement makeSuperCall(DiagnosticPosition diagPos, ClassSymbol cSym, Name methodName) {
+        JCExpression receiver;
+        List<JCExpression> arg = List.<JCExpression>of(make.at(diagPos).Ident(defs.receiverName));
+        if ((cSym.flags() & JavafxFlags.COMPOUND_CLASS) != 0) {
+            // call to a compound super, use static reference
+            receiver = toJava.makeTypeTree(cSym.type, diagPos, false);
+        } else {
+            // call to a non-compound super, use "super"
+            receiver = make.at(diagPos).Ident(names._super);
+        }
+        return toJava.callStatement(diagPos, receiver, methodName, arg);
+    }
 
-    private JCMethodDecl makeInitializeMethod(DiagnosticPosition diagPos, 
+    private List<JCStatement> makeAllSuperCalls(DiagnosticPosition diagPos,
+            List<ClassSymbol> javafxClasses, Name methodName) {
+        ListBuffer<JCStatement> stmts = ListBuffer.lb();
+        for (ClassSymbol cSym : javafxClasses) {
+            stmts.append( makeSuperCall(diagPos, cSym, methodName) );
+        }
+        return stmts.toList();
+    }
+    
+    private JCMethodDecl makeInitializeMethod(DiagnosticPosition diagPos,
+            List<AttributeInfo> attrInfos,
             JFXClassDeclaration cDecl) {
         boolean classIsFinal = (cDecl.getModifiers().flags & Flags.FINAL) != 0;
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
         // Add calls to do the the default value initialization and user init code (validation for example.)
         
-        // "initAttributes$(this);"
-        stmts.append(toJava.callStatement(
-                cDecl.pos(), 
-                make.at(diagPos).Ident(classIsFinal? names._this : cDecl.getName()),
-                 initAttributesName, 
-                make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
+        // "addTriggers$(this);"
+       stmts.append( toJava.callStatement(
+               diagPos, 
+               null, 
+               addTriggersName, 
+               make.at(diagPos).Ident(names._this)));
+
+       // "initAttributes$(this);"
+        stmts.appendList( makeInitAttributesCode(attrInfos, cDecl) );
         
         // "userInit$(this);"
         stmts.append(toJava.callStatement(
-                cDecl.pos(), 
+                diagPos, 
                 make.Ident(classIsFinal? names._this : cDecl.getName()),
                 userInitName, 
                 make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
         
         // "postInit$(this);"
         stmts.append(toJava.callStatement(
-                cDecl.pos(),
+                diagPos,
                 make.Ident(classIsFinal? names._this : cDecl.getName()),
                 postInitName,
                 make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
@@ -616,68 +617,64 @@ public class JavafxInitializationBuilder {
                 initializeBlock, null);
     }
     
-    /**
-     * Construct the SetDefaults method
-     * */
-    private JCMethodDecl makeInitAttributesMethod(DiagnosticPosition diagPos, 
-                                               JFXClassDeclaration cDecl,
-                                               List<String> javafxClassNames,
-                                               List<TranslatedAttributeInfo> translatedAttrInfo) {
-        boolean classIsFinal =(cDecl.getModifiers().flags & Flags.FINAL) != 0;
-        ListBuffer<JCStatement> stmts = ListBuffer.lb();
-
-        // call the superclasses SetDefaults
-        stmts.appendList( makeRecursiveSupertypeCalls(diagPos, javafxClassNames, initAttributesName) );
-
-        // Add the initialization of this class' attributes
-        stmts.appendList(makeInitAttributesCode(translatedAttrInfo, cDecl));
-
-        return make.at(diagPos).MethodDef(
-                make.Modifiers(classIsFinal? Flags.PUBLIC  : Flags.PUBLIC | Flags.STATIC),
-                initAttributesName,
-                toJava.makeTypeTree(syms.voidType, null),
-                List.<JCTypeParameter>nil(), 
-                List.<JCVariableDecl>of( toJava.makeReceiverParam(cDecl) ), 
-                List.<JCExpression>nil(), 
-                make.Block(0L, stmts.toList()), 
-                null);
-    }
-
     // Add the initialization of this class' attributes
-    private List<JCStatement> makeInitAttributesCode(List<TranslatedAttributeInfo> translatedAttrInfo,
-                                                                   JFXClassDeclaration cdef) {
-        List<JCStatement> ret = List.nil();
+    private List<JCStatement> makeInitAttributesCode(List<AttributeInfo> attrInfos,
+            JFXClassDeclaration cDecl) {
+        ListBuffer<JCStatement> stmts = ListBuffer.lb();
+        for (AttributeInfo ai : attrInfos) {
+            if ((ai.getFlags() & Flags.STATIC) == 0) {
+                DiagnosticPosition diagPos = ai.pos();
+                String attribName = ai.getNameString();
+                Name methodName = names.fromString(attributeApplyDefaultsMethodNamePrefix + attribName);
+
+                List<JCExpression> arg = List.<JCExpression>of(make.at(diagPos).Ident(names._this));
+                JCStatement applyDefaultsCall = toJava.callStatement(diagPos, null, methodName, arg);
+                JCExpression needsDefaultCond = toJava.callExpression(diagPos,
+                        make.at(diagPos).Ident(ai.getName()),
+                        defs.needDefaultsMethodName);
+                JCStatement protectedCall = make.If(needsDefaultCond, applyDefaultsCall, null);
+                stmts.append( protectedCall );
+            }
+        }
+        return stmts.toList();
+    }
+    
+    /**
+     * Construct the static block for setting defaults
+     * */
+    private JCBlock makeInitStaticAttributesBlock(DiagnosticPosition diagPos, 
+            JFXClassDeclaration cDecl,
+            List<TranslatedAttributeInfo> translatedAttrInfo) {
+        // Add the initialization of this class' attributesa
+        ListBuffer<JCStatement> stmts = ListBuffer.lb();
         for (TranslatedAttributeInfo tai : translatedAttrInfo) {
-            DiagnosticPosition diagPos = tai.pos();
-            if (tai.attribute != null && tai.attribute.getTag() == JavafxTag.VAR_DEF && tai.attribute.pos != Position.NOPOS) {
-		if ((tai.attribute.getModifiers().flags & Flags.STATIC) != 0) {
-		    continue;
-		}
-                if (tai.attribute.sym != null && tai.attribute.sym.owner == cdef.sym) {
-                    VarMorphInfo vmi = typeMorpher.varMorphInfo(tai.attribute.sym);
-                    JCExpression needsDefaultCond = toJava.callExpression(diagPos, 
-                            toJava.makeAttributeAccess(cdef, tai.getNameString()), 
-                            defs.needDefaultsMethodName);
-                    JCIf defInitIf = make.If(needsDefaultCond, tai.initStmt, null);
-                    ret = ret.append(defInitIf);
+            assert tai.attribute != null && tai.attribute.getTag() == JavafxTag.VAR_DEF && tai.attribute.pos != Position.NOPOS;
+            if (tai.isStatic()) {
+                if (tai.isDirectOwner()) {
+                    stmts.append(tai.getDefaultInitializtionStatement());
+                    stmts.append( toJava.callStatement(diagPos, make.at(diagPos).Ident(tai.getName()), locationInitializeName));
+                }
+                JCStatement stat = makeStaticChangeListenerCall(tai);
+                if (stat != null) {
+                    stmts.append(stat);
                 }
             }
         }
-        return ret;
+        return make.Block(Flags.STATIC, stmts.toList());
     }
+
     /**
      * Construct the addTriggers method
      * */
-    private JCMethodDecl makeTriggersMethod(DiagnosticPosition diagPos, 
+    private JCMethodDecl makeAddTriggersMethod(DiagnosticPosition diagPos, 
                                                JFXClassDeclaration cDecl,
-                                               List<String> javafxClassNames,
+                                               List<ClassSymbol> javafxSupers,
                                                List<TranslatedAttributeInfo> translatedAttrInfo,
                                                List<TranslatedOverrideAttributeInfo> translatedTriggerInfo) {
-        boolean classIsFinal =(cDecl.getModifiers().flags & Flags.FINAL) != 0;
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
         // call the superclasses addTriggers
-        stmts.appendList( makeRecursiveSupertypeCalls(diagPos, javafxClassNames, addTriggersName) );
+        stmts.appendList( makeAllSuperCalls(diagPos, javafxSupers, addTriggersName) );
 
         // add change listeners for triggers on attribute definitions
         for (TranslatedAttributeInfo info : translatedAttrInfo) {
@@ -694,7 +691,7 @@ public class JavafxInitializationBuilder {
         }
 
         return make.at(diagPos).MethodDef(
-                make.Modifiers(classIsFinal? Flags.PUBLIC  : Flags.PUBLIC | Flags.STATIC),
+                make.Modifiers(Flags.PUBLIC | (cDecl.generateClassOnly()? 0L : Flags.STATIC) ),
                 addTriggersName,
                 toJava.makeTypeTree(syms.voidType, null),
                 List.<JCTypeParameter>nil(),
@@ -704,40 +701,17 @@ public class JavafxInitializationBuilder {
                 null);
     }
 
-    /**
-     * Construct the static block for setting defaults
-     * */
-    private JCBlock makeInitAttributesBlock(DiagnosticPosition diagPos, 
-            JFXClassDeclaration cDecl,
-            List<TranslatedAttributeInfo> translatedAttrInfo) {
-        // Add the initialization of this class' attributesa
-        ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        for (TranslatedAttributeInfo tai : translatedAttrInfo) {
-            assert tai.attribute != null && tai.attribute.getTag() == JavafxTag.VAR_DEF && tai.attribute.pos != Position.NOPOS;
-            if ((tai.attribute.getModifiers().flags & Flags.STATIC) != 0) {
-                if (tai.attribute.sym != null && tai.attribute.sym.owner == cDecl.sym) {
-                    stmts.append(tai.initStmt);
-                }
-                JCStatement stat = makeStaticChangeListenerCall(tai);
-                if (stat != null) {
-                    stmts.append(stat);
-                }
-            }
-        }
-        return make.Block(Flags.STATIC, stmts.toList());
-    }
-
     // build a field for each non-static attribute (including inherited).
     // and for static attributes of this class
-    private List<JCTree> makeAttributeFields(DiagnosticPosition diagPos, List<AttributeInfo> attrInfos) {
+    private List<JCTree> makeAttributeFields(DiagnosticPosition diagPos, List<? extends AttributeInfo> attrInfos) {
         ListBuffer<JCTree> fields = ListBuffer.lb();
-        for (AttributeInfo attrInfo : attrInfos) {
-            if (!attrInfo.isStatic() || attrInfo.isDirectOwner()) {
+        for (AttributeInfo ai : attrInfos) {
+            if (ai.needsCloning()) {
                 JCVariableDecl var = make.at(diagPos).VarDef(
-                        make.Modifiers(Flags.PUBLIC | Flags.FINAL | (attrInfo.getFlags() & Flags.STATIC)),
-                        attrInfo.getName(),
-                        attrInfo.makeMorphedTypeTree(diagPos),
-                        typeMorpher.makeLocationAttributeVariable(attrInfo.getVMI(), diagPos));
+                        make.Modifiers(Flags.PUBLIC | Flags.FINAL | (ai.getFlags() & Flags.STATIC)),
+                        ai.getName(),
+                        toJava.makeTypeTree(ai.getMorphedType(), diagPos),
+                        typeMorpher.makeLocationAttributeVariable(ai.getVMI(), diagPos));
                 fields.append(var);
             }
         }
@@ -748,230 +722,17 @@ public class JavafxInitializationBuilder {
     private JCVariableDecl makeAttributeListField(DiagnosticPosition diagPos, List<AttributeInfo> attrInfos) {
         ListBuffer<JCExpression> attrs = ListBuffer.lb();
 
-        for (AttributeInfo attrInfo : attrInfos) {
-            if (!attrInfo.isStatic()) {
-                attrs.append(make.at(diagPos).Ident(attrInfo.getName()));
+        for (AttributeInfo ai : attrInfos) {
+            if (ai.needsCloning()) {
+                attrs.append(make.at(diagPos).Ident(ai.getName()));
             }
         }
         
-        return make.at(diagPos).VarDef(make.Modifiers(Flags.PUBLIC), 
+        return make.at(diagPos).VarDef(make.Modifiers(Flags.PRIVATE), 
                 defs.attributesFieldName, 
                 make.TypeArray( toJava.makeTypeTree(abstractVariableType, diagPos) ), 
                 make.NewArray(toJava.makeTypeTree(abstractVariableType, diagPos), 
                                 List.<JCExpression>nil(), attrs.toList()));
-    }
-
-/**
-* Walk the supertypes of this class, collecting the attributes and functions that need to be rolled up
-* into the class representation.
-* For source classes this means walking the explicit supertype in the AST.  For classes from class files,
-* this means looking at the interfaces and the parallel class.
-*/
-   class CollectAttributeAndMethods {
-       private final DiagnosticPosition diagPos;
-
-       List<ClassSymbol> javaInterfaces;
-       List<String> javafxClassNames;
-       ListBuffer<AttributeInfo> attributeInfos = ListBuffer.lb();
-       java.util.List<Symbol> allAttributeSymbols = new java.util.ArrayList<Symbol>();
-       java.util.List<MethodSymbol> needInterfaceMethods = new java.util.ArrayList<MethodSymbol>();
-       java.util.List<MethodSymbol> needDispatchMethods = new java.util.ArrayList<MethodSymbol>();
-       java.util.List<MethodSymbol> needStaticDispatchMethods = new java.util.ArrayList<MethodSymbol>();
-       
-       private ListBuffer<ClassSymbol> baseClasses = ListBuffer.lb();
-       private Map<String,String> visitedSourceAttributes = new HashMap<String,String>();
-       private Map<String,String> visitedClassFileAttributes = new HashMap<String,String>();
-       private Set<String> visitedFunctions = new HashSet<String>();
-       private java.util.List<ClassSymbol> classesToVisit = new java.util.ArrayList<ClassSymbol>();
-       private Set<ClassSymbol> addedBaseClasses = new HashSet<ClassSymbol>();
-        
-       CollectAttributeAndMethods(DiagnosticPosition diagPos, ClassSymbol csym) {
-           this.diagPos = diagPos;
-           classesToVisit.add(csym);
-           while (!classesToVisit.isEmpty()) {
-               ClassSymbol cSym = classesToVisit.get(0);
-               classesToVisit.remove(0);
-               boolean compound = (cSym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0;
-               if (types.isJFXClass(cSym)) {
-                   JFXClassDeclaration cDecl = types.getFxClass(cSym); // get the corresponding AST, null if from class file
-                   if (cDecl == null) { 
-                       // this is a JavaFX class from a class file
-                       if ((cSym.flags_field & Flags.INTERFACE) == 0 && cSym.members() != null) {
-                           // we want to base this solely on (non-empty) implementation (not interfaces)
-                           for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
-                               if (e.sym.kind == Kinds.MTH) {
-                                   processMethodFromClassFile((MethodSymbol) e.sym, compound, cSym);
-                               }
-                           }
-                       }
-                       // now visit the super-types (both interface and class forms)
-                       for (Type supertype : cSym.getInterfaces()) {
-                           ClassSymbol iSym = (ClassSymbol) supertype.tsym;
-                           addToVisitList(iSym);
-                           String iName = iSym.fullname.toString();
-                           if (iName.endsWith(JavafxDefs.interfaceSuffix)) {
-                               // enter and visit the class parallel to this interface
-                               String sName = iName.substring(0, iName.length() - JavafxDefs.interfaceSuffix.length());
-                               ClassSymbol sSym = typeMorpher.reader.enterClass(names.fromString(sName));
-                               addToVisitList(sSym);
-                           }
-                       }
-                   } else {
-                       // this is a JavaFX source file
-                       for (JCTree def : cDecl.getMembers()) {
-                           if (def.getTag() == JavafxTag.VAR_DEF) {
-                               processAttributeFromSource((JFXVar) def, cDecl);
-                           }
-                           else if (compound && def.getTag() == JavafxTag.FUNCTION_DEF) {
-                               processFunctionFromSource((JFXFunctionDefinition) def);
-                           }
-                       }
-                       // now visit the super-types
-                       for (JCExpression supertype : cDecl.getSupertypes()) {
-                           addToVisitList(supertype.type.tsym);
-                       }
-                   }
-               }
-           }
-           // finish up
-           processClassLists();
-       }
-
-       private void addToVisitList(Symbol sSym) {
-           if (sSym != null && sSym.kind == Kinds.TYP) {
-               ClassSymbol cSym = (ClassSymbol) sSym;
-               if (!addedBaseClasses.contains(cSym)) {
-
-                   addedBaseClasses.add(cSym);
-                   classesToVisit.add(cSym);
-                   baseClasses.append(cSym);
-               }
-           }
-       }
-       
-       private void processClassLists() {
-           Set<String> classNamesSeen = new HashSet<String>();
-           ListBuffer<ClassSymbol> javaInterfacesBuff = ListBuffer.lb();
-           ListBuffer<String> javafxClassNamesBuff = ListBuffer.lb();
-           for (ClassSymbol cSym : baseClasses) {
-               String className = cSym.fullname.toString();
-               boolean isFXInterface = className.endsWith(interfaceSuffix);
-               if (types.isJFXClass(cSym)) {
-                   if (isFXInterface) {
-                       className = className.substring(0, className.length() - interfaceSuffix.length());
-                   }
-
-                   if (!classNamesSeen.contains(className)) {
-                       classNamesSeen.add(className);
-                       javafxClassNamesBuff.append(className);
-                   }
-               }
-
-               if (!isFXInterface &&
-                       cSym.fullname != names.fromString(fxObjectString) &&
-                       (cSym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0 &&
-                       cSym.type != null) {
-                   javaInterfacesBuff.append(cSym);
-               }
-           }
-           javaInterfaces = javaInterfacesBuff.toList();
-           javafxClassNames = javafxClassNamesBuff.toList();
-       }
-       
-       private void processMethodFromClassFile(MethodSymbol meth, boolean compound, ClassSymbol cSym) {
-           String methName = meth.name.toString();
-           if (methName.startsWith(attributeGetMethodNamePrefix)) {
-               // this is an attribute get method, collect it as an attribute
-               String nameSig = methName.substring(attributeGetMethodNamePrefix.length());
-               if (visitedSourceAttributes.containsKey(nameSig)) {
-                   log.error("javafx.cannot.override.default.initializer", 
-                           nameSig, cSym.className(), visitedSourceAttributes.get(nameSig));
-               } else if(visitedClassFileAttributes.containsKey(nameSig)) {
-                   // no error (attributes are duplicated in subclasses) but don't add again
-               } else {
-                   visitedClassFileAttributes.put(nameSig, cSym.className());
-                   attributeInfos.append(new AttributeInfo(diagPos, meth, false));
-               }
-           } else if (compound && methName.endsWith(JavafxDefs.implFunctionSuffix)) {
-               // implementation method
-               methName = methName.substring(0, methName.length() - JavafxDefs.implFunctionSuffix.length());
-               int cnt = 0;
-               ListBuffer<VarSymbol> params = ListBuffer.lb();
-               ListBuffer<Type> paramTypes = ListBuffer.lb();
-               for (VarSymbol param : meth.getParameters()) {
-                   cnt++;
-                   if (cnt > 1) {
-                       params.append(param);
-                       paramTypes.append(param.type);
-                   }
-               }
-               MethodType mtype = new MethodType(paramTypes.toList(), meth.type.getReturnType(), meth.type.getThrownTypes(), meth.type.tsym);
-               MethodSymbol fixedMeth = new MethodSymbol(
-                    meth.flags() & ~Flags.STATIC, 
-                    names.fromString(methName),
-                    mtype, 
-                    meth.owner);
-               fixedMeth.params = params.toList();
-               String nameSig = methodSignature(fixedMeth);
-               if (!visitedFunctions.contains(nameSig)) {
-                   visitedFunctions.add(nameSig);
-                   needDispatchMethods.add(fixedMeth);
-               }
-           }
-       }
-     
-       private void processFunctionFromSource(JFXFunctionDefinition def) {
-           MethodSymbol meth = def.sym;
-           if (def.pos == Position.NOPOS) {
-               return; //TODO: this looks REALLY dangerous, but this brabch is taken.  FIXME
-           }
-           String nameSig = methodSignature(meth);
-           if (!visitedFunctions.contains(nameSig)) {
-               visitedFunctions.add(nameSig);
-               if ((meth.flags() & (Flags.SYNTHETIC|Flags.STATIC)) == 0) {
-                   needInterfaceMethods.add(meth);
-               }
-               if ((meth.flags() & (Flags.SYNTHETIC | Flags.ABSTRACT)) == 0) {
-                   if ((meth.flags() & (Flags.STATIC)) != 0) {
-                       needStaticDispatchMethods.add(meth);
-                   } else {
-                       needDispatchMethods.add(meth);
-                   }
-               }
-           }
-       }
-       
-       private  void processAttributeFromSource(JFXVar def, JFXClassDeclaration cDecl) {
-           VarSymbol var = def.sym;
-
-           if (var.owner.kind == Kinds.TYP) {
-               String attrName = var.name.toString();
-               String className = cDecl.getName().toString();
-               if (visitedSourceAttributes.containsKey(attrName)) {
-                   log.error("javafx.cannot.override.default.initializer", 
-                           attrName, className, visitedSourceAttributes.get(attrName));
-               } else if(visitedClassFileAttributes.containsKey(attrName)) {
-                   log.error("javafx.cannot.override.default.initializer", 
-                           attrName, className, visitedClassFileAttributes.get(attrName));
-               } else {
-                   visitedSourceAttributes.put(attrName, className);
-                   attributeInfos.append(new AttributeInfo(diagPos, var, var.owner==cDecl.sym));
-               }
-           }
-       }
-
-        private String methodSignature(MethodSymbol meth) {
-            StringBuilder nameSigBld = new StringBuilder();
-            nameSigBld.append(meth.name.toString());
-            nameSigBld.append(":");
-            nameSigBld.append(meth.getReturnType().toString());
-            nameSigBld.append(":");
-            for (VarSymbol param : meth.getParameters()) {
-                nameSigBld.append(param.type.toString());
-                nameSigBld.append(":");
-            }
-            return nameSigBld.toString();
-        }
     }
 
    /**
@@ -1228,16 +989,6 @@ public class JavafxInitializationBuilder {
 	return null;
     }
 
-    private List<JCStatement> makeRecursiveSupertypeCalls(DiagnosticPosition diagPos,
-            List<String> javafxClassNames, Name methodName) {
-        ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        for (String className : javafxClassNames) {
-            List<JCExpression> arg = List.<JCExpression>of(make.at(diagPos).Ident(defs.receiverName));
-            stmts.append(toJava.callStatement(diagPos, make.at(diagPos).Identifier(className), methodName, arg));
-        }
-        return stmts.toList();
-    }
-    
     /**
      * Make a method from a MethodSymbol and an optional method body.
      * Make a bound version if "isBound" is set.
@@ -1285,8 +1036,8 @@ public class JavafxInitializationBuilder {
         for (VarSymbol var : mth.params) {
             args.append(make.Ident(var.name));
         }
-        String receiver = mth.owner.name.toString();
-        JCExpression expr = toJava.callExpression(diagPos, make.Identifier(receiver), toJava.functionName(mth, !isStatic, isBound), args);
+        JCExpression receiver = toJava.makeTypeTree(mth.owner.type, diagPos, false);
+        JCExpression expr = toJava.callExpression(diagPos, receiver, toJava.functionName(mth, !isStatic, isBound), args);
         JCStatement statement = (mth.getReturnType() == syms.voidType) ? make.Exec(expr) : make.Return(expr);
         return make.at(diagPos).Block(0L, List.<JCStatement>of(statement));
      }

@@ -534,17 +534,21 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** Emit Java-like source corresponding to an input file.
      */
-    void printJavaSource(JavafxEnv<JavafxAttrContext> env) throws IOException {
+    void printJavaSource(JavafxEnv<JavafxAttrContext> env) {
         String dump = options.get("dumpjava");
         if (dump != null) {
-            String fn = env.toplevel.sourcefile.toString().replace(".fx", ".javadump");
-            File outFile = new File(dump, (new File(fn)).getName());
-            FileWriter fw = new FileWriter(outFile);
-            BufferedWriter out = new BufferedWriter(fw);
             try {
-                new BlockExprPretty(out, true).printUnit(env.toplevel, null);
-            } finally {
-                out.close();
+                String fn = env.toplevel.sourcefile.toString().replace(".fx", ".javadump");
+                File outFile = new File(dump, (new File(fn)).getName());
+                FileWriter fw = new FileWriter(outFile);
+                BufferedWriter out = new BufferedWriter(fw);
+                try {
+                    new BlockExprPretty(out, true).printUnit(env.toplevel, null);
+                } finally {
+                    out.close();
+                }
+            } catch (IOException ex) {
+                System.err.println("Exception thrown in JavaFX pretty printing: " + ex);
             }
         }
     }
@@ -802,7 +806,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     private void backEnd(List<JavafxEnv<JavafxAttrContext>> envs, ListBuffer<JavaFileObject> results) throws IOException {
         ListBuffer<JCCompilationUnit> trees = lb();
         for (JavafxEnv<JavafxAttrContext> env : envs) {
-            printJavaSource(env);
             trees.append(env.toplevel);
        }
        javafxJavaCompiler.backEnd(trees.toList(), results);
@@ -962,6 +965,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     public JavafxEnv<JavafxAttrContext> prepForBackEnd(JavafxEnv<JavafxAttrContext> env) {
         if (verboseCompilePolicy)
             log.printLines(log.noticeWriter, "[prep-for-back-end " + env.enclClass.sym + "]");
+        printJavaSource(env);
 
         JavaFileObject prev = log.useSource(
                                   env.enclClass.sym.sourcefile != null ?

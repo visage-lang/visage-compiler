@@ -32,6 +32,7 @@ import javax.lang.model.type.TypeKind;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.tools.javac.code.*;
+import com.sun.tools.javac.code.Scope.Entry;
 import static com.sun.tools.javac.code.Flags.*;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.*;
@@ -49,8 +50,8 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.JavafxClassModel;
-import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedAttributeInfo;
-import com.sun.tools.javafx.comp.JavafxInitializationBuilder.TranslatedOverrideAttributeInfo;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedAttributeInfo;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideAttributeInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.BindAnalysis;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
@@ -82,6 +83,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     static final private String privateAnnotationStr = "com.sun.javafx.runtime.Private";
     static final private String protectedAnnotationStr = "com.sun.javafx.runtime.Protected";
     static final private String publicAnnotationStr = "com.sun.javafx.runtime.Public";
+    static final private String staticAnnotationStr = "com.sun.javafx.runtime.Static";
 
     /*
      * other instance information
@@ -506,15 +508,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         }
                         case JavafxTag.VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
-                            JCTree trans = translate(attrDef);
                             boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
                             if ((attrDef.mods.flags & JavafxFlags.DEFER_TYPE_ASSIGNMENT) == 0) {
-                                JCExpression init = translateDefinitionalAssignmentToSet(attrDef.pos(), 
+                                JCStatement init = translateDefinitionalAssignmentToSet(attrDef.pos(), 
                                     attrDef.init, attrDef.getBindStatus(), attrDef.sym,
                                     isStatic? null : make.Ident(defs.receiverName), FROM_DEFAULT_MILIEU);
-                                attrInfo.append(initBuilder.translatedAttributeInfo(
+                                attrInfo.append(new TranslatedAttributeInfo(
                                     attrDef,
-                                    make.at(attrDef.pos()).Exec(init),
+                                    typeMorpher.varMorphInfo(attrDef.sym),
+                                    init,
                                     translate(attrDef.getOnChanges())));
                             }
                             //translatedDefs.append(trans);
@@ -522,8 +524,20 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         }
                         case JavafxTag.OVERRIDE_ATTRIBUTE_DEF: {
                             JFXOverrideAttribute override = (JFXOverrideAttribute) def;
-                            overrideInfo.append(initBuilder.translatedOverrideAttributeInfo(
+                            boolean isStatic = (override.sym.flags() & STATIC) != 0;
+                            JCStatement init;
+                            if (override.getInitializer() == null) {
+                                init = null;
+                            } else {
+                                init = translateDefinitionalAssignmentToSet(override.pos(),
+                                    override.getInitializer(), override.getBindStatus(), override.sym,
+                                    isStatic? null : make.Ident(defs.receiverName), 
+                                    FROM_DEFAULT_MILIEU);
+                            }
+                            overrideInfo.append(new TranslatedOverrideAttributeInfo(
                                     override,
+                                    typeMorpher.varMorphInfo(override.sym),
+                                    init,
                                     translate(override.getOnReplace())));
                             break;
                         }
@@ -802,8 +816,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     }
 
                     JCIdent ident1 = make.at(diagPos).Ident(tmpName);
-                    init = translateDefinitionalAssignmentToSet(diagPos, init, bindStatus, vsym, ident1, FROM_LITERAL_MILIEU);
-                    stats.append(make.at(diagPos).Exec(init)); 
+                    stats.append( translateDefinitionalAssignmentToSet(diagPos, init, bindStatus, 
+                            vsym, ident1, FROM_LITERAL_MILIEU) ); 
                 }
 
                 JCIdent ident3 = make.Ident(tmpName);   
@@ -984,7 +998,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
     }
 
-    private JCExpression translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
+    private JCStatement translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
+            JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
+            JCExpression instance, int milieu) {
+        return make.at(diagPos).Exec( translateDefinitionalAssignmentToSetExpression(diagPos,
+            init, bindStatus, vsym,
+             instance, milieu) );
+    }
+
+    private JCExpression translateDefinitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
             JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
             JCExpression instance, int milieu) {
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
@@ -1438,7 +1460,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (tree.rhs instanceof JFXBindExpression) {
             JFXBindExpression bind = (JFXBindExpression) tree.rhs;
             JCExpression lhs = translate(tree.lhs, Wrapped.InLocation);
-            result = translateDefinitionalAssignmentToSet(bind.pos(), 
+            result = translateDefinitionalAssignmentToSetExpression(bind.pos(), 
                                     bind.getExpression(), bind.getBindStatus(), vsym,
                                     null /*for now*/, FROM_DEFAULT_MILIEU);
             return;
@@ -1569,7 +1591,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (! staticReference && tree.sym.isStatic()) {  //TODO: something is goofy here, see above test
             // Translate x.staticRef to { x; XClass.staticRef }:
             dummyReference = List.<JCStatement>of(make.Exec(translatedSelected));
-            translatedSelected = makeTypeTree(tree.selected.type, tree, false);
+            translatedSelected = makeTypeTree(tree.sym.owner.type, tree, false);
             staticReference = true;
         }
 
@@ -1587,7 +1609,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 diagPos,
                 translated,
                 tree.sym, 
-                staticReference , 
+                staticReference, 
                 state.wantLocation(),
                 createDynamicDependencies);
         if (dummyReference != null)
@@ -1655,12 +1677,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 convert = make.at(diagPos).Select(make.at(diagPos).TypeCast(makeTypeTree(tree.sym.owner.type, diagPos), mRec), tree.name);
             }
         } else {
-            convert = make.at(diagPos).Ident(tree.name);
+            if (tree.sym.isStatic()) {
+                convert = make.at(diagPos).Select(makeTypeTree(tree.sym.owner.type, diagPos, false), tree.name);
+            } else {
+                convert = make.at(diagPos).Ident(tree.name);
+            }
         }
         
-        result = typeMorpher.convertVariableReference(diagPos, convert, tree.sym, tree.sym.isStatic(), state.wantLocation(), false);
+        result = typeMorpher.convertVariableReference(diagPos, 
+                convert, 
+                tree.sym, 
+                tree.sym.isStatic(),
+                state.wantLocation(), 
+                false);
     }
-
+    
     @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
         /*** 
@@ -3496,23 +3527,24 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     static JCModifiers addAccessAnnotationModifiers(long flags, JCModifiers mods, JavafxTreeMaker make) {
         JCModifiers ret = mods;
-        ListBuffer<JCAnnotation> annotations;
+        ListBuffer<JCAnnotation> annotations = ListBuffer.lb();;
         if ((flags & Flags.PUBLIC) != 0) {
-            annotations = ListBuffer.lb();
             annotations.append(make.Annotation(make.Identifier(publicAnnotationStr), List.<JCExpression>nil()));
-            ret = make.Modifiers(mods.flags, annotations.toList());
         }
         else if ((flags & Flags.PRIVATE) != 0) {
-            annotations = ListBuffer.lb();
             annotations.append(make.Annotation(make.Identifier(privateAnnotationStr), List.<JCExpression>nil()));
-            ret = make.Modifiers(mods.flags, annotations.toList());
         }
         else if ((flags & Flags.PROTECTED) != 0) {        
-            annotations = ListBuffer.lb();
             annotations.append(make.Annotation(make.Identifier(protectedAnnotationStr), List.<JCExpression>nil()));
-            ret = make.Modifiers(mods.flags, annotations.toList());
         }                
-        
+
+        if ((flags & Flags.STATIC) != 0) {
+            annotations.append(make.Annotation(make.Identifier(staticAnnotationStr), List.<JCExpression>nil()));
+        }
+
+        if (annotations.nonEmpty()) {
+            ret = make.Modifiers(mods.flags, annotations.toList());
+        }
         return ret;
     }
 

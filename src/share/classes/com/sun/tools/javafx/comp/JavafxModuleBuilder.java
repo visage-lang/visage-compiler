@@ -145,6 +145,11 @@ public class JavafxModuleBuilder {
             }
             case VAR_DEF: {
                 JFXVar decl = (JFXVar) tree;
+                
+                
+                checkName(tree.pos, decl.getName());
+                stats.append(decl);
+                /******    turn off revision r1810, better solution said to be on the way
                 Name name = decl.name;
                 checkName(tree.pos, name);
                 decl.mods.flags |= STATIC;
@@ -158,6 +163,7 @@ public class JavafxModuleBuilder {
                     decl.init = null;
                 }
                 moduleClassDefs.append(tree);
+                 * ****/
                 break;
             }
             default:

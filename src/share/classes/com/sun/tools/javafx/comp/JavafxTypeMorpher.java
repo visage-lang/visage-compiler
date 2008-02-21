@@ -330,7 +330,8 @@ public class JavafxTypeMorpher {
     }
 
     public JCExpression convertVariableReference(DiagnosticPosition diagPos,
-                                                 JCExpression varRef, Symbol sym, boolean staticReference,
+                                                 JCExpression varRef, Symbol sym, 
+                                                 boolean staticReference, 
                                                  boolean wantLocation, boolean createDynamicDependencies) {
 
         JCExpression expr = varRef;
@@ -347,12 +348,12 @@ public class JavafxTypeMorpher {
                     select = make.at(diagPos).Select(select.getExpression(), attrAccessName);
                     List<JCExpression> emptyArgs = List.nil();
                     expr = make.at(diagPos).Apply(null, select, emptyArgs);
+                }
 
-                    // if are in a bind context and this is a select of an attribute,
-                    // add the result as a dynamic dependency
-                    if (createDynamicDependencies) {
-                        expr = toJava.callExpression(diagPos, null, defs.addDynamicDependentName, expr);
-                    }
+                // if are in a bind context and this is a select of an attribute,
+                // add the result as a dynamic dependency
+                if (createDynamicDependencies) {
+                    expr = toJava.callExpression(diagPos, null, defs.addDynamicDependentName, expr);
                 }
                 if (wantLocation) {
                     // already in correct form-- leave it

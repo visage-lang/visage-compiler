@@ -63,6 +63,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_privateAnnotationType;
     public final Type javafx_protectedAnnotationType;
     public final Type javafx_publicAnnotationType;
+    public final Type javafx_staticAnnotationType;
     
     /** The type of expressions that never returns a value to its parent.
      * E.g. an expression that always throws an Exception.
@@ -110,6 +111,7 @@ public class JavafxSymtab extends Symtab {
         javafx_privateAnnotationType = enterClass("com.sun.javafx.runtime.Private");
         javafx_protectedAnnotationType = enterClass("com.sun.javafx.runtime.Protected");
         javafx_publicAnnotationType = enterClass("com.sun.javafx.runtime.Public");
+        javafx_staticAnnotationType = enterClass("com.sun.javafx.runtime.Static");
         for (int i = MAX_FIXED_PARAM_LENGTH; --i >= 0;  ) {
             javafx_FunctionTypes[i] = enterClass(functionClassPrefix+i);
         }

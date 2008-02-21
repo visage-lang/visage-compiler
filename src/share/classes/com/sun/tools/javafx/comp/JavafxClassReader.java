@@ -333,6 +333,12 @@ public class JavafxClassReader extends ClassReader {
                 List<Attribute.Compound> newList = deproxyCompoundList(l);
                 JavafxSymtab javafxSyms = (JavafxSymtab)classReader.syms;
                 for (Attribute.Compound comp : newList) {
+                    if (comp.type.tsym.flatName() == javafxSyms.javafx_staticAnnotationType.tsym.flatName()) {
+                        if (sym != null && sym.kind == MTH &&
+                                sym.name.toString().startsWith(classReader.defs.attributeGetMethodNamePrefix)) {
+                            sym.flags_field |=  Flags.STATIC;
+                        }
+                    }
                     if (comp.type.tsym.flatName() == javafxSyms.javafx_privateAnnotationType.tsym.flatName()) {
                         if (sym != null && sym.kind == MTH  && false) {// TODO: Need a way to deal with private methods. The interface 
                                                               // of a base class defines them, but for a superclasss that implements 
@@ -341,7 +347,6 @@ public class JavafxClassReader extends ClassReader {
                             sym.flags_field &= ~(Flags.PROTECTED | Flags.PUBLIC);
                             sym.flags_field |=  Flags.PRIVATE;
                         }
-                        break;
                     }
                     else if (comp.type.tsym.flatName() == javafxSyms.javafx_protectedAnnotationType.tsym.flatName()) {
                         if (sym != null && sym.kind == MTH &&
@@ -349,7 +354,6 @@ public class JavafxClassReader extends ClassReader {
                             sym.flags_field &= ~(Flags.PRIVATE | Flags.PUBLIC);
                             sym.flags_field |=  Flags.PROTECTED;
                         }
-                        break;
                     }
                     else if (comp.type.tsym.flatName() == javafxSyms.javafx_publicAnnotationType.tsym.flatName()) {
                         if (sym != null && sym.kind == MTH &&
@@ -357,7 +361,6 @@ public class JavafxClassReader extends ClassReader {
                             sym.flags_field &= ~(Flags.PROTECTED | Flags.PRIVATE);
                             sym.flags_field |=  Flags.PUBLIC;
                         }
-                        break;
                     }
                 }
 
