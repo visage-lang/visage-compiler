@@ -116,19 +116,28 @@ public class FXRunAndCompareWrapper extends TestCase {
         files.add(testFile.getPath());
         for (String f : auxFiles)
             files.add(new File(testFile.getParent(), f).getPath());
-        int errors = TestHelper.doCompile(buildDir.getPath(), classpath, files, out, err);
-        if (errors != 0 && !expectCompileFailure) {
-            TestHelper.dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output", testFile.toString());
-            System.out.println("--");
-            StringBuilder sb = new StringBuilder();
-            sb.append(errors).append(" error");
-            if (errors > 1)
-                sb.append('s');
-            sb.append(" compiling ").append(testFile);
-            fail(sb.toString());
+        int errors;
+        try {
+            errors = TestHelper.doCompile(buildDir.getPath(), classpath, files, out, err);
+            if (errors != 0 && !expectCompileFailure) {
+                TestHelper.dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output", testFile.toString());
+                System.out.println("--");
+                StringBuilder sb = new StringBuilder();
+                sb.append(errors).append(" error");
+                if (errors > 1)
+                    sb.append('s');
+                sb.append(" compiling ").append(testFile);
+                fail(sb.toString());
+            }
+            else if (errors == 0 && expectCompileFailure) {
+                fail("expected compiler error");
+            }
         }
-        else if (errors == 0 && expectCompileFailure) {
-            fail("expected compiler error");
+        catch (AssertionError e) {
+            e.printStackTrace(new PrintWriter(err));
+            TestHelper.dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output", testFile.toString());
+            if (!expectCompileFailure)
+                fail("Assertion error in compiler");
         }
     }
 

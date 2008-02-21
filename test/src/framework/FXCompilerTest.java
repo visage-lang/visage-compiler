@@ -155,6 +155,8 @@ public class FXCompilerTest extends TestSuite {
                     if (scanner != null)
                         scanner.close();
                 }
+                if (isTest && compileFailure)
+                    shouldRun = runFailure = false;
                 if (isTest) {
                     if (isFxUnit)
                         tests.add(FXUnitTestWrapper.makeSuite(f, name));

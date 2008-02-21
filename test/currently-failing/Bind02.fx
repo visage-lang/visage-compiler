@@ -1,6 +1,6 @@
 /**
  * Functional test: Binding a sequence
- * @test
+ * @test/fail
  * @run
  */
 
