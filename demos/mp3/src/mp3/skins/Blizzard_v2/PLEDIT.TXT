@@ -1,0 +1,12 @@
+[Text]
+Normal=#007DAF
+Current=#00AEEF
+NormalBG=#000000
+SelectedBG=#002331
+mbFG=#00AEEF
+mbBG=#000000
+Font=arial
+
+BLIZZARD v2.0
+Skinmaster : Ely J. Ocbina
+e-mail     : e_ocbina@yahoo.com

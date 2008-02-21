@@ -1,0 +1,8 @@
+[Text]
+Normal=#7FA79F
+Current=#D8F1EC
+NormalBG=#2B2825
+SelectedBG=#4C4A40
+Font=tahoma
+mbFG=#7FA79F
+mbBG=#44504B
