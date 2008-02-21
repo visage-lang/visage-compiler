@@ -419,13 +419,13 @@
                 <propertyref regex="^.*\.class\.path$$"/>
             </propertyset>
         </ant>
+        -->
         <ant dir="demos/javafxballs" inheritall="false">
             <property name="tools.dir" value="${tools.dir}"/>
             <propertyset>
                 <propertyref regex="^.*\.class\.path$$"/>
             </propertyset>
         </ant>
-        -->
         <copy todir="dist/demos">
             <fileset dir="demos" excludes="StudioMoto/**,**/build/,**/dist/,**/lib/"/>
         </copy>
