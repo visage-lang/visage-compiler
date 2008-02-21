@@ -31,4 +31,20 @@
         <Bug pattern="URF_UNREAD_FIELD"/>
         <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
     </Match>
+    <Match>
+        <!-- Exclude Time.fx -->
+        <Class name="javafx.lang.Time"/>
+    </Match>
+    <Match>
+        <!-- Switch-fallthrough on purpose -->
+        <Class name="com.sun.javafx.runtime.util.FXPropertyResourceBundle"/>
+        <Method name="initialize"/>
+        <Bug pattern="SF_SWITCH_FALLTHROUGH"/>
+    </Match>
+    <Match>
+        <!-- Duplicate branch is temporary solution -->
+        <Class name="com.sun.tools.javafx.comp.JavafxAttr"/>
+        <Method name="visitSequenceExplicit"/>
+        <Bug pattern="DB_DUPLICATE_BRANCHES"/>
+    </Match>
 </FindBugsFilter>

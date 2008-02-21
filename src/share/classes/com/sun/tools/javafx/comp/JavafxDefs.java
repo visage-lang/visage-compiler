@@ -67,7 +67,8 @@ public class JavafxDefs {
     public static final String invokeNameString = "invoke";
     public static final String lambdaNameString = "lambda";
     
-    public static final String[] milieuNames = { "", "FromLiteral" };
+    static final String[] milieuNames = { "", "FromLiteral" };
+    public static String getMilieuName(int index) { return milieuNames[index]; }
     
     static final int VANILLA_MILIEU = 0;
     static final int FROM_DEFAULT_MILIEU = 0;  // for now, same as vanilla

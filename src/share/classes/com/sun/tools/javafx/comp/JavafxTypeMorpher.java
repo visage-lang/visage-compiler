@@ -259,14 +259,12 @@ public class JavafxTypeMorpher {
         log = Log.instance(context);
         toJava = JavafxToJava.instance(context);
 
-        String[] locClass = JavafxVarSymbol.typePrefixes;
-
         variableNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         bindingNCT = new LocationNameSymType[TYPE_KIND_COUNT];
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
-            variableNCT[kind] = new LocationNameSymType(locClass[kind] + "Variable");
-            bindingNCT[kind] = new LocationNameSymType(locClass[kind] + "BindingExpression");
+            variableNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Variable");
+            bindingNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "BindingExpression");
         }
 
         baseLocation = new LocationNameSymType("Location");
