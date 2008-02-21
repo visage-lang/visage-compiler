@@ -99,7 +99,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
     }
 
     public void removeChangeListener(SequenceReplaceListener<T> listener) {
-        helper.addChangeListener(listener);
+        helper.removeChangeListener(listener);
     }
 
     public Iterator<T> iterator() {

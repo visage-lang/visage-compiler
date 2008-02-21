@@ -48,6 +48,11 @@ public abstract class BoundComprehension<T, V> extends AbstractBoundSequence<V> 
         this.useIndex = useIndex;
     }
 
+    public BoundComprehension(Class<V> clazz,
+                              SequenceLocation<T> sequenceLocation) {
+        this(clazz, sequenceLocation, false);
+    }
+
     private static class State<T, V> {
         private SequenceLocation<V> mapped;
         private final ObjectLocation<T> element;
@@ -114,12 +119,12 @@ public abstract class BoundComprehension<T, V> extends AbstractBoundSequence<V> 
                     SequenceLocation<V>[] locationsArray = Util.<SequenceLocation<V>>newArray(SequenceLocation.class, newElements.size());
                     State<T, V>[] newStates = (State<T, V>[]) new State[newElements.size()];
                     fillInNewValues(newElements, newStates, locationsArray, startPos);
-                    if (useIndex) {
-                        for (int i = endPos + 1; i < state.size(); i++)
-                            state.get(i).index.set(i + netAdded);
-                    }
                     underlying.replaceSlice(startPos, endPos, locationsArray);
                     state.replaceSlice(startPos, endPos, newStates);
+                    if (useIndex) {
+                        for (int i = endPos + 1 + netAdded; i < state.size(); i++)
+                            state.get(i).index.set(i);
+                    }
                 }
             }
         });

@@ -25,7 +25,7 @@ public class Util {
     }
 
     public static int powerOfTwo(int current, int desired) {
-        int capacity = current;
+        int capacity = current == 0 ? 1 : current;
         while (capacity < desired)
             capacity <<= 1;
         return capacity;
