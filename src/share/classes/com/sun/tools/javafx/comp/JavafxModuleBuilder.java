@@ -37,6 +37,7 @@ import static com.sun.tools.javac.code.TypeTags.VOID;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Log;
@@ -96,17 +97,27 @@ public class JavafxModuleBuilder {
         // check for references to pseudo variables and if found, declare them
         final boolean[] usesFile = new boolean[1];
         final boolean[] usesDir = new boolean[1];
+        final DiagnosticPosition[] diagPos = new DiagnosticPosition[1];
         new JavafxTreeScanner() {
             @Override
             public void visitIdent(JCIdent id) {
                 super.visitIdent(id);
-                if (id.name.equals(pseudoFile))
+                if (id.name.equals(pseudoFile)) {
                     usesFile[0] = true;
-                if (id.name.equals(pseudoDir))
+                    markPosition(id);
+                }
+                if (id.name.equals(pseudoDir)) {
                     usesDir[0] = true;
+                    markPosition(id);
+                }
+            }
+            void markPosition(JCTree tree) {
+                if (diagPos[0] == null) { // want the first only
+                    diagPos[0] = tree.pos();
+                }
             }
         }.scan(module.defs);
-        addPseudoVariables(moduleClassName, module, moduleClassDefs, usesFile[0], usesDir[0]);
+        addPseudoVariables(diagPos[0], moduleClassName, module, moduleClassDefs, usesFile[0], usesDir[0]);
 
         // Divide module defs between run method body, Java compilation unit, and module class
         ListBuffer<JCTree> topLevelDefs = new ListBuffer<JCTree>();
@@ -114,7 +125,7 @@ public class JavafxModuleBuilder {
         JCExpression value = null;
         for (JCTree tree : module.defs) {
             if (value != null) {
-                stats.append( make.Exec(value) );
+                stats.append( make.at(value).Exec(value) );
                 value = null;
             }
             switch (tree.getTag()) {
@@ -197,32 +208,32 @@ public class JavafxModuleBuilder {
         topLevelNamesSet = null;
     }
     
-    private void addPseudoVariables(Name moduleClassName, JCCompilationUnit module,
+    private void addPseudoVariables(DiagnosticPosition diagPos, Name moduleClassName, JCCompilationUnit module,
             ListBuffer<JCTree> stats, boolean usesFile, boolean usesDir) {
         if (usesFile || usesDir) {
             // java.net.URL __FILE__ = Util.get__FILE__(moduleClass);
             JCExpression moduleClassFQN = module.pid != null ?
-                make.Select(module.pid, moduleClassName) : make.Ident(moduleClassName);
-            JCExpression getFile = make.Identifier("com.sun.javafx.runtime.Util.get__FILE__");
-            JCExpression forName = make.Identifier("java.lang.Class.forName");
-            List<JCExpression> args = List.<JCExpression>of(make.Literal(moduleClassFQN.toString()));
-            JCExpression loaderCall = make.Apply(List.<JCExpression>nil(), forName, args);
+                make.at(diagPos).Select(module.pid, moduleClassName) : make.at(diagPos).Ident(moduleClassName);
+            JCExpression getFile = make.at(diagPos).Identifier("com.sun.javafx.runtime.Util.get__FILE__");
+            JCExpression forName = make.at(diagPos).Identifier("java.lang.Class.forName");
+            List<JCExpression> args = List.<JCExpression>of(make.at(diagPos).Literal(moduleClassFQN.toString()));
+            JCExpression loaderCall = make.at(diagPos).Apply(List.<JCExpression>nil(), forName, args);
             args = List.<JCExpression>of(loaderCall);
-            JCExpression getFileURL = make.Apply(List.<JCExpression>nil(), getFile, args);
+            JCExpression getFileURL = make.at(diagPos).Apply(List.<JCExpression>nil(), getFile, args);
             JCStatement fileVar =
-                make.Var(pseudoFile, getURLType(), 
-                         make.Modifiers(Flags.FINAL|Flags.STATIC), 
+                make.at(diagPos).Var(pseudoFile, getURLType(diagPos), 
+                         make.at(diagPos).Modifiers(Flags.FINAL|Flags.STATIC), 
                          false, getFileURL, JavafxBindStatus.UNBOUND, 
                          List.<JFXAbstractOnChange>nil());
 
             // java.net.URL __DIR__;
             if (usesDir) {
-                JCExpression getDir = make.Identifier("com.sun.javafx.runtime.Util.get__DIR__");
-                args = List.<JCExpression>of(make.Ident(pseudoFile));
-                JCExpression getDirURL = make.Apply(List.<JCExpression>nil(), getDir, args);
+                JCExpression getDir = make.at(diagPos).Identifier("com.sun.javafx.runtime.Util.get__DIR__");
+                args = List.<JCExpression>of(make.at(diagPos).Ident(pseudoFile));
+                JCExpression getDirURL = make.at(diagPos).Apply(List.<JCExpression>nil(), getDir, args);
                 stats.prepend(
-                    make.Var(pseudoDir, getURLType(), 
-                             make.Modifiers(Flags.FINAL|Flags.STATIC), 
+                    make.at(diagPos).Var(pseudoDir, getURLType(diagPos), 
+                             make.at(diagPos).Modifiers(Flags.FINAL|Flags.STATIC), 
                              false, getDirURL, JavafxBindStatus.UNBOUND, 
                              List.<JFXAbstractOnChange>nil()));
             }
@@ -231,9 +242,9 @@ public class JavafxModuleBuilder {
         }
     }
     
-    private JFXType getURLType() {
-        JCExpression urlFQN = make.Identifier("java.net.URL");
-        return make.TypeClass(urlFQN, TypeTree.Cardinality.SINGLETON);
+    private JFXType getURLType(DiagnosticPosition diagPos) {
+        JCExpression urlFQN = make.at(diagPos).Identifier("java.net.URL");
+        return make.at(diagPos).TypeClass(urlFQN, TypeTree.Cardinality.SINGLETON);
     }
 
     private JFXFunctionDefinition makeMethod(Name name, List<JCStatement> stats, JCExpression value, Type returnType) {
