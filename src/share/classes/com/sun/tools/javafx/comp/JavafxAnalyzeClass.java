@@ -241,11 +241,24 @@ class JavafxAnalyzeClass {
                     }
                 }
                 if ((cSym.flags_field & Flags.INTERFACE) == 0 && cSym.members() != null) {
+                    /***
                     for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
                         if (e.sym.kind == Kinds.MTH) {
                             processMethodFromClassFile((MethodSymbol) e.sym, cSym, cloneVisible);
                         }
                     }
+                     * ***/
+                    //TODO: fiz this hack back to the above. for some reason the order of symbols within a scope is inverted
+                    ListBuffer<MethodSymbol> reversed = ListBuffer.lb();
+                    for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
+                        if (e.sym.kind == Kinds.MTH) {
+                            reversed.prepend((MethodSymbol) e.sym);
+                        }
+                    }
+                    for (MethodSymbol meth : reversed) {
+                        processMethodFromClassFile(meth, cSym, cloneVisible);
+                    }
+                    
                 }
             } else {
                 for (JCExpression supertype : cDecl.getSupertypes()) {
