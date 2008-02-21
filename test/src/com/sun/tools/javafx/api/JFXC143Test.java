@@ -9,10 +9,7 @@ import com.sun.javafx.api.JavafxcTask;
 import com.sun.javafx.api.JavafxcTool;
 import com.sun.source.tree.CompilationUnitTree;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticListener;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
@@ -63,17 +60,5 @@ public class JFXC143Test {
         Iterable<? extends CompilationUnitTree> result = task.parse();
         assertEquals("parse error(s)", 0, dl.errors());
         assertTrue("no compilation units returned", result.iterator().hasNext());
-    }
-     
-    class MockDiagnosticListener<T> implements DiagnosticListener<T> {
-        public void report(Diagnostic<? extends T> d) {
-            diagCodes.add(d.getCode());
-            System.err.println(d);
-        }
-
-        public List<String> diagCodes = new ArrayList<String>();
-        public int errors() {
-            return diagCodes.size();
-        }
     }
 }
