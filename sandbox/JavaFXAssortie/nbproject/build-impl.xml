@@ -19,7 +19,7 @@ is divided into following sections:
   - cleanup
 
         -->
-<project xmlns:javafxproject1="http://www.netbeans.org/ns/javafx-project/1" xmlns:javafxproject2="http://www.netbeans.org/ns/javafx-project/2" xmlns:javafxproject3="http://www.netbeans.org/ns/javafx-project/3" basedir=".." default="default" name="JavaFXAssortie-impl">
+<project xmlns:javafxproject1="http://www.netbeans.org/ns/javafx-project/1" xmlns:javafxproject2="http://www.netbeans.org/ns/javafx-project/2" xmlns:javafxproject3="http://www.netbeans.org/ns/javafx-project/3" xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1" xmlns:j2seproject2="http://www.netbeans.org/ns/j2se-project/2" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3" xmlns:jaxrpc="http://www.netbeans.org/ns/j2se-project/jax-rpc"  basedir=".." default="default" name="JavaFXAssortie-impl">
     <target depends="jar" description="Build whole project." name="default"/>
     <!-- 
                 ======================
@@ -316,19 +316,20 @@ is divided into following sections:
     </target>
     <target depends="init,deps-jar,-pre-pre-compile,-pre-compile" if="have.sources" name="-do-compile">
         <javafxproject3:depend/>
-        <javafxproject3:javac/>
+        <javafxproject3:javac excludes="jfx/assortie/Main.java"/>
         <copy todir="${build.classes.dir}">
             <fileset dir="${src.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
     </target>
     <target name="-compile-fx">
-        <taskdef classname="com.sun.tools.javafx.ant.JavaFxAntTask" classpath="${libs.JavaFXUserLib.classpath}" name="javafxc">
+        <taskdef classname="com.sun.tools.javafx.ant.JavaFxAntTask" classpath="${javafx.compiler.classpath}" name="javafxc">
             <classpath>
                 <pathelement location="${build.classes.dir}"/>
                 <pathelement location="${javac.classpath}"/>
             </classpath>
         </taskdef>
-        <javafxc classpath="${build.classes.dir}:${libs.JavaFXUserLib.classpath}" compilerclasspath="${build.classes.dir}:${javac.classpath}:${libs.JavaFXUserLib.classpath}" debug="${javac.debug}" deprecation="${javac.deprecation}" destdir="${build.classes.dir}" excludes="${excludes}" includeantruntime="false" includes="**/*.fx" source="${javac.source}" sourcepath="" srcdir="${src.dir}" target="${javac.target}"/>
+        <javafxc classpath="${build.classes.dir}:${javafx.compiler.classpath}" compilerclasspath="${build.classes.dir}:${javac.classpath}:${javafx.compiler.classpath}" debug="${javac.debug}" deprecation="${javac.deprecation}" destdir="${build.classes.dir}" excludes="${excludes}" includeantruntime="false" includes="**/*.fx" source="${javac.source}" sourcepath="" srcdir="${src.dir}" target="${javac.target}"/>
+        <javafxproject3:javac/>
     </target>
     <target name="-post-compile">
         <!-- Empty placeholder for easier customization. -->
