@@ -400,6 +400,16 @@ var result = add(1, 2);
 </programlisting>
 
     <para><emphasis role="bold"></emphasis></para>
+    
+    </section>
+    
+<!-- *******************************************************
+
+Original Triggers section  below
+
+     *******************************************************    
+    
+    
 
     <para><emphasis role="bold">3.3 Triggers</emphasis></para>
 
@@ -570,4 +580,152 @@ x.num = 3; // prints X.num: just replaced 100 with 3
 
     <para><emphasis></emphasis></para>
   </section>
+  
+  *******************************************************
+  
+  end of older triggers section 
+  
+  ****** New Triggers Section from Per Below  *********** -->
+  
+  <sect2 id="trigger">
+    <title>Slices and Triggers</title>
+  
+  <para>A <emphasis>slice</emphasis> is a sequence indexed by a range. The syntax for a slice is deliberately similar to that of a range-expression:</para>
+
+<programlisting>
+SliceExpr ::=
+  SeqExpr "[" LowExpr ".." [HighExpr] "]" ;
+;
+</programlisting>
+
+<para>In <code>seq[low..high] </code>the value of low can range from <code> 0..(sizeof seq), </code> while <code>high </code>can range from <code>low-1..size-1.</code>  An empty slice is indicated by <code>high==low-1.</code>  (This need to add/subtract one is slightly awkward and confusing; we will probably add a way to specify an "exclusive" upper bound.)</para>
+
+<para>Note that slice ranges do not support step sizes
+different from 1.</para>
+
+
+<para>The expression:</para>
+
+<programlisting>seq[low..high]</programlisting>
+
+<para>is in value context equivalent to:</para>
+
+ <programlisting>for (i in [low..high]) seq[i]</programlisting>
+
+<para>In lvalue context:</para>
+
+<programlisting>seq[low..high] = rhs</programlisting>
+
+  <para>s of <code>seq </code>by <code>rhs.</code>  If <code>high==lo</code>
+replaces the specified <code>elementw-1,</code>
+insert <code>rhs at </code> (i.e. before) <code>low.</code></para>
+
+<para>Slice assignment subsumes insertion, deletion, and replacement.
+The keyword-based <emphasis>insert/delete</emphasis> statements are viewed as
+syntactic sugar for slice assignment.</para>
+
+
+
+<para>Replace triggers</para>
+
+<programlisting>
+    "on" "replace"
+    [oldValue]
+    [ "[" lowIndex ".." highIndex "]" "=" newElements ]
+    block
+    
+    </programlisting>
+
+<para>A replace trigger is invoked after every modification of
+the variable it is attached to.  The syntactic non-terminals
+<code>oldValue, lowIndex, highIndex,</code> and <code>newElements </code> are effectively
+formal parameters to a function whose body is the block:</para>
+
+<itemizedlist>
+
+<listitem><code>oldValue </code>is the previous value of the variable, and has the
+same type as the variable.</listitem>
+
+
+<listitem><code>lowIndex </code> and <code>highIndex </code>delimit the portion of <code>oldValue </code>that
+has been replaced.  Their types are <code>Integer.</code>  For a pure insertion, <code>
+highIndex==lowIndex-1.</code></listitem>
+
+<listitem>
+<code>newElements </code>is the sequence of values that replaces the slice
+<code>oldValue[lowIndex..highIndex].</code>  Its type is the same as the variable.</listitem>
+</itemizedlist>
+
+
+<para>The <code>[lowIndex..highIndex]=newElements </code> parameters are only allowed if the attached variable has sequence type.<para>
+
+<para>Notice there is an asymmetry between <code>oldValue </code>and <code>newElements:</code>  
+<code>oldValue </code>is the previous value of the attached variable,
+while <code>newElements </code>is a slice of the new value of the variable, containing only the modified elements.</para>
+
+<para>The syntax of the replace trigger is meant to be evocative of a
+slice assignment.  Given:</para>
+
+<programlisting>attribute x
+    on replace oldVal[lo..hi]=newVals { exp };
+  var save = x;
+  x[i..j] = y;
+  </programlisting>
+  
+<para>Then <code>exp </code>will be evaluated, with <code>oldVal </code>bound to <code>save, </code> lo bound to<code> i, hi</code> bound to <code>j, </code> and <code>newVals </code>bound to <code>y.</code></para>
+
+<para>Using the unified replace triggers should result in simpler
+programs.  In some cases the existing code has identical code for
+all three triggers.  For example  <code>Polygon.points </code>can be simplified to:</para>
+
+<programlisting>    public attribute points: Number[]
+        on replace {
+            updatePolygon();
+        };
+</programlisting>
+
+<para>Unified replace triggers work great with slice assignments.  For
+example, we can define a bind, as in:</para>
+
+<programlisting>  attribute x;
+  attribute y = bind x;
+</programlisting>
+
+<para>as equivalent to:</para>
+
+<programlisting>  attribute x =
+    on replace [i..j]=n
+    { y[i..j]=n };
+  attribute y = [];
+</programlisting>
+
+<para>If y is a "map" of x:</para>
+<programlisting>  attribute x;
+  attribute y = bind for (xi in x) f(xi);
+  
+  </programlisting>
+
+<para>that is equivalent to:</para>
+
+<programlisting>  attribute x =
+    on replace [i..j]=n
+    { y[i..j] = for (k in n) f(k) };
+  attribute y = [];
+</programlisting>
+
+<para>Deleting or replacing a range of elements in a sequence,
+or inserting a sequence into a single location all
+result in a single trigger invocation.  Some other
+operations, such as deleting all elements that satisfy
+a predicate, may be decomposed to multiple trigger
+call.  In that case the state as seen by each
+trigger invocation is <emphasis>consistent</emphasis> in the sense
+that the programmer-visible state is <emphasis>as if</emphasis>
+the predicate-delete (for example) were implemented
+as a set of independent slice-delete operations.</para></para></para>
+
+  
+  
+  </sect2>
+  
 </chapter>
