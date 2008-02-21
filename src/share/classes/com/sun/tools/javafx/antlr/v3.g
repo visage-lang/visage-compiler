@@ -215,7 +215,7 @@ import org.antlr.runtime.*;
     }
       
     int previousTokenType = -1;
-    final Token syntheticSemi = new CommonToken(SEMI);
+
     List tokens = new ArrayList();
     
     public v3Lexer(Context context, CharStream input) {
@@ -229,6 +229,9 @@ import org.antlr.runtime.*;
         int ttype = token.getType();
         //System.err.println("::: " + ttype + " --- " + token.getText());
         if (previousTokenType == RBRACE && (ttype == EOF || semiKind[ttype] == INSERT_SEMI)) {
+            Token syntheticSemi = new CommonToken(token);
+            syntheticSemi.setType(SEMI);
+            syntheticSemi.setText("beginning of new statement");
             state.token = syntheticSemi;
             tokens.add(syntheticSemi);
             //System.err.println("INSERTING in front of: " + ttype);
