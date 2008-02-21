@@ -147,6 +147,9 @@ public abstract class AbstractLocation implements Location {
     }
 
     public void addChangeListener(ChangeListener listener) {
+        // @@@ Would be nice to get rid of raw change listeners, and stick with the type-specific versions (e.g.,
+        // ObjectChangeListener), but for now Bijection relies on access to the raw listener because it needs to
+        // be able to unregister itself when the weak references are cleared
         if (listeners == null)
             listeners = new ArrayList<ChangeListener>();
         listeners.add(listener);
