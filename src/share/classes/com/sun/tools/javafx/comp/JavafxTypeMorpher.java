@@ -428,7 +428,7 @@ public class JavafxTypeMorpher {
         return new BindAnalysis(expr);
     }
 
-    class BindAnalysis extends JavafxTreeScanner {
+    public class BindAnalysis extends JavafxTreeScanner {
 
         boolean iterationSeen = false;
         boolean assignmentSeen = false;

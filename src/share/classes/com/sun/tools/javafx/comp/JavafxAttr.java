@@ -345,8 +345,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     /** Derived visitor method: attribute a type tree.
      */
     Type attribType(JCTree tree, JavafxEnv<JavafxAttrContext> env) {
-        Type result = attribTree(tree, env, TYP, Type.noType, Sequenceness.DISALLOWED);
-        return result;
+        Type localResult = attribTree(tree, env, TYP, Type.noType, Sequenceness.DISALLOWED);
+        return localResult;
     }
 
     /** Derived visitor method: attribute a statement or definition tree.
@@ -520,6 +520,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         return localEnv;
     }
 
+    @Override
     public void visitTypeCast(JCTypeCast tree) {
         Type clazztype = attribType(tree.clazz, env);
         Type exprtype = attribExpr(tree.expr, env, Infer.anyPoly);
@@ -531,6 +532,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         result = check(tree, capture(owntype), VAL, pkind, pt, Sequenceness.DISALLOWED);
     }
 
+    @Override
     public void visitTypeTest(JCInstanceOf tree) {
         Type exprtype = chk.checkNullOrRefType(
             tree.expr.pos(), attribExpr(tree.expr, env));
@@ -540,6 +542,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         result = check(tree, syms.booleanType, VAL, pkind, pt, Sequenceness.DISALLOWED);
     }
 
+    @Override
     public void visitIndexed(JCArrayAccess tree) {
         assert false : "This tree should not exist";
     }
@@ -625,6 +628,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         result = checkId(tree, env1.enclClass.sym.type, sym, env, pkind, pt, pSequenceness, varArgs);
     }
     
+    @Override
     public void visitSelect(JCFieldAccess tree) {
         // Determine the expected kind of the qualifier expression.
         int skind = 0;
@@ -829,6 +833,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
 
 
+    @Override
     public void visitParens(JCParens tree) {
         Type owntype = attribTree(tree.expr, env, pkind, pt);
         result = check(tree, owntype, pkind, pkind, pt, pSequenceness);
@@ -1187,6 +1192,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 pkind, pt, pSequenceness);
     }
 
+    @Override
     public void visitSkip(JCSkip tree) {
         result = null;
     }
@@ -1196,6 +1202,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
          result = check(tree, owntype, pkind, pkind, pt, pSequenceness);
     }
 
+    @Override
     public void visitBlock(JCBlock tree) {
         if (env.info.scope.owner.kind == TYP) {
             // Block is a static or instance initializer;
@@ -1265,39 +1272,47 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         localEnv.info.scope.leave();
     }
 
+    @Override
     public void visitDoLoop(JCDoWhileLoop tree) {
         attribStat(tree.body, env.dup(tree));
         attribExpr(tree.cond, env, syms.booleanType);
         result = null;
     }
 
+    @Override
     public void visitWhileLoop(JCWhileLoop tree) {
         attribExpr(tree.cond, env, syms.booleanType);
         attribStat(tree.body, env.dup(tree));
         result = null;
     }
 
+    @Override
     public void visitForLoop(JCForLoop tree) {
         assert false;
     }
 
+    @Override
     public void visitForeachLoop(JCEnhancedForLoop tree) {
         assert false;
     }
 
+    @Override
     public void visitLabelled(JCLabeledStatement tree) {
         assert false;
     }
 
+    @Override
     public void visitSwitch(JCSwitch tree) {
         assert false;
     }
 
+    @Override
     public void visitNewArray(JCNewArray tree) {
         assert false;
     }
 
     
+    @Override
     public void visitNewClass(JCNewClass tree) {
         assert false : "remove me"; 
     }
@@ -1450,10 +1465,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
               owntype = clazz.type;  // this give declared type, where clazztype would give anon type
         }
 
-        for (JFXObjectLiteralPart pt : tree.getParts()) {
-            JFXObjectLiteralPart part = (JFXObjectLiteralPart)pt;
+        for (JFXObjectLiteralPart localPt : tree.getParts()) {
+            JFXObjectLiteralPart part = (JFXObjectLiteralPart)localPt;
             Symbol memberSym = rs.findIdentInType(env, clazz.type, part.name, VAR);
-            memberSym = rs.access(memberSym, pt.pos(), clazz.type, part.name, true);
+            memberSym = rs.access(memberSym, localPt.pos(), clazz.type, part.name, true);
             memberSym.complete();
             attribExpr(part.getExpression(), localEnv, memberSym.type);
             part.type = memberSym.type;
@@ -1478,17 +1493,19 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         return tree;
     }
 
+    @Override
     public void visitClassDef(JCClassDecl tree) {
         assert false : "Should never reach here";
     }
 
+    @Override
     public void visitMethodDef(JCMethodDecl tree) {
         assert false : "Should never reach here";
     }
     
     @Override
     public void visitOperationValue(JFXFunctionValue tree) {
-        Scope enclScope = enter.enterScope(env);
+        Scope enclScope = JavafxEnter.enterScope(env);
         JFXFunctionDefinition def = new JFXFunctionDefinition(make.Modifiers(Flags.SYNTHETIC), defs.lambdaName, tree);
         tree.definition = def;
         MethodSymbol m = new MethodSymbol(SYNTHETIC, def.name, null, enclScope.owner);
@@ -1659,12 +1676,14 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
     }
 
+    @Override
     public void visitSynchronized(JCSynchronized tree) {
         chk.checkRefType(tree.pos(), attribExpr(tree.lock, env));
         attribStat(tree.body, env);
         result = null;
     }
 
+    @Override
     public void visitTry(JCTry tree) {
         // Attribute body
         attribStat(tree.body, env.dup(tree, env.info.dup()));
@@ -1694,6 +1713,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         result = null;
     }
 
+    @Override
     public void visitConditional(JCConditional tree) {
         attribExpr(tree.cond, env, syms.booleanType);
         attribExpr(tree.truepart, env);
@@ -1818,6 +1838,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             return types.lub(thentype.baseType(), elsetype.baseType());
         }
 
+    @Override
     public void visitIf(JCIf tree) {
         attribExpr(tree.cond, env, syms.booleanType);
         attribStat(tree.thenpart, env);
@@ -1827,16 +1848,19 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         result = null;
     }
 
+    @Override
     public void visitExec(JCExpressionStatement tree) {
         Type type = attribExpr(tree.expr, env);
         result = type == syms.unreachableType ? type : null;
     }
 
+    @Override
     public void visitBreak(JCBreak tree) {
         tree.target = findJumpTarget(tree.pos(), tree.getTag(), tree.label, env);
         result = null;
     }
 
+    @Override
     public void visitContinue(JCContinue tree) {
         tree.target = findJumpTarget(tree.pos(), tree.getTag(), tree.label, env);
         result = null;
@@ -1929,11 +1953,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         result = syms.unreachableType;
     }
 
+    @Override
     public void visitThrow(JCThrow tree) {
         attribExpr(tree.expr, env, syms.throwableType);
         result = syms.unreachableType;
     }
 
+    @Override
     public void visitAssert(JCAssert tree) {
         attribExpr(tree.cond, env, syms.booleanType);
         if (tree.detail != null) {
@@ -2018,6 +2044,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         chk.validate(tree.typeargs);
     }
     
+    @Override
     public void visitAssignop(JCAssignOp tree) {
         // Attribute arguments.
         Type owntype = attribTree(tree.lhs, env, VAR, Type.noType);
@@ -2079,10 +2106,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
     }
 
+    @Override
     public void visitUnary(JCUnary tree) {
         switch (tree.getTag()) {
             case JavafxTag.SIZEOF: {
-                Type argtype = chk.checkNonVoid(tree.arg.pos(), attribExpr(tree.arg, env));
+                attribExpr(tree.arg, env);
                 result = check(tree, syms.javafx_IntegerType, VAL, pkind, pt, pSequenceness);
                 return;
             }
@@ -2293,6 +2321,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
     
+    @Override
     public void visitLiteral(JCLiteral tree) {
         if (tree.typetag == TypeTags.BOT && types.isSequence(pt))
             tree.type = pt;
@@ -2307,10 +2336,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         return (tag == TypeTags.CLASS) ? syms.stringType : syms.typeOfTag[tag];
     }
 
+    @Override
     public void visitTypeIdent(JCPrimitiveTypeTree tree) {
         result = check(tree, syms.typeOfTag[tree.typetag], TYP, pkind, pt, pSequenceness);
     }
 
+    @Override
     public void visitTypeArray(JCArrayTypeTree tree) {
          assert false : "This tree should not exist";
     }
@@ -2319,6 +2350,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
      *  Bound checking is left until later, since types are attributed
      *  before supertype structure is completely known
      */
+    @Override
     public void visitTypeApply(JCTypeApply tree) {
         Type owntype = syms.errType;
 
@@ -2370,19 +2402,23 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         result = check(tree, owntype, TYP, pkind, pt, pSequenceness);
     }
 
+    @Override
     public void visitTypeParameter(JCTypeParameter tree) {
         assert false;
     }
 
+    @Override
     public void visitWildcard(JCWildcard tree) {
         assert false;
     }
 
+    @Override
     public void visitAnnotation(JCAnnotation tree) {
         log.error(tree.pos(), "annotation.not.valid.for.type", pt);
         result = tree.type = syms.errType;
     }
 
+    @Override
     public void visitErroneous(JCErroneous tree) {
         if (tree.errs != null)
             for (JCTree err : tree.errs)
@@ -2445,39 +2481,39 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             c.flags_field &= ~UNATTRIBUTED;
 
             // Get environment current at the point of class definition.
-            JavafxEnv<JavafxAttrContext> env = enter.typeEnvs.get(c);
+            JavafxEnv<JavafxAttrContext> localEnv = enter.typeEnvs.get(c);
 
             // The info.lint field in the envs stored in enter.typeEnvs is deliberately uninitialized,
             // because the annotations were not available at the time the env was created. Therefore,
             // we look up the environment chain for the first enclosing environment for which the
             // lint value is set. Typically, this is the parent env, but might be further if there
             // are any envs created as a result of TypeParameter nodes.
-            JavafxEnv<JavafxAttrContext> lintEnv = env;
+            JavafxEnv<JavafxAttrContext> lintEnv = localEnv;
             while (lintEnv.info.lint == null)
                 lintEnv = lintEnv.next;
 
             // Having found the enclosing lint value, we can initialize the lint value for this class
-            env.info.lint = lintEnv.info.lint.augment(c.attributes_field, c.flags());
+            localEnv.info.lint = lintEnv.info.lint.augment(c.attributes_field, c.flags());
 
-            Lint prevLint = chk.setLint(env.info.lint);
+            Lint prevLint = chk.setLint(localEnv.info.lint);
             JavaFileObject prev = log.useSource(c.sourcefile);
 
             try {
                 // java.lang.Enum may not be subclassed by a non-enum
                 if (st.tsym == syms.enumSym &&
                     ((c.flags_field & (Flags.ENUM|Flags.COMPOUND)) == 0))
-                    log.error(env.tree.pos(), "enum.no.subclassing");
+                    log.error(localEnv.tree.pos(), "enum.no.subclassing");
 
                 // Enums may not be extended by source-level classes
                 if (st.tsym != null &&
                     ((st.tsym.flags_field & Flags.ENUM) != 0) &&
                     ((c.flags_field & Flags.ENUM) == 0) &&
                     !target.compilerBootstrap(c)) {
-                    log.error(env.tree.pos(), "enum.types.not.extensible");
+                    log.error(localEnv.tree.pos(), "enum.types.not.extensible");
                 }
-                attribClassBody(env, c);
+                attribClassBody(localEnv, c);
 
-                chk.checkDeprecatedAnnotation(env.tree.pos(), c);
+                chk.checkDeprecatedAnnotation(localEnv.tree.pos(), c);
             } finally {
                 log.useSource(prev);
                 chk.setLint(prevLint);
@@ -3385,6 +3421,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
     }
 
+    @Override
     public void visitImport(JCImport tree) {
         // nothing to do
     }
@@ -3463,7 +3500,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // method conform to the method they implement.
         chk.checkImplementations(tree);
 
-        Scope enclScope = enter.enterScope(env);
+        Scope enclScope = JavafxEnter.enterScope(env);
         for (List<JCTree> l = tree.getMembers(); l.nonEmpty(); l = l.tail) {
             if (l.head instanceof JFXFunctionDefinition)
                 chk.checkUnique(l.head.pos(), ((JFXFunctionDefinition) l.head).sym, enclScope);

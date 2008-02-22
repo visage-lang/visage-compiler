@@ -47,4 +47,10 @@
         <Method name="visitSequenceExplicit"/>
         <Bug pattern="DB_DUPLICATE_BRANCHES"/>
     </Match>
+    <Match>
+        <!-- Flag permeateBind is not implemented yet -->
+        <Class name="com.sun.tools.javafx.comp.JavafxToJava"/>
+        <Method name="boundMethodBody"/>
+        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+    </Match>
 </FindBugsFilter>

@@ -274,6 +274,7 @@ public abstract class ResourceBundle {
     private static final ResourceBundle NONEXISTENT_BUNDLE = new ResourceBundle() {
 	    public Enumeration<String> getKeys() { return null; }
 	    protected Object handleGetObject(String key) { return null; }
+            @Override
 	    public String toString() { return "NONEXISTENT_BUNDLE"; }
 	};
 
@@ -462,18 +463,21 @@ public abstract class ResourceBundle {
 
 	private RBClassLoader() {
 	}
+        @Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 	    if (loader != null) {
 		return loader.loadClass(name);
 	    }
 	    return Class.forName(name);
 	}
+        @Override
 	public URL getResource(String name) {
 	    if (loader != null) {
 		return loader.getResource(name);
 	    }
 	    return ClassLoader.getSystemResource(name);
 	}
+        @Override
 	public InputStream getResourceAsStream(String name) {
 	    if (loader != null) {
 		return loader.getResourceAsStream(name);
@@ -567,6 +571,7 @@ public abstract class ResourceBundle {
 	    return (loaderRef != null) ? loaderRef.get() : null;
 	}
 
+        @Override
         public boolean equals(Object other) {
             if (this == other) {
                 return true;
@@ -602,6 +607,7 @@ public abstract class ResourceBundle {
 	    return false;
         }
 
+        @Override
         public int hashCode() {
             return hashCodeCache;
         }
@@ -615,6 +621,7 @@ public abstract class ResourceBundle {
             }
 	}
 
+        @Override
         public Object clone() {
             try {
                 CacheKey clone = (CacheKey) super.clone();
@@ -655,6 +662,7 @@ public abstract class ResourceBundle {
 	    return cause;
 	}
 
+        @Override
 	public String toString() {
 	    String l = locale.toString();
 	    if (l.length() == 0) {
@@ -2650,15 +2658,15 @@ public abstract class ResourceBundle {
 	    String country = locale.getCountry();
 	    String variant = locale.getVariant();
 
-	    if (language == "" && country == "" && variant == "") {
+	    if (language.equals("") && country.equals("") && variant.equals("")) {
 		return baseName;
 	    }
 
 	    StringBuilder sb = new StringBuilder(baseName);
 	    sb.append('_');
-	    if (variant != "") {
+	    if (!variant.equals("")) {
 		sb.append(language).append('_').append(country).append('_').append(variant);
-	    } else if (country != "") {
+	    } else if (!country.equals("")) {
 		sb.append(language).append('_').append(country);
 	    } else {
 		sb.append(language);
@@ -2707,6 +2715,7 @@ public abstract class ResourceBundle {
 	    this.formats = formats;
 	}
 
+        @Override
 	public List<String> getFormats(String baseName) {
 	    if (baseName == null) {
 		throw new NullPointerException();
@@ -2729,6 +2738,7 @@ public abstract class ResourceBundle {
 	    super(formats);
 	}
 
+        @Override
 	public Locale getFallbackLocale(String baseName, Locale locale) {
 	    if (baseName == null || locale == null) {
 		throw new NullPointerException();
