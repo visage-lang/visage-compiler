@@ -86,6 +86,13 @@ public class InternalFrame extends Widget {
                 }
                 selected = true;
             }
+
+            public function internalFrameClosing(e: InternalFrameEvent):Void {
+                if(onClose <> null) {
+                    onClose();
+                }
+            }
+
         } as javax.swing.event.InternalFrameListener );
         return jinternalframe;
     }
@@ -97,40 +104,6 @@ public class InternalFrame extends Widget {
     init {
         // override defaults in superclass
 	focusable = false; //TODO: should be protected by not isInitialized
-
-        jinternalframe.addInternalFrameListener( javax.swing.event.InternalFrameListener{
-            public function internalFrameOpened(e: InternalFrameEvent):Void {
-                //empty
-            }
-
-            public function internalFrameClosing(e: InternalFrameEvent):Void {
-                if(onClose <> null) {
-                    onClose();
-                }
-            }
-
-            public function internalFrameClosed(e: InternalFrameEvent):Void {
-                //empty
-            }
-
-            public function internalFrameIconified(e: InternalFrameEvent):Void {
-                //empty
-            }
-
-            public function internalFrameDeiconified(e: InternalFrameEvent):Void {
-                //empty
-            }
-
-            public function internalFrameActivated(e: InternalFrameEvent):Void {
-                //empty
-            }
-
-            public function internalFrameDeactivated(e: InternalFrameEvent):Void {
-                //empty
-            }
-        });
-
-
     }
 }
 
