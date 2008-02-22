@@ -79,6 +79,13 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         valueChanged();
     }
 
+    protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues, Sequence<T> newSequence) {
+        Sequence<T> oldValue = helper.getRawValue();
+        helper.setRawValue(newSequence);
+        helper.notifyListeners(startPos, endPos, newValues, oldValue, newSequence);
+        valueChanged();
+    }
+
     protected Sequence<T> value() {
         return helper.getRawValue();
     }

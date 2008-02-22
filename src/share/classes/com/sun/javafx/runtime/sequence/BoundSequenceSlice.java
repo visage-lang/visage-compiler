@@ -25,30 +25,33 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.location.IntChangeListener;
 import com.sun.javafx.runtime.location.IntLocation;
 import com.sun.javafx.runtime.location.SequenceLocation;
+import com.sun.javafx.runtime.location.SequenceReplaceListener;
+import com.sun.javafx.runtime.location.IntChangeListener;
 
 /**
- * BoundIntRangeSequence
+ * BoundSequenceSlice
  *
  * @author Brian Goetz
  */
-public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements SequenceLocation<Integer> {
-
-    private final IntLocation lowerLoc, upperLoc;
+class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements SequenceLocation<T> {
+    private final SequenceLocation<T> sequenceLoc;
+    private final IntLocation lowerLoc;
+    private final IntLocation upperLoc;
     private int lower, upper;
     private int size;
 
-    public BoundIntRangeSequence(IntLocation lowerLoc, IntLocation upperLoc) {
-        super(Integer.class);
+    BoundSequenceSlice(Class<T> clazz, SequenceLocation<T> sequenceLoc, IntLocation lowerLoc, IntLocation upperLoc) {
+        super(clazz);
+        this.sequenceLoc = sequenceLoc;
         this.lowerLoc = lowerLoc;
         this.upperLoc = upperLoc;
     }
 
-    protected Sequence<Integer> computeValue() {
+    protected Sequence<T> computeValue() {
         computeBounds(lowerLoc.get(), upperLoc.get());
-        return Sequences.range(lower, upper);
+        return sequenceLoc.get().getSlice(lower, upper);
     }
 
     private void computeBounds(int newLower, int newUpper) {
@@ -58,30 +61,19 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
     }
 
     protected void initialize() {
+        sequenceLoc.addChangeListener(new SequenceReplaceListener<T>() {
+            public void onReplace(int startPos, int endPos, Sequence newElements, Sequence oldValue, Sequence newValue) {
+
+            }
+        });
         lowerLoc.addChangeListener(new IntChangeListener() {
             public void onChange(int oldValue, int newValue) {
-                int oldSize = size;
-                computeBounds(newValue, upper);
-                Sequence<Integer> newSeq = Sequences.range(lower, upper);
-                if (oldSize == 0)
-                    updateSlice(0, -1, Sequences.range(lower, upper), newSeq);
-                else if (oldSize < size)
-                    updateSlice(0, -1, Sequences.range(lower, lower+size-oldSize-1), newSeq);
-                else if (oldSize > size)
-                    updateSlice(0, oldSize-size-1, Sequences.emptySequence(Integer.class), newSeq);
+
             }
         });
         upperLoc.addChangeListener(new IntChangeListener() {
             public void onChange(int oldValue, int newValue) {
-                int oldSize = size;
-                computeBounds(lower, newValue);
-                Sequence<Integer> newSeq = Sequences.range(lower, upper);
-                if (oldSize == 0)
-                    updateSlice(0, -1, Sequences.range(lower, upper), newSeq);
-                else if (oldSize < size)
-                    updateSlice(oldSize, oldSize-1, Sequences.range(upper-(size-oldSize-1), upper), newSeq);
-                else if (oldSize > size)
-                    updateSlice(size, oldSize-1, Sequences.emptySequence(Integer.class), newSeq);
+
             }
         });
     }

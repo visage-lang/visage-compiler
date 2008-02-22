@@ -43,38 +43,47 @@ public class BoundRangeTest extends JavaFXTestCase {
         range.addChangeListener(hl);
 
         assertEquals(range, 10, 11, 12, 13, 14, 15);
+        assertEquals(0, range.get().getDepth());
         hl.clear();
         
         a.set(8);
         assertEquals(range, 8, 9, 10, 11, 12, 13, 14, 15);
+        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, -1] => [ 8, 9 ]");
 
         a.set(11);
         assertEquals(range, 11, 12, 13, 14, 15);
+        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 2] => [ ]");
 
         b.set(17);
         assertEquals(range, 11, 12, 13, 14, 15, 16, 17);
+        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[5, 4] => [ 16, 17 ]");
 
         b.set(14);
         assertEquals(range, 11, 12, 13, 14);
+        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[4, 6] => [ ]");
 
         a.set(19);
         assertEquals(range);
+        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 3] => [ ]");
 
         a.set(11);
         assertEquals(range, 11, 12, 13, 14);
+        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, -1] => [ 11, 12, 13, 14 ]");
 
         b.set(1);
         assertEquals(range);
+        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 3] => [ ]");
 
         b.set(16);
         assertEquals(range, 11, 12, 13, 14, 15, 16);
+        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, -1] => [ 11, 12, 13, 14, 15, 16 ]");
 
 
