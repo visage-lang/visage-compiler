@@ -4,7 +4,7 @@
 import java.awt.*;
 
 class Bar {
-var layoutManager = LayoutManager2 { 
+attribute layoutManager = LayoutManager2 { 
 		public function addLayoutComponent(name : java.lang.String, comp:Component) : Void {}
 	
                 public function addLayoutComponent(comp:java.awt.Component, constraint:java.lang.Object):Void { 

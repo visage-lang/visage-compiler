@@ -8,7 +8,7 @@
 import java.lang.System;
 
 class Foo {
-	var seq = [100..110] 
+	attribute seq = [100..110] 
 	   on replace oldValue[indx  .. lastIndex]=newElements
           { System.out.println("replaced {String.valueOf(oldValue)}[{indx}..{lastIndex}] by {String.valueOf(newElements)}")};
 	function doit() {
