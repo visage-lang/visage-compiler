@@ -22,7 +22,7 @@ public class MotoMenuAnimation extends CompositeNode {
             }
         }
     };
-    private attribute n = 10;
+    private attribute n:Number = 10;
     private function makeRandom():Integer {return (Math.random()*n).intValue();}
     private attribute rand:Integer = 0;
     function composeNode():Node {
@@ -35,6 +35,12 @@ public class MotoMenuAnimation extends CompositeNode {
                         transform: Transform.translate(1.2, 0)
                         content:
                         for (i in [1..n]) {
+                            // NOTE the original version of this was 
+                            // was calculating (indexof i)/n as always zero because
+                            // of Integer divide. This does FP divide.
+                            var m:Number = (indexof i).doubleValue();
+                            var r = (1.0 - (m/n))*.5;
+                            var green = .5 + r;
                             Rect {
                                 var self = this
                                 var ndxi = indexof i
@@ -47,10 +53,9 @@ public class MotoMenuAnimation extends CompositeNode {
                                         }
                                     }
                                 transform: Transform.translate(0, .5)
-                                var r = (1- (ndxi/n))*.5
                                 height: 1.5
                                 width: 4
-                                fill: Color.color(1, .5+r, 0, 1)
+                                fill: Color.color(1, green, 0, 1)
                             };
                         }
                     }
