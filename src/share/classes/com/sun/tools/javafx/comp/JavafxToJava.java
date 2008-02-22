@@ -3395,17 +3395,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return sb.toString();
     }
 
-    // This class is not used and might be removed
-//    static class JCExpressionTupple {
-//        JCExpression first;
-//        List<JCExpression> args;
-//        
-//        JCExpressionTupple(JCExpression first, List<JCExpression> args) {
-//            this.first = first;
-//            this.args = args;
-//        }
-//    }
-
     // Fix up the owner of the ForeachInClause.var JFXVar symbol. When it is created it is set to be 
     // the outer ClassDeclaration and therefor is treated as an attribute instead of local var.
     static class ForEachInClauseOwnerFixer extends JavafxTreeScanner {
