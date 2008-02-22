@@ -738,6 +738,17 @@ public class UIContextImpl implements UIContext {
             }
             //mTree.setBoolean("inSelectionChange", 0, false);
             inSelectionChangeLoc.setAsBoolean(false);
+
+            // Set selectedValue attribute to object from the selected TreePath. It is a workaround for JFXC-658
+            // To set selection attribute it is necessary to convert TreePath[] to javafx.ui.TreePath[]. See JFXC-555
+
+            TreePath treePath = e.getPath();
+
+            Method selectedValue = getProperty(treeMethods, "selectedValue");
+            ObjectLocation selectedValueLoc = (ObjectLocation) selectedValue.invoke(mTree);
+            Object obj = treePath.getPathComponent(treePath.getPathCount() - 1); 
+	    selectedValueLoc.set(obj);	
+
             } catch (Throwable ex) {
                 Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
             } 
