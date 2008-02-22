@@ -78,4 +78,12 @@ public class BoundSequences {
             protected void initialize() { }
         };
     }
+
+    public static<T> ObjectLocation<T> element(SequenceLocation<T> sequence, IntLocation index) {
+        return new SequenceElementLocation<T>(sequence, index);
+    }
+
+    public static SequenceLocation<Integer> range(IntLocation a, IntLocation b) {
+        return new BoundIntRangeSequence(a, b);
+    }
 }

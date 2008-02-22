@@ -151,11 +151,6 @@ public abstract class SequenceHelper<T> {
         }
     }
 
-    public void fireInitialTriggers() {
-        if (isInitialized())
-            notifyListeners(0, -1, value, Sequences.emptySequence(clazz), value);
-    }
-
 
     @Override
     public String toString() {
