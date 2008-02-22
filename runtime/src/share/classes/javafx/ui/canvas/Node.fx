@@ -283,11 +283,8 @@ public abstract class Node extends CanvasElement, Transformable {
     private attribute focusListener: FocusListener;
     
     private function getFX(obj:SGNode): Node {
-        var n:Node = null;
         while (obj <> null) {
-            //TODO JFXC-235
-            //var n = obj.getAttribute("fx") as Node;
-            n = obj.getAttribute("FX") as Node;
+            var n:Node = obj.getAttribute("FX") as Node;
             if (n <> null) {
                 return n;
             }
