@@ -56,10 +56,10 @@ frame = Frame {
     var splash = StudioMotoSplash {
         onDone: function() {selection = 0;}
     }    
-//    private attribute tshowing = bind showing on replace {
-//            selection = 0;
-//            splash.doSplash();
-//    };
+    private attribute tshowing = bind showing on replace {
+            selection = 0;
+            splash.doSplash();
+    };
     
 
     
