@@ -262,17 +262,13 @@ public abstract class Node extends CanvasElement, Transformable {
 
     private attribute alignmentFilter: SGAlignment;
     attribute transformFilter: SGTransform.Affine;
-    // TODO JXFC-329 - This is a work around waiting for proper bind semantics.
-    public attribute clip: Clip on replace {
-        clipNode = clip.shape;
-        antialiasClip = clip.antialias;
-    };
+    public attribute clip: Clip;
     private attribute clipFilter: SGClip;
-    private attribute clipNode: VisualNode /*TODO:JFXC-329 = bind if (clip == null) null else clip.shape*/ on replace {
+    private attribute clipNode: VisualNode = bind if (clip == null) null else clip.shape on replace {
         if (clipNode <> null)
             clipFilter.setShape(clipNode.getVisualNode().getShape());
     };
-    private attribute antialiasClip: Boolean /*TODO:JFXC-329 = bind if (clip == null) null else clip.antialias*/ on replace {
+    private attribute antialiasClip: Boolean  = bind if (clip == null) false else clip.antialias on replace {
         antialiasClipSet = true;
         if (clipFilter <> null)
             clipFilter.setAntialiased(antialiasClip);
@@ -388,9 +384,11 @@ public abstract class Node extends CanvasElement, Transformable {
             if (valign <> null) {
                 alignmentFilter.setVerticalAlignment(valign.id.intValue());
             }
+            /****
             if (clip <> null) {
                 clipNode = clip.shape;
             }
+            *****/
             if (clipNode <> null) {
                 clipFilter.setShape(clipNode.getVisualNode().getShape());
             }
