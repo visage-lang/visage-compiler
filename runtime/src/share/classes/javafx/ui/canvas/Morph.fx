@@ -48,10 +48,10 @@ public class Morph extends Shape {
         on replace {
             updateMorphing2D();
         };
-    private attribute fill1: Paint on replace { // JXFC-XXX = bind start.fill on replace {
+    private attribute fill1: Paint = bind start.fill on replace {
         updateFill();
     };
-    private attribute fill2: Paint on replace { // JXFC-XXX = bind start.fill on replace {
+    private attribute fill2: Paint = bind start.fill on replace {
         updateFill();
     };
     private function updateMorphing2D() {
