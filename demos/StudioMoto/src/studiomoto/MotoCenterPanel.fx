@@ -159,7 +159,7 @@ public class MotoCenterPanel extends CompositeNode {
                             
 
                             var fill1 = RadialGradient {radius: 50, cx: 156/2, cy: 135/2, 
-                                stops: [Stop{offset: 0.3, color: Color.rgba(1, 1, 1, .6)}, Stop{offset: .7, color: Color.rgba(1, 1, 1, 0)}]
+                                stops: [Stop{offset: 0.3, color: Color.color(1, 1, 1, .6)}, Stop{offset: .7, color: Color.color(1, 1, 1, 0)}]
                             }
                             opacity: bind alpha
                             fill: fill1

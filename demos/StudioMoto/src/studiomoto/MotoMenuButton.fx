@@ -85,15 +85,15 @@ public class MotoMenuButton extends CompositeNode {
                         stops:
                         [Stop {
                             offset: 0
-                            color: Color.rgba(.7, .7, .7, 1)
+                            color: Color.color(.7, .7, .7, 1)
                         },
                         Stop {
                             offset: 0.05
-                            color: Color.rgba(.2, .2, .2, 1)
+                            color: Color.color(.2, .2, .2, 1)
                         },
                         Stop {
                             offset: 0.5
-                            color: Color.rgba(.1, .1, .1, 1)
+                            color: Color.color(.1, .1, .1, 1)
                         }]
                     }
                     arcHeight: 20

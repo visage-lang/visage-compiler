@@ -50,7 +50,7 @@ public class MotoMenuAnimation extends CompositeNode {
                                 var r = (1- (ndxi/n))*.5
                                 height: 1.5
                                 width: 4
-                                fill: Color.rgba(1, .5+r, 0, 1)
+                                fill: Color.color(1, .5+r, 0, 1)
                             };
                         }
                     }

@@ -124,7 +124,7 @@ frame = Frame {
                             [Group {
                                 isSelectionRoot: true
                                 content:
-                                [Rect {height: 30+68, width: 139, selectable: true, fill: Color.rgba(0, 0, 0, 0), visible: bind selection > 0},
+                                [Rect {height: 30+68, width: 139, selectable: true, fill: Color.color(0, 0, 0, 0), visible: bind selection > 0},
                                 (home = HomeButton {
                                     
                                     var tmp:Number = bind if(selection > 0) {
@@ -183,7 +183,7 @@ frame = Frame {
                     label1: "<html>powered by</html>"
                     label2: "<html>Motorola</html>"
                     label3: "<html>power</html>"
-                } as Node,
+                } ,
                 ImageView {
                     transform: Transform.translate(80, 0)
                     // 42x42

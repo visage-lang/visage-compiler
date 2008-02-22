@@ -186,7 +186,7 @@ public class MotoProducts extends MotoPanel {
     // but they don't work that way in the interpreter, bug??
     private attribute open:Boolean = false;
     private attribute margin:Integer = 3;
-    private attribute transparentFill = Color.rgba(0, 0, 0, 0);
+    private attribute transparentFill = Color.color(0, 0, 0, 0);
     private attribute group:Group;
     private attribute lhover:Boolean = bind group.hover on replace { 
         if(not lhover) {
@@ -242,7 +242,7 @@ public class MotoProducts extends MotoPanel {
                                     selectable: true
                                     height: 300
                                     width: 225
-                                    fill: Color.rgba(0, 0, 0, .8)
+                                    fill: Color.color(0, 0, 0, .8)
                                 },
                                 VBox {
                                     
@@ -262,7 +262,7 @@ public class MotoProducts extends MotoPanel {
                                             Text {
                                                 content: bind p.title
                                                 font: Font {face: FontFace.ARIAL, size: 11}
-                                                fill: bind if (row.hover) then Color.YELLOW else Color.rgba(.8, .8, .8, 1)
+                                                fill: bind if (row.hover) then Color.YELLOW else Color.color(.8, .8, .8, 1)
                                             }]
                                         };
                                     }

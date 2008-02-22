@@ -107,7 +107,7 @@ public class MotoPanel extends Intro {
                     },
                     Stop {
                         offset: 1
-                        color: Color.rgba(1, 1, 1, 0)
+                        color: Color.color(1, 1, 1, 0)
                     }]
                 }
             },

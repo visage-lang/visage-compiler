@@ -90,7 +90,7 @@ public class MotoBottomPanel extends Intro {
                             transform: Transform.translate(5, 0)
                             var fillColor:Color = bind if (selection == indexof i) Color.WHITE else Color.YELLOW
                             content:
-                            [Rect {height: 15, width: 12, fill: Color.rgba(0, 0, 0, 0), selectable: true},
+                            [Rect {height: 15, width: 12, fill: Color.color(0, 0, 0, 0), selectable: true},
                             Text {content: "{i}", fill: bind fillColor, font: Font.Font("ARIAL", ["BOLD"], 11)},
                             Line {x1: -2, x2: 7, y1: 12, y2: 12, stroke: bind fillColor, visible: bind num.hover}]
                         }
