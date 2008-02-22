@@ -46,8 +46,10 @@ public class FXNodeListener extends SGNodeListener {
             // from the event call back, which we may do below.
             // remove invokeLater once scenario's fixed as you'll
             // see noticeable flashing the way it is.
+            /*******
             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                     public function run():Void {
+             * ***********/
                         var oldBounds = new Rectangle2D.Double(node.currentX,
                                                                node.currentY,
                                                                node.currentWidth,
@@ -59,8 +61,10 @@ public class FXNodeListener extends SGNodeListener {
                             node.currentHeight = b.getHeight();
                             node.realign();
                         }
+              /*****************
                     }
                 });
+              ****************/
         }
     }
 }
