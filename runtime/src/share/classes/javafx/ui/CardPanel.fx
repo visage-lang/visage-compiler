@@ -32,14 +32,13 @@ public class CardPanel extends Widget {
     private attribute layout:java.awt.CardLayout;
     public attribute selection: Integer = -1 on replace {
         if (selection >= 0) {
-            selectionGeneration = selectionGeneration + 1;
-            //TODO JXFC-187
+            ++selectionGeneration;
             var gen = selectionGeneration;
             var sel = selection;
             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                  public function run():Void {
                     if (gen == selectionGeneration) {
-                        var w = cards[sel.intValue()];
+                        var w = cards[sel];
                         if (sizeof w > 0) {
                             var comp = w.getComponent();
                             var id = "{java.lang.System.identityHashCode(comp)}";
