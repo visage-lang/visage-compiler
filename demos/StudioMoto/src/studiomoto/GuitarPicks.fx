@@ -28,7 +28,7 @@ public class GuitarPicks extends Intro {
         
         transform: bind [Transform.translate(0, y1), Transform.rotate(rot, 30, 80)]
         
-        onMouseClicked: function(e) {(this.action1)();}
+        onMouseClicked: function(e) { if (action1 <> null) action1();}
         
         content:
         [ImageView {
@@ -47,7 +47,7 @@ public class GuitarPicks extends Intro {
         Group {
             isSelectionRoot: true
             cursor: Cursor.HAND
-            onMouseClicked: function(e) {(this.action2)();}
+            onMouseClicked: function(e) { if(action2 <> null) action2();}
             
             transform: bind [Transform.translate(0, 70+y2), Transform.rotate(360-rot, 30, 80)]
             
