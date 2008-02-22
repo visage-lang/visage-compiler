@@ -41,7 +41,6 @@ import javafx.ui.KeyStroke;
 import javafx.ui.Widget;
 import javafx.ui.canvas.*;
 import com.sun.javafx.api.ui.FXMouseListener;
-import com.sun.javafx.api.ui.FXNodeListener;
 import com.sun.javafx.api.ui.UIContext;
 import com.sun.scenario.scenegraph.JSGPanel;
 import com.sun.scenario.scenegraph.SGAlignment;
