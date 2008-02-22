@@ -275,8 +275,20 @@
         <mkdir dir="${build.test.results.dir}"/>
     </target>
 
-    <target depends="init,compile-test,-pre-test-run,-do-test-run" if="have.tests" name="-post-test-run">
-        <!-- Don't explicitly call fail task, so Hudson reports an UNSTABLE build instead of FAILURE -->
+    <target depends="init,compile-test,-pre-test-run,-do-test-run,check-test-results" if="have.tests" name="-post-test-run">
+        <fail if="build.tests.failed">Some tests failed; see details above.</fail>
+    </target>
+    
+    <target name="check-test-results">
+        <!-- Ignore junit errors on Hudson, so it reports an UNSTABLE build instead of a FAILURE -->
+        <condition property="build.tests.failed">
+            <and>
+                <isset property="tests.failed" description="JUnit task failed"/>
+                <not>
+                    <isset property="export.dir" description="Hudson build"/>
+                </not>
+            </and>
+        </condition>
     </target>
 
     <target depends="conditional-coverage-report" name="coverage-report" />
