@@ -45,9 +45,6 @@ public class Title1 extends CompositeNode {
                     value: bind if(lhover) 0 else power.currentHeight
                 }
             ]
-            action: function() {
-                System.out.println("set to 0");
-            }
         },
         KeyFrame {
             keyTime: 400ms
@@ -68,18 +65,11 @@ public class Title1 extends CompositeNode {
                     interpolate: NumberValue.EASEBOTH
                 }
             ]
-            action: function() {
-                System.out.println("power.currentHeight = {power.currentHeight}");
-                System.out.println("poweredByY = {poweredByY}");
-                System.out.println("motorolaY = {motorolaY}");
-                System.out.println("powerY = {powerY}");
-            }                
         }]
     };
 
     private attribute rect:Rect;
     private attribute lhover:Boolean = bind rect.hover on replace {
-        java.lang.System.out.println("Title animation");
         a.start();
     };
     function composeNode():Node {
@@ -106,7 +96,7 @@ public class Title1 extends CompositeNode {
                                 content: Label {
                                     font: Font.Font("Arial", ["BOLD"], 10)
                                     text: bind label1 //"powered by", 
-                                    foreground: Color.rgba(1, 1, 1, .5)
+                                    foreground: Color.color(1, 1, 1, .5)
                                 }
                                 transform: bind Transform.translate(1, poweredByY)
                             },
@@ -129,13 +119,13 @@ public class Title1 extends CompositeNode {
                                 halign: HorizontalAlignment.CENTER
                             }, 
                             Clip {
-                                transform: Transform.translate(0, poweredBy.currentHeight + 2 + motorola.currentHeight/2 + 2)
+                                transform: bind Transform.translate(0, poweredBy.currentHeight + 2 + motorola.currentHeight/2 + 2)
                                 shape: Rect {height: bind power.currentHeight+2, width: bind power.currentWidth+2}
                                 content: power
                                 halign: HorizontalAlignment.CENTER
                             },
                             Clip {
-                                transform: Transform.translate(0, poweredBy.currentHeight + 2)
+                                transform: bind Transform.translate(0, poweredBy.currentHeight + 2)
                                 halign: HorizontalAlignment.CENTER
                                 content: 
                                 [motorola]
@@ -153,7 +143,7 @@ public class Title1 extends CompositeNode {
                 height: bind self.height
                 width:  bind self.width
                 //stroke: Color.BLACK
-                fill: Color.rgba(0, 0, 0,  0)
+                fill: Color.color(0, 0, 0,  0)
                 selectable: true
 
             }]
