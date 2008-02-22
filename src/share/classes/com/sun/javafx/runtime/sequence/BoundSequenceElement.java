@@ -8,20 +8,20 @@ import com.sun.javafx.runtime.location.*;
  *
  * @author Brian Goetz
  */
-class SequenceElementLocation<T> extends ObjectVariable<T> implements ObjectLocation<T> {
+class BoundSequenceElement<T> extends ObjectVariable<T> implements ObjectLocation<T> {
     private final SequenceLocation<T> seq;
     private final IntLocation index;
     private int lastIndex;
 
-    public SequenceElementLocation(SequenceLocation<T> seq, IntLocation index) {
+    public BoundSequenceElement(SequenceLocation<T> seq, IntLocation index) {
         super();
         this.seq = seq;
         this.index = index;
         lastIndex = index.get();
         bind(false, new ObjectBindingExpression<T>() {
             public T computeValue() {
-                lastIndex = SequenceElementLocation.this.index.get();
-                return SequenceElementLocation.this.seq.getAsSequence().get(lastIndex);
+                lastIndex = BoundSequenceElement.this.index.get();
+                return BoundSequenceElement.this.seq.getAsSequence().get(lastIndex);
             }
         }, index);
         seq.addChangeListener(new MySequenceListener());

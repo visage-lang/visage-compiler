@@ -80,7 +80,7 @@ public class BoundSequences {
     }
 
     public static<T> ObjectLocation<T> element(SequenceLocation<T> sequence, IntLocation index) {
-        return new SequenceElementLocation<T>(sequence, index);
+        return new BoundSequenceElement<T>(sequence, index);
     }
 
     public static SequenceLocation<Integer> range(IntLocation a, IntLocation b) {
