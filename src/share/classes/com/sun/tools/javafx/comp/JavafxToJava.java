@@ -149,7 +149,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     //TODO: all these should, probably, go into a translation state class
     Yield yield = Yield.ToExpression;
-    Type targetType = null;
     ListBuffer<JCTree> bindingExpressionDefs = null;
     
     private JavafxEnv<JavafxAttrContext> attrEnv;
@@ -342,7 +341,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         State prevState = state;
        Yield prevYield = yield;
         yield = targetType==syms.voidType? Yield.ToExecStatement : Yield.ToReturnStatement;
-        this.targetType = targetType;
         state = newState;
        JCStatement ret = translateExpressionToStatement(expr);
         yield = prevYield;
@@ -3197,6 +3195,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
         bindingExpressionDefs = ListBuffer.lb();
         BindAnalysis analysis = typeMorpher.bindAnalysis(bexpr);
+        // TODO: Remove entry in findbugs-exclude.xml if permeateBind is implemented
         if (permeateBind && analysis.isBindPermeable()) { //TODO: permeate bind
             State prevState = state;
             state = new State(state.wrap, Convert.Normal);

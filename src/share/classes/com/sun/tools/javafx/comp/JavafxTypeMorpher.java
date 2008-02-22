@@ -429,7 +429,8 @@ public class JavafxTypeMorpher {
     }
 
     public class BindAnalysis extends JavafxTreeScanner {
-
+        // TODO: javaCallSeen, fxCallSeen and foreachSeen are not read 
+        //       Remove entry in findbugs-exclude.xml if usage changes
         boolean iterationSeen = false;
         boolean assignmentSeen = false;
         boolean javaCallSeen = false;

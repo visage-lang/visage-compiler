@@ -1564,7 +1564,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 }
                 else
                     type = syms.objectType;
-                Symbol sym = pvar.sym;
                 pvar.type = type;
                 type = attribVar(pvar, localEnv);
                 argbuf.append(type);
@@ -1644,7 +1643,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             mtype.restype = returnType;
             result = tree.type = mtype;
 
-            Scope enclScope = enter.enterScope(env);
+            Scope enclScope = JavafxEnter.enterScope(env);
 
             // If we override any other methods, check that we do so properly.
             // JLS ???
@@ -2786,6 +2785,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     } else if (itemType.isPrimitive() || elemType.isPrimitive()) {
                         elemType = syms.javafx_AnyType; // only place to go is to Object
                     } else {
+                        // TODO: Remove entry in findbugs-exclude.xml if branch is implemented
                         elemType = syms.javafx_AnyType; //TODO: punt for now
                     }
                 }

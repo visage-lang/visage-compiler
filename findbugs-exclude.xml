@@ -53,4 +53,9 @@
         <Method name="boundMethodBody"/>
         <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
     </Match>
+    <Match>
+        <!-- Unread variables are for future use -->
+        <Class name="com.sun.tools.javafx.comp.JavafxTypeMorpher$BindAnalysis"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
 </FindBugsFilter>
