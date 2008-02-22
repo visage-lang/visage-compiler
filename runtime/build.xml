@@ -5,6 +5,8 @@
 <project name="JavaFX_Runtime" default="default" basedir=".">
     <description>Builds, tests, and runs the project JavaFX Runtime.</description>
     <property name="tools.dir" value="${basedir}/../tools"/>
+    <!-- Scenario is in openjfx-compiler repository until its development slows -->
+    <property name="scenegraph.dir" value="${basedir}/../lib"/>
     <property environment="env" />
     <import file="../tools-defs.xml"/>
     <import file="nbproject/build-impl.xml"/>

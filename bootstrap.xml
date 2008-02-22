@@ -12,8 +12,10 @@
     <property name="ant.url" value="http://www.apache.org/dist/ant/binaries/apache-ant-${ant.ver}-bin.zip"/>
     <property name="ant.zipfile" value="${bootstrap.dir}/ant.zip"/>
 
+    <!-- Scenario is in openjfx-compiler repository until its development slows
     <property name="scenegraph.url" value="http://openjfx.java.sun.com/ea/Scenario-0.5/Scenario-0.5.jar"/>
     <property name="scenegraph.file" value="${scenegraph.dir}/${scenegraph.ver}.jar"/>
+      -->
 
     <property name="junit.url" value="http://downloads.sourceforge.net/junit/junit-${junit.ver}.jar"/>
     <property name="junit.jarfile" value="${bootstrap.dir}/junit.jar"/>
@@ -55,7 +57,7 @@
         <mkdir dir="${bootstrap.dir}"/>
         <mkdir dir="${tools.dir}"/>
         <mkdir dir="${ant.dir}"/>
-        <mkdir dir="${scenegraph.dir}"/>
+        <!-- <mkdir dir="${scenegraph.dir}"/> -->
         <mkdir dir="${findbugs.dir}"/>
         <mkdir dir="${junit.dir}"/>
         <mkdir dir="${docbook.dir}"/>
@@ -71,7 +73,7 @@
     <target name="clean">
         <delete dir="${bootstrap.dir}"/>
         <delete dir="${ant.dir}"/>
-        <delete dir="${scenegraph.dir}"/>
+        <!-- <delete dir="${scenegraph.dir}"/> -->
         <delete dir="${findbugs.dir}"/>
         <delete dir="${junit.dir}"/>
         <delete dir="${docbook.dir}"/>
@@ -102,8 +104,10 @@
     </target>
 
     <target name="scenegraph" depends="prepare">
+        <!-- Scenario is in openjfx-compiler repository until its development slows
         <mkdir dir="${scenegraph.dir}"/>
         <get src="${scenegraph.url}" dest="${scenegraph.file}"/>
+          -->
     </target>
 
     <target name="docbook" depends="prepare">
