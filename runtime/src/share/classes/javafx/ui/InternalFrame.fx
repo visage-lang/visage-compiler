@@ -25,6 +25,8 @@
  
 package javafx.ui; 
 
+import javax.swing.event.InternalFrameEvent;
+
 public class InternalFrame extends Widget {
     // private
     private attribute jinternalframe: javax.swing.JInternalFrame = new javax.swing.JInternalFrame();;
@@ -95,6 +97,40 @@ public class InternalFrame extends Widget {
     init {
         // override defaults in superclass
 	focusable = false; //TODO: should be protected by not isInitialized
+
+        jinternalframe.addInternalFrameListener( javax.swing.event.InternalFrameListener{
+            public function internalFrameOpened(e: InternalFrameEvent):Void {
+                //empty
+            }
+
+            public function internalFrameClosing(e: InternalFrameEvent):Void {
+                if(onClose <> null) {
+                    onClose();
+                }
+            }
+
+            public function internalFrameClosed(e: InternalFrameEvent):Void {
+                //empty
+            }
+
+            public function internalFrameIconified(e: InternalFrameEvent):Void {
+                //empty
+            }
+
+            public function internalFrameDeiconified(e: InternalFrameEvent):Void {
+                //empty
+            }
+
+            public function internalFrameActivated(e: InternalFrameEvent):Void {
+                //empty
+            }
+
+            public function internalFrameDeactivated(e: InternalFrameEvent):Void {
+                //empty
+            }
+        });
+
+
     }
 }
 
