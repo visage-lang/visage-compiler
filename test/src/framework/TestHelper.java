@@ -101,7 +101,7 @@ public abstract class TestHelper {
     }
 
     protected static void dumpFile(PrintStream output, InputStream file, String header, String testName) throws IOException {
-        System.out.println("--" + header + " for " + testName + "--");
+        output.println("--" + header + " for " + testName + "--");
         BufferedReader reader = new BufferedReader(new InputStreamReader(file));
         try {
             while (true) {

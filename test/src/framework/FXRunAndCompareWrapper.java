@@ -104,12 +104,7 @@ public class FXRunAndCompareWrapper extends TestCase {
             if (errors != 0 && !expectCompileFailure) {
                 TestHelper.dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output", testFile.toString());
                 System.out.println("--");
-                StringBuilder sb = new StringBuilder();
-                sb.append(errors).append(" error");
-                if (errors > 1)
-                    sb.append('s');
-                sb.append(" compiling ").append(f);
-                fail(sb.toString());
+                fail(String.format("%d errors compiling %s", errors, testFile));
             }
         }
 
