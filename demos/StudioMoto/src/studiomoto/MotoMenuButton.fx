@@ -15,9 +15,10 @@ public class MotoMenuButton extends CompositeNode {
     attribute mouseOver: Boolean = bind rect.hover on replace {
         a.start();
         if (mouseOver) {
+            System.out.println("START button animation");
             anim.start();
         } else {
-            System.out.println("STOP");
+            System.out.println("STOP button animation");
             anim.stop();
         }        
     };
@@ -130,7 +131,6 @@ public class MotoMenuButton extends CompositeNode {
                         valign: VerticalAlignment.MIDDLE, 
                         halign: HorizontalAlignment.TRAILING
                         content: bind if (mouseOver) then [anim as Node] else empty
-                        var active = bind mouseOver
                     },
                     HBox {
                         transform: Transform.translate(w-5, h*.7)

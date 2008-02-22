@@ -7,7 +7,7 @@ import javafx.ui.animation.*;
 
 public class MotoMenuAnimation extends CompositeNode {
     attribute active: Boolean
-    on replace { if (active) anim.start() else anim.stop(); };
+            on replace { if (active) anim.start() else anim.stop(); };
     function stop() { active = false }
     function start() { active = true }
     attribute t: Number on replace {     

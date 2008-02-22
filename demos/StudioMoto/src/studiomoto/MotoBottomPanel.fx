@@ -28,9 +28,6 @@ public class MotoBottomPanel extends Intro {
                         value: 0
                     }
                 }
-                action: function() {
-                    System.out.println(" panels = {sizeof panels}");
-                }
             },
             KeyFrame {
                 keyTime: 200ms
