@@ -111,7 +111,7 @@ classMember  returns [JCTree member]
 	| postInitDefinition 				{ $member = $postInitDefinition.value; } 
 	| variableDeclaration 				{ $member = $variableDeclaration.value; } 
 	| functionDefinition 				{ $member = $functionDefinition.value; } 
-	| overrideAttribute 				{ $member = $overrideAttribute.value; } 
+	| overrideDeclaration 				{ $member = $overrideDeclaration.value; } 
 	;
 functionDefinition  returns [JFXFunctionDefinition value]
 	: ^(FUNCTION name functionModifierFlags formalParameters type blockExpression? DOC_COMMENT?)
@@ -127,8 +127,12 @@ initDefinition  returns [JFXInitDefinition value]
 postInitDefinition  returns [JFXPostInitDefinition value]
 	: ^(POSTINIT block)	 			{ $value = F.at(pos($POSTINIT)).PostInitDefinition($block.value); }
 	;
-overrideAttribute returns [JFXOverrideAttribute value]
-	: ^(WITH identifier onReplaceClause)		{ $value = F.at(pos($WITH)).TriggerWrapper($identifier.expr, $onReplaceClause.value); }
+overrideDeclaration returns [JFXOverrideAttribute value]
+	: ^(OVERRIDE identifier boundExpression? onReplaceClause?)
+							{ $value = F.at(pos($OVERRIDE)).OverrideAttribute($identifier.expr, 
+									$boundExpression.expr, $boundExpression.status,
+									$onReplaceClause.value); }
+	| ^(WITH identifier onReplaceClause)		{ $value = F.at(pos($WITH)).TriggerWrapper($identifier.expr, $onReplaceClause.value); }
 	;
 functionModifierFlags  returns [long flags]
 	: ^(MODIFIER accessModifier?  functionModifier?)
@@ -397,6 +401,7 @@ objectLiteralPart  returns [JCTree value]
 	: ^(OBJECT_LIT_PART n=name boundExpression)	{ $value = F.at($n.pos).ObjectLiteralPart($name.value,
 								 $boundExpression.expr, $boundExpression.status); }
        	| variableDeclaration				{ $value = $variableDeclaration.value; }
+       	| overrideDeclaration				{ $value = $overrideDeclaration.value; }
        	| functionDefinition				{ $value = $functionDefinition.value; }
        	;
 expressionList  returns [ListBuffer<JCExpression> args = new ListBuffer<JCExpression>()] 

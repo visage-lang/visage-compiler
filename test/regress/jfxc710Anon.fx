@@ -9,7 +9,8 @@ import java.util.BitSet;
 
 class A {
    attribute ai = 1;
-   static attribute asx = 2;
+   static attribute asz = 1;
+   static attribute asx = asz + asz;
    function afi() : Integer { 3 }
    static function afs() : Integer { 4 }
 }

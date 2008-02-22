@@ -1027,14 +1027,16 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         tree.type = type;
         Symbol sym = id.sym;
 
-        attribStat(onr, localEnv);
-        JFXVar oldValue = onr.getOldValue();
-        if (oldValue != null && oldValue.type == null) {
-            oldValue.type = type;
-        }
-        JFXVar newElements = onr.getNewElements();
-        if (newElements != null && newElements.type == null) {
-            newElements.type = type;
+        if (onr != null) {
+            attribStat(onr, localEnv);
+            JFXVar oldValue = onr.getOldValue();
+            if (oldValue != null && oldValue.type == null) {
+                oldValue.type = type;
+            }
+            JFXVar newElements = onr.getNewElements();
+            if (newElements != null && newElements.type == null) {
+                newElements.type = type;
+            }
         }
 
         // Must reference an attribute

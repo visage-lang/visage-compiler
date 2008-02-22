@@ -53,6 +53,7 @@ tokens {
    NEW='new';
    NOT='not';
    NULL='null';
+   OVERRIDE='override';
    PACKAGE='package';
    POSTINIT='postinit';
    PRIVATE='private';
@@ -548,6 +549,7 @@ classMember
 	: initDefinition	
 	| postInitDefinition
 	| attributeDeclaration 
+	| overrideDeclaration 
 	| functionDefinition 
 	| triggerDefinition
 	;
@@ -565,6 +567,10 @@ attributeDeclaration
 	: varModifierFlags ATTRIBUTE  name  typeReference (EQ boundExpression)? onChangeClause*
 	    					-> ^(VAR ATTRIBUTE varModifierFlags name typeReference boundExpression? onChangeClause*)
 	;
+overrideDeclaration
+	: OVERRIDE ATTRIBUTE  name (EQ boundExpression)? onReplaceClause?
+	    					-> ^(OVERRIDE name boundExpression? onReplaceClause?)
+;
 initDefinition
 	: INIT block 				-> ^(INIT block)
 	;
@@ -850,6 +856,7 @@ objectLiteralPart
 	: name COLON  boundExpression (COMMA | SEMI)?		-> ^(OBJECT_LIT_PART[$COLON] name boundExpression)
        	| variableDeclaration	(COMMA | SEMI)?			-> variableDeclaration
        	| attributeDeclaration	(COMMA | SEMI)?			-> attributeDeclaration
+	| overrideDeclaration	(COMMA | SEMI)?			-> overrideDeclaration
        	| functionDefinition 	(COMMA | SEMI)?			-> functionDefinition
        	;
 stringExpression  

@@ -776,7 +776,8 @@ public class JavafxInitializationBuilder {
      * Non-destructive creation of "on change" change listener set-up call.
      */
     JCStatement makeChangeListenerCall(TranslatedOverrideAttributeInfo info) {
-        return makeChangeListenerCall(info,
+        return info.onReplace() == null? null :
+            makeChangeListenerCall(info,
              info.onReplace(),
              null,
              null,
