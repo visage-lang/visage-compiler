@@ -419,13 +419,13 @@
                 <propertyref regex="^.*\.class\.path$$"/>
             </propertyset>
         </ant>
-        -->
         <ant dir="demos/javafxballs" inheritall="false">
             <property name="tools.dir" value="${tools.dir}"/>
             <propertyset>
                 <propertyref regex="^.*\.class\.path$$"/>
             </propertyset>
         </ant>
+        -->
         <copy todir="dist/demos">
             <fileset dir="demos" excludes="StudioMoto/**,**/build/,**/dist/,**/lib/"/>
         </copy>
@@ -461,7 +461,50 @@
         <ant antfile="bootstrap.xml" target="clean"/>
     </target>
     
-    <target name="weekly" description="Weekly build target" depends="dist">
-        
+    <available property="mail.jar" value="${ant.home}/lib/mail.jar" file="${ant.home}/lib/mail.jar"/>
+    
+    <target name="weekly-build-check">
+        <!-- weekly build parameters, normally set by Hudson -->
+        <fail unless="svn.username"/>
+        <fail unless="svn.password"/>
+        <fail unless="weekly.build.number"/>
+        <fail unless="weekly.build.destdir"/>
+        <fail unless="weekly.build.alias"/>
+        <fail unless="weekly.buildmaster"/>
+        <fail unless="mail.jar"/>
+    </target>
+    
+    <target name="weekly-build" description="Weekly build target" depends="weekly-build-check">
+        <tstamp>
+            <format property="date.stamp" pattern="yyyy-MM-dd"/>
+        </tstamp>
+        <property name="release" value="weekly-${date.stamp}"/>
+        <exec executable="svn">
+            <arg value="copy"/>
+            <arg value="https://openjfx-compiler.dev.java.net/svn/openjfx-compiler/trunk"/>
+            <arg value="https://openjfx-compiler.dev.java.net/svn/openjfx-compiler/tags/${release}"/>
+            <arg line="--username ${svn.username} --password ${svn.password}"/>
+            <arg line="-m ${release}"/>
+            <arg value="--quiet"/>
+        </exec>
+        <mkdir dir="${basedir}/bundles"/>
+        <zip destfile="${basedir}/bundles/javafxc-${release}-src.zip" basedir="${basedir}"
+             excludes="${basedir}/bundles/**, **/.svn/**" level="9"/>
+        <antcall target="dist"/>
+        <property name="bundle.destdir" value="${weekly.build.destdir}/${release}"/>
+        <mkdir dir="${bundle.destdir}"/>
+        <copy todir="${bundle.destdir}">
+            <fileset dir="${basedir}/bundles"/>
+        </copy>
+        <delete dir="${weekly.build.destdir}/latest" failonerror="true"/>
+        <mkdir dir="${weekly.build.destdir}/latest"/>
+        <copy todir="${weekly.build.destdir}/latest">
+            <fileset dir="${basedir}/bundles"/>
+        </copy>
+        <mail from="${weekly.buildmaster}" 
+              replyto="${weekly.build.alias}"
+              tolist="${weekly.build.alias}"
+              message="weekly build completed"
+              subject="Weekly build available"/>
     </target>
 </project>
