@@ -53,6 +53,9 @@ public class FXRunAndCompareWrapper extends TestCase {
     private final boolean expectRunFailure;
     private final String className;
     private final String classpath;
+    private final String outputFileName;
+    private final String errorFileName;
+    private final String expectedFileName;
     private final List<String> auxFiles;
     private final List<String> separateFiles;
 
@@ -73,15 +76,15 @@ public class FXRunAndCompareWrapper extends TestCase {
         this.auxFiles = new LinkedList<String>(auxFiles);
         this.separateFiles = new LinkedList<String>(separateFiles);
         this.className = testFile.getName();
+        outputFileName = buildDir + File.separator + className + ".OUTPUT";
+        errorFileName = buildDir + File.separator + className + ".ERROR";
+        expectedFileName = testFile.getPath() + ".EXPECTED";
         assertTrue(className.endsWith(".fx"));
         classpath = TestHelper.getClassPath(buildDir);
     }
 
     @Override
     protected void runTest() throws Throwable {
-        String outputFileName = buildDir + File.separator + className + ".OUTPUT";
-        String errorFileName = buildDir + File.separator + className + ".ERROR";
-        String expectedFileName = testFile.getPath() + ".EXPECTED";
         System.out.println("Test(compile" + (shouldRun ? ", run" : "") + "): " + testFile);
         compile();
         if (shouldRun)
@@ -127,16 +130,14 @@ public class FXRunAndCompareWrapper extends TestCase {
             errors = 1;
         }
         if (errors != 0) {
-            TestHelper.dumpFile(new StringInputStream(new String(err.toByteArray())), "Compiler Output", testFile.toString());
-            System.out.println("--");
-            StringBuilder sb = new StringBuilder();
-            sb.append(errors).append(" error");
-            if (errors > 1)
-                sb.append('s');
-            sb.append(" compiling ").append(testFile);
-            if (!expectCompileFailure) {
-                fail(sb.toString());
-            }
+            PrintStream outputDest = expectCompileFailure
+                    ? new PrintStream(new FileOutputStream(errorFileName))
+                    : System.out;
+            TestHelper.dumpFile(outputDest, new StringInputStream(new String(err.toByteArray())),
+                                "Compiler Output", testFile.toString());
+            outputDest.println("--");
+            if (!expectCompileFailure)
+                fail(String.format("%d errors compiling %s", errors, testFile));
         }
         if (expectCompileFailure && errors == 0) {
             fail("expected compiler error");
