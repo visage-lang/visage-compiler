@@ -79,13 +79,7 @@ public abstract class Node extends CanvasElement, Transformable {
     // private:
 
     protected attribute mouseListener: SGMouseListener;
-    protected function setCursor():Void {
-        if (hover) {
-            getCanvas().jsgpanel.setCursor(cursor.getCursor(), false);
-        } else {
-            getCanvas().jsgpanel.resetCursor();
-        }
-    }
+
     protected function installMouseListener() {
         if (mouseListener == null) {
             selectable = true;
@@ -104,10 +98,6 @@ public abstract class Node extends CanvasElement, Transformable {
                     }
 
                     public function mouseEntered(e:MouseEvent, node:SGNode):Void {
-
-                        if (cursor <> null) {
-                            setCursor();        
-                        } 
                         if (onMouseEntered <> null) {
                             (onMouseEntered)(makeCanvasMouseEvent(e));
                         }
@@ -115,13 +105,9 @@ public abstract class Node extends CanvasElement, Transformable {
                     }
 
                     public function mouseExited(e:MouseEvent, node:SGNode):Void {
-
                         if (onMouseExited <> null) {
                             (onMouseExited)(makeCanvasMouseEvent(e));
                         } 
-                        if (cursor <> null) {
-                             getCanvas().jsgpanel.resetCursor();
-                        }
                         if (isSelectionRoot) { e.consume(); }
                     }
 
@@ -157,9 +143,6 @@ public abstract class Node extends CanvasElement, Transformable {
                     public function mouseDragged(e:MouseEvent, node:SGNode):Void {
                         if (exportDrag) {
                             return;
-                        }
-                        if (cursor <> null) {
-                            setCursor();
                         }
                         var localPt = alignmentFilter.globalToLocal(e.getPoint(), null);
 
@@ -202,9 +185,6 @@ public abstract class Node extends CanvasElement, Transformable {
                     }
 
                     public function mouseMoved(e:MouseEvent, node:SGNode):Void {
-                        if (cursor <> null) {
-                            setCursor();
-                        }
                         //e.percolate = onMouseMoved == null and onMouseDragged == null and not isSelectionRoot;
                         if (onMouseMoved <> null) {
                             (onMouseMoved)(makeCanvasMouseEvent(e));
@@ -314,9 +294,7 @@ public abstract class Node extends CanvasElement, Transformable {
     private function updateImageOps() {
         if (effectFilter <> null) {
 //          effectFilter.setImageOps(select i.getFilter() from i in filter);
-            // TODO: uncomment once Scenario optimization is made
-            //cacheFilter.setEnabled(filter <> null);
-            cacheFilter.setEnabled(false);
+            cacheFilter.setEnabled(filter <> null);
         }
     }
 
@@ -335,39 +313,11 @@ public abstract class Node extends CanvasElement, Transformable {
 
             effectFilter = new SGImageOp();
             effectFilter.setChild(contentNode);
-            //
-            // scenario workaround:
-            // leave out render cache: which currently inappropriately
-            // pads the bounds
-            // 
-            //cacheFilter = SGRenderCache.createCache(effectFilter);
-            //cacheFilter.setEnabled(false);
-            // 
+            cacheFilter = SGRenderCache.createCache(effectFilter);
+            cacheFilter.setEnabled(false);
             compositeFilter = new SGComposite();
-            compositeFilter.setChild(effectFilter);
-            clipFilter = SGClip {
-                // scenario workaround:
-                // include clip in bounds calculation
-                // not a good solution however, as caching is lost.
-                // however, no reasonable way to preserve that right now
-                // due to scenario methods being non-public
-                //
-                public function getBounds(transform:AffineTransform):Rectangle2D {
-                    var s = getShape();
-                    if (s <> null) {
-                        var b = getChild().getBounds(transform);
-                        var clipBounds = s.getBounds2D();
-                        if (transform <> null) {
-                            clipBounds = transform.createTransformedShape(clipBounds).getBounds2D();
-                        }
-                        b = clipBounds.createIntersection(b);
-                        return b;
-                    } else {
-                        return getChild().getBounds(transform);
-                    }
-                }
-                
-            };
+            compositeFilter.setChild(cacheFilter);
+            clipFilter = new SGClip();
             clipFilter.setChild(compositeFilter);
             transformFilter = SGTransform.createAffine(new AffineTransform(), clipFilter);
             transformFilter.putAttribute("FX", this);
@@ -433,6 +383,8 @@ public abstract class Node extends CanvasElement, Transformable {
             currentWidth = b.getWidth();
             currentHeight = b.getHeight();
             //alignmentFilter.setPickable(selectable);
+            
+            updateCursor();
         }
         return alignmentFilter;
     }
@@ -674,18 +626,21 @@ public abstract class Node extends CanvasElement, Transformable {
     public attribute currentWidth: Number;
     /** Read-only attribute returning the current height of this node. */
     public attribute currentHeight: Number;
-    /** Optional cursor to use when the mouse is over this node. */
-    public attribute cursor: Cursor on replace  {
-        if (hover) {
-            this.getCanvas().jsgpanel.setCursor(cursor.getCursor(), false);
-        } else {
-            this.installMouseListener();
+
+    private function updateCursor():Void {
+        if (alignmentFilter <> null) {
+            alignmentFilter.setCursor(if (cursor <> null) cursor.getCursor() else null);
         }
+    }
+    
+    /** Optional cursor to use when the mouse is over this node. */
+    public attribute cursor: Cursor on replace {
+        updateCursor();
     };
     public function getGlobalBounds(): Rectangle2D{
         return alignmentFilter.getGlobalBounds(); // TODO: hmm
     }
-
+    
     public attribute id: String on replace {
         if (contentNode <> null)
             contentNode.setID(id);   
@@ -712,4 +667,3 @@ public abstract class Node extends CanvasElement, Transformable {
         }
     }
 }
-
