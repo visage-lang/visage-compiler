@@ -25,36 +25,40 @@
 
 package com.sun.tools.javafx.comp;
 
-import static com.sun.tools.javac.code.Flags.VARARGS;
-import static com.sun.tools.javac.code.Kinds.MTH;
-import com.sun.tools.javac.code.Scope;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.comp.Infer;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.jvm.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Lint;
+import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.javac.code.Flags.ANNOTATION;
+import static com.sun.tools.javac.code.Flags.SYNCHRONIZED;
+import static com.sun.tools.javac.code.Kinds.*;
 import com.sun.tools.javac.code.Lint.LintCategory;
-import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.javac.code.Type.ClassType;
+import com.sun.tools.javac.code.Type.ErrorType;
+import com.sun.tools.javac.code.Type.ForAll;
+import com.sun.tools.javac.code.Type.TypeVar;
+import static com.sun.tools.javac.code.TypeTags.*;
+import static com.sun.tools.javac.code.TypeTags.WILDCARD;
+import com.sun.tools.javac.comp.Infer;
+import com.sun.tools.javac.jvm.ByteCodes;
+import com.sun.tools.javac.jvm.ClassReader;
+import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.util.*;
+import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
-
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.TypeTags.*;
-
-import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypes;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
-import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.comp.JavafxAttr.Sequenceness;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
+import com.sun.tools.javafx.tree.JFXClassDeclaration;
+import com.sun.tools.javafx.tree.JavafxTreeInfo;
+import com.sun.tools.javafx.tree.JavafxTreeScanner;
 
 /** Type checking helper class for the attribution phase.
  *
@@ -430,7 +434,7 @@ public class JavafxCheck {
 
         // use the JavafxClassSymbol's supertypes to see if req is in the supertypes of found.
         ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-        Set superSet = new HashSet<Type>();
+        Set<Type> superSet = new HashSet<Type>();
         supertypes.append(found);
         superSet.add(found);
 
@@ -505,7 +509,7 @@ public class JavafxCheck {
         // use the JavafxClassSymbol's supertypes to see if req is in the supertypes of found.
         else if (found.tsym != null && found.tsym instanceof JavafxClassSymbol) {
             ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-            Set superSet = new HashSet<Type>();
+            Set<Type> superSet = new HashSet<Type>();
             supertypes.append(found);
             superSet.add(found);
 
@@ -519,7 +523,7 @@ public class JavafxCheck {
 
         if (req.tsym != null && req.tsym instanceof JavafxClassSymbol) {
             ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-            Set superSet = new HashSet<Type>();
+            Set<Type> superSet = new HashSet<Type>();
             supertypes.append(req);
             superSet.add(req);
 
@@ -862,7 +866,7 @@ public class JavafxCheck {
             boolean specialized;
             SpecialTreeVisitor() {
                 this.specialized = false;
-            };
+            }
 		
             @Override
             public void visitTree(JCTree tree) { /* no-op */ }
@@ -1577,7 +1581,7 @@ public
 		return;
 	    }
             ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-            Set superSet = new HashSet<Type>();
+            Set<Type> superSet = new HashSet<Type>();
             types.getSupertypes(origin, supertypes, superSet);
 
         for (Type t : supertypes) {

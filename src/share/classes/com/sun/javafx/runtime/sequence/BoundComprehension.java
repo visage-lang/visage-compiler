@@ -58,11 +58,6 @@ public abstract class BoundComprehension<T, V> extends AbstractBoundSequence<V> 
         private final ObjectLocation<T> element;
         private final IntLocation index;
 
-        private State(ObjectLocation<T> element, IntLocation index) {
-            this.element = element;
-            this.index = index;
-        }
-
         private State(ObjectLocation<T> element, IntLocation index, SequenceLocation<V> mapped) {
             this.element = element;
             this.index = index;
