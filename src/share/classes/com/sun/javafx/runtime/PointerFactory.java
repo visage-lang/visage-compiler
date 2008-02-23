@@ -9,23 +9,8 @@ import com.sun.javafx.runtime.sequence.Sequence;
  * @author Brian Goetz
  */
 public class PointerFactory implements PointerFactory$Intf, FXObject {
-    public static void setDefaults$(final PointerFactory$Intf receiver$) {
-    }
 
-    public static int getNumFields$() { return 0; }
-    private com.sun.javafx.runtime.InitHelper initHelper$ = new com.sun.javafx.runtime.InitHelper(0);
-
-    public void initialize$() {
-        setDefaults$(this);
-        userInit$(this);
-        initHelper$.initialize();
-        initHelper$ = null;
-    }
-
-    public void setInitialized(Location loc) { }
-
-    public static void userInit$(final PointerFactory$Intf receiver$) {
-    }
+    public void initialize$() { }
 
     public Pointer make(int value) {
         throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");

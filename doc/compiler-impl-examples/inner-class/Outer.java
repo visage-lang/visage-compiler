@@ -1,9 +1,9 @@
-import com.sun.javafx.runtime.InitHelper;
-import com.sun.javafx.runtime.location.*;
+import com.sun.javafx.runtime.location.IntLocation;
+import com.sun.javafx.runtime.location.IntVariable;
+import com.sun.javafx.runtime.location.ObjectLocation;
+import com.sun.javafx.runtime.location.ObjectVariable;
 
 class Outer implements Outer$Intf {
-    private static final int NUM$FIELDS = 1;
-    private InitHelper initHelper = new InitHelper(NUM$FIELDS);
     private IntLocation o;
 
     final class Middle$1 extends Middle {
@@ -39,8 +39,6 @@ class Outer implements Outer$Intf {
     public void initialize$() {
         setDefaults$(this);
         userInit$(this);
-        initHelper.initialize();
-        initHelper = null;
     }
 }
 
@@ -64,8 +62,6 @@ interface Listener$Intf {
 class Middle implements Middle$Intf {
     private IntLocation a;
     private ObjectLocation<Listener$Intf> listener;
-    private static final int NUM$FIELDS = 2;
-    private InitHelper initHelper = new InitHelper(NUM$FIELDS);
 
     public IntLocation get$a() { return a; }
     public void init$a(IntLocation loc) { a = loc; }
@@ -81,14 +77,10 @@ class Middle implements Middle$Intf {
     public void initialize$() {
         setDefaults$(this);
         userInit$(this);
-        initHelper.initialize();
-        initHelper = null;
     }
 }
 
 abstract class Listener implements Listener$Intf {
-    private static final int NUM$FIELDS = 2;
-    private InitHelper initHelper = new InitHelper(NUM$FIELDS);
 
     protected static void setDefaults$(final Listener$Intf receiver) {
     }
@@ -98,7 +90,5 @@ abstract class Listener implements Listener$Intf {
     public void initialize$() {
         setDefaults$(this);
         userInit$(this);
-        initHelper.initialize();
-        initHelper = null;
     }
 }
