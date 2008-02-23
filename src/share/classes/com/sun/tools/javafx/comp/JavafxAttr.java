@@ -1010,6 +1010,54 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
     }
     
+    /**
+     * OK, this is a not really "finish" as in the completer, at least not now.
+     * But it does finish the attribution of the override by attributing the
+     * default initialization.
+     * 
+     * @param tree
+     * @param env
+     */
+    public void finishOverrideAttribute(JFXOverrideAttribute tree, JavafxEnv<JavafxAttrContext> env) {
+        VarSymbol v = tree.sym;
+        Type declType = tree.getId().type;
+        result = tree.type = declType;
+
+        // The info.lint field in the envs stored in enter.typeEnvs is deliberately uninitialized,
+        // because the annotations were not available at the time the env was created. Therefore,
+        // we look up the environment chain for the first enclosing environment for which the
+        // lint value is set. Typically, this is the parent env, but might be further if there
+        // are any envs created as a result of TypeParameter nodes.
+        JavafxEnv<JavafxAttrContext> lintEnv = env;
+        while (lintEnv.info.lint == null) {
+            lintEnv = lintEnv.next;
+        }
+        Lint lint = lintEnv.info.lint.augment(v.attributes_field, v.flags());
+        Lint prevLint = chk.setLint(lint);
+        JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
+
+        try {
+            if (tree.getInitializer() != null) {
+                // Attribute initializer in a new environment
+                // with the declared variable as owner.
+                // Check that initializer conforms to variable's declared type.
+                JavafxEnv<JavafxAttrContext> initEnv = env.dupto(new JavafxAttrContextEnv(tree, env.info.dup()));
+                initEnv.outer = env;
+                initEnv.info.lint = lint;
+
+                // In order to catch self-references, we set the variable's
+                // declaration position to maximal possible value, effectively
+                // marking the variable as undefined.
+                v.pos = Position.MAXPOS;
+
+                attribExpr(tree.getInitializer(), initEnv, declType);
+            }
+        } finally {
+            chk.setLint(prevLint);
+            log.useSource(prev);
+        }
+    }
+
     @Override
     public void visitOverrideAttribute(JFXOverrideAttribute tree) {
         //TODO: handle static triggers
@@ -1043,6 +1091,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         } else {
             VarSymbol v = (VarSymbol) sym;
             tree.sym = v;
+            finishOverrideAttribute(tree, env);
         }
     }
     
