@@ -102,6 +102,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     private final Name stringTypeName;
     private final Name voidTypeName;  // possibly temporary
     private final Source source;
+    
+    //TODO: this should be switche to false when the workspace is ready
+    private static final boolean allowOldStyleTriggers = true;
 
     Map<JavafxVarSymbol, JFXVar> varSymToTree = new HashMap<JavafxVarSymbol, JFXVar>();
     Set<JCFieldAccess> superSelects = new HashSet<JCFieldAccess>();
@@ -1127,21 +1130,33 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitOnReplaceElement(JFXOnReplaceElement tree) {
+        if (!allowOldStyleTriggers) {
+            log.error(tree.pos(), "javafx.old.style.triggers.not.supported", "on replace []");
+        }
         visitAbstractOnChange(tree);
     }
-    
+
     @Override
     public void visitOnInsertElement(JFXOnInsertElement tree) {
+        if (!allowOldStyleTriggers) {
+            log.error(tree.pos(), "javafx.old.style.triggers.not.supported", "on insert");
+        }
         visitAbstractOnChange(tree);
     }
-    
+
     @Override
     public void visitOnDeleteElement(JFXOnDeleteElement tree) {
+        if (!allowOldStyleTriggers) {
+            log.error(tree.pos(), "javafx.old.style.triggers.not.supported", "on delete");
+        }
         visitAbstractOnChange(tree);
     }
-    
+
     @Override
     public void visitOnDeleteAll(JFXOnDeleteAll tree) {
+        if (!allowOldStyleTriggers) {
+            log.error(tree.pos(), "javafx.old.style.triggers.not.supported", "on delete");
+        }
         visitAbstractOnChange(tree);
     }
     
