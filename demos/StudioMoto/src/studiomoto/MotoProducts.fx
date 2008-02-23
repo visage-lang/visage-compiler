@@ -245,6 +245,8 @@ public class MotoProducts extends MotoPanel {
                                 VBox {
                                     var row:Group;
                                     transform: Transform.translate(5, 5)
+/*
+Uncomment when JFX-760 is fixed
                                     content: bind for (p in products) {
                                         
                                         row = Group {
@@ -264,6 +266,7 @@ public class MotoProducts extends MotoPanel {
                                             }]
                                         };
                                     }
+*/
                                 }]
                             }]
                         },
