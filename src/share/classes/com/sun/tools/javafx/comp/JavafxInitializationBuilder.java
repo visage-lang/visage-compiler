@@ -174,12 +174,11 @@ public class JavafxInitializationBuilder {
 
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
         cDefinitions.append(makeConstructor(diagPos));
-        cDefinitions.appendList(makeAttributeFields(diagPos, instanceAttributeInfos));
-        cDefinitions.appendList(makeAttributeFields(diagPos, analysis.staticAttributeInfos()));
+        cDefinitions.appendList(makeAttributeFields(instanceAttributeInfos));
+        cDefinitions.appendList(makeAttributeFields(analysis.staticAttributeInfos()));
         cDefinitions.appendList(makeClassAttributeGetterMethods(cDecl, instanceAttributeInfos));
         cDefinitions.appendList(makeClassAttributeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
-        cDefinitions.append(makeInitStaticAttributesBlock(diagPos, cDecl, translatedAttrInfo));
-        cDefinitions.append(makeAttributeListField(diagPos, instanceAttributeInfos));
+        cDefinitions.append(makeInitStaticAttributesBlock(cDecl, translatedAttrInfo));
         cDefinitions.append(makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
         cDefinitions.appendList(makeClassOuterAccessorMembers(cDecl));
         cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, immediateFxSupertypeNames, translatedAttrInfo, translatedOverrideAttrInfo));
@@ -588,14 +587,19 @@ public class JavafxInitializationBuilder {
                 postInitName,
                 make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
 
-        // "InitHelper.finish(attributes);"
+        // "InitHelper.finish(new[] { attribute, ... });
+        ListBuffer<JCExpression> attrs = ListBuffer.lb();
+        for (AttributeInfo ai : attrInfos) {
+            if (ai.needsCloning()) {
+                attrs.append(make.at(diagPos).Ident(ai.getName()));
+            }
+        }                
+
         stmts.append( toJava.callStatement(diagPos, 
                 toJava.makeTypeTree(initHelperType, diagPos), 
-                "finish", 
-                make.at(diagPos).Ident(defs.attributesFieldName)) );
-        
-        // "attributes = null;"
-        stmts.append(make.Exec(make.Assign(make.Ident(defs.attributesFieldName), make.Literal(TypeTags.BOT, null))));
+                "finish",
+                make.NewArray(toJava.makeTypeTree(abstractVariableType, diagPos), 
+                                List.<JCExpression>nil(), attrs.toList())));
 
         /***
         // Call the postInit$ method
@@ -642,8 +646,7 @@ public class JavafxInitializationBuilder {
     /**
      * Construct the static block for setting defaults
      * */
-    private JCBlock makeInitStaticAttributesBlock(DiagnosticPosition diagPos, 
-            JFXClassDeclaration cDecl,
+    private JCBlock makeInitStaticAttributesBlock(JFXClassDeclaration cDecl,
             List<TranslatedAttributeInfo> translatedAttrInfo) {
         // Add the initialization of this class' attributesa
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
@@ -651,6 +654,7 @@ public class JavafxInitializationBuilder {
             assert tai.attribute != null && tai.attribute.getTag() == JavafxTag.VAR_DEF && tai.attribute.pos != Position.NOPOS;
             if (tai.isStatic()) {
                 if (tai.isDirectOwner()) {
+                    DiagnosticPosition diagPos = tai.pos();
                     stmts.append(tai.getDefaultInitializtionStatement());
                     stmts.append( toJava.callStatement(diagPos, make.at(diagPos).Ident(tai.getName()), locationInitializeName));
                 }
@@ -703,10 +707,11 @@ public class JavafxInitializationBuilder {
 
     // build a field for each non-static attribute (including inherited).
     // and for static attributes of this class
-    private List<JCTree> makeAttributeFields(DiagnosticPosition diagPos, List<? extends AttributeInfo> attrInfos) {
+    private List<JCTree> makeAttributeFields(List<? extends AttributeInfo> attrInfos) {
         ListBuffer<JCTree> fields = ListBuffer.lb();
         for (AttributeInfo ai : attrInfos) {
             if (ai.needsCloning()) {
+                DiagnosticPosition diagPos = ai.pos();
                 JCVariableDecl var = make.at(diagPos).VarDef(
                         make.Modifiers(Flags.PUBLIC | Flags.FINAL | (ai.getFlags() & Flags.STATIC)),
                         ai.getName(),
@@ -716,23 +721,6 @@ public class JavafxInitializationBuilder {
             }
         }
         return fields.toList();
-    }
-
-    // Build a field that has an array of all the non-static attributes (including inherited).
-    private JCVariableDecl makeAttributeListField(DiagnosticPosition diagPos, List<AttributeInfo> attrInfos) {
-        ListBuffer<JCExpression> attrs = ListBuffer.lb();
-
-        for (AttributeInfo ai : attrInfos) {
-            if (ai.needsCloning()) {
-                attrs.append(make.at(diagPos).Ident(ai.getName()));
-            }
-        }
-        
-        return make.at(diagPos).VarDef(make.Modifiers(Flags.PRIVATE), 
-                defs.attributesFieldName, 
-                make.TypeArray( toJava.makeTypeTree(abstractVariableType, diagPos) ), 
-                make.NewArray(toJava.makeTypeTree(abstractVariableType, diagPos), 
-                                List.<JCExpression>nil(), attrs.toList()));
     }
 
    /**

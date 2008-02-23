@@ -51,7 +51,6 @@ public class JavafxDefs {
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
     public static final String runMethodString = "javafx$run$";
-    public static final String attributesFieldNameString = "attributes$";
     public static final String receiverNameString = "receiver$";
     public static final String initializeNameString ="initialize$";
     public static final String getMethodNameString = "get";
@@ -82,7 +81,6 @@ public class JavafxDefs {
      * Name definitions
      */
     final Name runMethodName;
-    final Name attributesFieldName;
     final Name receiverName;
     final Name initializeName;
     final Name getMethodName;
@@ -127,7 +125,6 @@ public class JavafxDefs {
         Name.Table names = Name.Table.instance(context);
 
         runMethodName = names.fromString(runMethodString);
-        attributesFieldName = names.fromString(attributesFieldNameString);
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);
         getMethodName = Name.fromString(names, getMethodNameString);
