@@ -56,6 +56,216 @@ public abstract class AbstractGeneratedParser extends Parser {
     /** The name table. */
     protected Name.Table names;
     
+    protected java.util.Map<String, String> tokenMap = new java.util.HashMap<String, String>(); 
+
+    {
+        tokenMap.put("<invalid>", "<invalid>");
+        tokenMap.put("<EOR>","<EOR>");
+        tokenMap.put("<DOWN>", "<DOWN>");
+        tokenMap.put("<UP>", "<UP>");
+        tokenMap.put("SEMI_INSERT_START", "SEMI_INSERT_START");
+        tokenMap.put("ABSTRACT", "abstract");
+        tokenMap.put("ASSERT", "assert");
+        tokenMap.put("ATTRIBUTE","attribute");
+        tokenMap.put("BIND", "bind");
+        tokenMap.put("BREAK", "break");
+        tokenMap.put("CLASS", "class");
+        tokenMap.put("CONTINUE", "continue");
+        tokenMap.put("DELETE", "delete");
+        tokenMap.put("FALSE", "false");
+        tokenMap.put("FOR", "for");
+        tokenMap.put("FUNCTION", "function");
+        tokenMap.put("IF", "if");
+        tokenMap.put("IMPORT", "import");
+        tokenMap.put("INIT", "init");
+        tokenMap.put("INSERT", "insert");
+        tokenMap.put("LET", "let");
+        tokenMap.put("NEW", "new");
+        tokenMap.put("NOT", "not");
+        tokenMap.put("NULL", "null");
+        tokenMap.put("PACKAGE", "package");
+        tokenMap.put("POSTINIT", "postinit");
+        tokenMap.put("PRIVATE", "private");
+        tokenMap.put("PROTECTED", "protected");
+        tokenMap.put("PUBLIC", "public");
+        tokenMap.put("READONLY", "readonly");
+        tokenMap.put("RETURN", "return");
+        tokenMap.put("SUPER", "super");
+        tokenMap.put("SIZEOF", "sizeof");
+        tokenMap.put("STATIC", "static");
+        tokenMap.put("THIS", "this");
+        tokenMap.put("THROW", "throw");
+        tokenMap.put("TRY", "try");
+        tokenMap.put("TRUE", "true");
+        tokenMap.put("VAR", "var");
+        tokenMap.put("WHILE", "while");
+        tokenMap.put("POUND", "pound");
+        tokenMap.put("LPAREN", "(");
+        tokenMap.put("LBRACKET", "[");
+        tokenMap.put("PLUSPLUS", "++");
+        tokenMap.put("SUBSUB", "--");
+        tokenMap.put("PIPE", "|");
+        tokenMap.put("SEMI_INSERT_END", "SEMI_INSERT_END");
+        tokenMap.put("AFTER", "after");
+        tokenMap.put("AND", "and");
+        tokenMap.put("AS", "as");
+        tokenMap.put("BEFORE", "before");
+        tokenMap.put("CATCH", "catch");
+        tokenMap.put("ELSE", "else");
+        tokenMap.put("EXCLUSIVE", "exclusive");
+        tokenMap.put("EXTENDS", "extends");
+        tokenMap.put("FINALLY", "finaly");
+        tokenMap.put("FIRST", "first");
+        tokenMap.put("FROM", "from");
+        tokenMap.put("IN", "in");
+        tokenMap.put("INDEXOF", "indexof");
+        tokenMap.put("INSTANCEOF", "instanceof");
+        tokenMap.put("INTO", "into");
+        tokenMap.put("INVERSE", "inverse");
+        tokenMap.put("LAST", "last");
+        tokenMap.put("LAZY", "lazy");
+        tokenMap.put("ON", "on");
+        tokenMap.put("OR", "or");
+        tokenMap.put("REPLACE", "replace");
+        tokenMap.put("REVERSE", "reverse");
+        tokenMap.put("STEP", "step");
+        tokenMap.put("THEN", "then");
+        tokenMap.put("TYPEOF", "typeof");
+        tokenMap.put("WITH", "with");
+        tokenMap.put("WHERE", "where");
+        tokenMap.put("DOTDOT", "..");
+        tokenMap.put("RPAREN", ")");
+        tokenMap.put("RBRACKET", "]");
+        tokenMap.put("SEMI", ";");
+        tokenMap.put("COMMA", ",");
+        tokenMap.put("DOT", ".");
+        tokenMap.put("EQEQ", "==");
+        tokenMap.put("EQ", "=");
+        tokenMap.put("GT", ">");
+        tokenMap.put("LT", "<");
+        tokenMap.put("LTGT", "<>");
+        tokenMap.put("LTEQ", "<=");
+        tokenMap.put("GTEQ", ">=");
+        tokenMap.put("PLUS", "+");
+        tokenMap.put("SUB", "-");
+        tokenMap.put("STAR", "*");
+        tokenMap.put("SLASH", "/");
+        tokenMap.put("PERCENT", "%");
+        tokenMap.put("PLUSEQ", "+=");
+        tokenMap.put("SUBEQ", "-=");
+        tokenMap.put("STAREQ", "*=");
+        tokenMap.put("SLASHEQ", "/=");
+        tokenMap.put("PERCENTEQ", "%=");
+        tokenMap.put("COLON", ":");
+        tokenMap.put("QUES", "?");
+        tokenMap.put("MODULE", "module");
+        tokenMap.put("MODIFIER", "MODIFIER");
+        tokenMap.put("CLASS_MEMBERS", "CLASS_MEMBERS");
+        tokenMap.put("PARAM", "PRAM");
+        tokenMap.put("FUNC_EXPR", "FUNC_EXPR");
+        tokenMap.put("STATEMENT", "STATEMENT");
+        tokenMap.put("EXPRESSION", "EXPRESSION");
+        tokenMap.put("BLOCK", "BLOCK");
+        tokenMap.put("MISSING_NAME", "MISSING_NAME");
+        tokenMap.put("SLICE_CLAUSE", "SLICE_CLAUSE");
+        tokenMap.put("ON_REPLACE_SLICE", "ON_REPLACE_SLICE");
+        tokenMap.put("ON_REPLACE", "ON_REPLACE");
+        tokenMap.put("ON_REPLACE_ELEMENT", "ON_REPLACE_ELEMENT");
+        tokenMap.put("ON_INSERT_ELEMENT", "ON_INSERT_ELEMENT");
+        tokenMap.put("ON_DELETE_ELEMENT", "ON_DELETE_ELEMENT");
+        tokenMap.put("EXPR_LIST", "EXPR_LIST");
+        tokenMap.put("FUNC_APPLY", "FUNC_APPLY");
+        tokenMap.put("NEGATIVE", "NEGATIVE");
+        tokenMap.put("POSTINCR", "POSTINCR");
+        tokenMap.put("POSTDECR", "POSTDECR");
+        tokenMap.put("SEQ_INDEX", "SEQ_INDEX");
+        tokenMap.put("SEQ_SLICE", "SEQ_SLICE");
+        tokenMap.put("SEQ_SLICE_EXCLUSIVE", "SEQ_SLICE_EXCLUSIVE");
+        tokenMap.put("OBJECT_LIT", "OBJECT_LIT");
+        tokenMap.put("OBJECT_LIT_PART", "OBJECT_LIT_PART");
+        tokenMap.put("SEQ_EMPTY", "SEQ_EMPTY");
+        tokenMap.put("SEQ_EXPLICIT","SEQ_EXPLICIT");
+        tokenMap.put("EMPTY_FORMAT_STRING", "EMPTY_FORMAT_STRING");
+        tokenMap.put("TYPE_NAMED", "TYPE_NAMED");
+        tokenMap.put("TYPE_FUNCTION", "TYPE_FUNCTION");
+        tokenMap.put("TYPE_ANY", "TYPE_ANY");
+        tokenMap.put("TYPE_UNKNOWN", "TYPE_UNKNOWN");
+        tokenMap.put("TYPE_ARG", "TYPE_ARG");
+        tokenMap.put("TYPED_ARG_LIST", "TYPED_ARG_LIST");
+        tokenMap.put("DOC_COMMENT", "DOC_COMMENT");
+        tokenMap.put("DoubleQuoteBody", "double quote string literal");
+        tokenMap.put("SingleQuoteBody", "single quote string literal");
+        tokenMap.put("STRING_LITERAL", "string literal");
+        tokenMap.put("NextIsPercent", "%");
+        tokenMap.put("QUOTE_LBRACE_STRING_LITERAL", "\" { string literal");
+        tokenMap.put("LBRACE", "{");
+        tokenMap.put("RBRACE_QUOTE_STRING_LITERAL", "} \" string literal");
+        tokenMap.put("RBRACE_LBRACE_STRING_LITERAL", "} { string literal");
+        tokenMap.put("RBRACE", "}");
+        tokenMap.put("FORMAT_STRING_LITERAL", "format string literal");
+        tokenMap.put("TranslationKeyBody", "translation key body");
+        tokenMap.put("TRANSLATION_KEY", "translation key");
+        tokenMap.put("DECIMAL_LITERAL", "decimal literal");
+        tokenMap.put("Digits", "digits");
+        tokenMap.put("Exponent", "exponent");
+        tokenMap.put("TIME_LITERAL", "time literal");
+        tokenMap.put("OCTAL_LITERAL", "octal literal");
+        tokenMap.put("HexDigit", "hex digit");
+        tokenMap.put("HEX_LITERAL", "hex literal");
+        tokenMap.put("ON_DELETE_ELEMENT", "ON_DELETE_ELEMENT");
+        tokenMap.put("EXPR_LIST", "EXPR_LIST");
+        tokenMap.put("FUNC_APPLY", "FUNC_APPLY");
+        tokenMap.put("NEGATIVE", "NEGATIVE");
+        tokenMap.put("POSTINCR", "POSTINCR");
+        tokenMap.put("POSTDECR", "POSTDECR");
+        tokenMap.put("SEQ_INDEX", "SEQ_INDEX");
+        tokenMap.put("SEQ_SLICE", "SEQ_SLICE");
+        tokenMap.put("SEQ_SLICE_EXCLUSIVE", "SEQ_SLICE_EXCLUSIVE");
+        tokenMap.put("OBJECT_LIT", "OBJECT_LIT");
+        tokenMap.put("OBJECT_LIT_PART", "OBJECT_LIT_PART");
+        tokenMap.put("SEQ_EMPTY", "SEQ_EMPTY");
+        tokenMap.put("SEQ_EXPLICIT","SEQ_EXPLICIT");
+        tokenMap.put("EMPTY_FORMAT_STRING", "EMPTY_FORMAT_STRING");
+        tokenMap.put("TYPE_NAMED", "TYPE_NAMED");
+        tokenMap.put("TYPE_FUNCTION", "TYPE_FUNCTION");
+        tokenMap.put("TYPE_ANY", "TYPE_ANY");
+        tokenMap.put("TYPE_UNKNOWN", "TYPE_UNKNOWN");
+        tokenMap.put("TYPE_ARG", "TYPE_ARG");
+        tokenMap.put("TYPED_ARG_LIST", "TYPED_ARG_LIST");
+        tokenMap.put("DOC_COMMENT", "DOC_COMMENT");
+        tokenMap.put("DoubleQuoteBody", "double quote string literal");
+        tokenMap.put("SingleQuoteBody", "single quote string literal");
+        tokenMap.put("STRING_LITERAL", "string literal");
+        tokenMap.put("NextIsPercent", "%");
+        tokenMap.put("QUOTE_LBRACE_STRING_LITERAL", "\" { string literal");
+        tokenMap.put("LBRACE", "{");
+        tokenMap.put("RBRACE_QUOTE_STRING_LITERAL", "} \" string literal");
+        tokenMap.put("RBRACE_LBRACE_STRING_LITERAL", "} { string literal");
+        tokenMap.put("RBRACE", "}");
+        tokenMap.put("FORMAT_STRING_LITERAL", "format string literal");
+        tokenMap.put("TranslationKeyBody", "translation key body");
+        tokenMap.put("TRANSLATION_KEY", "translation key");
+        tokenMap.put("DECIMAL_LITERAL", "decimal literal");
+        tokenMap.put("Digits", "digits");
+        tokenMap.put("Exponent", "exponent");
+        tokenMap.put("TIME_LITERAL", "time literal");
+        tokenMap.put("OCTAL_LITERAL", "octal literal");
+        tokenMap.put("HexDigit", "hex digit");
+        tokenMap.put("HEX_LITERAL", "hex literal");
+        tokenMap.put("RangeDots", "..");
+        tokenMap.put("FLOATING_POINT_LITERAL", "floating point literal");
+        tokenMap.put("Letter", "letter");
+        tokenMap.put("JavaIDDigit", "java ID digit");
+        tokenMap.put("IDENTIFIER", "identifier");
+        tokenMap.put("WS", "white space");
+        tokenMap.put("COMMENT", "comment");
+        tokenMap.put("LINE_COMMENT", "line comment");
+        tokenMap.put("LAST_TOKEN", "last token");
+    } 
+    
+    // this field should not be accessed using the getFXTokenNames method
+    protected String[] fxTokenNames = null;
+    
     protected String[][] ruleMap = { 
             {"module", "the module contents"},
             {"moduleItems", "the module contents"},
@@ -164,18 +374,18 @@ protected String stackPositionDescription(String ruleName) {
         StringBuffer mb = new StringBuffer();
         if (e instanceof MismatchedTokenException) {
             MismatchedTokenException mte = (MismatchedTokenException) e;
-            
+           
             mb.append("Sorry, I was trying to understand ");
             mb.append(posDescription);
             mb.append(" but I got confused when I saw ");
             mb.append(getTokenErrorDisplay(e.token));
             if (mte.expecting != Token.EOF) {
                 mb.append(".\n Perhaps you are missing a ");
-                mb.append(tokenNames[mte.expecting]);
+                mb.append("'" + tokenNames[mte.expecting]+"'");
             }
         } else if (e instanceof NoViableAltException) {
             NoViableAltException nvae = (NoViableAltException) e;
-            
+           
             mb.append("Sorry, I was trying to understand ");
             mb.append(posDescription);
             mb.append(" but I got confused when I saw ");
@@ -196,9 +406,29 @@ protected String stackPositionDescription(String ruleName) {
     @Override
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
         int pos = ((CommonToken)(e.token)).getStartIndex();
-        String msg = getErrorMessage(e, tokenNames);
+        // String msg = getErrorMessage(e, tokenNames);
         //        System.err.println("ERROR: " + msg);
+        
+        String msg = getErrorMessage(e, getFXTokenNames(tokenNames));
         log.error(pos, "javafx.generalerror", msg);
+    }
+    
+    protected String[] getFXTokenNames(String[] tokenNames) {
+        
+        if (fxTokenNames != null) {
+            return fxTokenNames;
+        } else {
+            
+            fxTokenNames = new String[tokenNames.length];
+            int count = 0;
+            for (String tokenName:tokenNames) {
+                    
+                fxTokenNames[count++] = tokenMap.get(tokenName);
+            }
+            
+            return fxTokenNames;
+        }
+    
     }
     
     protected int pos(Token tok) {
