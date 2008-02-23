@@ -14,7 +14,6 @@ var frame:Frame;
 var canvas:Canvas;
 var home:HomeButton;
 var pf: PointerFactory = PointerFactory{};
-var base: java.net.URL = __DIR__;
 
 var ys = [[0..-18 step -1],[-18..-12]];
 var homeY:Number = 0;
@@ -62,7 +61,6 @@ frame = Frame {
     };
     
 
-    
     background: Color.BLACK
     content:
     canvas = Canvas {
@@ -75,10 +73,10 @@ frame = Frame {
             [HBox {
                 content: 
                 [ImageView {
-                    image: Image{url: "{base}Image/1.jpg"}
+                    image: Image{url: "{__DIR__}Image/1.jpg"}
                 },
                 ImageView {
-                    image: Image{url: "{base}Image/1.jpg"}
+                    image: Image{url: "{__DIR__}Image/1.jpg"}
                 }]
                 onMouseClicked: function(e) {splash.doSplash();}
             },
@@ -91,7 +89,7 @@ frame = Frame {
                     //transform: Transform.translate(527/2, 40)
                     
                     //halign: HorizontalAlignment.CENTER
-                    image: Image{url: "{base}Image/4.png"}
+                    image: Image{url: "{__DIR__}Image/4.png"}
                 },
                 Group {
                     transform: Transform.translate(30, 20)
@@ -158,11 +156,11 @@ frame = Frame {
                         [Group {
                             content:
                             [ImageView {
-                                image: Image{url: "{base}Image/71.png"}
+                                image: Image{url: "{__DIR__}Image/71.png"}
                             },
                             ImageView {
                                 transform: Transform.translate(22, 17)
-                                image: Image{url: "{base}Image/72.png"}
+                                image: Image{url: "{__DIR__}Image/72.png"}
                             },
                             MotoCenterPanel {
                                 transform: Transform.translate(957/2+15, 20)
@@ -187,7 +185,7 @@ frame = Frame {
                 ImageView {
                     transform: Transform.translate(80, 0)
                     // 42x42
-                    image: Image{url: "{base}Image/5.png"}
+                    image: Image{url: "{__DIR__}Image/5.png"}
                 }]
             },
             MotoBottomPane {

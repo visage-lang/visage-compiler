@@ -8,7 +8,6 @@ import com.sun.javafx.runtime.Pointer;
 
 
 public class MotoPanel extends Intro {
-    protected attribute baseDir:java.net.URL = __DIR__;
     attribute width: Number;
     attribute height: Number;
     attribute titleX: Number;
