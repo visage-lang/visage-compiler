@@ -104,7 +104,7 @@ public class Node {
         baseURI = domNode.getBaseURI();
         prefix = domNode.getPrefix();
         localName = domNode.getLocalName();    
-        value = domNode.getNodeValue();
+        value = domNode.getTextContent();
         type = NodeType.getNodeType(domNode.getNodeType());
         var nl:NodeList = domNode.getChildNodes();
         for(i in [0..<nl.getLength()]) {
