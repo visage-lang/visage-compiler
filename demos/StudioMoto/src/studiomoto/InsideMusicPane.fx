@@ -4,9 +4,7 @@ import javafx.ui.canvas.*;
 
 public class InsideMusicPane extends MotoPanel {
     
-    init {
-        //TODO Override
-    title = Group {
+    override attribute title = Group {
         content:
         [View {
             content: Label {
@@ -19,7 +17,7 @@ public class InsideMusicPane extends MotoPanel {
             transform: bind Transform.translate(width-30, 8)
         }]
     };
-    content = Group {
+    override attribute content = Group {
         content:
         [Group {
         // items
@@ -36,7 +34,6 @@ public class InsideMusicPane extends MotoPanel {
         }]
     };
     
-    }
 }
 
 

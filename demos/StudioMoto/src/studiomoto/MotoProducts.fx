@@ -195,15 +195,13 @@ public class MotoProducts extends MotoPanel {
     };
     
     // From MotoPanel
-    init {
-        //TODO override
-     title = View {
+     override attribute title = View {
         content: Label {
             text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>Moto</span><span style='color:yellow;'>Products</span></div></html>"
         }
     };
         
-     content = Group {
+     override attribute content = Group {
         
         ///var shadowImage = Image {url: "{__DIR__}Image/
         content: HBox {
@@ -245,10 +243,10 @@ public class MotoProducts extends MotoPanel {
                                     fill: Color.color(0, 0, 0, .8)
                                 },
                                 VBox {
-                                    
+                                    var row:Group;
                                     transform: Transform.translate(5, 5)
                                     content: bind for (p in products) {
-                                        var row:Group;
+                                        
                                         row = Group {
                                             transform: Transform.translate(0, margin)
                                             content:
@@ -333,7 +331,6 @@ public class MotoProducts extends MotoPanel {
         }
     };
     
-    }
 
 
 }

@@ -110,7 +110,7 @@ frame = Frame {
                     content: //if true then null else
                     [Group {
                         //transform: Transform.translate(700, 0) // original 
-                        transform: Transform.translate(410, 0) // temp fix to move buttons left to orig pos.
+                        transform: Transform.translate(410, 0) 
                         halign: HorizontalAlignment.CENTER
                         content: HBox {
                             clip: Clip{shape: Rect {y: -50, height: 100, width: w}}
