@@ -206,12 +206,11 @@ public class UIContextImpl implements UIContext {
                                     try {
                                         URL imageUrl = loader.getResource(src.getPath());
                                         try {
-                                            /** Do not use Toolkit with scenegraph
+
                                             String srcName = src.toString().toLowerCase();
                                             if (!srcName.endsWith(".bmp")) {
                                                 result = Toolkit.getDefaultToolkit().createImage(imageUrl);
                                             }
-                                             ****/
                                             if (result == null) {
                                                 result = ImageIO.read(imageUrl);
                                             }
@@ -248,8 +247,6 @@ public class UIContextImpl implements UIContext {
                                     } else {
                                         try {
                                             
-                                            /* with Scenegraph use ImageIO only 
-                                             * *************
                                             String srcName = u.toString().toLowerCase();
                                             if (!srcName.endsWith(".bmp")) {
                                                 if ("http".equals(u.getProtocol()) || "https".equals(u.getProtocol())) {
@@ -258,7 +255,6 @@ public class UIContextImpl implements UIContext {
                                                     result = Toolkit.getDefaultToolkit().createImage(u);
                                                 }
                                             }
-                                            ***********************/
                                             if (result == null) {
                                                 result = ImageIO.read(u);
                                             }
