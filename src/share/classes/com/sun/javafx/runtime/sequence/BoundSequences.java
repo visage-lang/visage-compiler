@@ -86,4 +86,8 @@ public class BoundSequences {
     public static SequenceLocation<Integer> range(IntLocation a, IntLocation b) {
         return new BoundIntRangeSequence(a, b);
     }
+
+    public static<T> SequenceLocation<T> slice(Class<T> clazz, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {
+        return new BoundSequenceSlice<T>(clazz, sequence, a, b);
+    }
 }
