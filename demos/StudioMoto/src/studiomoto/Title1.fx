@@ -12,8 +12,14 @@ public class Title1 extends CompositeNode {
     attribute label2: String;
     attribute label3: String;
     attribute logoGroup: Node;
-    attribute height: Number = bind currentHeight;
-    attribute width: Number = bind currentWidth;
+    attribute height: Number = bind currentHeight on replace {
+        if(rect <> null)
+            rect.height = height;
+    };
+    attribute width: Number = bind currentWidth on replace {
+        if(rect <> null)
+            rect.width = width;      
+    }
     attribute power: Node;
     attribute motorolaY: Number;
     attribute poweredByY: Number;
@@ -34,15 +40,15 @@ public class Title1 extends CompositeNode {
             keyValues:  [
                 NumberValue {
                     target: _poweredByY
-                    value: bind if(lhover) 0 else power.currentHeight
+                    value: bind if(mouseOver) 0 else power.currentHeight
                 },
                NumberValue {
                     target: _motorolaY
-                    value: bind if(lhover) 0 else -(power.currentHeight/2)
+                    value: bind if(mouseOver) 0 else -(power.currentHeight/2)
                 },
                NumberValue {
                     target: _powerY
-                    value: bind if(lhover) 0 else power.currentHeight
+                    value: bind if(mouseOver) 0 else power.currentHeight
                 }
             ]
         },
@@ -51,17 +57,17 @@ public class Title1 extends CompositeNode {
             keyValues:  [
                 NumberValue {
                     target: _poweredByY
-                    value: bind if(lhover)  power.currentHeight else 0
+                    value: bind if(mouseOver)  power.currentHeight else 0
                     interpolate: NumberValue.EASEBOTH
                 },
                NumberValue {
                     target: _motorolaY
-                    value: bind if(lhover)  -(power.currentHeight/2) else 0
+                    value: bind if(mouseOver)  -(power.currentHeight/2) else 0
                     interpolate: NumberValue.EASEBOTH
                 },
                NumberValue {
                     target: _powerY
-                    value: bind if(lhover)  power.currentHeight else 0
+                    value: bind if(mouseOver)  power.currentHeight else 0
                     interpolate: NumberValue.EASEBOTH
                 }
             ]
@@ -69,9 +75,10 @@ public class Title1 extends CompositeNode {
     };
 
     private attribute rect:Rect;
-    private attribute lhover:Boolean = bind rect.hover on replace {
+    private attribute mouseOver:Boolean on replace {
         a.start();
     };
+    attribute title = this;
     function composeNode():Node {
         power = View {
             content: Label {
@@ -81,8 +88,8 @@ public class Title1 extends CompositeNode {
             }
             transform: bind Transform.translate(1, -power.currentHeight + powerY)
         };  
-        var self = this;
-        Group {
+        var group:Group;
+        group = Group {
             cursor: Cursor.HAND
             var mainGroup = this
             content:
@@ -140,14 +147,20 @@ public class Title1 extends CompositeNode {
             rect = Rect {
                 isSelectionRoot: true
                 cursor: Cursor.HAND
-                height: bind self.height
-                width:  bind self.width
-                //stroke: Color.BLACK
+                height: bind title.height
+                width:  bind title.width
+                //stroke: Color.WHITE
                 fill: Color.color(0, 0, 0,  0)
                 selectable: true
-
+                onMouseEntered: function(e:CanvasMouseEvent) {
+                    mouseOver = true;
+                }
+                onMouseExited: function(e:CanvasMouseEvent) {
+                    mouseOver = false;
+                }             
             }]
         };
+        group;
 
     }       
     
