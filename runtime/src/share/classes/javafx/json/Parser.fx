@@ -51,19 +51,42 @@ public class Parser {
      * 
      * @param instream the input stream
      * @return the JSONObject
+     * @see java.io.InputStream
      */
     public function parse(instream:InputStream):JSONObject {
+        return parseReader(new InputStreamReader(instream));
+    }
+    
+    /**
+     * Parse a string into a JSONObject
+     * 
+     * @param str the string
+     * @return the JSONObject
+     */
+    public function parseString(str:String):JSONObject {
+        return parseReader(new StringReader(str));
+    }
+    
+
+    /**
+     * Parse an reader into a JSONObject
+     * 
+     * @param reader the reader
+     * @return the JSONObject
+     * @see java.io.Reader
+     */
+    public function parseReader(reader:Reader):JSONObject {
         
-        var c = instream.read();
+        var c = reader.read();
         while(c <> 0x7B and c >= 0) { // '{'
-            c = instream.read();
+            c = reader.read();
         }
         //System.out.println("parse() callsing parseJSONObject");
         var result:JSONObject;
         
         if(handler <> null)
             handler(ElementType.START, result);
-        result = parseJSONObject(instream);
+        result = parseJSONObject(reader);
         if(handler <> null)
             handler(ElementType.END, result);
         return result;
@@ -72,27 +95,27 @@ public class Parser {
     /**
      * process a JSONObject
      * 
-     * @param instream the input stream
+     * @param reader the input stream
      * @return the JSONObject
      */
-    private function parseJSONObject(instream:InputStream):JSONObject {
+    private function parseJSONObject(reader:Reader):JSONObject {
         //System.out.println("parseJSONObject");
         var myObject = ++endObject;
         var result = JSONObject{};
-        var c = instream.read();
+        var c = reader.read();
         var string:String;
         var value:Object;
         while(endObject >= myObject and c >= 0) { // '}'
             if(c == 0x22) { // '"'
-                string = parseString(instream);
+                string = parseString(reader);
             }else if(c == 0x3A) { // ':'
-                value = parseValue(instream);
+                value = parseValue(reader);
                 var pair = Pair{name:string, value:value};
                 insert pair into result.pairs;
                 if(handler <> null)
                     handler(ElementType.PAIR, pair);
             }
-            c = instream.read();
+            c = reader.read();
         }
         if(handler <> null)
             handler(ElementType.OBJECT, result);
@@ -102,20 +125,20 @@ public class Parser {
     /**
      * process a JSON String
      * 
-     * @param instream the input stream
+     * @param reader the input stream
      * @return the String
      */
-    private function parseString(instream:InputStream):String {
+    private function parseString(reader:Reader):String {
         //System.out.println("parseString");
         var sb = new StringBuffer();
-        var c = instream.read();
+        var c = reader.read();
         while(c <> 0x22 and c >= 0) { // '"'
             if(c == 0x5C){ // '\\'
-                c = escapeChar(instream);
+                c = escapeChar(reader);
             }
             //System.out.println("parseString: c = {%#x c}");
             sb.appendCodePoint(c);
-            c = instream.read();
+            c = reader.read();
         }
         //System.out.println("parseString = {sb}");
         var result = sb.toString();
@@ -127,39 +150,39 @@ public class Parser {
     /**
      * process a JSON value
      * 
-     * @param instream the input stream
+     * @param reader the input stream
      * @return the Object
      */    
-    private function parseValue(instream:InputStream):Object {
+    private function parseValue(reader:Reader):Object {
         //System.out.println("parseValue");
-        var c = instream.read();
+        var c = reader.read();
         var result:Object = null;
         while(not isTerminator(c) and c >= 0) { 
             //System.out.println("c = {%#x c}");
             if(not Character.isWhitespace(c)) {
                 if(c == 0x7B) { // '{'
-                    result =parseJSONObject(instream);
+                    result =parseJSONObject(reader);
                     break;
                 }else if (c == 0x5B) { // '['
-                    result = parseJSONArray(instream);
+                    result = parseJSONArray(reader);
                     break;
                 } else if (c == 0x22) { // '"'
-                    var str = parseString(instream);
-                    c = instream.read();
+                    var str = parseString(reader);
+                    c = reader.read();
                     while(not isTerminator(c)) {
-                        c = instream.read();
+                        c = reader.read();
                     }
                     result = str;
                     break;
                 } else if (Character.isDigit(c) or c == 0x2d or c == 0x2b) { // - = 0x2d, + = 0x2b
-                    result = parseNumber(instream, c);
+                    result = parseNumber(reader, c);
                     break;
                 } else {
-                    result = parseLiteral(instream, c);
+                    result = parseLiteral(reader, c);
                     break;
                 }
             }
-            c = instream.read();
+            c = reader.read();
         }
         checkEnd(c);
         //System.out.println("parseValue = {result}");
@@ -171,17 +194,17 @@ public class Parser {
     /**
      * process a Number
      * 
-     * @param instream the input stream
+     * @param reader the input stream
      * @return the Number
      */     
-    private function parseNumber(instream:InputStream, firstDigit:Integer): Number {
+    private function parseNumber(reader:Reader, firstDigit:Integer): Number {
         //System.out.println("parseNumber");
         var sb = new StringBuffer();
         sb.appendCodePoint(firstDigit);
-        var c = instream.read();
+        var c = reader.read();
         while(not Character.isWhitespace(c) and not isTerminator(c) and c > 0) {
             sb.appendCodePoint(c);
-            c = instream.read();
+            c = reader.read();
         }     
         checkEnd(c);
         //System.out.println("parseNumber = {sb}");
@@ -196,15 +219,15 @@ public class Parser {
     /**
      * process a JSON Array
      * 
-     * @param instream the input stream
+     * @param reader the input stream
      * @return the Array
      */     
-    private function parseJSONArray(instream:InputStream):Object {
+    private function parseJSONArray(reader:Reader):Object {
         //System.out.println("parseJSONArray");
         var myArray = ++endArray;
         var list = new ArrayList();
         while(myArray <= endArray) {
-            var item = parseValue(instream);
+            var item = parseValue(reader);
             //System.out.println("Add Array item = {item}");
             list.add(item);
         }
@@ -218,19 +241,19 @@ public class Parser {
     /**
      * process a Literal for "true","false", "null"
      * 
-     * @param instream the input stream 
+     * @param reader the input stream 
      * @return the Object representing the Litera
      */     
-    private function parseLiteral(instream:InputStream, c:Integer):Object {
+    private function parseLiteral(reader:Reader, c:Integer):Object {
         //System.out.println("parseLiteral");
         var sb = new StringBuffer();
         while(Character.isWhitespace(c)) {
-            c = instream.read();
+            c = reader.read();
         }
         //sb.appendCodePoint(c);
         while(not Character.isWhitespace(c) and not isTerminator(c) and c > 0) {
             sb.appendCodePoint(c);
-            c = instream.read();
+            c = reader.read();
         }
         checkEnd(c);
         var str = sb.toString();
@@ -260,11 +283,11 @@ public class Parser {
 
     /**
      * process an escape character
-     * @param instream the input stream 
+     * @param reader the input stream 
      * @return the integer value representing the escape character
      */
-    private function escapeChar(instream:InputStream):Integer {
-        var c = instream.read();
+    private function escapeChar(reader:Reader):Integer {
+        var c = reader.read();
         if(c == 0x73) { // 't'
             return 0x09; 
         }else if (c == 0x22) { // '\"'
@@ -282,10 +305,10 @@ public class Parser {
         }else if (c == 0x72) { // '\r'
             return 0x0D;            
         }else if (c == 0x75) { // '\u'
-            var hex1 = instream.read();
-            var hex2 = instream.read();
-            var hex3 = instream.read();
-            var hex4 = instream.read();
+            var hex1 = reader.read();
+            var hex2 = reader.read();
+            var hex3 = reader.read();
+            var hex4 = reader.read();
             return getUnicode(hex1, hex2, hex3, hex4);
         }else {
             return c;
@@ -295,7 +318,7 @@ public class Parser {
     
     /**
      * process an unicode character
-     * @param instream the input stream 
+     * @param reader the input stream 
      * @return the integer value representing the unicode character
      */    
     private function getUnicode(hex1:Integer, hex2:Integer, hex3:Integer, hex4:Integer):Integer {
