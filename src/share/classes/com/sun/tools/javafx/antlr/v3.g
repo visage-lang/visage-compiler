@@ -133,6 +133,8 @@ tokens {
    PERCENTEQ='%=';
    COLON=':';
    QUES='?';
+   TWEEN='tween';
+   SUCHTHAT='=>';
 
    // these are imaginary tokens
    MODULE;
@@ -170,6 +172,8 @@ tokens {
    TYPE_ARG;
    TYPED_ARG_LIST;
    DOC_COMMENT;
+   SUCHTHAT_BLOCK;
+   NAMED_TWEEN;
 }
 
 @lexer::header {
@@ -725,6 +729,7 @@ expression
        	| forExpression   	
        	| newExpression 	
 	| assignmentExpression	 
+        | interpolateExpression
       	;
 forExpression
 	: FOR LPAREN inClause (COMMA inClause)* RPAREN expression
@@ -742,6 +747,20 @@ elseClause
 	: (ELSE)=>  ELSE  expression				-> expression
 	| /*nada*/ 						->
 	;
+interpolateExpression
+        : id=qualname SUCHTHAT 
+            ( tweenValue                                        -> ^(SUCHTHAT $id tweenValue*)
+            | LBRACE namedTweenValue (COMMA namedTweenValue)* RBRACE
+                                                                -> ^(SUCHTHAT_BLOCK $id namedTweenValue*)
+            )
+        ;
+namedTweenValue
+        : id=name COLON expr=expression (TWEEN interpolate=name)?   
+                                                                -> ^(NAMED_TWEEN $id $expr $interpolate)
+        ;
+tweenValue
+        : expr=expression TWEEN interpolate=name                -> ^(TWEEN $expr $interpolate)
+        ;
 assignmentExpression  
 	: assignmentOpExpression 
 		( (EQ)=>   EQ  expression			-> ^(EQ assignmentOpExpression expression)

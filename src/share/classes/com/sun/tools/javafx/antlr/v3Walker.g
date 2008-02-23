@@ -322,6 +322,7 @@ expression  returns [JCExpression expr]
 	| pipeExpression				{ $expr = $pipeExpression.expr; }
 	| blockExpression				{ $expr = $blockExpression.expr; }
        	| stringExpression				{ $expr = $stringExpression.expr; }
+        | interpolateExpression                         { $expr = $interpolateExpression.expr; }
 	| explicitSequenceExpression			{ $expr = $explicitSequenceExpression.expr; }
 	| ^(DOTDOT from=expression to=expression step=expression? LT?)
 							{ $expr = F.at(pos($DOTDOT)).RangeSequence($from.expr, $to.expr, $step.expr, $LT!=null); }
@@ -388,6 +389,22 @@ stringFormat  returns [JCExpression expr]
 	: fs=FORMAT_STRING_LITERAL			{ $expr = F.at(pos($fs)).Literal(TypeTags.CLASS, $fs.text); }
 	| EMPTY_FORMAT_STRING				{ $expr = F.             Literal(TypeTags.CLASS, ""); }
 	;
+interpolateExpression  returns [JCExpression expr]
+@init { ListBuffer<JFXInterpolateValue> tweenProps = new ListBuffer<JFXInterpolateValue>(); }
+        : ^(SUCHTHAT identifier
+            ( tweenValue                                { tweenProps.append($tweenValue.prop); } )*
+           )                                            { $expr = F.at(pos($SUCHTHAT)).InterpolateExpression($identifier.expr, tweenProps.toList()); }
+        | ^(SUCHTHAT_BLOCK identifier
+            ( namedTweenValue                           { tweenProps.append($namedTweenValue.prop); } )*
+           )                                            { $expr = F.at(pos($SUCHTHAT_BLOCK)).InterpolateExpression($identifier.expr, tweenProps.toList()); }
+        ;
+tweenValue returns [JFXInterpolateValue prop]
+        : ^(TWEEN expression name)                      { $prop = F.at(pos($TWEEN)).InterpolateValue((JCExpression)null, $expression.expr, $name.value); }
+        ;
+namedTweenValue returns [JFXInterpolateValue prop]
+        : ^(TWEEN identifier expression name)
+                                                        { $prop = F.at(pos($TWEEN)).InterpolateValue($identifier.expr, $expression.expr, $name.value); }
+        ;
 explicitSequenceExpression   returns [JFXSequenceExplicit expr]
 @init { ListBuffer<JCExpression> exps = new ListBuffer<JCExpression>(); }
 	: ^(SEQ_EXPLICIT   

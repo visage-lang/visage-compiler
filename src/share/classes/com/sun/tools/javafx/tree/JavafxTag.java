@@ -215,5 +215,14 @@ public abstract class JavafxTag extends JCTree {
     /** time literal
      */
     public static final int TIME_LITERAL = REVERSE + 1;
-    public static final int JFX_OP_LAST = TIME_LITERAL;        
+    
+    /** interpolation expression
+     */
+    public static final int INTERPOLATION_EXPR = TIME_LITERAL + 1;
+    
+    /** value clause in an interpolation
+     */
+    public static final int INTERPOLATION_VALUE = INTERPOLATION_EXPR + 1;
+
+    public static final int JFX_OP_LAST = INTERPOLATION_VALUE;        
 }
