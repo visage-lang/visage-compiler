@@ -29,6 +29,9 @@ package javafx.ui;
  * Romain Guy's glass pane progress panel
  */
 public class InfiniteProgressPanel extends Widget {
+
+    override attribute focusable = false;
+
     attribute root:javax.swing.JRootPane;
     public attribute backgroundOpacity: Number = 160 on replace {
         pane.setOpacity(backgroundOpacity.intValue());
@@ -53,11 +56,6 @@ public class InfiniteProgressPanel extends Widget {
         pane.setOpacity(backgroundOpacity.intValue());
         pane.setText(text);
         return root;
-    }
-    
-    init {
-        // override defaults in superclass
-	focusable = false; //TODO: should be protected by not isInitialized
     }
 }
 

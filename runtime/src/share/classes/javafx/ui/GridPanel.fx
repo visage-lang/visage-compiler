@@ -30,6 +30,9 @@ import javafx.ui.Widget;
 // GridLayout
 
 public class GridPanel extends Widget {
+
+    override attribute focusable = false;
+
     private attribute UNSET: Integer = java.lang.Integer.MIN_VALUE;
     private attribute jpanel: javax.swing.JPanel;
     private attribute layout: java.awt.GridLayout;
@@ -75,11 +78,6 @@ public class GridPanel extends Widget {
             jpanel.add(i.getComponent());
         }
         return jpanel;
-    }
-    
-    init {
-        // override defaults in superclass
-	focusable = false; //TODO: should be protected by not isInitialized
     }
 }
 

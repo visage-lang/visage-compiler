@@ -33,6 +33,9 @@ package javafx.ui;
  */
 
 public class GroupPanel extends Widget, GroupLayout {
+
+    override attribute focusable = false;
+
     private attribute panel:javax.swing.JPanel;
     private attribute layout:org.jdesktop.layout.GroupLayout;
 
@@ -63,11 +66,6 @@ public class GroupPanel extends Widget, GroupLayout {
         layout.setHorizontalGroup(hgroup);
         layout.setVerticalGroup(vgroup);
         return panel;
-    }
-    
-    init {
-        // override defaults in superclass
-	focusable = false; //TODO: should be protected by not isInitialized
     }
 }
 

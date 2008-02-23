@@ -26,6 +26,9 @@
 package javafx.ui; 
 
 public class FlowPanel extends Widget {
+
+    override attribute focusable = false;
+
     private attribute panel: com.sun.javafx.api.ui.ScrollablePanel;
     private attribute layout: java.awt.FlowLayout;
     protected function createLayout():com.sun.javafx.api.ui.ScrollablePanel {
@@ -83,11 +86,6 @@ public class FlowPanel extends Widget {
         panel.setOpaque(false);
         this.createLayout();
         return panel;
-    }
-    
-    init {
-        // override defaults in superclass
-	focusable = false; //TODO: should be protected by not isInitialized
     }
 }
 

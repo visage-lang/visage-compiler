@@ -34,6 +34,9 @@ import javax.swing.JComponent;
 import java.lang.System;
 
 public class BookPanel extends Widget {
+    override attribute background = Color.WHITE; 
+    override attribute focusable = false;
+
     private attribute bookPanel: JBookPanel;
     public attribute pages: Widget[];
     public attribute leftPageIndex: Integer on replace {
@@ -76,12 +79,5 @@ public class BookPanel extends Widget {
         bookPanel.setLeftPageIndex(leftPageIndex);
         return bookPanel;
     }   
-    
-    init {
-        // override defaults in superclass
-        if(background == null)
-            background = Color.WHITE; //TODO: should be protected by not isInitialized
-	focusable = false; //TODO: should be protected by not isInitialized
-    }
 }
 

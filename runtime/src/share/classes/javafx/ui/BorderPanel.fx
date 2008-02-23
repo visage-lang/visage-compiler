@@ -28,6 +28,9 @@ package javafx.ui;
 import javax.swing.JPanel;
 
 public class BorderPanel extends Widget {
+
+    override attribute focusable = false;
+
     private attribute jpanel: JPanel;
     
     public attribute top:Widget on replace (oldValue)  {
@@ -178,11 +181,6 @@ public class BorderPanel extends Widget {
         }        
         jpanel;
     }    
-    
-    init {
-        // override defaults in superclass
-	focusable = false; //TODO: should be protected by not isInitialized
-    }
 }
 
 

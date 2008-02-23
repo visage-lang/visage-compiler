@@ -30,6 +30,9 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 public abstract class CompositeWidget extends Widget {
+
+    override attribute focusable = false;
+
     private attribute __panel__: JPanel;
     private attribute __composite__: Widget;
     protected abstract function composeWidget(): Widget;  
@@ -42,11 +45,6 @@ public abstract class CompositeWidget extends Widget {
         var c = __composite__.createComponent();
         __panel__.add(c, BorderLayout.CENTER);
         return __panel__;
-    }
-    
-    init {
-        // override defaults in superclass
-	focusable = false; //TODO: should be protected by not isInitialized
     }
 }
 

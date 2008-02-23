@@ -28,6 +28,9 @@ package javafx.ui;
 import javax.swing.event.InternalFrameEvent;
 
 public class InternalFrame extends Widget {
+
+    override attribute focusable = false;
+
     // private
     private attribute jinternalframe: javax.swing.JInternalFrame = new javax.swing.JInternalFrame();;
     // public
@@ -99,11 +102,6 @@ public class InternalFrame extends Widget {
 
     public function setBounds(b:java.awt.Rectangle):Void {
         jinternalframe.getDesktopPane().getDesktopManager().setBoundsForFrame(jinternalframe, b.x, b.y, b.width, b.height);
-    }
-    
-    init {
-        // override defaults in superclass
-	focusable = false; //TODO: should be protected by not isInitialized
     }
 }
 

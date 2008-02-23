@@ -34,9 +34,5 @@ public class Attribute extends Node {
     /**
      * sets the node type to ATTRIBUTE
      */
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	type = NodeType.ATTRIBUTE;
-    }
+    override attribute type = NodeType.ATTRIBUTE;
 }

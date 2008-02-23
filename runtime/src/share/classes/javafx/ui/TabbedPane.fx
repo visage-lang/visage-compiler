@@ -28,6 +28,10 @@ package javafx.ui;
 import javax.swing.JTabbedPane;
 
 public class TabbedPane extends Widget {
+
+    override attribute opaque = true;
+    override attribute focusable = false;
+
     protected attribute tabbedpane: javax.swing.JTabbedPane = UIElement.context.createTabbedPane();
     private attribute changeListener: javax.swing.event.ChangeListener;
     public attribute selectedIndex: Number = -1 on replace {
@@ -108,13 +112,6 @@ public class TabbedPane extends Widget {
             tabbedpane.setSelectedIndex(selectedIndex.intValue());
         }
         return tabbedpane;
-    }
-
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	opaque = true;
-	focusable = false;
     }
 }
 

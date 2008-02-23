@@ -30,6 +30,10 @@ import javafx.ui.Insets;
 import javafx.ui.Orientation;
 
 public class ToolBar extends Widget {
+    
+    override attribute opaque = true;
+    override attribute focusable = false;
+
     private attribute panel: javax.swing.JPanel = new javax.swing.JPanel() on replace {
         panel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 0, 0));
         panel.setBorder(null);
@@ -77,13 +81,6 @@ public class ToolBar extends Widget {
 
     public function createComponent():javax.swing.JComponent{
         return panel;
-    }
-    
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	opaque = true;
-	focusable = false;
     }
 }
 

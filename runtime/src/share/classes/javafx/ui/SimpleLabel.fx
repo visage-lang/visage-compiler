@@ -30,6 +30,9 @@ import javafx.ui.HorizontalAlignment;
 import javafx.ui.KeyStroke;
 
 public class SimpleLabel extends Widget {
+
+    override attribute focusable = false;
+
     private attribute jlabel:javax.swing.JLabel;
     public attribute text:String on replace {
         if(jlabel <> null) {
@@ -73,12 +76,6 @@ public class SimpleLabel extends Widget {
             jlabel.setDisplayedMnemonic(mnemonic.id.intValue());
         }
         return jlabel;
-    }
-
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	focusable = false;
     }
 }
 

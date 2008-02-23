@@ -29,6 +29,9 @@ import javafx.ui.Widget;
 import javafx.ui.MenuBar;
 
 public class RootPane extends Widget {
+
+    override attribute focusable = false;
+
     private attribute jrootpane:javax.swing.JRootPane;
     public attribute menubar: MenuBar on replace {
         jrootpane.setJMenuBar(menubar.getComponent() as javax.swing.JMenuBar);
@@ -48,12 +51,6 @@ public class RootPane extends Widget {
             jrootpane.setContentPane(content.getComponent());
         }
         return jrootpane;
-    }
-
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	focusable = false;
     }
 }
 

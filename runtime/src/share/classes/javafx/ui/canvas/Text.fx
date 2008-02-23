@@ -46,6 +46,7 @@ import java.lang.System;
  * in that case you can use HTML markup).
  */
 public class Text extends Shape {
+    override attribute fill = Color.BLACK;
 
     private attribute textShape:SGShape;
 
@@ -100,12 +101,5 @@ public class Text extends Shape {
         textShape = new SGShape();
         updateText();
         return textShape;
-    }
-
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-        if(fill == null)
-            fill = Color.BLACK;
     }
 }

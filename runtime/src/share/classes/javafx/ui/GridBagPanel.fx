@@ -27,6 +27,9 @@ package javafx.ui;
 
 
 public class GridBagPanel extends Widget {
+
+    override attribute focusable = false;
+
     private attribute jpanel: javax.swing.JPanel;
 
     public attribute cells: GridCell[] on replace oldValue[lo..hi]=newVals {
@@ -49,11 +52,6 @@ public class GridBagPanel extends Widget {
             jpanel.add(content.getComponent(), constraint);
         }
         return jpanel;
-    }
-    
-    init {
-        // override defaults in superclass
-	focusable = false; //TODO: should be protected by not isInitialized
     }
 }
 

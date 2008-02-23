@@ -30,6 +30,9 @@ import java.lang.Math;
 import java.awt.Dimension;
 
 public class ClipPanel extends Widget {
+
+    override attribute focusable = false;
+
     // private
     private attribute p: javax.swing.JPanel;
 
@@ -96,11 +99,6 @@ public class ClipPanel extends Widget {
         p.add(content.getComponent());
         p.setOpaque(false);
         return p;
-    }
-    
-    init {
-        // override defaults in superclass
-	focusable = false; //TODO: should be protected by not isInitialized
     }
 }
 

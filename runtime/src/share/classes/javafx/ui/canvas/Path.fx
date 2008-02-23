@@ -35,6 +35,8 @@ import com.sun.scenario.scenegraph.SGShape;
  * (B&eacute;zier) curves.
  */
 public class Path extends Shape {
+    override attribute fillRule = FillRule.NON_ZERO;
+
     private attribute UNSET: Integer = java.lang.Integer.MIN_VALUE;
     attribute locked: Boolean on replace  {
         if (not locked) {
@@ -77,12 +79,6 @@ public class Path extends Shape {
         }
         this.buildPath();
         return sgshape;
-    }
-
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	fillRule = FillRule.NON_ZERO;
     }
 }
 

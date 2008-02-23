@@ -42,6 +42,9 @@ import com.sun.javafx.api.ui.ScrollablePanel;
 
 
 class TabSlider extends Widget {
+
+    override attribute focusable = false;
+
     // private
     attribute inUpdateSelection: Boolean;
     public function updateSelection(oldIndex:Integer, newIndex:Integer):Void {
@@ -470,12 +473,6 @@ class TabSlider extends Widget {
                 selectedIndex = -1;
             }
         }
-    }
-
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	focusable = false;
     }
 }
 

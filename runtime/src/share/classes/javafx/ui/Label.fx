@@ -28,6 +28,9 @@ package javafx.ui;
 import javax.swing.event.*;
 
 public class Label extends Widget {
+
+    override attribute focusable = false;
+
     private attribute updateCount: Number;
     private attribute jlabel: com.sun.javafx.api.ui.XLabel;
     public attribute text: String on replace {
@@ -83,11 +86,6 @@ public class Label extends Widget {
                                  honorDisplayProperties);
         jlabel.setPreloadImages(preloadImages);
         return jlabel;
-    }
-    
-    init {
-        // override defaults in superclass
-	focusable = false; //TODO: should be protected by not isInitialized
     }
 }
 

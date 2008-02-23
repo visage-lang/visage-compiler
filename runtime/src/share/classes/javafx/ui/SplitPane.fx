@@ -33,6 +33,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class SplitPane extends Widget {
+
+    override attribute focusable = false;
+
     protected attribute split:com.sun.javafx.api.ui.MultiSplitPane
                                = new com.sun.javafx.api.ui.MultiSplitPane();
     protected attribute root: com.sun.javafx.api.ui.MultiSplitLayout.Split
@@ -83,12 +86,6 @@ public class SplitPane extends Widget {
         return split;
 
     }    
-
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	focusable = false;
-    }
 }
 
 

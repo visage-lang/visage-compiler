@@ -27,9 +27,5 @@ package javafx.ui;
 
 
 public class Row extends ParallelGroup {
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	alignment = Alignment.BASELINE;
-    }
+    override attribute alignment = Alignment.BASELINE;
 }

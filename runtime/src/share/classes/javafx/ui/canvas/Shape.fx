@@ -47,6 +47,8 @@ import com.sun.javafx.api.ui.path.ext.awt.geom.PathLength.PathSegment;
  * that represent some form of geometric shape.
  */
 public abstract class Shape extends VisualNode, AbstractPathElement {
+    override attribute selectable = false;
+
     protected attribute sgshape: SGShape;
     protected abstract function createShape(): SGShape; // TODO: could return Shape here instead?
     public function getShape(): SGShape {
@@ -156,12 +158,6 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
 
     public function createVisualNode(): SGAbstractShape {
         return this.getShape();
-    }
-
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	selectable = false;
     }
 }
 

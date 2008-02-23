@@ -27,6 +27,9 @@ package javafx.ui;
 
 import javax.swing.JSlider;
 public class Slider extends Widget {
+
+    override attribute focusable = false;
+
     private attribute jslider:JSlider;
 
     public attribute min: Number = 0 on replace {
@@ -139,11 +142,5 @@ public class Slider extends Widget {
                                       }
                                   });
         return jslider;
-    }
-
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	focusable = false;
     }
 }

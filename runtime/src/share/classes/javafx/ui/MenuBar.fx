@@ -29,6 +29,10 @@ import javafx.ui.Widget;
 import javafx.ui.Menu;
 
 public class MenuBar extends Widget {
+
+    override attribute opaque = true;
+    override attribute focusable = false;
+
     attribute jmenubar:javax.swing.JMenuBar= javax.swing.JMenuBar{};
     public attribute menus: Menu[] on replace oldValue[lo..hi]=newVals {
         for(k in [lo..hi]) { 
@@ -48,13 +52,6 @@ public class MenuBar extends Widget {
             jmenubar.add(m.getComponent());
         }
         return jmenubar;
-    }
-
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	opaque = true;
-	focusable = false;
     }
 }
 

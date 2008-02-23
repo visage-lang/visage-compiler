@@ -29,6 +29,9 @@ import javafx.ui.InternalFrameDragMode;
 import javafx.ui.InternalFrame;
 
 public class DesktopPane extends Widget {
+
+    override attribute focusable = false;
+
     private attribute jdesk: javax.swing.JDesktopPane = new javax.swing.JDesktopPane();
 
     public attribute dragMode: InternalFrameDragMode = InternalFrameDragMode.LIVE on replace {
@@ -139,11 +142,6 @@ public class DesktopPane extends Widget {
             i.getComponent().setVisible(true);
         }
         return jdesk;
-    }
-    
-    init {
-        // override defaults in superclass
-	focusable = false; //TODO: should be protected by not isInitialized
     }
 }
 

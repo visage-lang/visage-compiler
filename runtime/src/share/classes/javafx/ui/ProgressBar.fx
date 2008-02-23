@@ -29,6 +29,9 @@ import javafx.ui.Widget;
 import javafx.ui.Orientation;
 
 public class ProgressBar extends Widget {
+
+    override attribute focusable = false;
+
     private attribute jprogressbar: javax.swing.JProgressBar;
     public attribute min: Number = 0 on replace {
         if(jprogressbar <> null) {
@@ -85,12 +88,6 @@ public class ProgressBar extends Widget {
                                     then jprogressbar.VERTICAL
                                     else jprogressbar.HORIZONTAL);
         return jprogressbar;
-    }
-
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	focusable = false;
     }
 }
 

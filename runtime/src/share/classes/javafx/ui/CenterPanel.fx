@@ -27,6 +27,9 @@ package javafx.ui;
 
 
 public class CenterPanel extends Widget {
+
+    override attribute focusable = false;
+
     private function replaceComponent(w:Widget):Void {
         var constraint = new java.awt.GridBagConstraints();
         constraint.anchor = Anchor.CENTER.id.intValue();
@@ -58,11 +61,6 @@ public class CenterPanel extends Widget {
             this.replaceComponent(content);
         }
         return jpanel;
-    }
-    
-    init {
-        // override defaults in superclass
-	focusable = false; //TODO: should be protected by not isInitialized
     }
 }
 

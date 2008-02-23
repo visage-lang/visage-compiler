@@ -31,6 +31,8 @@ import javafx.ui.MenuItem;
 import javafx.ui.MenuSeparator;
 
 public class Menu extends AbstractMenuItem {
+    override attribute opaque = true; 
+
     private attribute origrollover: Boolean;
     private attribute origbackground: java.awt.Color;
     private attribute jmenu:javax.swing.JMenu;
@@ -81,12 +83,7 @@ public class Menu extends AbstractMenuItem {
                 jmenu.add(i.getComponent());
             }
             return jmenu;
-    }
-
-    init {
-        // override default in superclass
-	opaque = true; //TODO: should be protected by not isInitialized
-    }
+    }    
 }
 
 

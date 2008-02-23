@@ -27,6 +27,9 @@ package javafx.ui;
 
 
 public class CardPanel extends Widget {
+
+    override attribute focusable = false;
+
     protected attribute selectionGeneration: Number;
     private attribute jpanel:javax.swing.JPanel;
     private attribute layout:java.awt.CardLayout;
@@ -89,11 +92,6 @@ public class CardPanel extends Widget {
             }
         }
         return jpanel;
-    }
-    
-    init {
-        // override defaults in superclass
-	focusable = false; //TODO: should be protected by not isInitialized
     }
 }
 

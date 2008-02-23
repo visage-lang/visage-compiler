@@ -27,6 +27,9 @@ package javafx.ui;
 
 
 public class Spinner extends Widget {
+
+    override attribute focusable = false;
+
     protected attribute spinner:javax.swing.JSpinner = UIElement.context.createSpinner() on replace {
         spinner.addChangeListener(javax.swing.event.ChangeListener {
             public function stateChanged(e:javax.swing.event.ChangeEvent):Void {
@@ -77,13 +80,5 @@ public class Spinner extends Widget {
 
     public function createComponent():javax.swing.JComponent {
        return spinner;
-    }
-
-    init {
-
-
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	focusable = false;
     }
 }

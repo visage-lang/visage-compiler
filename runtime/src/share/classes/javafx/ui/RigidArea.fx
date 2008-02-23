@@ -29,6 +29,9 @@ import javafx.ui.Widget;
 import java.awt.Dimension;
 
 public class RigidArea extends Widget {
+
+    override attribute focusable = false;
+
     public function setBounds(b:java.awt.Rectangle):Void {
         //empty
     }
@@ -36,12 +39,6 @@ public class RigidArea extends Widget {
         return javax.swing.Box.createRigidArea(
             new Dimension(width.intValue(), height.intValue())) 
             as javax.swing.JComponent;
-    }
-
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	focusable = false;
     }
 }
 

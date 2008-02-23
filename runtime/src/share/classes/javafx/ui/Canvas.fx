@@ -49,6 +49,9 @@ import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGTransform.Affine;
 
 public class Canvas extends Widget, CanvasElement, Container {
+    
+    override attribute border = EmptyBorder {top: 5, left: 5, right: 5, bottom: 5};
+
     // private:
     public attribute scaleToFitList: Node[];
     public attribute sizeToFitList: SizeableCanvasElement[];
@@ -428,12 +431,5 @@ public class Canvas extends Widget, CanvasElement, Container {
         });
         jsgpanel.repaint();
         return jsgpanel;
-    }
-    
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-        if(border == null)
-            border = EmptyBorder {top: 5, left: 5, right: 5, bottom: 5};
     }
 }

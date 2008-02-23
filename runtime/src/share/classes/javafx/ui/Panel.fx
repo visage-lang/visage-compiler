@@ -33,6 +33,9 @@ import javafx.ui.Widget;
  */
 
 public class Panel extends Widget {
+
+    override attribute focusable = false;
+
     private attribute jpanel:javax.swing.JPanel;
     /** A list of the components contained in this panel */
     public attribute content: Widget[] on replace oldValue[lo..hi]=newVals {
@@ -56,12 +59,6 @@ public class Panel extends Widget {
             jpanel.add(content[i].getComponent(), i);
         }
         return jpanel;
-    }
-
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	focusable = false;
     }
 }
 
