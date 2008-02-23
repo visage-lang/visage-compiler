@@ -44,8 +44,8 @@ import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
      /** Get the JavafxTreeMaker instance.
      */
-    public static TreeMaker instance(Context context) {
-        TreeMaker instance = context.get(treeMakerKey);
+    public static JavafxTreeMaker instance(Context context) {
+        JavafxTreeMaker instance = (JavafxTreeMaker) context.get(treeMakerKey);
         if (instance == null)
             instance = new JavafxTreeMaker(context);
         return instance;

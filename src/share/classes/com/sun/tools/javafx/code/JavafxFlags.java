@@ -39,7 +39,6 @@ public class JavafxFlags {
 
     public static final long ASSIGNED_TO = LAST_JAVA_FLAG << 1;
     public static final long INNER_ACCESS = LAST_JAVA_FLAG << 2;
-    public static final long DEFER_TYPE_ASSIGNMENT = LAST_JAVA_FLAG << 3;
     
     /** If this is a class that gets translated to a class and an inteface.
      * (This is used to implement multiple inheritance.)

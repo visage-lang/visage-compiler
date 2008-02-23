@@ -954,8 +954,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             }
             else if (tree.type != null)
                 initType = tree.type;
-            else if ((tree.mods.flags & JavafxFlags.DEFER_TYPE_ASSIGNMENT) != 0)
-                initType = syms.javafx_UnspecifiedType;
             else
                 initType = syms.objectType;  // nothing to go on, so we assume Object
             if (declType == syms.javafx_UnspecifiedType && v.type == null)
@@ -1233,8 +1231,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public void visitBlockExpression(JFXBlockExpression tree) {
         // Create a new local environment with a local scope.
         JavafxEnv<JavafxAttrContext> localEnv =
-                env.dup(tree, env.info.dup(env.info.scope.dup()));
+                env.dup(tree, env.info.dup(env.info.scope.dupUnshared()));
         localEnv.outer = env;
+
+        if (env.tree instanceof JFXFunctionDefinition &&
+                env.enclClass.runMethod == env.tree) {
+            env.enclClass.runBodyScope = localEnv.info.scope;
+        }
         memberEnter.memberEnter(tree.stats, localEnv);
         boolean canReturn = true;
         boolean unreachableReported = false;

@@ -497,22 +497,38 @@ public class JavafxResolve {
         Symbol sym;
         JavafxEnv<JavafxAttrContext> env1 = env;
         boolean staticOnly = false;
+        boolean innerAccess = false;
         
         Type envClass = null;
         while (env1 != null) {
             if (env1.outer != null && isStatic(env1)) staticOnly = true;
-            if (envClass != null && env1.tree instanceof JFXClassDeclaration) {
+            Scope sc = env1.info.scope;
+            if (env1.tree instanceof JFXClassDeclaration) {
+                JFXClassDeclaration cdecl = (JFXClassDeclaration) env1.tree;
+                if (cdecl.runMethod != null) {
+                    envClass = null;
+                    sc = cdecl.runBodyScope;
+                    innerAccess = true;
+                }
+                envClass = cdecl.sym.type;
+            }
+            else
+                envClass = null;
+            if (envClass != null) {
                 sym = findMethod(env1, envClass, name,
                         expected,
                         true, false, false);
                 if (sym.exists())
                         return sym;
-            } else {
-                Scope sc = env1.info.scope;
+            }
+            if (sc != null) {
+                
                 for (Scope.Entry e = sc.lookup(name); e.scope != null; e = e.next()) {
                     if ((e.sym.flags_field & SYNTHETIC) != 0)
                         continue;
                     if ((e.sym.kind & (MTH|VAR)) != 0) {
+                        if (innerAccess)
+                            e.sym.flags_field |= JavafxFlags.INNER_ACCESS;
                         return e.sym;
                     }
                 }

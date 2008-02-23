@@ -160,21 +160,6 @@ public class JavafxModuleBuilder {
                 
                 checkName(tree.pos, decl.getName());
                 stats.append(decl);
-                /******    turn off revision r1810, better solution said to be on the way
-                Name name = decl.name;
-                checkName(tree.pos, name);
-                decl.mods.flags |= STATIC;
-                JCExpression init = decl.init;
-                if (init != null) {
-                    JavafxBindStatus bindStatus = decl.getBindStatus();
-                    if (bindStatus != JavafxBindStatus.UNBOUND)
-                            init = make.BindExpression(init, bindStatus);
-                    stats.append(make.at(tree).Exec(make.Assign(make.Ident(name), init)));
-                    decl.mods.flags |= DEFER_TYPE_ASSIGNMENT;
-                    decl.init = null;
-                }
-                moduleClassDefs.append(tree);
-                 * ****/
                 break;
             }
             default:
@@ -188,7 +173,8 @@ public class JavafxModuleBuilder {
         }
                 
         // Add run() method... If the class can be a module class.
-        moduleClassDefs.prepend(makeMethod(defs.runMethodName, stats.toList(), value, syms.objectType));        
+        JFXFunctionDefinition runMethod = makeMethod(defs.runMethodName, stats.toList(), value, syms.objectType);
+        moduleClassDefs.prepend(runMethod);        
 
         if (moduleClass == null) {
             moduleClass =  make.ClassDeclaration(
@@ -200,6 +186,7 @@ public class JavafxModuleBuilder {
             moduleClass.appendToMembers(moduleClassDefs);
         }
         moduleClass.isModuleClass = true;
+        moduleClass.runMethod = runMethod;
 
         topLevelDefs.append(moduleClass);
         

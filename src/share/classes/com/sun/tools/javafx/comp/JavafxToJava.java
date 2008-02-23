@@ -68,7 +68,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     /*
      * modules imported by context
      */
-    private final TreeMaker make;  // should be generating Java AST, explicitly cast when not
+    private final JavafxTreeMaker make;  // should be generating Java AST, explicitly cast when not
     private final Log log;
     private final Name.Table names;
     private final JavafxTypes types;
@@ -399,9 +399,65 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     interface Translator {
         JCTree doit();
     }
-    
+
+    /**
+     * Fixup up block before translation.
+     * For now this is only done for the run methods's block, and all we do is
+     * convert to static variables that are accessed by other methods or classes.
+     * In the future, I also want to:
+     * (a) pre-allocate variables that need morphing ta the top of the block,
+     * so we can do forward references.
+     * (b) If a variable is final and initialized by an object literal,
+     * invoke the Java constructor first, so we can make cyclic data structures. 
+     * 
+     * @param body The block to mogrify.
+     * @param module If non-null, the module class whose body this is.
+     */
+    public void fixupBlockExpression (JFXBlockExpression body, JFXClassDeclaration module) {
+        boolean changed = false;
+        ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
+
+        for (JCStatement stat : body.stats) {
+            if (stat instanceof JFXVar) {
+                JFXVar decl = (JFXVar) stat;
+                if ((decl.sym.flags_field & JavafxFlags.INNER_ACCESS) != 0) {
+                   decl.sym.flags_field |= STATIC;
+                   changed = true;
+                   JCExpression init = decl.init;
+                   if (init != null) {
+                        Name name = decl.name;
+                        make.at(decl);
+                        JavafxBindStatus bindStatus = decl.getBindStatus();
+                        if (bindStatus != JavafxBindStatus.UNBOUND)
+                            init = make.BindExpression(init, bindStatus);
+                        JCIdent lhs = make.Ident(name);
+                        decl.sym.owner = module.type.tsym;
+                        lhs.sym = decl.sym;
+                        stats.append(make.Exec(make.Assign(lhs, init)));
+                        decl.init = null;
+                    }
+                   module.setMembers(module.getMembers().prepend(decl));
+                   continue;
+                }
+            }
+            stats.append(stat);
+        }
+        if (changed) {
+            body.stats = stats.toList();
+        }
+    }
+
     @Override
     public void visitTopLevel(JCCompilationUnit tree) {
+        for (JCTree def : tree.defs) {
+            if (def instanceof JFXClassDeclaration) {
+                JFXClassDeclaration cdecl = (JFXClassDeclaration) def;
+                JFXFunctionDefinition runMethod = cdecl.runMethod;
+                if (runMethod != null) {
+                    fixupBlockExpression(runMethod.getBodyExpression(), cdecl);
+                }
+            }
+        }
         // add to the hasOuters set the clas symbols for classes that need a reference to the outer class
         fillClassesWithOuters(tree);
         
@@ -506,16 +562,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         case JavafxTag.VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
                             boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
-                            if ((attrDef.mods.flags & JavafxFlags.DEFER_TYPE_ASSIGNMENT) == 0) {
-                                JCStatement init = translateDefinitionalAssignmentToSet(attrDef.pos(), 
-                                    attrDef.init, attrDef.getBindStatus(), attrDef.sym,
-                                    isStatic? null : make.Ident(defs.receiverName), FROM_DEFAULT_MILIEU);
-                                attrInfo.append(new TranslatedAttributeInfo(
-                                    attrDef,
-                                    typeMorpher.varMorphInfo(attrDef.sym),
-                                    init,
-                                    translate(attrDef.getOnChanges())));
-                            }
+                            JCStatement init = translateDefinitionalAssignmentToSet(attrDef.pos(), 
+                                attrDef.init, attrDef.getBindStatus(), attrDef.sym,
+                                isStatic? null : make.Ident(defs.receiverName), FROM_DEFAULT_MILIEU);
+                            attrInfo.append(new TranslatedAttributeInfo(
+                                attrDef,
+                                typeMorpher.varMorphInfo(attrDef.sym),
+                                init,
+                                translate(attrDef.getOnChanges())));
                             //translatedDefs.append(trans);
                             break;
                         }

@@ -40,6 +40,7 @@ import com.sun.tools.javac.util.Name;
 
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.tree.Pretty;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -57,9 +58,12 @@ public class JFXClassDeclaration extends JFXStatement implements ClassDeclaratio
     private List<JCTree> defs;
     private final List<JCExpression> supertypes;
 
-    public ClassSymbol sym;   
-
+    public ClassSymbol sym;
+    
+    public JFXFunctionDefinition runMethod;
+    public Scope runBodyScope;
     public boolean isModuleClass = false;
+
     public boolean hasBeenTranslated = false; // prevent multiple translations
     
     protected JFXClassDeclaration(JCModifiers mods,
@@ -93,6 +97,10 @@ public class JFXClassDeclaration extends JFXStatement implements ClassDeclaratio
 
     public List<JCTree> getMembers() {
         return defs;
+    }
+
+    public void setMembers(List<JCTree> members) {
+        defs = members;
     }
 
     public List<JCExpression> getImplementing() {
