@@ -41,6 +41,8 @@ public class ComboBox extends Widget {
     attribute jcombobox:JComboBox = JComboBox {
             public function toString():String {
                 //TODO not sure this is right, the original would have been the JCombox "this"
+                //TODO the above TODO, if I understand it, has been fixed by JFXC-767.
+		// If this changes what should be coded below...
                 return getClass().getName()+"@"+System.identityHashCode(this);
             }
         };
