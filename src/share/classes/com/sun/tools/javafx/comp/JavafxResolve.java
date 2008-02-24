@@ -498,11 +498,11 @@ public class JavafxResolve {
         JavafxEnv<JavafxAttrContext> env1 = env;
         boolean staticOnly = false;
         boolean innerAccess = false;
-        
-        Type envClass = null;
+
         while (env1 != null) {
             if (env1.outer != null && isStatic(env1)) staticOnly = true;
             Scope sc = env1.info.scope;
+            Type envClass;
             if (env1.tree instanceof JFXClassDeclaration) {
                 JFXClassDeclaration cdecl = (JFXClassDeclaration) env1.tree;
                 if (cdecl.runMethod != null) {
@@ -535,7 +535,6 @@ public class JavafxResolve {
             }
 
             if ((env1.enclClass.sym.flags() & STATIC) != 0) staticOnly = true;
-            envClass = env1.enclClass.sym.type;
             env1 = env1.outer;
         }
 
