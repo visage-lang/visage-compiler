@@ -38,6 +38,7 @@ tokens {
    ASSERT='assert';
    ATTRIBUTE='attribute';
    BIND='bind';
+   BOUND='bound';
    BREAK='break';
    CLASS='class';
    CONTINUE='continue';
@@ -560,7 +561,7 @@ classMember
 functionDefinition
 @after { Tree docComment = getDocComment($functionDefinition.start);
          $functionDefinition.tree.addChild(docComment); }
-	: functionModifierFlags FUNCTION name formalParameters typeReference blockExpression?
+	: functionModifierFlags BOUND? FUNCTION name formalParameters typeReference blockExpression?
 	    					-> ^(FUNCTION name functionModifierFlags 
 	    						formalParameters typeReference 
 	    						blockExpression?)

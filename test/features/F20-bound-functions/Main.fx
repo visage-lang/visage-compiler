@@ -9,10 +9,10 @@ import java.lang.*;
 
 public class Paia {
   attribute context : Integer;
-  function flo(ralph : Integer) : Integer { ralph + context }
+  bound function flo(ralph : Integer) : Integer { ralph + context }
   attribute sum = bind flo(1000);
   attribute jeff = 1;
-  function sophie(ray : Integer) : Integer { jeff * ray };
+  bound function sophie(ray : Integer) : Integer { jeff * ray };
 }
 
 var x = 4;

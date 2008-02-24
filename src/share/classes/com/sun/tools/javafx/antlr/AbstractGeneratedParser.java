@@ -70,6 +70,7 @@ public abstract class AbstractGeneratedParser extends Parser {
         tokenMap.put("ASSERT", "assert");
         tokenMap.put("ATTRIBUTE","attribute");
         tokenMap.put("BIND", "bind");
+        tokenMap.put("BOUND", "bound");
         tokenMap.put("BREAK", "break");
         tokenMap.put("CLASS", "class");
         tokenMap.put("CONTINUE", "continue");

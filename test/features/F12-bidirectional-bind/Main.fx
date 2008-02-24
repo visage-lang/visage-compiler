@@ -11,15 +11,15 @@ class AttHold {
     attribute b : Integer = bind a with inverse;
 }
 var label = "far";
-var bound = bind label with inverse;
+var boundLabel = bind label with inverse;
 
-System.out.println("{label} == {bound}");
+System.out.println("{label} == {boundLabel}");
 
 label = "near";
-System.out.println("{label} == {bound}");
+System.out.println("{label} == {boundLabel}");
 
-bound = "there";
-System.out.println("{label} == {bound}");
+boundLabel = "there";
+System.out.println("{label} == {boundLabel}");
 
 var ah = new AttHold;
 
