@@ -77,7 +77,7 @@ public class Applet extends FXApplet {
         } else if (object instanceof Widget) {
             var widget = object as Widget;
             content = widget;
-        } else {
+        } else if (not (object instanceof Frame)) { // allow applets to also run from command-line
             throw new IllegalArgumentException("bad content type: {object.getClass()}");
         }
     }
