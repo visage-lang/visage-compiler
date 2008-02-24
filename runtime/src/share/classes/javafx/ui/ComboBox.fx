@@ -44,9 +44,16 @@ public class ComboBox extends Widget {
                 return getClass().getName()+"@"+System.identityHashCode(this);
             }
         };
-
+    public attribute selection: Integer = -1 on replace {
+        if (selection >= 0 and selection < sizeof cells) {
+            jcombobox.setSelectedIndex(selection);
+            jcombobox.repaint();
+        }
+    };
+    
     public attribute cells: ComboBoxCell[]= [ComboBoxCell{text: " "}]
     on replace oldValue[lo..hi]=newVals {
+        
         if(lo <= hi) { 
             var e:javax.swing.event.ListDataEvent;
             e = new javax.swing.event.ListDataEvent(this, e.INTERVAL_REMOVED,
@@ -56,14 +63,13 @@ public class ComboBox extends Widget {
             }
         }
         var ndx = lo;
+        var sel = selection;        
         for(cell in newVals) {
             cell.combobox = this;
-            var sel = selection;
-
             if (ndx == sel) {
                 jcombobox.setSelectedIndex(ndx);
             }
-            ndx++
+            ndx++;            
         }
         var newHi = sizeof newVals - 1;
         if(newHi > 0) {
@@ -74,14 +80,10 @@ public class ComboBox extends Widget {
                 i.intervalAdded(e);
             }
         }
+        
     };
     
-    public attribute selection: Integer = -1 on replace {
-        if (selection >= 0 and selection < sizeof cells) {
-            jcombobox.setSelectedIndex(selection);
-            jcombobox.repaint();
-        }
-    };
+
     public attribute editable: Boolean on replace {
         jcombobox.setEditable(editable);
     };
@@ -93,7 +95,7 @@ public class ComboBox extends Widget {
     };
     public attribute action: function():Void;
     public attribute value: String; 
-    private attribute textField:TextField = TextField{value: bind value};
+    private attribute textField:TextField = TextField{value: bind value with inverse};
     private attribute jtextField:JTextField = textField.getComponent() as JTextField;
     public function createComponent():javax.swing.JComponent {
         //jcombobox.setLightWeightPopupEnabled(false);
