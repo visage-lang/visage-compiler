@@ -27,24 +27,31 @@ package com.sun.javafx.runtime.location;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
+
 /**
  * SequenceHistoryListener
  *
  * @author Brian Goetz
  */
-public class HistorySequenceListener<T> implements SequenceChangeListener<T> {
+public class HistorySequenceListener<T> implements SequenceReplaceListener<T> {
     private List<String> elements = new ArrayList<String>();
 
-    public void onInsert(int position, T element) {
-        elements.add(String.format("i-%d-%s", position, element.toString()));
-    }
-
-    public void onDelete(int position, T element) {
-        elements.add(String.format("d-%d-%s", position, element.toString()));
-    }
-
-    public void onReplace(int position, T oldValue, T newValue) {
-        elements.add(String.format("r-%d-%s-%s", position, oldValue.toString(), newValue.toString()));
+    public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+        if (endPos == startPos && Sequences.size(newElements) == 1) {
+            elements.add(String.format("r-%d-%s-%s", startPos, oldValue.get(startPos).toString(), newValue.get(startPos).toString()));
+        }
+        else {
+            for (int i=endPos; i >= startPos; i--) {
+                elements.add(String.format("d-%d-%s", i, oldValue.get(i).toString()));
+            }
+            int index = startPos;
+            for (T t : newElements) {
+                elements.add(String.format("i-%d-%s", index, t.toString()));
+                index++;
+            }
+        }
     }
 
     public List<String> get() { return elements; }

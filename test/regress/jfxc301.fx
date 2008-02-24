@@ -10,16 +10,10 @@ import java.lang.Object;
 import javafx.ui.canvas.*;
 
 class jfxc301 extends Node, Container {
-    public attribute content: Node[] on insert [indx] (newValue) {
-        newValue.parentCanvasElement = this as CanvasElement;
-    } on replace [indx] (oldValue) {
-        var newValue = content[indx];
-        if (newValue <> null) {
-            if (oldValue.parentCanvasElement == (this as CanvasElement)) {
-            }
-        }
-    }
-    on delete [indx] (oldValue) {
+    public attribute content: Node[]
+    on replace oldValue[a..b] = newElements {
+        for (newValue in newElements)
+            newValue.parentCanvasElement = this as CanvasElement;
     };
 
     public function createNode(): SGNode {

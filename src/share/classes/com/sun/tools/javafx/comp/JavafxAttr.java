@@ -104,7 +104,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     private final Source source;
     
     //TODO: this should be switche to false when the workspace is ready
-    private static final boolean allowOldStyleTriggers = true;
+    private static final boolean allowOldStyleTriggers = false;
 
     Map<JavafxVarSymbol, JFXVar> varSymToTree = new HashMap<JavafxVarSymbol, JFXVar>();
     Set<JCFieldAccess> superSelects = new HashSet<JCFieldAccess>();

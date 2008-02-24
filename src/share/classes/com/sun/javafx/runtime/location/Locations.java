@@ -539,10 +539,6 @@ public class Locations {
             location.removeChangeListener(sequenceReplaceListener);
         }
 
-        public void addChangeListener(SequenceChangeListener<T> listener) {
-            location.addChangeListener(listener);
-        }
-
         public T set(int position, T value) {
             throw new UnsupportedOperationException();
         }

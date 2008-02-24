@@ -123,10 +123,6 @@ public class SequenceVariable<T>
         helper.addChangeListener(listener);
     }
 
-    public void addChangeListener(SequenceChangeListener<T> listener) {
-        helper.addChangeListener(listener);
-    }
-
     public void addChangeListener(ObjectChangeListener<Sequence<T>> listener) {
         helper.addChangeListener(listener);
     }

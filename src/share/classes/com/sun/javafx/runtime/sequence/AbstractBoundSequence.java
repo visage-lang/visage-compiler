@@ -118,10 +118,6 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         helper.addChangeListener(listener);
     }
 
-    public void addChangeListener(SequenceChangeListener<T> listener) {
-        helper.addChangeListener(listener);
-    }
-
     public void addChangeListener(ObjectChangeListener<Sequence<T>> listener) {
         helper.addChangeListener(listener);
     }

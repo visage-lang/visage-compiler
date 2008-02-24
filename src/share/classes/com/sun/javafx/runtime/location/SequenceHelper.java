@@ -99,25 +99,6 @@ public abstract class SequenceHelper<T> {
             replaceListeners.remove(listener);
     }
 
-    public void addChangeListener(final SequenceChangeListener<T> listener) {
-        addChangeListener(new SequenceReplaceListener<T>() {
-            public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-                int newSize = Sequences.size(newElements);
-                if (endPos-startPos+1 == newSize && newSize == 1) {
-                    for (int i=startPos; i<=endPos; i++)
-                        listener.onReplace(i, oldValue.get(i), newValue.get(i));
-                }
-                else {
-                    for (int i=endPos; i >= startPos; i--)
-                        listener.onDelete(i, oldValue.get(i));
-                    for (int i=0; i<newSize; i++)
-                        listener.onInsert(startPos+i, newElements.get(i));
-                }
-
-            }
-        });
-    }
-
     /** Update the held value, notifying change listeners */
     public Sequence<T> replaceValue(Sequence<T> newValue) {
         if (newValue == null)

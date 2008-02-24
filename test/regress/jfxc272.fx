@@ -26,8 +26,10 @@ class Node extends CanvasElement {
 
 class Canvas extends Widget, CanvasElement {
     public attribute content: Node[]
-        on insert [indx] (newValue) {
-            newValue.parentCanvasElement = this as CanvasElement;
-        }
+        on replace oldValue[a..b] = newElements {
+            for (newValue in newElements) {
+                newValue.parentCanvasElement = this as CanvasElement;
+            }
+        };
 }
 	

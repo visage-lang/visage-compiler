@@ -13,20 +13,17 @@ class BarTest {
 
 class Bar {
     public attribute barTest : BarTest[]
-        on insert [indx] (newValue)   {
-        }
-        on delete [indx] (oldValue) {
-        }
-	on replace [indx] (oldValue) {
-            var newValue = barTest[indx];
-            var k = newValue.a;
-	    java.lang.Object {
+	on replace oldValue[a..b] = newElements {
+	    for (newValue in newElements) {
+                var k = newValue.a;
+	        java.lang.Object {
                     public function isEnabled():Integer {
                         return newValue.a;
                     }
                     public function actionPerformed(e:java.awt.event.ActionEvent):Void {
                         newValue.action();
                     }
+                }
 	    }
         };
 }

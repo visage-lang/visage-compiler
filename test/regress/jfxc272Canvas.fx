@@ -9,7 +9,8 @@
  */
 class jfxc272Canvas extends jfxc272Widget, jfxc272CanvasElement {
     public attribute content: jfxc272Node[]
-        on insert [indx] (newValue) {
-            newValue.parentCanvasElement = this;
+        on replace oldValue[a..b] = newElements {
+            for (newValue in newElements)
+                newValue.parentCanvasElement = this;
         }
 }

@@ -13,17 +13,15 @@ class Bar {
 
 class BarUser {
 	attribute b : Bar[] 
-	on insert [indx] (newValue) { 
-            var k = newValue.a; 
-	    newValue.action();
-	    var vvv = Object {
-		public function isEnabled():Boolean {
+	on replace oldValue[a..b] = newElements {
+	    for (newValue in newElements) {
+                var k = newValue.a;
+                newValue.action();
+	        var vvv = Object {
+		    public function isEnabled():Boolean {
                         return newValue.enabled;
+		    }
 		}
 	    }
-	}
-	on delete [indx] (newValue) { 
-	}
-	on replace [indx] (newValue) { 
-	}
+	};
 }
