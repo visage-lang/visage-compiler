@@ -77,7 +77,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     final JavafxTypeMorpher typeMorpher;
     private final JavafxDefs defs;
     final private JavafxResolve rs;
-    final private JavafxAttr attr;
     
     static final private String privateAnnotationStr = "com.sun.javafx.runtime.Private";
     static final private String protectedAnnotationStr = "com.sun.javafx.runtime.Protected";
@@ -197,7 +196,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         target = Target.instance(context);
         rs = JavafxResolve.instance(context);
         defs = JavafxDefs.instance(context);
-        attr = (JavafxAttr)JavafxAttr.instance(context);
     }
     
     /** Visitor method: Translate a single node.
@@ -2853,18 +2851,21 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             private final boolean thisCall = selectorIdName == names._this;
             private final List<Type> formals = meth.type.getParameterTypes();
 
-            private JCExpression transMeth =
-                    renameToSuper ? make.at(selector).Select(make.Select(makeTypeTree(currentClass.sym.type, selector, false), names._super), sym)
-                    : translate(meth);
-
-            private final boolean useInvoke = meth.type instanceof FunctionType 
-                                                                    || (transMeth instanceof JCIdent
-                                                                                 && ((JCIdent) transMeth).sym instanceof MethodSymbol 
-                                                                                 && isInnerFunction((MethodSymbol) ((JCIdent) transMeth).sym));
+            private final boolean useInvoke = meth.type instanceof FunctionType;
+                                                      // The below was part of this test, but it doesn't make much sense,
+                                                      // it was blocking other work and it is never used in runtime or tests
+                                                      //              || (transMeth instanceof JCIdent
+                                                      //                           && ((JCIdent) transMeth).sym instanceof MethodSymbol 
+                                                      //                           && isInnerFunction((MethodSymbol) ((JCIdent) transMeth).sym)));
 
             private final boolean testForNull =  generateNullChecks && msym!=null  &&
                     !sym.isStatic() && selector!=null && !superCall && !namedSuperCall &&
                     !thisCall && !useInvoke;
+
+            private JCExpression transMeth =
+                    renameToSuper ? make.at(selector).Select(make.Select(makeTypeTree(currentClass.sym.type, selector, false), names._super), sym)
+                    : translate(meth);
+
             private final boolean hasSideEffects = testForNull && hasSideEffects(selector);
 
             private final boolean callBound = generateBoundFunctions
