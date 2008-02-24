@@ -21,7 +21,7 @@ var __homeY = bind pf.make(homeY);
 var _homeY = __homeY.unwrap();
 var interval = 300/sizeof ys;
 var homeSequence: Timeline = Timeline {
-        keyFrames: for(s in ys) {
+        keyFrames: for(s in reverse ys) {
             KeyFrame {
                 keyTime: Time {millis: interval}
                 relative: true
@@ -33,7 +33,7 @@ var homeSequence: Timeline = Timeline {
         }
      };
 var homeSequenceR:Timeline = Timeline {
-        keyFrames: for(s in reverse ys) {
+        keyFrames: for(s in  ys) {
             KeyFrame {
                 keyTime: Time {millis: interval}
                 relative: true
@@ -52,6 +52,19 @@ frame = Frame {
     width: 1100
     visible: true 
     var selection = /*bind*/ 0
+    //TODO Notice I had to move this up from its original 
+    //location around line 138. Seems the bind was not consistenly 
+    // being called from there ??????
+    var tmp:Number = bind if(selection > 0) {
+        if(home.hover) {
+             homeSequence.start();
+        }else {
+             homeSequenceR.start();
+        }
+        0;
+    } else {
+        homeY = 30;
+    }    
     var splash = StudioMotoSplash {
         onDone: function() {selection = 0;}
     }    
@@ -125,16 +138,7 @@ frame = Frame {
                                 [Rect {height: 30+68, width: 139, selectable: true, fill: Color.color(0, 0, 0, 0), visible: bind selection > 0},
                                 (home = HomeButton {
                                     
-                                    var tmp:Number = bind if(selection > 0) {
-                                        if(home.hover) {
-                                             homeSequence.start();
-                                        }else {
-                                             homeSequenceR.start();
-                                        }
-                                        0;
-                                    } else {
-                                        homeY = 30;
-                                    }
+
                                     transform: bind Transform.translate(-5, -10 + homeY)
                                     action: function() {selection = 0;}
                                 }) as Node ]
