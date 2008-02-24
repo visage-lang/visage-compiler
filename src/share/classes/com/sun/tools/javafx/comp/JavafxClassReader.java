@@ -158,7 +158,7 @@ public class JavafxClassReader extends ClassReader {
                 else if (!keepSignatures &&
                                erased == typeMorpher.variableNCT[TYPE_KIND_SEQUENCE].sym) {
                     WildcardType tpType = new WildcardType(genericArgs.head, BoundKind.EXTENDS, genericArgs.head.tsym);
-                    outer = new ClassType(((JavafxSymtab)syms).javafx_SequenceType, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
+                    outer = new ClassType(outer, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
                 } else {
                     outer = new ClassType(outer, genericArgs, t) {
                         boolean completed = false;
