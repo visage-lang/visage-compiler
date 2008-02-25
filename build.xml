@@ -489,14 +489,6 @@
             <format property="date.stamp" pattern="yyyy-MM-dd"/>
         </tstamp>
         <property name="release" value="weekly-${date.stamp}"/>
-        <exec executable="svn">
-            <arg value="copy"/>
-            <arg value="https://openjfx-compiler.dev.java.net/svn/openjfx-compiler/trunk"/>
-            <arg value="https://openjfx-compiler.dev.java.net/svn/openjfx-compiler/tags/${release}"/>
-            <arg line="--username ${env.SVN_USERNAME} --password ${env.SVN_PASSWORD}"/>
-            <arg line="-m ${release}"/>
-            <arg value="--quiet"/>
-        </exec>
         <mkdir dir="${basedir}/bundles"/>
         <zip destfile="${basedir}/bundles/javafxc-${release}-src.zip" basedir="${basedir}"
              excludes="${basedir}/bundles/**, **/.svn/**" level="9"/>
