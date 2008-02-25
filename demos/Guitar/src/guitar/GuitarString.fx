@@ -1,8 +1,27 @@
 /*
- * GuitarString.fx
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
- * Created on Dec 19, 2007, 10:02:51 AM
- */
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ * CA 95054 USA or visit www.sun.com if you need additional information or
+ * have any questions.
+ */ 
 
 package guitar;
 
@@ -28,7 +47,7 @@ import com.sun.javafx.runtime.Pointer;
 
 public class GuitarString extends CompositeNode {
     attribute audioClip: AudioClip;
-    attribute guitar: Guitar;
+    attribute theGuitar: Guitar;
     attribute wound: Boolean = true;
     attribute note: String;
     attribute pf: PointerFactory = PointerFactory{};
@@ -37,7 +56,7 @@ public class GuitarString extends CompositeNode {
            //TODO DO LATER - this is a work around until a more permanent solution is provided
             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                       public function run():Void {
-                            guitar.loadingSound++;
+                            theGuitar.loadingSound++;
                             //var clip;
                             //TODO DO  - this is a work around until a more permanent solution is provided
                             //javax.swing.SwingUtilities.invokeAndWait(java.lang.Runnable {
@@ -46,7 +65,7 @@ public class GuitarString extends CompositeNode {
                             //    }
                            // });
                             //audioClip = clip;
-                            guitar.loadingSound--;
+                            theGuitar.loadingSound--;
                       }
             });
             //System.out.println("soundUrl={soundUrl}");
@@ -181,7 +200,7 @@ public class GuitarString extends CompositeNode {
                 onMouseMoved: function(e:CanvasMouseEvent):Void {
                     if (playing) {return;}
 
-                    guitar.play(self);
+                    theGuitar.play(self);
                     clip.start();
                 }
             }]
