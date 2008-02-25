@@ -599,12 +599,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             // illegal forward reference.
             checkInit(tree, env, v, false);
 
-            // If symbol is a local variable accessed from an embedded
-            // inner class check that it is final.
-            if (v.owner.kind == MTH && v.owner != env.info.scope.owner) {
-                v.flags_field |= JavafxFlags.INNER_ACCESS;
-            }
-
             // If we are expecting a variable (as opposed to a value), check
             // that the variable is assignable in the current environment.
             if (pkind == VAR)
@@ -1294,14 +1288,19 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitBlockExpression(JFXBlockExpression tree) {
         // Create a new local environment with a local scope.
+        Scope localScope = new Scope(null);
+        localScope.next = env.info.scope;
+        localScope.owner = env.info.scope.owner;
         JavafxEnv<JavafxAttrContext> localEnv =
-                env.dup(tree, env.info.dup(env.info.scope.dupUnshared()));
+                env.dup(tree, env.info.dup(localScope));
         localEnv.outer = env;
 
         if (env.tree instanceof JFXFunctionDefinition &&
                 env.enclClass.runMethod == env.tree) {
             env.enclClass.runBodyScope = localEnv.info.scope;
         }
+        else
+            localEnv.info.scope.owner = new MethodSymbol(BLOCK, names.empty, null, env.info.scope.owner);
         memberEnter.memberEnter(tree.stats, localEnv);
         boolean canReturn = true;
         boolean unreachableReported = false;

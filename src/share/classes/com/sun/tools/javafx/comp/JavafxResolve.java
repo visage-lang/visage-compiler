@@ -505,7 +505,8 @@ public class JavafxResolve {
             Type envClass;
             if (env1.tree instanceof JFXClassDeclaration) {
                 JFXClassDeclaration cdecl = (JFXClassDeclaration) env1.tree;
-                if (cdecl.runMethod != null) {
+                if (cdecl.runMethod != null &&
+                        name != names._this && name != names._super) {
                     envClass = null;
                     sc = cdecl.runBodyScope;
                     innerAccess = true;
@@ -534,6 +535,8 @@ public class JavafxResolve {
                 }
             }
 
+            if (env1.tree instanceof JFXFunctionDefinition)
+                innerAccess = true;
             if ((env1.enclClass.sym.flags() & STATIC) != 0) staticOnly = true;
             env1 = env1.outer;
         }
