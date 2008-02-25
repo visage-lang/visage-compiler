@@ -1639,7 +1639,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         boolean hasSideEffects = testForNull && hasSideEffects(selected);
         JCVariableDecl tmpVar = null;
         if (hasSideEffects) {
-            tmpVar = tmpVar = makeTmpVar(diagPos, selectedType, translatedSelected);
+            tmpVar = makeTmpVar(diagPos, selectedType, translatedSelected);
             translatedSelected = make.at(diagPos).Ident(tmpVar.name);
         }
         

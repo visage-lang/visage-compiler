@@ -107,7 +107,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     private static final boolean allowOldStyleTriggers = false;
 
     Map<JavafxVarSymbol, JFXVar> varSymToTree = new HashMap<JavafxVarSymbol, JFXVar>();
-    Set<JCFieldAccess> superSelects = new HashSet<JCFieldAccess>();
     
     public static JavafxAttr instance(Context context) {
         JavafxAttr instance = context.get(javafxAttrKey);
@@ -144,7 +143,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         allowAnonOuterThis = source.allowAnonOuterThis();
         relax = (options.get("-retrofit") != null ||
                  options.get("-relax") != null);
-        useBeforeDeclarationWarning = options.get("useBeforeDeclarationWarning") != null;
         
         numberTypeName  = names.fromString("Number");
         integerTypeName = names.fromString("Integer");
@@ -202,12 +200,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
      */
     boolean allowAnonOuterThis;
 
-    /**
-     * Switch: warn about use of variable before declaration?
-     * RFE: 6425594
-     */
-    boolean useBeforeDeclarationWarning;
-    
     public enum Sequenceness {
         DISALLOWED,
         PERMITTED, 
@@ -1405,10 +1397,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // If enclosing class is given, attribute it, and
         // complete class name to be fully qualified
         JCExpression clazz = tree.getIdentifier(); // Class field following new
-        JCExpression clazzid =          // Identifier in class field
-            (clazz.getTag() == JCTree.TYPEAPPLY)
-            ? ((JCTypeApply) clazz).clazz
-            : clazz;
 
         // Attribute clazz expression and store
         // symbol + type back into the attributed tree.
@@ -1710,8 +1698,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             mtype.restype = returnType;
             result = tree.type = mtype;
-
-            Scope enclScope = JavafxEnter.enterScope(env);
 
             // If we override any other methods, check that we do so properly.
             // JLS ???
@@ -3635,7 +3621,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     public void clearCaches() {
         varSymToTree = null;
-        superSelects = null;
     }
 
     void fixOverride(JFXFunctionDefinition tree, MethodSymbol m) {
