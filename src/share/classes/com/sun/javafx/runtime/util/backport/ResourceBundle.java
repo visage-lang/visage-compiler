@@ -38,6 +38,16 @@
  *
  */
 
+/*
+ * NOTE:
+ * 
+ * This class was backported from the JDK6 runtime library, because some of
+ * the functionality in this class aren't available on JDK5, which is at
+ * the moment the target JRE environment for running JavaFX applications.
+ * Once JDK5 is not a supported platform anymore, this class should be
+ * removed.
+ */
+
 package com.sun.javafx.runtime.util.backport;
 
 import java.io.IOException;
@@ -2658,15 +2668,16 @@ public abstract class ResourceBundle {
 	    String country = locale.getCountry();
 	    String variant = locale.getVariant();
 
-	    if (language.equals("") && country.equals("") && variant.equals("")) {
+            // it's safe to use '==' to compare strings here, as they are intern'ed.
+	    if (language == "" && country == "" && variant == "") {
 		return baseName;
 	    }
 
 	    StringBuilder sb = new StringBuilder(baseName);
 	    sb.append('_');
-	    if (!variant.equals("")) {
+	    if (variant != "") {
 		sb.append(language).append('_').append(country).append('_').append(variant);
-	    } else if (!country.equals("")) {
+	    } else if (country != "") {
 		sb.append(language).append('_').append(country);
 	    } else {
 		sb.append(language);

@@ -23,6 +23,16 @@
  * have any questions.
  */
 
+/*
+ * NOTE:
+ * 
+ * This class was backported from the JDK6 runtime library, because some of
+ * the functionality in this class aren't available on JDK5, which is at
+ * the moment the target JRE environment for running JavaFX applications.
+ * Once JDK5 is not a supported platform anymore, this class should be
+ * removed.
+ */
+
 package com.sun.javafx.runtime.util.backport;
 
 import java.util.Enumeration;
