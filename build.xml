@@ -477,10 +477,9 @@
     
     <target name="weekly-build-check">
         <!-- weekly build parameters, normally set by Hudson -->
-        <fail unless="env.SVN_USERNAME"/>
-        <fail unless="env.SVN_PASSWORD"/>
         <fail unless="weekly.build.alias"/>
         <fail unless="weekly.buildmaster"/>
+        <!-- JavaMail jar, needed for build notification -->
         <fail unless="mail.jar"/>
     </target>
     
