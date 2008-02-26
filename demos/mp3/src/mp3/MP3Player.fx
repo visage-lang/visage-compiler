@@ -58,7 +58,9 @@ public class SliderView extends CompositeNode {
 
     function composeNode(): Node {
         Group {
-            content: bind if (isPressed) then pressed else normal
+            // TODO JFXC-782 Fix this as soon as issue is resolved
+//            content: bind if (isPressed) then pressed else normal
+            content: normal
             onMousePressed: function(e) {
                 isPressed = true;
             }
@@ -75,7 +77,6 @@ public class SliderView extends CompositeNode {
 public class Main extends CompositeNode {
     attribute skinFileChooser: FileChooser;
     attribute fileChooser: FileChooser;
-    attribute active: Boolean;
     attribute skinUrl: String = bind (skinUrls[selectedSkinUrl]);
     attribute skinUrls: String[];
     attribute selectedSkinUrl: Integer;
@@ -100,13 +101,7 @@ public class Main extends CompositeNode {
     attribute equalizerImage: Image = bind
         Image {url: this.getImageURL(skinUrl, "EqMain.bmp")};
     attribute songUrl: String;
-    attribute equalizerBackground: Node =         
-        ImageView {
-            clip: Clip {shape: Rect {x: 0, y: 0, height: 116, width: 275}}
-            image: bind equalizerImage
-        }
-    ;
-
+    
     attribute volumeX: Number = 54/2 
         on replace {
             volume = (volumeX/54 * 15).intValue();
@@ -289,8 +284,6 @@ public class Main extends CompositeNode {
 //                    description: "MP3 Files (*.mp3)"        
 //               }
                action: function(f:File) {
-//                    songUrl = "C:/ProgramData/SonicStage/Packages/Romano Hip Hop/04-Romano Hip Hop.mp3";
-//                    controller.open(new File(songUrl));
                     songUrl = f.toURL().toString();
                       // TODO DO  - this is a work around until a more permanent solution is provided
 //                    do {
@@ -614,9 +607,6 @@ public class Main extends CompositeNode {
         }
     ;
     
-    attribute minimizeButtonNormal: Node;
-    attribute minimizeButtonPressed: Node;
-    
     attribute closeButtonNormal: Node =
         Clip {
             selectable: true
@@ -635,9 +625,6 @@ public class Main extends CompositeNode {
         }
     ;
     
-    attribute optionButtonNormal: Node;
-    attribute optionButtonPressed: Node;
-
     attribute playIndicator: Node = 
         Clip {
             transform: Translate {x: 0, y: 0}
@@ -745,53 +732,6 @@ public class Main extends CompositeNode {
                 content: ImageView {image: bind numbersImage}
             }
     
-    attribute text1: Image[] = 
-        for (n in [0..10])
-            CanvasImage {
-                content: Clip {
-                      transform: Translate {x: -n*5, y: 0}
-                      shape: Rect {x: n*5, y: 0, height: 6, width: 5}
-                      content: ImageView {image: bind textImage}
-                }
-            }
-    ;
-    
-    attribute text2: Image[] = 
-        for (n in [0..10])
-            CanvasImage {
-                content: Clip {
-                      transform: Translate {x: -n*5, y: -6}
-                      shape: Rect {x: n*5, y: 6, height: 6, width: 5}
-                      content: ImageView {image: bind textImage}
-                }
-            }
-    ;
-    
-    attribute text3: Image[] = 
-        for (n in [0..10])
-            CanvasImage {
-                content: Clip {
-                      transform: Translate {x: -n*5, y: -12}
-                      shape: Rect {x: n*5, y: 12, height: 6, width: 5}
-                      content: ImageView {image: bind textImage}
-                }
-            }
-    ;
-
-    attribute numberMinus: Node = 
-        Clip {
-            transform: Translate {x: -20, y: -6}
-            shape: Rect {x: 20, y: 6, height: 1, width: 5}
-        }
-    ;
-    
-    attribute numberNotMinus: Node = 
-        Clip {
-            transform: Translate {x: -9, y: -6}
-            shape: Rect {x: 9, y: 6, height: 1, width: 5}
-        }
-    ;
-
     attribute volumeViews: Node[] = 
         for (n in [0..15])
             Clip {
@@ -909,16 +849,6 @@ public class Main extends CompositeNode {
                  }]
             },
             Group {
-                 visible: false
-                 // Song title display
-                 transform: Translate {x: 112, y: 27}
-                 content: Text { 
-                     font: bind font, 
-                     fill: bind textColor,
-                     //content: bind songTitle 
-                }
-            },
-            Group {
                  // bit rate
                  transform: Translate {x: 111, y: 43}
                  content: Text { 
@@ -969,17 +899,6 @@ public class Main extends CompositeNode {
                  content: 
                  [repeatOnButton, repeatOffButton]
             },
-            Clip {
-                visible: false
-                transform: Translate {x: 112, y: 27}
-                shape: Rect {height: 6, width: 152}
-                content: Text {
-                    visible: bind songUrl <> null
-                    font: bind font
-                    fill: bind textColor
-                    content: bind songUrl
-                }
-            },
             Group {
                 transform: Translate {x: 16, y: 72}
                 content:
@@ -1004,15 +923,6 @@ public class Main extends CompositeNode {
             Group {
                 transform: Translate {x: 136, y: 89}
                 content: loadButton
-            },
-            Group {
-               // equalizer
-               visible: false
-               transform: Translate {x: 0, y: 116}
-               content: Group {
-                    content: bind 
-                    [equalizerBackground]
-               }
             }
             ]
         };
