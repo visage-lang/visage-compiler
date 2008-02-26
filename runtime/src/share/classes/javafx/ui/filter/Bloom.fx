@@ -25,7 +25,13 @@
 
 package javafx.ui.filter;
 
-public abstract class Filter {
-    // TODO: ideally this would not be publicly visible
-    public abstract function getImpl():com.sun.scenario.effect.Effect;
+public class Bloom extends Filter {
+    private attribute bloom = new com.sun.scenario.effect.Bloom();
+
+    public function getImpl():com.sun.scenario.effect.Effect {
+        bloom
+    };
+
+    public attribute level: Number = 0.3
+        on replace { bloom.setThreshold(level.floatValue()); }
 }

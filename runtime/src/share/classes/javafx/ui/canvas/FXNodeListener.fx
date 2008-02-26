@@ -59,7 +59,7 @@ public class FXNodeListener extends SGNodeListener {
                             node.currentY = b.getY();
                             node.currentWidth = b.getWidth();
                             node.currentHeight = b.getHeight();
-                            node.realign();
+                            //node.realign();
                         }
               /*****************
                     }

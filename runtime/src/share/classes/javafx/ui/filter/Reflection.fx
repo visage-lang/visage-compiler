@@ -25,7 +25,19 @@
 
 package javafx.ui.filter;
 
-public abstract class Filter {
-    // TODO: ideally this would not be publicly visible
-    public abstract function getImpl():com.sun.scenario.effect.Effect;
+public class Reflection extends Filter {
+    private attribute reflect = new com.sun.scenario.effect.Reflection();
+
+    public function getImpl():com.sun.scenario.effect.Effect {
+        reflect
+    };
+
+    public attribute topOffset: Number = 0
+        on replace { reflect.setTopOffset(topOffset.floatValue()); }
+    public attribute topOpacity: Number = 0.5
+        on replace { reflect.setTopOpacity(topOpacity.floatValue()); }
+    public attribute bottomOpacity: Number = 0
+        on replace { reflect.setBottomOpacity(bottomOpacity.floatValue()); }
+    public attribute fraction: Number = 0.75
+        on replace { reflect.setFraction(fraction.floatValue()); }
 }

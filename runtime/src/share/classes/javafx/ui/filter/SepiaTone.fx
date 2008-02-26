@@ -25,7 +25,13 @@
 
 package javafx.ui.filter;
 
-public abstract class Filter {
-    // TODO: ideally this would not be publicly visible
-    public abstract function getImpl():com.sun.scenario.effect.Effect;
+public class SepiaTone extends Filter {
+    private attribute sepia = new com.sun.scenario.effect.SepiaTone();
+
+    public function getImpl():com.sun.scenario.effect.Effect {
+        sepia
+    };
+
+    public attribute level: Number = 1.0
+        on replace { sepia.setLevel(level.floatValue()); }
 }

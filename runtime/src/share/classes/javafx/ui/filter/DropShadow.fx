@@ -25,7 +25,21 @@
 
 package javafx.ui.filter;
 
-public abstract class Filter {
-    // TODO: ideally this would not be publicly visible
-    public abstract function getImpl():com.sun.scenario.effect.Effect;
+import javafx.ui.Color;
+
+public class DropShadow extends Filter {
+    private attribute shadow = new com.sun.scenario.effect.DropShadow();
+
+    public function getImpl():com.sun.scenario.effect.Effect {
+        shadow
+    };
+
+    public attribute radius: Number = 10
+        on replace { shadow.setRadius(radius.floatValue()); }
+    public attribute color: Color = Color {}
+        on replace { shadow.setColor(color.getColor()); }
+    public attribute offsetX: Number = 0
+        on replace { shadow.setOffsetX(offsetX.intValue()); }
+    public attribute offsetY: Number = 0
+        on replace { shadow.setOffsetY(offsetY.intValue()); }
 }

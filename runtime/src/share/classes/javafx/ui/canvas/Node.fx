@@ -1,4 +1,3 @@
-
 /* 
  * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved. 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER. 
@@ -47,20 +46,12 @@ import javafx.ui.HorizontalAlignment;
 import javafx.ui.VerticalAlignment;
 import javafx.ui.XY;
 import javafx.ui.filter.Filter;
+import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.event.SGNodeListener;
 import com.sun.scenario.scenegraph.event.SGNodeEvent;
-import com.sun.scenario.scenegraph.SGAlignment;
-import com.sun.scenario.scenegraph.SGComposite;
-import com.sun.scenario.scenegraph.SGClip;
-import com.sun.scenario.scenegraph.SGGroup;
-import com.sun.scenario.scenegraph.SGImageOp;
-import com.sun.scenario.scenegraph.SGLeaf;
-import com.sun.scenario.scenegraph.SGNode;
-import com.sun.scenario.scenegraph.SGRenderCache;
-import com.sun.scenario.scenegraph.SGTransform;
-import com.sun.scenario.scenegraph.SGTransform.Affine;
 import com.sun.scenario.scenegraph.event.SGMouseListener;
 import com.sun.scenario.scenegraph.event.SGMouseAdapter;
+import com.sun.scenario.scenegraph.fx.FXNode;
 import java.lang.System;
 
 /**
@@ -144,7 +135,7 @@ public abstract class Node extends CanvasElement, Transformable {
                         if (exportDrag) {
                             return;
                         }
-                        var localPt = alignmentFilter.globalToLocal(e.getPoint(), null);
+                        var localPt = filterRoot.globalToLocal(e.getPoint(), null);
 
                         if (not (onMouseDragged == null and onMouseMoved == null and not isSelectionRoot)) {
                             e.consume();
@@ -169,8 +160,8 @@ public abstract class Node extends CanvasElement, Transformable {
                                dragDeltaY = e.getY() - prev.getY() + screenDeltaY;
                                var pt1 = new java.awt.geom.Point2D.Double(prev.getX(), prev.getY());
                                var pt2 = new java.awt.geom.Point2D.Double(prev.getX()+dragDeltaX, prev.getY()+dragDeltaY);
-                               alignmentFilter.globalToLocal(pt1, pt1);
-                               alignmentFilter.globalToLocal(pt2, pt2);
+                               filterRoot.globalToLocal(pt1, pt1);
+                               filterRoot.globalToLocal(pt2, pt2);
                                localDragDeltaX = pt2.getX().intValue() - pt1.getX().intValue();
                                localDragDeltaY = pt2.getY().intValue() - pt1.getY().intValue();
                             }
@@ -191,8 +182,8 @@ public abstract class Node extends CanvasElement, Transformable {
                         }
                     }
                 };
-            if (alignmentFilter <> null) {
-                alignmentFilter.addMouseListener(mouseListener);
+            if (filterRoot <> null) {
+                filterRoot.addMouseListener(mouseListener);
             }
         }
     }
@@ -240,23 +231,18 @@ public abstract class Node extends CanvasElement, Transformable {
         return result;
     }
 
-    private attribute alignmentFilter: SGAlignment;
-    attribute transformFilter: SGTransform.Affine;
+    private attribute filterRoot: FXNode;
     public attribute clip: Clip;
-    private attribute clipFilter: SGClip;
     private attribute clipNode: VisualNode = bind if (clip == null) null else clip.shape on replace {
         if (clipNode <> null)
-            clipFilter.setShape(clipNode.getVisualNode().getShape());
+            filterRoot.setClip(clipNode.getVisualNode().getShape());
     };
     private attribute antialiasClip: Boolean  = bind if (clip == null) false else clip.antialias on replace {
         antialiasClipSet = true;
-        if (clipFilter <> null)
-            clipFilter.setAntialiased(antialiasClip);
+        if (filterRoot <> null)
+            filterRoot.setClipAntialiased(antialiasClip);
     };
-    private attribute compositeFilter: SGComposite;
-    private attribute cacheFilter: SGRenderCache;
     private attribute antialiasClipSet = false;
-    private attribute effectFilter: SGImageOp;
     private attribute contentNode: SGNode;
 
     /*protected*/public attribute bounds: Rectangle2D;
@@ -291,16 +277,16 @@ public abstract class Node extends CanvasElement, Transformable {
         return comp.getLocationOnScreen();
     }
 
-    private function updateImageOps() {
-        if (effectFilter <> null) {
-//          effectFilter.setImageOps(select i.getFilter() from i in filter);
-            cacheFilter.setEnabled(filter <> null);
+    private function updateEffect() {
+        if (filterRoot <> null) {
+            filterRoot.setEffect(filter.getImpl());
+            filterRoot.setCachedAsBitmap(filter <> null);
         }
     }
 
     // protected:
     public function getNode(): SGNode {
-        if (alignmentFilter == null) {
+        if (filterRoot == null) {
             var canvas = this.getCanvas();
             this.onSetCanvas(canvas);
             if (focused) {
@@ -311,53 +297,37 @@ public abstract class Node extends CanvasElement, Transformable {
                 throw new Exception("create node for class {this.getClass().getName()} returned null");
             }
 
-            effectFilter = new SGImageOp();
-            effectFilter.setChild(contentNode);
-            cacheFilter = SGRenderCache.createCache(effectFilter);
-            cacheFilter.setEnabled(false);
-            compositeFilter = new SGComposite();
-            compositeFilter.setChild(cacheFilter);
-            clipFilter = new SGClip();
-            clipFilter.setChild(compositeFilter);
-            transformFilter = SGTransform.createAffine(new AffineTransform(), clipFilter);
-            transformFilter.putAttribute("FX", this);
-            transformFilter.addNodeListener(Node.LISTENER);
-            alignmentFilter = new SGAlignment();
-            alignmentFilter.setChild(transformFilter);
+            filterRoot = new FXNode(contentNode);
+            filterRoot.putAttribute("FX", this);
+            filterRoot.addNodeListener(Node.LISTENER);
 
             if (halign <> null) {
-                alignmentFilter.setHorizontalAlignment(halign.id.intValue());
+                filterRoot.setHorizontalAlignment(halign.id.intValue());
             }
             if (valign <> null) {
-                alignmentFilter.setVerticalAlignment(valign.id.intValue());
+                filterRoot.setVerticalAlignment(valign.id.intValue());
             }
-            /****
-            if (clip <> null) {
-                clipNode = clip.shape;
-            }
-            *****/
             if (clipNode <> null) {
-                clipFilter.setShape(clipNode.getVisualNode().getShape());
+                filterRoot.setClip(clipNode.getVisualNode().getShape());
             }
             if (antialiasClipSet) {
-                clipFilter.setAntialiased(antialiasClip);
+                filterRoot.setClipAntialiased(antialiasClip);
             }
-            if(transform <> null and sizeof transform > 0) {
+            if (transform <> null and sizeof transform > 0) {
                 for (t in transform) {
                     t.transformable = this;
                 }
                 updateTransform()
             }
             if (affineTransform <> null) {
-                transformFilter.setAffine(affineTransform);
+                filterRoot.setTransform(affineTransform);
             }
             if (mouseListener <> null) {
-                alignmentFilter.removeMouseListener(mouseListener);
-                alignmentFilter.addMouseListener(mouseListener);
+                filterRoot.removeMouseListener(mouseListener);
+                filterRoot.addMouseListener(mouseListener);
             }
-            //contentNode.setPickable(selectable);
-            //alignmentFilter.setPickable(selectable); // TODO: needed
-            alignmentFilter.setVisible(visible);
+            //filterRoot.setPickable(selectable); // TODO: needed
+            filterRoot.setVisible(visible);
             if (scaleToFitCanvas) {
                 insert this into canvas.scaleToFitList;
             }
@@ -368,25 +338,24 @@ public abstract class Node extends CanvasElement, Transformable {
                 }
             }
             if (opacitySet and opacity <> 1.0) {
-                compositeFilter.setOpacity(clamp(opacity, 0, 1).floatValue());
+                filterRoot.setOpacity(clamp(opacity, 0, 1).floatValue());
             }
-            updateImageOps();
+            updateEffect();
             if (toolTipText <> null) {
                 //alignmentFilter.setToolTipText(toolTipText); // TODO: hmm
             }
             if (id <> null) {
-                alignmentFilter.putAttribute("id", id); // TODO: use ID
+                contentNode.setID(id);
             }
-            var b = transformFilter.getBounds();
+            var b = filterRoot.getBounds();
             currentX = b.getX();
             currentY = b.getY();
             currentWidth = b.getWidth();
             currentHeight = b.getHeight();
-            //alignmentFilter.setPickable(selectable);
             
             updateCursor();
         }
-        return alignmentFilter;
+        return filterRoot;
     }
     protected abstract function createNode(): SGNode;
     
@@ -415,21 +384,17 @@ public abstract class Node extends CanvasElement, Transformable {
     public attribute exportDrag: Boolean;
     public attribute exportAsDrag: function(): CanvasDragEvent;
     /**
-     * An optional list of Filters that will be applied to this node. 
-     * If present whenever the content of this node changes a new buffered 
-     * image will be created consisting of the result of applying the list of 
-     * filters (in order) to the new content. The generated image will then 
-     * be used to paint the node.
+     * An optional Filter chain that will be applied to this node. 
      */
-    public attribute filter: Filter[] on replace {
-        updateImageOps();
+    public attribute filter: Filter on replace {
+        updateEffect();
     };
     /** A number between 0 and 1, 0 being transparent and 1 opaque. */
     public attribute opacity: Number = 1 on replace {
         if (opacitySet == false and opacity <> 1) // ignore initial opaque setting
             opacitySet = true;
-        if (compositeFilter <> null) {
-            compositeFilter.setOpacity(clamp(opacity, 0, 1).floatValue());
+        if (filterRoot <> null) {
+            filterRoot.setOpacity(clamp(opacity, 0, 1).floatValue());
         }
     }
 
@@ -451,8 +416,8 @@ public abstract class Node extends CanvasElement, Transformable {
         if (halign == null) {
             halign = HorizontalAlignment.LEADING;
         }
-        else if (alignmentFilter <> null) {
-            alignmentFilter.setHorizontalAlignment(halign.id.intValue());
+        else if (filterRoot <> null) {
+            filterRoot.setHorizontalAlignment(halign.id.intValue());
         }
     }
     /** Determines the vertical alignment of this node relative to its origin. */
@@ -460,8 +425,8 @@ public abstract class Node extends CanvasElement, Transformable {
         if (valign == null) {
             valign = VerticalAlignment.TOP;
         }
-        else if (alignmentFilter <> null) {
-            alignmentFilter.setVerticalAlignment(valign.id.intValue());
+        else if (filterRoot <> null) {
+            filterRoot.setVerticalAlignment(valign.id.intValue());
         }
     };
 
@@ -471,8 +436,8 @@ public abstract class Node extends CanvasElement, Transformable {
      * will not receive events.
      */
     public attribute visible: Boolean = true on replace {
-        if (alignmentFilter <> null) {
-            alignmentFilter.setVisible(visible);
+        if (filterRoot <> null) {
+            filterRoot.setVisible(visible);
         }
     };
 
@@ -523,7 +488,7 @@ public abstract class Node extends CanvasElement, Transformable {
     public function handleDrop(e:CanvasDropEvent):Boolean{
         if (onDrop <> null) {
             var pt = new java.awt.Point(e.x.intValue(), e.y.intValue());
-            alignmentFilter.globalToLocal(pt, pt);
+            filterRoot.globalToLocal(pt, pt);
             e.localX = pt.getX();
             e.localY = pt.getY();
             (this.onDrop)(e);
@@ -534,7 +499,7 @@ public abstract class Node extends CanvasElement, Transformable {
     public function handleAcceptDrop(e:CanvasDropEvent):Boolean {
         if (canAcceptDrop <> null) {
             var pt = new java.awt.Point(e.x.intValue(), e.y.intValue());
-            alignmentFilter.globalToLocal(pt, pt);
+            filterRoot.globalToLocal(pt, pt);
             e.localX = pt.getX();
             e.localY = pt.getY();
             return (this.canAcceptDrop)(e);
@@ -544,7 +509,7 @@ public abstract class Node extends CanvasElement, Transformable {
     public function handleDragEnter(e:CanvasDropEvent):Boolean{
         if (onDragEnter <> null) {
             var pt = new java.awt.Point(e.x.intValue(), e.y.intValue());
-            alignmentFilter.globalToLocal(pt, pt);
+            filterRoot.globalToLocal(pt, pt);
             e.localX = pt.getX();
             e.localY = pt.getY();
             (this.onDragEnter)(e);
@@ -555,7 +520,7 @@ public abstract class Node extends CanvasElement, Transformable {
     public function handleDragExit(e:CanvasDropEvent):Boolean{
         if (onDragExit <> null) {
             var pt = new java.awt.Point(e.x.intValue(), e.y.intValue());
-            alignmentFilter.globalToLocal(pt, pt);
+            filterRoot.globalToLocal(pt, pt);
             e.localX = pt.getX();
             e.localY = pt.getY();
             (this.onDragExit)(e);
@@ -628,8 +593,8 @@ public abstract class Node extends CanvasElement, Transformable {
     public attribute currentHeight: Number;
 
     private function updateCursor():Void {
-        if (alignmentFilter <> null) {
-            alignmentFilter.setCursor(if (cursor <> null) cursor.getCursor() else null);
+        if (filterRoot <> null) {
+            filterRoot.setCursor(if (cursor <> null) cursor.getCursor() else null);
         }
     }
     
@@ -637,33 +602,37 @@ public abstract class Node extends CanvasElement, Transformable {
     public attribute cursor: Cursor on replace {
         updateCursor();
     };
-    public function getGlobalBounds(): Rectangle2D{
-        return alignmentFilter.getGlobalBounds(); // TODO: hmm
+    public function getGlobalBounds(): Rectangle2D {
+        return null; // TODO: is this used anywhere?
     }
     
     public attribute id: String on replace {
-        if (contentNode <> null)
-            contentNode.setID(id);   
+        if (contentNode <> null) {
+            contentNode.setID(id);
+        }   
     };
 
     public static attribute LISTENER:FXNodeListener = FXNodeListener {};
     
     init {
         onTransformChanged = function (t:AffineTransform):Void {
-            if (transformFilter <> null) {
-                this.transformFilter.setAffine(t);
+            if (filterRoot <> null) {
+                filterRoot.setTransform(t);
             } 
         }
     }
 
+    // TODO: remove (this is a hack workaround, not currently used)
+    /*
     function realign():Void {
-        if (alignmentFilter <> null) {
+        if (filterRoot <> null) {
             if (halign <> null and halign <> HorizontalAlignment.LEADING) {
-                alignmentFilter.setHorizontalAlignment(halign.id.intValue());
+                filterRoot.setHorizontalAlignment(halign.id.intValue());
             }
             if (valign <> null and valign <> VerticalAlignment.TOP) {
-                alignmentFilter.setVerticalAlignment(valign.id.intValue());
+                filterRoot.setVerticalAlignment(valign.id.intValue());
             }
         }
     }
+    */
 }

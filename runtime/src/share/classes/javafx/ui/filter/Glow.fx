@@ -25,7 +25,13 @@
 
 package javafx.ui.filter;
 
-public abstract class Filter {
-    // TODO: ideally this would not be publicly visible
-    public abstract function getImpl():com.sun.scenario.effect.Effect;
+public class Glow extends Filter {
+    private attribute glow = new com.sun.scenario.effect.Glow();
+
+    public function getImpl():com.sun.scenario.effect.Effect {
+        glow
+    };
+
+    public attribute level: Number = 0.3
+        on replace { glow.setLevel(level.floatValue()); }
 }

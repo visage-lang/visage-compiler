@@ -25,7 +25,19 @@
 
 package javafx.ui.filter;
 
-public abstract class Filter {
-    // TODO: ideally this would not be publicly visible
-    public abstract function getImpl():com.sun.scenario.effect.Effect;
+public class ColorAdjust extends Filter {
+    private attribute adjust = new com.sun.scenario.effect.ColorAdjust();
+
+    public function getImpl():com.sun.scenario.effect.Effect {
+        adjust
+    };
+
+    public attribute hue: Number = 0
+        on replace { adjust.setHue(hue.floatValue()); }
+    public attribute saturation: Number = 0
+        on replace { adjust.setSaturation(saturation.floatValue()); }
+    public attribute brightness: Number = 0
+        on replace { adjust.setBrightness(brightness.floatValue()); }
+    public attribute contrast: Number = 1
+        on replace { adjust.setContrast(contrast.floatValue()); }
 }

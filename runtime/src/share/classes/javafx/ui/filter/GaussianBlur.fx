@@ -25,7 +25,13 @@
 
 package javafx.ui.filter;
 
-public abstract class Filter {
-    // TODO: ideally this would not be publicly visible
-    public abstract function getImpl():com.sun.scenario.effect.Effect;
+public class GaussianBlur extends Filter {
+    private attribute blur = new com.sun.scenario.effect.GaussianBlur();
+
+    public function getImpl():com.sun.scenario.effect.Effect {
+        blur
+    };
+
+    public attribute radius: Number = 10
+        on replace { blur.setRadius(radius.floatValue()); }
 }

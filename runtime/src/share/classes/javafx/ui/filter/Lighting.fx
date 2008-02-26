@@ -1,5 +1,5 @@
 /* 
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved. 
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved. 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER. 
  * 
  * This code is free software; you can redistribute it and/or modify it 
@@ -24,23 +24,32 @@
  */  
 
 package javafx.ui.filter;
-import javafx.ui.*;
-import com.sun.javafx.api.ui.OpacityMaskFilter;
-import javafx.ui.Paint;
-import java.awt.image.BufferedImageOp;
 
-public class OpacityMask extends Filter {
-    private attribute awtFill: java.awt.Paint= bind fill.getPaint() on replace {
-        opacityMaskFilter.setOpacityMask(awtFill);
-    };
-    private attribute opacityMaskFilter: OpacityMaskFilter;
-    public attribute fill: Paint;
-    
-    public function createFilter(): BufferedImageOp {
-        opacityMaskFilter = new OpacityMaskFilter();
-        opacityMaskFilter.setOpacityMask(awtFill);
-        return opacityMaskFilter;
+import javafx.ui.Color;
+import com.sun.scenario.effect.PhongLighting;
+import com.sun.scenario.effect.light.DistantLight;
+
+public class Lighting extends Filter {
+    private attribute light : DistantLight;
+    private attribute phong : PhongLighting;
+
+    init {
+        light = new DistantLight(0, 0, java.awt.Color.WHITE);
+        phong = new PhongLighting(light);
+        phong.setSurfaceScale(new java.lang.Float(1.5));
+        phong.setDiffuseConstant(2);
+        phong.setSpecularConstant(new java.lang.Float(0.3));
+        phong.setSpecularExponent(20);
     }
+
+    public function getImpl():com.sun.scenario.effect.Effect {
+        phong
+    };
+
+    public attribute lightAzimuth: Number = 0.0
+        on replace { light.setAzimuth(lightAzimuth.floatValue()); }
+    public attribute lightElevation: Number = 0.0
+        on replace { light.setElevation(lightElevation.floatValue()); }
+    public attribute lightColor: Color = Color { red: 1; green: 1; blue: 1 }
+        on replace { light.setColor(lightColor.getColor()); }
 }
-
-

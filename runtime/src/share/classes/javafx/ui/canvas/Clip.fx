@@ -41,11 +41,12 @@ import java.awt.geom.Point2D;
  * will be painted.
  */
 public class Clip extends Node, Container {
+    private attribute clipFilter: SGClip;
     private attribute childGroup: SGGroup;
 
     /** Sets the shape that defines the visible region of the content*/
     public attribute shape: VisualNode on replace {
-        if(shape <> null) {
+        if (shape <> null) {
             shape.parentCanvasElement = this;
             if (clipFilter <> null) {
                 clipFilter.setShape(shape.getVisualNode().getShape());
@@ -76,37 +77,7 @@ public class Clip extends Node, Container {
     };
 
     protected function createNode(): SGNode {
-        clipFilter = SGClip {
-                public function getBounds(transform:AffineTransform):Rectangle2D {
-                    var b:Rectangle2D; 
-                    if (getChild() <> null) {
-                        b = getChild().getBounds(transform);
-                    } else {
-                        return new Rectangle2D.Double();
-                    }
-                    var s = getShape();
-                    if (s <> null) {
-                        var clipBounds = s.getBounds2D();
-                        if (transform <> null) {
-                            clipBounds = transform.createTransformedShape(clipBounds).getBounds2D();
-                        }
-                        b = clipBounds.createIntersection(b);
-                    }
-                    return b;
-                }
-                public function contains(point:Point2D):Boolean {
-                      var s = getShape();
-                      if (s <> null) {
-                           if (not s.contains(point)) {
-                               return false;
-                           }
-                      }
-                      if (getChild() <> null) {
-                          return getChild().contains(point);
-                      }
-                      return false;
-                }
-            };
+        clipFilter = new SGClip();
         clipFilter.setShape(shape.getVisualNode().getShape());
         clipFilter.setAntialiased(antialias);
         childGroup = new SGGroup();
@@ -116,6 +87,7 @@ public class Clip extends Node, Container {
         }
         return clipFilter;
     }
+
     private function selectIndex(n:Node):Integer {
         var a = -1;
         for (i in [0..<sizeof content]) {
@@ -157,8 +129,4 @@ public class Clip extends Node, Container {
         delete content[i];
         content = [n, content];
     }
-
 }
-
-
-

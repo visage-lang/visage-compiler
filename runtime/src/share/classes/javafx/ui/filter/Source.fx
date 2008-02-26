@@ -25,21 +25,21 @@
 
 package javafx.ui.filter;
 
-import javafx.ui.Image;
+public class Source extends Filter {
+    private attribute source;
 
-public class Identity extends Filter {
-    private attribute identity = new com.sun.scenario.effect.Identity(null);
-
+    init {
+        update();
+    }
+    
     public function getImpl():com.sun.scenario.effect.Effect {
-        identity
+        source
     };
     
-    public attribute source: Image
-        on replace { identity.setSource(source.getImage()); }
-
-    private function ul():Void {
-        identity.setLocation(new java.awt.geom.Point2D.Double(x, y));
+    private function update():Void {
+        source = new com.sun.scenario.effect.Source(transformed);
     }
-    public attribute x: Number on replace { ul(); }
-    public attribute y: Number on replace { ul(); }
+
+    public attribute transformed: Boolean = true
+        on replace { update(); }
 }
