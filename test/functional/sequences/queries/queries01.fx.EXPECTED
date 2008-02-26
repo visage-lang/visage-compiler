@@ -32,16 +32,16 @@ PASS : check for descending sequence of seq4
 [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 ]
 PASS : seq5-check end sequence
 PASS : seq5-check for deleted sequence
-[ REPLACEMENTS:, , seq_2p: replace 01234 at 0
+[ REPLACEMENTS:, , seq_2: replace 01234 at 0
 , , 051015202530354050, seq_2p: replaced [ ][0..-1] by [ 1 ]
 , seq_2p: replaced [ 1 ][1..0] by [ 2 ]
 , seq_2p: replaced [ 1, 2 ][2..1] by [ 4 ]
 , seq_2p: replaced [ 1, 2, 4 ][3..2] by [ 8 ]
 , seq_2p: replaced [ 1, 2, 4, 8 ][4..3] by [ 16 ]
-, seq_2p: replace 7 at 5
-, seq_2p: replace 10 at 6
-, seq_2p: replace 8 at 7
-, seq_2p: replace 567 at 5
+, seq_2: replace 7 at 5
+, seq_2: replace 10 at 6
+, seq_2: replace 8 at 7
+, seq_2: replace 567 at 5
 , seq_2p: replaced [ 1, 2, 4, 8, 16 ][5..4] by [ 32 ]
 , seq_2p: replaced [ 1, 2, 4, 8, 16, 32 ][6..5] by [ 64 ]
 , seq_2p: replaced [ 1, 2, 4, 8, 16, 32, 64 ][7..6] by [ 128 ]

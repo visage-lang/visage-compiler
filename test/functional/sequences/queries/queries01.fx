@@ -20,7 +20,7 @@ on replace oldValue[indx  .. lastIndex]=newElements {	insert "{oldValue}" into r
 /** seq2, 2^0 - 2^8 */
 attribute seq2 = [0,1,2,3,4]
 on replace oldValue[indx  .. lastIndex]=newElements
-  { insert "seq_2p: replace {newElements} at {indx}\n" into replacements;  };
+  { insert "seq_2: replace {newElements} at {indx}\n" into replacements;  };
 
 attribute seq_2p : Integer[]
 on replace oldValue[indx  .. lastIndex]=newElements
