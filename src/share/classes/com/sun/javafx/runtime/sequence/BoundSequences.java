@@ -45,6 +45,16 @@ public class BoundSequences {
         return new BoundCompositeSequence<T>(clazz, locations);
     }
 
+    /**
+     * Construct a bound sequence of the form
+     *   bind [ a, b, ... ]
+     * where a, b, ..., are sequence locations.
+     *
+     */
+    public static <T> SequenceLocation<T> concatenate(Class<T> clazz, SequenceLocation<? extends T>[] locations, int size) {
+        return new BoundCompositeSequence<T>(clazz, locations, size);
+    }
+
     /** Construct a bound sequence of the form
      *   bind reverse x
      * where x is a sequence.

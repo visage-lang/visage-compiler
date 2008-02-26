@@ -602,5 +602,40 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(a, 3, 2);
         assertEqualsAndClear(hl, "[0, 0] => [ ]");
     }
+
+    public void testBoundSequenceBuilder() {
+        BoundSequenceBuilder<Integer> sb = new BoundSequenceBuilder<Integer>(Integer.class);
+        IntLocation a = IntVariable.make(1);
+        final SequenceLocation<Integer> b = SequenceVariable.make(Sequences.make(Integer.class, 4, 5, 6));
+        IntLocation c = IntVariable.make(10);
+        SequenceLocation<Integer> d = SequenceVariable.make(Integer.class, new SequenceBindingExpression<Integer>() {
+            public Sequence<Integer> computeValue() {
+                return Sequences.make(Integer.class, b.getAsSequence().size());
+            }
+        }, b);
+
+        sb.add(a);
+        sb.add(b);
+        sb.add(c);
+        sb.add(d);
+        SequenceLocation<Integer> derived = sb.toSequence();
+        HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
+        derived.addChangeListener(hl);
+
+        assertEquals(derived, 1, 4, 5, 6, 10, 3);
+        assertEqualsAndClear(hl, "[0, -1] => [ 1, 4, 5, 6, 10, 3 ]");
+
+        b.insert(7);
+        assertEquals(derived, 1, 4, 5, 6, 7, 10, 4);
+        assertEqualsAndClear(hl, "[5, 5] => [ 4 ]", "[4, 3] => [ 7 ]");
+
+        b.delete(0);
+        assertEquals(derived, 1, 5, 6, 7, 10, 3);
+        assertEqualsAndClear(hl, "[6, 6] => [ 3 ]", "[1, 1] => [ ]");
+
+        b.deleteAll();
+        assertEquals(derived, 1, 10, 0);
+        assertEqualsAndClear(hl, "[5, 5] => [ 0 ]", "[1, 3] => [ ]");
+    }
 }
 

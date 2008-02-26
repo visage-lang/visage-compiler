@@ -57,9 +57,13 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
     }
 
     public BoundCompositeSequence(Class<T> clazz, SequenceLocation<? extends T>... locations) {
+        this(clazz, locations, locations.length);
+    }
+
+    public BoundCompositeSequence(Class<T> clazz, SequenceLocation<? extends T>[] locations, int size) {
         super(clazz);
-        this.infos = newInfoArray(locations.length);
-        for (int i = 0; i < infos.length; i++) {
+        this.infos = newInfoArray(size);
+        for (int i = 0; i < size; i++) {
             infos[i] = new Info<T>(locations[i]);
             Class eClass = locations[i].getAsSequence().getElementType();
             if (!clazz.isAssignableFrom(eClass))

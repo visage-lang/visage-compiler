@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.sequence.Sequence;
 
 /**
@@ -21,7 +22,11 @@ public class Util {
     @SuppressWarnings("unchecked")
     public static<T> Sequence<T>[] newSequenceArray(int size) {
         return (Sequence<T>[]) new Sequence[size];
+    }
 
+    @SuppressWarnings("unchecked")
+    public static<T> SequenceLocation<T>[] newSequenceLocationArray(int size) {
+        return (SequenceLocation<T>[]) new SequenceLocation[size];
     }
 
     public static int powerOfTwo(int current, int desired) {
