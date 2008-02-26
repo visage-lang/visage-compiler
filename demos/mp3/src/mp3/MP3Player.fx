@@ -1019,9 +1019,7 @@ public class Main extends CompositeNode {
     };
 }
 
-var fxframe: Frame;
-
-fxframe = Frame {
+var fxframe: Frame = Frame {
     undecorated: true
     visible: true
     content: Canvas {
