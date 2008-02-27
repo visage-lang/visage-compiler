@@ -201,9 +201,8 @@ public class MotoProducts extends MotoPanel {
         }
     };
         
-     override attribute content = Group {
+      override attribute content = Group {
         
-        ///var shadowImage = Image {url: "{__DIR__}Image/
         content: HBox {
             transform: Transform.translate(0, 10)
             content:
@@ -243,12 +242,9 @@ public class MotoProducts extends MotoPanel {
                                     fill: Color.color(0, 0, 0, .8)
                                 },
                                 VBox {
-                                    var row:Group;
                                     transform: Transform.translate(5, 5)
-/*
-Uncomment when JFX-760 is fixed
                                     content: bind for (p in products) {
-                                        
+                                        var row:Group;
                                         row = Group {
                                             transform: Transform.translate(0, margin)
                                             content:
@@ -266,7 +262,6 @@ Uncomment when JFX-760 is fixed
                                             }]
                                         };
                                     }
-*/
                                 }]
                             }]
                         },
@@ -332,10 +327,7 @@ Uncomment when JFX-760 is fixed
 
             }]
         }
-    };
-    
-
-
+    }
 }
 
 
