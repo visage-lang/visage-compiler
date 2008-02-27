@@ -9,29 +9,53 @@ import com.sun.javafx.runtime.Pointer;
 public class MotoCenterPanel extends CompositeNode {
     attribute height: Number = 300;
     attribute width: Number = 500;
-    //TODO GLOW
-    /***************************************************
-    function makeGlowAnim(filt:Pointer):Timeline{
-        Timeline {
-            keyFrames:
-            [KeyFrame {
-                keyTime: 0s
-                action: function() {
-                    //TODO GLOW FILTER
-                    //filt.set(Glow{});
-                }
-
-            },
-            KeyFrame {
-                keyTime: 400ms
-                action: function() {
-                    filt.set(null);
-                }
-            }]
-         }
-    }
-    ***************************************************/  
+    
     attribute pf: PointerFactory = PointerFactory{};
+    
+    attribute level1:Number;
+    attribute glow1:Glow = Glow{level:bind level1};
+    private attribute __level1 = bind pf.make(level1);
+    private attribute _level1 = __level1.unwrap();
+    attribute glow1Animation = Timeline {
+        keyFrames:
+        [KeyFrame {
+            keyTime: 0s
+            keyValues: NumberValue {
+                target: _level1;
+                value: .5
+            } 
+        },
+        KeyFrame {
+            keyTime: 400ms
+            keyValues: NumberValue {
+                target: _level1;
+                value: 0
+            } 
+        }]
+    };
+    attribute level2:Number;
+    attribute glow2:Glow = Glow{level:bind level2};
+    private attribute __level2 = bind pf.make(level2);
+    private attribute _level2 = __level2.unwrap();
+    
+    attribute glow2Animation = Timeline {
+        keyFrames:
+        [KeyFrame {
+            keyTime: 0s
+            keyValues: NumberValue {
+                target: _level2;
+                value: .5
+            } 
+        },
+        KeyFrame {
+            keyTime: 400ms
+            keyValues: NumberValue {
+                target: _level2;
+                value: 0
+            } 
+        }]
+    };    
+    
     private attribute rect:Rect;
     private attribute lhover:Boolean = bind rect.hover on replace { fade.start(); }
     private attribute alpha = .5;
@@ -57,9 +81,24 @@ public class MotoCenterPanel extends CompositeNode {
             }
         ]
     };    
+    attribute go1:Group;
+    attribute go1Hover = bind go1.hover on replace  {
+        if(go1Hover) {
+            glow1Animation.start();
+        }else {
+            glow1Animation.stop();
+        }
+    };
+    attribute go2:Group;
+      attribute go2Hover = bind go2.hover on replace  {
+        if(go2Hover) {
+            glow2Animation.start();
+        }else {
+            glow2Animation.stop();
+        }
+    };  
     function composeNode():Node {
-        var go1:Group;
-        var go2:Group;
+
         Clip {
             content:
             Group {
@@ -79,18 +118,7 @@ public class MotoCenterPanel extends CompositeNode {
                         }
                     },
                     go1 = Group {
-                        
-                        
-                        //TODO TRIGGER - GLOW 
-                        /************
-                         * var filt = null as Filter;
-                        var glowAnim = bind makeGlowAnim(pf.make(filt).unwrap());
-                        trigger on (h = box.hover) {
-                            if (h) { glowAnim.start(); } else { glowAnim.stop(); filt = null;}
-                        }
-                        filter: bind filt
-                        **********/
-                        
+                        filter: glow1
                         cursor: Cursor.HAND
                         content:
                         [ImageView {
@@ -122,15 +150,8 @@ public class MotoCenterPanel extends CompositeNode {
                         
                         content:
                         [go2 = Group {
-                            //TODO trigger - GLOW
-                            /**************
-                            var filt = null as Filter;
-                            var glowAnim = bind makeGlowAnim(pf.make(filt).unwrap());
-                            trigger on (h = box.hover) {
-                                if (h) { glowAnim.start(); }
-                            }
-                            filter: bind filt
-                            ********************/
+
+                            filter: glow2
                             
                             cursor: Cursor.HAND
                             content:
