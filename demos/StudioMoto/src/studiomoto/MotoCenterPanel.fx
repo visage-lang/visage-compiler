@@ -20,17 +20,27 @@ public class MotoCenterPanel extends CompositeNode {
         keyFrames:
         [KeyFrame {
             keyTime: 0s
+            /****
             keyValues: NumberValue {
                 target: _level1;
                 value: .8
             } 
+             * ****/
+            action: function() {
+                glow1 = Glow{level:0.8};
+            }
         },
         KeyFrame {
             keyTime: 400ms
+            /*****
             keyValues: NumberValue {
                 target: _level1;
                 value: 0
             } 
+             * ****/
+            action: function() {
+                glow1 = null;
+            }            
         }]
     };
     attribute level2:Number;
@@ -42,17 +52,27 @@ public class MotoCenterPanel extends CompositeNode {
         keyFrames:
         [KeyFrame {
             keyTime: 0s
+            /******
             keyValues: NumberValue {
                 target: _level2;
                 value: .8
             } 
+             * ****/
+            action: function() {
+                glow2 = Glow{level:0.8};
+            }            
         },
         KeyFrame {
             keyTime: 400ms
+            /***
             keyValues: NumberValue {
                 target: _level2;
                 value: 0
             } 
+             * ****/
+            action: function() {
+                glow2 = null;
+            }            
         }]
     };    
     
@@ -118,7 +138,7 @@ public class MotoCenterPanel extends CompositeNode {
                         }
                     },
                     go1 = Group {
-                        filter: glow1
+                        filter: bind glow1
                         cursor: Cursor.HAND
                         content:
                         [ImageView {
@@ -151,7 +171,7 @@ public class MotoCenterPanel extends CompositeNode {
                         content:
                         [go2 = Group {
 
-                            filter: glow2
+                            filter: bind glow2
                             
                             cursor: Cursor.HAND
                             content:

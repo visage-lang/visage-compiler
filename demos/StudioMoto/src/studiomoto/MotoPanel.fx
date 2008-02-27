@@ -85,17 +85,27 @@ public class MotoPanel extends Intro {
         keyFrames:
         [KeyFrame {
             keyTime: 0s
+            /********
             keyValues: NumberValue {
                 target: _level;
                 value: .8
             } 
+             * ****/
+            action: function() {
+                glow = Glow{};
+            }            
         },
         KeyFrame {
             keyTime: 300ms
+            /******
             keyValues: NumberValue {
                 target: _level;
                 value: 0
             } 
+             * ****/
+            action: function() {
+                glow = null;
+            }              
         }]
     }; 
     
@@ -109,7 +119,7 @@ public class MotoPanel extends Intro {
 
     function composeNode():Node {
         Clip {
-            filter: glow
+            filter: bind glow
             shape: Rect {height: bind height, width: bind width}
             onMouseClicked: function(e) {doIntro();}
             content:

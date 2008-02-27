@@ -25,17 +25,27 @@ public class MusicPanels extends CompositeNode {
         keyFrames:
         [KeyFrame {
             keyTime: 0s
+            /******
             keyValues: NumberValue {
                 target: _level;
                 value: .8
             } 
+             * ****/
+            action: function() {
+                glow = Glow{};
+            }              
         },
         KeyFrame {
             keyTime: 300ms
+            /******
             keyValues: NumberValue {
                 target: _level;
                 value: 0
             } 
+             * ****/
+            action: function() {
+                glow = null;
+            }              
         }]
     };
     
@@ -70,7 +80,7 @@ public class MusicPanels extends CompositeNode {
     function composeNode():Node {
         Group {
             //todo GLOW filter: bind if (alpha == 1) then select Glow[i] from i in [0, 1] animation {dur: 300ms} else null
-            filter: glow
+            filter: bind glow
             opacity: bind alpha
             content: bind selectedPanel
 
