@@ -39,6 +39,7 @@ public class DesktopPane extends Widget {
     };
     public attribute frames: InternalFrame[] on replace oldValue[lo..hi] = newVals {
         for(n in oldValue[lo..hi]) { jdesk.remove(n.getComponent()); }
+        if ( 0 < sizeof oldValue[lo..hi] ) { jdesk.repaint(); }   
         for(n in newVals) {
             n.desk = this;
             var i = n;
