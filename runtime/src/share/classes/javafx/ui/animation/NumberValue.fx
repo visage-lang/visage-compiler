@@ -26,6 +26,7 @@
 package javafx.ui.animation;
 import com.sun.scenario.animation.Interpolators;
 import java.lang.Object;
+import java.lang.Math;
 
 class QuadEaseIn extends NumberInterpolator {
     private static function linear(oldValue:Number, newValue:Number, t:Number):Number {
@@ -194,11 +195,11 @@ public class NumberValue extends KeyValue {
         };
     }
 
-    public static attribute EASEIN:NumberInterpolator = SPLINE(0, 0, .5, 1);
+    public static attribute EASEIN:NumberInterpolator = DefaultEaseIn {};
 
-    public static attribute EASEOUT:NumberInterpolator = SPLINE(0.5, 0, 1, 1);
+    public static attribute EASEOUT:NumberInterpolator = DefaultEaseOut {};
 
-    public static attribute EASEBOTH:NumberInterpolator = SPLINE(0.5, 0, 0.5, 1);
+    public static attribute EASEBOTH:NumberInterpolator = DefaultEaseBoth {};
 
     public static attribute DISCRETE:NumberInterpolator = NumberInterpolator {
         public function interpolate(oldValue:Number, newValue:Number,
