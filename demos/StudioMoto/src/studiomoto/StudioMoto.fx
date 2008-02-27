@@ -12,15 +12,18 @@ import javafx.lang.Time;
 
 var frame:Frame;
 var canvas:Canvas;
-var home:HomeButton;
-var pf: PointerFactory = PointerFactory{};
 
-var ys = [[0..-18 step -1],[-18..-12]];
-var homeY:Number = 0;
-var __homeY = bind pf.make(homeY);
-var _homeY = __homeY.unwrap();
-var interval = 300/sizeof ys;
-var homeSequence: Timeline = Timeline {
+// Workaround for lack of local var trigger
+class HomeModel {
+
+    attribute pf: PointerFactory = PointerFactory{};
+
+    attribute ys = [[0..-18 step -1],[-18..-12]];
+    attribute homeY:Number = 0;
+    attribute __homeY = bind pf.make(homeY);
+    attribute _homeY = __homeY.unwrap();
+    attribute interval = 300/sizeof ys;
+    attribute homeSequence: Timeline = Timeline {
         keyFrames: for(s in reverse ys) {
             KeyFrame {
                 keyTime: Time {millis: interval}
@@ -32,7 +35,7 @@ var homeSequence: Timeline = Timeline {
             }
         }
      };
-var homeSequenceR:Timeline = Timeline {
+    attribute homeSequenceR:Timeline = Timeline {
         keyFrames: for(s in  ys) {
             KeyFrame {
                 keyTime: Time {millis: interval}
@@ -43,33 +46,49 @@ var homeSequenceR:Timeline = Timeline {
                 }
             }
         }
-     };
+    };
+    attribute homeButton: HomeButton;
+    attribute selection: Integer on replace {
+        if (selection > 0) {
+            if(homeButton.hover) {
+                homeSequence.start();
+            } else {
+                homeSequenceR.start();
+            }
+        }
+    }
+};
+
+
 frame = Frame {
+
+    /** various bugs encounted with this attempt - which is itself a workaround for lack of local variable trigger: having these varibles at the top level gets undefined symbol $receiver
+var homeY:Number = 0;
+var selection = 0;
+var home: HomeButton;
+
+var homeModel = HomeModel {
+    homeY: bind homeY with inverse;
+    selection: bind selection with inverse;
+    homeButton: bind home with inverse
+};
+*/
+
+    // final workaround: change references to local var x to homeModel.x
+
+    var homeModel = HomeModel {}
+
     centerOnScreen: true
     onClose: function() {System.exit(0);}
     title: "JavaFX - Motorola Music"
     height: 700
     width: 1100
     visible: true 
-    var selection = /*bind*/ 0
-    //TODO Notice I had to move this up from its original 
-    //location around line 138. Seems the bind was not consistenly 
-    // being called from there ??????
-    var tmp:Number = bind if(selection > 0) {
-        if(home.hover) {
-             homeSequence.start();
-        }else {
-             homeSequenceR.start();
-        }
-        0;
-    } else {
-        homeY = 30;
-    }    
     var splash = StudioMotoSplash {
-        onDone: function() {selection = 0;}
+        onDone: function() {homeModel.selection = 0;}
     }    
     private attribute tshowing = bind showing on replace {
-            selection = 0;
+            homeModel.selection = 0;
             splash.doSplash();
     };
     
@@ -134,20 +153,20 @@ frame = Frame {
                             content: 
                             [Group {
                                 isSelectionRoot: true
-                                content:
-                                [Rect {height: 30+68, width: 139, selectable: true, fill: Color.color(0, 0, 0, 0), visible: bind selection > 0},
-                                (home = HomeButton {
+                                content: 
+                                [Rect {height: 30+68, width: 139, selectable: true, fill: Color.color(0, 0, 1, 0), visible: bind homeModel.selection > 0},
+                                (homeModel.homeButton = HomeButton {
                                     // TODO moved var tmp up to Frame at the top. See note there.
 
-                                    transform: bind Transform.translate(-5, -10 + homeY)
-                                    action: function() {selection = 0;}
+                                    transform: bind Transform.translate(-5, -10  + (if (homeModel.selection == 0) 30 else homeModel.homeY))
+                                    action: function() {homeModel.selection = 0;}
                                 }) as Node ]
                             },
                             
                             for (i in [0..<sizeof labels1]) 
                             MotoMenuButton {
                                 anim: a
-                                action: function() {selection = indexof i+1;}
+                                action: function() {homeModel.selection = indexof i+1;}
                                 label1: labels1[i]
                                 label2: labels2[i]
                                 transform: Transform.translate(5, 0)
@@ -194,7 +213,7 @@ frame = Frame {
             },
             MotoBottomPane {
                 transform: Transform.translate(100, 400)
-                selection: bind selection
+                selection: bind homeModel.selection
                 panels:
                 [MotoBottomPanel {
                     panelHeight: 170
