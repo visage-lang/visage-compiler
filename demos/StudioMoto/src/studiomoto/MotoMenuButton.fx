@@ -15,10 +15,8 @@ public class MotoMenuButton extends CompositeNode {
     attribute mouseOver: Boolean = bind rect.hover on replace {
         a.start();
         if (mouseOver) {
-            System.out.println("START button animation");
             anim.start();
         } else {
-            System.out.println("STOP button animation");
             anim.stop();
         }        
     };
