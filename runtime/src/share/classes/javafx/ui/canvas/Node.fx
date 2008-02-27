@@ -280,7 +280,6 @@ public abstract class Node extends CanvasElement, Transformable {
     private function updateEffect() {
         if (filterRoot <> null) {
             filterRoot.setEffect(filter.getImpl());
-            filterRoot.setCachedAsBitmap(filter <> null);
         }
     }
 
