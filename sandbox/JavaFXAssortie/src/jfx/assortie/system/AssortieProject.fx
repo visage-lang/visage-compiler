@@ -133,14 +133,14 @@ public class AssortieProject  extends CompositeWidget{
     
     function executeSample(sample: ProjectSample){
         
-        //insert InternalFrame{} into frameList;
-        
         var className = sample.className;
-        var obj = ProjectManager.runFXFile(className);
-        
+                
         var fileName = className.substring(className.lastIndexOf('.') + 1) + ".fx";
         
         code = ProjectManager.readResource(className, fileName);
+
+        var obj = ProjectManager.runFXFile(className);
+        //var obj = ProjectManager.runFXCode(className, code);
         
         insert Tab{
             title: sample.name
@@ -157,6 +157,8 @@ public class AssortieProject  extends CompositeWidget{
         
         
         var internalFrame: InternalFrame;
+        
+        System.out.println("[execute sample] " + obj);
         
         if(obj instanceof Frame){
             
