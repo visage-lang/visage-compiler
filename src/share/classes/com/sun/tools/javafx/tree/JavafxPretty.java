@@ -524,9 +524,8 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
 
     public void printTypeSpecifier(JFXType type) {
         try {
-            if (type instanceof JFXTypeUnknown
-                    && type.getCardinality() == Cardinality.SINGLETON)
-                    return;
+            if (type instanceof JFXTypeUnknown)
+                return;
             print(": ");
             printExpr(type);
         } catch (IOException e) {
