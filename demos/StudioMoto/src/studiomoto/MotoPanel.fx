@@ -77,11 +77,39 @@ public class MotoPanel extends Intro {
     function doIntro():Void {
        intro.start();
     }
+    attribute level:Number;
+    attribute glow:Glow = Glow{level:bind level};
+    private attribute __level = bind pf.make(level);
+    private attribute _level = __level.unwrap();
+    attribute glowAnimation = Timeline {
+        keyFrames:
+        [KeyFrame {
+            keyTime: 0s
+            keyValues: NumberValue {
+                target: _level;
+                value: .8
+            } 
+        },
+        KeyFrame {
+            keyTime: 300ms
+            keyValues: NumberValue {
+                target: _level;
+                value: 0
+            } 
+        }]
+    }; 
+    
+    override attribute hover on replace {
+        if(hover) {
+            glowAnimation.start();
+        }else {
+            glowAnimation.stop();
+        }
+    }
 
     function composeNode():Node {
         Clip {
-            //TODO GLOW animaton
-            //filter: bind if (hover) select Glow[i] from i in [0, 1] animation {dur: 300ms}  else null
+            filter: glow
             shape: Rect {height: bind height, width: bind width}
             onMouseClicked: function(e) {doIntro();}
             content:

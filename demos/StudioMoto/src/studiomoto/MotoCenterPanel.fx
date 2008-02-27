@@ -22,7 +22,7 @@ public class MotoCenterPanel extends CompositeNode {
             keyTime: 0s
             keyValues: NumberValue {
                 target: _level1;
-                value: .5
+                value: .8
             } 
         },
         KeyFrame {
@@ -44,7 +44,7 @@ public class MotoCenterPanel extends CompositeNode {
             keyTime: 0s
             keyValues: NumberValue {
                 target: _level2;
-                value: .5
+                value: .8
             } 
         },
         KeyFrame {
