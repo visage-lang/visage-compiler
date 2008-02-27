@@ -386,23 +386,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             memberEnter(l.head, env);
     }
 
-    /** Create a fresh environment for a variable's initializer.
-     *  If the variable is a field, the owner of the environment's scope
-     *  is be the variable itself, otherwise the owner is the method
-     *  enclosing the variable definition.
-     *
-     *  @param tree     The variable definition.
-     *  @param env      The environment current outside of the variable definition.
-     */
-    JavafxEnv<JavafxAttrContext> initEnv(JCVariableDecl tree, JavafxEnv<JavafxAttrContext> env) {
-        JavafxEnv<JavafxAttrContext> localEnv = env.dupto(new JavafxAttrContextEnv(tree, env.info.dup()));
-        if ((tree.mods.flags & STATIC) != 0 ||
-            (env.enclClass.sym.flags() & INTERFACE) != 0)
-            localEnv.info.staticLevel++;
-        localEnv.outer = env;
-        return localEnv;
-    }
-
     @Override
     public void visitTree(JCTree tree) {
         if (tree instanceof JFXBlockExpression)

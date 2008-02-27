@@ -920,26 +920,30 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             Type initType;
             if (tree.init != null) {
-                    // Attribute initializer in a new environment
-                    // with the declared variable as owner.
-                    // Check that initializer conforms to variable's declared type.
-                    JavafxEnv<JavafxAttrContext> initEnv = memberEnter.initEnv(tree, env);
-                    initEnv.info.lint = lint;
-                    // In order to catch self-references, we set the variable's
-                    // declaration position to maximal possible value, effectively
-                    // marking the variable as undefined.
-                    v.pos = Position.MAXPOS;
-                    initType = attribExpr(tree.init, initEnv, declType);
-                    initType = chk.checkNonVoid(tree.pos(), initType);
-                    chk.checkType(tree.pos(), initType, declType, Sequenceness.DISALLOWED);
-                    if (initType == syms.botType
-                            || initType == syms.unreachableType)
-                        initType = syms.objectType;
-                    else if (initType.isPrimitive()
-                             &&  initType != syms.javafx_NumberType
-                             &&  initType != syms.javafx_IntegerType
-                             &&  initType != syms.javafx_BooleanType)
-                        initType = types.boxedClass(initType).type;
+                // Attribute initializer in a new environment.
+                // Check that initializer conforms to variable's declared type.
+                Scope initScope = new Scope(new MethodSymbol(BLOCK, v.name, null, env.info.scope.owner));
+                initScope.next = env.info.scope;
+                JavafxEnv<JavafxAttrContext> initEnv =
+                    env.dup(tree, env.info.dup(initScope));
+                initEnv.outer = env;
+                initEnv.info.lint = lint;
+
+                // In order to catch self-references, we set the variable's
+                // declaration position to maximal possible value, effectively
+                // marking the variable as undefined.
+                v.pos = Position.MAXPOS;
+                initType = attribExpr(tree.init, initEnv, declType);
+                initType = chk.checkNonVoid(tree.pos(), initType);
+                chk.checkType(tree.pos(), initType, declType, Sequenceness.DISALLOWED);
+                if (initType == syms.botType
+                        || initType == syms.unreachableType)
+                    initType = syms.objectType;
+                else if (initType.isPrimitive()
+                         &&  initType != syms.javafx_NumberType
+                         &&  initType != syms.javafx_IntegerType
+                         &&  initType != syms.javafx_BooleanType)
+                    initType = types.boxedClass(initType).type;
             }
             else if (tree.type != null)
                 initType = tree.type;
@@ -1027,13 +1031,14 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         try {
             if (tree.getInitializer() != null) {
-                // Attribute initializer in a new environment
-                // with the declared variable as owner.
+                // Attribute initializer in a new environment/
                 // Check that initializer conforms to variable's declared type.
-                JavafxEnv<JavafxAttrContext> initEnv = env.dupto(new JavafxAttrContextEnv(tree, env.info.dup()));
+                Scope initScope = new Scope(new MethodSymbol(BLOCK, v.name, null, env.info.scope.owner));
+                initScope.next = env.info.scope;
+                JavafxEnv<JavafxAttrContext> initEnv =
+                    env.dup(tree, env.info.dup(initScope));
                 initEnv.outer = env;
-                initEnv.info.lint = lint;
-
+               
                 // In order to catch self-references, we set the variable's
                 // declaration position to maximal possible value, effectively
                 // marking the variable as undefined.
@@ -1280,9 +1285,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitBlockExpression(JFXBlockExpression tree) {
         // Create a new local environment with a local scope.
-        Scope localScope = new Scope(null);
+        Scope localScope = new Scope(env.info.scope.owner);
         localScope.next = env.info.scope;
-        localScope.owner = env.info.scope.owner;
         JavafxEnv<JavafxAttrContext> localEnv =
                 env.dup(tree, env.info.dup(localScope));
         localEnv.outer = env;
@@ -1384,6 +1388,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // The local environment of a class creation is
         // a new environment nested in the current one.
         JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
+        localEnv.info.scope.owner = new MethodSymbol(BLOCK, names.empty, null, env.info.scope.owner);
 
         List<JFXVar> vars = tree.getLocalvars();
         memberEnter.memberEnter(vars, localEnv);

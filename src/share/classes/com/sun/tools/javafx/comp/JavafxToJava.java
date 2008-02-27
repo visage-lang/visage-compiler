@@ -518,8 +518,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         state = new State();
         currentClass = tree;
 
-        new ForEachInClauseOwnerFixer().scan(tree);
-
         boolean prevInOper = inOperationDef;
         try {
             inOperationDef = false;
@@ -797,12 +795,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             type = tree.type;
         } else {
             JFXClassDeclaration cdef = tree.getClassBody();
-            if (!inOperationDef) {
-                prependToStatements.append( translate( cdef ) );  // prepend to the enclosing statements, class or top-level
-            }
-            else {
-                stats.append(translate(cdef));
-            }
+            stats.append(translate(cdef));
             type = cdef.type;
         }
         JCExpression classTypeExpr = makeTypeTree(type, tree, false);
@@ -820,7 +813,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             JCIdent thisIdent = make.Ident(defs.receiverName);
             thisIdent.sym = tree.getClassBody().sym.owner;
             thisIdent.type = tree.getClassBody().sym.owner.type;
-            
+
             newClassArgs = newClassArgs.prepend(thisIdent);
         }
 
@@ -3525,108 +3518,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
         }
         return sb.toString();
-    }
-
-    // Fix up the owner of the ForeachInClause.var JFXVar symbol. When it is created it is set to be 
-    // the outer ClassDeclaration and therefor is treated as an attribute instead of local var.
-    static class ForEachInClauseOwnerFixer extends JavafxTreeScanner {
-        Symbol currentSymbol;
-        
-        @Override
-        public void visitVar(JFXVar tree) {
-            Symbol prevSymbol = currentSymbol;
-            try {
-                currentSymbol = tree.sym;
-                super.visitVar(tree);
-            }
-            finally {
-                currentSymbol = prevSymbol;
-            }
-        }
-        
-        @Override
-        public void visitOverrideAttribute(JFXOverrideAttribute tree) {
-            Symbol prevSymbol = currentSymbol;
-            try {
-                currentSymbol = tree.sym;
-                super.visitOverrideAttribute(tree);
-            }
-            finally {
-                currentSymbol = prevSymbol;
-            }
-        }
-        
-        @Override
-        public void visitOperationDefinition(JFXFunctionDefinition tree) {
-            Symbol prevSymbol = currentSymbol;
-            try {
-                currentSymbol = tree.sym;
-                super.visitOperationDefinition(tree);
-            }
-            finally {
-                currentSymbol = prevSymbol;
-            }
-        }
-        
-        @Override
-        public void visitInitDefinition(JFXInitDefinition tree) {
-            Symbol prevSymbol = currentSymbol;
-            try {
-                currentSymbol = tree.sym;
-                super.visitInitDefinition(tree);
-            }
-            finally {
-                currentSymbol = prevSymbol;
-            }
-        }
-
-        @Override
-        public void visitPostInitDefinition(JFXPostInitDefinition tree) {
-            Symbol prevSymbol = currentSymbol;
-            try {
-                currentSymbol = tree.sym;
-                super.visitPostInitDefinition(tree);
-            }
-            finally {
-                currentSymbol = prevSymbol;
-            }
-        }
-
-        @Override
-        public void visitClassDeclaration(JFXClassDeclaration tree) {
-            Symbol prevSymbol = currentSymbol;
-            try {
-                currentSymbol = tree.sym;
-                super.visitClassDeclaration(tree);
-            }
-            finally {
-                currentSymbol = prevSymbol;
-            }
-        }
-        
-        @Override
-        public void visitVarDef(JCVariableDecl tree) {
-            assert false : "should not be in JavaFX AST";
-        }
-        
-        @Override
-        public void visitMethodDef(JCMethodDecl tree) {
-            assert false : "should not be in JavaFX AST";
-        }
-                        
-        @Override
-        public void visitClassDef(JCClassDecl tree) {
-            assert false : "should not be in JavaFX AST";
-        }
-                
-        @Override
-        public void visitForExpressionInClause(JFXForExpressionInClause tree) {
-            if (tree.var != null) {
-                tree.var.sym.owner = currentSymbol;
-            }
-            super.visitForExpressionInClause(tree);
-        }
-
     }
 
     private void fillClassesWithOuters(JCCompilationUnit tree) {
