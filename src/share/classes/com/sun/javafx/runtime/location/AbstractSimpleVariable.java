@@ -37,13 +37,15 @@ public abstract class AbstractSimpleVariable implements Location {
     protected List<WeakReference<Location>> dependencies;
 
     protected void notifyDependencies() {
-        for (Iterator<WeakReference<Location>> iterator = dependencies.iterator(); iterator.hasNext();) {
-            WeakReference<Location> lr = iterator.next();
-            Location loc = lr.get();
-            if (loc == null)
-                iterator.remove();
-            else
-                loc.invalidate();
+        if (dependencies != null) {
+            for (Iterator<WeakReference<Location>> iterator = dependencies.iterator(); iterator.hasNext();) {
+                WeakReference<Location> lr = iterator.next();
+                Location loc = lr.get();
+                if (loc == null)
+                    iterator.remove();
+                else
+                    loc.invalidate();
+            }
         }
     }
 
