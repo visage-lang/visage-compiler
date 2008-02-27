@@ -3721,4 +3721,12 @@ public
     public void visitTimeLiteral(JFXTimeLiteral tree) {
         result = check(tree, syms.javafx_TimeType, VAL, pkind, pt, pSequenceness);
     }
+
+    public void visitInterpolateExpression(JFXInterpolateExpression tree) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void visitInterpolateValue(JFXInterpolateValue tree) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

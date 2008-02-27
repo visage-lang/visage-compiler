@@ -32,6 +32,7 @@ import java.util.Map;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.javafx.api.tree.InterpolateValueTree;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
@@ -39,6 +40,7 @@ import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Position;
+import java.util.Iterator;
 
 /** Prints out a tree as an indented Java source program.
  *
@@ -803,6 +805,45 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             print(d + tree.duration.getSuffix());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitInterpolateExpression(JFXInterpolateExpression tree) {
+        try {
+            print(tree.getVariable());
+            print(" => {");
+            Iterator<InterpolateValueTree> values = tree.getInterpolateValues().iterator();
+            while (values.hasNext()) {
+                InterpolateValueTree val = values.next();
+                print(val.getAttributeName());
+                print(": ");
+                print(val.getValue());
+                printTween(val);
+                if (values.hasNext())
+                    print(", ");
+            }
+            print('}');
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitInterpolateValue(JFXInterpolateValue tree) {
+        try {
+            print(tree.getAttributeName());
+            print(" => ");
+            print(tree.getValue());
+            printTween(tree);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+    
+    private void printTween(InterpolateValueTree tree) throws IOException {
+        String tween = tree.getInterpolation();
+        if (tween != null && tween.length() > 0) {
+            print(" tween ");
+            print(tween);
         }
     }
 }

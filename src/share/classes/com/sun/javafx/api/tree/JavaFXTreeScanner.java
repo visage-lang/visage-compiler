@@ -219,4 +219,14 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
     public R visitTimeLiteral(TimeLiteralTree node, P p) {
         return null;
     }
+
+    public R visitInterpolateExpression(InterpolateExpressionTree node, P p) {
+        R r = scan(node.getVariable(), p);
+        return scanAndReduce(node.getInterpolateValues(), p, r);
+    }
+
+    public R visitInterpolateValue(InterpolateValueTree node, P p) {
+        R r = scan(node.getAttributeName(), p);
+        return scanAndReduce(node.getValue(), p, r);
+    }
 }

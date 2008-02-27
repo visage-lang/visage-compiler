@@ -169,4 +169,12 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
     public R visitTimeLiteral(TimeLiteralTree node, P p) {
         return defaultAction(node, p);
     }
+
+    public R visitInterpolateExpression(InterpolateExpressionTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitInterpolateValue(InterpolateValueTree node, P p) {
+        return defaultAction(node, p);
+    }
 }

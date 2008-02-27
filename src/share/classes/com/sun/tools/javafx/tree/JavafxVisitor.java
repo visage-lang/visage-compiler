@@ -63,4 +63,6 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitIndexof(JFXIndexof tree);
     public void visitTimeLiteral(JFXTimeLiteral tree);
     public void visitOverrideAttribute(JFXOverrideAttribute tree);
+    public void visitInterpolateExpression(JFXInterpolateExpression tree);
+    public void visitInterpolateValue(JFXInterpolateValue tree);
 }
