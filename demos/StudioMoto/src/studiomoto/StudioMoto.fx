@@ -137,7 +137,7 @@ frame = Frame {
                                 content:
                                 [Rect {height: 30+68, width: 139, selectable: true, fill: Color.color(0, 0, 0, 0), visible: bind selection > 0},
                                 (home = HomeButton {
-                                    
+                                    // TODO moved var tmp up to Frame at the top. See note there.
 
                                     transform: bind Transform.translate(-5, -10 + homeY)
                                     action: function() {selection = 0;}
