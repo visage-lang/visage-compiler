@@ -11,40 +11,39 @@ public class MotoBottomPanel extends Intro {
     attribute panelWidth: Number;
     attribute panelHeight: Number;
     attribute panelMargin: Number;
-    attribute panels: Intro[];
+    attribute panels: Intro[] on replace { createTimeline(); }
     attribute promotions: Intro;
     attribute musicStuff: Intro;
     attribute insideMusic: Intro;
     attribute guitarPicks: Intro;
     attribute pf: PointerFactory = PointerFactory{};
-    private attribute introAnim: Timeline = bind Timeline {
-        var size = sizeof panels;
-        keyFrames: [
-            KeyFrame {
+    private attribute introAnim: Timeline;
+    function createTimeline():Void {
+        System.out.println("creating timeline: {sizeof panels}");
+        introAnim  = Timeline {
+        keyFrames: for (p in panels)
+            [KeyFrame {
                 keyTime: 0s
-                keyValues: for (p in panels) {
+                keyValues: 
                     NumberValue {
                         target: bind pf.make(p.opacity).unwrap();
                         value: 0
                     }
-                }
             },
             KeyFrame {
-                keyTime: 200ms
-                keyValues: for(p in panels) {
+                keyTime: 400ms * indexof p
+                keyValues:
                     NumberValue {
                         target: bind pf.make(p.opacity).unwrap()
                         value: 1
                     }
-                }
                 action: function() {
-                    for (p in panels) {
                      p.doIntro(); System.out.println("doing intro...");
-                   }
                 }
-            }
-        ]
-    };
+            }]
+        
+    }
+}
     
     function doIntro():Void {
        introAnim.start();

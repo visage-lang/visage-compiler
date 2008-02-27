@@ -5,26 +5,49 @@ import javafx.ui.canvas.*;
 import java.lang.Math;
 import javafx.ui.animation.*;
 
+// workarounds for lack of working local variable trigger
+class Helper1 {
+    attribute n: Number;
+    attribute rand: Integer;
+    attribute t: Number on replace {
+        rand = (Math.random()*n + 0.5).intValue();
+    }
+}
+
+class Helper2 {
+    attribute i: Integer;
+    attribute j: Integer;
+    attribute rand: Integer on replace {
+        if (j % 2 == rand % 2) {
+            if (rand <= i) {
+                alpha = 1;
+            } else {
+                alpha = 0;
+            }
+        }
+        //System.out.println("j={j} i={i} rand={rand} alpha={alpha}");
+    }
+    attribute alpha: Number;
+}
+
 public class MotoMenuAnimation extends CompositeNode {
     attribute active: Boolean
             on replace { if (active) anim.start() else anim.stop(); };
     function stop() { active = false }
     function start() { active = true }
-    attribute t: Number on replace {     
-        rand = makeRandom();
-    };
+    attribute t: Number;
     attribute anim: Timeline = Timeline {
         repeatCount: java.lang.Integer.MAX_VALUE
 	keyFrames: KeyFrame {
-            keyTime: 1s
+            keyTime: 1s/16
             action: function() {
                 t++;
             }
         }
     };
+
     private attribute n:Number = 10;
-    private function makeRandom():Integer {return (Math.random()*n).intValue();}
-    private attribute rand:Integer = 0;
+
     function composeNode():Node {
         Group {
             content: 
@@ -32,30 +55,27 @@ public class MotoMenuAnimation extends CompositeNode {
                 content:
                 for (j in [1..16]) 
                     VBox {
+                        var helper1 = Helper1 {n: n, t: bind t}
                         transform: Transform.translate(1.2, 0)
                         content:
                         for (i in [1..n]) {
-                            // NOTE the original version of this was 
-                            // was calculating (indexof i)/n as always zero because
-                            // of Integer divide. This does FP divide.
                             var m:Number = (indexof i).doubleValue();
                             var r = (1.0 - (m/n))*.5;
                             var green = .5 + r;
                             Rect {
-                                var self = this
-                                var ndxi = indexof i
-                                var ndxj = indexof j
-                                var xrand = bind rand
-                                    on replace {
-                                        System.out.println("rand={xrand}" );
-                                        if (xrand % 2 == ndxj % 2) {
-                                            self.opacity = if (xrand <= ndxi) 1 else 0;
-                                        }
-                                    }
                                 transform: Transform.translate(0, .5)
                                 height: 1.5
                                 width: 4
-                                fill: Color.color(1, green, 0, 1)
+                                var helper2 = Helper2 {
+                                    i: indexof i
+                                    j: indexof j
+                                    rand: bind helper1.rand
+                                }
+                                // NOTE!! Scenario has repaint and severe performance bugs with opacity (AlphaComposite)
+                                //opacity: bind helper2.alpha
+                                //
+                                // working around it here with the color alpha
+                                fill: bind Color.color(1, green, 0, helper2.alpha)
                             };
                         }
                     }

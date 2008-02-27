@@ -5,7 +5,7 @@ import javafx.ui.filter.*;
 import javafx.ui.animation.*;
 import com.sun.javafx.runtime.PointerFactory;
 import com.sun.javafx.runtime.Pointer;
-
+import java.lang.System;
 
 public class MotoPanel extends Intro {
     attribute width: Number;
@@ -112,16 +112,19 @@ public class MotoPanel extends Intro {
     override attribute hover on replace {
         if(hover) {
             glowAnimation.start();
-        }else {
+        } else {
+          System.out.println("stopping glow animation {this}");
             glowAnimation.stop();
+            glow = null;
         }
     }
 
     function composeNode():Node {
         Clip {
-            filter: bind glow
             shape: Rect {height: bind height, width: bind width}
             onMouseClicked: function(e) {doIntro();}
+            content: Group {
+            filter: bind glow
             content:
             [ImageView {
                 transform: Transform.translate(0, 2)
@@ -175,6 +178,7 @@ public class MotoPanel extends Intro {
                     }]
                 }
             }]
+        }
         };
     };
 };
