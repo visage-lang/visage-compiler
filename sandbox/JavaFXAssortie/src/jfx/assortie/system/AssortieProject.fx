@@ -62,8 +62,23 @@ public class AssortieProject  extends CompositeWidget{
     private attribute samples:ProjectSample[];
     
     private attribute codeTabs:Tab[];
+    
     private attribute selectedCodeIndex: Number;
+    private attribute selectedSampleIndex: Integer;
+
     private attribute code:String;
+    
+    private attribute selectedModule:Object on replace{
+        System.out.println("[selected module] {selectedModule}");
+        selectedSampleIndex = 0;
+
+        var cell = selectedModule as TreeCell;
+        var m = cell.value as ProjectModule;
+        samples = m.samples;
+        System.out.println("[selected value] {m}");
+        
+    };
+
     
     public attribute rootModule:String on replace{
         initProject();
@@ -174,8 +189,16 @@ public class AssortieProject  extends CompositeWidget{
                 title: frame.title
                 width: frame.width
                 height: frame.height
-                onClose: function(){ System.out.println("Close frame: {sample.name}");
-                sample.frame = null; }
+                onClose: function(){ 
+                    System.out.println("Close frame: {sample.name}");
+                    sample.frame = null; 
+                    for(tab in codeTabs){
+                        if(tab.title == sample.name){
+                            delete tab from codeTabs;
+                        }
+                    }
+                    delete internalFrame from frames;
+                }
                 content: frame.content
                 background: if (background==null) then Color.WHITE else Color{ red: background.getRed() green: background.getGreen() blue: background.getBlue() }
             };
@@ -210,7 +233,7 @@ public class AssortieProject  extends CompositeWidget{
                                 center: Tree{
                                     rootVisible: false
                                     root: treeCell
-                                    //selectedValue: bind val
+                                    selectedValue: bind selectedModule with inverse
                                     onSelectionChange: function(){ System.out.println("[tree] selection changed!");} 
                                 }
                             }
@@ -219,18 +242,17 @@ public class AssortieProject  extends CompositeWidget{
                             content: BorderPanel{
                                 top: Label { text: "Samples"}
                                 center: ListBox{
-                                    var n = 0
-                                    selection: bind n with inverse
+                                    selection: bind selectedSampleIndex with inverse
                                     cells: bind for( sample in samples)
                                         ListCell{
                                             text: sample.name
                                         }
                                         action: function(){
-                                            var sample = samples[n.intValue()];
-                                            System.out.println("Sample: {sample.name}");
-                                            //if(sample.frame ==  null){
-                                            executeSample(sample);
-                                            //}
+                                            var sample = samples[selectedSampleIndex.intValue()];
+                                            //System.out.println("[execute] Sample: {sample.name}");
+                                            if(sample.frame ==  null){
+                                                executeSample(sample);
+                                            }
                                         }
                                 }
                             }
