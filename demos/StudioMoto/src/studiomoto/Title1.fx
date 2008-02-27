@@ -75,19 +75,21 @@ public class Title1 extends CompositeNode {
     };
 
     private attribute rect:Rect;
-    private attribute mouseOver:Boolean on replace {
+    private attribute mouseOver:Boolean = bind rect.hover on replace {
         a.start();
     };
     attribute title = this;
     function composeNode():Node {
         power = View {
             content: Label {
+                focusable: true
                 font: Font.Font("Arial", ["BOLD"], 10)
                 text: bind label3 //"power"
                 foreground: Color.YELLOW
             }
             transform: bind Transform.translate(1, -power.currentHeight + powerY)
-        };  
+        }; 
+
         var group:Group;
         group = Group {
             cursor: Cursor.HAND
@@ -101,14 +103,18 @@ public class Title1 extends CompositeNode {
                         [Group {
                             var poweredBy = View {
                                 content: Label {
+                                    focusable: true
                                     font: Font.Font("Arial", ["BOLD"], 10)
                                     text: bind label1 //"powered by", 
                                     foreground: Color.color(1, 1, 1, .5)
                                 }
+                                
                                 transform: bind Transform.translate(1, poweredByY)
                             },
+
                             var motorola = View {
                                 content: Label {
+                                    focusable: true
                                     font: Font.Font("Arial", ["PLAIN"], 18)
                                     text: bind label2 //"Motorola", 
                                     foreground: Color.WHITE 
@@ -116,7 +122,7 @@ public class Title1 extends CompositeNode {
                                 transform: bind Transform.translate(1, motorolaY)
 
                             };
-                            
+
 
                             content: 
                             [
@@ -149,15 +155,8 @@ public class Title1 extends CompositeNode {
                 cursor: Cursor.HAND
                 height: bind title.height
                 width:  bind title.width
-                //stroke: Color.WHITE
                 fill: Color.color(0, 0, 0,  0)
                 selectable: true
-                onMouseEntered: function(e:CanvasMouseEvent) {
-                    mouseOver = true;
-                }
-                onMouseExited: function(e:CanvasMouseEvent) {
-                    mouseOver = false;
-                }             
             }]
         };
         group;
