@@ -165,6 +165,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private static final String sequencesRangeExclusiveString = "com.sun.javafx.runtime.sequence.Sequences.rangeExclusive";
     private static final String sequencesEmptyString = "com.sun.javafx.runtime.sequence.Sequences.emptySequence";
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.SequenceBuilder";
+    private static final String boundSequenceBuilderString = "com.sun.javafx.runtime.sequence.BoundSequenceBuilder";
     private static final String toSequenceString = "toSequence";
     private static final String methodThrowsString = "java.lang.Throwable";
     private static final String syntheticNamePrefix = "jfx$$";
@@ -1801,7 +1802,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         */
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         Type elemType = elementType(tree.type);
-        UseSequenceBuilder builder = new UseSequenceBuilder(tree.pos(), elemType);
+        UseSequenceBuilder builder = new UseSequenceBuilder(tree.pos(), elemType, false);
         stmts.append(builder.makeBuilderVar());
         for (JCExpression item : tree.getItems()) {
             stmts.append(builder.makeAdd( item ) );
@@ -2019,15 +2020,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     
     }
 
-    private Name getSyntheticName(String kind) {
+    Name getSyntheticName(String kind) {
         return Name.fromString(names, syntheticNamePrefix + syntheticNameCounter++ + kind);
     }
 
-    private JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, Type type, JCExpression value) {
+    JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, Type type, JCExpression value) {
         return makeTmpVar(diagPos, "tmp", type, value);
     }
 
-    private JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, String rootName, Type type, JCExpression value) {
+    JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, String rootName, Type type, JCExpression value) {
             return make.at(diagPos).VarDef(
                           make.at(diagPos).Modifiers(Flags.FINAL),
                           getSyntheticName(rootName),
@@ -2139,19 +2140,26 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return ((JavafxTreeMaker)make).at(diagPos).BlockExpression(0, stmts.toList(), value);
     }
     
+    UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType, boolean isBound) {
+        return new UseSequenceBuilder(diagPos, elemType, isBound);
+    }
+    
     class UseSequenceBuilder {
         final DiagnosticPosition diagPos;
-        Type elemType;
+        final Type elemType;
+        final boolean isBound;
         
         Name sbName;
         
-        UseSequenceBuilder(DiagnosticPosition diagPos, Type elemType) {
+        UseSequenceBuilder(DiagnosticPosition diagPos, Type elemType, boolean isBound) {
             this.diagPos = diagPos;
             this.elemType = elemType;
+            this.isBound = isBound;
         }
         
         JCStatement makeBuilderVar() {
-            JCExpression builderTypeExpr = makeQualifiedTree(diagPos, sequenceBuilderString);
+            JCExpression builderTypeExpr = makeQualifiedTree(diagPos, 
+                    isBound? boundSequenceBuilderString : sequenceBuilderString);
             List<JCExpression> btargs = List.of(makeTypeTree(elemType, diagPos));
             builderTypeExpr = make.at(diagPos).TypeApply(builderTypeExpr, btargs);
 
@@ -2546,7 +2554,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             assert tree.type.getTypeArguments().size() == 1;
             Type elemType = elementType(tree.type);
 
-            UseSequenceBuilder builder = new UseSequenceBuilder(diagPos, elemType);
+            UseSequenceBuilder builder = new UseSequenceBuilder(diagPos, elemType, false);
             stmts.append(builder.makeBuilderVar());
 
             // Build innermost loop body
