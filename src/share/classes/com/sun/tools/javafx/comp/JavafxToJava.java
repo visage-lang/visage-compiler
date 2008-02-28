@@ -422,6 +422,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                    decl.sym.flags_field |= STATIC;
                    changed = true;
                    JCExpression init = decl.init;
+                   decl.sym.owner = module.type.tsym;
                    if (init != null) {
                         Name name = decl.name;
                         make.at(decl);
@@ -429,7 +430,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         if (bindStatus != JavafxBindStatus.UNBOUND)
                             init = make.BindExpression(init, bindStatus);
                         JCIdent lhs = make.Ident(name);
-                        decl.sym.owner = module.type.tsym;
                         lhs.sym = decl.sym;
                         stats.append(make.Exec(make.Assign(lhs, init)));
                         decl.init = null;
