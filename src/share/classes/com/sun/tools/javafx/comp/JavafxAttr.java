@@ -1582,6 +1582,68 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         m.complete();
     }
 
+    /** Search super-clases for a parameter type in a matching method.
+     * The idea is that when a formal parameter isn't specified in a class
+     * function, see if there is a method with the same name in a superclass,
+     * and use that method's parameter type.  If there are multiple methods
+     * in super-classes that all have the same name and argument count,
+     * the parameter types have to be the same in all of them.
+     * @param csym Class to search.
+     * @param name Name of matching methods.
+     * @param paramCount Number of parameters of matching methods.
+     * @param paramNum The parameter number we're concerned about,
+     *    or -1 if we're searching for the return type.
+     * @return The found type.  Null is we found no match.
+     *   Notype if we found an ambiguity.
+     */
+    Type searchSupersForParamType (ClassSymbol c, Name name, int paramCount, int paramNum) {
+        Type found = null;
+        
+        for (Scope.Entry e = c.members().lookup(name);
+                 e.scope != null;
+                 e = e.next()) {
+            if ((e.sym.kind & MTH) == 0 ||
+                        (e.sym.flags_field & (STATIC|SYNTHETIC)) != 0)
+                continue;
+            Type mt = types.memberType(c.type, e.sym);
+            if (mt == null)
+                continue;
+            List<Type> formals = mt.getParameterTypes();
+            if (formals.size() != paramCount)
+                continue;
+            Type t = paramNum >= 0 ? formals.get(paramNum) : mt.getReturnType();
+            if (t == Type.noType) 
+                return t;
+            if (found == null)
+                found = t;
+            else if (t != null && found != t)
+                return Type.noType;
+        }
+ 
+        Type st = types.supertype(c.type);
+        if (st.tag == CLASS) {
+            Type t = searchSupersForParamType((ClassSymbol)st.tsym, name, paramCount, paramNum);
+            if (t == Type.noType) 
+                return t;
+            if (found == null)
+                found = t;
+            else if (t != null && found != t)
+                return Type.noType;
+        }
+	for (List<Type> l = types.interfaces(c.type);
+		     l.nonEmpty();
+		     l = l.tail) {
+            Type t = searchSupersForParamType((ClassSymbol)l.head.tsym, name, paramCount, paramNum);
+            if (t == Type.noType) 
+                return t;
+            if (found == null)
+                found = t;
+            else if (t != null && found != t)
+                return Type.noType;
+        }
+        return found;
+    }
+    
     public void finishOperationDefinition(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
         MethodSymbol m = tree.sym;
         JFXFunctionValue opVal = tree.operation;
@@ -1616,18 +1678,30 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 mtype = pt.asMethodType();
                 pparam = mtype.getParameterTypes();
             }
-            for (List<JFXVar> l = tree.getParameters(); l.nonEmpty(); l = l.tail) {
+            int paramNum = 0;
+            List<JFXVar> params = tree.getParameters();
+            int paramCount = params.size();
+            for (List<JFXVar> l = params; l.nonEmpty(); l = l.tail) {
                 JFXVar pvar = l.head;
                 Type type;
                 if (pparam != null && pparam.nonEmpty()) {
                     type = pparam.head;
                     pparam = pparam.tail;
                 }
-                else
+                else {
                     type = syms.objectType;
+                    if (pvar.getJFXType() instanceof JFXTypeUnknown) {
+                        Type t = searchSupersForParamType (owner, m.name, paramCount, paramNum);
+                        if (t == Type.noType)
+                            log.warning(pvar.pos(), "javafx.ambiguous.param.type.from.super");
+                        else if (t != null)
+                            type = t;
+                    }
+                }
                 pvar.type = type;
                 type = attribVar(pvar, localEnv);
                 argbuf.append(type);
+                paramNum++;
             }
             returnType = syms.unknownType;
             if (opVal.getJFXReturnType().getTag() != JavafxTag.TYPEUNKNOWN)
@@ -1636,6 +1710,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 Type mrtype = mtype.getReturnType();
                 if (mrtype != null && mrtype.tag != TypeTags.NONE)
                     returnType = mrtype;
+            } else {
+                // If we made use of the parameter types to select a matching
+                // method, we could presumably get a non-ambiguoys return type.
+                // But this is pretty close, in practice.
+                Type t = searchSupersForParamType (owner, m.name, paramCount, -1);
+                if (t == Type.noType)
+                    log.warning(tree.pos(), "javafx.ambiguous.return.type.from.super");
+                else if (t != null)
+                    returnType = t;
             }
             if (returnType == syms.javafx_java_lang_VoidType)
                 returnType = syms.voidType;
