@@ -73,4 +73,14 @@ public class ElementLocationTest extends JavaFXTestCase {
 //        seq.setAsSequence(Sequences.range(1, 5));
 //        assertEquals((int) second.get(), 1);
     }
+
+    public void testSizeof() {
+        SequenceLocation<Integer> seq = SequenceVariable.make(Sequences.range(1, 3));
+        IntLocation size = BoundSequences.sizeof(seq);
+        assertEquals(3, size.getAsInt());
+        seq.deleteAll();
+        assertEquals(0, size.getAsInt());
+        seq.insert(3);
+        assertEquals(1, size.getAsInt());
+    }
 }

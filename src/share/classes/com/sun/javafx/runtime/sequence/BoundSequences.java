@@ -25,9 +25,7 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.location.IntLocation;
-import com.sun.javafx.runtime.location.ObjectLocation;
-import com.sun.javafx.runtime.location.SequenceLocation;
+import com.sun.javafx.runtime.location.*;
 
 /**
  * BoundSequences
@@ -91,6 +89,22 @@ public class BoundSequences {
 
     public static<T> ObjectLocation<T> element(SequenceLocation<T> sequence, IntLocation index) {
         return new BoundSequenceElement<T>(sequence, index);
+    }
+
+    public static<T> IntLocation sizeof(final SequenceLocation<T> sequence) {
+        return IntVariable.make(new IntBindingExpression() {
+            public int computeValue() {
+                return Sequences.size(sequence.get());
+            }
+        }, sequence);
+    }
+
+    public static<T> IntLocation sizeof(final ObjectLocation<T> item) {
+        return IntVariable.make(new IntBindingExpression() {
+            public int computeValue() {
+                return item.get() == null ? 0 : 1;
+            }
+        }, item);
     }
 
     public static SequenceLocation<Integer> range(IntLocation a, IntLocation b) {
