@@ -68,6 +68,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     /*
      * modules imported by context
      */
+    private final JavafxToBound toBound;  
     private final JavafxTreeMaker make;  // should be generating Java AST, explicitly cast when not
     private final Log log;
     private final Name.Table names;
@@ -160,6 +161,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     static final boolean generateBoundVoidFunctions = false;
     static final boolean permeateBind = false;
     static final boolean generateNullChecks = true;
+    static final boolean useBindingOverhaul = false;
     
     private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
     private static final String sequencesRangeExclusiveString = "com.sun.javafx.runtime.sequence.Sequences.rangeExclusive";
@@ -187,6 +189,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     protected JavafxToJava(Context context) {
         context.put(jfxToJavaKey, this);
 
+        toBound = JavafxToBound.instance(context);
         make = JavafxTreeMaker.instance(context);
         log = Log.instance(context);
         names = Name.Table.instance(context);
@@ -1019,6 +1022,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     private JCExpression translateDefinitionalAssignmentToValue(DiagnosticPosition diagPos,
             JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
+        if (useBindingOverhaul && bindStatus.isUnidiBind()) {
+            return toBound.translate(init);
+        }
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         List<JCExpression> args = translateDefinitionalAssignmentToArgs(diagPos, init, bindStatus, vmi);
         Name makeName = defs.makeMethodName;
@@ -1141,7 +1147,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         if (shouldMorph(vmi) || forceTypeMorph) {
             // convert the type to the Location type
-            type = vmi.getMorphedType();
+            type = (isClassVar || !tree.isUnidiBind())? vmi.getMorphedVariableType() : vmi.getMorphedLocationType();
 
             // Locations are never overwritten
             modFlags |= Flags.FINAL;
@@ -1802,7 +1808,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         */
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         Type elemType = elementType(tree.type);
-        UseSequenceBuilder builder = new UseSequenceBuilder(tree.pos(), elemType, false);
+        UseSequenceBuilder builder = useSequenceBuilder(tree.pos(), elemType);
         stmts.append(builder.makeBuilderVar());
         for (JCExpression item : tree.getItems()) {
             stmts.append(builder.makeAdd( item ) );
@@ -2140,26 +2146,45 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         return ((JavafxTreeMaker)make).at(diagPos).BlockExpression(0, stmts.toList(), value);
     }
     
-    UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType, boolean isBound) {
-        return new UseSequenceBuilder(diagPos, elemType, isBound);
+    UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType) {
+
+        return new UseSequenceBuilder(diagPos, elemType, sequenceBuilderString) {
+
+            JCStatement makeAdd(JCExpression exprToAdd) {
+                JCExpression expr = translate(exprToAdd);
+                Type exprType = exprToAdd.type;
+                return makeAdd(expr, exprType);
+            }
+        };
     }
     
-    class UseSequenceBuilder {
+    UseSequenceBuilder useBoundSequenceBuilder(DiagnosticPosition diagPos, Type elemType) {
+
+        return new UseSequenceBuilder(diagPos, elemType, boundSequenceBuilderString) {
+
+            JCStatement makeAdd(JCExpression exprToAdd) {
+                JCExpression expr = toBound.translate(exprToAdd);
+                Type exprType = exprToAdd.type;
+                return makeAdd(expr, exprType);
+            }
+        };
+    }
+    
+    abstract class UseSequenceBuilder {
         final DiagnosticPosition diagPos;
         final Type elemType;
-        final boolean isBound;
+        final String seqBuilder;
         
         Name sbName;
         
-        UseSequenceBuilder(DiagnosticPosition diagPos, Type elemType, boolean isBound) {
+        UseSequenceBuilder(DiagnosticPosition diagPos, Type elemType, String seqBuilder) {
             this.diagPos = diagPos;
             this.elemType = elemType;
-            this.isBound = isBound;
+            this.seqBuilder = seqBuilder;
         }
         
         JCStatement makeBuilderVar() {
-            JCExpression builderTypeExpr = makeQualifiedTree(diagPos, 
-                    isBound? boundSequenceBuilderString : sequenceBuilderString);
+            JCExpression builderTypeExpr = makeQualifiedTree(diagPos, seqBuilder);
             List<JCExpression> btargs = List.of(makeTypeTree(elemType, diagPos));
             builderTypeExpr = make.at(diagPos).TypeApply(builderTypeExpr, btargs);
 
@@ -2175,7 +2200,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 null,                               // enclosing
                 List.<JCExpression>nil(),           // type args
                 make.at(diagPos).TypeApply(         // class name -- SequenceBuilder<elemType>
-                     makeQualifiedTree(diagPos, sequenceBuilderString), 
+                     makeQualifiedTree(diagPos, seqBuilder), 
                      List.<JCExpression>of(makeTypeTree(elemType, diagPos))),
                 args,                               // args
                 null                                // empty body
@@ -2191,9 +2216,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             return make.Ident(sbName);  
         }
          
-        JCStatement makeAdd(JCExpression exprToAdd) {
-            JCExpression expr = translate(exprToAdd);
-            Type exprType = exprToAdd.type;
+        abstract JCStatement makeAdd(JCExpression expr);
+         
+        JCStatement makeAdd(JCExpression expr, Type exprType) {
             if (exprType != elemType) {
                 Type unboxedElemType = types.unboxedType(elemType);
                 if (unboxedElemType != Type.noType) {
@@ -2554,7 +2579,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             assert tree.type.getTypeArguments().size() == 1;
             Type elemType = elementType(tree.type);
 
-            UseSequenceBuilder builder = new UseSequenceBuilder(diagPos, elemType, false);
+            UseSequenceBuilder builder = useSequenceBuilder(diagPos, elemType);
             stmts.append(builder.makeBuilderVar());
 
             // Build innermost loop body

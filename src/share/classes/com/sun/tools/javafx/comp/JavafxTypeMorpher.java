@@ -74,6 +74,7 @@ public class JavafxTypeMorpher {
     public static final String locationPackageName = "com.sun.javafx.runtime.location.";
 
     public LocationNameSymType[] bindingNCT;
+    public LocationNameSymType[] locationNCT;
     public LocationNameSymType[] variableNCT;
     public LocationNameSymType   baseLocation;
 
@@ -151,10 +152,11 @@ public class JavafxTypeMorpher {
     }
 
     class TypeMorphInfo {
-        final Type realType;
-        final Type morphedType;
-        int typeKind;
-        Type elementType = null;
+        private final Type realType;
+        private final Type morphedVariableType;
+        private final Type morphedLocationType;
+        private int typeKind;
+        private Type elementType = null;
 
         TypeMorphInfo(Type symType) {
             TypeSymbol realTsym = symType.tsym;
@@ -179,8 +181,9 @@ public class JavafxTypeMorpher {
             }
             if (wrappedType != null) {
                 // External module with a Location type
-                this.morphedType = symType;
                 this.realType = wrappedType;
+                this.morphedVariableType = symType;
+                this.morphedLocationType = wrappedType == syms.voidType? wrappedType : generifyIfNeeded(variableType(typeKind), this);
             } else {
                 this.realType = symType;
 
@@ -211,7 +214,8 @@ public class JavafxTypeMorpher {
                 }
 
                 // must be called AFTER typeKind and realType are set in vsym
-                this.morphedType = symType == syms.voidType? symType : generifyIfNeeded(variableType(typeKind), this);
+                this.morphedVariableType = symType == syms.voidType? symType : generifyIfNeeded(variableType(typeKind), this);
+                this.morphedLocationType = symType == syms.voidType? symType : generifyIfNeeded(locationType(typeKind), this);
             }
         }
 
@@ -220,7 +224,9 @@ public class JavafxTypeMorpher {
         }
 
         public Type getRealType() { return realType; }
-        public Type getMorphedType() { return morphedType; }
+        public Type getMorphedType() { return getMorphedVariableType(); }
+        public Type getMorphedVariableType() { return morphedVariableType; }
+        public Type getMorphedLocationType() { return morphedLocationType; }
         public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
         public Type getElementType() { return elementType; }
 
@@ -260,10 +266,12 @@ public class JavafxTypeMorpher {
         toJava = JavafxToJava.instance(context);
 
         variableNCT = new LocationNameSymType[TYPE_KIND_COUNT];
+        locationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         bindingNCT = new LocationNameSymType[TYPE_KIND_COUNT];
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
             variableNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Variable");
+            locationNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Location");
             bindingNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "BindingExpression");
         }
 
@@ -286,6 +294,10 @@ public class JavafxTypeMorpher {
 
     Type variableType(int typeKind) {
         return variableNCT[typeKind].type;
+    }
+
+    Type locationType(int typeKind) {
+        return locationNCT[typeKind].type;
     }
 
     JCExpression castToReal(Type realType, JCExpression expr) {

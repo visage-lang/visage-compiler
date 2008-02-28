@@ -57,13 +57,13 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 
 public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
-    protected static final Context.Key<JavafxToBound> jfxToJavaKey =
+    protected static final Context.Key<JavafxToBound> jfxToBoundKey =
         new Context.Key<JavafxToBound>();
 
     /*
      * the result of translating a tree by a visit method
      */
-    JCTree result;
+    JCExpression result;
 
     /*
      * modules imported by context
@@ -108,20 +108,20 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     static final boolean generateNullChecks = true;
     
     private static final String cBoundSequences = "com.sun.javafx.runtime.sequence.BoundSequences";
-    private static final String cBoundOperators = "com.sun.javafx.runtime.;pcation.BoundOperators";
+    private static final String cBoundOperators = "com.sun.javafx.runtime.location.BoundOperators";
     
     /** Class symbols for classes that need a reference to the outer class. */
     Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
         
     public static JavafxToBound instance(Context context) {
-        JavafxToBound instance = context.get(jfxToJavaKey);
+        JavafxToBound instance = context.get(jfxToBoundKey);
         if (instance == null)
             instance = new JavafxToBound(context);
         return instance;
     }
 
     protected JavafxToBound(Context context) {
-        context.put(jfxToJavaKey, this);
+        context.put(jfxToBoundKey, this);
 
         toJava = JavafxToJava.instance(context);
         make = JavafxTreeMaker.instance(context);
@@ -210,12 +210,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 	return translated.toList();
     }
     
-    public void toBound(JavafxEnv<JavafxAttrContext> attrEnv) {
-        this.attrEnv = attrEnv;
-        
-        attrEnv.toplevel = translate(attrEnv.toplevel);
-    }
-
     interface Translator {
         JCTree doit();
     }
@@ -227,6 +221,12 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         result = makeUnboundLocation( tree.pos(), tree.type, toJava.translate(tree) );
     }
 
+    @Override
+    public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
+        that.expr = translate(that.expr);
+//        result = that;
+    }  
+        
     @Override
     public void visitStringExpression(JFXStringExpression tree) {
         StringBuffer sb = new StringBuffer();
@@ -315,7 +315,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             }
         }
 
-        result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
+//        result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
     }
 
     @Override
@@ -372,8 +372,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) { //done
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        Type elemType = types.elementType(tree.type);
-        UseSequenceBuilder builder = toJava.useSequenceBuilder(tree.pos(), elemType, true);
+        Type elemType = toJava.elementType(tree.type);
+        UseSequenceBuilder builder = toJava.useBoundSequenceBuilder(tree.pos(), elemType);
         stmts.append(builder.makeBuilderVar());
         for (JCExpression item : tree.getItems()) {
             stmts.append(builder.makeAdd( item ) );
@@ -631,7 +631,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
      * If "makeIntf" is set, convert JavaFX class references to interface references.
      * */
     public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos, boolean makeIntf) {
-        return makeTypeTree(t, diagPos, makeIntf);
+        return toJava.makeTypeTree(t, diagPos, makeIntf);
     }
 
    JCExpression castFromObject (JCExpression arg, Type castType) {
@@ -669,9 +669,9 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
             // Compute the element type from the sequence type
             assert tree.type.getTypeArguments().size() == 1;
-            Type elemType = types.elementType(tree.type);
+            Type elemType = toJava.elementType(tree.type);
 
-            UseSequenceBuilder builder = toJava.useSequenceBuilder(diagPos, elemType, true);
+            UseSequenceBuilder builder = toJava.useBoundSequenceBuilder(diagPos, elemType);
             stmts.append(builder.makeBuilderVar());
 
             // Build innermost loop body
@@ -1084,34 +1084,34 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
         switch (tree.getTag()) {
             case JavafxTag.PLUS:
-                result = runtime(diagPos, cBoundSequences, "plus_" + typeCode, List.of(lhs, rhs));
+                result = runtime(diagPos, cBoundOperators, "plus_" + typeCode, List.of(lhs, rhs));
                 break;
             case JavafxTag.MINUS:
-                result = runtime(diagPos, cBoundSequences, "minus_" + typeCode, List.of(lhs, rhs));
+                result = runtime(diagPos, cBoundOperators, "minus_" + typeCode, List.of(lhs, rhs));
                 break;
             case JavafxTag.DIV:
-                result = runtime(diagPos, cBoundSequences, "times_" + typeCode, List.of(lhs, rhs));
+                result = runtime(diagPos, cBoundOperators, "divide_" + typeCode, List.of(lhs, rhs));
                 break;
             case JavafxTag.MUL:
-                result = runtime(diagPos, cBoundSequences, "divide_" + typeCode, List.of(lhs, rhs));
+                result = runtime(diagPos, cBoundOperators, "times_" + typeCode, List.of(lhs, rhs));
                 break;
             case JavafxTag.EQ:
-                result = runtime(diagPos, cBoundSequences, "eq_" + typeCode, List.of(lhs, rhs));
+                result = runtime(diagPos, cBoundOperators, "eq_" + typeCode, List.of(lhs, rhs));
                 break;
             case JavafxTag.NE:
-                result = runtime(diagPos, cBoundSequences, "ne_" + typeCode, List.of(lhs, rhs));
+                result = runtime(diagPos, cBoundOperators, "ne_" + typeCode, List.of(lhs, rhs));
                 break;
             case JavafxTag.LT:
-                result = runtime(diagPos, cBoundSequences, "lt_" + typeCode, List.of(lhs, rhs));
+                result = runtime(diagPos, cBoundOperators, "lt_" + typeCode, List.of(lhs, rhs));
                 break;
             case JavafxTag.LE:
-                result = runtime(diagPos, cBoundSequences, "le_" + typeCode, List.of(lhs, rhs));
+                result = runtime(diagPos, cBoundOperators, "le_" + typeCode, List.of(lhs, rhs));
                 break;
             case JavafxTag.GT:
-                result = runtime(diagPos, cBoundSequences, "gt_" + typeCode, List.of(lhs, rhs));
+                result = runtime(diagPos, cBoundOperators, "gt_" + typeCode, List.of(lhs, rhs));
                 break;
             case JavafxTag.GE:
-                result = runtime(diagPos, cBoundSequences, "ge_" + typeCode, List.of(lhs, rhs));
+                result = runtime(diagPos, cBoundOperators, "ge_" + typeCode, List.of(lhs, rhs));
                 break;
             default:
                 assert false : "unhandled binary operator";
@@ -1129,22 +1129,20 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
         switch (tree.getTag()) {
             case JavafxTag.SIZEOF:
-                result = callExpression(diagPos,
-                        makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
-                        defs.sizeMethodName, transExpr);
+                result = runtime(diagPos, cBoundSequences, "sizeof", types.elementType(expr.type), List.of(transExpr) );
                 break;
             case JavafxTag.REVERSE:
                 result = runtime(diagPos, cBoundSequences, "reverse", types.elementType(expr.type), List.of(transExpr) );
                 break;
             case JCTree.NOT:
-                result = runtime(diagPos, cBoundSequences, "not_"+typeCode, List.of(transExpr) );
+                result = runtime(diagPos, cBoundOperators, "not_"+typeCode, List.of(transExpr) );
                 break;
             case JCTree.NEG:
                 if (types.isSameType(tree.type, syms.javafx_TimeType)) {   //TODO
                     result = make.at(diagPos).Apply(null,
                             make.at(diagPos).Select(translate(tree.arg), Name.fromString(names, "negate")), List.<JCExpression>nil());
                 } else {
-                    result = runtime(diagPos, cBoundSequences, "negate_"+typeCode, List.of(transExpr));
+                    result = runtime(diagPos, cBoundOperators, "negate_"+typeCode, List.of(transExpr));
                 }
                 break;
             case JCTree.PREINC:
@@ -1187,12 +1185,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         visitInstanciate(inst); // sets result
     }
 
-    @Override
-    public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
-        that.expr = translate(that.expr);
-        result = that;
-    }  
-        
     /***********************************************************************
      *
      * Utilities 
