@@ -53,10 +53,6 @@ public class Theme
     
     public readonly attribute messageInputForeground: Color;
     public readonly attribute messageInputBackground: Color;
-    public readonly attribute messageInputBorder: EmptyBorder;
-   
-    public readonly attribute messageInputForeground: Color;
-    public readonly attribute messageInputBackground: Color;
     public readonly attribute messageInputBorderColor: Color;
     public readonly attribute messageInputBorder: EmptyBorder;
     public readonly attribute messageInputAreaBorder: EmptyBorder;
