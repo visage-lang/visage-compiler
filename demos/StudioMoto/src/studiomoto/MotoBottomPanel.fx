@@ -80,8 +80,8 @@ public class MotoBottomPanel extends Intro {
                     HBox {
                         opacity: bind musicStuff.opacity
                         transform: Transform.translate(220, 6)
-x                        // Major hack to work around IndexOutOfBoundsExceptions from sequence implementation
-                        var nums:Group[]
+                        // Major hack to work around IndexOutOfBoundsExceptions from sequence implementation
+                        var nums:Group[] = []
                         var hovers:Boolean[] = bind [for (i in nums) i.hover, false, false, false]
                         content: nums = for (i in [1, 2, 3])
                         Group {
