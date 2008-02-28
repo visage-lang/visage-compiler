@@ -148,17 +148,18 @@ public class Main extends CompositeNode {
                         }
                     });
                 };
-                //TODO progressJFX - this is a work around until long and byte[] can be used as parameter
+                //TODO progressJFX - this is a work around until byte[] can be used as parameter
                 public function progressJFX(bytesRead: Integer, 
-                                         microseconds: Integer,
+                                         microseconds, // long
                                          streamProperties: Map): Void {
                     //TODO DO LATER - this is a work around until a more permanent solution is provided
                     javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                         public function run():Void {
                             if (self.playing) {
-                                self.elapsedMicroseconds = microseconds;
-                                self.elapsedMinutes = ((microseconds/1000000).intValue() / 60).intValue();
-                                self.elapsedSeconds = ((microseconds/1000000).intValue() % 60).intValue();
+                                self.elapsedMicroseconds = microseconds as Integer;
+                                var seconds: Integer = self.elapsedMicroseconds / 1000000;
+                                self.elapsedMinutes = seconds / 60;
+                                self.elapsedSeconds = seconds % 60;
                                 var bitrate = streamProperties.get("bitrate") as Number;
                                 if (bitrate <> null) {
                                       self.bitRate = Math.round(bitrate/1000) as Integer;
@@ -234,9 +235,9 @@ public class Main extends CompositeNode {
 
     attribute pos: Number = bind if (duration == 0) then 0 else elapsedMicroseconds/duration;
 
-    attribute elapsedMicroseconds: Number;
-    attribute elapsedMinutes: Number;
-    attribute elapsedSeconds: Number;
+    attribute elapsedMicroseconds: Integer;
+    attribute elapsedMinutes: Integer;
+    attribute elapsedSeconds: Integer;
 
     function back() {
         var i = selectedSkinUrl - 1;

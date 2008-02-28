@@ -13,7 +13,7 @@ public abstract class BasicPlayerListenerAdapter implements BasicPlayerListener 
         progressJFX(arg0, (int)arg1, arg3);
     }
 
-    public abstract void progressJFX(int arg0, int arg1, Map arg3 );
+    public abstract void progressJFX(int arg0, long arg1, Map arg3 );
 
     public void opened(Object arg0, Map arg1) {
         double framerate = ((Float)arg1.get("audio.framerate.fps")).doubleValue();
