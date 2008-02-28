@@ -80,18 +80,19 @@ public class MotoBottomPanel extends Intro {
                     HBox {
                         opacity: bind musicStuff.opacity
                         transform: Transform.translate(220, 6)
-                        content:
-                        for (i in [1, 2, 3])
+x                        // Major hack to work around IndexOutOfBoundsExceptions from sequence implementation
+                        var nums:Group[]
+                        var hovers:Boolean[] = bind [for (i in nums) i.hover, false, false, false]
+                        content: nums = for (i in [1, 2, 3])
                         Group {
                             onMouseClicked: function(e) {selection = indexof i;}
-                            var num = this
                             cursor: Cursor.HAND
                             transform: Transform.translate(5, 0)
                             var fillColor:Color = bind if (selection == indexof i) Color.WHITE else Color.YELLOW
                             content:
                             [Rect {height: 15, width: 12, fill: Color.color(0, 0, 0, 0), selectable: true},
                             Text {content: "{i}", fill: bind fillColor, font: Font.Font("ARIAL", ["BOLD"], 11)},
-                            Line {x1: -2, x2: 7, y1: 12, y2: 12, stroke: bind fillColor, visible: bind num.hover}]
+                            Line {x1: -2, x2: 7, y1: 12, y2: 12, stroke: bind fillColor, visible: bind hovers[i-1]}]
                         }
                     }]
                 },

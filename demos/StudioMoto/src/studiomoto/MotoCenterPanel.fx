@@ -107,6 +107,7 @@ public class MotoCenterPanel extends CompositeNode {
             glow1Animation.start();
         }else {
             glow1Animation.stop();
+            glow1 = null;
         }
     };
     attribute go2:Group;
@@ -115,8 +116,10 @@ public class MotoCenterPanel extends CompositeNode {
             glow2Animation.start();
         }else {
             glow2Animation.stop();
+            glow2 = null;
         }
     };  
+
     function composeNode():Node {
 
         Clip {
@@ -138,8 +141,8 @@ public class MotoCenterPanel extends CompositeNode {
                         }
                     },
                     go1 = Group {
-                        filter: bind glow1
                         cursor: Cursor.HAND
+                        //filter: bind glow1
                         content:
                         [ImageView {
                             visible: bind not go1.hover
@@ -157,7 +160,7 @@ public class MotoCenterPanel extends CompositeNode {
                             fill: bind if (go1.hover) Color.BLACK else Color.WHITE
                             content: "GO"
                             font: Font.Font("ARIAL", ["BOLD"], 11)
-                        }]
+                        }] 
                     }]
                 },
                 VBox {
@@ -170,9 +173,7 @@ public class MotoCenterPanel extends CompositeNode {
                         
                         content:
                         [go2 = Group {
-
-                            filter: bind glow2
-                            
+                            //filter: bind glow2
                             cursor: Cursor.HAND
                             content:
                             [ImageView {

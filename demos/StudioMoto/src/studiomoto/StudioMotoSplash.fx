@@ -204,10 +204,10 @@ class StudioMotoSplash extends CompositeNode {
                 fill: Color.BLACK
             },
             Clip {
-                opacity: bind alpha
                 transform: Transform.translate(1100/2, 800/2)
                 valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.CENTER
                 shape: Rect {width: 636, height: 651}
+                opacity: bind alpha
                 content:
                 [Group {
                     content:  
@@ -227,7 +227,6 @@ class StudioMotoSplash extends CompositeNode {
                     content:
                     [HBox {
                         content:
-
                         [Clip {
                             shape: Rect {x: -50, width: 100, height: 15}
                             content:
