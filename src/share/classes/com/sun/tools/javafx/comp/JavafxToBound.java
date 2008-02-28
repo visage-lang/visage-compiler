@@ -33,6 +33,7 @@ import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.tools.javac.code.*;
 import static com.sun.tools.javac.code.Flags.*;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.jvm.Target;
@@ -81,6 +82,9 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     /*
      * other instance information
      */
+    private final Symbol doubleObjectTypeSymbol;
+    private final Symbol intObjectTypeSymbol;
+    private final Symbol booleanObjectTypeSymbol;
 
     /*
      * Buffers holding definitions waiting to be prepended to the current list of definitions.
@@ -97,6 +101,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     /*
      * static information
      */
+
     static final boolean generateBoundFunctions = true;
     static final boolean generateBoundVoidFunctions = false;
     static final boolean permeateBind = false;
@@ -129,6 +134,10 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         target = Target.instance(context);
         rs = JavafxResolve.instance(context);
         defs = JavafxDefs.instance(context);
+        
+        doubleObjectTypeSymbol = types.boxedClass(syms.doubleType).type.tsym;
+        intObjectTypeSymbol = types.boxedClass(syms.intType).type.tsym;
+        booleanObjectTypeSymbol = types.boxedClass(syms.booleanType).type.tsym;
     }
     
     /** Visitor method: Translate a single node.
@@ -361,22 +370,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
     
     @Override
-    public void visitSequenceExplicit(JFXSequenceExplicit tree) {
-        /*** 
-         * In cases where the components of an explicitly constructed 
-         * sequence are all singletons, we can revert to this (more 
-         * optimal) implementation.
- 
-        DiagnosticPosition diagPos = tree.pos();
-        JCExpression meth = ((JavafxTreeMaker)make).at(diagPos).Identifier(sequencesMakeString);
-        Type elemType = tree.type.getTypeArguments().get(0);
-        ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb();
-        List<JCExpression> typeArgs = List.<JCExpression>of(makeTypeTree(elemType, diagPos));
-        // type name .class
-        args.append(make.at(diagPos).Select(makeTypeTree(elemType, diagPos), names._class));
-        args.appendList( translate( tree.getItems() ) );
-        result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
-        */
+    public void visitSequenceExplicit(JFXSequenceExplicit tree) { //done
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         Type elemType = types.elementType(tree.type);
         UseSequenceBuilder builder = toJava.useSequenceBuilder(tree.pos(), elemType, true);
@@ -467,12 +461,23 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     JCExpression runtime(DiagnosticPosition diagPos,
             String cString,
             String methString,
+            List<JCExpression> args) {
+        return runtime(diagPos,
+                cString,
+                methString,
+                null,
+                args);
+    }
+
+    JCExpression runtime(DiagnosticPosition diagPos,
+            String cString,
+            String methString,
             Type type,
             List<JCExpression> args) {
         JCExpression meth = make.at(diagPos).Select(
                 makeQualifiedTree(diagPos, cString),
                 names.fromString(methString));
-        List<JCExpression> typeArgs = List.of(makeTypeTree(type, diagPos, true));
+        List<JCExpression> typeArgs = type==null? List.<JCExpression>nil() : List.of(makeTypeTree(type, diagPos, true));
         return make.at(diagPos).Apply(typeArgs, meth, args);
     }
 
@@ -633,40 +638,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         if (castType.isPrimitive())
             castType = types.boxedClass(castType).type;
          return make.TypeCast(makeTypeTree(castType, arg.pos()), arg);
-    }
-
-    /**
-     * JCTrees which can just be copied and trees which sjould not occur 
-     * */
-    
-    @Override
-    public void visitAnnotation(JCAnnotation tree) {
-        assert false : "should not reach here";
-    }
-
-    @Override
-    public void visitAssert(JCAssert tree) {
-        assert false : "should not reach here";
-    }
-
-    @Override
-    public void visitBreak(JCBreak tree) {
-        assert false : "should not reach here";
-    }
-
-    @Override
-   public void visitCase(JCCase tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitCatch(JCCatch tree) {
-        assert false : "should not reach here";
-    }
-
-    @Override
-    public void visitClassDef(JCClassDecl tree) {
-        assert false : "should not be in JavaFX AST";
     }
 
     
@@ -1103,238 +1074,101 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
-    public void visitTypeApply(JCTypeApply tree) {
-        JCExpression clazz = translate(tree.clazz);
-        List<JCExpression> arguments = translate(tree.arguments);
-        result = make.at(tree.pos).TypeApply(clazz, arguments);
-    }
-
-    @Override
-    public void visitTypeIdent(JCPrimitiveTypeTree tree) {
-        result = make.at(tree.pos).TypeIdent(tree.typetag);
-    }
-
-    @Override
-    public void visitTypeParameter(JCTypeParameter tree) {
-        List<JCExpression> bounds = translate(tree.bounds);
-        result = make.at(tree.pos).TypeParameter(tree.name, bounds);
-    }
-
-    @Override
     public void visitBinary(final JCBinary tree) {
-        result = (new Translator() {
+        DiagnosticPosition diagPos = tree.pos();
+        final JCExpression l = tree.lhs;
+        final JCExpression r = tree.rhs;
+        final JCExpression lhs = translate(l);
+        final JCExpression rhs = translate(r);
+        final String typeCode = typeCode(l.type) + typeCode(r.type);
 
-            private final DiagnosticPosition diagPos = tree.pos();
-            
-            /**
-             * Compare against null
-             */
-            private JCExpression makeNullCheck(JCExpression targ) {
-                return makeEqEq(targ, makeNull());
-            }
-            
-            //TODO: after type system is figured out, this needs to be revisited
-            /**
-             * Check if a primitive has the default value for its type.
-             */
-            private JCExpression makePrimitiveNullCheck(Type argType, JCExpression arg) {
-                TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
-                JCExpression defaultValue = typeMorpher.makeLit(tmi.getRealType(), tmi.getDefaultValue(), diagPos);
-                return makeEqEq( arg, defaultValue);
-            }
-            
-            /**
-             * Check if a non-primitive has the default value for its type.
-             */
-            private JCExpression makeObjectNullCheck(Type argType, JCExpression arg) {
-                TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
-                if (tmi.getTypeKind() == TYPE_KIND_SEQUENCE || tmi.getRealType() == syms.javafx_StringType) {
-                    return callRuntime(JavafxDefs.isNullMethodString, List.of(arg));
-                } else {
-                    return makeNullCheck(arg);
-                }
-            }
-           
-            /*
-             * Do a == compare
-             */
-            private JCExpression makeEqEq(JCExpression arg1, JCExpression arg2) {
-                return makeBinary(JCTree.EQ, arg1, arg2);
-            }
-            
-            private JCExpression makeBinary(int tag, JCExpression arg1, JCExpression arg2) {
-                return make.at(diagPos).Binary(tag, arg1, arg2);
-            }
-            
-            private JCExpression makeNull() {
-                return make.at(diagPos).Literal(TypeTags.BOT, null);
-            }
-            
-            private JCExpression callRuntime(String methNameString, List<JCExpression> args) {
-                JCExpression meth = makeQualifiedTree(diagPos, methNameString);
-                List<JCExpression> typeArgs = List.nil();
-                return make.at(diagPos).Apply(typeArgs, meth, args);
-            }
-            
-            /**
-             * Make a .equals() comparison with a null check on the receiver
-             */
-            private JCExpression makeFullCheck(JCExpression lhs, JCExpression rhs) {
-                return callRuntime(JavafxDefs.equalsMethodString, List.of(lhs, rhs));
-            }
-            
-            /**
-             * Return the translation for a == comparision
-             */
-            private JCExpression translateEqualsEquals() {
-                final JCExpression lhs = translate( tree.lhs );
-                final JCExpression rhs = translate( tree.rhs );
-                final Type lhsType = tree.lhs.type;
-                final Type rhsType = tree.rhs.type;
-                
-                    // this is an x == y
-                    if (lhsType.getKind() == TypeKind.NULL) {
-                        if (rhsType.getKind() == TypeKind.NULL) {
-                            // both are known to be null
-                            return make.at(diagPos).Literal(TypeTags.BOOLEAN, 1);
-                        } else if (rhsType.isPrimitive()) {
-                            // lhs is null, rhs is primitive, do default check
-                            return makePrimitiveNullCheck(rhsType, rhs);
-                        } else {
-                            // lhs is null, rhs is non-primitive, figure out what check to do
-                            return makeObjectNullCheck(rhsType, rhs);
-                        }
-                    } else if (lhsType.isPrimitive()) {
-                        if (rhsType.getKind() == TypeKind.NULL) {
-                            // lhs is primitive, rhs is null, do default check on lhs
-                            return makePrimitiveNullCheck(lhsType, lhs);
-                        } else if (rhsType.isPrimitive()) {
-                            // both are primitive, use ==
-                            return makeEqEq(lhs, rhs);
-                        } else {
-                            // lhs is primitive, rhs is non-primitive, use equals(), but switch them
-                            return makeFullCheck(rhs, lhs);
-                        }
-                    } else {
-                        if (rhsType.getKind() == TypeKind.NULL) {
-                            // lhs is non-primitive, rhs is null, figure out what check to do
-                            return makeObjectNullCheck(lhsType, lhs);
-                        } else {
-                            //  lhs is non-primitive, use equals()
-                            return makeFullCheck(lhs, rhs);
-                        }
-                    }
-            }
-           
-            /**
-             * Translate a binary expressions
-             */
-            public JCTree doit() {
-                //TODO: handle <>
-                if (tree.getTag() == JavafxTag.EQ) {
-                    return translateEqualsEquals();
-                } else if (tree.getTag() == JavafxTag.NE) {
-                    return make.at(diagPos).Unary(JCTree.NOT, translateEqualsEquals());
-                }  else {
-                    // anything other than == or <>
-
-                    // Time type operator overloading
-                    if ((types.isSameType(tree.lhs.type, syms.javafx_TimeType) ||
-                         types.isSameType(tree.rhs.type, syms.javafx_TimeType)) &&
-                        tree.operator == null) { // operator check is to try to get a decent error message by falling through if the Time method isn't matched
-                        JCExpression l = tree.lhs;
-                        JCExpression r = tree.rhs;
-                        switch (tree.getTag()) {
-                        case JavafxTag.PLUS:
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "add")), List.<JCExpression>of(translate(r)));
-                            // lhs.add(rhs);
-                        case JavafxTag.MINUS:
-                            // lhs.sub(rhs);
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "sub")), List.<JCExpression>of(translate(r)));
-                        case JavafxTag.DIV:
-                            // lhs.div(rhs);
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "div")), List.<JCExpression>of(translate(r)));
-                        case JavafxTag.MUL:
-                            // lhs.mul(rhs);
-                            if (!types.isSameType(l.type, syms.javafx_TimeType)) {
-                                r = l;
-                                l = tree.rhs;
-                            }
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "mul")), List.<JCExpression>of(translate(r)));
-                        case JavafxTag.LT:
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "lt")), List.<JCExpression>of(translate(r)));
-                        case JavafxTag.LE:
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "le")), List.<JCExpression>of(translate(r)));
-                        case JavafxTag.GT:
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "gt")), List.<JCExpression>of(translate(r)));
-                        case JavafxTag.GE:
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "ge")), List.<JCExpression>of(translate(r)));
-                        }
-                    }
-                    final JCExpression lhs = translate(tree.lhs);
-                    final JCExpression rhs = translate(tree.rhs);
-                    return makeBinary(tree.getTag(), lhs, rhs);
-                }
-            }
-
-        }).doit();
+        switch (tree.getTag()) {
+            case JavafxTag.PLUS:
+                result = runtime(diagPos, cBoundSequences, "plus_" + typeCode, List.of(lhs, rhs));
+                break;
+            case JavafxTag.MINUS:
+                result = runtime(diagPos, cBoundSequences, "minus_" + typeCode, List.of(lhs, rhs));
+                break;
+            case JavafxTag.DIV:
+                result = runtime(diagPos, cBoundSequences, "times_" + typeCode, List.of(lhs, rhs));
+                break;
+            case JavafxTag.MUL:
+                result = runtime(diagPos, cBoundSequences, "divide_" + typeCode, List.of(lhs, rhs));
+                break;
+            case JavafxTag.EQ:
+                result = runtime(diagPos, cBoundSequences, "eq_" + typeCode, List.of(lhs, rhs));
+                break;
+            case JavafxTag.NE:
+                result = runtime(diagPos, cBoundSequences, "ne_" + typeCode, List.of(lhs, rhs));
+                break;
+            case JavafxTag.LT:
+                result = runtime(diagPos, cBoundSequences, "lt_" + typeCode, List.of(lhs, rhs));
+                break;
+            case JavafxTag.LE:
+                result = runtime(diagPos, cBoundSequences, "le_" + typeCode, List.of(lhs, rhs));
+                break;
+            case JavafxTag.GT:
+                result = runtime(diagPos, cBoundSequences, "gt_" + typeCode, List.of(lhs, rhs));
+                break;
+            case JavafxTag.GE:
+                result = runtime(diagPos, cBoundSequences, "ge_" + typeCode, List.of(lhs, rhs));
+                break;
+            default:
+                assert false : "unhandled binary operator";
+                result = lhs;
+                break;
+        }
     }
 
     @Override
     public void visitUnary(final JCUnary tree) {
-        result = (new Translator() {
+        DiagnosticPosition diagPos = tree.pos();
+        JCExpression expr = tree.getExpression();
+        JCExpression transExpr = translate(expr);
+        String typeCode = typeCode(expr.type);
 
-            private final DiagnosticPosition diagPos = tree.pos();
-            private final JCExpression expr = tree.getExpression();
-            private final JCExpression transExpr = translate(expr);
-
-            private JCExpression doVanilla() {
-                return make.at(diagPos).Unary(tree.getTag(), transExpr);
-            }
-            
-            public JCTree doit() {
-                switch (tree.getTag()) {
-                    case JavafxTag.SIZEOF:
-                        return callExpression(diagPos, 
-                                makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"), 
-                                defs.sizeMethodName, transExpr);
-                    case JavafxTag.REVERSE:
-                        return callExpression(diagPos, 
-                                makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"), 
-                                "reverse", transExpr);
-                    case JCTree.PREINC:
-                        log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "++");
-                        return translate(tree);
-                    case JCTree.PREDEC:
-                        log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "--");
-                        return translate(tree);
-                    case JCTree.POSTINC:
-                        log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "++");
-                        return translate(tree);
-                    case JCTree.POSTDEC:
-                        log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "--");
-                        return translate(tree);
-                    case JCTree.NEG:
-                        if (types.isSameType(tree.type, syms.javafx_TimeType)) {
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(tree.arg), Name.fromString(names, "negate")), List.<JCExpression>nil());
-                        }
-                    default:
-                        return doVanilla();
+        switch (tree.getTag()) {
+            case JavafxTag.SIZEOF:
+                result = callExpression(diagPos,
+                        makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
+                        defs.sizeMethodName, transExpr);
+                break;
+            case JavafxTag.REVERSE:
+                result = runtime(diagPos, cBoundSequences, "reverse", types.elementType(expr.type), List.of(transExpr) );
+                break;
+            case JCTree.NOT:
+                result = runtime(diagPos, cBoundSequences, "not_"+typeCode, List.of(transExpr) );
+                break;
+            case JCTree.NEG:
+                if (types.isSameType(tree.type, syms.javafx_TimeType)) {   //TODO
+                    result = make.at(diagPos).Apply(null,
+                            make.at(diagPos).Select(translate(tree.arg), Name.fromString(names, "negate")), List.<JCExpression>nil());
+                } else {
+                    result = runtime(diagPos, cBoundSequences, "negate_"+typeCode, List.of(transExpr));
                 }
-            }
-        }).doit();
+                break;
+            case JCTree.PREINC:
+                log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "++");
+                result = transExpr;
+                break;
+            case JCTree.PREDEC:
+                log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "--");
+                result = transExpr;
+                break;
+            case JCTree.POSTINC:
+                log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "++");
+                result = transExpr;
+                break;
+            case JCTree.POSTDEC:
+                log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "--");
+                result = transExpr;
+                break;
+            default:
+                assert false : "unhandled unary operator";
+                result = transExpr;
+                break;
+        }
     }
-  
-
     
     public void visitTimeLiteral(JFXTimeLiteral tree) {
         // convert time literal to a javafx.lang.Time object literal
@@ -1354,45 +1188,49 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
-    public void visitWildcard(JCWildcard tree) {
-        TypeBoundKind kind = make.at(tree.kind.pos).TypeBoundKind(tree.kind.kind);
-        JCTree inner = translate(tree.inner);
-        result = make.at(tree.pos).Wildcard(kind, inner);
-    }
-
-    public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized that) {
-        result = that;
-    }
-    
     public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
         that.expr = translate(that.expr);
         result = that;
     }  
-    
-    public void visitTypeAny(JFXTypeAny that) {
-        result = that;
-    }
-    
-    public void visitTypeClass(JFXTypeClass that) {
-        result = that;
-    }
-    
-    public void visitTypeFunctional(JFXTypeFunctional that) {
-        that.params = (List<JFXType>)translate((List<JFXType>)that.params);
-        that.restype = translate(that.restype);
-        result = that;
-    }
-    
-    public void visitTypeUnknown(JFXTypeUnknown that) {
-        result = that;
-    }
-
-    
+        
     /***********************************************************************
      *
      * Utilities 
      *
      */
+    
+    private String typeCode(Type type) {
+        Symbol tsym = type.tsym;
+                if (type.isPrimitive()) {
+                    if (tsym == syms.doubleType.tsym
+                            || tsym == syms.floatType.tsym) {
+                        return "d";
+                    } else if (tsym == syms.intType.tsym
+                            || tsym == syms.byteType.tsym
+                            || tsym == syms.charType.tsym
+                            || tsym == syms.longType.tsym
+                            || tsym == syms.shortType.tsym) {
+                        return "i";
+                    } else if (tsym == syms.booleanType.tsym) {
+                        return "b";
+                    } else {
+                        assert false : "should not reach here";
+                        return "X";
+                    }
+                } else {
+                    if (types.isSequence(type) ) {
+                        return "";  //TODO: ?
+                    } else if (tsym == this.booleanObjectTypeSymbol) {
+                        return "B";
+                    } else if (tsym == this.doubleObjectTypeSymbol) {
+                        return "D";
+                    } else if (tsym == this.intObjectTypeSymbol) {
+                        return "I";
+                    } else {
+                        return "";
+                    }
+                }
+    }
     
     Symbol expressionSymbol(JCExpression tree) {
         switch (tree.getTag()) {
@@ -1487,7 +1325,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitModifiers(JCModifiers tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
@@ -1502,7 +1340,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitSkip(JCSkip tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
@@ -1517,12 +1355,12 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitThrow(JCThrow tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
     public void visitTry(JCTry tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
@@ -1532,7 +1370,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitWhileLoop(JCWhileLoop tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
@@ -1547,37 +1385,37 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitDoLater(JFXDoLater that) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
     public void visitMemberSelector(JFXMemberSelector that) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
     
     @Override
     public void visitOverrideAttribute(JFXOverrideAttribute tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
     public void visitOnReplace(JFXOnReplace tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
     
     @Override
     public void visitOnReplaceElement(JFXOnReplaceElement tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
     
     @Override
     public void visitOnInsertElement(JFXOnInsertElement tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
     
     @Override
     public void visitOnDeleteElement(JFXOnDeleteElement tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
@@ -1587,26 +1425,26 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitTopLevel(JCCompilationUnit tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
    }
     
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
     
     @Override
     public void visitInitDefinition(JFXInitDefinition tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     public void visitPostInitDefinition(JFXPostInitDefinition tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
     
    @Override
     public void visitOperationDefinition(JFXFunctionDefinition tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
    
     public void visitBindExpression(JFXBindExpression tree) {
@@ -1615,22 +1453,22 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitBlock(JCBlock tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
     
     @Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
     public void visitContinue(JCContinue tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
@@ -1640,12 +1478,12 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitReturn(JCReturn tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
     public void visitExec(JCExpressionStatement tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
@@ -1665,7 +1503,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitImport(JCImport tree) {
-        assert false : "should not reach here";
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
@@ -1691,6 +1529,81 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitMethodDef(JCMethodDecl tree) {
          assert false : "should not be in JavaFX AST";
-   }
+    }
+
+    @Override
+    public void visitTypeApply(JCTypeApply tree) {
+        assert false : "should not be processed as part of a binding";
+    }
+
+    @Override
+    public void visitTypeIdent(JCPrimitiveTypeTree tree) {
+        assert false : "should not be processed as part of a binding";
+    }
+
+    @Override
+    public void visitTypeParameter(JCTypeParameter tree) {
+        assert false : "should not be processed as part of a binding";
+    }
+
+    @Override
+    public void visitAnnotation(JCAnnotation tree) {
+        assert false : "should not be processed as part of a binding";
+    }
+
+    @Override
+    public void visitAssert(JCAssert tree) {
+        assert false : "should not be processed as part of a binding";
+    }
+
+    @Override
+    public void visitBreak(JCBreak tree) {
+        assert false : "should not be processed as part of a binding";
+    }
+
+    @Override
+   public void visitCase(JCCase tree) {
+        assert false : "should not be in JavaFX AST";
+    }
+
+    @Override
+    public void visitCatch(JCCatch tree) {
+        assert false : "should not be processed as part of a binding";
+    }
+
+    @Override
+    public void visitClassDef(JCClassDecl tree) {
+        assert false : "should not be in JavaFX AST";
+    }
+
+    @Override
+    public void visitWildcard(JCWildcard tree) {
+        assert false : "should not be processed as part of a binding";
+    }
+
+    @Override
+    public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized that) {
+        assert false : "should not be processed as part of a binding";
+    }
+    
+    @Override
+    public void visitTypeAny(JFXTypeAny that) {
+        assert false : "should not be processed as part of a binding";
+    }
+    
+    @Override
+    public void visitTypeClass(JFXTypeClass that) {
+        assert false : "should not be processed as part of a binding";
+    }
+    
+    @Override
+    public void visitTypeFunctional(JFXTypeFunctional that) {
+        assert false : "should not be processed as part of a binding";
+    }
+    
+    @Override
+    public void visitTypeUnknown(JFXTypeUnknown that) {
+        assert false : "should not be processed as part of a binding";
+    }
 
 }
