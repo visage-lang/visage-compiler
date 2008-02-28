@@ -152,6 +152,7 @@ package com.sun.javafx.runtime.location;
 /**
  * BoundOperators -- do not edit -- machine generated!
  * To regenerate, use the buildtools/GenerateBoundOperators m4 script
+ * Add hand-coded methods to BoundOperators.java
  *
  * @author Brian Goetz
  */

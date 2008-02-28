@@ -43,7 +43,7 @@ public abstract class IndirectSequenceExpression<T> extends SequenceVariable<T> 
 
     private final IndirectLocationHelper<SequenceLocation<T>> helper;
 
-    public IndirectSequenceExpression(boolean lazy, Class<T> clazz, Location... dependencies) {
+    public IndirectSequenceExpression(Class<T> clazz, boolean lazy, Location... dependencies) {
         super(clazz);
         helper = new IndirectLocationHelper<SequenceLocation<T>>(this, dependencies);
         bind(lazy, new SequenceBindingExpression<T>() {
