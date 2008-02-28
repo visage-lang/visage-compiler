@@ -37,6 +37,12 @@ class ProjectSample {
     public attribute name: String;
     public attribute className: String;
     public attribute visible: Boolean;
+    public attribute selected: Boolean on replace {
+        if(selected){
+            frame.selected = true;
+        }
+    } ;
+    
     public attribute frame: InternalFrame;
     //attribute isExecuted: Boolean;
     
@@ -197,7 +203,15 @@ public class AssortieProject  extends CompositeWidget{
                             delete tab from codeTabs;
                         }
                     }
+                    selectedCodeIndex = sizeof codeTabs - 1;
                     delete internalFrame from frames;
+
+                    if (0 <= selectedCodeIndex){
+                        var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
+                        for(sample in samples){
+                            if(sample.name ==  tabTitle) { sample.frame.selected = true; break; }
+                        }
+                    }
                 }
                 content: frame.content
                 background: if (background==null) then Color.WHITE else Color{ red: background.getRed() green: background.getGreen() blue: background.getBlue() }
@@ -249,9 +263,18 @@ public class AssortieProject  extends CompositeWidget{
                                         }
                                         action: function(){
                                             var sample = samples[selectedSampleIndex.intValue()];
-                                            //System.out.println("[execute] Sample: {sample.name}");
                                             if(sample.frame ==  null){
                                                 executeSample(sample);
+                                            }else{
+                                                var name = sample.name;
+                                                for(frame in frames){
+                                                    System.out.println("[execute] frame: {frame.title} name: {name}");
+                                                    if (frame.title == sample.frame.title ){ frame.selected = true; } else { frame.selected = false;}
+                                                }
+                                                for(tab in codeTabs ){
+                                                    if(tab.title == sample.name){ selectedCodeIndex = indexof tab; break; }
+                                                }
+                                                
                                             }
                                         }
                                 }
