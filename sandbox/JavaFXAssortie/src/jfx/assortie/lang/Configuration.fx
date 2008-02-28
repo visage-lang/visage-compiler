@@ -8,4 +8,12 @@ Module {
     modules: [
     "jfx.assortie.lang.api.Configuration",
     ]
+    samples: [
+        Sample{
+            name: "New"
+            className: "jfx.assortie.samples.empty.Empty"
+            visible: true
+        }
+    ]
+
 }

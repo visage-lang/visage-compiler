@@ -84,11 +84,12 @@ public class AssortieProject  extends CompositeWidget{
     
     private attribute selectedModule:Object on replace{
         System.out.println("[selected module] {selectedModule}");
-        selectedSampleIndex = 0;
+        selectedSampleIndex = -1;
 
         var cell = selectedModule as TreeCell;
         var m = cell.value as ProjectModule;
         samples = m.samples;
+        selectedSampleIndex = sizeof samples - 1;
         System.out.println("[selected value] {m}");
         
     };
@@ -189,7 +190,7 @@ public class AssortieProject  extends CompositeWidget{
         
         var internalFrame: InternalFrame;
         
-        System.out.println("[execute sample] " + obj);
+        System.out.println("[execute sample] {sample.name}:" + obj);
         
         if(obj instanceof Frame){
             
@@ -215,7 +216,8 @@ public class AssortieProject  extends CompositeWidget{
                     }
                     selectedCodeIndex = sizeof codeTabs - 1;
                     delete internalFrame from frames;
-
+                    delete sample from executedSamples;
+                    
                     if (0 <= selectedCodeIndex){
                         var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
                         for(sample in samples){
