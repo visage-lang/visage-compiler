@@ -66,10 +66,18 @@ public class AssortieProject  extends CompositeWidget{
     private attribute treeCell: TreeCell;
     private attribute frames: InternalFrame[];
     private attribute samples:ProjectSample[];
+    private attribute executedSamples:ProjectSample[];
     
     private attribute codeTabs:Tab[];
     
-    private attribute selectedCodeIndex: Number;
+    private attribute selectedCodeIndex: Number on replace{
+        
+        if ( codeTabs <> [] and 0 <= selectedCodeIndex ){
+              var title = codeTabs[selectedCodeIndex.intValue()].title;
+              tabSelection(title);
+        }
+    };
+    
     private attribute selectedSampleIndex: Integer;
 
     private attribute code:String;
@@ -154,6 +162,8 @@ public class AssortieProject  extends CompositeWidget{
     
     function executeSample(sample: ProjectSample){
         
+        
+        insert sample into executedSamples;
         var className = sample.className;
                 
         var fileName = className.substring(className.lastIndexOf('.') + 1) + ".fx";
@@ -227,6 +237,19 @@ public class AssortieProject  extends CompositeWidget{
         sample.frame = internalFrame;
         
     }
+
+    function tabSelection(name: String):Void{
+        System.out.println("[select sample] name: {name}");
+        var sample = executedSamples[s| s.name == name];
+        if (sample <> [] ) { 
+            sample[0].frame.selected = true;
+        }   
+    }
+    
+    function frameSelection(title: String):Void{
+        
+    }
+    
     
     public
     function composeWidget(): Widget{
@@ -301,7 +324,7 @@ public class AssortieProject  extends CompositeWidget{
                             weight: 0.4
                             content:
                                 TabbedPane{
-                                    selectedIndex: bind selectedCodeIndex
+                                    selectedIndex: bind selectedCodeIndex with inverse
                                     tabs: bind codeTabs
                                 }
                         } ]
