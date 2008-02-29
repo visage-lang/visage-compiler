@@ -1,45 +1,44 @@
 package casual.im;
 
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.Message as SmackMessage;
+import org.jivesoftware.smack.packet.Message;
 
 public class JabberChat extends Chat
 {
     attribute chat: <<org.jivesoftware.smack.Chat>>;
     attribute buddy: Buddy;
+    attribute manager: <<org.jivesoftware.smack.ChatManager>>;
     
-    public operation JabberChat(manager:<<org.jivesoftware.smack.ChatManager>>, buddy:Buddy);
-}
-
-operation JabberChat.JabberChat(manager:<<org.jivesoftware.smack.ChatManager>>, buddy:Buddy)
-{
-    var self = this;
-    self.buddy = buddy;
-    var chatListener = new <<org.jivesoftware.smack.MessageListener>>()
+    postinit
     {
-        operation processMessage(chat, message:SmackMessage)
+        var chatListener = <<org.jivesoftware.smack.MessageListener>>
         {
-            var messageStr = message.getBody();
-            do later
+            function processMessage(chat, message:Message)
             {
-                self.buddy.receiveMessage(messageStr);
-            }
-        }
-    };
-    
-    var userName:String = "{buddy.userName}@{buddy.accountName}";
-    
-    chat = manager.createChat(userName, chatListener);
-}
+                var messageStr = message.getBody();
+                //TODO DO LATER - this is a work around until a more permanent solution is provided
+                javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                    public function run():Void {
+                    buddy.receiveMessage(messageStr);
+                    }
+                });
+            };
+        };
 
-operation JabberChat.sendMessage(message:String)
-{
-    try
-    {
-	chat.sendMessage(message);
+        var userName:String = "{buddy.userName}@{buddy.accountName}";
+
+        chat = manager.createChat(userName, chatListener);
     }
-    catch (ex:XMPPException)
+
+    function sendMessage(message:String)
     {
-	ex.printStackTrace();
+        try
+        {
+            chat.sendMessage(message);
+        }
+        catch (ex:XMPPException)
+        {
+            ex.printStackTrace();
+        }
     }
 }

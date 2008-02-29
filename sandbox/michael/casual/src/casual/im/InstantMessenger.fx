@@ -4,25 +4,22 @@ import casual.AccountWindow;
 
 public class InstantMessenger
 {
-    operation createIM(user:Buddy):InstantMessenger;
+    function createIM(user:Buddy):InstantMessenger
+        {
+            // we only support Jabber.org at the moment
+            var im = JabberIM {user: user};
+
+            return im;
+        };
     
-    public operation login(window:AccountWindow);
-    public operation logout();
+    public function login(window:AccountWindow);
+    public function logout();
     
-    public operation setPresence();
+    public function setPresence();
     
-    public operation isConnected():Boolean;
-    public operation isAuthenticated(): Boolean;
+    public function isConnected():Boolean;
+    public function isAuthenticated(): Boolean;
     
     public attribute user: Buddy;
-    public attribute buddies: Buddy*;
+    public attribute buddies: Buddy[];
 }
-
-operation InstantMessenger.createIM(user:Buddy):InstantMessenger
-{
-    // we only support Jabber.org at the moment
-    var im = new JabberIM(user);
-    
-    return im;
-}
-

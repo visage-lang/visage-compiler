@@ -5,237 +5,245 @@ import casual.BuddyWindow;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.packet.Presence$Type as PresenceType;
-import org.jivesoftware.smack.packet.Presence$Mode as PresenceMode;
+import org.jivesoftware.smack.packet.Presence$Type;
+import org.jivesoftware.smack.packet.Presence$Mode;
 
 import java.util.Collection;
 
 public class JabberIM extends InstantMessenger
 {
-    public operation JabberIM(user:Buddy);
-    
-    private attribute connection: XMPPConnection?;
-    private attribute roster: Roster?;
-    private attribute chatManager: ChatManager?;
-    private attribute rosterListener: RosterListener?;
-}
+    private attribute connection: XMPPConnection;
+    private attribute roster: Roster;
+    private attribute chatManager: ChatManager;
+    private attribute rosterListener: RosterListener;
+    public attribute user: Buddy;
 
-operation JabberIM.JabberIM(user:Buddy)
-{
-    this.user = user;
-}
+    function login(window:AccountWindow)
+    {
+        var account = user.account;
+        var configuration;
+        if (account == Account.GOOGLE_TALK)
+        {
+            configuration = new ConnectionConfiguration(account.server, account.port, account.emailServer);
+        }
+        else
+        {
+            configuration = new ConnectionConfiguration(account.server, account.port);
+        }
 
-operation JabberIM.login(window:AccountWindow)
-{
-    var self = this;
-    
-    var account = user.account;
-    var configuration;
-    if (account == GOOGLE_TALK:Account)
-    {
-	configuration = new ConnectionConfiguration(account.server, account.port, account.emailServer);
-    }
-    else
-    {
-	configuration = new ConnectionConfiguration(account.server, account.port);
-    }
-    
-    connection = new XMPPConnection(configuration);
-    try
-    {
-        do
+        connection = new XMPPConnection(configuration);
+        try
         {
-            connection.connect();
+            // TODO DO  - this is a work around until a more permanent solution is provided
+//            do
+//            {
+                connection.connect();
+//            }
         }
-    }
-    catch (any)
-    {
-        <<java.awt.Toolkit>>.getDefaultToolkit().beep();
-        
-        do later
+        catch (any)
         {
-            var text = "\"{account.server}:{account.port}\" UNREACHABLE";
-            window.showErrorMessage(text, "ERROR:", true);
+            <<java.awt.Toolkit>>.getDefaultToolkit().beep();
+
+           //TODO DO LATER - this is a work around until a more permanent solution is provided
+            javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                public function run():Void {
+                    var text = "\"{account.server}:{account.port}\" UNREACHABLE";
+                    window.showErrorMessage(text, "ERROR:", true);
+                }
+            });
+
+            return;
         }
-        
-        return;
-    }
-    
-    try
-    {
-        do
+
+        try
         {
-            connection.login(this.user.userName, this.user.password, "Casual", true);
+            // TODO DO  - this is a work around until a more permanent solution is provided
+//            do
+//            {
+                connection.login(this.user.userName, this.user.password, "Casual", true);
+//            }
         }
-    }
-    catch (any)
-    {
-        if ((connection <> null) and (connection.isConnected() == true))
+        catch (any)
         {
-            connection.disconnect();
-        }
-        
-        <<java.awt.Toolkit>>.getDefaultToolkit().beep();
-        
-        do later
-        {
-            var text = "unable to connect: {user.userName}@{user.accountName}";
-            window.showErrorMessage(text, "ERROR:", true);
-        }
-        
-        return;
-    }
-    
-    chatManager = connection.getChatManager();
-    
-    var roster = connection.getRoster();
-    rosterListener = new RosterListener()
-    {
-        operation entriesAdded(addresses:Collection)
-        {
-            do later
+            if ((connection <> null) and (connection.isConnected() == true))
             {
-                println("entriesAdded");
+                connection.disconnect();
             }
+
+            <<java.awt.Toolkit>>.getDefaultToolkit().beep();
+
+           //TODO DO LATER - this is a work around until a more permanent solution is provided
+            javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                public function run():Void {
+                    var text = "unable to connect: {user.userName}@{user.accountName}";
+                    window.showErrorMessage(text, "ERROR:", true);
+                }
+            });
+
+            return;
         }
-        operation entriesDeleted(addresses:Collection)
+
+        chatManager = connection.getChatManager();
+
+        var roster = connection.getRoster();
+        rosterListener = RosterListener
         {
-            do later
+            function entriesAdded(addresses:Collection)
             {
-                println("entriesDeleted");
+               //TODO DO LATER - this is a work around until a more permanent solution is provided
+                javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                    public function run():Void {
+                        println("entriesAdded");
+                    }
+                });
             }
-        }
-        operation entriesUpdated(addresses:Collection)
-        {
-            do later
+            function entriesDeleted(addresses:Collection)
             {
-                println("entriesUpdated");
+               //TODO DO LATER - this is a work around until a more permanent solution is provided
+                javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                    public function run():Void {
+                        println("entriesDeleted");
+                    }
+                });
             }
-        }
-        operation presenceChanged(presence:Presence)
-        {
-            do later
+            function entriesUpdated(addresses:Collection)
             {
-                var userAddress = presence.getFrom();
-                var userName = userAddress.substring(0, userAddress.indexOf('@'));
-                for (buddy in self.buddies)
+               //TODO DO LATER - this is a work around until a more permanent solution is provided
+                javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                    public function run():Void {
+                        println("entriesUpdated");
+                    }
+                });
+            }
+            function presenceChanged(presence:Presence)
+            {
+               //TODO DO LATER - this is a work around until a more permanent solution is provided
+                javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                    public function run():Void {
+                        var userAddress = presence.getFrom();
+                        var userName = userAddress.substring(0, userAddress.indexOf('@'));
+                        for (buddy in buddies)
+                        {
+                            if (buddy.userName.equalsIgnoreCase(userName) == true)
+                            {
+                                var mode = presence.getMode();
+                                if (mode == null)
+                                {
+                                    if (presence.isAvailable())
+                                    {
+                                        buddy.presence = BuddyPresence.AVAILABLE;
+                                    }
+                                    else
+                                    {
+                                        buddy.presence = BuddyPresence.AWAY;
+                                    }
+                                }
+                                else if (presence.getMode() == Presence$Mode.available)
+                                {
+                                    buddy.presence = BuddyPresence.AVAILABLE;
+                                }
+                                else
+                                {
+                                    buddy.presence = BuddyPresence.AWAY;
+                                }
+                                break;
+                            }
+                        }
+                   }
+                });
+            }
+        };
+        roster.addRosterListener(rosterListener);
+
+        var groups = roster.getGroups();
+        var i = groups.iterator();
+        while (i.hasNext())
+        {
+            var rg:RosterGroup = i.next() as RosterGroup;
+
+            var ge = rg.getEntries();
+            var j = ge.iterator();
+            while (j.hasNext())
+            {
+                var re = j.next() as RosterEntry;
+
+                var addressXMPP = re.getUser();
+                var userName = addressXMPP.substring(0, addressXMPP.indexOf('@'));
+                var accountName = addressXMPP.substring(addressXMPP.indexOf('@')+1, addressXMPP.length());
+                var buddy = Buddy
                 {
-                    if (buddy.userName.equalsIgnoreCase(userName) == true)
+                    type: BUDDY
+                    userName: userName
+                    accountName: accountName
+                };
+
+                var bestPresence = roster.getPresence(addressXMPP);
+                var mode = bestPresence.getMode();
+                if (mode == null)
+                {
+                    if (bestPresence.isAvailable())
                     {
-                        var mode = presence.getMode();
-                        if (mode == null)
-                        {
-                            if (presence.isAvailable())
-                            {
-                                buddy.presence = AVAILABLE:BuddyPresence;
-                            }
-                            else
-                            {
-                                buddy.presence = AWAY:BuddyPresence;
-                            }
-                        }
-                        else if (presence.getMode() == PresenceMode.available)
-                        {
-                            buddy.presence = AVAILABLE:BuddyPresence;
-                        }
-                        else
-                        {
-                            buddy.presence = AWAY:BuddyPresence;
-                        }
-                        break;
+                        buddy.presence = BuddyPresence.AVAILABLE;
+                    }
+                    else
+                    {
+                        buddy.presence = BuddyPresence.AWAY;
                     }
                 }
-            }
-        }
-    };
-    roster.addRosterListener(rosterListener);
-    
-    var groups = roster.getGroups();
-    var i = groups.iterator();
-    while (i.hasNext())
-    {
-	var rg:RosterGroup = (RosterGroup)i.next();
-        
-	var ge = rg.getEntries();
-	var j = ge.iterator();
-	while (j.hasNext())
-        {
-	    var re = (RosterEntry)j.next();
-            
-            var addressXMPP = re.getUser();
-	    var userName = addressXMPP.substring(0, addressXMPP.indexOf('@'));
-	    var accountName = addressXMPP.substring(addressXMPP.indexOf('@')+1, addressXMPP.length());
-	    var buddy = Buddy
-            {
-		type: BUDDY
-                userName: userName
-                accountName: accountName
-	    };
-            
-	    var bestPresence = roster.getPresence(addressXMPP);
-	    var mode = bestPresence.getMode();
-	    if (mode == null)
-            {
-		if (bestPresence.isAvailable())
+                else if (bestPresence.getMode() == Presence$Mode.available)
                 {
-		    buddy.presence = AVAILABLE:BuddyPresence;
-		}
+                    buddy.presence = BuddyPresence.AVAILABLE;
+                }
                 else
                 {
-		    buddy.presence = AWAY:BuddyPresence;
-		}
-	    }
-            else if (bestPresence.getMode() == PresenceMode.available)
-            {
-                buddy.presence = AVAILABLE:BuddyPresence;
+                    buddy.presence = BuddyPresence.AWAY;
+                }
+
+                buddy.chat = JabberChat {manager: chatManager, buddy: buddy};
+
+                insert buddy into buddies;
             }
-            else
-            {
-                buddy.presence = AWAY:BuddyPresence;
+        }
+
+        var presence = new Presence(Presence$Type.available, "available", 1, Presence$Mode.available);
+        connection.sendPacket(presence);
+
+        //TODO DO LATER - this is a work around until a more permanent solution is provided
+        javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+            public function run():Void {
+                window.hideMessage();
+                window.close();
+                var buddyWindow = new BuddyWindow(this);
             }
-            
-            buddy.chat = new JabberChat(chatManager, buddy);
-            
-            insert buddy into buddies;
-	}
+        });
     }
-    
-    var presence = new Presence(PresenceType.available, "available", 1, PresenceMode.available);
-    this.connection.sendPacket(presence);
-    
-    do later
+
+    function isConnected(): Boolean
     {
-        window.hideMessage();
-        window.close();
-        var buddyWindow = new BuddyWindow(this);
+        return ((connection <> null) and (connection.isConnected() == true));
     }
-}
 
-operation JabberIM.isConnected()
-{
-    return ((connection <> null) and (connection.isConnected() == true));
-}
-
-operation JabberIM.isAuthenticated()
-{
-    return ((connection <> null) and (connection.isAuthenticated() == true));
-}
-
-operation JabberIM.logout()
-{
-    if (isConnected() == true)
+    function isAuthenticated(): Boolean
     {
-	roster.removeRosterListener(rosterListener);
-	connection.disconnect();
-	delete connection;
-	delete roster;
+        return ((connection <> null) and (connection.isAuthenticated() == true));
     }
-}
 
-operation JabberIM.setPresence()
-{
-    if (isConnected() == true)
+    function logout()
     {
-	// fix me
+        if (isConnected() == true)
+        {
+            roster.removeRosterListener(rosterListener);
+            connection.disconnect();
+            delete connection;
+            delete roster;
+        }
+    }
+
+    function setPresence()
+    {
+        if (isConnected() == true)
+        {
+            // fix me
+        }
     }
 }

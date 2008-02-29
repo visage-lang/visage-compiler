@@ -5,188 +5,174 @@ import casual.ChatWindow;
 public class BuddyKey
 {
     public attribute id: String;
-}
 
-FIRST_NAME:BuddyKey = BuddyKey
-{
-    id: "FIRST_NAME"
-};
-LAST_NAME:BuddyKey = BuddyKey
-{
-    id: "LAST_NAME"
-};
-USER_NAME:BuddyKey = BuddyKey
-{
-    id: "USER_NAME"
-};
-ACCOUNT_NAME:BuddyKey = BuddyKey
-{
-    id: "ACCOUNT_NAME"
-};
+    public static attribute FIRST_NAME:BuddyKey = BuddyKey
+    {
+        id: "FIRST_NAME"
+    };
+    public static attribute LAST_NAME:BuddyKey = BuddyKey
+    {
+        id: "LAST_NAME"
+    };
+    public static attribute USER_NAME:BuddyKey = BuddyKey
+    {
+        id: "USER_NAME"
+    };
+    public static attribute ACCOUNT_NAME:BuddyKey = BuddyKey
+    {
+        id: "ACCOUNT_NAME"
+    };
+}
 
 public class BuddyType
 {
     public attribute id: String;
-}
 
-USER:BuddyType = BuddyType
-{
-    id: "USER"
-};
-BUDDY:BuddyType = BuddyType
-{
-    id: "BUDDY"
-};
+    public static attribute USER:BuddyType = BuddyType
+    {
+        id: "USER"
+    };
+    public static attribute BUDDY:BuddyType = BuddyType
+    {
+        id: "BUDDY"
+    };
+}
 
 public class BuddyPresence
 {
     public attribute id: String;
-}
 
-AVAILABLE:BuddyPresence = BuddyPresence
-{
-    id: "AVAILABLE"
-};
-BUSY:BuddyPresence = BuddyPresence
-{
-    id: "BUSY"
-};
-AWAY:BuddyPresence = BuddyPresence
-{
-    id: "AWAY"
-};
+    public static attribute AVAILABLE:BuddyPresence = BuddyPresence
+    {
+        id: "AVAILABLE"
+    };
+    public static attribute BUSY:BuddyPresence = BuddyPresence
+    {
+        id: "BUSY"
+    };
+    public static attribute AWAY:BuddyPresence = BuddyPresence
+    {
+        id: "AWAY"
+    };
+}
 
 class Buddy
 {
     attribute chat: Chat;
     attribute window: ChatWindow;
     
-    public attribute type: BuddyType;
+    public attribute type: BuddyType = BuddyType.BUDDY;
     
     public attribute firstName: String;
     public attribute lastName: String;
     public attribute userName: String;
-    public attribute accountName: String;
     public attribute account: Account;
-    public attribute presence: BuddyPresence;
     
-    public attribute password: String?;
-    public attribute chatting: Boolean;
-    
-    public operation sendMessage(message:String);
-    public operation receiveMessage(message:String);
-    
-    public operation startChat();
-    public operation endChat();
-    public operation toString(): String;
-}
+    public attribute accountName: String
+        on replace {
+            if (accountName.equalsIgnoreCase(Account.JABBER.server) == true)
+            {
+                account = Account.JABBER;
+            }
+            else if (accountName.equalsIgnoreCase(Account.GOOGLE_TALK.server) == true)
+            {
+                account = Account.GOOGLE_TALK;
+            }
+            else
+            {
+                account = Account.UNKNOWN;
+                account.server = accountName;
+            }
+        };
 
-Buddy.type = BUDDY;
-Buddy.presence = AWAY;
-Buddy.chatting = false;
+    public attribute presence: BuddyPresence = BuddyPresence.AWAY
+        on replace {
+            if (presence == BuddyPresence.AVAILABLE)
+            {
+                window.addComment("&lt;{userName}@{accountName}&gt; reconnected");
+            }
+            else
+            {
+                window.addComment("&lt;{userName}@{accountName}&gt; disconnected");
+            }
+        };
 
-operation Buddy.receiveMessage(message:String)
-{
-    if (window == null)
+    
+    public attribute password: String;
+    public attribute chatting: Boolean = false;
+    
+    public function receiveMessage(message:String)
     {
-        window = new ChatWindow(this);
-        window.width = 300;
-        window.height = 100;
-        window.receiveMessage(message);
-        window.visible = true;
-        window.toFront();
-        
-        do later
+        if (window == null)
         {
-            window.ringPlay();
-        }
-    }
-    else
-    {
-        window.receiveMessage(message);
-    }
-}
-
-operation Buddy.sendMessage(message:String)
-{
-    this.chat.sendMessage(message);
-}
-
-operation Buddy.startChat()
-{
-    chatting = true;
-    if (window == null)
-    {
-        window = new ChatWindow(this);
-        window.width = 350;
-        window.height = 500;
-        window.visible = true;
-        window.toFront();
-    }
-    else
-    {
-        if (window.visible == false)
-        {
+            window = new ChatWindow(this);
+            window.width = 300;
+            window.height = 100;
+            window.receiveMessage(message);
             window.visible = true;
+            window.toFront();
+
+            //TODO DO LATER - this is a work around until a more permanent solution is provided
+            javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                public function run():Void {
+                    window.ringPlay();
+                }
+            });
         }
-        window.toFront();
+        else
+        {
+            window.receiveMessage(message);
+        }
     }
-}
 
-operation Buddy.endChat()
-{
-    chatting = false;
-    if (window <> null)
+    public function sendMessage(message:String)
     {
-        window.visible = false;
-        window.close();
-        window = null;
+        this.chat.sendMessage(message);
     }
-}
 
-trigger on Buddy.presence = value
-{
-    if (presence == AVAILABLE:BuddyPresence)
+    public function startChat()
     {
-        window.addComment("&lt;{userName}@{accountName}&gt; reconnected");
+        chatting = true;
+        if (window == null)
+        {
+            window = new ChatWindow(this);
+            window.width = 350;
+            window.height = 500;
+            window.visible = true;
+            window.toFront();
+        }
+        else
+        {
+            if (window.visible == false)
+            {
+                window.visible = true;
+            }
+            window.toFront();
+        }
     }
-    else
-    {
-        window.addComment("&lt;{userName}@{accountName}&gt; disconnected");
-    }
-}
 
-trigger on Buddy.accountName = value
-{
-    if (accountName.equalsIgnoreCase(JABBER:Account.server) == true)
+    public function endChat()
     {
-        account = JABBER:Account;
+        chatting = false;
+        if (window <> null)
+        {
+            window.visible = false;
+            window.close();
+            window = null;
+        }
     }
-    else if (accountName.equalsIgnoreCase(GOOGLE_TALK:Account.server) == true)
-    {
-        account = GOOGLE_TALK:Account;
-    }
-    else if (accountName.equalsIgnoreCase(MOON:Account.server) == true)
-    {
-        account = MOON:Account;
-    }
-    else
-    {
-        account = UNKNOWN:Account;
-        account.server = accountName;
-    }
-}
 
-function Buddy.toString(): String
-{
-    return
-"
-Buddy:
-    firstName = {firstName}
-    lastName = {lastName}
-    userName = {userName}
-    accountName = {accountName}
-    account = {account.name}
-    presence = {presence.id}
-";
+    public function toString(): String
+    {
+        return
+        "
+        Buddy:
+            firstName = {firstName}
+            lastName = {lastName}
+            userName = {userName}
+            accountName = {accountName}
+            account = {account.name}
+            presence = {presence.id}
+        ";
+    }
 }
