@@ -91,7 +91,6 @@ public class AssortieProject  extends CompositeWidget{
     
     private attribute selectedSampleIndex: Integer;
     
-    //private attribute code:String;
     
     private attribute selectedModule:Object on replace{
         System.out.println("[selected module] {selectedModule}");
@@ -204,12 +203,13 @@ public class AssortieProject  extends CompositeWidget{
         //System.out.println("[code] {code}");
         var obj = ProjectManager.runFXCode(sample.className, code);
         
-        //System.out.println("[execute sample] {sample.name}:" + obj);
+        System.out.println("[execute sample] {sample.name}:" + obj);
         
         
         var internalFrame = sample.frame;
-        
-        if(obj instanceof Frame){
+        if(obj == null){
+            internalFrame.content = Label{ text: "Compiler Error!"};            
+        }else if(obj instanceof Frame){
             
             var frame = obj as Frame;
             var background = (frame.background).getColor();
@@ -269,9 +269,22 @@ public class AssortieProject  extends CompositeWidget{
             //            x += 40;
             //            y += 40;
             
-        }
+        } else if (obj instanceof DiagnosticCollector ){
+            var diagnostics = obj as DiagnosticCollector;
+            
+            var errorMessage = "Compiler Error:";
+            var iterator = diagnostics.getDiagnostics().iterator();
+            
+            while(iterator.hasNext()){
+                var diagnostic = iterator.next();
+                System.out.println("[diagnostic] {diagnostic}");
+                errorMessage = "{errorMessage}\n{diagnostic}"; 
+            }
+            
+            internalFrame.content = Label{ text: errorMessage };
+
+         }
         
-        //insert internalFrame into frames;
     }
     
     function executeSample(sample: ProjectSample){
@@ -279,14 +292,9 @@ public class AssortieProject  extends CompositeWidget{
         insert sample into executedSamples;
         var className = sample.className;
         
-        //var fileName = className.substring(className.lastIndexOf('.') + 1) + ".fx";
-        var fileName = ProjectManager.getFilePath(className);
+        var fileName = ProjectManager.getFileName(className);
         
-        var code = ProjectManager.readResource(className, fileName);
-        
-        //var obj = ProjectManager.runFXFile(className);
-        //var obj = ProjectManager.runFXCode(className, code);
-        
+        var code = ProjectManager.readResource(className, fileName);        
         
         var textArea: TextArea;
         

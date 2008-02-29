@@ -12,11 +12,11 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import javax.tools.Diagnostic;
-import javax.tools.DiagnosticCollector;
 import javax.tools.DiagnosticListener;
 
 import javax.tools.JavaFileObject;
@@ -26,15 +26,9 @@ import javax.tools.SimpleJavaFileObject;
 public class CodeManager {
 
     private static JavafxcTool tool = JavafxcTool.create();
-    private static final DiagnosticCollector diagnostics = new DiagnosticCollector<JavaFileObject>();
-    private static DiagnosticListener<JavaFileObject> diagnosticListener = new DiagnosticListener<JavaFileObject>() {
-
-        public void report(Diagnostic<? extends JavaFileObject> rep) {
-            diagnostics.report(rep);
-        }
-        };
         
     private static ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+    private static DiagnosticCollector diagnostics = new DiagnosticCollector(); // <JavaFileObject>();
     private static MemoryFileManager manager = new MemoryFileManager(tool.getStandardFileManager(diagnostics, null, null), currentClassLoader);
     private static PrintWriter err = new PrintWriter(System.err);
     private static List<String> options = new ArrayList<String>();
@@ -46,12 +40,15 @@ public class CodeManager {
 
         compUnits.add(new FXFileObject(className, code));
 
+        diagnostics.clear();
         JavafxcTask task = tool.getTask(err, manager, diagnostics, options, compUnits);
 
-        boolean call = task.call();
-
+        
+        if (!task.call()) {
+            return diagnostics;
+        }
+        
         Map<String, byte[]> classBytes = manager.getClassBytes();
-
 
         try {
 
@@ -68,6 +65,23 @@ public class CodeManager {
     }
 }
 
+
+class DiagnosticCollector implements DiagnosticListener{
+
+    List<Diagnostic> diagnostics = new LinkedList<Diagnostic>();
+    
+    public List<Diagnostic> getDiagnostics() {
+	return diagnostics;
+    }
+    
+    public void clear(){
+        diagnostics.clear();
+    }
+    public void report(Diagnostic diagnostic) {
+        diagnostics.add(diagnostic);                
+    }
+    
+}
 class MemoryClassLoader extends ClassLoader {
 
     Map<String, byte[]> classBytes;
@@ -130,7 +144,7 @@ class FXFileObject extends SimpleJavaFileObject {
     }
 
     public String getName() {
-        return ProjectManager.getFilePath(className);
+        return ProjectManager.getFileName(className);
     }
 
     public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
@@ -138,14 +152,12 @@ class FXFileObject extends SimpleJavaFileObject {
     }
 
     private static URI toURI(String className) {
-        String fileName = className.replace('.', '/') + ".fx";
-        return URI.create("mfm:///" + ProjectManager.getFilePath(className));
-
+        return URI.create("./" + ProjectManager.getFilePath(className));
     }
 
     private void print(String text) {
         System.out.println("[file object] " + text);
-    }
+    }    
 }
 
 

@@ -19,12 +19,11 @@ public class ProjectManager {
 
     public static Object runFXFile(String name, ClassLoader classLoader) throws Exception {
         try {
-            //Class cls = classLoader.loadClass(name);
-            Class cls = Class.forName(name,true,classLoader);
+            Class cls = classLoader.loadClass(name);
             Method run = cls.getDeclaredMethod(JavafxDefs.runMethodString, new Class[0]);
             return run.invoke(null);
         } catch (Throwable e) {
-            throw new Exception("FX file: \"" + name + "\" was not found!");
+            throw new Exception("FX file: \"" + name + "\" was not compiled!!", e);
         }
     }
 
@@ -57,8 +56,12 @@ public class ProjectManager {
         return "";
     }
     
-    public static String getFilePath(String className){
+    public static String getFileName(String className){
         return className.substring(className.lastIndexOf('.') + 1) + ".fx";
+    }
+
+    public static String getFilePath(String className){
+        return className.replace('.','/') + ".fx";
     }
 }
 
