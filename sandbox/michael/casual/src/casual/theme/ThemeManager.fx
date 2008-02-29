@@ -1,168 +1,163 @@
 package casual.theme;
 
 import java.util.prefs.Preferences;
+import java.lang.System;
 
-theme:ThemeManager = new ThemeManager();
+var theme: ThemeManager = new ThemeManager();
 
 public class ThemeManager extends Theme
 {
-    attribute preferences: Preferences?;
+    attribute preferences: Preferences;
     
     public attribute theme: Theme;
-    public attribute themes: Theme*;
+    public attribute themes: Theme[];
     
-    public operation change(t:Theme);
-    public operation default();
-    public operation add(t:Theme);
-    public operation next();
-    public operation previous();
-}
+    override attribute description = bind theme.description;
 
-attribute ThemeManager.description = bind theme.description;
+    override attribute defaultFont = bind theme.defaultFont;
+    override attribute defaultForeground = bind theme.defaultForeground;
+    override attribute defaultBackground = bind theme.defaultBackground;
 
-attribute ThemeManager.defaultFont = bind theme.defaultFont;
-attribute ThemeManager.defaultForeground = bind theme.defaultForeground;
-attribute ThemeManager.defaultBackground = bind theme.defaultBackground;
+    override attribute uiForeground = bind theme.uiForeground;
+    override attribute uiBackground = bind theme.uiBackground;
+    override attribute uiBorderColor = bind theme.uiBorderColor;
+    override attribute uiStrokeWidth = bind theme.uiStrokeWidth;
 
-attribute ThemeManager.uiForeground = bind theme.uiForeground;
-attribute ThemeManager.uiBackground = bind theme.uiBackground;
-attribute ThemeManager.uiBorderColor = bind theme.uiBorderColor;
-attribute ThemeManager.uiStrokeWidth = bind theme.uiStrokeWidth;
+    override attribute windowFont = bind theme.windowFont;
+    override attribute windowInactive = bind theme.windowInactive;
+    override attribute windowBackground = bind theme.windowBackground;
+    override attribute windowBorder = bind theme.windowBorder;
+    override attribute windowInputAreaBorder = bind theme.windowInputAreaBorder;
 
-attribute ThemeManager.windowFont = bind theme.windowFont;
-attribute ThemeManager.windowInactive = bind theme.windowInactive;
-attribute ThemeManager.windowBackground = bind theme.windowBackground;
-attribute ThemeManager.windowBorder = bind theme.windowBorder;
-attribute ThemeManager.windowInputAreaBorder = bind theme.windowInputAreaBorder;
+    override attribute titleBarFont = bind theme.titleBarFont;
+    override attribute titleBarForeground = bind theme.titleBarForeground;
+    override attribute titleBarBackground = bind theme.titleBarBackground;
+    override attribute titleBorder = bind theme.titleBorder;
+    override attribute titleBarCloseIconColor = bind theme.titleBarCloseIconColor;
+    override attribute titleBarMinimizeIconColor = bind theme.titleBarMinimizeIconColor;
 
-attribute ThemeManager.titleBarFont = bind theme.titleBarFont;
-attribute ThemeManager.titleBarForeground = bind theme.titleBarForeground;
-attribute ThemeManager.titleBarBackground = bind theme.titleBarBackground;
-attribute ThemeManager.titleBorder = bind theme.titleBorder;
-attribute ThemeManager.titleBarCloseIconColor = bind theme.titleBarCloseIconColor;
-attribute ThemeManager.titleBarMinimizeIconColor = bind theme.titleBarMinimizeIconColor;
+    override attribute chatPanelFont = bind theme.chatPanelFont;
+    override attribute chatFrameBackground = bind theme.chatFrameBackground;
+    override attribute chatPanelBackgroundLight = bind theme.chatPanelBackgroundLight;
+    override attribute chatPanelBackgroundDark = bind theme.chatPanelBackgroundDark;
+    override attribute chatPanelBackground = bind theme.chatPanelBackground;
+    override attribute chatPanelBorder = bind theme.chatPanelBorder;
 
-attribute ThemeManager.chatPanelFont = bind theme.chatPanelFont;
-attribute ThemeManager.chatFrameBackground = bind theme.chatFrameBackground;
-attribute ThemeManager.chatPanelBackgroundLight = bind theme.chatPanelBackgroundLight;
-attribute ThemeManager.chatPanelBackgroundDark = bind theme.chatPanelBackgroundDark;
-attribute ThemeManager.chatPanelBackground = bind theme.chatPanelBackground;
-attribute ThemeManager.chatPanelBorder = bind theme.chatPanelBorder;
+    override attribute messageFont = bind theme.messageFont;
+    override attribute commentFont = bind theme.commentFont;
+    override attribute messageInForeground = bind theme.messageInForeground;
+    override attribute messageInBackground = bind theme.messageInBackground;
+    override attribute messageOutForeground = bind theme.messageOutForeground;
+    override attribute messageOutBackground = bind theme.messageOutBackground;
+    override attribute commentForeground = bind theme.commentForeground;
+    override attribute commentBackground = bind theme.commentBackground;
+    override attribute messageBorderColor = bind theme.messageBorderColor;
+    override attribute messageBorder = bind theme.messageBorder;
+    override attribute commentBorder = bind theme.commentBorder;
 
-attribute ThemeManager.messageFont = bind theme.messageFont;
-attribute ThemeManager.commentFont = bind theme.commentFont;
-attribute ThemeManager.messageInForeground = bind theme.messageInForeground;
-attribute ThemeManager.messageInBackground = bind theme.messageInBackground;
-attribute ThemeManager.messageOutForeground = bind theme.messageOutForeground;
-attribute ThemeManager.messageOutBackground = bind theme.messageOutBackground;
-attribute ThemeManager.commentForeground = bind theme.commentForeground;
-attribute ThemeManager.commentBackground = bind theme.commentBackground;
-attribute ThemeManager.messageBorderColor = bind theme.messageBorderColor;
-attribute ThemeManager.messageBorder = bind theme.messageBorder;
-attribute ThemeManager.commentBorder = bind theme.commentBorder;
+    override attribute messageInputForeground = bind theme.messageInputForeground;
+    override attribute messageInputBackground = bind theme.messageInputBackground;
+    override attribute messageInputBorderColor = bind theme.messageInputBorderColor;
+    override attribute messageInputBorder = bind theme.messageInputBorder;
+    override attribute messageInputAreaBorder = bind theme.messageInputAreaBorder;
 
-attribute ThemeManager.messageInputForeground = bind theme.messageInputForeground;
-attribute ThemeManager.messageInputBackground = bind theme.messageInputBackground;
-attribute ThemeManager.messageInputBorderColor = bind theme.messageInputBorderColor;
-attribute ThemeManager.messageInputBorder = bind theme.messageInputBorder;
-attribute ThemeManager.messageInputAreaBorder = bind theme.messageInputAreaBorder;
+    override attribute fieldForeground = bind theme.fieldForeground;
+    override attribute fieldBackground = bind theme.fieldBackground;
+    override attribute fieldFocusColor = bind theme.fieldFocusColor;
 
-attribute ThemeManager.fieldForeground = bind theme.fieldForeground;
-attribute ThemeManager.fieldBackground = bind theme.fieldBackground;
-attribute ThemeManager.fieldFocusColor = bind theme.fieldFocusColor;
+    override attribute errorForeground = bind theme.errorForeground;
+    override attribute errorBackgroundInside = bind theme.errorBackgroundInside;
+    override attribute errorBackgroundOutside = bind theme.errorBackgroundOutside;
+    override attribute errorBorderColor = bind theme.errorBorderColor;
 
-attribute ThemeManager.errorForeground = bind theme.errorForeground;
-attribute ThemeManager.errorBackgroundInside = bind theme.errorBackgroundInside;
-attribute ThemeManager.errorBackgroundOutside = bind theme.errorBackgroundOutside;
-attribute ThemeManager.errorBorderColor = bind theme.errorBorderColor;
+    override attribute warningForeground = bind theme.warningForeground;
+    override attribute warningBackgroundInside = bind theme.warningBackgroundInside;
+    override attribute warningBackgroundOutside = bind theme.warningBackgroundOutside;
+    override attribute warningBorderColor = bind theme.warningBorderColor;
 
-attribute ThemeManager.warningForeground = bind theme.warningForeground;
-attribute ThemeManager.warningBackgroundInside = bind theme.warningBackgroundInside;
-attribute ThemeManager.warningBackgroundOutside = bind theme.warningBackgroundOutside;
-attribute ThemeManager.warningBorderColor = bind theme.warningBorderColor;
+    override attribute infoForeground = bind theme.infoForeground;
+    override attribute infoBackgroundInside = bind theme.infoBackgroundInside;
+    override attribute infoBackgroundOutside = bind theme.infoBackgroundOutside;
+    override attribute infoBorderColor = bind theme.infoBorderColor;
 
-attribute ThemeManager.infoForeground = bind theme.infoForeground;
-attribute ThemeManager.infoBackgroundInside = bind theme.infoBackgroundInside;
-attribute ThemeManager.infoBackgroundOutside = bind theme.infoBackgroundOutside;
-attribute ThemeManager.infoBorderColor = bind theme.infoBorderColor;
-
-operation ThemeManager.ThemeManager()
-{
-    preferences = Preferences.userRoot().node("Casual");
-    
-    add(new DefaultTheme());
-    //add(new LightTheme());
-    add(new DevTheme());
-    
-    default();
-}
-
-operation ThemeManager.default()
-{
-    theme = null;
-    
-    var defaultThemeName= new String(preferences.getByteArray("theme", themes[0].description.getBytes()));
-    for (t in themes)
+    postinit
     {
-        if (t.description.equals(defaultThemeName))
+        preferences = Preferences.userRoot().node("Casual");
+
+        add(new DefaultTheme());
+        //add(new LightTheme());
+        add(new DevTheme());
+
+        default();
+    }
+
+    function default()
+    {
+        theme = null;
+
+        var defaultThemeName= new String(preferences.getByteArray("theme", themes[0].description.getBytes()));
+        for (t in themes)
         {
-            theme = t;
-            break;
+            if (t.description.equals(defaultThemeName))
+            {
+                theme = t;
+                break;
+            }
+        }
+
+        if (theme == null)
+        {
+            theme = themes[0];
         }
     }
-    
-    if (theme == null)
+
+    function change(t:Theme)
     {
-        theme = themes[0];
+        System.out.println("changing themes from \"{theme.description}\" to \"{t.description}\"");
+        theme = t;
+
+        preferences.putByteArray("theme", theme.description.getBytes());
     }
-}
 
-operation ThemeManager.change(t:Theme)
-{
-    println("changing themes from \"{theme.description}\" to \"{t.description}\"");
-    theme = t;
-    
-    preferences.putByteArray("theme", theme.description.getBytes());
-}
-
-operation ThemeManager.add(t:Theme)
-{
-    if (t <> null)
+    function add(t:Theme)
     {
-        insert t as last into themes;
-    }
-}
-
-operation ThemeManager.next()
-{
-    for (t in themes)
-    {
-        if (t == theme)
+        if (t <> null)
         {
-            var next = (indexof t) + 1;
-            if (next >= (sizeof themes))
-            {
-                next = 0;
-            }
-            change(themes[next]);
-            break;
+            insert t into themes;
         }
     }
-}
 
-operation ThemeManager.previous()
-{
-    for (t in themes)
+    function next()
     {
-        if (t == theme)
+        for (t in themes)
         {
-            var previous = (indexof t) - 1;
-            if (previous < 0)
+            if (t == theme)
             {
-                previous = (sizeof themes)-1;
+                var next = (indexof t) + 1;
+                if (next >= (sizeof themes))
+                {
+                    next = 0;
+                }
+                change(themes[next]);
+                break;
             }
-            change(themes[previous]);            
-            break;
-       }
+        }
+    }
+
+    function previous()
+    {
+        for (t in themes)
+        {
+            if (t == theme)
+            {
+                var previous = (indexof t) - 1;
+                if (previous < 0)
+                {
+                    previous = (sizeof themes)-1;
+                }
+                change(themes[previous]);            
+                break;
+           }
+        }
     }
 }
