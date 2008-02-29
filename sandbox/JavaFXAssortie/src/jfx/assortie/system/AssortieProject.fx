@@ -164,10 +164,10 @@ public class AssortieProject  extends CompositeWidget{
     function createFrame(sample: ProjectSample, code: String){
 
         System.out.println("----------------------------------------------------");
-        System.out.println("[code] {code}");
+        //System.out.println("[code] {code}");
         var obj = ProjectManager.runFXCode(sample.className, code);
 
-        System.out.println("[execute sample] {sample.name}:" + obj);
+        //System.out.println("[execute sample] {sample.name}:" + obj);
 
         
         var internalFrame = sample.frame;
@@ -189,13 +189,13 @@ public class AssortieProject  extends CompositeWidget{
             internalFrame.content = frame.content;
             internalFrame.visible = true;
  
-            var content = frame.content;
-            if ( content instanceof Label){
-                var label = content as Label;
-                System.out.println("[label ] \"{label.text}\"");
-                
-            }
-            System.out.println("[content] {content}");
+//            var content = frame.content;
+//            if ( content instanceof Label){
+//                var label = content as Label;
+//                System.out.println("[label ] \"{label.text}\"");
+//                
+//            }
+//            System.out.println("[content] {content}");
 
             
             

@@ -6,12 +6,12 @@ package jfx.assortie.system;
 
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.javafx.api.JavafxcTool;
-import com.sun.tools.javac.util.Context;
 import com.sun.tools.javafx.script.MemoryFileManager;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,28 +25,26 @@ import javax.tools.SimpleJavaFileObject;
 
 public class CodeManager {
 
-    public static Object execute(String className, String code) {
+    private static JavafxcTool tool = JavafxcTool.create();
+    private static final DiagnosticCollector diagnostics = new DiagnosticCollector<JavaFileObject>();
+    private static DiagnosticListener<JavaFileObject> diagnosticListener = new DiagnosticListener<JavaFileObject>() {
 
-        Context context = new Context();
-
-        JavafxcTool tool = JavafxcTool.create();
-
-        final DiagnosticCollector diagnostics = new DiagnosticCollector<JavaFileObject>();
-        DiagnosticListener<JavaFileObject> diagnosticListener = new DiagnosticListener<JavaFileObject>() {
-
-            public void report(Diagnostic<? extends JavaFileObject> rep) {
-                diagnostics.report(rep);
-            }
+        public void report(Diagnostic<? extends JavaFileObject> rep) {
+            diagnostics.report(rep);
+        }
         };
+        
+    private static ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+    private static MemoryFileManager manager = new MemoryFileManager(tool.getStandardFileManager(diagnostics, null, null), currentClassLoader);
+    private static PrintWriter err = new PrintWriter(System.err);
+    private static List<String> options = new ArrayList<String>();
+    private static MemoryClassLoader memoryClassLoader = new MemoryClassLoader();
 
-        MemoryFileManager manager = new MemoryFileManager(tool.getStandardFileManager(diagnostics, null, null), Thread.currentThread().getContextClassLoader());
+    public static Object execute(String className, String code) {
 
         List<JavaFileObject> compUnits = new ArrayList<JavaFileObject>(1);
 
         compUnits.add(new FXFileObject(className, code));
-
-        PrintWriter err = new PrintWriter(System.err);
-        List<String> options = new ArrayList<String>();
 
         JavafxcTask task = tool.getTask(err, manager, diagnostics, options, compUnits);
 
@@ -54,13 +52,11 @@ public class CodeManager {
 
         Map<String, byte[]> classBytes = manager.getClassBytes();
 
-        for (String key : classBytes.keySet()) {
-            System.out.println("key: " + key);
-        }
 
         try {
 
-            MemoryClassLoader memoryClassLoader = new MemoryClassLoader(classBytes);
+            MemoryClassLoader memoryClassLoader = new MemoryClassLoader();
+            memoryClassLoader.loadMap(classBytes);
 
             return ProjectManager.runFXFile(className, memoryClassLoader);
 
@@ -76,24 +72,14 @@ class MemoryClassLoader extends ClassLoader {
 
     Map<String, byte[]> classBytes;
 
-    public MemoryClassLoader(Map<String, byte[]> classBytes) throws ClassNotFoundException {
-        System.out.println("[memory class loader] constructor");
-        this.classBytes = classBytes;
-        Iterable<Class> classes = loadAll();
-
-//        for (Class cls : classes) {
-//            System.out.println("[memory class loader] class: \"" + cls.getName() + "\"");
-//        }
-
+    public MemoryClassLoader() {
+        classBytes = new HashMap<String, byte[]>();
     }
 
-    public Iterable<Class> loadAll() throws ClassNotFoundException {
-        //System.out.println("[memory class loader] Load All");
-        List<Class> classes = new ArrayList<Class>(classBytes.size());
-        for (String name : classBytes.keySet()) {
-            classes.add(loadClass(name));
+    public void loadMap(Map<String, byte[]> classBytes) throws ClassNotFoundException {
+        for (String key : classBytes.keySet()) {
+            this.classBytes.put(key, classBytes.get(key));
         }
-        return classes;
     }
 
     protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
@@ -144,8 +130,7 @@ class FXFileObject extends SimpleJavaFileObject {
     }
 
     public String getName() {
-        String fileName = className.replace('.', '/') + ".fx";
-        return fileName;
+        return ProjectManager.getFilePath(className);
     }
 
     public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
@@ -154,7 +139,7 @@ class FXFileObject extends SimpleJavaFileObject {
 
     private static URI toURI(String className) {
         String fileName = className.replace('.', '/') + ".fx";
-        return URI.create("mfm:///" + fileName);
+        return URI.create("mfm:///" + ProjectManager.getFilePath(className));
 
     }
 
