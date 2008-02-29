@@ -10,11 +10,17 @@ package jfx.assortie.system;
  * @author Alexandr Scherbatiy
  */
 
+import java.lang.Class;
 import java.lang.Object;
 import java.lang.System;
-import java.lang.Class;
+
+import java.lang.Thread;
+import java.lang.Runnable;
+
+
 import java.lang.StringBuffer;
 import java.io.*;
+
 
 import javafx.ui.*;
 import jfx.assortie.system.structure.*;
@@ -58,6 +64,11 @@ class ProjectSample {
 }
 
 
+class KeyTimer{
+    attribute name: String;
+    attribute time: Number;
+    attribute action: function();
+}
 
 public class AssortieProject  extends CompositeWidget{
     
@@ -73,19 +84,19 @@ public class AssortieProject  extends CompositeWidget{
     private attribute selectedCodeIndex: Number on replace{
         
         if ( codeTabs <> [] and 0 <= selectedCodeIndex ){
-              var title = codeTabs[selectedCodeIndex.intValue()].title;
-              tabSelection(title);
+            var title = codeTabs[selectedCodeIndex.intValue()].title;
+            tabSelection(title);
         }
     };
     
     private attribute selectedSampleIndex: Integer;
-
+    
     //private attribute code:String;
     
     private attribute selectedModule:Object on replace{
         System.out.println("[selected module] {selectedModule}");
         selectedSampleIndex = -1;
-
+        
         var cell = selectedModule as TreeCell;
         var m = cell.value as ProjectModule;
         samples = m.samples;
@@ -93,12 +104,14 @@ public class AssortieProject  extends CompositeWidget{
         System.out.println("[selected value] {m}");
         
     };
-
+    
     
     public attribute rootModule:String on replace{
         initProject();
     };
     
+    private attribute keyTimers:KeyTimer[];
+    private attribute KEY_TIMEOUT = 1000.0;
     
     private
     function initProject(){
@@ -149,6 +162,7 @@ public class AssortieProject  extends CompositeWidget{
         treeCell = convert(moduleTreeNode);
         //  see JFX JFXC-658
         samples = (((treeCell.cells[0].cells[0].cells[1]).value) as ProjectModule ).samples;
+        runKeyTimerHandler();
     }
     
     function convert(treeNode: TreeNode): TreeCell{
@@ -161,14 +175,37 @@ public class AssortieProject  extends CompositeWidget{
     }
     
     
+    function runKeyTimerHandler(){
+        
+        var runnable = Runnable {
+            public
+            function run(){
+                while(true) {
+                    Thread.sleep(800);
+                    
+                    var time = System.currentTimeMillis();
+                    for(keyTimer in keyTimers){
+                        if ( ( keyTimer.time + KEY_TIMEOUT ) < time.doubleValue() ){
+                            delete keyTimer from keyTimers;
+                            keyTimer.action();
+                        }
+                    }
+                }
+            }
+        };
+        
+        (new Thread(runnable)).start();
+        
+    }
+    
     function createFrame(sample: ProjectSample, code: String){
-
-        System.out.println("----------------------------------------------------");
+        
+        //System.out.println("----------------------------------------------------");
         //System.out.println("[code] {code}");
         var obj = ProjectManager.runFXCode(sample.className, code);
-
+        
         //System.out.println("[execute sample] {sample.name}:" + obj);
-
+        
         
         var internalFrame = sample.frame;
         
@@ -185,68 +222,68 @@ public class AssortieProject  extends CompositeWidget{
             internalFrame.width = frame.width;
             internalFrame.height = frame.height;
             //internalFrame.x = x;
-            //internalFrame.y = y;            
+            //internalFrame.y = y;
             internalFrame.content = frame.content;
             internalFrame.visible = true;
- 
-//            var content = frame.content;
-//            if ( content instanceof Label){
-//                var label = content as Label;
-//                System.out.println("[label ] \"{label.text}\"");
-//                
-//            }
-//            System.out.println("[content] {content}");
-
+            
+            //            var content = frame.content;
+            //            if ( content instanceof Label){
+            //                var label = content as Label;
+            //                System.out.println("[label ] \"{label.text}\"");
+            //
+            //            }
+            //            System.out.println("[content] {content}");
             
             
-//            internalFrame =  InternalFrame{
-//                x: x
-//                y: y
-//                title: frame.title
-//                width: frame.width
-//                height: frame.height
-//                onClose: function(){ 
-//                    System.out.println("Close frame: {sample.name}");
-//                    sample.frame = null; 
-//                    for(tab in codeTabs){
-//                        if(tab.title == sample.name){
-//                            delete tab from codeTabs;
-//                        }
-//                    }
-//                    selectedCodeIndex = sizeof codeTabs - 1;
-//                    delete internalFrame from frames;
-//                    delete sample from executedSamples;
-//                    
-//                    if (0 <= selectedCodeIndex){
-//                        var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
-//                        for(sample in samples){
-//                            if(sample.name ==  tabTitle) { sample.frame.selected = true; break; }
-//                        }
-//                    }
-//                }
-//                content: frame.content
-//                background: if (background==null) then Color.WHITE else Color{ red: background.getRed() green: background.getGreen() blue: background.getBlue() }
-//            };
-//            frame.visible = false;
-//            
-//            x += 40;
-//            y += 40;
+            
+            //            internalFrame =  InternalFrame{
+            //                x: x
+            //                y: y
+            //                title: frame.title
+            //                width: frame.width
+            //                height: frame.height
+            //                onClose: function(){
+            //                    System.out.println("Close frame: {sample.name}");
+            //                    sample.frame = null;
+            //                    for(tab in codeTabs){
+            //                        if(tab.title == sample.name){
+            //                            delete tab from codeTabs;
+            //                        }
+            //                    }
+            //                    selectedCodeIndex = sizeof codeTabs - 1;
+            //                    delete internalFrame from frames;
+            //                    delete sample from executedSamples;
+            //
+            //                    if (0 <= selectedCodeIndex){
+            //                        var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
+            //                        for(sample in samples){
+            //                            if(sample.name ==  tabTitle) { sample.frame.selected = true; break; }
+            //                        }
+            //                    }
+            //                }
+            //                content: frame.content
+            //                background: if (background==null) then Color.WHITE else Color{ red: background.getRed() green: background.getGreen() blue: background.getBlue() }
+            //            };
+            //            frame.visible = false;
+            //
+            //            x += 40;
+            //            y += 40;
             
         }
         
-        //insert internalFrame into frames;        
+        //insert internalFrame into frames;
     }
     
     function executeSample(sample: ProjectSample){
         
         insert sample into executedSamples;
         var className = sample.className;
-                
+        
         //var fileName = className.substring(className.lastIndexOf('.') + 1) + ".fx";
         var fileName = ProjectManager.getFilePath(className);
         
         var code = ProjectManager.readResource(className, fileName);
-
+        
         //var obj = ProjectManager.runFXFile(className);
         //var obj = ProjectManager.runFXCode(className, code);
         
@@ -254,83 +291,98 @@ public class AssortieProject  extends CompositeWidget{
         var textArea: TextArea;
         
         textArea =  TextArea{
-                text: code
-                editable: true
-                background: Color.WHITE
-                onKeyUp: function(keyEvent :KeyEvent){
-                    createFrame(sample, textArea.text);
-                };
-            }
-            
+            text: code
+            editable: true
+            background: Color.WHITE
+            onKeyUp: function(keyEvent :KeyEvent){
+                
+                var timer = keyTimers[t | t.name == sample.name ];
+                if (0 < sizeof timer ){
+                    var keyTimer = timer[0];
+                    keyTimer.time = System.currentTimeMillis();
+                } else{
+                    insert KeyTimer{
+                        name: sample.name
+                        time: System.currentTimeMillis()
+                        action: function(){
+                            createFrame(sample, textArea.text);
+                        }
+                    } into keyTimers;
+                }
+                //createFrame(sample, textArea.text);
+                
+            };
+        }
+        
         insert Tab{ title: sample.name content: textArea } into codeTabs;
         
         selectedCodeIndex = sizeof codeTabs - 1;
-                        
+        
         //var internalFrame: InternalFrame;
         
         
         sample.frame = InternalFrame { x: x y: y};
         x += 40;
         y += 40;
-
+        
         insert sample.frame into frames;
         createFrame(sample, code);
-
         
-//        if(obj instanceof Frame){
-//            
-//            var frame = obj as Frame;
-//            var background = (frame.background).getColor();
-//            //if(background==null){  background = Color.WHITE; }
-//            //System.out.println("background: {background}");
-//            
-//            internalFrame =  InternalFrame{
-//                x: x
-//                y: y
-//                title: frame.title
-//                width: frame.width
-//                height: frame.height
-//                onClose: function(){ 
-//                    System.out.println("Close frame: {sample.name}");
-//                    sample.frame = null; 
-//                    for(tab in codeTabs){
-//                        if(tab.title == sample.name){
-//                            delete tab from codeTabs;
-//                        }
-//                    }
-//                    selectedCodeIndex = sizeof codeTabs - 1;
-//                    delete internalFrame from frames;
-//                    delete sample from executedSamples;
-//                    
-//                    if (0 <= selectedCodeIndex){
-//                        var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
-//                        for(sample in samples){
-//                            if(sample.name ==  tabTitle) { sample.frame.selected = true; break; }
-//                        }
-//                    }
-//                }
-//                content: frame.content
-//                background: if (background==null) then Color.WHITE else Color{ red: background.getRed() green: background.getGreen() blue: background.getBlue() }
-//            };
-//            frame.visible = false;
-//            
-//            x += 40;
-//            y += 40;
-//            
-//        }
-//        
-//        insert internalFrame into frames;
-//        sample.frame = internalFrame;
-//        insert internalFrame into frames;
+        
+        //        if(obj instanceof Frame){
+        //
+        //            var frame = obj as Frame;
+        //            var background = (frame.background).getColor();
+        //            //if(background==null){  background = Color.WHITE; }
+        //            //System.out.println("background: {background}");
+        //
+        //            internalFrame =  InternalFrame{
+        //                x: x
+        //                y: y
+        //                title: frame.title
+        //                width: frame.width
+        //                height: frame.height
+        //                onClose: function(){
+        //                    System.out.println("Close frame: {sample.name}");
+        //                    sample.frame = null;
+        //                    for(tab in codeTabs){
+        //                        if(tab.title == sample.name){
+        //                            delete tab from codeTabs;
+        //                        }
+        //                    }
+        //                    selectedCodeIndex = sizeof codeTabs - 1;
+        //                    delete internalFrame from frames;
+        //                    delete sample from executedSamples;
+        //
+        //                    if (0 <= selectedCodeIndex){
+        //                        var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
+        //                        for(sample in samples){
+        //                            if(sample.name ==  tabTitle) { sample.frame.selected = true; break; }
+        //                        }
+        //                    }
+        //                }
+        //                content: frame.content
+        //                background: if (background==null) then Color.WHITE else Color{ red: background.getRed() green: background.getGreen() blue: background.getBlue() }
+        //            };
+        //            frame.visible = false;
+        //
+        //            x += 40;
+        //            y += 40;
+        //
+        //        }
+        //
+        //        insert internalFrame into frames;
+        //        sample.frame = internalFrame;
+        //        insert internalFrame into frames;
         
     }
-
+    
     function tabSelection(name: String):Void{
         //System.out.println("[select sample] name: {name}");
         var sample = executedSamples[s| s.name == name];
-        if (sample <> [] ) { 
+        if (sample <> [] ) {
             sample[0].frame.selected = true;
-        }   
+        }
     }
     
     function frameSelection(title: String):Void{
@@ -358,7 +410,7 @@ public class AssortieProject  extends CompositeWidget{
                                     rootVisible: false
                                     root: treeCell
                                     selectedValue: bind selectedModule with inverse
-                                    onSelectionChange: function(){ System.out.println("[tree] selection changed!");} 
+                                    onSelectionChange: function(){ System.out.println("[tree] selection changed!");}
                                 }
                             }
                         }, SplitView{
@@ -382,7 +434,8 @@ public class AssortieProject  extends CompositeWidget{
                                                     if (frame.title == sample.frame.title ){ frame.selected = true; } else { frame.selected = false;}
                                                 }
                                                 for(tab in codeTabs ){
-                                                    if(tab.title == sample.name){ selectedCodeIndex = indexof tab; break; }
+                                                    if(tab.title == sample.name){ selectedCodeIndex = indexof tab;
+                                                    break; }
                                                 }
                                                 
                                             }
