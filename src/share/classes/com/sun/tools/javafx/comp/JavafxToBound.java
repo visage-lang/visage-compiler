@@ -211,7 +211,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
     
     interface Translator {
-        JCTree doit();
+        JCExpression doit();
     }
 
 
@@ -787,19 +787,52 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
-    public void visitConditional(JCConditional tree) {
-        final DiagnosticPosition diagPos = tree.pos();
-        JCExpression cond = translate(tree.getCondition());
-        JCExpression trueSide = tree.getTrueExpression();
-        JCExpression falseSide = tree.getFalseExpression();
-            JCExpression translatedFalseSide;
-            if (falseSide == null) {
-                Type trueSideType = tree.getTrueExpression().type;
-                translatedFalseSide = toJava.makeDefaultValue(diagPos, typeMorpher.typeMorphInfo(trueSideType));
-            } else {
-                translatedFalseSide = translate(falseSide);
+    public void visitConditional(final JCConditional tree) {
+        result = (new Translator() {
+
+            private final DiagnosticPosition diagPos = tree.pos();
+            private final TypeMorphInfo tmi = typeMorpher.typeMorphInfo(tree.type);
+            private final Type locationType = tmi.getMorphedLocationType();
+            
+            private TreeMaker m() {
+                return make.at(diagPos);
             }
-            result = make.at(diagPos).Conditional(cond, translate(trueSide), translatedFalseSide);
+
+            /**
+             * Make then/else method
+             */
+            private JCTree makeBranchMethod(String methName, JCExpression side) {
+                return m().MethodDef(
+                        m().Modifiers(Flags.PROTECTED),
+                        names.fromString(methName),
+                        toJava.makeTypeTree(locationType, diagPos, true),
+                        List.<JCTypeParameter>nil(),
+                        List.<JCVariableDecl>nil(),
+                        List.<JCExpression>nil(),
+                        m().Block(0L, List.<JCStatement>of(m().Return(translate(side)))),
+                        null);
+            }
+
+            /**
+             * Translate a binary expressions
+             */
+            public JCExpression doit() {
+                String libClassName = types.isSequence(tree.type)? 
+                    "com.sun.javafx.runtime.location.BoundSequenceIfExpression" :
+                    "com.sun.javafx.runtime.location.BoundObjectIfExpression";
+                JCExpression libClass = makeQualifiedTree(diagPos, libClassName);
+                Type clazzType = tmi.getBoundIfLocationType();
+                JCExpression clazz = toJava.makeTypeTree(clazzType, diagPos, true);
+                JCClassDecl classDecl = m().AnonymousClassDef(m().Modifiers(0L), List.<JCTree>of(
+                        makeBranchMethod("computeThenBranch", tree.getTrueExpression()),
+                        makeBranchMethod("computeElseBranch", tree.getFalseExpression())));
+                List<JCExpression> typeArgs = List.nil();
+                JCExpression lazy = m().Literal(TypeTags.BOOLEAN, 0); //TODO: eager for now, handle lazy
+                List<JCExpression> constructorArgs = List.<JCExpression>of(translate(tree.getCondition()), lazy);
+
+                return m().NewClass(null/*encl*/, typeArgs, clazz, constructorArgs, classDecl);
+            }
+        }).doit();
     }
 
     @Override

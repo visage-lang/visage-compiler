@@ -76,6 +76,7 @@ public class JavafxTypeMorpher {
     public LocationNameSymType[] bindingNCT;
     public LocationNameSymType[] locationNCT;
     public LocationNameSymType[] variableNCT;
+    public LocationNameSymType[] boundIfNCT;
     public LocationNameSymType   baseLocation;
 
     private final Type[] realTypeByKind;
@@ -227,6 +228,7 @@ public class JavafxTypeMorpher {
         public Type getMorphedType() { return getMorphedVariableType(); }
         public Type getMorphedVariableType() { return morphedVariableType; }
         public Type getMorphedLocationType() { return morphedLocationType; }
+        public Type getBoundIfLocationType() { return generifyIfNeeded(boundIfNCT[typeKind].type, this); }
         public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
         public Type getElementType() { return elementType; }
 
@@ -268,11 +270,13 @@ public class JavafxTypeMorpher {
         variableNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         locationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         bindingNCT = new LocationNameSymType[TYPE_KIND_COUNT];
+        boundIfNCT = new LocationNameSymType[TYPE_KIND_COUNT];
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
             variableNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Variable");
             locationNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Location");
             bindingNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "BindingExpression");
+            boundIfNCT[kind] = new LocationNameSymType("Bound" + JavafxVarSymbol.getTypePrefix(kind) + "IfExpression");
         }
 
         baseLocation = new LocationNameSymType("Location");
