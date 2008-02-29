@@ -80,7 +80,7 @@ public class AssortieProject  extends CompositeWidget{
     
     private attribute selectedSampleIndex: Integer;
 
-    private attribute code:String;
+    //private attribute code:String;
     
     private attribute selectedModule:Object on replace{
         System.out.println("[selected module] {selectedModule}");
@@ -161,36 +161,16 @@ public class AssortieProject  extends CompositeWidget{
     }
     
     
-    function executeSample(sample: ProjectSample){
-        
-        
-        insert sample into executedSamples;
-        var className = sample.className;
-                
-        var fileName = className.substring(className.lastIndexOf('.') + 1) + ".fx";
-        
-        code = ProjectManager.readResource(className, fileName);
+    function createFrame(sample: ProjectSample, code: String){
 
-        var obj = ProjectManager.runFXFile(className);
-        //var obj = ProjectManager.runFXCode(className, code);
-        
-        insert Tab{
-            title: sample.name
-            //content: Label{ text: "MyLabel!"}
-            content: TextArea{
-                text: code
-                editable: false
-                background: Color.WHITE
-            }
-        } into codeTabs;
-        
-        selectedCodeIndex = sizeof codeTabs - 1;
-        
-        
-        
-        var internalFrame: InternalFrame;
-        
+        System.out.println("----------------------------------------------------");
+        System.out.println("[code] {code}");
+        var obj = ProjectManager.runFXCode(sample.className, code);
+
         System.out.println("[execute sample] {sample.name}:" + obj);
+
+        
+        var internalFrame = sample.frame;
         
         if(obj instanceof Frame){
             
@@ -198,50 +178,155 @@ public class AssortieProject  extends CompositeWidget{
             var background = (frame.background).getColor();
             //if(background==null){  background = Color.WHITE; }
             //System.out.println("background: {background}");
-            
-            
-            internalFrame =  InternalFrame{
-                x: x
-                y: y
-                title: frame.title
-                width: frame.width
-                height: frame.height
-                onClose: function(){ 
-                    System.out.println("Close frame: {sample.name}");
-                    sample.frame = null; 
-                    for(tab in codeTabs){
-                        if(tab.title == sample.name){
-                            delete tab from codeTabs;
-                        }
-                    }
-                    selectedCodeIndex = sizeof codeTabs - 1;
-                    delete internalFrame from frames;
-                    delete sample from executedSamples;
-                    
-                    if (0 <= selectedCodeIndex){
-                        var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
-                        for(sample in samples){
-                            if(sample.name ==  tabTitle) { sample.frame.selected = true; break; }
-                        }
-                    }
-                }
-                content: frame.content
-                background: if (background==null) then Color.WHITE else Color{ red: background.getRed() green: background.getGreen() blue: background.getBlue() }
-            };
             frame.visible = false;
             
-            x += 40;
-            y += 40;
+            
+            internalFrame.title = frame.title;
+            internalFrame.width = frame.width;
+            internalFrame.height = frame.height;
+            //internalFrame.x = x;
+            //internalFrame.y = y;            
+            internalFrame.content = frame.content;
+            internalFrame.visible = true;
+ 
+            var content = frame.content;
+            if ( content instanceof Label){
+                var label = content as Label;
+                System.out.println("[label ] \"{label.text}\"");
+                
+            }
+            System.out.println("[content] {content}");
+
+            
+            
+//            internalFrame =  InternalFrame{
+//                x: x
+//                y: y
+//                title: frame.title
+//                width: frame.width
+//                height: frame.height
+//                onClose: function(){ 
+//                    System.out.println("Close frame: {sample.name}");
+//                    sample.frame = null; 
+//                    for(tab in codeTabs){
+//                        if(tab.title == sample.name){
+//                            delete tab from codeTabs;
+//                        }
+//                    }
+//                    selectedCodeIndex = sizeof codeTabs - 1;
+//                    delete internalFrame from frames;
+//                    delete sample from executedSamples;
+//                    
+//                    if (0 <= selectedCodeIndex){
+//                        var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
+//                        for(sample in samples){
+//                            if(sample.name ==  tabTitle) { sample.frame.selected = true; break; }
+//                        }
+//                    }
+//                }
+//                content: frame.content
+//                background: if (background==null) then Color.WHITE else Color{ red: background.getRed() green: background.getGreen() blue: background.getBlue() }
+//            };
+//            frame.visible = false;
+//            
+//            x += 40;
+//            y += 40;
             
         }
         
-        insert internalFrame into frames;
-        sample.frame = internalFrame;
+        //insert internalFrame into frames;        
+    }
+    
+    function executeSample(sample: ProjectSample){
+        
+        insert sample into executedSamples;
+        var className = sample.className;
+                
+        //var fileName = className.substring(className.lastIndexOf('.') + 1) + ".fx";
+        var fileName = ProjectManager.getFilePath(className);
+        
+        var code = ProjectManager.readResource(className, fileName);
+
+        //var obj = ProjectManager.runFXFile(className);
+        //var obj = ProjectManager.runFXCode(className, code);
+        
+        
+        var textArea: TextArea;
+        
+        textArea =  TextArea{
+                text: code
+                editable: true
+                background: Color.WHITE
+                onKeyUp: function(keyEvent :KeyEvent){
+                    createFrame(sample, textArea.text);
+                };
+            }
+            
+        insert Tab{ title: sample.name content: textArea } into codeTabs;
+        
+        selectedCodeIndex = sizeof codeTabs - 1;
+                        
+        //var internalFrame: InternalFrame;
+        
+        
+        sample.frame = InternalFrame { x: x y: y};
+        x += 40;
+        y += 40;
+
+        insert sample.frame into frames;
+        createFrame(sample, code);
+
+        
+//        if(obj instanceof Frame){
+//            
+//            var frame = obj as Frame;
+//            var background = (frame.background).getColor();
+//            //if(background==null){  background = Color.WHITE; }
+//            //System.out.println("background: {background}");
+//            
+//            internalFrame =  InternalFrame{
+//                x: x
+//                y: y
+//                title: frame.title
+//                width: frame.width
+//                height: frame.height
+//                onClose: function(){ 
+//                    System.out.println("Close frame: {sample.name}");
+//                    sample.frame = null; 
+//                    for(tab in codeTabs){
+//                        if(tab.title == sample.name){
+//                            delete tab from codeTabs;
+//                        }
+//                    }
+//                    selectedCodeIndex = sizeof codeTabs - 1;
+//                    delete internalFrame from frames;
+//                    delete sample from executedSamples;
+//                    
+//                    if (0 <= selectedCodeIndex){
+//                        var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
+//                        for(sample in samples){
+//                            if(sample.name ==  tabTitle) { sample.frame.selected = true; break; }
+//                        }
+//                    }
+//                }
+//                content: frame.content
+//                background: if (background==null) then Color.WHITE else Color{ red: background.getRed() green: background.getGreen() blue: background.getBlue() }
+//            };
+//            frame.visible = false;
+//            
+//            x += 40;
+//            y += 40;
+//            
+//        }
+//        
+//        insert internalFrame into frames;
+//        sample.frame = internalFrame;
+//        insert internalFrame into frames;
         
     }
 
     function tabSelection(name: String):Void{
-        System.out.println("[select sample] name: {name}");
+        //System.out.println("[select sample] name: {name}");
         var sample = executedSamples[s| s.name == name];
         if (sample <> [] ) { 
             sample[0].frame.selected = true;

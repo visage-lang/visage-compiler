@@ -33,6 +33,7 @@ public class CodeManager {
 
         final DiagnosticCollector diagnostics = new DiagnosticCollector<JavaFileObject>();
         DiagnosticListener<JavaFileObject> diagnosticListener = new DiagnosticListener<JavaFileObject>() {
+
             public void report(Diagnostic<? extends JavaFileObject> rep) {
                 diagnostics.report(rep);
             }
@@ -60,18 +61,13 @@ public class CodeManager {
         try {
 
             MemoryClassLoader memoryClassLoader = new MemoryClassLoader(classBytes);
-            Iterable<Class> classes = memoryClassLoader.loadAll();
-
-            for (Class cls : classes) {
-                System.out.println("[class] \"" + cls.getName() + "\"");
-            }
 
             return ProjectManager.runFXFile(className, memoryClassLoader);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         return null;
     }
 }
@@ -80,15 +76,19 @@ class MemoryClassLoader extends ClassLoader {
 
     Map<String, byte[]> classBytes;
 
-    public MemoryClassLoader(Map<String, byte[]> classBytes) {
+    public MemoryClassLoader(Map<String, byte[]> classBytes) throws ClassNotFoundException {
+        System.out.println("[memory class loader] constructor");
         this.classBytes = classBytes;
-    }
+        Iterable<Class> classes = loadAll();
 
-    public Class load(String className) throws ClassNotFoundException {
-        return loadClass(className);
+//        for (Class cls : classes) {
+//            System.out.println("[memory class loader] class: \"" + cls.getName() + "\"");
+//        }
+
     }
 
     public Iterable<Class> loadAll() throws ClassNotFoundException {
+        //System.out.println("[memory class loader] Load All");
         List<Class> classes = new ArrayList<Class>(classBytes.size());
         for (String name : classBytes.keySet()) {
             classes.add(loadClass(name));
@@ -96,11 +96,26 @@ class MemoryClassLoader extends ClassLoader {
         return classes;
     }
 
+    protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
+
+
+        if (classBytes.get(name) == null) {
+            return super.loadClass(name, resolve);
+        }
+
+        Class result = findClass(name);
+
+        if (resolve) {
+            resolveClass(result);
+        }
+
+        return result;
+    }
+
     @Override
     protected Class findClass(String className) throws ClassNotFoundException {
         byte[] buf = classBytes.get(className);
         if (buf != null) {
-            // clear the bytes in map -- we don't need it anymore
             classBytes.put(className, null);
             return defineClass(className, buf, 0, buf.length);
         } else {

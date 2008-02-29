@@ -19,7 +19,8 @@ public class ProjectManager {
 
     public static Object runFXFile(String name, ClassLoader classLoader) throws Exception {
         try {
-            Class cls = classLoader.loadClass(name);
+            //Class cls = classLoader.loadClass(name);
+            Class cls = Class.forName(name,true,classLoader);
             Method run = cls.getDeclaredMethod(JavafxDefs.runMethodString, new Class[0]);
             return run.invoke(null);
         } catch (Throwable e) {
@@ -54,6 +55,10 @@ public class ProjectManager {
         }
 
         return "";
+    }
+    
+    public static String getFilePath(String className){
+        return className.substring(className.lastIndexOf('.') + 1) + ".fx";
     }
 }
 
