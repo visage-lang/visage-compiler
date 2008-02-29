@@ -422,9 +422,9 @@ public class JavafxCheck {
             req = types.elementType(req);
             pSequenceness = Sequenceness.REQUIRED;
         }
-        if (types.isSequence(found)) {  
+        if (types.isSequence(found) || types.isArray(found)) {  
             if (pSequenceness != Sequenceness.DISALLOWED) {
-                found = types.elementType(found);
+                found = types.isSequence(found) ? types.elementType(found) : types.elemtype(found);
             } else {
                 return typeError(pos, JCDiagnostic.fragment("incompatible.types"), found, req);
             }

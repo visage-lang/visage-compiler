@@ -149,6 +149,8 @@ public class JavafxTypes extends Types {
             return true;
         if (isSequence(t) && isArray(s))
             return isConvertible(elementType(t), elemtype(s), warn);
+        if (isArray(t) && isSequence(s))
+            return isConvertible(elemtype(t), elementType(s), warn);
         
         // Allow lessening precision conversions.
         if (t == syms.javafx_NumberType) {

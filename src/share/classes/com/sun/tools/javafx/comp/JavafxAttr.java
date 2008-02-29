@@ -944,6 +944,20 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                          &&  initType != syms.javafx_IntegerType
                          &&  initType != syms.javafx_BooleanType)
                     initType = types.boxedClass(initType).type;
+                else if (types.isArray(initType)) {
+                    initType = types.elemtype(initType);
+                    if (initType.isPrimitive()) {
+                        if (initType == syms.shortType ||
+                                initType == syms.byteType)
+                            initType = syms.javafx_IntegerType;
+                        else if (initType == syms.floatType)
+                            initType = syms.javafx_NumberType;
+                        else if (initType == syms.charType ||
+                                initType == syms.longType)
+                            initType = types.boxedClass(initType).type;
+                    }
+                    initType = types.sequenceType(initType);
+                }
             }
             else if (tree.type != null)
                 initType = tree.type;

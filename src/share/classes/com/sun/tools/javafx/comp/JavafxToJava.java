@@ -224,7 +224,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (tree == null)
             return null;
         if (types.isSequence(tree.type) && types.isArray(type)) {
-             ListBuffer<JCStatement> stats = ListBuffer.lb();
+            ListBuffer<JCStatement> stats = ListBuffer.lb();
             DiagnosticPosition diagPos = tree.pos();
             JCExpression init = (JCExpression) translate(tree);
             Type elemType = types.elemtype(type);
@@ -247,7 +247,23 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             return makeBlockExpression(diagPos, stats, ident2);
             
         }
-        
+        if (types.isArray(tree.type) && types.isSequence(type)) {
+            ListBuffer<JCStatement> stats = ListBuffer.lb();
+            DiagnosticPosition diagPos = tree.pos();
+            JCExpression init = (JCExpression) translate(tree);
+            Type elemType = types.elemtype(tree.type);
+            String mname = "fromArray";
+            if (elemType.isPrimitive())
+                return callExpression(diagPos, makeTypeTree(syms.javafx_SequencesType, diagPos, false),
+                       mname, init);
+            else {
+                List<JCExpression> args = 
+                        List.of(make.at(diagPos).Select(makeTypeTree(elemType, diagPos, true), names._class),
+                        init);
+                return callExpression(diagPos, makeTypeTree(syms.javafx_SequencesType, diagPos, false),
+                       mname, args);
+            }
+        }        
         JCExpression ret = translate(tree);
 
         Type paramType = tree.type;
@@ -1014,7 +1030,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 initExpr = makeDefaultValue(diagPos, vmi);
             } else {
                 // do a vanilla translation of the expression
-                initExpr = translate(init, new State());
+                initExpr = translate(init, vmi.getSymbol().type);
             }
             return List.<JCExpression>of( initExpr );
         }
@@ -1171,20 +1187,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
             init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
                     tree.getBindStatus(), tree.sym);
-        }
-
-        //TODO: this is broken: init doesn't have type
-        // Convert initializers returning Java arrays to sequences.
-        if (type.tag == TypeTags.ARRAY) {
-            JCExpression newTree = ((JCExpression)makeTypeTree(((ArrayType)type).elemtype, diagPos, types.isCompoundClass(((ArrayType)type).elemtype.tsym)));
-            newTree.type = ((ArrayType)type).elemtype;
-            WildcardType tpType = new WildcardType(newTree.type, BoundKind.EXTENDS, type.tsym);
-            ClassType classType = new ClassType(((JavafxSymtab)syms).javafx_SequenceType, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
-            typeExpression = makeTypeTree(classType, diagPos, false);
-
-            if (init.type != ((JavafxSymtab)syms).javafx_SequenceType) {
-                init = makeSequence(diagPos, init, newTree.type);
-            }
         }
 
         result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
