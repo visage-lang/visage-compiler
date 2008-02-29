@@ -4,7 +4,7 @@ package jfx.assortie.samples.physics.planets;
 
 import javafx.ui.*;
 
-class Planet {
+public class Planet {
     attribute name: String;
     
     attribute mass : Number;

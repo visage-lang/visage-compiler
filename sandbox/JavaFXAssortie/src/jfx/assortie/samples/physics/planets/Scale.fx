@@ -10,7 +10,7 @@ package jfx.assortie.samples.physics.planets;
  * @author andromeda
  */
 
-class Scale{
+public class Scale{
     attribute radiusScale: Number;
     attribute coordinateScale: Number;
 }

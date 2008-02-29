@@ -13,14 +13,14 @@ import javafx.ui.canvas.*;
 import java.lang.Math;
                                                                                                                                               
 
-class PlanetarySystemShape extends CompositeNode{
+public class PlanetarySystemShape extends CompositeNode{
     attribute planetarySystem: PlanetarySystem;
     attribute scale: Scale;
 
 function composeNode():Node{
     return Group{
         content: [
-        /* Group{
+         Group{
             content: for(i in  [1..15])
             Star{
                 cx: Math.random() * 300 - 150
@@ -29,15 +29,11 @@ function composeNode():Node{
                 startAngle: 0
                 rin: 1
                 rout: 3
-                fill: Color.GREEN
+                fill: Color.WHITE
             }
-         }, */
+         }, 
           Group{
             content: for(planet in planetarySystem.planets)[
-            //Circle{
-            //  stroke: darkslategray
-            //  radius: len(planet.coordinate[0] * scale.coordinateScale, planet.coordinate[1] * scale.coordinateScale)
-            //},
             Circle{
                 cx : bind planet.coordinate[0] * scale.coordinateScale
                 cy: bind planet.coordinate[1] * scale.coordinateScale
