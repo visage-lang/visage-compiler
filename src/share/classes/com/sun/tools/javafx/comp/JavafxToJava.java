@@ -3595,7 +3595,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
             private void addOutersForOuterAccess(Symbol sym, Symbol currentClass) {
                 if (sym != null && sym.owner != null && sym.owner.type != null
-                        && currentClass != null) {
+                        && !sym.isStatic() && currentClass != null) {
                     Symbol outerSym = currentClass;
                     ListBuffer<ClassSymbol> potentialOuters = new ListBuffer<ClassSymbol>();
                     boolean foundOuterOwner = false;
