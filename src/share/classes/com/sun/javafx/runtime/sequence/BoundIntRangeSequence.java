@@ -25,10 +25,7 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.location.IntChangeListener;
-import com.sun.javafx.runtime.location.IntLocation;
-import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.location.IntVariable;
+import com.sun.javafx.runtime.location.*;
 
 /**
  * BoundIntRangeSequence
@@ -38,53 +35,48 @@ import com.sun.javafx.runtime.location.IntVariable;
 public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements SequenceLocation<Integer> {
 
     private final IntLocation lowerLoc, upperLoc, stepLoc;
-    private int lower, upper;
-    private int size;
-    private int step;
-    private boolean exclusive;
+    private final boolean exclusive;
+    private int lower, upper, size, step;
 
-    // will step by bound?
     public BoundIntRangeSequence(IntLocation lowerLoc, IntLocation upperLoc) {
-        super(Integer.class);
-        this.lowerLoc = lowerLoc;
-        this.upperLoc = upperLoc;
-        // by default
-        this.stepLoc = IntVariable.make(1);;
-        this.exclusive = false;
+        this(lowerLoc, upperLoc, IntConstant.make(1), false);
     }
-    
-    
+
     public BoundIntRangeSequence(IntLocation lowerLoc, IntLocation upperLoc, IntLocation stepLoc, boolean exclusive) {
         super(Integer.class);
         this.lowerLoc = lowerLoc;
         this.upperLoc = upperLoc;
-        this.stepLoc = stepLoc;       
+        this.stepLoc = stepLoc;
         this.exclusive = exclusive;
     }
 
     protected Sequence<Integer> computeValue() {
         computeBounds(lowerLoc.get(), upperLoc.get(), stepLoc.get());
-        return exclusive? Sequences.rangeExclusive(lower, upper, step): Sequences.range(lower, upper, step);
+        return computeFull(lower, upper, step);
+    }
+
+    private Sequence<Integer> computeFull(int lower, int upper, int step) {
+        return exclusive ? Sequences.rangeExclusive(lower, upper, step) : Sequences.range(lower, upper, step);
     }
 
     private void computeBounds(int newLower, int newUpper, int newStep) {
         lower = newLower;
         upper = newUpper;
         step = newStep;
-        
-        if (Math.abs((long) newLower - (long) newUpper) + ((long) (exclusive ? 0 : 1)/step) > Integer.MAX_VALUE)
-           throw new IllegalArgumentException("Range sequence too big");
-   
+
+        if (Math.abs((long) newLower - (long) newUpper) + ((long) (exclusive ? 0 : 1) / step) > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("Range sequence too big");
+
         if (lower == upper) {
             size = exclusive ? 0 : 1;
         }
         else {
             size = Math.max(0, ((upper - lower) / step) + 1);
-            
+
             if (exclusive) {
                 boolean tooBig = (step > 0)
-                        ? (lower + (size-1)*step >= upper)
-                        : (lower + (size-1)*step <= upper);
+                        ? (lower + (size - 1) * step >= upper)
+                        : (lower + (size - 1) * step <= upper);
                 if (tooBig && size > 0)
                     --size;
             }
@@ -96,30 +88,31 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
             public void onChange(int oldValue, int newValue) {
                 int oldSize = size;
                 computeBounds(newValue, upper, step);
-                //Sequence<Integer> newSeq = exclusive? Sequences.rangeExclusive(lower, upper, step): Sequences.range(lower, upper, step);
-                
-                Sequence<Integer> newElements, newSeq;
-                
+                Sequence<Integer> newElements;
+
                 if (oldSize == size) {
                     return;
-                } else if (oldSize == 0) {
-                    newElements = exclusive? Sequences.rangeExclusive(lower, upper, step): Sequences.range(lower, upper, step);
-                    updateSlice(0, -1, newElements);
-                } else if (oldSize < size) {
-                    
-                    if ( ((newValue - oldValue) % step) == 0 ) {
-                        newElements = Sequences.rangeExclusive(lower, oldValue, step);
-                        updateSlice(0, -1, newElements);
-                    } else {
-                            newElements = newSeq = exclusive? Sequences.rangeExclusive(lower, upper, step): Sequences.range(lower, upper, step);;
-                            updateSlice(0, newSeq.isEmpty()? 0:(size-1), newElements, newSeq);
+                }
+                else if (oldSize == 0) {
+                    updateSlice(0, -1, computeFull(lower, upper, step));
+                }
+                else if (oldSize < size) {
+
+                    if (((newValue - oldValue) % step) == 0) {
+                        updateSlice(0, -1, Sequences.rangeExclusive(lower, oldValue, step));
                     }
-                } else if (oldSize > size) {          
-                    if ( ((newValue - oldValue) % step) == 0) {
-                        updateSlice(0, oldSize-size-1, Sequences.emptySequence(Integer.class)); 
-                    } else {
-                        newElements = newSeq = exclusive? Sequences.rangeExclusive(lower, upper, step): Sequences.range(lower, upper, step);
-                        updateSlice(0, newSeq.isEmpty()?0:(size-1), newElements, newSeq);
+                    else {
+                        newElements = computeFull(lower, upper, step);
+                        updateSlice(0, newElements.isEmpty() ? 0 : (size - 1), newElements, newElements);
+                    }
+                }
+                else if (oldSize > size) {
+                    if (((newValue - oldValue) % step) == 0) {
+                        updateSlice(0, oldSize - size - 1, Sequences.emptySequence(Integer.class));
+                    }
+                    else {
+                        newElements = computeFull(lower, upper, step);
+                        updateSlice(0, newElements.isEmpty() ? 0 : (size - 1), newElements, newElements);
                     }
                 }
             }
@@ -128,33 +121,32 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
             public void onChange(int oldValue, int newValue) {
                 int oldSize = size;
                 computeBounds(lower, newValue, step);
-                
-                Sequence<Integer> newElements;
-                
+
                 if (size == oldSize) {
                     return;
-                } else if (oldSize == 0) {
-                    newElements = exclusive? Sequences.rangeExclusive(lower, upper, step): Sequences.range(lower, upper, step);
-                    updateSlice(0, -1, newElements);
-                } else if (oldSize < size) {
-                    int startPos = lower + oldSize*step;
-                    newElements = exclusive? Sequences.rangeExclusive(startPos, upper, step):Sequences.range(startPos, upper, step);
-                    updateSlice(oldSize, oldSize-1, newElements);
-                } else if (oldSize > size) {                  
-                    updateSlice(size, oldSize-1, Sequences.emptySequence(Integer.class));
+                }
+                else if (oldSize == 0) {
+                    updateSlice(0, -1, computeFull(lower, upper, step));
+                }
+                else if (oldSize < size) {
+                    int startPos = lower + oldSize * step;
+                    updateSlice(oldSize, oldSize - 1, computeFull(startPos, upper, step));
+                }
+                else if (oldSize > size) {
+                    updateSlice(size, oldSize - 1, Sequences.emptySequence(Integer.class));
                 }
             }
         });
-        
+
         stepLoc.addChangeListener(new IntChangeListener() {
             public void onChange(int oldValue, int newValue) {
                 int oldSize = size;
                 computeBounds(lower, upper, newValue);
-                
+
                 if (size == oldSize) return;
-    
-                Sequence<Integer> newSeq = exclusive? Sequences.rangeExclusive(lower, upper, step):Sequences.range(lower, upper, step);          
-                updateSlice(0, newSeq.isEmpty()? 0:(size-1), newSeq, newSeq);
+
+                Sequence<Integer> newSeq = computeFull(lower, upper, step);
+                updateSlice(0, newSeq.isEmpty() ? 0 : (size - 1), newSeq, newSeq);
             }
         });
     }

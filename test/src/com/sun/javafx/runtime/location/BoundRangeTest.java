@@ -85,8 +85,10 @@ public class BoundRangeTest extends JavaFXTestCase {
         assertEquals(range, 11, 12, 13, 14, 15, 16);
         assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, -1] => [ 11, 12, 13, 14, 15, 16 ]");
-     
-        // test for step other than 1
+    }
+
+    // test for step other than 1
+    public void testStep2() {
         IntLocation c = IntVariable.make(10);
         IntLocation d = IntVariable.make(15);    
         IntLocation s = IntVariable.make(2);    
@@ -141,8 +143,11 @@ public class BoundRangeTest extends JavaFXTestCase {
         assertEquals(stepRange, 11,  13,  15);
         assertEquals(0, stepRange.get().getDepth());
         assertEqualsAndClear(hls, "[0, -1] => [ 11, 13, 15 ]");       
-       
-        // step for sequences with exclusive upper bound and step with negative value
+
+    }
+
+    // step for sequences with exclusive upper bound and step with negative value
+    public void testNegativeStep() {
         IntLocation e = IntVariable.make(20);
         IntLocation f = IntVariable.make(10);    
         IntLocation ns = IntVariable.make(-3);    
