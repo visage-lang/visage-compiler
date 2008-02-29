@@ -331,4 +331,26 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         assertEquals(comp, 22, 32, 42, 23, 33, 43, 24, 34, 44);
         assertEqualsAndClear(hl, "[2, 1] => [ 42 ]", "[5, 4] => [ 43 ]", "[8, 7] => [ 44 ]");
     }
+
+    public void testDifferentTypes() {
+        SequenceLocation<Integer> xs = SequenceVariable.make(Sequences.range(1, 5));
+        SequenceLocation<String> derived = new BoundComprehension<Integer, String>(String.class, xs, false) {
+            protected SequenceLocation<String> getMappedElement$(final ObjectLocation<Integer> xLocation, final IntLocation unused) {
+                return SequenceVariable.make(String.class,
+                                             new SequenceBindingExpression<String>() {
+                                                 public Sequence<String> computeValue() {
+                                                     if (xLocation.get() % 2 == 0)
+                                                         return Sequences.make(String.class, Integer.toString(xLocation.get()), "foo");
+                                                     else
+                                                        return Sequences.emptySequence(String.class);
+                                                 }
+                                             }, xLocation);
+            }
+        };
+
+        assertEquals(derived, "2", "foo", "4", "foo");
+        xs.insert(6);
+        assertEquals(derived, "2", "foo", "4", "foo", "6", "foo");
+
+    }
 }

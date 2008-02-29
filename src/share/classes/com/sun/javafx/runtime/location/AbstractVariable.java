@@ -120,7 +120,7 @@ public abstract class AbstractVariable<T_VALUE, T_BINDING extends AbstractBindin
 
     public void initialize() {
         // This is where we used to do fireInitialTriggers when we were deferring triggers
-        // @@@ Should also assert deferredLiteral != null
+        assert(deferredLiteral == null);
         deferredLiteral = null;
         if (isBound() && !isLazy())
             update();
