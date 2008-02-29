@@ -111,6 +111,14 @@ public class BoundSequences {
         return new BoundIntRangeSequence(a, b);
     }
     
+    public static SequenceLocation<Integer> range(IntLocation a, IntLocation b, IntLocation step) {
+        return new BoundIntRangeSequence(a, b, step);
+    }
+
+    public static SequenceLocation<Integer> range(IntLocation a, IntLocation b, boolean exclusive) {
+        return new BoundIntRangeSequence(a, b, exclusive);
+    }
+
     public static SequenceLocation<Integer> range(IntLocation a, IntLocation b, IntLocation step, boolean exclusive) {
         return new BoundIntRangeSequence(a, b, step, exclusive);
     }

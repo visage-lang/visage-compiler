@@ -386,10 +386,13 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         DiagnosticPosition diagPos = tree.pos();
         ListBuffer<JCExpression> args = ListBuffer.lb();
         args.append( translate( tree.getLower() ));
-        args.append( translate( tree.getUpper() ));
-        //if (tree.getStepOrNull() != null) {
-        //    args.append( translate( tree.getStepOrNull() ));
-        //}
+        args.append( translate( tree.getUpper() )); 
+        if (tree.getStepOrNull() != null) {
+            args.append( translate( tree.getStepOrNull() ));
+        }
+        if (tree.isExclusive()) {
+            args.append( make.at(diagPos).Literal(TypeTags.BOOLEAN, 1) );
+        }
         result = runtime(diagPos, cBoundSequences, "range", toJava.elementType(tree.type), args);
     }
     
@@ -817,10 +820,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
              * Translate a binary expressions
              */
             public JCExpression doit() {
-                String libClassName = types.isSequence(tree.type)? 
-                    "com.sun.javafx.runtime.location.BoundSequenceIfExpression" :
-                    "com.sun.javafx.runtime.location.BoundObjectIfExpression";
-                JCExpression libClass = makeQualifiedTree(diagPos, libClassName);
                 Type clazzType = tmi.getBoundIfLocationType();
                 JCExpression clazz = toJava.makeTypeTree(clazzType, diagPos, true);
                 JCClassDecl classDecl = m().AnonymousClassDef(m().Modifiers(0L), List.<JCTree>of(

@@ -42,6 +42,14 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
         this(lowerLoc, upperLoc, IntConstant.make(1), false);
     }
 
+    public BoundIntRangeSequence(IntLocation lowerLoc, IntLocation upperLoc, IntLocation stepLoc) {
+        this(lowerLoc, upperLoc, stepLoc, false);
+    }
+
+    public BoundIntRangeSequence(IntLocation lowerLoc, IntLocation upperLoc, boolean exclusive) {
+        this(lowerLoc, upperLoc, IntConstant.make(1), exclusive);
+    }
+
     public BoundIntRangeSequence(IntLocation lowerLoc, IntLocation upperLoc, IntLocation stepLoc, boolean exclusive) {
         super(Integer.class);
         this.lowerLoc = lowerLoc;
