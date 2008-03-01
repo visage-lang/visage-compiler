@@ -94,14 +94,14 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
     protected void initialize() {
         lowerLoc.addChangeListener(new IntChangeListener() {
             public void onChange(int oldValue, int newValue) {
+                
+                if (oldValue == newValue) return;
+                
                 int oldSize = size;
                 computeBounds(newValue, upper, step);
                 Sequence<Integer> newElements;
 
-                if (oldSize == size) {
-                    return;
-                }
-                else if (oldSize == 0) {
+                if (oldSize == 0) {
                     updateSlice(0, -1, computeFull(lower, upper, step));
                 }
                 else if (oldSize < size) {
@@ -114,7 +114,7 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
                         updateSlice(0, newElements.isEmpty() ? 0 : (size - 1), newElements, newElements);
                     }
                 }
-                else if (oldSize > size) {
+                else if (oldSize >= size) {
                     if (((newValue - oldValue) % step) == 0) {
                         updateSlice(0, oldSize - size - 1, Sequences.emptySequence(Integer.class));
                     }
@@ -127,6 +127,9 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
         });
         upperLoc.addChangeListener(new IntChangeListener() {
             public void onChange(int oldValue, int newValue) {
+                
+                if (oldValue == newValue) return;
+                
                 int oldSize = size;
                 computeBounds(lower, newValue, step);
 
@@ -148,10 +151,10 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
 
         stepLoc.addChangeListener(new IntChangeListener() {
             public void onChange(int oldValue, int newValue) {
-                int oldSize = size;
+                
+                if (oldValue == newValue) return;
+                
                 computeBounds(lower, upper, newValue);
-
-                if (size == oldSize) return;
 
                 Sequence<Integer> newSeq = computeFull(lower, upper, step);
                 updateSlice(0, newSeq.isEmpty() ? 0 : (size - 1), newSeq, newSeq);
