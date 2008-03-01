@@ -44,7 +44,7 @@ public class Box extends Widget {
         for(k in [lo..hi]) { box.remove(lo) };
         var ndx = lo;
         for(n in newVals) box.add(n.getComponent(), ndx++);
-        box.validate();
+        box.revalidate();
         box.repaint();
     };
     public function createComponent():javax.swing.JComponent {
