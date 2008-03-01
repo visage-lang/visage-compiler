@@ -36,8 +36,8 @@ import com.sun.tools.javac.util.List;
  * for (name in seqExpr where whereExpr) bodyExpr
  */
 public class JFXForExpression extends JFXExpression implements ForExpressionTree {
-    public List<JFXForExpressionInClause> inClauses;
-    public JCExpression bodyExpr;
+    public final List<JFXForExpressionInClause> inClauses;
+    public final JCExpression bodyExpr;
 
     protected JFXForExpression(
             List<JFXForExpressionInClause> inClauses,
@@ -50,6 +50,11 @@ public class JFXForExpression extends JFXExpression implements ForExpressionTree
     public java.util.List<ForExpressionInClauseTree> getInClauses() { 
         return JFXTree.convertList(ForExpressionInClauseTree.class, inClauses);
     }
+    
+    public List<JFXForExpressionInClause> getForExpressionInClauses() { 
+        return inClauses;
+    }
+
     public JCExpression getBodyExpression() { return bodyExpr; }
 
     @Override
