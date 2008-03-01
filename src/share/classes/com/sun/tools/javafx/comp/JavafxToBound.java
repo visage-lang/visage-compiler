@@ -179,7 +179,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             stats.append(toJava.callStatement(diagPos, make.Ident(tmpVar.name), "toArray",
                             List.of(make.Ident(arrVar.name), make.Literal(TypeTags.INT, 0))));
             JCIdent ident2 = make.Ident(arrVar.name);
-            return makeBlockExpression(diagPos, stats, ident2);
+            return toJava.makeBlockExpression(diagPos, stats, ident2);
             
         }
         
@@ -378,7 +378,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         for (JCExpression item : tree.getItems()) {
             stmts.append(builder.makeAdd( item ) );
         }
-        result = makeBlockExpression(tree.pos(), stmts, builder.makeToSequence());
+        result = toJava.makeBlockExpression(tree.pos(), stmts, builder.makeToSequence());
     }
     
     @Override
@@ -603,9 +603,17 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         return tree;
     }
     
-    JFXBlockExpression makeBlockExpression(DiagnosticPosition diagPos, 
-            ListBuffer<JCStatement> stmts, JCExpression value) {
-        return ((JavafxTreeMaker)make).at(diagPos).BlockExpression(0, stmts.toList(), value);
+    private Name indexofMangledName(VarSymbol vsym) {
+        return names.fromString(vsym.getSimpleName().toString() + "$indexof");
+    }
+    
+    /**
+     * 
+     * @param diagPos
+     * @return a boolean expression indicating if the bind is lazy
+     */
+    private JCExpression makeLaziness(DiagnosticPosition diagPos) {
+        return make.at(diagPos).Literal(TypeTags.BOOLEAN, 0); //TODO: eager for now, handle lazy
     }
     
     /**
@@ -645,148 +653,246 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
     
     /**
-     * assume seq is a sequence of element type U
-     * convert   for (x in seq where cond) { body }
-     * into the following block expression
+     * Generate this template, expanding to handle multiple in-clauses
      * 
-     *   {
-     *     SequenceBuilder<T> sb = new SequenceBuilder<T>(clazz);
-     *     for (U x : seq) {
-     *       if (!cond)
-     *         continue;
-     *       sb.add( { body } );
-     *     }
-     *     sb.toSequence()
-     *   }
+     *  SequenceLocation<V> derived = new BoundComprehension<T,V>(V.class, IN_SEQUENCE, USE_INDEX) {
+            protected SequenceLocation<V> getMappedElement$(final ObjectLocation<T> IVAR_NAME, final IntLocation INDEXOF_IVAR_NAME) {
+                return SequenceVariable.make(V.class,
+                                             new SequenceBindingExpression<V>() {
+                                                 public Sequence<V> computeValue() {
+                                                     if (WHERE)
+                                                         return BODY with s/indexof IVAR_NAME/INDEXOF_IVAR_NAME/;
+                                                     else
+                                                        return Sequences.emptySequence(V.class);
+                                                 }
+                                             }, maybe IVAR_NAME, maybe INDEXOF_IVAR_NAME);
+            }
+        };
      *
      * **/
     @Override
-    public void visitForExpression(JFXForExpression tree) {
-        // sub-translation in done inline -- no super.visitForExpression(tree);
-            // body has value (non-void)
-            assert tree.type != syms.voidType : "should be handled above";
-            DiagnosticPosition diagPos = tree.pos();
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            JCStatement stmt;
-            JCExpression value;
+    public void visitForExpression(final JFXForExpression tree) {
+        result = (new Translator() {
 
-            // Compute the element type from the sequence type
-            assert tree.type.getTypeArguments().size() == 1;
-            Type elemType = toJava.elementType(tree.type);
-
-            UseSequenceBuilder builder = toJava.useBoundSequenceBuilder(diagPos, elemType);
-            stmts.append(builder.makeBuilderVar());
-
-            // Build innermost loop body
-            stmt = builder.makeAdd( tree.getBodyExpression() );
-
-            // Build the result value
-            value = builder.makeToSequence();
-            stmt = wrapWithInClause(tree, stmt);
-            stmts.append(stmt);
-
-            // Build the block expression -- which is what we translate to
-            result = makeBlockExpression(diagPos, stmts, value);
-    }
-
-    //where
-    private JCStatement wrapWithInClause(JFXForExpression tree, JCStatement coreStmt) {
-        JCStatement stmt = coreStmt;
-        for (int inx = tree.getInClauses().size() - 1; inx >= 0; --inx) {
-            JFXForExpressionInClause clause = (JFXForExpressionInClause)tree.getInClauses().get(inx);
-            if (clause.getWhereExpression() != null) {
-                stmt = make.at(clause).If( translate( clause.getWhereExpression() ), stmt, null);
-            }
-
-            // Build the loop
-            //TODO:  below is the simpler version of the loop. Ideally, this should be used in
-            // cases where the loop variable does not need to be final.
-            /*
-            stmt = make.at(clause).ForeachLoop(
-                    // loop variable is synthetic should not be bound
-                    // even if we are in a bind context
-                    boundTranslate(clause.getVar(), JavafxBindStatus.UNBOUND), 
-                    translate(clause.getSequenceExpression()),
-                    stmt);
+            private final DiagnosticPosition diagPos = tree.pos();
+            private final TypeMorphInfo tmiResult = typeMorpher.typeMorphInfo(tree.type);
+            
+            /**
+             * V
              */
-            JFXVar var = clause.getVar();
-            Name tmpVarName = getSyntheticName(var.getName().toString());
-            JCVariableDecl finalVar = make.VarDef(
-                    make.Modifiers(Flags.FINAL), 
-                    var.getName(), 
-                    makeTypeTree(var.type, var), 
-                    make.Ident(tmpVarName));
-            Name tmpIndexVarName;
-            if (clause.getIndexUsed()) {
-                Name indexVarName = indexVarName(clause);
-                tmpIndexVarName = getSyntheticName(indexVarName.toString());
-                JCVariableDecl finalIndexVar = make.VarDef(
-                    make.Modifiers(Flags.FINAL),
-                    indexVarName, 
-                    makeTypeTree(syms.javafx_IntegerType, var),
-                    make.Unary(JCTree.POSTINC, make.Ident(tmpIndexVarName)));
-                stmt = make.Block(0L, List.of(finalIndexVar, finalVar, stmt));
-            }                
-            else {
-                tmpIndexVarName = null;
-                stmt = make.Block(0L, List.of(finalVar, stmt));
+            private final Type resultElementType = tmiResult.getElementType();
+            
+            /**
+             * SequenceLocation<V>
+             */
+            private final Type resultSequenceLocationType = typeMorpher.generifyIfNeeded(typeMorpher.locationType(TYPE_KIND_SEQUENCE), tmiResult);
+            
+            /**
+             * SequenceVariable<V>
+             */
+            private final Type resultSequenceVariableType = typeMorpher.generifyIfNeeded(typeMorpher.variableType(TYPE_KIND_SEQUENCE), tmiResult);
+            
+            /**
+             * SequenceBindingExpression<V>
+             */
+            private final Type resultSequenceBindingExpressionType = typeMorpher.generifyIfNeeded(typeMorpher.bindingExpressionType(TYPE_KIND_SEQUENCE), tmiResult);
+            
+            /**
+             * Sequence<V>
+             */
+            private final Type resultSequenceType = typeMorpher.generifyIfNeeded(syms.javafx_SequenceType, tmiResult);
+            
+            private TreeMaker m() {
+                return make.at(diagPos);
             }
-    
-            DiagnosticPosition diagPos = clause.seqExpr;
-            if (types.isSequence(clause.seqExpr.type)) {
-                // It would be more efficient to move the Iterable.iterator call
-                // to a static method, which can also check for null.
-                // But that requires expanding the ForeachLoop by hand.  Later.
-                JCExpression seq = callExpression(diagPos,
-                    makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
-                    "forceNonNull",
-                    List.of(make.at(diagPos).Select(makeTypeTree(syms.boxIfNeeded(var.type), diagPos, true), names._class),
-                        translate(clause.seqExpr)));
-                stmt = make.at(clause).ForeachLoop(
-                    // loop variable is synthetic should not be bound
-                    // even if we are in a bind context
-                    make.VarDef(
-                        make.Modifiers(0L), 
-                        tmpVarName, 
-                        makeTypeTree(var.type, var, true), 
-                        null),
-                    seq,
-                    stmt);
-            } else {
-                // The "sequence" isn't a Sequence.
-                // Compile: { var tmp = seq; if (tmp!=null) stmt; }
-                if (! var.type.isPrimitive())
-                    stmt = make.If(make.Binary(JCTree.NE, make.Ident(tmpVarName),
-                                make.Literal(TypeTags.BOT, null)),
-                            stmt, null);
-                stmt = make.at(diagPos).Block(0,
-                    List.of(make.at(diagPos).VarDef(
-                        make.Modifiers(0L), 
-                        tmpVarName, 
-                        makeTypeTree(var.type, var, true), 
-                        translate(clause.seqExpr)),
-                        stmt));
+            
+            /**
+             * Make:  V.class
+             */
+            private JCExpression makeResultClass() {
+                return make.at(diagPos).Select(
+                        toJava.makeTypeTree(resultElementType, diagPos),
+                        names._class);
             }
-            if (clause.getIndexUsed()) {
-                JCVariableDecl tmpIndexVar =
-                        make.VarDef(
-                        make.Modifiers(0L), 
-                        tmpIndexVarName, 
-                        makeTypeTree(syms.javafx_IntegerType, var), 
-                        make.Literal(Integer.valueOf(0)));
-                stmt = make.Block(0L, List.of(tmpIndexVar, stmt));
+            
+            /**
+             * Convert type to JCExpression
+             */
+            private JCExpression makeExpression(Type type) {
+                return toJava.makeTypeTree(type, diagPos, true);
             }
-        }
-        return stmt;
+
+            /**
+             * Make a method paramter
+             */
+            private JCVariableDecl makeParam(Type type, Name name) {
+                return make.at(diagPos).VarDef(
+                        make.Modifiers(Flags.PARAMETER | Flags.FINAL),
+                        name,
+                        makeExpression(type),
+                        null);
+
+            }
+
+            /**
+             *  public Sequence<V> computeValue() {
+             *     if (WHERE)
+             *        return BODY;
+             *     else
+             *        return Sequences.emptySequence(V.class);
+             *  }
+             */
+            private JCTree makeComputeValueMethod() {
+                JCExpression body = translate( tree.getBodyExpression() );
+                JCExpression whereTest = null;
+                for (JFXForExpressionInClause clause : tree.getForExpressionInClauses()) {
+                    JCExpression where = translate(clause.getWhereExpression());
+                    if (where != null) {
+                        if (whereTest == null) {
+                            whereTest = where;
+                        } else {
+                            whereTest = m().Binary(JavafxTag.AND, whereTest, where);
+                        }
+                    }
+                    if (whereTest != null) {
+                        body = m().Conditional(whereTest, body, runtime(diagPos, cBoundSequences, "empty", resultElementType));
+                    }
+                }
+                return m().MethodDef(
+                        m().Modifiers(Flags.PUBLIC),
+                        names.fromString("computeValue"),
+                        makeExpression(resultSequenceType),
+                        List.<JCTypeParameter>nil(),
+                        List.<JCVariableDecl>nil(),
+                        List.<JCExpression>nil(),
+                        m().Block(0L, List.<JCStatement>of(m().Return(body))),
+                        null);
+            }
+             
+             /**
+              *      SequenceVariable.make(V.class,
+              *         new SequenceBindingExpression<V>() {
+              * ...                // makeComputeValueMethod()
+              *         }, maybe IVAR_NAME, maybe INDEXOF_IVAR_NAME);
+              */
+            private JCExpression makeInnerSequenceVariable() {
+                ListBuffer<JCExpression> args = ListBuffer.lb();
+                args.append( makeResultClass() );
+                JCClassDecl classDecl = m().AnonymousClassDef(m().Modifiers(0L), List.<JCTree>of(makeComputeValueMethod()));
+                List<JCExpression> typeArgs = List.nil();
+                List<JCExpression> constructorArgs = List.nil();
+                args.append(m().NewClass(null, typeArgs, makeExpression(resultSequenceBindingExpressionType), constructorArgs, classDecl));
+                for (JFXForExpressionInClause clause : tree.getForExpressionInClauses()) {
+                    args.append(m().Ident(clause.getVar()));  //TODO: induction vars might not be dependents, indexof might
+                }
+                return toJava.callExpression(diagPos, 
+                        makeExpression(resultSequenceVariableType), 
+                        defs.makeMethodName, 
+                        args.toList());
+            }
+
+            /**  
+             *  protected SequenceLocation<V> getMappedElement$(final ObjectLocation<T> IVAR_NAME, final IntLocation INDEXOF_IVAR_NAME) {
+             *     return ...
+             *  }
+             */
+            private JCTree makeGetMappedElementMethod(JFXForExpressionInClause clause, JCExpression inner, TypeMorphInfo tmiInduction) {
+                Type objLocType = typeMorpher.generifyIfNeeded(typeMorpher.locationType(TYPE_KIND_OBJECT), tmiInduction);
+                ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                Name ivarName = clause.getVar().name;
+                Name ivarParamName;
+                //if (types.isSameType(objLocType, clause.getVar().type)) {
+                //    ivarParamName = ivarName;
+                //} else {
+                {
+                    //TODO: total hack -- parameter type like ObjectLocation<Integer> but induction var lilke IntLocation
+                    // make them separate and connect them with a bidi bind
+                    // this doesn't work either, it needs a IntVariable
+                    ivarParamName = names.fromString(ivarName.toString() + "$param");
+                    TypeMorphInfo tmiVar = typeMorpher.typeMorphInfo(clause.getVar().type);
+                    Type varType = tmiVar.getMorphedVariableType();
+                    JCStatement vDecl = make.at(diagPos).VarDef(
+                            make.Modifiers(0L),
+                            ivarName,
+                            makeExpression( varType ),
+                            toJava.callExpression(diagPos, 
+                                     makeExpression( varType ), 
+                                     "makeBijective", 
+                                     List.<JCExpression>of( m().Ident(ivarParamName) ))
+                            );
+                    stmts.append(vDecl);
+                }
+                stmts.append(m().Return( inner ));
+                List<JCVariableDecl> params = List.of( 
+                        makeParam(objLocType, ivarParamName),
+                        makeParam(typeMorpher.locationType(TYPE_KIND_INT), indexofMangledName( clause.getVar().sym) )
+                        );
+                return m().MethodDef(
+                        m().Modifiers(Flags.PROTECTED),
+                        names.fromString("getMappedElement$"),
+                        makeExpression( resultSequenceLocationType ),
+                        List.<JCTypeParameter>nil(),
+                        params,
+                        List.<JCExpression>nil(),
+                        m().Block(0L, stmts.toList()),
+                        null);
+            }
+
+            /**
+             * new BoundComprehension<T,V>(V.class, IN_SEQUENCE, USE_INDEX) { ... }
+             */
+            private JCExpression makeBoundComprehension(JFXForExpressionInClause clause, JCExpression inner) {
+                JCExpression seq = clause.getSequenceExpression();
+                TypeMorphInfo tmiInduction = typeMorpher.typeMorphInfo(seq.type);
+                JCClassDecl classDecl = m().AnonymousClassDef(
+                        m().Modifiers(0L), 
+                        List.<JCTree>of(makeGetMappedElementMethod(clause, inner, tmiInduction)));
+                List<JCExpression> typeArgs = List.nil();
+                boolean useIndex = false; //TODO: compute this
+                List<JCExpression> constructorArgs = List.of(
+                        makeResultClass(),
+                        translate( seq ),
+                        m().Literal(TypeTags.BOOLEAN, useIndex? 1 : 0) );
+                JCExpression clazz = toJava.makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.BoundComprehension");
+                clazz = m().TypeApply(clazz, List.of( 
+                        makeExpression(tmiInduction.getElementType()),
+                        makeExpression(resultElementType)
+                        ));
+                return m().NewClass(null, 
+                        typeArgs, 
+                        clazz, 
+                        constructorArgs, 
+                        classDecl);
+            }
+            
+            private void fixUpInductionVarTypes() {
+                for (JFXForExpressionInClause clause : tree.getForExpressionInClauses()) {
+                    JCExpression seq = clause.getSequenceExpression();
+                    TypeMorphInfo tmiInduction = typeMorpher.typeMorphInfo(seq.type);
+                    Type objLocType = typeMorpher.generifyIfNeeded(typeMorpher.locationType(TYPE_KIND_OBJECT), tmiInduction);
+                    JCVariableDecl ivar = clause.getVar();
+                    ivar.type = objLocType;
+                    ivar.sym.type = objLocType;
+                }
+            }
+
+            /**
+             * Put everything together, handle multiple in clauses -- wrap from the inner-most first
+             */
+            public JCExpression doit() {
+                fixUpInductionVarTypes();
+                JCExpression expr = makeInnerSequenceVariable();
+                for (int inx = tree.getForExpressionInClauses().size() - 1; inx >= 0; --inx) {
+                    JFXForExpressionInClause clause = tree.getForExpressionInClauses().get(inx);
+                    expr = makeBoundComprehension(clause, expr);
+                }
+                return expr;
+            }
+        }).doit();
     }
     
-    public Name indexVarName (JFXForExpressionInClause clause) {
-        Name forVar = clause.getVar().getName();
-        return names.fromString("$indexof$"+forVar.toString());
-    }
-    
-    public void visitIndexof(JFXIndexof that) {
-        result = make.at(that.pos()).Ident(indexVarName(that.clause));
+    public void visitIndexof(JFXIndexof tree) {
+        result = make.at(tree.pos()).Ident(indexofMangledName(tree.clause.getVar().sym));
     }
 
     @Override
@@ -826,8 +932,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                         makeBranchMethod("computeThenBranch", tree.getTrueExpression()),
                         makeBranchMethod("computeElseBranch", tree.getFalseExpression())));
                 List<JCExpression> typeArgs = List.nil();
-                JCExpression lazy = m().Literal(TypeTags.BOOLEAN, 0); //TODO: eager for now, handle lazy
-                List<JCExpression> constructorArgs = List.<JCExpression>of(translate(tree.getCondition()), lazy);
+                List<JCExpression> constructorArgs = List.<JCExpression>of(translate(tree.getCondition()), makeLaziness(diagPos));
 
                 return m().NewClass(null/*encl*/, typeArgs, clazz, constructorArgs, classDecl);
             }
@@ -1126,6 +1231,9 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 break;
             case JavafxTag.MUL:
                 result = runtime(diagPos, cBoundOperators, "times_" + typeCode, List.of(lhs, rhs));
+                break;
+            case JavafxTag.MOD:
+                result = runtime(diagPos, cBoundOperators, "modulo_" + typeCode, List.of(lhs, rhs));
                 break;
             case JavafxTag.EQ:
                 result = runtime(diagPos, cBoundOperators, "eq_" + typeCode, List.of(lhs, rhs));

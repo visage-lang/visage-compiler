@@ -304,13 +304,17 @@ public class JavafxTypeMorpher {
         return locationNCT[typeKind].type;
     }
 
+    Type bindingExpressionType(int typeKind) {
+        return bindingNCT[typeKind].type;
+    }
+
     JCExpression castToReal(Type realType, JCExpression expr) {
         // cast the expression so that boxing works
         JCExpression typeExpr = make.Type(realType);
         return make.TypeCast(typeExpr, expr);
     }
 
-    private Type generifyIfNeeded(Type aLocationType, TypeMorphInfo tmi) {
+    Type generifyIfNeeded(Type aLocationType, TypeMorphInfo tmi) {
         Type newType;
         Type elemType = tmi.getElementType();
         if ((tmi.getTypeKind() == TYPE_KIND_OBJECT ||
