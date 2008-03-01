@@ -19,6 +19,7 @@
 // explicit key tests
 "FILE_VERB" = "Hokan suru"
 "FILE_NOUN" = "shorui"
+"KEY_WITH_SAME_VALUE" = "KEY_WITH_SAME_VALUE"
 
 // multiple line tests
 'Unix style

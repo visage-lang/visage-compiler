@@ -25,6 +25,7 @@ System.out.println(##'deceiving key2: //');
 System.out.println(##[FILE_VERB]'File');
 System.out.println(##[FILE_NOUN]'File');
 System.out.println(##[NON_EXISTENT_KEY]'non-existent');
+System.out.println(##[KEY_WITH_SAME_VALUE]'key with same value default');
 
 // multiple line tests
 System.out.println(##'Unix style

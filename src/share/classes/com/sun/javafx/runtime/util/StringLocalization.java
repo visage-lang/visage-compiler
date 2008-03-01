@@ -55,7 +55,8 @@ public class StringLocalization {
         
             if (explicitKey.length() != 0) {
                 localization = rb.getString(explicitKey);
-                if (explicitKey.equals(localization)) {
+                if (explicitKey.equals(localization) && 
+                    !rb.keySet().contains(explicitKey)) {
                     localization = literal;
                 }
             } else {
