@@ -273,6 +273,14 @@ public abstract class ScrollableWidget extends Widget {
         if (onViewChange <> null) {
             this.installViewChangeListener();
         }
+        if(horizontalScrollBarPolicy <> null) {
+            var n = horizontalScrollBarPolicy.id.intValue();
+            scrollpane.setHorizontalScrollBarPolicy(n);
+        }
+        if(verticalScrollBarPolicy <> null) {
+            var n = verticalScrollBarPolicy.id.intValue();
+            scrollpane.setVerticalScrollBarPolicy(n);
+        }
         if (awtScrollBarBackground <> null) {
             scrollpane.getVerticalScrollBar().setBackground(awtScrollBarBackground);
            scrollpane.getHorizontalScrollBar().setBackground(awtScrollBarBackground);
