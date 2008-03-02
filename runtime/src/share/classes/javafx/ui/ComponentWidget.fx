@@ -25,30 +25,29 @@
 
 package javafx.ui;
 
-import javax.swing.JPanel;
 import javax.swing.JComponent;
 
 /**
- *  Class that encapsulates an arbitrary JPanel. This is useful to encapsualte
- *  predefined JPanel classes from libaries.
+ *  Class that encapsulates an arbitrary Swing component. This is useful to encapsualte
+ *  predefined component classes from libaries.
  * 
  * @author jclarke
  */
 
-public class PanelWrapper extends Widget {
+public class ComponentWidget extends Widget {
     
     override attribute focusable = false;
     
     /**
-     *  The JPanel
+     *  The JComponent
      */
-    public attribute jpanel:JPanel;
+    public attribute component:JComponent;
     
     /**
      *  Creates the component
      */
-    public function createComponent():JComponent{
-        jpanel;
+    public function createComponent():JComponent {
+        component;
     }
 
 }
