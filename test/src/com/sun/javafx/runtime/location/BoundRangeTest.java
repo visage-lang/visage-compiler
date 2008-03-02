@@ -33,7 +33,7 @@ import com.sun.javafx.runtime.sequence.BoundSequences;
  *
  * @author Brian Goetz
  */
-public class BoundRangeTest extends JavaFXTestCase {
+public class BoundRangeTest extends JavaFXTestCase {   
     public void testBoundIntRange() {
         IntLocation a = IntVariable.make(10);
         IntLocation b = IntVariable.make(15);    
@@ -221,4 +221,155 @@ public class BoundRangeTest extends JavaFXTestCase {
         assertEquals(0, exclusiveRange.get().getDepth());
         assertEqualsAndClear(hle, "[0, 4] => [ 10, 6, 2, -2, -6 ]");
     }
+    
+    public void testBoundNumberRange() {
+        DoubleLocation a = DoubleVariable.make(10.2);
+        DoubleLocation b = DoubleVariable.make(15.7);    
+        SequenceLocation<Double> range = BoundSequences.range(a, b);
+                
+        HistoryReplaceListener<Double> hl = new HistoryReplaceListener<Double>();
+        range.addChangeListener(hl);
+
+        assertEquals(range, 10.2, 11.2, 12.2, 13.2, 14.2, 15.2);
+        assertEquals(0, range.get().getDepth());
+        hl.clear();
+       
+        a.set(8.2);
+        assertEquals(range, 8.2, 9.2, 10.2, 11.2, 12.2, 13.2, 14.2, 15.2);
+        assertEquals(1, range.get().getDepth());
+        assertEqualsAndClear(hl, "[0, -1] => [ 8.2, 9.2 ]");
+
+        a.set(11.2);
+        assertEquals(range, 11.2, 12.2, 13.2, 14.2, 15.2);
+        assertEquals(2, range.get().getDepth());
+        assertEqualsAndClear(hl, "[0, 2] => [ ]");
+        
+        a.set(11.88);
+        assertEquals(range, 11.88, 12.88, 13.88, 14.88);
+        assertEquals(0, range.get().getDepth());
+        assertEqualsAndClear(hl, "[0, 3] => [ 11.88, 12.88, 13.88, 14.88 ]");
+        
+        a.set(9.22);
+        assertEquals(range, 9.22, 10.22, 11.22, 12.22, 13.22, 14.22, 15.22);
+        assertEquals(0, range.get().getDepth());
+        assertEqualsAndClear(hl, "[0, 6] => [ 9.22, 10.22, 11.22, 12.22, 13.22, 14.22, 15.22 ]");
+        
+        a.set(9.22);
+        assertEquals(range, 9.22, 10.22, 11.22, 12.22, 13.22, 14.22, 15.22);
+        assertEquals(0, range.get().getDepth());
+        assertEqualsAndClear(hl);
+              
+   
+        b.set(17.08);
+        assertEquals(range, 9.22, 10.22, 11.22, 12.22, 13.22, 14.22, 15.22, 16.22);
+        assertEquals(1, range.get().getDepth());
+        assertEqualsAndClear(hl, "[7, 6] => [ 16.22 ]");
+
+        b.set(14.23);
+        assertEquals(range, 9.22, 10.22, 11.22, 12.22, 13.22, 14.22);
+        assertEquals(2, range.get().getDepth());
+        assertEqualsAndClear(hl, "[6, 7] => [ ]");
+
+        a.set(19.0);
+        assertEquals(range);  // range becomes an empty sequence
+        assertEquals(0, range.get().getDepth());
+        assertEqualsAndClear(hl, "[0, 0] => [ ]");
+
+        a.set(11.0);
+        assertEquals(range, 11.0, 12.0, 13.0, 14.0); 
+        assertEquals(0, range.get().getDepth());
+        assertEqualsAndClear(hl, "[0, -1] => [ 11.0, 12.0, 13.0, 14.0 ]");
+
+        b.set(14.0);
+        assertEquals(range, 11.0, 12.0, 13.0, 14.0);
+        assertEquals(0, range.get().getDepth());
+        assertEqualsAndClear(hl);
+
+        b.set(16.0);
+        assertEquals(range, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0);
+        assertEquals(1, range.get().getDepth());
+        assertEqualsAndClear(hl, "[4, 3] => [ 15.0, 16.0 ]");        
+         
+    }
+    
+     public void testBoundNumberRangeExclusive() {
+        DoubleLocation a = DoubleVariable.make(10.2);
+        DoubleLocation b = DoubleVariable.make(15.2);    
+        SequenceLocation<Double> range = BoundSequences.range(a, b, true);
+                
+        HistoryReplaceListener<Double> hl = new HistoryReplaceListener<Double>();
+        range.addChangeListener(hl);
+        
+        assertEquals(range, 10.2, 11.2, 12.2, 13.2, 14.2);
+        assertEquals(0, range.get().getDepth());
+        hl.clear();
+       
+        b.set(14.2);
+        assertEquals(range, 10.2, 11.2, 12.2, 13.2);
+        assertEquals(1, range.get().getDepth());
+        assertEqualsAndClear(hl, "[4, 4] => [ ]");
+        
+        a.set(14.2);
+        assertEquals(range);
+        assertEquals(0, range.get().getDepth());
+        assertEqualsAndClear(hl, "[0, 3] => [ ]");
+        
+        a.set(14.1);
+        assertEquals(range, 14.1);
+        assertEquals(0, range.get().getDepth());
+        assertEqualsAndClear(hl, "[0, -1] => [ 14.1 ]");
+        
+     }
+     
+     public void testBoundNumberStep() {
+        DoubleLocation a = DoubleVariable.make(0.0);
+        DoubleLocation b = DoubleVariable.make(4.0);    
+        DoubleLocation s = DoubleVariable.make(2.0);
+        SequenceLocation<Double> range = BoundSequences.range(a, b, s, true);
+        
+        HistoryReplaceListener<Double> hl = new HistoryReplaceListener<Double>();
+        range.addChangeListener(hl);
+        
+        assertEquals(range, 0.0, 2.0);
+        assertEquals(0, range.get().getDepth());
+        hl.clear();
+        
+        s.set(3.0);
+        assertEquals(range, 0.0, 3.0);
+        assertEquals(0, range.get().getDepth());
+        assertEqualsAndClear(hl, "[0, 1] => [ 0.0, 3.0 ]");
+        
+        a.set(10.2);
+        b.set(16.2);
+        hl.clear();
+        
+        assertEquals(range, 10.2, 13.2);
+        assertEquals(0, range.get().getDepth());
+        hl.clear();
+       
+        b.set(13.2);
+        assertEquals(range, 10.2);
+        assertEquals(1, range.get().getDepth());
+        assertEqualsAndClear(hl, "[1, 1] => [ ]");
+        
+        a.set(2.2);
+        assertEquals(range, 2.2, 5.2, 8.2, 11.2);
+        assertEquals(0, range.get().getDepth());
+        assertEqualsAndClear(hl, "[0, 3] => [ 2.2, 5.2, 8.2, 11.2 ]");
+        
+        b.set(17.2);
+        assertEquals(range, 2.2, 5.2, 8.2, 11.2, 14.2);
+        assertEquals(1, range.get().getDepth());
+        assertEqualsAndClear(hl, "[4, 3] => [ 14.2 ]");
+        
+        a.set(2.5);
+        b.set(-7.0);
+        s.set(-3.0);
+        hl.clear();
+        
+        assertEquals(range, 2.5, -0.5, -3.5, -6.5);
+        assertEquals(0, range.get().getDepth());
+        hl.clear();    
+
+     }
 }
