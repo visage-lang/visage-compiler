@@ -124,6 +124,22 @@ public class BoundSequences {
     }
 
     
+    public static SequenceLocation<Double> range(DoubleLocation a, DoubleLocation b) {
+        return new BoundNumberRangeSequence(a, b);
+    }
+    
+    public static SequenceLocation<Double> range(DoubleLocation a, DoubleLocation b, DoubleLocation step) {
+        return new BoundNumberRangeSequence(a, b, step);
+    }
+
+    public static SequenceLocation<Double> range(DoubleLocation a, DoubleLocation b, boolean exclusive) {
+        return new BoundNumberRangeSequence(a, b, exclusive);
+    }
+
+    public static SequenceLocation<Double> range(DoubleLocation a, DoubleLocation b, DoubleLocation step, boolean exclusive) {
+        return new BoundNumberRangeSequence(a, b, step, exclusive);
+    }
+    
     public static<T> SequenceLocation<T> slice(Class<T> clazz, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {
         return new BoundSequenceSlice<T>(clazz, sequence, a, b);
     }

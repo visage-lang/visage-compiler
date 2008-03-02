@@ -119,6 +119,10 @@ public final class Sequences {
         return new NumberRangeSequence(lower, upper, step);
     }
 
+    /** Create a double range sequence ranging from lower to upper exnclusive */
+     public static Sequence<Double> rangeExclusive(double lower, double upper) {
+        return new NumberRangeSequence(lower, upper, 1.0, true);
+    }
     /** Create a double range sequence ranging from lower to upper exnclusive, incrementing by the specified step. */
     public static Sequence<Double> rangeExclusive(double lower, double upper, double step) {
         return new NumberRangeSequence(lower, upper, step, true);
