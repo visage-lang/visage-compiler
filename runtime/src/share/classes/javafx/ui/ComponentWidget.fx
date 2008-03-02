@@ -39,11 +39,6 @@ public class ComponentWidget extends Widget {
     override attribute focusable = false;
     
     /**
-     *  The JComponent
-     */
-    public attribute component:JComponent;
-    
-    /**
      *  Creates the component
      */
     public function createComponent():JComponent {
