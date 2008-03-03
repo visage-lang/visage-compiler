@@ -8,7 +8,11 @@ Module {
     samples: [
     Sample{
         name: "Hello World"
-        className: "jfx.assortie.samples.various.HelloWorld"
+        className: "jfx.assortie.samples.various.hello.HelloWorld"
+    },
+    Sample{
+        name: "Contact Editor"
+        className: "jfx.assortie.samples.various.contacts.ContactFrame"
     },
     Sample{
         name: "Planetary System"

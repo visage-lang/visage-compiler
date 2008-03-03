@@ -1,11 +1,5 @@
-/*
- * HelloWorld.fx
- *
- * Created on Mar 3, 2008, 12:06:32 PM
- */
 
-package jfx.assortie.samples.various;
-
+package jfx.assortie.samples.various.hello;
 
 import javafx.ui.*;
 
