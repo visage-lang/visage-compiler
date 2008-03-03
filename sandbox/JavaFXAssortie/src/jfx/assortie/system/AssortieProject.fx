@@ -110,7 +110,8 @@ public class AssortieProject  extends CompositeWidget{
     };
     
     private attribute keyTimers:KeyTimer[];
-    private attribute KEY_TIMEOUT = 1000.0;
+    private attribute KEY_TIMEOUT = 600.0;
+    private attribute KEY_PROCESS_TIMEOUT = 400;
     
     private
     function initProject(){
@@ -180,7 +181,7 @@ public class AssortieProject  extends CompositeWidget{
             public
             function run(){
                 while(true) {
-                    Thread.sleep(800);
+                    Thread.sleep(KEY_PROCESS_TIMEOUT);
                     
                     var time = System.currentTimeMillis();
                     for(keyTimer in keyTimers){
@@ -224,6 +225,7 @@ public class AssortieProject  extends CompositeWidget{
             //internalFrame.x = x;
             //internalFrame.y = y;
             internalFrame.content = frame.content;
+            //internalFrame.background = background;
             internalFrame.visible = true;
             
             //            var content = frame.content;
