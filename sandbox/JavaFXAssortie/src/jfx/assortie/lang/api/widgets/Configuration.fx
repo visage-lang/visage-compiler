@@ -16,11 +16,11 @@ Module {
     },Sample{
         name: "Button"
         className: "jfx.assortie.lang.api.widgets.button.FXButton"
-        visible: true
+        //visible: true
     },Sample{
         name: "List"
         className: "jfx.assortie.lang.api.widgets.list.FXList",
-        visible: true
+        //visible: true
     },Sample{
         name: "Table"
         className: "jfx.assortie.lang.api.widgets.table.FXTable",

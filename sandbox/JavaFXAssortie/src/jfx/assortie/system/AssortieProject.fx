@@ -23,6 +23,8 @@ import java.io.*;
 
 
 import javafx.ui.*;
+import javafx.ui.canvas.*;
+
 import jfx.assortie.system.structure.*;
 
 
@@ -112,6 +114,9 @@ public class AssortieProject  extends CompositeWidget{
     private attribute keyTimers:KeyTimer[];
     private attribute KEY_TIMEOUT = 600.0;
     private attribute KEY_PROCESS_TIMEOUT = 400;
+    
+    private attribute DEFAULT_FRAME_WIDTH  = 300.0;
+    private attribute DEFAULT_FRAME_HEIGHT = 200.0;
     
     private
     function initProject(){
@@ -204,12 +209,25 @@ public class AssortieProject  extends CompositeWidget{
         //System.out.println("[code] {code}");
         var obj = ProjectManager.runFXCode(sample.className, code);
         
-        System.out.println("[execute sample] {sample.name}:" + obj);
+        System.out.println("[execute sample] {sample.name}: \"" + obj + "\"");
         
         
         var internalFrame = sample.frame;
+        
         if(obj == null){
             internalFrame.content = Label{ text: "Compiler Error!"};            
+        }else if(obj instanceof Widget){
+            
+            var widget = obj as Widget;
+
+            internalFrame.content = widget; 
+            
+        }else if(obj instanceof Node){
+            
+            var node = obj as Node;
+
+            internalFrame.content = Canvas{ content: node}; 
+            
         }else if(obj instanceof Frame){
             
             var frame = obj as Frame;
@@ -222,8 +240,6 @@ public class AssortieProject  extends CompositeWidget{
             internalFrame.title = frame.title;
             internalFrame.width = frame.width;
             internalFrame.height = frame.height;
-            //internalFrame.x = x;
-            //internalFrame.y = y;
             internalFrame.content = frame.content;
             //internalFrame.background = background;
             internalFrame.visible = true;
@@ -318,9 +334,7 @@ public class AssortieProject  extends CompositeWidget{
                             createFrame(sample, textArea.text);
                         }
                     } into keyTimers;
-                }
-                //createFrame(sample, textArea.text);
-                
+                }                
             };
         }
         
@@ -328,10 +342,15 @@ public class AssortieProject  extends CompositeWidget{
         
         selectedCodeIndex = sizeof codeTabs - 1;
         
-        //var internalFrame: InternalFrame;
+        sample.frame = InternalFrame { 
+            x: x 
+            y: y  
+            width: 300  //DEFAULT_FRAME_WIDTH 
+            height: 200 //DEFAULT_FRAME_HEIGHT 
+            title: sample.name
+            visible: true
+        };
         
-        
-        sample.frame = InternalFrame { x: x y: y};
         x += 40;
         y += 40;
         

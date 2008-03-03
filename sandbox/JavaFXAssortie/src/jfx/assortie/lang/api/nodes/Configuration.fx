@@ -11,7 +11,12 @@ Module {
     Sample{
         name: "Circle"
         className: "jfx.assortie.lang.api.nodes.circle.FXCircle"
-        visible: true
+        //visible: true
+    },
+    Sample{
+        name: "Rectangle"
+        className: "jfx.assortie.lang.api.nodes.rectangle.FXRect"
+        //visible: true
     }
     ]
 }
