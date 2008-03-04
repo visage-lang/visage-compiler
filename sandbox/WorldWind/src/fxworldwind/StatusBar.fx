@@ -28,6 +28,7 @@ package fxworldwind;
 import javafx.ui.*;
 import javax.swing.*;
 import java.lang.Math;
+import java.lang.System;
 
 import gov.nasa.worldwind.event.PositionListener;
 import gov.nasa.worldwind.event.PositionEvent;
@@ -41,6 +42,7 @@ import gov.nasa.worldwind.WorldWindow;
 
 public class StatusBar extends GridPanel, PositionListener, RenderingListener {
     override attribute rows = 1;
+    override attribute columns = 5;
     public attribute eventSource:WorldWindow on replace(old) {
         if (old <> null)
         {
@@ -56,24 +58,24 @@ public class StatusBar extends GridPanel, PositionListener, RenderingListener {
     };
     public attribute showNetworkStatus:Boolean = true;
     
-    private attribute latDisplay: SimpleLabel;
-    private attribute lonDisplay: SimpleLabel;
-    private attribute altDisplay: SimpleLabel;
-    private attribute eleDisplay: SimpleLabel;
-    private attribute heartBeat: SimpleLabel;
-    
-    override attribute cells = [
-        altDisplay = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER},
-        latDisplay = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER},
-        lonDisplay = SimpleLabel{
+    private attribute latDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
+    private attribute lonDisplay: SimpleLabel = SimpleLabel{
             horizontalAlignment: HorizontalAlignment.CENTER
             text: "Off globe"
-        },
-        eleDisplay = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER},
-        heartBeat = SimpleLabel{
+        };
+    private attribute altDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
+    private attribute eleDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
+    private attribute heartBeat: SimpleLabel = SimpleLabel{
             horizontalAlignment: HorizontalAlignment.CENTER
             foreground: Color.rgba(255, 0, 0, 0)
-        }
+        };
+    
+    override attribute cells = bind [
+        altDisplay,
+        latDisplay,
+        lonDisplay,
+        eleDisplay,
+        heartBeat
     ];
     public function moved(event:PositionEvent):Void {
         var newPos = event.getPosition();
@@ -104,9 +106,4 @@ public class StatusBar extends GridPanel, PositionListener, RenderingListener {
         }
     }
     
-    public function createComponent():javax.swing.JComponent {
-        var comp = super.createComponent();
-        //anime.start();
-        comp;
-    }
 }    

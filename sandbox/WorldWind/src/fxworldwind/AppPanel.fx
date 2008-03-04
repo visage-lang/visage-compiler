@@ -42,7 +42,7 @@ public class AppPanel extends BorderPanel {
     };
         
     override attribute center = ScrollPane { view: bind wwd }
-    override attribute pageEnd = statusBar;
+    override attribute pageEnd = bind statusBar;
     override attribute preferredSize on replace {
         wwd.preferredSize = preferredSize;
     }
