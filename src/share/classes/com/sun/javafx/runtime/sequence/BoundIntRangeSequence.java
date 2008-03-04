@@ -95,7 +95,7 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
         lowerLoc.addChangeListener(new IntChangeListener() {
             public void onChange(int oldValue, int newValue) {
                 
-                if (oldValue == newValue) return;
+                assert oldValue != newValue;
                 
                 int oldSize = size;
                 computeBounds(newValue, upper, step);
@@ -128,7 +128,7 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
         upperLoc.addChangeListener(new IntChangeListener() {
             public void onChange(int oldValue, int newValue) {
                 
-                if (oldValue == newValue) return;
+                assert oldValue != newValue;
                 
                 int oldSize = size;
                 computeBounds(lower, newValue, step);
@@ -152,7 +152,7 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
         stepLoc.addChangeListener(new IntChangeListener() {
             public void onChange(int oldValue, int newValue) {
                 
-                if (oldValue == newValue) return;
+                assert oldValue != newValue;
                 
                 computeBounds(lower, upper, newValue);
 

@@ -26,7 +26,6 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.location.*;
-import java.math.BigDecimal;
 
 /**
  * BoundNumberRangeSequence
@@ -75,7 +74,8 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> impl
         upper = newUpper;
         step = newStep;
 
-       
+        // Not all floating point numbers can be exactly represented as a binary (base 2) decimal number (e.g lower = 0.1).
+        // The size of the sequence from the following calculation could be off by 1. However, such cases are very rare.
         if (lower == upper) {
             size = exclusive ? 0 : 1;
         }
@@ -121,6 +121,7 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> impl
                 }
                 else if (oldSize >= size) {
                     if (((newValue - oldValue) % step) == 0) {
+                        
                         updateSlice(0, oldSize - size - 1, Sequences.emptySequence(Double.class));
                     }
                     else {
@@ -163,25 +164,5 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> impl
                 updateSlice(0, newSeq.isEmpty() ? 0 : (size - 1), newSeq, newSeq);
             }
         });
-    }
-    
-    
-    public static void main(String[] args) {
-        
-        DoubleLocation a = DoubleVariable.make(8.2);
-        DoubleLocation b = DoubleVariable.make(10.2);    
-        SequenceLocation<Double> range = BoundSequences.range(a, b);
-        
-        BigDecimal s = new BigDecimal(1.0);
-        BigDecimal c = new BigDecimal(9.2);
-        BigDecimal e = new BigDecimal(7);
-        
-        BigDecimal f = s.multiply(e);
-        BigDecimal g = c.add(f);
-        
-        
-        
-        a.set(8.2);
-        System.out.println(g.doubleValue());
     }
 }
