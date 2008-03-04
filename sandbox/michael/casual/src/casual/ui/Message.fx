@@ -12,7 +12,6 @@ import javafx.ui.canvas.CompositeNode;
 import javafx.ui.canvas.Group;
 import javafx.ui.canvas.View;
 import javafx.ui.canvas.Rect;
-import net.java.javafx.ui.UIContext; // hack
 
 public class Message extends CompositeNode
 {
@@ -21,94 +20,82 @@ public class Message extends CompositeNode
     attribute width: Number;
     attribute height: Number;
     
-    private operation getAlign(type: MessageType): String;
-    private operation getForeground(type: MessageType): Color;
-    private operation getBackground(type: MessageType): AbstractColor;
-    private operation getFont(type: MessageType): Font;
-    private operation getBorder(type: MessageType): EmptyBorder;
-}
-
-function Message.getAlign(type: MessageType): String
-{
-    return if (type == INCOMING:MessageType)
-        then "left"
-    else if (type == OUTGOING:MessageType)
-        then "right"
-    else //if (type == COMMENT:MessageType)
-        "center";
-}
-
-function Message.getForeground(type: MessageType): Color
-{
-    return if (type == INCOMING:MessageType)
-        then theme:ThemeManager.messageOutForeground
-    else if (type == OUTGOING:MessageType)
-        then theme:ThemeManager.messageInForeground
-    else //if (type == COMMENT:MessageType)
-        theme:ThemeManager.commentForeground;
-}
-
-function Message.getBackground(type: MessageType): AbstractColor
-{
-    return if (type == INCOMING:MessageType)
-        then theme:ThemeManager.messageOutBackground
-    else if (type == OUTGOING:MessageType)
-        then theme:ThemeManager.messageInBackground
-    else //if (type == COMMENT:MessageType)
-        theme:ThemeManager.commentBackground;
-}
-
-function Message.getFont(type: MessageType): Font
-{
-    return if (type == INCOMING:MessageType)
-        then theme:ThemeManager.messageFont
-    else if (type == OUTGOING:MessageType)
-        then theme:ThemeManager.messageFont
-    else //if (type == COMMENT:MessageType)
-        theme:ThemeManager.commentFont;
-}
-
-function Message.getBorder(type: MessageType): EmptyBorder
-{
-    return if (type == INCOMING:MessageType)
-        then theme:ThemeManager.messageBorder
-    else if (type == OUTGOING:MessageType)
-        then theme:ThemeManager.messageBorder
-    else //if (type == COMMENT:MessageType)
-        theme:ThemeManager.commentBorder;
-}
-
-function Message.composeNode() = Group
-{
-    var label = Label
-    {
-        var margin = if (type == COMMENT:MessageType) then 1 else 0
-        var offsets = (margin + theme:ThemeManager.messageBorder.left + theme:ThemeManager.messageBorder.right) 
-	onHyperlinkActivated: operation(url) {context:UIContext.browse(url);}
-        focusable: true
-        border: bind getBorder(type)
-        font: bind getFont(type)
-        foreground: bind getForeground(type)
-        background: bind getBackground(type)
-        text: bind "<html><body><div width='{width-offsets}' style='text-align:{getAlign(type)};'>{message}</div></body></html>"
-    }
+    private function getAlign(type: MessageType): String {
+        return if (type == MessageType.INCOMING)
+            then "left"
+        else if (type == MessageType.OUTGOING)
+            then "right"
+        else //if (type == MessageType.COMMENT)
+            "center";
+    };
     
-    content:
-    [
-        View
-        {
-            antialiasText: false
-            content: label
-        },
-        Rect
-        {
-            visible: bind (type <> COMMENT:MessageType)
-            stroke: bind theme:ThemeManager.messageBorderColor
-            x: 0
-            y: -1
-            width: bind label.width-1
-            height: bind label.height
-        },
-    ]
-};
+    private function getForeground(type: MessageType): Color {
+        return if (type == MessageType.INCOMING)
+            then theme.messageOutForeground
+        else if (type == MessageType.OUTGOING)
+            then theme.messageInForeground
+        else //if (type == MessageType.COMMENT)
+            theme.commentForeground;
+    };
+    
+    private function getBackground(type: MessageType): AbstractColor {
+        return if (type == MessageType.INCOMING)
+            then theme.messageOutBackground
+        else if (type == MessageType.OUTGOING)
+            then theme.messageInBackground
+        else //if (type == COMMENT:MessageType)
+            theme.commentBackground;
+    };
+    
+    private function getFont(type: MessageType): Font {
+        return if (type == MessageType.INCOMING)
+            then theme.messageFont
+        else if (type == MessageType.OUTGOING)
+            then theme.messageFont
+        else //if (type == MessageType.COMMENT)
+            theme.commentFont;
+    };
+    
+    private function getBorder(type: MessageType): EmptyBorder {
+        return if (type == MessageType.INCOMING)
+            then theme.messageBorder
+        else if (type == MessageType.OUTGOING)
+            then theme.messageBorder
+        else //if (type == COMMENT:MessageType)
+            theme.commentBorder;
+    };
 
+    function composeNode() {
+        Group {
+            var label = Label
+            {
+                var margin = if (type == MessageType.COMMENT) then 1 else 0
+                var offsets = (margin + theme.messageBorder.left + theme.messageBorder.right) 
+                focusable: true
+                border: bind getBorder(type)
+                font: bind getFont(type)
+                foreground: bind getForeground(type)
+                background: bind getBackground(type)
+                text: bind "<html><body><div width='{width-offsets}' style='text-align:{getAlign(type)};'>{message}</div></body></html>"
+            }
+
+            content:
+            [
+                View
+                {
+                    antialiasText: false
+                    content: label
+                },
+                Rect
+                {
+                    visible: bind (type <> MessageType.COMMENT)
+                    stroke: bind theme.messageBorderColor
+                    x: 0
+                    y: -1
+                    width: bind label.width-1
+                    height: bind label.height
+                },
+            ]
+        }
+    };
+}

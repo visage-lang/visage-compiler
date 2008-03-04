@@ -29,99 +29,125 @@ public class Button extends CompositeNode
     public attribute text: String;
     public attribute font: Font;
     
-    public attribute onClick: operation();
-    public operation doClick();
+    public attribute onClick: function();
+    
     attribute clickTarget: ClickRect;
-    attribute clickTrigger: Boolean;
-}
-
-attribute Button.isSelectionRoot = true;
-
-trigger on Button.clickTrigger = value
-{
-    if (value == true)
-    {
-        hover = true;
-        
-        var event:CanvasMouseEvent = null;
-        (clickTarget.onMousePressed)(event);
-    }
-    else
-    {
-        var event:CanvasMouseEvent = null;
-        (clickTarget.onMouseReleased)(event);
-        
-        hover = false;
-    }
-}
-
-operation Button.doClick()
-{
-    clickTrigger = [true, false] dur 150;
-}
-
-function Button.composeNode() = Group
-{
-    content:
-    [
-        ClickRect
-        {
-            attribute: clickTarget
-            
-            var: self
-            var pressed = bind false
-            var strokeWidth = bind theme:ThemeManager.uiStrokeWidth
-            
-            selectable: true
-            pressedHover: bind (pressed and hover)
-
-            onMousePressed: operation(e:CanvasMouseEvent)
+    
+    attribute clickTrigger: Boolean
+        on replace {
+            if (clickTrigger == true)
             {
-                pressed = true;
+                hover = true;
+
+                var event:CanvasMouseEvent = null;
+                (clickTarget.onMousePressed)(event);
             }
-            onMouseDragged: operation(e:CanvasMouseEvent)
+            else
             {
+                var event:CanvasMouseEvent = null;
+                (clickTarget.onMouseReleased)(event);
+
+                hover = false;
             }
-            onMouseReleased: operation(e:CanvasMouseEvent)
-            {   
-                if ((self.pressedHover == true) and (onClick <> null))
-                {
-                    pressed = false;
-                    
-                    do later
-                    {
-                        (onClick)();
-                    }
-                }
-                else
-                {
-                    pressed = false;
-                }
-            }
-            
-            x: bind x
-            y: bind y
-            width: bind width-1
-            height: bind height-1
-            fill: bind if (self.pressedHover==true) then theme:ThemeManager.uiBackground.darker() else theme:ThemeManager.uiBackground
-            stroke: bind theme:ThemeManager.uiBorderColor
-            strokeWidth: bind strokeWidth
-        },
-        Text
-        {
-            selectable: true
-            editable: false
-            x: bind (x+width/2)
-            y: bind (y+height/2)
-            valign: MIDDLE
-            halign: CENTER	
-            fill: bind theme:ThemeManager.uiForeground
-            content: bind text
-            font: bind font
         }
-    ]
-};
 
+    ;
+    
+    private attribute pf: PointerFactory = PointerFactory{};
+    private attribute __clickTrigger = bind pf.make(clickTrigger);
+    private attribute _clickTrigger = __clickTrigger.unwrap();
+    private attribute clickTriggerAnim: Timeline = Timeline {
+        keyFrames: [
+             KeyFrame {
+                keyTime: 0s
+                keyValues:  [
+                    NumberValue {
+                        target: _clickTrigger
+                        value: true
+                    }
+                ]
+             },
+             KeyFrame {
+               keyTime: 150ms
+               keyValues:  [
+                    NumberValue {
+                        target: _clickTrigger
+                        value: false
+                        interpolate: NumberValue.EASEBOTH
+                    }
+                ]
+             }             
+        ]
+    };
+
+    public function doClick() {
+        clickTriggerAnim.start();
+    }
+    
+    override attribute isSelectionRoot = true;
+
+    function composeNode() { Group
+        {
+            content:
+            [
+                ClickRect
+                {
+                    var pressed = false
+                    var strokeWidth = bind theme.uiStrokeWidth
+
+                    selectable: true
+                    pressedHover: bind (pressed and hover)
+
+                    onMousePressed: function(e:CanvasMouseEvent)
+                    {
+                        pressed = true;
+                    }
+                    onMouseDragged: function(e:CanvasMouseEvent)
+                    {
+                    }
+                    onMouseReleased: function(e:CanvasMouseEvent)
+                    {   
+                        if ((pressedHover == true) and (onClick <> null))
+                        {
+                            pressed = false;
+
+                           //TODO DO LATER - this is a work around until a more permanent solution is provided
+                            javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                                public function run():Void {
+                                    onClick();
+                                }
+                            });
+                        }
+                        else
+                        {
+                            pressed = false;
+                        }
+                    }
+
+                    x: bind this.x
+                    y: bind this.y
+                    width: bind this.width-1
+                    height: bind this.height-1
+                    fill: bind if (pressedHover==true) then theme.uiBackground.darker() else theme.uiBackground
+                    stroke: bind theme.uiBorderColor
+                    strokeWidth: bind strokeWidth
+                },
+                Text
+                {
+                    selectable: true
+                    editable: false
+                    x: bind (this.x+this.width/2)
+                    y: bind (this.y+this.height/2)
+                    valign: MIDDLE
+                    halign: CENTER	
+                    fill: bind theme.uiForeground
+                    content: bind text
+                    font: bind font
+                }
+            ]
+        }
+    };
+}
 
 
 
