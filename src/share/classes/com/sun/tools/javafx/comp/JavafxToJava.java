@@ -56,6 +56,13 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 
+/**
+ * Translate JavaFX ASTs into Java ASTs
+ * 
+ * @author Robert Field
+ * @author Per Bothner
+ * @author Lubo Litchev
+ */
 public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     protected static final Context.Key<JavafxToJava> jfxToJavaKey =
         new Context.Key<JavafxToJava>();

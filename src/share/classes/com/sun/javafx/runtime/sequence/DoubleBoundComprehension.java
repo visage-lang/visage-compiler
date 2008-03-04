@@ -28,7 +28,9 @@ package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.location.*;
 
 /**
- *
+ * Support for a for-loop with a Number induction variable.
+ * 
+ * @author Brian Goetz
  * @author Robert Field
  */
 public abstract class DoubleBoundComprehension<V> extends AbstractBoundComprehension<Double, V> {
@@ -43,7 +45,7 @@ public abstract class DoubleBoundComprehension<V> extends AbstractBoundComprehen
 
     protected State<Double, V> makeState(int index, Double value) {
         DoubleLocation elementLocation = DoubleVariable.make(value.doubleValue());
-        SimpleIntVariable indexLocation = useIndex ? new SimpleIntVariable(index) : null;
+        IntVariable indexLocation = useIndex ? IntVariable.make(index) : null;
         SequenceLocation<V> mapped = getMappedElement$(elementLocation, indexLocation);
         return new State<Double, V>(elementLocation, indexLocation, mapped);
     }

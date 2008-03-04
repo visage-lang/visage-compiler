@@ -426,244 +426,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     ));
         //TODO:   SequenceSliceTree.END_EXCLUSIVE
     }
-
-    /**** utility methods ******/
-        
-    /**
-     * For an attribute "attr" make an access to it via the receiver and getter  
-     *      "receiver$.get$attr()"
-     * */
-   JCExpression makeAttributeAccess(DiagnosticPosition diagPos, String attribName) {
-       return callExpression(diagPos, 
-                make.Ident(defs.receiverName),
-                attributeGetMethodNamePrefix + attribName);
-   }
-   
-    JCExpression runtime(DiagnosticPosition diagPos,
-            String cString,
-            String methString,
-            Type type) {
-        return runtime(diagPos,
-                cString,
-                methString,
-                type,
-                List.<JCExpression>nil());
-    }
-
-    JCExpression runtime(DiagnosticPosition diagPos,
-            String cString,
-            String methString,
-            Type type,
-            ListBuffer<JCExpression> args) {
-        return runtime(diagPos,
-                cString,
-                methString,
-                type,
-                args.toList());
-    }
-
-    JCExpression runtime(DiagnosticPosition diagPos,
-            String cString,
-            String methString,
-            List<JCExpression> args) {
-        return runtime(diagPos,
-                cString,
-                methString,
-                null,
-                args);
-    }
-
-    JCExpression runtime(DiagnosticPosition diagPos,
-            String cString,
-            String methString,
-            Type type,
-            List<JCExpression> args) {
-        JCExpression meth = make.at(diagPos).Select(
-                makeQualifiedTree(diagPos, cString),
-                names.fromString(methString));
-        List<JCExpression> typeArgs = type==null? List.<JCExpression>nil() : List.of(makeTypeTree(type, diagPos, true));
-        return make.at(diagPos).Apply(typeArgs, meth, args);
-    }
-
-    JCMethodInvocation callExpression(
-            DiagnosticPosition diagPos,
-            JCExpression receiver, 
-            String method) {
-        return callExpression(diagPos, receiver, method, null);
-    }
-    
-    JCMethodInvocation callExpression(
-            DiagnosticPosition diagPos,
-            JCExpression receiver, 
-            Name methodName) {
-        return callExpression(diagPos, receiver, methodName, null);
-    }
-    
-    JCMethodInvocation callExpression(
-            DiagnosticPosition diagPos,
-            JCExpression receiver, 
-            String method, 
-            Object args) {
-        return callExpression(diagPos, receiver, names.fromString(method), args);
-    }
-    
-    JCMethodInvocation callExpression(
-            DiagnosticPosition diagPos,
-            JCExpression receiver, 
-             Name methodName, 
-            Object args) {
-        JCExpression expr = null;
-        if (receiver == null) {
-            expr = make.at(diagPos).Ident(methodName);
-        } else {
-            expr = make.at(diagPos).Select(receiver, methodName);
-        }
-        return make.at(diagPos).Apply(List.<JCExpression>nil(), expr, 
-                (args == null)? List.<JCExpression>nil() :
-                (args instanceof List)? (List<JCExpression>)args :
-                (args instanceof ListBuffer)? ((ListBuffer<JCExpression>)args).toList() :
-                (args instanceof JCExpression)?   List.<JCExpression>of((JCExpression)args) :
-                    null /* error */
-                );    
-                    
-    }
-
-    private Name getSyntheticName(String kind) {
-        return toJava.getSyntheticName(kind);
-    }
-
-    private JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, Type type, JCExpression value) {
-        return makeTmpVar(diagPos, "tmp", type, value);
-    }
-
-    private JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, String rootName, Type type, JCExpression value) {
-            return toJava.makeTmpVar(diagPos, rootName, type, value);
-    }
-    
-    /** Equivalent to make.at(pos.getStartPosition()) with side effect of caching
-     *  pos as make_pos, for use in diagnostics.
-     **/
-    TreeMaker make_at(DiagnosticPosition pos) {
-        return make.at(pos);
-    }
-
-    /** Look up a method in a given scope.
-     */
-    private MethodSymbol lookupMethod(DiagnosticPosition pos, Name name, Type qual, List<Type> args) {
-	return rs.resolveInternalMethod(pos, attrEnv, qual, name, args, null);
-    }
-
-    /** Look up a constructor.
-     */
-    private MethodSymbol lookupConstructor(DiagnosticPosition pos, Type qual, List<Type> args) {
-	return rs.resolveInternalConstructor(pos, attrEnv, qual, args, null);
-    }
-
-    /** Box up a single primitive expression. */
-    JCExpression makeBox(DiagnosticPosition diagPos, JCExpression translatedExpr, Type primitiveType) {
-	make_at(translatedExpr.pos());
-        if (target.boxWithConstructors()) {
-            Symbol ctor = lookupConstructor(translatedExpr.pos(),
-                                            types.boxedClass(primitiveType).type,
-                                            List.<Type>nil()
-                                            .prepend(primitiveType));
-            return make.Create(ctor, List.of(translatedExpr));
-        } else {
-            Symbol valueOfSym = lookupMethod(translatedExpr.pos(),
-                                             names.valueOf,
-                                             types.boxedClass(primitiveType).type,
-                                             List.<Type>nil()
-                                             .prepend(primitiveType));
-//            JCExpression meth =makeIdentifier(valueOfSym.owner.type.toString() + "." + valueOfSym.name.toString());
-            JCExpression meth = make.Select(makeTypeTree(valueOfSym.owner.type, diagPos), valueOfSym.name);
-            TreeInfo.setSymbol(meth, valueOfSym);
-            meth.type = valueOfSym.type;
-            return make.App(meth, List.of(translatedExpr));
-        }
-    }
-    
-    public JCExpression makeQualifiedTree(DiagnosticPosition diagPos, String str) {
-        JCExpression tree = null;
-        int inx;
-        int lastInx = 0;
-        do {
-            inx = str.indexOf('.', lastInx);
-            int endInx;
-            if (inx < 0) {
-                endInx = str.length();
-            } else {
-                endInx = inx;
-            }
-            String part = str.substring(lastInx, endInx);
-            Name partName = Name.fromString(names, part);
-            tree = tree == null? 
-                make.at(diagPos).Ident(partName) : 
-                make.at(diagPos).Select(tree, partName);
-            lastInx = endInx + 1;
-        } while (inx >= 0);
-        return tree;
-    }
-    
-    private Name indexofMangledName(VarSymbol vsym) {
-        return names.fromString(vsym.getSimpleName().toString() + "$indexof");
-    }
-    
-    /**
-     * 
-     * @param diagPos
-     * @return a boolean expression indicating if the bind is lazy
-     */
-    private JCExpression makeLaziness(DiagnosticPosition diagPos) {
-        return make.at(diagPos).Literal(TypeTags.BOOLEAN, 0); //TODO: eager for now, handle lazy
-    }
-    
-    /**
-     * Given "Foo" type, return "Foo.class" expression
-     * @param diagPos
-     * @param type
-     * @return expression representing the class
-     */
-    private JCExpression makeDotClass(DiagnosticPosition diagPos, Type type) {
-        return make.at(diagPos).Select(
-                        toJava.makeTypeTree(type, diagPos),
-                        names._class);
-    }
-    
-    /**
-     * Build a Java AST representing the return type of a function.
-     * Generate the return type as a Location if "isBound" is set.
-     * */
-    public JCExpression makeReturnTypeTree(DiagnosticPosition diagPos, MethodSymbol mth, boolean isBound) {
-        Type returnType = mth.getReturnType();
-        if (isBound) {
-            VarMorphInfo vmi = typeMorpher.varMorphInfo(mth);
-            returnType = vmi.getMorphedType();
-        }
-        return makeTypeTree(returnType, diagPos);
-    }
- 
-    /**
-     * Build a Java AST representing the specified type.
-     * Convert JavaFX class references to interface references.
-     * */
-    public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos) {
-        return makeTypeTree(t, diagPos, true);
-    }
-    
-    /**
-     * Build a Java AST representing the specified type.
-     * If "makeIntf" is set, convert JavaFX class references to interface references.
-     * */
-    public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos, boolean makeIntf) {
-        return toJava.makeTypeTree(t, diagPos, makeIntf);
-    }
-
-   JCExpression castFromObject (JCExpression arg, Type castType) {
-        if (castType.isPrimitive())
-            castType = types.boxedClass(castType).type;
-         return make.TypeCast(makeTypeTree(castType, arg.pos()), arg);
-    }
-
     
     /**
      * Generate this template, expanding to handle multiple in-clauses
@@ -851,6 +613,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
     
     public void visitIndexof(JFXIndexof tree) {
+        assert tree.clause.getIndexUsed() : "assert that index used is set correctly";
         result = make.at(tree.pos()).Ident(indexofMangledName(tree.clause.getVar().sym));
     }
 
@@ -1312,6 +1075,242 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
      *
      */
     
+
+    /**
+     * For an attribute "attr" make an access to it via the receiver and getter  
+     *      "receiver$.get$attr()"
+     * */
+   JCExpression makeAttributeAccess(DiagnosticPosition diagPos, String attribName) {
+       return callExpression(diagPos, 
+                make.Ident(defs.receiverName),
+                attributeGetMethodNamePrefix + attribName);
+   }
+   
+    JCExpression runtime(DiagnosticPosition diagPos,
+            String cString,
+            String methString,
+            Type type) {
+        return runtime(diagPos,
+                cString,
+                methString,
+                type,
+                List.<JCExpression>nil());
+    }
+
+    JCExpression runtime(DiagnosticPosition diagPos,
+            String cString,
+            String methString,
+            Type type,
+            ListBuffer<JCExpression> args) {
+        return runtime(diagPos,
+                cString,
+                methString,
+                type,
+                args.toList());
+    }
+
+    JCExpression runtime(DiagnosticPosition diagPos,
+            String cString,
+            String methString,
+            List<JCExpression> args) {
+        return runtime(diagPos,
+                cString,
+                methString,
+                null,
+                args);
+    }
+
+    JCExpression runtime(DiagnosticPosition diagPos,
+            String cString,
+            String methString,
+            Type type,
+            List<JCExpression> args) {
+        JCExpression meth = make.at(diagPos).Select(
+                makeQualifiedTree(diagPos, cString),
+                names.fromString(methString));
+        List<JCExpression> typeArgs = type==null? List.<JCExpression>nil() : List.of(makeTypeTree(type, diagPos, true));
+        return make.at(diagPos).Apply(typeArgs, meth, args);
+    }
+
+    JCMethodInvocation callExpression(
+            DiagnosticPosition diagPos,
+            JCExpression receiver, 
+            String method) {
+        return callExpression(diagPos, receiver, method, null);
+    }
+    
+    JCMethodInvocation callExpression(
+            DiagnosticPosition diagPos,
+            JCExpression receiver, 
+            Name methodName) {
+        return callExpression(diagPos, receiver, methodName, null);
+    }
+    
+    JCMethodInvocation callExpression(
+            DiagnosticPosition diagPos,
+            JCExpression receiver, 
+            String method, 
+            Object args) {
+        return callExpression(diagPos, receiver, names.fromString(method), args);
+    }
+    
+    JCMethodInvocation callExpression(
+            DiagnosticPosition diagPos,
+            JCExpression receiver, 
+             Name methodName, 
+            Object args) {
+        JCExpression expr = null;
+        if (receiver == null) {
+            expr = make.at(diagPos).Ident(methodName);
+        } else {
+            expr = make.at(diagPos).Select(receiver, methodName);
+        }
+        return make.at(diagPos).Apply(List.<JCExpression>nil(), expr, 
+                (args == null)? List.<JCExpression>nil() :
+                (args instanceof List)? (List<JCExpression>)args :
+                (args instanceof ListBuffer)? ((ListBuffer<JCExpression>)args).toList() :
+                (args instanceof JCExpression)?   List.<JCExpression>of((JCExpression)args) :
+                    null /* error */
+                );    
+                    
+    }
+
+    private Name getSyntheticName(String kind) {
+        return toJava.getSyntheticName(kind);
+    }
+
+    private JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, Type type, JCExpression value) {
+        return makeTmpVar(diagPos, "tmp", type, value);
+    }
+
+    private JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, String rootName, Type type, JCExpression value) {
+            return toJava.makeTmpVar(diagPos, rootName, type, value);
+    }
+    
+    /** Equivalent to make.at(pos.getStartPosition()) with side effect of caching
+     *  pos as make_pos, for use in diagnostics.
+     **/
+    TreeMaker make_at(DiagnosticPosition pos) {
+        return make.at(pos);
+    }
+
+    /** Look up a method in a given scope.
+     */
+    private MethodSymbol lookupMethod(DiagnosticPosition pos, Name name, Type qual, List<Type> args) {
+	return rs.resolveInternalMethod(pos, attrEnv, qual, name, args, null);
+    }
+
+    /** Look up a constructor.
+     */
+    private MethodSymbol lookupConstructor(DiagnosticPosition pos, Type qual, List<Type> args) {
+	return rs.resolveInternalConstructor(pos, attrEnv, qual, args, null);
+    }
+
+    /** Box up a single primitive expression. */
+    JCExpression makeBox(DiagnosticPosition diagPos, JCExpression translatedExpr, Type primitiveType) {
+	make_at(translatedExpr.pos());
+        if (target.boxWithConstructors()) {
+            Symbol ctor = lookupConstructor(translatedExpr.pos(),
+                                            types.boxedClass(primitiveType).type,
+                                            List.<Type>nil()
+                                            .prepend(primitiveType));
+            return make.Create(ctor, List.of(translatedExpr));
+        } else {
+            Symbol valueOfSym = lookupMethod(translatedExpr.pos(),
+                                             names.valueOf,
+                                             types.boxedClass(primitiveType).type,
+                                             List.<Type>nil()
+                                             .prepend(primitiveType));
+//            JCExpression meth =makeIdentifier(valueOfSym.owner.type.toString() + "." + valueOfSym.name.toString());
+            JCExpression meth = make.Select(makeTypeTree(valueOfSym.owner.type, diagPos), valueOfSym.name);
+            TreeInfo.setSymbol(meth, valueOfSym);
+            meth.type = valueOfSym.type;
+            return make.App(meth, List.of(translatedExpr));
+        }
+    }
+    
+    public JCExpression makeQualifiedTree(DiagnosticPosition diagPos, String str) {
+        JCExpression tree = null;
+        int inx;
+        int lastInx = 0;
+        do {
+            inx = str.indexOf('.', lastInx);
+            int endInx;
+            if (inx < 0) {
+                endInx = str.length();
+            } else {
+                endInx = inx;
+            }
+            String part = str.substring(lastInx, endInx);
+            Name partName = Name.fromString(names, part);
+            tree = tree == null? 
+                make.at(diagPos).Ident(partName) : 
+                make.at(diagPos).Select(tree, partName);
+            lastInx = endInx + 1;
+        } while (inx >= 0);
+        return tree;
+    }
+    
+    private Name indexofMangledName(VarSymbol vsym) {
+        return names.fromString(vsym.getSimpleName().toString() + "$indexof");
+    }
+    
+    /**
+     * 
+     * @param diagPos
+     * @return a boolean expression indicating if the bind is lazy
+     */
+    private JCExpression makeLaziness(DiagnosticPosition diagPos) {
+        return make.at(diagPos).Literal(TypeTags.BOOLEAN, 0); //TODO: eager for now, handle lazy
+    }
+    
+    /**
+     * Given "Foo" type, return "Foo.class" expression
+     * @param diagPos
+     * @param type
+     * @return expression representing the class
+     */
+    private JCExpression makeDotClass(DiagnosticPosition diagPos, Type type) {
+        return make.at(diagPos).Select(
+                        toJava.makeTypeTree(type, diagPos),
+                        names._class);
+    }
+    
+    /**
+     * Build a Java AST representing the return type of a function.
+     * Generate the return type as a Location if "isBound" is set.
+     * */
+    public JCExpression makeReturnTypeTree(DiagnosticPosition diagPos, MethodSymbol mth, boolean isBound) {
+        Type returnType = mth.getReturnType();
+        if (isBound) {
+            VarMorphInfo vmi = typeMorpher.varMorphInfo(mth);
+            returnType = vmi.getMorphedType();
+        }
+        return makeTypeTree(returnType, diagPos);
+    }
+ 
+    /**
+     * Build a Java AST representing the specified type.
+     * Convert JavaFX class references to interface references.
+     * */
+    public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos) {
+        return makeTypeTree(t, diagPos, true);
+    }
+    
+    /**
+     * Build a Java AST representing the specified type.
+     * If "makeIntf" is set, convert JavaFX class references to interface references.
+     * */
+    public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos, boolean makeIntf) {
+        return toJava.makeTypeTree(t, diagPos, makeIntf);
+    }
+
+   JCExpression castFromObject (JCExpression arg, Type castType) {
+        if (castType.isPrimitive())
+            castType = types.boxedClass(castType).type;
+         return make.TypeCast(makeTypeTree(castType, arg.pos()), arg);
+    }
+
     private String typeCode(Type type) {
         Symbol tsym = type.tsym;
                 if (type.isPrimitive()) {

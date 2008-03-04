@@ -28,7 +28,9 @@ package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.location.*;
 
 /**
- *
+ * Support for a for-loop with a Boolean induction variable.
+ * 
+ * @author Brian Goetz
  * @author Robert Field
  */
 public abstract class BooleanBoundComprehension<V> extends AbstractBoundComprehension<Boolean, V> {
@@ -43,7 +45,7 @@ public abstract class BooleanBoundComprehension<V> extends AbstractBoundComprehe
 
     protected State<Boolean, V> makeState(int index, Boolean value) {
         BooleanLocation elementLocation = BooleanVariable.make(value.booleanValue());
-        SimpleIntVariable indexLocation = useIndex ? new SimpleIntVariable(index) : null;
+        IntVariable indexLocation = useIndex ? IntVariable.make(index) : null;
         SequenceLocation<V> mapped = getMappedElement$(elementLocation, indexLocation);
         return new State<Boolean, V>(elementLocation, indexLocation, mapped);
     }

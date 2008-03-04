@@ -45,6 +45,14 @@ import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedAttributeInfo;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideAttributeInfo;
 import com.sun.tools.javafx.tree.*;
 
+/**
+ * Build the representation(s) of a JavaFX class.  Includes class initialization, attribute and function proxies.
+ * With support for multiple inheritent.
+ * 
+ * @author Robert Field
+ * @author Lubo Litchev
+ * @author Per Bothner
+ */
 public class JavafxInitializationBuilder {
     protected static final Context.Key<JavafxInitializationBuilder> javafxInitializationBuilderKey =
         new Context.Key<JavafxInitializationBuilder>();

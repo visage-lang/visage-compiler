@@ -28,7 +28,9 @@ package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.location.*;
 
 /**
- *
+ * Support for a for-loop with a generic Object induction variable.
+ * 
+ * @author Brian Goetz
  * @author Robert Field
  */
 public abstract class ObjectBoundComprehension<T, V> extends AbstractBoundComprehension<T, V> {
@@ -43,7 +45,7 @@ public abstract class ObjectBoundComprehension<T, V> extends AbstractBoundCompre
 
     protected State<T, V> makeState(int index, T value) {
         ObjectLocation<T> elementLocation = ObjectVariable.<T>make(value);
-        SimpleIntVariable indexLocation = useIndex ? new SimpleIntVariable(index) : null;
+        IntVariable indexLocation = useIndex ? IntVariable.make(index) : null;
         SequenceLocation<V> mapped = getMappedElement$(elementLocation, indexLocation);
         return new State<T, V>(elementLocation, indexLocation, mapped);
     }
