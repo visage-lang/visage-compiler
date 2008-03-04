@@ -35,10 +35,11 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
  * for (name in seqExpr where whereExpr) bodyExpr
  */
 public class JFXForExpressionInClause extends JFXTree implements ForExpressionInClauseTree {
-    public JFXVar var; 
-    public JCExpression seqExpr;
-    public JCExpression whereExpr;
-    boolean indexUsed;
+    public final JFXVar var; 
+    public final JCExpression seqExpr;
+    public final JCExpression whereExpr;
+    
+    private boolean indexUsed;
 
     protected JFXForExpressionInClause(
             JFXVar var, 

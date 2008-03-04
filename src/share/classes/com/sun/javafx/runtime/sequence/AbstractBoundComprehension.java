@@ -34,13 +34,13 @@ import com.sun.javafx.runtime.location.*;
  *
  * @author Brian Goetz
  */
-public abstract class BoundComprehension<T, V> extends AbstractBoundSequence<V> implements SequenceLocation<V> {
+public abstract class AbstractBoundComprehension<T, V> extends AbstractBoundSequence<V> implements SequenceLocation<V> {
     private final SequenceLocation<T> sequenceLocation;
-    private final boolean useIndex;
+    protected final boolean useIndex;
     private DumbMutableSequence<State<T, V>> state;
     private BoundCompositeSequence<V> underlying;
 
-    public BoundComprehension(Class<V> clazz,
+    public AbstractBoundComprehension(Class<V> clazz,
                               SequenceLocation<T> sequenceLocation,
                               boolean useIndex) {
         super(clazz);
@@ -48,24 +48,22 @@ public abstract class BoundComprehension<T, V> extends AbstractBoundSequence<V> 
         this.useIndex = useIndex;
     }
 
-    public BoundComprehension(Class<V> clazz,
+    public AbstractBoundComprehension(Class<V> clazz,
                               SequenceLocation<T> sequenceLocation) {
         this(clazz, sequenceLocation, false);
     }
 
-    private static class State<T, V> {
+    protected static class State<T, V> {
         private SequenceLocation<V> mapped;
         private final ObjectLocation<T> element;
         private final IntLocation index;
 
-        private State(ObjectLocation<T> element, IntLocation index, SequenceLocation<V> mapped) {
+        State(ObjectLocation<T> element, IntLocation index, SequenceLocation<V> mapped) {
             this.element = element;
             this.index = index;
             this.mapped = mapped;
         }
     }
-
-    protected abstract SequenceLocation<V> getMappedElement$(ObjectLocation<T> elementLocation, IntLocation indexLocation);
 
     protected Sequence<V> computeValue() {
         Sequence<T> sequence = sequenceLocation.getAsSequence();
@@ -87,17 +85,12 @@ public abstract class BoundComprehension<T, V> extends AbstractBoundSequence<V> 
         }
     }
 
-    private State<T, V> makeState(int index, T value) {
-        SimpleVariable<T> elementLocation = new SimpleVariable<T>(value);
-        SimpleIntVariable indexLocation = useIndex ? new SimpleIntVariable(index) : null;
-        SequenceLocation<V> mapped = getMappedElement$(elementLocation, indexLocation);
-        return new State<T, V>(elementLocation, indexLocation, mapped);
-    }
+    protected abstract State<T, V> makeState(int index, T value);
 
     protected void initialize() {
         underlying.addChangeListener(new SequenceReplaceListener<V>() {
             public void onReplace(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
-                BoundComprehension.this.updateSlice(startPos, endPos, newElements);
+                AbstractBoundComprehension.this.updateSlice(startPos, endPos, newElements);
             }
         });
 

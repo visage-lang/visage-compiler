@@ -72,12 +72,14 @@ public class JavafxTypeMorpher {
     private final JavafxTypes types;
 
     public static final String locationPackageName = "com.sun.javafx.runtime.location.";
+    public static final String sequencePackageName = "com.sun.javafx.runtime.sequence.";
 
-    public LocationNameSymType[] bindingNCT;
-    public LocationNameSymType[] locationNCT;
-    public LocationNameSymType[] variableNCT;
-    public LocationNameSymType[] boundIfNCT;
-    public LocationNameSymType   baseLocation;
+    public final LocationNameSymType[] bindingNCT;
+    public final LocationNameSymType[] locationNCT;
+    public final LocationNameSymType[] variableNCT;
+    public final LocationNameSymType[] boundIfNCT;
+    public final LocationNameSymType[] boundComprehensionNCT;
+    public final LocationNameSymType   baseLocation;
 
     private final Type[] realTypeByKind;
     private final Object[] defaultValueByKind;
@@ -87,7 +89,10 @@ public class JavafxTypeMorpher {
         public final ClassSymbol sym;
         public final Type type;
         LocationNameSymType(String which) {
-            name = Name.fromString(names, locationPackageName + which);
+            this(locationPackageName, which);
+        }
+        LocationNameSymType(String pkg, String which) {
+            name = Name.fromString(names, pkg + which);
             sym = reader.enterClass(name);
             type = sym.type;
         }
@@ -229,6 +234,7 @@ public class JavafxTypeMorpher {
         public Type getMorphedVariableType() { return morphedVariableType; }
         public Type getMorphedLocationType() { return morphedLocationType; }
         public Type getBoundIfLocationType() { return generifyIfNeeded(boundIfNCT[typeKind].type, this); }
+        public Type getBoundComprehensionType() { return generifyIfNeeded(boundComprehensionNCT[typeKind].type, this); }
         public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
         public Type getElementType() { return elementType; }
 
@@ -269,14 +275,16 @@ public class JavafxTypeMorpher {
 
         variableNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         locationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
-        bindingNCT = new LocationNameSymType[TYPE_KIND_COUNT];
+        bindingNCT = new LocationNameSymType[TYPE_KIND_COUNT];  
         boundIfNCT = new LocationNameSymType[TYPE_KIND_COUNT];
+        boundComprehensionNCT = new LocationNameSymType[TYPE_KIND_COUNT];
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
             variableNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Variable");
             locationNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Location");
             bindingNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "BindingExpression");
             boundIfNCT[kind] = new LocationNameSymType("Bound" + JavafxVarSymbol.getTypePrefix(kind) + "IfExpression");
+            boundComprehensionNCT[kind] = new LocationNameSymType(sequencePackageName, JavafxVarSymbol.getTypePrefix(kind) + "BoundComprehension");
         }
 
         baseLocation = new LocationNameSymType("Location");
