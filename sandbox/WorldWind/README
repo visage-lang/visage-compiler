@@ -1,0 +1,13 @@
+This project uses a JavaFX classes to front-end the NASA java Project
+called WorldWind. (http://worldwind.arc.nasa.gov/java/index.html)
+
+It is necessary to install the Java bindings for OpenGL (JOGL)
+code for your hardware setup.  http://jogl.dev.java.net/
+
+The "run.sh" script sets up the required command line to run this project.
+In this script please set the variable: JOGL_HOME to point to the 
+JOGL install directory for your environment.
+
+Only known bug is that the JVM process does not completely exit
+on Solaris Nevada x86. It is necessary to kill the process with 
+kill -9. I have not tested on other environments.
