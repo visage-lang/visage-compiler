@@ -55,9 +55,9 @@ public class SequencesHelperTest extends JavaFXTestCase {
     protected void setUp() {
         // Integer-sequences
         emptyInteger    = Sequences.emptySequence(Integer.class);
-        singleInteger   = Sequences.range(1, 1);
-        sortedInteger   = Sequences.range(2, 4);
-        unsortedInteger = Sequences.make(Integer.class, 7, 5, 6);
+        singleInteger   = Sequences.make(Integer.class, 0);
+        sortedInteger   = Sequences.make(Integer.class, 1, 2, 3);
+        unsortedInteger = Sequences.make(Integer.class, 6, 4, 5);
         
         // 7 Dummyelements
         element = new DummyElement[7];
@@ -74,48 +74,156 @@ public class SequencesHelperTest extends JavaFXTestCase {
         comparator = new DummyComparator();
     }
     
-    /**  <T extends Comparable> Sequence<T> sort (Sequence<T> seq) */
+    /** 
+     * <T extends Comparable> int binarySearch (Sequence<? extends T> seq, T key) 
+     * This method uses Arrays.binarySearch for sorting, which we can asume to
+     * work. Only tests for the mapping are needed.
+     */
+    public void testBinarySearchComparable() {
+        int result;
+        // search in empty sequence
+        result = SequencesHelper.binarySearch(emptyInteger, 1);
+        assertEquals(Sequences.emptySequence(Integer.class), emptyInteger);
+        assertEquals(-1, result);
+        
+        // single element sequence
+        // successful search
+        result = SequencesHelper.binarySearch(singleInteger, 0);
+        assertEquals(singleInteger, 0);
+        assertEquals(0, result);
+        
+        // unsuccessful search
+        result = SequencesHelper.binarySearch(singleInteger, 1);
+        assertEquals(singleInteger, 0);
+        assertEquals(-2, result);
+        
+        // three elements sequence
+        // successful search
+        result = SequencesHelper.binarySearch(sortedInteger, 2);
+        assertEquals(sortedInteger, 1, 2, 3);
+        assertEquals(1, result);
+        
+        // unsuccessful search
+        result = SequencesHelper.binarySearch(sortedInteger, 0);
+        assertEquals(sortedInteger, 1, 2, 3);
+        assertEquals(-1, result);
+    }
+    
+    /** 
+     * <T> int binarySearch(Sequence<? extends T> seq, T key, Comparator<? super T> c) 
+     * This method uses Arrays.binarySearch for sorting, which we can asume to
+     * work. Only tests for the mapping are needed.
+     */
+    public void testBinarySearchComparator() {
+        int result;
+        // search in empty sequence
+        result = SequencesHelper.binarySearch(emptyElements, element[1], comparator);
+        assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
+        assertEquals(-1, result);
+        
+        // single element sequence
+        // successful search
+        result = SequencesHelper.binarySearch(singleElements, element[0], comparator);
+        assertEquals(singleElements, element[0]);
+        assertEquals(0, result);
+        
+        // unsuccessful search
+        result = SequencesHelper.binarySearch(singleElements, element[1], comparator);
+        assertEquals(singleElements, element[0]);
+        assertEquals(-2, result);
+        
+        // three elements sequence
+        // successful search
+        result = SequencesHelper.binarySearch(sortedElements, element[2], comparator);
+        assertEquals(sortedElements, element[1], element[2], element[3]);
+        assertEquals(1, result);
+        
+        // unsuccessful search
+        result = SequencesHelper.binarySearch(sortedElements, element[0], comparator);
+        assertEquals(sortedElements, element[1], element[2], element[3]);
+        assertEquals(-1, result);
+
+        // search using null-comparator
+        int resultInt = SequencesHelper.binarySearch(sortedInteger, 2, null);
+        assertEquals(sortedInteger, 1, 2, 3);
+        assertEquals(1, resultInt);
+        
+        // exception if using null-operator with non-comparable elements
+        try {
+            result = SequencesHelper.binarySearch(sortedElements, element[2], null);
+            fail("No exception thrown.");
+        }
+        catch (ClassCastException ex) {
+            assertEquals(sortedElements, element[1], element[2], element[3]);
+        }
+        catch (Exception ex) {
+            fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+    
+    /**
+     * <T extends Comparable> Sequence<T> sort (Sequence<T> seq) 
+     * This method uses Arrays.sort for sorting, which we can asume to work.
+     * Only tests for the mapping are needed.
+     */
     public void testSortComparable() {
+        Sequence<Integer> result;
+        
         // sort empty sequence
-        Sequence<Integer> result = SequencesHelper.sort(emptyInteger);
-        assertEquals(result, Sequences.emptySequence(Integer.class));
+        result = SequencesHelper.sort(emptyInteger);
+        assertEquals(Sequences.emptySequence(Integer.class), emptyInteger);
+        assertEquals(Sequences.emptySequence(Integer.class), result);
         
         // sort single element
         result = SequencesHelper.sort(singleInteger);
-        assertEquals(singleInteger, 1);
-        assertEquals(result, 1);
-        
-        // sort sorted sequence
-        result = SequencesHelper.sort(sortedInteger);
-        assertEquals(sortedInteger, 2, 3, 4);
-        assertEquals(result, 2, 3, 4);
+        assertEquals(singleInteger, 0);
+        assertEquals(result, 0);
         
         // sort unsorted sequence
         result = SequencesHelper.sort(unsortedInteger);
-        assertEquals(unsortedInteger, 7, 5, 6);
-        assertEquals(result, 5, 6, 7);
+        assertEquals(unsortedInteger, 6, 4, 5);
+        assertEquals(result, 4, 5, 6);
     }
     
-    /**  <T> Sequence<T> sort (Sequence<T> seq, Comparator<? super T> c) */
+    /**
+     * <T> Sequence<T> sort (Sequence<T> seq, Comparator<? super T> c) 
+     * This method uses Arrays.sort for sorting, which we can asume to work.
+     * Only tests for the mapping are needed.
+     */
     public void testSortComparator() {
+        Sequence<DummyElement> result;
+                
         // sort empty sequence
-        Sequence<DummyElement> result = SequencesHelper.sort(emptyElements, comparator);
-        assertEquals(result, Sequences.emptySequence(DummyElement.class));
+        result = SequencesHelper.sort(emptyElements, comparator);
+        assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
+        assertEquals(Sequences.emptySequence(DummyElement.class), result);
         
         // sort single element
         result = SequencesHelper.sort(singleElements, comparator);
         assertEquals(singleElements, element[0]);
         assertEquals(result, element[0]);
         
-        // sort sorted sequence
-        result = SequencesHelper.sort(sortedElements, comparator);
-        assertEquals(sortedElements, element[1], element[2], element[3]);
-        assertEquals(result, element[1], element[2], element[3]);
-        
         // sort unsorted sequence
         result = SequencesHelper.sort(unsortedElements, comparator);
         assertEquals(unsortedElements, element[6], element[4], element[5]);
         assertEquals(result, element[4], element[5], element[6]);
+        
+        // sort using null-comparator
+        Sequence<Integer> resultInt = SequencesHelper.sort(unsortedInteger, null);
+        assertEquals(unsortedInteger, 6, 4, 5);
+        assertEquals(resultInt, 4, 5, 6);
+        
+        // exception if using null-operator with non-comparable elements
+        try {
+            result = SequencesHelper.sort(unsortedElements, null);
+            fail("No exception thrown.");
+        }
+        catch (ClassCastException ex) {
+            assertEquals(unsortedElements, element[6], element[4], element[5]);
+        }
+        catch (Exception ex) {
+            fail("Unexpected exception thrown: " + ex.getMessage());
+        }
     }
 
 }

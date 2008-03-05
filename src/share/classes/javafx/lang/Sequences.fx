@@ -45,14 +45,55 @@ import java.lang.UnsupportedOperationException;
 
 public class Sequences {
     
-    public static function binarySearch(seq: Comparable[], value: Comparable): Integer {
-        // TODO implement
-        throw new UnsupportedOperationException();
+    /**
+     * Searches the specified sequence for the specified object using the 
+     * binary search algorithm. The sequence must be sorted into ascending 
+     * order according to the natural ordering of its elements (as by 
+     * the sort(Sequence<T>) method) prior to making this call. 
+     * 
+     * If it is not sorted, the results are undefined. If the array contains 
+     * multiple elements equal to the specified object, there is no guarantee 
+     * which one will be found.
+     * 
+     * @param seq The sequence to be searched.
+     * @param key The value to be searched for.
+     * @return Index of the search key, if it is contained in the array; 
+     *         otherwise, (-(insertion point) - 1). The insertion point is 
+     *         defined as the point at which the key would be inserted into the 
+     *         array: the index of the first element greater than the key, or
+     *         a.length if all elements in the array are less than the specified
+     *         key. Note that this guarantees that the return value will be >= 0
+     *         if and only if the key is found.
+     */
+    public static function binarySearch(seq: Comparable[], key: Comparable): Integer {
+        return SequencesHelper.binarySearch(seq, key);
     }
     
-    public static function binarySearch(seq: Object[], value: Object, c: Comparator): Integer {
-        // TODO implement
-        throw new UnsupportedOperationException();
+    /**
+     * Searches the specified array for the specified object using the 
+     * binary search algorithm. The array must be sorted into ascending 
+     * order according to the specified comparator (as by the 
+     * sort(Sequence<T>, Comparator<? super T>)  method) prior to making 
+     * this call. 
+     * 
+     * If it is not sorted, the results are undefined. If the array contains 
+     * multiple elements equal to the specified object, there is no guarantee 
+     * which one will be found.
+     * 
+     * @param seq The sequence to be searched.
+     * @param key The value to be searched for.
+     * @param c The comparator by which the array is ordered. A null value 
+     *          indicates that the elements' natural ordering should be used.
+     * @return Index of the search key, if it is contained in the array; 
+     *         otherwise, (-(insertion point) - 1). The insertion point is 
+     *         defined as the point at which the key would be inserted into the 
+     *         array: the index of the first element greater than the key, or
+     *         a.length if all elements in the array are less than the specified
+     *         key. Note that this guarantees that the return value will be >= 0
+     *         if and only if the key is found.
+     */
+    public static function binarySearch(seq: Object[], key: Object, c: Comparator): Integer {
+        return SequencesHelper.binarySearch(seq, key, c);
     }
     
     public static function copyOf(seq: Object[]): Object[] {
@@ -96,11 +137,25 @@ public class Sequences {
     }
     
     /**
-     * Sorts a sequence of elements, which implement the interface Comparable.
+     * Sorts the specified sequence of objects into ascending order, according 
+     * to the natural ordering  of its elements. All elements in the sequence
+     * must implement the Comparable interface. Furthermore, all elements in 
+     * the sequence must be mutually comparable (that is, e1.compareTo(e2) 
+     * must not throw a ClassCastException  for any elements e1 and e2 in the 
+     * sequence).
+     * 
      * This method is immutative, the result is returned in a new sequence,
      * while the original sequence is left untouched.
      * 
-     * @param seq The sequence to sort.
+     * This sort is guaranteed to be stable: equal elements will not be 
+     * reordered as a result of the sort.
+     * 
+     * The sorting algorithm is a modified mergesort (in which the merge is 
+     * omitted if the highest element in the low sublist is less than the 
+     * lowest element in the high sublist). This algorithm offers guaranteed 
+     * n*log(n) performance. 
+     * 
+     * @param seq The sequence to be sorted.
      * @return The sorted sequence.
      */
     public static function sort(seq: Comparable[]): Comparable[] {
@@ -108,12 +163,27 @@ public class Sequences {
     }
     
     /**
-     * Sorts a sequence of elements, which can be compared using a Comparator.
+     * Sorts the specified sequence of objects according to the order induced 
+     * by the specified comparator. All elements in the sequence must be 
+     * mutually comparable by the specified comparator (that is, 
+     * c.compare(e1, e2) must not throw a ClassCastException  for any elements
+     * e1 and e2 in the sequence).
+     * 
      * This method is immutative, the result is returned in a new sequence,
      * while the original sequence is left untouched.
+     *
+     * This sort is guaranteed to be stable: equal elements will not be 
+     * reordered as a result of the sort.
      * 
-     * @param seq The sequence to sort.
-     * @param c The Comparator to compare the elements of the sequence.
+     * The sorting algorithm is a modified mergesort (in which the merge is 
+     * omitted if the highest element in the low sublist is less than the 
+     * lowest element in the high sublist). This algorithm offers guaranteed 
+     * n*log(n) performance. 
+     * 
+     * @param seq The sequence to be sorted.
+     * @param c The comparator to determine the order of the sequence. 
+     *          A null value indicates that the elements' natural ordering 
+     *          should be used.
      * @return The sorted sequence.
      */
     public static function sort(seq: Object[], c: Comparator): Object[] {
