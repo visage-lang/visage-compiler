@@ -159,3 +159,5 @@ compareis(reverse nums,[5,4,3,2,1],"reverse operator on sequence");
  */
 var results = "tests {failures+passes}; failed:{failures}; passed:{passes}";
 if( failures > 0 ) { throw new java.lang.Exception( results ); }
+
+//System.out.println( {results} );
