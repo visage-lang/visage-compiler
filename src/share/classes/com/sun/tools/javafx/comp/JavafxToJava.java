@@ -1603,15 +1603,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSelect(JCFieldAccess tree) {
         DiagnosticPosition diagPos = tree.pos();
-        JCExpression selected = tree.getExpression();
-        Type selectedType = selected.type;
+        JCExpression expr = tree.getExpression();
+        Type exprType = expr.type;
 
         // this may or may not be in a LHS but in either
         // event the selector is a value expression
-        JCExpression translatedSelected = translate(selected, Wrapped.InNothing);
+        JCExpression translatedSelected = translate(expr, Wrapped.InNothing);
+        
         if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
             MethodType mtype = (MethodType) tree.sym.type;            
-            JCVariableDecl selectedTmpDecl = makeTmpVar(diagPos, "tg", selectedType, translatedSelected);
+            JCVariableDecl selectedTmpDecl = makeTmpVar(diagPos, "tg", exprType, translatedSelected);
             JCExpression translated = make.at(diagPos).Select(make.Ident(selectedTmpDecl.name), tree.getIdentifier());
             translated = makeFunctionValue(translated, null, tree.pos(), mtype);
             //result = make.LetExpr(selectedTmp, translated);
@@ -1622,33 +1623,22 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
            return;
         }
 
-       if (selectedType != null && selectedType.isPrimitive()) { // selected.type is null for package symbols.
-            translatedSelected = makeBox(diagPos, translatedSelected, selectedType);
+        if (exprType != null && exprType.isPrimitive()) { // expr.type is null for package symbols.
+            translatedSelected = makeBox(diagPos, translatedSelected, exprType);
         }
         // determine if this is a static reference, eg.   MyClass.myAttribute
-        boolean staticReference = false;
-        if (tree.sym != null && tree.sym.isStatic()) {
-            if (selected.getTag() == JCTree.SELECT) {
-                staticReference = ((JCFieldAccess) selected).sym instanceof ClassSymbol;
-            } else if (selected.getTag() == JCTree.IDENT) {
-                staticReference = ((JCIdent) selected).sym instanceof ClassSymbol;
-            }
-        }
-        List<JCStatement> dummyReference = null;
-        if (! staticReference && tree.sym.isStatic()) {  //TODO: something is goofy here, see above test
-            // Translate x.staticRef to { x; XClass.staticRef }:
-            dummyReference = List.<JCStatement>of(make.Exec(translatedSelected));
-            translatedSelected = makeTypeTree(tree.sym.owner.type, tree, false);
-            staticReference = true;
+        boolean staticReference = tree.sym.isStatic();
+        if (staticReference) {
+            translatedSelected = makeTypeTree(types.erasure(tree.sym.owner.type), diagPos, false);
         }
 
         boolean testForNull = generateNullChecks && !staticReference
                                            && (tree.sym instanceof VarSymbol) 
-                                           && types.isJFXClass(selectedType.tsym);
-        boolean hasSideEffects = testForNull && hasSideEffects(selected);
+                                           && types.isJFXClass(exprType.tsym);
+        boolean hasSideEffects = testForNull && hasSideEffects(expr);
         JCVariableDecl tmpVar = null;
         if (hasSideEffects) {
-            tmpVar = makeTmpVar(diagPos, selectedType, translatedSelected);
+            tmpVar = makeTmpVar(diagPos, exprType, translatedSelected);
             translatedSelected = make.at(diagPos).Ident(tmpVar.name);
         }
         
@@ -1665,9 +1655,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 staticReference, 
                 state.wantLocation(),
                 createDynamicDependencies);
-        if (dummyReference != null)
-            ref = ((JavafxTreeMaker)make).BlockExpression(
-                0L, dummyReference, ref);
         if (testForNull) {
             // we have a testable guard for null, wrap the attribute access  in it, return default value if null
             TypeMorphInfo tmi = typeMorpher.typeMorphInfo(tree.type);
@@ -1682,7 +1669,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 checkedExpr = make.at(diagPos).Ident(tmpVar.name);
             } else {
                 // re-translate, we need two of them
-                checkedExpr = translate(selected, Wrapped.InNothing);
+                checkedExpr = translate(expr, Wrapped.InNothing);
             }
             JCExpression cond = make.at(diagPos).Binary(
                     JCTree.EQ,
