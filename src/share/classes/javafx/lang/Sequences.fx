@@ -104,9 +104,6 @@ public class Sequences {
      * @return The sorted sequence.
      */
     public static function sort(seq: Comparable[]): Comparable[] {
-        if (seq == null) {
-            return null;
-        }
         return SequencesHelper.sort(seq);
     }
     
@@ -120,10 +117,6 @@ public class Sequences {
      * @return The sorted sequence.
      */
     public static function sort(seq: Object[], c: Comparator): Object[] {
-        System.out.println("{seq}");
-        if (seq == null) {
-            return null;
-        }
         return SequencesHelper.sort(seq, c);
     }
 }

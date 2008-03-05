@@ -80,7 +80,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
     function testSortComparable() {
         // sort empty sequence
         var emptyInteger: Integer[] = [];
-        var result = Sequences.sort(emptyInteger);
+        var result: Integer[] = Sequences.sort(emptyInteger) as Integer[];
         assertEquals([], emptyInteger);
         assertEquals([], result);
         
@@ -93,13 +93,13 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
         // sort sorted sequence
         var sortedInteger: Integer[] = [2, 3, 4];
-        result = Sequences.sort(sortedInteger);
+        result = Sequences.sort(sortedInteger) as Integer[];
         assertEquals([2, 3, 4], sortedInteger);
         assertEquals([2, 3, 4], result);
         
         // sort unsorted sequence
         var unsortedInteger: Integer[] = [7, 5, 6];
-        result = Sequences.sort(unsortedInteger);
+        result = Sequences.sort(unsortedInteger) as Integer[];
         assertEquals([7, 5, 6], unsortedInteger);
         assertEquals([5, 6, 7], result);
     }
@@ -113,7 +113,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
         // sort empty sequence
         var emptyElements: DummyElement[] = [];
-        var result = Sequences.sort(emptyElements, comparator);
+        var result: DummyElement[] = Sequences.sort(emptyElements, comparator) as DummyElement[];
         assertEquals([], emptyElements);
         assertEquals([], result);
         
@@ -126,13 +126,13 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
         // sort sorted sequence
         var sortedElements: DummyElement[] = [element[1], element[2], element[3]];
-        result = Sequences.sort(sortedElements, comparator);
+        result = Sequences.sort(sortedElements, comparator) as DummyElement[];
         assertEquals([element[1], element[2], element[3]], sortedElements);
         assertEquals([element[1], element[2], element[3]], result);
         
         // sort unsorted sequence
         var unsortedElements: DummyElement[] = [element[6], element[4], element[5]];
-        result = Sequences.sort(unsortedElements, comparator);
+        result = Sequences.sort(unsortedElements, comparator) as DummyElement[];
         assertEquals([element[6], element[4], element[5]], unsortedElements);
         assertEquals([element[4], element[5], element[6]], result);
     }
