@@ -79,6 +79,7 @@ public class JavafxTypeMorpher {
     public final LocationNameSymType[] variableNCT;
     public final LocationNameSymType[] boundIfNCT;
     public final LocationNameSymType[] boundComprehensionNCT;
+    public final LocationNameSymType[] constantLocationNCT;
     public final LocationNameSymType   baseLocation;
 
     private final Type[] realTypeByKind;
@@ -235,6 +236,7 @@ public class JavafxTypeMorpher {
         public Type getMorphedLocationType() { return morphedLocationType; }
         public Type getBoundIfLocationType() { return generifyIfNeeded(boundIfNCT[typeKind].type, this); }
         public Type getBoundComprehensionType() { return generifyIfNeeded(boundComprehensionNCT[typeKind].type, this); }
+        public Type getConstantLocationType() { return generifyIfNeeded(constantLocationNCT[typeKind].type, this); }
         public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
         public Type getElementType() { return elementType; }
 
@@ -278,6 +280,7 @@ public class JavafxTypeMorpher {
         bindingNCT = new LocationNameSymType[TYPE_KIND_COUNT];  
         boundIfNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         boundComprehensionNCT = new LocationNameSymType[TYPE_KIND_COUNT];
+        constantLocationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
             variableNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Variable");
@@ -285,6 +288,7 @@ public class JavafxTypeMorpher {
             bindingNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "BindingExpression");
             boundIfNCT[kind] = new LocationNameSymType("Bound" + JavafxVarSymbol.getTypePrefix(kind) + "IfExpression");
             boundComprehensionNCT[kind] = new LocationNameSymType(sequencePackageName, JavafxVarSymbol.getTypePrefix(kind) + "BoundComprehension");
+            constantLocationNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Constant");
         }
 
         baseLocation = new LocationNameSymType("Location");

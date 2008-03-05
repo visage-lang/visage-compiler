@@ -222,12 +222,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
-    public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
-        that.expr = translate(that.expr);
-//        result = that;
-    }  
-        
-    @Override
     public void visitStringExpression(JFXStringExpression tree) {
         StringBuffer sb = new StringBuffer();
         List<JCExpression> parts = tree.getParts();
@@ -708,14 +702,15 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitLiteral(JCLiteral tree) {
+        final DiagnosticPosition diagPos = tree.pos();
         JCExpression unbound;
         if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
             Type elemType = types.elementType(tree.type);
-            unbound = toJava.makeEmptySequenceCreator(tree.pos(), elemType);
+            unbound = toJava.makeEmptySequenceCreator(diagPos, elemType);
         } else {
-            unbound = make.at(tree.pos).Literal(tree.typetag, tree.value);
+            unbound = make.at(diagPos).Literal(tree.typetag, tree.value);
         }
-        result = makeUnboundLocation(tree.pos(), tree.type, unbound);
+        result = makeConstantLocation(diagPos, tree.type, unbound);
     }
 
     @Override
@@ -1359,6 +1354,18 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         return toJava.makeUnboundLocation(diagPos, typeMorpher.typeMorphInfo(type), expr);
     }
 
+    JCExpression makeConstantLocation(DiagnosticPosition diagPos, Type type, JCExpression expr) {
+        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(type);
+        List<JCExpression> makeArgs = List.of(expr);
+        JCExpression locationTypeExp = toJava.makeTypeTree(tmi.getConstantLocationType(), diagPos, true);
+        JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, defs.makeMethodName);
+        List<JCExpression> typeArgs = null;
+        if (tmi.getTypeKind() == TYPE_KIND_OBJECT || tmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
+            typeArgs = List.of(toJava.makeTypeTree(tmi.getElementType(), diagPos, true));
+        }
+        return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
+    }
+
     /**
      * Call Variable "make" to create a bound expression.
      * Use "stmt" which is the translation of the expression into
@@ -1718,4 +1725,9 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         assert false : "should not be processed as part of a binding";
     }
 
+    @Override
+    public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
+        assert false : "should not be processed as part of a binding";
+    }  
+        
 }
