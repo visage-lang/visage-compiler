@@ -29,269 +29,255 @@ public class ScrollBar extends CompositeNode
     public attribute unitScrollFactor: Number;
     public attribute scrollFactor: Number; // proportional location of scroll position
     public attribute size: Number;  // size of this scrollbar in pixels
-    public attribute orientation: Orientation; 
-    public attribute showThumb: Boolean;
-    public attribute showButtons: Boolean;
-}
+    public attribute orientation: Orientation = Orientation.HORIZONTAL; 
+    public attribute showThumb: Boolean = false;
+    public attribute showButtons: Boolean = false;
 
-attribute ScrollBar.orientation = HORIZONTAL;
-attribute ScrollBar.showThumb = false;
-attribute ScrollBar.showButtons = false;
+    // bug workaround
+//    class Workaround extends Group
+//    {
+//    }
+//    trigger on Workaround.visible = value
+//    {
+//        if (ag<>null and value==true)
+//        {
+//            do later
+//            {
+//                ag.repaint();
+//            }
+//        }
+//    }
 
-// bug workaround
-class Workaround extends Group
-{
-}
-trigger on Workaround.visible = value
-{
-    if (ag<>null and value==true)
-    {
-        do later
-        {
-            ag.repaint();
+    function composeNode() {
+        Group {
+            var thickness = 19    
+            var thumbSize = bind (3*thickness)
+            var runSize = bind (size - thumbSize - 2*thickness) // run area of thumb where thumb is 3*thickness and 2 buttons are 2*thickness
+            var scrollOffset = bind Math.max(runSize*scrollFactor, 0)
+            var strokeWidth = bind theme.uiStrokeWidth
+            var buttonAutorepeat = 1
+            var thumbAutorepeat = 500
+
+            focusable: false
+            transform: bind if (orientation == Orientation.VERTICAL) then rotate(90, (thickness/2), (thickness/2)) else null
+
+            content:
+            [
+                // track area background
+                Rect
+                {
+                    width: bind size
+                    height: thickness
+                    fill: bind theme.chatPanelBackgroundDark
+                },
+
+                // track area
+                Rect
+                {
+                    width: bind runSize + thumbSize - strokeWidth
+                    height: thickness
+                    stroke: bind if (showThumb==true) then theme.uiBorderColor else null
+                    strokeWidth: bind strokeWidth
+                    fill: bind theme.chatPanelBackgroundDark
+
+                    var pressed = bind false
+                    var pressHover = bind this.hover and pressed
+                    var up = false
+                    onMousePressed: function(e:CanvasMouseEvent)
+                    {
+                        pressed = true;
+                        up = e.localX < scrollOffset;
+                        if (up)
+                        {
+                            scrollFactor = Math.max(0.0, scrollFactor - pageScrollFactor);
+                        }
+                        else
+                        {
+                            scrollFactor = Math.min(1.0, scrollFactor + pageScrollFactor);
+                        }
+                    }
+                    onMouseReleased: function(e:CanvasMouseEvent)
+                    {
+                        pressed = false;
+                    }
+                },
+
+                // thumb
+                Group
+                {
+                    visible: bind showThumb
+                    content: Group
+                    {
+                        var pressed = bind false
+                        var pressHover = bind pressed //and self.hover
+                        var tx = Translate {x: bind scrollOffset, y: 0}
+                        transform: tx
+                        onMousePressed: function(e:CanvasMouseEvent)
+                        {
+                            pressed = true;
+                        }
+                        onMouseDragged: function(e:CanvasMouseEvent)
+                        {
+                            var x = scrollOffset + e.localDragTranslation.x;
+                            var p = x/runSize;
+                            if (p < 0)
+                            {
+                                p = 0;
+                            }
+                            if (p > 1)
+                            {
+                                p = 1;
+                            }
+                            scrollFactor = p;
+                        }
+                        onMouseReleased: function(e:CanvasMouseEvent)
+                        {
+                            pressed = false;
+                        }
+
+                        content:
+                        [
+                            Rect
+                            {
+                                focusable: false
+                                selectable: true
+                                fill: bind if (pressHover) then theme.uiBackground.darker() else theme.uiBackground
+                                stroke: theme.uiBorderColor
+                                strokeWidth: bind strokeWidth
+                                height: thickness
+                                width: bind (thumbSize-strokeWidth)
+                            },
+                            Rect
+                            {
+                                fill: bind theme.uiForeground
+                                x: bind (thumbSize/2 - 4) -1.5
+                                y: 3
+                                height: thickness-7
+                                width: 2
+                            },
+                            Rect
+                            {
+                                fill: bind theme.uiForeground
+                                x: bind (thumbSize/2) -1.5
+                                y: 3
+                                height: thickness-7
+                                width: 2
+                            },
+                            Rect
+                            {
+                                fill: bind theme.uiForeground
+                                x: bind (thumbSize/2 + 4) -1.5
+                                y: 3
+                                height: thickness-7
+                                width: 2
+                            },
+                            Rect
+                            {
+                                fill: bind if (pressHover) then theme.uiBackground.darker() else theme.uiBackground
+                                x: 4
+                                y: (thickness/2) - 1.5
+                                height: 2
+                                width: bind (thumbSize-8)
+                            },
+                        ]
+                    }
+                },
+
+                // left/top button
+                Group
+                {
+                    visible: bind showButtons
+                    transform: bind translate(size-thickness-thickness-1, 0)
+                    focusable: false
+                    var pressed = bind false
+                    var pressHover = bind pressed and this.hover
+                        on replace {
+                            if (pressHover)
+                            {
+                                 scrollFactor = Math.max(0.0, scrollFactor - unitScrollFactor);
+                            }
+                        }
+                    onMousePressed: function(e:CanvasMouseEvent)
+                    {
+                        pressed = true;
+                    }
+                    onMouseReleased: function(e:CanvasMouseEvent)
+                    {
+                        pressed = false;
+                    }
+
+                    content:
+                    [
+                        Rect
+                        {
+                            focusable: false
+                            selectable: true
+                            width: thickness-1
+                            height: thickness
+                            fill: bind if (pressHover) then theme.uiBackground.darker() else theme.uiBackground
+                            stroke: theme.uiBorderColor
+                            strokeWidth: bind strokeWidth
+                        },
+                        Polygon
+                        {
+                            transform: translate((thickness/2), (thickness/2))
+                            valign: HorizontalAlignment.CENTER
+                            halign: HorizontalAlignment.CENTER
+                            fill: bind theme.uiForeground
+                            points: [0,4.5, 7,-0.5, 7,9.5]
+
+                        }
+                    ]
+                },
+
+                // right/bottom button
+                Group
+                {
+                    visible: bind showButtons
+                    transform: bind translate(size, 0)
+                    focusable: false
+                    halign: HorizontalAlignment.TRAILING
+                    var pressed = bind false
+                    var pressHover = bind pressed and this.hover
+                        on replace {
+                            if (newValue)
+                            {
+                                 scrollFactor = Math.min(1.0, scrollFactor + unitScrollFactor);
+                            }
+                        }
+                    onMousePressed: function(e:CanvasMouseEvent)
+                    {
+                        pressed = true;
+                    }
+                    onMouseReleased: function(e:CanvasMouseEvent)
+                    {
+                        pressed = false;
+                    }
+
+                    content:
+                    [
+                        Rect
+                        {
+                            focusable: false
+                            selectable: true
+                            width: thickness-1
+                            height: thickness
+                            fill: bind if (pressHover) then theme.uiBackground.darker() else theme.uiBackground
+                            stroke: theme.uiBorderColor
+                            strokeWidth: bind strokeWidth
+                        },
+                        Polygon
+                        {
+                            transform: translate((thickness/2), (thickness/2))
+                            valign: HorizontalAlignment.CENTER
+                            halign: HorizontalAlignment.CENTER
+                            fill: bind theme.uiForeground
+                            points: [0,-0.5, 7,4.5, 0,9.5]
+                        }
+                    ]
+                },
+            ]
         }
-    }
+    };
 }
-
-function ScrollBar.composeNode() = Group
-{
-    var thickness = 19    
-    var thumbSize = bind (3*thickness)
-    var runSize = bind (size - thumbSize - 2*thickness) // run area of thumb where thumb is 3*thickness and 2 buttons are 2*thickness
-    var scrollOffset = bind Math.max(runSize*scrollFactor, 0)
-    var strokeWidth = bind theme:ThemeManager.uiStrokeWidth
-    var buttonAutorepeat = 1
-    var thumbAutorepeat = 500
-    
-    focusable: false
-    transform: bind if (orientation == VERTICAL:Orientation) then rotate(90, (thickness/2), (thickness/2)) else null
-    
-    content:
-    [
-        // track area background
-        Rect
-        {
-            width: bind size
-            height: thickness
-            fill: bind theme:ThemeManager.chatPanelBackgroundDark
-        },
-        
-        // track area
-        Rect
-        {
-            var: self
-            
-            width: bind runSize + thumbSize - strokeWidth
-            height: thickness
-            stroke: bind if (showThumb==true) then theme:ThemeManager.uiBorderColor else null
-            strokeWidth: bind strokeWidth
-            fill: bind theme:ThemeManager.chatPanelBackgroundDark
-            
-            var pressed = bind false
-            var pressHover = bind self.hover and pressed
-            var up = false
-            onMousePressed: operation(e:CanvasMouseEvent)
-            {
-                pressed = true;
-                up = e.localX < scrollOffset;
-                if (up)
-                {
-                    scrollFactor = Math.max(0.0, scrollFactor - pageScrollFactor);
-                }
-                else
-                {
-                    scrollFactor = Math.min(1.0, scrollFactor + pageScrollFactor);
-                }
-            }
-            onMouseReleased: operation(e:CanvasMouseEvent)
-            {
-                pressed = false;
-            }
-        },
-        
-        // thumb
-        Workaround
-        {
-            visible: bind showThumb
-            content: Group
-            {
-                var: self
-
-                var pressed = bind false
-                var pressHover = bind pressed //and self.hover
-                var tx = Translate {x: bind scrollOffset, y: 0}
-                transform: tx
-                onMousePressed: operation(e:CanvasMouseEvent)
-                {
-                    pressed = true;
-                }
-                onMouseDragged: operation(e:CanvasMouseEvent)
-                {
-                    var x = scrollOffset + e.localDragTranslation.x;
-                    var p = x/runSize;
-                    if (p < 0)
-                    {
-                        p = 0;
-                    }
-                    if (p > 1)
-                    {
-                        p = 1;
-                    }
-                    scrollFactor = p;
-                }
-                onMouseReleased: operation(e:CanvasMouseEvent)
-                {
-                    pressed = false;
-                }
-                
-                content:
-                [
-                    Rect
-                    {
-                        focusable: false
-                        selectable: true
-                        fill: bind if pressHover then theme:ThemeManager.uiBackground.darker() else theme:ThemeManager.uiBackground
-                        stroke: theme:ThemeManager.uiBorderColor
-                        strokeWidth: bind strokeWidth
-                        height: thickness
-                        width: bind (thumbSize-strokeWidth)
-                    },
-                    Rect
-                    {
-                        fill: bind theme:ThemeManager.uiForeground
-                        x: bind (thumbSize/2 - 4) -1.5
-                        y: 3
-                        height: thickness-7
-                        width: 2
-                    },
-                    Rect
-                    {
-                        fill: bind theme:ThemeManager.uiForeground
-                        x: bind (thumbSize/2) -1.5
-                        y: 3
-                        height: thickness-7
-                        width: 2
-                    },
-                    Rect
-                    {
-                        fill: bind theme:ThemeManager.uiForeground
-                        x: bind (thumbSize/2 + 4) -1.5
-                        y: 3
-                        height: thickness-7
-                        width: 2
-                    },
-                    Rect
-                    {
-                        fill: bind if pressHover then theme:ThemeManager.uiBackground.darker() else theme:ThemeManager.uiBackground
-                        x: 4
-                        y: (thickness/2) - 1.5
-                        height: 2
-                        width: bind (thumbSize-8)
-                    },
-                ]
-            }
-        },
-
-        // left/top button
-        Workaround
-        {
-            var: self
-            
-            visible: bind showButtons
-            transform: bind translate(size-thickness-thickness-1, 0)
-            focusable: false
-            var pressed = bind false
-            var pressHover = bind pressed and self.hover
-            onMousePressed: operation(e:CanvasMouseEvent)
-            {
-                pressed = true;
-            }
-            onMouseReleased: operation(e:CanvasMouseEvent)
-            {
-                pressed = false;
-            }
-            trigger on (newValue = pressHover)
-            {
-                if (newValue)
-                {
-                     scrollFactor = Math.max(0.0, scrollFactor - unitScrollFactor);
-                }
-            }
-
-            content:
-            [
-                Rect
-                {
-                    focusable: false
-                    selectable: true
-                    width: thickness-1
-                    height: thickness
-                    fill: bind if pressHover then theme:ThemeManager.uiBackground.darker() else theme:ThemeManager.uiBackground
-                    stroke: theme:ThemeManager.uiBorderColor
-                    strokeWidth: bind strokeWidth
-                },
-                Polygon
-                {
-                    transform: translate((thickness/2), (thickness/2))
-                    valign: CENTER
-                    halign: CENTER
-                    fill: bind theme:ThemeManager.uiForeground
-                    points: [0,4.5, 7,-0.5, 7,9.5]
-
-                }
-            ]
-        },
-
-        // right/bottom button
-        Workaround
-        {
-            var: self
-
-            visible: bind showButtons
-            transform: bind translate(size, 0)
-            focusable: false
-            halign: TRAILING
-            var pressed = bind false
-            var pressHover = bind pressed and self.hover
-            onMousePressed: operation(e:CanvasMouseEvent)
-            {
-                pressed = true;
-            }
-            onMouseReleased: operation(e:CanvasMouseEvent)
-            {
-                pressed = false;
-            }
-            trigger on (newValue = pressHover)
-            {
-                if (newValue)
-                {
-                     scrollFactor = Math.min(1.0, scrollFactor + unitScrollFactor);
-                }
-            }
-
-            content:
-            [
-                Rect
-                {
-                    focusable: false
-                    selectable: true
-                    width: thickness-1
-                    height: thickness
-                    fill: bind if pressHover then theme:ThemeManager.uiBackground.darker() else theme:ThemeManager.uiBackground
-                    stroke: theme:ThemeManager.uiBorderColor
-                    strokeWidth: bind strokeWidth
-                },
-                Polygon
-                {
-                    transform: translate((thickness/2), (thickness/2))
-                    valign: CENTER
-                    halign: CENTER
-                    fill: bind theme:ThemeManager.uiForeground
-                    points: [0,-0.5, 7,4.5, 0,9.5]
-                }
-            ]
-        },
-    ]
-};
-
 

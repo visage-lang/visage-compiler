@@ -10,29 +10,27 @@ import java.lang.Math;
 
 public class ScrollPane extends CompositeNode
 {
-    public attribute view: Node?;
+    public attribute view: Node;
     public attribute height: Number;
     public attribute width: Number;
     public attribute scrollFactor: Number;
     
-    private attribute scrollOffset: Number;
+    private attribute scrollOffset: Number = bind Math.max((view.currentHeight - height)*scrollFactor, 0);
+
+    function composeNode() {
+        Clip {
+            shape: Rect
+            {
+                height: bind height
+                width: bind width
+            }
+
+            content: Group
+            {
+                transform: bind translate(0, -scrollOffset)
+                content: bind view
+            }
+        }
+    };
+
 }
-
-attribute ScrollPane.scrollOffset = bind Math.max((view.currentHeight - height)*scrollFactor, 0);
-
-function ScrollPane.composeNode() = Clip
-{
-    shape: Rect
-    {
-        height: bind height
-        width: bind width
-    }
-    
-    content: Group
-    {
-        transform: bind translate(0, -scrollOffset)
-        content: bind view
-    }
-};
-
-

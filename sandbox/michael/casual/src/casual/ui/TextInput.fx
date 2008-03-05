@@ -18,66 +18,58 @@ import java.awt.Dimension;
 
 public class TextInput extends CompositeNode
 {
-    private attribute input: TextArea;
-    
     public attribute text: String;
     public attribute height: Integer;
     public attribute size: Dimension;
-    public operation requestFocus();
-}
-
-operation TextInput.requestFocus()
-{
-    input.requestFocus();
-}
-
-function TextInput.composeNode() = Group
-{
-    var strokeWidth = 2
     
-    content:
-    [        
-        View
+    private attribute input: TextArea = TextArea {
+        size: bind size 
+        lineWrap: true
+        height: bind height
+        viewportBorder: EmptyBorder{}
+        scrollPaneBorder: EmptyBorder{}
+        border: bind theme.messageInputAreaBorder
+        verticalScrollBarPolicy: VerticalScrollBarPolicy.NEVER
+        horizontalScrollBarPolicy: HorizontalScrollBarPolicy.NEVER
+        font: bind theme.chatPanelFont
+        foreground: bind theme.messageInputForeground
+        background: bind theme.messageInputBackground
+        text: bind text
+
+        onKeyDown: function(e:KeyEvent)
         {
-            size: bind size // gznote: (need it here since there is a bug in Widget.fx size)
-            content: TextArea
+            if (onKeyDown <> null)
             {
-                attribute: input
-                
-                //size: bind size // gznote: (bug in Widget.fx size)
-                lineWrap: true
-                height: bind height
-                viewportBorder: EmptyBorder{}
-                scrollPaneBorder: EmptyBorder{}
-                border: bind theme:ThemeManager.messageInputAreaBorder
-                verticalScrollBarPolicy: NEVER
-                horizontalScrollBarPolicy: NEVER
-                font: bind theme:ThemeManager.chatPanelFont
-                foreground: bind theme:ThemeManager.messageInputForeground
-                background: bind theme:ThemeManager.messageInputBackground
-                text: bind text
-
-                onKeyDown: operation(e:KeyEvent)
-                {
-                    if (onKeyDown <> null)
-                    {
-                        (this.onKeyDown)(e);
-                    }
-                }
+                (this.onKeyDown)(e);
             }
-        },
-        
-        // focus rectangle
-        Rect
-        {
-            visible: bind (input.focused)
-            x: bind input.x
-            y: bind input.y
-            width: bind (input.width-strokeWidth)
-            height: bind (input.height-strokeWidth+1)
-            strokeWidth: strokeWidth
-            stroke: bind theme:ThemeManager.messageInputBorderColor
-        },
-    ]
-};
+        }
+    }
+    
+    public function requestFocus()
+    {
+        input.requestFocus();
+    }
 
+    function composeNode() {
+        Group {
+            var strokeWidth = 2
+
+            content:
+            [        
+                input,
+
+                // focus rectangle
+                Rect
+                {
+                    visible: bind (input.focused)
+                    x: bind input.x
+                    y: bind input.y
+                    width: bind (input.width-strokeWidth)
+                    height: bind (input.height-strokeWidth+1)
+                    strokeWidth: strokeWidth
+                    stroke: bind theme.messageInputBorderColor
+                },
+            ]
+        }
+    };
+}
