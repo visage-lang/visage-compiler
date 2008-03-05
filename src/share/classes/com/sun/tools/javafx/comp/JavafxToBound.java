@@ -143,7 +143,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     /** Visitor method: Translate a single node.
      */
     @SuppressWarnings("unchecked")
-    public <T extends JCTree> T translate(T tree) {
+    public <T extends JCExpression> T translate(T tree) {
         T ret;
 	if (tree == null) {
 	    ret = null;
@@ -155,61 +155,23 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         return ret;
     }
     
-    public JCExpression translate(JCExpression tree, Type type) {
-        if (tree == null)
-            return null;
-        if (types.isSequence(tree.type) && types.isArray(type)) {
-             ListBuffer<JCStatement> stats = ListBuffer.lb();
-            DiagnosticPosition diagPos = tree.pos();
-            JCExpression init = (JCExpression) translate(tree);
-            Type elemType = types.elemtype(type);
-            if (elemType.isPrimitive()) {
-                String mname = "toArray";
-                if (elemType == syms.floatType)
-                    mname = "toFloatArray";
-                return callExpression(diagPos, makeTypeTree(syms.javafx_SequencesType, diagPos, false),
-                       mname, init);
-            }
-            JCVariableDecl tmpVar = makeTmpVar(diagPos, tree.type, init);
-            stats.append(tmpVar);
-            JCVariableDecl arrVar = makeTmpVar(diagPos, "arr", type, 
-                    make.NewArray(makeTypeTree(elemType, diagPos, true),
-                        List.<JCExpression>of(callExpression(diagPos, make.Ident(tmpVar.name), "size")), null));
-            stats.append(arrVar);
-            stats.append(toJava.callStatement(diagPos, make.Ident(tmpVar.name), "toArray",
-                            List.of(make.Ident(arrVar.name), make.Literal(TypeTags.INT, 0))));
-            JCIdent ident2 = make.Ident(arrVar.name);
-            return toJava.makeBlockExpression(diagPos, stats, ident2);
-            
-        }
+    private JCVariableDecl translateVar(JFXVar tree) {
+        DiagnosticPosition diagPos = tree.pos();
+
+        JCModifiers mods = tree.getModifiers();
+        long modFlags = mods == null ? 0L : mods.flags;
+        modFlags |= Flags.FINAL;  // Locations are never overwritte
+        mods = make.at(diagPos).Modifiers(modFlags);
         
-        JCExpression ret = translate(tree);
+        VarMorphInfo vmi = typeMorpher.varMorphInfo(tree.sym);
+        JCExpression typeExpression = toJava.makeTypeTree(vmi.getMorphedLocationType(), diagPos, true);
 
-        Type paramType = tree.type;
-        if (paramType == syms.javafx_IntegerType ||
-                type == syms.javafx_IntegerType) {
-            if (paramType != type && type.isPrimitive()) {
-                ret = make.at(tree).TypeCast(type, ret);
-            }
-        }
+        //TODO: handle array initializers (but, really, shouldn't that be somewhere else?)
+        JCExpression init = translate(tree.init);
 
-        return ret;
+        return make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
     }
 
-    /** Visitor method: translate a list of nodes.
-     */
-    public <T extends JCTree> List<T> translate(List<T> trees) {
-        ListBuffer<T> translated = ListBuffer.lb();
-	if (trees == null) return null;
-	for (List<T> l = trees; l.nonEmpty();  l = l.tail) {
-            T tree = translate(l.head);
-            if (tree != null) {
-                translated.append( tree );
-            }
-        }
-	return translated.toList();
-    }
-    
     interface Translator {
         JCExpression doit();
     }
@@ -276,71 +238,35 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
-    public void visitVar(JFXVar tree) {
-        DiagnosticPosition diagPos = tree.pos();
-        Type type = tree.type;
-        JCModifiers mods = tree.getModifiers();
-        long modFlags = mods == null ? 0L : mods.flags;
-        VarSymbol vsym = tree.sym;
-        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-
-        // convert the type to the Location type
-        type = vmi.getMorphedType();
-
-        // Locations are never overwritten
-        modFlags |= Flags.FINAL;
-
-        mods = make.at(diagPos).Modifiers(modFlags);
-        JCExpression typeExpression = toJava.makeTypeTree(type, diagPos, true);
-
-        JCExpression init = translate(tree.init);
-
-        //TODO: this is broken: init doesn't have type
-        // Convert initializers returning Java arrays to sequences.
-        if (type.tag == TypeTags.ARRAY) {
-            JCExpression newTree = ((JCExpression)makeTypeTree(((ArrayType)type).elemtype, diagPos, types.isCompoundClass(((ArrayType)type).elemtype.tsym)));
-            newTree.type = ((ArrayType)type).elemtype;
-            WildcardType tpType = new WildcardType(newTree.type, BoundKind.EXTENDS, type.tsym);
-            ClassType classType = new ClassType(((JavafxSymtab)syms).javafx_SequenceType, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
-            typeExpression = makeTypeTree(classType, diagPos, false);
-
-            if (init.type != ((JavafxSymtab)syms).javafx_SequenceType) {
-                init = toJava.makeSequence(diagPos, init, newTree.type);
-            }
-        }
-
-//        result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
-    }
-
-    @Override
     public void visitOperationValue(JFXFunctionValue tree) {
         JFXFunctionDefinition def = tree.definition;
         result = toJava.makeFunctionValue(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type);
     }
         
     public void visitBlockExpression(JFXBlockExpression tree) {   //done
+        assert (tree.type != syms.voidType) : "void block expressions should be not exist in bind expressions";
         DiagnosticPosition diagPos = tree.pos();
 
         JCExpression value = tree.value;
-        boolean valueFromReturn = (value == null);
-        ListBuffer<JCStatement> translated = ListBuffer.lb();
+        ListBuffer<JCStatement> translatedVars = ListBuffer.lb();
+        
         for (JCStatement stmt : tree.getStatements()) {
             switch (stmt.getTag()) {
                 case JavafxTag.RETURN:
+                    assert value == null;
                     value = ((JCReturn) stmt).getExpression();
                     break;
                 case JavafxTag.VAR_DEF:
-                    translated.append(translate(stmt));
+                    translatedVars.append(translateVar((JFXVar) stmt));
                     break;
                 default:
-                    log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "statement");
+                    log.error(diagPos, "javafx.not.allowed.in.bind.context", stmt.toString());
                     break;
             }
         }
-
-        assert (tree.type != syms.voidType) : "void block expressions should be handled below";
-        JCExpression tvalue = translate(value); 
-        result = ((JavafxTreeMaker) make).at(tree.pos).BlockExpression(tree.flags, translated.toList(), tvalue);
+        result = ((JavafxTreeMaker) make).at(diagPos).BlockExpression(tree.flags, 
+                translatedVars.toList(), 
+                translate(value) );
     }
  
     @Override
@@ -671,12 +597,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 translate(tree.getCondition()) );
     }
 
-    @Override
-    public void visitErroneous(JCErroneous tree) {
-        List<? extends JCTree> errs = translate(tree.errs);
-        result = make.at(tree.pos).Erroneous(errs);
-    }
-   
     @Override
     public void visitParens(JCParens tree) { //done
         JCExpression expr = translate(tree.expr);
@@ -1730,4 +1650,15 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         assert false : "should not be processed as part of a binding";
     }  
         
+    @Override
+    public void visitVar(JFXVar tree) {
+        // this is handled in translarVar
+        assert false : "should not be processed as part of a binding";
+    }
+
+    @Override
+    public void visitErroneous(JCErroneous tree) {
+        assert false : "erroneous nodes shouldn't have gotten this far";
+    }
+   
 }
