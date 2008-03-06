@@ -485,6 +485,46 @@
             <code>/=</code>
           </td>
         </tr>
+	
+	
+	
+	
+	<tr>
+          <td>
+            <code>++</code>
+          </td>
+
+          <td>assign</td>
+
+          <td>
+            <code>++</code>
+          </td>
+        </tr>
+	
+	
+	<tr>
+          <td>
+            <code>--</code>
+          </td>
+
+          <td>assign</td>
+
+          <td>
+            <code>--</code>
+          </td>
+        </tr>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
         <tr>
           <td>
@@ -508,6 +548,22 @@
           </td>
         </tr>
 
+	<tr>
+          <td>
+            <code>=</code>
+          </td>
+
+          <td>assign operator</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+	
+	
+	
+	
         <tr>
           <td>
             <code>sizeof</code>
@@ -619,6 +675,9 @@
           </td>
         </tr>
 
+	
+	
+	<!-- 
         <tr>
           <td>
             <code>this</code>
@@ -630,7 +689,7 @@
             <code>this</code>
           </td>
         </tr>
-
+-->
         <tr>
           <td>
             <code>.</code>
@@ -643,6 +702,7 @@
           </td>
         </tr>
 
+	<!--
         <tr>
           <td>
             <code>bind [lazy]</code>
@@ -654,7 +714,7 @@
             <code>n/a</code>
           </td>
         </tr>
-
+ -->
         <tr>
           <td>
             <code>:</code>
@@ -679,6 +739,7 @@
           </td>
         </tr>
 
+	<!--
         <tr>
           <td>
             <code>format as</code>
@@ -690,7 +751,9 @@
             <code>n/a</code>
           </td>
         </tr>
+-->
 
+<!--
         <tr>
           <td>
             <code>&lt;&lt;&gt;&gt;</code>
@@ -701,7 +764,10 @@
           <td>
             <code>n/a</code>
           </td>
-        </tr>
+        </tr> 
+	-->
+	
+	
 <!-- 
         <tr>
           <td>
