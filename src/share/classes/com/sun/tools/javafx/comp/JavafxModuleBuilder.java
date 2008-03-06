@@ -240,8 +240,9 @@ public class JavafxModuleBuilder {
         JCExpression rettree = toJava.makeTypeTree(returnType, null);
 
         rettree.type = returnType;
-        return make.OperationDefinition(
+        return make.FunctionDefinition(
                 make.Modifiers(PUBLIC | STATIC | SYNTHETIC), 
+                false,  /* not bound*/
                 name, 
                 make.TypeClass(rettree, JFXType.Cardinality.SINGLETON),
                 emptyVarList, 

@@ -562,7 +562,7 @@ functionDefinition
 @after { Tree docComment = getDocComment($functionDefinition.start);
          $functionDefinition.tree.addChild(docComment); }
 	: functionModifierFlags BOUND? FUNCTION name formalParameters typeReference blockExpression?
-	    					-> ^(FUNCTION name functionModifierFlags 
+	    					-> ^(FUNCTION name functionModifierFlags BOUND?
 	    						formalParameters typeReference 
 	    						blockExpression?)
 	;

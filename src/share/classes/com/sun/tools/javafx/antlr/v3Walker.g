@@ -133,9 +133,10 @@ classMember  returns [JCTree member]
 	| overrideDeclaration 				{ $member = $overrideDeclaration.value; } 
 	;
 functionDefinition  returns [JFXFunctionDefinition value]
-	: ^(FUNCTION name functionModifierFlags formalParameters type blockExpression? DOC_COMMENT?)
-	    						{ $value = F.at(pos($FUNCTION)).OperationDefinition(
+	: ^(FUNCTION name functionModifierFlags boundModifier formalParameters type blockExpression? DOC_COMMENT?)
+	    						{ $value = F.at(pos($FUNCTION)).FunctionDefinition(
 	    						  F.at(pos($FUNCTION)).Modifiers($functionModifierFlags.flags),
+	    						  $boundModifier.isBound,
 	    						  $name.value, $type.type, 
 	    						  $formalParameters.params.toList(), $blockExpression.expr); 
                                                           setDocComment($value, $DOC_COMMENT); 
@@ -169,6 +170,10 @@ varModifierFlags  returns [long flags]
 classModifierFlags  returns [long flags]
 	: ^(MODIFIER accessModifier? classModifier?)
 	 		 				{ $flags = $accessModifier.flag | $classModifier.flag; }
+	;
+boundModifier   returns [boolean isBound]
+	:  BOUND          				{ isBound = true; }
+	|               				{ isBound = false; }
 	;
 accessModifier   returns [long flag]
 	:  PUBLIC          				{ flag = Flags.PUBLIC; }
