@@ -333,6 +333,9 @@ class FXPropertyResourceBundle extends ResourceBundle {
         case 'f':
             c = '\f';
             break;
+        case '\\':
+            // need to retain double backslash for Matcher.appendReplacement()
+            return "\\\\";
         }
         return String.valueOf(c);
     }

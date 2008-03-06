@@ -21,6 +21,14 @@
 "FILE_NOUN" = "shorui"
 "KEY_WITH_SAME_VALUE" = "KEY_WITH_SAME_VALUE"
 
+// escape sequence tests in source file
+'Hello,	World!' = "Konnichiwa (Tab)Sekai!"
+
+// escape sequence tests in properties file
+'Hello,\ EscapeSpace!' = "Konnichiwa EscapeSpace!"
+'Hello,\u0020UnicodeEscapeSpace!' = "Konnichiwa UnicodeEscapeSpace!"
+'Hello,\tTab!' = "Konnichiwa Tab!"
+
 // multiple line tests
 'Unix style
 new line' = 'Unix keishiki no
