@@ -46,7 +46,7 @@ public class SequencesHelperTest extends JavaFXTestCase {
     }
     
     public Sequence<Integer> emptyInteger, singleInteger, sortedInteger, unsortedInteger;
-    public Sequence<DummyElement> emptyElements, singleElements, sortedElements, unsortedElements;
+    public Sequence<DummyElement> emptyElements, singleElements, sortedElements, unsortedElements, longSequence;
 
     public static DummyElement[] element;
     public static DummyComparator comparator;
@@ -57,10 +57,10 @@ public class SequencesHelperTest extends JavaFXTestCase {
         emptyInteger    = Sequences.emptySequence(Integer.class);
         singleInteger   = Sequences.make(Integer.class, 0);
         sortedInteger   = Sequences.make(Integer.class, 1, 2, 3);
-        unsortedInteger = Sequences.make(Integer.class, 6, 4, 5);
+        unsortedInteger = Sequences.make(Integer.class, 3, 1, 2);
         
-        // 7 Dummyelements
-        element = new DummyElement[7];
+        // 4 Dummyelements
+        element = new DummyElement[4];
         for (int i=0; i<element.length; ++i)
             element[i] = new DummyElement(i);
         
@@ -68,7 +68,8 @@ public class SequencesHelperTest extends JavaFXTestCase {
         emptyElements    = Sequences.emptySequence(DummyElement.class);
         singleElements   = Sequences.make(DummyElement.class, element[0]);
         sortedElements   = Sequences.make(DummyElement.class, element[1], element[2], element[3]);
-        unsortedElements = Sequences.make(DummyElement.class, element[6], element[4], element[5]);
+        unsortedElements = Sequences.make(DummyElement.class, element[3], element[1], element[2]);
+        longSequence     = Sequences.make(DummyElement.class, element[0], element[1], element[2], element[1], element[3]);
 
         // Comparator
         comparator = new DummyComparator();
@@ -172,6 +173,8 @@ public class SequencesHelperTest extends JavaFXTestCase {
             fail("Unexpected exception thrown: " + ex.getMessage());
         }
         
+        
+        
         // exception when sequence is null
         try {
             SequencesHelper.binarySearch(null, 1, null);
@@ -184,7 +187,77 @@ public class SequencesHelperTest extends JavaFXTestCase {
         }
     }
     
-    /**
+    /** 
+     * <T> int indexOf(Sequence<? extends T> seq, T key) 
+     */
+    public void testIndexOf() {
+        int result;
+        // search in empty sequence
+        result = SequencesHelper.indexOf(emptyElements, element[1]);
+        assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
+        assertEquals(-1, result);
+        
+        // single element sequence
+        // successful search
+        result = SequencesHelper.indexOf(singleElements, element[0]);
+        assertEquals(singleElements, element[0]);
+        assertEquals(0, result);
+        
+        // unsuccessful search
+        result = SequencesHelper.indexOf(singleElements, element[1]);
+        assertEquals(singleElements, element[0]);
+        assertEquals(-1, result);
+        
+        // three elements sequence
+        // successful search for first element
+        result = SequencesHelper.indexOf(unsortedElements, element[3]);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(0, result);
+        
+        // successful search for middle element
+        result = SequencesHelper.indexOf(unsortedElements, element[1]);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(1, result);
+        
+        // successful search for last element
+        result = SequencesHelper.indexOf(unsortedElements, element[2]);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(2, result);
+        
+        // make sure first element is returned
+        result = SequencesHelper.indexOf(longSequence, element[1]);
+        assertEquals(longSequence, element[0], element[1], element[2], element[1], element[3]);
+        assertEquals(1, result);
+        
+        // unsuccessful search
+        result = SequencesHelper.indexOf(unsortedElements, element[0]);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(-1, result);
+
+        // exception when sequence is null
+        try {
+            SequencesHelper.indexOf(null, 1);
+            fail("No exception thrown.");
+        }
+        catch (NullPointerException ex) {
+        }
+        catch (Exception ex) {
+            fail ("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // exception when sequence is null
+        try {
+            SequencesHelper.indexOf(unsortedElements, null);
+            fail("No exception thrown.");
+        }
+        catch (NullPointerException ex) {
+        }
+        catch (Exception ex) {
+            fail ("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+    
+     /**
      * <T extends Comparable> Sequence<T> sort (Sequence<T> seq) 
      * This method uses Arrays.sort for sorting, which we can asume to work.
      * Only tests for the mapping are needed.
@@ -204,8 +277,8 @@ public class SequencesHelperTest extends JavaFXTestCase {
         
         // sort unsorted sequence
         result = SequencesHelper.sort(unsortedInteger);
-        assertEquals(unsortedInteger, 6, 4, 5);
-        assertEquals(result, 4, 5, 6);
+        assertEquals(unsortedInteger, 3, 1, 2);
+        assertEquals(result, 1, 2, 3);
         
         // exception when sequence is null
         try {
@@ -239,13 +312,13 @@ public class SequencesHelperTest extends JavaFXTestCase {
         
         // sort unsorted sequence
         result = SequencesHelper.sort(unsortedElements, comparator);
-        assertEquals(unsortedElements, element[6], element[4], element[5]);
-        assertEquals(result, element[4], element[5], element[6]);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(result, element[1], element[2], element[3]);
         
         // sort using null-comparator
         Sequence<Integer> resultInt = SequencesHelper.sort(unsortedInteger, null);
-        assertEquals(unsortedInteger, 6, 4, 5);
-        assertEquals(resultInt, 4, 5, 6);
+        assertEquals(unsortedInteger, 3, 1, 2);
+        assertEquals(resultInt, 1, 2, 3);
         
         // exception if using null-operator with non-comparable elements
         try {
@@ -253,7 +326,7 @@ public class SequencesHelperTest extends JavaFXTestCase {
             fail("No exception thrown.");
         }
         catch (ClassCastException ex) {
-            assertEquals(unsortedElements, element[6], element[4], element[5]);
+            assertEquals(unsortedElements, element[3], element[1], element[2]);
         }
         catch (Exception ex) {
             fail("Unexpected exception thrown: " + ex.getMessage());

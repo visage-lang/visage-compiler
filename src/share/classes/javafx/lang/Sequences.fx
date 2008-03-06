@@ -96,14 +96,8 @@ public class Sequences {
         return SequencesHelper.binarySearch(seq, key, c);
     }
     
-    public static function copyOf(seq: Object[]): Object[] {
-        // TODO implement
-        throw new UnsupportedOperationException();
-    }
-    
-    public static function indexOf(seq: Object[], value: Object): Integer {
-        // TODO implement
-        throw new UnsupportedOperationException();
+    public static function indexOf(seq: Object[], key: Object): Integer {
+        return SequencesHelper.indexOf(seq, key);
     }
     
     public static function max(seq: Comparable[]): Comparable {

@@ -27,6 +27,7 @@ package com.sun.javafx.runtime.sequence;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.lang.reflect.Array;
 
 /**
@@ -101,7 +102,33 @@ public final class SequencesHelper {
         seq.toArray(array, 0);
         return Arrays.binarySearch(array, (T)key, c);
     }
-
+    
+    /**
+     * Searches the specified sequence for the specified object. If the
+     * sequence is sorted, binarySearch should be used instead.
+     * 
+     * If the sequence contains multiple elements equal to the specified object, 
+     * the first occurence in the sequence will be returned.
+     * 
+     * The method nextIndexOf can be used in consecutive calls to iterate
+     * through all occurences of a specified object.
+     * 
+     * @param seq The sequence to be searched.
+     * @param key The value to be searched for.
+     * @return Index of the search key, if it is contained in the array; 
+     *         otherwise -1.
+     */
+    public static<T> int indexOf(Sequence<? extends T> seq, T key) {
+        if (seq == null || key == null)
+            throw new NullPointerException();
+        
+        Iterator<? extends T> it = seq.iterator();
+        for (int i=0; it.hasNext(); ++i)
+            if (it.next().equals(key))
+                return i;
+        return -1;
+    }
+    
     /**
      * Sorts the specified sequence of objects into ascending order, according 
      * to the natural ordering  of its elements. All elements in the sequence

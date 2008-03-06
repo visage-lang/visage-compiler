@@ -28,60 +28,58 @@ public class DummyComparator extends Comparator<DummyElement> {
         return o1.id - o2.id;
     };
     public function equals(o: Object): Boolean {
-        return this == o;
+        return o instanceof DummyComparator;
     }
 }
 
 public class SequencesTest extends javafx.fxunit.FXTestCase {
 
-    // TODO: For some reason the setUp-function is not called.
-    //       Needs further investigation.
-//    attribute emptyInteger:    Integer[];
-//    attribute singleInteger:   Integer[];
-//    attribute sortedInteger:   Integer[];
-//    attribute unsortedInteger: Integer[];
-//    attribute emptyElements: DummyElement[];
-//    attribute singleElements: DummyElement[];
-//    attribute sortedElements: DummyElement[];
-//    attribute unsortedElements: DummyElement[];
-//    
-//    attribute element: DummyElement[];
-//    attribute comparator: DummyComparator;
-//    
-//    protected function setUp(): Void {
-//        // Integer-sequences
-//        emptyInteger    = [];
-//        // TODO JFXC-833
-////        singleInteger   = 1;
-//        sortedInteger   = [2, 3, 4];
-//        unsortedInteger = [7, 5, 6];
-//        
-//        // 7 Dummyelements
-//        element = for (i in [0..7]) DummyElement{id:i};
-//        
-//        // DummyElement-sequences
-//        emptyElements    = [];
-//        // TODO JFXC-833
-////        singleElements   = element[0];
-//        sortedElements   = [element[1], element[2], element[3]];
-//        unsortedElements = [element[6], element[4], element[5]];
-//
-//        // Comparator
-//        comparator = DummyComparator {};
-//    }
+    attribute emptyInteger:     Integer[];
+    attribute singleInteger:    Integer[];
+    attribute sortedInteger:    Integer[];
+    attribute unsortedInteger:  Integer[];
+    attribute emptyElements:    DummyElement[];
+    attribute singleElements:   DummyElement[];
+    attribute sortedElements:   DummyElement[];
+    attribute unsortedElements: DummyElement[];
+    attribute longSequence:     DummyElement[];
+    
+    attribute element: DummyElement[];
+    attribute comparator: DummyComparator;
+    
+    protected function setUp(): Void {
+        // Integer-sequences
+        emptyInteger    = [];
+        // TODO JFXC-833
+//        singleInteger   = 0;
+        sortedInteger   = [1, 2, 3];
+        unsortedInteger = [3, 1, 2];
+        
+        // 7 Dummyelements
+        element = for (i in [0..4]) DummyElement{id:i};
+        
+        // DummyElement-sequences
+        emptyElements    = [];
+        // TODO JFXC-833
+//        singleElements   = element[0];
+        sortedElements   = [element[1], element[2], element[3]];
+        unsortedElements = [element[3], element[1], element[2]];
+        longSequence     = [element[0], element[1], element[2], element[1], element[3]];
+
+        // Comparator
+        comparator = DummyComparator {};
+    }
     
     function testBinarySearchComparable() {
         var result: Integer;
         
         // search in empty sequence
-        var emptyInteger: Integer[] = [];
         result = Sequences.binarySearch(emptyInteger, 1);
         assertEquals([], emptyInteger);
         assertEquals(-1, result);
         
         // single element sequence
         // TODO JFXC-833
-//        var singleInteger: Integer[] = 0;
 //        // successful search
 //        result = Sequences.binarySearch(singleInteger, 0);
 //        assertEquals(singleInteger, 0);
@@ -89,11 +87,10 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
 //        
 //        // unsuccessful search
 //        result = Sequences.binarySearch(singleInteger, 1);
-//        assertEquals(singleInteger, 0);
+//        assertEquals(0, singleInteger);
 //        assertEquals(-2, result);
         
         // three elements sequence
-        var sortedInteger: Integer[] = [1, 2, 3];
         // successful search
         result = Sequences.binarySearch(sortedInteger, 2);
         assertEquals([1, 2, 3], sortedInteger);
@@ -118,33 +115,26 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
     }
 
     function testBinarySearchComparator() {
-        // dummy elements
-        var element: DummyElement[] = for (i in [0..7]) DummyElement{id:i};
-        var comparator: DummyComparator = DummyComparator {};
-        
         var result: Integer;
         
         // search in empty sequence
-        var emptyElements: DummyElement[] = [];
         result = Sequences.binarySearch(emptyElements, element[1], comparator);
         assertEquals([], emptyElements);
         assertEquals(-1, result);
         
         // single element sequence
         // TODO JFXC-833
-//        var singleElement: DummyElement[] = element[0];
 //        // successful search
 //        result = Sequences.binarySearch(singleElements, element[0], comparator);
-//        assertEquals(singleElements, element[0]);
+//        assertEquals(element[0], singleElements);
 //        assertEquals(0, result);
 //        
 //        // unsuccessful search
 //        result = Sequences.binarySearch(singleElements, element[1], comparator);
-//        assertEquals(singleElements, element[0]);
+//        assertEquals(element[0], singleElements);
 //        assertEquals(-2, result);
         
         // three elements sequence
-        var sortedElements: DummyElement[] = [element[1], element[2], element[3]];
         // successful search
         result = Sequences.binarySearch(sortedElements, element[2], comparator);
         assertEquals([element[1], element[2], element[3]], sortedElements);
@@ -156,7 +146,6 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         assertEquals(-1, result);
 
         // search using null-comparator
-        var sortedInteger: Integer[] = [1, 2, 3];
         var resultInt: Integer = Sequences.binarySearch(sortedInteger, 2, null);
         assertEquals([1, 2, 3], sortedInteger);
         assertEquals(1, resultInt);
@@ -186,27 +175,93 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
     }
     
+    function testIndexOf() {
+        var result: Integer;
+        
+        // search in empty sequence
+        result = Sequences.indexOf(emptyElements, element[1]);
+        assertEquals([], emptyElements);
+        assertEquals(-1, result);
+        
+        // single element sequence
+        // TODO JFXC-833
+//        // successful search
+//        result = Sequences.indexOf(singleElements, element[0]);
+//        assertEquals(element[0], singleElements);
+//        assertEquals(0, result);
+//        
+//        // unsuccessful search
+//        result = Sequences.indexOf(singleElements, element[1]);
+//        assertEquals(element[0], singleElements);
+//        assertEquals(-1, result);
+        
+        // three elements sequence
+        // successful search for first element
+        result = Sequences.indexOf(unsortedElements, element[3]);
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals(0, result);
+        
+        // successful search for middle element
+        result = Sequences.indexOf(unsortedElements, element[1]);
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals(1, result);
+        
+        // successful search for last element
+        result = Sequences.indexOf(unsortedElements, element[2]);
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals(2, result);
+        
+        // make sure first element is returned
+        result = Sequences.indexOf(longSequence, element[1]);
+        assertEquals([element[0], element[1], element[2], element[1], element[3]], longSequence);
+        assertEquals(1, result);
+        
+        // unsuccessful search
+        result = Sequences.indexOf(unsortedElements, element[0]);
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals(-1, result);
+
+        // exception when sequence is null
+        try {
+            Sequences.indexOf(null, 1);
+            fail("No exception thrown.");
+        }
+        catch (ex1: NullPointerException) {
+        }
+        catch (ex2: Exception) {
+            fail ("Unexpected exception thrown: " + ex2.getMessage());
+        }
+
+        // exception when sequence is null
+        try {
+            Sequences.indexOf(unsortedElements, null);
+            fail("No exception thrown.");
+        }
+        catch (ex3: NullPointerException) {
+        }
+        catch (ex4: Exception) {
+            fail ("Unexpected exception thrown: " + ex4.getMessage());
+        }
+    }
+    
     function testSortComparable() {
         var result: Integer[];
         
         // sort empty sequence
-        var emptyInteger: Integer[] = [];
         result = Sequences.sort(emptyInteger) as Integer[];
         assertEquals([], emptyInteger);
         assertEquals([], result);
         
         // sort single element
         // TODO JFXC-833
-//        var singleInteger: Integer[] = 1;
 //        result = Sequences.sort(singleInteger);
-//        assertEquals(singleInteger, 1);
-//        assertEquals(result, 1);
+//        assertEquals(1, singleInteger);
+//        assertEquals(1, result);
         
         // sort sequence
-        var unsortedInteger: Integer[] = [6, 4, 5];
         result = Sequences.sort(unsortedInteger) as Integer[];
-        assertEquals([6, 4, 5], unsortedInteger);
-        assertEquals([4, 5, 6], result);
+        assertEquals([3, 1, 2], unsortedInteger);
+        assertEquals([1, 2, 3], result);
 
         // exception when sequence is null
         try {
@@ -222,36 +277,28 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
     }
 
     function testSortComparator() {
-        // dummy elements
-        var element: DummyElement[] = for (i in [0..7]) DummyElement{id:i};
-        var comparator: DummyComparator = DummyComparator {};
-        
         var result: DummyElement[];
         
         // sort empty sequence
-        var emptyElements: DummyElement[] = [];
         result = Sequences.sort(emptyElements, comparator) as DummyElement[];
         assertEquals([], emptyElements);
         assertEquals([], result);
         
         // sort single element
         // TODO JFXC-833
-//        var singleElement: DummyElement[] = element[0];
 //        result = Sequences.sort(singleElements, comparator);
-//        assertEquals(singleElements, element[0]);
-//        assertEquals(result, element[0]);
+//        assertEquals(element[0], singleElements);
+//        assertEquals(element[0], result);
         
         // sort sequence
-        var unsortedElements: DummyElement[] = [element[6], element[4], element[5]];
         result = Sequences.sort(unsortedElements, comparator) as DummyElement[];
-        assertEquals([element[6], element[4], element[5]], unsortedElements);
-        assertEquals([element[4], element[5], element[6]], result);
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals([element[1], element[2], element[3]], result);
         
         // sort using null-comparator
-        var unsortedInteger: Integer[] = [6, 4, 5];
         var resultInt: Integer[] = Sequences.sort(unsortedInteger, null) as Integer[];
-        assertEquals([6, 4, 5], unsortedInteger);
-        assertEquals([4, 5, 6], resultInt);
+        assertEquals([3, 1, 2], unsortedInteger);
+        assertEquals([1, 2, 3], resultInt);
 
         // exception if using null-operator with non-comparable elements
         try {
@@ -259,7 +306,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
             fail("No exception thrown.");
         }
         catch (ex1: ClassCastException) {
-            assertEquals([element[6], element[4], element[5]], unsortedElements);
+            assertEquals([element[3], element[1], element[2]], unsortedElements);
         }
         catch (ex2: Exception) {
             fail("Unexpected exception thrown: " + ex2.getMessage());
