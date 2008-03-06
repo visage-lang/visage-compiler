@@ -23,29 +23,44 @@ public class FXUnitTestWrapper extends TestCase {
     private final TestCase object;
     private final File testFile;
     private final Method testMethod;
+    private final Method setUp;
+    private final Method tearDown;
 
-    public FXUnitTestWrapper(String name, File testFile, TestCase object, Method testMethod) {
+    public FXUnitTestWrapper(String name, File testFile, TestCase object, Method testMethod, Method setUp, Method tearDown) {
         super(name);
         this.testFile = testFile;
         this.object = object;
         this.testMethod = testMethod;
+        this.setUp = setUp;
+        this.tearDown = tearDown;
     }
 
+    @Override
     protected void setUp() throws Exception {
-        // @@@ TBD
-    }
-
-    protected void tearDown() throws Exception {
-        // @@@ TBD
-    }
-
-    protected void runTest() throws Throwable {
-        System.out.println("Test(fxunit): " + testFile);
-        try {
-            testMethod.invoke(object);
+        if (setUp != null && testMethod != null) {
+            System.out.println("SetUp(fxunit): " + testFile + " - " + testMethod.getName());
+            setUp.invoke(object);
         }
-        catch (InvocationTargetException e) {
-            throw e.getCause();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        if (tearDown != null && testMethod != null) {
+            System.out.println("TearDown(fxunit): " + testFile + " - " + testMethod.getName());
+            tearDown.invoke(object);
+        }
+    }
+
+    @Override
+    protected void runTest() throws Throwable {
+        if (testMethod != null) {
+            System.out.println("Test(fxunit): " + testFile + " - " + testMethod.getName());
+            try {
+                testMethod.invoke(object);
+            }
+            catch (InvocationTargetException e) {
+                throw e.getCause();
+            }
         }
     }
 
@@ -67,10 +82,18 @@ public class FXUnitTestWrapper extends TestCase {
             ctor.setAccessible(true);
             TestCase instance = ctor.newInstance();
             Method[] methods = clazz.getMethods();
+            Method setUp = null;
+            Method tearDown = null;
+            for (Method m : methods) {
+                if (m.getName().equals("setUp") && !Modifier.isStatic(m.getModifiers()))
+                    setUp = m;
+                if (m.getName().equals("tearDown") && !Modifier.isStatic(m.getModifiers()))
+                    tearDown = m;
+            }
             for (Method m : methods) {
                 if (m.getName().startsWith("test") && !Modifier.isStatic(m.getModifiers())) {
                     m.setAccessible(true);
-                    suite.addTest(new FXUnitTestWrapper(m.getName(), testFile, instance, m));
+                    suite.addTest(new FXUnitTestWrapper(m.getName(), testFile, instance, m, setUp, tearDown));
                 }
             }
         }
