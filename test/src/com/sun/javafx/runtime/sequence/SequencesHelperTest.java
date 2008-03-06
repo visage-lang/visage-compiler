@@ -107,6 +107,18 @@ public class SequencesHelperTest extends JavaFXTestCase {
         result = SequencesHelper.binarySearch(sortedInteger, 0);
         assertEquals(sortedInteger, 1, 2, 3);
         assertEquals(-1, result);
+        
+        // exception when sequence is null
+        try {
+            SequencesHelper.binarySearch(null, 0);
+            fail("No exception thrown.");
+        }
+        catch (NullPointerException ex) {
+        }
+        catch (Exception ex) {
+            System.out.println(ex.getClass());
+            fail ("Unexpected exception thrown: " + ex.getMessage());
+        }
     }
     
     /** 
@@ -159,6 +171,17 @@ public class SequencesHelperTest extends JavaFXTestCase {
         catch (Exception ex) {
             fail("Unexpected exception thrown: " + ex.getMessage());
         }
+        
+        // exception when sequence is null
+        try {
+            SequencesHelper.binarySearch(null, 1, null);
+            fail("No exception thrown.");
+        }
+        catch (NullPointerException ex) {
+        }
+        catch (Exception ex) {
+            fail ("Unexpected exception thrown: " + ex.getMessage());
+        }
     }
     
     /**
@@ -183,6 +206,17 @@ public class SequencesHelperTest extends JavaFXTestCase {
         result = SequencesHelper.sort(unsortedInteger);
         assertEquals(unsortedInteger, 6, 4, 5);
         assertEquals(result, 4, 5, 6);
+        
+        // exception when sequence is null
+        try {
+            SequencesHelper.sort(null);
+            fail("No exception thrown.");
+        }
+        catch (NullPointerException ex) {
+        }
+        catch (Exception ex) {
+            fail ("Unexpected exception thrown: " + ex.getMessage());
+        }
     }
     
     /**
@@ -223,6 +257,17 @@ public class SequencesHelperTest extends JavaFXTestCase {
         }
         catch (Exception ex) {
             fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+        
+        // exception when sequence is null
+        try {
+            SequencesHelper.sort(null, comparator);
+            fail("No exception thrown.");
+        }
+        catch (NullPointerException ex) {
+        }
+        catch (Exception ex) {
+            fail ("Unexpected exception thrown: " + ex.getMessage());
         }
     }
 

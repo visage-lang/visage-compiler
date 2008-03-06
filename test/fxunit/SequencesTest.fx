@@ -13,8 +13,11 @@ import com.sun.javafx.runtime.JavaFXTestCase;
 import java.util.Comparator;
 import java.lang.Object;
 import java.lang.System;
-import java.lang.ClassCastException;
+
 import java.lang.Exception;
+import java.lang.ClassCastException;
+import java.lang.NullPointerException;
+import java.lang.IllegalArgumentException;
 
 
 public class DummyElement {
@@ -100,6 +103,18 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         result = Sequences.binarySearch(sortedInteger, 0);
         assertEquals([1, 2, 3], sortedInteger);
         assertEquals(-1, result);
+        
+        // exception when sequence is null
+        try {
+            Sequences.binarySearch(null, 1);
+            fail("No exception thrown.");
+        }
+        catch (ex1: NullPointerException) {
+        }
+        catch (ex2: Exception) {
+            fail ("Unexpected exception thrown: {ex2}");
+        }
+        
     }
 
     function testBinarySearchComparator() {
@@ -157,6 +172,18 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         catch (ex2: Exception) {
             fail("Unexpected exception thrown: " + ex2.getMessage());
         }
+
+        // exception when sequence is null
+        try {
+            Sequences.binarySearch(null, element, null);
+            fail("No exception thrown.");
+        }
+        catch (ex3: NullPointerException) {
+        }
+        catch (ex4: Exception) {
+            fail ("Unexpected exception thrown: {ex4}");
+        }
+        
     }
     
     function testSortComparable() {
@@ -175,11 +202,23 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
 //        assertEquals(singleInteger, 1);
 //        assertEquals(result, 1);
         
-        // sort unsorted sequence
+        // sort sequence
         var unsortedInteger: Integer[] = [6, 4, 5];
         result = Sequences.sort(unsortedInteger) as Integer[];
         assertEquals([6, 4, 5], unsortedInteger);
         assertEquals([4, 5, 6], result);
+
+        // exception when sequence is null
+        try {
+            Sequences.sort(null);
+            fail("No exception thrown.");
+        }
+        catch (ex1: NullPointerException) {
+        }
+        catch (ex2: Exception) {
+            fail ("Unexpected exception thrown: {ex2}");
+        }
+        
     }
 
     function testSortComparator() {
@@ -202,7 +241,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
 //        assertEquals(singleElements, element[0]);
 //        assertEquals(result, element[0]);
         
-        // sort unsorted sequence
+        // sort sequence
         var unsortedElements: DummyElement[] = [element[6], element[4], element[5]];
         result = Sequences.sort(unsortedElements, comparator) as DummyElement[];
         assertEquals([element[6], element[4], element[5]], unsortedElements);
@@ -225,5 +264,17 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         catch (ex2: Exception) {
             fail("Unexpected exception thrown: " + ex2.getMessage());
         }
+
+        // exception when sequence is null
+        try {
+            Sequences.sort(null, null);
+            fail("No exception thrown.");
+        }
+        catch (ex3: NullPointerException) {
+        }
+        catch (ex4: Exception) {
+            fail ("Unexpected exception thrown: {ex4}");
+        }
+        
     }
 }

@@ -101,11 +101,6 @@ public class Sequences {
         throw new UnsupportedOperationException();
     }
     
-    public static function fill(value: Object, size: Integer): Object[] {
-        // TODO implement
-        throw new UnsupportedOperationException();
-    }
-    
     public static function indexOf(seq: Object[], value: Object): Integer {
         // TODO implement
         throw new UnsupportedOperationException();
