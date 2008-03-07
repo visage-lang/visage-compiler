@@ -34,6 +34,7 @@ import com.sun.javafx.runtime.location.IntChangeListener;
  * BoundSequenceSlice
  *
  * @author Brian Goetz
+ * @author Zhiqun Chen
  */
 class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements SequenceLocation<T> {
     private final SequenceLocation<T> sequenceLoc;
@@ -57,23 +58,67 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
     private void computeBounds(int newLower, int newUpper) {
         lower = newLower;
         upper = newUpper;
-        size = (upper >= lower) ? upper - lower + 1 : 0;
+        
+        int seqSize = sequenceLoc.getAsSequence().size();
+        
+        if (seqSize == 0) {
+            size = 0;
+        } else {
+            int range = ((upper >= seqSize)? seqSize-1:upper) - ((lower<0)? 0: lower);
+            size = (range >= 0) ? range + 1 : 0;
+        }
     }
 
+    protected Sequence<T> computeFull(int lower, int upper) {
+        return sequenceLoc.getSlice(lower, upper);
+    }
+                    
     protected void initialize() {
         sequenceLoc.addChangeListener(new SequenceReplaceListener<T>() {
             public void onReplace(int startPos, int endPos, Sequence newElements, Sequence oldValue, Sequence newValue) {
-                // @@@ NYI
+                
+                computeBounds(lower, upper);
+                
+                Sequence<T> newSeq = newValue.getSlice(lower, upper);
+                updateSlice(0, size==0?0:size-1, newSeq, newSeq);
             }
         });
         lowerLoc.addChangeListener(new IntChangeListener() {
             public void onChange(int oldValue, int newValue) {
-                // @@@ NYI
+                
+                assert oldValue != newValue;
+                
+                int oldSize = size;
+                computeBounds(newValue, upper);
+                
+                if (sequenceLoc.getAsSequence().size() == 0) 
+                    return;
+               
+                if (size == oldSize) return;
+                
+                if (size > oldSize) {
+                        updateSlice(0, -1, sequenceLoc.getSlice(newValue, (oldSize == 0)? upper: (oldValue - 1)));
+                } else {
+                    updateSlice(0, oldSize-size-1, Sequences.emptySequence(sequenceLoc.getAsSequence().getElementType()));
+                }
             }
         });
         upperLoc.addChangeListener(new IntChangeListener() {
             public void onChange(int oldValue, int newValue) {
-                // @@@ NYI
+                assert oldValue != newValue;
+                int oldSize = size;
+                computeBounds(lower, newValue);
+                
+                if (sequenceLoc.getAsSequence().size() == 0) 
+                    return;
+                
+                if (size == oldSize) return;
+                
+                if (size > oldSize) {
+                    updateSlice(oldSize, oldSize-1, sequenceLoc.getSlice((oldValue >= lower)?oldValue+1:lower,newValue ));
+                } else {
+                    updateSlice(size, oldSize-1, Sequences.emptySequence(sequenceLoc.getAsSequence().getElementType()));
+                }  
             }
         });
     }
