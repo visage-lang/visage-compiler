@@ -10,17 +10,21 @@ package jfx.assortie.system;
  * @author Alexandr Scherbatiy
  */
 
+import java.io.*;
+
+
 import java.lang.Class;
 import java.lang.Object;
 import java.lang.System;
 
 import java.lang.Thread;
 import java.lang.Runnable;
-
-
 import java.lang.StringBuffer;
-import java.io.*;
 
+
+import java.util.Locale;
+
+import javax.tools.Diagnostic;
 
 import javafx.ui.*;
 import javafx.ui.canvas.*;
@@ -258,9 +262,9 @@ public class AssortieProject  extends CompositeWidget{
             var iterator = diagnostics.getDiagnostics().iterator();
             
             while(iterator.hasNext()){
-                var diagnostic = iterator.next();
-                System.out.println("[diagnostic] {diagnostic}");
-                errorMessage = "{errorMessage}\n{diagnostic}"; 
+                var diagnostic = iterator.next() as Diagnostic;
+                errorMessage = "{errorMessage}\nline:{diagnostic.getLineNumber()}"; 
+                errorMessage = "{errorMessage}\n{diagnostic.getMessage(Locale.getDefault())}"; 
             }
             
             internalFrame.content = Label{ text: errorMessage };
