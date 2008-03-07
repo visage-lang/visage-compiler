@@ -63,11 +63,11 @@ public abstract class Widget extends GroupElement, UIElement {
     private attribute inBoundsListener: Boolean;
 
     function makeKeyEvent(e:java.awt.event.KeyEvent):KeyEvent {
-        var modifiers:KeyStroke[] = [
-            if (e.isControlDown() ) KeyStroke.CONTROL else null, 
-            if (e.isShiftDown()) KeyStroke.SHIFT else null,
-            if (e.isMetaDown()) KeyStroke.META else
-            if (e.isAltDown()) KeyStroke.ALT else null
+        var modifiers:KeyModifier[] = [
+            if (e.isControlDown() ) KeyModifier.CTRL else null, 
+            if (e.isShiftDown()) KeyModifier.SHIFT else null,
+            if (e.isMetaDown()) KeyModifier.META else
+            if (e.isAltDown()) KeyModifier.ALT else null
             ];
         return KeyEvent {
             source: e

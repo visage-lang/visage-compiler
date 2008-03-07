@@ -27,7 +27,7 @@ package javafx.ui;
 
 public class KeyEvent {
     public attribute keyStroke: KeyStroke;
-    public attribute modifiers: KeyStroke[];
+    public attribute modifiers: KeyModifier[];
     public attribute keyChar:String;
     public attribute source:java.awt.event.KeyEvent;
 
