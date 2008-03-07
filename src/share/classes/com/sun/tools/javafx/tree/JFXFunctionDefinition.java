@@ -36,13 +36,13 @@ import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javafx.code.JavafxFlags;
 
 /**
  * A function definition.
  */
 public class JFXFunctionDefinition extends JFXStatement implements OperationDefinitionTree {
     public final JCModifiers mods;
-    private final boolean isBound;
     public final Name name;
     public final JFXFunctionValue operation;
     public MethodSymbol sym;
@@ -54,12 +54,10 @@ public class JFXFunctionDefinition extends JFXStatement implements OperationDefi
         this.mods = mods;
         this.name = name;
         this.operation = operation;
-        this.isBound = false; // TODO is this correct?
     }
 
     protected JFXFunctionDefinition(
             JCModifiers mods, 
-            boolean isBound,
             Name name, 
             JFXType rettype, 
             List<JFXVar> funParams, 
@@ -67,14 +65,13 @@ public class JFXFunctionDefinition extends JFXStatement implements OperationDefi
         this.mods = mods;
         this.name = name;
         this.operation = new JFXFunctionValue(rettype, funParams, bodyExpression);
-        this.isBound = isBound;
     }
     
     public JFXBlockExpression getBodyExpression() {
         return operation.getBodyExpression();
     }
     public JCModifiers getModifiers() { return mods; }
-    public boolean isBound() { return isBound; }
+    public boolean isBound() { return (mods.flags | JavafxFlags.BOUND) != 0; }
     public Name getName() { return name; }
     public JFXType getJFXReturnType() { return operation.rettype; }
     public List<JFXVar> getParameters() { return operation.funParams; }

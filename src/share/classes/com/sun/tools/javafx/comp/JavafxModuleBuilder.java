@@ -242,7 +242,6 @@ public class JavafxModuleBuilder {
         rettree.type = returnType;
         return make.FunctionDefinition(
                 make.Modifiers(PUBLIC | STATIC | SYNTHETIC), 
-                false,  /* not bound*/
                 name, 
                 make.TypeClass(rettree, JFXType.Cardinality.SINGLETON),
                 emptyVarList, 

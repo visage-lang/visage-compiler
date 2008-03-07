@@ -130,14 +130,12 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     
     public JFXFunctionDefinition FunctionDefinition(
             JCModifiers modifiers,
-            boolean isBound,
             Name name,
             JFXType restype,
             List<JFXVar> params, 
             JFXBlockExpression bodyExpression) {
         JFXFunctionDefinition tree = new JFXFunctionDefinition(
                 modifiers,
-                isBound,
                 name,
                 restype,
                 params,

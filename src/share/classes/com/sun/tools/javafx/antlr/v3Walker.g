@@ -44,6 +44,7 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.javafx.api.tree.*;
 
 import com.sun.tools.javac.code.*;
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javac.util.*;
 import static com.sun.tools.javac.util.ListBuffer.lb;
 import com.sun.javafx.api.JavafxBindStatus;
@@ -110,9 +111,9 @@ importId  returns [JCExpression pid]
            )		
 	;
 classDefinition  returns [JFXClassDeclaration value]
-	: ^(CLASS classModifierFlags name supers classMembers DOC_COMMENT?)
+	: ^(CLASS modifiers name supers classMembers DOC_COMMENT?)
 	  						{ $value = F.at(pos($CLASS)).ClassDeclaration(
-	  						  F.at(pos($CLASS)).Modifiers($classModifierFlags.flags),
+	  						  $modifiers.mods,
 	  						  $name.value,
 	                                	          $supers.ids.toList(), 
 	                                	          $classMembers.mems.toList()); 
@@ -133,10 +134,9 @@ classMember  returns [JCTree member]
 	| overrideDeclaration 				{ $member = $overrideDeclaration.value; } 
 	;
 functionDefinition  returns [JFXFunctionDefinition value]
-	: ^(FUNCTION name functionModifierFlags boundModifier formalParameters type blockExpression? DOC_COMMENT?)
+	: ^(FUNCTION name modifiers formalParameters type blockExpression? DOC_COMMENT?)
 	    						{ $value = F.at(pos($FUNCTION)).FunctionDefinition(
-	    						  F.at(pos($FUNCTION)).Modifiers($functionModifierFlags.flags),
-	    						  $boundModifier.isBound,
+	    						  $modifiers.mods,
 	    						  $name.value, $type.type, 
 	    						  $formalParameters.params.toList(), $blockExpression.expr); 
                                                           setDocComment($value, $DOC_COMMENT); 
@@ -159,37 +159,21 @@ overrideDeclaration returns [JFXOverrideAttribute value]
 	| ^(WITH identifier onReplaceClause)		{ $value = F.at(pos($WITH)).TriggerWrapper($identifier.expr, $onReplaceClause.value); 
                                                           endPos($value, $WITH); }
 	;
-functionModifierFlags  returns [long flags]
-	: ^(MODIFIER accessModifier?  functionModifier?)
-	 		 				{ $flags = $accessModifier.flag | $functionModifier.flag; }
+modifiers  returns [JCModifiers mods]
+	: ^(MODIFIER modifierFlags)
+	 		 				{ mods = F.at(pos($MODIFIER)).Modifiers($modifierFlags.flags); }
 	;
-varModifierFlags  returns [long flags]
-	: ^(MODIFIER accessModifier? varModifier?)
-	 		 				{ $flags = $accessModifier.flag | $varModifier.flag; }
+modifierFlags   returns [long flags = 0L]
+	:  (modifierFlag          			{ flags |= $modifierFlag.flag; } )*
 	;
-classModifierFlags  returns [long flags]
-	: ^(MODIFIER accessModifier? classModifier?)
-	 		 				{ $flags = $accessModifier.flag | $classModifier.flag; }
-	;
-boundModifier   returns [boolean isBound]
-	:  BOUND          				{ isBound = true; }
-	|               				{ isBound = false; }
-	;
-accessModifier   returns [long flag]
-	:  PUBLIC          				{ flag = Flags.PUBLIC; }
+modifierFlag   returns [long flag]
+	:  BOUND          				{ flag = JavafxFlags.BOUND; }
+	|  PUBLIC          				{ flag = Flags.PUBLIC; }
 	|  PRIVATE         				{ flag = Flags.PRIVATE; }
 	|  PROTECTED       				{ flag = Flags.PROTECTED; } 
-	;
-functionModifier returns [long flag]
-	:  ABSTRACT        				{ flag = Flags.ABSTRACT; }
+	|  ABSTRACT        				{ flag = Flags.ABSTRACT; }
+	|  READONLY        				{ flag = Flags.FINAL; } 
 	|  STATIC        				{ flag = Flags.STATIC; } 
-	;
-varModifier returns [long flag]
-	:  READONLY        				{ flag = Flags.FINAL; } 
-	|  STATIC        				{ flag = Flags.STATIC; } 
-	;
-classModifier returns [long flag]
-	:  ABSTRACT        				{ flag = Flags.ABSTRACT; }
 	;
 formalParameters  returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]
 	: ^(LPAREN (formalParameter			{ params.append($formalParameter.var); } )* )
@@ -222,10 +206,10 @@ blockExpression  returns [JFXBlockExpression expr]
                                                           endPos($expr, $LBRACE); }
 	;
 variableDeclaration    returns [JCStatement value]
-	: ^(VAR variableLabel varModifierFlags name type boundExpressionOpt onChanges DOC_COMMENT?)
+	: ^(VAR variableLabel modifiers name type boundExpressionOpt onChanges DOC_COMMENT?)
 	    						{ $value = F.at(pos($VAR)).Var($name.value, 
 	    							$type.type, 
-	    							F.at($variableLabel.pos).Modifiers($varModifierFlags.flags | $variableLabel.modifiers),
+	    							$modifiers.mods,
 	    							$variableLabel.local,
 	    							$boundExpressionOpt.expr, 
 	    							$boundExpressionOpt.status, 

@@ -32,7 +32,7 @@ options {
 }
 
 tokens {
-   // these tokens can start a statement/definition -- can insert semi-colons before
+   // these tokens can start a statement/definition -- can insert semi-colons before -- alpha order
    SEMI_INSERT_START;
    ABSTRACT='abstract';
    ASSERT='assert';
@@ -80,7 +80,7 @@ tokens {
    PIPE='|';
    SEMI_INSERT_END;
 
-   // cannot start a statement
+   // cannot start a statement -- alpha order
    AFTER='after';
    AND='and';
    AS='as';
@@ -561,8 +561,8 @@ classMember
 functionDefinition
 @after { Tree docComment = getDocComment($functionDefinition.start);
          $functionDefinition.tree.addChild(docComment); }
-	: functionModifierFlags BOUND? FUNCTION name formalParameters typeReference blockExpression?
-	    					-> ^(FUNCTION name functionModifierFlags BOUND?
+	: functionModifierFlags FUNCTION name formalParameters typeReference blockExpression?
+	    					-> ^(FUNCTION name functionModifierFlags 
 	    						formalParameters typeReference 
 	    						blockExpression?)
 	;
@@ -585,10 +585,15 @@ postInitDefinition
 triggerDefinition
 	: WITH name onReplaceClause		-> ^(WITH name onReplaceClause)
 	;
-functionModifierFlags
-	: accessModifier functionModifier?	-> ^(MODIFIER accessModifier  functionModifier?)
-	| functionModifier accessModifier?	-> ^(MODIFIER accessModifier? functionModifier?)
-	| 					-> ^(MODIFIER)
+//TODO: modifier flag testing should be done in JavafxAttr, where it would be cleaner and better errors could be generated
+functionModifierFlags  
+	: BOUND (accessModifier functionModifier? )?	-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
+	| accessModifier BOUND functionModifier		-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
+	| accessModifier functionModifier? BOUND?	-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
+	| BOUND functionModifier accessModifier?	-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
+	| functionModifier BOUND accessModifier?	-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
+	| functionModifier (accessModifier BOUND? )?	-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
+	| 						-> ^(MODIFIER)
 	;
 varModifierFlags
 	: accessModifier varModifier?		-> ^(MODIFIER accessModifier  varModifier?)
