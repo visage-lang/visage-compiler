@@ -207,9 +207,15 @@ public abstract class Node extends CanvasElement, Transformable {
         //var info = MouseInfo.getPointerInfo();
         var pt = new java.awt.geom.Point2D.Double(e.getX(), e.getY());
         var c = getCanvas();
-        var loc = c.getComponent().getLocationOnScreen();
-        var screenX = loc.getX() + e.getX();
-        var screenY = loc.getY() + e.getY();
+        var screenX = 0.0;
+        var screenY = 0.0;
+        // Temporary hack to allow Scenario3D to receive mouse events
+        try {
+            var loc = c.getComponent().getLocationOnScreen();
+            screenX = loc.getX() + e.getX();
+            screenY = loc.getY() + e.getY();
+        } catch (ignore) {
+        }
         var result = CanvasMouseEvent {
             modifiers: [if (e.isAltDown()) then KeyModifier.ALT else null,
                         if (e.isControlDown()) then KeyModifier.CTRL else null, 
