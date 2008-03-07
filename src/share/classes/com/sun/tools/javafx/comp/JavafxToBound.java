@@ -281,11 +281,46 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitSelect(JCFieldAccess tree) {
+        DiagnosticPosition diagPos = tree.pos();
+        JCExpression expr = tree.getExpression();
+        Type exprType = expr.type;
+
+        // this may or may not be in a LHS but in either
+        // event the selector is a value expression
+        JCExpression translatedExpr = translate(expr);
+        
+        if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
+            result = toJava.translate(tree, Wrapped.InLocation); //TODO -- for now, translate like normal case
+           return;
+        }
+
+        if (exprType != null && exprType.isPrimitive()) { // expr.type is null for package symbols.
+            translatedExpr = makeBox(diagPos, translatedExpr, exprType);
+        }
+        // determine if this is a static reference, eg.   MyClass.myAttribute
+        boolean staticReference = tree.sym.isStatic();
+        if (staticReference) {
+            translatedExpr = makeTypeTree(types.erasure(tree.sym.owner.type), diagPos, false);
+        }
+
+        JCFieldAccess translated = make.at(diagPos).Select(translatedExpr, tree.getIdentifier());
+
+        JCExpression ref = typeMorpher.convertVariableReference(
+                diagPos,
+                translated,
+                tree.sym, 
+                staticReference, 
+                true /*state.wantLocation()*/,
+                false /*createDynamicDependencies*/);
+        result = ref;
+        
+        
         result = toJava.translate(tree, Wrapped.InLocation);  //TODO: not correct, but it will do for now
     }
     
     @Override
-    public void visitIdent(JCIdent tree)   {
+    public void visitIdent(JCIdent tree)   {  //done
+        assert toJava.shouldMorph(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph";
         result = toJava.translate(tree, Wrapped.InLocation);
     }
     

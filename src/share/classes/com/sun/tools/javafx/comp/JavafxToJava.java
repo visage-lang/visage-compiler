@@ -1614,7 +1614,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             MethodType mtype = (MethodType) tree.sym.type;            
             JCVariableDecl selectedTmpDecl = makeTmpVar(diagPos, "tg", exprType, translatedSelected);
             JCExpression translated = make.at(diagPos).Select(make.Ident(selectedTmpDecl.name), tree.getIdentifier());
-            translated = makeFunctionValue(translated, null, tree.pos(), mtype);
+            translated = makeFunctionValue(translated, null, diagPos, mtype);
             //result = make.LetExpr(selectedTmp, translated);
             result = ((JavafxTreeMaker)make).BlockExpression(
                 0L,
@@ -1740,16 +1740,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             result = make.at(diagPos).Ident(defs.receiverName);
             return;
         } else if (tree.name == names._super) {
-            if (tree.type != null &&
-                    types.isCompoundClass(tree.type.tsym)) {
+            if (types.isCompoundClass(tree.type.tsym)) {
                 // "super" become just the class where the static implementation method is defined
                 //  the rest of the implementation is in visitApply
                 result = make.at(diagPos).Ident(tree.type.tsym.name);
             }
             else {
                JCFieldAccess superSelect = make.at(diagPos).Select(make.at(diagPos).Ident(defs.receiverName), tree.name);
-                superSelect.type = tree.type;
-                superSelect.sym = tree.sym;
                 result = superSelect;
             }
             return;
@@ -1758,20 +1755,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
        // if this is an instance reference to an attribute or function, it needs to go the the "receiver$" arg,
        // and possible outer access methods
         JCExpression convert;
+        boolean isStatic = tree.sym.isStatic();
         int kind = tree.sym.kind;
-        if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
-                tree.sym.owner.kind == Kinds.TYP &&
-                !tree.sym.isStatic()) {
-            if (types.isCompoundClass(tree.sym.owner)) {
-                convert = make.at(diagPos).Select(makeReceiver(diagPos, tree.sym, attrEnv.enclClass.sym), tree.name);
-            }
-            else {
+        if (isStatic) {
+            // make class-based direct static reference:   Foo.x
+            convert = make.at(diagPos).Select(makeTypeTree(tree.sym.owner.type, diagPos, false), tree.name);
+        } else {
+            if ((kind == Kinds.VAR || kind == Kinds.MTH) && tree.sym.owner.kind == Kinds.TYP) {
+                // it is a non-static attribute or function class member
+                // reference it through the receiver
                 JCExpression mRec = makeReceiver(diagPos, tree.sym, attrEnv.enclClass.sym);
                 convert = make.at(diagPos).Select(mRec, tree.name);
-            }
-        } else {
-            if (tree.sym.isStatic()) {
-                convert = make.at(diagPos).Select(makeTypeTree(tree.sym.owner.type, diagPos, false), tree.name);
             } else {
                 convert = make.at(diagPos).Ident(tree.name);
             }
@@ -1780,7 +1774,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = typeMorpher.convertVariableReference(diagPos, 
                 convert, 
                 tree.sym, 
-                tree.sym.isStatic(),
+                isStatic,
                 state.wantLocation(), 
                 false);
     }
