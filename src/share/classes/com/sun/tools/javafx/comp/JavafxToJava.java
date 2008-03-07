@@ -168,7 +168,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     static final boolean generateBoundVoidFunctions = false;
     static final boolean permeateBind = false;
     static final boolean generateNullChecks = true;
-    static final boolean useBindingOverhaul = false;
+    boolean useBindingOverhaul = false;
     
     private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
     private static final String sequencesRangeExclusiveString = "com.sun.javafx.runtime.sequence.Sequences.rangeExclusive";
@@ -1159,6 +1159,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         boolean isBound = state.isBound();
         boolean forceTypeMorph = isBound;
+        
+        //TODO: remove this temporary transitional hack
+        if (tree.name.toString().equals("enableBindingOverhaul")) {
+            useBindingOverhaul = true;
+        }
 
         if (!isClassVar && (vsym.flags_field & JavafxFlags.INNER_ACCESS) != 0) {
             if ((vsym.flags_field & JavafxFlags.ASSIGNED_TO) == 0) {

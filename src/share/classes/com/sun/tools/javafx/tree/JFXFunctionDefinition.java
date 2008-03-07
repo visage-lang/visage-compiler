@@ -71,7 +71,7 @@ public class JFXFunctionDefinition extends JFXStatement implements OperationDefi
         return operation.getBodyExpression();
     }
     public JCModifiers getModifiers() { return mods; }
-    public boolean isBound() { return (mods.flags | JavafxFlags.BOUND) != 0; }
+    public boolean isBound() { return (mods.flags & JavafxFlags.BOUND) != 0; }
     public Name getName() { return name; }
     public JFXType getJFXReturnType() { return operation.rettype; }
     public List<JFXVar> getParameters() { return operation.funParams; }

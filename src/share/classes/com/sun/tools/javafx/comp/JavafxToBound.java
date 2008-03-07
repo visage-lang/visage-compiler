@@ -348,25 +348,34 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             final JCExpression selectingExpr,
             final JCExpression selectorExpr) {
         return (new ClosureTranslator(diagPos, tmiResult) {
+            
+            int typeKindResult = tmiResult.getTypeKind();
+            Type elementTypeResult = toJava.elementType(tmiResult.getMorphedType()); // want bozed, JavafxTypes version won't work
 
             protected List<JCTree> getBody() {
                 List<JCVariableDecl> params = List.of(makeParam(tmiSelector.getRealType(), selectorParamName));
-                return List.<JCTree>of(makeClosureMethod("computeSelect", selectingExpr, params));
+                return List.<JCTree>of(makeClosureMethod("computeSelect", selectorExpr, params));
             }
 
             protected JCExpression getBaseClass() {
                 Type clazzType = tmiResult.getBoundSelectLocationType();
-                clazzType = types.erasure(clazzType);
-                return makeExpression(clazzType);
+                JCExpression clazz = makeExpression(types.erasure(clazzType));  // type params added below, so erase formals
+                ListBuffer<JCExpression> typeParams = ListBuffer.lb();
+                
+                if (typeKindResult == TYPE_KIND_OBJECT || typeKindResult == TYPE_KIND_SEQUENCE) {
+                    typeParams.append( makeExpression(elementTypeResult) );
+                }
+                typeParams.append( makeExpression(tmiSelector.getRealType()) );
+                return m().TypeApply(clazz, typeParams.toList());
             }
 
             protected List<JCExpression> getConstructorArgs() {
                 ListBuffer<JCExpression> constructorArgs = ListBuffer.lb();
-                if (tmiResult.isSequence()) {
+                if (typeKindResult == TYPE_KIND_OBJECT || typeKindResult == TYPE_KIND_SEQUENCE) {
                     // prepend "Foo.class, "
-                    constructorArgs.append(makeDotClass(diagPos, tmiResult.getElementType()));
+                    constructorArgs.append(makeDotClass(diagPos, elementTypeResult));
                 }
-                constructorArgs.append(selectorExpr);
+                constructorArgs.append(selectingExpr);
                 return constructorArgs.toList();
             }
         }).doit();

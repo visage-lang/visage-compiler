@@ -32,10 +32,12 @@ package com.sun.javafx.runtime.location;
  */
 public abstract class BoundObjectSelectExpression<T, U> extends IndirectObjectExpression<T> implements ObjectLocation<T> {
     private final ObjectLocation<U> selector;
+    private final T defaultUnboundValue;
 
-    public BoundObjectSelectExpression(ObjectLocation<U> selector) {
+    public BoundObjectSelectExpression(Class<T> clazz, ObjectLocation<U> selector) {
         super(false /*lazy*/, selector);
         this.selector = selector;
+        this.defaultUnboundValue = clazz.getName().equals("java.lang.String")? (T)"" : null;
     }
 
     protected abstract ObjectLocation<T> computeSelect(U selectorValue);
@@ -44,7 +46,7 @@ public abstract class BoundObjectSelectExpression<T, U> extends IndirectObjectEx
         clearDynamicDependencies();
         U selectorValue = selector.get();
         if (selectorValue == null) {
-            return ObjectConstant.<T>make(null) /*DEFAULT*/;
+            return ObjectConstant.<T>make(defaultUnboundValue) /*DEFAULT*/;
         } else {
             ObjectLocation<T> result = computeSelect(selectorValue);
             addDynamicDependency(result);
