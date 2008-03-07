@@ -29,11 +29,11 @@ import com.sun.javafx.runtime.JavaFXTestCase;
 import java.util.Comparator;
 
 /**
- * SequencesHelperTest
+ * SequencesTest
  *
  * @author Michael Heinrichs
  */
-public class SequencesHelperTest extends JavaFXTestCase {
+public class SequencesTest extends JavaFXTestCase {
 
     public static class DummyElement {
         public int id;

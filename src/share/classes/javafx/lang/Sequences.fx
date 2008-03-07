@@ -30,8 +30,6 @@ import java.lang.Comparable;
 import java.lang.System;
 import java.util.Comparator;
 
-import com.sun.javafx.runtime.sequence.SequencesHelper;
-
 import java.lang.UnsupportedOperationException;
 
 
@@ -66,7 +64,7 @@ public class Sequences {
      *         if and only if the key is found.
      */
     public static function binarySearch(seq: Comparable[], key: Comparable): Integer {
-        return SequencesHelper.binarySearch(seq, key);
+        return com.sun.javafx.runtime.sequence.Sequences.binarySearch(seq, key);
     }
     
     /**
@@ -93,11 +91,11 @@ public class Sequences {
      *         if and only if the key is found.
      */
     public static function binarySearch(seq: Object[], key: Object, c: Comparator): Integer {
-        return SequencesHelper.binarySearch(seq, key, c);
+        return com.sun.javafx.runtime.sequence.Sequences.binarySearch(seq, key, c);
     }
     
     public static function indexOf(seq: Object[], key: Object): Integer {
-        return SequencesHelper.indexOf(seq, key);
+        return com.sun.javafx.runtime.sequence.Sequences.indexOf(seq, key);
     }
     
     public static function max(seq: Comparable[]): Comparable {
@@ -148,7 +146,7 @@ public class Sequences {
      * @return The sorted sequence.
      */
     public static function sort(seq: Comparable[]): Comparable[] {
-        return SequencesHelper.sort(seq);
+        return com.sun.javafx.runtime.sequence.Sequences.sort(seq);
     }
     
     /**
@@ -176,6 +174,6 @@ public class Sequences {
      * @return The sorted sequence.
      */
     public static function sort(seq: Object[], c: Comparator): Object[] {
-        return SequencesHelper.sort(seq, c);
+        return com.sun.javafx.runtime.sequence.Sequences.sort(seq, c);
     }
 }
