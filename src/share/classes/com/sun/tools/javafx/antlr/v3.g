@@ -652,7 +652,7 @@ statement
 	| CONTINUE  	 	 	
        	| throwStatement	   	
        	| returnStatement 		
-       	| tryStatement			
+       	| tryStatement	
        	;
 variableDeclaration   
 @after { Tree docComment = getDocComment($variableDeclaration.start);
@@ -724,6 +724,24 @@ catchClause
 	: CATCH LPAREN formalParameter RPAREN block
 						-> ^(CATCH formalParameter block)
 	;
+interpolateExpression
+        : simpleInterpolate
+        | blockInterpolate
+        ;
+simpleInterpolate
+        : id=qualname SUCHTHAT tweenValue                       -> ^(SUCHTHAT $id tweenValue)
+        ;
+blockInterpolate
+        : id=qualname SUCHTHAT LBRACE namedTweenValue (COMMA namedTweenValue)* RBRACE                 
+                                                                -> ^(SUCHTHAT_BLOCK $id namedTweenValue*)
+        ;
+namedTweenValue
+        : id=qualname COLON expr=primaryExpression (TWEEN interpolate=name)? (COMMA | SEMI)?
+                                                                -> ^(NAMED_TWEEN $id $expr $interpolate?)
+        ;
+tweenValue
+        : expr=primaryExpression TWEEN interpolate=name         -> ^(TWEEN $expr $interpolate)
+        ;
 boundExpression 
 	: BIND LAZY? expression (WITH INVERSE)?
 						-> ^(BIND LAZY? INVERSE? expression)
@@ -753,20 +771,6 @@ elseClause
 	: (ELSE)=>  ELSE  expression				-> expression
 	| /*nada*/ 						->
 	;
-interpolateExpression
-        : id=qualname SUCHTHAT 
-            ( tweenValue                                        -> ^(SUCHTHAT $id tweenValue*)
-            | LBRACE namedTweenValue (COMMA namedTweenValue)* RBRACE
-                                                                -> ^(SUCHTHAT_BLOCK $id namedTweenValue*)
-            )
-        ;
-namedTweenValue
-        : id=name COLON expr=expression (TWEEN interpolate=name)?   
-                                                                -> ^(NAMED_TWEEN $id $expr $interpolate)
-        ;
-tweenValue
-        : expr=expression TWEEN interpolate=name                -> ^(TWEEN $expr $interpolate)
-        ;
 assignmentExpression  
 	: assignmentOpExpression 
 		( (EQ)=>   EQ  expression			-> ^(EQ assignmentOpExpression expression)

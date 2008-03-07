@@ -484,11 +484,11 @@ interpolateExpression  returns [JCExpression expr]
 @init { ListBuffer<JFXInterpolateValue> tweenProps = new ListBuffer<JFXInterpolateValue>(); }
         : ^(SUCHTHAT identifier
             ( tweenValue                                { tweenProps.append($tweenValue.prop); } )*
-           )                                            { $expr = F.at(pos($SUCHTHAT)).InterpolateExpression($identifier.expr, tweenProps.toList()); 
+           )                                            { $expr = F.at(pos($SUCHTHAT)).Interpolate($identifier.expr, tweenProps.toList()); 
                                                           endPos($expr, $SUCHTHAT); }
         | ^(SUCHTHAT_BLOCK identifier
             ( namedTweenValue                           { tweenProps.append($namedTweenValue.prop); } )*
-           )                                            { $expr = F.at(pos($SUCHTHAT_BLOCK)).InterpolateExpression($identifier.expr, tweenProps.toList()); 
+           )                                            { $expr = F.at(pos($SUCHTHAT_BLOCK)).Interpolate($identifier.expr, tweenProps.toList()); 
                                                           endPos($expr, $SUCHTHAT_BLOCK); }
         ;
 tweenValue returns [JFXInterpolateValue prop]
@@ -496,9 +496,9 @@ tweenValue returns [JFXInterpolateValue prop]
                                                           endPos($prop, $TWEEN); }
         ;
 namedTweenValue returns [JFXInterpolateValue prop]
-        : ^(TWEEN identifier expression name)
-                                                        { $prop = F.at(pos($TWEEN)).InterpolateValue($identifier.expr, $expression.expr, $name.value); 
-                                                          endPos($prop, $TWEEN); }
+        : ^(NAMED_TWEEN identifier expression name?)
+                                                        { $prop = F.at(pos($NAMED_TWEEN)).InterpolateValue($identifier.expr, $expression.expr, $name.value); 
+                                                          endPos($prop, $NAMED_TWEEN); }
         ;
 explicitSequenceExpression   returns [JFXSequenceExplicit expr]
 @init { ListBuffer<JCExpression> exps = new ListBuffer<JCExpression>(); }

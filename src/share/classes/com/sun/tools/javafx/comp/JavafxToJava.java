@@ -3653,7 +3653,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         visitInstanciate(inst); // sets result
     }
 
-    public void visitInterpolateExpression(JFXInterpolateExpression tree) {
+    public void visitInterpolate(JFXInterpolate tree) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

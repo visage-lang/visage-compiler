@@ -46,7 +46,7 @@ public class JFXInterpolateValue extends JFXTree implements InterpolateValueTree
         interpolation = interp;
     }
 
-    public JCExpression getAttributeName() {
+    public JCExpression getTarget() {
         return attribute;
     }
 
@@ -68,7 +68,7 @@ public class JFXInterpolateValue extends JFXTree implements InterpolateValueTree
 
     @Override
     public void accept(JavafxVisitor v) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        v.visitInterpolateValue(this);
     }
 
     @Override

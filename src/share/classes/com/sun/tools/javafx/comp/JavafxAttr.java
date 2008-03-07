@@ -34,6 +34,7 @@ import javax.lang.model.element.ElementKind;
 import javax.tools.JavaFileObject;
 
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.javafx.api.tree.InterpolateValueTree;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javac.code.*;
 import static com.sun.tools.javac.code.Flags.*;
@@ -3824,11 +3825,31 @@ public
         result = check(tree, syms.javafx_TimeType, VAL, pkind, pt, pSequenceness);
     }
 
-    public void visitInterpolateExpression(JFXInterpolateExpression tree) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void visitInterpolate(JFXInterpolate tree) {
+        tree.getVariable().accept(this);
+        for (InterpolateValueTree t : tree.getInterpolateValues())
+            ((JFXInterpolateValue)t).accept((JavafxVisitor)this);
+        Type owntype = types.sequenceType(syms.javafx_KeyValueType);
+        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
 
     public void visitInterpolateValue(JFXInterpolateValue tree) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Type targetType = attribExpr(tree.getTarget(), env, Infer.anyPoly);
+        Type valueType = attribExpr(tree.getValue(), env, Infer.anyPoly);
+        chk.checkType(tree.pos(), targetType, valueType, Sequenceness.DISALLOWED);      
+        Type interpolateType = syms.errType;
+        if (types.isAssignable(targetType, syms.javafx_ColorValueType)) { 
+            interpolateType = syms.javafx_ColorInterpolatorType;
+        } else if (types.isAssignable(targetType, syms.javafx_NumberValueType)) {
+            interpolateType = syms.javafx_NumberInterpolatorType;
+        } else {
+            log.error(tree.pos(), "unexpected.type",
+                      Resolve.kindNames(pkind),
+                      Resolve.kindName(pkind));
+            interpolateType = syms.errType;
+        }
+        result = interpolateType == syms.errType ? 
+            check(tree.getTarget(), interpolateType, VAL, pkind, pt, pSequenceness) : syms.errType;
+        tree.type = result;
     }
 }

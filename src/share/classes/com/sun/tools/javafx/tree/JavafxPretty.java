@@ -807,14 +807,14 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-    public void visitInterpolateExpression(JFXInterpolateExpression tree) {
+    public void visitInterpolate(JFXInterpolate tree) {
         try {
             print(tree.getVariable());
             print(" => {");
             Iterator<InterpolateValueTree> values = tree.getInterpolateValues().iterator();
             while (values.hasNext()) {
                 InterpolateValueTree val = values.next();
-                print(val.getAttributeName());
+                print(val.getTarget());
                 print(": ");
                 print(val.getValue());
                 printTween(val);
@@ -829,7 +829,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
 
     public void visitInterpolateValue(JFXInterpolateValue tree) {
         try {
-            print(tree.getAttributeName());
+            print(tree.getTarget());
             print(" => ");
             print(tree.getValue());
             printTween(tree);

@@ -170,7 +170,7 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
         return defaultAction(node, p);
     }
 
-    public R visitInterpolateExpression(InterpolateExpressionTree node, P p) {
+    public R visitInterpolate(InterpolateTree node, P p) {
         return defaultAction(node, p);
     }
 

@@ -39,7 +39,7 @@ import java.util.List;
  * 
  * @author tball
  */
-public interface InterpolateExpressionTree extends JavaFXExpressionTree {
+public interface InterpolateTree extends JavaFXStatementTree {
     
     /**
      * Returns the variable to be interpolated.

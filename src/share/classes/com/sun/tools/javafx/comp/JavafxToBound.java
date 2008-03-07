@@ -1436,12 +1436,12 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
      *
      */
     
-    public void visitInterpolateExpression(JFXInterpolateExpression tree) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void visitInterpolate(JFXInterpolate tree) {
+        assert false : "should not be processed as part of a binding";
     }
 
     public void visitInterpolateValue(JFXInterpolateValue tree) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override

@@ -36,12 +36,12 @@ import com.sun.source.tree.ExpressionTree;
 public interface InterpolateValueTree extends JavaFXTree {
     
     /**
-     * Returns the attribute to which this value applies.
+     * Returns the target attribute to which this value applies.
      * 
-     * @return the attribute name, or null if this value is declared outside of 
+     * @return the target, or null if this value is declared outside of 
      *         an interpolate block expression.
      */
-    ExpressionTree getAttributeName();
+    ExpressionTree getTarget();
     
     /**
      * The interpolation to be run, such as <code>LINEAR</code> or 

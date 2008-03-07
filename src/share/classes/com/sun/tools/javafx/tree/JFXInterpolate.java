@@ -25,18 +25,18 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.InterpolateExpressionTree;
+import com.sun.javafx.api.tree.InterpolateTree;
 import com.sun.javafx.api.tree.InterpolateValueTree;
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.javafx.api.tree.JavaFXTreeVisitor;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.util.List;
 
-public class JFXInterpolateExpression extends JFXExpression implements InterpolateExpressionTree {
+public class JFXInterpolate extends JFXExpression implements InterpolateTree {
     public JCExpression var;
     public List<JFXInterpolateValue> values;
     
-    public JFXInterpolateExpression(JCExpression var, List<JFXInterpolateValue> values) {
+    public JFXInterpolate(JCExpression var, List<JFXInterpolateValue> values) {
         this.var = var;
         this.values = values;
     }
@@ -59,7 +59,7 @@ public class JFXInterpolateExpression extends JFXExpression implements Interpola
 
     @Override
     public void accept(JavafxVisitor v) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        v.visitInterpolate(this);
     }
 
     @Override

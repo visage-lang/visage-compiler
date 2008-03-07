@@ -295,7 +295,7 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     public void visitTimeLiteral(JFXTimeLiteral tree) {
     }
 
-    public void visitInterpolateExpression(JFXInterpolateExpression that) {
+    public void visitInterpolate(JFXInterpolate that) {
         scan(that.var);
         scan(that.values);
     }

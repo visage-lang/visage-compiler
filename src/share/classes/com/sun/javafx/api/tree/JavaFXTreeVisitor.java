@@ -59,7 +59,7 @@ public interface JavaFXTreeVisitor<R,P> extends TreeVisitor<R,P> {
     R visitForExpression(ForExpressionTree node, P p);
     R visitForExpressionInClause(ForExpressionInClauseTree node, P p);
     R visitInitDefinition(InitDefinitionTree node, P p);
-    R visitInterpolateExpression(InterpolateExpressionTree node, P p);
+    R visitInterpolate(InterpolateTree node, P p);
     R visitInterpolateValue(InterpolateValueTree node, P p);
     R visitIndexof(IndexofTree node, P p);
     R visitInstantiate(InstantiateTree node, P p);

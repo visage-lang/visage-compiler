@@ -220,13 +220,13 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
         return null;
     }
 
-    public R visitInterpolateExpression(InterpolateExpressionTree node, P p) {
+    public R visitInterpolate(InterpolateTree node, P p) {
         R r = scan(node.getVariable(), p);
         return scanAndReduce(node.getInterpolateValues(), p, r);
     }
 
     public R visitInterpolateValue(InterpolateValueTree node, P p) {
-        R r = scan(node.getAttributeName(), p);
+        R r = scan(node.getTarget(), p);
         return scanAndReduce(node.getValue(), p, r);
     }
 }
