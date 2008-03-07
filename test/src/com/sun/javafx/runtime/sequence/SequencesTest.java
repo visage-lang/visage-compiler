@@ -83,35 +83,35 @@ public class SequencesTest extends JavaFXTestCase {
     public void testBinarySearchComparable() {
         int result;
         // search in empty sequence
-        result = SequencesHelper.binarySearch(emptyInteger, 1);
+        result = Sequences.binarySearch(emptyInteger, 1);
         assertEquals(Sequences.emptySequence(Integer.class), emptyInteger);
         assertEquals(-1, result);
         
         // single element sequence
         // successful search
-        result = SequencesHelper.binarySearch(singleInteger, 0);
+        result = Sequences.binarySearch(singleInteger, 0);
         assertEquals(singleInteger, 0);
         assertEquals(0, result);
         
         // unsuccessful search
-        result = SequencesHelper.binarySearch(singleInteger, 1);
+        result = Sequences.binarySearch(singleInteger, 1);
         assertEquals(singleInteger, 0);
         assertEquals(-2, result);
         
         // three elements sequence
         // successful search
-        result = SequencesHelper.binarySearch(sortedInteger, 2);
+        result = Sequences.binarySearch(sortedInteger, 2);
         assertEquals(sortedInteger, 1, 2, 3);
         assertEquals(1, result);
         
         // unsuccessful search
-        result = SequencesHelper.binarySearch(sortedInteger, 0);
+        result = Sequences.binarySearch(sortedInteger, 0);
         assertEquals(sortedInteger, 1, 2, 3);
         assertEquals(-1, result);
         
         // exception when sequence is null
         try {
-            SequencesHelper.binarySearch(null, 0);
+            Sequences.binarySearch(null, 0);
             fail("No exception thrown.");
         }
         catch (NullPointerException ex) {
@@ -130,40 +130,40 @@ public class SequencesTest extends JavaFXTestCase {
     public void testBinarySearchComparator() {
         int result;
         // search in empty sequence
-        result = SequencesHelper.binarySearch(emptyElements, element[1], comparator);
+        result = Sequences.binarySearch(emptyElements, element[1], comparator);
         assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
         assertEquals(-1, result);
         
         // single element sequence
         // successful search
-        result = SequencesHelper.binarySearch(singleElements, element[0], comparator);
+        result = Sequences.binarySearch(singleElements, element[0], comparator);
         assertEquals(singleElements, element[0]);
         assertEquals(0, result);
         
         // unsuccessful search
-        result = SequencesHelper.binarySearch(singleElements, element[1], comparator);
+        result = Sequences.binarySearch(singleElements, element[1], comparator);
         assertEquals(singleElements, element[0]);
         assertEquals(-2, result);
         
         // three elements sequence
         // successful search
-        result = SequencesHelper.binarySearch(sortedElements, element[2], comparator);
+        result = Sequences.binarySearch(sortedElements, element[2], comparator);
         assertEquals(sortedElements, element[1], element[2], element[3]);
         assertEquals(1, result);
         
         // unsuccessful search
-        result = SequencesHelper.binarySearch(sortedElements, element[0], comparator);
+        result = Sequences.binarySearch(sortedElements, element[0], comparator);
         assertEquals(sortedElements, element[1], element[2], element[3]);
         assertEquals(-1, result);
 
         // search using null-comparator
-        int resultInt = SequencesHelper.binarySearch(sortedInteger, 2, null);
+        int resultInt = Sequences.binarySearch(sortedInteger, 2, null);
         assertEquals(sortedInteger, 1, 2, 3);
         assertEquals(1, resultInt);
         
         // exception if using null-operator with non-comparable elements
         try {
-            result = SequencesHelper.binarySearch(sortedElements, element[2], null);
+            result = Sequences.binarySearch(sortedElements, element[2], null);
             fail("No exception thrown.");
         }
         catch (ClassCastException ex) {
@@ -177,7 +177,7 @@ public class SequencesTest extends JavaFXTestCase {
         
         // exception when sequence is null
         try {
-            SequencesHelper.binarySearch(null, 1, null);
+            Sequences.binarySearch(null, 1, null);
             fail("No exception thrown.");
         }
         catch (NullPointerException ex) {
@@ -193,50 +193,50 @@ public class SequencesTest extends JavaFXTestCase {
     public void testIndexOf() {
         int result;
         // search in empty sequence
-        result = SequencesHelper.indexOf(emptyElements, element[1]);
+        result = Sequences.indexOf(emptyElements, element[1]);
         assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
         assertEquals(-1, result);
         
         // single element sequence
         // successful search
-        result = SequencesHelper.indexOf(singleElements, element[0]);
+        result = Sequences.indexOf(singleElements, element[0]);
         assertEquals(singleElements, element[0]);
         assertEquals(0, result);
         
         // unsuccessful search
-        result = SequencesHelper.indexOf(singleElements, element[1]);
+        result = Sequences.indexOf(singleElements, element[1]);
         assertEquals(singleElements, element[0]);
         assertEquals(-1, result);
         
         // three elements sequence
         // successful search for first element
-        result = SequencesHelper.indexOf(unsortedElements, element[3]);
+        result = Sequences.indexOf(unsortedElements, element[3]);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(0, result);
         
         // successful search for middle element
-        result = SequencesHelper.indexOf(unsortedElements, element[1]);
+        result = Sequences.indexOf(unsortedElements, element[1]);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(1, result);
         
         // successful search for last element
-        result = SequencesHelper.indexOf(unsortedElements, element[2]);
+        result = Sequences.indexOf(unsortedElements, element[2]);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(2, result);
         
         // make sure first element is returned
-        result = SequencesHelper.indexOf(longSequence, element[1]);
+        result = Sequences.indexOf(longSequence, element[1]);
         assertEquals(longSequence, element[0], element[1], element[2], element[1], element[3]);
         assertEquals(1, result);
         
         // unsuccessful search
-        result = SequencesHelper.indexOf(unsortedElements, element[0]);
+        result = Sequences.indexOf(unsortedElements, element[0]);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(-1, result);
 
         // exception when sequence is null
         try {
-            SequencesHelper.indexOf(null, 1);
+            Sequences.indexOf(null, 1);
             fail("No exception thrown.");
         }
         catch (NullPointerException ex) {
@@ -247,7 +247,7 @@ public class SequencesTest extends JavaFXTestCase {
 
         // exception when sequence is null
         try {
-            SequencesHelper.indexOf(unsortedElements, null);
+            Sequences.indexOf(unsortedElements, null);
             fail("No exception thrown.");
         }
         catch (NullPointerException ex) {
@@ -266,23 +266,23 @@ public class SequencesTest extends JavaFXTestCase {
         Sequence<Integer> result;
         
         // sort empty sequence
-        result = SequencesHelper.sort(emptyInteger);
+        result = Sequences.sort(emptyInteger);
         assertEquals(Sequences.emptySequence(Integer.class), emptyInteger);
         assertEquals(Sequences.emptySequence(Integer.class), result);
         
         // sort single element
-        result = SequencesHelper.sort(singleInteger);
+        result = Sequences.sort(singleInteger);
         assertEquals(singleInteger, 0);
         assertEquals(result, 0);
         
         // sort unsorted sequence
-        result = SequencesHelper.sort(unsortedInteger);
+        result = Sequences.sort(unsortedInteger);
         assertEquals(unsortedInteger, 3, 1, 2);
         assertEquals(result, 1, 2, 3);
         
         // exception when sequence is null
         try {
-            SequencesHelper.sort(null);
+            Sequences.sort(null);
             fail("No exception thrown.");
         }
         catch (NullPointerException ex) {
@@ -301,28 +301,28 @@ public class SequencesTest extends JavaFXTestCase {
         Sequence<DummyElement> result;
                 
         // sort empty sequence
-        result = SequencesHelper.sort(emptyElements, comparator);
+        result = Sequences.sort(emptyElements, comparator);
         assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
         assertEquals(Sequences.emptySequence(DummyElement.class), result);
         
         // sort single element
-        result = SequencesHelper.sort(singleElements, comparator);
+        result = Sequences.sort(singleElements, comparator);
         assertEquals(singleElements, element[0]);
         assertEquals(result, element[0]);
         
         // sort unsorted sequence
-        result = SequencesHelper.sort(unsortedElements, comparator);
+        result = Sequences.sort(unsortedElements, comparator);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(result, element[1], element[2], element[3]);
         
         // sort using null-comparator
-        Sequence<Integer> resultInt = SequencesHelper.sort(unsortedInteger, null);
+        Sequence<Integer> resultInt = Sequences.sort(unsortedInteger, null);
         assertEquals(unsortedInteger, 3, 1, 2);
         assertEquals(resultInt, 1, 2, 3);
         
         // exception if using null-operator with non-comparable elements
         try {
-            result = SequencesHelper.sort(unsortedElements, null);
+            result = Sequences.sort(unsortedElements, null);
             fail("No exception thrown.");
         }
         catch (ClassCastException ex) {
@@ -334,7 +334,7 @@ public class SequencesTest extends JavaFXTestCase {
         
         // exception when sequence is null
         try {
-            SequencesHelper.sort(null, comparator);
+            Sequences.sort(null, comparator);
             fail("No exception thrown.");
         }
         catch (NullPointerException ex) {
