@@ -1652,7 +1652,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 diagPos,
                 translated,
                 tree.sym, 
-                staticReference, 
                 state.wantLocation(),
                 createDynamicDependencies);
         if (testForNull) {
@@ -1774,7 +1773,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = typeMorpher.convertVariableReference(diagPos, 
                 convert, 
                 tree.sym, 
-                isStatic,
                 state.wantLocation(), 
                 false);
     }
