@@ -33,6 +33,9 @@ public class DummyComparator extends Comparator<DummyElement> {
 }
 
 public class SequencesTest extends javafx.fxunit.FXTestCase {
+    
+    // TODO: JFXC-833 Simplify singleInteger, singleElement, and assertEquals
+    // TODO: JFXC-869 Simplify try-catch blocks below after resolve
 
     attribute emptyInteger:     Integer[];
     attribute singleInteger:    Integer[];
@@ -50,8 +53,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
     protected function setUp(): Void {
         // Integer-sequences
         emptyInteger    = [];
-        // TODO JFXC-833
-//        singleInteger   = 0;
+        singleInteger   = [0];
         sortedInteger   = [1, 2, 3];
         unsortedInteger = [3, 1, 2];
         
@@ -60,8 +62,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
         // DummyElement-sequences
         emptyElements    = [];
-        // TODO JFXC-833
-//        singleElements   = element[0];
+        singleElements   = [element[0]];
         sortedElements   = [element[1], element[2], element[3]];
         unsortedElements = [element[3], element[1], element[2]];
         longSequence     = [element[0], element[1], element[2], element[1], element[3]];
@@ -70,6 +71,11 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         comparator = DummyComparator {};
     }
     
+    /** 
+     * function binarySearch(seq: Comparable[], key: Comparable): Integer 
+     * This method uses Arrays.binarySearch for sorting, which we can asume to
+     * work. Only tests for the mapping are needed.
+     */
     function testBinarySearchComparable() {
         var result: Integer;
         
@@ -79,16 +85,15 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         assertEquals(-1, result);
         
         // single element sequence
-        // TODO JFXC-833
-//        // successful search
-//        result = Sequences.binarySearch(singleInteger, 0);
-//        assertEquals(singleInteger, 0);
-//        assertEquals(0, result);
-//        
-//        // unsuccessful search
-//        result = Sequences.binarySearch(singleInteger, 1);
-//        assertEquals(0, singleInteger);
-//        assertEquals(-2, result);
+        // successful search
+        result = Sequences.binarySearch(singleInteger, 0);
+        assertEquals([0], singleInteger);
+        assertEquals(0, result);
+        
+        // unsuccessful search
+        result = Sequences.binarySearch(singleInteger, 1);
+        assertEquals([0], singleInteger);
+        assertEquals(-2, result);
         
         // three elements sequence
         // successful search
@@ -114,6 +119,11 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
     }
 
+    /** 
+     * function binarySearch(seq: Object[], key: Object, c: Comparator): Integer
+     * This method uses Arrays.binarySearch for sorting, which we can asume to
+     * work. Only tests for the mapping are needed.
+     */
     function testBinarySearchComparator() {
         var result: Integer;
         
@@ -123,16 +133,15 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         assertEquals(-1, result);
         
         // single element sequence
-        // TODO JFXC-833
-//        // successful search
-//        result = Sequences.binarySearch(singleElements, element[0], comparator);
-//        assertEquals(element[0], singleElements);
-//        assertEquals(0, result);
-//        
-//        // unsuccessful search
-//        result = Sequences.binarySearch(singleElements, element[1], comparator);
-//        assertEquals(element[0], singleElements);
-//        assertEquals(-2, result);
+        // successful search
+        result = Sequences.binarySearch(singleElements, element[0], comparator);
+        assertEquals([element[0]], singleElements);
+        assertEquals(0, result);
+        
+        // unsuccessful search
+        result = Sequences.binarySearch(singleElements, element[1], comparator);
+        assertEquals([element[0]], singleElements);
+        assertEquals(-2, result);
         
         // three elements sequence
         // successful search
@@ -175,6 +184,9 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
     }
     
+    /**
+     * function indexOf(seq: Object[], key: Object): Integer
+     */
     function testIndexOf() {
         var result: Integer;
         
@@ -184,16 +196,15 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         assertEquals(-1, result);
         
         // single element sequence
-        // TODO JFXC-833
-//        // successful search
-//        result = Sequences.indexOf(singleElements, element[0]);
-//        assertEquals(element[0], singleElements);
-//        assertEquals(0, result);
-//        
-//        // unsuccessful search
-//        result = Sequences.indexOf(singleElements, element[1]);
-//        assertEquals(element[0], singleElements);
-//        assertEquals(-1, result);
+        // successful search
+        result = Sequences.indexOf(singleElements, element[0]);
+        assertEquals([element[0]], singleElements);
+        assertEquals(0, result);
+        
+        // unsuccessful search
+        result = Sequences.indexOf(singleElements, element[1]);
+        assertEquals([element[0]], singleElements);
+        assertEquals(-1, result);
         
         // three elements sequence
         // successful search for first element
@@ -244,6 +255,297 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         }
     }
     
+    /**
+     * function max(seq: Comparable[]): Comparable
+     */
+    function testMaxComparable() {
+        var result: Integer;
+        
+        // get maximum in single element sequence
+        result = Sequences.max(singleInteger) as Integer;
+        assertEquals([0], singleInteger);
+        assertEquals(0, result);
+        
+        // get first element
+        result = Sequences.max(unsortedInteger) as Integer;
+        assertEquals([3, 1, 2], unsortedInteger);
+        assertEquals(3, result);
+        
+        // get middle element
+        var fixture: Integer[] = [11, 13, 12];
+        result = Sequences.max(fixture) as Integer;
+        assertEquals([11, 13, 12], fixture);
+        assertEquals(13, result);
+        
+        // get last element
+        result = Sequences.max(sortedInteger) as Integer;
+        assertEquals([1, 2, 3], sortedInteger);
+        assertEquals(3, result);
+        
+        // exception when sequence is null
+        try {
+            Sequences.max(null);
+            fail("No exception thrown.");
+        }
+        catch (ex1: NullPointerException) {
+        }
+        catch (ex2: Exception) {
+            fail ("Unexpected exception thrown: " + ex2.getMessage());
+        }
+        
+        // exception when sequence is empty
+        try {
+            Sequences.max(emptyInteger);
+            fail("No exception thrown.");
+        }
+        catch (ex3: IllegalArgumentException) {
+        }
+        catch (ex4: Exception) {
+            fail ("Unexpected exception thrown: " + ex4.getMessage());
+        }
+        
+    }
+    
+    /**
+     * function max(seq: Object[], c: Comparator): Object
+     */
+    function testMaxComparator() {
+        var result: DummyElement;
+        
+        // get maximum in single element sequence
+        result = Sequences.max(singleElements, comparator) as DummyElement;
+        assertEquals([element[0]], singleElements);
+        assertEquals(element[0], result);
+        
+        // get first element
+        result = Sequences.max(unsortedElements, comparator) as DummyElement;
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals(element[3], result);
+        
+        // get middle element
+        var fixture: DummyElement[] = [element[0], element[3], element[2]];
+        result = Sequences.max(fixture, comparator) as DummyElement;
+        assertEquals([element[0], element[3], element[2]], fixture);
+        assertEquals(element[3], result);
+        
+        // get last element
+        result = Sequences.max(sortedElements, comparator) as DummyElement;
+        assertEquals([element[1], element[2], element[3]], sortedElements);
+        assertEquals(element[3], result);
+        
+        // max using natural order
+        var resultInt: Integer = Sequences.max(unsortedInteger, null) as Integer;
+        assertEquals([3, 1, 2], unsortedInteger);
+        assertEquals(3, resultInt);
+        
+        // exception when sequence is null
+        try {
+            Sequences.max(null, null);
+            fail("No exception thrown.");
+        }
+        catch (ex1: NullPointerException) {
+        }
+        catch (ex2: Exception) {
+            fail ("Unexpected exception thrown: " + ex2.getMessage());
+        }
+        
+        // exception when sequence is empty
+        try {
+            Sequences.max(emptyElements, comparator);
+            fail("No exception thrown.");
+        }
+        catch (ex3: IllegalArgumentException) {
+        }
+        catch (ex4: Exception) {
+            fail ("Unexpected exception thrown: " + ex4.getMessage());
+        }
+        
+    }
+    
+    /**
+     * function min(seq: Comparable[]): Comparable
+     */
+    function testMinComparable() {
+        var result: Integer;
+        
+        // get maximum in single element sequence
+        result = Sequences.min(singleInteger) as Integer;
+        assertEquals([0], singleInteger);
+        assertEquals(0, result);
+        
+        // get first element
+        result = Sequences.min(sortedInteger) as Integer;
+        assertEquals([1, 2, 3], sortedInteger);
+        assertEquals(1, result);
+        
+        // get middle element
+        result = Sequences.min(unsortedInteger) as Integer;
+        assertEquals([3, 1, 2], unsortedInteger);
+        assertEquals(1, result);
+        
+        // get last element
+        var fixture: Integer[] = [12, 13, 11];
+        result = Sequences.min(fixture) as Integer;
+        assertEquals([12, 13, 11], fixture);
+        assertEquals(11, result);
+        
+        // exception when sequence is null
+        try {
+            Sequences.min(null);
+            fail("No exception thrown.");
+        }
+        catch (ex1: NullPointerException) {
+        }
+        catch (ex2: Exception) {
+            fail ("Unexpected exception thrown: " + ex2.getMessage());
+        }
+        
+        // exception when sequence is empty
+        try {
+            Sequences.min(emptyInteger);
+            fail("No exception thrown.");
+        }
+        catch (ex3: IllegalArgumentException) {
+        }
+        catch (ex4: Exception) {
+            fail ("Unexpected exception thrown: " + ex4.getMessage());
+        }
+        
+    }
+    
+    /**
+     * function min(seq: Object[], c: Comparator): Object
+     */
+    function testMinComparator() {
+        var result: DummyElement;
+        
+        // get minimum in single element sequence
+        result = Sequences.min(singleElements, comparator) as DummyElement;
+        assertEquals([element[0]], singleElements);
+        assertEquals(element[0], result);
+        
+        // get first element
+        result = Sequences.min(sortedElements, comparator) as DummyElement;
+        assertEquals([element[1], element[2], element[3]], sortedElements);
+        assertEquals(element[1], result);
+        
+        // get middle element
+        result = Sequences.min(unsortedElements, comparator) as DummyElement;
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals(element[1], result);
+        
+        // get last element
+        var fixture: DummyElement[] = [element[0], element[3], element[2]];
+        result = Sequences.min(fixture, comparator) as DummyElement;
+        assertEquals([element[0], element[3], element[2]], fixture);
+        assertEquals(element[0], result);
+        
+        // min using natural order
+        var resultInt: Integer = Sequences.min(unsortedInteger, null) as Integer;
+        assertEquals([3, 1, 2], unsortedInteger);
+        assertEquals(1, resultInt);
+        
+        // exception when sequence is null
+        try {
+            Sequences.min(null, null);
+            fail("No exception thrown.");
+        }
+        catch (ex1: NullPointerException) {
+        }
+        catch (ex2: Exception) {
+            fail ("Unexpected exception thrown: " + ex2.getMessage());
+        }
+        
+        // exception when sequence is empty
+        try {
+            Sequences.min(emptyElements, comparator);
+            fail("No exception thrown.");
+        }
+        catch (ex3: IllegalArgumentException) {
+        }
+        catch (ex4: Exception) {
+            fail ("Unexpected exception thrown: " + ex4.getMessage());
+        }
+        
+    }
+    
+    /**
+     * function nextIndexOf(seq: Object[], key: Object, pos: Integer): Integer
+     * The basic functionality is tested by testIndexOf. Only tests for 
+     * pos>0 are needed here.
+     */
+    function testNextIndexOf() {
+        var result: Integer;
+        
+        // search in empty sequence
+        result = Sequences.nextIndexOf(emptyElements, element[1], 1);
+        assertEquals([], emptyElements);
+        assertEquals(-1, result);
+        
+        // single element sequence
+        result = Sequences.nextIndexOf(singleElements, element[0], 1);
+        assertEquals([element[0]], singleElements);
+        assertEquals(-1, result);
+        
+        // search with pos = result
+        result = Sequences.nextIndexOf(longSequence, element[1], 1);
+        assertEquals([element[0], element[1], element[2], element[1], element[3]], longSequence);
+        assertEquals(1, result);
+        
+        // search with pos < result
+        result = Sequences.nextIndexOf(longSequence, element[1], 2);
+        assertEquals([element[0], element[1], element[2], element[1], element[3]], longSequence);
+        assertEquals(3, result);
+        
+        // unsuccessful search
+        result = Sequences.nextIndexOf(longSequence, element[1], 4);
+        assertEquals([element[0], element[1], element[2], element[1], element[3]], longSequence);
+        assertEquals(-1, result);
+        
+        // search with pos > sequence-size
+        result = Sequences.nextIndexOf(longSequence, element[1], 5);
+        assertEquals([element[0], element[1], element[2], element[1], element[3]], longSequence);
+        assertEquals(-1, result);
+    }
+    
+    /**
+     * function <<reverse>> (seq:Object[]): Object[]
+     */
+    function testReverse() {
+        var result: Integer[];
+        
+        // reverse empty sequence
+        result = Sequences.<<reverse>>(emptyInteger) as Integer[];
+        assertEquals([], emptyInteger);
+        assertEquals([], result);
+        
+        // reverse single element sequence
+        result = Sequences.<<reverse>>(singleInteger) as Integer[];
+        assertEquals([0], singleInteger);
+        assertEquals([0], result);
+        
+        // reverse three element sequence
+        result = Sequences.<<reverse>>(unsortedInteger) as Integer[];
+        assertEquals([3, 1, 2], unsortedInteger);
+        assertEquals([2, 1, 3], result);
+        
+        // exception when sequence is null
+        try {
+            Sequences.sort(null);
+            fail("No exception thrown.");
+        }
+        catch (ex1: NullPointerException) {
+        }
+        catch (ex2: Exception) {
+            fail ("Unexpected exception thrown: " + ex2.getMessage());
+        }
+    }
+    
+    /**
+     * function sort(seq: Comparable[]): Comparable[]
+     * This method uses Arrays.sort for sorting, which we can asume to work.
+     * Only tests for the mapping are needed.
+     */
     function testSortComparable() {
         var result: Integer[];
         
@@ -253,10 +555,9 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         assertEquals([], result);
         
         // sort single element
-        // TODO JFXC-833
-//        result = Sequences.sort(singleInteger);
-//        assertEquals(1, singleInteger);
-//        assertEquals(1, result);
+        result = Sequences.sort(singleInteger) as Integer[];
+        assertEquals([0], singleInteger);
+        assertEquals([0], result);
         
         // sort sequence
         result = Sequences.sort(unsortedInteger) as Integer[];
@@ -276,6 +577,11 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
     }
 
+    /**
+     * function sort(seq: Object[], c: Comparator): Object[]
+     * This method uses Arrays.sort for sorting, which we can asume to work.
+     * Only tests for the mapping are needed.
+     */
     function testSortComparator() {
         var result: DummyElement[];
         
@@ -285,10 +591,9 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         assertEquals([], result);
         
         // sort single element
-        // TODO JFXC-833
-//        result = Sequences.sort(singleElements, comparator);
-//        assertEquals(element[0], singleElements);
-//        assertEquals(element[0], result);
+        result = Sequences.sort(singleElements, comparator) as DummyElement[];
+        assertEquals([element[0]], singleElements);
+        assertEquals([element[0]], result);
         
         // sort sequence
         result = Sequences.sort(unsortedElements, comparator) as DummyElement[];

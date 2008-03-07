@@ -156,7 +156,7 @@ public class SequencesTest extends JavaFXTestCase {
         assertEquals(sortedElements, element[1], element[2], element[3]);
         assertEquals(-1, result);
 
-        // search using null-comparator
+        // search using natural order
         int resultInt = Sequences.binarySearch(sortedInteger, 2, null);
         assertEquals(sortedInteger, 1, 2, 3);
         assertEquals(1, resultInt);
@@ -172,8 +172,6 @@ public class SequencesTest extends JavaFXTestCase {
         catch (Exception ex) {
             fail("Unexpected exception thrown: " + ex.getMessage());
         }
-        
-        
         
         // exception when sequence is null
         try {
@@ -245,7 +243,7 @@ public class SequencesTest extends JavaFXTestCase {
             fail ("Unexpected exception thrown: " + ex.getMessage());
         }
 
-        // exception when sequence is null
+        // exception when key is null
         try {
             Sequences.indexOf(unsortedElements, null);
             fail("No exception thrown.");
@@ -257,7 +255,292 @@ public class SequencesTest extends JavaFXTestCase {
         }
     }
     
+    /**
+     * <T extends Comparable> T max (Sequence<T> seq)
+     */
+    public void testMaxComparable() {
+        int result;
+        
+        // get maximum in single element sequence
+        result = Sequences.max(singleInteger);
+        assertEquals(singleInteger, 0);
+        assertEquals(0, result);
+        
+        // get first element
+        result = Sequences.max(unsortedInteger);
+        assertEquals(unsortedInteger, 3, 1, 2);
+        assertEquals(3, result);
+        
+        // get middle element
+        Sequence<Integer> fixture = Sequences.make(Integer.class, 11, 13, 12);
+        result = Sequences.max(fixture);
+        assertEquals(fixture, 11, 13, 12);
+        assertEquals(13, result);
+        
+        // get last element
+        result = Sequences.max(sortedInteger);
+        assertEquals(sortedInteger, 1, 2, 3);
+        assertEquals(3, result);
+        
+        // exception when sequence is null
+        try {
+            Sequences.max(null);
+            fail("No exception thrown.");
+        }
+        catch (NullPointerException ex) {
+        }
+        catch (Exception ex) {
+            fail ("Unexpected exception thrown: " + ex.getMessage());
+        }
+        
+        // exception when sequence is empty
+        try {
+            Sequences.max(emptyInteger);
+            fail("No exception thrown.");
+        }
+        catch (IllegalArgumentException ex) {
+        }
+        catch (Exception ex) {
+            fail ("Unexpected exception thrown: " + ex.getMessage());
+        }
+        
+    }
+    
+    /**
+     * <T> T max (Sequence<T> seq, Comparator<? super T> c)
+     */
+    public void testMaxComparator() {
+        DummyElement result;
+        
+        // get maximum in single element sequence
+        result = Sequences.max(singleElements, comparator);
+        assertEquals(singleElements, element[0]);
+        assertEquals(element[0], result);
+        
+        // get first element
+        result = Sequences.max(unsortedElements, comparator);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(element[3], result);
+        
+        // get middle element
+        Sequence<DummyElement> fixture = Sequences.make(DummyElement.class, element[0], element[3], element[2]);
+        result = Sequences.max(fixture, comparator);
+        assertEquals(fixture, element[0], element[3], element[2]);
+        assertEquals(element[3], result);
+        
+        // get last element
+        result = Sequences.max(sortedElements, comparator);
+        assertEquals(sortedElements, element[1], element[2], element[3]);
+        assertEquals(element[3], result);
+        
+        // max using natural order
+        int resultInt = Sequences.max(unsortedInteger, null);
+        assertEquals(unsortedInteger, 3, 1, 2);
+        assertEquals(3, resultInt);
+        
+        // exception when sequence is null
+        try {
+            Sequences.max(null, comparator);
+            fail("No exception thrown.");
+        }
+        catch (NullPointerException ex) {
+        }
+        catch (Exception ex) {
+            fail ("Unexpected exception thrown: " + ex.getMessage());
+        }
+        
+        // exception when sequence is empty
+        try {
+            Sequences.max(emptyElements, comparator);
+            fail("No exception thrown.");
+        }
+        catch (IllegalArgumentException ex) {
+        }
+        catch (Exception ex) {
+            fail ("Unexpected exception thrown: " + ex.getMessage());
+        }
+        
+    }
+    
+    /**
+     * <T extends Comparable> T min (Sequence<T> seq)
+     */
+    public void testMinComparable() {
+        int result;
+        
+        // get minimum in single element sequence
+        result = Sequences.min(singleInteger);
+        assertEquals(singleInteger, 0);
+        assertEquals(0, result);
+        
+        // get first element
+        result = Sequences.min(sortedInteger);
+        assertEquals(sortedInteger, 1, 2, 3);
+        assertEquals(1, result);
+        
+        // get middle element
+        result = Sequences.min(unsortedInteger);
+        assertEquals(unsortedInteger, 3, 1, 2);
+        assertEquals(1, result);
+        
+        // get last element
+        Sequence<Integer> fixture = Sequences.make(Integer.class, 12, 13, 11);
+        result = Sequences.min(fixture);
+        assertEquals(fixture, 12, 13, 11);
+        assertEquals(11, result);
+        
+        // exception when sequence is null
+        try {
+            Sequences.min(null);
+            fail("No exception thrown.");
+        }
+        catch (NullPointerException ex) {
+        }
+        catch (Exception ex) {
+            fail ("Unexpected exception thrown: " + ex.getMessage());
+        }
+        
+        // exception when sequence is empty
+        try {
+            Sequences.min(emptyInteger);
+            fail("No exception thrown.");
+        }
+        catch (IllegalArgumentException ex) {
+        }
+        catch (Exception ex) {
+            fail ("Unexpected exception thrown: " + ex.getMessage());
+        }
+        
+    }
+    
      /**
+     * <T> T max (Sequence<T> seq, Comparator<? super T> c)
+     */
+    public void testMinComparator() {
+        DummyElement result;
+        
+        // get maximum in single element sequence
+        result = Sequences.min(singleElements, comparator);
+        assertEquals(singleElements, element[0]);
+        assertEquals(element[0], result);
+        
+        // get first element
+        result = Sequences.min(sortedElements, comparator);
+        assertEquals(sortedElements, element[1], element[2], element[3]);
+        assertEquals(element[1], result);
+        
+        // get middle element
+        result = Sequences.min(unsortedElements, comparator);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(element[1], result);
+        
+        // get last element
+        Sequence<DummyElement> fixture = Sequences.make(DummyElement.class, element[2], element[3], element[0]);
+        result = Sequences.min(fixture, comparator);
+        assertEquals(fixture, element[2], element[3], element[0]);
+        assertEquals(element[0], result);
+        
+        // min using natural order
+        int resultInt = Sequences.min(unsortedInteger, null);
+        assertEquals(unsortedInteger, 3, 1, 2);
+        assertEquals(1, resultInt);
+        
+        // exception when sequence is null
+        try {
+            Sequences.min(null, comparator);
+            fail("No exception thrown.");
+        }
+        catch (NullPointerException ex) {
+        }
+        catch (Exception ex) {
+            fail ("Unexpected exception thrown: " + ex.getMessage());
+        }
+        
+        // exception when sequence is empty
+        try {
+            Sequences.min(emptyElements, comparator);
+            fail("No exception thrown.");
+        }
+        catch (IllegalArgumentException ex) {
+        }
+        catch (Exception ex) {
+            fail ("Unexpected exception thrown: " + ex.getMessage());
+        }
+        
+    }
+    
+    /**
+     * <T> int nextIndexOf(Sequence<? extends T> seq, T key, int pos)
+     * The basic functionality is tested by testIndexOf. Only tests for 
+     * pos>0 are needed here.
+     */
+    public void testNextIndexOf() {
+        int result;
+        // search in empty sequence
+        result = Sequences.nextIndexOf(emptyElements, element[1], 1);
+        assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
+        assertEquals(-1, result);
+        
+        // single element sequence
+        result = Sequences.nextIndexOf(singleElements, element[0], 1);
+        assertEquals(singleElements, element[0]);
+        assertEquals(-1, result);
+        
+        // search with pos = result
+        result = Sequences.nextIndexOf(longSequence, element[1], 1);
+        assertEquals(longSequence, element[0], element[1], element[2], element[1], element[3]);
+        assertEquals(1, result);
+        
+        // search with pos < result
+        result = Sequences.nextIndexOf(longSequence, element[1], 2);
+        assertEquals(longSequence, element[0], element[1], element[2], element[1], element[3]);
+        assertEquals(3, result);
+        
+        // unsuccessful search
+        result = Sequences.nextIndexOf(longSequence, element[1], 4);
+        assertEquals(longSequence, element[0], element[1], element[2], element[1], element[3]);
+        assertEquals(-1, result);
+        
+        // search with pos > sequence-size
+        result = Sequences.nextIndexOf(longSequence, element[1], 5);
+        assertEquals(longSequence, element[0], element[1], element[2], element[1], element[3]);
+        assertEquals(-1, result);
+    }
+    
+    /**
+     * <T> Sequence<T> reverse(Sequence<T> seq)
+     */
+    public void testReverse() {
+        Sequence<Integer> result;
+        
+        // reverse empty sequence
+        result = Sequences.reverse(emptyInteger);
+        assertEquals(Sequences.emptySequence(Integer.class), emptyInteger);
+        assertEquals(Sequences.emptySequence(Integer.class), result);
+        
+        // reverse single element sequence
+        result = Sequences.reverse(singleInteger);
+        assertEquals(singleInteger, 0);
+        assertEquals(result, 0);
+        
+        // reverse three element sequence
+        result = Sequences.reverse(unsortedInteger);
+        assertEquals(unsortedInteger, 3, 1, 2);
+        assertEquals(result, 2, 1, 3);
+        
+        // exception when sequence is null
+        try {
+            Sequences.sort(null);
+            fail("No exception thrown.");
+        }
+        catch (NullPointerException ex) {
+        }
+        catch (Exception ex) {
+            fail ("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+    
+   /**
      * <T extends Comparable> Sequence<T> sort (Sequence<T> seq) 
      * This method uses Arrays.sort for sorting, which we can asume to work.
      * Only tests for the mapping are needed.
@@ -315,7 +598,7 @@ public class SequencesTest extends JavaFXTestCase {
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(result, element[1], element[2], element[3]);
         
-        // sort using null-comparator
+        // sort using natural order
         Sequence<Integer> resultInt = Sequences.sort(unsortedInteger, null);
         assertEquals(unsortedInteger, 3, 1, 2);
         assertEquals(resultInt, 1, 2, 3);

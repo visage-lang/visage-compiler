@@ -94,33 +94,51 @@ public class Sequences {
         return com.sun.javafx.runtime.sequence.Sequences.binarySearch(seq, key, c);
     }
     
+//    public static function fill(value: Object, size: Integer): Object[] {
+//        return com.sun.javafx.runtime.sequence.Sequences.binarySearch(value.getClass(), value, size);
+//    }
+    
+    /**
+     * Searches the specified sequence for the specified object. If the
+     * sequence is sorted, binarySearch should be used instead.
+     * 
+     * If the sequence contains multiple elements equal to the specified object, 
+     * the first occurence in the sequence will be returned.
+     * 
+     * The method nextIndexOf can be used in consecutive calls to iterate
+     * through all occurences of a specified object.
+     * 
+     * @param seq The sequence to be searched.
+     * @param key The value to be searched for.
+     * @return Index of the search key, if it is contained in the array; 
+     *         otherwise -1.
+     */
     public static function indexOf(seq: Object[], key: Object): Integer {
         return com.sun.javafx.runtime.sequence.Sequences.indexOf(seq, key);
     }
     
     public static function max(seq: Comparable[]): Comparable {
-        // TODO implement
-        throw new UnsupportedOperationException();
+        return com.sun.javafx.runtime.sequence.Sequences.max(seq);
     }
     
     public static function max(seq: Object[], c: Comparator): Object {
-        // TODO implement
-        throw new UnsupportedOperationException();
+        return com.sun.javafx.runtime.sequence.Sequences.max(seq, c);
     }
     
     public static function min(seq: Comparable[]): Comparable {
-        // TODO implement
-        throw new UnsupportedOperationException();
+        return com.sun.javafx.runtime.sequence.Sequences.min(seq);
     }
     
     public static function min(seq: Object[], c: Comparator): Object {
-        // TODO implement
-        throw new UnsupportedOperationException();
+        return com.sun.javafx.runtime.sequence.Sequences.min(seq, c);
     }
     
-    public static function nextIndexOf(seq: Object[], value: Object, position: Integer): Integer {
-        // TODO implement
-        throw new UnsupportedOperationException();
+    public static function nextIndexOf(seq: Object[], key: Object, pos: Integer): Integer {
+        return com.sun.javafx.runtime.sequence.Sequences.nextIndexOf(seq, key, pos);
+    }
+    
+    public static function <<reverse>> (seq:Object[]): Object[] {
+        return com.sun.javafx.runtime.sequence.Sequences.<<reverse>>(seq);
     }
     
     /**

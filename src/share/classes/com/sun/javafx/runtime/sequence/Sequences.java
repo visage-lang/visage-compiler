@@ -403,6 +403,17 @@ public final class Sequences {
         return Arrays.binarySearch(array, (T)key, c);
     }
     
+//    public static<T> Sequence<T> fill(Class<T> clazz, T value, int size) {
+//        if (clazz == null || value == null)
+//            throw new NullPointerException();
+//        if (size < 0)
+//            throw new IllegalArgumentException();
+//        
+//        T[] array = (T[])Array.newInstance(clazz, size);
+//        Arrays.fill(array, value);
+//        return Sequences.make(clazz, array);
+//    }
+    
     /**
      * Searches the specified sequence for the specified object. If the
      * sequence is sorted, binarySearch should be used instead.
@@ -419,11 +430,160 @@ public final class Sequences {
      *         otherwise -1.
      */
     public static<T> int indexOf(Sequence<? extends T> seq, T key) {
+        return nextIndexOf(seq, key, 0);
+    }
+    
+    /**
+     * Returns the element with the maximum value in the specified sequence, 
+     * according to the natural ordering  of its elements. All elements in the 
+     * sequence must implement the Comparable interface. Furthermore, all 
+     * elements in the sequence must be mutually comparable (that is, 
+     * e1.compareTo(e2) must not throw a ClassCastException  for any elements 
+     * e1 and e2 in the sequence).
+     * 
+     * If the sequence contains multiple elements with the maximum value, 
+     * there is no guarantee which one will be found.
+     * 
+     * @param seq The sequence to be searched.
+     * @return The element with the maximum value.
+     */
+    public static <T extends Comparable> T max (Sequence<T> seq) {
+        if (seq == null)
+            throw new NullPointerException();
+        if (seq.isEmpty())
+            throw new IllegalArgumentException();
+        
+        Iterator<T> it = seq.iterator();
+        T result = it.next();
+        T current;
+        while (it.hasNext()) {
+            if ((current = it.next()).compareTo(result) > 0)
+                result = current;
+        }
+        return result;
+    }
+    
+    /**
+     * Returns the element with the maximum value in the specified sequence, 
+     * according to the specified comparator. All elements in the sequence must 
+     * be mutually comparable by the specified comparator (that is, 
+     * c.compare(e1, e2) must not throw a ClassCastException  for any elements
+     * e1 and e2 in the sequence).
+     * 
+     * If the sequence contains multiple elements with the maximum value, 
+     * there is no guarantee which one will be found.
+     * 
+     * @param seq The sequence to be searched.
+     * @param c The comparator to determine the order of the sequence. 
+     *          A null value indicates that the elements' natural ordering 
+     *          should be used.
+     * @return The element with the maximum value.
+     */
+    public static <T> T max (Sequence<T> seq, Comparator<? super T> c) {
+        if (seq == null)
+            throw new NullPointerException();
+        if (seq.isEmpty())
+            throw new IllegalArgumentException();
+        if (c == null)
+            return (T)max((Sequence<Comparable>)seq);
+        
+        Iterator<T> it = seq.iterator();
+        T result = it.next();
+        T current;
+        while (it.hasNext()) {
+            if (c.compare(current = it.next(), result) > 0)
+                result = current;
+        }
+        return result;
+    }
+    
+    /**
+     * Returns the element with the minimum value in the specified sequence, 
+     * according to the natural ordering  of its elements. All elements in the 
+     * sequence must implement the Comparable interface. Furthermore, all 
+     * elements in the sequence must be mutually comparable (that is, 
+     * e1.compareTo(e2) must not throw a ClassCastException  for any elements 
+     * e1 and e2 in the sequence).
+     * 
+     * If the sequence contains multiple elements with the minimum value, 
+     * there is no guarantee which one will be found.
+     * 
+     * @param seq The sequence to be searched.
+     * @return The element with the maximum value.
+     */
+    public static <T extends Comparable> T min (Sequence<T> seq) {
+        if (seq == null)
+            throw new NullPointerException();
+        if (seq.isEmpty())
+            throw new IllegalArgumentException();
+        
+        Iterator<T> it = seq.iterator();
+        T result = it.next();
+        T current;
+        while (it.hasNext()) {
+            if ((current = it.next()).compareTo(result) < 0)
+                result = current;
+        }
+        return result;
+    }
+    
+    /**
+     * Returns the element with the minimum value in the specified sequence, 
+     * according to the specified comparator. All elements in the sequence must 
+     * be mutually comparable by the specified comparator (that is, 
+     * c.compare(e1, e2) must not throw a ClassCastException  for any elements
+     * e1 and e2 in the sequence).
+     * 
+     * If the sequence contains multiple elements with the minimum value, 
+     * there is no guarantee which one will be found.
+     * 
+     * @param seq The sequence to be searched.
+     * @param c The comparator to determine the order of the sequence. 
+     *          A null value indicates that the elements' natural ordering 
+     *          should be used.
+     * @return The element with the minimum value.
+     */
+    public static <T> T min (Sequence<T> seq, Comparator<? super T> c) {
+        if (seq == null)
+            throw new NullPointerException();
+        if (seq.isEmpty())
+            throw new IllegalArgumentException();
+        if (c == null)
+            return (T)min((Sequence<Comparable>)seq);
+        
+        Iterator<T> it = seq.iterator();
+        T result = it.next();
+        T current;
+        while (it.hasNext()) {
+            if (c.compare(current = it.next(), result) < 0)
+                result = current;
+        }
+        return result;
+    }
+            
+    /**
+     * Searches the specified sequence for the specified object, starting the
+     * search at the specified position. 
+     * 
+     * If the sequence contains multiple elements equal to the specified object, 
+     * the first occurence in the subsequence will be returned.
+     * 
+     * @param seq The sequence to be searched.
+     * @param key The value to be searched for.
+     * @param pos The position in the sequence to start the search. If pos is
+     *            negative or 0 the whole sequence will be searched.
+     * @return Index of the search key, if it is contained in the array; 
+     *         otherwise -1.
+     */
+    public static<T> int nextIndexOf(Sequence<? extends T> seq, T key, int pos) {
         if (seq == null || key == null)
             throw new NullPointerException();
         
         Iterator<? extends T> it = seq.iterator();
-        for (int i=0; it.hasNext(); ++i)
+        int i;
+        for (i=0; i<pos && it.hasNext(); ++i)
+            it.next();
+        for (; it.hasNext(); ++i)
             if (it.next().equals(key))
                 return i;
         return -1;
