@@ -3,29 +3,27 @@ package jfx.assortie.lang.api.widgets.box;
 import javafx.ui.*;
 import java.lang.System;
 
-var list = [0];
-var n = 0;
+var list = [1];
 
 
 
 Frame{
-    
+    width: 200
+    height: 200
     title: "Box Example"
     
     content: BorderPanel{
         center: Box{
-            content: Label{ text: "Box"}
+            content: bind for( i in list) Label{ text: "Box {i}"}
         }
         bottom: FlowPanel{
-            content: [ 
-            Button{ 
+            content: [
+            Button{
                 text: "Add"
                 action: function(){
-                    n = n+1;
-                    insert n  into list;
-                    System.out.println("Hello World!");
+                    insert list[sizeof list - 1] into list;
                 }
-                }
+            }
             ]
         }
     }

@@ -231,61 +231,25 @@ public class AssortieProject  extends CompositeWidget{
         }else if(obj instanceof Frame){
             
             var frame = obj as Frame;
-            var background = (frame.background).getColor();
-            //if(background==null){  background = Color.WHITE; }
-            //System.out.println("background: {background}");
+            var  bg = (frame.background).getColor();
+            
+            var background =  if ( bg == null) 
+                    then internalFrame.background 
+                    else Color{ 
+                        red: bg.getRed() 
+                        green: bg.getGreen() 
+                        blue: bg.getBlue() 
+                    }
+
             frame.visible = false;
-            
-            
+                        
             internalFrame.title = frame.title;
             internalFrame.width = frame.width;
             internalFrame.height = frame.height;
             internalFrame.content = frame.content;
-            //internalFrame.background = background;
+            internalFrame.background = background;
             internalFrame.visible = true;
             
-            //            var content = frame.content;
-            //            if ( content instanceof Label){
-            //                var label = content as Label;
-            //                System.out.println("[label ] \"{label.text}\"");
-            //
-            //            }
-            //            System.out.println("[content] {content}");
-            
-            
-            
-            //            internalFrame =  InternalFrame{
-            //                x: x
-            //                y: y
-            //                title: frame.title
-            //                width: frame.width
-            //                height: frame.height
-            //                onClose: function(){
-            //                    System.out.println("Close frame: {sample.name}");
-            //                    sample.frame = null;
-            //                    for(tab in codeTabs){
-            //                        if(tab.title == sample.name){
-            //                            delete tab from codeTabs;
-            //                        }
-            //                    }
-            //                    selectedCodeIndex = sizeof codeTabs - 1;
-            //                    delete internalFrame from frames;
-            //                    delete sample from executedSamples;
-            //
-            //                    if (0 <= selectedCodeIndex){
-            //                        var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
-            //                        for(sample in samples){
-            //                            if(sample.name ==  tabTitle) { sample.frame.selected = true; break; }
-            //                        }
-            //                    }
-            //                }
-            //                content: frame.content
-            //                background: if (background==null) then Color.WHITE else Color{ red: background.getRed() green: background.getGreen() blue: background.getBlue() }
-            //            };
-            //            frame.visible = false;
-            //
-            //            x += 40;
-            //            y += 40;
             
         } else if (obj instanceof DiagnosticCollector ){
             var diagnostics = obj as DiagnosticCollector;
@@ -347,6 +311,26 @@ public class AssortieProject  extends CompositeWidget{
             y: y  
             width: 300  //DEFAULT_FRAME_WIDTH 
             height: 200 //DEFAULT_FRAME_HEIGHT 
+//            onClose: function(){
+//                System.out.println("Close frame: {sample.name}");
+//                sample.frame = null;
+//                for(tab in codeTabs){
+//                    if(tab.title == sample.name){
+//                        delete tab from codeTabs;
+//                    }
+//                }
+//                selectedCodeIndex = sizeof codeTabs - 1;
+//                delete  sample.frame from frames;
+//                delete sample from executedSamples;
+//
+//                if (0 <= selectedCodeIndex){
+//                    var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
+//                    for(sample in samples){
+//                        if(sample.name ==  tabTitle) { sample.frame.selected = true; break; }
+//                    }
+//                }
+//            }
+
             title: sample.name
             visible: true
         };
@@ -356,53 +340,6 @@ public class AssortieProject  extends CompositeWidget{
         
         insert sample.frame into frames;
         createFrame(sample, code);
-        
-        
-        //        if(obj instanceof Frame){
-        //
-        //            var frame = obj as Frame;
-        //            var background = (frame.background).getColor();
-        //            //if(background==null){  background = Color.WHITE; }
-        //            //System.out.println("background: {background}");
-        //
-        //            internalFrame =  InternalFrame{
-        //                x: x
-        //                y: y
-        //                title: frame.title
-        //                width: frame.width
-        //                height: frame.height
-        //                onClose: function(){
-        //                    System.out.println("Close frame: {sample.name}");
-        //                    sample.frame = null;
-        //                    for(tab in codeTabs){
-        //                        if(tab.title == sample.name){
-        //                            delete tab from codeTabs;
-        //                        }
-        //                    }
-        //                    selectedCodeIndex = sizeof codeTabs - 1;
-        //                    delete internalFrame from frames;
-        //                    delete sample from executedSamples;
-        //
-        //                    if (0 <= selectedCodeIndex){
-        //                        var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
-        //                        for(sample in samples){
-        //                            if(sample.name ==  tabTitle) { sample.frame.selected = true; break; }
-        //                        }
-        //                    }
-        //                }
-        //                content: frame.content
-        //                background: if (background==null) then Color.WHITE else Color{ red: background.getRed() green: background.getGreen() blue: background.getBlue() }
-        //            };
-        //            frame.visible = false;
-        //
-        //            x += 40;
-        //            y += 40;
-        //
-        //        }
-        //
-        //        insert internalFrame into frames;
-        //        sample.frame = internalFrame;
-        //        insert internalFrame into frames;
         
     }
     

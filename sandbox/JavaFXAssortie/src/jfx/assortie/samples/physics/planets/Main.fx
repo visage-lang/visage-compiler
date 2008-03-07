@@ -70,8 +70,8 @@ solarSystem.start();
 
 
 Frame{
-    width: bind w with inverse
-    height: bind h with inverse
+    width: w //bind w with inverse
+    height: h //bind h with inverse
     title: "Planetary System"
     onClose: function(){ System.exit(0);}
     content: Canvas{
