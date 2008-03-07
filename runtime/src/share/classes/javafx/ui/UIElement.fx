@@ -182,7 +182,11 @@ public class UIElement {
         on replace {
 	if (lookAndFeel <> null) {
             javax.swing.UIManager.setLookAndFeel(lookAndFeel);
-            javax.swing.SwingUtilities.updateComponentTreeUI(getWindow());
+            //javax.swing.SwingUtilities.updateComponentTreeUI(getWindow());
+            var win = getWindow();
+            if(win <> null){
+                javax.swing.SwingUtilities.updateComponentTreeUI(win);
+            }
 	}
     };
   
