@@ -63,6 +63,11 @@ public class ProjectManager {
     public static String getFilePath(String className){
         return className.replace('.','/') + ".fx";
     }
+    
+    public static String getDefaultLookAndFeel(){
+        return  "org.jvnet.substance.skin.SubstanceNebulaLookAndFeel";
+    }
+    
 }
 
 

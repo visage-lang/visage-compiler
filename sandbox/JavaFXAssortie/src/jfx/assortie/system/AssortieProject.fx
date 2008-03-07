@@ -422,7 +422,7 @@ public class AssortieProject  extends CompositeWidget{
     public
     function composeWidget(): Widget{
         return BorderPanel{
-            
+
             center: SplitPane {
                 orientation: Orientation.HORIZONTAL
                 content:  [
