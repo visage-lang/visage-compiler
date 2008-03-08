@@ -5,7 +5,7 @@
  */
 
 import java.lang.System;
-import javafx.ui.Rect;
+import javafx.ui.canvas.Rect;
 
 var x = 2;
 x => 100 tween LINEAR;

@@ -128,6 +128,19 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
+    private void printInterpolateValue(JFXInterpolateValue tree) {
+        try {
+            if (tree.getTarget() != null) {
+                print(tree.getTarget());
+                print(':');
+            }
+            print(tree.getValue());
+            printTween(tree);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         try {
             int oldScope = variableScope;
@@ -810,32 +823,25 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitInterpolate(JFXInterpolate tree) {
         try {
             print(tree.getVariable());
-            print(" => {");
+            print(" => ");
+            boolean isBlock = tree.getInterpolateValues().size() > 1;
+            if (isBlock)
+                print('{');
             Iterator<InterpolateValueTree> values = tree.getInterpolateValues().iterator();
             while (values.hasNext()) {
-                InterpolateValueTree val = values.next();
-                print(val.getTarget());
-                print(": ");
-                print(val.getValue());
-                printTween(val);
+                printInterpolateValue((JFXInterpolateValue)values.next());
                 if (values.hasNext())
                     print(", ");
             }
-            print('}');
+            if (isBlock)
+                print('}');
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     public void visitInterpolateValue(JFXInterpolateValue tree) {
-        try {
-            print(tree.getTarget());
-            print(" => ");
-            print(tree.getValue());
-            printTween(tree);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        printInterpolateValue(tree);
     }
     
     private void printTween(InterpolateValueTree tree) throws IOException {

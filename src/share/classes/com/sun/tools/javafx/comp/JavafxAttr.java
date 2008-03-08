@@ -3834,13 +3834,16 @@ public
     }
 
     public void visitInterpolateValue(JFXInterpolateValue tree) {
-        Type targetType = attribExpr(tree.getTarget(), env, Infer.anyPoly);
         Type valueType = attribExpr(tree.getValue(), env, Infer.anyPoly);
-        chk.checkType(tree.pos(), targetType, valueType, Sequenceness.DISALLOWED);      
+        if (tree.getTarget() != null) {
+            Type targetType = attribExpr(tree.getTarget(), env, Infer.anyPoly);
+            chk.checkType(tree.pos(), targetType, valueType, Sequenceness.DISALLOWED);
+        }
         Type interpolateType = syms.errType;
-        if (types.isAssignable(targetType, syms.javafx_ColorValueType)) { 
+        if (types.isAssignable(valueType, syms.javafx_ColorValueType)) { 
             interpolateType = syms.javafx_ColorInterpolatorType;
-        } else if (types.isAssignable(targetType, syms.javafx_NumberValueType)) {
+        } else if (types.isAssignable(valueType, syms.javafx_NumberValueType) ||
+                   types.isAssignable(valueType, syms.javafx_IntegerType)) {
             interpolateType = syms.javafx_NumberInterpolatorType;
         } else {
             log.error(tree.pos(), "unexpected.type",
@@ -3848,8 +3851,7 @@ public
                       Resolve.kindName(pkind));
             interpolateType = syms.errType;
         }
-        result = interpolateType == syms.errType ? 
-            check(tree.getTarget(), interpolateType, VAL, pkind, pt, pSequenceness) : syms.errType;
-        tree.type = result;
+        tree.type = interpolateType;
+        result = tree.type;
     }
 }
