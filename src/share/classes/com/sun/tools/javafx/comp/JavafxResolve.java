@@ -919,77 +919,6 @@ public class JavafxResolve {
         return (typeargtypes == null) ? mt : (Type)new ForAll(typeargtypes, mt);
     }
          
-   /** Find unqualified method matching given name, type and value arguments.
-     *  @param env       The current environment.
-     *  @param name      The method's name.
-     *  @param argtypes  The method's value arguments.
-     *  @param typeargtypes  The method's type arguments.
-     *  @param allowBoxing Allow boxing conversions of arguments.
-     *  @param useVarargs Box trailing arguments into an array for varargs.
-     */
-    Symbol findFun(JavafxEnv<JavafxAttrContext> env, Name name,
-                   Type expected, boolean allowBoxing, boolean useVarargs) {
-        Symbol bestSoFar = methodNotFound;
-        Symbol sym;
-        JavafxEnv<JavafxAttrContext> env1 = env;
-        boolean staticOnly = false;
-        while (env1.outer != null) {
-            if (isStatic(env1)) staticOnly = true;
-            sym = findMethod(
-                env1, env1.enclClass.sym.type, name, expected,
-                allowBoxing, useVarargs, false);
-            if (sym.exists()) {
-                if (staticOnly &&
-                    sym.kind == MTH &&
-                    sym.owner.kind == TYP &&
-                    (sym.flags() & STATIC) == 0) return new StaticError(sym);
-                else return sym;
-            } else if (sym.kind < bestSoFar.kind) {
-                bestSoFar = sym;
-            }
-            if ((env1.enclClass.sym.flags() & STATIC) != 0) staticOnly = true;
-            env1 = env1.outer;
-        }
-
-        sym = findMethod(env, syms.predefClass.type, name, expected,
-                         allowBoxing, useVarargs, false);
-        if (sym.exists())
-            return sym;
-
-        Scope.Entry e = env.toplevel.namedImportScope.lookup(name);
-        for (; e.scope != null; e = e.next()) {
-            sym = e.sym;
-            Type origin = e.getOrigin().owner.type;
-            if (sym.kind == MTH) {
-                if (e.sym.owner.type != origin)
-                    sym = sym.clone(e.getOrigin().owner);
-                if (!isAccessible(env, origin, sym))
-                    sym = new AccessError(env, origin, sym);
-                bestSoFar = selectBest(env, origin, expected,
-                                       sym, bestSoFar,
-                                       allowBoxing, useVarargs, false);
-            }
-        }
-        if (bestSoFar.exists())
-            return bestSoFar;
-
-        e = env.toplevel.starImportScope.lookup(name);
-        for (; e.scope != null; e = e.next()) {
-            sym = e.sym;
-            Type origin = e.getOrigin().owner.type;
-            if (sym.kind == MTH) {
-                if (e.sym.owner.type != origin)
-                    sym = sym.clone(e.getOrigin().owner);
-                if (!isAccessible(env, origin, sym))
-                    sym = new AccessError(env, origin, sym);
-                bestSoFar = selectBest(env, origin, expected,
-                                       sym, bestSoFar,
-                                       allowBoxing, useVarargs, false);
-            }
-        }
-        return bestSoFar;
-    }
-
     /** Load toplevel or member class with given fully qualified name and
      *  verify that it is accessible.
      *  @param env       The current environment.
@@ -1348,30 +1277,6 @@ public class JavafxResolve {
         return access(
             findIdent(env, name, kind, pt),
             pos, env.enclClass.sym.type, name, false);
-    }
-
-    /** Resolve an unqualified method/function application.
-     *  @param pos       The position to use for error reporting.
-     *  @param env       The environment current at the method invocation.
-     *  @param name      The identifier's name.
-     *  @param argtypes  The types of the invocation's value arguments.
-     *  @param typeargtypes  The types of the invocation's type arguments.
-     */
-    Symbol resolveMethod(DiagnosticPosition pos,
-                         JavafxEnv<JavafxAttrContext> env,
-                         Name name,
-                         Type expected) {
-        Symbol sym = findFun(env, name, expected, false, env.info.varArgs=false);
-        if (varargsEnabled && sym.kind >= WRONG_MTHS) {
-            sym = findFun(env, name, expected, true, false);
-            if (sym.kind >= WRONG_MTHS)
-                sym = findFun(env, name, expected, true, env.info.varArgs=true);
-        }
-        if (sym.kind >= AMBIGUOUS) {
-            sym = access(
-                sym, pos, env.enclClass.sym.type, name, false, expected);
-        }
-        return sym;
     }
 
     /** Resolve a qualified method identifier
