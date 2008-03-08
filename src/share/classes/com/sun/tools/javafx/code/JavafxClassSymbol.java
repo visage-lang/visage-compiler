@@ -41,22 +41,18 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
  * @author llitchev
  */
 public class JavafxClassSymbol extends ClassSymbol {
-    private JavafxClassReader reader;
-    private JavafxInitializationBuilder initBuilder;
+    private final JavafxClassReader reader;
     
     private List<Type> supertypes = List.<Type>nil();
     
     /** Creates a new instance of JavafxClassSymbol */
-    public JavafxClassSymbol(long flags, Name name, Type type, Symbol owner, JavafxClassReader reader) {
-        super(flags, name, type, owner);
-        this.reader = reader;
-        initBuilder = reader.getInitBuilder();
-    }
-
     public JavafxClassSymbol(long flags, Name name, Symbol owner, JavafxClassReader reader) {
         super(flags, name, owner);
         this.reader = reader;
-        initBuilder = reader.getInitBuilder();
+    }
+    
+    private Name.Table getNames() {
+        return reader.getNames();
     }
     
     public void addSuperType(Type type) {
@@ -73,7 +69,7 @@ public class JavafxClassSymbol extends ClassSymbol {
         }
         super.complete();
         // Convert all the base interfaces of the form className$Intf gto base classes in the supertypes list.
-        if (initBuilder != null && 
+        if (getNames() != null && 
                 this.type != null && 
                 type instanceof ClassType) {
             String cName = this.fullname.toString() + interfaceSuffix;
@@ -94,7 +90,7 @@ public class JavafxClassSymbol extends ClassSymbol {
                     for (Type baseType : ((ClassType)baseIntf.tsym.type).interfaces_field) {
                         if (baseType.toString().endsWith(interfaceSuffix)) {
                             String baseTypeName = baseType.toString();
-                            Type tp = reader.enterClass(initBuilder.names.fromString(baseTypeName.substring(0, baseTypeName.length() - interfaceSuffix.length()))).type;
+                            Type tp = reader.enterClass(getNames().fromString(baseTypeName.substring(0, baseTypeName.length() - interfaceSuffix.length()))).type;
                             addSuperType(tp);
                         }
                     }

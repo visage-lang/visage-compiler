@@ -74,12 +74,12 @@ import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
  */
 public class JavafxClassReader extends ClassReader {
 
+    private final JavafxDefs defs;
     private final JavafxTypeMorpher typeMorpher;
+    
     private Name currentMethodName;
-    private JavafxInitializationBuilder initBuilder;
-    private Name functionClassPrefixName;
-    private JavafxDefs defs;
-
+    private final Name functionClassPrefixName;
+    
     public static void preRegister(final Context context) {
         context.put(classReaderKey, new Context.Factory<ClassReader>() {
 	       public ClassReader make() {
@@ -93,12 +93,15 @@ public class JavafxClassReader extends ClassReader {
      */
     protected JavafxClassReader(Context context, boolean definitive) {
         super(context, definitive);
-        typeMorpher = JavafxTypeMorpher.instance(context);
-        initBuilder = JavafxInitializationBuilder.instance(context);
         defs = JavafxDefs.instance(context);
+        typeMorpher = JavafxTypeMorpher.instance(context);
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
     }
 
+    public Name.Table getNames() {
+        return names;
+    }
+    
     /** Convert class signature to type, where signature is implicit.
      */
     protected Type classSigToType() {
@@ -296,10 +299,6 @@ public class JavafxClassReader extends ClassReader {
             assert classes.get(c.flatname) == null : c;
         c.completer = this;
         return c;
-    }
-
-    public JavafxInitializationBuilder getInitBuilder() {
-        return initBuilder;
     }
 
     protected void attachAnnotations(final Symbol sym) {
