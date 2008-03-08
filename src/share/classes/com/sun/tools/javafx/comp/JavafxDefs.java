@@ -66,6 +66,9 @@ public class JavafxDefs {
     public static final String invokeNameString = "invoke";
     public static final String lambdaNameString = "lambda";
     
+    public static final String locationPackageName = "com.sun.javafx.runtime.location.";
+    public static final String sequencePackageName = "com.sun.javafx.runtime.sequence.";
+
     static final String[] milieuNames = { "", "FromLiteral" };
     public static String getMilieuName(int index) { return milieuNames[index]; }
     

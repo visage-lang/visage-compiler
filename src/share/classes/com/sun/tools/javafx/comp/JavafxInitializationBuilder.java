@@ -73,7 +73,6 @@ public class JavafxInitializationBuilder {
     private final Name sequenceReplaceListenerInterfaceName;
     private final Name sequenceChangeListenerInterfaceName;
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
-    private final Name applyDefaultName;
     private final Name addTriggersName;
     final Name userInitName;
     final Name postInitName;
@@ -109,10 +108,9 @@ public class JavafxInitializationBuilder {
         changeListenerInterfaceName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT];
         for (int i=0; i< JavafxVarSymbol.TYPE_KIND_COUNT; i++)
             changeListenerInterfaceName[i]
-                    = names.fromString(JavafxTypeMorpher.locationPackageName + JavafxVarSymbol.getTypePrefix(i) + "ChangeListener");
-        sequenceReplaceListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "SequenceReplaceListener");
-        sequenceChangeListenerInterfaceName = names.fromString(JavafxTypeMorpher.locationPackageName + "SequenceChangeListener");
-        applyDefaultName = names.fromString("applyDefault$");
+                    = names.fromString(locationPackageName + JavafxVarSymbol.getTypePrefix(i) + "ChangeListener");
+        sequenceReplaceListenerInterfaceName = names.fromString(locationPackageName + "SequenceReplaceListener");
+        sequenceChangeListenerInterfaceName = names.fromString(locationPackageName + "SequenceChangeListener");
         addTriggersName = names.fromString("addTriggers$");
         userInitName = names.fromString("userInit$");
         postInitName = names.fromString("postInit$");
@@ -127,7 +125,7 @@ public class JavafxInitializationBuilder {
             initHelperType = sym.type;
         }
         {
-            Name name = Name.fromString(names, typeMorpher.locationPackageName + "AbstractVariable");
+            Name name = Name.fromString(names, locationPackageName + "AbstractVariable");
             ClassSymbol sym = reader.enterClass(name);
             abstractVariableType = types.erasure( sym.type );
         }
@@ -276,7 +274,7 @@ public class JavafxInitializationBuilder {
 
     private void appendMethodClones(ListBuffer<JCTree> methods, JFXClassDeclaration cDecl, MethodSymbol sym, boolean withDispatch) {
         appendMethodClone(methods, false, cDecl, sym, withDispatch);
-        if (JavafxToJava.generateBoundFunctions && (JavafxToJava.generateBoundVoidFunctions || sym.getReturnType() != syms.voidType)) {
+        if (JavafxToJava.generateBoundFunctions && sym.getReturnType() != syms.voidType) {
             appendMethodClone(methods, true, cDecl, sym, withDispatch);
         }
     }

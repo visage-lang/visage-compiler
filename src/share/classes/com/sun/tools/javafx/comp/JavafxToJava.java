@@ -165,7 +165,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      * static information
      */
     static final boolean generateBoundFunctions = true;
-    static final boolean generateBoundVoidFunctions = false;
     static final boolean permeateBind = false;
     static final boolean generateNullChecks = true;
     boolean useBindingOverhaul = false;
@@ -614,7 +613,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                        case JavafxTag.FUNCTION_DEF : {
                            JFXFunctionDefinition funcDef = (JFXFunctionDefinition)def;
                             translatedDefs.append(  translate(funcDef) );
-                            if (generateBoundFunctions  && (generateBoundVoidFunctions || funcDef.type.getReturnType() != syms.voidType)) {
+                            if (generateBoundFunctions  && funcDef.type.getReturnType() != syms.voidType) {
                                 if ((funcDef.sym.flags() & Flags.SYNTHETIC) == 0) {
                                     translatedDefs.append(translate(funcDef, Convert.ToBound));
                                 }
@@ -2857,7 +2856,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                                                     (JCFieldAccess) meth :  
                                                                     null;
             private final JCExpression selector = fieldAccess != null? fieldAccess.getExpression() : null;
-            private final Name name = fieldAccess != null? fieldAccess.name : null;
             private final Symbol sym = expressionSymbol(meth);
             private final MethodSymbol msym = (sym instanceof MethodSymbol)? (MethodSymbol)sym : null;
             private final Name selectorIdName = (selector != null && selector.getTag() == JavafxTag.IDENT)? ((JCIdent) selector).getName() : null;
@@ -2883,8 +2881,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     !sym.isStatic() && selector!=null && !superCall && !namedSuperCall &&
                     !thisCall && !useInvoke && !selector.type.isPrimitive() && !renameToSuper;
             private final boolean hasSideEffects = testForNull && hasSideEffects(selector);
-            private final boolean callBound = generateBoundFunctions && state.isBound() && msym != null                   && types.isJFXClass(msym.owner)
-                    && (generateBoundVoidFunctions || msym.getReturnType() != syms.voidType )
+            private final boolean callBound = generateBoundFunctions && state.isBound() && msym != null
+                    && types.isJFXClass(msym.owner)
+                    && msym.getReturnType() != syms.voidType
                     && !useInvoke;
 
             public JCTree doit() {
@@ -2925,13 +2924,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     if (tree.type.tag != TypeTags.VOID) {
                         fresult = castFromObject(fresult, tree.type);
                     }
-                } else if (transMeth instanceof JFXBlockExpression) {
-                    // If visitSelect translated exp.staticMember to
-                    // { exp; class.staticMember }:
-                    JFXBlockExpression block = (JFXBlockExpression) transMeth;
-                    app.meth = block.value;
-                    block.value = app;
-                    fresult = block;
                 }
                 // If we are to yield a Location, and this isn't going to happen as
                 // a return of using a bound call (for example, if this is a Java call)

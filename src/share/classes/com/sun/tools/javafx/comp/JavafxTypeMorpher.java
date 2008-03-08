@@ -51,6 +51,8 @@ import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.attributeGetMethodNamePrefix;
 import static com.sun.tools.javafx.comp.JavafxDefs.interfaceSuffix;
+import static com.sun.tools.javafx.comp.JavafxDefs.locationPackageName;
+import static com.sun.tools.javafx.comp.JavafxDefs.sequencePackageName;
 import com.sun.tools.javafx.comp.JavafxToJava.Wrapped;
 import com.sun.tools.javafx.tree.*;
 
@@ -70,9 +72,6 @@ public class JavafxTypeMorpher {
     private final Log log;
     private final JavafxToJava toJava;
     private final JavafxTypes types;
-
-    public static final String locationPackageName = "com.sun.javafx.runtime.location.";
-    public static final String sequencePackageName = "com.sun.javafx.runtime.sequence.";
 
     public final LocationNameSymType[] bindingNCT;
     public final LocationNameSymType[] locationNCT;
