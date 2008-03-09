@@ -206,31 +206,16 @@ blockExpression  returns [JFXBlockExpression expr]
                                                           endPos($expr, $LBRACE); }
 	;
 variableDeclaration    returns [JCStatement value]
-	: ^(VAR variableLabel modifiers name type boundExpressionOpt onChanges DOC_COMMENT?)
+	: ^(VAR variableLabel modifiers name type boundExpressionOpt onReplaceClause? DOC_COMMENT?)
 	    						{ $value = F.at(pos($VAR)).Var($name.value, 
 	    							$type.type, 
 	    							$modifiers.mods,
 	    							$variableLabel.local,
 	    							$boundExpressionOpt.expr, 
 	    							$boundExpressionOpt.status, 
-	    							$onChanges.listb.toList()); 
+	    							$onReplaceClause.value); 
                                                           setDocComment($value, $DOC_COMMENT); 
                                                           endPos($value, $VAR); }
-	;
-onChanges   returns [ListBuffer<JFXAbstractOnChange> listb = ListBuffer.<JFXAbstractOnChange>lb()]
-	: ( onChangeClause				{ listb.append($onChangeClause.value); } )*
-	;
-onChangeClause     returns [JFXAbstractOnChange value]
-	: onReplaceClause				{ $value = $onReplaceClause.value; } 
-	| ^(ON_REPLACE_ELEMENT index=formalParameter oldv=formalParameterOpt block)
-							{ $value = F.at(pos($ON_REPLACE_ELEMENT)).OnReplaceElement($index.var, $oldv.var, $block.value); 
-                                                          endPos($value, $ON_REPLACE_ELEMENT); }
-	| ^(ON_INSERT_ELEMENT index=formalParameter newv=formalParameterOpt block)
-							{ $value = F.at(pos($ON_INSERT_ELEMENT)).OnInsertElement($index.var, $newv.var, $block.value); 
-                                                          endPos($value, $ON_INSERT_ELEMENT); }
-	| ^(ON_DELETE_ELEMENT index=formalParameter oldv=formalParameterOpt block)
-							{ $value = F.at(pos($ON_DELETE_ELEMENT)).OnDeleteElement($index.var, $oldv.var, $block.value); 
-                                                          endPos($value, $ON_DELETE_ELEMENT); }
 	;
 onReplaceClause     returns [JFXOnReplace value]
 	: ^(ON_REPLACE_SLICE oldv=paramNameOpt
@@ -238,9 +223,6 @@ onReplaceClause     returns [JFXOnReplace value]
 	    block)
 							{ $value = F.at(pos($ON_REPLACE_SLICE)).OnReplace($oldv.var, $first.var, $last.var, $newElements.var, $block.value); 
                                                           endPos($value, $ON_REPLACE_SLICE); }
-	| ^(ON_REPLACE oldv=formalParameterOpt block)
-							{ $value = F.at(pos($ON_REPLACE)).OnReplace($oldv.var, $block.value); 
-                                                          endPos($value, $ON_REPLACE); }
 	;
 paramNameOpt returns [JFXVar var]
 	: name						{ $var = F.at($name.pos).Param($name.value, F.TypeUnknown()); }

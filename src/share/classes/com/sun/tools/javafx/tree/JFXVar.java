@@ -35,6 +35,7 @@ import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.JavaFXVariableTree;
+import com.sun.tools.javac.util.ListBuffer;
 
 /**
  * Variable declaration.
@@ -46,6 +47,8 @@ public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
     private final JavafxBindStatus bindStatus;
     private final List<JFXAbstractOnChange> onChanges;
     private final boolean local;
+    
+    private final JFXOnReplace onReplace;
     
     protected JFXVar(Name name,
             JFXType jfxtype,
@@ -60,6 +63,28 @@ public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
         this.jfxtype = jfxtype;
         this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
         this.onChanges = onChanges;
+        this.onReplace = null;
+        this.sym = sym;
+    }
+    
+    protected JFXVar(Name name,
+            JFXType jfxtype,
+            JCModifiers mods,
+            boolean local,
+            JCExpression init,
+            JavafxBindStatus bindStat,
+            JFXOnReplace onReplace,
+            VarSymbol sym) {
+        super(mods, name, jfxtype, init, sym);
+        this.local = local;
+        this.jfxtype = jfxtype;
+        this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
+        this.onReplace = onReplace;
+        ListBuffer<JFXAbstractOnChange> listb = new ListBuffer<JFXAbstractOnChange>();
+        if (onReplace != null) {
+            listb.append(this.onReplace);
+        }
+        this.onChanges =  listb.toList();
         this.sym = sym;
     }
     
@@ -87,7 +112,7 @@ public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
     }
 
     public List<JFXAbstractOnChange> getOnChanges() {
-        return onChanges;
+       return onChanges;
     }
 
     public boolean isLocal() {

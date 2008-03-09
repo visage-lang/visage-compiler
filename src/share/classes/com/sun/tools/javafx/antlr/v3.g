@@ -569,8 +569,8 @@ functionDefinition
 attributeDeclaration   
 @after { Tree docComment = getDocComment($attributeDeclaration.start);
          $attributeDeclaration.tree.addChild(docComment); }
-	: varModifierFlags ATTRIBUTE  name  typeReference (EQ boundExpression)? onChangeClause*
-	    					-> ^(VAR ATTRIBUTE varModifierFlags name typeReference boundExpression? onChangeClause*)
+	: varModifierFlags ATTRIBUTE  name  typeReference (EQ boundExpression)? onReplaceClause?
+	    					-> ^(VAR ATTRIBUTE varModifierFlags name typeReference boundExpression? onReplaceClause?)
 	;
 overrideDeclaration
 	: OVERRIDE ATTRIBUTE  name (EQ boundExpression)? onReplaceClause?
@@ -657,19 +657,8 @@ statement
 variableDeclaration   
 @after { Tree docComment = getDocComment($variableDeclaration.start);
          $variableDeclaration.tree.addChild(docComment); }
-	: varModifierFlags variableLabel  name  typeReference (EQ boundExpression)? onChangeClause*
-	    					-> ^(VAR variableLabel varModifierFlags name typeReference boundExpression? onChangeClause*)
-	;
-onChangeClause  
-	: onReplaceClause			-> onReplaceClause
-	| ON REPLACE LPAREN oldv=formalParameter RPAREN block
-						-> ^(ON_REPLACE[$ON] $oldv block)
-	| ON REPLACE LBRACKET index=formalParameter RBRACKET (LPAREN oldv=formalParameter RPAREN)? block
-						-> ^(ON_REPLACE_ELEMENT[$ON] $index $oldv? block)
-	| ON INSERT LBRACKET index=formalParameter RBRACKET (LPAREN newv=formalParameter RPAREN)? block
-						-> ^(ON_INSERT_ELEMENT[$ON] $index $newv? block)
-	| ON DELETE LBRACKET index=formalParameter RBRACKET (LPAREN oldv=formalParameter RPAREN)? block
-						-> ^(ON_DELETE_ELEMENT[$ON] $index $oldv? block)
+	: varModifierFlags variableLabel  name  typeReference (EQ boundExpression)? onReplaceClause?
+	    					-> ^(VAR variableLabel varModifierFlags name typeReference boundExpression? onReplaceClause?)
 	;
 onReplaceClause
 	: ON REPLACE oldval=paramNameOpt clause=sliceClause? block
