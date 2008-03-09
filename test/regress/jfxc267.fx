@@ -7,5 +7,5 @@ class Foo {
 } 
 
 class Bar { 
-    attribute foo: Foo on replace(old) {} 
+    attribute foo: Foo on replace old {} 
 }  

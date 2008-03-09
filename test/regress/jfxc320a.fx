@@ -13,5 +13,5 @@ class jfxc320a {
         on replace oldValue[a..b] = newElements { };
 
     public attribute selectedIndex: Number = -1
-        on replace (old)  { updateSelection(1.0, selectedIndex); };
+        on replace old  { updateSelection(1.0, selectedIndex); };
 }

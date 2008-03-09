@@ -7,39 +7,39 @@
 
 import java.lang.System;
 public class InitTest {
-    public attribute foo:Boolean = true on replace (old) {
+    public attribute foo:Boolean = true on replace old {
         System.out.println("1. Replace Boolean old = {old}; new = {foo}");
     }
-    public attribute ifoo:Integer = 10 on replace (old) {
+    public attribute ifoo:Integer = 10 on replace old {
         System.out.println("2. Replace Integer old = {old}; new = {ifoo}");
     }
-    public attribute dfoo:Number = 20 on replace (old) {
+    public attribute dfoo:Number = 20 on replace old {
         System.out.println("3. Replace Number old = {old}; new = {dfoo}");
     }
-    public attribute sfoo:String = "Hello, World!" on replace (old) {
+    public attribute sfoo:String = "Hello, World!" on replace old {
         System.out.println("4. Replace String old = {old}; new = {sfoo}");
     }
 
-	 public attribute tobject:test_object = test_object{name:"declared default test_object"} on replace(old) {
+	 public attribute tobject:test_object = test_object{name:"declared default test_object"} on replace old {
 		 System.out.println("5. Replace test_object old = {old.name}; new = {tobject.name}");
 	 }
 
-    public attribute seqbfoo:Boolean[] = [false,false,false] on replace (old) {
+    public attribute seqbfoo:Boolean[] = [false,false,false] on replace old {
         System.out.println("6. Replace Boolean[] old = {old}; new = {seqbfoo}");
     }
 
-    public attribute seqifoo:Integer[] = [1,2,3,4,5] on replace (old) {
+    public attribute seqifoo:Integer[] = [1,2,3,4,5] on replace old {
         System.out.println("7. Replace Integer [] old = {old}; new = {seqifoo}");
     }
 
-    public attribute seqnfoo:Number[] = [20,30,40] on replace (old) {
+    public attribute seqnfoo:Number[] = [20,30,40] on replace old {
         System.out.println("8. Replace Number[] old = {old}; new = {seqnfoo}");
     }
 
-    public attribute seqsfoo:String[] = ["Hello",","," World!"] on replace (old) {
+    public attribute seqsfoo:String[] = ["Hello",","," World!"] on replace old {
         System.out.println("9. Replace String[] old = {old}; new = {seqsfoo}");
     }
-    public attribute seqTOfoo:test_object[] = [  test_object{name:"test_object1"}, test_object{name:"test_object2"},test_object{name:"test_object3"}  ] on replace(old) {
+    public attribute seqTOfoo:test_object[] = [  test_object{name:"test_object1"}, test_object{name:"test_object2"},test_object{name:"test_object3"}  ] on replace old {
 		 System.out.print("10. Replace test_object[] old = ");
 			 for (i in old) {System.out.print(" {i.name}"); }		 System.out.println();
 		 System.out.print("      ...with new = ");

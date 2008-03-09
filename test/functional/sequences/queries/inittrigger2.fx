@@ -7,16 +7,16 @@
 
 import java.lang.System;
 public class InitTest {
-    public attribute foo      : Boolean		 on replace (old){ System.out.println("1. Replace Boolean old = {old}; new = {foo}");    }
-    public attribute ifoo     : Integer		 on replace (old){ System.out.println("2. Replace Integer old = {old}; new = {ifoo}");    }
-    public attribute dfoo     : Number			 on replace (old){ System.out.println("3. Replace Number old = {old}; new = {dfoo}");    }
-    public attribute sfoo     : String			 on replace (old){ if(sfoo<>null)System.out.println("4. Replace String old = {old}; new = {sfoo}");    }
-	 public attribute tobject  : test_object	 on replace (old){  if(tobject<>null)System.out.println("5. Replace test_object old = {old.name}; new = {tobject.name}");	 }
-    public attribute seqbfoo  : Boolean[]		 on replace (old){  if(seqbfoo<>null)System.out.println("6. Replace Boolean[] old = {old}; new = {seqbfoo}");    }
-    public attribute seqifoo  : Integer[]		 on replace (old){ if(seqifoo<>null)System.out.println("7. Replace Integer [] old = {old}; new = {seqifoo}");    }
-    public attribute seqnfoo  : Number[]		 on replace (old){ if(seqnfoo<>null)System.out.println("8. Replace Number[] old = {old}; new = {seqnfoo}");    }
-    public attribute seqsfoo  : String[]		 on replace (old){ if(seqsfoo<>null)System.out.println("9. Replace String[] old = {old}; new = {seqsfoo}");    }
-    public attribute seqTOfoo : test_object[] on replace (old){
+    public attribute foo      : Boolean		 on replace old{ System.out.println("1. Replace Boolean old = {old}; new = {foo}");    }
+    public attribute ifoo     : Integer		 on replace old{ System.out.println("2. Replace Integer old = {old}; new = {ifoo}");    }
+    public attribute dfoo     : Number			 on replace old{ System.out.println("3. Replace Number old = {old}; new = {dfoo}");    }
+    public attribute sfoo     : String			 on replace old{ if(sfoo<>null)System.out.println("4. Replace String old = {old}; new = {sfoo}");    }
+	 public attribute tobject  : test_object	 on replace old{  if(tobject<>null)System.out.println("5. Replace test_object old = {old.name}; new = {tobject.name}");	 }
+    public attribute seqbfoo  : Boolean[]		 on replace old{  if(seqbfoo<>null)System.out.println("6. Replace Boolean[] old = {old}; new = {seqbfoo}");    }
+    public attribute seqifoo  : Integer[]		 on replace old{ if(seqifoo<>null)System.out.println("7. Replace Integer [] old = {old}; new = {seqifoo}");    }
+    public attribute seqnfoo  : Number[]		 on replace old{ if(seqnfoo<>null)System.out.println("8. Replace Number[] old = {old}; new = {seqnfoo}");    }
+    public attribute seqsfoo  : String[]		 on replace old{ if(seqsfoo<>null)System.out.println("9. Replace String[] old = {old}; new = {seqsfoo}");    }
+    public attribute seqTOfoo : test_object[] on replace old{
 		 if(seqTOfoo<>null) {
 		 System.out.print("10. Replace test_object[] old = ");
 			 for (i in old) {System.out.print(" {i.name}"); }

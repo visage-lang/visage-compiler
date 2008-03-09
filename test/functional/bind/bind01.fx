@@ -168,8 +168,8 @@ class circles {
 
  class X {
        attribute a: Number;
-       attribute b: Number on replace (old) {    System.out.println("X.b is now {b}");   };
-       attribute c: Number on replace (old) {    System.out.println("X.c is now {c}");    };
+       attribute b: Number on replace old {    System.out.println("X.b is now {b}");   };
+       attribute c: Number on replace old {    System.out.println("X.c is now {c}");    };
  }
 
 
