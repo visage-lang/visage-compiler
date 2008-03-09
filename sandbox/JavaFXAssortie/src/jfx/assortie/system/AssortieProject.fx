@@ -69,6 +69,10 @@ class ProjectSample {
     }
 }
 
+class LookAndFeelCell{
+    attribute name: String;
+    attribute className: String;
+}
 
 class KeyTimer{
     attribute name: String;
@@ -110,6 +114,21 @@ public class AssortieProject  extends CompositeWidget{
         
     };
     
+    attribute lafIndex:Integer = -1 on replace{
+        if( 0 <= lafIndex ){
+            javax.swing.UIManager.setLookAndFeel( lafs[lafIndex].className );
+        }
+    };
+    
+    
+    attribute lafs: LookAndFeelCell[] = [
+        //LookAndFeelCell{ name: "Default" className: ProjectManager.DEFAULT_LOOK_AND_FEEL  },
+        LookAndFeelCell{ name: "Nebula" className: "org.jvnet.substance.skin.SubstanceNebulaLookAndFeel" },
+        LookAndFeelCell{ name: "Autumn" className: "org.jvnet.substance.skin.SubstanceAutumnLookAndFeel" },
+        LookAndFeelCell{ name: "Business" className: "org.jvnet.substance.skin.SubstanceBusinessLookAndFeel" },
+        LookAndFeelCell{ name: "Green Magic" className: "org.jvnet.substance.skin.SubstanceGreenMagicLookAndFeel" }
+        
+    ];
     
     public attribute rootModule:String on replace{
         initProject();
@@ -375,6 +394,7 @@ public class AssortieProject  extends CompositeWidget{
                         content: [ SplitView{
                             weight: 0.5
                             content: BorderPanel{
+                                border:  TitledBorder {} 
                                 top: Label { text: "Categories:"}
                                 center: Tree{
                                     rootVisible: false
@@ -386,30 +406,43 @@ public class AssortieProject  extends CompositeWidget{
                         }, SplitView{
                             weight: 0.5
                             content: BorderPanel{
-                                top: Label { text: "Samples"}
-                                center: ListBox{
-                                    selection: bind selectedSampleIndex with inverse
-                                    cells: bind for( sample in samples)
-                                        ListCell{
-                                            text: sample.name
+                                border:  TitledBorder {} 
+                                top: BorderPanel{
+                                    border:  TitledBorder {}
+                                    left: Label{ text: "Look and Feel"}
+                                    center: ComboBox{
+                                        selection: bind lafIndex with inverse
+                                        cells:  for ( laf in lafs ) ComboBoxCell {
+                                            text: laf.name
                                         }
-                                        action: function(){
-                                            var sample = samples[selectedSampleIndex.intValue()];
-                                            if(sample.frame ==  null){
-                                                executeSample(sample);
-                                            }else{
-                                                var name = sample.name;
-                                                for(frame in frames){
-                                                    System.out.println("[execute] frame: {frame.title} name: {name}");
-                                                    if (frame.title == sample.frame.title ){ frame.selected = true; } else { frame.selected = false;}
-                                                }
-                                                for(tab in codeTabs ){
-                                                    if(tab.title == sample.name){ selectedCodeIndex = indexof tab;
-                                                    break; }
-                                                }
-                                                
+                                    }
+                                }
+                                center: BorderPanel{ 
+                                    top: Label { text: "Samples:"}
+                                    center: ListBox{
+                                        selection: bind selectedSampleIndex with inverse
+                                        cells: bind for( sample in samples)
+                                            ListCell{
+                                                text: sample.name
                                             }
-                                        }
+                                            action: function(){
+                                                var sample = samples[selectedSampleIndex.intValue()];
+                                                if(sample.frame ==  null){
+                                                    executeSample(sample);
+                                                }else{
+                                                    var name = sample.name;
+                                                    for(frame in frames){
+                                                        System.out.println("[execute] frame: {frame.title} name: {name}");
+                                                        if (frame.title == sample.frame.title ){ frame.selected = true; } else { frame.selected = false;}
+                                                    }
+                                                    for(tab in codeTabs ){
+                                                        if(tab.title == sample.name){ selectedCodeIndex = indexof tab;
+                                                        break; }
+                                                    }
+
+                                                }
+                                            }
+                                    }
                                 }
                             }
                         } ]
@@ -423,20 +456,24 @@ public class AssortieProject  extends CompositeWidget{
                         content: [ SplitView{
                             weight: 0.6
                             content: BorderPanel{
-                                border:  TitledBorder { title: "Preview" }
-                                center: DesktopPane{
-                                    frames: bind frames
-                                    background: Color.WHITE
+                                center: BorderPanel { 
+                                    border:  TitledBorder { title: "Preview" }
+                                    center: DesktopPane{
+                                        frames: bind frames
+                                        background: Color.WHITE
+                                    }
                                     
                                 }
                             }
                         }, SplitView{
                             weight: 0.4
-                            content:
-                                TabbedPane{
+                            content: BorderPanel{
+                                border:  TitledBorder {} 
+                                center: TabbedPane{
                                     selectedIndex: bind selectedCodeIndex with inverse
                                     tabs: bind codeTabs
                                 }
+                            }
                         } ]
                     }
                     

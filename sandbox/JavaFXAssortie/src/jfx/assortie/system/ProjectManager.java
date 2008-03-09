@@ -68,6 +68,7 @@ public class ProjectManager {
         return  "org.jvnet.substance.skin.SubstanceNebulaLookAndFeel";
     }
     
+    public static final String DEFAULT_LOOK_AND_FEEL = javax.swing.UIManager.getLookAndFeel().getClass().getName();
 }
 
 
