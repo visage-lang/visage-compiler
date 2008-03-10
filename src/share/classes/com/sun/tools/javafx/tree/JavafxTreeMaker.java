@@ -28,7 +28,6 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TimeLiteralTree.Duration;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
-import com.sun.source.tree.LiteralTree;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Types;
@@ -36,7 +35,6 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 
 /* JavaFX version of tree maker

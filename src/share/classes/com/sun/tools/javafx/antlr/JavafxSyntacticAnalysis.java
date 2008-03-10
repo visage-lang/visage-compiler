@@ -4,8 +4,6 @@
  */
 package com.sun.tools.javafx.antlr;
 
-import com.sun.tools.javafx.tree.JavafxTreeMaker;
-import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 
 import org.antlr.runtime.*;

@@ -45,6 +45,8 @@ import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxToJava.UseSequenceBuilder;
+import com.sun.tools.javafx.comp.JavafxToJava.Translator;
+import com.sun.tools.javafx.comp.JavafxToJava.FunctionCallTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.Wrapped;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
@@ -93,7 +95,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     static final boolean generateBoundFunctions = true;
     static final boolean generateBoundVoidFunctions = false;
     static final boolean permeateBind = false;
-    static final boolean generateNullChecks = true;
     
     private static final String cBoundSequences = sequencePackageName + "BoundSequences";
     private static final String cBoundOperators = locationPackageName + "BoundOperators";
@@ -161,38 +162,16 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         return make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
     }
 
-    private abstract class Translator {
-
-        protected final DiagnosticPosition diagPos;
-
-        Translator(DiagnosticPosition diagPos) {
-            this.diagPos = diagPos;
-        }
-
-        protected abstract JCExpression doit();
-
-        protected TreeMaker m() {
-            return make.at(diagPos);
-        }
-
-        /**
-         * Convert type to JCExpression
-         */
-        protected JCExpression makeExpression(Type type) {
-            return toJava.makeTypeTree(type, diagPos, true);
-        }
-    }
-    
     private abstract class ClosureTranslator extends Translator {
         
         protected final TypeMorphInfo tmiResult;
 
-        ClosureTranslator(DiagnosticPosition diagPos, Type resultType) {
-            this(diagPos, typeMorpher.typeMorphInfo(resultType) );
+        ClosureTranslator(DiagnosticPosition diagPos, JavafxToJava toJava, Type resultType) {
+            this(diagPos, toJava, typeMorpher.typeMorphInfo(resultType) );
         }
         
-        ClosureTranslator(DiagnosticPosition diagPos, TypeMorphInfo tmiResult) {
-            super(diagPos);
+        ClosureTranslator(DiagnosticPosition diagPos, JavafxToJava toJava, TypeMorphInfo tmiResult) {
+            super(diagPos, toJava);
             this.tmiResult = tmiResult;
         }
         
@@ -343,7 +322,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             final TypeMorphInfo tmiSelector,
             final JCExpression selectingExpr,
             final JCExpression selectorExpr) {
-        return (new ClosureTranslator(diagPos, tmiResult) {
+        return (new ClosureTranslator(diagPos, toJava, tmiResult) {
             
             int typeKindResult = tmiResult.getTypeKind();
             Type elementTypeResult = toJava.elementType(tmiResult.getMorphedType()); // want bozed, JavafxTypes version won't work
@@ -490,7 +469,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
      * **/
     @Override
     public void visitForExpression(final JFXForExpression tree) {
-        result = (new Translator( tree.pos() ) {
+        result = (new Translator( tree.pos(), toJava ) {
 
             private final TypeMorphInfo tmiResult = typeMorpher.typeMorphInfo(tree.type);
             
@@ -503,21 +482,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
              * SequenceLocation<V>
              */
             private final Type resultSequenceLocationType = typeMorpher.generifyIfNeeded(typeMorpher.locationType(TYPE_KIND_SEQUENCE), tmiResult);
-            
-            /**
-             * SequenceVariable<V>
-             */
-            private final Type resultSequenceVariableType = typeMorpher.generifyIfNeeded(typeMorpher.variableType(TYPE_KIND_SEQUENCE), tmiResult);
-            
-            /**
-             * SequenceBindingExpression<V>
-             */
-            private final Type resultSequenceBindingExpressionType = typeMorpher.generifyIfNeeded(typeMorpher.bindingExpressionType(TYPE_KIND_SEQUENCE), tmiResult);
-            
-            /**
-             * Sequence<V>
-             */
-            private final Type resultSequenceType = typeMorpher.generifyIfNeeded(syms.javafx_SequenceType, tmiResult);
             
             /**
              * Make:  V.class
@@ -653,7 +617,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             final JCExpression trueExpr,
             final JCExpression falseExpr,
             final JCExpression condExpr) {
-        return (new ClosureTranslator(diagPos, tmi) {
+        return (new ClosureTranslator(diagPos, toJava, tmi) {
 
             protected List<JCTree> getBody() {
                 return List.<JCTree>of(
@@ -727,45 +691,12 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitApply(final JCMethodInvocation tree) {
-        result = (new Translator( tree.pos() ) {
-
-            private final JCExpression meth = tree.meth;
-            private final JCFieldAccess fieldAccess = meth.getTag() == JavafxTag.SELECT?   
-                                                                    (JCFieldAccess) meth :  
-                                                                    null;
-            private final JCExpression selector = fieldAccess != null? fieldAccess.getExpression() : null;
-            private final Symbol sym = expressionSymbol(meth);
-            private final MethodSymbol msym = (sym instanceof MethodSymbol)? (MethodSymbol)sym : null;
-            private final Name selectorIdName = (selector != null && selector.getTag() == JavafxTag.IDENT)? ((JCIdent) selector).getName() : null;
-            private final boolean thisCall = selectorIdName == names._this;
-            private final boolean superCall = selectorIdName == names._super;
-            private final boolean namedSuperCall =
-                    selector != null && msym!= null && ! msym.isStatic() &&
-                    expressionSymbol(selector) instanceof ClassSymbol &&
-                    // FIXME should also allow other enclosing classes:
-                    types.isSuperType(expressionSymbol(selector).type, attrEnv.enclClass.sym);
-            private final boolean renameToSuper = namedSuperCall && ! types.isCompoundClass(attrEnv.enclClass.sym);
-            private final boolean superToStatic = (superCall || namedSuperCall) && ! renameToSuper;
-            private final List<Type> formals = meth.type.getParameterTypes();
-
-            private final boolean useInvoke = meth.type instanceof FunctionType;
-                                                      // The below was part of this test, but it doesn't make much sense,
-                                                      // it was blocking other work and it is never used in runtime or tests
-                                                      //              || (transMeth instanceof JCIdent
-                                                      //                           && ((JCIdent) transMeth).sym instanceof MethodSymbol 
-                                                      //                           && isInnerFunction((MethodSymbol) ((JCIdent) transMeth).sym)));
-
-            private final boolean testForNull =  generateNullChecks && msym!=null  &&
-                    !sym.isStatic() && selector!=null && !superCall && !namedSuperCall &&
-                    !thisCall && !useInvoke && !selector.type.isPrimitive() && !renameToSuper;
-            private final boolean callBound = msym != null
-                    && types.isJFXClass(msym.owner)
-                    && !useInvoke;
+        result = (new FunctionCallTranslator( tree, toJava ) {
 
             public JCExpression doit() {
                 JCExpression transMeth;
                 if (renameToSuper) {
-                    transMeth = make.at(selector).Select(make.Select(makeTypeTree(attrEnv.enclClass.sym.type, selector, false), names._super), sym);
+                    transMeth = make.at(selector).Select(make.Select(makeTypeTree(attrEnv.enclClass.sym.type, selector, false), names._super), msym);
                 } else {
                     transMeth = translate(meth);
                 }
@@ -774,17 +705,17 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 if (superToStatic || (callBound && ! renameToSuper)) {
                     Name name = functionName(msym, superToStatic, callBound);
                     if (transMeth.getTag() == JavafxTag.IDENT) {
-                        transMeth = make.at(diagPos).Ident(name);
+                        transMeth = m().Ident(name);
                     } else if (transMeth.getTag() == JavafxTag.SELECT) {
                         JCFieldAccess faccess = (JCFieldAccess) transMeth;
-                        transMeth = make.at(diagPos).Select(faccess.getExpression(), name);
+                        transMeth = m().Select(faccess.getExpression(), name);
                     }
                 }
                 if (useInvoke) {
                     transMeth = make.Select(transMeth, defs.invokeName);
                 }
 
-                JCMethodInvocation app = make.at(diagPos).Apply( toJava.translate(tree.typeargs), transMeth, determineArgs());
+                JCMethodInvocation app = m().Apply( toJava.translate(tree.typeargs), transMeth, determineArgs());
                 JCExpression fresult = app;
                 if (useInvoke) {
                     if (tree.type.tag != TypeTags.VOID) {
@@ -798,7 +729,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(msym.getReturnType());
                     fresult = toJava.makeUnboundLocation(diagPos, returnTypeInfo, fresult);
                 }
-                if (testForNull) {
+                if (selectorMutable) {
                 }
                 return fresult;
             }
@@ -810,11 +741,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             List<JCExpression> determineArgs() {
                 List<JCExpression> args;
                 {
-                    boolean varargs = tree.args != null && msym != null &&
-                            (msym.flags() & VARARGS) != 0 &&
-                            (formals.size() != tree.args.size() ||
-                             types.isConvertible(tree.args.last().type,
-                                 types.elemtype(formals.last())));
                     ListBuffer<JCExpression> translated = ListBuffer.lb();
                     boolean handlingVarargs = false;
                     Type formal = null;
@@ -823,7 +749,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                         if (! handlingVarargs) {
                             formal = t.head;
                             t = t.tail;
-                            if (varargs && t.isEmpty()) {
+                            if (usesVarArgs && t.isEmpty()) {
                                 formal = types.elemtype(formal);
                                 handlingVarargs = true;
                             }

@@ -278,7 +278,8 @@ public abstract class AbstractGeneratedParser extends Parser {
             {"typeName", "a type specification"},
             {"genericArgument", "a type specification"},
             {"qualident", "an identifier"},
-            {"name", "an identifier"} 
+            {"name", "an identifier"},
+            {"paramNameOpt", "an optional identifier"} 
     };
     
     
