@@ -698,7 +698,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 if (renameToSuper) {
                     transMeth = make.at(selector).Select(make.Select(makeTypeTree(attrEnv.enclClass.sym.type, selector, false), names._super), msym);
                 } else {
-                    transMeth = translate(meth);
+                    transMeth = toJava.translate(meth);  //TODO: only toJava if !selectMutable
                 }
 
                 // translate the method name -- e.g., foo  to foo$bound or foo$impl
@@ -722,14 +722,34 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                         fresult = castFromObject(fresult, tree.type);
                     }
                 }
-                // If we are to yield a Location, and this isn't going to happen as
-                // a return of using a bound call (for example, if this is a Java call)
-                // then convert into a Location
-                if (!callBound && msym != null) {
-                    TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(msym.getReturnType());
-                    fresult = toJava.makeUnboundLocation(diagPos, returnTypeInfo, fresult);
-                }
-                if (selectorMutable) {
+                
+                if (callBound) {
+                    //TODO: ...
+                    if (selectorMutable) {
+                    } else {
+                    }
+                } else {
+                    // call to Java method or unbound JavaFX function
+                    //TODO: handle selectorMutable
+                    //TODO: args into fields
+                    //TODO: varargs
+                    final JCExpression closureExpr = fresult;
+                    return (new ClosureTranslator(diagPos, toJava, typeMorpher.typeMorphInfo(tree.type)) {
+
+                        protected List<JCTree> getBody() {
+                            return List.<JCTree>of(
+                                    makeClosureMethod("computeValue", closureExpr, null));
+                        }
+
+                        protected JCExpression getBaseClass() {
+                            Type clazzType = typeMorpher.bindingExpressionType(tmiResult.getTypeKind());
+                            return makeExpression(clazzType);
+                        }
+
+                        protected List<JCExpression> getConstructorArgs() {
+                            return List.<JCExpression>nil();
+                        }
+                    }).doit();
                 }
                 return fresult;
             }

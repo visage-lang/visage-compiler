@@ -12,6 +12,18 @@ public class AbstractBindingExpression {
         if (this.location != null)
             throw new IllegalStateException("Cannot reuse binding expressions");
         this.location = location;
+        Location[] fixedDependents = getStaticDependents();
+        if (fixedDependents != null) {
+            location.addDependencies(fixedDependents);
+        }
+    }
+
+    /**
+     * Override to provide an array of static dependents
+     * @return an array of static dependents, or null
+     */
+    protected Location[] getStaticDependents() {
+        return null;
     }
 
     protected <T extends Location> T addDynamicDependent(T dep) {
