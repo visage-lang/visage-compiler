@@ -22,6 +22,10 @@ Module {
         className: "jfx.assortie.lang.api.widgets.list.FXList",
         //visible: true
     },Sample{
+        name: "ComboBox"
+        className: "jfx.assortie.lang.api.widgets.combobox.FXComboBox",
+       //visible: true
+    },Sample{
         name: "Table"
         className: "jfx.assortie.lang.api.widgets.table.FXTable",
     },Sample{
