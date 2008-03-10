@@ -1,0 +1,6 @@
+jfxc387a.fx:29: incompatible types
+found   : Boolean
+required: Number
+var foo : Number = true;
+                   ^
+1 error

@@ -1,0 +1,6 @@
+jfxc611.fx:30: unexpected type
+found   : Object
+required: Object[]
+function f(llist) {return llist[0];}
+                          ^
+1 error

@@ -260,4 +260,101 @@ public class JavafxTypes extends Types {
     public void clearCaches() {
         fxClasses = null;
     }
+    
+    public String toJavaFXString(Type type) {
+        StringBuilder buffer = new StringBuilder();
+        toJavaFXString(type, buffer);
+        return buffer.toString();
+    }
+    
+    private boolean isJavaFXBoolean(Type type) {
+        boolean result = false;
+        if (type.tag == BOOLEAN) {
+            result = true;
+        }
+        return result;
+    }
+    
+    private boolean isJavaFXInteger(Type type) {
+        boolean result = false;
+        if (type.tag == BYTE) {
+            result = true;
+        } else if (type.tag == SHORT) {
+            result = true;
+        } else if (type.tag == INT) {
+            result = true;
+        } else if (type.tag == LONG) {
+            result = true;
+        }
+        return result;
+    }
+    
+    private boolean isJavaFXNumber(Type type){
+        boolean result = false;
+        if (type.tag == FLOAT) {
+            result = true;
+        } else if (type.tag == DOUBLE) {
+            result = true;
+        } else if ((type.tag == CLASS) && (type.toString().equals("java.lang.Number"))) {
+            result = true;
+        }
+        return result;
+    }
+    
+    private boolean isJavaFXString(Type type) {
+        boolean result = false;
+        if ((type.tag == CLASS) && (type.toString().equals("java.lang.String"))) {
+            result = true;
+        }
+        return result;
+    }
+    
+    private boolean isJavaFXObject(Type type) {
+        boolean result = false;
+        if ((type.tag == CLASS) && (type.toString().equals("java.lang.Object"))) {
+            result = true;
+        }
+        return result;
+    }
+    
+    private boolean isJavaFXUnknown(Type type) {
+        boolean result = false;
+        if (type.tag == UNKNOWN) {
+            result = true;
+        }
+        return result;
+    }
+    
+    private boolean isJavaFXSequence(Type type) {
+        boolean result = false;
+        if (isSequence(type)) {
+            result = true;
+        }
+        return result;
+    }
+    public void toJavaFXString(Type type, Appendable buffer) {
+        try {
+            if (isJavaFXBoolean(type)) {
+                buffer.append("Boolean");
+            } else if (isJavaFXInteger(type)) {
+                buffer.append("Integer");
+            } else if (isJavaFXNumber(type)) {
+                buffer.append("Number");
+            } else if (isJavaFXString(type)) {
+                buffer.append("String");
+            } else if (isJavaFXObject(type)) {
+                buffer.append("Object");
+            } else if (isJavaFXUnknown(type)) {
+                // Is this right?
+                buffer.append("Object");
+            } else if (isSequence(type)) {
+                toJavaFXString(elementType(type), buffer);
+                buffer.append("[]");
+            } else {
+                buffer.append(type.toString());
+            }
+        } catch (java.io.IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+    }
 }

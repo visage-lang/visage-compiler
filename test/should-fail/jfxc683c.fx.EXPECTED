@@ -1,0 +1,6 @@
+jfxc683c.fx:32: incompatible types
+found   : Integer
+required: jfxc683c.Node
+var n:Node = 1;
+             ^
+1 error

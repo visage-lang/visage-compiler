@@ -223,13 +223,16 @@ public class JavafxCheck {
     public
 //JavaFX change
     Type typeError(DiagnosticPosition pos, Object problem, Type found, Type req) {
-	log.error(pos, "prob.found.req",
-		  problem, found, req);
+        String foundAsJavaFXType = types.toJavaFXString(found);
+        String requiredAsJavaFXType = types.toJavaFXString(req);
+	log.error(pos, "prob.found.req", problem, foundAsJavaFXType, requiredAsJavaFXType);
 	return syms.errType;
     }
 
     Type typeError(DiagnosticPosition pos, String problem, Type found, Type req, Object explanation) {
-	log.error(pos, "prob.found.req.1", problem, found, req, explanation);
+        String foundAsJavaFXType = types.toJavaFXString(found);
+        String requiredAsJavaFXType = types.toJavaFXString(req);
+	log.error(pos, "prob.found.req.1", problem, foundAsJavaFXType, requiredAsJavaFXType, explanation);
 	return syms.errType;
     }
 
@@ -240,7 +243,15 @@ public class JavafxCheck {
      *  @param found      The type that was found.
      */
     Type typeTagError(DiagnosticPosition pos, Object required, Object found) {
-	log.error(pos, "type.found.req", found, required);
+        Object requiredAsJavaFXType = required;
+        if (required instanceof Type) {
+            requiredAsJavaFXType = types.toJavaFXString((Type) requiredAsJavaFXType);
+        }
+        Object foundAsJavaFXType = found;
+        if (foundAsJavaFXType instanceof Type) {
+            foundAsJavaFXType = types.toJavaFXString((Type) foundAsJavaFXType);
+        }
+	log.error(pos, "type.found.req", foundAsJavaFXType, requiredAsJavaFXType);
 	return syms.errType;
     }
 
@@ -614,9 +625,9 @@ public class JavafxCheck {
     public Type checkSequenceElementType (DiagnosticPosition pos, Type t) {
         if (types.isSequence(t))
             return types.elementType(t);
-        if (t.tag != ERROR)
-            log.error(pos, "type.found.req",
-                      t, types.sequenceType(syms.unknownType));
+        if (t.tag != ERROR) {
+            return typeTagError(pos, types.sequenceType(syms.unknownType), t);
+        }
         return syms.errType;
     }
 

@@ -1,0 +1,6 @@
+jfxc614a.fx:31: incompatible types
+found   : void
+required: Integer
+i = bar();
+       ^
+1 error
