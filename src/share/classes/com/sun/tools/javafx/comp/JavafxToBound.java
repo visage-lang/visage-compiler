@@ -165,6 +165,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     private abstract class ClosureTranslator extends Translator {
         
         protected final TypeMorphInfo tmiResult;
+        protected final int typeKindResult;
+        protected final Type elementTypeResult;
 
         ClosureTranslator(DiagnosticPosition diagPos, JavafxToJava toJava, Type resultType) {
             this(diagPos, toJava, typeMorpher.typeMorphInfo(resultType) );
@@ -173,6 +175,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         ClosureTranslator(DiagnosticPosition diagPos, JavafxToJava toJava, TypeMorphInfo tmiResult) {
             super(diagPos, toJava);
             this.tmiResult = tmiResult;
+            typeKindResult = tmiResult.getTypeKind();
+            elementTypeResult = toJava.elementType(tmiResult.getMorphedType()); // want boxed, JavafxTypes version won't work
         }
         
         /**
@@ -186,11 +190,11 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     null);
         }
         
-        protected JCTree makeClosureMethod(String methName, JCExpression expr, List<JCVariableDecl> params) {
+        protected JCTree makeClosureMethod(String methName, JCExpression expr, List<JCVariableDecl> params, Type returnType, long flags) {
             return m().MethodDef(
-                    m().Modifiers(Flags.PROTECTED),
+                    m().Modifiers(flags),
                     names.fromString(methName),
-                    makeExpression(tmiResult.getMorphedLocationType()),
+                    makeExpression(returnType),
                     List.<JCTypeParameter>nil(),
                     params==null? List.<JCVariableDecl>nil() : params,
                     List.<JCExpression>nil(),
@@ -198,10 +202,27 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     null);
         }
         
+        protected JCTree makeClosureMethod(String methName, JCExpression expr, List<JCVariableDecl> params) {
+            return makeClosureMethod(methName, expr, params, tmiResult.getMorphedLocationType(), Flags.PROTECTED);
+        }
+        
         protected abstract List<JCTree> getBody();
         
         protected abstract JCExpression getBaseClass();
-        
+
+        protected JCExpression getBaseClass(Type clazzType, Type additionTypeParamOrNull) {
+            JCExpression clazz = makeExpression(types.erasure(clazzType));  // type params added below, so erase formals
+            ListBuffer<JCExpression> typeParams = ListBuffer.lb();
+
+            if (typeKindResult == TYPE_KIND_OBJECT || typeKindResult == TYPE_KIND_SEQUENCE) {
+                typeParams.append(makeExpression(elementTypeResult));
+            }
+            if (additionTypeParamOrNull != null) {
+                typeParams.append(makeExpression(additionTypeParamOrNull));
+            }
+            return m().TypeApply(clazz, typeParams.toList());
+        }
+
         protected abstract List<JCExpression> getConstructorArgs();
         
         protected JCExpression buildClosure() {
@@ -324,9 +345,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             final JCExpression selectorExpr) {
         return (new ClosureTranslator(diagPos, toJava, tmiResult) {
             
-            int typeKindResult = tmiResult.getTypeKind();
-            Type elementTypeResult = toJava.elementType(tmiResult.getMorphedType()); // want bozed, JavafxTypes version won't work
-
             protected List<JCTree> getBody() {
                 List<JCVariableDecl> params = List.of(makeParam(tmiSelector.getRealType(), selectorParamName));
                 return List.<JCTree>of(makeClosureMethod("computeSelect", selectorExpr, params));
@@ -334,14 +352,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
             protected JCExpression getBaseClass() {
                 Type clazzType = tmiResult.getBoundSelectLocationType();
-                JCExpression clazz = makeExpression(types.erasure(clazzType));  // type params added below, so erase formals
-                ListBuffer<JCExpression> typeParams = ListBuffer.lb();
-                
-                if (typeKindResult == TYPE_KIND_OBJECT || typeKindResult == TYPE_KIND_SEQUENCE) {
-                    typeParams.append( makeExpression(elementTypeResult) );
-                }
-                typeParams.append( makeExpression(tmiSelector.getRealType()) );
-                return m().TypeApply(clazz, typeParams.toList());
+                return getBaseClass(clazzType, tmiSelector.getRealType());
             }
 
             protected List<JCExpression> getConstructorArgs() {
@@ -627,8 +638,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
             protected JCExpression getBaseClass() {
                 Type clazzType = tmi.getBoundIfLocationType();
-                clazzType = types.erasure(clazzType);
-                return makeExpression(clazzType);
+                return getBaseClass(clazzType, null);
             }
 
             protected List<JCExpression> getConstructorArgs() {
@@ -734,22 +744,24 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     //TODO: args into fields
                     //TODO: varargs
                     final JCExpression closureExpr = fresult;
-                    return (new ClosureTranslator(diagPos, toJava, typeMorpher.typeMorphInfo(tree.type)) {
+                    final TypeMorphInfo tmiResult = typeMorpher.typeMorphInfo(tree.type);
+                    JCExpression binding =(new ClosureTranslator(diagPos, toJava, tmiResult) {
 
                         protected List<JCTree> getBody() {
                             return List.<JCTree>of(
-                                    makeClosureMethod("computeValue", closureExpr, null));
+                                    makeClosureMethod("computeValue", closureExpr, null, tmiResult.getRealType(), Flags.PUBLIC));
                         }
 
                         protected JCExpression getBaseClass() {
-                            Type clazzType = typeMorpher.bindingExpressionType(tmiResult.getTypeKind());
-                            return makeExpression(clazzType);
+                            Type clazzType = typeMorpher.bindingExpressionType(typeKindResult);
+                            return getBaseClass(clazzType, null);
                         }
 
                         protected List<JCExpression> getConstructorArgs() {
                             return List.<JCExpression>nil();
                         }
                     }).doit();
+                    return typeMorpher.makeLocationLocalVariable(tmiResult, diagPos, List.of(binding));
                 }
                 return fresult;
             }
