@@ -180,6 +180,7 @@ public class ComboBox extends Widget {
                                      return o == this;
                                  }
                               });        
+        if (( selection == -1) and (cells <> [] ) ) { selection = 0; }
         return jcombobox;
     }
     init {
