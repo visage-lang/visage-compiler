@@ -63,7 +63,7 @@ public class JSONObject extends JSONBase {
     /**
      * Holds a map of the pairs based on the pair name
      */
-    public attribute map:Map = new HashMap() on replace (old) {
+    public attribute map:Map = new HashMap() on replace old {
         var keyIter = map.keySet().iterator();
         updateFromMap = true;
         while(keyIter.hasNext()) {

@@ -49,7 +49,7 @@ public class TabbedPane extends Widget {
     public attribute onSelectionChange: function(
             oldSelection:SingleSelection, newSelection:SingleSelection):Void;
     //TODO JFXC-267  //  The issue has been fixed but some problems still exist
-    public attribute selection: SingleSelection on replace (old) {
+    public attribute selection: SingleSelection on replace old {
         if (component <> null) {
             selectedIndex = selection.anchorIndex;
             //tabs[selection.anchorIndex.intValue()].selectTab();

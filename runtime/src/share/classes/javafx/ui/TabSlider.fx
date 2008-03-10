@@ -219,7 +219,7 @@ class TabSlider extends Widget {
     attribute panel: LayoutNotifier;
 
     // public
-    public attribute selectedIndex: Number = -1 on replace (old)  {
+    public attribute selectedIndex: Number = -1 on replace old  {
         if (not inUpdateSelection) {
             if (selectedIndex == -1 and sizeof tabs > 0) {
                 inUpdateSelection = true;

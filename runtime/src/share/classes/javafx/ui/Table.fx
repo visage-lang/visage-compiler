@@ -59,7 +59,7 @@ public class Table extends ScrollableWidget {
 
     public attribute visibleRowCount: Number;
 
-    public attribute selection: Integer = -1 on replace (old) {
+    public attribute selection: Integer = -1 on replace old {
         if (table <> null) {
             var model = table.getSelectionModel();
             if (old >= 0 and old < table.getRowCount()) {

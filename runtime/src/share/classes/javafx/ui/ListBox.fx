@@ -438,7 +438,7 @@ public class ListBox extends ScrollableWidget {
     };
 //TODO MULTIPLE SELECTION
     /** Returns the index of the selected cell or -1 if no cell is selected. */
-    public attribute selection:Integer = -1 on replace (old) {
+    public attribute selection:Integer = -1 on replace old {
         if (not locked) {
             list.removeListSelectionListener(selectionListener);
             list.setSelectedIndex(selection);

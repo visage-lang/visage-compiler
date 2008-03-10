@@ -122,7 +122,7 @@ public class Node {
      * When changed, the parent children sequence is modified
      * to include this node.
      */
-    public attribute parent:Node on replace (oldValue:Node) {
+    public attribute parent:Node on replace oldValue {
         if(oldValue <> null) {
             delete this from oldValue.children;
         }
@@ -177,7 +177,7 @@ public class Node {
     /**
      * holds the node's qualified name
      */
-    public attribute name:String on replace (old) {
+    public attribute name:String on replace old {
 
         if(document <> null and domNode <> null and 
                 (type == NodeType.ATTRIBUTE or type == NodeType.ELEMENT) ) {

@@ -52,7 +52,7 @@ public class TextField extends Widget {
         if(text <> value)
             value = text;
     }
-    public attribute onChange: function(newValue:String) on replace (old){
+    public attribute onChange: function(newValue:String) on replace old {
         if (old == null and onChange <> null) {
             textField.addPropertyChangeListener(propertyChangeListener);
         } else if (old <> null) {

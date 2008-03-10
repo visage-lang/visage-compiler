@@ -78,7 +78,7 @@ public class Document {
     /**
      *  holds the document element 
      */
-    public attribute documentElement:Element on replace (old) {
+    public attribute documentElement:Element on replace old {
         if(documentElement.domNode <> document.getDocumentElement()) {
             if(document.getDocumentElement() <> null) {
                 document.removeChild(old.domNode);

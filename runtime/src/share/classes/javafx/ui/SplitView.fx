@@ -41,7 +41,7 @@ public class SplitView {
         }
     };
     
-    public attribute content: Widget on replace (old) {
+    public attribute content: Widget on replace old {
         content.getComponent().setMinimumSize(new Dimension(0, 0));
         if (splitpane <> null) {
             if (old <> null) {
