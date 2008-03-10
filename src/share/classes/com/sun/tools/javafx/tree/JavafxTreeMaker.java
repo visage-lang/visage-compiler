@@ -465,7 +465,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return new JFXInterpolate(var, values);
     }
     
-    public JFXInterpolateValue InterpolateValue(JCExpression attr, JCExpression v, Name interp) {
+    public JFXInterpolateValue InterpolateValue(JCIdent attr, JCExpression v, Name interp) {
         return new JFXInterpolateValue(attr, v, interp);
     }
     

@@ -3827,28 +3827,43 @@ public
 
     public void visitInterpolate(JFXInterpolate tree) {
         tree.getVariable().accept(this);
-        for (InterpolateValueTree t : tree.getInterpolateValues())
-            ((JFXInterpolateValue)t).accept((JavafxVisitor)this);
-        Type owntype = types.sequenceType(syms.javafx_KeyValueType);
+        for (InterpolateValueTree t : tree.getInterpolateValues()) {
+            checkInterpolationValue((JFXInterpolateValue)t, tree.getVariable());
+        }
+        Type owntype = tree.getVariable().type;
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
 
     public void visitInterpolateValue(JFXInterpolateValue tree) {
+        assert false : "should not reach here";
+        result = syms.errType;
+    }
+
+    private void checkInterpolationValue(JFXInterpolateValue tree, JCExpression var) {
+        final Type targetType;
+        if (tree.getAttribute() != null) {
+            JCIdent t = tree.getAttribute();
+            JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
+            localEnv.info.scope.owner = new MethodSymbol(BLOCK, names.empty, null, env.info.scope.owner);
+            Name attribute = names.fromString(t.toString());
+            Symbol memberSym = rs.findIdentInType(env, var.type, attribute, VAR);
+            memberSym = rs.access(memberSym, t.pos(), var.type, attribute, true);
+            memberSym.complete();
+            t.type = memberSym.type;
+            t.sym = memberSym;
+            targetType = t.type;
+        } else
+            targetType = var.type;
         Type valueType = attribExpr(tree.getValue(), env, Infer.anyPoly);
-        if (tree.getTarget() != null) {
-            Type targetType = attribExpr(tree.getTarget(), env, Infer.anyPoly);
-            chk.checkType(tree.pos(), targetType, valueType, Sequenceness.DISALLOWED);
-        }
+
         Type interpolateType = syms.errType;
-        if (types.isAssignable(valueType, syms.javafx_ColorValueType)) { 
+        if (types.isAssignable(valueType, syms.javafx_ColorType)) {
             interpolateType = syms.javafx_ColorInterpolatorType;
-        } else if (types.isAssignable(valueType, syms.javafx_NumberValueType) ||
+        } else if (types.isAssignable(valueType, syms.javafx_NumberType) || 
                    types.isAssignable(valueType, syms.javafx_IntegerType)) {
             interpolateType = syms.javafx_NumberInterpolatorType;
         } else {
-            log.error(tree.pos(), "unexpected.type",
-                      Resolve.kindNames(pkind),
-                      Resolve.kindName(pkind));
+            log.error(tree.pos(), "unexpected.type", Resolve.kindNames(pkind), Resolve.kindName(pkind));
             interpolateType = syms.errType;
         }
         tree.type = interpolateType;

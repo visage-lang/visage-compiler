@@ -74,6 +74,11 @@ import org.antlr.runtime.tree.*;
         }
     }
 
+    void endPos(JCTree tree, com.sun.tools.javac.util.List<JFXInterpolateValue> list) {
+        int endLast = endPositions.get(list.last());
+        endPositions.put(tree, endLast);
+    }
+
     void endPos(JCTree tree, int end) {
         endPositions.put(tree, end);
     }
@@ -466,21 +471,21 @@ interpolateExpression  returns [JCExpression expr]
 @init { ListBuffer<JFXInterpolateValue> tweenProps = new ListBuffer<JFXInterpolateValue>(); }
         : ^(SUCHTHAT identifier
             ( tweenValue                                { tweenProps.append($tweenValue.prop); } )*
-           )                                            { $expr = F.at(pos($SUCHTHAT)).Interpolate($identifier.expr, tweenProps.toList()); 
-                                                          endPos($expr, $SUCHTHAT); }
+           )                                            { $expr = F.at($identifier.expr.pos).Interpolate($identifier.expr, tweenProps.toList()); 
+                                                          endPos($expr, tweenProps.toList()); }
         | ^(SUCHTHAT_BLOCK identifier
             ( namedTweenValue                           { tweenProps.append($namedTweenValue.prop); } )*
-           )                                            { $expr = F.at(pos($SUCHTHAT_BLOCK)).Interpolate($identifier.expr, tweenProps.toList()); 
-                                                          endPos($expr, $SUCHTHAT_BLOCK); }
+           )                                            { $expr = F.at($identifier.expr.pos).Interpolate($identifier.expr, tweenProps.toList()); 
+                                                          endPos($expr, tweenProps.toList()); }
         ;
 tweenValue returns [JFXInterpolateValue prop]
-        : ^(TWEEN expression name)                      { $prop = F.at(pos($TWEEN)).InterpolateValue((JCExpression)null, $expression.expr, $name.value); 
-                                                          endPos($prop, $TWEEN); }
+        : ^(TWEEN expression name)                      { $prop = F.at($expression.expr.pos).InterpolateValue(null, $expression.expr, $name.value); 
+                                                          endPos($prop, $name.pos + $name.value.length()); }
         ;
 namedTweenValue returns [JFXInterpolateValue prop]
         : ^(NAMED_TWEEN identifier expression name?)
-                                                        { $prop = F.at(pos($NAMED_TWEEN)).InterpolateValue($identifier.expr, $expression.expr, $name.value); 
-                                                          endPos($prop, $NAMED_TWEEN); }
+                                                        { $prop = F.at($identifier.expr.pos).InterpolateValue($identifier.expr, $expression.expr, $name.value); 
+                                                          endPos($prop, $name.value != null ? $name.pos + $name.value.length() : $expression.expr.pos); }
         ;
 explicitSequenceExpression   returns [JFXSequenceExplicit expr]
 @init { ListBuffer<JCExpression> exps = new ListBuffer<JCExpression>(); }

@@ -26,6 +26,7 @@
 package com.sun.javafx.api.tree;
 
 import com.sun.source.tree.ExpressionTree;
+import com.sun.source.tree.IdentifierTree;
 
 /**
  * A tree node for a JavaFX interpolate value description, such as 
@@ -41,7 +42,7 @@ public interface InterpolateValueTree extends JavaFXTree {
      * @return the target, or null if this value is declared outside of 
      *         an interpolate block expression.
      */
-    ExpressionTree getTarget();
+    IdentifierTree getAttribute();
     
     /**
      * The interpolation to be run, such as <code>LINEAR</code> or 

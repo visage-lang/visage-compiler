@@ -226,7 +226,7 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
     }
 
     public R visitInterpolateValue(InterpolateValueTree node, P p) {
-        R r = scan(node.getTarget(), p);
+        R r = scan(node.getAttribute(), p);
         return scanAndReduce(node.getValue(), p, r);
     }
 }

@@ -59,9 +59,8 @@ public class JavafxSymtab extends Symtab {
     public final Type[] javafx_FunctionTypes = new Type[MAX_FIXED_PARAM_LENGTH+1];
     public final Type javafx_FXObjectType;
     public final Type javafx_SequencesType;
-    public final Type javafx_ColorValueType;
+    public final Type javafx_ColorType;
     public final Type javafx_KeyValueType;
-    public final Type javafx_NumberValueType;
     public final Type javafx_ColorInterpolatorType;
     public final Type javafx_NumberInterpolatorType;
     
@@ -113,8 +112,7 @@ public class JavafxSymtab extends Symtab {
         javafx_SequenceType = enterClass("com.sun.javafx.runtime.sequence.Sequence");
         javafx_SequencesType = enterClass("com.sun.javafx.runtime.sequence.Sequences");
         javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);
-        javafx_ColorValueType = enterClass("javafx.ui.animation.ColorValue");
-        javafx_NumberValueType = enterClass("javafx.ui.animation.NumberValue");
+        javafx_ColorType = enterClass("javafx.ui.Color");
         javafx_KeyValueType = enterClass("javafx.ui.animation.KeyValue");
         javafx_ColorInterpolatorType = enterClass("javafx.ui.animation.ColorInterpolator");
         javafx_NumberInterpolatorType = enterClass("javafx.ui.animation.NumberInterpolator");

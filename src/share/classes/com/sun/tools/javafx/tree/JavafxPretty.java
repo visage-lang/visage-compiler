@@ -130,8 +130,8 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
 
     private void printInterpolateValue(JFXInterpolateValue tree) {
         try {
-            if (tree.getTarget() != null) {
-                print(tree.getTarget());
+            if (tree.getAttribute() != null) {
+                print(tree.getAttribute());
                 print(':');
             }
             print(tree.getValue());
