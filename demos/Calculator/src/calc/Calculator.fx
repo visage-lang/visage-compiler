@@ -3,239 +3,192 @@ import javafx.ui.*;
 import javafx.ui.canvas.*;
 import java.text.DecimalFormat;
 import java.lang.System;
-import java.awt.Container;
-import java.awt.BorderLayout;
-import java.lang.Object;
-import java.lang.System;
 
 class CalcButton extends CompositeNode {
-    attribute pressedImage: Image;
-    attribute image: Image;
+    attribute name: String;
+    attribute pressedImage: Image = Image{url: this.getClass().getResource('images/d{name}.png').toString()};
+    attribute image: Image = Image{url: this.getClass().getResource('images/{name}.png').toString()};
     attribute pressed: Boolean;
     attribute action: function():Void;
+    override attribute isSelectionRoot = true;
     
     public function composeNode(): Node {
         ImageView {
             onMousePressed: function(e:CanvasMouseEvent):Void  {
-                pressed = true;
+                pressed = true
             }
             onMouseReleased:  function(e:CanvasMouseEvent):Void {
                 pressed = false; 
                 if (hover and action <> null) {
-                    action();
+                    action()
                 }
             }
             image: bind if (hover and pressed) then pressedImage else image
-        };
-    }
-    
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	isSelectionRoot = true;
+        }
     }
 }
 
-
 public class Calculator extends CompositeNode {
-    attribute reg1: Number;
-    attribute reg2: Number;
+    attribute register: Number;
     attribute mem: Number;
     attribute operator: String;
-    attribute isFixReg: Boolean = true;
-    attribute text: String= "0";
+    attribute isFixReg = true;
+    attribute text = '0';
+
+    override attribute focusable = true;
+    override attribute onKeyDown = function(e:KeyEvent):Void {
+            if (e.keyStroke == KeyStroke.ENTER) {
+                input('=')
+            } else if (e.keyStroke == KeyStroke.BACK_SPACE) {        
+                input('del')
+            }
+        }
+    override attribute onKeyTyped = function(e:KeyEvent):Void {
+            input(e.keyChar)
+        }      
+
     function calculate(op:String, r1:Number, r2:Number):Number {
-        if (op == "+")
-        then r1 + r2
-        else if (op == "-") 
-        then r1 - r2
-        else if (op == "*")
-        then r1 * r2
-        else if (op == "/")
-        then r1 / r2
+        if (op == '+')
+            then r1 + r2
+        else if (op == '-') 
+            then r1 - r2
+        else if (op == '*')
+            then r1 * r2
+        else if (op == '/')
+            then r1 / r2
         else r2
-    ;        
     }
-    private attribute df:DecimalFormat = new DecimalFormat("###,###,###,###.########");
+
+    function update() {
+        var current = df.parse(text).doubleValue();
+        register = calculate(operator, register, current);
+        operator = '';
+        text = formatNum(register);
+        isFixReg = true;
+    }
+
+    private attribute df:DecimalFormat = new DecimalFormat('###,###,###,###.########');
     function formatNum(n:Number):String { 
         return df.format(n);
-        //"{%###,###,###,###.######## n}"; 
     }
+
     function input(value:String):Void {
-        if (value == "decimal") {
-            value = ".";
-        }
-        if (value == "c") {
-            reg1 = 0;
-            reg2 = 0;
-            operator = "";
-            text = "0";
+        //System.out.println("input: {value} reg={register} text={text} mem={mem}");
+        if (value == 'c') {
+            register = 0.0;
+            operator = '';
+            text = '0';
             isFixReg = true;
-        } else if (value == "del") {
+        } else if (value == 'del') {
             if (text.length() > 1) {
                 text = text.substring(0, text.length()-1);
             } else {
-                text = "0";
+                text = '0';
                 isFixReg = true;
             }
-        //} else if (value in (select "{i}" from i in [0..9]) or value == ".") {
-        } else if (value == "0" or value == "1" or value == "2" or value == "3" or
-                   value == "4" or value == "5" or value == "6" or
-                   value == "7" or value == "8" or value == "9" or
-                   value == ".") {
+        //} else if (value in (select '{i}' from i in [0..9])) {
+        } else if (value == '0' or value == '1' or value == '2' or value == '3' or
+                   value == '4' or value == '5' or value == '6' or
+                   value == '7' or value == '8' or value == '9') {
             if (isFixReg) {
-                if (value == ".") {
-                    text = "0.";
-                } else {
-                    text = "{value}";
-                }
-            } else if (value <> "." or text.indexOf(".") < 0) {
-                text = "{text}{value}";
-
+                text = '{value}';
+            } else {
+                text = '{text}{value}';
             }
             isFixReg = false;
-
-        } else if (value == "+" or value == "-" or value == "*" or value == "/" or value == "=") {
-            var num = df.parse(text);
-            reg2 = num.doubleValue();
-            reg1 = calculate(operator, reg1, reg2);
+        } else if (value == '.' or value == 'decimal') {
+            if (isFixReg) {
+                text = '0.';
+            } else if (text.indexOf('.') < 0) {
+                text = '{text}{value}';
+            }
+            isFixReg = false;
+        } else if (value == '+' or value == '-' or value == '*' or value == '/' or value == '=') {
+            update();
             operator = value;
-            text = formatNum(reg1);
-            isFixReg = true;
-        } else if (value == "mr") {
+        } else if (value == 'mr') {
             text = formatNum(mem);
-            operator = "";
+            operator = '';
             isFixReg = true;
-        } else if (value == "m+") {
-            reg1 = calculate(operator, reg1, reg2);
-            text = formatNum(reg1);
-            mem = mem + reg1;
-            operator = "";
-            isFixReg = true;
-        } else if (value == "m-") {
-            reg1 = calculate(operator, reg1, reg2);
-            text = formatNum(reg1);
-            mem = mem - reg1;
-            operator = "";
-            isFixReg = true;
-        } else if (value == "mc") {
+        } else if (value == 'm+') {
+            update();
+            mem += register;
+        } else if (value == 'm-') {
+            update();
+            mem -= register;
+        } else if (value == 'mc') {
             mem = 0;
-        }
-        
+        }    
     }
-    
-    
 
     public function composeNode(): Node {
-        var n13 = [1,2,3];
-        var n46 = [4,5,6];
-        var n79 = [7,8,9];
-        var dec = ["0", "decimal", "c"];
-        var mr = ["m+", "m-", "mc", "mr"];
-        var divmult = ["div", "mult", "sub", "add"];
-        var ops = ["/", "*", "-", "+"];
+        var bottom = 191;
+        var left = 16;
+        var sz = 38;
+        var ssz = 28;
         Group {
             content:
             [ImageView {
-                image: Image{url: this.getClass().getResource("images/Calculator.png").toString()}
-            } as Node,
+                image: Image{url: this.getClass().getResource('images/Calculator.png').toString()}
+            },
             ImageView { 
                 transform: [Transform.translate(13, 8)]
-                image: Image{url: this.getClass().getResource("images/lcd-backlight.png").toString()}
-            } as Node,
+                image: Image{url: this.getClass().getResource('images/lcd-backlight.png').toString()}
+            },
             Text {
                 transform: [Transform.translate(150, 18)]
                 halign: HorizontalAlignment.TRAILING
                 font: Font {face: FontFace.ARIAL size: 20}
                 content: bind text
-                //fill: Color.rgba(0, 0, 0, 0.4)
                 fill: Color.WHITE
-            } as Node,
-            //for (i in [1,2,3])
-            for(i in [0..<sizeof n13])
-            (CalcButton {
-                transform: [Transform.translate(16+i *38, 153)]
-                image: Image{url: this.getClass().getResource("images/{n13[i]}.png").toString()}
-                pressedImage: Image{url: this.getClass().getResource("images/d{n13[i]}.png").toString()}
-                action: function():Void {input("{n13[i]}");}
-            } as Object) as Node,
-            //for (i in [4,5,6])
-            for(i in [0..<sizeof n46])
-            (CalcButton {
-                transform: [Transform.translate(16+i *38, 153-38)]
-                image: Image{url: this.getClass().getResource("images/{n46[i]}.png").toString()}
-                pressedImage: Image{url: this.getClass().getResource("images/d{n46[i]}.png").toString()}
-                action: function():Void {input("{n46[i]}");}    
-            }as Object) as Node,
-            //for (i in [7,8,9])
-            for(i in [0..<sizeof n79])
-            (CalcButton {
-                transform: [Transform.translate(16+i *38, 153-38*2)]
-                image: Image{url: this.getClass().getResource("images/{n79[i]}.png").toString()}
-                pressedImage: Image{url: this.getClass().getResource("images/d{n79[i]}.png").toString()}
-                action: function():Void {input("{n79[i]}");}
-            }as Object) as Node,
-            //for (i in ["0", "decimal", "c"])
-            for(i in [0..<sizeof dec])
-            (CalcButton {
-                transform: [Transform.translate(16+i * 38, 191)]
-                image: Image{url: this.getClass().getResource("images/{dec[i]}.png").toString()}
-                pressedImage: Image{url: this.getClass().getResource("images/d{dec[i]}.png").toString()}
-                action: function():Void {input(dec[i]);}    
-            }as Object) as Node,
-            //for (i in ["m+", "m-", "mc", "mr"])
-            for(i in [0..<sizeof mr])
-            (CalcButton {
-                transform: [Transform.translate(16+i * 28, 52)]
-                image: Image{url: this.getClass().getResource("images/{mr[i]}.png").toString()}
-                pressedImage: Image{url: this.getClass().getResource("images/d{mr[i]}.png").toString()}
-                action: function():Void {input(mr[i]);}
-            }as Object) as Node,
-            //for (i in ["div", "mult", "sub", "add"])
-            for(i in [0..<sizeof divmult])
-            (CalcButton {
-                transform: [Transform.translate(130 + (if (i > 0) then 1 else 0), 52+27* i)]
-                image: Image{url: bind this.getClass().getResource("images/{if (operator == ops[i]) then 'a{divmult[i]}' else divmult[i]}.png").toString()}
-                pressedImage: Image{url: this.getClass().getResource("images/d{divmult[i]}.png").toString()}
-                action: function():Void {input(ops[i]);}
-            }as Object) as Node,
-            (CalcButton {
+            },
+            for(key in ['0', 'decimal', 'c',  '1','2','3',  '4','5','6',  '7','8','9']) {
+                var row = indexof key / 3;
+                var col = indexof key % 3;
+                CalcButton {
+                    transform: [Transform.translate(left + col * sz, bottom - sz * row)]
+                    name: key
+                    action: function():Void {input(key)}
+                }
+            },
+            for(key in ['m+', 'm-', 'mc', 'mr']) {
+                var col = indexof key;
+                CalcButton {
+                    transform: [Transform.translate(left + col * ssz, 52)]
+                    name: key
+                    action: function():Void {input(key)}
+                }
+            },
+            {
+                var divmult = ['div', 'mult', 'sub', 'add'];
+                var ops = ['/', '*', '-', '+'];
+                for(i in [0..<sizeof divmult])
+                    CalcButton {
+                        transform: [Transform.translate(131, 52 + 27 * i)]
+                        name: divmult[i]
+                        action: function():Void {input( ops[i] );}
+                }
+            },
+            CalcButton {
                 transform: [Transform.translate(131, 170)]
-                image: Image{url: this.getClass().getResource("images/equal.png").toString()}
-                pressedImage: Image{url: this.getClass().getResource("images/dequal.png").toString()}
-                action: function():Void {input("=");}    
-            }as Object) as Node]
+                name: 'equal'
+                action: function():Void {input('=');}    
+            }]
         };
     } 
-    init {
-        // override defaults in superclass
-	//TODO: should be protected by "not isInitialized"
-	focusable = true;
-        onKeyDown = function(e:KeyEvent):Void {
-            if (e.keyStroke == KeyStroke.ENTER) {
-                input("=");
-            } else if (e.keyStroke == KeyStroke.BACK_SPACE) {        
-                input("del");
-            }
-        };
-        onKeyTyped = function(e:KeyEvent):Void {
-            input(e.keyChar);
-        };        
-    }
 }
 
 
 
 var canvas = Canvas {
     background: Color.rgba(0, 0, 0, 0)
-    content: [ (Calculator {
+    content: [Calculator {
         focused: true
-    } as Object)as Node ]
-};
-//canvas;
+    }]
+}
 
 Frame {
-  title: "JavaFX Calculator"
+  title: 'JavaFX Calculator'
   background: Color.WHITE
   onClose: function():Void { System.exit(0); }
   content: canvas
