@@ -262,6 +262,7 @@ public class EditorPane extends ScrollableWidget {
                 }
             });            
         }
+        jeditorpane.setText(text);
         jeditorpane.select(0,0);
         return jeditorpane;
     }
