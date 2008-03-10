@@ -36,6 +36,11 @@ public class CodeManager {
 
     public static Object execute(String className, String code) {
 
+        if (!code.contains("package")){
+            String pack = className.substring(0, className.lastIndexOf('.'));
+            //System.out.println("[code manager] pack: \"" + pack + "\"");
+            code = "package " + pack + ";\n" + code;
+        }
         List<JavaFileObject> compUnits = new ArrayList<JavaFileObject>(1);
 
         compUnits.add(new FXFileObject(className, code));

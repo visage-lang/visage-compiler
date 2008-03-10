@@ -4,8 +4,8 @@ import javafx.ui.*;
 import javafx.ui.canvas.*;
 
 Circle{
-    cx: 100
-    cy: 100
-    radius: 50
+    cx: 50
+    cy: 30
+    radius: 25
     fill: Color.ORANGE
 }

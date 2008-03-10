@@ -106,14 +106,14 @@ public class AssortieProject  extends CompositeWidget{
     
     
     private attribute selectedModule:Object on replace{
-        System.out.println("[selected module] {selectedModule}");
+        //System.out.println("[selected module] {selectedModule}");
         selectedSampleIndex = -1;
         
         var cell = selectedModule as TreeCell;
         var m = cell.value as ProjectModule;
         samples = m.samples;
+        //System.out.println("[selected value] {m}");
         selectedSampleIndex = sizeof samples - 1;
-        System.out.println("[selected value] {m}");
         
     };
         
@@ -171,8 +171,7 @@ public class AssortieProject  extends CompositeWidget{
         
         
         var moduleTreeNode = moduleTreeStructure.create( ProjectManager.runFXFile(rootModule));
-        moduleTreeNode.handle(
-        function(value:Object) { System.out.println("value: {(value as ProjectModule).name}")} );
+        //moduleTreeNode.handle( function(value:Object) { System.out.println("value: {(value as ProjectModule).name}")} );
         
         moduleTreeNode.handle(
         function(value:Object) {
@@ -181,7 +180,7 @@ public class AssortieProject  extends CompositeWidget{
             var module = value as ProjectModule;
             
             for(sample in module.samples){
-                System.out.println("sample: {sample.name} visible: {sample.visible}");
+                //System.out.println("sample: {sample.name} visible: {sample.visible}");
                 
                 if(sample.visible){
                     executeSample(sample);
@@ -235,7 +234,7 @@ public class AssortieProject  extends CompositeWidget{
         //System.out.println("[code] {code}");
         var obj = ProjectManager.runFXCode(sample.className, code);
         
-        System.out.println("[execute sample] {sample.name}: \"" + obj + "\"");
+        //System.out.println("[execute sample] {sample.name}: \"" + obj + "\"");
         
         
         var internalFrame = sample.frame;
@@ -271,7 +270,7 @@ public class AssortieProject  extends CompositeWidget{
                         
             internalFrame.title = frame.title;
             internalFrame.width = frame.width;
-            internalFrame.height = frame.height;
+            internalFrame.height = frame.height;            
             internalFrame.content = frame.content;
             internalFrame.background = background;
             internalFrame.visible = true;
@@ -305,10 +304,8 @@ public class AssortieProject  extends CompositeWidget{
         
         var code = ProjectManager.readResource(className, fileName);        
         
-        //var textArea: TextArea;
         var textArea: EditorPane;
         
-        //textArea =  TextArea{
         textArea =  EditorPane{
             contentType: ContentType.HTML
             text: code
@@ -339,8 +336,8 @@ public class AssortieProject  extends CompositeWidget{
         sample.frame = InternalFrame { 
             x: x 
             y: y  
-            width: 300  //DEFAULT_FRAME_WIDTH 
-            height: 200 //DEFAULT_FRAME_HEIGHT 
+            width: 175  //DEFAULT_FRAME_WIDTH 
+            height: 100 //DEFAULT_FRAME_HEIGHT 
             selected: bind  sample.selected with inverse
             onClose: function(){
                 System.out.println("Close frame: {sample.name}");
@@ -422,7 +419,7 @@ public class AssortieProject  extends CompositeWidget{
                                     rootVisible: false
                                     root: treeCell
                                     selectedValue: bind selectedModule with inverse
-                                    onSelectionChange: function(){ System.out.println("[tree] selection changed!");}
+                                    //onSelectionChange: function(){ System.out.println("[tree] selection changed!");}
                                 }
                             }
                         }, SplitView{

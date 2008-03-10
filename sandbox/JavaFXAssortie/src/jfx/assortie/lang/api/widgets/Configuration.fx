@@ -18,6 +18,10 @@ Module {
         className: "jfx.assortie.lang.api.widgets.button.FXButton"
         //visible: true
     },Sample{
+        name: "RadioButton"
+        className: "jfx.assortie.lang.api.widgets.button.FXRadioButton"
+        //visible: true
+    },Sample{
         name: "List"
         className: "jfx.assortie.lang.api.widgets.list.FXList",
         //visible: true

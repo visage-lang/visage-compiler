@@ -1,13 +1,7 @@
 package jfx.assortie.lang.api.widgets.label;
 
-import javafx.ui.*; 
+import javafx.ui.*;
 
-Frame {
-    title: "JavaFX Label"
-    width:  200
-    height: 50
-    content: Label {
-            text: "Hello World!"
-    }
-    visible: true   
+Label {
+    text: "Hello World!"
 }

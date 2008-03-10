@@ -6,10 +6,10 @@ import javafx.ui.*;
 import javafx.ui.canvas.*;
 
 Rect {
-    x: 20
-    y: 20
-    height: 60
-    width:  120
+    x: 30
+    y: 10
+    height: 50
+    width:  70
     arcHeight: 20
     arcWidth: 20
     fill: Color.CYAN 
