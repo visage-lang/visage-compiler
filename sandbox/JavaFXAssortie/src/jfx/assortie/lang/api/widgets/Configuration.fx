@@ -38,6 +38,9 @@ Module {
     },Sample{
         name: "Box"
         className: "jfx.assortie.lang.api.widgets.box.FXBox",
+    },Sample{
+        name: "Frame"
+        className: "jfx.assortie.lang.api.widgets.frame.FXFrame",
     }
     ]
 }
