@@ -209,11 +209,15 @@ public final class Sequences {
 
     /** Convert a T[] to a Sequence<T> */
     public static<T> Sequence<T> fromArray(Class<T> clazz, T[] values) {
+        if (values == null)
+            return Sequences.emptySequence(clazz);
         return new ArraySequence<T>(clazz, values);
     }
 
     /** Convert a long[] to a Sequence<Long> */
     public static Sequence<Long> fromArray(long[] values) {
+        if (values == null)
+            return Sequences.emptySequence(Long.class);
         Long[] boxed = new Long[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Long.valueOf(values[i]);
@@ -222,6 +226,8 @@ public final class Sequences {
 
     /** Convert an int[] to a Sequence<Integer> */
     public static Sequence<Integer> fromArray(int[] values) {
+        if (values == null)
+            return Sequences.emptySequence(Integer.class);
         Integer[] boxed = new Integer[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Integer.valueOf(values[i]);
@@ -230,6 +236,8 @@ public final class Sequences {
 
     /** Convert a short[] to a Sequence<Integer> */
     public static Sequence<Integer> fromArray(short[] values) {
+        if (values == null)
+            return Sequences.emptySequence(Integer.class);
         Integer[] boxed = new Integer[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Integer.valueOf(values[i]);
@@ -238,6 +246,8 @@ public final class Sequences {
 
     /** Convert a char[] to a Sequence<Integer> */
     public static Sequence<Integer> fromArray(char[] values) {
+        if (values == null)
+            return Sequences.emptySequence(Integer.class);
         Integer[] boxed = new Integer[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Integer.valueOf(values[i]);
@@ -246,6 +256,8 @@ public final class Sequences {
 
     /** Convert a byte[] to a Sequence<Integer> */
     public static Sequence<Integer> fromArray(byte[] values) {
+        if (values == null)
+            return Sequences.emptySequence(Integer.class);
         Integer[] boxed = new Integer[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Integer.valueOf(values[i]);
@@ -254,6 +266,8 @@ public final class Sequences {
 
     /** Convert a double[] to a Sequence<Double> */
     public static Sequence<Double> fromArray(double[] values) {
+        if (values == null)
+            return Sequences.emptySequence(Double.class);
         Double[] boxed = new Double[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Double.valueOf(values[i]);
@@ -262,6 +276,8 @@ public final class Sequences {
 
     /** Convert a float[] to a Sequence<Double> */
     public static Sequence<Double> fromArray(float[] values) {
+        if (values == null)
+            return Sequences.emptySequence(Double.class);
         Double[] boxed = new Double[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Double.valueOf(values[i]);
@@ -270,6 +286,8 @@ public final class Sequences {
 
     /** Convert a boolean[] to a Sequence<Boolean> */
     public static Sequence<Boolean> fromArray(boolean[] values) {
+        if (values == null)
+            return Sequences.emptySequence(Boolean.class);
         Boolean[] boxed = new Boolean[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = Boolean.valueOf(values[i]);
