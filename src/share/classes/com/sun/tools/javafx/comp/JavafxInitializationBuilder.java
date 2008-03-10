@@ -607,15 +607,6 @@ public class JavafxInitializationBuilder {
                 make.NewArray(toJava.makeTypeTree(abstractVariableType, diagPos), 
                                 List.<JCExpression>nil(), attrs.toList())));
 
-        /***
-        // Call the postInit$ method
-        stmts.append(toJava.callStatement(
-                cDecl.pos(),
-                make.Ident(classIsFinal? names._this : cDecl.getName()),
-                postInitName, 
-                make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
-         * ***/
-
         JCBlock initializeBlock = make.Block(0L, stmts.toList());
         return make.MethodDef(
                 make.Modifiers(Flags.PUBLIC),

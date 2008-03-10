@@ -743,13 +743,46 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     //TODO: handle selectorMutable
                     //TODO: args into fields
                     //TODO: varargs
-                    final JCExpression closureExpr = fresult;
+                    final JCExpression closureTransMeth = transMeth;
                     final TypeMorphInfo tmiResult = typeMorpher.typeMorphInfo(tree.type);
                     JCExpression binding =(new ClosureTranslator(diagPos, toJava, tmiResult) {
 
                         protected List<JCTree> getBody() {
-                            return List.<JCTree>of(
-                                    makeClosureMethod("computeValue", closureExpr, null, tmiResult.getRealType(), Flags.PUBLIC));
+                            ListBuffer<JCTree> members = ListBuffer.lb();
+                            ListBuffer<JCExpression> depends = ListBuffer.lb();
+                            ListBuffer<JCExpression> callArgs = ListBuffer.lb();
+                            int argNum = 0;
+                            
+                            for (JCExpression arg : tree.args) {
+                                TypeMorphInfo tmiArg = typeMorpher.typeMorphInfo(arg.type);
+                                Name argName = names.fromString("arg$" + argNum++);
+ 
+                                // translate the method args into Location fields of the BindingExpression
+                                // XxxLocation arg$0 = ...;
+                                members.append(m().VarDef(
+                                        m().Modifiers(Flags.FINAL | Flags.PRIVATE),
+                                        argName,
+                                        makeExpression(tmiArg.getMorphedLocationType()),
+                                        translate(arg)));
+
+                                // set up these args for the call -- arg$0.getXxx(), arg$1.getXxx(), ...
+                                Name getMethodName = defs.locationGetMethodName[tmiArg.getTypeKind()];
+                                JCFieldAccess select = m().Select(m().Ident(argName), getMethodName);
+                                callArgs.append(m().Apply( null, select, List.<JCExpression>nil() ));
+                                
+                                // build a list of these args, for use as dependents -- arg$0, arg$1, ...
+                                depends.append(m().Ident(argName));
+                            }
+                            // create a getStaticDependents method to set the args as static dependents
+                            Type locationType = typeMorpher.baseLocation.type;
+                            JCExpression depsArray = make.NewArray(makeExpression(locationType), List.<JCExpression>nil(), depends.toList());
+                            Type depsReturnType = new Type.ArrayType(locationType, syms.arrayClass);
+                            members.append(makeClosureMethod("getStaticDependents", depsArray, null, depsReturnType, Flags.PROTECTED));
+                            
+                            // construct the actual value computing method (with the method call)
+                            JCMethodInvocation app = m().Apply(toJava.translate(tree.typeargs), closureTransMeth, callArgs.toList());
+                            members.append(makeClosureMethod("computeValue", app, null, tmiResult.getRealType(), Flags.PUBLIC));
+                            return members.toList();
                         }
 
                         protected JCExpression getBaseClass() {
@@ -770,7 +803,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             // if this is a bound call, use left-hand side references for arguments consisting
             // solely of a  var or attribute reference, or function call, otherwise, wrap it
             // in an expression location
-            List<JCExpression> determineArgs() {
+            private List<JCExpression> determineArgs() {
                 List<JCExpression> args;
                 {
                     ListBuffer<JCExpression> translated = ListBuffer.lb();

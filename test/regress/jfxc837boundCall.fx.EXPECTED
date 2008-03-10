@@ -1,1 +1,7 @@
 1234
+a*b : aaaab -- MATCH
+a*b : aacb -- no
+a*cb* : aacb -- MATCH
+a*cb* : cbbbb -- MATCH
+a*cb* : zzz -- no
+z* : zzz -- MATCH
