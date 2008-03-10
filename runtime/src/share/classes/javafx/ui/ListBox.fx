@@ -646,7 +646,7 @@ public class ListBox extends ScrollableWidget {
               public function valueChanged(e:javax.swing.event.ListSelectionEvent):Void {
                   if (not e.getValueIsAdjusting()) {
                       var listSelection = list.getSelectedIndex();
-                      if(listSelection < 0) {
+                      if((listSelection < 0) and (0 < sizeof cells)) {
                           listSelection = 0;
                       }else if (listSelection >= sizeof cells) {
                           listSelection = sizeof cells - 1;
