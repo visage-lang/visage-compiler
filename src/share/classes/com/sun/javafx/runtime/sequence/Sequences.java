@@ -403,17 +403,6 @@ public final class Sequences {
         return Arrays.binarySearch(array, (T)key, c);
     }
     
-//    public static<T> Sequence<T> fill(Class<T> clazz, T value, int size) {
-//        if (clazz == null || value == null)
-//            throw new NullPointerException();
-//        if (size < 0)
-//            throw new IllegalArgumentException();
-//        
-//        T[] array = (T[])Array.newInstance(clazz, size);
-//        Arrays.fill(array, value);
-//        return Sequences.make(clazz, array);
-//    }
-    
     /**
      * Searches the specified sequence for the specified object. If the
      * sequence is sorted, binarySearch should be used instead.

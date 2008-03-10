@@ -94,10 +94,6 @@ public class Sequences {
         return com.sun.javafx.runtime.sequence.Sequences.binarySearch(seq, key, c);
     }
     
-//    public static function fill(value: Object, size: Integer): Object[] {
-//        return com.sun.javafx.runtime.sequence.Sequences.binarySearch(value.getClass(), value, size);
-//    }
-    
     /**
      * Searches the specified sequence for the specified object. If the
      * sequence is sorted, binarySearch should be used instead.
