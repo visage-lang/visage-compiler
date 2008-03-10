@@ -1,5 +1,6 @@
 import java.lang.System;
-/*
+import java.lang.Exception;
+		/*
  * The first sequence results in the sequence [1,2,3,..,10] as expected and
  * sizeof seq1 == 10, also as expected.
  * The second sequence results in an EMPTY sequence [], not as expected and
@@ -12,24 +13,32 @@ import java.lang.System;
  *
  * @test
  * @run
+ * @compilefirst ../../TestUtils.fx
  */
+var TU = new TestUtils;
 
 var seq1 = [1..10]; //implied 'step 1'
 var seq2 = [10..1]; //does not imply 'step -1'
+//TU.PrintPassFail("compare [1..10] and [10..1]", (sizeof seq1 == sizeof seq2) );
+TU.checkB(  (sizeof seq1 == sizeof seq2)==false, "compare [1..10] and [10..1]");
+TU.addGFT(2);
 System.out.println("Contents of seq1[1..10]: {seq1}, and size of seq1[1..10]: {sizeof seq1}");
 System.out.println("Contents of seq2[10..1]: {seq2}, but size of seq2[10..1]: {sizeof seq2}");
 
-
 var seq2b = [10..1 step -1];
-System.out.println("Contents of seq2b[10..1 step -1]: {seq2b}; size of seq2b: {sizeof seq2b}");
-
+TU.checkIs({seq2b},[10,9,8,7,6,5,4,3,2,1],"Check contents of seq2b[10..1 step -1]");
+TU.checkI( sizeof seq2b, 10,"check size of seq2b[10..1 step -1");
 var seq2c = [10..1 step 1];
-System.out.println("Contents of seq2c[10..1 step 1]: {seq2c}; size of seq2c: {sizeof seq2c}");
+TU.checkIs( {seq2c},[],"Contents of seq2c[10..1 step 1]");
+TU.checkI( {sizeof seq2c},0,"check sizeof seq2c[10..1 step 1]");
 
 var bEmptySequenceDeclaration: Boolean = [10..1] == [10..1 step 1];
+TU.checkB(bEmptySequenceDeclaration,"[10..1] == [10..1 step 1] should be true");
+TU.addGFT(5);
 var emptysequence:Integer[] = [];
 System.out.println("[10..1] == [10..1 step 1] ==  {[10..1] == [10..1 step 1]}");
 System.out.println("sizeof[10..1] == sizeof[10..1 step 1] and sizeof[10..1]==(sizeof emptysequence) ==  {sizeof[10..1] == sizeof[10..1 step 1] and sizeof[10..1]==(sizeof emptysequence)}");
 System.out.println("sizeof [10..1] = {sizeof [10..1]}");
 System.out.println("sizeof [10..1 step 1] = {sizeof [10..1 step 1]}");
 System.out.println("sizeof emptysequence = {sizeof emptysequence}");
+TU.report();
