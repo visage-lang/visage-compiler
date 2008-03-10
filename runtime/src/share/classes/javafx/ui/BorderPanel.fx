@@ -33,7 +33,7 @@ public class BorderPanel extends Widget {
 
     private attribute jpanel: JPanel;
     
-    public attribute top:Widget on replace (oldValue)  {
+    public attribute top:Widget on replace oldValue  {
         if (jpanel <> null) {
             if (oldValue <> null) {
                 jpanel.remove(oldValue.getComponent());
@@ -47,7 +47,7 @@ public class BorderPanel extends Widget {
     };
 
     
-    public attribute left:Widget on replace (oldValue)  {
+    public attribute left:Widget on replace oldValue  {
         if (jpanel <> null) {
             if (oldValue <> null) {
                 jpanel.remove(oldValue.getComponent());
@@ -60,7 +60,7 @@ public class BorderPanel extends Widget {
         }
     };
     
-    public attribute bottom:Widget on replace (oldValue) {
+    public attribute bottom:Widget on replace oldValue {
         if (jpanel <> null) {
             if (oldValue <> null) {
                 jpanel.remove(oldValue.getComponent());
@@ -73,7 +73,7 @@ public class BorderPanel extends Widget {
         }
     };
     
-    public attribute right:Widget on replace (oldValue)  {
+    public attribute right:Widget on replace oldValue  {
         if (jpanel <> null) {
             if (oldValue <> null) {
                 jpanel.remove(oldValue.getComponent());
@@ -85,7 +85,7 @@ public class BorderPanel extends Widget {
             jpanel.repaint();
         }
     };  
-    public attribute center:Widget on replace (oldValue)  {
+    public attribute center:Widget on replace oldValue  {
         if (jpanel <> null) {
             if (oldValue <> null) {
                 jpanel.remove(oldValue.getComponent());
@@ -98,7 +98,7 @@ public class BorderPanel extends Widget {
         }
     };
     
-    public attribute pageStart: Widget on replace (oldValue)  {
+    public attribute pageStart: Widget on replace oldValue  {
         if (jpanel <> null) {
             if (oldValue <> null) {
                 jpanel.remove(oldValue.getComponent());
@@ -110,7 +110,7 @@ public class BorderPanel extends Widget {
             jpanel.repaint();
         }
     };
-    public attribute pageEnd:Widget on replace (oldValue)  {
+    public attribute pageEnd:Widget on replace oldValue  {
         if (jpanel <> null) {
             if (oldValue <> null) {
                 jpanel.remove(oldValue.getComponent());
@@ -122,7 +122,7 @@ public class BorderPanel extends Widget {
             jpanel.repaint();
         }
     };
-    public attribute lineStart:Widget on replace (oldValue)  {
+    public attribute lineStart:Widget on replace oldValue  {
         if (jpanel <> null) {
             if (oldValue <> null) {
                 jpanel.remove(oldValue.getComponent());
@@ -134,7 +134,7 @@ public class BorderPanel extends Widget {
             jpanel.repaint();
         }
     };
-    public attribute lineEnd:Widget on replace (oldValue)  {
+    public attribute lineEnd:Widget on replace oldValue  {
         if (jpanel <> null) {
             if (oldValue <> null) {
                 jpanel.remove(oldValue.getComponent());
