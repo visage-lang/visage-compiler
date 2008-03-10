@@ -2,6 +2,8 @@
  * Unlike the Java programming language, JavaFX script is an expression language. 
  * All executable statements are expressions which consist of zero or more inputs and a single output. 
  * This includes conditionals, loops, and even blocks.
+ * @test
+ * @run
  */
 import java.lang.System;
 import java.lang.Math;
