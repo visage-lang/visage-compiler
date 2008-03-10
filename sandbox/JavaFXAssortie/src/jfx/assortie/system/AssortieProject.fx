@@ -48,13 +48,15 @@ class ProjectModule {
 class ProjectSample {
     public attribute name: String;
     public attribute className: String;
+    public attribute project: AssortieProject;
     public attribute visible: Boolean;
     public attribute selected: Boolean on replace {
+        //System.out.println("[sample] name: \"{name}\", selected: {selected}");
         if(selected){
-            frame.selected = true;
+            project.selectTab(name);            
         }
     } ;
-    
+        
     public attribute frame: InternalFrame;
     //attribute isExecuted: Boolean;
     
@@ -95,7 +97,8 @@ public class AssortieProject  extends CompositeWidget{
         
         if ( codeTabs <> [] and 0 <= selectedCodeIndex ){
             var title = codeTabs[selectedCodeIndex.intValue()].title;
-            tabSelection(title);
+            selectFrame(title);
+            
         }
     };
     
@@ -113,7 +116,7 @@ public class AssortieProject  extends CompositeWidget{
         System.out.println("[selected value] {m}");
         
     };
-    
+        
     attribute lafIndex:Integer = -1 on replace{
         if( 0 <= lafIndex ){
             javax.swing.UIManager.setLookAndFeel( lafs[lafIndex].className );
@@ -293,7 +296,8 @@ public class AssortieProject  extends CompositeWidget{
     }
     
     function executeSample(sample: ProjectSample){
-        
+        sample.project = this;
+
         insert sample into executedSamples;
         var className = sample.className;
         
@@ -301,9 +305,12 @@ public class AssortieProject  extends CompositeWidget{
         
         var code = ProjectManager.readResource(className, fileName);        
         
-        var textArea: TextArea;
+        //var textArea: TextArea;
+        var textArea: EditorPane;
         
-        textArea =  TextArea{
+        //textArea =  TextArea{
+        textArea =  EditorPane{
+            contentType: ContentType.HTML
             text: code
             editable: true
             background: Color.WHITE
@@ -334,48 +341,63 @@ public class AssortieProject  extends CompositeWidget{
             y: y  
             width: 300  //DEFAULT_FRAME_WIDTH 
             height: 200 //DEFAULT_FRAME_HEIGHT 
-//            onClose: function(){
-//                System.out.println("Close frame: {sample.name}");
-//                sample.frame = null;
-//                for(tab in codeTabs){
-//                    if(tab.title == sample.name){
-//                        delete tab from codeTabs;
-//                    }
-//                }
-//                selectedCodeIndex = sizeof codeTabs - 1;
-//                delete  sample.frame from frames;
-//                delete sample from executedSamples;
-//
-//                if (0 <= selectedCodeIndex){
-//                    var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
-//                    for(sample in samples){
-//                        if(sample.name ==  tabTitle) { sample.frame.selected = true; break; }
-//                    }
-//                }
-//            }
+            selected: bind  sample.selected with inverse
+            onClose: function(){
+                System.out.println("Close frame: {sample.name}");
+                for(tab in codeTabs){
+                    if(tab.title == sample.name){
+                        delete tab from codeTabs;
+                    }
+                }
+                selectedCodeIndex = sizeof codeTabs - 1;
+                delete  sample.frame from frames;
+                delete sample from executedSamples;
+
+                if (0 <= selectedCodeIndex){
+                    var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
+                    for(sample in samples){
+                        if(sample.name ==  tabTitle) { sample.frame.selected = true; break; }
+                    }
+                }
+                x = 0;
+                y = 0;
+                sample.frame = null;                
+            }
 
             title: sample.name
             visible: true
         };
         
-        x += 40;
-        y += 40;
+        x += 30;
+        y += 30;
         
         insert sample.frame into frames;
         createFrame(sample, code);
         
     }
     
-    function tabSelection(name: String):Void{
+    function selectFrame(name: String):Void{
         //System.out.println("[select sample] name: {name}");
         var sample = executedSamples[s| s.name == name];
         if (sample <> [] ) {
-            sample[0].frame.selected = true;
+            var f = sample[0].frame;
+            if ( not f.selected) {
+                f.selected = true;
+            }
         }
     }
     
-    function frameSelection(title: String):Void{
-        
+    function selectTab(name: String):Void{        
+        //System.out.println("[select tab] title: {name}");
+        for( tab in codeTabs){
+            if (tab.title == name){
+                var ind = indexof tab;                
+                if ( ind <> selectedCodeIndex ){
+                    selectedCodeIndex = ind;
+                }
+                break;
+            }
+        }
     }
     
     
