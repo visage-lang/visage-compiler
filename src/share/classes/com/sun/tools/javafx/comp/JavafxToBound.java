@@ -708,7 +708,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 if (renameToSuper) {
                     transMeth = make.at(selector).Select(make.Select(makeTypeTree(attrEnv.enclClass.sym.type, selector, false), names._super), msym);
                 } else {
-                    transMeth = toJava.translate(meth);  //TODO: only toJava if !selectMutable
+                    transMeth = toJava.translate(meth); 
                 }
 
                 // translate the method name -- e.g., foo  to foo$bound or foo$impl
@@ -747,6 +747,20 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     final TypeMorphInfo tmiResult = typeMorpher.typeMorphInfo(tree.type);
                     JCExpression binding =(new ClosureTranslator(diagPos, toJava, tmiResult) {
 
+                        private JCTree makeLocationField(JCExpression arg, Name argName, TypeMorphInfo tmiArg) {
+                            return m().VarDef(
+                                    m().Modifiers(Flags.FINAL | Flags.PRIVATE),
+                                    argName,
+                                    makeExpression(tmiArg.getMorphedLocationType()),
+                                    translate(arg));
+                        }
+                        
+                        private JCExpression makeGetField(Name argName, TypeMorphInfo tmiArg) {
+                                Name getMethodName = defs.locationGetMethodName[tmiArg.getTypeKind()];
+                                JCFieldAccess select = m().Select(m().Ident(argName), getMethodName);
+                                return m().Apply( null, select, List.<JCExpression>nil() );
+                        }
+                        
                         protected List<JCTree> getBody() {
                             ListBuffer<JCTree> members = ListBuffer.lb();
                             ListBuffer<JCExpression> depends = ListBuffer.lb();
@@ -759,19 +773,46 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
  
                                 // translate the method args into Location fields of the BindingExpression
                                 // XxxLocation arg$0 = ...;
-                                members.append(m().VarDef(
-                                        m().Modifiers(Flags.FINAL | Flags.PRIVATE),
-                                        argName,
-                                        makeExpression(tmiArg.getMorphedLocationType()),
-                                        translate(arg)));
+                                members.append(makeLocationField(arg, argName, tmiArg));
 
                                 // set up these args for the call -- arg$0.getXxx(), arg$1.getXxx(), ...
-                                Name getMethodName = defs.locationGetMethodName[tmiArg.getTypeKind()];
-                                JCFieldAccess select = m().Select(m().Ident(argName), getMethodName);
-                                callArgs.append(m().Apply( null, select, List.<JCExpression>nil() ));
+                                callArgs.append(makeGetField(argName, tmiArg));
                                 
                                 // build a list of these args, for use as dependents -- arg$0, arg$1, ...
                                 depends.append(m().Ident(argName));
+                            }
+                            // construct the actual value computing method (with the method call)
+                            JCExpression functionValue;
+                            if (selectorMutable) {
+                                TypeMorphInfo tmiSelector = typeMorpher.typeMorphInfo(selector.type);
+                                Name selectorName = names.fromString("selector$");
+
+                                // translate the method selector into a Location field of the BindingExpression
+                                // XxxLocation selector$ = ...;
+                                members.append(makeLocationField(selector, selectorName, tmiSelector));
+
+                                // build a list of these selectors, for use as dependents -- selector$0, selector$1, ...
+                                depends.append(m().Ident(selectorName));
+
+                                // create two accesses to the value of to selector field -- selector$.getXxx()
+                                // one for the method call and one for the nul test
+                                JCExpression transSelector = makeGetField(selectorName, tmiSelector);
+                                JCExpression toTest = makeGetField(selectorName, tmiSelector);
+
+                                // construct the actuall method invocation
+                                Name methName = ((JCFieldAccess) tree.meth).name;
+                                JCExpression callMeth = m().Select(transSelector, methName);
+                                JCExpression call = m().Apply(toJava.translate(tree.typeargs), callMeth, callArgs.toList());
+
+                                // test the selector for null before attempting to invoke the method 
+                                // if it would dereference null, then instead give the default value
+                                JCExpression cond = m().Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
+                                JCExpression defaultExpr = toJava.makeDefaultValue(diagPos, tmiResult);
+                                functionValue = m().Conditional(cond, call, defaultExpr);
+                            } else {
+                                // construct the actual value computing method (with the method call)
+                                functionValue = m().Apply(toJava.translate(tree.typeargs), closureTransMeth, callArgs.toList());
+
                             }
                             // create a getStaticDependents method to set the args as static dependents
                             Type locationType = typeMorpher.baseLocation.type;
@@ -779,9 +820,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                             Type depsReturnType = new Type.ArrayType(locationType, syms.arrayClass);
                             members.append(makeClosureMethod("getStaticDependents", depsArray, null, depsReturnType, Flags.PROTECTED));
                             
-                            // construct the actual value computing method (with the method call)
-                            JCMethodInvocation app = m().Apply(toJava.translate(tree.typeargs), closureTransMeth, callArgs.toList());
-                            members.append(makeClosureMethod("computeValue", app, null, tmiResult.getRealType(), Flags.PUBLIC));
+                            members.append(makeClosureMethod("computeValue", functionValue, null, tmiResult.getRealType(), Flags.PUBLIC));
                             return members.toList();
                         }
 
@@ -794,7 +833,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                             return List.<JCExpression>nil();
                         }
                     }).doit();
-                    return typeMorpher.makeLocationLocalVariable(tmiResult, diagPos, List.of(binding));
+                    return typeMorpher.makeLocationLocalVariable(tmiResult, diagPos, List.of(makeLaziness(diagPos), binding));
                 }
                 return fresult;
             }
