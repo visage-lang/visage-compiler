@@ -3,9 +3,12 @@
  * @test
  * @run
  */
-import javafx.ui.Frame;
+
 import java.lang.System; 
 
+class Frame {
+	function getWindow(): java.awt.Window { return null; }
+}
 
 var frame = new Frame;
 var array = frame.getWindow().getContainerListeners(); 
