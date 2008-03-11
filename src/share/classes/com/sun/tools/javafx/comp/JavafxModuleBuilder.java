@@ -210,8 +210,7 @@ public class JavafxModuleBuilder {
             JCStatement fileVar =
                 make.at(diagPos).Var(pseudoFile, getURLType(diagPos), 
                          make.at(diagPos).Modifiers(Flags.FINAL|Flags.STATIC), 
-                         false, getFileURL, JavafxBindStatus.UNBOUND, 
-                         List.<JFXAbstractOnChange>nil());
+                         false, getFileURL, JavafxBindStatus.UNBOUND, null);
 
             // java.net.URL __DIR__;
             if (usesDir) {
@@ -221,8 +220,7 @@ public class JavafxModuleBuilder {
                 stats.prepend(
                     make.at(diagPos).Var(pseudoDir, getURLType(diagPos), 
                              make.at(diagPos).Modifiers(Flags.FINAL|Flags.STATIC), 
-                             false, getDirURL, JavafxBindStatus.UNBOUND, 
-                             List.<JFXAbstractOnChange>nil()));
+                             false, getDirURL, JavafxBindStatus.UNBOUND, null));
             }
 
             stats.prepend(fileVar);  // must come before __DIR__ call

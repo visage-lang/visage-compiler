@@ -49,24 +49,7 @@ public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
     private final boolean local;
     
     private final JFXOnReplace onReplace;
-    
-    protected JFXVar(Name name,
-            JFXType jfxtype,
-            JCModifiers mods,
-            boolean local,
-            JCExpression init,
-            JavafxBindStatus bindStat,
-            List<JFXAbstractOnChange> onChanges,
-            VarSymbol sym) {
-        super(mods, name, jfxtype, init, sym);
-        this.local = local;
-        this.jfxtype = jfxtype;
-        this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
-        this.onChanges = onChanges;
-        this.onReplace = null;
-        this.sym = sym;
-    }
-    
+
     protected JFXVar(Name name,
             JFXType jfxtype,
             JCModifiers mods,
