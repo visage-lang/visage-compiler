@@ -1,6 +1,8 @@
 /**
- * Regression test JFXC-837 : funcion/method call within bind
+ * Regression test JFXC-837 : method call within bind
+ *
  * @test
+ * @run
  */
 import java.lang.System; 
 import java.util.regex.Pattern;

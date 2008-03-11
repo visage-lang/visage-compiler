@@ -734,9 +734,10 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 }
                 
                 if (callBound) {
-                    //TODO: ...
                     if (selectorMutable) {
+                        return null;   //TODO: ...
                     } else {
+                        return fresult;
                     }
                 } else {
                     // call to Java method or unbound JavaFX function
@@ -835,7 +836,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     }).doit();
                     return typeMorpher.makeLocationLocalVariable(tmiResult, diagPos, List.of(makeLaziness(diagPos), binding));
                 }
-                return fresult;
             }
 
             // compute the translated arguments.
