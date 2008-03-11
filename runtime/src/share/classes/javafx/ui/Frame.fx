@@ -150,8 +150,10 @@ public class Frame extends AbstractFrame {
 		       screenx = loc.getX();
 		       screeny = loc.getY();
 		       var size = frame.getSize();
-		       height = size.height;
-		       width = size.width;
+                       if (size <> null) {
+                           height = size.height;
+		           width = size.width;
+                       }
 		       inListener = false;
 		   }
 	   });
