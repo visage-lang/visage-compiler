@@ -1,7 +1,7 @@
 import java.lang.System;
 /*
  * @test
- * @compilefirst ..\..\TestUtils.fx
+ * @compilefirst ../../TestUtils.fx
  * @run
 */
 

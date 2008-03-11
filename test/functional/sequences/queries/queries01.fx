@@ -4,7 +4,7 @@
  * TODO: not complete but need to put this back
  *
  * @test
- * @compilefirst ..\..\TestUtils.fx
+ * @compilefirst ../../TestUtils.fx
  * @run
  */
 
