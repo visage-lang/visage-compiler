@@ -2,11 +2,17 @@ Test i0: default init...
 1. Replace Boolean old = false; new = false
 2. Replace Integer old = 0; new = 0
 3. Replace Number old = 0.0; new = 0.0
+4. Replace String old = null; new = 
+5. Replace test_object old = ; new = 
+default init: triggers fired: 5: [ foo, ifoo, dfoo, sfoo, tobject ]
 
 Test i1: defaults re-init...
 1. Replace Boolean old = false; new = false
 2. Replace Integer old = 0; new = 0
 3. Replace Number old = 0.0; new = 0.0
+4. Replace String old = null; new = 
+5. Replace test_object old = ; new = 
+default re-init: triggers fired: 5: [ foo, ifoo, dfoo, sfoo, tobject ]
 i1 After Create
 1. i1.foo = false
 2. i1.ifoo = 0
@@ -23,6 +29,7 @@ Test i2: non-defaults init...
 8. Replace Number[] old = ; new = 100.0200.0300.0
 9. Replace String[] old = ; new = Mary had a little lamb.
 10. Replace test_object[] old =  ... with new =  Peter Michael Jan
+non-default init: triggers fired: 10: [ foo, ifoo, dfoo, sfoo, tobject, seqbfoo, seqifoo, seqnfoo, seqsfoo, seqTOfoo ]
 i2 After Create
 1. i2.foo = true
 2. i2.ifoo = 5
@@ -46,6 +53,7 @@ Test i3: non-defaults init, mixed order...
 8. Replace Number[] old = ; new = 100.0200.0300.0
 9. Replace String[] old = ; new = Mary had a little lamb.
 10. Replace test_object[] old =  ... with new =  Peter Michael Jan
+mixed order init: triggers fired: 10: [ foo, ifoo, dfoo, sfoo, tobject, seqbfoo, seqifoo, seqnfoo, seqsfoo, seqTOfoo ]
 
 i3 After Create
 1. i3.foo =  true
@@ -58,3 +66,9 @@ i3 After Create
 8. i3.seqnfoo = 100.0200.0300.0
 9. i3.seqsfoo = Mary had a little lamb.
 10. i3.seqTOfoo =  Peter Michael Jan
+========= results ================
+Tests:      30
+Passed:     0
+Failed:     0
+GoldenFile: 30 output comparisons
+==================================
