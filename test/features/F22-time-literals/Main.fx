@@ -6,10 +6,10 @@
  */
 
 import java.lang.System;
-import javafx.lang.Time;
+import javafx.lang.Duration;
 
-var t = Time {millis: 50};
-System.out.println("Time object literal, millis=50 = {t.toString()}");
+var t = Duration {millis: 50};
+System.out.println("Duration object literal, millis=50 = {t.toString()}");
 t = 500ms;
 System.out.println("500ms = {t}");
 t = 5s;

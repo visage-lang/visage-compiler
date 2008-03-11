@@ -49,8 +49,8 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_UnspecifiedType;
     public final Type javafx_StringType;
     public final Type javafx_BooleanType;
-    public final Type javafx_TimeType;
-    public final Type javafx_TimeIntfType;
+    public final Type javafx_DurationType;
+    public final Type javafx_DurationIntfType;
     public final Type javafx_VoidType;
     public final Type javafx_java_lang_VoidType;
     public final Type javafx_SequenceType;
@@ -104,8 +104,8 @@ public class JavafxSymtab extends Symtab {
         javafx_StringType = stringType;
         javafx_BooleanType = booleanType;
         javafx_VoidType = voidType;
-        javafx_TimeType = enterClass("javafx.lang.Time");
-        javafx_TimeIntfType = enterClass("javafx.lang.Time$Intf");
+        javafx_DurationType = enterClass("javafx.lang.Duration");
+        javafx_DurationIntfType = enterClass("javafx.lang.Duration$Intf");
         unreachableType = new Type(TypeTags.VOID, null);
         unreachableType.tsym = new TypeSymbol(0, names.fromString("<unreachable>"), Type.noType, rootPackage);
         javafx_java_lang_VoidType = types.boxedClass(voidType).type;

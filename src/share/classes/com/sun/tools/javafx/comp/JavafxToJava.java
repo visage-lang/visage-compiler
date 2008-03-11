@@ -932,7 +932,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             parts = parts.tail;
             JCExpression exp = parts.head;
             if (exp != null &&
-                types.isSameType(exp.type, syms.javafx_TimeType)) {
+                types.isSameType(exp.type, syms.javafx_DurationType)) {
                 exp = make.Apply(null,
                                  make.Select(translate(exp), Name.fromString(names, "toDate")), 
                                  List.<JCExpression>nil());
@@ -2484,10 +2484,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 }  else {
                     // anything other than == or <>
 
-                    // Time type operator overloading
-                    if ((types.isSameType(tree.lhs.type, syms.javafx_TimeType) ||
-                         types.isSameType(tree.rhs.type, syms.javafx_TimeType)) &&
-                        tree.operator == null) { // operator check is to try to get a decent error message by falling through if the Time method isn't matched
+                    // Duration type operator overloading
+                    if ((types.isSameType(tree.lhs.type, syms.javafx_DurationType) ||
+                         types.isSameType(tree.rhs.type, syms.javafx_DurationType)) &&
+                        tree.operator == null) { // operator check is to try to get a decent error message by falling through if the Duration method isn't matched
                         JCExpression l = tree.lhs;
                         JCExpression r = tree.rhs;
                         switch (tree.getTag()) {
@@ -2505,7 +2505,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                                           make.at(diagPos).Select(translate(l), Name.fromString(names, "div")), List.<JCExpression>of(translate(r)));
                         case JavafxTag.MUL:
                             // lhs.mul(rhs);
-                            if (!types.isSameType(l.type, syms.javafx_TimeType)) {
+                            if (!types.isSameType(l.type, syms.javafx_DurationType)) {
                                 r = l;
                                 l = tree.rhs;
                             }
@@ -3249,7 +3249,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     case JCTree.POSTDEC:
                         return doIncDec(JCTree.MINUS, true);
                     case JCTree.NEG:
-                        if (types.isSameType(tree.type, syms.javafx_TimeType)) {
+                        if (types.isSameType(tree.type, syms.javafx_DurationType)) {
                             return m().Apply(null,
                                                           m().Select(translate(tree.arg), Name.fromString(names, "negate")), List.<JCExpression>nil());
                         }
@@ -3659,10 +3659,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitTimeLiteral(JFXTimeLiteral tree) {
-        // convert time literal to a javafx.lang.Time object literal
-        JCFieldAccess clsname = (JCFieldAccess) makeQualifiedTree(tree.pos(), syms.javafx_TimeType.tsym.toString());
-        clsname.type = syms.javafx_TimeType;
-        clsname.sym = syms.javafx_TimeType.tsym;
+        // convert time literal to a javafx.lang.Duration object literal
+        JCFieldAccess clsname = (JCFieldAccess) makeQualifiedTree(tree.pos(), syms.javafx_DurationType.tsym.toString());
+        clsname.type = syms.javafx_DurationType;
+        clsname.sym = syms.javafx_DurationType.tsym;
         Name attribute = names.fromString("millis");
         Symbol symMillis = clsname.sym.members().lookup(attribute).sym;
         JavafxTreeMaker fxmake = (JavafxTreeMaker)make;
@@ -3676,10 +3676,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitInterpolate(JFXInterpolate tree) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        
     }
 
     public void visitInterpolateValue(JFXInterpolateValue tree) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // translation done in visitInterpolate()
     }
 }

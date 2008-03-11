@@ -259,7 +259,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             parts = parts.tail;
             JCExpression exp = parts.head;
             if (exp != null &&
-                types.isSameType(exp.type, syms.javafx_TimeType)) {
+                types.isSameType(exp.type, syms.javafx_DurationType)) {
                 exp = make.Apply(null,
                                  make.Select(translate(exp), Name.fromString(names, "toDate")), 
                                  List.<JCExpression>nil());
@@ -952,7 +952,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 result = runtime(diagPos, cBoundOperators, "not_"+typeCode, List.of(transExpr) );
                 break;
             case JCTree.NEG:
-                if (types.isSameType(tree.type, syms.javafx_TimeType)) {   //TODO
+                if (types.isSameType(tree.type, syms.javafx_DurationType)) {   //TODO
                     result = make.at(diagPos).Apply(null,
                             make.at(diagPos).Select(translate(tree.arg), Name.fromString(names, "negate")), List.<JCExpression>nil());
                 } else {
@@ -983,10 +983,10 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
     
     public void visitTimeLiteral(JFXTimeLiteral tree) {
-        // convert time literal to a javafx.lang.Time object literal
-        JCFieldAccess clsname = (JCFieldAccess) makeQualifiedTree(tree.pos(), syms.javafx_TimeType.tsym.toString());
-        clsname.type = syms.javafx_TimeType;
-        clsname.sym = syms.javafx_TimeType.tsym;
+        // convert time literal to a javafx.lang.Duration object literal
+        JCFieldAccess clsname = (JCFieldAccess) makeQualifiedTree(tree.pos(), syms.javafx_DurationType.tsym.toString());
+        clsname.type = syms.javafx_DurationType;
+        clsname.sym = syms.javafx_DurationType.tsym;
         Name attribute = names.fromString("millis");
         Symbol symMillis = clsname.sym.members().lookup(attribute).sym;
         JavafxTreeMaker fxmake = (JavafxTreeMaker)make;

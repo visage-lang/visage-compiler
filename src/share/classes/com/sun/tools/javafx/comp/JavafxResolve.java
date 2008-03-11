@@ -1425,9 +1425,9 @@ public class JavafxResolve {
      *  @param arg       The type of the operand.
      */
     Symbol resolveUnaryOperator(DiagnosticPosition pos, int optag, JavafxEnv<JavafxAttrContext> env, Type arg) {
-        // check for Time unary minus
-        if (types.isSameType(arg, ((JavafxSymtab)syms).javafx_TimeType)) {
-            Type intf = ((JavafxSymtab)syms).javafx_TimeIntfType;
+        // check for Duration unary minus
+        if (types.isSameType(arg, ((JavafxSymtab)syms).javafx_DurationType)) {
+            Type intf = ((JavafxSymtab)syms).javafx_DurationIntfType;
             Symbol res = null;
             switch (optag) {
             case JCTree.NEG:
@@ -1456,12 +1456,12 @@ public class JavafxResolve {
                                  JavafxEnv<JavafxAttrContext> env,
                                  Type left,
                                  Type right) {
-        // Time operator overloading
-        if (types.isSameType(left, ((JavafxSymtab)syms).javafx_TimeType) ||
-            types.isSameType(right, ((JavafxSymtab)syms).javafx_TimeType)) {
+        // Duration operator overloading
+        if (types.isSameType(left, ((JavafxSymtab)syms).javafx_DurationType) ||
+            types.isSameType(right, ((JavafxSymtab)syms).javafx_DurationType)) {
             Type intf = left;
-            if (types.isSameType(left, ((JavafxSymtab)syms).javafx_TimeType)) {
-                intf = ((JavafxSymtab)syms).javafx_TimeIntfType;
+            if (types.isSameType(left, ((JavafxSymtab)syms).javafx_DurationType)) {
+                intf = ((JavafxSymtab)syms).javafx_DurationIntfType;
             }
             Symbol res = null;
             switch (optag) {
@@ -1476,7 +1476,7 @@ public class JavafxResolve {
                                      intf, List.of(right));
                 break;
             case JCTree.MUL:
-                if (!types.isSameType(left, ((JavafxSymtab)syms).javafx_TimeType)) {
+                if (!types.isSameType(left, ((JavafxSymtab)syms).javafx_DurationType)) {
                     right = left;
                     intf = right;
                 }

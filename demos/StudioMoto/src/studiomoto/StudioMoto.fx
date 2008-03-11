@@ -7,7 +7,7 @@ import studiomoto.MotoMenuButton;
 import javafx.ui.animation.*;
 import com.sun.javafx.runtime.PointerFactory;
 import com.sun.javafx.runtime.Pointer;
-import javafx.lang.Time;
+import javafx.lang.Duration;
 
 
 var frame:Frame;
@@ -26,7 +26,7 @@ class HomeModel {
     attribute homeSequence: Timeline = Timeline {
         keyFrames: for(s in reverse ys) {
             KeyFrame {
-                keyTime: Time {millis: interval}
+                keyTime: Duration {millis: interval}
                 relative: true
                 keyValues: NumberValue {
                     target: _homeY
@@ -38,7 +38,7 @@ class HomeModel {
     attribute homeSequenceR:Timeline = Timeline {
         keyFrames: for(s in  ys) {
             KeyFrame {
-                keyTime: Time {millis: interval}
+                keyTime: Duration {millis: interval}
                 relative: true
                 keyValues: NumberValue {
                     target: _homeY

@@ -3822,7 +3822,7 @@ public
     }
 
     public void visitTimeLiteral(JFXTimeLiteral tree) {
-        result = check(tree, syms.javafx_TimeType, VAL, pkind, pt, pSequenceness);
+        result = check(tree, syms.javafx_DurationType, VAL, pkind, pt, pSequenceness);
     }
 
     public void visitInterpolate(JFXInterpolate tree) {

@@ -32,8 +32,8 @@
         <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
     </Match>
     <Match>
-        <!-- Exclude Time.fx -->
-        <Class name="javafx.lang.Time"/>
+        <!-- Exclude Duration.fx -->
+        <Class name="javafx.lang.Duration"/>
     </Match>
     <Match>
         <!-- Exclude package com.sun.javafx.runtime.util.backport -->

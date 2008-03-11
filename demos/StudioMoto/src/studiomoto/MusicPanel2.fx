@@ -4,7 +4,7 @@ import javafx.ui.canvas.*;
 import javafx.ui.animation.*;
 import com.sun.javafx.runtime.PointerFactory;
 import com.sun.javafx.runtime.Pointer;
-import javafx.lang.Time;
+import javafx.lang.Duration;
 
 public class MusicPanel2 extends CompositeNode {
     attribute softY: Number;
@@ -71,7 +71,7 @@ public class MusicPanel2 extends CompositeNode {
             hoverClip = Timeline {
                 keyFrames: for(s in reverse ys) {
                     KeyFrame {
-                        keyTime: Time {millis: interval}
+                        keyTime: Duration {millis: interval}
                         relative: true
                         keyValues: NumberValue {
                             target: _softY
@@ -87,7 +87,7 @@ public class MusicPanel2 extends CompositeNode {
             hoverClip = Timeline {
                 keyFrames: for(s in ys) {
                     KeyFrame {
-                        keyTime: Time {millis: interval}
+                        keyTime: Duration {millis: interval}
                         relative: true
                         keyValues: NumberValue {
                             target: _softY

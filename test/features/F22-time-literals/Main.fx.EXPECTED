@@ -1,4 +1,4 @@
-Time object literal, millis=50 = 50.0ms
+Duration object literal, millis=50 = 50.0ms
 500ms = 500ms
 5s = 5000ms or 05 seconds
 1.5s = 1500ms or 01.500 seconds

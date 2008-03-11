@@ -1,4 +1,4 @@
 JavaFX compiler feature test #22
 
 Demonstrated:
- - Time literals, such as 2s, 3m, 4h
+ - Duration literals, such as 2s, 3m, 4h

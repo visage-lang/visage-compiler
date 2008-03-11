@@ -31,29 +31,29 @@ import java.lang.Long;
 import java.lang.Math;
 
 /**
- * A class that defines a period of time.  Time instances are defined in
+ * A class that defines a duration of time.  Duration instances are defined in
  * milliseconds, but can be easily created using time literals; for
- * example, a two-and-a-half minute Time instance can be defined in several
+ * example, a two-and-a-half minute Duration instance can be defined in several
  * ways:
- * <code><pre>    Time t = 2m + 30s;
-    Time t = 2.5s;
-    Time t = 2500ms;</pre></code>
+ * <code><pre>    Duration t = 2m + 30s;
+    Duration t = 2.5s;
+    Duration t = 2500ms;</pre></code>
  */
-public class Time extends Comparable {
+public class Duration extends Comparable {
 
-    /** The period of time, as expressed in milliseconds. */
+    /** The duration of time, as expressed in milliseconds. */
     public attribute millis: Number;
 
     public function equals(obj:Object):Boolean {
-        if (obj instanceof Time) {
-            var t = obj as Time;
+        if (obj instanceof Duration) {
+            var t = obj as Duration;
             return t.millis == millis;
         }
         return false;
     }
 
     public function compareTo(obj:Object):Integer {
-        var t = obj as Time;
+        var t = obj as Duration;
         var m1 = millis;
         var m2 = t.millis;
         var cmp = m1 - m2;
@@ -84,41 +84,41 @@ public class Time extends Comparable {
         return Math.floor(millis / 60 / 60 / 1000);
     }
 
-    /** Add this instance and another Time instance to return a new Time instance.
-     *  This function does not change the value of called Time instance. */
-    public function add(other:Time):Time {
-        return Time {
+    /** Add this instance and another Duration instance to return a new Duration instance.
+     *  This function does not change the value of called Duration instance. */
+    public function add(other:Duration):Duration {
+        return Duration {
             millis: millis + other.millis;
         }
     }
 
-    /** Subtract this instance from another Time instance to return a new Time instance.
-     *  This function does not change the value of called Time instance. */
-    public function sub(other:Time):Time {
-        return Time {
+    /** Subtract this instance from another Duration instance to return a new Duration instance.
+     *  This function does not change the value of called Duration instance. */
+    public function sub(other:Duration):Duration {
+        return Duration {
             millis: millis - other.millis;
         }
     }
 
-    /** Multiply this instance with a number to return a new Time instance.
-     *  This function does not change the value of called Time instance. */
-    public function mul(n:Number):Time {
-        return Time {
+    /** Multiply this instance with a number to return a new Duration instance.
+     *  This function does not change the value of called Duration instance. */
+    public function mul(n:Number):Duration {
+        return Duration {
             millis: millis * n;
         }
     }
 
 
-    /** Divide this instance by a number to return a new Time instance.
-     *  This function does not change the value of called Time instance. */
-    public function div(n:Number):Time {
-        return Time {
+    /** Divide this instance by a number to return a new Duration instance.
+     *  This function does not change the value of called Duration instance. */
+    public function div(n:Number):Duration {
+        return Duration {
             millis: millis / n;
         }
     }
 
-    public function negate():Time {
-        return Time {
+    public function negate():Duration {
+        return Duration {
             millis: -millis;
         }
     }
@@ -127,19 +127,19 @@ public class Time extends Comparable {
         return "{millis}ms";
     }
 
-    public function lt(other: Time):Boolean {
+    public function lt(other: Duration):Boolean {
         return compareTo(other) < 0;
     }
 
-    public function le(other: Time):Boolean {
+    public function le(other: Duration):Boolean {
         return compareTo(other) <= 0;
     }
 
-    public function gt(other: Time):Boolean {
+    public function gt(other: Duration):Boolean {
         return compareTo(other) > 0;
     }
 
-    public function ge(other: Time):Boolean {
+    public function ge(other: Duration):Boolean {
         return compareTo(other) >= 0;
     }
 
