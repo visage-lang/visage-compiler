@@ -33,15 +33,15 @@ import com.sun.tools.javafx.ui.animation.Animation.Evaluator;
 import com.sun.tools.javafx.ui.animation.Animation.ActionListener;
 import com.sun.javafx.runtime.Pointer;
 import java.util.*;
-import javafx.lang.Time;
+import javafx.lang.Duration;
 
 public class Timeline {
 
     // fix me: should be per app-context, not static
 
     private static attribute ANIMATION = new Animation();
-    attribute startTime = Time {};
-    public attribute duration: Time;
+    attribute startTime = Duration {};
+    public attribute duration: Duration;
 
     public function start():Void {
         if (animator <> null and toggle) {
@@ -136,7 +136,7 @@ public class Timeline {
         if (sbList.size() > 0) {
             animator.setStoryBoards(sbList);
         }
-        duration = Time { millis: animator.getDuration() };
+        duration = Duration { millis: animator.getDuration() };
     }
 
 }

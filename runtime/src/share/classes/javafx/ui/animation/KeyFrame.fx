@@ -25,11 +25,11 @@
 
 package javafx.ui.animation;
 
-import javafx.lang.Time;
+import javafx.lang.Duration;
 
 public class KeyFrame {
     public attribute relative: Boolean;
-    public attribute keyTime: Time;
+    public attribute keyTime: Duration;
     public attribute keyValues: KeyValue[];
     public attribute timelines: Timeline[];
     public attribute action: function();

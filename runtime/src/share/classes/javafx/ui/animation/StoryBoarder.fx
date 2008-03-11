@@ -33,7 +33,6 @@ import com.sun.tools.javafx.ui.animation.Animation.Evaluator;
 import com.sun.tools.javafx.ui.animation.Animation.ActionListener;
 import com.sun.javafx.runtime.Pointer;
 import java.util.*;
-import javafx.lang.Time;
 
 // hack to work around compiler bugs
 class StoryBoarder {
