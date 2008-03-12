@@ -370,6 +370,20 @@ public class JavafxTreeInfo extends TreeInfo {
 	    return null;
 	}
     }
+
+    public static Symbol symbolFor(JCTree node) {
+        node = skipParens(node);
+        switch (node.getTag()) {
+        case JavafxTag.VAR_DEF:
+            return ((JFXVar) node).sym;
+        case JavafxTag.CLASS_DEF:
+            return ((JFXClassDeclaration) node).sym;
+        case JavafxTag.FUNCTION_DEF:
+            return ((JFXFunctionDefinition) node).sym;
+        default:
+            return TreeInfo.symbolFor(node);
+        }
+    }
 }
 
 

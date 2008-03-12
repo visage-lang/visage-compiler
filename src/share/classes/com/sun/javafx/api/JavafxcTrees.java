@@ -26,6 +26,7 @@
 package com.sun.javafx.api;
 
 import com.sun.javafx.api.tree.ClassDeclarationTree;
+import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.javafx.api.tree.OperationDefinitionTree;
 import java.io.IOException;
 import java.util.Map;
@@ -41,7 +42,6 @@ import com.sun.source.tree.Scope;
 import com.sun.source.tree.Tree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
-import com.sun.tools.javac.api.JavacScope;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol;
@@ -61,6 +61,7 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Pair;
+import com.sun.tools.javafx.tree.JavafxTreeInfo;
 
 /**
  * Provides an implementation of Trees for the JavaFX Script compiler, based
@@ -134,29 +135,60 @@ public class JavafxcTrees {
             return null;
         JCClassDecl classNode = env.enclClass;
         if (classNode != null) {
-            if (TreeInfo.symbolFor(classNode) == element)
+            if (JavafxTreeInfo.symbolFor(classNode) == element)
                 return classNode;
             for (JCTree node : classNode.getMembers())
-                if (TreeInfo.symbolFor(node) == element)
+                if (JavafxTreeInfo.symbolFor(node) == element)
                     return node;
         }
         return null;
     }
 
     public TreePath getPath(CompilationUnitTree unit, Tree node) {
-        return TreePath.getPath(unit, node);
+        return getPath(new TreePath(unit), node);
     }
 
     public TreePath getPath(Element e) {
         final Pair<JCTree, JCCompilationUnit> treeTopLevel = elements.getTreeAndTopLevel(e, null, null);
         if (treeTopLevel == null)
             return null;
-        return TreePath.getPath(treeTopLevel.snd, treeTopLevel.fst);
+        return getPath(treeTopLevel.snd, treeTopLevel.fst);
+    }
+    
+    /**
+     * Gets a tree path for a tree node within a subtree identified by a TreePath object.
+     * @return null if the node is not found
+     */
+    public static TreePath getPath(TreePath path, Tree target) {
+        path.getClass();
+        target.getClass();
+
+        class Result extends Error {
+            static final long serialVersionUID = -5942088234594905625L;
+            TreePath path;
+            Result(TreePath path) {
+                this.path = path;
+            }
+        }
+        class PathFinder extends JavaFXTreePathScanner<TreePath,Tree> {
+            public TreePath scan(Tree tree, Tree target) {
+                if (tree == target)
+                    throw new Result(new TreePath(getCurrentPath(), target));
+                return super.scan(tree, target);
+            }
+        }
+
+        try {
+            new PathFinder().scan(path, target);
+        } catch (Result result) {
+            return result.path;
+        }
+        return null;
     }
 
     public Element getElement(TreePath path) {
         Tree t = path.getLeaf();
-        return TreeInfo.symbolFor((JCTree) t);
+        return JavafxTreeInfo.symbolFor((JCTree) t);
     }
 
     public TypeMirror getTypeMirror(TreePath path) {
