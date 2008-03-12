@@ -149,6 +149,18 @@
     
     
     
+    <xsl:template match="class" mode="interface">
+        <xsl:if test="interfaces/interface">implements</xsl:if>
+        <xsl:for-each select="interfaces/interface">
+            ,<a>
+                <xsl:attribute name="title"><xsl:value-of select="@packageName"/>.<xsl:value-of select="@typeName"/></xsl:attribute>
+                <xsl:attribute name="href">../<xsl:value-of select="@packageName"/>/<xsl:value-of select="@packageName"/>.<xsl:value-of select="@typeName"/>.html</xsl:attribute>
+                <strong><xsl:value-of select="@packageName"/></strong>
+                <b><xsl:value-of select="@typeName"/></b>
+            </a>
+        </xsl:for-each>
+    </xsl:template>
+    
     <xsl:template match="class" mode="super">
         <xsl:variable name="super" select="superclass/@qualifiedTypeName"/>
         <!-- if super can't be found -->
@@ -172,6 +184,9 @@
             <strong><xsl:value-of select="@packageName"/>.</strong>
             <b><xsl:value-of select="@name"/></b>
         </a>
+        
+        
+        
     </xsl:template>
     
     
@@ -194,6 +209,7 @@
                 <!--<xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>-->
                 <!--//class[@qualifiedName=$blah]"-->
                 <xsl:apply-templates select="." mode="super"/>
+                <xsl:apply-templates select="." mode="interface"/>
             </h2>
             
             <xsl:if test="@language='javafx'">
