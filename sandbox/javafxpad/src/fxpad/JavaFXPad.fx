@@ -30,15 +30,35 @@ import javafx.ui.canvas.*;
 import java.awt.Dimension;
 import java.lang.Math;
 import java.lang.System;
+import javax.script.*;
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaFileObject;
+import com.sun.javafx.api.*;
 
 /**
  * @author jclarke
  */
 
 public class JavaFXPad extends CompositeWidget {
-    attribute editor: SourceEditor;
-    attribute userCode: String = "Text \{ content: 'foobar' }";
+    attribute manager:ScriptEngineManager = new ScriptEngineManager();
+    attribute scrEng:ScriptEngine = manager.getEngineByExtension("javafx");
+    attribute engine:JavaFXScriptEngine = scrEng as JavaFXScriptEngine;
     
+    attribute editor: SourceEditor;
+    attribute validateAutomatically: Boolean = true;
+    attribute runAutomatically: Boolean = true;    
+    attribute userCode: String = "import javafx.ui.*;
+import javafx.ui.canvas.*;
+Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD'], 36) }"
+
+    on replace {
+        if(validateAutomatically) {
+            System.out.println("Compile");
+            compile();
+        }
+    };
+
     attribute fontSize: Integer = 16;
     attribute zoomOptions:Number[] = [8.33, 12.5, 25, 50, 100, 125, 150, 200, 400, 800, 1600];
     attribute zoomSelection:Integer = 4;
@@ -49,9 +69,10 @@ public class JavaFXPad extends CompositeWidget {
                 function(e:MouseEvent):Void {
                     mouseX = 1/(zoomValue/100)*e.x;
                     mouseY = 1/(zoomValue/100)*e.y;
-                    System.out.println("{System.currentTimeMillis()}, x= {mouseX} y = {mouseY}");
+                    //System.out.println("{System.currentTimeMillis()}, x= {mouseX} y = {mouseY}");
                 };    
-    attribute compiledContent: Node[] = [ Text{content:" Foobar " } ];                
+    attribute compiledContent: Node[];  
+    attribute errMessages: Diagnostic[];
     attribute canvas:Canvas = Canvas {
                     background: Color.WHITE
                     onMouseMoved: moveMouse
@@ -64,7 +85,43 @@ public class JavaFXPad extends CompositeWidget {
                     }
                 };
 
+    private function compile():Void {
+        var program = userCode;
+        System.out.println("compile propgram = {program}");
+        if(program.length() == 0) {
+            compiledContent = null;
+            delete errMessages;
+            return;
+        }
+        evaluate(program, runAutomatically);
+    }
     
+    private function evaluate(sourceCode:String, run:Boolean) {
+        System.out.println("evaluate run = {run}, sourceCode = '{sourceCode}'");
+        var diags = new DiagnosticCollector();
+        try {
+            delete errMessages;
+            if(not run) {
+                System.out.println("compile = '{sourceCode}'");
+                var script = engine.compile(sourceCode, diags);
+                System.out.println("Return from compile = {script}");
+            } else{
+                System.out.println("eval = '{sourceCode}'");
+                var ret = engine.eval(sourceCode, diags);
+                compiledContent = [ret as Node];
+                System.out.println("Return from eval = {ret}");
+            }
+        }catch(e:ScriptException) {
+            var errorList = diags.getDiagnostics();
+            var iter = errorList.iterator();
+            while(iter.hasNext()) {
+                var d:Diagnostic = iter.next() as Diagnostic;
+                System.out.println("Diag: {d}");
+                insert d into errMessages;
+            }
+        } 
+        System.out.println ("Done compile");
+    }
     
 
     
@@ -113,7 +170,7 @@ public class JavaFXPad extends CompositeWidget {
                                                         },
                                                         Polygon {
                                                             transform: bind if(mouseX >= 0) {
-                                                                    System.out.println("BX: {System.currentTimeMillis()}: x = {mouseX}");
+                                                                    //System.out.println("BX: {System.currentTimeMillis()}: x = {mouseX}");
                                                                     Transform.translate(mouseX-3.5,5);
                                                                 } else {
                                                                     Transform.translate(-3.5, 5);
@@ -154,7 +211,7 @@ public class JavaFXPad extends CompositeWidget {
                                                     },
                                                     Polygon {
                                                         transform: bind if(mouseY >= 0) {
-                                                                System.out.println("BY: {System.currentTimeMillis()}: y = {mouseY}");    
+                                                                //System.out.println("BY: {System.currentTimeMillis()}: y = {mouseY}");    
                                                                 Transform.translate(5, mouseY-3.5);
                                                             } else {
                                                                 Transform.translate( 5, 3.5);

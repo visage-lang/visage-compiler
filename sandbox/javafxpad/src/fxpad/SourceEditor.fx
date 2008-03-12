@@ -97,7 +97,17 @@ public class SourceEditor extends ScrollableWidget {
         jtextarea.setLineWrap(lineWrap);
     }
     public attribute text:String on replace {
-        jtextarea.setText(text);
+        if (not inUpdate) {
+            inUpdate = true;
+            jtextarea.setText(text);
+            lineCount = jtextarea.getLineCount();
+            undoManager.discardAllEdits();
+            jtextarea.select(0, 0);
+            jtextarea.revalidate();
+            jtextarea.repaint();
+            inUpdate = false;
+        }
+
     }
     
     public function createView(): javax.swing.JComponent {
@@ -146,7 +156,7 @@ public class SourceEditor extends ScrollableWidget {
                     undoManager.redo();
                 }
             });
-        
+        jtextarea.getDocument().addDocumentListener(documentListener);
         jtextarea;
     }
 
