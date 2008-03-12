@@ -79,8 +79,12 @@ class JavafxAnalyzeClass {
             return vmi.getRealType();
         }
 
-        public Type getMorphedType() {
-            return vmi.getMorphedType();
+        public Type getVariableType() {
+            return vmi.getVariableType();
+        }
+
+        public Type getLocationType() {
+            return vmi.getLocationType();
         }
 
         public Type getElementType() {

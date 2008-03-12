@@ -428,7 +428,7 @@ public class JavafxInitializationBuilder {
                 getters.append(make.MethodDef(
                         mods,
                         names.fromString(attributeGetMethodNamePrefix + ai.getNameString()),
-                        toJava.makeTypeTree(ai.getMorphedType(), null),
+                        toJava.makeTypeTree(ai.getVariableType(), null),
                         List.<JCTypeParameter>nil(),
                         List.<JCVariableDecl>nil(),
                         List.<JCExpression>nil(),
@@ -459,7 +459,7 @@ public class JavafxInitializationBuilder {
                 getters.append(make.at(diagPos).MethodDef(
                         mods,
                         methodName,
-                        toJava.makeTypeTree(ai.getMorphedType(), null),
+                        toJava.makeTypeTree(ai.getVariableType(), null),
                         List.<JCTypeParameter>nil(),
                         List.<JCVariableDecl>nil(),
                         List.<JCExpression>nil(),
@@ -712,7 +712,7 @@ public class JavafxInitializationBuilder {
                 JCVariableDecl var = make.at(diagPos).VarDef(
                         make.Modifiers(Flags.PUBLIC | Flags.FINAL | (ai.getFlags() & Flags.STATIC)),
                         ai.getName(),
-                        toJava.makeTypeTree(ai.getMorphedType(), diagPos),
+                        toJava.makeTypeTree(ai.getVariableType(), diagPos),
                         typeMorpher.makeLocationAttributeVariable(ai.getVMI(), diagPos));
                 fields.append(var);
             }
@@ -986,7 +986,7 @@ public class JavafxInitializationBuilder {
             Type vtype = vsym.asType();
             if (isBound) {
                 VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-                vtype = vmi.getMorphedType();
+                vtype = vmi.getLocationType();
             }
             params.append(make.VarDef(
                     make.Modifiers(0L), 

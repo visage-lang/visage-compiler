@@ -231,9 +231,8 @@ public class JavafxTypeMorpher {
         }
 
         public Type getRealType() { return realType; }
-        public Type getMorphedType() { return getMorphedVariableType(); }
-        public Type getMorphedVariableType() { return morphedVariableType; }
-        public Type getMorphedLocationType() { return morphedLocationType; }
+        public Type getLocationType() { return morphedLocationType; }
+        public Type getVariableType() { return morphedVariableType; }
         public Type getBoundIfLocationType() { return generifyIfNeeded(boundIfNCT[typeKind].type, this); }
         public Type getBoundSelectLocationType() { return generifyIfNeeded(boundSelectNCT[typeKind].type, this); }
         public Type getBoundComprehensionType() { return generifyIfNeeded(boundComprehensionNCT[typeKind].type, this); }

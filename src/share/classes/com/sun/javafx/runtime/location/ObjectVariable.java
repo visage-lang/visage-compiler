@@ -35,7 +35,7 @@ public class ObjectVariable<T>
     }
 
     /** Create a bijectively bound variable */
-    public static<T> ObjectVariable<T> makeBijective(ObjectVariable<T> other) {
+    public static<T> ObjectVariable<T> makeBijective(ObjectLocation<T> other) {
         ObjectVariable<T> me = ObjectVariable.make();
         me.bijectiveBind(other);
         return me;

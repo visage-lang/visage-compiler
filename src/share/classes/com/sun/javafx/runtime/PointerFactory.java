@@ -16,7 +16,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
         throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
     }
 
-    public ObjectVariable<Pointer> make$$bound$int(IntVariable location) {
+    public ObjectVariable<Pointer> make$$bound$int(IntLocation location) {
         return ObjectVariable.make(Pointer.make(location));
     }
 
@@ -24,7 +24,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
         throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
     }
 
-    public ObjectVariable<Pointer> make$$bound$double(DoubleVariable location) {
+    public ObjectVariable<Pointer> make$$bound$double(DoubleLocation location) {
         return ObjectVariable.make(Pointer.make(location));
     }
 
@@ -32,7 +32,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
         throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
     }
 
-    public ObjectVariable<Pointer> make$$bound$boolean(BooleanVariable location) {
+    public ObjectVariable<Pointer> make$$bound$boolean(BooleanLocation location) {
         return ObjectVariable.make(Pointer.make(location));
     }
 
@@ -40,7 +40,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
         throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
     }
 
-    public ObjectVariable<Pointer> make$$bound$java_lang_Object(ObjectVariable location) {
+    public ObjectVariable<Pointer> make$$bound$java_lang_Object(ObjectLocation location) {
         return ObjectVariable.make(Pointer.make(location));
     }
 
@@ -48,7 +48,7 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
         throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
     }
 
-    public ObjectVariable<Pointer> make$$bound$com_sun_javafx_runtime_sequence_Sequence(SequenceVariable location) {
+    public ObjectVariable<Pointer> make$$bound$com_sun_javafx_runtime_sequence_Sequence(SequenceLocation location) {
         return ObjectVariable.make(Pointer.make(location));
     }
 }

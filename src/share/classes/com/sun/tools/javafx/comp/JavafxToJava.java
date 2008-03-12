@@ -1195,7 +1195,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         if (shouldMorph(vmi) || forceTypeMorph) {
             // convert the type to the Location type
-            type = (isClassVar || !tree.isUnidiBind())? vmi.getMorphedVariableType() : vmi.getMorphedLocationType();
+            type = isClassVar? vmi.getVariableType() : vmi.getLocationType();
 
             // Locations are never overwritten
             modFlags |= Flags.FINAL;
@@ -2281,7 +2281,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         Type returnType = mth.getReturnType();
         if (isBound) {
             VarMorphInfo vmi = typeMorpher.varMorphInfo(mth);
-            returnType = vmi.getMorphedType();
+            returnType = vmi.getLocationType();
         }
         return makeTypeTree(returnType, diagPos);
     }
@@ -3092,7 +3092,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                                                     defs.addStaticDependentName,
                                                                     m().Assign(m().Ident(tmpName), applyExpression));
                 JavafxTypeMorpher.TypeMorphInfo tmi = typeMorpher.typeMorphInfo(msym.getReturnType());
-                Type morphedReturnType = tmi.getMorphedType();
+                Type morphedReturnType = tmi.getLocationType();
                 bindingExpressionDefs.append(make.VarDef(
                                                                     make.Modifiers(Flags.PRIVATE),
                                                                     tmpName,
