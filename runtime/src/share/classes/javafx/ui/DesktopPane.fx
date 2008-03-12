@@ -38,16 +38,22 @@ public class DesktopPane extends Widget {
         jdesk.setDragMode(dragMode.id.intValue());
     };
     public attribute frames: InternalFrame[] on replace oldValue[lo..hi] = newVals {
-        for(n in oldValue[lo..hi]) { jdesk.remove(n.getComponent()); }
-        if ( 0 < sizeof oldValue[lo..hi] ) { jdesk.repaint(); }   
-        for(n in newVals) {
-            n.desk = this;
-            var i = n;
-            var b = new java.awt.Rectangle(i.x.intValue(), i.y.intValue(), i.width.intValue(), i.height.intValue());
-            jdesk.add(n.getComponent(), n.layer.intValue(), 0);
-            i.setBounds(b);
-            n.getComponent().setVisible(true);
+        for(n in oldValue) { 
+            if(newVals[f|f==n] == []){
+	      jdesk.remove(n.getComponent());
+            }
         }
+        for(n in newVals) {
+            if( oldValue[f| f == n] == [])  {
+                n.desk = this;
+                var i = n;
+                var b = new java.awt.Rectangle(i.x.intValue(), i.y.intValue(), i.width.intValue(), i.height.intValue());
+                jdesk.add(n.getComponent(), n.layer.intValue(), 0);
+                i.setBounds(b);
+                n.getComponent().setVisible(true);
+            }
+        }
+        jdesk.repaint();
     };
     public attribute cascaded: Boolean on replace {
 
