@@ -3,9 +3,14 @@
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <?xml-stylesheet href="docbook.css" type="text/css"?>
 
+
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"> 
+
+
+<!--  **** default namespace declaration ********
 <book xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>JavaFX Script Language Reference</title>
-
+-->
 <!--
 <xi:include href="fxintro.xml" parse="xml"/>  
 -->
