@@ -102,7 +102,10 @@ public class UIRuntimeProvider implements RuntimeProvider {
         switch (type) {
           case CONSTANT_Utf8: {
               String s = dis.readUTF();
-              if (s.startsWith("javafx/ui/") || s.startsWith("Ljavafx/ui/"))
+              if (s.startsWith("javafx/ui/")
+                      || s.startsWith("Ljavafx/ui/")
+                      || s.startsWith("javafx/gui")
+                      || s.startsWith("Ljavafx/gui"))
                   return true;
               break;
           }
