@@ -774,7 +774,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * Optional handler for mouse enter events.
      */
     public attribute onMouseEntered: function(:MouseEvent):Void on replace {
-        installMouseWheelListener();
+        installMouseListener();
     };
     
     /**
@@ -782,7 +782,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * Optional handler for mouse exit events.
      */
     public attribute onMouseExited: function(:MouseEvent):Void on replace {
-        installMouseWheelListener();
+        installMouseListener();
     };
     
     /**
@@ -790,7 +790,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * Optional handler for mouse press events.
      */
     public attribute onMousePressed: function(:MouseEvent):Void on replace {
-        installMouseWheelListener();
+        installMouseListener();
     };
     
     /**
@@ -798,7 +798,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * Optional handler for mouse release events.
      */
     public attribute onMouseReleased: function(:MouseEvent):Void on replace {
-        installMouseWheelListener();
+        installMouseListener();
     };
     
     /**
@@ -806,7 +806,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * Optional handler for mouse exit events.
      */
     public attribute onMouseClicked: function(:MouseEvent):Void on replace {
-        installMouseWheelListener();
+        installMouseListener();
     };
     
     /**
@@ -814,7 +814,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * Optional handler for mouse motion events.
      */
     public attribute onMouseMoved: function(:MouseEvent):Void on replace {
-        installMouseWheelListener();
+        installMouseMotionListener();
     };
     
     /**
@@ -822,7 +822,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * Optional handler for mouse dragged events.
      */
     public attribute onMouseDragged: function(:MouseEvent):Void on replace {
-        installMouseWheelListener();
+        installMouseMotionListener();
     };
     
     /**
