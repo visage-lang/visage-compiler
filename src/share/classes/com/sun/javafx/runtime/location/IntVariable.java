@@ -80,6 +80,22 @@ public class IntVariable extends AbstractVariable<Integer, IntBindingExpression>
         return newValue;
     }
 
+    public void bind(final IntLocation otherLocation) {
+        bind(false, new IntBindingExpression() {
+            public int computeValue() {
+                return otherLocation.get();
+            }
+        }, otherLocation);
+    }
+
+    public void bindFromLiteral(final IntLocation otherLocation) {
+        deferredLiteral = new DeferredInitializer() {
+            public void apply() {
+                bind(otherLocation);
+            }
+        };
+    }
+
     public int setAsInt(int value) {
         if (isBound())
             throw new BindingException("Cannot assign to bound variable");

@@ -74,6 +74,22 @@ public class BooleanVariable
         return $value;
     }
 
+    public void bind(final BooleanLocation otherLocation) {
+        bind(false, new BooleanBindingExpression() {
+            public boolean computeValue() {
+                return otherLocation.get();
+            }
+        }, otherLocation);
+    }
+
+    public void bindFromLiteral(final BooleanLocation otherLocation) {
+        deferredLiteral = new DeferredInitializer() {
+            public void apply() {
+                bind(otherLocation);
+            }
+        };
+    }
+
     public boolean setAsBoolean(boolean value) {
         if (isBound())
             throw new BindingException("Cannot assign to bound variable");

@@ -42,16 +42,8 @@ import com.sun.javafx.runtime.location.SequenceConstant;
 public class Entry {
 
     public static void start(Class<?> app, String[] commandLineArgs) throws Throwable {
-        Method main = null;
-        // TODO JFXC-916 Remove branching
-        Object args = null;
-        try {
-            main = app.getMethod(JavafxDefs.runMethodString, Sequence.class);
-            args = Sequences.make(String.class, commandLineArgs);
-        } catch (NoSuchMethodException ex) {
-            main = app.getMethod(JavafxDefs.runMethodString, SequenceLocation.class);
-            args = SequenceConstant.make(Sequences.make(String.class, commandLineArgs));
-        }
+        Method main = app.getMethod(JavafxDefs.runMethodString, Sequence.class);
+        Object args = Sequences.make(String.class, commandLineArgs);
         
         try {
             main.setAccessible(true);

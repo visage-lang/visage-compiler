@@ -409,7 +409,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitIdent(JCIdent tree)   {  //TODO: this, super, ...
-        assert toJava.shouldMorph(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
+        assert (tree.sym.flags() & Flags.PARAMETER) != 0 || toJava.shouldMorph(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
         result = toJava.translate(tree, Wrapped.InLocation);
     }
     

@@ -85,6 +85,22 @@ public class DoubleVariable
         return newValue;
     }
 
+    public void bind(final DoubleLocation otherLocation) {
+        bind(false, new DoubleBindingExpression() {
+            public double computeValue() {
+                return otherLocation.get();
+            }
+        }, otherLocation);
+    }
+
+    public void bindFromLiteral(final DoubleLocation otherLocation) {
+        deferredLiteral = new DeferredInitializer() {
+            public void apply() {
+                bind(otherLocation);
+            }
+        };
+    }
+
     public double setAsDouble(double value) {
         if (isBound())
             throw new BindingException("Cannot assign to bound variable");

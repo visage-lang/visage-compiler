@@ -1036,6 +1036,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     private List<JCExpression> translateDefinitionalAssignmentToArgs(DiagnosticPosition diagPos,
             JCExpression init, JavafxBindStatus bindStatus, VarMorphInfo vmi) {
         if (bindStatus.isUnidiBind()) {
+            JCExpression laziness = make.Literal(TypeTags.BOOLEAN, bindStatus.isLazy() ? 1 : 0);
+            if (useBindingOverhaul) {
+                return List.of(toBound.translate(init));
+            }
             assert (shouldMorph(vmi));
 
             {
@@ -1052,7 +1056,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             JCExpression binding = typeMorpher.buildExpression(diagPos, vmi, stmt);
 
             ListBuffer<JCExpression> argValues = ListBuffer.lb();
-            argValues.append(make.Literal(TypeTags.BOOLEAN, bindStatus.isLazy() ? 1 : 0));
+            argValues.append(laziness);
             argValues.append(binding);
             argValues.appendList( typeMorpher.buildDependencies(init) );
 
@@ -1079,19 +1083,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     private JCExpression translateDefinitionalAssignmentToValue(DiagnosticPosition diagPos,
             JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
-        if (useBindingOverhaul && bindStatus.isUnidiBind()) {
-            return toBound.translate(init);
-        }
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         List<JCExpression> args = translateDefinitionalAssignmentToArgs(diagPos, init, bindStatus, vmi);
-        Name makeName = defs.makeMethodName;
-        if (bindStatus.isBidiBind()) {
-            makeName = defs.makeBijectiveMethodName;
-        }
-        if (shouldMorph(vmi)) {
+        if (useBindingOverhaul && bindStatus.isUnidiBind()) {
+            return args.head;
+        } else if (shouldMorph(vmi)) {
+            Name makeName = defs.makeMethodName;
+            if (bindStatus.isBidiBind()) {
+                makeName = defs.makeBijectiveMethodName;
+            }
             return typeMorpher.makeLocationVariable(vmi, diagPos, args, makeName);
         } else {
-            assert (!bindStatus.isBound());
             return args.head;
         }
     }

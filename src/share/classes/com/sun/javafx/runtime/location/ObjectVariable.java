@@ -55,6 +55,21 @@ public class ObjectVariable<T>
         addDependencies(dependencies);
     }
 
+    public void bind(final ObjectLocation<T> otherLocation) {
+        bind(false, new ObjectBindingExpression<T>() {
+            public T computeValue() {
+                return otherLocation.get();
+            }
+        }, otherLocation);
+    }
+
+    public void bindFromLiteral(final ObjectLocation<T> otherLocation) {
+        deferredLiteral = new DeferredInitializer() {
+            public void apply() {
+                bind(otherLocation);
+            }
+        };
+    }
 
     public T get() {
         if (isBound() && !isValid())
