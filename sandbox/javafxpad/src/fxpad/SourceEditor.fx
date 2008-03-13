@@ -147,9 +147,13 @@ public class SourceEditor extends ScrollableWidget {
     }
     
     public function createView(): javax.swing.JComponent {
+        System.out.println("CreateView: {this}");
         if(editable) {
             jtextarea.select(0,0);
         }
+        onMouseEntered = function(e):Void {
+            requestFocus();
+        };
         jtextarea.getDocument().addUndoableEditListener(UndoableEditListener {
             function undoableEditHappened(e:UndoableEditEvent):Void {
                 if (edit == null) {

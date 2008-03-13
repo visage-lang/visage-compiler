@@ -154,7 +154,7 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                     content: SplitPane {
                         border: LineBorder {lineColor: Color.BLACK }
                         orientation: Orientation.VERTICAL
-                        content: bind [
+                        content: /*bind*/ [
                             SplitView {
                                 weight: 0.45
                                 content: BorderPanel {
@@ -169,8 +169,7 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                                 content: Group {
                                                     content: [
                                                         Group {
-                                                            
-                                                            content: for (x in [0..(Math.max(canvas.width, canvas.viewport.currentWidth) *100/zoomValue/ 5).intValue()*5+100 step 5]) {
+                                                            content: /* TODO JFXC-878 bind */ for (x in [0..(Math.max(canvas.width, canvas.viewport.currentWidth) *100/zoomValue/ 5).intValue()*5+100 step 5]) {
                                                                 Group { // TODO inserted this GROUP because of JXFC-876
                                                                     content: [
                                                                         Line {
@@ -204,7 +203,7 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                             content: Group {
                                                 content: [
                                                     Group {
-                                                        content: for (y in [0..(Math.max(canvas.height, canvas.viewport.currentHeight) *100/zoomValue/ 5).intValue()*5+100 step 5]) {
+                                                        content: /* TODO JFXC-878 bind */ for (y in [0..(Math.max(canvas.height, canvas.viewport.currentHeight) *100/zoomValue/ 5).intValue()*5+100 step 5]) {
                                                             Group { // TODO inserted this GROUP because of JXFC-876
                                                                 content: [
                                                                     Line {
