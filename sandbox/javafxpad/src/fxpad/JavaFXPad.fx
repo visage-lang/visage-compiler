@@ -35,6 +35,7 @@ import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
 import com.sun.javafx.api.*;
+import javafx.ui.animation.*;
 
 /**
  * @author jclarke
@@ -44,6 +45,17 @@ public class JavaFXPad extends CompositeWidget {
     attribute manager:ScriptEngineManager = new ScriptEngineManager();
     attribute scrEng:ScriptEngine = manager.getEngineByExtension("javafx");
     attribute engine:JavaFXScriptEngine = scrEng as JavaFXScriptEngine;
+    
+    attribute compileTimeLine:Timeline = Timeline {
+        keyFrames: [
+            KeyFrame {
+                keyTime: 1s
+                action: function() {
+                    doRealCompile();
+                }
+            }
+        ]
+    };
     
     attribute editor: SourceEditor;
     attribute validateAutomatically: Boolean = true;
@@ -86,13 +98,18 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                 };
 
     private function compile():Void {
-        var program = userCode;
-        System.out.println("compile propgram = {program}");
-        if(program.length() == 0) {
+        compileTimeLine.stop();
+        if(userCode.length() == 0) {
             compiledContent = null;
             delete errMessages;
             return;
         }
+        compileTimeLine.start();
+    }
+    
+    private function doRealCompile():Void {
+        var program = userCode;
+        System.out.println("compile propgram = {program}");
         evaluate(program, runAutomatically);
     }
     
@@ -254,6 +271,7 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                                         opaque: true
                                                         selectedTextColor: Color.WHITE
                                                         foreground: Color.BLACK
+                                                        selectionColor: Color.MEDIUMAQUAMARINE
                                                         tabSize: 4
                                                         lineWrap: false
                                                         border: EmptyBorder {left: 4, right: 4}
