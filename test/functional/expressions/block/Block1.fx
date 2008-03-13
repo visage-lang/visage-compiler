@@ -1,0 +1,111 @@
+import java.lang.System;
+import java.lang.Exception;
+
+/*
+ * Functional test : Block Expressions
+ * @test
+ * @run
+ */
+
+
+var x = if(true) "String" else (for(i in [1..4]){i;});
+var x1 = if(false) "String" else (for(i in [1..4]){i;});
+var y = "Value of y = {if(false) sizeof (for(i in [1..100]){i;})  else 23.9}";
+if(not (x instanceof String)) { throw new Exception("Test failed");}
+if(x1 instanceof String) { throw new Exception("Test failed");}
+if(not (y instanceof String)) { throw new Exception("Test failed");}
+System.out.println("x={x} and y={y}");
+
+
+var z:Integer[] = bind [1..<11];
+var add = function(a:Integer, b:Integer):Integer {
+	a+b
+}
+
+var data ={
+	var a1 = [0,11];
+	var a = {
+		var a2 = [a1,1,2,unboundz];
+		if(false){
+			var b = {
+				var c = if(true) for(i in [-2..-1]) {add(i,i*2)}
+				else z;  insert 23 into c;
+				reverse c;
+			}
+			b;
+		} else if(true) {
+			if(true) {
+				//var a = z; // Not allowed to declare JFXC 909
+				var c = if(true){
+					delete a1;
+					if(true){
+						a1 = for(i in [-2..-1]) {add(i,i*2)};
+						delete a2;
+						insert a1 into a2;
+					}; // ';' is work around for JFXC 891
+					reverse reverse a2;
+				} else z;
+				if(true) for(i in [1..10]) { insert i into c; i} else z;
+				c;
+			}
+			else z;
+		} else if(true){
+			var b = {
+				var c = if(true) for(i in [-2..-1]) {add(i,i*2)}
+				else z;  insert 23 into c;
+				reverse c;
+			} b;
+		} else z;
+	}
+	delete add(-1,-2) from a; // this line can't be commented JFXC891
+	reverse reverse reverse reverse a;
+};
+delete add(-2,-4) from data;
+if(not data.equals(z)){ throw new Exception("Test failed");}
+
+//Same 'data' but inside a function
+var unboundz:Integer[] = [1..10]; //Unbound 'z' is requied to avoid compiler crash-JFXC913
+function makeData() {
+	// an unbound z should used in a function - JFXC913
+	var data ={
+		var a1 = [0,11];
+		var a = {
+			var a2 = [a1,1,2,unboundz];
+			if(false){
+				var b = {
+					var c = if(true) for(i in [-2..-1]) {add(i,i*2)}
+					else unboundz;  insert 23 into c;
+					reverse c;
+				}
+				b;
+			} else if(true) {
+				if(true) {
+					//var a = unboundz; // Not allowed to declared JFXC 909
+					var c = if(true){
+						delete a1;
+						if(true){
+							a1 = for(i in [-2..-1]) {add(i,i*2)};
+							delete a2;
+							insert a1 into a2;
+						}; // ';' is work around for JFXC 891
+						reverse reverse a2;
+					} else unboundz;
+					if(true) for(i in [1..10]) { insert i into c; i} else unboundz;
+					c;
+				}
+				else unboundz;
+			} else if(true){
+				var b = {
+					var c = if(true) for(i in [-2..-1]) {add(i,i*2)}
+					else unboundz;  insert 23 into c;
+					reverse c;
+				} b;
+			} else unboundz;
+		}
+		delete add(-1,-2) from a; // this line can't be commented JFXC891
+		reverse reverse reverse reverse a;
+	};
+	delete add(-2,-4) from data;
+	if(not data.equals(unboundz)){ throw new Exception("Test failed"); }
+}
+makeData();
