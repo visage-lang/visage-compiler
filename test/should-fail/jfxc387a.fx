@@ -1,7 +1,7 @@
 /*
  * Regression test: JFXC-387: Compiler says boolean/int/double/java.lang.String when it means Boolean/Integer/Double/String
  *
- * @test/fail
+ * @test/error
  *
  * This should produce:
  *

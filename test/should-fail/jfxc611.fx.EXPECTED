@@ -1,4 +1,4 @@
-jfxc611.fx:30: unexpected type
+jfxc611.fx:29: unexpected type
 found   : Object
 required: Object[]
 function f(llist) {return llist[0];}

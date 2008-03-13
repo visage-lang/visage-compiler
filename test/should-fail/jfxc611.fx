@@ -1,7 +1,7 @@
 /*
  * Regression test: JFXC-611: Underlying generics implementation leaking through in error message
  *
- * @test/fail
+ * @test/error
  *
  * This should produce:
  *

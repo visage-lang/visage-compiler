@@ -1,7 +1,7 @@
 /*
  * Regression test: JFXC-614: Incorrect error position
  *
- * @test/fail
+ * @test/error
  *
  * This should produce:
  *
