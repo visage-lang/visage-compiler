@@ -146,14 +146,12 @@ public class SourceEditor extends ScrollableWidget {
 
     }
     
+    
     public function createView(): javax.swing.JComponent {
         System.out.println("CreateView: {this}");
         if(editable) {
             jtextarea.select(0,0);
         }
-        onMouseEntered = function(e):Void {
-            requestFocus();
-        };
         jtextarea.getDocument().addUndoableEditListener(UndoableEditListener {
             function undoableEditHappened(e:UndoableEditEvent):Void {
                 if (edit == null) {
@@ -244,12 +242,8 @@ public class SourceEditor extends ScrollableWidget {
     public function setSelection(startPos:Integer, endPos:Integer) {
         jtextarea.select(startPos, endPos);
     }
-    public function selectLocation(startLine:Integer, startColumn:Integer, endLine:Integer, endColumn:Integer) {
-        var off1 = jtextarea.getLineStartOffset(startLine-1);
-        var off2 = jtextarea.getLineStartOffset(endLine-1);
-        var startPos = off1 + startColumn-1;
-        var endPos = off2 + endColumn-1;
-        jtextarea.select(startPos, endPos);
+    public function selectLocation(startPosition:Integer, endPosition:Integer) {
+        jtextarea.select(startPosition, endPosition);
         jtextarea.getCaret().setSelectionVisible(true);
         
     }

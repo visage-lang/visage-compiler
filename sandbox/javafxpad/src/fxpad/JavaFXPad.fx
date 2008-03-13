@@ -276,6 +276,7 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                                         border: EmptyBorder {left: 4, right: 4}
                                                         font: bind Font.Font("Monospaced", ["PLAIN"], fontSize)
                                                         text: bind userCode with inverse
+                                                        //annotation: bind for (err in errMessages)
                                                     }
                                                 }
                                             },
@@ -288,19 +289,26 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                             SplitView {
                                 weight: 0.10
                                 content: BorderPanel {
+                                    var listBox:ListBox;
                                     border: LineBorder {lineColor: Color.BLACK }
-                                    /****
-                                    center: ListBox {
+                                    center: listBox = ListBox {
                                         action: function() {
-                                            // set location to error line
+                                            if(listBox.selection >= 0 and listBox.selection < sizeof errMessages) {
+                                                var err = errMessages[listBox.selection];
+                                                //var lineNumber = err.getLineNumber();
+                                                //var columnNumber = err.getColumnNumber();
+                                                var startPosition = err.getStartPosition();
+                                                var endPosition = err.getEndPosition();
+                                                editor.selectLocation(startPosition.intValue(), endPosition.intValue());
+                                            }
                                         }
                                         cells: bind for(err in errMessages) {
                                             ListCell {
-                                                text: err.get
+                                                text: "<html><table cellspacing='0' cellpadding='0'><tr><td><img src='{__DIR__}images/error_obj.gif'></img></td><td>&nbsp;{err.getMessage(null).trim()}</td></tr><table>"
+                                                toolTipText: "<html><div>{err.getMessage(null)}</div></html>"
                                             }
                                         }
                                     }
-                                     * ***/
                                 }                                
                             }                            
                         ]
