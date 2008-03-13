@@ -88,27 +88,21 @@ class DetectorVisitor<Void,EnumSet> extends JavaFXTreePathScanner<Void,EnumSet> 
             
     @Override    
     public Void visitClassDeclaration(ClassDeclarationTree tree, EnumSet p) {
-        System.out.println("========= visitClassDeclaration ===========");
-        System.out.println(" getCurrentPath().getLeaf " + getCurrentPath().getLeaf()); 
         Element e = trees.getElement(getCurrentPath());
         Assert.assertNotNull(e);
+        TreePath pth = trees.getPath(unit, tree);
+        Assert.assertNotNull(pth);
+
         scan(tree.getClassMembers(), null);
         return null;        
     }   
     
     @Override
     public Void visitVariable(VariableTree tree, EnumSet p) {                
-        System.out.println("========= visitVariable ===========");            
-        System.out.println(" getCurrentPath().getLeaf " + getCurrentPath().getLeaf()); 
         Element e = trees.getElement(getCurrentPath());
-        Assert.assertNotNull(e);
-        
+        Assert.assertNotNull(e);        
         TreePath pth = trees.getPath(unit, tree);
-        
-        System.out.println("  getElement: " + e);
-        long start = sp.getStartPosition(unit, tree);
-        long end = sp.getEndPosition(unit, tree);
-        System.out.println("  start: " + start + "; end: " + end);        
+        Assert.assertNotNull(pth);
         return null;
     }
 }
