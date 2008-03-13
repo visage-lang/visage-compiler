@@ -48,7 +48,6 @@ import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
-import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.JavafxClassModel;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedAttributeInfo;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideAttributeInfo;
@@ -915,59 +914,73 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
        }
     }
+    
+    abstract static class StringExpressionTranslator extends Translator {
+        private final JFXStringExpression tree;
+        StringExpressionTranslator(JFXStringExpression tree, JavafxToJava toJava) {
+            super(tree.pos(), toJava);
+            this.tree = tree;
+        }
+
+        protected JCExpression doit() {
+            StringBuffer sb = new StringBuffer();
+            List<JCExpression> parts = tree.getParts();
+            ListBuffer<JCExpression> values = new ListBuffer<JCExpression>();
+
+            JCLiteral lit = (JCLiteral) (parts.head);            // "...{
+            sb.append((String) lit.value);
+            parts = parts.tail;
+
+            while (parts.nonEmpty()) {
+                lit = (JCLiteral) (parts.head);                  // optional format (or null)
+                String format = (String) lit.value;
+                parts = parts.tail;
+                JCExpression exp = parts.head;
+                if (exp != null &&
+                        toJava.types.isSameType(exp.type, toJava.syms.javafx_DurationType)) {
+                    exp = m().Apply(null,
+                            m().Select(translateArg(exp),
+                            Name.fromString(toJava.names, "toDate")),
+                            List.<JCExpression>nil());
+                    sb.append(format.length() == 0 ? "%tQms" : format);
+                } else {
+                    exp = translateArg(exp);
+                    sb.append(format.length() == 0 ? "%s" : format);
+                }
+                values.append(exp);
+                parts = parts.tail;
+
+                lit = (JCLiteral) (parts.head);                  // }...{  or  }..."
+                sb.append((String) lit.value);
+                parts = parts.tail;
+            }
+            JCLiteral formatLiteral = m().Literal(TypeTags.CLASS, sb.toString());
+            values.prepend(formatLiteral);
+            String formatMethod;
+            if (tree.translationKey != null) {
+                formatMethod = "com.sun.javafx.runtime.util.StringLocalization.getLocalizedString";
+                values.prepend(m().Literal(TypeTags.CLASS, tree.translationKey));
+                String resourceName =
+                        toJava.attrEnv.enclClass.sym.flatname.toString().replace('.', '/').replaceAll("\\$.*", "");
+                values.prepend(m().Literal(TypeTags.CLASS, resourceName));
+            } else {
+                formatMethod = "java.lang.String.format";
+            }
+            JCExpression formatter = toJava.makeQualifiedTree(diagPos, formatMethod);
+            return m().Apply(null, formatter, values.toList());
+        }
+
+        abstract protected JCExpression translateArg(JCExpression arg);
+        
+    }
 
     @Override
     public void visitStringExpression(JFXStringExpression tree) {
-        StringBuffer sb = new StringBuffer();
-        List<JCExpression> parts = tree.getParts();
-        ListBuffer<JCExpression> values = new ListBuffer<JCExpression>();
-        
-        JCLiteral lit = (JCLiteral)(parts.head);            // "...{
-        sb.append((String)lit.value);            
-        parts = parts.tail;
-        
-        while (parts.nonEmpty()) {
-
-            lit = (JCLiteral)(parts.head);                  // optional format (or null)
-            String format = (String)lit.value;
-            parts = parts.tail;
-            JCExpression exp = parts.head;
-            if (exp != null &&
-                types.isSameType(exp.type, syms.javafx_DurationType)) {
-                exp = make.Apply(null,
-                                 make.Select(translate(exp), Name.fromString(names, "toDate")), 
-                                 List.<JCExpression>nil());
-                sb.append(format.length() == 0? "%tQms" : format);
-            } else {
-                exp = translate(exp);
-                sb.append(format.length() == 0? "%s" : format);
+        result = new StringExpressionTranslator(tree, this) {
+            protected JCExpression translateArg(JCExpression arg) {
+                return translate(arg);
             }
-            values.append(exp);
-            parts = parts.tail;
-            
-            lit = (JCLiteral)(parts.head);                  // }...{  or  }..."
-            sb.append((String)lit.value);
-            parts = parts.tail;
-        }
-        JCLiteral formatLiteral = make.at(tree.pos).Literal(TypeTags.CLASS, sb.toString());
-        values.prepend(formatLiteral);
-        JCExpression formatter;
-        if (tree.translationKey != null) {
-            formatter = make.Ident(Name.fromString(names, "com"));
-            for (String s : new String[] {"sun", "javafx", "runtime", "util", "StringLocalization", "getLocalizedString"}) {
-                formatter = make.Select(formatter, Name.fromString(names, s));
-            }
-            values.prepend(make.Literal(TypeTags.CLASS, tree.translationKey));
-            String resourceName =
-                attrEnv.enclClass.sym.flatname.toString().replace('.', '/').replaceAll("\\$.*", "");
-            values.prepend(make.Literal(TypeTags.CLASS, resourceName));
-        } else {
-            formatter = make.Ident(Name.fromString(names, "java"));
-            for (String s : new String[] {"lang", "String", "format"}) {
-                formatter = make.Select(formatter, Name.fromString(names, s));
-            }
-        }
-        result = make.Apply(null, formatter, values.toList());
+        }.doit();
     }
 
     // Temporary hack to implement 'bind for' in a limited way.
