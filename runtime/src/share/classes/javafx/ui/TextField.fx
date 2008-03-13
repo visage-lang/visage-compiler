@@ -242,6 +242,7 @@ public class TextField extends Widget {
             textField.setSelectionEnd(selectionEnd);
         }
     };
+
     public function selectAll(): Void {
         inSelectionUpdate = true;
         textField.selectAll();
@@ -249,11 +250,21 @@ public class TextField extends Widget {
         selectionEnd = textField.getSelectionEnd();
         inSelectionUpdate = false;
     }
+
     private attribute inSelectionUpdate:Boolean = false;
 
     public function createComponent():javax.swing.JComponent {
         return textField;
     }
+
+    private attribute awtCaretColor:java.awt.Color = bind caretColor.getColor() on replace {
+           if (awtCaretColor <> null) {
+               textField.setCaretColor(awtCaretColor);
+           }
+    };
+
+    public attribute caretColor: Color;
+
     init {
         textField.setFont(javax.swing.UIManager.getFont("TextField.font"));
         var selectionColor = javax.swing.UIManager.getColor("TextField.selectionColor");
