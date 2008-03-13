@@ -105,7 +105,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         boolean wasInBindContext = inBindContext;
-        inBindContext = tree.isBound();
+        inBindContext |= tree.isBound();
         markVarUse(tree.sym);
         tree.getExpression().accept(this);
         inBindContext = wasInBindContext;

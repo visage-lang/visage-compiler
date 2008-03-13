@@ -844,7 +844,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         abstract protected JCStatement translateLocalVar(JFXVar var);
         
-        abstract protected List<JCExpression> translateConstructorArgs(List<JCExpression> args, List<Type> ptypes);
+        abstract protected List<JCExpression> translatedConstructorArgs();
         
         abstract protected JCStatement translateAttributeSet(JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
             JCExpression instance);
@@ -868,8 +868,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
             JCExpression classTypeExpr = toJava.makeTypeTree(type, tree, false);
 
-            List<Type> ptypes = (tree.constructor == null || tree.constructor.type == null) ? null : tree.constructor.type.asMethodType().getParameterTypes();
-            List<JCExpression> newClassArgs = translateConstructorArgs(tree.getArgs(), ptypes);
+            List<JCExpression> newClassArgs = translatedConstructorArgs();
             if (tree.getClassBody() != null &&
                     tree.getClassBody().sym != null && toJava.hasOuters.contains(tree.getClassBody().sym)) {
                 JCIdent thisIdent = m().Ident(defs.receiverName);
@@ -937,8 +936,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 return translate(var);
             }
 
-            protected List<JCExpression> translateConstructorArgs(List<JCExpression> args, List<Type> ptypes) {
-                if (ptypes != null) {
+            protected List<JCExpression> translatedConstructorArgs() {
+                if (tree.constructor != null && tree.constructor.type != null) {
+                    List<Type> ptypes = tree.constructor.type.asMethodType().getParameterTypes();
                     return translate(tree.getArgs(), ptypes);
                 } else {
                     return translate(tree.getArgs());
