@@ -733,16 +733,10 @@ public class JavafxInitializationBuilder {
         
         if (info instanceof TranslatedAttributeInfo) {
             TranslatedAttributeInfo tran_info = (TranslatedAttributeInfo)info;
-            if (tran_info.onChanges.isEmpty()) 
+       
+            onReplace = tran_info.onReplace();
+            if (onReplace == null)
                 return null;
-            
-            for (JFXAbstractOnChange onc : tran_info.onChanges) {
-               switch (onc.getTag()) {
-                    case JavafxTag.ON_REPLACE:
-                        onReplace = (JFXOnReplace)onc;
-                        break;
-                }
-            }
         } else {
             if (info instanceof TranslatedOverrideAttributeInfo) 
                 onReplace = ((TranslatedOverrideAttributeInfo)info).onReplace();

@@ -137,6 +137,7 @@ class JavafxAnalyzeClass {
         }
     }
     
+    /*
     static class TranslatedAttributeInfo extends AttributeInfo {
         final JFXVar attribute;
         final List<JFXAbstractOnChange> onChanges;
@@ -155,7 +156,32 @@ class JavafxAnalyzeClass {
             return true; // these are from current class, so always need cloning
         }
         
+    } */
+    
+    static class TranslatedAttributeInfo extends AttributeInfo {
+        final JFXVar attribute;
+        private final JFXOnReplace onReplace;
+        TranslatedAttributeInfo(JFXVar attribute, VarMorphInfo vmi,
+                JCStatement initStmt, JFXOnReplace onReplace) {
+            super(attribute.pos(), attribute.sym.name, attribute.sym, vmi, initStmt, true);
+            this.attribute = attribute;
+            this.onReplace = onReplace;
+        }
+        
+        private void setNeedsCloning(boolean needs) {
+            assert needs;
+        }
+        
+        public boolean needsCloning() {
+            return true; // these are from current class, so always need cloning
+        }
+        
+        JFXOnReplace onReplace() { return onReplace; }
+        
     }  
+    
+    
+    
   
     static class TranslatedOverrideAttributeInfo extends AttributeInfo {
         private final JFXOnReplace onReplace;
@@ -168,7 +194,7 @@ class JavafxAnalyzeClass {
         
         JFXOnReplace onReplace() { return onReplace; }
     }
-  
+     
     JavafxAnalyzeClass(DiagnosticPosition diagPos,
             ClassSymbol currentClassSym,
             List<TranslatedAttributeInfo> translatedAttrInfo,

@@ -213,7 +213,7 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
         scan(tree.getJFXType());
 	scan(tree.mods);
 	scan(tree.init);
-        scan(tree.getOnChanges());
+        scan(tree.getOnReplace());
     }
     
     @Override
@@ -222,38 +222,35 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
 	scan(tree.getInitializer());
         scan(tree.getOnReplace());
     }
-    
-    public void visitAbstractOnChange(JFXAbstractOnChange tree) {
-	scan(tree.getIndex());
-	scan(tree.getOldValue());  
-        scan(tree.getBody());
-    }
-    
+
     @Override
     public void visitOnReplace(JFXOnReplace tree) {
-        visitAbstractOnChange(tree);
-        scan(tree.lastIndex);
-        scan(tree.newElements);
+        scan(tree.getFirstIndex());
+	scan(tree.getOldValue());  
+        scan(tree.getBody());
+        scan(tree.getLastIndex());
+        scan(tree.getNewElements());
     }
     
+    //TODO: these methods should be removed
     @Override
     public void visitOnReplaceElement(JFXOnReplaceElement tree) {
-        visitAbstractOnChange(tree);
+//        visitAbstractOnChange(tree);
     }
     
     @Override
     public void visitOnInsertElement(JFXOnInsertElement tree) {
-        visitAbstractOnChange(tree);
+//        visitAbstractOnChange(tree);
     }
     
     @Override
     public void visitOnDeleteElement(JFXOnDeleteElement tree) {
-        visitAbstractOnChange(tree);
+//        visitAbstractOnChange(tree);
     }
     
     @Override
     public void visitOnDeleteAll(JFXOnDeleteAll tree) {
-        visitAbstractOnChange(tree);
+//        visitAbstractOnChange(tree);
     }
     
     @Override

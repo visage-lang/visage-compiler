@@ -23,45 +23,68 @@
  * have any questions.
  */
 
+
+/**
+ *
+ * @author Robert Field
+ * @author Zhiqun Chen
+ */
+
 package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.javafx.api.tree.JavaFXTreeVisitor;
 import com.sun.javafx.api.tree.OnReplaceTree;
 
-/**
- *
- * @author Robert Field
- */
-public class JFXOnReplace extends JFXAbstractOnChange implements OnReplaceTree {
-    int endKind;
+public class JFXOnReplace extends JFXStatement implements OnReplaceTree {
+    
+    private final JFXVar firstIndex;
+    private final JFXVar oldValue;
+    private final JCBlock body;
+    private int endKind;
 
-    JFXVar lastIndex;
-    JFXVar newElements;
+    private JFXVar lastIndex;
+    private JFXVar newElements;
 
+    
     public JFXOnReplace( JFXVar oldValue, JCBlock body) {
-        super(null, oldValue, body);
+        this(oldValue, null, null, 0, null, body);
     }
-
+    
+    
     public JFXOnReplace(JFXVar oldValue, JFXVar firstIndex, JFXVar lastIndex,
             int endKind, JFXVar newElements, JCBlock body) {
-        super(firstIndex, oldValue, body);
+        this.oldValue = oldValue;
+        this.firstIndex = firstIndex;
         this.lastIndex = lastIndex;
-        this.newElements = newElements;
         this.endKind = endKind;
+        this.newElements = newElements;
+        this.body = body;   
     }
     
     public void accept(JavafxVisitor v) {
         v.visitOnReplace(this);
     }
 
-    @Override
+    //TODO: check if this method should be kept
+    public JFXVar getIndex() { 
+        return this.firstIndex; 
+    }
+    
     public int getTag() {
         return JavafxTag.ON_REPLACE;
     }
     
+    public JFXVar getOldValue() {
+        return oldValue;
+    }
+    
+    public JCBlock getBody() {
+        return body;
+    }
+    
     public JFXVar getFirstIndex () {
-        return getIndex();
+        return firstIndex;
     }
 
     public JFXVar getLastIndex () {

@@ -608,7 +608,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                 attrDef,
                                 typeMorpher.varMorphInfo(attrDef.sym),
                                 init,
-                                translate(attrDef.getOnChanges())));
+                                //translate(attrDef.getOnChanges())));
+                              translate(attrDef.getOnReplace())));
                             //translatedDefs.append(trans);
                             break;
                         }

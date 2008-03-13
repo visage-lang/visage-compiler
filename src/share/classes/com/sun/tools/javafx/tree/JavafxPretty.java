@@ -611,9 +611,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
                     printExpr(tree.getInitializer());
                 }
             }
-            for (JCTree onc : tree.getOnChanges()) {
-                printExpr(onc);
-            }
+            printExpr(tree.getOnReplace());
             print(";");
             if (variableScope == SCOPE_OUTER || variableScope == SCOPE_CLASS) {
                 println();

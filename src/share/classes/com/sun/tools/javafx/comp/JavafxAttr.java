@@ -973,7 +973,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             log.useSource(prev);
         }
     }
-        
+  /*
     @Override
     public void visitVar(JFXVar tree) {
         Symbol sym = tree.sym;
@@ -1015,6 +1015,51 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     localEnv.info.scope.leave();
                 }
             }
+        }
+    }*/
+    
+         
+    @Override
+    public void visitVar(JFXVar tree) {
+        Symbol sym = tree.sym;
+        sym.complete();
+        
+        JFXOnReplace onReplace = tree.getOnReplace();
+        if (onReplace != null) {
+            Type elemType = null;
+
+            if (types.isSequence(tree.type)) {
+                elemType = types.elementType(tree.type);
+            }
+
+            JFXVar oldValue = onReplace.getOldValue();
+	    if (oldValue != null && oldValue.type == null) {
+                    oldValue.type =  tree.type;
+            }
+            
+            JFXVar newElements = onReplace.getNewElements();
+            if (newElements != null && newElements.type == null)
+                newElements.type = tree.type;
+              
+
+            if (env.info.scope.owner.kind == TYP) {
+                    // var is a static;
+                    // let the owner of the environment be a freshly
+                    // created BLOCK-method.
+                    long flags = tree.getModifiers().flags;
+                    JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
+                    localEnv.info.scope.owner = new MethodSymbol(flags | BLOCK, names.empty, null, env.info.scope.owner);
+                    if ((flags & STATIC) != 0) {
+                        localEnv.info.staticLevel++;
+                    }
+                    attribStat(onReplace, localEnv);
+            } else {
+                    // Create a new local environment with a local scope.
+                    JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup(env.info.scope.dup()));
+                    attribStat(onReplace, localEnv);
+                    localEnv.info.scope.leave();
+            }
+           
         }
     }
     
@@ -1104,6 +1149,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
     }
     
+    //TODO: this method should be removed later
     public void visitAbstractOnChange(JFXAbstractOnChange tree) {
 	if (tree.getIndex() != null) {
             tree.getIndex().mods.flags |= Flags.FINAL;
@@ -1117,7 +1163,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
         attribStat(tree.getBody(), env);
     }
-    
+
     @Override
     public void visitOnReplace(JFXOnReplace tree) {
         JFXVar lastIndex = tree.getLastIndex();
@@ -1131,8 +1177,20 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             newElements.mods.flags |= Flags.FINAL;
             attribVar(newElements, env); 
         }
-        visitAbstractOnChange(tree);
+        
+        if (tree.getIndex() != null) {
+            tree.getIndex().mods.flags |= Flags.FINAL;
+            attribVar(tree.getIndex(), env);
+            tree.getIndex().sym.type = syms.intType;
+        }
+        JFXVar oldValue = tree.getOldValue();
+	if (oldValue != null) {
+            oldValue.mods.flags |= Flags.FINAL;
+            attribVar(oldValue, env);  
+        }
+        attribStat(tree.getBody(), env);
     }
+    
     
     @Override
     public void visitOnReplaceElement(JFXOnReplaceElement tree) {
