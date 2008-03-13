@@ -232,26 +232,6 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
         scan(tree.getNewElements());
     }
     
-    //TODO: these methods should be removed
-    @Override
-    public void visitOnReplaceElement(JFXOnReplaceElement tree) {
-//        visitAbstractOnChange(tree);
-    }
-    
-    @Override
-    public void visitOnInsertElement(JFXOnInsertElement tree) {
-//        visitAbstractOnChange(tree);
-    }
-    
-    @Override
-    public void visitOnDeleteElement(JFXOnDeleteElement tree) {
-//        visitAbstractOnChange(tree);
-    }
-    
-    @Override
-    public void visitOnDeleteAll(JFXOnDeleteAll tree) {
-//        visitAbstractOnChange(tree);
-    }
     
     @Override
     public void visitForExpression(JFXForExpression that) {

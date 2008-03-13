@@ -344,30 +344,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
-    
-    public JFXOnReplaceElement OnReplaceElement(JFXVar index, JFXVar oldValue, JCBlock body) {
-         JFXOnReplaceElement tree = new JFXOnReplaceElement(index, oldValue, body);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXOnInsertElement OnInsertElement(JFXVar index, JFXVar oldValue, JCBlock body) {
-         JFXOnInsertElement tree = new JFXOnInsertElement(index, oldValue, body);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXOnDeleteElement OnDeleteElement(JFXVar index, JFXVar oldValue, JCBlock body) {
-         JFXOnDeleteElement tree = new JFXOnDeleteElement(index, oldValue, body);
-        tree.pos = pos;
-        return tree;
-    }
-    
-    public JFXOnDeleteAll OnDeleteAll(JFXVar oldValue, JCBlock body) {
-         JFXOnDeleteAll tree = new JFXOnDeleteAll(oldValue, body);
-        tree.pos = pos;
-        return tree;
-    }
+   
    
     public JFXVar Var(Name name,
             JFXType type,

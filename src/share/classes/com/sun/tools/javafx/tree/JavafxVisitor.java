@@ -45,10 +45,6 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitTypeUnknown(JFXTypeUnknown tree);
     public void visitVar(JFXVar tree);
     public void visitOnReplace(JFXOnReplace tree);
-    public void visitOnReplaceElement(JFXOnReplaceElement tree);
-    public void visitOnInsertElement(JFXOnInsertElement tree);
-    public void visitOnDeleteElement(JFXOnDeleteElement tree);
-    public void visitOnDeleteAll(JFXOnDeleteAll tree);
     public void visitBlockExpression(JFXBlockExpression tree);
     public void visitOperationValue(JFXFunctionValue tree);
     public void visitSequenceEmpty(JFXSequenceEmpty tree);

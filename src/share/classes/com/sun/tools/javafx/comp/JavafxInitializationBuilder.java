@@ -859,7 +859,6 @@ public class JavafxInitializationBuilder {
      */
     private JCMethodDecl makeChangeListenerMethod(
             DiagnosticPosition diagPos,
-   //         JFXAbstractOnChange onChange,
             JFXOnReplace onReplace,
             ListBuffer<JCStatement> prefixStmts,
             String methodName,

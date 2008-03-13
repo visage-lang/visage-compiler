@@ -637,23 +637,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             throw new UncheckedIOException(e);
         }
     }
-    
-    public void visitAbstractOnChange(JFXAbstractOnChange tree) {
-        try {
-            if (tree.getIndex() != null) {
-                print(" [ ");
-                printExpr(tree.getIndex());
-                print(" ] ");
-            }
-            if (tree.getOldValue() != null) {
-                print(" ( ");
-                printExpr(tree.getOldValue());
-                print(" ) ");
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }     
-    }
+  
     
     @Override
     public void visitOnReplace(JFXOnReplace tree) {
@@ -682,45 +666,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }      
     }
     
-    @Override
-    public void visitOnReplaceElement(JFXOnReplaceElement tree) {
-        try {
-            print(" on replace ");
-            visitAbstractOnChange(tree);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }      
-    }
-    
-    @Override
-    public void visitOnInsertElement(JFXOnInsertElement tree) {
-        try {
-            print(" on insert ");
-            visitAbstractOnChange(tree);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }      
-    }
-    
-    @Override
-    public void visitOnDeleteElement(JFXOnDeleteElement tree) {
-        try {
-            print(" on delete ");
-            visitAbstractOnChange(tree);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }      
-    }
-    
-    @Override
-    public void visitOnDeleteAll(JFXOnDeleteAll tree) {
-        try {
-            print(" on delete ");
-            visitAbstractOnChange(tree);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }      
-    }
     
     @Override
     public void visitForExpression(JFXForExpression tree) {

@@ -973,51 +973,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             log.useSource(prev);
         }
     }
-  /*
-    @Override
-    public void visitVar(JFXVar tree) {
-        Symbol sym = tree.sym;
-        sym.complete();
-        
-       if (tree.getOnChanges() != null) {
-            Type elemType = null;
 
-            if (types.isSequence(tree.type)) {
-                elemType = types.elementType(tree.type);
-            }
-
-            for (JFXAbstractOnChange onc : tree.getOnChanges()) {
-                JFXVar oldValue = onc.getOldValue();
-	        if (oldValue != null && oldValue.type == null) {
-                    oldValue.type = onc instanceof JFXOnReplace ? tree.type : elemType;
-                }
-                if (onc instanceof JFXOnReplace) {
-                   JFXVar newElements = ((JFXOnReplace) onc).getNewElements();
-                   if (newElements != null && newElements.type == null)
-                       newElements.type = tree.type;
-                }
-
-                if (env.info.scope.owner.kind == TYP) {
-                    // var is a static;
-                    // let the owner of the environment be a freshly
-                    // created BLOCK-method.
-                    long flags = tree.getModifiers().flags;
-                    JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
-                    localEnv.info.scope.owner = new MethodSymbol(flags | BLOCK, names.empty, null, env.info.scope.owner);
-                    if ((flags & STATIC) != 0) {
-                        localEnv.info.staticLevel++;
-                    }
-                    attribStat(onc, localEnv);
-                } else {
-                    // Create a new local environment with a local scope.
-                    JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup(env.info.scope.dup()));
-                    attribStat(onc, localEnv);
-                    localEnv.info.scope.leave();
-                }
-            }
-        }
-    }*/
-    
          
     @Override
     public void visitVar(JFXVar tree) {
@@ -1149,7 +1105,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
     }
     
-    //TODO: this method should be removed later
+    /*
     public void visitAbstractOnChange(JFXAbstractOnChange tree) {
 	if (tree.getIndex() != null) {
             tree.getIndex().mods.flags |= Flags.FINAL;
@@ -1163,7 +1119,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
         attribStat(tree.getBody(), env);
     }
-
+    */
+    
     @Override
     public void visitOnReplace(JFXOnReplace tree) {
         JFXVar lastIndex = tree.getLastIndex();
@@ -1190,39 +1147,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
         attribStat(tree.getBody(), env);
     }
+ 
     
-    
-    @Override
-    public void visitOnReplaceElement(JFXOnReplaceElement tree) {
-        if (!allowOldStyleTriggers) {
-            log.error(tree.pos(), "javafx.old.style.triggers.not.supported", "on replace []");
-        }
-        visitAbstractOnChange(tree);
-    }
-
-    @Override
-    public void visitOnInsertElement(JFXOnInsertElement tree) {
-        if (!allowOldStyleTriggers) {
-            log.error(tree.pos(), "javafx.old.style.triggers.not.supported", "on insert");
-        }
-        visitAbstractOnChange(tree);
-    }
-
-    @Override
-    public void visitOnDeleteElement(JFXOnDeleteElement tree) {
-        if (!allowOldStyleTriggers) {
-            log.error(tree.pos(), "javafx.old.style.triggers.not.supported", "on delete");
-        }
-        visitAbstractOnChange(tree);
-    }
-
-    @Override
-    public void visitOnDeleteAll(JFXOnDeleteAll tree) {
-        if (!allowOldStyleTriggers) {
-            log.error(tree.pos(), "javafx.old.style.triggers.not.supported", "on delete");
-        }
-        visitAbstractOnChange(tree);
-    }
     
     ArrayList<JFXForExpressionInClause> forClauses = null;
     

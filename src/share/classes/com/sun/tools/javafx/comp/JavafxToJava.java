@@ -1298,56 +1298,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
     }
     
-    @Override
-    public void visitOnReplaceElement(JFXOnReplaceElement tree) {
-        boolean prev = inOperationDef;
-        try {
-            inOperationDef = true;
-            result = ((JavafxTreeMaker)make).OnReplaceElement(
-                tree.getIndex(),
-                tree.getOldValue(),
-                translate(tree.getBody()));
-        }
-        finally {
-            inOperationDef = prev;
-        }
-    }
     
-    @Override
-    public void visitOnInsertElement(JFXOnInsertElement tree) {
-        boolean prev = inOperationDef;
-        try {
-            inOperationDef = true;
-            result = ((JavafxTreeMaker)make).OnInsertElement(
-                tree.getIndex(),
-                tree.getOldValue(),  // new
-                translate(tree.getBody()));
-        }
-        finally {
-            inOperationDef = prev;
-        }
-    }
-    
-    @Override
-    public void visitOnDeleteElement(JFXOnDeleteElement tree) {
-        boolean prev = inOperationDef;
-        try {
-            inOperationDef = true;
-            result = ((JavafxTreeMaker)make).OnDeleteElement(
-                tree.getIndex(),
-                tree.getOldValue(),
-                translate(tree.getBody()));
-        }
-        finally {
-            inOperationDef = prev;
-        }
-    }
-
-    @Override
-    public void visitOnDeleteAll(JFXOnDeleteAll tree) {
-        assert false : "not yet implemented -- may not be";
-    }
-
     @Override
     public void visitOperationValue(JFXFunctionValue tree) {
         JFXFunctionDefinition def = tree.definition;

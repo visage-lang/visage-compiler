@@ -46,7 +46,6 @@ import com.sun.tools.javac.util.ListBuffer;
 public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
     private JFXType jfxtype;
     private final JavafxBindStatus bindStatus;
-//    private final List<JFXAbstractOnChange> onChanges;
     private final boolean local;
     
     private final JFXOnReplace onReplace;
