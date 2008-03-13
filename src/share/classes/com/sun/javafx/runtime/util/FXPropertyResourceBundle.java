@@ -73,6 +73,7 @@ class FXPropertyResourceBundle extends ResourceBundle {
     private static final int EQUAL      = 0x003d;
     private static final int BSLASH     = 0x005c;
     private static final int SUBST      = 0xfffd;
+    private static final int BOM        = 0xfeff;
 
     // to be removed if we discard JDK 5 support
     private static final Locale ROOTLOCALE = new Locale("");
@@ -123,6 +124,7 @@ class FXPropertyResourceBundle extends ResourceBundle {
         StringBuilder sb = new StringBuilder();
         String key = null;
         boolean foundEqual = false;
+        boolean firstChar = true;
         int quote = 0;  // quoting character used for a literal
 
         while ((c = getCodePoint(br)) != -1) {
@@ -209,6 +211,15 @@ class FXPropertyResourceBundle extends ResourceBundle {
                 }
                 break;
 
+            case BOM:
+                if (firstChar) {
+                    // ignore BOM at the beginning
+                    firstChar = false;
+                } else {
+                    logPropertySyntaxError(c, lineNum, resourceName);
+                }
+                break;
+
             default:
                 if (quote != 0) {
                     sb.appendCodePoint(c);
@@ -233,7 +244,7 @@ class FXPropertyResourceBundle extends ResourceBundle {
     private int getCodePoint(BufferedReader br) throws IOException {
         int c = br.read();
         if (Character.isHighSurrogate((char)c)) {
-           return Character.toCodePoint((char)c, (char)br.read());
+            return Character.toCodePoint((char)c, (char)br.read());
         } else {
             return c;
         }
