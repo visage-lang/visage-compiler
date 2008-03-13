@@ -6,6 +6,9 @@
 package com.sun.tools.javafx.ui;
 
 import com.sun.javafx.runtime.RuntimeProvider;
+import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.runtime.location.SequenceLocation;
+import com.sun.javafx.runtime.location.SequenceConstant;
 import java.awt.EventQueue;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -58,7 +61,11 @@ public class UIRuntimeProvider implements RuntimeProvider {
 
                 public void run() {
                     try {
-                        result[0] = entry.invoke(null);
+                        // TODO JFXC-916 Remove branching
+                        if (entry.getParameterTypes().length == 1 && entry.getParameterTypes()[0] == SequenceLocation.class)
+                            result[0] = entry.invoke(null, SequenceConstant.make(Sequences.make(String.class, args)));
+                        else
+                            result[0] = entry.invoke(null, Sequences.make(String.class, args));
                     } catch (Exception e) {
                         result[0] = e.getCause();
                     }
