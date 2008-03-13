@@ -107,6 +107,7 @@ public class FXCompilerTest extends TestSuite {
                 Scanner scanner = null;
                 List<String> auxFiles = new ArrayList<String>();
                 List<String> separateFiles = new ArrayList<String>();
+                String param = null;
                 boolean inComment = false;
                 try {
                     scanner = new Scanner(f);
@@ -138,6 +139,10 @@ public class FXCompilerTest extends TestSuite {
                             shouldRun = true;
                             runFailure = true;
                         }
+                        else if (token.equals("@run/param")) {
+                            shouldRun = true;
+                            param = scanner.nextLine();
+                        }
                         else if (token.equals("@compilefirst"))
                             separateFiles.add(scanner.next());
                         else if (token.equals("@compile/fail")) {
@@ -161,7 +166,7 @@ public class FXCompilerTest extends TestSuite {
                     if (isFxUnit)
                         tests.add(FXUnitTestWrapper.makeSuite(f, name));
                     else
-                        tests.add(new FXRunAndCompareWrapper(f, name, compileFailure, shouldRun, runFailure, auxFiles, separateFiles));
+                        tests.add(new FXRunAndCompareWrapper(f, name, compileFailure, shouldRun, runFailure, auxFiles, separateFiles, param));
                 }
                 else if (!isNotTest)
                     orphanFiles.add(name);

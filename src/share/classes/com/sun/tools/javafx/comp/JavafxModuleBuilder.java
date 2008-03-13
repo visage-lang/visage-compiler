@@ -69,6 +69,7 @@ public class JavafxModuleBuilder {
     private Set<Name> topLevelNamesSet;
     private Name pseudoFile;
     private Name pseudoDir;
+    private Name commandLineArgs;
 
     public static JavafxModuleBuilder instance(Context context) {
         JavafxModuleBuilder instance = context.get(javafxModuleBuilderKey);
@@ -86,6 +87,7 @@ public class JavafxModuleBuilder {
         toJava = JavafxToJava.instance(context);
         pseudoFile = names.fromString("__FILE__");
         pseudoDir = names.fromString("__DIR__");
+        commandLineArgs = names.fromString("__ARGS__");
     }
 
     public void preProcessJfxTopLevel(JCCompilationUnit module) {
@@ -173,7 +175,7 @@ public class JavafxModuleBuilder {
         }
                 
         // Add run() method... If the class can be a module class.
-        JFXFunctionDefinition runMethod = makeMethod(defs.runMethodName, stats.toList(), value, syms.objectType);
+        JFXFunctionDefinition runMethod = makeRunFunction(defs.runMethodName, stats.toList(), value, syms.objectType);
         moduleClassDefs.prepend(runMethod);        
 
         if (moduleClass == null) {
@@ -232,8 +234,14 @@ public class JavafxModuleBuilder {
         return make.at(diagPos).TypeClass(urlFQN, TypeTree.Cardinality.SINGLETON);
     }
 
-    private JFXFunctionDefinition makeMethod(Name name, List<JCStatement> stats, JCExpression value, Type returnType) {
-        List<JFXVar> emptyVarList = List.nil();
+    private JFXFunctionDefinition makeRunFunction(Name name, List<JCStatement> stats, JCExpression value, Type returnType) {
+        JFXVar mainArgs = make.Param(commandLineArgs, 
+                make.TypeClass(make.Identifier(Name.fromString(names, "String")), TypeTree.Cardinality.ANY));
+        List<JFXVar> argsVarList = List.<JFXVar>of(mainArgs);
+        return makeMethod(name, stats, value, returnType, argsVarList);
+    }
+    
+    private JFXFunctionDefinition makeMethod(Name name, List<JCStatement> stats, JCExpression value, Type returnType, List<JFXVar> param) {
         JFXBlockExpression body = make.BlockExpression(0, stats, value);
         JCExpression rettree = toJava.makeTypeTree(returnType, null);
 
@@ -242,7 +250,7 @@ public class JavafxModuleBuilder {
                 make.Modifiers(PUBLIC | STATIC | SYNTHETIC), 
                 name, 
                 make.TypeClass(rettree, JFXType.Cardinality.SINGLETON),
-                emptyVarList, 
+                param, 
                 body);        
     }
     
@@ -269,6 +277,7 @@ public class JavafxModuleBuilder {
             // make sure no one tries to declare these reserved names
             topLevelNamesSet.add(pseudoFile);
             topLevelNamesSet.add(pseudoDir);
+            topLevelNamesSet.add(commandLineArgs);
         }
         
         if (topLevelNamesSet.contains(name)) {

@@ -36,6 +36,10 @@ import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.runtime.location.SequenceLocation;
+import com.sun.javafx.runtime.location.SequenceConstant;
 
 /**
  * This is script engine for the JavaFX Script language, based on
@@ -269,16 +273,45 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
 
     // find public static void main(String[]) method, if any
     private static Method findMainMethod(Class clazz) {
+        // TODO: JFXC-916 Replace findMainMethod with simpler implemenation (below)
+        Method mainMethod = null;
         try {
-            Method mainMethod = clazz.getMethod(JavafxDefs.runMethodString, new Class[0]);
-            int modifiers = mainMethod.getModifiers();
-            if (Modifier.isPublic(modifiers) &&
-                    Modifier.isStatic(modifiers)) {
-                return mainMethod;
-            }
+            mainMethod = clazz.getMethod(JavafxDefs.runMethodString, Sequence.class);
         } catch (NoSuchMethodException nsme) {
+            try {
+                mainMethod = clazz.getMethod(JavafxDefs.runMethodString, SequenceLocation.class);
+            } catch (NoSuchMethodException nsme2) {
+                return null;
+            }
+        }
+        int modifiers = mainMethod.getModifiers();
+        if (Modifier.isPublic(modifiers) &&
+                Modifier.isStatic(modifiers)) {
+            return mainMethod;
         }
         return null;
+
+//        try {
+//            Method mainMethod = clazz.getMethod(JavafxDefs.runMethodString, new Class[0]);
+//            int modifiers = mainMethod.getModifiers();
+//            if (Modifier.isPublic(modifiers) &&
+//                    Modifier.isStatic(modifiers)) {
+//                return mainMethod;
+//            }
+//        } catch (NoSuchMethodException nsme) {
+//        }
+//        return null;
+    }
+    
+    // TODO: JFXC-916 Remove this function
+    private static Object getMainArgs(Method mainMethod) {
+        if (mainMethod == null || mainMethod.getParameterTypes().length != 1)
+            return null;
+        
+        if (mainMethod.getParameterTypes()[0] == SequenceLocation.class)
+            return SequenceConstant.make(Sequences.emptySequence(String.class));
+        else
+            return Sequences.emptySequence(String.class);
     }
 
     private static String getFileName(ScriptContext ctx) {
@@ -346,7 +379,9 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                 }
 
                 // call main method
-                result = mainMethod.invoke(null, new Object[0]);
+                // TODO: JFXC-916 Remove this call, create empty sequence in place
+                Object args = getMainArgs(mainMethod);
+                result = mainMethod.invoke(null, args);
             }
 
             return result;

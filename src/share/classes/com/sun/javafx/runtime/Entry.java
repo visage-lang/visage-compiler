@@ -29,6 +29,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessControlException;
 import java.util.Iterator;
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.runtime.location.SequenceLocation;
+import com.sun.javafx.runtime.location.SequenceConstant;
 
 /**
  * First code that is run to start a JavaFX Script application.
@@ -37,17 +41,26 @@ import java.util.Iterator;
  */
 public class Entry {
 
-    public static void start(Class<?> app) throws Throwable {
+    public static void start(Class<?> app, String[] commandLineArgs) throws Throwable {
         Method main = null;
-        main = app.getMethod(JavafxDefs.runMethodString, new Class[0]);
+        // TODO JFXC-916 Remove branching
+        Object args = null;
+        try {
+            main = app.getMethod(JavafxDefs.runMethodString, Sequence.class);
+            args = Sequences.make(String.class, commandLineArgs);
+        } catch (NoSuchMethodException ex) {
+            main = app.getMethod(JavafxDefs.runMethodString, SequenceLocation.class);
+            args = SequenceConstant.make(Sequences.make(String.class, commandLineArgs));
+        }
+        
         try {
             main.setAccessible(true);
             RuntimeProvider provider = runtimeProviderLocator(app);
             if (provider != null && provider.usesRuntimeLibrary(app)) {
-                provider.run(main);
+                provider.run(main, commandLineArgs);
             } else {
                 try {
-                    main.invoke(null);
+                    main.invoke(null, args);
                 } catch (InvocationTargetException e) {
                     throw e.getCause();
                 }
@@ -55,7 +68,7 @@ public class Entry {
         } catch (AccessControlException ex) {
             // applet or jnlp app security problem:  try just running main
              try {
-                main.invoke(null);
+                main.invoke(null, args);
             } catch (InvocationTargetException e) {
                 throw e.getCause();
             }

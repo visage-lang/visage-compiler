@@ -58,6 +58,7 @@ public class FXRunAndCompareWrapper extends TestCase {
     private final String expectedFileName;
     private final List<String> auxFiles;
     private final List<String> separateFiles;
+    private final String param;
 
     public FXRunAndCompareWrapper(File testFile,
                                   String name,
@@ -65,7 +66,8 @@ public class FXRunAndCompareWrapper extends TestCase {
                                   boolean shouldRun,
                                   boolean expectRunFailure,
                                   Collection<String> auxFiles,
-                                  Collection<String> separateFiles) {
+                                  Collection<String> separateFiles, 
+                                  String param) {
         super(name);
         this.name = name;
         this.testFile = testFile;
@@ -76,6 +78,7 @@ public class FXRunAndCompareWrapper extends TestCase {
         this.auxFiles = new LinkedList<String>(auxFiles);
         this.separateFiles = new LinkedList<String>(separateFiles);
         this.className = testFile.getName();
+        this.param = param;
         outputFileName = buildDir + File.separator + className + ".OUTPUT";
         errorFileName = buildDir + File.separator + className + ".ERROR";
         expectedFileName = testFile.getPath() + ".EXPECTED";
@@ -149,6 +152,9 @@ public class FXRunAndCompareWrapper extends TestCase {
         p.createPathElement().setPath(buildDir.getPath());
         // for possible .fxproperties files in the test source directory
         p.createPathElement().setPath(testFile.getParent());
+        
+        if (param != null)
+            commandLine.createArgument().setLine(param);
 
         PumpStreamHandler sh = new PumpStreamHandler(new FileOutputStream(outputFileName), new FileOutputStream(errorFileName));
         Execute exe = new Execute(sh);

@@ -2073,9 +2073,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             List<JCExpression> emptyExpressionList = List.nil();
             JCExpression classIdent = make.at(diagPos).Ident(className);
             JCExpression classConstant = make.at(diagPos).Select(classIdent, names._class);
+            JCExpression commandLineArgs = make.at(diagPos).Identifier("args");
             JCExpression startIdent = makeQualifiedTree(diagPos, JavafxDefs.startMethodString);
             ListBuffer<JCExpression>args = new ListBuffer<JCExpression>();
             args.append(classConstant);
+            args.append(commandLineArgs);
             JCMethodInvocation runCall = make.at(diagPos).Apply(emptyExpressionList, startIdent, args.toList());
             List<JCStatement> mainStats = List.<JCStatement>of(make.at(diagPos).Exec(runCall));
             List<JCVariableDecl> paramList = List.nil();
