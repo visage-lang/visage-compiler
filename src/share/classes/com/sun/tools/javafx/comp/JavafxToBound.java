@@ -261,7 +261,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         result = makeUnboundLocation( tree.pos(), tree.type, toJava.translate(tree) );
     }
     
-    private class StringExpressionClosureTranslator extends MethodCallClosureTranslator {
+    private class StringExpressionClosureTranslator extends BindingExpressionClosureTranslator {
 
         JCExpression formatExpression;
         int argNum = 0;
@@ -293,7 +293,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 return closureTranslator.processArg( arg );
             }
         }.doit();
-        result = typeMorpher.makeLocationLocalVariable(tmiResult, diagPos, List.of(makeLaziness(diagPos), closureTranslator.doit()));
+        result = closureTranslator.doit();
     }
 
     @Override
@@ -713,13 +713,13 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     /**
      * Translator for Java method and non-bound JavaFX functions.
      */
-    abstract class MethodCallClosureTranslator extends ClosureTranslator {
+    abstract class BindingExpressionClosureTranslator extends ClosureTranslator {
 
         ListBuffer<JCTree> members = ListBuffer.lb();
         ListBuffer<JCExpression> dependents = ListBuffer.lb();
         ListBuffer<JCExpression> callArgs = ListBuffer.lb();
 
-        MethodCallClosureTranslator(DiagnosticPosition diagPos, TypeMorphInfo tmiResult) {
+        BindingExpressionClosureTranslator(DiagnosticPosition diagPos, TypeMorphInfo tmiResult) {
             super(diagPos, JavafxToBound.this.toJava, tmiResult);
         }
 
@@ -770,6 +770,10 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         protected List<JCExpression> makeConstructorArgs() {
             return List.<JCExpression>nil();
         }
+
+        protected JCExpression doit() {
+            return typeMorpher.makeLocationLocalVariable(tmiResult, diagPos, List.of(makeLaziness(diagPos), buildClosure()));
+        }      
     }
 
     @Override
@@ -850,9 +854,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 } else {
                     // call to Java method or unbound JavaFX function
                     //TODO: varargs
-                    JCExpression binding;
                     if (selectorMutable) {
-                        binding = (new MethodCallClosureTranslator(diagPos, tmiResult) {
+                        return (new BindingExpressionClosureTranslator(diagPos, tmiResult) {
 
                             private TypeMorphInfo tmiSelector = typeMorpher.typeMorphInfo(selector.type);
                             private Name selectorName = names.fromString("selector$");
@@ -889,7 +892,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                         }).doit();
                     } else {
                         final JCExpression closureTransMeth = transMeth;
-                        binding = (new MethodCallClosureTranslator(diagPos, tmiResult) {
+                        return (new BindingExpressionClosureTranslator(diagPos, tmiResult) {
 
                             // construct the actual value computing method (with the method call)
                             protected JCExpression functionValue() {
@@ -902,7 +905,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                             }
                         }).doit();
                     }
-                    return typeMorpher.makeLocationLocalVariable(tmiResult, diagPos, List.of(makeLaziness(diagPos), binding));
                 }
             }
 
