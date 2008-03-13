@@ -242,10 +242,14 @@ public class SourceEditor extends ScrollableWidget {
     public function setSelection(startPos:Integer, endPos:Integer) {
         jtextarea.select(startPos, endPos);
     }
-    public function selectLocation(startPosition:Integer, endPosition:Integer) {
-        jtextarea.select(startPosition, endPosition);
+    public function selectLocation(startLine:Integer, startColumn:Integer, endLine:Integer, endColumn:Integer) {
+        var off1 = jtextarea.getLineStartOffset(startLine-1);
+        var off2 = jtextarea.getLineStartOffset(endLine-1);
+        var startPos = off1 + startColumn-1;
+        var endPos = off2 + endColumn-1;
+        System.out.println("Select {startPos}, {endPos}");
+        jtextarea.select(startPos, endPos);
         jtextarea.getCaret().setSelectionVisible(true);
-        
     }
 
 }

@@ -70,7 +70,7 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
             compile();
         }
     };
-
+    attribute lineNumbers: LineNumberPanel;
     attribute fontSize: Integer = 16;
     attribute zoomOptions:Number[] = [8.33, 12.5, 25, 50, 100, 125, 150, 200, 400, 800, 1600];
     attribute zoomSelection:Integer = 4;
@@ -265,7 +265,7 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                                     bottom: BorderPanel {
                                                         visible: false
                                                     }
-                                                    center:  SourceEditor {
+                                                    center:  editor = SourceEditor {
                                                         editorKit: new com.sun.javafx.api.ui.fxkit.FXEditorKit()
                                                         opaque: true
                                                         selectedTextColor: Color.WHITE
@@ -277,6 +277,32 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                                         font: bind Font.Font("Monospaced", ["PLAIN"], fontSize)
                                                         text: bind userCode with inverse
                                                         //annotation: bind for (err in errMessages)
+                                                        rowHeader : Canvas {
+                                                            cursor: Cursor.DEFAULT
+                                                            background: Color.rgba(220, 220, 220, 255)
+                                                            content: [
+                                                                View {
+                                                                    content: lineNumbers = LineNumberPanel {
+                                                                        lineCount: bind editor.lineCount.intValue()
+                                                                        font: bind editor.font
+                                                                        border: EmptyBorder {right:4}
+                                                                    }
+                                                                },
+                                                                Group {
+                                                                    var r = bind lineNumbers.getCellBounds(0);
+                                                                    var errImage = Image {url: "{__DIR__}images/error_obj.gif" };
+                                                                    content: bind for (err in errMessages) {
+                                                                        View {
+                                                                            toolTipText: "<html><div 'width=300'>{err.getMessage(null)}</div></html>"
+                                                                            transform: bind Transform.translate(2, (err.getLineNumber() -1)*r.height)
+                                                                            content: SimpleLabel {icon: errImage}
+                                                                            
+                                                                        }
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                        
                                                     }
                                                 }
                                             },
@@ -295,16 +321,27 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                         action: function() {
                                             if(listBox.selection >= 0 and listBox.selection < sizeof errMessages) {
                                                 var err = errMessages[listBox.selection];
-                                                //var lineNumber = err.getLineNumber();
-                                                //var columnNumber = err.getColumnNumber();
+                                                var lineNumber = err.getLineNumber();
+                                                var columnNumber = err.getColumnNumber();
                                                 var startPosition = err.getStartPosition();
                                                 var endPosition = err.getEndPosition();
-                                                editor.selectLocation(startPosition.intValue(), endPosition.intValue());
+                                                var length = 1;
+                                                if(endPosition.intValue() > startPosition.intValue()) {
+                                                    length = endPosition.intValue() - startPosition.intValue();
+                                                }
+                                                System.out.println("source = '{err.getSource()}'");
+                                                System.out.println("select {err.getClass()} ({lineNumber}, {columnNumber}, {startPosition}, {endPosition})");
+                                                editor.selectLocation(lineNumber.intValue(), columnNumber.intValue(), lineNumber.intValue(), 
+                                                    columnNumber.intValue() + length);
                                             }
                                         }
                                         cells: bind for(err in errMessages) {
+                                            var image:String = if(err.getKind() == Diagnostic.Kind.ERROR) then
+                                                     "{__DIR__}images/error_obj.gif"
+                                                else "{__DIR__}images/warningS_obj.gif";
+                                                
                                             ListCell {
-                                                text: "<html><table cellspacing='0' cellpadding='0'><tr><td><img src='{__DIR__}images/error_obj.gif'></img></td><td>&nbsp;{err.getMessage(null).trim()}</td></tr><table>"
+                                                text: "<html><table cellspacing='0' cellpadding='0'><tr><td><img src='{image}'></img></td><td>&nbsp;{err.getMessage(null).trim()}</td></tr><table>"
                                                 toolTipText: "<html><div>{err.getMessage(null)}</div></html>"
                                             }
                                         }
