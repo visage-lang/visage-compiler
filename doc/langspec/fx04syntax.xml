@@ -15,7 +15,7 @@
     <para><emphasis role="bold">Keywords Table</emphasis><para>
         <para> </para>
 
-        <table cellpadding="3" cellspacing="3" style="border: medium groove ;">
+        <table cellpadding="3" cellspacing="3" style="border: thin groove ;">
           <tbody>
             <tr>
               <td>abstract</td>
@@ -200,7 +200,7 @@
     <para>JavaFX Script supports the following operators, grouped according to
     function and data type:</para>
 
-    <table cellpadding="5" cellspacing="5" style="border: medium groove ;">
+    <table cellpadding="5" cellspacing="5" style="border: thin groove ;">
       <tbody>
         <tr>
           <th style="text-decoration: underline;">Operator</th>
