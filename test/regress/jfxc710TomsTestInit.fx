@@ -1,19 +1,20 @@
 /* Test for initializing shadowed attributes with def value coming from super class,
  * def value coming from this class, and a default value coming from an ObjectLiteral.
- * @test/fail
+ * @test
+ * @run
  */
 import java.lang.System;
 
 class Base {
     attribute duplicate = 10;
-    attribute foo = 1 on replace (old: Integer) {
+    attribute foo = 1 on replace old {
         System.out.println("Base.foo={foo}, old={old}");
     }
 }
 
 class Subclass extends Base {
-    attribute duplicate = 20;
-    attribute bar = foo + 10 on replace (old: Integer) {
+    override attribute duplicate = 20;
+    attribute bar = foo + 10 on replace old {
 
         System.out.println("Subclass.bar={bar}, old={old}");
     }
