@@ -56,7 +56,7 @@ public class BuddyPresence
     };
 }
 
-class Buddy
+public class Buddy
 {
     attribute chat: Chat;
     attribute window: ChatWindow;

@@ -1,68 +1,40 @@
 package casual;
 
-import java.util.Date;
+import java.util.Calendar;
+import java.text.DateFormat;
 
 class Timer
 {
-    attribute tick: Number;
-    attribute running: Boolean;
-    
-    attribute hours: Number;
-    attribute minutes: Number;
-    attribute seconds: Number;
-    
-    public operation toString(): String;
-}
+    attribute tick: Timeline = 
+        Timeline {
+            keyFrames:
+                KeyFrame { 
+                    keyTime: 1s, 
+                    action: function() {
+                        current = Calendar.getInstance();
+                    }
+                }
+            repeatCount: java.lang.Double.POSITIVE_INFINITY
+        };
 
-attribute Timer.tick = bind
-if running 
-    then [1..20] dur 1000 linear
-        while running 
-        continue if true 
-    else 0;
-
-trigger on Timer.tick = value
-{
-    var now = new Date();
-    minutes = now.getMinutes();
-    seconds = now.getSeconds() + (now.getTime() % 1000)/1000;
-    hours = now.getHours();        
-}
-
-operation Timer.toString(): String
-{
-    var h:Integer = hours;
-    var m:Integer = minutes;
-    var s:Integer = seconds;
+    attribute running: Boolean
+        on replace {
+            if (running) {
+                tick.start();
+            } else {
+                tick.stop();
+            }
+        };
     
-    var pmamStr:String = "AM";
-    var hourStr:String = "{h}";
-    if (h >= 12)
-    {
-        h = h-12;
-        pmamStr = "PM";
-    }
-    if (h == 0)
-    {
-        hourStr = "12";
-    }
-    else
-    {
-        hourStr = "{h}";
-    }
+    private attribute current: Calendar;
+    private attribute formatter: DateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
     
-    var minuteStr:String = "{m}";
-    if (m < 10)
-    {
-        minuteStr = "0{m}";
-    }
+    public attribute hours: Number = bind current.get(Calendar.HOUR_OF_DAY);
+    public attribute minutes: Number = bind current.get(Calendar.MINUTE);
+    public attribute seconds: Number = bind current.get(Calendar.SECOND);
     
-    var secondStr:String = "{s}";
-    if (s < 10)
-    {
-        secondStr = "0{s}";
-    }
-    
-    return "{hourStr}:{minuteStr} {pmamStr}";
+    public function toString(): String {
+        return formatter.format(current.getTime());
+    };
 }
 

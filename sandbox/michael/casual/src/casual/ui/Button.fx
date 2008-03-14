@@ -8,6 +8,11 @@ import javafx.ui.Color;
 import javafx.ui.Font;
 import javafx.ui.EmptyBorder;
 
+import javafx.ui.animation.Timeline;
+import javafx.ui.animation.KeyFrame;
+import javafx.ui.animation.NumberValue;
+import com.sun.javafx.runtime.PointerFactory;
+
 import javafx.ui.canvas.CompositeNode;
 import javafx.ui.canvas.Text;
 import javafx.ui.canvas.Group;

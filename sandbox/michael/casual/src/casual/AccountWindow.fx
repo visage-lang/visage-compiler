@@ -18,6 +18,7 @@ import javafx.ui.Row;
 import javafx.ui.Column;
 import javafx.ui.PasswordField;
 import javafx.ui.TextField;
+import javafx.ui.Alignment;
 
 import javafx.ui.canvas.View;
 import javafx.ui.canvas.Group;
@@ -27,115 +28,222 @@ import javafx.ui.canvas.HBox;
 import javafx.ui.canvas.Text;
 
 import java.util.prefs.Preferences;
+import java.lang.System;
 
 class FocusedTextField extends TextField
 {
     public attribute frame: AccountWindow;
-}
-attribute FocusedTextField.focusable = bind frame.focusReady;
 
-trigger on FocusedTextField.focused = value
-{
-    if (value == true)
-    {
-        var bounds = getBoundsRelativeTo(null);
-        frame.focusRectX = bounds.x;
-        frame.focusRectY = bounds.y;
-        frame.focusRectWidth = bounds.width;
-        frame.focusRectHeight = bounds.height;
-    }
+    override attribute focusable = bind frame.focusReady
+        on replace {
+            if (focusable == true)
+            {
+                var bounds = getBoundsRelativeTo(null);
+                frame.focusRectX = bounds.x;
+                frame.focusRectY = bounds.y;
+                frame.focusRectWidth = bounds.width;
+                frame.focusRectHeight = bounds.height;
+            }
+        };
 }
 
 class FocusedPasswordField extends PasswordField
 {
     public attribute frame: AccountWindow;
-}
-attribute FocusedPasswordField.focusable = bind frame.focusReady;
 
-trigger on FocusedPasswordField.focused = value
-{
-    if (value == true)
-    {
-        var bounds = getBoundsRelativeTo(null);
-        frame.focusRectX = bounds.x;
-        frame.focusRectY = bounds.y;
-        frame.focusRectWidth = bounds.width;
-        frame.focusRectHeight = bounds.height;
-    }
+    attribute focusable = bind frame.focusReady
+        on replace {
+            if (focusable == true)
+            {
+                var bounds = getBoundsRelativeTo(null);
+                frame.focusRectX = bounds.x;
+                frame.focusRectY = bounds.y;
+                frame.focusRectWidth = bounds.width;
+                frame.focusRectHeight = bounds.height;
+            }
+        };
 }
 
 public class AccountWindow extends Frame
 {
-    public attribute buddy: Buddy;
-    
-    public operation save(key:BuddyKey, value:String);
-    public operation addlogin();
-    public operation cancel();
-    public operation requestFocus();
-    
-    attribute preferences: Preferences?;
+    public attribute buddy: Buddy = Buddy { type: Buddy.BuddyType.USER }
+        on replace {
+            if (buddy.type == Buddy.BuddyType.USER)
+            {        
+                buddy.firstName = preferences.get(Buddy.BuddyKey.FIRST_NAME.id, null);
+                buddy.lastName = preferences.get(Buddy.BuddyKey.LAST_NAME.id, null);
+                buddy.userName = preferences.get(Buddy.BuddyKey.USER_NAME.id, null);
+                buddy.accountName = preferences.get(Buddy.BuddyKey.ACCOUNT_NAME.id, "JABBER.org");
+            }
+        };
 
-    attribute userField: FocusedTextField;
-    attribute passwordField: FocusedPasswordField;
+    
+    public function save(key:Buddy.BuddyKey, value:String) {
+        if (buddy.type == Buddy.BuddyType.USER)
+        {
+            //println("AccountWindow.save [{key}, {value}]");
+            preferences.put(key.id, value); 
+        }
+    };
+
+    public function addlogin() {
+        if (buddy.type == Buddy.BuddyType.USER)
+        {
+            if ((buddy.userName.length()>0) and (buddy.accountName.length()>0) and (buddy.password.length()>0))
+            {
+                showInfoMessage("contacting server; please wait.", "CONNECTING", false);
+                
+                var frame = this;
+
+                //TODO DO LATER - this is a work around until a more permanent solution is provided
+                javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                    public function run():Void {
+                        var im = InstantMessenger.createIM(buddy);
+                        im.login(frame);
+                    }
+                });
+            }
+            else
+            {
+                java.awt.Toolkit.getDefaultToolkit().beep();
+            }
+        }
+        else
+        {
+            if ((buddy.userName.length()>0) and (buddy.accountName.length()>0))
+            {
+                System.out.println("add {buddy.toString()}");
+            }
+            else
+            {
+                java.awt.Toolkit.getDefaultToolkit().beep();
+            }
+        }
+    };
+
+    public function cancel() {
+        if (buddy.type == Buddy.BuddyType.USER)
+        {
+            java.lang.System.exit(0);
+        }
+        else
+        {
+            System.out.println("cancel");
+        }
+    };
+
+    public function requestFocus()    {
+        if (dialog.active == false)
+        {
+            focusReady = true;
+
+            if ((buddy.userName.length() > 0) and (buddy.accountName.length() > 0) and (buddy.type == Buddy.BuddyType.USER))
+            {
+                if (passwordField<>null)
+                {
+                    passwordField.requestFocus();
+                }
+            }
+            else
+            {
+                userField.requestFocus();
+            }
+        }
+    };
+    
+    attribute preferences: Preferences = Preferences.userRoot().node("Casual");
+
+    attribute addressRow: Row = Row {alignment: Alignment.BASELINE}
+    attribute passwordRow: Row = Row {alignment: Alignment.BASELINE}
+    attribute labelsColumn: Column = Column {alignment: Alignment.TRAILING}
+    attribute fieldsColumn: Column = Column {alignment: Alignment.LEADING, resizable: true}
+    
+    attribute userField: FocusedTextField = FocusedTextField {
+        frame: frame
+//        horizontal: {pref: 270}
+        row: firstNameRow
+        column: fieldsColumn
+        foreground: bind theme.fieldForeground
+        background: bind theme.fieldBackground
+        font: bind theme.windowFont.bold()
+        border: bind theme.windowInputAreaBorder
+        value: bind buddy.firstName
+        onChange: function(newValue) 
+        {
+            save(Buddy.BuddyKey.FIRST_NAME, newValue);
+        }
+    };
+
+    attribute passwordField: FocusedPasswordField = FocusedPasswordField {
+        frame: this
+        visible: bind (buddy.type == Buddy.BuddyType.USER)
+        focusTraversalKeysEnabled: bind (buddy.type == Buddy.BuddyType.USER)
+//        horizontal: {pref: 175}
+        row: passwordRow
+        column: fieldsColumn
+        foreground: bind ThemeManager.getInstance().fieldForeground
+        background: bind theme.fieldBackground
+        font: bind theme.windowFont.bold()
+        border: bind theme.windowInputAreaBorder
+        value: bind buddy.password
+        onKeyDown: function(e:KeyEvent)
+        {
+            if (e.keyStroke == KeyStroke.ENTER)
+            {
+                e.source.consume();
+
+                buttonAddLogin.doClick();
+            }
+        }
+    };
+    
+    attribute dialog: Dialog = Dialog {
+        frame: this
+        active: false
+    };
+
     
     attribute focusReady: Boolean;
     attribute focusRectX: Integer;
     attribute focusRectY: Integer;
     attribute focusRectWidth: Integer;
     attribute focusRectHeight: Integer;
-}
 
-attribute AccountWindow.background = bind theme:ThemeManager.windowBackground;
+    override attribute background = bind theme.windowBackground;
+    override attribute undecorated = true;
+    override attribute width = 440;
+    override attribute height = 250;
+    override attribute centerOnScreen = true;
 
-operation AccountWindow.AccountWindow()
-{
-    var frame = this;
-    var strokeWidth = 1;
-    
-    preferences = Preferences.userRoot().node("Casual");
-    
-    buddy = Buddy
-    {
-        type: USER:BuddyType
+    postinit {
+        requestFocus();
     };
     
-    undecorated = true;
-    width = 440;
-    height = 250;
-    centerOnScreen = true;
-    onOpen = operation()
-    {
-        do later
-        {
-            requestFocus();
-        }
-    };
+    attribute buttonCancel: Button = 
+        Button {
+            text: "CANCEL"
+            width: 60
+            height: 20
+            font: bind theme.windowFont.bold()
+            onClick: function()
+            {
+                cancel();
+            }
+        };
     
-    var buttonCancel = Button
-    {
-        text: "CANCEL"
-        width: 60
-        height: 20
-        font: bind theme:ThemeManager.windowFont.bold()
-        onClick: operation()
-        {
-            cancel();
-        }
-    };
-    
-    var buttonAddLogin = Button
-    {
-        text: bind if (buddy.type == USER:BuddyType) then "LOGIN" else "ADD"
-        width: 50
-        height: 20
-        font: bind theme:ThemeManager.windowFont.bold()
-        onClick: operation()
-        {
-            addlogin();
-        }
-    };
-    
-    content = Canvas
+    attribute buttonAddLogin: Button = 
+        Button {
+            text: bind if (buddy.type == Buddy.BuddyType.USER) then "LOGIN" else "ADD"
+            width: 50
+            height: 20
+            font: bind theme.windowFont.bold()
+            onClick: function()
+            {
+                addlogin();
+            }
+        };
+
+    override attribute content = Canvas
     {
         content: Group
         {
@@ -146,52 +254,52 @@ operation AccountWindow.AccountWindow()
                     sizeToFitCanvas: true
                     content: BorderPanel
                     {
-                        var: panel
-                        
-                        border: bind theme:ThemeManager.windowBorder
-                        background: bind theme:ThemeManager.chatFrameBackground
-                        
+                        var panel = this
+
+                        border: bind theme.windowBorder
+                        background: bind theme.chatFrameBackground
+
                         top: Canvas
                         {
                             border: EmptyBorder
-                            background: bind theme:ThemeManager.chatPanelBackground
+                            background: bind theme.chatPanelBackground
 
                             content: TitleBar
                             {
-                                var offsets = bind (theme:ThemeManager.windowBorder.left + theme:ThemeManager.windowBorder.right)
+                                var offsets = bind (theme.windowBorder.left + theme.windowBorder.right)
 
-                                frame: frame
+                                frame: this
                                 title: "CASUAL ACCOUNTS"
                                 width: bind (panel.width - offsets)
-                                foreground: bind theme:ThemeManager.titleBarForeground
-                                background: bind theme:ThemeManager.titleBarBackground
+                                foreground: bind theme.titleBarForeground
+                                background: bind theme.titleBarBackground
 
-                                onClose: operation()
+                                onClose: function()
                                 {
-                                    <<java.lang.System>>.exit(0);
+                                    java.lang.System.exit(0);
                                 }
                             }
                         }
-                        
+
                         center: Canvas
                         {
                             border: EmptyBorder
-                            background: bind theme:ThemeManager.chatPanelBackground
-                            
+                            background: bind theme.chatPanelBackground
+
                             content: Group
                             {
                                 content:
                                 [
                                     View
                                     {
-                                        var text = bind if (buddy.type == BUDDY:BuddyType) then "BUDDY" else "YOUR"
-                                        
+                                        var text = bind if (buddy.type == Buddy.BuddyType.BUDDY) then "BUDDY" else "YOUR"
+
                                         transform: translate(30, 20)
 
                                         content: SimpleLabel
                                         {
-                                            font: bind theme:ThemeManager.windowFont.bold()
-                                            foreground: bind theme:ThemeManager.messageInputForeground
+                                            font: bind theme.windowFont.bold()
+                                            foreground: bind theme.messageInputForeground
                                             text: "{text} PERSONAL DETAILS"
                                         }
                                     },
@@ -203,11 +311,11 @@ operation AccountWindow.AccountWindow()
 
                                         content: GroupPanel
                                         {
-                                            var firstNameRow = Row {alignment: BASELINE}
-                                            var lastNameRow = Row {alignment: BASELINE}
-                                            var labelsColumn = Column {alignment: TRAILING}
-                                            var fieldsColumn = Column {alignment: LEADING, resizable: true}
-                                            
+                                            var firstNameRow = Row {alignment: Alignment.BASELINE}
+                                            var lastNameRow = Row {alignment: Alignment.BASELINE}
+                                            var labelsColumn = Column {alignment: Alignment.TRAILING}
+                                            var fieldsColumn = Column {alignment: Alignment.LEADING, resizable: true}
+
                                             rows: [firstNameRow, lastNameRow]
                                             columns: [labelsColumn, fieldsColumn]
                                             autoCreateContainerGaps: false
@@ -218,53 +326,37 @@ operation AccountWindow.AccountWindow()
                                                 {
                                                     row: firstNameRow
                                                     column: labelsColumn
-                                                    border: bind theme:ThemeManager.windowInputAreaBorder
-                                                    font: bind theme:ThemeManager.windowFont.bigger()
+                                                    border: bind theme.windowInputAreaBorder
+                                                    font: bind theme.windowFont.bigger()
                                                     background: new Color(0,0,0,0)
-                                                    foreground: bind theme:ThemeManager.messageInputForeground
+                                                    foreground: bind theme.messageInputForeground
                                                     text: "first name -"
 
                                                 },
-                                                FocusedTextField
-                                                {
-                                                    attribute: userField
-                                                    frame: frame
-                                                    horizontal: {pref: 270}
-                                                    row: firstNameRow
-                                                    column: fieldsColumn
-                                                    foreground: bind theme:ThemeManager.fieldForeground
-                                                    background: bind theme:ThemeManager.fieldBackground
-                                                    font: bind theme:ThemeManager.windowFont.bold()
-                                                    border: bind theme:ThemeManager.windowInputAreaBorder
-                                                    value: bind buddy.firstName
-                                                    onChange: operation(newValue) 
-                                                    {
-                                                        save(FIRST_NAME:BuddyKey, newValue);
-                                                    }
-                                                },
+                                                userField,
                                                 SimpleLabel
                                                 {
                                                     row: lastNameRow, column: labelsColumn
-                                                    border: bind theme:ThemeManager.windowInputAreaBorder
-                                                    font: bind theme:ThemeManager.windowFont.bigger()
+                                                    border: bind theme.windowInputAreaBorder
+                                                    font: bind theme.windowFont.bigger()
                                                     background: new Color(0,0,0,0)
-                                                    foreground: bind theme:ThemeManager.messageInputForeground
+                                                    foreground: bind theme.messageInputForeground
                                                     text: "last name -"
                                                 },
                                                 FocusedTextField
                                                 {
                                                     frame: frame
-                                                    horizontal: {pref: 270}
+//                                                    horizontal: {pref: 270}
                                                     row: lastNameRow
                                                     column: fieldsColumn
-                                                    foreground: bind theme:ThemeManager.fieldForeground
-                                                    background: bind theme:ThemeManager.fieldBackground
-                                                    font: bind theme:ThemeManager.windowFont.bold()
-                                                    border: bind theme:ThemeManager.windowInputAreaBorder
+                                                    foreground: bind theme.fieldForeground
+                                                    background: bind theme.fieldBackground
+                                                    font: bind theme.windowFont.bold()
+                                                    border: bind theme.windowInputAreaBorder
                                                     value: bind buddy.lastName
-                                                    onChange: operation(newValue) 
+                                                    onChange: function(newValue) 
                                                     {
-                                                        save(LAST_NAME:BuddyKey, newValue);
+                                                        save(Buddy.BuddyKey.LAST_NAME, newValue);
                                                     }
                                                 }
                                             ]
@@ -275,8 +367,8 @@ operation AccountWindow.AccountWindow()
                                         transform: bind translate(30, 105)
                                         content: SimpleLabel
                                         {
-                                            font: bind theme:ThemeManager.windowFont.bold()
-                                            foreground: bind theme:ThemeManager.messageInputForeground
+                                            font: bind theme.windowFont.bold()
+                                            foreground: bind theme.messageInputForeground
                                             text: "INSTANT MESSENGER DETAILS"
                                         }
                                     },
@@ -284,15 +376,10 @@ operation AccountWindow.AccountWindow()
                                     {
                                         antialiasText: true
                                         transform: bind translate(panel.width-10, 125)
-                                        halign: TRAILING
+                                        halign: HorizontalAlignment.TRAILING
 
                                         content: GroupPanel
                                         {
-                                            var addressRow = Row {alignment: BASELINE}
-                                            var passwordRow = Row {alignment: BASELINE}
-                                            var labelsColumn = Column {alignment: TRAILING}
-                                            var fieldsColumn = Column {alignment: LEADING, resizable: true}
-                                            
                                             rows: [addressRow, passwordRow]
                                             columns: [labelsColumn, fieldsColumn]
                                             autoCreateContainerGaps: false
@@ -301,20 +388,20 @@ operation AccountWindow.AccountWindow()
                                                 SimpleLabel
                                                 {
                                                     row: addressRow, column: labelsColumn
-                                                    border: bind theme:ThemeManager.windowInputAreaBorder
-                                                    font: bind theme:ThemeManager.windowFont.bigger()
+                                                    border: bind theme.windowInputAreaBorder
+                                                    font: bind theme.windowFont.bigger()
                                                     background: new Color(0,0,0,0)
-                                                    foreground: bind theme:ThemeManager.messageInputForeground
+                                                    foreground: bind theme.messageInputForeground
                                                     text: "account address -"
 
                                                 },
                                                 GroupPanel
                                                 {
-                                                    var row = Row {alignment: BASELINE}
+                                                    var row = Row {alignment: Alignment.BASELINE}
                                                     var nameColumn = Column {}
                                                     var atColumn = Column {}
                                                     var serverColumn = Column {}
-                                                    
+
                                                     rows: row
                                                     columns: [nameColumn, atColumn, serverColumn]
                                                     autoCreateGaps: false
@@ -325,90 +412,67 @@ operation AccountWindow.AccountWindow()
                                                         FocusedTextField
                                                         {
                                                             frame: frame 
-                                                            horizontal: {pref: 130}
+//                                                            horizontal: {pref: 130}
                                                             row: row
                                                             column: nameColumn
-                                                            foreground: bind theme:ThemeManager.fieldForeground
-                                                            background: bind theme:ThemeManager.fieldBackground
-                                                            font: bind theme:ThemeManager.windowFont.bold()
-                                                            border: bind theme:ThemeManager.windowInputAreaBorder
+                                                            foreground: bind theme.fieldForeground
+                                                            background: bind theme.fieldBackground
+                                                            font: bind theme.windowFont.bold()
+                                                            border: bind theme.windowInputAreaBorder
                                                             value: bind buddy.userName
-                                                            onChange: operation(newValue) 
+                                                            onChange: function(newValue) 
                                                             {
-                                                                 save(USER_NAME:BuddyKey, newValue);
+                                                                 save(Buddy.BuddyKey.USER_NAME, newValue);
                                                             }
                                                         },
                                                         SimpleLabel
                                                         {
-                                                            horizontal: {pref: 10}
+//                                                            horizontal: {pref: 10}
                                                             row: row
                                                             column: atColumn
-                                                            border: bind theme:ThemeManager.windowInputAreaBorder
-                                                            font: bind theme:ThemeManager.windowFont.bigger().bold()
+                                                            border: bind theme.windowInputAreaBorder
+                                                            font: bind theme.windowFont.bigger().bold()
                                                             background: new Color(0,0,0,0)
-                                                            foreground: bind theme:ThemeManager.messageInputForeground
+                                                            foreground: bind theme.messageInputForeground
                                                             text: "@"
                                                         },
                                                         FocusedTextField
                                                         {
                                                             frame: frame
-                                                            horizontal: {pref: 118}
+//                                                            horizontal: {pref: 118}
                                                             row: row
                                                             column: serverColumn
-                                                            foreground: bind theme:ThemeManager.fieldForeground
-                                                            background: bind theme:ThemeManager.fieldBackground
-                                                            font: bind theme:ThemeManager.windowFont.bold()
-                                                            border: bind theme:ThemeManager.windowInputAreaBorder
+                                                            foreground: bind theme.fieldForeground
+                                                            background: bind theme.fieldBackground
+                                                            font: bind theme.windowFont.bold()
+                                                            border: bind theme.windowInputAreaBorder
                                                             value: bind buddy.accountName
-                                                            onChange: operation(newValue) 
+                                                            onChange: function(newValue) 
                                                             {
-                                                                 save(ACCOUNT_NAME:BuddyKey, newValue);
+                                                                 save(Buddy.BuddyKey.ACCOUNT_NAME, newValue);
                                                             }
                                                         }
                                                     ]
                                                 },
                                                 SimpleLabel
                                                 {
-                                                    visible: bind (buddy.type == USER:BuddyType)
+                                                    visible: bind (buddy.type == Buddy.BuddyType.USER)
                                                     row: passwordRow
                                                     column: labelsColumn
-                                                    border: bind theme:ThemeManager.windowInputAreaBorder
-                                                    font: bind theme:ThemeManager.windowFont.bigger()
+                                                    border: bind theme.windowInputAreaBorder
+                                                    font: bind theme.windowFont.bigger()
                                                     background: new Color(0,0,0,0)
-                                                    foreground: bind theme:ThemeManager.messageInputForeground
+                                                    foreground: bind theme.messageInputForeground
                                                     text: "account password -"
                                                 },
-                                                FocusedPasswordField
-                                                {
-                                                    attribute: passwordField
-                                                    frame: frame
-                                                    visible: bind (buddy.type == USER:BuddyType)
-                                                    focusTraversalKeysEnabled: bind (buddy.type == USER:BuddyType)
-                                                    horizontal: {pref: 175}
-                                                    row: passwordRow
-                                                    column: fieldsColumn
-                                                    foreground: bind theme:ThemeManager.fieldForeground
-                                                    background: bind theme:ThemeManager.fieldBackground
-                                                    font: bind theme:ThemeManager.windowFont.bold()
-                                                    border: bind theme:ThemeManager.windowInputAreaBorder
-                                                    value: bind buddy.password
-                                                    onKeyDown: operation(e:KeyEvent)
-                                                    {
-                                                        if (e.keyStroke == ENTER:KeyStroke)
-                                                        {
-                                                            e.source.consume();
-                                                            
-                                                            buttonAddLogin.doClick();
-                                                        }
-                                                    }
-                                                }
+                                                passwordField
                                             ]
                                         }
                                     },
                                     HBox
                                     {
                                         transform: bind translate(panel.width-10, 192)
-                                        halign: TRAILING
+                                        halign: HorizontalAlignment.TRAILING
 
                                         content:
                                         [
@@ -425,22 +489,17 @@ operation AccountWindow.AccountWindow()
                 Rect
                 {
                     var strokeWidth = 1
-                    
+
                     visible: bind ((frame.active==true) and (frame.focusReady==true))
                     x: bind focusRectX
                     y: bind focusRectY
                     width: bind focusRectWidth-strokeWidth
                     height: bind focusRectHeight-strokeWidth
                     strokeWidth: bind strokeWidth
-                    stroke: bind theme:ThemeManager.fieldFocusColor
+                    stroke: bind theme.fieldFocusColor
                 },
-                // dialog
-                Dialog
-                {
-                    attribute: dialog
-                    frame: bind frame
-                    active: false
-                },
+                dialog,
+                
                 // inactive rect
                 Rect
                 {
@@ -449,98 +508,13 @@ operation AccountWindow.AccountWindow()
                     y: bind 0
                     width: bind frame.width
                     height: bind frame.height
-                    fill: bind theme:ThemeManager.windowInactive
+                    fill: bind theme.windowInactive
                 },
             ]
         }
     };
-    
-    focusReady = false;
-    visible = true;
+
+    override attribute focusReady = false;
+    override attribute visible = true;
 }
-
-trigger on AccountWindow.buddy = value
-{
-    if (buddy.type == USER:BuddyType)
-    {        
-        buddy.firstName = preferences.get(FIRST_NAME:BuddyKey.id, null);
-        buddy.lastName = preferences.get(LAST_NAME:BuddyKey.id, null);
-        buddy.userName = preferences.get(USER_NAME:BuddyKey.id, null);
-        buddy.accountName = preferences.get(ACCOUNT_NAME:BuddyKey.id, "JABBER.org");
-    }
-}
-
-operation AccountWindow.save(key:BuddyKey, value:String)
-{
-    if (buddy.type == USER:BuddyType)
-    {
-        //println("AccountWindow.save [{key}, {value}]");
-        preferences.put(key.id, value); 
-    }
-}
-
-operation AccountWindow.addlogin()
-{
-    if (buddy.type == USER:BuddyType)
-    {
-        if ((buddy.userName.length()>0) and (buddy.accountName.length()>0) and (buddy.password.length()>0))
-        {
-            showInfoMessage("contacting server; please wait.", "CONNECTING", false);
-            
-            do later
-            {
-                var im = new InstantMessenger().createIM(buddy);
-                im.login(this);
-            }
-        }
-        else
-        {
-            <<java.awt.Toolkit>>.getDefaultToolkit().beep();
-        }
-    }
-    else
-    {
-        if ((buddy.userName.length()>0) and (buddy.accountName.length()>0))
-        {
-            println("add {buddy.toString()}");
-        }
-        else
-        {
-            <<java.awt.Toolkit>>.getDefaultToolkit().beep();
-        }
-    }
-}
-
-operation AccountWindow.cancel()
-{
-    if (buddy.type == USER:BuddyType)
-    {
-        <<java.lang.System>>.exit(0);
-    }
-    else
-    {
-        println("cancel");
-    }
-}
-
-operation AccountWindow.requestFocus()
-{
-    if (dialog.active == false)
-    {
-        focusReady = true;
-
-        if ((buddy.userName.length() > 0) and (buddy.accountName.length() > 0) and (buddy.type == USER:BuddyType))
-        {
-            if (passwordField<>null)
-            {
-                passwordField.requestFocus();
-            }
-        }
-        else
-        {
-            userField.requestFocus();
-        }
-    }
-}
-
 

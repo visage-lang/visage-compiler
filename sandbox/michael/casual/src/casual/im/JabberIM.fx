@@ -5,8 +5,6 @@ import casual.BuddyWindow;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.packet.Presence$Type;
-import org.jivesoftware.smack.packet.Presence$Mode;
 
 import java.util.Collection;
 

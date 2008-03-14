@@ -23,43 +23,36 @@ import java.util.prefs.Preferences;
 
 public class BuddyWindow extends Frame
 {
-    public operation BuddyWindow(im:InstantMessenger);
-    
     public attribute im: InstantMessenger;
 
-    attribute buddy: Buddy;
+    attribute buddy: Buddy = bind im.buddies[buddyIndex];
     attribute buddyIndex: Integer;
     
-    attribute preferences: Preferences?;
-}
+    attribute preferences: Preferences = Preferences.userRoot().node("Casual");
+    
+    override attribute background = bind theme.windowBackground;
 
-attribute BuddyWindow.buddy = bind im.buddies[buddyIndex];
-attribute BuddyWindow.background = bind theme:ThemeManager.windowBackground;
+    override attribute screenx = 
+        if (preferences.getInt("screenx", 0) >= 0)
+            preferences.getInt("screenx", 0)
+        on replace {
+            preferences.putInt("screenx", screenx);
+        };
 
-operation BuddyWindow.BuddyWindow(im:InstantMessenger)
-{
-    var frame = this;
-    
-    frame.im = im;
-    
-    preferences = Preferences.userRoot().node("Casual");
-    var x = preferences.getInt("screenx", 0);
-    var y = preferences.getInt("screeny", 0);
-    if (x >= 0)
-    {
-        screenx = x;
-    }
-    if (y >= 0)
-    {
-        screeny = y;
-    }
-    undecorated = true;
-    width = 250;
-    height = 300;
-    centerOnScreen = true;
-    visible = true;
-    
-    content = Canvas
+    override attribute screeny =
+        if (preferences.getInt("screeny", 0) >= 0)
+            preferences.getInt("screeny", 0)
+        on replace {
+            preferences.putInt("screeny", screeny);
+        };
+        
+    override attribute undecorated = true;
+    override attribute width = 250;
+    override attribute height = 300;
+    override attribute centerOnScreen = true;
+    override attribute visible = true;
+
+    override attribute content = Canvas
     {
         content: Group
         {
@@ -70,89 +63,84 @@ operation BuddyWindow.BuddyWindow(im:InstantMessenger)
                     sizeToFitCanvas: true
                     content: BorderPanel
                     {
-                        var: panel
-
-                        border: bind theme:ThemeManager.windowBorder
-                        background: bind theme:ThemeManager.chatFrameBackground
+                        border: bind theme.windowBorder
+                        background: bind theme.chatFrameBackground
 
                         top: Canvas
                         {
                             border: EmptyBorder
-                            background: bind theme:ThemeManager.chatPanelBackground
+                            background: bind theme.chatPanelBackground
 
                             content: TitleBar
                             {
-                                var offsets = bind (theme:ThemeManager.windowBorder.left + theme:ThemeManager.windowBorder.right)
+                                var offsets = bind (theme.windowBorder.left + theme.windowBorder.right)
 
                                 frame: frame
                                 title: "CASUAL"
-                                width: bind (panel.width - offsets)
-                                foreground: bind theme:ThemeManager.titleBarForeground
-                                background: bind theme:ThemeManager.titleBarBackground
+                                width: bind (top.width - offsets)
+                                foreground: bind theme.titleBarForeground
+                                background: bind theme.titleBarBackground
 
-                                onClose: operation()
+                                onClose: function()
                                 {
                                     im.logout();
 
-                                    <<java.lang.System>>.exit(0);
+                                    java.lang.System.exit(0);
                                 }
                             }
                         }
 
                         center: ScrollPane
                         {
-                            var: panel
-
                             viewportBorder: EmptyBorder{}
                             scrollPaneBorder: EmptyBorder{}
                             border: EmptyBorder{}
-                            verticalScrollBarPolicy: NEVER
-                            horizontalScrollBarPolicy: NEVER
+                            verticalScrollBarPolicy: VerticalScrollBarPolicy.NEVER
+                            horizontalScrollBarPolicy: HorizontalScrollBarPolicy.NEVER
 
                             view: ListBox
                             {
                                 cellBackground: new Color(0, 0, 0, 0)
-                                cellForeground: bind theme:ThemeManager.uiBackground.darker()
-                                selectedCellForeground: bind theme:ThemeManager.uiForeground
-                                selectedCellBackground: bind theme:ThemeManager.uiBackground
-                                background: bind theme:ThemeManager.chatPanelBackground
-                                var: self
-                        
+                                cellForeground: bind theme.uiBackground.darker()
+                                selectedCellForeground: bind theme.uiForeground
+                                selectedCellBackground: bind theme.uiBackground
+                                background: bind theme.chatPanelBackground
+
                                 enableDND: false
                                 selection: bind frame.buddyIndex
-                                cells: bind foreach (buddy in im.buddies) ListCell
+                                cells: bind for (buddy in im.buddies) ListCell
                                 {
                                     var buddyName = bind "{buddy.userName}@{buddy.accountName}"
                                     var buddyStatus = bind buddy.presence.id
                                     var string = bind "&lt;{buddyName}&gt; {buddyStatus}"
 
-                                    border: bind theme:ThemeManager.windowInputAreaBorder
-                                    text: bind "<html><div width='{panel.width}'>{string}</div></html>"
+                                    border: bind theme.windowInputAreaBorder
+                                    text: bind "<html><div width='{center.width}'>{string}</div></html>"
                                 }
-                                
-                                onKeyDown: operation(e:KeyEvent)
+
+                                onKeyDown: function(e:KeyEvent)
                                 {
                                     var k:KeyStroke = e.keyStroke;
-                                    if (k == RIGHT:KeyStroke)
+                                    if (k == KeyStroke.RIGHT)
                                     {
-                                        theme:ThemeManager.next();
+                                        theme.next();
                                     }
-                                    else if (k == LEFT:KeyStroke)
+                                    else if (k == KeyStroke.LEFT)
                                     {
-                                        theme:ThemeManager.previous();
+                                        theme.previous();
                                     }
                                 }
-                                
-                                action: operation()
+
+                                action: function()
                                 {
                                     var buddy = frame.buddy;
-                                    if (buddy.presence == AVAILABLE:BuddyPresence)
+                                    if (buddy.presence == BuddyPresence.AVAILABLE)
                                     {
                                         buddy.startChat();
                                     }
                                     else
                                     {
-                                        <<java.awt.Toolkit>>.getDefaultToolkit().beep();
+                                        java.awt.Toolkit.getDefaultToolkit().beep();
                                     }
                                 }
                             }
@@ -167,20 +155,10 @@ operation BuddyWindow.BuddyWindow(im:InstantMessenger)
                     y: bind 0
                     width: bind frame.width
                     height: bind frame.height
-                    fill: bind theme:ThemeManager.windowInactive
+                    fill: bind theme.windowInactive
                 },
             ]
         }
     };
 }
 
-trigger on BuddyWindow.screenx = value
-{
-    preferences.putInt("screenx", screenx);
-}
-
-trigger on BuddyWindow.screeny = value
-{
-    preferences.putInt("screeny", screeny);
-}
- 

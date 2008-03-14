@@ -5,13 +5,13 @@ import org.jivesoftware.smack.packet.Message;
 
 public class JabberChat extends Chat
 {
-    attribute chat: <<org.jivesoftware.smack.Chat>>;
+    attribute chat: org.jivesoftware.smack.Chat;
     attribute buddy: Buddy;
-    attribute manager: <<org.jivesoftware.smack.ChatManager>>;
+    attribute manager: org.jivesoftware.smack.ChatManager;
     
     postinit
     {
-        var chatListener = <<org.jivesoftware.smack.MessageListener>>
+        var chatListener = org.jivesoftware.smack.MessageListener
         {
             function processMessage(chat, message:Message)
             {

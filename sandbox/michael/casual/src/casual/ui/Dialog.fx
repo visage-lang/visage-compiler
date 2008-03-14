@@ -46,11 +46,11 @@ public class Dialog extends CompositeNode
     public attribute height: Integer;
     public attribute buttonText: String = "OK";
     
-    attribute active: Boolean;
-    attribute interactive: Boolean;
-    attribute type: DialogType;
-    attribute text: String;
-    attribute headline: String;
+    public attribute active: Boolean;
+    public attribute interactive: Boolean;
+    public attribute type: DialogType;
+    public attribute text: String;
+    public attribute headline: String;
     
     function getHeadline(type: DialogType): String;
     
