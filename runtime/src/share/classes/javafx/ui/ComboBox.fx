@@ -64,15 +64,7 @@ public class ComboBox extends Widget {
                 i.intervalRemoved(e);
             }
         }
-        var ndx = lo;
-        var sel = selection;        
-        for(cell in newVals) {
-            cell.combobox = this;
-            if (ndx == sel) {
-                jcombobox.setSelectedIndex(ndx);
-            }
-            ndx++;            
-        }
+
         var newHi = sizeof newVals - 1;
         if(newHi > 0) {
             var e:javax.swing.event.ListDataEvent;
@@ -82,6 +74,21 @@ public class ComboBox extends Widget {
                 i.intervalAdded(e);
             }
         }
+        var ndx = lo;
+        var sel = selection;        
+        for(cell in newVals) {
+            cell.combobox = this;
+            if (ndx == sel) {
+                var selNdx = ndx;
+                javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                          public function run():Void {
+                               jcombobox.setSelectedIndex(selNdx);
+                          }
+                });                
+                
+            }
+            ndx++;            
+        }        
         
     };
     
