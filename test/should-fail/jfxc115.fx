@@ -1,7 +1,7 @@
 /*
  * Regression test: JFXC-115: misleading error message from javafxc
  *
- * @test/error
+ * @test/compile-error
  *
  * This should produce:
  *

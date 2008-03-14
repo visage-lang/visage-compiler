@@ -1,7 +1,7 @@
 /*
  * Regression test: JFXC-683: Use FX type name rather than Java type names in error messages
  *
- * @test/error
+ * @test/compile-error
  *
  * This should produce:
  *

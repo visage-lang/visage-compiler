@@ -127,7 +127,7 @@ public class FXCompilerTest extends TestSuite {
                             isTest = true;
                             compileFailure = true;
                         }
-                        else if (token.equals("@test/error")) {
+                        else if (token.equals("@test/compile-error")) {
                             isTest = true;
                             compileFailure = true;
                             checkError = true;
