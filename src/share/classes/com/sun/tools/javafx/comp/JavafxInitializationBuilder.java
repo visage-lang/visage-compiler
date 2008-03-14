@@ -808,7 +808,8 @@ public class JavafxInitializationBuilder {
     }
     
     private JCVariableDecl makeIndexParam(DiagnosticPosition diagPos, JFXOnReplace onReplace) {
-        return makeParam(diagPos, syms.intType, onReplace == null ? null : onReplace.getIndex(), "$index$");
+ //       return makeParam(diagPos, syms.intType, onReplace == null ? null : onReplace.getIndex(), "$index$");
+        return makeParam(diagPos, syms.intType, onReplace == null ? null : onReplace.getFirstIndex(), "$index$");
     }
      
     

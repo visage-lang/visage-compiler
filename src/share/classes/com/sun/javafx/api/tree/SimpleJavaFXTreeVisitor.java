@@ -82,18 +82,6 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
         return defaultAction(node, p);
     }
 
-    public R visitOnDeleteAll(OnDeleteAllTree node, P p) {
-        return defaultAction(node, p);
-    }
-
-    public R visitOnDeleteElement(OnDeleteElementTree node, P p) {
-        return defaultAction(node, p);
-    }
-
-    public R visitOnInsertElement(OnInsertElementTree node, P p) {
-        return defaultAction(node, p);
-    }
-
     public R visitTrigger(TriggerTree node, P p) {
         return defaultAction(node, p);
     }
@@ -101,11 +89,7 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
     public R visitOnReplace(OnReplaceTree node, P p) {
         return defaultAction(node, p);
     }
-
-    public R visitOnReplaceElement(OnReplaceElementTree node, P p) {
-        return defaultAction(node, p);
-    }
-
+    
     public R visitOperationDefinition(OperationDefinitionTree node, P p) {
         return defaultAction(node, p);
     }

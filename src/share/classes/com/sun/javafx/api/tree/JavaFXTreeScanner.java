@@ -112,23 +112,6 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
         return scan(node.getExpression(), p);
     }
 
-    public R visitOnDeleteAll(OnDeleteAllTree node, P p) {
-        R r = scan(node.getOldValue(), p);
-        return scanAndReduce(node.getBody(), p, r);
-    }
-
-    public R visitOnDeleteElement(OnDeleteElementTree node, P p) {
-        R r = scan(node.getIndex(), p);
-        r = scanAndReduce(node.getOldValue(), p, r);
-        return scanAndReduce(node.getBody(), p, r);
-    }
-
-    public R visitOnInsertElement(OnInsertElementTree node, P p) {
-        R r = scan(node.getIndex(), p);
-        r = scanAndReduce(node.getOldValue(), p, r);
-        return scanAndReduce(node.getBody(), p, r);
-    }
-
     public R visitOnReplace(OnReplaceTree node, P p) {
         R r = scan(node.getOldValue(), p);
         return scanAndReduce(node.getBody(), p, r);
@@ -139,12 +122,7 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
         return scanAndReduce(node.getOnReplaceTree(), p, r);
     }
 
-    public R visitOnReplaceElement(OnReplaceElementTree node, P p) {
-        R r = scan(node.getIndex(), p);
-        r = scanAndReduce(node.getOldValue(), p, r);
-        return scanAndReduce(node.getBody(), p, r);
-    }
-
+    
     public R visitOperationDefinition(OperationDefinitionTree node, P p) {
         R r = scan(node.getModifiers(), p);
         return scanAndReduce(node.getOperationValue(), p, r);

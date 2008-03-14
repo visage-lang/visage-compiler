@@ -27,7 +27,7 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.OnChangeTree;
+import com.sun.javafx.api.tree.OnReplaceTree;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.List;
@@ -84,13 +84,9 @@ public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
     public void setJFXType(JFXType type) {
         jfxtype = type;
     }
-
-   
-    public java.util.List<OnChangeTree> getOnChangeTrees() {
-        ListBuffer<JFXOnReplace> listb = new ListBuffer<JFXOnReplace>();
-        if (onReplace != null) 
-            listb.append(onReplace);
-        return JFXTree.convertList(OnChangeTree.class, listb.toList());
+    
+    public OnReplaceTree getOnReplaceTree() {
+        return onReplace;        
     }
     
     public JFXOnReplace getOnReplace() {

@@ -44,6 +44,6 @@ import java.util.List;
  */
 public interface JavaFXVariableTree extends VariableTree, JavaFXTree {
     JFXType getJFXType();
-    List<OnChangeTree> getOnChangeTrees();
+    OnReplaceTree getOnReplaceTree();
     JavafxBindStatus getBindStatus();
 }

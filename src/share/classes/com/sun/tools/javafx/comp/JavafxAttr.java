@@ -1135,11 +1135,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             attribVar(newElements, env); 
         }
         
-        if (tree.getIndex() != null) {
-            tree.getIndex().mods.flags |= Flags.FINAL;
-            attribVar(tree.getIndex(), env);
-            tree.getIndex().sym.type = syms.intType;
+        JFXVar firstIndex = tree.getFirstIndex();
+        if (firstIndex != null) {
+            firstIndex.mods.flags |= Flags.FINAL;
+            attribVar(firstIndex, env);
+            firstIndex.sym.type = syms.intType;
         }
+        
         JFXVar oldValue = tree.getOldValue();
 	if (oldValue != null) {
             oldValue.mods.flags |= Flags.FINAL;

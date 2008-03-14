@@ -27,7 +27,6 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.OnChangeTree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.TreeVisitor;
 import com.sun.tools.javac.code.Symbol.VarSymbol;

@@ -66,10 +66,6 @@ public class JFXOnReplace extends JFXStatement implements OnReplaceTree {
         v.visitOnReplace(this);
     }
 
-    //TODO: check if this method should be kept
-    public JFXVar getIndex() { 
-        return this.firstIndex; 
-    }
     
     public int getTag() {
         return JavafxTag.ON_REPLACE;

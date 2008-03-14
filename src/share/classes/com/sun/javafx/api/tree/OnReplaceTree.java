@@ -41,5 +41,12 @@ import com.sun.source.tree.Tree.Kind;
  *
  * @author Tom Ball
  */
-public interface OnReplaceTree extends OnChangeTree {
+
+public interface OnReplaceTree extends JavaFXStatementTree {
+    JavaFXVariableTree getFirstIndex();
+    JavaFXVariableTree getLastIndex();
+    JavaFXVariableTree getOldValue();
+    JavaFXVariableTree getNewElements();
+    BlockTree getBody();    
+    int getEndKind();
 }

@@ -647,9 +647,9 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
                 print(" ");
                 printExpr(tree.getOldValue());
             }
-            if (tree.getIndex() != null) {
+            if (tree.getFirstIndex() != null) {
                 print("[");
-                printExpr(tree.getIndex());
+                printExpr(tree.getFirstIndex());
                 if (tree.getLastIndex() != null) {
                     print(" .. ");
                     printExpr(tree.getLastIndex());

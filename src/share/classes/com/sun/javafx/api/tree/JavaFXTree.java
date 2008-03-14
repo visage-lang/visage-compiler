@@ -106,31 +106,13 @@ public interface JavaFXTree extends Tree {
          */
         TRIGGER_WRAPPER(TriggerTree.class),
 
-        /**
-         * Used for instances of {@link OnDeleteAllTree}.
-         */
-        ON_DELETE_ALL(OnDeleteAllTree.class),
-
-        /**
-         * Used for instances of {@link OnDeleteElementTree}.
-         */
-        ON_DELETE_ELEMENT(OnDeleteElementTree.class),
-
-        /**
-         * Used for instances of {@link OnInsertElementTree}.
-         */
-        ON_INSERT_ELEMENT(OnInsertElementTree.class),
 
         /**
          * Used for instances of {@link OnReplaceTree}.
          */
         ON_REPLACE(OnReplaceTree.class),
 
-        /**
-         * Used for instances of {@link OnReplaceElementTree}.
-         */
-        ON_REPLACE_ELEMENT(OnReplaceElementTree.class),
-
+       
         /**
          * Used for instances of {@link OperatonDefinitionTree}.
          */
