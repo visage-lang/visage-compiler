@@ -22,6 +22,16 @@ import java.lang.IllegalArgumentException;
 
 public class DummyElement {
     public attribute id: Integer;
+
+    public function equals(o: java.lang.Object): Boolean {
+        if (o instanceof DummyElement and id == (o as DummyElement).id) {
+            return true;
+        }
+        return false;
+    }
+    public function hashCode(): Integer {
+        return id;
+    }
 }
 public class DummyComparator extends Comparator<DummyElement> {
     public function compare(o1: DummyElement, o2: DummyElement): Integer {
@@ -182,6 +192,85 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
             fail ("Unexpected exception thrown: {ex4}");
         }
         
+    }
+    
+    /**
+     * function indexByIdentity(seq: Object[], key: Object): Integer
+     */
+    function testIndexByIdentity() {
+        var result: Integer;
+        
+        // search in empty sequence
+        result = Sequences.indexByIdentity(emptyElements, element[1]);
+        assertEquals([], emptyElements);
+        assertEquals(-1, result);
+        
+        // single element sequence
+        // successful search
+        result = Sequences.indexByIdentity(singleElements, element[0]);
+        assertEquals([element[0]], singleElements);
+        assertEquals(0, result);
+        
+        // unsuccessful search
+        result = Sequences.indexByIdentity(singleElements, element[1]);
+        assertEquals([element[0]], singleElements);
+        assertEquals(-1, result);
+        
+        // three elements sequence
+        // successful search for first element
+        result = Sequences.indexByIdentity(unsortedElements, element[3]);
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals(0, result);
+        
+        // successful search for middle element
+        result = Sequences.indexByIdentity(unsortedElements, element[1]);
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals(1, result);
+        
+        // successful search for last element
+        result = Sequences.indexByIdentity(unsortedElements, element[2]);
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals(2, result);
+        
+        // make sure first element is returned
+        result = Sequences.indexByIdentity(longSequence, element[1]);
+        assertEquals([element[0], element[1], element[2], element[1], element[3]], longSequence);
+        assertEquals(1, result);
+        
+        // unsuccessful search
+        result = Sequences.indexByIdentity(unsortedElements, element[0]);
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals(-1, result);
+
+        // make sure search is by identity
+        var localElement: DummyElement = DummyElement {id: 1};
+        assertNotSame(element[1], localElement);
+        assertEquals(element[1], localElement);
+        result = Sequences.indexByIdentity(unsortedElements, localElement);
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals(-1, result);
+
+        // exception when sequence is null
+        try {
+            Sequences.indexByIdentity(null, 1);
+            fail("No exception thrown.");
+        }
+        catch (ex1: NullPointerException) {
+        }
+        catch (ex2: Exception) {
+            fail ("Unexpected exception thrown: " + ex2.getMessage());
+        }
+
+        // exception when sequence is null
+        try {
+            Sequences.indexByIdentity(unsortedElements, null);
+            fail("No exception thrown.");
+        }
+        catch (ex3: NullPointerException) {
+        }
+        catch (ex4: Exception) {
+            fail ("Unexpected exception thrown: " + ex4.getMessage());
+        }
     }
     
     /**
@@ -467,6 +556,53 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
             fail ("Unexpected exception thrown: " + ex4.getMessage());
         }
         
+    }
+    
+    /**
+     * function nextIndexByIdentity(seq: Object[], key: Object, pos: Integer): Integer
+     * The basic functionality is tested by testIndexByIdentity. Only tests for 
+     * pos>0 are needed here.
+     */
+    function testNextIndexByIdentity() {
+        var result: Integer;
+        
+        // search in empty sequence
+        result = Sequences.nextIndexByIdentity(emptyElements, element[1], 1);
+        assertEquals([], emptyElements);
+        assertEquals(-1, result);
+        
+        // single element sequence
+        result = Sequences.nextIndexByIdentity(singleElements, element[0], 1);
+        assertEquals([element[0]], singleElements);
+        assertEquals(-1, result);
+        
+        // search with pos = result
+        result = Sequences.nextIndexByIdentity(longSequence, element[1], 1);
+        assertEquals([element[0], element[1], element[2], element[1], element[3]], longSequence);
+        assertEquals(1, result);
+        
+        // search with pos < result
+        result = Sequences.nextIndexByIdentity(longSequence, element[1], 2);
+        assertEquals([element[0], element[1], element[2], element[1], element[3]], longSequence);
+        assertEquals(3, result);
+        
+        // unsuccessful search
+        result = Sequences.nextIndexByIdentity(longSequence, element[1], 4);
+        assertEquals([element[0], element[1], element[2], element[1], element[3]], longSequence);
+        assertEquals(-1, result);
+        
+        // search with pos > sequence-size
+        result = Sequences.nextIndexByIdentity(longSequence, element[1], 5);
+        assertEquals([element[0], element[1], element[2], element[1], element[3]], longSequence);
+        assertEquals(-1, result);
+
+        // make sure search is by identity
+        var localElement: DummyElement = DummyElement {id: 1};
+        assertNotSame(element[1], localElement);
+        assertEquals(element[1], localElement);
+        result = Sequences.nextIndexByIdentity(longSequence, localElement, 1);
+        assertEquals([element[0], element[1], element[2], element[1], element[3]], longSequence);
+        assertEquals(-1, result);
     }
     
     /**

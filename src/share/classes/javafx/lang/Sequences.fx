@@ -95,8 +95,27 @@ public class Sequences {
     }
     
     /**
-     * Searches the specified sequence for the specified object. If the
-     * sequence is sorted, binarySearch should be used instead.
+     * Searches the specified sequence for the specified object.
+     * 
+     * If the sequence contains multiple elements equal to the specified object, 
+     * the first occurence in the sequence will be returned.
+     * 
+     * The method nextIndexOf can be used in consecutive calls to iterate
+     * through all occurences of a specified object.
+     * 
+     * @param seq The sequence to be searched.
+     * @param key The value to be searched for.
+     * @return Index of the search key, if it is contained in the array; 
+     *         otherwise -1.
+     */
+   public static function indexByIdentity(seq: Object[], key: Object): Integer {
+        return com.sun.javafx.runtime.sequence.Sequences.indexByIdentity(seq, key);
+    }
+
+    /**
+     * Searches the specified sequence for an object with the same value. The
+     * objects are compared using the method equals(). If the sequence is sorted, 
+     * binarySearch should be used instead.
      * 
      * If the sequence contains multiple elements equal to the specified object, 
      * the first occurence in the sequence will be returned.
@@ -113,22 +132,115 @@ public class Sequences {
         return com.sun.javafx.runtime.sequence.Sequences.indexOf(seq, key);
     }
     
+    /**
+     * Returns the element with the maximum value in the specified sequence, 
+     * according to the natural ordering  of its elements. All elements in the 
+     * sequence must implement the Comparable interface. Furthermore, all 
+     * elements in the sequence must be mutually comparable (that is, 
+     * e1.compareTo(e2) must not throw a ClassCastException  for any elements 
+     * e1 and e2 in the sequence).
+     * 
+     * If the sequence contains multiple elements with the maximum value, 
+     * there is no guarantee which one will be found.
+     * 
+     * @param seq The sequence to be searched.
+     * @return The element with the maximum value.
+     */
     public static function max(seq: Comparable[]): Comparable {
         return com.sun.javafx.runtime.sequence.Sequences.max(seq);
     }
     
+    /**
+     * Returns the element with the maximum value in the specified sequence, 
+     * according to the specified comparator. All elements in the sequence must 
+     * be mutually comparable by the specified comparator (that is, 
+     * c.compare(e1, e2) must not throw a ClassCastException  for any elements
+     * e1 and e2 in the sequence).
+     * 
+     * If the sequence contains multiple elements with the maximum value, 
+     * there is no guarantee which one will be found.
+     * 
+     * @param seq The sequence to be searched.
+     * @param c The comparator to determine the order of the sequence. 
+     *          A null value indicates that the elements' natural ordering 
+     *          should be used.
+     * @return The element with the maximum value.
+     */
     public static function max(seq: Object[], c: Comparator): Object {
         return com.sun.javafx.runtime.sequence.Sequences.max(seq, c);
     }
     
+    /**
+     * Returns the element with the minimum value in the specified sequence, 
+     * according to the natural ordering  of its elements. All elements in the 
+     * sequence must implement the Comparable interface. Furthermore, all 
+     * elements in the sequence must be mutually comparable (that is, 
+     * e1.compareTo(e2) must not throw a ClassCastException  for any elements 
+     * e1 and e2 in the sequence).
+     * 
+     * If the sequence contains multiple elements with the minimum value, 
+     * there is no guarantee which one will be found.
+     * 
+     * @param seq The sequence to be searched.
+     * @return The element with the maximum value.
+     */
     public static function min(seq: Comparable[]): Comparable {
         return com.sun.javafx.runtime.sequence.Sequences.min(seq);
     }
     
-    public static function min(seq: Object[], c: Comparator): Object {
+     /**
+     * Returns the element with the minimum value in the specified sequence, 
+     * according to the specified comparator. All elements in the sequence must 
+     * be mutually comparable by the specified comparator (that is, 
+     * c.compare(e1, e2) must not throw a ClassCastException  for any elements
+     * e1 and e2 in the sequence).
+     * 
+     * If the sequence contains multiple elements with the minimum value, 
+     * there is no guarantee which one will be found.
+     * 
+     * @param seq The sequence to be searched.
+     * @param c The comparator to determine the order of the sequence. 
+     *          A null value indicates that the elements' natural ordering 
+     *          should be used.
+     * @return The element with the minimum value.
+     */
+   public static function min(seq: Object[], c: Comparator): Object {
         return com.sun.javafx.runtime.sequence.Sequences.min(seq, c);
     }
     
+    /**
+     * Searches the specified sequence for an object with the same value,
+     * starting the search at the specified position. The objects are compared 
+     * using the method equals().
+     * 
+     * If the sequence contains multiple elements equal to the specified object, 
+     * the first occurence in the subsequence will be returned.
+     * 
+     * @param seq The sequence to be searched.
+     * @param key The value to be searched for.
+     * @param pos The position in the sequence to start the search. If pos is
+     *            negative or 0 the whole sequence will be searched.
+     * @return Index of the search key, if it is contained in the array; 
+     *         otherwise -1.
+     */
+    public static function nextIndexByIdentity(seq: Object[], key: Object, pos: Integer): Integer {
+        return com.sun.javafx.runtime.sequence.Sequences.nextIndexByIdentity(seq, key, pos);
+    }
+    
+    /**
+     * Searches the specified sequence for the specified object, starting the
+     * search at the specified position. 
+     * 
+     * If the sequence contains multiple elements equal to the specified object, 
+     * the first occurence in the subsequence will be returned.
+     * 
+     * @param seq The sequence to be searched.
+     * @param key The value to be searched for.
+     * @param pos The position in the sequence to start the search. If pos is
+     *            negative or 0 the whole sequence will be searched.
+     * @return Index of the search key, if it is contained in the array; 
+     *         otherwise -1.
+     */
     public static function nextIndexOf(seq: Object[], key: Object, pos: Integer): Integer {
         return com.sun.javafx.runtime.sequence.Sequences.nextIndexOf(seq, key, pos);
     }

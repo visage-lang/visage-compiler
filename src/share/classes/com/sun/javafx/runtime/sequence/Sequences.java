@@ -422,8 +422,27 @@ public final class Sequences {
     }
     
     /**
-     * Searches the specified sequence for the specified object. If the
-     * sequence is sorted, binarySearch should be used instead.
+     * Searches the specified sequence for the specified object.
+     * 
+     * If the sequence contains multiple elements equal to the specified object, 
+     * the first occurence in the sequence will be returned.
+     * 
+     * The method nextIndexOf can be used in consecutive calls to iterate
+     * through all occurences of a specified object.
+     * 
+     * @param seq The sequence to be searched.
+     * @param key The value to be searched for.
+     * @return Index of the search key, if it is contained in the array; 
+     *         otherwise -1.
+     */
+    public static<T> int indexByIdentity(Sequence<? extends T> seq, T key) {
+        return nextIndexByIdentity(seq, key, 0);
+    }
+    
+    /**
+     * Searches the specified sequence for an object with the same value. The
+     * objects are compared using the method equals(). If the sequence is sorted, 
+     * binarySearch should be used instead.
      * 
      * If the sequence contains multiple elements equal to the specified object, 
      * the first occurence in the sequence will be returned.
@@ -568,6 +587,35 @@ public final class Sequences {
         return result;
     }
             
+    /**
+     * Searches the specified sequence for an object with the same value,
+     * starting the search at the specified position. The objects are compared 
+     * using the method equals().
+     * 
+     * If the sequence contains multiple elements equal to the specified object, 
+     * the first occurence in the subsequence will be returned.
+     * 
+     * @param seq The sequence to be searched.
+     * @param key The value to be searched for.
+     * @param pos The position in the sequence to start the search. If pos is
+     *            negative or 0 the whole sequence will be searched.
+     * @return Index of the search key, if it is contained in the array; 
+     *         otherwise -1.
+     */
+    public static<T> int nextIndexByIdentity(Sequence<? extends T> seq, T key, int pos) {
+        if (seq == null || key == null)
+            throw new NullPointerException();
+        
+        Iterator<? extends T> it = seq.iterator();
+        int i;
+        for (i=0; i<pos && it.hasNext(); ++i)
+            it.next();
+        for (; it.hasNext(); ++i)
+            if (it.next() ==  key)
+                return i;
+        return -1;
+    }
+    
     /**
      * Searches the specified sequence for the specified object, starting the
      * search at the specified position. 
