@@ -30,6 +30,7 @@ import com.sun.javafx.api.JavafxcTool;
 import com.sun.javafx.api.JavafxcTrees;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ExpressionTree;
+import com.sun.source.tree.Tree;
 import com.sun.source.util.SourcePositions;
 import java.io.File;
 import java.util.List;
@@ -72,6 +73,12 @@ public class JFXC746Test {
             long end = sp.getEndPosition(tree, pkg);
             String pkgName = pkg.toString();
             assertTrue(end - start + 1 == pkgName.length());
+            
+            Tree cls = tree.getTypeDecls().iterator().next();
+            start = sp.getStartPosition(tree, cls);
+            end = sp.getEndPosition(tree, cls);
+            String clsDecl = "class Test{}";
+            assertTrue(end - start + 1 == clsDecl.length());
         } finally {
             Thread.currentThread().setContextClassLoader(orig);
         }

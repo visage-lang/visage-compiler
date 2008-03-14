@@ -66,10 +66,17 @@ import org.antlr.runtime.tree.*;
     HashMap<JCTree,Integer> endPositions;
 
     void endPos(JCTree tree, CommonTree node) {
-        int endToken = node.getTokenStopIndex();
-        if (endToken != -1) { // -1 means no such token
+        int endIndex = node.getTokenStopIndex();
+        if (endIndex != -1) { // -1 means no such token
             TokenStream src = input.getTokenStream();
-            int endPos = ((CommonToken)src.get(endToken)).getStopIndex();
+            CommonToken endToken = (CommonToken)src.get(endIndex);
+            // backtrack over WS and imaginary tokens
+            while (endToken.getType() == WS || endToken.getCharPositionInLine() == -1) { 
+                if (--endIndex < 0)
+                    return;
+                endToken = (CommonToken)src.get(endIndex);
+            }
+            int endPos = endToken.getStopIndex();
             endPos(tree, endPos);
         }
     }
