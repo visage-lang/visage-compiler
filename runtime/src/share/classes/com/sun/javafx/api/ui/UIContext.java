@@ -113,4 +113,6 @@ public interface UIContext {
     public int convertRowIndexToModel(JTable table, int row);
     public int convertRowIndexToView(JTable table, int row);
     public void setDropMode(int id, Object component);
+    
+    public void browse(String uri) throws Exception;
 }

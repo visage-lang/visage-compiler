@@ -251,9 +251,9 @@ public class UIContextImpl implements UIContext {
                                             if (!srcName.endsWith(".bmp")) {
                                                 if ("http".equals(u.getProtocol()) || "https".equals(u.getProtocol())) {
                                                     result = Toolkit.getDefaultToolkit().createImage(new CachedImage(UIContextImpl.this, u));
-                                                } else {
-                                                    result = Toolkit.getDefaultToolkit().createImage(u);
-                                                }
+                                                }// else {
+                                                //    result = Toolkit.getDefaultToolkit().createImage(u);
+                                               // }
                                             }
                                             if (result == null) {
                                                 result = ImageIO.read(u);
@@ -266,6 +266,7 @@ public class UIContextImpl implements UIContext {
 
                                     }
                                 } catch (java.io.IOException e) {
+                                    System.out.println(e.getMessage());
                                 } catch (java.security.AccessControlException e) {
                                     System.out.println("access denied: " + key);
                                 }
@@ -1971,8 +1972,22 @@ public class UIContextImpl implements UIContext {
         return t;
     }
 
-    public void addChoosableFileFilter(JFileChooser fileChooser, FileFilter fileFilter) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void addChoosableFileFilter(JFileChooser fileChooser, final FileFilter fileFilter) {
+        javax.swing.filechooser.FileFilter ff = new
+            javax.swing.filechooser.FileFilter() {
+                public boolean accept(java.io.File file) {
+                    try {
+                        return fileFilter.accept(file);
+                    } catch (java.lang.reflect.UndeclaredThrowableException e) {
+                        //e.printStackTrace();
+                        return false;
+                    }
+                }
+                public String getDescription() {
+                    return fileFilter.getDescription();
+                }
+            };
+        fileChooser.addChoosableFileFilter(ff);
     }
 
     public void addDropHandler(JTabbedPane tabbedPane) {
@@ -2067,6 +2082,10 @@ public class UIContextImpl implements UIContext {
                         @Override
                         public void revalidate() {
                             // nothing
+                        }
+                    @Override
+                        public void setBounds(int x, int y, int width, int height) {
+                            super.setBounds(x,y, width, height);
                         }
                     };
                 je.setOpaque(true);
@@ -2743,6 +2762,15 @@ public class UIContextImpl implements UIContext {
                 Logger.getLogger(UIContextImpl.class.getName()).log(Level.SEVERE, null, ex);
             }            
         }
+    }
+
+    public void browse(String uri) throws Exception {
+        Class clazz = this.getClass().getClassLoader().loadClass("java.awt.Desktop");
+        Method method = clazz.getMethod("getDesktop", (Class[])null);
+        Object desktop = method.invoke(null);
+        method = clazz.getMethod("browse", new Class[] {URI.class});
+        method.invoke(desktop, new Object[] {new URI(uri)});
+
     }
 
 
