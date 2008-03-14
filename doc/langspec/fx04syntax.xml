@@ -3,214 +3,186 @@
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter>
   <title>Operators and Expressions</title>
-  
+
   <sect1>
     <title>Key Words</title>
-    
-    <para>
-    This placeholder section holds a temporary key words table. This list will change as JavaFX&trade; Script continues to develop. </para>
-    
-    <para>&nbsp;</para>
-    
-    <para> <emphasis role="bold">Keywords Table</emphasis><para> 
-    
-     <para>&nbsp;</para>
-  
-      <table cellpadding="3" cellspacing="3" style="border: medium groove ;">
-      
-      <tbody>
-      
-        
-<tr> 
- <td> ABSTRACT </td>
- <td> ASSERT </td>
- <td> ATTRIBUTE </td>
- <td> BIND </td>
- <td> BREAK </td>
-</tr>
- 
- 
-  
- <tr>
- <td> CLASS </td>
- 
- <td> CONTINUE </td>
- 
- <td> DELETE </td>
 
- <td> FALSE </td>
- 
- <td> FOR </td>
-  </tr>
+    <para>This placeholder section holds a temporary key words table. This
+    list will change as JavaFX™ Script continues to develop.</para>
 
+    <para> </para>
 
- <tr>
- <td> FUNCTION </td>
+    <para><emphasis role="bold">Keywords Table</emphasis><para>
+        <para> </para>
 
- <td> IF </td>
+        <table cellpadding="3" cellspacing="3" style="border: medium groove ;">
+          <tbody>
+            <tr>
+              <td>abstract</td>
 
- <td> IMPORT </td>
+              <td>assert</td>
 
- <td> INIT </td>
+              <td>attribute</td>
 
- <td> INSERT </td>
-  </tr>
- 
-  <tr>
+              <td>bind</td>
 
- <td> LET </td>
- 
- <td> NEW </td>
- 
- <td> NOT </td>
+              <td>break</td>
+            </tr>
 
- <td> NULL </td>
+            <tr>
+              <td>class</td>
 
- <td> PACKAGE </td>
-  </tr>
- 
- <tr>
+              <td>continue</td>
+	      
+	      <td>delete</td>
 
- <td> PRIVATE </td>
+              <td>false</td>
 
- <td> PROTECTED </td>
+              <td>for</td>
+	      
+	      
+            </tr>
 
- <td> PUBLIC </td>
+            <tr>
+              <td>function</td>
 
- <td> READONLY </td>
+              <td>if</td>
 
- <td> RETURN </td>
- </tr>
- 
-  <tr>
+              <td>import</td>
 
- <td> SUPER </td>
+              <td>init</td>
 
- <td> SIZEOF </td>
+              <td>insert</td>
+            </tr>
 
- <td> STATIC </td>
+            <tr>
+              <td>let</td>
 
- <td> THIS </td>
+              <td>new</td>
 
- <td> THROW </td>
-  </tr>
- 
-  <tr>
+              <td>not</td>
 
- <td> TRY </td>
+              <td>null</td>
 
- <td> TRUE </td>
+              <td>package</td>
+            </tr>
 
- <td> VAR </td>
+            <tr>
+              <td>private</td>
 
- <td> WHILE </td>
+              <td>protected</td>
 
- <td> AFTER </td>
-  </tr>
- 
-  <tr>
+              <td>public</td>
 
- <td> AND </td>
+              <td>readonly</td>
 
- <td> AS </td>
+              <td>return</td>
+            </tr>
 
- <td> BEFORE </td>
+            <tr>
+              <td>super</td>
 
- <td> BY </td>
+              <td>sizeof</td>
 
- <td> CATCH </td>
-  </tr>
-  
-  
-   <tr>
- 
+              <td>static</td>
 
- <td> DO </td>
+              <td>this</td>
 
- <td> DUR </td>
+              <td>throw</td>
+            </tr>
 
- <td> ELSE </td>
+            <tr>
+              <td>try</td>
 
- <td> EXCLUSIVE </td>
- 
- <td> EXTENDS </td>
-  </tr>
- 
+              <td>true</td>
 
-  
-   <tr>
+              <td>var</td>
 
- <td> FINALLY </td>
+              <td>while</td>
 
- <td> FIRST </td>
+              <td>after</td>
+            </tr>
 
- <td> FROM </td>
+            <tr>
+              <td>and</td>
 
- <td> IN </td>
+              <td>as</td>
 
- <td> INDEXOF </td>
- </tr>
- 
+              <td>before</td>
 
-  <tr>
+              <td>by</td>
 
- <td> INSTANCEOF </td>
- 
- <td> INTO </td>
+              <td>catch</td>
+            </tr>
 
- <td> INVERSE </td>
- 
- <td> LAST </td>
- 
- <td> LAZY </td>
- </tr>
- 
+            <tr>
+              <td>do</td>
 
- <tr> 
- 
- <td> ON </td>
- 
- <td> OR </td>
- 
- <td> REPLACE </td>
+              <td>dur</td>
 
- <td> STEP </td>
- 
- <td> TYPEOF </td>
- </tr>
+              <td>else</td>
 
- 
- <tr> 
+              <td>exclusive</td>
 
- 
- <td> WITH </td>
- 
- <td> WHERE </td>
+              <td>extends</td>
+            </tr>
 
-  <td> &nbsp; </td>
-  
-  <td> &nbsp; </td>
-   
-  <td> &nbsp; </td>
+            <tr>
+              <td>finally</td>
 
- </tr> 
- 
+              <td>first</td>
 
-     </tbody>
-   </table>
-   
-   </para> &nbsp; </para>
-   
-   
-   </sect1>
+              <td>from</td>
 
-  
+              <td>in</td>
+
+              <td>indexof</td>
+            </tr>
+
+            <tr>
+              <td>indexof</td>
+
+              <td>into</td>
+
+              <td>inverse</td>
+
+              <td>lazy</td>
+	      
+	      <td>last</td>
+            </tr>
+
+            <tr>
+              <td>on</td>
+
+              <td>or</td>
+
+              <td>replace</td>
+
+              <td>step</td>
+
+              <td>typeof</td>
+            </tr>
+
+            <tr>
+              <td>with</td>
+
+              <td>where</td>
+
+              <td> </td>
+
+              <td> </td>
+
+              <td> </td>
+            </tr>
+          </tbody>
+        </table>
+      </para>  </para>
+  </sect1>
 
   <sect1>
     <title>Operators</title>
-    
 
-     <para>An operator specifies a computational activity involving one or more
+    <para>An operator specifies a computational activity involving one or more
     operands. Operands can be data values, variables, objects or other program
     elements.</para>
 
@@ -225,7 +197,7 @@
     computation, a relationship between two data elements, or a reference to
     an object.</para>
 
-     <para>JavaFX Script supports the following operators, grouped according to
+    <para>JavaFX Script supports the following operators, grouped according to
     function and data type:</para>
 
     <table cellpadding="5" cellspacing="5" style="border: medium groove ;">
@@ -485,11 +457,8 @@
             <code>/=</code>
           </td>
         </tr>
-	
-	
-	
-	
-	<tr>
+
+        <tr>
           <td>
             <code>++</code>
           </td>
@@ -500,9 +469,8 @@
             <code>++</code>
           </td>
         </tr>
-	
-	
-	<tr>
+
+        <tr>
           <td>
             <code>--</code>
           </td>
@@ -513,18 +481,6 @@
             <code>--</code>
           </td>
         </tr>
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
         <tr>
           <td>
@@ -548,7 +504,7 @@
           </td>
         </tr>
 
-	<tr>
+        <tr>
           <td>
             <code>=</code>
           </td>
@@ -560,10 +516,6 @@
           </td>
         </tr>
 
-	
-	
-	
-	
         <tr>
           <td>
             <code>sizeof</code>
@@ -597,11 +549,12 @@
           <td>conditional expression</td>
 
           <td>
-            <code>if <emphasis>e1</emphasis> e2 <emphasis>[else  e3]</emphasis></code>
+            <code>if <emphasis>e1</emphasis> e2 <emphasis>[else
+            e3]</emphasis></code>
           </td>
         </tr>
 
-   <!--     <tr>
+        <!--     <tr>
           <td>
             <code>select</code>
           </td>
@@ -675,9 +628,7 @@
           </td>
         </tr>
 
-	
-	
-	<!-- 
+        <!-- 
         <tr>
           <td>
             <code>this</code>
@@ -690,6 +641,7 @@
           </td>
         </tr>
 -->
+
         <tr>
           <td>
             <code>.</code>
@@ -702,7 +654,7 @@
           </td>
         </tr>
 
-	<!--
+        <!--
         <tr>
           <td>
             <code>bind [lazy]</code>
@@ -715,6 +667,7 @@
           </td>
         </tr>
  -->
+
         <tr>
           <td>
             <code>:</code>
@@ -739,7 +692,7 @@
           </td>
         </tr>
 
-	<!--
+        <!--
         <tr>
           <td>
             <code>format as</code>
@@ -753,7 +706,7 @@
         </tr>
 -->
 
-<!--
+        <!--
         <tr>
           <td>
             <code>&lt;&lt;&gt;&gt;</code>
@@ -766,9 +719,8 @@
           </td>
         </tr> 
 	-->
-	
-	
-<!-- 
+
+        <!-- 
         <tr>
           <td>
             <code>{}</code>
@@ -820,8 +772,6 @@
         </tr>
       </tbody>
     </table>
-    
-    
 
     <para><emphasis role="bold">Operator Examples:</emphasis></para>
 
@@ -985,14 +935,12 @@ var albums =
     cartesian product of the source sequences' elements that satisfy the
     filter.</para>
 
-
     <para>Sequence comprehensions give a concise syntax for a rather general
     class of iterations over sequences.<emphasis></emphasis></para>
 
     <para><emphasis>Example:</emphasis></para>
 
     <para><emphasis></emphasis><programlisting>foreach (n in [1..100]) n * n</programlisting></para>
-
 
     <para>This is a sequence containing (in order) the squares of all the
     numbers from 1 to 100. Note that "n" is a local variable of the above
@@ -1012,42 +960,30 @@ var albums =
 
     <para>[TO-DO: make above a section heading]</para>
 
- 
     <para>In addition to the assignment operator <code>=</code>, JavaFX script
     provides data modification operators, <code>insert</code> and
     <code>delete</code>.</para>
 
- 
     <para><emphasis role="bold">Insert Operator</emphasis></para>
-
- 
 
     <para>The <code>insert</code> operator can take any of the following
     forms:</para>
-
-
 
     <programlisting>insert Expression1 [as first | as last] into Expression2
 insert Expression1 before Expression2
 insert Expression1 after Expression2
 </programlisting>
 
-
     <para>The <code>insert</code> operator inserts the items returned by
     evaluating Expression1 into the location indicated by remainder of the
     statement as follows:</para>
 
-
-
     <para><emphasis role="bold">into</emphasis></para>
-
-
 
     <para>Expression2 must refer to an attribute or variable. If Expression2
     refers to a single valued attribute then the effect of the insert is the
     same as if the assignment operator were used.</para>
 
- 
     <para>If <code>as first</code> is specified, the insertion location is
     before the first element of the list indicated by Expression2. If <code>as
     last</code> is specified, the insertion location is after the last element
@@ -1055,9 +991,7 @@ insert Expression1 after Expression2
     <code>as last</code> is specified explicitly, then <code>as last</code> is
     used as the default.</para>
 
-
- <para><emphasis role="bold">Examples:</emphasis></para>
- 
+    <para><emphasis role="bold">Examples:</emphasis></para>
 
     <programlisting>var x = [1,2,3];
 insert 12 into x; // yields [1,2,3,12]
@@ -1065,24 +999,16 @@ insert 10 as first into x; // yields [10,1,2,3,12]
 insert [99,100] as last into x; // yields [10,1,2,3,12,99,100]
 </programlisting>
 
-   
-
     <para><emphasis role="bold">before, after</emphasis></para>
 
-    
+    <para><code>Expression2</code> must be a selection expression over an
+    attribute or variable. If <code>before</code> is specified, the insertion
+    location is before the selected elements. If <code>after</code> is
+    specified the insertion location is after the selected elements.</para>
 
-    <para><code>Expression2</code> must be a selection expression over an attribute or
-    variable. If <code>before</code> is specified, the insertion location is
-    before the selected elements. If <code>after</code> is specified the
-    insertion location is after the selected elements.</para>
+    <para><emphasis role="bold">Examples:</emphasis></para>
 
-    
-
-    
-     <para><emphasis role="bold">Examples:</emphasis></para>
     <para>Examples:</para>
-
-    
 
     <programlisting>var xs = [1,2,3];
 insert 10 after xs[x | x == 10]; // yields [1,2,3,10]
@@ -1090,13 +1016,9 @@ insert 12 before xs[1]; // yields [1,12,2,3,10]
 insert 13 after xs[x | x == 2]; // yields [1, 12, 2, 13, 3, 10];
 </programlisting>
 
-   
-
     <para><emphasis role="bold">Delete Operator</emphasis></para>
 
     <para>[TO-DO: Make above a section header]</para>
-
-    
 
     <para>The <code>delete</code> operator takes one of the following
     forms:</para>
@@ -1109,20 +1031,12 @@ delete variable[predicate]
 delete Expression.attribute[predicate]
 </programlisting>
 
-
-
     <para>The first two forms remove all elements from a variable or attribute
     - which is equivalent to assigning <code>[]</code> or <code>null</code> to
     the variable or attribute. The latter two forms remove only those elements
     that match the predicate.</para>
 
-   
-    
     <para><emphasis role="bold">Examples:</emphasis></para>
-
-    
-
-    
 
     <programlisting>var xs = [1,2,3];
 insert 10 into xs; // yields [1,2,3,10]
@@ -1140,20 +1054,16 @@ delete xs; // yields []
   <sect1>
     <title>Expressions</title>
 
-   
-
     <para>Unlike the Java programming language, JavaFX script is an expression
     language. All executable statements are expressions which consist of zero
     or more inputs and a single output. This includes conditionals, loops, and
     even blocks.</para>
 
-    
-    
-    <para><emphasis role="bold">Example:</emphasis></para>
+    <para>
+      <emphasis role="bold">Example:</emphasis>
+    </para>
 
     <para>For example:</para>
-
-    
 
     <programlisting>import java.lang.Math;
 
@@ -1167,31 +1077,31 @@ if (rand % 2 == 0) {
 System.out.println(s);
 </programlisting>
 
-    
-
     <para>In the above example the then and else clauses of the conditional
     "if" are expressions in their own right, namely block expressions
     <emphasis role="bold">[to-do, link to block expressions section
     below]</emphasis></para>
 
-    
+    <sect1 id="logical">
+      <title>Logical Expressions</title>
 
-    
-<sect1 id="logical"><title>Logical Expressions</title>
+      <para>This section lists and defines the logical expressions available
+      in JavaFX™ Script.</para>
 
-<para>This section lists and defines the logical expressions available in JavaFX&trade; Script. </para>
-	
-        <sect2 id="if">
-          <title><code>if</code> Expression</title>
+      <sect2 id="if">
+        <title><code>if</code> Expression</title>
 
-          <para>The <code>if</code> expression is like the expression in the Java&trade; programming language, except
-          that curly braces are always required around the <code>then</code> and <code>else</code>
-          clauses, unless the the <code>else</code> clause is another <code>if</code>
-          expression.</para>
+        <para>The <code>if</code> expression is like the expression in the
+        Java™ programming language, except that curly braces are always
+        required around the <code>then</code> and <code>else</code> clauses,
+        unless the the <code>else</code> clause is another <code>if</code>
+        expression.</para>
 
-          <para><emphasis role="bold">Example:</emphasis></para>
+        <para>
+          <emphasis role="bold">Example:</emphasis>
+        </para>
 
-          <programlisting>       if (condition1) {
+        <programlisting>       if (condition1) {
            System.out.println("Condition 1");
        } else if (condition2) {
            System.out.println("Condition2");
@@ -1199,19 +1109,20 @@ System.out.println(s);
            System.out.println("not Condition 1 or Condition 2");
        }
 </programlisting>
-        
-</sect2>
-	                                                  
-	
-<sect2 id="while">
-          <title><code>While</code> Statement</title>
+      </sect2>
 
-          <para>The JavaFX Script <code>while</code> statement is like the statement in the Java Programming language, except
-          that curly braces are always required around the body.</para>
+      <sect2 id="while">
+        <title><code>While</code> Statement</title>
 
-          <para><emphasis role="bold">Example:</emphasis></para>
+        <para>The JavaFX Script <code>while</code> statement is like the
+        statement in the Java Programming language, except that curly braces
+        are always required around the body.</para>
 
-          <programlisting>       var i = 0;
+        <para>
+          <emphasis role="bold">Example:</emphasis>
+        </para>
+
+        <programlisting>       var i = 0;
        while (i &lt; 10) {
            if (i &gt; 5) {
               break;
@@ -1220,23 +1131,23 @@ System.out.println(s);
            i += 1;
        }
 </programlisting>
-        
-</sect2>
+      </sect2>
 
+      <sect2 id="try">
+        <title><code>try</code> Statement</title>
 
-<sect2 id="try">
-          <title><code>try</code> Statement</title>
+        <para>The JavaFX Script <code>try</code> statement is like the
+        statement in the Java Programming language, but with JavaFX Script
+        variable declaration syntax.</para>
 
-          <para>The JavaFX Script <code>try</code> statement is like the statement in the Java Programming language, but with
-          JavaFX Script variable declaration syntax. </para>
-	  
-	  <note>In JavaFX Script any object can
-          be thrown and caught, not just those that extend
-          <code>java.lang.Throwable</code>.</note>
+        <note>In JavaFX Script any object can be thrown and caught, not just
+        those that extend <code>java.lang.Throwable</code>.</note>
 
-          <para><emphasis role="bold">Example:</emphasis></para>
+        <para>
+          <emphasis role="bold">Example:</emphasis>
+        </para>
 
-          <programlisting>       try {
+        <programlisting>       try {
           throw "Hello";
        } catch (s:String) {
           System.out.println("caught a String: {s}");
@@ -1246,21 +1157,27 @@ System.out.println(s);
           System.out.println("finally...");
        }
 </programlisting>
-        </sect2>
+      </sect2>
 
-        <sect2 id="for">
-          <title><code>for</code> Statement</title>
-	  
-	  <para><emphasis role="bold">QUESTION: We need a new intro to go with the 'for' statement.</emphasis></para>
+      <sect2 id="for">
+        <title><code>for</code> Statement</title>
 
-          <para>The header of the JavaFX Script <code>for</code> statement uses the same syntax as the <code>foreach</code> list comprehension operator.<!-- This needs to be linked to the list comprehension discussion in the Arrays chapter -->
-          However; in this case the body of the statement is executed for each
-          element generated by the list comprehension.</para>
-	  
+        <para>
+          <emphasis role="bold">QUESTION: We need a new intro to go with the
+          'for' statement.</emphasis>
+        </para>
 
-          <para><emphasis role="bold">Examples:</emphasis></para>
+        <para>The header of the JavaFX Script <code>for</code> statement uses
+        the same syntax as the <code>foreach</code> list comprehension
+        operator.<!-- This needs to be linked to the list comprehension discussion in the Arrays chapter -->
+        However; in this case the body of the statement is executed for each
+        element generated by the list comprehension.</para>
 
-          <programlisting>        for (i in [0..10]) {
+        <para>
+          <emphasis role="bold">Examples:</emphasis>
+        </para>
+
+        <programlisting>        for (i in [0..10]) {
              System.out.println("i = {i}");
         }
 
@@ -1281,35 +1198,37 @@ System.out.println(s);
         }
 
 </programlisting>
+      </sect2>
 
-</sect2>
+      <sect2 id="return">
+        <title><code>return</code> Statement</title>
 
-<sect2 id="return">
-          <title><code>return</code> Statement</title>
+        <para>The JavaFX Script <code>return</code> statement is like the
+        statement in the Java Programming language:</para>
 
-          <para>The JavaFX Script <code>return</code> statement is like
-          the statement in the Java Programming language:</para>
+        <para>
+          <emphasis role="bold">Example:</emphasis>
+        </para>
 
-          <para><emphasis role="bold">Example:</emphasis></para>
-
-          <programlisting>       operation add(x, y) {
+        <programlisting>       operation add(x, y) {
            return x + y;
        }
 </programlisting>
-</sect2>
+      </sect2>
 
-          <sect2 id="throw">
-            <title><code>throw</code> Statement</title>
+      <sect2 id="throw">
+        <title><code>throw</code> Statement</title>
 
-            <para>The JavaFX Script <code>throw</code> statement is like the statement in the Java Programming language.
-            However; any object can be thrown, not just those that extend <code>java.lang.Throwable</code>.</para>
+        <para>The JavaFX Script <code>throw</code> statement is like the
+        statement in the Java Programming language. However; any object can be
+        thrown, not just those that extend
+        <code>java.lang.Throwable</code>.</para>
 
-            
-	    
-	    
-	    <para><emphasis role="bold">Examples:</emphasis></para>
+        <para>
+          <emphasis role="bold">Examples:</emphasis>
+        </para>
 
-            <programlisting>       import java.lang.Exception;
+        <programlisting>       import java.lang.Exception;
 
        operation foo() {
            throw new Exception("this is a java exception");
@@ -1319,20 +1238,22 @@ System.out.println(s);
            throw "just a string";
        }
 </programlisting>
-          </sect2>
+      </sect2>
 
-          <sect2 id="break">
-            <title><code>break</code> and <code>continue</code> Statements</title>
+      <sect2 id="break">
+        <title><code>break</code> and <code>continue</code> Statements</title>
 
-            <para>The JavaFX Script <code>break</code> and <code>continue</code>
-            statements are like the statement in the Java Programming language; however labels are not supported. As
-            in Java, <code>break</code> and <code>continue</code> must appear
-            inside the body of a <code>while</code> or <code>for</code>
-            statement.</para>
+        <para>The JavaFX Script <code>break</code> and <code>continue</code>
+        statements are like the statement in the Java Programming language;
+        however labels are not supported. As in Java, <code>break</code> and
+        <code>continue</code> must appear inside the body of a
+        <code>while</code> or <code>for</code> statement.</para>
 
-            <para><emphasis role="bold">Examples:</emphasis></para>
+        <para>
+          <emphasis role="bold">Examples:</emphasis>
+        </para>
 
-            <programlisting>       operation foo() {
+        <programlisting>       operation foo() {
           for (i in [0..10]) {
               if (i &gt; 5) {
                   break;
@@ -1358,10 +1279,9 @@ System.out.println(s);
            }
        }
 </programlisting>
-          </sect2>
+      </sect2>
 
-	  
-	  <!--  
+      <!--  
           <sect2 id="do">
             <title><code>do</code> Statement</title>
 
@@ -1449,25 +1369,22 @@ thread. This mimics the functionality of
           </sect2>
 
 -->
-<sect2 id="block">
-  <title>Block Expressions</title>
 
-    
+      <sect2 id="block">
+        <title>Block Expressions</title>
 
-    <para>A block expression consists of a list of statements (which can be
-    declarations or expressions) surrounded by curly braces and separated by
-    semicolons. If the last statement is an expression, then the value of a
-    block expression is the value of the last expression; otherwise the block
-    expression has void type.<emphasis></emphasis></para>
+        <para>A block expression consists of a list of statements (which can
+        be declarations or expressions) surrounded by curly braces and
+        separated by semicolons. If the last statement is an expression, then
+        the value of a block expression is the value of the last expression;
+        otherwise the block expression has void type.<emphasis /></para>
 
-    <para></para>
+        <para />
 
-    <para>So, the above example from the top of this section could also be
-    written as follows:</para>
+        <para>So, the above example from the top of this section could also be
+        written as follows:</para>
 
-   
-
-    <programlisting>import java.lang.Math;
+        <programlisting>import java.lang.Math;
 
 var rand = (Math.random() * 100).intValue();
 var s:String =
@@ -1479,76 +1396,62 @@ if (rand % 2 == 0) {
 System.out.println(s);
 </programlisting>
 
-   
+        <para>Alternatively the braces can be omitted:</para>
 
-    <para>Alternatively the braces can be omitted:</para>
-
-    
-
-    <programlisting>import java.lang.Math;
+        <programlisting>import java.lang.Math;
 
 var rand = (Math.random() * 100).intValue();
 var s:String = if (rand % 2 == 0) "rand is even" else "rand is odd";
 System.out.println(s);
 </programlisting>
 
-   
+        <para>The Java programming language contains both an "if" statement,
+        and a conditional expression, e.g, <code>a &lt; b ? a :
+        b</code>.</para>
 
-    <para>The Java programming language contains both an "if" statement, and a
-    conditional expression, e.g, <code>a &lt; b ? a : b</code>.</para>
+        <para>Thanks to block expressions, the JavaFX "if" expression takes
+        the place of both.</para>
+      </sect2>
 
-    <para>Thanks to block expressions, the JavaFX "if" expression takes the
-    place of both.</para>
-    
-    </sect2>
-    
-    <sect2 id="range">
-  <title>Range Expressions</title>
-    
-    <para>As mentioned in chapter two <emphasis role="bold">[TO-DO: confirm
-    that location and provide link]</emphasis> it is possible to define a
-    sequence of numeric values forming an arithmetic series using the
-    following syntax:</para>
+      <sect2 id="range">
+        <title>Range Expressions</title>
 
-    
+        <para>As mentioned in chapter two <emphasis role="bold">[TO-DO:
+        confirm that location and provide link]</emphasis> it is possible to
+        define a sequence of numeric values forming an arithmetic series using
+        the following syntax:</para>
 
-    <programlisting>[number1..number2]
+        <programlisting>[number1..number2]
 </programlisting>
 
-    <para>Such an expression defines an sequence whose elements consist of the
-    integers from <emphasis>number1</emphasis> to <emphasis>number2</emphasis>
-    (inclusive).</para>
+        <para>Such an expression defines an sequence whose elements consist of
+        the integers from <emphasis>number1</emphasis> to
+        <emphasis>number2</emphasis> (inclusive).</para>
 
-    <para><emphasis role="bold">Example:</emphasis></para>
-    
+        <para>
+          <emphasis role="bold">Example:</emphasis>
+        </para>
 
-
-    <programlisting>var nums = [0..3];
+        <programlisting>var nums = [0..3];
 System.out.println(nums == [0,1,2,3]); // prints true
 </programlisting>
 
-    <para>By default the interval between the values is 1 but it's also
-    possible to specify a different interval by including the next number in
-    the sequence after number1 separated by a comma. For example, the
-    following expression defines an sequence consisting of the odd numbers
-    between 1 and 10:</para>
+        <para>By default the interval between the values is 1 but it's also
+        possible to specify a different interval by including the next number
+        in the sequence after number1 separated by a comma. For example, the
+        following expression defines an sequence consisting of the odd numbers
+        between 1 and 10:</para>
 
-    <programlisting>[1,3..10]
+        <programlisting>[1,3..10]
 </programlisting>
 
-    <para>If <emphasis>number1</emphasis> is greater than
-    <emphasis>number2</emphasis> a descending series is created:</para>
+        <para>If <emphasis>number1</emphasis> is greater than
+        <emphasis>number2</emphasis> a descending series is created:</para>
 
-  
-    <programlisting>var nums = [3..0];
+        <programlisting>var nums = [3..0];
 System.out.println(nums == [3,2,1,0]); // prints true
 </programlisting>
-
-</sect2>
-
-</sect1>
-
-</sect1>
-
+      </sect2>
+    </sect1>
+  </sect1>
 </chapter>
- 
