@@ -3,8 +3,6 @@ package casual.theme;
 import java.util.prefs.Preferences;
 import java.lang.System;
 
-public var theme: ThemeManager = new ThemeManager();
-
 public class ThemeManager extends Theme
 {
     private static attribute instance: ThemeManager = new ThemeManager;

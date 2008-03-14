@@ -30,7 +30,7 @@ public class JabberChat extends Chat
         chat = manager.createChat(userName, chatListener);
     }
 
-    function sendMessage(message:String)
+    public function sendMessage(message:String): Void
     {
         try
         {

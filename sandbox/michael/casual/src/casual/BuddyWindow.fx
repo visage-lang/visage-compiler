@@ -30,7 +30,7 @@ public class BuddyWindow extends Frame
     
     attribute preferences: Preferences = Preferences.userRoot().node("Casual");
     
-    override attribute background = bind theme.windowBackground;
+    override attribute background = bind ThemeManager.getInstance().windowBackground;
 
     override attribute screenx = 
         if (preferences.getInt("screenx", 0) >= 0)
@@ -63,23 +63,23 @@ public class BuddyWindow extends Frame
                     sizeToFitCanvas: true
                     content: BorderPanel
                     {
-                        border: bind theme.windowBorder
-                        background: bind theme.chatFrameBackground
+                        border: bind ThemeManager.getInstance().windowBorder
+                        background: bind ThemeManager.getInstance().chatFrameBackground
 
                         top: Canvas
                         {
                             border: EmptyBorder
-                            background: bind theme.chatPanelBackground
+                            background: bind ThemeManager.getInstance().chatPanelBackground
 
                             content: TitleBar
                             {
-                                var offsets = bind (theme.windowBorder.left + theme.windowBorder.right)
+                                var offsets = bind (ThemeManager.getInstance().windowBorder.left + ThemeManager.getInstance().windowBorder.right)
 
                                 frame: frame
                                 title: "CASUAL"
                                 width: bind (top.width - offsets)
-                                foreground: bind theme.titleBarForeground
-                                background: bind theme.titleBarBackground
+                                foreground: bind ThemeManager.getInstance().titleBarForeground
+                                background: bind ThemeManager.getInstance().titleBarBackground
 
                                 onClose: function()
                                 {
@@ -101,10 +101,10 @@ public class BuddyWindow extends Frame
                             view: ListBox
                             {
                                 cellBackground: new Color(0, 0, 0, 0)
-                                cellForeground: bind theme.uiBackground.darker()
-                                selectedCellForeground: bind theme.uiForeground
-                                selectedCellBackground: bind theme.uiBackground
-                                background: bind theme.chatPanelBackground
+                                cellForeground: bind ThemeManager.getInstance().uiBackground.darker()
+                                selectedCellForeground: bind ThemeManager.getInstance().uiForeground
+                                selectedCellBackground: bind ThemeManager.getInstance().uiBackground
+                                background: bind ThemeManager.getInstance().chatPanelBackground
 
                                 enableDND: false
                                 selection: bind frame.buddyIndex
@@ -114,7 +114,7 @@ public class BuddyWindow extends Frame
                                     var buddyStatus = bind buddy.presence.id
                                     var string = bind "&lt;{buddyName}&gt; {buddyStatus}"
 
-                                    border: bind theme.windowInputAreaBorder
+                                    border: bind ThemeManager.getInstance().windowInputAreaBorder
                                     text: bind "<html><div width='{center.width}'>{string}</div></html>"
                                 }
 
@@ -123,11 +123,11 @@ public class BuddyWindow extends Frame
                                     var k:KeyStroke = e.keyStroke;
                                     if (k == KeyStroke.RIGHT)
                                     {
-                                        theme.next();
+                                        ThemeManager.getInstance().next();
                                     }
                                     else if (k == KeyStroke.LEFT)
                                     {
-                                        theme.previous();
+                                        ThemeManager.getInstance().previous();
                                     }
                                 }
 
@@ -155,7 +155,7 @@ public class BuddyWindow extends Frame
                     y: bind 0
                     width: bind frame.width
                     height: bind frame.height
-                    fill: bind theme.windowInactive
+                    fill: bind ThemeManager.getInstance().windowInactive
                 },
             ]
         }

@@ -1,3 +1,7 @@
 package casual.resources;
 
-var CASUAL_RESOURCE_URL:String = __DIR__;
+public class CASUAL {
+    public static function getResourceURL(): String {
+        return __DIR__ as String
+    }
+}

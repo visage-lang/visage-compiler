@@ -196,7 +196,7 @@ public class ChatWindow extends Frame
         }
         border: Border.EmptyBorder
         visible: bind showContents
-        background: bind theme.chatPanelBackground
+        background: bind ThemeManager.getInstance().chatPanelBackground
         content: ChatScrollPane 
         {
             view: chatLines
@@ -347,7 +347,7 @@ public class ChatWindow extends Frame
         addMessage(messageStr, MessageType.COMMENT);
     };
 
-    override attribute background = bind theme.windowBackground;// gznote: should take AbstractColor
+    override attribute background = bind ThemeManager.getInstance().windowBackground;// gznote: should take AbstractColor
 
     init {
         // bug in Apple's JDK16 (#5214550)
@@ -365,7 +365,7 @@ public class ChatWindow extends Frame
     {
         visible: bind showContents
         border: Border.EmptyBorder
-        background: bind theme.chatPanelBackground
+        background: bind ThemeManager.getInstance().chatPanelBackground
         content: scrollbar
     };
     
@@ -388,26 +388,26 @@ public class ChatWindow extends Frame
                     sizeToFitCanvas: true
                     content: BorderPanel
                     {
-                        border: bind theme.windowBorder
-                        background: bind theme.chatFrameBackground
+                        border: bind ThemeManager.getInstance().windowBorder
+                        background: bind ThemeManager.getInstance().chatFrameBackground
 
                         top: Canvas
                         {
                             //visible: bind showContents
 
                             border: Border.EmptyBorder
-                            background: bind theme.chatPanelBackground
+                            background: bind ThemeManager.getInstance().chatPanelBackground
 
                             content: ChatTitleBar
                             {
-                                var offsets = bind (theme.windowBorder.left + theme.windowBorder.right)
+                                var offsets = bind (ThemeManager.getInstance().windowBorder.left + ThemeManager.getInstance().windowBorder.right)
                                 var userFullName = bind "{buddy.firstName.toUpperCase()} {buddy.lastName.toUpperCase()}"
 
                                 frame: frame
                                 title: bind if ((buddy.firstName.length()>0) or (buddy.lastName.length()>0)) then userFullName else "{buddy.userName}"
                                 width: bind (panel.width - offsets)
-                                foreground: bind theme.titleBarForeground
-                                background: bind theme.titleBarBackground
+                                foreground: bind ThemeManager.getInstance().titleBarForeground
+                                background: bind ThemeManager.getInstance().titleBarBackground
 
                                 onClose: function()
                                 {
@@ -424,14 +424,14 @@ public class ChatWindow extends Frame
 
                         bottom: BorderPanel
                         {
-                            border: bind theme.messageInputBorder
+                            border: bind ThemeManager.getInstance().messageInputBorder
 
                             center: Canvas
                             {
                                 visible: bind showContents
 
                                 border: Border.BorderEmptyBorder
-                                background: bind theme.chatPanelBackground
+                                background: bind ThemeManager.getInstance().chatPanelBackground
 
                                 content: chatInput
                             }
@@ -439,7 +439,7 @@ public class ChatWindow extends Frame
                             right: Canvas
                             {
                                 border: Border.EmptyBorder
-                                background: bind theme.chatPanelBackground
+                                background: bind ThemeManager.getInstance().chatPanelBackground
 
                                 content: ResizeIcon
                                 {
@@ -460,7 +460,7 @@ public class ChatWindow extends Frame
                     y: 0
                     width: bind frame.width
                     height: bind frame.height
-                    fill: bind theme.windowInactive
+                    fill: bind ThemeManager.getInstance().windowInactive
                 },
             ]
         }

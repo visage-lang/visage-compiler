@@ -2,12 +2,13 @@ package casual.ui;
 
 import casual.ui.*;
 
-public class Frame extends javafx.ui.Frame
+public abstract class Frame extends javafx.ui.Frame
 {
     attribute inLiveResize: Boolean = false;
     attribute doLiveResize: Boolean = java.lang.System.getProperty("os.name").startsWith("Mac") == false;
     
     attribute dialog: Dialog;
+    public abstract function requestFocus();
     
     public function showErrorMessage(text:String, headline:String, interactive:Boolean) {
         if (dialog <> null) {

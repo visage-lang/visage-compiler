@@ -2,10 +2,18 @@ package casual.ui;
 
 import javafx.ui.AbstractColor;
 
+import javafx.ui.canvas.Node;
 import javafx.ui.canvas.CompositeNode;
 import javafx.ui.canvas.Group;
 import javafx.ui.canvas.Circle;
 import javafx.ui.canvas.Rect;
+import javafx.ui.canvas.Translate;
+import javafx.ui.canvas.Rotate;
+
+import javafx.ui.animation.Timeline;
+import javafx.ui.animation.KeyFrame;
+import javafx.ui.animation.NumberValue;
+import com.sun.javafx.runtime.PointerFactory;
 
 class IndeterminateProgressBar extends CompositeNode
 {
@@ -30,7 +38,7 @@ class IndeterminateProgressBar extends CompositeNode
     private attribute __rot1 = bind pf.make(rot1);
     private attribute _rot1 = __rot1.unwrap();
     private attribute rot1Timeline: Timeline = Timeline {
-        repeatCount: Timeline.INFINITY
+        repeatCount: java.lang.Double.POSITIVE_INFINITY
         keyFrames: [
              KeyFrame {
                 keyTime: 0s
@@ -86,7 +94,7 @@ class IndeterminateProgressBar extends CompositeNode
             var strokeWidth = bind (size/8)
 
             visible: bind active
-            transform: translate(x, y)
+            transform: Translate {x: x, y: y}
             content:
             [
                 Circle
@@ -96,7 +104,7 @@ class IndeterminateProgressBar extends CompositeNode
                     cx: bind size
                     cy: bind size
                     radius: bind size
-                },
+                } as Node,
                 Rect
                 {
                     fill: fill
@@ -104,8 +112,8 @@ class IndeterminateProgressBar extends CompositeNode
                     width: bind (size - (2*strokeWidth))
                     arcHeight: bind (2*strokeWidth)
                     arcWidth: bind (2*strokeWidth)
-                    transform: bind [translate(size-strokeWidth, size-strokeWidth), rotate(if (active) then rot1 else 0, strokeWidth, strokeWidth)]
-                },
+                    transform: bind [Translate {x: size-strokeWidth, y: size-strokeWidth}, Rotate {angle: if (active) then rot1 else 0, cx: strokeWidth, cy: strokeWidth}]
+                } as Node,
                 Rect
                 {
                     fill: fill
@@ -113,8 +121,8 @@ class IndeterminateProgressBar extends CompositeNode
                     width: bind (size - (3*strokeWidth))
                     arcHeight: bind (2*strokeWidth)
                     arcWidth: bind (2*strokeWidth)
-                    transform: bind [translate(size-strokeWidth, size-strokeWidth), rotate(if (active) then rot2 else 0, strokeWidth, strokeWidth)]
-                }
+                    transform: bind [Translate {x: size-strokeWidth, y: size-strokeWidth}, Rotate {angle: if (active) then rot2 else 0, cx: strokeWidth, cy: strokeWidth}]
+                } as Node
             ]
         }
     };

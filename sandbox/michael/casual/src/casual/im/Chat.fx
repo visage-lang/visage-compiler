@@ -1,8 +1,8 @@
 package casual.im;
 
-public class Chat
+public abstract class Chat
 {
-    public function sendMessage(message:String);
+    public abstract function sendMessage(message:String): Void;
     public attribute receiveMessage: function(message:String);
 }
 

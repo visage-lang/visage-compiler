@@ -9,7 +9,10 @@ import javafx.ui.Font;
 import javafx.ui.Cursor;
 import javafx.ui.KeyEvent;
 import javafx.ui.KeyStroke;
+import javafx.ui.HorizontalAlignment;
+import javafx.ui.VerticalAlignment;
 
+import javafx.ui.canvas.Node;
 import javafx.ui.canvas.CompositeNode;
 import javafx.ui.canvas.Text;
 import javafx.ui.canvas.Group;
@@ -52,10 +55,8 @@ public class Dialog extends CompositeNode
     public attribute text: String;
     public attribute headline: String;
     
-    function getHeadline(type: DialogType): String;
-    
     function getFontSmall(type: DialogType): Font {
-        return theme.windowFont.bold();
+        return ThemeManager.getInstance().windowFont.bold();
     };
     
     function getFontBig(type: DialogType): Font {
@@ -64,51 +65,87 @@ public class Dialog extends CompositeNode
     
     function getForeground(type: DialogType): Color {
         return if (type == DialogType.ERROR)
-            then theme.errorForeground
+            then ThemeManager.getInstance().errorForeground
         else if (type == DialogType.WARNING)
-            then theme.warningForeground
+            then ThemeManager.getInstance().warningForeground
         else
-            theme.infoForeground;
+            ThemeManager.getInstance().infoForeground;
     };
     
     function getBackgroundInside(type: DialogType): AbstractColor {
         return if (type == DialogType.ERROR)
-            then theme.errorBackgroundInside
+            then ThemeManager.getInstance().errorBackgroundInside
         else if (type == DialogType.WARNING)
-            then theme.warningBackgroundInside
+            then ThemeManager.getInstance().warningBackgroundInside
         else
-            theme.infoBackgroundInside;
+            ThemeManager.getInstance().infoBackgroundInside;
     };
     
     function getBackgroundOutside(type: DialogType): AbstractColor {
         return if (type == DialogType.ERROR)
-            then theme.errorBackgroundOutside
+            then ThemeManager.getInstance().errorBackgroundOutside
         else if (type == DialogType.WARNING)
-            then theme.warningBackgroundOutside
+            then ThemeManager.getInstance().warningBackgroundOutside
         else
-            theme.infoBackgroundOutside;
+            ThemeManager.getInstance().infoBackgroundOutside;
     };
     
     function getBorderColor(type: DialogType): AbstractColor {
         return if (type == DialogType.ERROR)
-            then theme.errorBorderColor
+            then ThemeManager.getInstance().errorBorderColor
         else if (type == DialogType.WARNING)
-            then theme.warningBorderColor
+            then ThemeManager.getInstance().warningBorderColor
         else
-            theme.infoBorderColor;
+            ThemeManager.getInstance().infoBorderColor;
     };
 
     override attribute isSelectionRoot = true;
+    
+    private attribute strokeWidth = 2;
+    private attribute margin = 10;
+    private attribute dialogWidth = bind if (width<>0) then width else (frame.width - 100);
+    private attribute dialogHeight = bind if (height<>0) then height else (0.4 * frame.height);
+    private attribute dialogX = bind if (x<>0) then x else ((frame.width/2) - (dialogWidth/2));
+    private attribute dialogY = bind if (y<>0) then y else ((frame.height/2) - (dialogHeight/2));
+
+    private attribute button: Button =
+        Button {
+            var w = 60
+            var h = 20
+
+            visible: bind (interactive==true)
+            focused: bind active
+            focusable: true
+            text: bind buttonText
+            x: bind (dialogX + dialogWidth - w - margin)
+            y: bind (dialogY + dialogHeight - h - margin)
+            width: bind w
+            height: bind h
+            font: bind getFontSmall(type)
+            onClick: function()
+            {
+                active = false;
+               //TODO DO LATER - this is a work around until a more permanent solution is provided
+                javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                    public function run():Void {
+                        frame.requestFocus();
+                    }
+                });
+            }
+            onKeyDown: function(e:KeyEvent)
+            {
+                if (e.keyStroke == KeyStroke.ENTER)
+                {
+                    e.source.consume();
+
+                    button.doClick();
+                }
+            }
+        };
+
 
     function composeNode() { 
         Group {
-            var strokeWidth = 2;
-            var dialogWidth = bind if (width<>0) then width else (frame.width - 100);
-            var dialogHeight = bind if (height<>0) then height else (0.4 * frame.height);
-            var dialogX = bind if (x<>0) then x else ((frame.width/2) - (dialogWidth/2));
-            var dialogY = bind if (y<>0) then y else ((frame.height/2) - (dialogHeight/2));
-            var margin = 10;
-
             visible: bind active
             cursor: Cursor.DEFAULT
 
@@ -133,7 +170,7 @@ public class Dialog extends CompositeNode
                     {
                         e.source.consume();
                     }
-                },
+                } as Node,
                 Rect
                 {
                     x: bind dialogX
@@ -143,70 +180,37 @@ public class Dialog extends CompositeNode
                     fill: bind getBackgroundInside(type)
                     strokeWidth: bind strokeWidth
                     stroke: bind getBorderColor(type)
-                },
+                } as Node,
                 Text
                 {
                     visible: bind (headline<>null)
                     x: bind (dialogX + margin)
                     y: bind (dialogY + 2*margin)
-                    valign: MIDDLE
-                    halign: LEADING	
+                    valign: VerticalAlignment.MIDDLE
+                    halign: HorizontalAlignment.LEADING	
                     fill: bind getForeground(type)
                     content: bind headline
                     font: bind getFontBig(type)
-                },
+                } as Node,
                 Text
                 {
                     var offset = if (headline<>null) then 0 else margin
 
                     x: bind (dialogX + (dialogWidth/2))
                     y: bind (dialogY + (dialogHeight/2) - offset)
-                    valign: MIDDLE
-                    halign: CENTER
+                    valign: VerticalAlignment.MIDDLE
+                    halign: HorizontalAlignment.CENTER
                     fill: bind getForeground(type)
                     content: bind text
                     font: bind getFontSmall(type)
-                },
-                Button
-                {
-                    var w = 60
-                    var h = 20
-
-                    visible: bind (interactive==true)
-                    focused: bind active
-                    focusable: true
-                    text: bind buttonText
-                    x: bind (dialogX + dialogWidth - w - margin)
-                    y: bind (dialogY + dialogHeight - h - margin)
-                    width: bind w
-                    height: bind h
-                    font: bind getFontSmall(type)
-                    onClick: function()
-                    {
-                        active = false;
-                       //TODO DO LATER - this is a work around until a more permanent solution is provided
-                        javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
-                            public function run():Void {
-                                frame.requestFocus();
-                            }
-                        });
-                    }
-                    onKeyDown: function(e:KeyEvent)
-                    {
-                        if (e.keyStroke == KeyStroke.ENTER)
-                        {
-                            e.source.consume();
-
-                            doClick();
-                        }
-                    }
-                },
+                } as Node,
+                button as Node,
                 IndeterminateProgressBar
                 {
                     var size = 10
 
-                    halign: CENTER
-                    valign: CENTER
+                    halign: HorizontalAlignment.CENTER
+                    valign: VerticalAlignment.CENTER
                     active: bind ((active==true) and (interactive==false))
                     x: bind (dialogX + dialogWidth - size - 2*margin)
                     y: bind (dialogY + dialogHeight - size - 2*margin)

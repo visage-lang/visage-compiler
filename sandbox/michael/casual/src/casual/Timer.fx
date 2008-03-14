@@ -1,5 +1,6 @@
 package casual;
 
+import javafx.ui.animation.*;
 import java.util.Calendar;
 import java.text.DateFormat;
 

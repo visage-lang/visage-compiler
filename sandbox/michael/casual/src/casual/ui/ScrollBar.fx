@@ -12,11 +12,15 @@ import casual.theme.*;
 
 import javafx.ui.AbstractColor;
 import javafx.ui.Color;
+import javafx.ui.HorizontalAlignment;
+import javafx.ui.VerticalAlignment;
 
+import javafx.ui.canvas.Node;
 import javafx.ui.canvas.CompositeNode;
 import javafx.ui.canvas.Group;
 import javafx.ui.canvas.Rect;
 import javafx.ui.canvas.Translate;
+import javafx.ui.canvas.Rotate;
 import javafx.ui.canvas.Polygon;
 import javafx.ui.canvas.CanvasMouseEvent;
 import javafx.ui.Orientation;
@@ -54,12 +58,12 @@ public class ScrollBar extends CompositeNode
             var thumbSize = bind (3*thickness)
             var runSize = bind (size - thumbSize - 2*thickness) // run area of thumb where thumb is 3*thickness and 2 buttons are 2*thickness
             var scrollOffset = bind Math.max(runSize*scrollFactor, 0)
-            var strokeWidth = bind theme.uiStrokeWidth
+            var strokeWidth = bind ThemeManager.getInstance().uiStrokeWidth
             var buttonAutorepeat = 1
             var thumbAutorepeat = 500
 
             focusable: false
-            transform: bind if (orientation == Orientation.VERTICAL) then rotate(90, (thickness/2), (thickness/2)) else null
+            transform: bind if (orientation == Orientation.VERTICAL) then Rotate {angle: 90, cx: thickness/2, cy: thickness/2} else null
 
             content:
             [
@@ -68,17 +72,17 @@ public class ScrollBar extends CompositeNode
                 {
                     width: bind size
                     height: thickness
-                    fill: bind theme.chatPanelBackgroundDark
-                },
+                    fill: bind ThemeManager.getInstance().chatPanelBackgroundDark
+                } as Node,
 
                 // track area
                 Rect
                 {
                     width: bind runSize + thumbSize - strokeWidth
                     height: thickness
-                    stroke: bind if (showThumb==true) then theme.uiBorderColor else null
+                    stroke: bind if (showThumb==true) then ThemeManager.getInstance().uiBorderColor else null
                     strokeWidth: bind strokeWidth
-                    fill: bind theme.chatPanelBackgroundDark
+                    fill: bind ThemeManager.getInstance().chatPanelBackgroundDark
 
                     var pressed = bind false
                     var pressHover = bind this.hover and pressed
@@ -100,7 +104,7 @@ public class ScrollBar extends CompositeNode
                     {
                         pressed = false;
                     }
-                },
+                } as Node,
 
                 // thumb
                 Group
@@ -141,44 +145,44 @@ public class ScrollBar extends CompositeNode
                             {
                                 focusable: false
                                 selectable: true
-                                fill: bind if (pressHover) then theme.uiBackground.darker() else theme.uiBackground
-                                stroke: theme.uiBorderColor
+                                fill: bind if (pressHover) then ThemeManager.getInstance().uiBackground.darker() else ThemeManager.getInstance().uiBackground
+                                stroke: ThemeManager.getInstance().uiBorderColor
                                 strokeWidth: bind strokeWidth
                                 height: thickness
                                 width: bind (thumbSize-strokeWidth)
-                            },
+                            } as Node,
                             Rect
                             {
-                                fill: bind theme.uiForeground
+                                fill: bind ThemeManager.getInstance().uiForeground
                                 x: bind (thumbSize/2 - 4) -1.5
                                 y: 3
                                 height: thickness-7
                                 width: 2
-                            },
+                            } as Node,
                             Rect
                             {
-                                fill: bind theme.uiForeground
+                                fill: bind ThemeManager.getInstance().uiForeground
                                 x: bind (thumbSize/2) -1.5
                                 y: 3
                                 height: thickness-7
                                 width: 2
-                            },
+                            } as Node,
                             Rect
                             {
-                                fill: bind theme.uiForeground
+                                fill: bind ThemeManager.getInstance().uiForeground
                                 x: bind (thumbSize/2 + 4) -1.5
                                 y: 3
                                 height: thickness-7
                                 width: 2
-                            },
+                            } as Node,
                             Rect
                             {
-                                fill: bind if (pressHover) then theme.uiBackground.darker() else theme.uiBackground
+                                fill: bind if (pressHover) then ThemeManager.getInstance().uiBackground.darker() else ThemeManager.getInstance().uiBackground
                                 x: 4
                                 y: (thickness/2) - 1.5
                                 height: 2
                                 width: bind (thumbSize-8)
-                            },
+                            } as Node,
                         ]
                     }
                 },
@@ -187,7 +191,7 @@ public class ScrollBar extends CompositeNode
                 Group
                 {
                     visible: bind showButtons
-                    transform: bind translate(size-thickness-thickness-1, 0)
+                    transform: bind Translate {x: size-thickness-thickness-1, y: 0}
                     focusable: false
                     var pressed = bind false
                     var pressHover = bind pressed and this.hover
@@ -214,19 +218,19 @@ public class ScrollBar extends CompositeNode
                             selectable: true
                             width: thickness-1
                             height: thickness
-                            fill: bind if (pressHover) then theme.uiBackground.darker() else theme.uiBackground
-                            stroke: theme.uiBorderColor
+                            fill: bind if (pressHover) then ThemeManager.getInstance().uiBackground.darker() else ThemeManager.getInstance().uiBackground
+                            stroke: ThemeManager.getInstance().uiBorderColor
                             strokeWidth: bind strokeWidth
-                        },
+                        } as Node,
                         Polygon
                         {
-                            transform: translate((thickness/2), (thickness/2))
-                            valign: HorizontalAlignment.CENTER
+                            transform: Translate {x: thickness/2, y: thickness/2}
+                            valign: VerticalAlignment.CENTER
                             halign: HorizontalAlignment.CENTER
-                            fill: bind theme.uiForeground
+                            fill: bind ThemeManager.getInstance().uiForeground
                             points: [0,4.5, 7,-0.5, 7,9.5]
 
-                        }
+                        } as Node
                     ]
                 },
 
@@ -234,13 +238,13 @@ public class ScrollBar extends CompositeNode
                 Group
                 {
                     visible: bind showButtons
-                    transform: bind translate(size, 0)
+                    transform: bind Translate {x: size, y: 0}
                     focusable: false
                     halign: HorizontalAlignment.TRAILING
                     var pressed = bind false
                     var pressHover = bind pressed and this.hover
                         on replace {
-                            if (newValue)
+                            if (pressHover)
                             {
                                  scrollFactor = Math.min(1.0, scrollFactor + unitScrollFactor);
                             }
@@ -262,18 +266,18 @@ public class ScrollBar extends CompositeNode
                             selectable: true
                             width: thickness-1
                             height: thickness
-                            fill: bind if (pressHover) then theme.uiBackground.darker() else theme.uiBackground
-                            stroke: theme.uiBorderColor
+                            fill: bind if (pressHover) then ThemeManager.getInstance().uiBackground.darker() else ThemeManager.getInstance().uiBackground
+                            stroke: ThemeManager.getInstance().uiBorderColor
                             strokeWidth: bind strokeWidth
-                        },
+                        } as Node,
                         Polygon
                         {
-                            transform: translate((thickness/2), (thickness/2))
-                            valign: HorizontalAlignment.CENTER
+                            transform: Translate {x: thickness/2, y: thickness/2}
+                            valign: VerticalAlignment.CENTER
                             halign: HorizontalAlignment.CENTER
-                            fill: bind theme.uiForeground
+                            fill: bind ThemeManager.getInstance().uiForeground
                             points: [0,-0.5, 7,4.5, 0,9.5]
-                        }
+                        } as Node
                     ]
                 },
             ]

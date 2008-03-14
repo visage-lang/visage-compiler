@@ -127,7 +127,7 @@ public class Buddy
 
     public function sendMessage(message:String)
     {
-        this.chat.sendMessage(message);
+        chat.sendMessage(message);
     }
 
     public function startChat()

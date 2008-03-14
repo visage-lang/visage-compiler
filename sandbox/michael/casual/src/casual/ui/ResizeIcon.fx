@@ -5,6 +5,7 @@ import casual.theme.*;
 import javafx.ui.AbstractColor;
 import javafx.ui.Color;
 
+import javafx.ui.canvas.Node;
 import javafx.ui.canvas.CompositeNode;
 import javafx.ui.canvas.Group;
 import javafx.ui.canvas.Rect;
@@ -34,7 +35,7 @@ public class ResizeIcon extends CompositeNode
 
                     width: bind width
                     height: bind height
-                    fill: bind theme.chatFrameBackground
+                    fill: bind ThemeManager.getInstance().chatFrameBackground
 
                     onMousePressed: function(e:CanvasMouseEvent)
                     {
@@ -53,55 +54,55 @@ public class ResizeIcon extends CompositeNode
                         frame.inLiveResize = false;
                         frame.requestFocus();
                     }
-                },
+                } as Node,
                 Line
                 {
                     x1: bind (width-2)
                     y1: bind (height-1)
                     x2: bind (width-1)
                     y2: bind (height-2)
-                    stroke: bind theme.defaultBackground
-                },
+                    stroke: bind ThemeManager.getInstance().defaultBackground
+                } as Node,
                 Line
                 {
                     x1: bind (width-6)
                     y1: bind (height-1)
                     x2: bind (width-1)
                     y2: bind (height-6)
-                    stroke: bind theme.defaultBackground
-                },
+                    stroke: bind ThemeManager.getInstance().defaultBackground
+                } as Node,
                 Line
                 {
                     x1: bind (width-10)
                     y1: bind (height-1)
                     x2: bind (width-1)
                     y2: bind (height-10)
-                    stroke: bind theme.defaultBackground
-                },
+                    stroke: bind ThemeManager.getInstance().defaultBackground
+                } as Node,
                 Line
                 {
                     x1: bind (width-3)
                     y1: bind (height-1)
                     x2: bind (width-1)
                     y2: bind (height-3)
-                    stroke: bind theme.uiForeground
-                },
+                    stroke: bind ThemeManager.getInstance().uiForeground
+                } as Node,
                 Line
                 {
                     x1: bind (width-7)
                     y1: bind (height-1)
                     x2: bind (width-1)
                     y2: bind (height-7)
-                    stroke: bind theme.uiForeground
-                },
+                    stroke: bind ThemeManager.getInstance().uiForeground
+                } as Node,
                 Line
                 {
                     x1: bind (width-11)
                     y1: bind (height-1)
                     x2: bind (width-1)
                     y2: bind (height-11)
-                    stroke: bind theme.uiForeground
-                },
+                    stroke: bind ThemeManager.getInstance().uiForeground
+                } as Node,
             ]
         }
     };

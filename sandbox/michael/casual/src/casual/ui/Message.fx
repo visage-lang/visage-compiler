@@ -8,6 +8,7 @@ import javafx.ui.Color;
 import javafx.ui.EmptyBorder;
 import javafx.ui.Font;
 
+import javafx.ui.canvas.Node;
 import javafx.ui.canvas.CompositeNode;
 import javafx.ui.canvas.Group;
 import javafx.ui.canvas.View;
@@ -31,38 +32,38 @@ public class Message extends CompositeNode
     
     private function getForeground(type: MessageType): Color {
         return if (type == MessageType.INCOMING)
-            then theme.messageOutForeground
+            then ThemeManager.getInstance().messageOutForeground
         else if (type == MessageType.OUTGOING)
-            then theme.messageInForeground
+            then ThemeManager.getInstance().messageInForeground
         else //if (type == MessageType.COMMENT)
-            theme.commentForeground;
+            ThemeManager.getInstance().commentForeground;
     };
     
-    private function getBackground(type: MessageType): AbstractColor {
+    private function getBackground(type: MessageType): Color {
         return if (type == MessageType.INCOMING)
-            then theme.messageOutBackground
+            then ThemeManager.getInstance().messageOutBackground
         else if (type == MessageType.OUTGOING)
-            then theme.messageInBackground
+            then ThemeManager.getInstance().messageInBackground
         else //if (type == COMMENT:MessageType)
-            theme.commentBackground;
+            ThemeManager.getInstance().commentBackground;
     };
     
     private function getFont(type: MessageType): Font {
         return if (type == MessageType.INCOMING)
-            then theme.messageFont
+            then ThemeManager.getInstance().messageFont
         else if (type == MessageType.OUTGOING)
-            then theme.messageFont
+            then ThemeManager.getInstance().messageFont
         else //if (type == MessageType.COMMENT)
-            theme.commentFont;
+            ThemeManager.getInstance().commentFont;
     };
     
     private function getBorder(type: MessageType): EmptyBorder {
         return if (type == MessageType.INCOMING)
-            then theme.messageBorder
+            then ThemeManager.getInstance().messageBorder
         else if (type == MessageType.OUTGOING)
-            then theme.messageBorder
+            then ThemeManager.getInstance().messageBorder
         else //if (type == COMMENT:MessageType)
-            theme.commentBorder;
+            ThemeManager.getInstance().commentBorder;
     };
 
     function composeNode() {
@@ -70,7 +71,7 @@ public class Message extends CompositeNode
             var label = Label
             {
                 var margin = if (type == MessageType.COMMENT) then 1 else 0
-                var offsets = (margin + theme.messageBorder.left + theme.messageBorder.right) 
+                var offsets = (margin + ThemeManager.getInstance().messageBorder.left + ThemeManager.getInstance().messageBorder.right) 
                 focusable: true
                 border: bind getBorder(type)
                 font: bind getFont(type)
@@ -89,12 +90,12 @@ public class Message extends CompositeNode
                 Rect
                 {
                     visible: bind (type <> MessageType.COMMENT)
-                    stroke: bind theme.messageBorderColor
+                    stroke: bind ThemeManager.getInstance().messageBorderColor
                     x: 0
                     y: -1
                     width: bind label.width-1
                     height: bind label.height
-                },
+                } as Node,
             ]
         }
     };

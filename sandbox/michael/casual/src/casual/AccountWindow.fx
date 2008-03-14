@@ -155,18 +155,20 @@ public class AccountWindow extends Frame
 
     attribute addressRow: Row = Row {alignment: Alignment.BASELINE}
     attribute passwordRow: Row = Row {alignment: Alignment.BASELINE}
+    attribute firstNameRow: Row = Row {alignment: Alignment.BASELINE}
+    attribute lastNameRow: Row = Row {alignment: Alignment.BASELINE}
     attribute labelsColumn: Column = Column {alignment: Alignment.TRAILING}
     attribute fieldsColumn: Column = Column {alignment: Alignment.LEADING, resizable: true}
-    
+
     attribute userField: FocusedTextField = FocusedTextField {
-        frame: frame
+        frame: this
 //        horizontal: {pref: 270}
         row: firstNameRow
         column: fieldsColumn
-        foreground: bind theme.fieldForeground
-        background: bind theme.fieldBackground
-        font: bind theme.windowFont.bold()
-        border: bind theme.windowInputAreaBorder
+        foreground: bind ThemeManager.getInstance().fieldForeground
+        background: bind ThemeManager.getInstance().fieldBackground
+        font: bind ThemeManager.getInstance().windowFont.bold()
+        border: bind ThemeManager.getInstance().windowInputAreaBorder
         value: bind buddy.firstName
         onChange: function(newValue) 
         {
@@ -182,9 +184,9 @@ public class AccountWindow extends Frame
         row: passwordRow
         column: fieldsColumn
         foreground: bind ThemeManager.getInstance().fieldForeground
-        background: bind theme.fieldBackground
-        font: bind theme.windowFont.bold()
-        border: bind theme.windowInputAreaBorder
+        background: bind ThemeManager.getInstance().fieldBackground
+        font: bind ThemeManager.getInstance().windowFont.bold()
+        border: bind ThemeManager.getInstance().windowInputAreaBorder
         value: bind buddy.password
         onKeyDown: function(e:KeyEvent)
         {
@@ -209,7 +211,7 @@ public class AccountWindow extends Frame
     attribute focusRectWidth: Integer;
     attribute focusRectHeight: Integer;
 
-    override attribute background = bind theme.windowBackground;
+    override attribute background = bind ThemeManager.getInstance().windowBackground;
     override attribute undecorated = true;
     override attribute width = 440;
     override attribute height = 250;
@@ -224,7 +226,7 @@ public class AccountWindow extends Frame
             text: "CANCEL"
             width: 60
             height: 20
-            font: bind theme.windowFont.bold()
+            font: bind ThemeManager.getInstance().windowFont.bold()
             onClick: function()
             {
                 cancel();
@@ -236,7 +238,7 @@ public class AccountWindow extends Frame
             text: bind if (buddy.type == Buddy.BuddyType.USER) then "LOGIN" else "ADD"
             width: 50
             height: 20
-            font: bind theme.windowFont.bold()
+            font: bind ThemeManager.getInstance().windowFont.bold()
             onClick: function()
             {
                 addlogin();
@@ -256,23 +258,23 @@ public class AccountWindow extends Frame
                     {
                         var panel = this
 
-                        border: bind theme.windowBorder
-                        background: bind theme.chatFrameBackground
+                        border: bind ThemeManager.getInstance().windowBorder
+                        background: bind ThemeManager.getInstance().chatFrameBackground
 
                         top: Canvas
                         {
-                            border: EmptyBorder
-                            background: bind theme.chatPanelBackground
+                            border: new EmptyBorder
+                            background: bind ThemeManager.getInstance().chatPanelBackground
 
                             content: TitleBar
                             {
-                                var offsets = bind (theme.windowBorder.left + theme.windowBorder.right)
+                                var offsets = bind (ThemeManager.getInstance().windowBorder.left + ThemeManager.getInstance().windowBorder.right)
 
                                 frame: this
                                 title: "CASUAL ACCOUNTS"
                                 width: bind (panel.width - offsets)
-                                foreground: bind theme.titleBarForeground
-                                background: bind theme.titleBarBackground
+                                foreground: bind ThemeManager.getInstance().titleBarForeground
+                                background: bind ThemeManager.getInstance().titleBarBackground
 
                                 onClose: function()
                                 {
@@ -284,7 +286,7 @@ public class AccountWindow extends Frame
                         center: Canvas
                         {
                             border: EmptyBorder
-                            background: bind theme.chatPanelBackground
+                            background: bind ThemeManager.getInstance().chatPanelBackground
 
                             content: Group
                             {
@@ -298,8 +300,8 @@ public class AccountWindow extends Frame
 
                                         content: SimpleLabel
                                         {
-                                            font: bind theme.windowFont.bold()
-                                            foreground: bind theme.messageInputForeground
+                                            font: bind ThemeManager.getInstance().windowFont.bold()
+                                            foreground: bind ThemeManager.getInstance().messageInputForeground
                                             text: "{text} PERSONAL DETAILS"
                                         }
                                     },
@@ -311,11 +313,6 @@ public class AccountWindow extends Frame
 
                                         content: GroupPanel
                                         {
-                                            var firstNameRow = Row {alignment: Alignment.BASELINE}
-                                            var lastNameRow = Row {alignment: Alignment.BASELINE}
-                                            var labelsColumn = Column {alignment: Alignment.TRAILING}
-                                            var fieldsColumn = Column {alignment: Alignment.LEADING, resizable: true}
-
                                             rows: [firstNameRow, lastNameRow]
                                             columns: [labelsColumn, fieldsColumn]
                                             autoCreateContainerGaps: false
@@ -326,10 +323,10 @@ public class AccountWindow extends Frame
                                                 {
                                                     row: firstNameRow
                                                     column: labelsColumn
-                                                    border: bind theme.windowInputAreaBorder
-                                                    font: bind theme.windowFont.bigger()
+                                                    border: bind ThemeManager.getInstance().windowInputAreaBorder
+                                                    font: bind ThemeManager.getInstance().windowFont.bigger()
                                                     background: new Color(0,0,0,0)
-                                                    foreground: bind theme.messageInputForeground
+                                                    foreground: bind ThemeManager.getInstance().messageInputForeground
                                                     text: "first name -"
 
                                                 },
@@ -337,22 +334,22 @@ public class AccountWindow extends Frame
                                                 SimpleLabel
                                                 {
                                                     row: lastNameRow, column: labelsColumn
-                                                    border: bind theme.windowInputAreaBorder
-                                                    font: bind theme.windowFont.bigger()
+                                                    border: bind ThemeManager.getInstance().windowInputAreaBorder
+                                                    font: bind ThemeManager.getInstance().windowFont.bigger()
                                                     background: new Color(0,0,0,0)
-                                                    foreground: bind theme.messageInputForeground
+                                                    foreground: bind ThemeManager.getInstance().messageInputForeground
                                                     text: "last name -"
                                                 },
                                                 FocusedTextField
                                                 {
-                                                    frame: frame
+                                                    frame: this
 //                                                    horizontal: {pref: 270}
                                                     row: lastNameRow
                                                     column: fieldsColumn
-                                                    foreground: bind theme.fieldForeground
-                                                    background: bind theme.fieldBackground
-                                                    font: bind theme.windowFont.bold()
-                                                    border: bind theme.windowInputAreaBorder
+                                                    foreground: bind ThemeManager.getInstance().fieldForeground
+                                                    background: bind ThemeManager.getInstance().fieldBackground
+                                                    font: bind ThemeManager.getInstance().windowFont.bold()
+                                                    border: bind ThemeManager.getInstance().windowInputAreaBorder
                                                     value: bind buddy.lastName
                                                     onChange: function(newValue) 
                                                     {
@@ -367,8 +364,8 @@ public class AccountWindow extends Frame
                                         transform: bind translate(30, 105)
                                         content: SimpleLabel
                                         {
-                                            font: bind theme.windowFont.bold()
-                                            foreground: bind theme.messageInputForeground
+                                            font: bind ThemeManager.getInstance().windowFont.bold()
+                                            foreground: bind ThemeManager.getInstance().messageInputForeground
                                             text: "INSTANT MESSENGER DETAILS"
                                         }
                                     },
@@ -388,10 +385,10 @@ public class AccountWindow extends Frame
                                                 SimpleLabel
                                                 {
                                                     row: addressRow, column: labelsColumn
-                                                    border: bind theme.windowInputAreaBorder
-                                                    font: bind theme.windowFont.bigger()
+                                                    border: bind ThemeManager.getInstance().windowInputAreaBorder
+                                                    font: bind ThemeManager.getInstance().windowFont.bigger()
                                                     background: new Color(0,0,0,0)
-                                                    foreground: bind theme.messageInputForeground
+                                                    foreground: bind ThemeManager.getInstance().messageInputForeground
                                                     text: "account address -"
 
                                                 },
@@ -411,14 +408,14 @@ public class AccountWindow extends Frame
                                                     [
                                                         FocusedTextField
                                                         {
-                                                            frame: frame 
+                                                            frame: this 
 //                                                            horizontal: {pref: 130}
                                                             row: row
                                                             column: nameColumn
-                                                            foreground: bind theme.fieldForeground
-                                                            background: bind theme.fieldBackground
-                                                            font: bind theme.windowFont.bold()
-                                                            border: bind theme.windowInputAreaBorder
+                                                            foreground: bind ThemeManager.getInstance().fieldForeground
+                                                            background: bind ThemeManager.getInstance().fieldBackground
+                                                            font: bind ThemeManager.getInstance().windowFont.bold()
+                                                            border: bind ThemeManager.getInstance().windowInputAreaBorder
                                                             value: bind buddy.userName
                                                             onChange: function(newValue) 
                                                             {
@@ -430,22 +427,22 @@ public class AccountWindow extends Frame
 //                                                            horizontal: {pref: 10}
                                                             row: row
                                                             column: atColumn
-                                                            border: bind theme.windowInputAreaBorder
-                                                            font: bind theme.windowFont.bigger().bold()
+                                                            border: bind ThemeManager.getInstance().windowInputAreaBorder
+                                                            font: bind ThemeManager.getInstance().windowFont.bigger().bold()
                                                             background: new Color(0,0,0,0)
-                                                            foreground: bind theme.messageInputForeground
+                                                            foreground: bind ThemeManager.getInstance().messageInputForeground
                                                             text: "@"
                                                         },
                                                         FocusedTextField
                                                         {
-                                                            frame: frame
+                                                            frame: this
 //                                                            horizontal: {pref: 118}
                                                             row: row
                                                             column: serverColumn
-                                                            foreground: bind theme.fieldForeground
-                                                            background: bind theme.fieldBackground
-                                                            font: bind theme.windowFont.bold()
-                                                            border: bind theme.windowInputAreaBorder
+                                                            foreground: bind ThemeManager.getInstance().fieldForeground
+                                                            background: bind ThemeManager.getInstance().fieldBackground
+                                                            font: bind ThemeManager.getInstance().windowFont.bold()
+                                                            border: bind ThemeManager.getInstance().windowInputAreaBorder
                                                             value: bind buddy.accountName
                                                             onChange: function(newValue) 
                                                             {
@@ -459,10 +456,10 @@ public class AccountWindow extends Frame
                                                     visible: bind (buddy.type == Buddy.BuddyType.USER)
                                                     row: passwordRow
                                                     column: labelsColumn
-                                                    border: bind theme.windowInputAreaBorder
-                                                    font: bind theme.windowFont.bigger()
+                                                    border: bind ThemeManager.getInstance().windowInputAreaBorder
+                                                    font: bind ThemeManager.getInstance().windowFont.bigger()
                                                     background: new Color(0,0,0,0)
-                                                    foreground: bind theme.messageInputForeground
+                                                    foreground: bind ThemeManager.getInstance().messageInputForeground
                                                     text: "account password -"
                                                 },
                                                 passwordField
@@ -496,7 +493,7 @@ public class AccountWindow extends Frame
                     width: bind focusRectWidth-strokeWidth
                     height: bind focusRectHeight-strokeWidth
                     strokeWidth: bind strokeWidth
-                    stroke: bind theme.fieldFocusColor
+                    stroke: bind ThemeManager.getInstance().fieldFocusColor
                 },
                 dialog,
                 
@@ -508,7 +505,7 @@ public class AccountWindow extends Frame
                     y: bind 0
                     width: bind frame.width
                     height: bind frame.height
-                    fill: bind theme.windowInactive
+                    fill: bind ThemeManager.getInstance().windowInactive
                 },
             ]
         }

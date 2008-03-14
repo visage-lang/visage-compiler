@@ -1,6 +1,6 @@
 package casual.ui;
 
-import casual.theme.ThemeManager;
+import casual.theme.*;
 
 import casual.resources.CASUAL; // import this compilation unit, which will declare CASUAL_RESOURCE_URL
 import javafx.ui.Color;
@@ -10,10 +10,11 @@ import java.applet.AudioClip;
 import java.net.URL;
 import java.lang.Object;
 
-var casualURL: String = CASUAL_RESOURCE_URL; // root URL for casual resources
 
 class Keyword
 {
+    private attribute casualURL: String = CASUAL.getResourceURL(); // root URL for casual resources
+
     public attribute id: String;
     public attribute key: String;
     public attribute rsrc: Object;
@@ -357,7 +358,6 @@ class Keyword
 
 public class MessageParser
 {
-    public function MessageParser();
     public function parse(string:String, type:MessageType): String {
     //println("MessageParser.parse string=\"{string}\"");
         var result:String = "";
@@ -386,11 +386,11 @@ public class MessageParser
                 var color:Color = null;
                 if (type == MessageType.INCOMING)
                 {
-                    color = theme.messageOutForeground;
+                    color = ThemeManager.getInstance().messageOutForeground;
                 }
                 else
                 {
-                    color = theme.messageInForeground;
+                    color = ThemeManager.getInstance().messageInForeground;
                 }
                 part = new String("<a text-decoration='none' style='color:{color.htmlRef()}' href='{token}'>{token}</a>");
             }
@@ -399,11 +399,11 @@ public class MessageParser
                 var color:Color = null;
                 if (type == MessageType.INCOMING)
                 {
-                    color = theme.messageOutForeground;
+                    color = ThemeManager.getInstance().messageOutForeground;
                 }
                 else
                 {
-                    color = theme.messageInForeground;
+                    color = ThemeManager.getInstance().messageInForeground;
                 }
                 part = new String("<a text-decoration='none' style='color:{color.htmlRef()}' href='http://{token}'>{token}</a>");
             }

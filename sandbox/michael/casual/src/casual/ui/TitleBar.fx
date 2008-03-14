@@ -8,6 +8,7 @@ import javafx.ui.AbstractColor;
 import javafx.ui.Color;
 import javafx.ui.Font;
 
+import javafx.ui.canvas.Node;
 import javafx.ui.canvas.CompositeNode;
 import javafx.ui.canvas.View;
 import javafx.ui.canvas.Group;
@@ -21,7 +22,7 @@ public class TitleBar extends CompositeNode
     
     public attribute width: Integer;
     public attribute foreground: Color;
-    public attribute background: AbstractColor;
+    public attribute background: Color;
     
     public attribute title: String;
     public attribute showCloseIcon: Boolean = true;
@@ -36,7 +37,7 @@ public class TitleBar extends CompositeNode
             selectable: true
             isSelectionRoot: true
 
-            var strokeWidth = bind theme.uiStrokeWidth
+            var strokeWidth = bind ThemeManager.getInstance().uiStrokeWidth
             var iconOffset = 0.45
             var iconGap = 1
             //var xbase = (width - thickness - strokeWidth)
@@ -70,10 +71,10 @@ public class TitleBar extends CompositeNode
 
             var label = SimpleLabel
             {
-                border: bind theme.titleBorder
+                border: bind ThemeManager.getInstance().titleBorder
                 foreground: bind if (frame.active==true) then foreground else foreground.moreTransparent()
                 background: bind background
-                font: bind theme.titleBarFont
+                font: bind ThemeManager.getInstance().titleBarFont
                 text: bind if (title == null) then "Untitled" else title
             }
 
@@ -86,7 +87,7 @@ public class TitleBar extends CompositeNode
                     width: bind width
                     height: bind label.height
                     fill: bind background
-                },
+                } as Node,
 
                 // title
                 View
@@ -136,7 +137,7 @@ public class TitleBar extends CompositeNode
                     [
                         Rect
                         {
-                            var foreground = bind if (frame.active==true) then theme.titleBarCloseIconColor else theme.titleBarCloseIconColor.moreTransparent()
+                            var foreground = bind if (frame.active==true) then ThemeManager.getInstance().titleBarCloseIconColor else ThemeManager.getInstance().titleBarCloseIconColor.moreTransparent()
 
                             selectable: true
                             x: bind xbase
@@ -145,8 +146,8 @@ public class TitleBar extends CompositeNode
                             height: bind (iconOffset*label.height)
                             fill: bind if (pressedHover) then foreground.darker() else foreground
                             strokeWidth: bind strokeWidth
-                            stroke: bind theme.uiBorderColor
-                        },
+                            stroke: bind ThemeManager.getInstance().uiBorderColor
+                        } as Node,
                         Line
                         {
                             selectable: true
@@ -154,9 +155,9 @@ public class TitleBar extends CompositeNode
                             y1: bind (ybase + strokeWidth + yoffset)
                             x2: bind x2
                             y2: bind (ybase + iconOffset*label.height - strokeWidth - yoffset)
-                            stroke: bind if (pressedHover) then theme.uiForeground.darker() else theme.uiForeground
+                            stroke: bind if (pressedHover) then ThemeManager.getInstance().uiForeground.darker() else ThemeManager.getInstance().uiForeground
                             strokeWidth: 2
-                        },
+                        } as Node,
                         Line
                         {
                             selectable: true
@@ -164,9 +165,9 @@ public class TitleBar extends CompositeNode
                             y2: bind (ybase + strokeWidth + yoffset)
                             x2: bind x2
                             y1: bind (ybase + iconOffset*label.height - strokeWidth - yoffset)
-                            stroke: bind if (pressedHover) then theme.uiForeground.darker() else theme.uiForeground
+                            stroke: bind if (pressedHover) then ThemeManager.getInstance().uiForeground.darker() else ThemeManager.getInstance().uiForeground
                             strokeWidth: 2
-                        },
+                        } as Node,
                     ]    
                 },
 
@@ -203,7 +204,7 @@ public class TitleBar extends CompositeNode
                     [
                         Rect
                         {
-                            var foreground = bind if (frame.active==true) then theme.titleBarMinimizeIconColor else theme.titleBarMinimizeIconColor.moreTransparent()
+                            var foreground = bind if (frame.active==true) then ThemeManager.getInstance().titleBarMinimizeIconColor else ThemeManager.getInstance().titleBarMinimizeIconColor.moreTransparent()
 
                             selectable: true
                             x: bind (xbase - iconGap - thickness - strokeWidth)
@@ -212,8 +213,8 @@ public class TitleBar extends CompositeNode
                             height: bind (iconOffset*label.height)
                             fill: bind if (pressedHover) then foreground.darker() else foreground
                             strokeWidth: bind strokeWidth
-                            stroke: bind theme.uiBorderColor
-                        },
+                            stroke: bind ThemeManager.getInstance().uiBorderColor
+                        } as Node,
                         Rect
                         {
                             selectable: true
@@ -221,8 +222,8 @@ public class TitleBar extends CompositeNode
                             y: bind (ybase + iconOffset*label.height - 3*strokeWidth)
                             width: bind (thickness/3)
                             height: 2
-                            fill: bind if (pressedHover) then theme.uiForeground.darker() else theme.uiForeground
-                        },
+                            fill: bind if (pressedHover) then ThemeManager.getInstance().uiForeground.darker() else ThemeManager.getInstance().uiForeground
+                        } as Node,
                     ]    
                 },
             ]

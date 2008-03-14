@@ -7,6 +7,7 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
 
 import java.util.Collection;
+import java.lang.System;
 
 public class JabberIM extends InstantMessenger
 {
@@ -40,7 +41,7 @@ public class JabberIM extends InstantMessenger
         }
         catch (any)
         {
-            <<java.awt.Toolkit>>.getDefaultToolkit().beep();
+            java.awt.Toolkit.getDefaultToolkit().beep();
 
            //TODO DO LATER - this is a work around until a more permanent solution is provided
             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
@@ -50,7 +51,7 @@ public class JabberIM extends InstantMessenger
                 }
             });
 
-            return;
+            return null;
         }
 
         try
@@ -61,14 +62,14 @@ public class JabberIM extends InstantMessenger
                 connection.login(this.user.userName, this.user.password, "Casual", true);
 //            }
         }
-        catch (any)
+        catch (any2)
         {
             if ((connection <> null) and (connection.isConnected() == true))
             {
                 connection.disconnect();
             }
 
-            <<java.awt.Toolkit>>.getDefaultToolkit().beep();
+            java.awt.Toolkit.getDefaultToolkit().beep();
 
            //TODO DO LATER - this is a work around until a more permanent solution is provided
             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
@@ -78,7 +79,7 @@ public class JabberIM extends InstantMessenger
                 }
             });
 
-            return;
+            return null;
         }
 
         chatManager = connection.getChatManager();
@@ -91,7 +92,7 @@ public class JabberIM extends InstantMessenger
                //TODO DO LATER - this is a work around until a more permanent solution is provided
                 javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                     public function run():Void {
-                        println("entriesAdded");
+                        System.out.println("entriesAdded");
                     }
                 });
             }
@@ -100,7 +101,7 @@ public class JabberIM extends InstantMessenger
                //TODO DO LATER - this is a work around until a more permanent solution is provided
                 javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                     public function run():Void {
-                        println("entriesDeleted");
+                        System.out.println("entriesDeleted");
                     }
                 });
             }
@@ -109,7 +110,7 @@ public class JabberIM extends InstantMessenger
                //TODO DO LATER - this is a work around until a more permanent solution is provided
                 javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                     public function run():Void {
-                        println("entriesUpdated");
+                        System.out.println("entriesUpdated");
                     }
                 });
             }
@@ -129,20 +130,20 @@ public class JabberIM extends InstantMessenger
                                 {
                                     if (presence.isAvailable())
                                     {
-                                        buddy.presence = BuddyPresence.AVAILABLE;
+                                        buddy.presence = Buddy.BuddyPresence.AVAILABLE;
                                     }
                                     else
                                     {
-                                        buddy.presence = BuddyPresence.AWAY;
+                                        buddy.presence = Buddy.BuddyPresence.AWAY;
                                     }
                                 }
                                 else if (presence.getMode() == Presence$Mode.available)
                                 {
-                                    buddy.presence = BuddyPresence.AVAILABLE;
+                                    buddy.presence = Buddy.BuddyPresence.AVAILABLE;
                                 }
                                 else
                                 {
-                                    buddy.presence = BuddyPresence.AWAY;
+                                    buddy.presence = Buddy.BuddyPresence.AWAY;
                                 }
                                 break;
                             }
