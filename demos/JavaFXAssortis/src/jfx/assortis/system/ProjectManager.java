@@ -32,11 +32,16 @@ package jfx.assortis.system;
 
 import com.sun.javafx.runtime.*;
 import com.sun.tools.javafx.comp.JavafxDefs;
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 
 public class ProjectManager {
+
+    private static final String[] commandLineArgs = new String[]{};
 
     public static Object runFXFile(String name) throws Exception {
         return runFXFile(name, Thread.currentThread().getContextClassLoader());
@@ -45,8 +50,10 @@ public class ProjectManager {
     public static Object runFXFile(String name, ClassLoader classLoader) throws Exception {
         try {
             Class cls = classLoader.loadClass(name);
-            Method run = cls.getDeclaredMethod(JavafxDefs.runMethodString, new Class[0]);
-            return run.invoke(null);
+            //Method run = cls.getDeclaredMethod(JavafxDefs.runMethodString, new Class[0]);
+            Method run = cls.getDeclaredMethod(JavafxDefs.runMethodString, Sequence.class);
+            Object args = Sequences.make(String.class, commandLineArgs);
+            return run.invoke(null,args);
         } catch (Throwable e) {
             throw new Exception("FX file: \"" + name + "\" was not compiled!!", e);
         }
