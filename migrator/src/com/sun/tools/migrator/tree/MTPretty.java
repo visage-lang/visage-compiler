@@ -989,7 +989,7 @@ public class MTPretty implements MTVisitor {
         }
     }
 
-   public void visitOperationValue(MTOperationValue tree) {
+   public void visitFunctionValue(MTOperationValue tree) {
         try {
             println();
             align();
@@ -1010,7 +1010,7 @@ public class MTPretty implements MTVisitor {
         }
     }
 
-    public void visitOperationDefinition(MTOperationDefinition tree) {
+    public void visitFunctionDefinition(MTOperationDefinition tree) {
         try {
             println();
             align();
@@ -1088,22 +1088,6 @@ public class MTPretty implements MTVisitor {
             }
             if (bindStatus.isLazy()) {
                 print(" lazy ");
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void visitDoLater(MTDoLater tree) {
-        try {
-            println();
-            align();
-            print("do later ");
-            if (tree.body != null) {
-                print(" ");
-                printStat(tree.body);
-            } else {
-                print(";");
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);

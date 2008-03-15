@@ -426,12 +426,6 @@ public class MTTreeMaker {
         return tree;
     }
     
-    public MTDoLater  DoLater(MTBlock body) {
-        MTDoLater tree = new MTDoLater(body);
-        tree.pos = pos;
-        return tree;
-    }
-    
     public MTMemberSelector  MemberSelector(Name className,
             Name name) {
         MTMemberSelector tree = new MTMemberSelector(className, name);

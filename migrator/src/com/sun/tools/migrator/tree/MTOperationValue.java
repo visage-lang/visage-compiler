@@ -57,7 +57,7 @@ public class MTOperationValue  extends MTExpression {
         return bodyExpression;
     }
 
-  public void accept(MTVisitor v) { v.visitOperationValue(this); }
+  public void accept(MTVisitor v) { v.visitFunctionValue(this); }
     
  @Override
     public int getTag() {

@@ -244,7 +244,7 @@ public class MTTreeScanner implements MTVisitor {
     }
     
     @Override
-    public void visitOperationValue(MTOperationValue tree) {
+    public void visitFunctionValue(MTOperationValue tree) {
         for (MTVar param : tree.getParameters()) {
             param.accept((MTVisitor)this);
         }
@@ -254,19 +254,14 @@ public class MTTreeScanner implements MTVisitor {
     }
 
     @Override
-    public void visitOperationDefinition(MTOperationDefinition tree) {
+    public void visitFunctionDefinition(MTOperationDefinition tree) {
         tree.getModifiers().accept(this);
         tree.getJFXReturnType().accept((MTVisitor)this);
-        visitOperationValue(tree.operation);
+        visitFunctionValue(tree.operation);
     }
 
     @Override
     public void visitInitDefinition(MTInitDefinition tree) {
-        tree.getBody().accept(this);
-    }
-
-    @Override
-    public void visitDoLater(MTDoLater tree) {
         tree.getBody().accept(this);
     }
 

@@ -97,29 +97,9 @@ public abstract class MTTag extends MTTree {
      */
     public static final int FOR_EXPRESSION_IN_CLAUSE = FOR_EXPRESSION + 1;     
 
-    /** do later statement
-     */
-    public static final int DOLATER = FOR_EXPRESSION_IN_CLAUSE + 1;        
-
-    /** do statement
-     */
-    public static final int DOBACKGROUND = DOLATER + 1;           
-
-    /** for (unitinterval ...
-     */
-    public static final int FORALPHA = DOBACKGROUND + 1;           
-
-    /** for ( id in ...
-     */
-    public static final int FORJOIN = FORALPHA + 1;        
-
-    /** dur ...
-     */
-    public static final int DURCLAUSE = FORJOIN + 1;        
-
     /** block expression { ... }
      */
-    public static final int BLOCK_EXPRESSION = DURCLAUSE + 1;
+    public static final int BLOCK_EXPRESSION = FOR_EXPRESSION_IN_CLAUSE + 1;
 
     /** explicit sequence [78, 6, 14, 21]
      */

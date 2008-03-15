@@ -31,10 +31,9 @@ import  com.sun.tools.migrator.tree.MTTree.*;
  */
 public interface MTVisitor {  
     public void visitClassDeclaration(MTClassDeclaration tree);
-    public void visitOperationDefinition(MTOperationDefinition tree);
+    public void visitFunctionDefinition(MTOperationDefinition tree);
     public void visitInitDefinition(MTInitDefinition tree);
     public void visitMemberSelector(MTMemberSelector tree);
-    public void visitDoLater(MTDoLater tree);
     public void visitStringExpression(MTStringExpression tree);
     public void visitPureObjectLiteral(MTPureObjectLiteral tree);
     public void visitSetAttributeToObjectBeingInitialized(MTSetAttributeToObjectBeingInitialized tree);
@@ -49,7 +48,7 @@ public interface MTVisitor {
     public void visitOnInsertElement(MTOnInsertElement tree);
     public void visitOnDeleteElement(MTOnDeleteElement tree);
     public void visitBlockExpression(MTBlockExpression tree);
-    public void visitOperationValue(MTOperationValue tree);
+    public void visitFunctionValue(MTOperationValue tree);
     public void visitSequenceEmpty(MTSequenceEmpty tree);
     public void visitSequenceRange(MTSequenceRange tree);
     public void visitSequenceExplicit(MTSequenceExplicit tree);

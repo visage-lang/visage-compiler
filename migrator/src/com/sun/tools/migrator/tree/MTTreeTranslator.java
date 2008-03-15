@@ -331,14 +331,14 @@ public class MTTreeTranslator implements MTVisitor {
     }
     
     @Override
-    public void visitOperationValue(MTOperationValue tree) {
+    public void visitFunctionValue(MTOperationValue tree) {
         List<MTVar> params = translate( tree.getParameters() );
         MTBlockExpression bodyExpression = translate(tree.getBodyExpression());
         result = make.OperationValue(tree.getJFXReturnType(), params, bodyExpression);
     }
 
     @Override
-    public void visitOperationDefinition(MTOperationDefinition tree) {
+    public void visitFunctionDefinition(MTOperationDefinition tree) {
 	MTModifiers mods = translate(tree.mods);
 	MTType rettype = translate(tree.getJFXReturnType());
 	List<MTVar> funParams = translateJFXVarDefs(tree.getParameters());
@@ -358,11 +358,6 @@ public class MTTreeTranslator implements MTVisitor {
 	result = tree;
     }
   
-    public void visitDoLater(MTDoLater tree) {
-        tree.body = translate(tree.body);
-        result = tree;
-    }
-
     public void visitMemberSelector(MTMemberSelector tree) {
         result = tree;
     }

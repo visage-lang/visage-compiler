@@ -60,7 +60,7 @@ public class MTOperationDefinition extends MTStatement {
     public List<MTVar> getParameters() { return operation.funParams; }
 
     public void accept(MTVisitor v) {
-        v.visitOperationDefinition(this);
+        v.visitFunctionDefinition(this);
     }
 
     @Override
