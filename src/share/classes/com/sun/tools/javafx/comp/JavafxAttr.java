@@ -2859,10 +2859,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
-    public void visitMemberSelector(JFXMemberSelector that) {
-    }
-    
-    @Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         boolean isSeq = false;
         if (pt.tag != NONE && !(isSeq = types.isSequence(pt)) && pSequenceness == Sequenceness.DISALLOWED) {

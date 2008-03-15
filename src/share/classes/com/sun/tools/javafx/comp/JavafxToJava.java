@@ -3326,10 +3326,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     /******** goofy visitors, most of which should go away ******/
 
-    public void visitMemberSelector(JFXMemberSelector that) {
-        result = that;
-    }
-    
     public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized that) {
         result = that;
     }

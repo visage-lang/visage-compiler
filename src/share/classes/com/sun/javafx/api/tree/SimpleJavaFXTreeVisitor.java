@@ -70,10 +70,6 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
         return defaultAction(node, p);
     }
 
-    public R visitMemberSelector(MemberSelectorTree node, P p) {
-        return defaultAction(node, p);
-    }
-
     public R visitObjectLiteralPart(ObjectLiteralPartTree node, P p) {
         return defaultAction(node, p);
     }

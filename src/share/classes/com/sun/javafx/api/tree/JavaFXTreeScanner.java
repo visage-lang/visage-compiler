@@ -100,10 +100,6 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
         return scanAndReduce(node.getLiteralParts(), p, r);
     }
 
-    public R visitMemberSelector(MemberSelectorTree node, P p) {
-        return null;
-    }
-
     public R visitObjectLiteralPart(ObjectLiteralPartTree node, P p) {
         return scan(node.getExpression(), p);
     }

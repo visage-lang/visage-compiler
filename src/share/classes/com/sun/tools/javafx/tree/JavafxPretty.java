@@ -284,16 +284,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-    public void visitMemberSelector(JFXMemberSelector tree) {
-        try {
-            print(tree.getClassName());
-            print(".");
-            print(tree.getName());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     void printBind(JavafxBindStatus bindStatus) {
         try {
             if (bindStatus.isUnidiBind()) {

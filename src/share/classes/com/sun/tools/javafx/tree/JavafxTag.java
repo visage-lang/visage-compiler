@@ -147,21 +147,9 @@ public abstract class JavafxTag extends JCTree {
      */
     public static final int FUNCTIONEXPRESSION = DELETE + 1;        
 
-    /** operation expression
-     */
-    public static final int OPERATIONEXPRESSION = FUNCTIONEXPRESSION + 1;        
-
-    /** select expression
-     */
-    public static final int SELECTEXPRESSION = OPERATIONEXPRESSION + 1;        
-
-    /** member selector
-     */
-    public static final int MEMBERSELECTOR = SELECTEXPRESSION + 1;        
-
     /** class type
      */
-    public static final int TYPECLASS = MEMBERSELECTOR + 1;        
+    public static final int TYPECLASS = FUNCTIONEXPRESSION + 1;        
 
     /** functional type
      */

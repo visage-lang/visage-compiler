@@ -169,13 +169,6 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXMemberSelector  MemberSelector(Name className,
-            Name name) {
-        JFXMemberSelector tree = new JFXMemberSelector(className, name);
-        tree.pos = pos;
-        return tree;
-    }
-    
     public JFXSequenceEmpty EmptySequence() {
         JFXSequenceEmpty tree = new JFXSequenceEmpty();
         tree.pos = pos;

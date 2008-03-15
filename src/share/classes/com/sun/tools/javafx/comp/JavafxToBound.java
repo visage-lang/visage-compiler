@@ -1575,11 +1575,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
     
     @Override
-    public void visitMemberSelector(JFXMemberSelector that) {
-        assert false : "should not be processed as part of a binding";
-    }
-    
-    @Override
     public void visitOverrideAttribute(JFXOverrideAttribute tree) {
         assert false : "should not be processed as part of a binding";
     }

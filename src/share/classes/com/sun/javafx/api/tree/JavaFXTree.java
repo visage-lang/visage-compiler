@@ -87,11 +87,6 @@ public interface JavaFXTree extends Tree {
         INSTANTIATE(InstantiateTree.class),
 
         /**
-         * Used for instances of {@link MemberSelectorTree}.
-         */
-        MEMBER_SELECTOR(MemberSelectorTree.class),
-
-        /**
          * Used for instances of {@link ObjectLiteralPartTree}.
          */
         OBJECT_LITERAL_PART(ObjectLiteralPartTree.class),
