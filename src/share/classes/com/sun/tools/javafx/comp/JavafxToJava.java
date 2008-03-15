@@ -2842,14 +2842,34 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         result = make.at(tree.pos).TypeTest(expr, clazz);
     }
 
+    abstract static class TypeCastTranslator extends Translator {
+
+        protected final JCTypeCast tree;
+
+        TypeCastTranslator(final JCTypeCast tree, JavafxToJava toJava) {
+            super(tree.pos(), toJava);
+            this.tree = tree;
+        }
+        
+        abstract protected JCExpression translatedExpr();
+
+        protected JCExpression doit() {
+            Type clazztype = tree.clazz.type;
+            if (clazztype.isPrimitive() && !tree.expr.type.isPrimitive()) {
+                clazztype = types.boxedClass(clazztype).type;
+            }
+            JCTree clazz = makeExpression(clazztype);
+            return m().TypeCast(clazz, translatedExpr());
+        }
+    }
+    
     @Override
-    public void visitTypeCast(JCTypeCast tree) {
-        Type clazztype = tree.clazz.type;
-        if (clazztype.isPrimitive() && ! tree.expr.type.isPrimitive())
-            clazztype = types.boxedClass(clazztype).type;
-        JCTree clazz = this.makeTypeTree(clazztype, tree);
-        JCExpression expr = translate(tree.expr);
-        result = make.at(tree.pos).TypeCast(clazz, expr);
+    public void visitTypeCast(final JCTypeCast tree) {
+        result = new TypeCastTranslator(tree, this) {
+            protected JCExpression translatedExpr() {
+                return translate(tree.expr);
+            }
+        }.doit();
     }
     
     @Override

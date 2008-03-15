@@ -49,6 +49,7 @@ import com.sun.tools.javafx.comp.JavafxToJava.Translator;
 import com.sun.tools.javafx.comp.JavafxToJava.FunctionCallTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.InstanciateTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.StringExpressionTranslator;
+import com.sun.tools.javafx.comp.JavafxToJava.TypeCastTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.Wrapped;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
@@ -481,7 +482,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             Type elemType = types.elementType(tree.type);
             result = runtime(diagPos, cBoundSequences, "empty", elemType, List.of(makeDotClass(diagPos, elemType)));
         } else {
-            result = make.at(diagPos).Literal(TypeTags.BOT, null); //NOLOC?
+            JCExpression unbound = make.at(diagPos).Literal(TypeTags.BOT, null); 
+            result = makeConstantLocation(diagPos, tree.type, unbound);
         }
     }
         
@@ -715,33 +717,42 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
-    public void visitTypeTest(JCInstanceOf tree) {
-        JCTree clazz = this.makeTypeTree(tree.clazz.type, tree);
-        JCExpression expr = translate(tree.expr);
-        result = make.at(tree.pos).TypeTest(expr, clazz);
+    public void visitTypeTest(final JCInstanceOf tree) {
+        result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
+
+            protected JCExpression resultValue() {
+                return m().TypeTest( 
+                        buildArgField(tree.expr, "toTest"),
+                        makeExpression(tree.clazz.type) );
+            }
+        }.doit();
     }
 
     @Override
-    public void visitTypeCast(JCTypeCast tree) {
-        Type clazztype = tree.clazz.type;
-        if (clazztype.isPrimitive() && ! tree.expr.type.isPrimitive())
-            clazztype = types.boxedClass(clazztype).type;
-        JCTree clazz = this.makeTypeTree(clazztype, tree);
-        JCExpression expr = translate(tree.expr);
-        result = make.at(tree.pos).TypeCast(clazz, expr);
+    public void visitTypeCast(final JCTypeCast tree) {
+        result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
+
+           protected JCExpression resultValue() {
+                return new TypeCastTranslator(tree, toJava) {
+
+                    protected JCExpression translatedExpr() {
+                        return buildArgField(tree.expr, "toBeCast");
+                    }
+                }.doit();
+            }
+        }.doit();
     }
     
     @Override
     public void visitLiteral(JCLiteral tree) {
         final DiagnosticPosition diagPos = tree.pos();
-        JCExpression unbound;
         if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
             Type elemType = types.elementType(tree.type);
-            unbound = toJava.makeEmptySequenceCreator(diagPos, elemType);
+            result = runtime(diagPos, cBoundSequences, "empty", elemType, List.of(makeDotClass(diagPos, elemType)));
         } else {
-            unbound = make.at(diagPos).Literal(tree.typetag, tree.value);
+            JCExpression unbound = make.at(diagPos).Literal(tree.typetag, tree.value);
+            result = makeConstantLocation(diagPos, tree.type, unbound);
         }
-        result = makeConstantLocation(diagPos, tree.type, unbound);
     }
     
     /**
