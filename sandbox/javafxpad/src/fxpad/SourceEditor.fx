@@ -247,7 +247,7 @@ public class SourceEditor extends ScrollableWidget {
         var off2 = jtextarea.getLineStartOffset(endLine-1);
         var startPos = off1 + startColumn-1;
         var endPos = off2 + endColumn-1;
-        System.out.println("Select {startPos}, {endPos}");
+        //System.out.println("Select {startPos}, {endPos}");
         jtextarea.select(startPos, endPos);
         jtextarea.getCaret().setSelectionVisible(true);
     }

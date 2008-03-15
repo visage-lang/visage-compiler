@@ -28,6 +28,9 @@ package fxpad;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
 import java.lang.System;
+import java.io.File;
+import java.io.FileWriter;
+import java.net.URL;
 
 var row1     = Row {alignment: Alignment.LEADING};
 var row2     = Row {resizable: true};
@@ -38,9 +41,34 @@ var fieldCol = Column {resizable: true};
 var butCol   = Column{};
 var zoomCol  = Column{};
 
-var javafxPad = JavaFXPad{};
+var javafxPad = JavaFXPad{ url: if(sizeof __ARGS__ > 0) __ARGS__[0] else null };
 
-Frame {
+function fileExists(urlStr:String):Boolean {
+    if (urlStr == null) {return false;}
+    try {
+       var url = new URL(urlStr);
+       if (url.getProtocol() == "file") {
+          var file = new File(url.getPath());
+          return file.exists() and file.isFile() and file.canWrite();
+       }
+    } catch (e) {
+        return false;
+    }
+    return false;
+}
+
+var fileChooser = FileChooser {
+       fileFilters: FileFilter{
+            filter: function(f:File):Boolean {
+                return f.isDirectory() or f.getName().endsWith(".fx");
+            }
+            description: "JavaFX Files (*.fx)"
+       }
+};
+
+var frame:Frame;
+
+frame = Frame {
     visible: true
     onClose: function() { System.exit(0); }
     title: "JavaFXPad"
@@ -58,16 +86,27 @@ Frame {
                         action: function() {
                             // do open
                             System.out.println("Open()");
+                            fileChooser.action = function(f:File):Void {
+                                 javafxPad.url = f.toURL().toString();
+                                 javafxPad.go();
+                            };
+                            fileChooser.showOpenDialog(null);
+                            
                         }
                     },
                     MenuItem {
                         text: "Save"
                         mnemonic: KeyStroke.S
                         accelerator: Accelerator{modifier: KeyModifier.COMMAND, keyStroke: KeyStroke.S}
-                        //enabled: bind fileExists(javafxPad.url)
+                        enabled: bind fileExists(javafxPad.url)
                         action: function() {
                             // do save
                             System.out.println("Save()");
+                             var url = javafxPad.url;
+                             var fname = url.substring("file:".length());
+                             var fw = new FileWriter(fname);
+                             fw.write(javafxPad.userCode);
+                             fw.close();
                         }
                     },
                     MenuItem {
@@ -76,6 +115,39 @@ Frame {
                         action: function() {
                             // do save as
                             System.out.println("SaveAs()");
+                            fileChooser.action = function(f:File):Void {
+                                /*** TODO this causes an NPE in compiler
+                                function writeFile():Void {
+                                    var fw = new FileWriter(f);
+                                    fw.write(javafxPad.userCode);
+                                    fw.close();
+                                    javafxPad.url = f.toURL().toString();
+                                }
+                                 * ***/
+                                if (f.exists()) {
+                                    ConfirmDialog {
+                                      confirmType: ConfirmType.YES_NO
+                                      title: "Save As"
+                                      message: "File exists, overwrite?"
+                                      //onYes: writeFile();
+                                      onYes: function ():Void {
+                                            var fw = new FileWriter(f);
+                                            fw.write(javafxPad.userCode);
+                                            fw.close();
+                                            javafxPad.url = f.toURL().toString();
+                                        }
+                                      visible: true
+                                    }
+                                } else {
+                                    //TODO NPE - writeFile();  
+                                    var fw = new FileWriter(f);
+                                    fw.write(javafxPad.userCode);
+                                    fw.close();
+                                    javafxPad.url = f.toURL().toString();                                    
+                                }
+                            };
+                            fileChooser.showSaveDialog(null);
+                            
                         }
                     },
                     MenuSeparator {},
@@ -98,6 +170,7 @@ Frame {
                         accelerator: Accelerator{modifier: KeyModifier.COMMAND, keyStroke: KeyStroke.F}
                         action: function() {
                             System.out.println("doSearch()");
+                            javafxPad.doSearch();
                         }
                     }
                 ] 
@@ -110,14 +183,15 @@ Frame {
                     RadioButtonMenuItem {
                         mnemonic: KeyStroke.U
                         text: "Run Automatically"
-                        //selected: bind javafxPad.runAutomatically
+                        selected: bind javafxPad.runAutomatically with inverse
                     },
                     MenuItem {
                         mnemonic: KeyStroke.R
                         text: "Run"
-                        //enabled: bind not javafxPad.runAutomatically and javafxPad.isValid()
+                        enabled: bind not javafxPad.runAutomatically and javafxPad.isValid()
                         action: function() {
                             System.out.println("runNow()");
+                            javafxPad.runNow();
                         }
                     },
                     MenuItem {
@@ -125,6 +199,29 @@ Frame {
                         text: "Source Path..."
                         action: function() {
                             System.out.println("sourcePath()");
+                            var d = SourcePathDialog {
+                                sourcePath: for (u in javafxPad.sourcePath) new File(u.getPath())
+                                action: function(path:File[]):Void {
+                                    javafxPad.setSourcePath(for(f in path)f.toURL());
+                                }
+                            };
+                            d.show(frame);
+                            
+                        }
+                    },
+                    MenuItem {
+                        mnemonic: KeyStroke.C
+                        text: "Class Path..."
+                        action: function() {
+                            System.out.println("classPath()");
+                            var d = ClassPathDialog {
+                                classPath: for (u in javafxPad.classPath) new File(u.getPath())
+                                action: function(path:File[]):Void {
+                                    javafxPad.setClassPath(for(f in path)f.toURL());
+                                }
+                            };
+                            d.show(frame);
+                            
                         }
                     }                    
                 ]
@@ -151,9 +248,10 @@ Frame {
                         row: row
                         column: fieldCol
                         columns: 60
-                        //value: bind javafxPad.url
+                        value: bind javafxPad.url with inverse
                         action: function() {
-                            //javafxPad.go();
+                            System.out.println("Location: go()");
+                            javafxPad.go();
                         }
                     } as GroupElement, 
                     Button {
@@ -161,15 +259,16 @@ Frame {
                         column: butCol
                         text: "Go"
                         action: function() {
-                            //javafxPad.go();
+                            javafxPad.go();
                         }
                     } as GroupElement,
                     ComboBox {
                         row: row
                         column: zoomCol
-                        //selection: bind javafxPad.zoomSelection
-                        //cells: bind for (i in javafxPad.zoomOptions)
-                        //   ComboBoxCell { text: "{i}%" }
+                        
+                        cells:  for (i in javafxPad.zoomOptions)
+                           ComboBoxCell { text: "{i}%%" } //TODO JXFC-924
+                        selection: bind  javafxPad.zoomSelection with inverse
                     } as GroupElement                   
                 ]
             },
@@ -181,5 +280,5 @@ Frame {
         ]
     }
     
-    
+
 }

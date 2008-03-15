@@ -36,6 +36,9 @@ import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
 import com.sun.javafx.api.*;
 import javafx.ui.animation.*;
+import java.lang.StringBuffer;
+import java.io.*;
+import java.net.URL;
 
 /**
  * @author jclarke
@@ -46,6 +49,10 @@ public class JavaFXPad extends CompositeWidget {
     attribute scrEng:ScriptEngine = manager.getEngineByExtension("javafx");
     attribute engine:JavaFXScriptEngine = scrEng as JavaFXScriptEngine;
     
+    attribute url:String;
+    attribute sourcePath: URL[];
+    attribute classPath: URL[];
+
     attribute compileTimeLine:Timeline = Timeline {
         keyFrames: [
             KeyFrame {
@@ -96,6 +103,38 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                         }
                     }
                 };
+
+    function isValid():Boolean {
+        return sizeof errMessages == 0;
+    }
+    
+    function go() {
+        System.out.println("go...");
+        userCode = getResourceAsString(url);
+    }
+    
+    private function getResourceAsString(urlStr:String):String {
+        try {
+            var url  = new URL(urlStr);
+            var is = url.openStream();
+            var reader = new BufferedReader(new InputStreamReader(is));
+            var line;
+            var buf = new StringBuffer();
+            while (true) {
+                line = reader.readLine();
+                if (line == null) {
+                    break;
+                }
+                buf.append(line);
+                buf.append("\n");
+            }
+            reader.close();
+            return buf.toString();
+        } catch (e) {
+        // ignore
+        }
+        return "";
+    }
 
     private function compile():Void {
         compileTimeLine.stop();
@@ -371,5 +410,25 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
          };
     }
 
+    function doSearch():Void  {
+        //TODO
+        System.out.println("TODO doSearch()");
+    } 
+    
+    function runNow():Void {
+         this.evaluate(userCode, true);
+    }
+    
+    function setSourcePath(urls: URL[]) {
+        System.out.println("setting source path to : {urls}");
+        sourcePath = urls;
+        //TODO compilation.setSourcePath(urls);
+    }
+    function setClassPath(urls: URL[]) {
+        System.out.println("setting class path to : {urls}");
+        classPath = urls;
+        //TODO compilation.setSourcePath(urls);
+    }    
+    
 
 }
