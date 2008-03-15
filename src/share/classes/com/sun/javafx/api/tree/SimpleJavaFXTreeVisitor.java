@@ -46,10 +46,6 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
         return defaultAction(node, p);
     }
 
-    public R visitDoLater(DoLaterTree node, P p) {
-        return defaultAction(node, p);
-    }
-
     public R visitForExpression(ForExpressionTree node, P p) {
         return defaultAction(node, p);
     }

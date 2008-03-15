@@ -62,11 +62,6 @@ public interface JavaFXTree extends Tree {
         CLASS_DECLARATION(ClassDeclarationTree.class),
 
         /**
-         * Used for instances of {@link DoLaterTree}.
-         */
-        DO_LATER(DoLaterTree.class),
-
-        /**
          * Used for instances of {@link ForExpressionTree}.
          */
         FOR_EXPRESSION(ForExpressionTree.class),

@@ -55,7 +55,6 @@ public interface JavaFXTreeVisitor<R,P> extends TreeVisitor<R,P> {
     R visitBlockExpression(BlockExpressionTree node, P p);
     R visitBindExpression(BindExpressionTree node, P p);
     R visitClassDeclaration(ClassDeclarationTree node, P p);
-    R visitDoLater(DoLaterTree node, P p);
     R visitForExpression(ForExpressionTree node, P p);
     R visitForExpressionInClause(ForExpressionInClauseTree node, P p);
     R visitInitDefinition(InitDefinitionTree node, P p);
