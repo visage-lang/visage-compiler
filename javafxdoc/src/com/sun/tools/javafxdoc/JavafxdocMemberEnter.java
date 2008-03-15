@@ -63,8 +63,8 @@ class JavafxdocMemberEnter extends JavafxMemberEnter {
     }
 
     @Override
-    public void visitOperationDefinition(JFXFunctionDefinition tree) {
-        super.visitOperationDefinition(tree);
+    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+        super.visitFunctionDefinition(tree);
         MethodSymbol meth = (MethodSymbol)tree.sym;
         if (meth == null || meth.kind != Kinds.MTH) return;
         String docComment = env.toplevel.docComments.get(tree);
