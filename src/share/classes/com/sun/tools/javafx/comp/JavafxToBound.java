@@ -444,7 +444,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitIdent(JCIdent tree)   {  //TODO: this, super, ...
-        assert (tree.sym.flags() & Flags.PARAMETER) != 0 || toJava.shouldMorph(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
+        assert (tree.sym.flags() & Flags.PARAMETER) != 0 || tree.name==names._this || toJava.shouldMorph(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
         result = toJava.translate(tree, Wrapped.InLocation);
     }
     
@@ -1398,7 +1398,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     }
                 } else {
                     if (types.isSequence(type) ) {
-                        return "";  //TODO: ?
+                        return "s";  //TODO: ?
                     } else if (tsym == this.booleanObjectTypeSymbol) {
                         return "B";
                     } else if (tsym == this.doubleObjectTypeSymbol) {
@@ -1406,7 +1406,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     } else if (tsym == this.intObjectTypeSymbol) {
                         return "I";
                     } else {
-                        return "";
+                        return "o";
                     }
                 }
     }

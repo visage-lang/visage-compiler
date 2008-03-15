@@ -1865,9 +1865,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         } else {
             falsepartType = attribExpr(tree.falsepart, env);
             
-            if (pt.tag == UNKNOWN) {
+            {   //TODO: ...
                 // A kludge, which can go away if we change things so that
                 // the compiler and runtime accepts null and [] equivalently.
+                // Well, actually, look at JFXC-925.
+                // Also, in a bind context, we need to know th etype of null
                 if (tree.truepart instanceof JFXSequenceEmpty
                         || tree.truepart.type.tag == BOT)
                     tree.truepart.type = falsepartType;
@@ -2469,13 +2471,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             tree.type = pt;
         else
             result = check(
-                tree, litType(tree.typetag), VAL, pkind, pt, pSequenceness);
+                tree, litType(tree.typetag, pt), VAL, pkind, pt, pSequenceness);
     }
     //where
     /** Return the type of a literal with given type tag.
      */
-    Type litType(int tag) {
-        return (tag == TypeTags.CLASS) ? syms.stringType : syms.typeOfTag[tag];
+    Type litType(int tag, Type pt) {
+        return (tag == TypeTags.CLASS) ? syms.stringType : // a class literal can only be a String
+            (tag == TypeTags.BOT && pt.tag == TypeTags.CLASS) ? pt : // for null, make the type the expected type
+                syms.typeOfTag[tag];
     }
 
     @Override

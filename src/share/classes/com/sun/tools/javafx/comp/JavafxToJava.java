@@ -2308,37 +2308,45 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos, boolean makeIntf) {
         while (t instanceof CapturedType)
             t = ((CapturedType) t).wildcard;
-        if (t.tag == TypeTags.CLASS) {
-            JCExpression texp = null;
+        switch (t.tag) {
+            case TypeTags.CLASS: {
+                JCExpression texp = null;
 
-            if (makeIntf && t.tsym instanceof ClassSymbol &&
-                    (t.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
-                 texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString() + interfaceSuffix);
-            }
-            else {
-                if (t.isCompound())
-                    t =syms.objectType;
-                texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString());
-            }
-
-            // Type outer = t.getEnclosingType();
-            if (!t.getTypeArguments().isEmpty()) {
-                List<JCExpression> targs = List.nil();
-                for (Type ta : t.getTypeArguments()) {
-                    targs = targs.append(makeTypeTree(ta, diagPos, makeIntf));
+                if (makeIntf && t.tsym instanceof ClassSymbol &&
+                        (t.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
+                    texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString() + interfaceSuffix);
+                } else {
+                    if (t.isCompound()) {
+                        t = syms.objectType;
+                    }
+                    texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString());
                 }
-                texp = make.at(diagPos).TypeApply(texp, targs);
+
+                // Type outer = t.getEnclosingType();
+                if (!t.getTypeArguments().isEmpty()) {
+                    List<JCExpression> targs = List.nil();
+                    for (Type ta : t.getTypeArguments()) {
+                        targs = targs.append(makeTypeTree(ta, diagPos, makeIntf));
+                    }
+                    texp = make.at(diagPos).TypeApply(texp, targs);
+                }
+                return texp;
             }
-            return texp;
-        } else if (t.tag == TypeTags.WILDCARD) {
-            WildcardType wtype = (WildcardType) t;
-            return make.at(diagPos).Wildcard(make.TypeBoundKind(wtype.kind),
-                    wtype.kind == BoundKind.UNBOUND ? null
-                    : makeTypeTree(wtype.type, diagPos, makeIntf));
-        } else if (t.tag == TypeTags.ARRAY) {
-            return make.at(diagPos).TypeArray(makeTypeTree(types.elemtype(t), diagPos, makeIntf));
-        } else {
-            return make.at(diagPos).Type(t);
+            case TypeTags.BOT: { // it is the null type, punt and make it the Object type
+                return makeQualifiedTree(diagPos, syms.objectType.tsym.getQualifiedName().toString());
+            }
+            case TypeTags.WILDCARD: {
+                WildcardType wtype = (WildcardType) t;
+                return make.at(diagPos).Wildcard(make.TypeBoundKind(wtype.kind),
+                        wtype.kind == BoundKind.UNBOUND ? null
+                        : makeTypeTree(wtype.type, diagPos, makeIntf));
+            }
+            case TypeTags.ARRAY: {
+                return make.at(diagPos).TypeArray(makeTypeTree(types.elemtype(t), diagPos, makeIntf));
+            }
+            default: {
+                return make.at(diagPos).Type(t);
+            }
         }
     }
 
