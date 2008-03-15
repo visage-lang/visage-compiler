@@ -4,7 +4,7 @@
 <chapter>
   <title>Variables, Data Types, and Sequences</title>
 
-  <section>
+  <sect1 id="variables">
     <title>Variables</title>
 
     <para></para>
@@ -15,105 +15,91 @@
     type is omitted from the declaration, it may be inferred from its
     use.</para>
 
-    <para></para>
+
 
     <para><emphasis role="bold">TBD: The rules for type inferencing have not
     yet been decided (JFXC-430.) </emphasis></para>
 
-    <para></para>
+
 
     <para>A variable declaration takes the form:</para>
 
-    <para></para>
 
-    <para><programlisting>var variableName : type = initializer;</programlisting></para>
 
-    <para></para>
+    <para><programlisting>var <emphasis>variableName</emphasis> : type = <emphasis>initializer</emphasis>;</programlisting></para>
 
-    <para>Example:</para>
 
-    <para></para>
 
-    <para><programlisting>var num:Number = 1;</programlisting></para>
+<para><emphasis role="bold">Example:</emphasis></para>
 
-    <para></para>
 
-    <para>This declares a new variable named "num" whose value is defined to
+
+    <programlisting>var num:Number = 1;</programlisting>
+
+
+
+    <para>This declares a new variable named ccceeenumeexccx whose value is defined to
     consist of an instance of type <code>Number</code> and whose initial value
     is 1.</para>
 
-    <para></para>
+
 
     <para><emphasis role="bold">TO-DO: Discuss variable scope here
     (JFXC-441.)</emphasis></para>
 
-    <para></para>
+
 
     <para>Because the <emphasis>: typeName</emphasis> and <emphasis>=
     initializer</emphasis> portions of the declaration are optional, the
     following code is equivalent to the above:</para>
 
-    <para></para>
+
 
     <para><emphasis role="bold">TO-DO: Engineering suggests that this is not
     necessarily equivalent. Explain why here (JFXC-442.)</emphasis></para>
 
-    <para></para>
+
 
     <para><programlisting>var num = 1;</programlisting></para>
 
-    <para></para>
+
 
     <para>Any sequence of characters (including whitespace) contained in
     french quotes &lt;&lt;&gt;&gt; is treated as an identifier. This makes it
     possible to use JavaFX script keywords (or other normally illegal
-    identifiers) as class, variable, function, or attribute names. For
-    example: <emphasis role="bold"></emphasis></para>
-
+    identifiers) as class, variable, function, or attribute names. </para>
     
-   
-    <para><emphasis></emphasis></para>
+    
+    <para><emphasis role="bold">Example:</emphasis></para>
 
     <para><emphasis role="bold">TBD: The rules for what makes a valid
     identifier have not yet been decided (JFXC-360.)</emphasis></para>
 
-    <para></para>
-
     <para><programlisting>var &lt;&lt;delete&gt;&gt; = 100;</programlisting></para>
 
-    <para></para>
 
     <para>This also makes it possible to invoke methods (written in the Java
     programming language) whose names are the same as JavaFX Script keywords.
     For example:</para>
 
-    <para></para>
-
-    <para><programlisting>import javax.swing.JTextArea;
+    <programlisting>import javax.swing.JTextArea;
 
 var textArea = new JTextArea();
-textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);</programlisting></para>
-
-    <para></para>
+textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);</programlisting>
 
     <para><emphasis role="bold">TBD: The rules for default values have not yet
     been decided (JFXC-431.)</emphasis></para>
 
-    <para><emphasis></emphasis></para>
-
     <para><emphasis role="bold">TO-DO: Define variable terminology here
     (JFXC-444.)</emphasis></para>
-
-    <para><emphasis></emphasis></para>
 
     <para><emphasis role="bold">TO-DO: Discuss variable naming conventions
     here (same as in the Java programming language; JFXC-445.)
     </emphasis></para>
 
-    <para><emphasis></emphasis></para>
-  </section>
+  </sect1>
 
-  <section>
+  <sect1 id="datatypes">
     <title>Data Types</title>
 
     <para>JavaFX script provides four built-in data types:
@@ -123,10 +109,10 @@ textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);</programlisting></para>
 
    
      <para>JavaFX Script types to correspond to the Java™ programming
-          language (TM) types listed on the table below:</para>
+          language types listed on the table below:</para>
 
           <table cellpadding="5" cellspacing="5"
-                 style="border: medium groove ;">
+                 style="border: medium groove; padding-top: 8pt;padding-bottom:8pt; background-color:#ffffc0">
             <tbody>
               <tr>
                 <th style="text-decoration: underline;">JavaFX</th>
@@ -176,14 +162,9 @@ textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);</programlisting></para>
             </tbody>
           </table>
     
-    
-    
-    
-    
-    
-    
 
-    <para></para>
+
+
 
     <para><emphasis role="bold">TO-DO: Provide discuss</emphasis><emphasis
     role="bold">ion that Integer and Number are NOT java.lang.Integer and
@@ -192,19 +173,16 @@ textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);</programlisting></para>
     <para><emphasis role="bold">String IS java.lang.String, Boolean MIGHT be
     java.lang.Boolean but it's still TBD (JFXC-446.)</emphasis></para>
 
-    <para></para>
+
 
     <para><emphasis role="bold">TO-DO: Describe how new types are constructed
     (creating classes; importing classes; </emphasis><emphasis
     role="bold">sequence of known types JFXC-447) </emphasis></para>
 
-    <para></para>
 
-    <para>Examples:</para>
+  <para><emphasis role="bold">Examples:</emphasis></para>
 
-    <para></para>
-
-    <para><programlisting>var s = "Hello";
+<programlisting>var s = "Hello";
 s.toUpperCase(); // yields "HELLO";
 s.substring(1);  // yields "ello";
 var n = 1.5;
@@ -213,54 +191,36 @@ n.intValue();    // yields 1
 s.substring(n);  // yields "ello"
 var b = true;
 b instanceof Boolean; // yields true
-</programlisting></para>
+</programlisting>
 
-    <para></para>
 
-    <para>Coercions are automatically performed on numeric types when passing
-    arguments or return values to/from methods written in the Java programming
-    language. In addition, implicit truncating coercions are performed when
-    converting <code>Number</code>s to <code>Integer</code>s.</para>
-
-    <para></para>
+<para>Coercions are automatically performed on numeric types when passing
+arguments or return values to/from methods written in the Java programming language. In addition, implicit truncating coercions are performed when converting <code>Number</code>s to <code>Integer</code>s.</para>
 
     <para><emphasis role="bold">TBD: The rules for coercions have not yet been
     decided (JFXC-433.)</emphasis></para>
 
-    <para><emphasis></emphasis></para>
-
     <para><emphasis role="bold">TBD: The full range of Number is yet to be
     decided (JFXC-434.)</emphasis></para>
-
-    <para></para>
 
     <para><emphasis role="bold">String Literals and String
     Expressions</emphasis></para>
 
-    <para></para>
 
     <para>In JavaFX script, a literal character string is specified with
-    single quotes, e.g.</para>
+    single quotes:</para>
 
-    <para></para>
 
     <programlisting>var s = 'Hello';
 </programlisting>
 
-    <para></para>
-
     <para>or with double quotes:</para>
 
-    <para></para>
-
-    <programlisting>var s = "Hello";</programlisting>
-
-    <para></para>
+   <programlisting>var s = "Hello";</programlisting>
 
     <para>In the latter case, JavaFX script expressions may be embedded using
-    {}, e.g</para>
+    curly brackets ( {} ):</para>
 
-    <para></para>
 
     <programlisting>var name = 'Joe';
 var s = "Hello {name}"; // s = 'Hello Joe'
@@ -271,40 +231,31 @@ var s = "Hello {name}"; // s = 'Hello Joe'
     <para>For this to work, the compiler infers a type for the embedded
     expression that it can coerce to a String.</para>
 
-    <para></para>
 
     <para>The embedded expression may itself contain quoted strings (which, in
-    turn, may contain further embedded expressions), e.g</para>
-
-    <para></para>
+    turn, may contain further embedded expressions):</para>
 
     <programlisting>var answer = true;
 var s = "The answer is {if (answer) "Yes" else "No"}"; // s = 'The answer is Yes'
 </programlisting>
 
-    <para></para>
-
     <para>Unlike the Java programming language, JavaFX script double-quoted
     String literals can contain newlines:</para>
-
-    <para></para>
 
     <programlisting> var s = "This
           contains
           new lines";</programlisting>
 
-    <para></para>
-
     <para><emphasis role="bold">String Formatting</emphasis></para>
 
-    <para></para>
 
     <para>It is possible to control how Numbers and Dates are converted to
     character strings by providing an additional formatting prefix in a String
     expression. Such a prefix follows the specification of
-    java.util.Formatter. For example:</para>
-
-    <para></para>
+    java.util.Formatter. </para>
+    
+    
+    <para><emphasis role="bold">Example:</emphasis></para>
 
     <programlisting>import java.util.Date;
 var hexStr = "hex of 13 is 0x{%02X 13}"; // hexStr = "hex of 13 is 0x0D"        
@@ -312,26 +263,23 @@ var date = new Date(107, 10, 11);
 var dateStr = "{%tc date}" // dateStr = "Sun Nov 11 00:00:00 PST 2007"
 </programlisting>
 
-    <para></para>
-  </section>
 
-   <section>
+  </sect1>
+
+   <sect1 id="sequences">
     <title>Sequences</title>
 
-    <para></para>
+
 
     <para>In addition to the basic types described above, JavaFX script also
     supports data structures known as <emphasis>sequences</emphasis>.
     Sequences are similar to Java programming language arrays, but there are
     differences as well. The following code presents some examples:</para>
 
-    <para></para>
-
     <programlisting>var week_days = ["Mon","Tue","Wed","Thur","Fri"];
 var days = [week_days, ["Sat","Sun"]];
 </programlisting>
 
-    <para></para>
 
     <para>Sequences represent ordered lists of objects. Sequences are not
     themselves objects, however, and do not nest. Sequences are compared for
@@ -339,34 +287,22 @@ var days = [week_days, ["Sat","Sun"]];
     equal, then they are equal. Expressions that produce nested sequences (as
     in the initialization of "days" above) are automatically flattened.</para>
 
-    <para></para>
 
-    <para>For example:</para>
+<para><emphasis role="bold">Example:</emphasis></para>
 
-    <para></para>
 
     <programlisting>days == ["Mon","Tue","Wed","Thur","Fri","Sat","Sun"]; // returns true</programlisting>
-
-    <para></para>
 
     <para>In addition, a single object is equal to a sequence of one
     object:</para>
 
-    <para></para>
-
     <programlisting>1 == [1]; // returns true</programlisting>
-
-    <para></para>
 
     <para>As such, a single object may be used any time a sequence is
     expected.</para>
 
-    <para></para>
-
     <para>Sequence types are declared with the <code>[]</code>
     annotation:</para>
-
-    <para></para>
 
     <para><programlisting>var xs:Number[]; // sequence of Number
 var strs:String[]; // sequence of String
@@ -376,33 +312,22 @@ var strs:String[]; // sequence of String
     <code>Object</code>. Sequences may be indexed like Java programming
     language arrays:</para>
 
-    <para></para>
-
     <programlisting>var wednesday = days[2];
 </programlisting>
 
-    <para></para>
 
     <para>There is also a shorthand notation using ".." for sequences whose
     elements form an arithmetic series, as in:</para>
 
-    <para></para>
-
     <programlisting>var nums = [1..100];
 </programlisting>
-
-    <para></para>
 
     <para>This shorthand eliminates the need to manually type out each
     element.</para>
 
-    <para></para>
-
     <para>The following example provides definitions of the factorial
     function, and of a number "result" which is the sum of the odd numbers
     between 1 and 100:</para>
-
-    <para></para>
 
     <para><programlisting>function fac(n:Number[]) {return product([1..n]);}
 var result = sum([1..100 step 2]);
@@ -411,33 +336,21 @@ var result = sum([1..100 step 2]);
     <para>The <code>[]</code> operator also expresses selection in the form of
     predicates. Predicates take the form:</para>
 
-    <para></para>
-
     <para><programlisting>sequence[variableName| booleanExp]</programlisting></para>
 
     <para>For example:</para>
 
-    <para></para>
-
     <para><programlisting>var nums = [1,2,3,4];
 var numsGreaterThanTwo = nums[n|n &gt; 2];</programlisting></para>
-
-    <para></para>
 
     <para>Such an expression returns a new sequence consisting of those
     elements of the original sequence that satisfy the predicate.</para>
 
-    <para><emphasis role="bold"></emphasis></para>
-
     <para><emphasis role="bold">Sequence Slices and
     Operators</emphasis></para>
 
-    <para></para>
-
     <para>Sequence <emphasis>slices </emphasis>provide access to portions of a
     sequence:</para>
-
-    <para></para>
 
     <programlisting>seq[a..b] // the sequence between the indicies a and b inclusive
 seq[a..&lt;b] // the sequence between the indicies a inclusive and b exclusive
@@ -445,23 +358,17 @@ seq[a..] // same as seq[a..&lt;sizeof seq]
 seq[a..&lt;] // for consistancy -- same as seq[a..&lt;sizeof seq-1]
 </programlisting>
 
-    <para></para>
 
     <para>The <code>insert</code> operator inserts a new element into a
     sequence:</para>
-
-    <para></para>
 
     <programlisting>insert x into seq
 insert x before seq[idx]
 insert x after seq[idx]
 </programlisting>
 
-    <para></para>
+<para><emphasis role="bold">Examples:</emphasis></para>
 
-    <para>Examples:</para>
-
-    <para></para>
 
     <programlisting>var nums = [1..5];
 var x = 6;
@@ -472,12 +379,10 @@ x++;
 insert x after nums[3]; // result is [7,1,2,3,8,4,5,6]
 </programlisting>
 
-    <para><emphasis></emphasis></para>
 
     <para>The <code>delete</code> operator removes an element from a
     sequence:</para>
 
-    <para></para>
 
     <programlisting>delete seq
 delete x from seq
@@ -485,11 +390,9 @@ delete seq[idx]
 delete seq[a..b] // and all other slice forms: a..&lt;b a..
 </programlisting>
 
-    <para></para>
 
-    <para>Examples:</para>
+<para><emphasis role="bold">Examples:</emphasis></para>
 
-    <para></para>
 
     <programlisting>var nums = [1..5];
 delete 2 from nums; // result is [1,3,4,5]
@@ -501,45 +404,34 @@ nums = [1..10];
 delete nums[5..]; // result is [1,2,3,4,5]
 delete nums[0..&lt;]; // result is [5]</programlisting>
 
-    <para></para>
 
     <para>The <code>sizeof</code> operator returns the number of elements in a
     sequence.</para>
-
-    <para></para>
 
     <programlisting>var nums = [1..5]
 sizeof nums // returns 5
 </programlisting>
 
-    <para></para>
 
     <para>The <code>indexof</code> operator returns the ordinal position of an
     element within a sequence:</para>
 
-    <para></para>
-
     <programlisting>var nums = [1,2,3,4];
 var numsExceptTheFirstTwo = nums[n|indexof n &gt; 1];</programlisting>
 
-    <para></para>
 
     <para>The <code>reverse</code> operator reverses the sequence:</para>
 
-    <para></para>
 
     <programlisting>reverse seq
 </programlisting>
 
-    <para></para>
+<para><emphasis role="bold">Example:</emphasis></para>
 
-    <para>Example:</para>
-
-    <para></para>
 
     <programlisting>var nums = [1..5];
 reverse nums; // result is [5,4,3,2,1]</programlisting>
 
-    <para></para>
-  </section>
+
+  </sect1>
 </chapter>

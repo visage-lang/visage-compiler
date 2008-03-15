@@ -15,7 +15,7 @@
     <para><emphasis role="bold">Keywords Table</emphasis><para>
         <para> </para>
 
-        <table cellpadding="3" cellspacing="3" style="border: thin groove ;">
+        <table cellpadding="3" cellspacing="3" style="border: thin groove; border-color:white; margin-left:24pt;">
           <tbody>
             <tr>
               <td>abstract</td>
@@ -806,56 +806,44 @@ System.out.println("abc".toUpperCase()); // prints ABC
 System.out.println(x); // prints 10
 </programlisting>
 
-    <para></para>
+<para style="padding-top:8pt">&nbsp;</para>
 
-    <para><emphasis role="bold">bind </emphasis></para>
+    <sect2 id="bind"><title>bind </title>
 
-    <para></para>
+    
 
     <para>JavaFX script supports dependency-based evaluation of expressions
     with the bind keyword.</para>
 
-    <para></para>
+    
 
     <para><emphasis role="bold">TO-DO: This section may move to its own
     chapter (JFXC-448.) Is bind an operator or just a
     keyword?</emphasis></para>
 
-    <para></para>
+    
+    <para>Example:</para>
 
-    <para>For example:</para>
-
-    <para></para>
-
+    
     <programlisting>var x = 100;
 var y = bind x + 100;
 x = 50;
 y == 150; // true
 </programlisting>
 
-    <para></para>
-
     <para>Whenever the inputs to a bound expression are updated, the result is
     recalculated and automatically updated. In the above example whenever
     <code>x</code> is updated, <code>y</code> is correspondingly updated
     according to the expression given.</para>
 
-    <para></para>
-
     <para>Binding is one of JavaFX script's main distinguishing features that
     makes it possible to express complex dynamic data relationships.</para>
-
-    <para></para>
 
     <para>Any expression of any complexity may be bound - including
     conditionals, loops, blocks, function calls, and even calls to methods and
     constructors written in the Java programming language.</para>
 
-    <para></para>
-
-    <para>For example:</para>
-
-    <para></para>
+    <para>Example:</para>
 
     <programlisting>import java.lang.Math;
 
@@ -867,66 +855,86 @@ println(x); // prints -1.0;
 </programlisting>
 
     <para></para>
+    
+    </sect2>
 
-    <para><emphasis role="bold">Querying Sequences with
-    foreach</emphasis></para>
+    <sect2 id="for"><title>Querying Sequences with<code>
+    for</code></title>
 
-    <para>[TO-DO: Make above a section heading]</para>
-
-    <para></para>
 
     <para>JavaFX script supports sequence comprehensions with a familiar
     syntax that should be easily understood by those familiar with the Java
-    programming language, namely the <code>foreach</code> operator.<emphasis
-    role="bold"></emphasis></para>
+    programming language, namely the <code>for</code> operator.</para>
 
     <para><emphasis role="bold">Example:</emphasis></para>
 
-    <para><emphasis></emphasis><programlisting>class Album {
+    <programlisting>class Album {
      attribute title: String;
      attribute artist: String;
-     attribute tracks: String*;
+     attribute tracks: String[];
 }
 
 var albums =
-[Album {
-     title: "A Hard Day's Night"
-     artist: "The Beatles"
-     tracks:
-     ["A Hard Day's Night",
-      "I Should Have Known Better",
-      "If I Fell",
-      "I'm Happy Just To Dance With You",
-      "And I Love Her",
-      "Tell Me Why",
-      "Can't Buy Me Love",
-      "Any Time At All",
-      "I'll Cry Instead",
-      "Things We Said Today",
-      "When I Get Home",
-       "You Can't Do That"]
+     [Album {
+          title: "A Hard Day's Night"
+          artist: "The Beatles"
+          tracks:
+               ["A Hard Day's Night",
+                "I Should Have Known Better",
+                "If I Fell",
+                "I'm Happy Just To Dance With You",
+                "And I Love Her",
+                "Tell Me Why",
+                "Can't Buy Me Love",
+                "Any Time At All",
+                "I'll Cry Instead",
+                "Things We Said Today",
+                "When I Get Home",
+                "You Can't Do That"]
      },
      Album {
           title: "Circle Of Love"
           artist: "Steve Miller Band"
           tracks:
-          ["Heart Like A Wheel",
-           "Get On Home",
-           "Baby Wanna Dance",
-           "Circle Of Love",
-           "Macho City"]
+               ["Heart Like A Wheel",
+                "Get On Home",
+                "Baby Wanna Dance",
+                "Circle Of Love",
+                "Macho City"]
      }];
 
-     // Get the track numbers of the albums' title tracks
 
-     titleTracks =
-          foreach (album in albums,
-                    track in album.tracks
-                        where track == album.title)
-               indexof track + 1;  // yields [1,4]
-</programlisting></para>
+for (album in albums) {
+     for(track in album.tracks) {
+          if(album.title == track) {
+               java.lang.System.out.println("TITLE TRACK = {track}");
+          } else {
+               java.lang.System.out.println("Track = {track}");
+          }
+     }
+}
 
-    <para><emphasis></emphasis></para>
+
+Output:
+
+TITLE TRACK = A Hard Day's Night
+Track = I Should Have Known Better
+Track = If I Fell
+Track = I'm Happy Just To Dance With You
+Track = And I Love Her
+Track = Tell Me Why
+Track = Can't Buy Me Love
+Track = Any Time At All
+Track = I'll Cry Instead
+Track = Things We Said Today
+Track = When I Get Home
+Track = You Can't Do That
+Track = Heart Like A Wheel
+Track = Get On Home
+Track = Baby Wanna Dance
+TITLE TRACK = Circle Of Love
+Track = Macho City 
+</programlisting>
 
     <para>A sequence comprehension consists of one or more input sequences, an
     optional filter, and an expression. Each input sequence is associated with
@@ -936,14 +944,14 @@ var albums =
     filter.</para>
 
     <para>Sequence comprehensions give a concise syntax for a rather general
-    class of iterations over sequences.<emphasis></emphasis></para>
+    class of iterations over sequences.</para>
 
-    <para><emphasis>Example:</emphasis></para>
+    <para><emphasis role="bold">Example:</emphasis></para>
 
-    <para><emphasis></emphasis><programlisting>foreach (n in [1..100]) n * n</programlisting></para>
+    <programlisting>foreach (n in [1..100]) n * n</programlisting>
 
     <para>This is a sequence containing (in order) the squares of all the
-    numbers from 1 to 100. Note that "n" is a local variable of the above
+    numbers from 1 to 100. Note that <emphasis>n</emphasis> is a local variable of the above
     expression.</para>
 
     <para>The use of a filter is shown by the following definition of a
@@ -955,16 +963,20 @@ var albums =
 }
 </programlisting></para>
 
-    <para><emphasis role="bold">Modifying Sequences with insert and
-    delete</emphasis></para>
+</sect2>
 
-    <para>[TO-DO: make above a section heading]</para>
+    <sect2 id="insert"><title>Modifying Sequences with <code>insert</code> and
+    <code>delete</code></title>
 
     <para>In addition to the assignment operator <code>=</code>, JavaFX script
     provides data modification operators, <code>insert</code> and
     <code>delete</code>.</para>
 
-    <para><emphasis role="bold">Insert Operator</emphasis></para>
+    
+</sect2>
+    
+    
+<sect2 id="insop"><title><code>insert</code> Operator</title>
 
     <para>The <code>insert</code> operator can take any of the following
     forms:</para>
@@ -977,17 +989,21 @@ insert Expression1 after Expression2
     <para>The <code>insert</code> operator inserts the items returned by
     evaluating Expression1 into the location indicated by remainder of the
     statement as follows:</para>
+    
+    </sect2>
+    
+    
+<sect2 id="into">
+        <title><code>into</code></title>
 
-    <para><emphasis role="bold">into</emphasis></para>
-
-    <para>Expression2 must refer to an attribute or variable. If Expression2
+    <para><emphasis>Expression2</emphasis> must refer to an attribute or variable. If <emphasis>Expression2</emphasis>
     refers to a single valued attribute then the effect of the insert is the
     same as if the assignment operator were used.</para>
 
     <para>If <code>as first</code> is specified, the insertion location is
-    before the first element of the list indicated by Expression2. If <code>as
+    before the first element of the list indicated by <emphasis>Expression2.</emphasis> If <code>as
     last</code> is specified, the insertion location is after the last element
-    of the list indicated by Expression2. If neither <code>as first</code> nor
+    of the list indicated by <emphasis>Expression2.</emphasis> If neither <code>as first</code> nor
     <code>as last</code> is specified explicitly, then <code>as last</code> is
     used as the default.</para>
 
@@ -999,16 +1015,18 @@ insert 10 as first into x; // yields [10,1,2,3,12]
 insert [99,100] as last into x; // yields [10,1,2,3,12,99,100]
 </programlisting>
 
-    <para><emphasis role="bold">before, after</emphasis></para>
+</sect2>
 
-    <para><code>Expression2</code> must be a selection expression over an
+<sect2 id="before">
+        <title><code>before, after</code></title>
+
+    <para><emphasis>Expression2</emphasis> must be a selection expression over an
     attribute or variable. If <code>before</code> is specified, the insertion
     location is before the selected elements. If <code>after</code> is
     specified the insertion location is after the selected elements.</para>
 
+    
     <para><emphasis role="bold">Examples:</emphasis></para>
-
-    <para>Examples:</para>
 
     <programlisting>var xs = [1,2,3];
 insert 10 after xs[x | x == 10]; // yields [1,2,3,10]
@@ -1016,14 +1034,13 @@ insert 12 before xs[1]; // yields [1,12,2,3,10]
 insert 13 after xs[x | x == 2]; // yields [1, 12, 2, 13, 3, 10];
 </programlisting>
 
-    <para><emphasis role="bold">Delete Operator</emphasis></para>
+</sect2>
 
-    <para>[TO-DO: Make above a section header]</para>
+ <sect2 id="del">
+        <title><code>delete</code> Operator</title>
 
     <para>The <code>delete</code> operator takes one of the following
     forms:</para>
-
-    <para></para>
 
     <programlisting>delete variable
 delete Expression.attribute
@@ -1048,10 +1065,12 @@ insert 13 as first into xs; // yields [13, 1, 5, 2];
 delete xs; // yields []
 </programlisting>
 
-    <para></para>
-  </sect1>
+  </sect2>
 
-  <sect1>
+</sect1>
+
+
+  <sect1 id="expressions">
     <title>Expressions</title>
 
     <para>Unlike the Java programming language, JavaFX script is an expression
@@ -1062,8 +1081,6 @@ delete xs; // yields []
     <para>
       <emphasis role="bold">Example:</emphasis>
     </para>
-
-    <para>For example:</para>
 
     <programlisting>import java.lang.Math;
 
@@ -1082,14 +1099,16 @@ System.out.println(s);
     <emphasis role="bold">[to-do, link to block expressions section
     below]</emphasis></para>
 
-    <sect1 id="logical">
+    <sect2 id="logical">
       <title>Logical Expressions</title>
 
       <para>This section lists and defines the logical expressions available
-      in JavaFX™ Script.</para>
+      in JavaFX™ Script.</para> 
+      
+</sect2>
 
-      <sect2 id="if">
-        <title><code>if</code> Expression</title>
+<sect2 id="if">
+<title><code>if</code> Expression</title>
 
         <para>The <code>if</code> expression is like the expression in the
         Java™ programming language, except that curly braces are always
@@ -1133,8 +1152,8 @@ System.out.println(s);
 </programlisting>
       </sect2>
 
-      <sect2 id="try">
-        <title><code>try</code> Statement</title>
+<sect2 id="try">
+   <title><code>try</code> Statement</title>
 
         <para>The JavaFX Script <code>try</code> statement is like the
         statement in the Java Programming language, but with JavaFX Script
@@ -1156,11 +1175,11 @@ System.out.println(s);
        } finally {
           System.out.println("finally...");
        }
-</programlisting>
-      </sect2>
+   </programlisting>
+</sect2>
 
-      <sect2 id="for">
-        <title><code>for</code> Statement</title>
+<sect2 id="for">
+     <title><code>for</code> Statement</title>
 
         <para>
           <emphasis role="bold">QUESTION: We need a new intro to go with the
@@ -1187,7 +1206,7 @@ System.out.println(s);
         }
 
         // print only the odd numbers using a range expression
-        for (i in [1,3..10]) {
+        for (i in [1..10 step 2]) {
              System.out.println("i = {i}");
         }
 
@@ -1198,10 +1217,10 @@ System.out.println(s);
         }
 
 </programlisting>
-      </sect2>
+</sect2>
 
-      <sect2 id="return">
-        <title><code>return</code> Statement</title>
+<sect2 id="return">
+   <title><code>return</code> Statement</title>
 
         <para>The JavaFX Script <code>return</code> statement is like the
         statement in the Java Programming language:</para>
@@ -1214,10 +1233,10 @@ System.out.println(s);
            return x + y;
        }
 </programlisting>
-      </sect2>
+</sect2>
 
-      <sect2 id="throw">
-        <title><code>throw</code> Statement</title>
+<sect2 id="throw">
+    <title><code>throw</code> Statement</title>
 
         <para>The JavaFX Script <code>throw</code> statement is like the
         statement in the Java Programming language. However; any object can be
@@ -1228,7 +1247,7 @@ System.out.println(s);
           <emphasis role="bold">Examples:</emphasis>
         </para>
 
-        <programlisting>       import java.lang.Exception;
+<programlisting>       import java.lang.Exception;
 
        operation foo() {
            throw new Exception("this is a java exception");
@@ -1265,23 +1284,25 @@ System.out.println(s);
           }
        }
 
-       operation bar() {
-           var i = 0;
-           while (i &lt; 10) {
-               if (i &gt; 5) {
-                   break;
-               }
-               if (i % 2 == 0) {
-                   continue;
-               }
-               System.out.println(i);
-               i += 1;
-           }
-       }
+ ! operation bar() {
+             var i = 0;
+             while (i &lt; 10) {
+                 if (i &gt; 5) {
+                     break;
+                 }
+                 if (i % 2 == 0) {
+                     continue;
+                 }
+                 System.out.println(i);
+- i += 1;
+             }
+         }
 </programlisting>
-      </sect2>
+</sect2>
 
-      <!--  
+<!--  ********* comment out the do and the do later 
+      ********* sections for now 
+            
           <sect2 id="do">
             <title><code>do</code> Statement</title>
 
@@ -1377,9 +1398,8 @@ thread. This mimics the functionality of
         be declarations or expressions) surrounded by curly braces and
         separated by semicolons. If the last statement is an expression, then
         the value of a block expression is the value of the last expression;
-        otherwise the block expression has void type.<emphasis /></para>
-
-        <para />
+        otherwise the block expression has void type.
+</para>
 
         <para>So, the above example from the top of this section could also be
         written as follows:</para>
@@ -1396,7 +1416,7 @@ if (rand % 2 == 0) {
 System.out.println(s);
 </programlisting>
 
-        <para>Alternatively the braces can be omitted:</para>
+        <para>Alternately the braces can be omitted:</para>
 
         <programlisting>import java.lang.Math;
 
@@ -1409,9 +1429,11 @@ System.out.println(s);
         and a conditional expression, e.g, <code>a &lt; b ? a :
         b</code>.</para>
 
-        <para>Thanks to block expressions, the JavaFX "if" expression takes
+        <para>Thanks to block expressions, the JavaFX <code><emphasis>if</emphasis></code> expression takes
         the place of both.</para>
-      </sect2>
+	
+	
+ </sect2>
 
       <sect2 id="range">
         <title>Range Expressions</title>
@@ -1436,22 +1458,24 @@ System.out.println(s);
 System.out.println(nums == [0,1,2,3]); // prints true
 </programlisting>
 
-        <para>By default the interval between the values is 1 but it's also
-        possible to specify a different interval by including the next number
-        in the sequence after number1 separated by a comma. For example, the
-        following expression defines an sequence consisting of the odd numbers
-        between 1 and 10:</para>
+        <para>By default the interval between the values is 1 but it's also possible to specify a different interval by including the next number in the sequence after number1 separated by a comma. For example, the following expression defines an sequence consisting of the odd numbers between 1 and 10:</para>
 
-        <programlisting>[1,3..10]
-</programlisting>
+        <programlisting>[1,3..10]</programlisting>
 
-        <para>If <emphasis>number1</emphasis> is greater than
-        <emphasis>number2</emphasis> a descending series is created:</para>
+        <para>... and syntax for descending sequences
+"If <emphasis>number1</emphasis> is greater than <emphasis>number2</emphasis> a descending series is created:</para>
 
-        <programlisting>var nums = [3..0];
+        <programlisting>var nums = [3..0 step -1];
 System.out.println(nums == [3,2,1,0]); // prints true
 </programlisting>
-      </sect2>
-    </sect1>
-  </sect1>
+
+<para>Note that these declarations:</para>
+<programlisting>var nums1 = [3..0 ]; 
+var nums2 = [3..0 step 1]; </programlisting>
+
+<para>actually declare empty sequences.</para>
+
+</sect2>
+</sect1>
 </chapter>
+

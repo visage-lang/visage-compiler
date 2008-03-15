@@ -4,7 +4,7 @@
 <chapter>
   <title>Objects and Classes</title>
 
-  <section>
+  <sect1 id="Objects">
     <title>Objects</title>
 
  <!--   <para><emphasis role="bold">[DRAFT NOTES: The purpose of this draft is to
@@ -107,7 +107,6 @@
 };
 </programlisting>
 
-    <para></para>
 
     <para>Java programming language object allocation syntax is also
     supported. In such cases, it is possible to pass arguments to the
@@ -185,10 +184,13 @@ frame.setVisible(true);
 }
 </programlisting>
 
-    <para></para></para></section>
+</para>
+    
+    
+    </sect1>
  
 
-  <section>
+  <sect1 id="classes">
     <title>Defining and Extending Classes</title>
 
 
@@ -220,11 +222,7 @@ frame.setVisible(true);
     probably have definitions of public, private, protected etc. otherwise the
     reader will have to look these up elsewhere]</emphasis></para>
 
-
-
-    <para>Here is an example:</para>
-
-
+<para><emphasis role="bold">Example:</emphasis></para>
 
     <programlisting>public class Person extends Object {
      public attribute name: String;
@@ -258,9 +256,9 @@ frame.setVisible(true);
     </emphasis></para> 
     -->
 
-   </section>
+   </sect1>
 
-  <section>
+  <sect1 id="attrfuntrig">
     <title>Attributes, Functions, and Triggers</title>
 
     
@@ -355,11 +353,11 @@ System.out.println(x.c); // prints 25
 <sect2 id="functions"><title>Functions</title>
 
 
-    <para><emphasis><emphasis role="bold">[TO-DO: Add narrative explaining how
+    <para><emphasis role="bold">[TO-DO: Add narrative explaining how
     functions define the behavior of an object, keeping the tone that's been
-    established]</emphasis></emphasis></para>
+    established]</emphasis></para>
 
-    <para><emphasis></emphasis></para>
+ 
 
     <para>Expressions may be <emphasis>factored</emphasis> into subroutines
     called <emphasis>functions</emphasis>, for example:</para>
@@ -399,7 +397,7 @@ function main():Number {
 
   
 
-    <para>Functions may be anonymous:</para>
+    <para>Functions can be anonymous:</para>
 
     
 
@@ -593,7 +591,7 @@ x.num = 3; // prints X.num: just replaced 100 with 3
   
   ****** New Triggers Section from Per Below  *********** -->
   
-  </section>
+
   
   <sect2 id="triggers">
     <title>Slices and Triggers</title>
@@ -633,8 +631,8 @@ The keyword-based <emphasis>insert/delete</emphasis> statements are viewed as
 syntactic sugar for slice assignment.</para>
 
 
-
-<para>Replace triggers</para>
+<sect3 id="replace">
+<title>Replace triggers</title>
 
 <programlisting>
     "on" "replace"
@@ -730,10 +728,20 @@ call.  In that case the state as seen by each
 trigger invocation is <emphasis>consistent</emphasis> in the sense
 that the programmer-visible state is <emphasis>as if</emphasis>
 the predicate-delete (for example) were implemented
-as a set of independent slice-delete operations.</para></para></para>
+as a set of independent slice-delete operations.
+
+        </para>
+      </para>
+    </para>
+
+   </sect3>
+
+  </sect2>
+
+ </sect1>
+
+</chapter>
+
+
 
   
-  
-  </sect2>
-  
-</chapter>
