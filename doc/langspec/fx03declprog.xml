@@ -7,7 +7,6 @@
   <sect1 id="variables">
     <title>Variables</title>
 
-    <para></para>
 
     <para>As mentioned in Chapter 1, the <code>var</code> keyword is used to
     introduce a new variable into your program. A variable's type may be
@@ -202,9 +201,9 @@ arguments or return values to/from methods written in the Java programming langu
 
     <para><emphasis role="bold">TBD: The full range of Number is yet to be
     decided (JFXC-434.)</emphasis></para>
-
-    <para><emphasis role="bold">String Literals and String
-    Expressions</emphasis></para>
+    
+    <sect2 id="strliteral"><title>String Literals and String
+    Expressions</title>
 
 
     <para>In JavaFX script, a literal character string is specified with
@@ -245,8 +244,10 @@ var s = "The answer is {if (answer) "Yes" else "No"}"; // s = 'The answer is Yes
     <programlisting> var s = "This
           contains
           new lines";</programlisting>
+	  
+</sect2>
 
-    <para><emphasis role="bold">String Formatting</emphasis></para>
+<sect2 id="strformat"><title>String Formatting</title>
 
 
     <para>It is possible to control how Numbers and Dates are converted to
@@ -263,6 +264,7 @@ var date = new Date(107, 10, 11);
 var dateStr = "{%tc date}" // dateStr = "Sun Nov 11 00:00:00 PST 2007"
 </programlisting>
 
+</sect2>
 
   </sect1>
 
@@ -346,16 +348,17 @@ var numsGreaterThanTwo = nums[n|n &gt; 2];</programlisting></para>
     <para>Such an expression returns a new sequence consisting of those
     elements of the original sequence that satisfy the predicate.</para>
 
-    <para><emphasis role="bold">Sequence Slices and
-    Operators</emphasis></para>
+    <sect2 id="slice"><title>Sequence Slices and
+    Operators</title>
 
     <para>Sequence <emphasis>slices </emphasis>provide access to portions of a
     sequence:</para>
 
-    <programlisting>seq[a..b] // the sequence between the indicies a and b inclusive
+     <programlisting>seq[a..b] // the sequence between the indicies a and b inclusive
 seq[a..&lt;b] // the sequence between the indicies a inclusive and b exclusive
 seq[a..] // same as seq[a..&lt;sizeof seq]
-seq[a..&lt;] // for consistancy -- same as seq[a..&lt;sizeof seq-1]
+seq[a..&lt;] // for consistancy.  This is the same as seq[a..&lt;sizeof seq-1] 
+
 </programlisting>
 
 
@@ -431,7 +434,7 @@ var numsExceptTheFirstTwo = nums[n|indexof n &gt; 1];</programlisting>
 
     <programlisting>var nums = [1..5];
 reverse nums; // result is [5,4,3,2,1]</programlisting>
-
+</sect2>
 
   </sect1>
 </chapter>
