@@ -105,7 +105,7 @@ public class Color extends AbstractColor, UIElement{
     }
     
     private attribute awtColor: java.awt.Color = 
-        bind lazy makeColor(red, green, blue, opacity);
+        bind makeColor(red, green, blue, opacity);
     
     public function getPaint():java.awt.Paint {
         return awtColor;

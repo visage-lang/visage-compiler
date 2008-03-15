@@ -29,7 +29,7 @@ import javafx.ui.*;
 import java.lang.System;
 
 public class VBox extends CompositeNode {
-    private attribute holders: VBoxHolder[] = bind lazy for (i in content) VBoxHolder {
+    private attribute holders: VBoxHolder[] = bind for (i in content) VBoxHolder {
             vbox: this, content: i
     }
     function doLayout():Void {

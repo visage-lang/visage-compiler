@@ -66,12 +66,12 @@ public class StringLocalizer {
    
     /**
      * This function returns the localized string for the given attributes.
-     * The return value is lazily bound to each of the attributes.  If there
+     * The return value is bound to each of the attributes.  If there
      * is no appropriate localized string found in JavaFX properties files,
      * this function returns 'defaultString' if it is specified, otherwise
      * 'key' is returned.
      */
-    public function localizedString() : String {
+    public bound function localizedString() : String {
         localizedStr;
     }
 
@@ -97,7 +97,7 @@ public class StringLocalizer {
         StringLocalization.associate(source, properties);
     }
 
-    private attribute localizedStr : String = bind lazy {
+    private attribute localizedStr : String = bind {
         if (defaultString <> null) {
             StringLocalization.getLocalizedString(propertiesName, key, defaultString, locale);
         } else {

@@ -28,7 +28,7 @@ package javafx.ui.canvas;
 import javafx.ui.*;
 
 public class HBox extends CompositeNode {
-    private attribute holders: HBoxHolder[] = bind lazy for (i in content) HBoxHolder {
+    private attribute holders: HBoxHolder[] = bind for (i in content) HBoxHolder {
             hbox: this, content: i
     }
     function doLayout():Void {

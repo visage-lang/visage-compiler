@@ -132,7 +132,7 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
        return path;
     }
     public attribute fillRule: FillRule;
-    private attribute pathLength: PathLength = bind lazy new PathLength(awtTransformedShape);
+    private attribute pathLength: PathLength = bind new PathLength(awtTransformedShape);
     private attribute awtTransformedShape: java.awt.Shape;
     
     /*
