@@ -87,7 +87,7 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     }
     
     @Override
-    public void visitOperationValue(JFXFunctionValue tree) {
+    public void visitFunctionValue(JFXFunctionValue tree) {
         for (JFXVar param : tree.getParams()) {
             scan(param);
         }
@@ -95,10 +95,10 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     }
 
     @Override
-    public void visitOperationDefinition(JFXFunctionDefinition tree) {
+    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         scan(tree.getModifiers());
         scan(tree.getJFXReturnType());
-        visitOperationValue(tree.operation);
+        visitFunctionValue(tree.operation);
     }
 
     @Override
@@ -108,11 +108,6 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
 
     public void visitPostInitDefinition(JFXPostInitDefinition that) {
         scan((JCBlock)that.getBody());
-    }
-
-    @Override
-    public void visitDoLater(JFXDoLater that) {
-        scan(that.getBody());
     }
 
     @Override

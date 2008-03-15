@@ -25,10 +25,11 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.ModifiersTree;
+import com.sun.source.tree.VariableTree;
+import java.util.List;
 
 /**
- * Common interface for expression nodes in an abstract syntax tree for the 
+ * Common interface for init definition nodes in an abstract syntax tree for the 
  * JavaFX Script language.
  *
  * <p><b>WARNING:</b> This interface and its sub-interfaces are 
@@ -39,7 +40,10 @@ import com.sun.source.tree.ModifiersTree;
  *
  * @author Tom Ball
  */
-public interface OperationDefinitionTree extends JavaFXExpressionTree {
-    ModifiersTree getModifiers();
-    OperationValueTree getOperationValue();
+public interface FunctionValueTree extends JavaFXExpressionTree {
+    TypeTree getType();
+    
+    List<? extends VariableTree> getParameters();
+
+    BlockExpressionTree getBodyExpression();
 }

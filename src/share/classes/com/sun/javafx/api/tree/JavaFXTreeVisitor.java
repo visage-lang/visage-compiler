@@ -66,8 +66,8 @@ public interface JavaFXTreeVisitor<R,P> extends TreeVisitor<R,P> {
     R visitMemberSelector(MemberSelectorTree node, P p);
     R visitObjectLiteralPart(ObjectLiteralPartTree node, P p);
     R visitOnReplace(OnReplaceTree node, P p);
-    R visitOperationDefinition(OperationDefinitionTree node, P p);
-    R visitOperationValue(OperationValueTree node, P p);
+    R visitFunctionDefinition(FunctionDefinitionTree node, P p);
+    R visitFunctionValue(FunctionValueTree node, P p);
     R visitPostInitDefinition(InitDefinitionTree node, P p);
     R visitSequenceDelete(SequenceDeleteTree node, P p);
     R visitSequenceEmpty(SequenceEmptyTree node, P p);

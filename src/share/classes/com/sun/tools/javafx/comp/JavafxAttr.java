@@ -1566,7 +1566,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
     
     @Override
-    public void visitOperationValue(JFXFunctionValue tree) {
+    public void visitFunctionValue(JFXFunctionValue tree) {
         Scope enclScope = JavafxEnter.enterScope(env);
         JFXFunctionDefinition def = new JFXFunctionDefinition(make.Modifiers(Flags.SYNTHETIC), defs.lambdaName, tree);
         tree.definition = def;
@@ -1578,7 +1578,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     }
     
     @Override
-    public void visitOperationDefinition(JFXFunctionDefinition tree) {
+    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         MethodSymbol m = tree.sym;
         m.complete();
     }
@@ -2856,11 +2856,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         finally {
             env.info.scope.owner = symOwner;
         }
-    }
-
-    @Override
-    public void visitDoLater(JFXDoLater that) {
-        that.getBody().accept(this);
     }
 
     @Override

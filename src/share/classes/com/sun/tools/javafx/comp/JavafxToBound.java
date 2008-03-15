@@ -332,7 +332,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
-    public void visitOperationValue(JFXFunctionValue tree) {
+    public void visitFunctionValue(JFXFunctionValue tree) {
         JFXFunctionDefinition def = tree.definition;
         result = toJava.makeFunctionValue(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type);
     }
@@ -1575,11 +1575,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
     
     @Override
-    public void visitDoLater(JFXDoLater that) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    @Override
     public void visitMemberSelector(JFXMemberSelector that) {
         assert false : "should not be processed as part of a binding";
     }
@@ -1615,7 +1610,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
     
    @Override
-    public void visitOperationDefinition(JFXFunctionDefinition tree) {
+    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         assert false : "should not be processed as part of a binding";
     }
    

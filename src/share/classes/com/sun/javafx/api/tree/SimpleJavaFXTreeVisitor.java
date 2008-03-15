@@ -90,11 +90,11 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
         return defaultAction(node, p);
     }
     
-    public R visitOperationDefinition(OperationDefinitionTree node, P p) {
+    public R visitFunctionDefinition(FunctionDefinitionTree node, P p) {
         return defaultAction(node, p);
     }
 
-    public R visitOperationValue(OperationValueTree node, P p) {
+    public R visitFunctionValue(FunctionValueTree node, P p) {
         return defaultAction(node, p);
     }
 

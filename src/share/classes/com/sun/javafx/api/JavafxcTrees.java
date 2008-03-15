@@ -27,7 +27,7 @@ package com.sun.javafx.api;
 
 import com.sun.javafx.api.tree.ClassDeclarationTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
-import com.sun.javafx.api.tree.OperationDefinitionTree;
+import com.sun.javafx.api.tree.FunctionDefinitionTree;
 import java.io.IOException;
 import java.util.Map;
 import javax.lang.model.element.Element;
@@ -123,8 +123,8 @@ public class JavafxcTrees {
         return (ClassDeclarationTree) getTree((Element) element);
     }
 
-    public OperationDefinitionTree getTree(ExecutableElement method) {
-        return (OperationDefinitionTree) getTree((Element) method);
+    public FunctionDefinitionTree getTree(ExecutableElement method) {
+        return (FunctionDefinitionTree) getTree((Element) method);
     }
 
     public Tree getTree(Element element) {

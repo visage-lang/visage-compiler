@@ -168,7 +168,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-     public static void visitOperationValue(Pretty pretty, JFXFunctionValue tree) {
+     public static void visitFunctionValue(Pretty pretty, JFXFunctionValue tree) {
         try {
             pretty.println();
             pretty.align();
@@ -190,11 +190,11 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-  public void visitOperationValue(JFXFunctionValue tree) {
-          visitOperationValue(this, tree);
+  public void visitFunctionValue(JFXFunctionValue tree) {
+          visitFunctionValue(this, tree);
     }
 
-    public static void visitOperationDefinition(Pretty pretty, JFXFunctionDefinition tree) {
+    public static void visitFunctionDefinition(Pretty pretty, JFXFunctionDefinition tree) {
         try {
             JavafxPretty fxpretty = (JavafxPretty)pretty;
             int oldScope = fxpretty.variableScope;
@@ -222,8 +222,8 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
     
-    public void visitOperationDefinition(JFXFunctionDefinition tree) {
-        visitOperationDefinition(this, tree);
+    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+        visitFunctionDefinition(this, tree);
     }
 
     public void visitInitDefinition(JFXInitDefinition tree) {
@@ -320,22 +320,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             if (tree.falsepart != null) {
                 print(" else ");
                 printExpr(tree.falsepart, TreeInfo.condPrec);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void visitDoLater(JFXDoLater tree) {
-        try {
-            println();
-            align();
-            print("do later ");
-            if (tree.body != null) {
-                print(" ");
-                printStat(tree.body);
-            } else {
-                print(";");
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);

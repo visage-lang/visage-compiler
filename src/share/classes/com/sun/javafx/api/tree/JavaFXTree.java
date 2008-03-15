@@ -114,14 +114,14 @@ public interface JavaFXTree extends Tree {
 
        
         /**
-         * Used for instances of {@link OperatonDefinitionTree}.
+         * Used for instances of {@link FunctionDefinitionTree}.
          */
-        OPERATION_DEFINITION(OperationDefinitionTree.class),
+        FUNCTION_DEFINITION(FunctionDefinitionTree.class),
 
         /**
-         * Used for instances of {@link OperationValueTree}.
+         * Used for instances of {@link FunctionValueTree}.
          */
-        OPERATION_VALUE(OperationValueTree.class),
+        FUNCTION_VALUE(FunctionValueTree.class),
 
         /**
          * Used for instances of {@link SequenceDeleteTree}.

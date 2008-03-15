@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2005-2006 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,34 +23,23 @@
  * have any questions.
  */
 
-package com.sun.tools.javafx.tree;
+package com.sun.javafx.api.tree;
 
-import com.sun.javafx.api.tree.DoLaterTree;
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.source.tree.ModifiersTree;
 
 /**
- * A do later statement
+ * Common interface for expression nodes in an abstract syntax tree for the 
+ * JavaFX Script language.
+ *
+ * <p><b>WARNING:</b> This interface and its sub-interfaces are 
+ * subject to change as the JavaFX Script programming language evolves.
+ * These interfaces are implemented by Sun's JavaFX Script compiler (javafxc) 
+ * and should not be implemented either directly or indirectly by 
+ * other applications.
+ *
+ * @author Tom Ball
  */
-public class JFXDoLater extends JFXStatement implements DoLaterTree {
-    public JCBlock body;
-    protected JFXDoLater(JCBlock body) {
-        this.body = body;
-    }
-    public void accept(JavafxVisitor v) { v.visitDoLater(this); }
-    public JCBlock getBody() { return body; }
-    @Override
-    public int getTag() {
-        return JavafxTag.DOLATER;
-    }
-
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.DO_LATER;
-    }
-
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        return visitor.visitDoLater(this, data);
-    }
+public interface FunctionDefinitionTree extends JavaFXExpressionTree {
+    ModifiersTree getModifiers();
+    FunctionValueTree getFunctionValue();
 }
-

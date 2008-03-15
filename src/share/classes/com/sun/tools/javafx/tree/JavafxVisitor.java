@@ -30,11 +30,10 @@ package com.sun.tools.javafx.tree;
 public interface JavafxVisitor extends JCVisitor {
     public void visitBindExpression(JFXBindExpression tree);
     public void visitClassDeclaration(JFXClassDeclaration tree);
-    public void visitOperationDefinition(JFXFunctionDefinition tree);
+    public void visitFunctionDefinition(JFXFunctionDefinition tree);
     public void visitInitDefinition(JFXInitDefinition tree);
     public void visitPostInitDefinition(JFXPostInitDefinition tree);
     public void visitMemberSelector(JFXMemberSelector tree);
-    public void visitDoLater(JFXDoLater tree);
     public void visitStringExpression(JFXStringExpression tree);
     public void visitInstanciate(JFXInstanciate tree);
     public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized tree);
@@ -46,7 +45,7 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitVar(JFXVar tree);
     public void visitOnReplace(JFXOnReplace tree);
     public void visitBlockExpression(JFXBlockExpression tree);
-    public void visitOperationValue(JFXFunctionValue tree);
+    public void visitFunctionValue(JFXFunctionValue tree);
     public void visitSequenceEmpty(JFXSequenceEmpty tree);
     public void visitSequenceRange(JFXSequenceRange tree);
     public void visitSequenceExplicit(JFXSequenceExplicit tree);

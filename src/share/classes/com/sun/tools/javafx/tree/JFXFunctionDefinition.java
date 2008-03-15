@@ -27,7 +27,7 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.OperationDefinitionTree;
+import com.sun.javafx.api.tree.FunctionDefinitionTree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.TreeVisitor;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -41,7 +41,7 @@ import com.sun.tools.javafx.code.JavafxFlags;
 /**
  * A function definition.
  */
-public class JFXFunctionDefinition extends JFXStatement implements OperationDefinitionTree {
+public class JFXFunctionDefinition extends JFXStatement implements FunctionDefinitionTree {
     public final JCModifiers mods;
     public final Name name;
     public final JFXFunctionValue operation;
@@ -75,12 +75,12 @@ public class JFXFunctionDefinition extends JFXStatement implements OperationDefi
     public Name getName() { return name; }
     public JFXType getJFXReturnType() { return operation.rettype; }
     public List<JFXVar> getParameters() { return operation.funParams; }
-    public JFXFunctionValue getOperationValue() {
+    public JFXFunctionValue getFunctionValue() {
         return operation;
     }
 
     public void accept(JavafxVisitor v) {
-        v.visitOperationDefinition(this);
+        v.visitFunctionDefinition(this);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class JFXFunctionDefinition extends JFXStatement implements OperationDefi
         if (v instanceof JavafxVisitor) {
             this.accept((JavafxVisitor)v);
         } else if (v instanceof Pretty) {
-            JavafxPretty.visitOperationDefinition((Pretty) v, this);
+            JavafxPretty.visitFunctionDefinition((Pretty) v, this);
         } else {
             assert false;
         }
@@ -100,10 +100,10 @@ public class JFXFunctionDefinition extends JFXStatement implements OperationDefi
     }
 
     public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.OPERATION_DEFINITION;
+        return JavaFXKind.FUNCTION_DEFINITION;
     }
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        return visitor.visitOperationDefinition(this, data);
+        return visitor.visitFunctionDefinition(this, data);
     }
 }

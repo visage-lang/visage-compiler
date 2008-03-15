@@ -376,7 +376,7 @@ expression  returns [JCExpression expr]
                                                           endPos($expr, $SEQ_SLICE_EXCLUSIVE); }
 	| ^(OBJECT_LIT i=qualident objectLiteral)	{ $expr = F.at($i.expr.pos).Instanciate($qualident.expr, null, $objectLiteral.parts.toList()); } 
        	| ^(FUNC_EXPR formalParameters type blockExpression)
-       							{ $expr = F.at(pos($FUNC_EXPR)).OperationValue($type.type, $formalParameters.params.toList(),
+       							{ $expr = F.at(pos($FUNC_EXPR)).FunctionValue($type.type, $formalParameters.params.toList(),
                                                								$blockExpression.expr); 
                                                           endPos($expr, $FUNC_EXPR); }
 	| ^(NEW typeName expressionList)		{ $expr = F.at(pos($NEW)).Instanciate($typeName.expr, $expressionList.args.toList(), null); 

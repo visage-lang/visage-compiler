@@ -26,7 +26,7 @@
 package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.OperationValueTree;
+import com.sun.javafx.api.tree.FunctionValueTree;
 import com.sun.source.tree.TreeVisitor;
 import com.sun.source.tree.VariableTree;
 import com.sun.tools.javac.util.List;
@@ -37,7 +37,7 @@ import com.sun.tools.javac.tree.JCTree.*;
  *
  * @author bothner
  */
-public class JFXFunctionValue extends JFXExpression implements OperationValueTree {
+public class JFXFunctionValue extends JFXExpression implements FunctionValueTree {
     public JFXType rettype;
     public List<JFXVar> funParams;
     public JFXBlockExpression bodyExpression;
@@ -68,14 +68,14 @@ public class JFXFunctionValue extends JFXExpression implements OperationValueTre
         return bodyExpression;
     }
 
-    public void accept(JavafxVisitor v) { v.visitOperationValue(this); }
+    public void accept(JavafxVisitor v) { v.visitFunctionValue(this); }
     
     @Override
     public void accept(Visitor v) {
         if (v instanceof JavafxVisitor) {
             this.accept((JavafxVisitor)v);
         } else if (v instanceof Pretty) {
-            JavafxPretty.visitOperationValue((Pretty) v, this);
+            JavafxPretty.visitFunctionValue((Pretty) v, this);
         } else {
             assert false;
         }
@@ -91,6 +91,6 @@ public class JFXFunctionValue extends JFXExpression implements OperationValueTre
     }
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        return visitor.visitOperationValue(this, data);
+        return visitor.visitFunctionValue(this, data);
     }
 }

@@ -564,7 +564,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 attr.finishVar((JFXVar) tree, env);
             else if (attr.pt != Type.noType) {
                 // finishOperationDefinition makes use of the expected type pt.
-                // This is useful when coming from visitOperationValue - i.e.
+                // This is useful when coming from visitFunctionValue - i.e.
                 // attributing an anonymous function.  However, using the
                 // expected type from a random call-site (which can happen if
                 // we're called via complete) is a bit too flakey.
@@ -580,7 +580,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     }
 
     @Override
-    public void visitOperationDefinition(JFXFunctionDefinition tree) {
+    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
             Scope enclScope = JavafxEnter.enterScope(env);
             MethodSymbol m = new MethodSymbol(0, tree.name, null, enclScope.owner);
             m.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, m, tree);

@@ -123,12 +123,12 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
     }
 
     
-    public R visitOperationDefinition(OperationDefinitionTree node, P p) {
+    public R visitFunctionDefinition(FunctionDefinitionTree node, P p) {
         R r = scan(node.getModifiers(), p);
-        return scanAndReduce(node.getOperationValue(), p, r);
+        return scanAndReduce(node.getFunctionValue(), p, r);
     }
 
-    public R visitOperationValue(OperationValueTree node, P p) {
+    public R visitFunctionValue(FunctionValueTree node, P p) {
         R r = scan(node.getType(), p);
         r = scanAndReduce(node.getParameters(), p, r);
         return scanAndReduce(node.getBodyExpression(), p, r);

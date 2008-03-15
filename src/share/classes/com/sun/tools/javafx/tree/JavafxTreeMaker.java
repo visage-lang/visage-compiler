@@ -143,7 +143,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXFunctionValue OperationValue(
+    public JFXFunctionValue FunctionValue(
             JFXType restype,
              List<JFXVar> params, 
             JFXBlockExpression bodyExpression) {
@@ -169,12 +169,6 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXDoLater  DoLater(JCBlock body) {
-        JFXDoLater tree = new JFXDoLater(body);
-        tree.pos = pos;
-        return tree;
-    }
-    
     public JFXMemberSelector  MemberSelector(Name className,
             Name name) {
         JFXMemberSelector tree = new JFXMemberSelector(className, name);

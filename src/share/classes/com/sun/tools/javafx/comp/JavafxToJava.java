@@ -1300,7 +1300,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     
     @Override
-    public void visitOperationValue(JFXFunctionValue tree) {
+    public void visitFunctionValue(JFXFunctionValue tree) {
         JFXFunctionDefinition def = tree.definition;
         result = makeFunctionValue(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type);
     }
@@ -1368,7 +1368,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     * Translate JavaFX a class definition into a Java static implementation method.
     */
    @Override
-    public void visitOperationDefinition(JFXFunctionDefinition tree) {
+    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         if (isInnerFunction(tree.sym)) {
             // If tree's context is not a class, then translate:
             //   function foo(args) { body }
@@ -3325,11 +3325,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
     
     /******** goofy visitors, most of which should go away ******/
-
-    public void visitDoLater(JFXDoLater that) {
-        that.body = translate(that.body);
-        result = that;
-    }
 
     public void visitMemberSelector(JFXMemberSelector that) {
         result = that;
