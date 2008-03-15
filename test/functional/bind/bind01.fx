@@ -112,30 +112,25 @@ for( cycles in [1..5])
 }
 }
 
-/** lazy bind */
+/** was lazy bind */
 function test6() {
-System.out.println("test6: simple lazy bind");
+System.out.println("test6: simple bind");
  var x1 = X {
       a: 1
       b: 2   // X.b is now 2 is printed
-      c: 3   // X.c is now 3 is printed
  };
 
  var x2 = X {
       a:  x1.a       // eager, non-incremental
       b:  bind x1.b // eager, incremental (X.b is now 2 is printed)
-      c:  bind lazy x1.c  // lazy, incremental (nothing is printed yet)
 };
 
 System.out.println(x2.a); // prints 1
 System.out.println(x2.b); // prints 2
-System.out.println(x2.c); // prints X.c is now 3, then prints 3
 x1.a = 5;
 x1.b = 5; // prints X.b is now 5, twice
-x1.c = 5; // prints X.c is now 5, twice
 System.out.println(x2.a); // prints 1
 System.out.println(x2.b); // prints 5
-System.out.println(x2.c); // prints 5
 }
 
 /** to other various loops */

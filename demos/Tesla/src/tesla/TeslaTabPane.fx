@@ -14,7 +14,7 @@ import java.lang.System;
 class TeslaTabHolder extends CompositeNode {
     attribute tabPane: TeslaTabPane;
     attribute tab: TeslaTab;
-    attribute selected: Boolean = bind tab.selected with inverse on replace (value) {
+    attribute selected: Boolean = bind tab.selected with inverse on replace {
         System.out.println("tab holder selected { selected }");
         if (selected) {
             tabPane.selectedTab = tab;

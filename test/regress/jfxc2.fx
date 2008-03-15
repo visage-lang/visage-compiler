@@ -18,5 +18,4 @@ import java.lang.System;
     var v1 : Number; 
     var v2 : Integer = tt * tt / 5; 
     var v3 = bind v2; 
-    var v4 = bind lazy v1; 
     v1 = 6.7; 

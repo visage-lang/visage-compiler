@@ -732,8 +732,8 @@ tweenValue
         : expr=primaryExpression TWEEN interpolate=name         -> ^(TWEEN $expr $interpolate)
         ;
 boundExpression 
-	: BIND LAZY? expression (WITH INVERSE)?
-						-> ^(BIND LAZY? INVERSE? expression)
+	: BIND expression (WITH INVERSE)?
+						-> ^(BIND INVERSE? expression)
 	| expression				-> ^(EXPRESSION expression)
 	;
 expression 

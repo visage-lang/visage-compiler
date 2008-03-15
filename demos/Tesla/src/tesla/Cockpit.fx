@@ -133,11 +133,11 @@ class Cockpit extends CompositeNode {
     attribute detailImageUrl: String;
     attribute detailText: String;
     attribute detailVisible: Boolean
-    on replace (value) {
-        if (value) {
-        //detailOpacity = [0, 100] dur 500 motion EASEBOTH while value == detailVisible;
-        }
-    }
+    	on replace oldValue {
+        	if (oldValue) {
+        		//detailOpacity = [0, 100] dur 500 motion EASEBOTH while oldValue == detailVisible;
+        	}
+    	}
     attribute detailOpacity: Number;
     
     

@@ -87,18 +87,14 @@ RAD     DIA   CIRCUM  AREA
 04.00  08.00  25.13  50.27
 03.00  06.00  18.85  28.27
 02.00  04.00  12.57  12.57
-test6: simple lazy bind
+test6: simple bind
 X.b is now 2.0
-X.c is now 3.0
+X.c is now 0.0
+X.c is now 0.0
 X.b is now 2.0
 1.0
 2.0
-X.c is now 3.0
-3.0
 X.b is now 5.0
 X.b is now 5.0
-X.c is now 5.0
 1.0
-5.0
-X.c is now 5.0
 5.0
