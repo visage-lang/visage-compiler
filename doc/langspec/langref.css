@@ -13,7 +13,7 @@ h3 {
      font-family: sans-serif;
      font-weight: bold;
      font-style: normal;
-     font-size: 112%;
+     font-size: 100%;
      color:#305070; 
     } 
     
@@ -22,11 +22,11 @@ h4 {
      font-family: sans-serif;
      font-weight: bold;
      font-style: italic;
-     font-size: 112%;
+     font-size: 100%;
      color:#305070; 
     } 
     
-p   { margin-top: 8pt;}
+p   { padding-top: 8pt;}
 
 pre {padding-top: 6pt;
      padding-bottom: 6pt;

@@ -110,7 +110,7 @@ textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);</programlisting>
      <para>JavaFX Script types to correspond to the Java™ programming
           language types listed on the table below:</para>
 
-          <table cellpadding="5" cellspacing="5"                  style="border-color:white; padding-top: 8pt; padding-bottom:8pt; background-color:#fff0c0">
+          <table cellpadding="5" cellspacing="5">
 		 
 <caption>JavaFX Script Data Types</caption>
 		 
