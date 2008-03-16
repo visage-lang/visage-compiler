@@ -4,169 +4,166 @@
 <chapter>
   <title>Operators and Expressions</title>
 
-  <sect1>
+  <sect1 id="keywords">
     <title>Key Words</title>
 
     <para>This placeholder section holds a temporary key words table. This
     list will change as JavaFX™ Script continues to develop.</para>
 
-    <para> </para>
-
-    <para><emphasis role="bold">Keywords Table</emphasis><para>
-        <para> </para>
-
-        <table cellpadding="3" cellspacing="3" style="border: thin groove; border-color:white; margin-left:24pt;">
+        <table cellpadding="3" cellspacing="3" style="border-top: 1px solid black; border-bottom: 1px solid black;  margin-left:24pt;">
+	
+	<caption>Keywords Table </caption>
           <tbody>
             <tr>
-              <td>abstract</td>
+              <td><code>abstract</code></td>
 
-              <td>assert</td>
+              <td><code>assert</code></td>
 
-              <td>attribute</td>
+              <td><code>attribute</code></td>
 
-              <td>bind</td>
+              <td><code>bind</code></td>
 
-              <td>break</td>
+              <td><code>break</code></td>
             </tr>
 
             <tr>
-              <td>class</td>
+              <td><code>class</code></td>
 
-              <td>continue</td>
+              <td><code>continue</code></td>
 	      
-	      <td>delete</td>
+	      <td><code>delete</code></td>
 
-              <td>false</td>
+              <td><code>false</code></td>
 
-              <td>for</td>
+              <td><code>for</code></td>
 	      
 	      
             </tr>
 
             <tr>
-              <td>function</td>
+              <td><code>function</code></td>
 
-              <td>if</td>
+              <td><code>if</code></td>
 
-              <td>import</td>
+              <td><code>import</code></td>
 
-              <td>init</td>
+              <td><code>init</code></td>
 
-              <td>insert</td>
+              <td><code>insert</code></td>
             </tr>
 
             <tr>
-              <td>let</td>
+              <td><code>let</code></td>
 
-              <td>new</td>
+              <td><code>new</code></td>
 
-              <td>not</td>
+              <td><code>not</code></td>
 
-              <td>null</td>
+              <td><code>null</code></td>
 
-              <td>package</td>
+              <td><code>package</code></td>
             </tr>
 
             <tr>
-              <td>private</td>
+              <td><code>private</code></td>
 
-              <td>protected</td>
+              <td><code>protected</code></td>
 
-              <td>public</td>
+              <td><code>public</code></td>
 
-              <td>readonly</td>
+              <td><code>readonly</code></td>
 
-              <td>return</td>
+              <td><code>return</code></td>
             </tr>
 
             <tr>
-              <td>super</td>
+              <td><code>super</code></td>
 
-              <td>sizeof</td>
+              <td><code>sizeof</code></td>
 
-              <td>static</td>
+              <td><code>static</code></td>
 
-              <td>this</td>
+              <td><code>this</code></td>
 
-              <td>throw</td>
+              <td><code>throw</code></td>
             </tr>
 
             <tr>
-              <td>try</td>
+              <td><code>try</code></td>
 
-              <td>true</td>
+              <td><code>true</code></td>
 
-              <td>var</td>
+              <td><code>var</code></td>
 
-              <td>while</td>
+              <td><code>while</code></td>
 
-              <td>after</td>
+              <td><code>after</code></td>
             </tr>
 
             <tr>
-              <td>and</td>
+              <td><code>and</code></td>
 
-              <td>as</td>
+              <td><code>as</code></td>
 
-              <td>before</td>
+              <td><code>before</code></td>
 
-              <td>by</td>
+              <td><code>by</code></td>
 
-              <td>catch</td>
+              <td><code>catch</code></td>
             </tr>
 
             <tr>
-              <td>do</td>
+              <td><code>do</code></td>
 
-              <td>dur</td>
+              <td><code>dur</code></td>
 
-              <td>else</td>
+              <td><code>else</code></td>
 
-              <td>exclusive</td>
+              <td><code>exclusive</code></td>
 
-              <td>extends</td>
+              <td><code>extends</code></td>
             </tr>
 
             <tr>
-              <td>finally</td>
+              <td><code>finally</code></td>
 
-              <td>first</td>
+              <td><code>first</code></td>
 
-              <td>from</td>
+              <td><code>from</code></td>
 
-              <td>in</td>
+              <td><code>in</code></td>
 
-              <td>indexof</td>
+              <td><code>indexof</code></td>
             </tr>
 
             <tr>
-              <td>indexof</td>
+              <td><code>indexof</code></td>
 
-              <td>into</td>
+              <td><code>into</code></td>
 
-              <td>inverse</td>
+              <td><code>inverse</code></td>
 
-              <td>lazy</td>
+              <td><code>lazy</code></td>
 	      
-	      <td>last</td>
+	      <td><code>last</code></td>
             </tr>
 
             <tr>
-              <td>on</td>
+              <td><code>on</code></td>
 
-              <td>or</td>
+              <td><code>or</code></td>
 
-              <td>replace</td>
+              <td><code>replace</code></td>
 
-              <td>step</td>
+              <td><code>step</code></td>
 
-              <td>typeof</td>
+              <td><code>typeof</code></td>
             </tr>
 
             <tr>
-              <td>with</td>
+              <td><code>with</code></td>
 
-              <td>where</td>
+              <td><code>where</code></td>
 
               <td> </td>
 
@@ -176,8 +173,9 @@
             </tr>
           </tbody>
         </table>
-      </para>  </para>
-  </sect1>
+</sect1>
+
+
 
   <sect1>
     <title>Operators</title>
@@ -200,7 +198,10 @@
     <para>JavaFX Script supports the following operators, grouped according to
     function and data type:</para>
 
-    <table cellpadding="5" cellspacing="5" style="border: thin groove ;">
+    <table cellpadding="5" cellspacing="5" style="border-top: 1px solid black; border-bottom: 1px solid black; ">
+    
+    <caption><title>Operator Table</title></caption>
+    
       <tbody>
         <tr>
           <th style="text-decoration: underline;">Operator</th>
