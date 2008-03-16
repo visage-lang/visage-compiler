@@ -1,13 +1,15 @@
 h2 { 
-     padding-top: 8pt;
+     padding-top: 12pt;
      font-family: sans-serif;
      font-weight: bold;
      font-size: 124%;
      color: #305070; 
     } 
     
+h2 code {font-size: 125%;}    
+    
 h3 { 
-     padding-top: 6pt;
+     padding-top: 8pt;
      font-family: sans-serif;
      font-weight: bold;
      font-style: normal;
@@ -16,7 +18,7 @@ h3 {
     } 
     
 h4 { 
-     padding-top: 4pt;
+     padding-top: 8pt;
      font-family: sans-serif;
      font-weight: bold;
      font-style: italic;
@@ -26,6 +28,9 @@ h4 {
     
 p   { margin-top: 6pt;}
     
-table {background-color: #ffffdd;
+table {background-color: #fff0c0;
        border-color: white; 
        border-collapse: collapse; }
+       
+       
+       

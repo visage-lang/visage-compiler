@@ -165,12 +165,13 @@
 
               <td><code>where</code></td>
 
-              <td> </td>
+              <td>&nbsp;</td>
 
-              <td> </td>
+              <td>&nbsp;</td>
 
-              <td> </td>
+              <td>&nbsp;</td>
             </tr>
+	    
           </tbody>
         </table>
 </sect1>
@@ -180,25 +181,15 @@
   <sect1>
     <title>Operators</title>
 
-    <para>An operator specifies a computational activity involving one or more
-    operands. Operands can be data values, variables, objects or other program
-    elements.</para>
+    <para>An operator specifies a computational activity involving one or more operands. Operands can be data values, variables, objects or other program elements.</para>
 
-    <para>Operators are usually associated with the data type of the operands
-    being evaluated (see <emphasis>Types</emphasis>) but some operators can be
-    overloaded to handle closely related types. For example; addition and
-    multiplication operate only on data of type <code>integer</code> or
-    <code>number</code>, but not <code>boolean</code> or
-    <code>string</code>.</para>
+    <para>Operators are usually associated with the data type of the operands being evaluated (see <emphasis>Types</emphasis>) but some operators can be overloaded to handle closely related types. For example; addition and multiplication operate only on data of type <code>integer</code> or <code>number</code>, but not <code>boolean</code> or <code>string</code>.</para>
 
-    <para>In JavaFX™ Script, an operator can also be a keyword that defines a
-    computation, a relationship between two data elements, or a reference to
-    an object.</para>
+    <para>In JavaFX™ Script, an operator can also be a keyword that defines a computation, a relationship between two data elements, or a reference to an object.</para>
 
-    <para>JavaFX Script supports the following operators, grouped according to
-    function and data type:</para>
+    <para>JavaFX Script supports the following operators, grouped according to function and data type:</para>
 
-    <table cellpadding="5" cellspacing="5" style="border-top: 1px solid black; border-bottom: 1px solid black; ">
+    <table cellpadding="5" cellspacing="5" style="border-top: 1px solid black; border-bottom: 1px solid black; margin-left: 24pt ">
     
     <caption><title>Operator Table</title></caption>
     
