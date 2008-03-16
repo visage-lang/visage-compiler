@@ -10,7 +10,7 @@
     <para>This placeholder section holds a temporary key words table. This
     list will change as JavaFX™ Script continues to develop.</para>
 
-        <table cellpadding="3" cellspacing="3" style="border-top: 1px solid black; border-bottom: 1px solid black;  margin-left:24pt;">
+        <table cellpadding="3" cellspacing="3" style="border-top: 1px solid black; border-bottom: 1px solid black;  margin-left:24pt; margin-right:48pt">
 	
 	<caption>Keywords Table </caption>
           <tbody>
