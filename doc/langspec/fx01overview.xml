@@ -8,46 +8,23 @@
          xmlns:db="http://docbook.org/ns/docbook">
   <title>Introducing the JavaFX Script Programming Language</title>
 
-  <section>
+  <sect1 id="overview">
     <title>Overview</title>
 
-    <para>This chapter provides an overview of the
-    JavaFX<trademark></trademark> Script programming language. It describes --
-    at a high level -- its main features, saving detailed coverage of specific
-    constructs for subsequent chapters. This book is intended for designers
-    and developers of rich Internet client applications and elements, which
-    run in web pages, as Java Web Start software, or as traditional desktop
-    applications. It assumes the reader to be familiar with JavaScript and/or
-    the Java programming language. While this book does not define a formal
-    language specification, it can be considered a complete reference for all
-    currently supported language features.</para>
+    <para>This chapter provides an overview of the JavaFX<trademark></trademark> Script programming language. It describes -- at a high level -- its main features, saving detailed coverage of specific constructs for subsequent chapters. This book is intended for designers and developers of rich Internet client applications and elements, which run in web pages, as Java Web Start software, or as traditional desktop applications. It assumes the reader to be familiar with JavaScript and/or the Java programming language. While this book does not define a formal language specification, it can be considered a complete reference for all currently supported language features.</para>
 
     <para>The JavaFX Script programming language:</para>
 
     <itemizedlist>
-      <listitem>
-        <para>Uses a declarative syntax for specifying Graphical User
-        Interface (GUI) components, allowing a developer's code to closely
-        match the actual layout of the GUI.</para>
+      <listitem> <para>Uses a declarative syntax for specifying Graphical User Interface (GUI) components, allowing a developer's code to closely match the actual layout of the GUI.</para> </listitem> 
+      
+      <listitem> <para>Uses declarative data binding and incremental evaluation, making it possible to easily create and configure individual components. Application data and GUI components are automatically synchronized.</para> </listitem>
+
+      <listitem> <para>Is statically typed, having most of the same code structuring, reuse, and encapsulation features that make it possible to create and maintain very large programs in the Java programming language.</para>
       </listitem>
 
       <listitem>
-        <para>Uses declarative data binding and incremental evaluation, making
-        it possible to easily create and configure individual components.
-        Application data and GUI components are automatically
-        synchronized.</para>
-      </listitem>
-
-      <listitem>
-        <para>Is statically typed, having most of the same code structuring,
-        reuse, and encapsulation features that make it possible to create and
-        maintain very large programs in the Java programming language.</para>
-      </listitem>
-
-      <listitem>
-        <para>Works with all major IDEs, including the NetBeans IDE, the
-        reference implementation IDE for software development with the Java
-        programming language.</para>
+        <para>Works with all major IDEs, including the NetBeans IDE, the reference implementation IDE for software development with the Java programming language.</para>
       </listitem>
 
       <listitem>
@@ -62,9 +39,9 @@
     <para>The best way to learn any new language is to start programming in
     it. The following short tutorial illustrates GUI creation from object
     literals and easy data binding.</para>
-  </section>
+  </sect1>
 
-  <section>
+  <sect1 id="tutorial">
     <title>A Quick Tutorial</title>
 
     <para>This section presents a brief demo application that gathers a
@@ -75,7 +52,7 @@
     layout is therefore intentionally kept basic. We will discuss GUI design
     recommendations in a separate document.</para>
 
-    <para></para>
+   
 
     <screenshot>
       <mediaobject>
@@ -86,7 +63,7 @@
     </screenshot>
 
     <para>Figure One: Customer Contact Information Screen<informalfigure>
-        <para></para>
+   
       </informalfigure>Figure one shows the first screen of this application.
     The<code> javafx.u</code>i package provides a number of classes that
     encapsulate the standard Swing components; in this simple example we have
@@ -95,7 +72,7 @@
     <code>package</code> and <code>import</code> statements is the same as it
     is in the Java programming language:</para>
 
-    <para></para>
+
 
     <programlisting>package ch1demo;
 
@@ -105,7 +82,7 @@ import javafx.ui.TextField;
 import javafx.ui.Button;
 </programlisting>
 
-    <para></para>
+
 
     <para>Creating an object, however, is quite different. In the JavaFX
     Script programming language, the recommended way to instantiate a class is
@@ -113,8 +90,7 @@ import javafx.ui.Button;
     an object literal to instantiate the <code>javafx.ui.Frame</code> class,
     setting its title, width, height, and visibility:</para>
 
-    <para></para>
-
+    
     <programlisting>// Create a Frame object
 Frame {
     title: "Ch1 Demo"
@@ -123,12 +99,12 @@ Frame {
     visible: true
 }</programlisting>
 
-    <para></para>
+
 
     <para>If needed, the object reference can be assigned to a variable using
     the <code>var</code> keyword:</para>
 
-    <para></para>
+
 
     <para><programlisting>// Create a Frame object and assign it to variable myFrame
 var myFrame = Frame {
@@ -138,19 +114,9 @@ var myFrame = Frame {
     visible: true
 }; // Note the use of semicolon when ending this statement</programlisting></para>
 
-    <para>We say that <code>title</code>, <code>width</code>,
-    <code>height</code>, and <code>visible</code> are all
-    <emphasis>attributes</emphasis> of the <code>Frame</code> class. The
-    attributes shown here accept primitive type values (TBD: provide link here
-    to the section describing the primitive types), but you can nest object
-    literals if the expected type is something more complex. For example, many
-    of the GUI classes contain an attribute called <code>"content"
-    </code>whose type is <code>Widget</code> (the bass class of all
-    <code>javafx.ui</code> GUI components.) It is possible to assign an
-    instance of any <code>Widget</code> subclass to <code>content</code> using
-    the same object literal syntax:</para>
+    <para>We say that <code>title</code>, <code>width</code>, <code>height</code>, and <code>visible</code> are all <emphasis>attributes</emphasis> of the <code>Frame</code> class. The attributes shown here accept primitive type values (TBD: provide link here to the section describing the primitive types), but you can nest object literals if the expected type is something more complex. For example, many of the GUI classes contain an attribute called <code>"content" </code>whose type is <code>Widget</code> (the bass class of all <code>javafx.ui</code> GUI components.) It is possible to assign an instance of any <code>Widget</code> subclass to <code>content</code> using the same object literal syntax:</para>
 
-    <para></para>
+
 
     <para><programlisting>Frame {
     title: "Ch1 Demo"
@@ -162,14 +128,9 @@ var myFrame = Frame {
     }
 }</programlisting></para>
 
-    <para>You will find that this pattern of nested object literals repeats
-    over and over again. The API documentation for the <code>javafx.ui</code>
-    package (TBD: insert hyperlink to the API docs for the javafx.* packages)
-    makes it possible to determine the type of any attribute. As you might
-    expect, lines of code can wrap according to your own programming style.
-    The following lines of code are identical to the above:</para>
+    <para>You will find that this pattern of nested object literals repeats over and over again. The API documentation for the <code>javafx.ui</code> package <empahasis role="bold">(TBD: insert hyperlink to the API docs for the javafx.* packages)</empahasis> makes it possible to determine the type of any attribute. As you might expect, lines of code can wrap according to your own programming style. The following lines of code are identical to the above:</para>
 
-    <para></para>
+
 
     <programlisting>Frame {
     title: "Ch1 Demo"
@@ -191,23 +152,13 @@ Frame {
 }
 </programlisting>
 
-    <para></para>
 
-    <para>The JavaFX Script programming language also supports easy data
-    binding with the <code>bind</code> operator. <emphasis>Data
-    binding</emphasis> makes it possible to express relationships between data
-    that are automatically updated when items involved in the relationship
-    change. For example, consider a scenario in which there is a
-    <code>String</code> object called <code>firstName</code>, a
-    <code>TextField</code> object called <code>firstNameTF</code>, and a
-    <code>Label</code> object called <code>firstNameLabel</code> (the string
-    variable holds the person's first name, the text field allows the user to
-    enter their first name, and the label is how the GUI displays this name.)
-    In traditional Swing programming, keeping these three objects in sync
-    requires a certain amount of boilerplate model-view-controller (MVC)
-    code:</para>
 
-    <para></para>
+    <para>The JavaFX Script programming language also supports easy data binding with the <code>bind</code> operator. <emphasis>Data binding</emphasis> makes it possible to express relationships between data that are automatically updated when items involved in the relationship change. </para>
+    
+    <para>For example, consider a scenario in which there is a <code>String</code> object called <code>firstName</code>, a <code>TextField</code> object called <code>firstNameTF</code>, and a <code>Label</code> object called <code>firstNameLabel</code> (the string variable holds the person's first name, the text field allows the user to enter their first name, and the label is how the GUI displays this name.) In traditional Swing programming, keeping these three objects in sync requires a certain amount of boilerplate model-view-controller (MVC) code:</para>
+
+
 
     <para><programlisting>// SWING EXAMPLE
 
@@ -229,25 +180,18 @@ firstNameTF.addActionListener(new java.awt.event.ActionListener() {
 
 ...</programlisting></para>
 
-    <para></para>
 
-    <para>In this scenario the user enters a first name into the text field; a
-    registered action listener detects this activity and sets the value of
-    both the string and the label. But in a real application this code might
-    become even more complex; it might, for example, use JavaBeans
-    PropertyChangeEvents to notify other objects of any state change in the
-    firstName string, requiring even more boilerplate event listener code. But
-    in the JavaFX Script programming language, this is all accomplished with
-    the <code>bind</code> operator:</para>
 
-    <para></para>
+    <para>In this scenario the user enters a first name into the text field; a registered action listener detects this activity and sets the value of both the string and the label. But in a real application this code might become even more complex; it might, for example, use JavaBeans PropertyChangeEvents to notify other objects of any state change in the firstName string, requiring even more boilerplate event listener code. But in the JavaFX Script programming language, this is all accomplished with the <code>bind</code> operator:</para>
+
+
 
     <para><programlisting>// Easy data binding
 var firstName = "";
 var firstNameTF = TextField {value: bind firstName};
 var firstNameLabel = SimpleLabel {text: bind firstName};</programlisting></para>
 
-    <para></para>
+
 
     <para>In three lines of code, the objects are now bound to each other.
     Typing a new value in the text field will change the value of the other
@@ -272,7 +216,7 @@ var firstNameLabel = SimpleLabel {text: bind firstName};</programlisting></para>
 
     <para><code> </code> Figure Two: Customer Contact Confirmation Page</para>
 
-    <para></para>
+    
 
     <para>The following code listing shows the customer contact application in
     its entirety. Even with only this brief introduction to the language, you
@@ -428,5 +372,5 @@ Frame {
 operation wait(millis:Number) {
     do {Thread.currentThread().sleep(millis);}
 }</programlisting></para>
-  </section>
+  </sect1>
 </chapter>

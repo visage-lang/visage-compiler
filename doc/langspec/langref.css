@@ -26,11 +26,19 @@ h4 {
      color:#305070; 
     } 
     
-p   { margin-top: 6pt;}
+p   { margin-top: 8pt;}
+
+pre {padding-top: 6pt;
+     padding-bottom: 6pt;
+     background-color: #ddeeff;
+     margin-left: 24pt;
+}
     
-table {background-color: #ffffd0;
+table {background-color: #ddeeff;
        border-color: white; 
-       border-collapse: collapse; }
+       border-collapse: collapse; 
+       margin-left: 24pt;
+      }
        
        
        
