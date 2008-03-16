@@ -30,8 +30,10 @@ p   { padding-top: 8pt;}
 
 pre {padding-top: 6pt;
      padding-bottom: 6pt;
-     background-color: #ddeeff;
+     padding-left: 6pt;
+     background-color: #eeeeff;
      margin-left: 24pt;
+     margin-right: 44pt;
 }
     
 table {background-color: #ddeeff;
