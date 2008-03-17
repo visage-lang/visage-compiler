@@ -263,7 +263,11 @@ public class JavafxTypes extends Types {
     
     public String toJavaFXString(Type type) {
         StringBuilder buffer = new StringBuilder();
-        toJavaFXString(type, buffer);
+        try {
+            toJavaFXString(type, buffer);
+        } catch (java.io.IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
         return buffer.toString();
     }
     
@@ -332,29 +336,59 @@ public class JavafxTypes extends Types {
         }
         return result;
     }
-    public void toJavaFXString(Type type, Appendable buffer) {
-        try {
-            if (isJavaFXBoolean(type)) {
-                buffer.append("Boolean");
-            } else if (isJavaFXInteger(type)) {
-                buffer.append("Integer");
-            } else if (isJavaFXNumber(type)) {
-                buffer.append("Number");
-            } else if (isJavaFXString(type)) {
-                buffer.append("String");
-            } else if (isJavaFXObject(type)) {
-                buffer.append("Object");
-            } else if (isJavaFXUnknown(type)) {
-                // Is this right?
-                buffer.append("Object");
-            } else if (isSequence(type)) {
-                toJavaFXString(elementType(type), buffer);
-                buffer.append("[]");
-            } else {
-                buffer.append(type.toString());
+    
+    private boolean isJavaFXMethod(Type type) {
+        boolean result = false;
+        if ((type instanceof MethodType) || (type instanceof FunctionType)) {
+            result = true;
+        }
+        return result;
+    }
+    
+    private void sequenceToJavaFXString(Type type, Appendable buffer) throws java.io.IOException {
+        toJavaFXString(elementType(type), buffer);
+        buffer.append("[]");
+    }
+    
+    private void methodToJavaFXString(MethodType type, Appendable buffer) throws java.io.IOException {
+        if (type.getReturnType() == null) {
+            buffer.append("function(?):?");
+            return;
+        }
+        buffer.append("function(");
+        List<Type> args = type.getParameterTypes();
+        for (List<Type> l = args; l.nonEmpty(); l = l.tail) {
+            if (l != args) {
+                buffer.append(",");
             }
-        } catch (java.io.IOException ioe) {
-            throw new RuntimeException(ioe);
+            buffer.append(":");
+            toJavaFXString(l.head, buffer);
+        }
+        buffer.append("):");
+        toJavaFXString(type.getReturnType(), buffer);
+    }
+
+    private void toJavaFXString(Type type, Appendable buffer) throws java.io.IOException {
+        if (isJavaFXBoolean(type)) {
+            buffer.append("Boolean");
+        } else if (isJavaFXInteger(type)) {
+            buffer.append("Integer");
+        } else if (isJavaFXNumber(type)) {
+            buffer.append("Number");
+        } else if (isJavaFXString(type)) {
+            buffer.append("String");
+        } else if (isJavaFXObject(type)) {
+            buffer.append("Object");
+        } else if (isJavaFXUnknown(type)) {
+            // Is this right?
+            buffer.append("Object");
+        } else if (isJavaFXSequence(type)) {
+            sequenceToJavaFXString(type, buffer);
+        } else if (isJavaFXMethod(type)) {
+            MethodType methodType = type.asMethodType();
+            methodToJavaFXString(methodType, buffer);
+        } else {
+            buffer.append(type.toString());
         }
     }
 }

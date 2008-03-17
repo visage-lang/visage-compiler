@@ -1,0 +1,5 @@
+jfxc549c.fx:8: Sorry, I was trying to understand a class declaration but I got confused when I saw '+=' which is an operator.
+ Perhaps you are missing a '}'.
+    +=
+    ^
+1 error

@@ -1,0 +1,5 @@
+jfxc549a.fx:10: Sorry, I was trying to understand an identifier but I got confused when I saw 'insert' which is a keyword.
+ Perhaps you are missing a 'identifier'.
+    attribute insert: Number;
+              ^
+1 error

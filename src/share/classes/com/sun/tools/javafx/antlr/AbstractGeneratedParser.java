@@ -309,7 +309,7 @@ public abstract class AbstractGeneratedParser extends Parser {
         super.mismatch(input, ttype, follow);
     }
 
-protected String stackPositionDescription(String ruleName) {
+    protected String stackPositionDescription(String ruleName) {
         // optimize for the non-error case: do sequential search
         for (String[] pair : ruleMap) {
             if (pair[0].equals(ruleName)) {
@@ -336,6 +336,153 @@ protected String stackPositionDescription(String ruleName) {
         return sb.toString();
     }
     
+    protected enum TokenClassification {
+        KEYWORD {
+            String forHumans() {
+                return "a keyword";
+            }
+        },
+        OPERATOR {
+            String forHumans() {
+                return "an operator";
+            }
+        }, 
+        IDENTIFIER {
+            String forHumans() {
+                return "an identifier";
+            }
+        },  
+        UNKNOWN {
+            String forHumans() {
+                return "an unknown type of token";
+            }
+        };
+        abstract String forHumans();
+    };
+
+    protected TokenClassification[] tokenClassMap = new TokenClassification[v3Parser.LAST_TOKEN + 1];
+    {
+        // Initiailization block.
+        //     First, set them all to UNKNOWN
+        for (int index = 0; index <= v3Parser.LAST_TOKEN; index += 1) {
+            tokenClassMap[index] = TokenClassification.UNKNOWN;
+        }
+        //     Then set them appropriately.
+        //     If a token is added to the grammar, it will show up as UNKNOWN.
+        //     If a token is removed from the grammar, the corresponding initialization 
+        //       will fail to compile (which is the earliest we could detect the problem).
+        // Keywords:
+        tokenClassMap[v3Parser.ABSTRACT]            = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.ASSERT]              = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.ATTRIBUTE]           = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.BIND]                = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.BOUND]               = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.BREAK]               = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.CLASS]               = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.CONTINUE]            = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.DELETE]              = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.FALSE]               = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.FOR]                 = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.FUNCTION]            = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.IF]                  = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.IMPORT]              = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.INIT]                = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.INSERT]              = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.LET]                 = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.NEW]                 = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.NOT]                 = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.NULL]                = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.OVERRIDE]            = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.PACKAGE]             = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.POSTINIT]            = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.PRIVATE]             = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.PROTECTED]           = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.PUBLIC]              = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.READONLY]            = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.RETURN]              = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.SUPER]               = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.SIZEOF]              = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.STATIC]              = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.THIS]                = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.THROW]               = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.TRY]                 = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.TRUE]                = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.VAR]                 = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.WHILE]               = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.AFTER]               = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.AND]                 = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.AS]                  = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.BEFORE]              = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.CATCH]               = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.ELSE]                = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.EXCLUSIVE]           = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.EXTENDS]             = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.FINALLY]             = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.FIRST]               = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.FROM]                = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.IN]                  = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.INDEXOF]             = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.INSTANCEOF]          = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.INTO]                = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.INVERSE]             = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.LAST]                = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.LAZY]                = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.ON]                  = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.OR]                  = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.REPLACE]             = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.REVERSE]             = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.STEP]                = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.THEN]                = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.TYPEOF]              = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.WITH]                = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.WHERE]               = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.TWEEN]               = TokenClassification.KEYWORD;
+        // Operators:
+        tokenClassMap[v3Parser.POUND]               = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.LPAREN]              = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.LBRACKET]            = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.PLUSPLUS]            = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.SUBSUB]              = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.PIPE]                = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.DOTDOT]              = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.RPAREN]              = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.RBRACKET]            = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.SEMI]                = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.COMMA]               = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.DOT]                 = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.EQEQ]                = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.EQ]                  = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.GT]                  = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.LT]                  = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.LTGT]                = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.LTEQ]                = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.GTEQ]                = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.PLUS]                = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.SUB]                 = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.STAR]                = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.SLASH]               = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.PERCENT]             = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.PLUSEQ]              = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.SUBEQ]               = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.STAREQ]              = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.SLASHEQ]             = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.PERCENTEQ]           = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.COLON]               = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.QUES]                = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.SUCHTHAT]            = TokenClassification.OPERATOR;
+        // Others:
+        tokenClassMap[v3Parser.IDENTIFIER]          = TokenClassification.IDENTIFIER;
+    }
+
+    private TokenClassification classifyToken(Token t) {
+        TokenClassification result = TokenClassification.UNKNOWN;
+        int tokenType = t.getType();
+        if ((tokenType >= 0) && tokenType < tokenClassMap.length) {
+            result = tokenClassMap[tokenType];
+        }
+        return result;
+    }
+
     public String getErrorMessage(RecognitionException e, String[] tokenNames) {
         java.util.List stack = getRuleInvocationStack(e, this.getClass().getName());
         String stackTop = stack.get(stack.size()-1).toString();
@@ -348,6 +495,11 @@ protected String stackPositionDescription(String ruleName) {
             mb.append(posDescription);
             mb.append(" but I got confused when I saw ");
             mb.append(getTokenErrorDisplay(e.token));
+            TokenClassification tokenClass = classifyToken(e.token);
+            if (tokenClass != TokenClassification.UNKNOWN) {
+                mb.append(" which is ");
+                mb.append(tokenClass.forHumans());
+            }
             if (mte.expecting != Token.EOF) {
                 mb.append(".\n Perhaps you are missing a ");
                 mb.append("'" + tokenNames[mte.expecting]+"'");
@@ -359,6 +511,11 @@ protected String stackPositionDescription(String ruleName) {
             mb.append(posDescription);
             mb.append(" but I got confused when I saw ");
             mb.append(getTokenErrorDisplay(e.token));
+            TokenClassification tokenClass = classifyToken(e.token);
+            if (tokenClass != TokenClassification.UNKNOWN) {
+                mb.append(" which is ");
+                mb.append(tokenClass.forHumans());
+            }
         } else {
             mb.append( super.getErrorMessage(e, tokenNames) );
         }
