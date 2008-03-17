@@ -493,7 +493,7 @@
         <mail from="${weekly.buildmaster}" 
               replyto="${weekly.build.alias}"
               tolist="${weekly.build.alias}"
-              message="weekly build completed"
+              message="${date.stamp} weekly build completed:\n\nhttp://openjfx.java.sun.com/builds/weekly/openjfx-compiler/weekly-${date.stamp}"
               subject="Weekly build available"/>
     </target>
     
