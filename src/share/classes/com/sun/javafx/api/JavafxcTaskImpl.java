@@ -129,6 +129,7 @@ class JavafxcTaskImpl extends JavafxcTask {
     private void prepareCompiler() throws IOException {
         if (!used.getAndSet(true)) {
             beginContext();
+            compilerMain.registerServices(context, args);
             compilerMain.setOptions(Options.instance(context));
             compilerMain.filenames = new ListBuffer<File>();
             List<File> filenames = compilerMain.processArgs(CommandLine.parse(args));
