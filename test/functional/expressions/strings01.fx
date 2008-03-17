@@ -1,10 +1,10 @@
 import java.lang.System;
 import java.util.Date;
 /*
-* @test
-* @compilefirst ../TestUtils.fx
-* @run
-*/
+ * @test
+ * @compilefirst ../TestUtils.fx
+ * @run
+ */
 
 var TU = new TestUtils;
 function print(msg:String) { System.out.println( msg ); }
