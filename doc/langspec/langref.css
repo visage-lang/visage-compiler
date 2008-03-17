@@ -36,10 +36,12 @@ pre {padding-top: 6pt;
      margin-right: 44pt;
 }
     
-table {background-color: #eeeeff;
-       border-color: white; 
-       border-collapse: collapse; 
-       margin-left: 24pt;
+table { background-color: #eeeeff;
+	border-collapse: collapse; 
+        border-top: 1px solid black; 
+        border-bottom: 1px solid black; 
+        margin-left: 24pt; 
+        width: 67%;
       }
        
        

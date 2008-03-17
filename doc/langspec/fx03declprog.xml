@@ -111,10 +111,10 @@ textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);</programlisting>
           language types listed on the table below:</para>
 
           <table cellpadding="5" cellspacing="5" width="67%" style=" border-top: 1px solid black; border-bottom: 1px solid black;">
-		 
+
 <caption>JavaFX Script Data Types</caption>
-		 
-		 
+
+
             <tbody>
               <tr>
                 <th style="text-decoration: underline; font-family: sans-serif;">JavaFX</th>
