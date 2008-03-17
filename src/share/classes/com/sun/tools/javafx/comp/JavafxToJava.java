@@ -27,6 +27,7 @@ package com.sun.tools.javafx.comp;
 import java.io.OutputStreamWriter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.lang.model.type.TypeKind;
 
 import com.sun.javafx.api.JavafxBindStatus;
@@ -215,6 +216,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     private boolean inOperationDef = false;
 
+    private static final Pattern EXTENDED_FORMAT_PATTERN = Pattern.compile("%[<$0-9]*[tT][guwxGUVWXE]");
+    
     public static JavafxToJava instance(Context context) {
         JavafxToJava instance = context.get(jfxToJavaKey);
         if (instance == null)
@@ -968,10 +971,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             JCLiteral lit = (JCLiteral) (parts.head);            // "...{
             sb.append((String) lit.value);
             parts = parts.tail;
+            boolean containsExtendedFormat = false;
 
             while (parts.nonEmpty()) {
                 lit = (JCLiteral) (parts.head);                  // optional format (or null)
                 String format = (String) lit.value;
+                if ((!containsExtendedFormat) && format.length() > 0
+                    && EXTENDED_FORMAT_PATTERN.matcher(format).find()) {
+                    containsExtendedFormat = true;
+                }
                 parts = parts.tail;
                 JCExpression exp = parts.head;
                 if (exp != null &&
@@ -1001,6 +1009,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 String resourceName =
                         toJava.attrEnv.enclClass.sym.flatname.toString().replace('.', '/').replaceAll("\\$.*", "");
                 values.prepend(m().Literal(TypeTags.CLASS, resourceName));
+            } else if (containsExtendedFormat) {
+                formatMethod = "com.sun.javafx.runtime.util.FXFormatter.sprintf";
             } else {
                 formatMethod = "java.lang.String.format";
             }

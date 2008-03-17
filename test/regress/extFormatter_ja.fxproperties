@@ -1,0 +1,2 @@
+// Test resource bundle for extFormatter.fx
+"Today is %s." = "Kyou wa %tEc."

@@ -38,8 +38,8 @@ public class StringLocalization {
         Collections.synchronizedMap(
             new WeakHashMap<ThreadGroup, Map<String, String>>());
 
-    public static String getLocalizedString(String scriptName, String explicitKey, 
-                                        String literal, Object... embeddedExpr) {
+    public static String getLocalizedString(String scriptName, String explicitKey,
+                                            String literal, Object... embeddedExpr) {
         return getLocalizedString(
             getPropertiesName(scriptName.replaceAll("/", "\\.")), 
             explicitKey, literal, Locale.getDefault(), embeddedExpr);
@@ -64,7 +64,7 @@ public class StringLocalization {
             }
 
             if (embeddedExpr.length != 0) {
-                localization = String.format(localization, embeddedExpr);
+                localization = FXFormatter.sprintf(locale, localization, embeddedExpr);
             }
         } catch (Exception e) {
             e.printStackTrace();
