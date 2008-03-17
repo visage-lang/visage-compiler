@@ -30,11 +30,6 @@ import javax.swing.JColorChooser;
 
 public class ColorChooser extends Widget {
     private attribute jcolorchooser:javax.swing.JColorChooser;
-    public attribute showDialog: Boolean on replace {
-        if (showDialog) {
-            show();
-        }
-    };
     public attribute action: function(c:Color):Void;
     public attribute title: String;
     public attribute owner: UIElement;
@@ -47,6 +42,18 @@ public class ColorChooser extends Widget {
         if(jcolorchooser <> null)
             jcolorchooser.setDragEnabled(enableDND);
     };    
+    /**
+     * Actually bring the dialog up.
+     * Since setting this action true in an object literal will 
+     * cause the dialog to pop-up immediately, this attribute 
+     * must be placed after all other attributes -- so that they
+     * will be initialized before it pops up.
+     */
+    public attribute showDialog: Boolean on replace {
+        if (showDialog) {
+            show();
+        }
+    };
     function show():Void {
         var result = javax.swing.JColorChooser.showDialog(owner.getWindow(), 
                                                               title,
