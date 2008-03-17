@@ -891,7 +891,7 @@ public class JavafxResolve {
 
         return bestSoFar;
     }
-             
+
     private boolean isExactMatch(Type mtype, Symbol bestSoFar) {
         if (bestSoFar.kind == MTH && (bestSoFar.type instanceof MethodType) &&
                 mtype.tag == TypeTags.METHOD ) {
@@ -1427,13 +1427,12 @@ public class JavafxResolve {
     Symbol resolveUnaryOperator(DiagnosticPosition pos, int optag, JavafxEnv<JavafxAttrContext> env, Type arg) {
         // check for Duration unary minus
         if (types.isSameType(arg, ((JavafxSymtab)syms).javafx_DurationType)) {
-            Type intf = ((JavafxSymtab)syms).javafx_DurationIntfType;
             Symbol res = null;
             switch (optag) {
             case JCTree.NEG:
                 res = resolveMethod(pos,  env,
                                     names.fromString("negate"),
-                                    intf, List.<Type>nil());
+                                    arg, List.<Type>nil());
                 break;
             }
             if (res != null && res.kind == MTH) {
@@ -1459,58 +1458,55 @@ public class JavafxResolve {
         // Duration operator overloading
         if (types.isSameType(left, ((JavafxSymtab)syms).javafx_DurationType) ||
             types.isSameType(right, ((JavafxSymtab)syms).javafx_DurationType)) {
-            Type intf = left;
-            if (types.isSameType(left, ((JavafxSymtab)syms).javafx_DurationType)) {
-                intf = ((JavafxSymtab)syms).javafx_DurationIntfType;
-            }
+            Type dur = left;
             Symbol res = null;
             switch (optag) {
             case JCTree.PLUS:
                 res = resolveMethod(pos,  env,
                                      names.fromString("add"),
-                                     intf, List.of(right));
+                                     dur, List.of(right));
                 break;
             case JCTree.MINUS:
                 res =  resolveMethod(pos,  env,
                                      names.fromString("sub"),
-                                     intf, List.of(right));
+                                     dur, List.of(right));
                 break;
             case JCTree.MUL:
                 if (!types.isSameType(left, ((JavafxSymtab)syms).javafx_DurationType)) {
                     right = left;
-                    intf = right;
+                    dur = right;
                 }
                 res =  resolveMethod(pos,  env,
                                      names.fromString("mul"),
-                                     intf,
+                                     dur,
                                      List.of(right));
                 break;
             case JCTree.DIV:
                 res =  resolveMethod(pos,  env,
                                      names.fromString("div"),
-                                     intf, List.of(right));
+                                     dur, List.of(right));
                 break;
 
             //fix me...inline or move to static helper?
             case JCTree.LT:
                 res =  resolveMethod(pos,  env,
                                      names.fromString("lt"),
-                                     intf, List.of(right));
+                                     dur, List.of(right));
                 break;
             case JCTree.LE:
                 res =  resolveMethod(pos,  env,
                                      names.fromString("le"),
-                                     intf, List.of(right));
+                                     dur, List.of(right));
                 break;
             case JCTree.GT:
                 res =  resolveMethod(pos,  env,
                                      names.fromString("gt"),
-                                     intf, List.of(right));
+                                     dur, List.of(right));
                 break;
             case JCTree.GE:
                 res =  resolveMethod(pos,  env,
                                      names.fromString("ge"),
-                                     intf, List.of(right));
+                                     dur, List.of(right));
                 break;
             }
             if (res != null && res.kind == MTH) {
