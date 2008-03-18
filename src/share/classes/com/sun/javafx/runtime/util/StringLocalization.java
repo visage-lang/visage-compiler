@@ -52,8 +52,8 @@ public class StringLocalization {
         try {
             ResourceBundle rb = ResourceBundle.getBundle(propertiesName,
                     locale, FXPropertyResourceBundle.FXPropertiesControl.INSTANCE);
-        
-            if (explicitKey.length() != 0) {
+
+            if (explicitKey != null) {
                 localization = rb.getString(explicitKey);
                 if (explicitKey.equals(localization) && 
                     !rb.keySet().contains(explicitKey)) {

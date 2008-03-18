@@ -1005,7 +1005,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             String formatMethod;
             if (tree.translationKey != null) {
                 formatMethod = "com.sun.javafx.runtime.util.StringLocalization.getLocalizedString";
-                values.prepend(m().Literal(TypeTags.CLASS, tree.translationKey));
+                if (tree.translationKey.length() == 0) {
+                    values.prepend(m().Literal(TypeTags.BOT, null));
+                } else {
+                    values.prepend(m().Literal(TypeTags.CLASS, tree.translationKey));
+                }
                 String resourceName =
                         toJava.attrEnv.enclClass.sym.flatname.toString().replace('.', '/').replaceAll("\\$.*", "");
                 values.prepend(m().Literal(TypeTags.CLASS, resourceName));
