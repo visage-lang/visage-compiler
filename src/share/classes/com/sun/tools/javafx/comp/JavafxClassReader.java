@@ -26,46 +26,38 @@
 package com.sun.tools.javafx.comp;
 
 import java.io.*;
-import java.net.URI;
-import java.nio.CharBuffer;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import javax.lang.model.SourceVersion;
-import javax.tools.JavaFileObject;
-import javax.tools.JavaFileManager;
-import javax.tools.StandardJavaFileManager;
-
+import java.util.IdentityHashMap;
 import com.sun.tools.javac.jvm.ClassReader;
-import com.sun.tools.javac.comp.Annotate;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.List;
 
 import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.Kinds.*;
 import static com.sun.tools.javac.code.TypeTags.*;
-import com.sun.tools.javac.jvm.ClassFile.NameAndType;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxFlags;
-import com.sun.tools.javafx.code.FunctionType;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 
-import javax.tools.JavaFileManager.Location;
 import static javax.tools.StandardLocation.*;
 
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
-/** This class provides operations to read a classfile into an internal
+/** Provides operations to read a classfile into an internal
  *  representation. The internal representation is anchored in a
- *  ClassSymbol which contains in its scope symbol representations
+ *  JavafxClassSymbol which contains in its scope symbol representations
  *  for all other definitions in the classfile. Top-level Classes themselves
  *  appear as members of the scopes of PackageSymbols.
+ *
+ *  We delegate actual classfile-reading to javac's ClassReader, and then
+ *  translates the resulting ClassSymbol to JavafxClassSymbol, doing some
+ *  renaming etc to make the resulting Symbols and Types match those produced
+ *  by the parser.  This munging is incomplete, and there are still places
+ *  where the compiler needs to know of a class comes from the parser or a
+ *  classfile; those places will hopefully become fewer.
  *
  *  <p><b>This is NOT part of any API supported by Sun Microsystems.  If
  *  you write code that depends on this, you do so at your own risk.
@@ -73,19 +65,31 @@ import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
  *  deletion without notice.</b>
  */
 public class JavafxClassReader extends ClassReader {
+     protected static final Context.Key<ClassReader> backendClassReaderKey =
+         new Context.Key<ClassReader>();
 
     private final JavafxDefs defs;
-    private final JavafxTypeMorpher typeMorpher;
-    
-    private Name currentMethodName;
+    private final JavafxTypeMorpher typeMorpher; // FIXME
+
+    /** The raw class-reader, shared by the back-end. */
+    public ClassReader jreader;
+
     private final Name functionClassPrefixName;
     
-    public static void preRegister(final Context context) {
+    public static void preRegister(final Context context, final ClassReader jreader) {
+        context.put(backendClassReaderKey, jreader);
         context.put(classReaderKey, new Context.Factory<ClassReader>() {
-	       public ClassReader make() {
+	       public JavafxClassReader make() {
 		   return new JavafxClassReader(context, true);
 	       }
         });
+    }
+
+    public static JavafxClassReader instance(Context context) {
+        JavafxClassReader instance = (JavafxClassReader) context.get(classReaderKey);
+        if (instance == null)
+            instance = new JavafxClassReader(context, true);
+        return instance;
     }
 
     /** Construct a new class reader, optionally treated as the
@@ -94,6 +98,7 @@ public class JavafxClassReader extends ClassReader {
     protected JavafxClassReader(Context context, boolean definitive) {
         super(context, definitive);
         defs = JavafxDefs.instance(context);
+        jreader = context.get(backendClassReaderKey);
         typeMorpher = JavafxTypeMorpher.instance(context);
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
     }
@@ -101,191 +106,24 @@ public class JavafxClassReader extends ClassReader {
     public Name.Table getNames() {
         return names;
     }
-    
-    /** Convert class signature to type, where signature is implicit.
-     */
-    protected Type classSigToType() {
-        if (signature[sigp] != 'L')
-            throw badClassFile("bad.class.signature",
-                               Convert.utf2string(signature, sigp, 10));
-        sigp++;
-        Type outer = Type.noType;
-        int startSbp = sbp;
 
-        while (true) {
-            final byte c = signature[sigp++];
-            switch (c) {
-
-            case ';': {         // end
-                Name className = names.fromUtf(signatureBuffer,
-                                                         startSbp,
-                                                         sbp - startSbp);
-                ClassSymbol t = enterClassNoIntfPart(className);
-                if (!keepClassFileSignatures()) {
-                    if (t == typeMorpher.variableNCT[TYPE_KIND_BOOLEAN].sym) {
-                        sbp = startSbp;
-                        return syms.booleanType;
-                    } else if (t == typeMorpher.variableNCT[TYPE_KIND_DOUBLE].sym) {
-                        sbp = startSbp;
-                        return syms.doubleType;
-                    } else if (t == typeMorpher.variableNCT[TYPE_KIND_INT].sym) {
-                        sbp = startSbp;
-                        return syms.intType;
-                    }
-                }
-                if (outer == Type.noType)
-                    outer = t.erasure(types);
-                else
-                    outer = new ClassType(outer, List.<Type>nil(), t);
-                sbp = startSbp;
-                return outer;
-            }
-
-            case '<':           // generic arguments
-                Name className = names.fromUtf(signatureBuffer,
-                                                         startSbp,
-                                                         sbp - startSbp);
-                ClassSymbol t = enterClassNoIntfPart(className);
-                List<Type> genericArgs = sigToTypes('>');
-                boolean keepSignatures = keepClassFileSignatures();
-                TypeSymbol erased = keepSignatures ? null : types.erasure(t.type).tsym;
-                if (!keepSignatures &&
-                               erased == typeMorpher.variableNCT[TYPE_KIND_OBJECT].sym) {
-                    outer = genericArgs.head;
-                }
-                else if (!keepSignatures
-                        && className.startsWith(functionClassPrefixName)
-                        && className != functionClassPrefixName) {
-                    outer = ((JavafxSymtab) syms).makeFunctionType(genericArgs);
-                }
-                else if (!keepSignatures &&
-                               erased == typeMorpher.variableNCT[TYPE_KIND_SEQUENCE].sym) {
-                    WildcardType tpType = new WildcardType(genericArgs.head, BoundKind.EXTENDS, genericArgs.head.tsym);
-                    outer = new ClassType(outer, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
-                } else {
-                    outer = new ClassType(outer, genericArgs, t) {
-                        boolean completed = false;
-                        public Type getEnclosingType() {
-                            if (!completed) {
-                                completed = true;
-                                tsym.complete();
-                                Type enclosingType = tsym.type.getEnclosingType();
-                                if (enclosingType != Type.noType) {
-                                    List<Type> typeArgs =
-                                        super.getEnclosingType().allparams();
-                                    List<Type> typeParams =
-                                        enclosingType.allparams();
-                                    if (typeParams.length() != typeArgs.length()) {
-                                        // no "rare" types
-                                        super.setEnclosingType(types.erasure(enclosingType));
-                                    } else {
-                                        super.setEnclosingType(types.subst(enclosingType,
-                                                                           typeParams,
-                                                                           typeArgs));
-                                    }
-                                } else {
-                                    super.setEnclosingType(Type.noType);
-                                }
-                            }
-                            return super.getEnclosingType();
-                        }
-                        public void setEnclosingType(Type outer) {
-                            throw new UnsupportedOperationException();
-                        }
-                    };
-                }
-                switch (signature[sigp++]) {
-                case ';':
-                    if (sigp < signature.length && signature[sigp] == '.') {
-                        // support old-style GJC signatures
-                        // The signature produced was
-                        // Lfoo/Outer<Lfoo/X;>;.Lfoo/Outer$Inner<Lfoo/Y;>;
-                        // rather than say
-                        // Lfoo/Outer<Lfoo/X;>.Inner<Lfoo/Y;>;
-                        // so we skip past ".Lfoo/Outer$"
-                        sigp += (sbp - startSbp) + // "foo/Outer"
-                            3;  // ".L" and "$"
-                        signatureBuffer[sbp++] = (byte)'$';
-                        break;
-                    } else {
-                        sbp = startSbp;
-                        return outer;
-                    }
-                case '.':
-                    signatureBuffer[sbp++] = (byte)'$';
-                    break;
-                default:
-                    throw new AssertionError(signature[sigp-1]);
-                }
-                continue;
-
-            case '.':
-                signatureBuffer[sbp++] = (byte)'$';
-                continue;
-            case '/':
-                signatureBuffer[sbp++] = (byte)'.';
-                continue;
-            default:
-                signatureBuffer[sbp++] = c;
-                continue;
-            }
-        }
-    }
-
-    /** Read a method.
-     */
-    protected MethodSymbol readMethod() {
-        Name prevMethodName = currentMethodName;
-        try {
-            long flags = adjustMethodFlags(nextChar());
-            Name name = readName(nextChar());
-            currentMethodName = name;
-            Type type = readType(nextChar());
-            if (name == names.init && currentOwner.hasOuterInstance()) {
-                // Sometimes anonymous classes don't have an outer
-                // instance, however, there is no reliable way to tell so
-                // we never strip this$n
-                if (currentOwner.name.len != 0)
-                    type = new MethodType(type.getParameterTypes().tail,
-                                          type.getReturnType(),
-                                          type.getThrownTypes(),
-                                          syms.methodClass);
-            }
-            if (name.toString().indexOf(JavafxDefs.boundFunctionDollarSuffix) != -1) {
-                flags |= Flags.SYNTHETIC;  // mark bound function versions as synthetic, so they don't get added
-            }
-            MethodSymbol m = new MethodSymbol(flags, name, type, currentOwner);
-            Symbol prevOwner = currentOwner;
-            currentOwner = m;
-            try {
-                readMemberAttrs(m);
-            } finally {
-                currentOwner = prevOwner;
-            }
-            return m;
-        }
-        finally {
-            currentMethodName = prevMethodName;
-        }
-    }
-
-    private boolean keepClassFileSignatures() {
-        if (currentMethodName != null) {
-            String currMethodName = currentMethodName.toString();
-            if (currMethodName.startsWith(attributeGetMethodNamePrefix)) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    public ClassSymbol enterClassNoIntfPart(Name className) {
-        String classNameStr = className.toString();
-        boolean compound = classNameStr.endsWith(interfaceSuffix);
+    public JavafxClassSymbol enterClass(ClassSymbol jsymbol) {
+        Name className = jsymbol.flatname;
+        boolean compound = className.endsWith(defs.interfaceSuffixName);
         if (compound)
-            className = names.fromString(classNameStr.substring(0, classNameStr.length() - interfaceSuffix.length()));
-        ClassSymbol cSym = enterClass(className);
+            className = className.subName(0, className.len - defs.interfaceSuffixName.len);
+        JavafxClassSymbol cSym = (JavafxClassSymbol) enterClass(className);
+        cSym.jsymbol = jsymbol;
+        if (cSym.fullname != jsymbol.fullname &&
+                cSym.owner.kind == PCK && cSym.jsymbol.owner.kind == TYP) {
+            // reassign fields of classes that might have been loaded with
+            // their flat names.
+            cSym.owner.members().remove(cSym);
+            cSym.name = jsymbol.name;
+            ClassSymbol owner = enterClass(((ClassSymbol) jsymbol.owner).flatname);
+            cSym.owner = owner;
+            cSym.fullname = ClassSymbol.formFullName(cSym.name, owner);
+        }
         if (compound)
             cSym.flags_field |= JavafxFlags.COMPOUND_CLASS;
         return cSym;
@@ -294,13 +132,15 @@ public class JavafxClassReader extends ClassReader {
     /** Define a new class given its name and owner.
      */
     public ClassSymbol defineClass(Name name, Symbol owner) {
-        ClassSymbol c = new JavafxClassSymbol(0, name, owner, this);
+        ClassSymbol c = new JavafxClassSymbol(0, name, owner);
         if (owner.kind == PCK)
             assert classes.get(c.flatname) == null : c;
         c.completer = this;
         return c;
     }
 
+    /* FIXME: The re-written class-reader doesn't translate annotations yet.
+ 
     protected void attachAnnotations(final Symbol sym) {
         int numAttributes = nextChar();
         if (numAttributes != 0) {
@@ -368,6 +208,274 @@ public class JavafxClassReader extends ClassReader {
                                         : newList.prependList(sym.attributes_field));
             } finally {
                 classReader.currentClassFile = previousClassFile;
+            }
+        }
+    }
+    */
+
+    /** Map javac Type/Symbol to javafx Type/Symbol. */
+    IdentityHashMap<Object,Object> typeMap = new IdentityHashMap<Object,Object>();
+    
+    /** Translate a List of raw JVM types to Javafx types. */
+    List<Type> translateTypes (List<Type> types) {
+        if (types == null)
+            return null;
+        List<Type> ts = (List<Type>) typeMap.get(types);
+        if (ts != null)
+            return ts;
+        ListBuffer<Type> rs = new ListBuffer<Type>();
+        for (List<Type> t = types;
+                 t.tail != null;
+                 t = t.tail)
+            rs.append(translateType(t.head));
+        ts = rs.toList();
+        typeMap.put(types, ts);
+        return ts;
+    }
+
+    /** Translate raw JVM type to Javafx type. */
+    Type translateType (Type type) {
+        if (type == null)
+            return null;
+        Type t = (Type) typeMap.get(type);
+        if (t != null)
+            return t;
+        switch (type.tag) {
+            case VOID:
+                t = syms.voidType;
+                break;
+            case BOOLEAN:
+                t = syms.booleanType;
+                break;
+            case CHAR:
+                t = syms.charType;
+                break;
+            case BYTE:
+                t = syms.byteType;
+                break;
+            case SHORT:
+                t = syms.shortType;
+                break;
+            case INT:
+                t = syms.intType;
+                break;
+            case LONG:
+                t = syms.longType;
+                break;
+            case DOUBLE:
+                t = syms.doubleType;
+                break;
+            case FLOAT:
+                t = syms.floatType;
+                break;
+            case TYPEVAR:
+                TypeVar tv = (TypeVar) type;
+                TypeVar tx = new TypeVar(null, (Type) null, (Type) null);
+                typeMap.put(type, tx); // In case of a cycle.
+                tx.bound = translateType(tv.bound);
+                tx.lower = translateType(tv.lower);
+                tx.tsym = new TypeSymbol(0, tv.tsym.name, tx, translateSymbol(tv.tsym.owner));
+                return tx;
+            case FORALL:
+                ForAll tf = (ForAll) type;
+                t = new ForAll(translateTypes(tf.tvars), translateType(tf.qtype));
+                break;
+            case WILDCARD:
+                WildcardType wt = (WildcardType) type;
+                t = new WildcardType(translateType(wt.type), wt.kind,
+                        translateTypeSymbol(wt.tsym));
+                break;
+            case CLASS:
+                TypeSymbol tsym = type.tsym;
+                Type outer = translateType(type.getEnclosingType());
+                if (tsym instanceof ClassSymbol) {
+                    ClassType ctype = (ClassType) type;
+                    if (ctype.isCompound()) {
+                        t = types.makeCompoundType(translateTypes(ctype.interfaces_field), translateType(ctype.supertype_field));
+                        break;
+                    }
+                    Name flatname = ((ClassSymbol) tsym).flatname;
+                    if (flatname == typeMorpher.variableNCT[TYPE_KIND_BOOLEAN].name)
+                        return syms.booleanType;
+                    if (flatname == typeMorpher.variableNCT[TYPE_KIND_DOUBLE].name)
+                        return syms.doubleType;
+                    if (flatname == typeMorpher.variableNCT[TYPE_KIND_INT].name)
+                        return syms.intType;
+                    if (ctype.typarams_field != null && ctype.typarams_field.size() == 1) {
+                        if (flatname == typeMorpher.variableNCT[TYPE_KIND_OBJECT].name)
+                            return translateType(ctype.typarams_field.head);
+                        if (flatname == typeMorpher.variableNCT[TYPE_KIND_SEQUENCE].name) {
+                            Type tparam = translateType(ctype.typarams_field.head);
+                            WildcardType tpType = new WildcardType(tparam, BoundKind.EXTENDS, tparam.tsym);
+                            t = new ClassType(outer, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
+                            break;
+                        }
+                    }
+                    if (flatname.startsWith(functionClassPrefixName)
+                        && flatname != functionClassPrefixName) {
+                            t = ((JavafxSymtab) syms).makeFunctionType(translateTypes(ctype.typarams_field));
+                            break;
+                    }
+                    ctype = new ClassType(outer, null, translateTypeSymbol(tsym));
+                    typeMap.put(type, ctype); // In case of a cycle.
+                    ctype.typarams_field = translateTypes(type.getTypeArguments());
+                    return ctype;
+                }
+                break;
+            case ARRAY:
+                t = new ArrayType(translateType(((ArrayType) type).elemtype), syms.arrayClass);
+                break;
+            case METHOD:
+                t = new MethodType(translateTypes(type.getParameterTypes()),
+                        translateType(type.getReturnType()),
+                        translateTypes(type.getThrownTypes()),
+                        syms.methodClass);
+                break;
+            default:
+                t = type; // FIXME
+        }
+        typeMap.put(type, t);
+        return t;
+    }
+
+    TypeSymbol translateTypeSymbol(TypeSymbol tsym) {
+        if (tsym == syms.predefClass)
+            return tsym;
+        ClassSymbol csym = (ClassSymbol) tsym; // FIXME
+        return enterClass(csym);
+    }
+    Symbol translateSymbol(Symbol sym) {
+        if (sym == null)
+            return null;
+        Symbol s = (Symbol) typeMap.get(sym);
+        if (s != null)
+            return s;
+        if (sym instanceof PackageSymbol)
+            s = enterPackage(((PackageSymbol) sym).fullname);
+        else if (sym instanceof MethodSymbol) {
+            Name name = sym.name;
+            long flags = sym.flags_field;
+            Symbol owner = translateSymbol(sym.owner);
+            Type type = translateType(sym.type);
+            if (name.toString().indexOf(JavafxDefs.boundFunctionDollarSuffix) != -1)
+                flags |= Flags.SYNTHETIC;  // mark bound function versions as synthetic, so they don't get added
+            MethodSymbol m = new MethodSymbol(flags, name, type, owner);
+            ((ClassSymbol) owner).members_field.enter(m);
+            s = m;
+        }
+        else
+            s = translateTypeSymbol((TypeSymbol) sym);
+        typeMap.put(sym, s);
+        return s;
+    }
+
+    public void complete(Symbol sym) throws CompletionFailure {
+        if (sym instanceof PackageSymbol) {
+            PackageSymbol psym = (PackageSymbol) sym;
+            PackageSymbol jpackage;
+            if (psym == syms.unnamedPackage)
+                jpackage = jreader.syms.unnamedPackage;
+            else
+                jpackage = jreader.enterPackage(psym.fullname);
+            jpackage.complete();
+            if (psym.members_field == null) psym.members_field = new Scope(psym);
+            for (Scope.Entry e = jpackage.members_field.elems;
+                 e != null;  e = e.sibling) {
+                 if (e.sym instanceof ClassSymbol) {
+                     ClassSymbol jsym = (ClassSymbol) e.sym;
+                     if (jsym.name.endsWith(defs.interfaceSuffixName))
+                         continue;
+                     JavafxClassSymbol csym = enterClass(jsym);
+                     psym.members_field.enter(csym);
+                     csym.classfile = jsym.classfile;
+                     csym.jsymbol = jsym;
+                 }
+            }
+        } else {
+            sym.owner.complete();
+            JavafxClassSymbol csym = (JavafxClassSymbol) sym;
+            ClassSymbol jsymbol = csym.jsymbol;
+            csym.jsymbol = jsymbol = jreader.loadClass(csym.flatname);
+            typeMap.put(jsymbol, csym);
+            jsymbol.classfile = ((ClassSymbol) sym).classfile;
+            
+            ClassType ct = (ClassType)csym.type;
+            ClassType jt = (ClassType)jsymbol.type;
+            csym.members_field = new Scope(csym);
+
+            csym.flags_field = jsymbol.flags_field;
+            
+            ct.typarams_field = translateTypes(jt.typarams_field);
+            ct.setEnclosingType(translateType(jt.getEnclosingType()));
+            
+            ct.supertype_field = translateType(jt.supertype_field);
+            ListBuffer<Type> interfaces = new ListBuffer<Type>();
+            Type iface = null;
+            for (List<Type> it = jt.interfaces_field;
+                 it.tail != null;
+                 it = it.tail) {
+                Type itype = it.head;
+                if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName)
+                    csym.flags_field |= JavafxFlags.FX_CLASS;
+                else if (itype.tsym.name.endsWith(defs.interfaceSuffixName)) {
+                    assert (csym.fullname.len + defs.interfaceSuffixName.len ==
+                            ((ClassSymbol) itype.tsym).fullname.len) &&
+                           ((ClassSymbol) itype.tsym).fullname.startsWith(csym.fullname);
+                    iface = itype;
+                    csym.flags_field |= JavafxFlags.COMPOUND_CLASS;
+                }
+                else {
+                    itype = translateType(itype);
+                    interfaces.append(itype);
+                }
+            }
+           
+            if (iface != null) {
+                iface.tsym.complete();
+                for (List<Type> it = ((ClassType) iface.tsym.type).interfaces_field;
+                 it.tail != null;
+                 it = it.tail) {
+                    Type itype = it.head;
+                    if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName)
+                        csym.flags_field |= JavafxFlags.FX_CLASS;
+                    else {
+                        itype = translateType(itype);
+                        interfaces.append(itype);
+                        csym.addSuperType(itype);
+                    }
+                }
+            }
+            ct.interfaces_field = interfaces.toList();
+
+            // Now translate the members.
+            // Do an initial "reverse" pass so we copy the order.
+            List<Symbol> syms = List.nil();
+            for (Scope.Entry e = jsymbol.members_field.elems;
+                 e != null;  e = e.sibling) {
+                if ((e.sym.flags_field & SYNTHETIC) != 0)
+                    continue;
+                syms = syms.prepend(e.sym);
+            }
+            for (List<Symbol> l = syms; l.nonEmpty(); l=l.tail) {
+                Name name = l.head.name;
+                long flags = l.head.flags_field;
+                if (l.head instanceof MethodSymbol) {
+                    // This should be merged with translateSymbol.
+                    // But that doesn't work for some unknown reason.  FIXME
+                    Type type = translateType(l.head.type);
+                    if (name.toString().indexOf(JavafxDefs.boundFunctionDollarSuffix) != -1)
+                        continue; //flags |= Flags.SYNTHETIC;  // mark bound function versions as synthetic, so they don't get added
+                    MethodSymbol m = new MethodSymbol(flags, name, type, csym);
+                    csym.members_field.enter(m);
+                }
+                else if (l.head instanceof VarSymbol) {
+                    Type type = translateType(l.head.type);
+                    VarSymbol v = new VarSymbol(flags, name, type, csym);
+                    csym.members_field.enter(v);
+                }
+                else {
+                    csym.members_field.enter(translateSymbol(l.head));
+                }
             }
         }
     }

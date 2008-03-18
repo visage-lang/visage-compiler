@@ -337,7 +337,7 @@ public class JavafxInitializationBuilder {
                 // If FINAL class, it is an anonymous class. There is no interface for it and we need to have the type of the
                 // type, not it's interface.
                 ClassSymbol returnSym = (typeOwner.flags_field & Flags.FINAL) != 0 ? (ClassSymbol)typeOwner.type.tsym :
-                        typeMorpher.reader.enterClass(names.fromString(typeOwner.type.toString() + interfaceSuffix));
+                        reader.jreader.enterClass(names.fromString(typeOwner.type.toString() + interfaceSuffix));
                 // Create the field to store the outer instance reference
                 JCVariableDecl accessorField = make.VarDef(make.Modifiers(Flags.PUBLIC), outerAccessorFieldName, make.Ident(returnSym), null);
                 VarSymbol vs = new VarSymbol(Flags.PUBLIC, outerAccessorFieldName, returnSym.type, cdecl.sym);

@@ -32,6 +32,7 @@ import java.io.PrintWriter;
 import java.util.MissingResourceException;
 import com.sun.tools.javac.code.Source;
 import com.sun.tools.javac.jvm.Target;
+import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javafx.main.JavafxOption.Option;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javafx.main.RecognizedOptions.OptionHelper;
@@ -336,7 +337,7 @@ public class Main {
             backEndContext.put(JavaFileManager.class, currentFileManager);
         
         // Sequencing requires that we get the name table from the fully initialized back-end
-        // rather than send the compleated one.
+        // rather than send the completed one.
         JavafxJavaCompiler javafxJavaCompiler = JavafxJavaCompiler.instance(backEndContext);
         
         context.put(JavafxJavaCompiler.javafxJavaCompilerKey, javafxJavaCompiler);
@@ -347,7 +348,10 @@ public class Main {
         // Tranfer the options -- must be done before any initialization
         context.put(Options.optionsKey, (Options)null);  // remove any old value
         context.put(Options.optionsKey, backEndContext.get(Options.optionsKey));
-        
+
+        ClassReader jreader = ClassReader.instance(backEndContext);
+        com.sun.tools.javafx.comp.JavafxClassReader.preRegister(context, jreader);
+
         if (currentFileManager == null)
             JavafxFileManager.preRegister(context); // can't create it until Log has been set up
         com.sun.tools.javafx.code.JavafxLint.preRegister(context);

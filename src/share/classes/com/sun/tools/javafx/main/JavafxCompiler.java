@@ -198,10 +198,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     protected JavafxTreeMaker make;
 
-    /** The class reader.
-     */
-    protected ClassReader reader;
-
     /** The class writer.
      */
     protected ClassWriter writer;
@@ -275,12 +271,12 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         this.context = context;
         context.put(compilerKey, this);
         registerServices(context);
-        
+        JavafxClassReader.instance(context).sourceCompleter = this;
+
         javafxJavaCompiler = JavafxJavaCompiler.instance(context);
         names = Name.Table.instance(context);
         options = Options.instance(context);
         log = Log.instance(context);
-        reader = ClassReader.instance(context);
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         writer = ClassWriter.instance(context);
         enter = JavafxEnter.instance(context);
@@ -292,7 +288,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         varUsageAnalysis = JavafxVarUsageAnalysis.instance(context);
         jfxToJava = JavafxToJava.instance(context);
         prepForBackEnd = JavafxPrepForBackEnd.instance(context);
-        
+
         // Add the javafx message resource bundle
         Messages.instance(context).add(javafxErrorsKey);
         try {
@@ -310,8 +306,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         annotate = JavafxAnnotate.instance(context);
         types = Types.instance(context);
         taskListener = context.get(TaskListener.class);
-
-        reader.sourceCompleter = this;
 
         Options options = Options.instance(context);
 
@@ -1066,7 +1060,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
     private void close(boolean disposeNames) {
-        reader = null;
         make = null;
         writer = null;
         enter = null;
@@ -1146,6 +1139,5 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         com.sun.tools.javafx.tree.JavafxTreeInfo.preRegister(context);
         com.sun.tools.javafx.code.JavafxSymtab.preRegister(context);
         com.sun.tools.javafx.code.JavafxTypes.preRegister(context);
-        com.sun.tools.javafx.comp.JavafxClassReader.preRegister(context);
     }
 }

@@ -66,7 +66,7 @@ public class JavafxTypeMorpher {
 
     private final JavafxDefs defs;
     private final Name.Table names;
-    final ClassReader reader;
+    final JavafxClassReader reader;
     private final TreeMaker make;
     private final JavafxSymtab syms;
     private final Log log;
@@ -94,7 +94,7 @@ public class JavafxTypeMorpher {
         }
         LocationNameSymType(String pkg, String which) {
             name = Name.fromString(names, pkg + which);
-            sym = reader.enterClass(name);
+            sym = reader.jreader.enterClass(name);
             type = sym.type;
         }
     }
@@ -270,7 +270,7 @@ public class JavafxTypeMorpher {
         syms = (JavafxSymtab)(JavafxSymtab.instance(context));
         types = JavafxTypes.instance(context);
         names = Name.Table.instance(context);
-        reader = ClassReader.instance(context);
+        reader = JavafxClassReader.instance(context);
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         log = Log.instance(context);
         toJava = JavafxToJava.instance(context);
@@ -328,6 +328,11 @@ public class JavafxTypeMorpher {
         return make.TypeCast(typeExpr, expr);
     }
 
+    /** Add type parameters.
+     * Returns a bogus hybrid front-end/back-end Type that is only meaningful
+     * as an argument to makeTypeTree.
+     * FIXME when translation creates attributes trees.
+     */
     Type generifyIfNeeded(Type aLocationType, TypeMorphInfo tmi) {
         Type newType;
         Type elemType = tmi.getElementType();
@@ -341,14 +346,13 @@ public class JavafxTypeMorpher {
             for (Type t : actuals) {
                 if ((t.tsym instanceof ClassSymbol) &&
                         (t.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
-                    String str = t.tsym.flatName().toString().replace("$", ".");
+                    String str = t.tsym.name.toString().replace("$", ".");
                     String strLookFor = str + interfaceSuffix;
-                    Type tp = reader.enterClass(names.fromString(strLookFor)).type;
-                    if (tp != null) {
-                        tp.tsym.completer = null;
-                        newActuals = newActuals.append(tp);
-                        break;
-                    }
+                    ClassSymbol csym = new ClassSymbol(0, names.fromString(str), t.tsym.owner);
+                    csym.flags_field |= JavafxFlags.COMPOUND_CLASS;
+                    Type tp = new ClassType(null, null, csym);
+                    newActuals = newActuals.append(tp);
+                    break;
                 }
 
                 newActuals = newActuals.append(t);

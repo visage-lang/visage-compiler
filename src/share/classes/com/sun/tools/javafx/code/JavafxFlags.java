@@ -45,4 +45,6 @@ public class JavafxFlags {
      * (This is used to implement multiple inheritance.)
      */
     public static final long COMPOUND_CLASS = ASSIGNED_TO;
+    
+    public static final long FX_CLASS = BOUND;
 }

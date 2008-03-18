@@ -185,40 +185,15 @@ public class JavafxTypes extends Types {
     }
 
     public boolean isJFXClass(Symbol sym) {
-        if (!(sym instanceof ClassSymbol)) {
-            return false;
-        }
-        
-        ClassSymbol cSym = (ClassSymbol)sym;
-        if ((cSym.flags_field & Flags.INTERFACE) != 0) {
-            for (List<Type> intfs = cSym.getInterfaces(); intfs.nonEmpty(); intfs = intfs.tail) {
-                if (intfs.head.tsym.type == syms.javafx_FXObjectType) {
-                    return true;
-                }
-            }
-        }
-        else {
-            if (fxClasses != null) {
-                if (fxClasses.containsKey(cSym)) {
-                    return true;
-                }
-                
-                for (List<Type> intfs = cSym.getInterfaces(); intfs.nonEmpty(); intfs = intfs.tail) {
-                    if (intfs.head.tsym.type == syms.javafx_FXObjectType) {
-                        return true;
-                    }
-                }
-            }
-        }
-        
-        return false;
+        return sym instanceof JavafxClassSymbol &&
+            (sym.flags_field & JavafxFlags.FX_CLASS) != 0;
     }
     
     public void addFxClass(ClassSymbol csym, JFXClassDeclaration cdecl) {
         if (fxClasses == null) {
             fxClasses = new HashMap<ClassSymbol, JFXClassDeclaration>();
         }
-        
+        csym.flags_field |= JavafxFlags.FX_CLASS;
         fxClasses.put(csym, cdecl);
     }
     

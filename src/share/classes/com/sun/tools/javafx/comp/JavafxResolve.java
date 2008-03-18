@@ -61,7 +61,7 @@ public class JavafxResolve {
     Symtab syms;
     JavafxCheck chk;
     Infer infer;
-    ClassReader reader;
+    JavafxClassReader reader;
     TreeInfo treeinfo;
     JavafxTypes types;
     public final boolean boxingEnabled; // = source.allowBoxing();
@@ -94,7 +94,7 @@ public class JavafxResolve {
         log = Log.instance(context);
         chk = (JavafxCheck)JavafxCheck.instance(context);
         infer = Infer.instance(context);
-        reader = ClassReader.instance(context);
+        reader = JavafxClassReader.instance(context);
         treeinfo = TreeInfo.instance(context);
         types = JavafxTypes.instance(context);
         Source source = Source.instance(context);

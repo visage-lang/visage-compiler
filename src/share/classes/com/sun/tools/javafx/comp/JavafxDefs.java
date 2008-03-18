@@ -83,6 +83,8 @@ public class JavafxDefs {
     /**
      * Name definitions
      */
+    public final Name fxObjectName;
+    public final Name interfaceSuffixName;
     final Name runMethodName;
     final Name receiverName;
     final Name initializeName;
@@ -127,6 +129,8 @@ public class JavafxDefs {
         context.put(jfxDefsKey, this);
         Name.Table names = Name.Table.instance(context);
 
+        fxObjectName = names.fromString(fxObjectString);
+        interfaceSuffixName = names.fromString(interfaceSuffix);
         runMethodName = names.fromString(runMethodString);
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);

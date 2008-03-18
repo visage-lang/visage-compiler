@@ -103,7 +103,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         attr = JavafxAttr.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
-        reader = ClassReader.instance(context);
+        reader = JavafxClassReader.instance(context);
         todo = JavafxTodo.instance(context);
         annotate = JavafxAnnotate.instance(context);
         types = Types.instance(context);

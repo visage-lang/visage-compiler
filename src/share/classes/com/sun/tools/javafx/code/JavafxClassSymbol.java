@@ -41,18 +41,12 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
  * @author llitchev
  */
 public class JavafxClassSymbol extends ClassSymbol {
-    private final JavafxClassReader reader;
-    
+    public ClassSymbol jsymbol;
     private List<Type> supertypes = List.<Type>nil();
     
     /** Creates a new instance of JavafxClassSymbol */
-    public JavafxClassSymbol(long flags, Name name, Symbol owner, JavafxClassReader reader) {
+    public JavafxClassSymbol(long flags, Name name, Symbol owner) {
         super(flags, name, owner);
-        this.reader = reader;
-    }
-    
-    private Name.Table getNames() {
-        return reader.getNames();
     }
     
     public void addSuperType(Type type) {
@@ -61,41 +55,5 @@ public class JavafxClassSymbol extends ClassSymbol {
     
     public List<Type> getSuperTypes() {
         return supertypes;
-    }
-
-    public void complete() throws CompletionFailure {
-        if (completer == null) {
-            return;
-        }
-        super.complete();
-        // Convert all the base interfaces of the form className$Intf gto base classes in the supertypes list.
-        if (getNames() != null && 
-                this.type != null && 
-                type instanceof ClassType) {
-            String cName = this.fullname.toString() + interfaceSuffix;
-            Type baseIntf = null;
-            if (type != null && ((ClassType)type).interfaces_field != null) {
-                for (Type ct : ((ClassType)type).interfaces_field) {
-                    if (ct.toString().equals(cName)) {
-                        baseIntf = ct;
-                        break;
-                    }
-                }
-            }
-
-            if (baseIntf != null && baseIntf instanceof ClassType) {
-                baseIntf.complete();
-                if (baseIntf.tsym != null && baseIntf.tsym.type != null &&
-                        ((ClassType)baseIntf.tsym.type).interfaces_field != null) {
-                    for (Type baseType : ((ClassType)baseIntf.tsym.type).interfaces_field) {
-                        if (baseType.toString().endsWith(interfaceSuffix)) {
-                            String baseTypeName = baseType.toString();
-                            Type tp = reader.enterClass(getNames().fromString(baseTypeName.substring(0, baseTypeName.length() - interfaceSuffix.length()))).type;
-                            addSuperType(tp);
-                        }
-                    }
-                }
-            }
-        }
     }
 }
