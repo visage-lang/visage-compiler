@@ -94,52 +94,50 @@ public class Button extends CompositeNode
     
     override attribute isSelectionRoot = true;
 
-    private attribute clickRect: ClickRect =
-        ClickRect {
-            var pressed = false
-            var strokeWidth = bind ThemeManager.getInstance().uiStrokeWidth
-
-            selectable: true
-            pressedHover: bind (pressed and hover)
-
-            onMousePressed: function(e:CanvasMouseEvent)
-            {
-                pressed = true;
-            }
-            onMouseDragged: function(e:CanvasMouseEvent)
-            {
-            }
-            onMouseReleased: function(e:CanvasMouseEvent)
-            {   
-                if ((clickRect.pressedHover == true) and (onClick <> null))
-                {
-                    pressed = false;
-
-                   //TODO DO LATER - this is a work around until a more permanent solution is provided
-                    javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
-                        public function run():Void {
-                            onClick();
-                        }
-                    });
-                }
-                else
-                {
-                    pressed = false;
-                }
-            }
-
-            x: bind this.x
-            y: bind this.y
-            width: bind this.width-1
-            height: bind this.height-1
-            fill: bind if (clickRect.pressedHover==true) then ThemeManager.getInstance().uiBackground.darker() else ThemeManager.getInstance().uiBackground
-            stroke: bind ThemeManager.getInstance().uiBorderColor
-            strokeWidth: bind strokeWidth
-        };
-
-    
     function composeNode() { Group
         {
+            var clickRect: ClickRect =
+                ClickRect {
+                    var pressed = false
+                    var strokeWidth = bind ThemeManager.getInstance().uiStrokeWidth
+
+                    selectable: true
+                    pressedHover: bind (pressed and hover)
+
+                    onMousePressed: function(e:CanvasMouseEvent)
+                    {
+                        pressed = true;
+                    }
+                    onMouseDragged: function(e:CanvasMouseEvent)
+                    {
+                    }
+                    onMouseReleased: function(e:CanvasMouseEvent)
+                    {   
+                        if ((clickRect.pressedHover == true) and (onClick <> null))
+                        {
+                            pressed = false;
+
+                           //TODO DO LATER - this is a work around until a more permanent solution is provided
+                            javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                                public function run():Void {
+                                    onClick();
+                                }
+                            });
+                        }
+                        else
+                        {
+                            pressed = false;
+                        }
+                    }
+
+                    x: bind this.x
+                    y: bind this.y
+                    width: bind this.width-1
+                    height: bind this.height-1
+                    fill: bind if (clickRect.pressedHover==true) then ThemeManager.getInstance().uiBackground.darker() else ThemeManager.getInstance().uiBackground
+                    stroke: bind ThemeManager.getInstance().uiBorderColor
+                    strokeWidth: bind strokeWidth
+                }
             content:
             [
                 clickRect as Node,

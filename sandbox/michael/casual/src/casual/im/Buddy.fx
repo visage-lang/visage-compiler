@@ -59,7 +59,7 @@ public class BuddyPresence
 public class Buddy
 {
     attribute chat: Chat;
-    attribute window: ChatWindow;
+    public attribute window: ChatWindow;
     
     public attribute type: BuddyType = BuddyType.BUDDY;
     
@@ -105,7 +105,7 @@ public class Buddy
     {
         if (window == null)
         {
-            window = new ChatWindow(this);
+            window = ChatWindow {buddy: this};
             window.width = 300;
             window.height = 100;
             window.receiveMessage(message);
@@ -135,7 +135,7 @@ public class Buddy
         chatting = true;
         if (window == null)
         {
-            window = new ChatWindow(this);
+            window = ChatWindow {buddy: this};
             window.width = 350;
             window.height = 500;
             window.visible = true;

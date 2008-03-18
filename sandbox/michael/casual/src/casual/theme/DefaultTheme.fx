@@ -1,43 +1,37 @@
 package casual.theme;
 
 import javafx.ui.Paint;
+import javafx.ui.AbstractColor;
 import javafx.ui.Color;
 import javafx.ui.LinearGradient;
 import javafx.ui.Stop;
 import javafx.ui.Font;
 import javafx.ui.EmptyBorder;
 
-// TODO: JFXC531 Remove this class as soon as LinearGradient supports 
-//               proportional values
-public class LinearGradientJFXC531 extends LinearGradient {
-    attribute width: Number;
-    attribute height: Number;
-}
-
 public class DefaultTheme extends Theme {
-    attribute description = "Default Casual theme (by ant)";
+    override attribute description = "Default Casual theme (by ant)";
 
-    attribute defaultFont = new Font("sansserif", "PLAIN", 10);
-    attribute defaultForeground = Color.BLACK;
-    attribute defaultBackground = Color.WHITE;
+    override attribute defaultFont = Font.Font("sansserif", ["PLAIN"], 10);
+    override attribute defaultForeground = Color.BLACK;
+    override attribute defaultBackground = Color.WHITE;
 
-    attribute uiForeground = new Color(0.12, 0.12, 0.12, 1.0);
-    attribute uiBackground = new Color(0.72, 0.72, 0.72, 1.0);
-    attribute uiBorderColor = new Color(0.12, 0.12, 0.12, 1.0);
-    attribute uiStrokeWidth = 2;
+    override attribute uiForeground = Color.color(0.12, 0.12, 0.12, 1.0);
+    override attribute uiBackground = Color.color(0.72, 0.72, 0.72, 1.0);
+    override attribute uiBorderColor = Color.color(0.12, 0.12, 0.12, 1.0);
+    override attribute uiStrokeWidth = 2;
 
-    attribute windowFont = new Font("sansserif", "PLAIN", 10);
-    attribute windowInactive = new Color(0.0, 0.0, 0.0, 0.05);
+    override attribute windowFont = Font.Font("sansserif", ["PLAIN"], 10);
+    override attribute windowInactive = Color.color(0.0, 0.0, 0.0, 0.05);
     //attribute windowInactive = new Color(1, 0.5, 0.5, 0.05);
-    attribute windowBackground = new Color(0.72, 0.72, 0.72, 1.0);
-    attribute windowBorder = EmptyBorder
+    override attribute windowBackground = Color.color(0.72, 0.72, 0.72, 1.0);
+    override attribute windowBorder = EmptyBorder
     {
         top: 2
         left: 2
         bottom: 2
         right: 2
     };
-    attribute windowInputAreaBorder = EmptyBorder
+    override attribute windowInputAreaBorder = EmptyBorder
     {
         top: 4
         left: 6
@@ -45,12 +39,12 @@ public class DefaultTheme extends Theme {
         right: 6
     };
 
-    attribute titleBarFont = new Font("sansserif", "BOLD", 10);
-    attribute titleBarForeground = Color.WHITE;
-    attribute titleBarBackground = new Color(0.08, 0.08, 0.08, 1.0);
-    attribute titleBarCloseIconColor = new Color(0.50, 0.20, 0.20, 1.0);
-    attribute titleBarMinimizeIconColor = new Color(0.72, 0.72, 0.72, 1.0);
-    attribute titleBorder = EmptyBorder
+    override attribute titleBarFont = Font.Font("sansserif", ["BOLD"], 10);
+    override attribute titleBarForeground = Color.WHITE;
+    override attribute titleBarBackground = Color.color(0.08, 0.08, 0.08, 1.0);
+    override attribute titleBarCloseIconColor = Color.color(0.50, 0.20, 0.20, 1.0);
+    override attribute titleBarMinimizeIconColor = Color.color(0.72, 0.72, 0.72, 1.0);
+    override attribute titleBorder = EmptyBorder
     {
         top: 8
         left: 6
@@ -58,18 +52,17 @@ public class DefaultTheme extends Theme {
         right: 6
     };
 
-    attribute chatPanelFont = new Font("sansserif", "PLAIN", 12);
-    attribute chatFrameBackground = new Color(0.72, 0.72, 0.72, 1.0);
-    attribute chatPanelBackgroundDark = new Color(0.08, 0.08, 0.08, 1.0);
-    attribute chatPanelBackgroundLight = new Color(0.20, 0.20, 0.20, 1.0);
+    override attribute chatPanelFont = Font.Font("sansserif", ["PLAIN"], 12);
+    override attribute chatFrameBackground = Color.color(0.72, 0.72, 0.72, 1.0);
+    override attribute chatPanelBackgroundDark = Color.color(0.08, 0.08, 0.08, 1.0);
+    override attribute chatPanelBackgroundLight = Color.color(0.20, 0.20, 0.20, 1.0);
     
-    // TODO JFX531 Replace with proportional LinearGradient
-    attribute chatPanelBackground: LinearGradientJFXC531 = LinearGradientJFXC531
+    override attribute chatPanelBackground = LinearGradient
     {
         startX: 0
         startY: 0
-        endX: bind 0.075 * chatPanelBackground.width
-        endY: bind chatPanelBackground.height
+        endX: 0.075
+        endY: 1
 
         stops:
         [
@@ -89,25 +82,54 @@ public class DefaultTheme extends Theme {
                 color: chatPanelBackgroundLight
             }
         ]
-    };
+    } as Color;
 
-    attribute messageFont = new Font("sansserif", "PLAIN", 12);
-    attribute commentFont = new Font("sansserif", "PLAIN", 10);
-    attribute messageInBackground = new Color(0.90, 0.90, 0.90, 0.5);
-    attribute messageInForeground = Color.BLACK;
-    attribute messageOutBackground = new Color(0.30, 0.30, 0.30, 0.5);
-    attribute messageOutForeground = Color.WHITE;
-    attribute commentForeground = Color.BLACK;
-    attribute commentBackground = new Color(0.70, 0.70, 0.70, 0.50);
-    attribute messageBorderColor = new Color(0.15, 0.15, 0.15, 1.0);
-    attribute messageBorder = EmptyBorder
+    // TODO JFX531 Remove this function
+    public function getChatPanelBackground(w: Number, h: Number): Color {
+        LinearGradientJFXC531 {
+            startX: 0
+            startY: 0
+            endX: 0.075 * w
+            endY: h
+
+            stops:
+            [
+                Stop
+                {
+                    offset: 0
+                    color: chatPanelBackgroundDark
+                },
+                Stop
+                {
+                    offset: 0.6
+                    color: chatPanelBackgroundDark
+                },
+                Stop
+                {
+                    offset: 1
+                    color: chatPanelBackgroundLight
+                }
+            ]
+        } as Color
+    }
+
+    override attribute messageFont = Font.Font("sansserif", ["PLAIN"], 12);
+    override attribute commentFont = Font.Font("sansserif", ["PLAIN"], 10);
+    override attribute messageInBackground = Color.color(0.90, 0.90, 0.90, 0.5);
+    override attribute messageInForeground = Color.BLACK;
+    override attribute messageOutBackground = Color.color(0.30, 0.30, 0.30, 0.5);
+    override attribute messageOutForeground = Color.WHITE;
+    override attribute commentForeground = Color.BLACK;
+    override attribute commentBackground = Color.color(0.70, 0.70, 0.70, 0.50);
+    override attribute messageBorderColor = Color.color(0.15, 0.15, 0.15, 1.0);
+    override attribute messageBorder = EmptyBorder
     {
         top: 6
         left: 8
         bottom: 6
         right: 8
     };
-    attribute commentBorder = EmptyBorder
+    override attribute commentBorder = EmptyBorder
     {
         top: 3
         left: 8
@@ -115,17 +137,17 @@ public class DefaultTheme extends Theme {
         right: 8
     };
 
-    attribute messageInputForeground = Color.WHITE;
-    attribute messageInputBackground = new Color(0.50, 0.50, 0.50, 1.0);
-    attribute messageInputBorderColor = new Color(0.25, 0.25, 0.25, 1.0);
-    attribute messageInputBorder = EmptyBorder
+    override attribute messageInputForeground = Color.WHITE;
+    override attribute messageInputBackground = Color.color(0.50, 0.50, 0.50, 1.0);
+    override attribute messageInputBorderColor = Color.color(0.25, 0.25, 0.25, 1.0);
+    override attribute messageInputBorder = EmptyBorder
     {
         top: 2
         left: 0
         bottom: 1
         right: 1
     };
-    attribute messageInputAreaBorder = EmptyBorder
+    override attribute messageInputAreaBorder = EmptyBorder
     {
         top: 6
         left: 8
@@ -133,18 +155,17 @@ public class DefaultTheme extends Theme {
         right: 8
     };
 
-    attribute fieldForeground = new Color(0.0, 0.0, 0.0, 1.0);
-    attribute fieldBackground = new Color(0.72, 0.72, 0.72, 1.0);
-    attribute fieldFocusColor = new Color(0.90, 0.90, 0.90, 1.0);
+    override attribute fieldForeground = Color.color(0.0, 0.0, 0.0, 1.0);
+    override attribute fieldBackground = Color.color(0.72, 0.72, 0.72, 1.0);
+    override attribute fieldFocusColor = Color.color(0.90, 0.90, 0.90, 1.0);
 
-    attribute errorForeground = new Color(1.0, 1.0, 1.0, 1.0);
-    // TODO JFX531 Replace with proportional LinearGradient
-    attribute errorBackgroundInside: LinearGradientJFXC531 = LinearGradientJFXC531
+    override attribute errorForeground = Color.color(1.0, 1.0, 1.0, 1.0);
+    override attribute errorBackgroundInside = LinearGradient
     {
         startX: 0
         startY: 0
-        endX: bind 0.5 * errorBackgroundInside.width
-        endY: bind errorBackgroundInside.height
+        endX: 0.5
+        endY: 1
 
         stops:
         [
@@ -171,18 +192,17 @@ public class DefaultTheme extends Theme {
                 }
             }
         ]
-    };
-    attribute errorBackgroundOutside = new Color(0.0, 0.0, 0.0, 0.75);
-    attribute errorBorderColor = chatFrameBackground;
+    } as AbstractColor;
+    override attribute errorBackgroundOutside = Color.color(0.0, 0.0, 0.0, 0.75);
+    override attribute errorBorderColor = chatFrameBackground;
 
-    attribute warningForeground = new Color(1.0, 1.0, 1.0, 1.0);
-    // TODO JFX531 Replace with proportional LinearGradient
-    attribute warningBackgroundInside: LinearGradientJFXC531 = LinearGradientJFXC531
+    override attribute warningForeground = Color.color(1.0, 1.0, 1.0, 1.0);
+    override attribute warningBackgroundInside = LinearGradient
     {
         startX: 0
         startY: 0
-        endX: bind 0.5 * warningBackgroundInside.width
-        endY: bind warningBackgroundInside.height
+        endX: 0.5
+        endY: 1
 
         stops:
         [
@@ -209,18 +229,17 @@ public class DefaultTheme extends Theme {
                 }
             }
         ]
-    };
-    attribute warningBackgroundOutside = errorBackgroundOutside;
-    attribute warningBorderColor = errorBorderColor;
+    } as AbstractColor;
+    override attribute warningBackgroundOutside = errorBackgroundOutside;
+    override attribute warningBorderColor = errorBorderColor;
 
-    attribute infoForeground = new Color(1.0, 1.0, 1.0, 1.0);
-    // TODO JFX531 Replace with proportional LinearGradient
-    attribute infoBackgroundInside: LinearGradientJFXC531 = LinearGradientJFXC531
+    override attribute infoForeground = Color.color(1.0, 1.0, 1.0, 1.0);
+    override attribute infoBackgroundInside = LinearGradient
     {
         startX: 0
         startY: 0
-        endX: bind 0.5 * infoBackgroundInside.width
-        endY: bind infoBackgroundInside.height
+        endX: 0.5
+        endY: 1
 
         stops:
         [
@@ -247,8 +266,8 @@ public class DefaultTheme extends Theme {
                 }
             }
         ]
-    };
-    attribute infoBackgroundOutside = errorBackgroundOutside;
-    attribute infoBorderColor = errorBorderColor;
+    } as AbstractColor;
+    override attribute infoBackgroundOutside = errorBackgroundOutside;
+    override attribute infoBorderColor = errorBorderColor;
 };
 

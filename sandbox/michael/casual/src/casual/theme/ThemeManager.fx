@@ -44,6 +44,10 @@ public class ThemeManager extends Theme
     override attribute chatPanelBackgroundLight = bind theme.chatPanelBackgroundLight;
     override attribute chatPanelBackgroundDark = bind theme.chatPanelBackgroundDark;
     override attribute chatPanelBackground = bind theme.chatPanelBackground;
+    // TODO: JFXC531 Remove this function and use chatPanelBackground instead
+    function getChatPanelBackground(w: Number, h: Number): javafx.ui.Color {
+        return theme.getChatPanelBackground(w, h);
+    }
     override attribute chatPanelBorder = bind theme.chatPanelBorder;
 
     override attribute messageFont = bind theme.messageFont;
@@ -130,7 +134,7 @@ public class ThemeManager extends Theme
         }
     }
 
-    function next()
+    public function next()
     {
         for (t in themes)
         {
@@ -147,7 +151,7 @@ public class ThemeManager extends Theme
         }
     }
 
-    function previous()
+    public function previous()
     {
         for (t in themes)
         {

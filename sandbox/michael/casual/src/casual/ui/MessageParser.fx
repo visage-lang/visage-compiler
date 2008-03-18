@@ -13,12 +13,11 @@ import java.lang.Object;
 
 class Keyword
 {
-    private attribute casualURL: String = CASUAL.getResourceURL(); // root URL for casual resources
+    private static attribute casualURL: String = CASUAL.getResourceURL(); // root URL for casual resources
 
     public attribute id: String;
     public attribute key: String;
     public attribute rsrc: Object;
-
     public static attribute HTTP:Keyword = Keyword
     {
         id: "HTTP"
@@ -358,6 +357,11 @@ class Keyword
 
 public class MessageParser
 {
+    private static attribute instance: MessageParser = new MessageParser;
+    public static function getInstance(): MessageParser {
+        return instance;
+    }
+    
     public function parse(string:String, type:MessageType): String {
     //println("MessageParser.parse string=\"{string}\"");
         var result:String = "";
@@ -512,4 +516,10 @@ public class MessageParser
         audioClip.stop();
         audioClip.loop();
     };
+    
+    public function  ringStop()
+    {
+        var audioClip:AudioClip = Keyword.RING.rsrc as AudioClip;
+        audioClip.stop();
+    }
 }

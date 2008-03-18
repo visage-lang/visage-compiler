@@ -15,9 +15,8 @@ public class JabberIM extends InstantMessenger
     private attribute roster: Roster;
     private attribute chatManager: ChatManager;
     private attribute rosterListener: RosterListener;
-    public attribute user: Buddy;
 
-    function login(window:AccountWindow)
+    function login(window:AccountWindow): Void
     {
         var account = user.account;
         var configuration;
@@ -51,7 +50,7 @@ public class JabberIM extends InstantMessenger
                 }
             });
 
-            return null;
+            return;
         }
 
         try
@@ -79,7 +78,7 @@ public class JabberIM extends InstantMessenger
                 }
             });
 
-            return null;
+            return;
         }
 
         chatManager = connection.getChatManager();
@@ -137,7 +136,7 @@ public class JabberIM extends InstantMessenger
                                         buddy.presence = Buddy.BuddyPresence.AWAY;
                                     }
                                 }
-                                else if (presence.getMode() == Presence$Mode.available)
+                                else if (presence.getMode() == Presence.Mode.available)
                                 {
                                     buddy.presence = Buddy.BuddyPresence.AVAILABLE;
                                 }
@@ -171,7 +170,7 @@ public class JabberIM extends InstantMessenger
                 var accountName = addressXMPP.substring(addressXMPP.indexOf('@')+1, addressXMPP.length());
                 var buddy = Buddy
                 {
-                    type: BUDDY
+                    type: Buddy.BuddyType.BUDDY
                     userName: userName
                     accountName: accountName
                 };
@@ -182,20 +181,20 @@ public class JabberIM extends InstantMessenger
                 {
                     if (bestPresence.isAvailable())
                     {
-                        buddy.presence = BuddyPresence.AVAILABLE;
+                        buddy.presence = Buddy.BuddyPresence.AVAILABLE;
                     }
                     else
                     {
-                        buddy.presence = BuddyPresence.AWAY;
+                        buddy.presence = Buddy.BuddyPresence.AWAY;
                     }
                 }
-                else if (bestPresence.getMode() == Presence$Mode.available)
+                else if (bestPresence.getMode() == Presence.Mode.available)
                 {
-                    buddy.presence = BuddyPresence.AVAILABLE;
+                    buddy.presence = Buddy.BuddyPresence.AVAILABLE;
                 }
                 else
                 {
-                    buddy.presence = BuddyPresence.AWAY;
+                    buddy.presence = Buddy.BuddyPresence.AWAY;
                 }
 
                 buddy.chat = JabberChat {manager: chatManager, buddy: buddy};
@@ -204,15 +203,16 @@ public class JabberIM extends InstantMessenger
             }
         }
 
-        var presence = new Presence(Presence$Type.available, "available", 1, Presence$Mode.available);
+        var presence = new Presence(Presence.Type.available, "available", 1, Presence.Mode.available);
         connection.sendPacket(presence);
 
         //TODO DO LATER - this is a work around until a more permanent solution is provided
+        var im = this;
         javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
             public function run():Void {
                 window.hideMessage();
                 window.close();
-                var buddyWindow = new BuddyWindow(this);
+                var buddyWindow = BuddyWindow {im: im};
             }
         });
     }
@@ -227,18 +227,18 @@ public class JabberIM extends InstantMessenger
         return ((connection <> null) and (connection.isAuthenticated() == true));
     }
 
-    function logout()
+    function logout(): Void
     {
         if (isConnected() == true)
         {
             roster.removeRosterListener(rosterListener);
             connection.disconnect();
-            delete connection;
-            delete roster;
+            connection = null;
+            roster = null;
         }
     }
 
-    function setPresence()
+    function setPresence(): Void
     {
         if (isConnected() == true)
         {

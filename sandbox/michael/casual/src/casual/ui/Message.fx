@@ -18,8 +18,8 @@ public class Message extends CompositeNode
 {
     public attribute type: MessageType;
     public attribute message: String;
-    attribute width: Number;
-    attribute height: Number;
+    public attribute width: Number;
+    public attribute height: Number;
     
     private function getAlign(type: MessageType): String {
         return if (type == MessageType.INCOMING)

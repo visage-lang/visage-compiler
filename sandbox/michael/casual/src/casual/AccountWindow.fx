@@ -19,11 +19,14 @@ import javafx.ui.Column;
 import javafx.ui.PasswordField;
 import javafx.ui.TextField;
 import javafx.ui.Alignment;
+import javafx.ui.HorizontalAlignment;
 
 import javafx.ui.canvas.View;
+import javafx.ui.canvas.Node;
 import javafx.ui.canvas.Group;
 import javafx.ui.canvas.Rect;
 import javafx.ui.canvas.Transform;
+import javafx.ui.canvas.Translate;
 import javafx.ui.canvas.HBox;
 import javafx.ui.canvas.Text;
 
@@ -51,7 +54,7 @@ class FocusedPasswordField extends PasswordField
 {
     public attribute frame: AccountWindow;
 
-    attribute focusable = bind frame.focusReady
+    override attribute focusable = bind frame.focusReady
         on replace {
             if (focusable == true)
             {
@@ -64,7 +67,7 @@ class FocusedPasswordField extends PasswordField
         };
 }
 
-public class AccountWindow extends Frame
+public class AccountWindow extends CasualFrame
 {
     public attribute buddy: Buddy = Buddy { type: Buddy.BuddyType.USER }
         on replace {
@@ -199,7 +202,7 @@ public class AccountWindow extends Frame
         }
     };
     
-    attribute dialog: Dialog = Dialog {
+    override attribute dialog = Dialog {
         frame: this
         active: false
     };
@@ -254,259 +257,264 @@ public class AccountWindow extends Frame
                 View
                 {                    
                     sizeToFitCanvas: true
-                    content: BorderPanel
-                    {
-                        var panel = this
+                    var panel: BorderPanel = 
+                        BorderPanel {
+                            border: bind ThemeManager.getInstance().windowBorder
+                            background: bind ThemeManager.getInstance().chatFrameBackground
 
-                        border: bind ThemeManager.getInstance().windowBorder
-                        background: bind ThemeManager.getInstance().chatFrameBackground
+                            var top: Canvas =
+                                Canvas {
+                                    border: new EmptyBorder
+                                    
+                                    // TODO JFXC531: Replace this hack
+                                    background: bind ThemeManager.getInstance().getChatPanelBackground(top.width, top.height)
+                                    
+                                    
 
-                        top: Canvas
-                        {
-                            border: new EmptyBorder
-                            background: bind ThemeManager.getInstance().chatPanelBackground
+                                    content: TitleBar
+                                    {
+                                        var offsets = bind (ThemeManager.getInstance().windowBorder.left + ThemeManager.getInstance().windowBorder.right)
 
-                            content: TitleBar
-                            {
-                                var offsets = bind (ThemeManager.getInstance().windowBorder.left + ThemeManager.getInstance().windowBorder.right)
+                                        frame: this
+                                        title: "CASUAL ACCOUNTS"
+                                        width: bind (panel.width.intValue() - offsets)
+                                        foreground: bind ThemeManager.getInstance().titleBarForeground
+                                        background: bind ThemeManager.getInstance().titleBarBackground
 
-                                frame: this
-                                title: "CASUAL ACCOUNTS"
-                                width: bind (panel.width - offsets)
-                                foreground: bind ThemeManager.getInstance().titleBarForeground
-                                background: bind ThemeManager.getInstance().titleBarBackground
-
-                                onClose: function()
-                                {
-                                    java.lang.System.exit(0);
+                                        onClose: function()
+                                        {
+                                            java.lang.System.exit(0);
+                                        }
+                                    }
                                 }
-                            }
-                        }
+                            top: top
 
-                        center: Canvas
-                        {
-                            border: EmptyBorder
-                            background: bind ThemeManager.getInstance().chatPanelBackground
+                            var center: Canvas =
+                                Canvas {
+                                    border: new EmptyBorder
+                                    background: bind ThemeManager.getInstance().getChatPanelBackground (center.width, center.height)
 
-                            content: Group
-                            {
-                                content:
-                                [
-                                    View
+                                    content: Group
                                     {
-                                        var text = bind if (buddy.type == Buddy.BuddyType.BUDDY) then "BUDDY" else "YOUR"
+                                        content:
+                                        [
+                                            View
+                                            {
+                                                var text = bind if (buddy.type == Buddy.BuddyType.BUDDY) then "BUDDY" else "YOUR"
 
-                                        transform: translate(30, 20)
+                                                transform: Translate {x: 30, y: 20}
 
-                                        content: SimpleLabel
-                                        {
-                                            font: bind ThemeManager.getInstance().windowFont.bold()
-                                            foreground: bind ThemeManager.getInstance().messageInputForeground
-                                            text: "{text} PERSONAL DETAILS"
-                                        }
-                                    },
-                                    View
-                                    {
-                                        antialiasText: true
-                                        transform: bind translate(panel.width-10, 40)
-                                        halign: TRAILING
-
-                                        content: GroupPanel
-                                        {
-                                            rows: [firstNameRow, lastNameRow]
-                                            columns: [labelsColumn, fieldsColumn]
-                                            autoCreateContainerGaps: false
-
-                                            content:
-                                            [
-                                                SimpleLabel 
+                                                content: SimpleLabel
                                                 {
-                                                    row: firstNameRow
-                                                    column: labelsColumn
-                                                    border: bind ThemeManager.getInstance().windowInputAreaBorder
-                                                    font: bind ThemeManager.getInstance().windowFont.bigger()
-                                                    background: new Color(0,0,0,0)
-                                                    foreground: bind ThemeManager.getInstance().messageInputForeground
-                                                    text: "first name -"
-
-                                                },
-                                                userField,
-                                                SimpleLabel
-                                                {
-                                                    row: lastNameRow, column: labelsColumn
-                                                    border: bind ThemeManager.getInstance().windowInputAreaBorder
-                                                    font: bind ThemeManager.getInstance().windowFont.bigger()
-                                                    background: new Color(0,0,0,0)
-                                                    foreground: bind ThemeManager.getInstance().messageInputForeground
-                                                    text: "last name -"
-                                                },
-                                                FocusedTextField
-                                                {
-                                                    frame: this
-//                                                    horizontal: {pref: 270}
-                                                    row: lastNameRow
-                                                    column: fieldsColumn
-                                                    foreground: bind ThemeManager.getInstance().fieldForeground
-                                                    background: bind ThemeManager.getInstance().fieldBackground
                                                     font: bind ThemeManager.getInstance().windowFont.bold()
-                                                    border: bind ThemeManager.getInstance().windowInputAreaBorder
-                                                    value: bind buddy.lastName
-                                                    onChange: function(newValue) 
-                                                    {
-                                                        save(Buddy.BuddyKey.LAST_NAME, newValue);
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    View
-                                    {
-                                        transform: bind translate(30, 105)
-                                        content: SimpleLabel
-                                        {
-                                            font: bind ThemeManager.getInstance().windowFont.bold()
-                                            foreground: bind ThemeManager.getInstance().messageInputForeground
-                                            text: "INSTANT MESSENGER DETAILS"
-                                        }
-                                    },
-                                    View
-                                    {
-                                        antialiasText: true
-                                        transform: bind translate(panel.width-10, 125)
-                                        halign: HorizontalAlignment.TRAILING
-
-                                        content: GroupPanel
-                                        {
-                                            rows: [addressRow, passwordRow]
-                                            columns: [labelsColumn, fieldsColumn]
-                                            autoCreateContainerGaps: false
-                                            content:
-                                            [
-                                                SimpleLabel
-                                                {
-                                                    row: addressRow, column: labelsColumn
-                                                    border: bind ThemeManager.getInstance().windowInputAreaBorder
-                                                    font: bind ThemeManager.getInstance().windowFont.bigger()
-                                                    background: new Color(0,0,0,0)
                                                     foreground: bind ThemeManager.getInstance().messageInputForeground
-                                                    text: "account address -"
+                                                    text: "{text} PERSONAL DETAILS"
+                                                }
+                                            },
+                                            View
+                                            {
+                                                antialiasText: true
+                                                transform: bind Translate {x: panel.width-10, y: 40}
+                                                halign: HorizontalAlignment.TRAILING
 
-                                                },
-                                                GroupPanel
+                                                content: GroupPanel
                                                 {
-                                                    var row = Row {alignment: Alignment.BASELINE}
-                                                    var nameColumn = Column {}
-                                                    var atColumn = Column {}
-                                                    var serverColumn = Column {}
-
-                                                    rows: row
-                                                    columns: [nameColumn, atColumn, serverColumn]
-                                                    autoCreateGaps: false
+                                                    rows: [firstNameRow, lastNameRow]
+                                                    columns: [labelsColumn, fieldsColumn]
                                                     autoCreateContainerGaps: false
-                                                    row: addressRow, column: fieldsColumn
+
                                                     content:
                                                     [
-                                                        FocusedTextField
+                                                        SimpleLabel 
                                                         {
-                                                            frame: this 
-//                                                            horizontal: {pref: 130}
-                                                            row: row
-                                                            column: nameColumn
-                                                            foreground: bind ThemeManager.getInstance().fieldForeground
-                                                            background: bind ThemeManager.getInstance().fieldBackground
-                                                            font: bind ThemeManager.getInstance().windowFont.bold()
+                                                            row: firstNameRow
+                                                            column: labelsColumn
                                                             border: bind ThemeManager.getInstance().windowInputAreaBorder
-                                                            value: bind buddy.userName
-                                                            onChange: function(newValue) 
-                                                            {
-                                                                 save(Buddy.BuddyKey.USER_NAME, newValue);
-                                                            }
+                                                            font: bind ThemeManager.getInstance().windowFont.bigger()
+                                                            background: Color.color(0,0,0,0)
+                                                            foreground: bind ThemeManager.getInstance().messageInputForeground
+                                                            text: "first name -"
+
                                                         },
+                                                        userField,
                                                         SimpleLabel
                                                         {
-//                                                            horizontal: {pref: 10}
-                                                            row: row
-                                                            column: atColumn
+                                                            row: lastNameRow, column: labelsColumn
                                                             border: bind ThemeManager.getInstance().windowInputAreaBorder
-                                                            font: bind ThemeManager.getInstance().windowFont.bigger().bold()
-                                                            background: new Color(0,0,0,0)
+                                                            font: bind ThemeManager.getInstance().windowFont.bigger()
+                                                            background: Color.color(0,0,0,0)
                                                             foreground: bind ThemeManager.getInstance().messageInputForeground
-                                                            text: "@"
+                                                            text: "last name -"
                                                         },
                                                         FocusedTextField
                                                         {
                                                             frame: this
-//                                                            horizontal: {pref: 118}
-                                                            row: row
-                                                            column: serverColumn
+        //                                                    horizontal: {pref: 270}
+                                                            row: lastNameRow
+                                                            column: fieldsColumn
                                                             foreground: bind ThemeManager.getInstance().fieldForeground
                                                             background: bind ThemeManager.getInstance().fieldBackground
                                                             font: bind ThemeManager.getInstance().windowFont.bold()
                                                             border: bind ThemeManager.getInstance().windowInputAreaBorder
-                                                            value: bind buddy.accountName
+                                                            value: bind buddy.lastName
                                                             onChange: function(newValue) 
                                                             {
-                                                                 save(Buddy.BuddyKey.ACCOUNT_NAME, newValue);
+                                                                save(Buddy.BuddyKey.LAST_NAME, newValue);
                                                             }
                                                         }
                                                     ]
-                                                },
-                                                SimpleLabel
+                                                }
+                                            },
+                                            View
+                                            {
+                                                transform: bind Translate {x: 30, y: 105}
+                                                content: SimpleLabel
                                                 {
-                                                    visible: bind (buddy.type == Buddy.BuddyType.USER)
-                                                    row: passwordRow
-                                                    column: labelsColumn
-                                                    border: bind ThemeManager.getInstance().windowInputAreaBorder
-                                                    font: bind ThemeManager.getInstance().windowFont.bigger()
-                                                    background: new Color(0,0,0,0)
+                                                    font: bind ThemeManager.getInstance().windowFont.bold()
                                                     foreground: bind ThemeManager.getInstance().messageInputForeground
-                                                    text: "account password -"
-                                                },
-                                                passwordField
-                                            ]
-                                        }
-                                    },
-                                    HBox
-                                    {
-                                        transform: bind translate(panel.width-10, 192)
-                                        halign: HorizontalAlignment.TRAILING
+                                                    text: "INSTANT MESSENGER DETAILS"
+                                                }
+                                            },
+                                            View
+                                            {
+                                                antialiasText: true
+                                                transform: bind Translate {x: panel.width-10, y: 125}
+                                                halign: HorizontalAlignment.TRAILING
 
-                                        content:
-                                        [
-                                            buttonCancel,
-                                            buttonAddLogin
+                                                content: GroupPanel
+                                                {
+                                                    rows: [addressRow, passwordRow]
+                                                    columns: [labelsColumn, fieldsColumn]
+                                                    autoCreateContainerGaps: false
+                                                    content:
+                                                    [
+                                                        SimpleLabel
+                                                        {
+                                                            row: addressRow, column: labelsColumn
+                                                            border: bind ThemeManager.getInstance().windowInputAreaBorder
+                                                            font: bind ThemeManager.getInstance().windowFont.bigger()
+                                                            background: Color.color(0,0,0,0)
+                                                            foreground: bind ThemeManager.getInstance().messageInputForeground
+                                                            text: "account address -"
+
+                                                        },
+                                                        GroupPanel
+                                                        {
+                                                            var row = Row {alignment: Alignment.BASELINE}
+                                                            var nameColumn = Column {}
+                                                            var atColumn = Column {}
+                                                            var serverColumn = Column {}
+
+                                                            rows: row
+                                                            columns: [nameColumn, atColumn, serverColumn]
+                                                            autoCreateGaps: false
+                                                            autoCreateContainerGaps: false
+                                                            row: addressRow, column: fieldsColumn
+                                                            content:
+                                                            [
+                                                                FocusedTextField
+                                                                {
+                                                                    frame: this 
+        //                                                            horizontal: {pref: 130}
+                                                                    row: row
+                                                                    column: nameColumn
+                                                                    foreground: bind ThemeManager.getInstance().fieldForeground
+                                                                    background: bind ThemeManager.getInstance().fieldBackground
+                                                                    font: bind ThemeManager.getInstance().windowFont.bold()
+                                                                    border: bind ThemeManager.getInstance().windowInputAreaBorder
+                                                                    value: bind buddy.userName
+                                                                    onChange: function(newValue) 
+                                                                    {
+                                                                         save(Buddy.BuddyKey.USER_NAME, newValue);
+                                                                    }
+                                                                },
+                                                                SimpleLabel
+                                                                {
+        //                                                            horizontal: {pref: 10}
+                                                                    row: row
+                                                                    column: atColumn
+                                                                    border: bind ThemeManager.getInstance().windowInputAreaBorder
+                                                                    font: bind ThemeManager.getInstance().windowFont.bigger().bold()
+                                                                    background: Color.color(0,0,0,0)
+                                                                    foreground: bind ThemeManager.getInstance().messageInputForeground
+                                                                    text: "@"
+                                                                },
+                                                                FocusedTextField
+                                                                {
+                                                                    frame: this
+        //                                                            horizontal: {pref: 118}
+                                                                    row: row
+                                                                    column: serverColumn
+                                                                    foreground: bind ThemeManager.getInstance().fieldForeground
+                                                                    background: bind ThemeManager.getInstance().fieldBackground
+                                                                    font: bind ThemeManager.getInstance().windowFont.bold()
+                                                                    border: bind ThemeManager.getInstance().windowInputAreaBorder
+                                                                    value: bind buddy.accountName
+                                                                    onChange: function(newValue) 
+                                                                    {
+                                                                         save(Buddy.BuddyKey.ACCOUNT_NAME, newValue);
+                                                                    }
+                                                                }
+                                                            ]
+                                                        },
+                                                        SimpleLabel
+                                                        {
+                                                            visible: bind (buddy.type == Buddy.BuddyType.USER)
+                                                            row: passwordRow
+                                                            column: labelsColumn
+                                                            border: bind ThemeManager.getInstance().windowInputAreaBorder
+                                                            font: bind ThemeManager.getInstance().windowFont.bigger()
+                                                            background: Color.color(0,0,0,0)
+                                                            foreground: bind ThemeManager.getInstance().messageInputForeground
+                                                            text: "account password -"
+                                                        },
+                                                        passwordField
+                                                    ]
+                                                }
+                                            },
+                                            HBox
+                                            {
+                                                transform: bind Translate {x: panel.width-10, y: 192}
+                                                halign: HorizontalAlignment.TRAILING
+
+                                                content:
+                                                [
+                                                    buttonCancel,
+                                                    buttonAddLogin
+                                                ]
+                                            }
                                         ]
                                     }
-                                ]
-                            }
+                                }                    
+                            center: center
                         }
-                    }
+                    content: panel
                 },
                 // focus ring
                 Rect
                 {
                     var strokeWidth = 1
 
-                    visible: bind ((frame.active==true) and (frame.focusReady==true))
+                    visible: bind ((active==true) and (focusReady==true))
                     x: bind focusRectX
                     y: bind focusRectY
                     width: bind focusRectWidth-strokeWidth
                     height: bind focusRectHeight-strokeWidth
                     strokeWidth: bind strokeWidth
                     stroke: bind ThemeManager.getInstance().fieldFocusColor
-                },
+                } as Node,
                 dialog,
                 
                 // inactive rect
                 Rect
                 {
-                    visible: bind ((frame.active==false) and (frame.dialog.active == false))
+                    visible: bind ((active==false) and (dialog.active == false))
                     x: bind 0
                     y: bind 0
-                    width: bind frame.width
-                    height: bind frame.height
+                    width: bind width
+                    height: bind height
                     fill: bind ThemeManager.getInstance().windowInactive
-                },
+                } as Node,
             ]
         }
     };

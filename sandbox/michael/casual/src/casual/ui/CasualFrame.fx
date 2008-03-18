@@ -1,15 +1,13 @@
 package casual.ui;
 
-import casual.ui.*;
-
-public abstract class Frame extends javafx.ui.Frame
+public abstract class CasualFrame extends javafx.ui.Frame
 {
     attribute inLiveResize: Boolean = false;
     attribute doLiveResize: Boolean = java.lang.System.getProperty("os.name").startsWith("Mac") == false;
     
     attribute dialog: Dialog;
-    public abstract function requestFocus();
-    
+    public abstract function requestFocus() : Void;
+
     public function showErrorMessage(text:String, headline:String, interactive:Boolean) {
         if (dialog <> null) {
             dialog.type = Dialog.DialogType.ERROR;
@@ -45,6 +43,6 @@ public abstract class Frame extends javafx.ui.Frame
             dialog.active = false;
         }
     };
-    
+
     override attribute disposeOnClose = true;
 }

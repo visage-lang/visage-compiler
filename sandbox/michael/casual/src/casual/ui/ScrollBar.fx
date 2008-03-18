@@ -85,7 +85,7 @@ public class ScrollBar extends CompositeNode
                     fill: bind ThemeManager.getInstance().chatPanelBackgroundDark
 
                     var pressed = bind false
-                    var pressHover = bind this.hover and pressed
+                    var pressHover = bind hover and pressed
                     var up = false
                     onMousePressed: function(e:CanvasMouseEvent)
                     {
@@ -194,7 +194,7 @@ public class ScrollBar extends CompositeNode
                     transform: bind Translate {x: size-thickness-thickness-1, y: 0}
                     focusable: false
                     var pressed = bind false
-                    var pressHover = bind pressed and this.hover
+                    var pressHover = bind pressed and hover
                         on replace {
                             if (pressHover)
                             {
@@ -242,7 +242,7 @@ public class ScrollBar extends CompositeNode
                     focusable: false
                     halign: HorizontalAlignment.TRAILING
                     var pressed = bind false
-                    var pressHover = bind pressed and this.hover
+                    var pressHover = bind pressed and hover
                         on replace {
                             if (pressHover)
                             {

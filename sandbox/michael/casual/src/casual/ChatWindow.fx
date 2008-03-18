@@ -8,9 +8,11 @@ import javafx.ui.Canvas;
 import javafx.ui.EmptyBorder;
 import javafx.ui.BorderPanel;
 import javafx.ui.Color;
+import javafx.ui.Orientation;
 
 import javafx.ui.canvas.VBox;
 import javafx.ui.canvas.View;
+import javafx.ui.canvas.Node;
 import javafx.ui.canvas.Group;
 import javafx.ui.canvas.Rect;
 import javafx.ui.KeyEvent;
@@ -138,15 +140,15 @@ public class ChatDialog extends Dialog
         };
 }
 
-public class ChatWindow extends Frame
+public class ChatWindow extends CasualFrame
 {
-    attribute buddy: Buddy
+    public attribute buddy: Buddy
         on replace {
-            buddy.window = frame;
+            buddy.window = this;
             buddy.chatting = true;
         };
     
-    attribute messages: Message;
+    attribute messages: Message[];
     attribute feedbackMsg: Message;
     attribute buddyTyping: Boolean = false;
     attribute userTyping: Boolean = false;
@@ -155,7 +157,7 @@ public class ChatWindow extends Frame
         ChatTimer {
             running: true
 
-            frame: frame
+            frame: this
             alarm: false
             period: 5 // every 5 minutes
         }
@@ -165,7 +167,7 @@ public class ChatWindow extends Frame
         };
 
     attribute chatInput: ChatInput = ChatInput {
-        frame: frame
+        frame: this
         size: Dimension { width: bind scrollPane.width }
         onKeyDown: function(e:KeyEvent)
         {
@@ -177,8 +179,8 @@ public class ChatWindow extends Frame
             {
                 userTyping = false;
                 
-                var messageStr = text;
-                text = "";
+                var messageStr = chatInput.text;
+                chatInput.text = "";
                 if (messageStr.length() > 0)
                 {
                     addMessage(messageStr, MessageType.OUTGOING);
@@ -194,7 +196,7 @@ public class ChatWindow extends Frame
 	    var t = e.wheelRotation/360;
 	    scrollFactor = Math.max(Math.min(1.0, scrollFactor + t), 0.0);
         }
-        border: Border.EmptyBorder
+        border: new EmptyBorder
         visible: bind showContents
         background: bind ThemeManager.getInstance().chatPanelBackground
         content: ChatScrollPane 
@@ -220,7 +222,7 @@ public class ChatWindow extends Frame
     };
     
     attribute chatLines: ChatLines = ChatLines {
-        frame: frame
+        frame: this
         content: bind for (message in messages) message
     };
     
@@ -241,7 +243,7 @@ public class ChatWindow extends Frame
             buddyTyping = true;
             if (feedbackMsg <> null)
             {
-                delete messages[m|m == feedbackMsg];
+                delete feedbackMsg from messages;
                 feedbackMsg = null;
             }
 
@@ -250,14 +252,14 @@ public class ChatWindow extends Frame
         else if (buddyTyping == false)
         {
             buddyTyping = true;
-            feedbackMsg = addMessage("...", MessageType.INCOMING);
+            addMessage("...", MessageType.INCOMING);
         }
         else //if (buddyTyping == true)
         {
             buddyTyping = false;
             if (feedbackMsg <> null)
             {
-                delete messages[m|m==feedbackMsg];
+                delete feedbackMsg from messages;
                 feedbackMsg = null;
             }
         }
@@ -268,7 +270,7 @@ public class ChatWindow extends Frame
         buddy.sendMessage(message);
     };
     
-    public function requestFocus() {    
+    public function requestFocus(): Void {    
         if (dialog.active == false)
         {
             chatInput.requestFocus();
@@ -278,7 +280,7 @@ public class ChatWindow extends Frame
     
     public function ringOnce()
     {
-        var parser = MessageParser.parser;
+        var parser = MessageParser.getInstance();
         parser.ringPlay();
     }
 
@@ -286,22 +288,20 @@ public class ChatWindow extends Frame
     {
         showWarningMessage("{buddy.userName}@{buddy.accountName} is calling you.", "INCOMING", true);
 
-        var parser = MessageParser.parser;
+        var parser = MessageParser.getInstance();
         parser.ringLoop();
     }
 
     public function ringStop()
     {
-        var parser = MessageParser.parser;
+        var parser = MessageParser.getInstance();
         parser.ringStop();
     }
 
-    public function resizeToMinimal();
-    
     function addMessage(messageStr:String, type:MessageType){
         //println("ChatWindow.addMessage messageStr=\"{messageStr}\"");
 
-        var parser = MessageParser.parser;
+        var parser = new MessageParser;
         var parsedMessageStr = parser.parse(messageStr, type);
 
         if (parsedMessageStr <> null)
@@ -326,11 +326,6 @@ public class ChatWindow extends Frame
             }
 
             insert message into messages;
-            return message;
-        }
-        else
-        {
-            return null;
         }
     };
     
@@ -349,11 +344,6 @@ public class ChatWindow extends Frame
 
     override attribute background = bind ThemeManager.getInstance().windowBackground;// gznote: should take AbstractColor
 
-    init {
-        // bug in Apple's JDK16 (#5214550)
-        frame.getWindow().setMinimumSize(new Dimension(100, 100));
-    }
-    
     postinit {
         requestFocus();
     };
@@ -364,13 +354,13 @@ public class ChatWindow extends Frame
     private attribute scrollbarCanvas: Canvas = Canvas
     {
         visible: bind showContents
-        border: Border.EmptyBorder
+        border: new EmptyBorder
         background: bind ThemeManager.getInstance().chatPanelBackground
-        content: scrollbar
+        content: scrollBar
     };
     
-    private attribute dialog: ChatDialog = ChatDialog {
-        frame: frame
+    override attribute dialog = ChatDialog {
+        frame: this
         width: 300
         height: 100
         active: false
@@ -386,7 +376,7 @@ public class ChatWindow extends Frame
                 View
                 {                    
                     sizeToFitCanvas: true
-                    content: BorderPanel
+                    var panel: BorderPanel = BorderPanel
                     {
                         border: bind ThemeManager.getInstance().windowBorder
                         background: bind ThemeManager.getInstance().chatFrameBackground
@@ -395,7 +385,7 @@ public class ChatWindow extends Frame
                         {
                             //visible: bind showContents
 
-                            border: Border.EmptyBorder
+                            border: new EmptyBorder
                             background: bind ThemeManager.getInstance().chatPanelBackground
 
                             content: ChatTitleBar
@@ -403,9 +393,9 @@ public class ChatWindow extends Frame
                                 var offsets = bind (ThemeManager.getInstance().windowBorder.left + ThemeManager.getInstance().windowBorder.right)
                                 var userFullName = bind "{buddy.firstName.toUpperCase()} {buddy.lastName.toUpperCase()}"
 
-                                frame: frame
+                                frame: this
                                 title: bind if ((buddy.firstName.length()>0) or (buddy.lastName.length()>0)) then userFullName else "{buddy.userName}"
-                                width: bind (panel.width - offsets)
+                                width: bind (panel.width.intValue() - offsets)
                                 foreground: bind ThemeManager.getInstance().titleBarForeground
                                 background: bind ThemeManager.getInstance().titleBarBackground
 
@@ -430,7 +420,7 @@ public class ChatWindow extends Frame
                             {
                                 visible: bind showContents
 
-                                border: Border.BorderEmptyBorder
+                                border: new EmptyBorder
                                 background: bind ThemeManager.getInstance().chatPanelBackground
 
                                 content: chatInput
@@ -438,30 +428,31 @@ public class ChatWindow extends Frame
 
                             right: Canvas
                             {
-                                border: Border.EmptyBorder
+                                border: new EmptyBorder
                                 background: bind ThemeManager.getInstance().chatPanelBackground
 
                                 content: ResizeIcon
                                 {
-                                    frame: frame
-                                    width: bind scrollbarCanvas.width
+                                    frame: this
+                                    width: bind scrollbarCanvas.width.intValue()
                                     height: bind chatInput.height
                                 }
                             }
                         }
                     }
+                    content: panel
                 },
                 dialog,
                 // inactive rect
                 Rect
                 {
-                    visible: bind (frame.active==false)
+                    visible: bind (active==false)
                     x: 0
                     y: 0
-                    width: bind frame.width
-                    height: bind frame.height
+                    width: bind width
+                    height: bind height
                     fill: bind ThemeManager.getInstance().windowInactive
-                },
+                } as Node,
             ]
         }
     };

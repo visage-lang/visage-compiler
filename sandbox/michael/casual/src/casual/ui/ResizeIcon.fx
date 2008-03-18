@@ -14,7 +14,7 @@ import javafx.ui.canvas.CanvasMouseEvent;
 
 public class ResizeIcon extends CompositeNode
 {
-    public attribute frame: Frame;
+    public attribute frame: CasualFrame;
     
     public attribute width: Integer;
     public attribute height: Integer;
@@ -39,10 +39,10 @@ public class ResizeIcon extends CompositeNode
 
                     onMousePressed: function(e:CanvasMouseEvent)
                     {
-                        origx = e.x;
-                        origy = e.y;
-                        origw = frame.width;
-                        origh = frame.height;
+                        origx = e.x.intValue();
+                        origy = e.y.intValue();
+                        origw = width;
+                        origh = height;
                     }
                     onMouseDragged: function(e:CanvasMouseEvent)
                     {

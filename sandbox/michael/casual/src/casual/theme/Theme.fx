@@ -5,7 +5,14 @@ import javafx.ui.AbstractColor;
 import javafx.ui.Font;
 import javafx.ui.EmptyBorder;
 
-public class Theme
+// TODO: JFXC531 Remove this class as soon as LinearGradient supports 
+//               proportional values
+public class LinearGradientJFXC531 extends javafx.ui.LinearGradient {
+    attribute width: Number;
+    attribute height: Number;
+}
+
+public abstract class Theme
 {
     public readonly attribute description: String;
     
@@ -20,8 +27,7 @@ public class Theme
     
     public readonly attribute windowFont: Font;
     public readonly attribute windowInactive: Color;
-    public readonly attribute windowBackground: Color; // gznote
-    //public attribute windowBackground: AbstractColor; // gznote
+    public readonly attribute windowBackground: Color; 
     public readonly attribute windowBorder: EmptyBorder;
     public readonly attribute windowInputAreaBorder: EmptyBorder;
     
@@ -36,7 +42,9 @@ public class Theme
     public readonly attribute chatFrameBackground: Color;
     public readonly attribute chatPanelBackgroundDark: Color;
     public readonly attribute chatPanelBackgroundLight: Color;
-    public readonly attribute chatPanelBackground: AbstractColor;
+    public readonly attribute chatPanelBackground: Color;
+    // TODO: JFXC531 Remove this function and use chatPanelBackground instead
+    public abstract function getChatPanelBackground(w: Number, h: Number): Color;
     public readonly attribute chatPanelBorder: EmptyBorder;
     
     public readonly attribute messageFont: Font;

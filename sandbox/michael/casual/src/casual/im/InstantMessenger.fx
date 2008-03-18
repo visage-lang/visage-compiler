@@ -12,10 +12,10 @@ public abstract class InstantMessenger
             return im;
         };
     
-    public abstract function login(window:AccountWindow);
-    public abstract function logout();
-    
-    public abstract function setPresence();
+    public abstract function login(window:AccountWindow): Void;
+    public abstract function logout(): Void;
+
+    public abstract function setPresence(): Void;
     
     public abstract function isConnected():Boolean;
     public abstract function isAuthenticated(): Boolean;

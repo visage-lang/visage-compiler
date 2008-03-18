@@ -18,7 +18,7 @@ import javafx.ui.canvas.CanvasMouseEvent;
 
 public class TitleBar extends CompositeNode
 {
-    public attribute frame: Frame;
+    public attribute frame: CasualFrame;
     
     public attribute width: Integer;
     public attribute foreground: Color;
@@ -50,10 +50,10 @@ public class TitleBar extends CompositeNode
             var starty = 0 
             onMousePressed: function(e:CanvasMouseEvent)
             {
-                origx = frame.screenx;
-                origy = frame.screeny;
-                startx = e.screenx;
-                starty = e.screeny;
+                origx = frame.screenx.intValue();
+                origy = frame.screeny.intValue();
+                startx = e.screenx.intValue();
+                starty = e.screeny.intValue();
 
                 if (e.clickCount >= 2)
                 {
