@@ -358,6 +358,7 @@ public class JavafxClassReader extends ClassReader {
             Symbol owner = translateSymbol(sym.owner);
             Type type = translateType(sym.type);
             if (name.toString().indexOf(JavafxDefs.boundFunctionDollarSuffix) != -1)
+                // FIXME: For bind re-write: flags |= JavafxFlags.BOUND;
                 flags |= Flags.SYNTHETIC;  // mark bound function versions as synthetic, so they don't get added
             MethodSymbol m = new MethodSymbol(flags, name, type, owner);
             ((ClassSymbol) owner).members_field.enter(m);
@@ -464,6 +465,8 @@ public class JavafxClassReader extends ClassReader {
                     // But that doesn't work for some unknown reason.  FIXME
                     Type type = translateType(l.head.type);
                     if (name.toString().indexOf(JavafxDefs.boundFunctionDollarSuffix) != -1)
+                        // FIXME: For bind re-write: flags |= JavafxFlags.BOUND;
+                        // (and predumablu don't do 'continue')
                         continue; //flags |= Flags.SYNTHETIC;  // mark bound function versions as synthetic, so they don't get added
                     MethodSymbol m = new MethodSymbol(flags, name, type, csym);
                     csym.members_field.enter(m);
