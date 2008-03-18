@@ -30,13 +30,13 @@ class binder {
  }
 
 function test1() {
-System.out.println("test1: simple bind");
-var x = 100;
-var y = bind x + 100;
-for( a in [5..50 step 5]){
-  x = a;
-  System.out.println( "x={x}, y={y}");
-}
+	System.out.println("test1: simple bind");
+	var x = 100;
+	var y = bind x + 100;
+	for( a in [5..50 step 5]){
+	  x = a;
+	  System.out.println( "x={x}, y={y}");
+	}
 }
 
 function test2() {
@@ -62,15 +62,15 @@ function test3() {
   j = 5; 
   System.out.println(xs);
 
-var jj = 1;
-var max = 100;
+	var jj = 1;
+	var max = 100;
 //var xxs = bind for (i in [0..10] )  i; //jfxc-729 this simple form does not compile, also variations
 //var xxxs = bind for (ii in [ 0..max step 1]) ii;    //this get different missing symbol
-var xxs = bind for (i in [0..max step jj] where i < max )  i;
-  jj = 5;
-  System.out.println(xxs);
-  jj = 8;
-  System.out.println(xxs);
+	var xxs = bind for (i in [0..max step jj] where i < max )  i;
+	jj = 5;
+	System.out.println(xxs);
+	jj = 8;
+	System.out.println(xxs);
 }
 
 /** simple nonrecursive functions*/
@@ -140,12 +140,12 @@ function test7() {}
 }
 
 class circles {
-    readonly attribute pi : Number = 3.14157;
+    /*readonly*/ attribute pi : Number = 3.14157;
     attribute radius : Number = 1;
-	 private readonly attribute MID:Integer=2;
-    readonly attribute diameter:Number = bind radius * 2;
-    readonly attribute circumference : Number = bind diameter * pi;
-    readonly attribute area : Number =  bind (radius)*(radius)*pi;
+	 private /*readonly*/ attribute MID:Integer=2;
+    /*readonly*/ attribute diameter:Number = bind radius * 2;
+    /*readonly*/ attribute circumference : Number = bind diameter * pi;
+    /*readonly*/ attribute area : Number =  bind (radius)*(radius)*pi;
 	 private attribute df:DecimalFormat = new DecimalFormat("###,###,######.##");
     init {		 System.out.println("test5: multiple binds to attribute");	 }
 	 function formatNumber(n:Number):String {
