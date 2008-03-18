@@ -13,11 +13,13 @@ class Foo {
     function bleep() : String {
         return "roll";
     }
+
     function mud() : Integer {
         System.out.println(this.a);
         return 0;
     }
 }
+
 
 var fo : Foo = new Foo();
 var ho : Foo = new Foo();

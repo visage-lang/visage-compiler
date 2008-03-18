@@ -32,12 +32,12 @@ import com.sun.javafx.runtime.sequence.Sequences;
  *
  * @author Brian Goetz
  */
-class CountingSequenceListener implements SequenceReplaceListener<Integer> {
+class CountingSequenceListener implements SequenceChangeListener<Integer> {
     int changeCount, insertCount, deleteCount, replaceCount;
     Sequence<Integer> inserted = Sequences.emptySequence(Integer.class);
     Sequence<Integer> deleted = Sequences.emptySequence(Integer.class);
 
-    public void onReplace(int startPos, int endPos, Sequence<? extends Integer> newElements, Sequence<Integer> oldValue, Sequence<Integer> newValue) {
+    public void onChange(int startPos, int endPos, Sequence<? extends Integer> newElements, Sequence<Integer> oldValue, Sequence<Integer> newValue) {
         if (endPos == startPos && Sequences.size(newElements) == 1) {
             ++replaceCount;
             ++changeCount;

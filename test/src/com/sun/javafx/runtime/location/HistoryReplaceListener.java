@@ -10,10 +10,10 @@ import com.sun.javafx.runtime.sequence.Sequence;
  *
  * @author Brian Goetz
  */
-public class HistoryReplaceListener<T> implements SequenceReplaceListener<T> {
+public class HistoryReplaceListener<T> implements SequenceChangeListener<T> {
     private List<String> elements = new ArrayList<String>();
 
-    public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+    public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
         elements.add(String.format("[%d, %d] => %s", startPos, endPos, newElements == null ? "[ ]" : newElements.toString()));
     }
 
