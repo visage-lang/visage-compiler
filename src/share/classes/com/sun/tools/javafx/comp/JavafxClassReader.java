@@ -113,19 +113,21 @@ public class JavafxClassReader extends ClassReader {
         if (compound)
             className = className.subName(0, className.len - defs.interfaceSuffixName.len);
         JavafxClassSymbol cSym = (JavafxClassSymbol) enterClass(className);
-        cSym.jsymbol = jsymbol;
-        if (cSym.fullname != jsymbol.fullname &&
-                cSym.owner.kind == PCK && cSym.jsymbol.owner.kind == TYP) {
-            // reassign fields of classes that might have been loaded with
-            // their flat names.
-            cSym.owner.members().remove(cSym);
-            cSym.name = jsymbol.name;
-            ClassSymbol owner = enterClass(((ClassSymbol) jsymbol.owner).flatname);
-            cSym.owner = owner;
-            cSym.fullname = ClassSymbol.formFullName(cSym.name, owner);
-        }
         if (compound)
             cSym.flags_field |= JavafxFlags.COMPOUND_CLASS;
+        else {
+            if (cSym.fullname != jsymbol.fullname &&
+                    cSym.owner.kind == PCK && jsymbol.owner.kind == TYP) {
+                // reassign fields of classes that might have been loaded with
+                // their flat names.
+                cSym.owner.members().remove(cSym);
+                cSym.name = jsymbol.name;
+                ClassSymbol owner = enterClass(((ClassSymbol) jsymbol.owner).flatname);
+                cSym.owner = owner;
+                cSym.fullname = ClassSymbol.formFullName(cSym.name, owner);
+            }
+            cSym.jsymbol = jsymbol;
+        }
         return cSym;
     }
 
@@ -289,6 +291,10 @@ public class JavafxClassReader extends ClassReader {
                 TypeSymbol tsym = type.tsym;
                 Type outer = translateType(type.getEnclosingType());
                 if (tsym instanceof ClassSymbol) {
+                    if (tsym.name.endsWith(defs.interfaceSuffixName)) {
+                        t = enterClass((ClassSymbol) tsym).type;
+                        break;
+                    }
                     ClassType ctype = (ClassType) type;
                     if (ctype.isCompound()) {
                         t = types.makeCompoundType(translateTypes(ctype.interfaces_field), translateType(ctype.supertype_field));
