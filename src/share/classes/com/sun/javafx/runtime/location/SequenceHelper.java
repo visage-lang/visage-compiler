@@ -42,7 +42,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
 public abstract class SequenceHelper<T> {
     private Sequence<T> value;
     private final Class<T> clazz;
-    private List<SequenceReplaceListener<T>> replaceListeners;
+    private List<SequenceChangeListener<T>> changeListeners;
 
 
     public SequenceHelper(Class<T> clazz) {
@@ -81,22 +81,22 @@ public abstract class SequenceHelper<T> {
     }
 
     public void addChangeListener(final ObjectChangeListener<Sequence<T>> listener) {
-        addChangeListener(new SequenceReplaceListener<T>() {
-            public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+        addChangeListener(new SequenceChangeListener<T>() {
+            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 listener.onChange(oldValue, newValue);
             }
         });
     }
 
-    public void addChangeListener(SequenceReplaceListener<T> listener) {
-        if (replaceListeners == null)
-            replaceListeners = new ArrayList<SequenceReplaceListener<T>>();
-        replaceListeners.add(listener);
+    public void addChangeListener(SequenceChangeListener<T> listener) {
+        if (changeListeners == null)
+            changeListeners = new ArrayList<SequenceChangeListener<T>>();
+        changeListeners.add(listener);
     }
 
-    public void removeChangeListener(SequenceReplaceListener<T> listener) {
-        if (replaceListeners != null)
-            replaceListeners.remove(listener);
+    public void removeChangeListener(SequenceChangeListener<T> listener) {
+        if (changeListeners != null)
+            changeListeners.remove(listener);
     }
 
     /** Update the held value, notifying change listeners */
@@ -126,9 +126,9 @@ public abstract class SequenceHelper<T> {
         if (endPos - startPos + 1 == 0 && Sequences.size(newElements) == 0)
             return;
         valueChanged();
-        if (replaceListeners != null) {
-            for (SequenceReplaceListener<T> listener : replaceListeners)
-                listener.onReplace(startPos, endPos, newElements, oldValue, newValue);
+        if (changeListeners != null) {
+            for (SequenceChangeListener<T> listener : changeListeners)
+                listener.onChange(startPos, endPos, newElements, oldValue, newValue);
         }
     }
 

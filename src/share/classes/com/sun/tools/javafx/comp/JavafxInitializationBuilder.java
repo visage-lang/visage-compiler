@@ -71,7 +71,7 @@ public class JavafxInitializationBuilder {
     private final Name addChangeListenerName;
     private final Name locationInitializeName;;
     private final Name[] changeListenerInterfaceName;
-    private final Name sequenceReplaceListenerInterfaceName;
+//    private final Name sequenceReplaceListenerInterfaceName;
     private final Name sequenceChangeListenerInterfaceName;
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
     private final Name addTriggersName;
@@ -110,7 +110,7 @@ public class JavafxInitializationBuilder {
         for (int i=0; i< JavafxVarSymbol.TYPE_KIND_COUNT; i++)
             changeListenerInterfaceName[i]
                     = names.fromString(locationPackageName + JavafxVarSymbol.getTypePrefix(i) + "ChangeListener");
-        sequenceReplaceListenerInterfaceName = names.fromString(locationPackageName + "SequenceReplaceListener");
+ //       sequenceReplaceListenerInterfaceName = names.fromString(locationPackageName + "SequenceReplaceListener");
         sequenceChangeListenerInterfaceName = names.fromString(locationPackageName + "SequenceChangeListener");
         addTriggersName = names.fromString("addTriggers$");
         userInitName = names.fromString("userInit$");
@@ -754,7 +754,8 @@ public class JavafxInitializationBuilder {
         
         if (types.isSequence(info.getRealType())) {
             ListBuffer<JCStatement> setUpStmts = ListBuffer.lb();
-            changeListener = make.at(diagPos).Identifier(sequenceReplaceListenerInterfaceName);
+//            changeListener = make.at(diagPos).Identifier(sequenceReplaceListenerInterfaceName);
+            changeListener = make.at(diagPos).Identifier(sequenceChangeListenerInterfaceName);
             changeListener = make.TypeApply(changeListener, List.of(toJava.makeTypeTree(info.getElementType(), diagPos)));
             Type seqValType = types.sequenceType(info.getElementType(), false);
             List<JCVariableDecl> onChangeArgs = List.of(
@@ -763,7 +764,8 @@ public class JavafxInitializationBuilder {
                 makeParam(diagPos, info.getRealType(), onReplace.getNewElements(), "$newElements$"),
                 makeParam(diagPos, seqValType, onReplace.getOldValue(), "$oldValue$"),
                 makeParam(diagPos, seqValType, null, "$newValue$"));
-            members.append(makeChangeListenerMethod(diagPos, onReplace, setUpStmts, "onReplace", onChangeArgs, TypeTags.VOID));
+   //         members.append(makeChangeListenerMethod(diagPos, onReplace, setUpStmts, "onReplace", onChangeArgs, TypeTags.VOID));
+            members.append(makeChangeListenerMethod(diagPos, onReplace, setUpStmts, "onChange", onChangeArgs, TypeTags.VOID));
         }
         else {
             changeListener = make.at(diagPos).Identifier(changeListenerInterfaceName[attributeKind]);

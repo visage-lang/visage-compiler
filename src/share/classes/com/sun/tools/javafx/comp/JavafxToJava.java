@@ -1288,7 +1288,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
                     tree.getBindStatus(), tree.sym);
         }
-
+        
         result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
     }
 

@@ -32,6 +32,6 @@ import com.sun.javafx.runtime.sequence.Sequence;
  *
  * @author Brian Goetz
  */
-public interface SequenceReplaceListener<T> {
-    public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue);
+public interface SequenceChangeListener<T> {
+    public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue);
 }

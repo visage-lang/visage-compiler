@@ -1,7 +1,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.location.SequenceReplaceListener;
+import com.sun.javafx.runtime.location.SequenceChangeListener;
 
 /**
  * BoundReverseSequence
@@ -21,8 +21,8 @@ class BoundReverseSequence<T> extends AbstractBoundSequence<T> implements Sequen
     }
 
     protected void initialize() {
-        location.addChangeListener(new SequenceReplaceListener<T>() {
-            public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+        location.addChangeListener(new SequenceChangeListener<T>() {
+            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 int sliceSize = endPos - startPos;
                 int actualStart = oldValue.size() - startPos - (sliceSize + 1);
                 int actualEnd = actualStart + sliceSize;

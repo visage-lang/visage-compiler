@@ -88,14 +88,14 @@ public abstract class AbstractBoundComprehension<T, V> extends AbstractBoundSequ
     protected abstract State<T, V> makeState(int index, T value);
 
     protected void initialize() {
-        underlying.addChangeListener(new SequenceReplaceListener<V>() {
-            public void onReplace(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
+        underlying.addChangeListener(new SequenceChangeListener<V>() {
+            public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
                 AbstractBoundComprehension.this.updateSlice(startPos, endPos, newElements);
             }
         });
 
-        sequenceLocation.addChangeListener(new SequenceReplaceListener<T>() {
-            public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+        sequenceLocation.addChangeListener(new SequenceChangeListener<T>() {
+            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 int insertedCount = Sequences.size(newElements);
                 int deletedCount = endPos - startPos + 1;
                 int netAdded = insertedCount - deletedCount;

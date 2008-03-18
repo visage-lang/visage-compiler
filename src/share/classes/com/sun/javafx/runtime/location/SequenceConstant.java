@@ -38,9 +38,9 @@ public class SequenceConstant<T> extends AbstractConstantLocation<Sequence<T>> i
         throw new UnsupportedOperationException();
     }
 
-    public void addChangeListener(SequenceReplaceListener<T> listener) { }
+    public void addChangeListener(SequenceChangeListener<T> listener) { }
 
-    public void removeChangeListener(SequenceReplaceListener<T> listener) { }
+    public void removeChangeListener(SequenceChangeListener<T> listener) { }
 
     public T get(int position) {
         return $value.get(position);

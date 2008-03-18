@@ -2,7 +2,7 @@ package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.Util;
 import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.location.SequenceReplaceListener;
+import com.sun.javafx.runtime.location.SequenceChangeListener;
 
 /**
  * SimpleBoundComprehension -- special case of a bound list comprehension with one dimension, no where clause
@@ -47,8 +47,8 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
     }
 
     protected void initialize() {
-        sequenceLocation.addChangeListener(new SequenceReplaceListener<T>() {
-            public void onReplace(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+        sequenceLocation.addChangeListener(new SequenceChangeListener<T>() {
+            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 // IF the closure depends on index, then an insertion or deletion causes recomputation of the whole
                 // trailing segment of the comprehension, so not only do we recompute the affected segment, but also
                 // the whole rest of the sequence too.

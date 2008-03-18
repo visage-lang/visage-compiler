@@ -531,12 +531,12 @@ public class Locations {
             location.addChangeListener(listener);
         }
 
-        public void addChangeListener(SequenceReplaceListener<T> sequenceReplaceListener) {
-            location.addChangeListener(sequenceReplaceListener);
+        public void addChangeListener(SequenceChangeListener<T> sequenceChangeListener) {
+            location.addChangeListener(sequenceChangeListener);
         }
 
-        public void removeChangeListener(SequenceReplaceListener<T> sequenceReplaceListener) {
-            location.removeChangeListener(sequenceReplaceListener);
+        public void removeChangeListener(SequenceChangeListener<T> sequenceChangeListener) {
+            location.removeChangeListener(sequenceChangeListener);
         }
 
         public T set(int position, T value) {

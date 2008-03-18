@@ -119,7 +119,7 @@ public class SequenceVariable<T>
         return helper.isNull();
     }
 
-    public void addChangeListener(SequenceReplaceListener<T> listener) {
+    public void addChangeListener(SequenceChangeListener<T> listener) {
         helper.addChangeListener(listener);
     }
 
@@ -127,7 +127,7 @@ public class SequenceVariable<T>
         helper.addChangeListener(listener);
     }
 
-    public void removeChangeListener(SequenceReplaceListener<T> listener) {
+    public void removeChangeListener(SequenceChangeListener<T> listener) {
         helper.removeChangeListener(listener);
     }
 

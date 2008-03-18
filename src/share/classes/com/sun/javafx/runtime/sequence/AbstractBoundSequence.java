@@ -114,7 +114,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         return helper.isNull();
     }
 
-    public void addChangeListener(SequenceReplaceListener<T> listener) {
+    public void addChangeListener(SequenceChangeListener<T> listener) {
         helper.addChangeListener(listener);
     }
 
@@ -122,7 +122,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         helper.addChangeListener(listener);
     }
 
-    public void removeChangeListener(SequenceReplaceListener<T> listener) {
+    public void removeChangeListener(SequenceChangeListener<T> listener) {
         helper.removeChangeListener(listener);
     }
 

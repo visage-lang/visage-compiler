@@ -26,7 +26,7 @@ package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.Util;
 import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.location.SequenceReplaceListener;
+import com.sun.javafx.runtime.location.SequenceChangeListener;
 
 /**
  * BoundCompositeSequence
@@ -143,7 +143,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
 //        Assert.assertEquals(offset, value().size());
     }
 
-    private interface IndexListener<T> extends SequenceReplaceListener<T> {
+    private interface IndexListener<T> extends SequenceChangeListener<T> {
         public void setIndex(int index);
     }
 
@@ -158,7 +158,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             this.index = index;
         }
 
-        public void onReplace(int startPos, int endPos, Sequence<? extends V> newElements,
+        public void onChange(int startPos, int endPos, Sequence<? extends V> newElements,
                               Sequence<V> oldValue, Sequence<V> newValue) {
             int actualStart = infos[index].startPosition + startPos;
             int actualEnd = infos[index].startPosition + endPos;
