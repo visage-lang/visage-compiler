@@ -568,8 +568,9 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             private JCExpression makeCore() {
                 JCExpression body = translate(tree.getBodyExpression());
                 if (!types.isSequence(tree.getBodyExpression().type)) {
+                    List<JCExpression> typeArgs = List.of(makeExpression(resultElementType), makeExpression(tree.getBodyExpression().type));
                     List<JCExpression> args = List.of(makeResultClass(), body);
-                    body = runtime(diagPos, cBoundSequences, "singleton", resultElementType, args);
+                    body = runtime(diagPos, cBoundSequences, "singleton", typeArgs, args);
                 }
                 JCExpression whereTest = null;
                 for (JFXForExpressionInClause clause : tree.getForExpressionInClauses()) {
@@ -1183,7 +1184,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         return runtime(diagPos,
                 cString,
                 methString,
-                null,
+                List.<JCExpression>nil(),
                 args);
     }
 
@@ -1192,11 +1193,22 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             String methString,
             Type type,
             List<JCExpression> args) {
+        return runtime(diagPos,
+                cString,
+                methString,
+                List.of(makeTypeTree(type, diagPos, true)),
+                args);
+    }
+
+    JCExpression runtime(DiagnosticPosition diagPos,
+            String cString,
+            String methString,
+            List<JCExpression> typeArgs,
+            List<JCExpression> args) {
         JCExpression meth = make.at(diagPos).Select(
                 makeQualifiedTree(diagPos, cString),
                 names.fromString(methString));
-        List<JCExpression> typeArgs = type==null? List.<JCExpression>nil() : List.of(makeTypeTree(type, diagPos, true));
-        return make.at(diagPos).Apply(typeArgs, meth, args);
+        return make.at(diagPos).Apply(null, meth, args);
     }
 
     JCMethodInvocation callExpression(
