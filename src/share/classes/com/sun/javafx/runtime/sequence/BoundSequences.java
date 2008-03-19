@@ -53,6 +53,24 @@ public class BoundSequences {
         return new BoundCompositeSequence<T>(clazz, locations, size);
     }
 
+    /**
+     * Construct a bound sequence of the form
+     *   bind a
+     * where a is a sequence location of a subtype of the desired element type
+     *
+     */
+    @SuppressWarnings("unchecked")
+    public static <T, V extends T> SequenceLocation<T> upcast(Class<T> clazz, SequenceLocation<V> location) {
+        Class<V> vClass = location.getAsSequence().getElementType();
+        if (clazz == vClass)
+            return (SequenceLocation<T>) location;
+        else if (!clazz.isAssignableFrom(vClass))
+            throw new ClassCastException("Cannot upcast Sequence<" + vClass.getName()
+                    + "> to Sequence<" + clazz.getName() + ">");
+        else
+            return new BoundUpcastSequence<T, V>(clazz, location);
+    }
+
     /** Construct a bound sequence of the form
      *   bind reverse x
      * where x is a sequence.
@@ -65,8 +83,8 @@ public class BoundSequences {
      *   bind [ x ]
      * where x is an instance.
      */
-    public static<T> SequenceLocation<T> singleton(Class<T> clazz, ObjectLocation<T> location) {
-        return new BoundSingletonSequence<T>(clazz, location);
+    public static<T, V extends T> SequenceLocation<T> singleton(Class<T> clazz, ObjectLocation<V> location) {
+        return new BoundSingletonSequence<T, V>(clazz, location);
     }
 
     /** Construct a bound sequence of the form
@@ -74,7 +92,7 @@ public class BoundSequences {
      * where x is an Integer instance.
      */
     public static<T> SequenceLocation<Integer> singleton(IntLocation location) {
-        return new BoundSingletonSequence<Integer>(Integer.class, location);
+        return new BoundSingletonSequence<Integer, Integer>(Integer.class, location);
     }
 
     public static<T> SequenceLocation<T> empty(final Class<T> clazz) {

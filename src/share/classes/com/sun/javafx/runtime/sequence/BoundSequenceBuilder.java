@@ -40,7 +40,7 @@ public class BoundSequenceBuilder<T> {
     private static final int DEFAULT_SIZE = 8;
 
     private final Class<T> clazz;
-    private SequenceLocation<T>[] array;
+    private SequenceLocation<? extends T>[] array;
     private int size;
 
     public BoundSequenceBuilder(Class<T> clazz) {
@@ -55,7 +55,7 @@ public class BoundSequenceBuilder<T> {
     private void ensureSize(int newSize) {
         if (array.length < newSize) {
             int newCapacity = Util.powerOfTwo(array.length, newSize);
-            SequenceLocation<T>[] newArray = Util.newSequenceLocationArray(newCapacity);
+            SequenceLocation<? extends T>[] newArray = Util.newSequenceLocationArray(newCapacity);
             System.arraycopy(array, 0, newArray, 0, size);
             array = newArray;
         }
@@ -67,13 +67,13 @@ public class BoundSequenceBuilder<T> {
     }
 
     /** Add an existing SequenceLocation, which will be flattened */
-    public void add(SequenceLocation<T> seq) {
+    public void add(SequenceLocation<? extends T> seq) {
         ensureSize(size + 1);
         array[size++] = seq;
     }
 
     /** Add an instance location to the sequence */
-    public void add(ObjectLocation<T> singleton) {
+    public void add(ObjectLocation<? extends T> singleton) {
         add(BoundSequences.singleton(clazz, singleton));
     }
 
