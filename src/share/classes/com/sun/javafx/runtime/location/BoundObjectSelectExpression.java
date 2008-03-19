@@ -25,6 +25,8 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.Util;
+
 /**
  * BoundObjectSelectExpression
  *
@@ -37,7 +39,7 @@ public abstract class BoundObjectSelectExpression<T, U> extends IndirectObjectEx
     public BoundObjectSelectExpression(Class<T> clazz, ObjectLocation<U> selector) {
         super(false /*lazy*/, selector);
         this.selector = selector;
-        this.defaultUnboundValue = clazz.getName().equals("java.lang.String")? (T)"" : null;
+        this.defaultUnboundValue = Util.defaultValue(clazz);
     }
 
     protected abstract ObjectLocation<T> computeSelect(U selectorValue);

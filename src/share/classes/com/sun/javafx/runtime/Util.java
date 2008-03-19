@@ -44,6 +44,8 @@ public class Util {
             return (T) Double.valueOf(0.0);
         else if (clazz == Boolean.class)
             return (T) Boolean.FALSE;
+        else if (clazz == String.class)
+            return (T) "";
         else
             return null;
     }
