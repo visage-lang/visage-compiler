@@ -32,26 +32,9 @@ package com.sun.javafx.runtime.sequence;
  *
  * @author Brian Goetz
  */
-class ReverseSequence<T> extends AbstractSequence<T> implements Sequence<T> {
-
-    private final Sequence<T> sequence;
-    private final int size;
-
+class ReverseSequence<T> extends DerivedSequence<T> implements Sequence<T> {
     public ReverseSequence(Sequence<T> sequence) {
-        super(sequence.getElementType());
-        this.sequence = sequence;
-        this.size = sequence.size();
-    }
-
-    @Override
-    public int size() {
-        return size;
-    }
-
-
-    @Override
-    public int getDepth() {
-        return sequence.getDepth() + 1;
+        super(sequence.getElementType(), sequence);
     }
 
     @Override

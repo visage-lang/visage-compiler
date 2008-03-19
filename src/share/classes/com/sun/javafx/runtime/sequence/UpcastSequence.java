@@ -5,26 +5,14 @@ package com.sun.javafx.runtime.sequence;
  *
  * @author Brian Goetz
  */
-class UpcastSequence<T> extends AbstractSequence<T> implements Sequence<T> {
-    private final Sequence<? extends T> sequence;
+class UpcastSequence<T> extends DerivedSequence<T> implements Sequence<T> {
 
     public UpcastSequence(Class<T> newClazz, Sequence<? extends T> sequence) {
-        super(newClazz);
-        this.sequence = sequence;
-    }
-
-    @Override
-    public int size() {
-        return sequence.size();
+        super(newClazz, sequence);
     }
 
     @Override
     public T get(int position) {
         return sequence.get(position);
-    }
-
-    @Override
-    public int getDepth() {
-        return sequence.getDepth() + 1;
     }
 }

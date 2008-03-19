@@ -27,6 +27,7 @@ package com.sun.javafx.runtime.sequence;
 
 import java.util.BitSet;
 import java.util.List;
+import java.util.Iterator;
 
 import com.sun.javafx.runtime.Util;
 
@@ -110,5 +111,24 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
     @Override
     public void toArray(Object[] dest, int destOffset) {
         System.arraycopy(array, 0, dest, destOffset, array.length);
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            int index;
+
+            public boolean hasNext() {
+                return index < array.length;
+            }
+
+            public T next() {
+                return array[index++];
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 }

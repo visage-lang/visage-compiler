@@ -5,28 +5,17 @@ package com.sun.javafx.runtime.sequence;
  *
  * @author Brian Goetz
  */
-class ReplacementSequence<T> extends AbstractSequence<T> implements Sequence<T> {
-    private final Sequence<T> sequence;
+class ReplacementSequence<T> extends DerivedSequence<T> implements Sequence<T> {
     private final int newIndex;
     private final T newValue;
 
     public ReplacementSequence(Sequence<T> sequence, int newIndex, T newValue) {
-        super(sequence.getElementType());
-        this.sequence = sequence;
+        super(sequence.getElementType(), sequence);
         this.newIndex = newIndex;
         this.newValue = newValue;
     }
 
-    public int size() {
-        return sequence.size();
-    }
-
     public T get(int position) {
         return (position == newIndex) ? newValue : sequence.get(position);
-    }
-
-    @Override
-    public int getDepth() {
-        return sequence.getDepth() + 1;
     }
 }

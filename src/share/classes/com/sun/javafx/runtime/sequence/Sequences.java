@@ -343,6 +343,7 @@ public final class Sequences {
     }
 
     public static<T> boolean isEqual(Sequence<T> one, Sequence<T> other) {
+        // OPT: use iterators, not get()
         int oneSize = size(one);
         if (oneSize == 0)
             return size(other) == 0;
