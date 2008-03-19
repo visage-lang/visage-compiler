@@ -172,7 +172,10 @@ public class FXRunAndCompareWrapper extends TestCase {
                 TestHelper.dumpFile(new FileInputStream(outputFileName), "Test Output", testFile.toString());
                 TestHelper.dumpFile(new FileInputStream(errorFileName), "Test Error", testFile.toString());
                 System.out.println("--");
-                fail("Output written to standard error");
+                if (expectRunFailure)
+                    return;
+                else
+                    fail("Output written to standard error");
             }
             compare(outputFileName, expectedFileName, false);
         }
