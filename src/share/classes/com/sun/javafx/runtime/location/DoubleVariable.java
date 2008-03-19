@@ -88,7 +88,7 @@ public class DoubleVariable
     public void bind(final DoubleLocation otherLocation) {
         bind(false, new DoubleBindingExpression() {
             public double computeValue() {
-                return otherLocation.get();
+                return otherLocation.getAsDouble();
             }
         }, otherLocation);
     }

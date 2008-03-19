@@ -1,7 +1,6 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.BindingException;
-import com.sun.javafx.runtime.sequence.Sequence;
 
 /**
  * AbstractBindableLocation
@@ -65,26 +64,6 @@ public abstract class AbstractVariable<T_VALUE, T_BINDING extends AbstractBindin
         deferredLiteral = new DeferredInitializer() {
             public void apply() {
                 bind(lazy, binding, dependencies);
-            }
-        };
-    }
-
-    // This is kind of a hack to deal with the fact that bound sequences are created as Locations, not as binding
-    // expressions.
-    public <T> void bind(final SequenceLocation<T> otherLocation) {
-        bind(false, (T_BINDING) new SequenceBindingExpression<T>() {
-            public Sequence<T> computeValue() {
-                return otherLocation.get();
-            }
-        }, otherLocation);
-    }
-
-    // This is kind of a hack to deal with the fact that bound sequences are created as Locations, not as binding
-    // expressions.
-    public <T> void bindFromLiteral(final SequenceLocation<T> otherLocation) {
-        deferredLiteral = new DeferredInitializer() {
-            public void apply() {
-                bind(otherLocation);
             }
         };
     }

@@ -119,6 +119,22 @@ public class SequenceVariable<T>
         return helper.isNull();
     }
 
+    public void bind(final SequenceLocation<T> otherLocation) {
+        bind(false, new SequenceBindingExpression<T>() {
+            public Sequence<T> computeValue() {
+                return otherLocation.getAsSequence();
+            }
+        }, otherLocation);
+    }
+
+    public void bindFromLiteral(final SequenceLocation<T> otherLocation) {
+        deferredLiteral = new DeferredInitializer() {
+            public void apply() {
+                bind(otherLocation);
+            }
+        };
+    }
+
     public void addChangeListener(SequenceChangeListener<T> listener) {
         helper.addChangeListener(listener);
     }

@@ -77,7 +77,7 @@ public class BooleanVariable
     public void bind(final BooleanLocation otherLocation) {
         bind(false, new BooleanBindingExpression() {
             public boolean computeValue() {
-                return otherLocation.get();
+                return otherLocation.getAsBoolean();
             }
         }, otherLocation);
     }

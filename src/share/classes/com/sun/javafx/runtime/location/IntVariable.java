@@ -83,7 +83,7 @@ public class IntVariable extends AbstractVariable<Integer, IntBindingExpression>
     public void bind(final IntLocation otherLocation) {
         bind(false, new IntBindingExpression() {
             public int computeValue() {
-                return otherLocation.get();
+                return otherLocation.getAsInt();
             }
         }, otherLocation);
     }
