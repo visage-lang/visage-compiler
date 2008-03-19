@@ -33,7 +33,7 @@ import com.sun.javafx.runtime.location.*;
  * @author Brian Goetz
  * @author Robert Field
  */
-public abstract class DoubleBoundComprehension<V> extends AbstractBoundComprehension<Double, V> {
+public abstract class DoubleBoundComprehension<V> extends AbstractBoundComprehension<Double, DoubleLocation, V> {
 
     public DoubleBoundComprehension(Class<V> clazz,
                               SequenceLocation<Double> sequenceLocation,
@@ -41,13 +41,7 @@ public abstract class DoubleBoundComprehension<V> extends AbstractBoundComprehen
         super(clazz, sequenceLocation, useIndex);
     }
 
-    protected abstract SequenceLocation<V> getMappedElement$(DoubleLocation elementLocation, IntLocation indexLocation);
-
-    protected State<Double, V> makeState(int index, Double value) {
-        DoubleLocation elementLocation = DoubleVariable.make(value.doubleValue());
-        IntVariable indexLocation = useIndex ? IntVariable.make(index) : null;
-        SequenceLocation<V> mapped = getMappedElement$(elementLocation, indexLocation);
-        return new State<Double, V>(elementLocation, indexLocation, mapped);
+    protected DoubleLocation makeInductionLocation(Double value) {
+        return DoubleVariable.make(value);
     }
-
 }

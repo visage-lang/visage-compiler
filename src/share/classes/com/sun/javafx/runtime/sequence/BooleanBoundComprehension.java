@@ -33,7 +33,7 @@ import com.sun.javafx.runtime.location.*;
  * @author Brian Goetz
  * @author Robert Field
  */
-public abstract class BooleanBoundComprehension<V> extends AbstractBoundComprehension<Boolean, V> {
+public abstract class BooleanBoundComprehension<V> extends AbstractBoundComprehension<Boolean, BooleanLocation, V> {
 
     public BooleanBoundComprehension(Class<V> clazz,
                               SequenceLocation<Boolean> sequenceLocation,
@@ -41,13 +41,7 @@ public abstract class BooleanBoundComprehension<V> extends AbstractBoundComprehe
         super(clazz, sequenceLocation, useIndex);
     }
 
-    protected abstract SequenceLocation<V> getMappedElement$(BooleanLocation elementLocation, IntLocation indexLocation);
-
-    protected State<Boolean, V> makeState(int index, Boolean value) {
-        BooleanLocation elementLocation = BooleanVariable.make(value.booleanValue());
-        IntVariable indexLocation = useIndex ? IntVariable.make(index) : null;
-        SequenceLocation<V> mapped = getMappedElement$(elementLocation, indexLocation);
-        return new State<Boolean, V>(elementLocation, indexLocation, mapped);
+    protected BooleanLocation makeInductionLocation(Boolean value) {
+        return BooleanVariable.make(value);
     }
-
 }

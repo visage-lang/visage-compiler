@@ -32,12 +32,18 @@ import com.sun.javafx.runtime.location.*;
  * BoundComprehension -- one-dimensional bound list comprehension, supporting where clauses and variable number of
  * elements per iteration
  *
+ * @param T The element type for the input sequence
+ * @param V The element type for the resulting sequence
+ * @param L The Location type corresponding to the element type T
+ *
  * @author Brian Goetz
  */
-public abstract class AbstractBoundComprehension<T, V> extends AbstractBoundSequence<V> implements SequenceLocation<V> {
+public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>, V>
+        extends AbstractBoundSequence<V> implements SequenceLocation<V> {
+
     private final SequenceLocation<T> sequenceLocation;
     protected final boolean useIndex;
-    private DumbMutableSequence<State<T, V>> state;
+    private DumbMutableSequence<State<T, L, V>> state;
     private BoundCompositeSequence<V> underlying;
 
     public AbstractBoundComprehension(Class<V> clazz,
@@ -53,12 +59,12 @@ public abstract class AbstractBoundComprehension<T, V> extends AbstractBoundSequ
         this(clazz, sequenceLocation, false);
     }
 
-    protected static class State<T, V> {
+    protected static class State<T, L extends ObjectLocation<T>, V> {
         private SequenceLocation<V> mapped;
-        private final ObjectLocation<T> element;
+        private final L element;
         private final IntLocation index;
 
-        State(ObjectLocation<T> element, IntLocation index, SequenceLocation<V> mapped) {
+        State(L element, IntLocation index, SequenceLocation<V> mapped) {
             this.element = element;
             this.index = index;
             this.mapped = mapped;
@@ -67,25 +73,34 @@ public abstract class AbstractBoundComprehension<T, V> extends AbstractBoundSequ
 
     protected Sequence<V> computeValue() {
         Sequence<T> sequence = sequenceLocation.getAsSequence();
-        state = new DumbMutableSequence<State<T, V>>(sequence.size());
+        state = new DumbMutableSequence<State<T, L, V>>(sequence.size());
         SequenceLocation<V>[] locationsArray = Util.<SequenceLocation<V>>newArray(SequenceLocation.class, sequence.size());
-        State<T, V>[] newStates = (State<T, V>[]) new State[sequence.size()];
+        State<T, L, V>[] newStates = (State<T, L, V>[]) new State[sequence.size()];
         fillInNewValues(sequence, newStates, locationsArray, 0);
         state.replaceSlice(0, -1, newStates);
         underlying = new BoundCompositeSequence<V>(getClazz(), locationsArray);
         return underlying.getAsSequence();
     }
 
-    private void fillInNewValues(Sequence<? extends T> sequence, State<T, V>[] newStates, SequenceLocation<V>[] locationsArray, int offset) {
+    private void fillInNewValues(Sequence<? extends T> sequence, State<T, L, V>[] newStates, SequenceLocation<V>[] locationsArray, int offset) {
         int i = 0;
         for (T value : sequence) {
-            State<T, V> stateElt = makeState(i + offset, value);
+            State<T, L, V> stateElt = makeState(i + offset, value);
             newStates[i] = stateElt;
             locationsArray[i++] = stateElt.mapped;
         }
     }
 
-    protected abstract State<T, V> makeState(int index, T value);
+    protected abstract SequenceLocation<V> getMappedElement$(L elementLocation, IntLocation indexLocation);
+
+    protected abstract L makeInductionLocation(T value);
+
+    private State<T, L, V> makeState(int index, T value) {
+        L elementLocation = makeInductionLocation(value);
+        IntVariable indexLocation = useIndex ? IntVariable.make(index) : null;
+        SequenceLocation<V> mapped = getMappedElement$(elementLocation, indexLocation);
+        return new State<T, L, V>(elementLocation, indexLocation, mapped);
+    }
 
     protected void initialize() {
         underlying.addChangeListener(new SequenceChangeListener<V>() {
@@ -105,7 +120,7 @@ public abstract class AbstractBoundComprehension<T, V> extends AbstractBoundSequ
                 }
                 else {
                     SequenceLocation<V>[] locationsArray = Util.<SequenceLocation<V>>newArray(SequenceLocation.class, newElements.size());
-                    State<T, V>[] newStates = (State<T, V>[]) new State[newElements.size()];
+                    State<T, L, V>[] newStates = (State<T, L, V>[]) new State[newElements.size()];
                     fillInNewValues(newElements, newStates, locationsArray, startPos);
                     underlying.replaceSlice(startPos, endPos, locationsArray);
                     state.replaceSlice(startPos, endPos, newStates);

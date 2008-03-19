@@ -33,7 +33,7 @@ import com.sun.javafx.runtime.location.*;
  * @author Brian Goetz
  * @author Robert Field
  */
-public abstract class IntBoundComprehension<V> extends AbstractBoundComprehension<Integer, V> {
+public abstract class IntBoundComprehension<V> extends AbstractBoundComprehension<Integer, IntLocation, V> {
 
     public IntBoundComprehension(Class<V> clazz,
                               SequenceLocation<Integer> sequenceLocation,
@@ -41,13 +41,7 @@ public abstract class IntBoundComprehension<V> extends AbstractBoundComprehensio
         super(clazz, sequenceLocation, useIndex);
     }
 
-    protected abstract SequenceLocation<V> getMappedElement$(IntLocation elementLocation, IntLocation indexLocation);
-
-    protected State<Integer, V> makeState(int index, Integer value) {
-        IntLocation elementLocation = IntVariable.make(value);
-        IntVariable indexLocation = useIndex ? IntVariable.make(index) : null;
-        SequenceLocation<V> mapped = getMappedElement$(elementLocation, indexLocation);
-        return new State<Integer, V>(elementLocation, indexLocation, mapped);
+    protected IntLocation makeInductionLocation(Integer value) {
+        return IntVariable.make(value);
     }
-
 }
