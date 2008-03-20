@@ -11,3 +11,6 @@ call plus10 assigned to ff: 1->11 2->12 3->13
 call anonymous x+2 assigned to ff: 1->3 2->4 3->5
 x:test-f4
 f5(1)(5)=19
+funs[0]->x:foo0
+funs[1]->y:foo1
+funs[2]->x:foo2

@@ -75,3 +75,9 @@ function f5(x:Integer) {
     y = y + 2;
     function(z:Integer){x+y+z}}
 System.out.println("f5(1)(5)={f5(1)(5)}");
+
+// Test of sequence of functions:
+function f6 (y : String):String  { "y:{y}" };
+var funs = [f4,f6,f4];
+for (f in funs)
+    System.out.println("funs[{indexof f}]->{f("foo{indexof f}")}"); 
