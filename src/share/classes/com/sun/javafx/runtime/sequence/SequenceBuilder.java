@@ -37,18 +37,18 @@ import com.sun.javafx.runtime.Util;
 public class SequenceBuilder<T> {
     private final static int DEFAULT_SIZE = 16;
 
-    private final Class<T> clazz;
+    private final Class clazz;
     private T[] array;
     private int size;
 
     /** Create a SequenceBuilder for a Sequence of type T */
-    public SequenceBuilder(Class<T> clazz) {
+    public SequenceBuilder(Class clazz) {
         this(clazz, DEFAULT_SIZE);
     }
 
     /** Create a SequenceBuilder for a Sequence of type T, ensuring that there is initially room for at least
      * initialSize elements. */
-    public SequenceBuilder(Class<T> clazz, int initialSize) {
+    public SequenceBuilder(Class clazz, int initialSize) {
         this.clazz = clazz;
         array = Util.<T>newObjectArray(Util.powerOfTwo(1, initialSize));
     }

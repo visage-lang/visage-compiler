@@ -19,7 +19,7 @@ public class SequenceVariable<T>
     private final SequenceHelper<T> helper;
 
 
-    public static <T> SequenceVariable<T> make(Class<T> clazz) {
+    public static <T> SequenceVariable<T> make(Class clazz) {
         return new SequenceVariable<T>(clazz);
     }
 
@@ -27,32 +27,32 @@ public class SequenceVariable<T>
         return new SequenceVariable<T>(value);
     }
 
-    public static <T> SequenceVariable<T> make(Class<T> clazz, Sequence<? extends T> value) {
+    public static <T> SequenceVariable<T> make(Class clazz, Sequence<? extends T> value) {
         return new SequenceVariable<T>(clazz, value);
     }
 
-    public static<T> SequenceVariable<T> make(Class<T> clazz, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
+    public static<T> SequenceVariable<T> make(Class clazz, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
         return new SequenceVariable<T>(clazz, lazy, binding, dependencies);
     }
 
-    public static<T> SequenceVariable<T> make(Class<T> clazz, SequenceBindingExpression<T> binding, Location... dependencies) {
+    public static<T> SequenceVariable<T> make(Class clazz, SequenceBindingExpression<T> binding, Location... dependencies) {
         return new SequenceVariable<T>(clazz, false, binding, dependencies);
     }
 
-    public static<T> SequenceVariable<T> make(Class<T> clazz, SequenceLocation<T> otherLocation) {
+    public static<T> SequenceVariable<T> make(Class clazz, SequenceLocation<T> otherLocation) {
         SequenceVariable<T> me = make(clazz);
         me.bind(otherLocation);
         return me;
     }
 
     /** Create a bijectively bound variable */
-    public static<T> SequenceVariable<T> makeBijective(Class<T> clazz, SequenceVariable<T> other) {
+    public static<T> SequenceVariable<T> makeBijective(Class clazz, SequenceVariable<T> other) {
         SequenceVariable<T> me = SequenceVariable.<T>make(clazz);
         me.bijectiveBind(other);
         return me;
     }
 
-    protected SequenceVariable(Class<T> clazz) {
+    protected SequenceVariable(Class clazz) {
         helper = new SequenceHelper<T>(clazz) {
             protected void ensureValid() {
                 if (isBound() && !isValid())
@@ -83,14 +83,14 @@ public class SequenceVariable<T>
         helper.replaceValue(value);
     }
 
-    protected SequenceVariable(Class<T> clazz, Sequence<? extends T> value) {
+    protected SequenceVariable(Class clazz, Sequence<? extends T> value) {
         this(clazz);
         if (value == null)
             value = Sequences.emptySequence(clazz);
         helper.replaceValue(Sequences.upcast(clazz, value));
     }
 
-    protected SequenceVariable(Class<T> clazz, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
+    protected SequenceVariable(Class clazz, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
         this(clazz);
         bind(lazy, binding);
         addDependencies(dependencies);
