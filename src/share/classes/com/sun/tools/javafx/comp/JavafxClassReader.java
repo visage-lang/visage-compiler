@@ -289,13 +289,12 @@ public class JavafxClassReader extends ClassReader {
                 break;
             case CLASS:
                 TypeSymbol tsym = type.tsym;
-                Type outer = translateType(type.getEnclosingType());
                 if (tsym instanceof ClassSymbol) {
                     if (tsym.name.endsWith(defs.interfaceSuffixName)) {
                         t = enterClass((ClassSymbol) tsym).type;
                         break;
                     }
-                    ClassType ctype = (ClassType) type;
+                    final ClassType ctype = (ClassType) type;
                     if (ctype.isCompound()) {
                         t = types.makeCompoundType(translateTypes(ctype.interfaces_field), translateType(ctype.supertype_field));
                         break;
@@ -313,7 +312,7 @@ public class JavafxClassReader extends ClassReader {
                         if (flatname == typeMorpher.variableNCT[TYPE_KIND_SEQUENCE].name) {
                             Type tparam = translateType(ctype.typarams_field.head);
                             WildcardType tpType = new WildcardType(tparam, BoundKind.EXTENDS, tparam.tsym);
-                            t = new ClassType(outer, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
+                            t = new ClassType(Type.noType, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
                             break;
                         }
                     }
@@ -322,10 +321,28 @@ public class JavafxClassReader extends ClassReader {
                             t = ((JavafxSymtab) syms).makeFunctionType(translateTypes(ctype.typarams_field));
                             break;
                     }
-                    ctype = new ClassType(outer, null, translateTypeSymbol(tsym));
-                    typeMap.put(type, ctype); // In case of a cycle.
-                    ctype.typarams_field = translateTypes(type.getTypeArguments());
-                    return ctype;
+                    TypeSymbol sym = translateTypeSymbol(tsym);
+                    ClassType ntype;
+                    if (tsym.type == type)
+                        ntype = (ClassType) sym.type;
+                    else
+                        ntype = new ClassType(null, null, sym) {
+                        boolean completed = false;
+                        public Type getEnclosingType() {
+                            if (!completed) {
+                                completed = true;
+                                tsym.complete();
+                                super.setEnclosingType(translateType(ctype.getEnclosingType()));
+                            }
+                            return super.getEnclosingType();
+                        }
+                        public void setEnclosingType(Type outer) {
+                            throw new UnsupportedOperationException();
+                        }
+                    };
+                    typeMap.put(type, ntype); // In case of a cycle.
+                    ntype.typarams_field = translateTypes(type.getTypeArguments());
+                    return ntype;
                 }
                 break;
             case ARRAY:
@@ -466,6 +483,8 @@ public class JavafxClassReader extends ClassReader {
             for (List<Symbol> l = syms; l.nonEmpty(); l=l.tail) {
                 Name name = l.head.name;
                 long flags = l.head.flags_field;
+                if ((flags & PRIVATE) != 0)
+                    continue;
                 if (l.head instanceof MethodSymbol) {
                     // This should be merged with translateSymbol.
                     // But that doesn't work for some unknown reason.  FIXME
