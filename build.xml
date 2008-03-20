@@ -501,21 +501,22 @@
         <antcall target="-bundles-build"/>
     </target>
     
-    <target name="-bundles-build">
+    <target name="-bundles-build" depends="init">
         <fail unless="release" description="release tag not specified"/>
-        <mkdir dir="${basedir}/bundles"/>
-        <zip destfile="${basedir}/bundles/javafxc-${release}-src.zip" basedir="${basedir}"
-             excludes="${basedir}/bundles/**, **/.svn/**" level="9"/>
+        <mkdir dir="${bundle.dir}"/>
+        <zip destfile="${src.bundle}" basedir="${basedir}"
+             excludes="${bundle.dir}/**, ${build.dir}/**, ${dist.dir}/** , **/.svn/**" level="9"/>
         <antcall target="dist"/>
-        <property name="bundle.destdir" value="${env.WORKSPACE}/${release}"/>
-        <mkdir dir="${bundle.destdir}"/>
-        <copy todir="${bundle.destdir}">
-            <fileset dir="${basedir}/bundles"/>
+        <!-- property set separately by Hudson build -->
+        <property name="bundle.destdir" value="${env.WORKSPACE}"/>
+        <mkdir dir="${bundle.destdir}/${release}"/>
+        <copy todir="${bundle.destdir}/${release}">
+            <fileset dir="${bundle.dir}"/>
         </copy>
-        <delete dir="${env.WORKSPACE}/latest" failonerror="true"/>
-        <mkdir dir="${env.WORKSPACE}/latest"/>
-        <copy todir="${env.WORKSPACE}/latest">
-            <fileset dir="${basedir}/bundles"/>
+        <delete dir="${bundle.destdir}/latest" failonerror="true"/>
+        <mkdir dir="${bundle.destdir}/latest"/>
+        <copy todir="${bundle.destdir}/latest">
+            <fileset dir="${bundle.dir}"/>
         </copy>
     </target>
 </project>
