@@ -250,16 +250,8 @@ public class SequencesTest extends JavaFXTestCase {
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(-1, result);
 
-        // exception when sequence is null
-        try {
-            Sequences.indexByIdentity(null, 1);
-            fail("No exception thrown.");
-        }
-        catch (NullPointerException ex) {
-        }
-        catch (Exception ex) {
-            fail ("Unexpected exception thrown: " + ex.getMessage());
-        }
+        result = Sequences.indexByIdentity(null, 1);
+        assertEquals(-1, result);
 
         // exception when key is null
         try {
@@ -320,16 +312,8 @@ public class SequencesTest extends JavaFXTestCase {
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(-1, result);
 
-        // exception when sequence is null
-        try {
-            Sequences.indexOf(null, 1);
-            fail("No exception thrown.");
-        }
-        catch (NullPointerException ex) {
-        }
-        catch (Exception ex) {
-            fail ("Unexpected exception thrown: " + ex.getMessage());
-        }
+        result = Sequences.indexOf(null, 1);
+        assertEquals(-1, result);
 
         // exception when key is null
         try {
@@ -375,7 +359,7 @@ public class SequencesTest extends JavaFXTestCase {
             Sequences.max(null);
             fail("No exception thrown.");
         }
-        catch (NullPointerException ex) {
+        catch (IllegalArgumentException ex) {
         }
         catch (Exception ex) {
             fail ("Unexpected exception thrown: " + ex.getMessage());
@@ -431,7 +415,7 @@ public class SequencesTest extends JavaFXTestCase {
             Sequences.max(null, comparator);
             fail("No exception thrown.");
         }
-        catch (NullPointerException ex) {
+        catch (IllegalArgumentException ex) {
         }
         catch (Exception ex) {
             fail ("Unexpected exception thrown: " + ex.getMessage());
@@ -482,7 +466,7 @@ public class SequencesTest extends JavaFXTestCase {
             Sequences.min(null);
             fail("No exception thrown.");
         }
-        catch (NullPointerException ex) {
+        catch (IllegalArgumentException ex) {
         }
         catch (Exception ex) {
             fail ("Unexpected exception thrown: " + ex.getMessage());
@@ -538,7 +522,7 @@ public class SequencesTest extends JavaFXTestCase {
             Sequences.min(null, comparator);
             fail("No exception thrown.");
         }
-        catch (NullPointerException ex) {
+        catch (IllegalArgumentException ex) {
         }
         catch (Exception ex) {
             fail ("Unexpected exception thrown: " + ex.getMessage());

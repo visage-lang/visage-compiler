@@ -475,10 +475,8 @@ public final class Sequences {
      * @return The element with the maximum value.
      */
     public static <T extends Comparable> T max (Sequence<T> seq) {
-        if (seq == null)
-            throw new NullPointerException();
-        if (seq.isEmpty())
-            throw new IllegalArgumentException();
+        if (seq == null || seq.isEmpty())
+            throw new IllegalArgumentException("empty sequence passed to Sequences.max");
         
         Iterator<T> it = seq.iterator();
         T result = it.next();
@@ -507,10 +505,8 @@ public final class Sequences {
      * @return The element with the maximum value.
      */
     public static <T> T max (Sequence<T> seq, Comparator<? super T> c) {
-        if (seq == null)
-            throw new NullPointerException();
-        if (seq.isEmpty())
-            throw new IllegalArgumentException();
+        if (seq == null || seq.isEmpty())
+            throw new IllegalArgumentException("empty sequence passed to Sequences.max");
         if (c == null)
             return (T)max((Sequence<Comparable>)seq);
         
@@ -539,10 +535,8 @@ public final class Sequences {
      * @return The element with the maximum value.
      */
     public static <T extends Comparable> T min (Sequence<T> seq) {
-        if (seq == null)
-            throw new NullPointerException();
-        if (seq.isEmpty())
-            throw new IllegalArgumentException();
+        if (seq == null || seq.isEmpty())
+            throw new IllegalArgumentException("empty sequence passed to Sequences.min");
         
         Iterator<T> it = seq.iterator();
         T result = it.next();
@@ -571,10 +565,8 @@ public final class Sequences {
      * @return The element with the minimum value.
      */
     public static <T> T min (Sequence<T> seq, Comparator<? super T> c) {
-        if (seq == null)
-            throw new NullPointerException();
-        if (seq.isEmpty())
-            throw new IllegalArgumentException();
+        if (seq == null || seq.isEmpty())
+            throw new IllegalArgumentException("empty sequence passed to Sequences.min");
         if (c == null)
             return (T)min((Sequence<Comparable>)seq);
         
@@ -604,7 +596,9 @@ public final class Sequences {
      *         otherwise -1.
      */
     public static<T> int nextIndexByIdentity(Sequence<? extends T> seq, T key, int pos) {
-        if (seq == null || key == null)
+        if (seq == null)
+            return -1;
+        if (key == null)
             throw new NullPointerException();
         
         Iterator<? extends T> it = seq.iterator();
@@ -632,7 +626,9 @@ public final class Sequences {
      *         otherwise -1.
      */
     public static<T> int nextIndexOf(Sequence<? extends T> seq, T key, int pos) {
-        if (seq == null || key == null)
+        if (seq == null)
+            return -1;
+        if (key == null)
             throw new NullPointerException();
         
         Iterator<? extends T> it = seq.iterator();

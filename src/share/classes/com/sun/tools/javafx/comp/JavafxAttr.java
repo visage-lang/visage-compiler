@@ -1858,13 +1858,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitConditional(JCConditional tree) {
         attribExpr(tree.cond, env, syms.booleanType);
-        attribExpr(tree.truepart, env);
+        attribTree(tree.truepart, env, VAL, pt, pSequenceness);
         Type falsepartType;
         if (tree.falsepart == null) {
             falsepartType = syms.voidType;
         } else {
-            falsepartType = attribExpr(tree.falsepart, env);
-            
+            falsepartType = attribTree(tree.falsepart, env, VAL, pt, pSequenceness);
             {   //TODO: ...
                 // A kludge, which can go away if we change things so that
                 // the compiler and runtime accepts null and [] equivalently.
@@ -1897,7 +1896,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                               Type condtype,
                               Type thentype,
                               Type elsetype) {
-            Type ctype = condType1(pos, condtype, thentype, elsetype);
+            Type ctype = unionType(pos, thentype, elsetype);
 
             // If condition and both arms are numeric constants,
             // evaluate at compile-time.
@@ -1918,7 +1917,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
          *  @param thentype The type of the expression's then-part.
          *  @param elsetype The type of the expression's else-part.
          */
-        private Type condType1(DiagnosticPosition pos, Type condtype,
+        private Type unionType(DiagnosticPosition pos,
                                Type thentype, Type elsetype) {
             if (thentype == syms.unreachableType)
                 return elsetype;
@@ -2111,6 +2110,14 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
         result = null;
     }
+    
+    void searchParameterTypes (JCExpression meth, Type[] paramTypes) {
+        // FUTURE: Search for matching overloaded methods/functions that
+        // would be a match for meth, and number of arguments==paramTypes.length.
+        // If all the candidates have the same type for parameter # i,
+        // set paramTypes[i] to that type.
+        // Otherwise, leave paramTypes[i]==null.
+    }
 
     @Override
     public void visitApply(JCMethodInvocation tree) {
@@ -2118,19 +2125,30 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // a new environment nested in the current one.
         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup());
 
-        {
-        // The types of the actual method arguments.
-        List<Type> argtypes;
-
         // The types of the actual method type arguments.
         List<Type> typeargtypes;
 
         Name methName = JavafxTreeInfo.name(tree.meth);
-
-            // Otherwise, we are seeing a regular method call.
-            // Attribute the arguments, yielding list of argument types, ...
-            argtypes = attribArgs(tree.args, localEnv);
-            typeargtypes = attribTypes(tree.typeargs, localEnv);
+        
+        int argcount = tree.args.size();
+        
+        Type[] paramTypes = new Type[argcount];
+        searchParameterTypes(tree.meth, paramTypes);
+        
+        ListBuffer<Type> argtypebuffer = new ListBuffer<Type>();
+        int i = 0;
+        for (List<JCExpression> l = tree.args; l.nonEmpty(); l = l.tail, i++) {
+            Type argtype = paramTypes[i];
+            if (argtype != null)
+                attribExpr(l.head, env, argtype);
+            else
+                argtype = chk.checkNonVoid(l.head.pos(),
+                        types.upperBound(attribTree(l.head, env, VAL, Infer.anyPoly)));
+            argtypebuffer.append(argtype);
+        }
+        List<Type> argtypes = argtypebuffer.toList();
+        
+        typeargtypes = attribTypes(tree.typeargs, localEnv);
 
             // ... and attribute the method using as a prototype a methodtype
             // whose formal argument types is exactly the list of actual
@@ -2184,7 +2202,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             // current context.  Also, capture the return type
                 result = check(tree, capture(restype), VAL, pkind, pt, pSequenceness);
             }
-        }
+
         chk.validate(tree.typeargs);
     }
     
@@ -2861,7 +2879,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         boolean isSeq = false;
-        if (pt.tag != NONE && !(isSeq = types.isSequence(pt)) && pSequenceness == Sequenceness.DISALLOWED) {
+        if (pt.tag != NONE && pt != syms.javafx_UnspecifiedType && !(isSeq = types.isSequence(pt)) && pSequenceness == Sequenceness.DISALLOWED) {
             log.error(tree.pos(), "array.req.but.found", pt); //TODO: msg
             result = syms.errType;
         } else {
@@ -2900,49 +2918,29 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
-        // atrribute the items, and determine least upper bound of type
         Type elemType = null;
-        if (types.isSequence(pt)) {
-            elemType = types.elementType(pt);
-        } else if (pt.tag == NONE || pt == syms.javafx_UnspecifiedType) {
-            // we don't know what type we are supposed to be, try to infer it
-            for (JCExpression expr : tree.getItems()) {
-                Type itemType = attribExpr(expr, env);
+        Type expected = pt;
+        if (types.isSequence(expected))
+            expected = types.elementType(expected);
+        for (JCExpression expr : tree.getItems()) {
+                Type itemType = attribTree(expr, env, VAL,
+                        expected, Sequenceness.PERMITTED);
                 if (itemType.tag == NONE || itemType.tag == ERROR) {
                     continue;
                 }
                 if (types.isSequence(itemType)) {
                     itemType = types.elementType(itemType);
                 }
-                if (elemType == null) {
+                if (elemType == null)
                     elemType = itemType;
-                } else if (!itemType.baseType().equals(elemType.baseType())) {
-                    if ((itemType == syms.javafx_IntegerType && elemType == syms.javafx_NumberType) 
-                     || (itemType == syms.javafx_NumberType && elemType == syms.javafx_IntegerType)) {
-                        elemType = syms.javafx_NumberType; // number and int go to number
-                    } else if (itemType.isPrimitive() || elemType.isPrimitive()) {
-                        elemType = syms.javafx_AnyType; // only place to go is to Object
-                    } else {
-                        // TODO: Remove entry in findbugs-exclude.xml if branch is implemented
-                        elemType = syms.javafx_AnyType; //TODO: punt for now
-                    }
-                }
+                else
+                    elemType = unionType(tree, itemType, elemType);
             }
-        } else {
-            // pt is a specified type, but not a sequence
-            elemType = pt;  
-        }
-        if (elemType != null) {
-            // attribute the items
-           for (JCExpression expr : tree.getItems()) {
-                chk.checkNonVoid(expr.pos(), attribExpr(expr, env, elemType, Sequenceness.PERMITTED));
-           }
-           Type owntype = types.sequenceType(elemType);
-           result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
-        } else {
-            // because of nested sequences, we can't test here
-            // log.error(tree.pos(), "array.req.but.found", pt); //TODO: msg
-            result = syms.errType;
+        Type owntype = types.sequenceType(elemType);
+        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
+        if (owntype == result && pt.tag != NONE && pt != syms.javafx_UnspecifiedType) {
+            expected = types.sequenceType(expected);
+            result = tree.type = expected;
         }
     }
 

@@ -116,17 +116,8 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         assertEquals([1, 2, 3], sortedInteger);
         assertEquals(-1, result);
         
-        // exception when sequence is null
-        try {
-            Sequences.binarySearch(null, 1);
-            fail("No exception thrown.");
-        }
-        catch (ex1: NullPointerException) {
-        }
-        catch (ex2: Exception) {
-            fail ("Unexpected exception thrown: {ex2}");
-        }
-        
+        result = Sequences.binarySearch(null, 1);
+        assertEquals(-1, result);
     }
 
     /** 
@@ -181,17 +172,8 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
             fail("Unexpected exception thrown: " + ex2.getMessage());
         }
 
-        // exception when sequence is null
-        try {
-            Sequences.binarySearch(null, element, null);
-            fail("No exception thrown.");
-        }
-        catch (ex3: NullPointerException) {
-        }
-        catch (ex4: Exception) {
-            fail ("Unexpected exception thrown: {ex4}");
-        }
-        
+        result = Sequences.binarySearch(null, element, null);
+        assertEquals(-1, result);
     }
     
     /**
@@ -250,18 +232,10 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         assertEquals([element[3], element[1], element[2]], unsortedElements);
         assertEquals(-1, result);
 
-        // exception when sequence is null
-        try {
-            Sequences.indexByIdentity(null, 1);
-            fail("No exception thrown.");
-        }
-        catch (ex1: NullPointerException) {
-        }
-        catch (ex2: Exception) {
-            fail ("Unexpected exception thrown: " + ex2.getMessage());
-        }
+        result = Sequences.indexByIdentity(null, 1);
+        assertEquals(-1, result);
 
-        // exception when sequence is null
+        // exception when key is null
         try {
             Sequences.indexByIdentity(unsortedElements, null);
             fail("No exception thrown.");
@@ -321,18 +295,10 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         assertEquals([element[3], element[1], element[2]], unsortedElements);
         assertEquals(-1, result);
 
-        // exception when sequence is null
-        try {
-            Sequences.indexOf(null, 1);
-            fail("No exception thrown.");
-        }
-        catch (ex1: NullPointerException) {
-        }
-        catch (ex2: Exception) {
-            fail ("Unexpected exception thrown: " + ex2.getMessage());
-        }
+        result = Sequences.indexOf(null, 1);
+	assertEquals(-1, result);
 
-        // exception when sequence is null
+        // exception when key is null
         try {
             Sequences.indexOf(unsortedElements, null);
             fail("No exception thrown.");
@@ -376,7 +342,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
             Sequences.max(null);
             fail("No exception thrown.");
         }
-        catch (ex1: NullPointerException) {
+        catch (ex1: IllegalArgumentException) {
         }
         catch (ex2: Exception) {
             fail ("Unexpected exception thrown: " + ex2.getMessage());
@@ -432,7 +398,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
             Sequences.max(null, null);
             fail("No exception thrown.");
         }
-        catch (ex1: NullPointerException) {
+        catch (ex1: IllegalArgumentException) {
         }
         catch (ex2: Exception) {
             fail ("Unexpected exception thrown: " + ex2.getMessage());
@@ -483,7 +449,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
             Sequences.min(null);
             fail("No exception thrown.");
         }
-        catch (ex1: NullPointerException) {
+        catch (ex1: IllegalArgumentException) {
         }
         catch (ex2: Exception) {
             fail ("Unexpected exception thrown: " + ex2.getMessage());
@@ -539,7 +505,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
             Sequences.min(null, null);
             fail("No exception thrown.");
         }
-        catch (ex1: NullPointerException) {
+        catch (ex1: IllegalArgumentException) {
         }
         catch (ex2: Exception) {
             fail ("Unexpected exception thrown: " + ex2.getMessage());
@@ -665,17 +631,8 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         assertEquals([3, 1, 2], unsortedInteger);
         assertEquals([2, 1, 3], result);
         
-        // exception when sequence is null
-        try {
-            Sequences.sort(null);
-            fail("No exception thrown.");
-        }
-        catch (ex1: NullPointerException) {
-        }
-        catch (ex2: Exception) {
-            fail ("Unexpected exception thrown: " + ex2.getMessage());
-        }
-    }
+        Sequences.sort(null);
+   }
     
     /**
      * function sort(seq: Comparable[]): Comparable[]
@@ -700,17 +657,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         assertEquals([3, 1, 2], unsortedInteger);
         assertEquals([1, 2, 3], result);
 
-        // exception when sequence is null
-        try {
-            Sequences.sort(null);
-            fail("No exception thrown.");
-        }
-        catch (ex1: NullPointerException) {
-        }
-        catch (ex2: Exception) {
-            fail ("Unexpected exception thrown: {ex2}");
-        }
-        
+        Sequences.sort(null);
     }
 
     /**
@@ -753,16 +700,6 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
             fail("Unexpected exception thrown: " + ex2.getMessage());
         }
 
-        // exception when sequence is null
-        try {
-            Sequences.sort(null, null);
-            fail("No exception thrown.");
-        }
-        catch (ex3: NullPointerException) {
-        }
-        catch (ex4: Exception) {
-            fail ("Unexpected exception thrown: {ex4}");
-        }
-        
+        Sequences.sort(null, null);
     }
 }

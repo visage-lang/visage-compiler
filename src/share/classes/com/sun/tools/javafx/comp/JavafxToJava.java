@@ -262,19 +262,22 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     public JCExpression translate(JCExpression tree, Type type) {
         if (tree == null)
             return null;
-        if (types.isSequence(tree.type) && types.isArray(type)) {
+        return convertTranslated(translate(tree), tree.pos(), tree.type, type);
+    }
+    
+    public JCExpression convertTranslated(JCExpression translated, DiagnosticPosition diagPos,
+            Type sourceType, Type type) {
+        if (types.isSequence(sourceType) && types.isArray(type)) {
             ListBuffer<JCStatement> stats = ListBuffer.lb();
-            DiagnosticPosition diagPos = tree.pos();
-            JCExpression init = (JCExpression) translate(tree);
             Type elemType = types.elemtype(type);
             if (elemType.isPrimitive()) {
                 String mname = "toArray";
                 if (elemType == syms.floatType)
                     mname = "toFloatArray";
                 return callExpression(diagPos, makeTypeTree(syms.javafx_SequencesType, diagPos, false),
-                       mname, init);
+                       mname, translated);
             }
-            JCVariableDecl tmpVar = makeTmpVar(diagPos, tree.type, init);
+            JCVariableDecl tmpVar = makeTmpVar(diagPos, sourceType, translated);
             stats.append(tmpVar);
             JCVariableDecl arrVar = makeTmpVar(diagPos, "arr", type, 
                     make.NewArray(makeTypeTree(elemType, diagPos, true),
@@ -286,34 +289,37 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             return makeBlockExpression(diagPos, stats, ident2);
             
         }
-        if (types.isArray(tree.type) && types.isSequence(type)) {
+        if (types.isArray(sourceType) && types.isSequence(type)) {
             ListBuffer<JCStatement> stats = ListBuffer.lb();
-            DiagnosticPosition diagPos = tree.pos();
-            JCExpression init = (JCExpression) translate(tree);
-            Type elemType = types.elemtype(tree.type);
+            Type elemType = types.elemtype(sourceType);
             String mname = "fromArray";
             if (elemType.isPrimitive())
                 return callExpression(diagPos, makeTypeTree(syms.javafx_SequencesType, diagPos, false),
-                       mname, init);
+                       mname, translated);
             else {
                 List<JCExpression> args = 
                         List.of(make.at(diagPos).Select(makeTypeTree(elemType, diagPos, true), names._class),
-                        init);
+                        translated);
                 return callExpression(diagPos, makeTypeTree(syms.javafx_SequencesType, diagPos, false),
                        mname, args);
             }
+        }
+        if (types.isSequence(type) && ! types.isSequence(sourceType)) {
+            return callExpression(diagPos,
+                    makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
+                    "singleton",
+                    List.of(makeElementClassObject(diagPos, types.elementType(type)),
+                            translated));
         }        
-        JCExpression ret = translate(tree);
 
-        Type paramType = tree.type;
-        if (paramType == syms.javafx_IntegerType ||
+        if (sourceType == syms.javafx_IntegerType ||
                 type == syms.javafx_IntegerType) {
-            if (paramType != type && type.isPrimitive()) {
-                ret = make.at(tree).TypeCast(type, ret);
+            if (sourceType != type && type.isPrimitive()) {
+                translated = make.at(diagPos).TypeCast(type, translated);
             }
         }
 
-        return ret;
+        return translated;
     }
 
     /** Visitor method: translate a list of nodes.
@@ -392,10 +398,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     JCStatement translateExpressionToStatement(JCExpression expr, State newState, Type targetType) {
         State prevState = state;
-       Yield prevYield = yield;
-        yield = targetType==syms.voidType? Yield.ToExecStatement : Yield.ToReturnStatement;
+        Yield prevYield = yield;
         state = newState;
-       JCStatement ret = translateExpressionToStatement(expr);
+        JCStatement ret;
+        if (targetType == expr.type || targetType==syms.voidType
+                || targetType == null || expr.type == syms.unreachableType) {
+            yield = targetType==syms.voidType? Yield.ToExecStatement : Yield.ToReturnStatement;
+            ret = translateExpressionToStatement(expr);
+        } else {
+            yield = Yield.ToExpression;
+            ret = make.at(expr).Return(translate(expr, targetType));
+        }
         yield = prevYield;
         state = prevState;
         return ret;
@@ -1045,13 +1058,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCExpression fbody = fexp.getBodyExpression();
         // Actually, bodyType is fbody.type.  But if the type
         // required by the context (vmi) is a super-type of the
-        // fbody.type, when we get a type error, because the
+        // fbody.type, then we get a type error, because the
         // various SequenceLocation types don't use the necessary
         // wildcare.  Also, using the context type avoids the
         // compiler having to create a bridge method.
-        Type bodyType = vmi.getElementType();
+        Type elementType = vmi.getElementType();
+        Type bodyType = vmi.getRealType();
+        if (! types.isSequence(fbody.type))
+            bodyType = types.elementType(bodyType);
 
-        if (fClauses.size() != 1 || types.isSequence(bodyType) || fClauses.head.whereExpr != null) {
+        if (fClauses.size() != 1 || types.isSequence(elementType) || fClauses.head.whereExpr != null) {
             return null;  // cannot do hack, abort
         }
         Type forType = elementType(fClauses.head.seqExpr.type);
@@ -1060,12 +1076,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCVariableDecl param2 = make.VarDef(make.Modifiers(Flags.FINAL), indexVarName(fClauses.head),
                 makeTypeTree(syms.javafx_IntegerType, diagPos), null);
         boolean dependsOnIndex = fClauses.head.getIndexUsed();
-
-        JCStatement stmt = translateExpressionToStatement(fbody, Wrapped.InNothing, Convert.Normal, vmi.getRealType());
+        JCStatement stmt = translateExpressionToStatement(fbody, Wrapped.InNothing, Convert.Normal, bodyType);
         JCMethodDecl computeElementMethod = make.at(diagPos).MethodDef(
                 make.at(diagPos).Modifiers(Flags.PROTECTED),
                 defs.computeElementName,
-                makeTypeTree(bodyType, diagPos, true),
+                makeTypeTree(elementType, diagPos, true),
                 List.<JCTypeParameter>nil(),
                 List.<JCVariableDecl>of(param1, param2),
                 List.<JCExpression>nil(),
@@ -1074,11 +1089,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         JCExpression t = makeQualifiedTree(null,
                 "com.sun.javafx.runtime.sequence.SimpleBoundComprehension");
         JCExpression clazz = make.TypeApply(t, List.<JCExpression>of(makeTypeTree(forType, diagPos),
-                makeTypeTree(bodyType, diagPos)));
+                makeTypeTree(elementType, diagPos)));
         JCClassDecl cl = make.AnonymousClassDef(make.Modifiers(0),
                 List.<JCTree>of(computeElementMethod));
         List<JCExpression> args = List.<JCExpression>of(
-                make.at(diagPos).Select(makeTypeTree(bodyType, diagPos, true), names._class),
+                makeElementClassObject(diagPos, elementType),
                 translate(fClauses.head.seqExpr, Wrapped.InLocation, Convert.ToBound),
                 make.at(diagPos).Literal(TypeTags.BOOLEAN, dependsOnIndex ? 1 : 0));
 
