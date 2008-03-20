@@ -215,6 +215,7 @@ public class JavafxTypes extends Types {
                      e = e.next()) {
                 if (e.sym.kind == MTH) {
                         MethodSymbol m = (MethodSymbol) e.sym;
+                        m.complete();
                         if (m.overrides(msym, origin, this, checkResult) &&
                             (m.flags() & SYNTHETIC) == 0)
                             return m;
