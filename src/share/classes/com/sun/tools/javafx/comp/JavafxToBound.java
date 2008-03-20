@@ -204,6 +204,12 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         protected final int typeKindResult;
         protected final Type elementTypeResult;
 
+        // these only used when fields are built
+        ListBuffer<JCTree> members = ListBuffer.lb();
+        ListBuffer<JCExpression> dependents = ListBuffer.lb();
+        ListBuffer<JCExpression> callArgs = ListBuffer.lb();
+        int argNum = 0;
+
         ClosureTranslator(DiagnosticPosition diagPos, Type resultType) {
             this(diagPos, JavafxToBound.this.toJava, typeMorpher.typeMorphInfo(resultType) );
         }
@@ -236,12 +242,12 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             return makeGet(m().Ident(fieldName), tmiField);
         }
         
-        protected JCTree makeLocationField(JCExpression arg, Name argName, TypeMorphInfo tmiArg) {
+        protected JCTree makeLocationField(JCExpression targ, Name argName, TypeMorphInfo tmiArg) {
             return m().VarDef(
                     m().Modifiers(Flags.FINAL | Flags.PRIVATE),
                     argName,
                     makeExpression(tmiArg.getLocationType()),
-                    translate(arg));
+                    targ);
         }
 
         protected JCTree makeClosureMethod(String methName, JCExpression expr, List<JCVariableDecl> params, Type returnType, long flags) {
@@ -288,6 +294,48 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         protected JCExpression doit() {
             return buildClosure();
         }      
+        
+        
+        // field building support
+        
+        protected JCExpression buildArgField(JCExpression arg) {
+            return buildArgField(arg, false);
+        }
+
+        protected JCExpression buildArgField(JCExpression arg, boolean isBound) {
+            return buildArgField(arg, "arg$" + argNum++, isBound);
+        }
+
+        protected JCExpression buildArgField(JCExpression arg, String argLabel) {
+            return buildArgField(arg, argLabel, false);
+        }
+
+        protected JCExpression buildArgField(JCExpression arg, String argLabel, boolean isBound) {
+                TypeMorphInfo tmiArg = typeMorpher.typeMorphInfo(arg.type);
+                Name argName = names.fromString(argLabel);
+
+                // translate the method arg into a Location field of the BindingExpression
+                // XxxLocation arg$0 = ...;
+                members.append(makeLocationField(translate(arg), argName, tmiArg));
+             
+            // build a list of these args, for use as dependents -- arg$0, arg$1, ...
+            if (isBound) {
+                return m().Ident(argName);
+            } else {
+                dependents.append(m().Ident(argName));
+
+                // set up these arg for the call -- arg$0.getXxx()
+                return makeGetField(argName, tmiArg);
+            }
+         }
+        
+        protected void buildArgFields(List<JCExpression> args, boolean isBound) {
+            for (JCExpression arg : args) {
+                callArgs.append( buildArgField(arg, isBound) );
+            }
+        }
+        
+
     }
 
     @Override
@@ -302,7 +350,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     }
 
                     protected List<JCExpression> translatedConstructorArgs() {
-                        buildArgFields(tree.getArgs());
+                        buildArgFields(tree.getArgs(), false);  
                         return callArgs.toList();
                     }
 
@@ -472,7 +520,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         if (tree.isExclusive()) {
             args.append( make.at(diagPos).Literal(TypeTags.BOOLEAN, 1) );
         }
-        result = runtime(diagPos, cBoundSequences, "range", toJava.elementType(tree.type), args);
+        result = runtime(diagPos, cBoundSequences, "range", args);
     }
     
     @Override
@@ -480,7 +528,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         DiagnosticPosition diagPos = tree.pos();
         if (types.isSequence(tree.type)) {
             Type elemType = types.elementType(tree.type);
-            result = runtime(diagPos, cBoundSequences, "empty", elemType, List.of(makeDotClass(diagPos, elemType)));
+            result = runtime(diagPos, cBoundSequences, "empty", List.of(makeDotClass(diagPos, elemType)));
         } else {
             JCExpression unbound = make.at(diagPos).Literal(TypeTags.BOT, null); 
             result = makeConstantLocation(diagPos, tree.type, unbound);
@@ -489,7 +537,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         
     @Override
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {   //done
-        result = runtime(tree.pos(), cBoundSequences, "element", tree.type,
+        result = runtime(tree.pos(), cBoundSequences, "element",
                 List.of(translate(tree.getSequence()),
                 translate(tree.getIndex())));
     }
@@ -497,7 +545,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {    //done
         DiagnosticPosition diagPos = tree.pos();
-        result = runtime(diagPos, cBoundSequences, "slice", tree.type,
+        result = runtime(diagPos, cBoundSequences, "slice",
                 List.of(
                     toJava.makeTypeTree(types.elementType(tree.type), diagPos, true),
                     translate(tree.getSequence()),
@@ -568,9 +616,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             private JCExpression makeCore() {
                 JCExpression body = translate(tree.getBodyExpression());
                 if (!types.isSequence(tree.getBodyExpression().type)) {
-                    List<JCExpression> typeArgs = List.of(makeExpression(resultElementType), makeExpression(tree.getBodyExpression().type));
                     List<JCExpression> args = List.of(makeResultClass(), body);
-                    body = runtime(diagPos, cBoundSequences, "singleton", typeArgs, args);
+                    body = runtime(diagPos, cBoundSequences, "singleton", args);
                 }
                 JCExpression whereTest = null;
                 for (JFXForExpressionInClause clause : tree.getForExpressionInClauses()) {
@@ -587,7 +634,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     body = makeBoundConditional(diagPos,
                             tmiResult,
                             body,
-                            runtime(diagPos, cBoundSequences, "empty", resultElementType, List.of(makeDotClass(diagPos, resultElementType))),
+                            runtime(diagPos, cBoundSequences, "empty", List.of(makeDotClass(diagPos, resultElementType))),
                             whereTest);
                 }
                 return body;
@@ -749,7 +796,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         final DiagnosticPosition diagPos = tree.pos();
         if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
             Type elemType = types.elementType(tree.type);
-            result = runtime(diagPos, cBoundSequences, "empty", elemType, List.of(makeDotClass(diagPos, elemType)));
+            result = runtime(diagPos, cBoundSequences, "empty", List.of(makeDotClass(diagPos, elemType)));
         } else {
             JCExpression unbound = make.at(diagPos).Literal(tree.typetag, tree.value);
             result = makeConstantLocation(diagPos, tree.type, unbound);
@@ -761,11 +808,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
      */
     abstract class BindingExpressionClosureTranslator extends ClosureTranslator {
 
-        ListBuffer<JCTree> members = ListBuffer.lb();
-        ListBuffer<JCExpression> dependents = ListBuffer.lb();
-        ListBuffer<JCExpression> callArgs = ListBuffer.lb();
-        int argNum = 0;
-
         BindingExpressionClosureTranslator(DiagnosticPosition diagPos, TypeMorphInfo tmiResult) {
             super(diagPos, JavafxToBound.this.toJava, tmiResult);
         }
@@ -774,39 +816,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             this(diagPos, typeMorpher.typeMorphInfo( resultType ));
         }
 
-        protected JCExpression buildArgField(JCExpression arg) {
-            return buildArgField(arg, "arg$" + argNum++);
-        }
-
-        protected JCExpression buildArgField(JCExpression arg, String argLabel) {
-            return buildArgField(arg, argLabel, false);
-        }
-
-        protected JCExpression buildArgField(JCExpression arg, String argLabel, boolean isBound) {
-                TypeMorphInfo tmiArg = typeMorpher.typeMorphInfo(arg.type);
-                Name argName = names.fromString(argLabel);
-
-                // translate the method arg into a Location field of the BindingExpression
-                // XxxLocation arg$0 = ...;
-                members.append(makeLocationField(arg, argName, tmiArg));
-             
-            // build a list of these args, for use as dependents -- arg$0, arg$1, ...
-            if (isBound) {
-                return m().Ident(argName);
-            } else {
-                dependents.append(m().Ident(argName));
-
-                // set up these arg for the call -- arg$0.getXxx()
-                return makeGetField(argName, tmiArg);
-            }
-         }
-        
-        protected void buildArgFields(List<JCExpression> args) {
-            for (JCExpression arg : args) {
-                callArgs.append( buildArgField(arg) );
-            }
-        }
-        
         protected abstract JCExpression resultValue();
         
         protected void buildFields() {
@@ -850,35 +859,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             final List<JCExpression> typeArgs = toJava.translate(tree.typeargs); //TODO: should, I think, be nil list
 
             public JCExpression doit() {
-                JCExpression transMeth;
-                if (renameToSuper) {
-                    transMeth = make.at(selector).Select(make.Select(makeTypeTree(attrEnv.enclClass.sym.type, selector, false), names._super), msym);
-                } else {
-                    transMeth = toJava.translate(meth);
-                }
-
-                // translate the method name -- e.g., foo  to foo$bound or foo$impl
-                if (superToStatic || (callBound && ! renameToSuper)) {
-                    Name name = functionName(msym, superToStatic, callBound);
-                    if (transMeth.getTag() == JavafxTag.IDENT) {
-                        transMeth = m().Ident(name);
-                    } else if (transMeth.getTag() == JavafxTag.SELECT) {
-                        JCFieldAccess faccess = (JCFieldAccess) transMeth;
-                        transMeth = m().Select(faccess.getExpression(), name);
-                    }
-                }
-                if (useInvoke) {
-                    transMeth = make.Select(transMeth, defs.invokeName);
-                }
-
-                JCMethodInvocation app = m().Apply( typeArgs, transMeth, determineArgs());
-                JCExpression fresult = app;
-                if (useInvoke) {
-                    if (tree.type.tag != TypeTags.VOID) {
-                        fresult = castFromObject(fresult, tree.type);
-                    }
-                }
-                
                 if (callBound) {
                     if (selectorMutable) {
                         return new SelectClosureTranslator(diagPos,
@@ -887,21 +867,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                                 translate(selector)) {
 
                             protected List<JCTree> makeBody() {
-                                ListBuffer<JCTree> members = ListBuffer.lb();
-                                ListBuffer<JCExpression> callArgs = ListBuffer.lb();
-                                int argNum = 0;
-
-                                for (JCExpression arg : tree.args) {
-                                    TypeMorphInfo tmiArg = typeMorpher.typeMorphInfo(arg.type);
-                                    Name argName = names.fromString("arg$" + argNum++);
-
-                                    // translate the method args into Location fields of the BindingExpression
-                                    // XxxLocation arg$0 = ...;
-                                    members.append(makeLocationField(arg, argName, tmiArg));
-
-                                    // set up these args for the call -- arg$0, arg$1, ...
-                                    callArgs.append(m().Ident(argName));
-                                }
+                                // create a field in the closure for each argument
+                                buildArgFields(tree.args, true);
 
                                 // translate the method name -- e.g., foo  to foo$bound
                                 Name name = functionName(msym, false, callBound);
@@ -915,6 +882,12 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                             }
                         }.doit();
                     } else {
+                        JCExpression fresult = m().Apply(typeArgs, transMeth(), determineArgs());
+                        if (useInvoke) {
+                            if (tree.type.tag != TypeTags.VOID) {
+                                fresult = castFromObject(fresult, tree.type);
+                            }
+                        }
                         return fresult;
                     }
                 } else {
@@ -947,33 +920,56 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                             @Override
                             protected void buildFields() {
                                 // create a field in the BindingExpression for each argument
-                                buildArgFields(tree.args);
+                                buildArgFields(tree.args, false);
                                 
                                 // translate the method selector into a Location field of the BindingExpression
                                 // XxxLocation selector$ = ...;
-                                members.append(makeLocationField(selector, selectorName, tmiSelector));
+                                members.append(makeLocationField(translate(selector), selectorName, tmiSelector));
 
                                 // build a list of these selectors, for use as dependents -- selector$0, selector$1, ...
                                 dependents.append(m().Ident(selectorName));
                             }
                         }).doit();
                     } else {
-                        final JCExpression closureTransMeth = transMeth;
                         return (new BindingExpressionClosureTranslator(diagPos, tmiResult) {
 
                             // construct the actual value computing method (with the method call)
                             protected JCExpression resultValue() {
-                                return m().Apply(toJava.translate(tree.typeargs), closureTransMeth, callArgs.toList());
+                                return m().Apply(toJava.translate(tree.typeargs), transMeth(), callArgs.toList());
                             }
 
                             @Override
                             protected void buildFields() {
                                 // create a field in the BindingExpression for each argument
-                                buildArgFields(tree.args);
+                                buildArgFields(tree.args, false);
                             }
                         }).doit();
                     }
                 }
+            }
+
+            public JCExpression transMeth() {
+                JCExpression transMeth;
+                if (renameToSuper) {
+                    transMeth = make.at(selector).Select(make.Select(makeTypeTree(attrEnv.enclClass.sym.type, selector, false), names._super), msym);
+                } else {
+                    transMeth = toJava.translate(meth);
+                }
+
+                // translate the method name -- e.g., foo  to foo$bound or foo$impl
+                if (superToStatic || (callBound && ! renameToSuper)) {
+                    Name name = functionName(msym, superToStatic, callBound);
+                    if (transMeth.getTag() == JavafxTag.IDENT) {
+                        transMeth = m().Ident(name);
+                    } else if (transMeth.getTag() == JavafxTag.SELECT) {
+                        JCFieldAccess faccess = (JCFieldAccess) transMeth;
+                        transMeth = m().Select(faccess.getExpression(), name);
+                    }
+                }
+                if (useInvoke) {
+                    transMeth = make.Select(transMeth, defs.invokeName);
+                }
+                return transMeth;
             }
 
             // compute the translated arguments.
@@ -1081,10 +1077,10 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
         switch (tree.getTag()) {
             case JavafxTag.SIZEOF:
-                result = runtime(diagPos, cBoundSequences, "sizeof", types.elementType(expr.type), List.of(transExpr) );
+                result = runtime(diagPos, cBoundSequences, "sizeof", List.of(transExpr) );
                 break;
             case JavafxTag.REVERSE:
-                result = runtime(diagPos, cBoundSequences, "reverse", types.elementType(expr.type), List.of(transExpr) );
+                result = runtime(diagPos, cBoundSequences, "reverse", List.of(transExpr) );
                 break;
             case JCTree.NOT:
                 result = runtime(diagPos, cBoundOperators, "not_"+typeCode, List.of(transExpr) );
@@ -1156,54 +1152,26 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
    
     JCExpression runtime(DiagnosticPosition diagPos,
             String cString,
-            String methString,
-            Type type) {
+            String methString) {
         return runtime(diagPos,
                 cString,
                 methString,
-                type,
-                List.<JCExpression>nil());
+                 List.<JCExpression>nil());
     }
 
     JCExpression runtime(DiagnosticPosition diagPos,
             String cString,
             String methString,
-            Type type,
             ListBuffer<JCExpression> args) {
         return runtime(diagPos,
                 cString,
                 methString,
-                type,
-                args.toList());
+                 args.toList());
     }
 
     JCExpression runtime(DiagnosticPosition diagPos,
             String cString,
             String methString,
-            List<JCExpression> args) {
-        return runtime(diagPos,
-                cString,
-                methString,
-                List.<JCExpression>nil(),
-                args);
-    }
-
-    JCExpression runtime(DiagnosticPosition diagPos,
-            String cString,
-            String methString,
-            Type type,
-            List<JCExpression> args) {
-        return runtime(diagPos,
-                cString,
-                methString,
-                List.of(makeTypeTree(type, diagPos, true)),
-                args);
-    }
-
-    JCExpression runtime(DiagnosticPosition diagPos,
-            String cString,
-            String methString,
-            List<JCExpression> typeArgs,
             List<JCExpression> args) {
         JCExpression meth = make.at(diagPos).Select(
                 makeQualifiedTree(diagPos, cString),
