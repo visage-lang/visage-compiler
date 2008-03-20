@@ -35,19 +35,24 @@ f2.roi();
 
 function checkfoo( i:Integer, i2:Integer):Integer {
    var ret = 1;
-	if(i <> i2) { throw new Exception("{i}!={i2}"); }
-	else {  ret = 0; }
+	if(i <> i2) { 
+		throw new Exception("{i}!={i2}"); 
+	} else {  
+		ret = 0; 
+	}
 	return ret;
 }
 
 for(i in [10,20]) {
-   v = i;
+	v = i;
 	f2.setData(i);
-   TU.checkI(f2.roi(),i,"check bound readonly attribute");
+	TU.checkI(f2.roi(),i,"check bound readonly attribute");
 	try {
 		checkfoo(fb2,i+v); //i+v since setData uses i and fb2 is bound to v :)
-	}catch( e:Exception) {TU.checkB(e.toString().startsWith("com.sun.javafx.runtime.BindingException:"),"check BindingExecption");}
-	finally {
+	} catch(e:Exception) {
+		TU.checkB(e instanceof com.sun.javafx.runtime.BindingException,
+				"check BindingExecption1: " + e);
+	} finally {
 	   TU.check(true,"Make sure we got to finally block");
 	}
 }
@@ -55,9 +60,14 @@ for(i in [10,20]) {
 f2.setData(50);
 f2.roi();
 try {
-f2.roI = 20;
-}catch( be: com.sun.javafx.runtime.BindingException ) {TU.checkB(be.toString().startsWith("com.sun.javafx.runtime.BindingException:"),"check BindingExecption");}
-if( f2.ros().compareTo("readonly")<>0){ throw new Exception("failed on check of initial value of readonly string"); }
+	f2.roI = 20;
+} catch( be: Exception ) {
+	TU.checkB(be instanceof com.sun.javafx.runtime.BindingException,
+		"check BindingExecption2: " + be);
+}
+if( f2.ros().compareTo("readonly")<>0){
+	throw new Exception("failed on check of initial value of readonly string"); 
+}
 f2.roS = "Hello, World!";
 TU.checkS(f2.ros(),"Hello, World!","check value of readonly string after reasssignment!");
 
@@ -66,12 +76,15 @@ TU.checkS(f2.ros(),"Hello, World!","check value of readonly string after reasssi
  * readonly keyword semanctics not implemented.
  */
 class ro {
-readonly attribute ROA = 10;
-function roa():Integer { return ROA; }
+	readonly attribute ROA = 10;
+	function roa():Integer { return ROA; }
 }
 var r = new ro;
-if(r.roa()<>10){ throw new Exception("initial value of ROA is incorrect!");}
+if(r.roa()<>10){ 
+	throw new Exception("initial value of ROA is incorrect!");
+}
 r.ROA=100;  //<--should not be allowed???
-TU.checkI(r.roa(),100,"Why can this readonly variable be set? If you're reading this, it has been fixed!");
+TU.checkI(r.roa(),100,
+	"Why can this readonly variable be set? If you're reading this, it has been fixed!");
 
 TU.report();

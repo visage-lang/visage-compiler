@@ -1105,7 +1105,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (bindStatus.isUnidiBind()) {
             JCExpression laziness = make.Literal(TypeTags.BOOLEAN, bindStatus.isLazy() ? 1 : 0);
             if (useBindingOverhaul) {
-                return List.of(toBound.translate(init));
+                return List.of(toBound.translate(init, vmi.getRealType()));
             }
             assert (shouldMorph(vmi));
 
@@ -2970,6 +2970,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             renameToSuper = namedSuperCall && !types.isCompoundClass(csym);
             superToStatic = (superCall || namedSuperCall) && !renameToSuper;
             formals = meth.type.getParameterTypes();
+            //TODO: probably move this local to the arg processing
             usesVarArgs = tree.args != null && msym != null &&
                             (msym.flags() & VARARGS) != 0 &&
                             (formals.size() != tree.args.size() ||
