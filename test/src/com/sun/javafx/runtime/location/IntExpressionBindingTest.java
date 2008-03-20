@@ -245,7 +245,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         assertEquals(0, cCounter.count);
         assertEquals(0, dCounter.count);
         assertEquals(1, xCounter.count);
-        assertEquals(0, yCounter.count);
+        assertEquals(1, yCounter.count);
         assertEquals(1, zCounter.count);
 
         a.setAsInt(1);
@@ -257,7 +257,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         assertEquals(0, cCounter.count);
         assertEquals(0, dCounter.count);
         assertEquals(1, xCounter.count);
-        assertEquals(0, yCounter.count);
+        assertEquals(1, yCounter.count);
         assertEquals(1, zCounter.count);
 
         b.setAsInt(1);
@@ -269,7 +269,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         assertEquals(0, cCounter.count);
         assertEquals(0, dCounter.count);
         assertEquals(2, xCounter.count);
-        assertEquals(0, yCounter.count);
+        assertEquals(1, yCounter.count);
         assertEquals(2, zCounter.count);
     }
 }
