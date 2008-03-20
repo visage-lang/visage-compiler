@@ -6,6 +6,7 @@ import java.util.List;
 import com.sun.javafx.runtime.BindingException;
 import com.sun.javafx.runtime.Util;
 import com.sun.javafx.runtime.ErrorHandler;
+import com.sun.javafx.runtime.AssignToBoundException;
 
 /**
  * ObjectVariable
@@ -84,7 +85,7 @@ public class ObjectVariable<T>
 
     public T set(T value) {
         if (isBound())
-            throw new BindingException("Cannot assign to bound variable");
+            throw new AssignToBoundException("Cannot assign to bound variable");
         return replaceValue(value);
     }
 

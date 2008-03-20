@@ -3,7 +3,7 @@ package com.sun.javafx.runtime.location;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.javafx.runtime.BindingException;
+import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
 
 /**
@@ -84,7 +84,7 @@ public class BooleanVariable
 
     public boolean setAsBoolean(boolean value) {
         if (isBound())
-            throw new BindingException("Cannot assign to bound variable");
+            throw new AssignToBoundException("Cannot assign to bound variable");
         return replaceValue(value);
     }
 

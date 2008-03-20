@@ -285,6 +285,7 @@ public abstract class JavaFXTestCase extends TestCase {
             fail("Expected exception " + clazz.getName());
         }
         catch (InvocationTargetException e) {
+            // Can't do the test reflectively because of class loader issues :(
             if (!e.getCause().getClass().getName().equals(clazz.getName()))
                 fail("Expected exception " + clazz.getName() + ", got " + e.getCause().toString());
         }

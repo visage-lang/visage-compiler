@@ -2,9 +2,12 @@ package com.sun.javafx.runtime.location;
 
 import java.util.Iterator;
 
-import com.sun.javafx.runtime.BindingException;
+import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
-import com.sun.javafx.runtime.sequence.*;
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.SequenceMutator;
+import com.sun.javafx.runtime.sequence.SequencePredicate;
+import com.sun.javafx.runtime.sequence.Sequences;
 
 /**
  * SequenceVariable
@@ -164,7 +167,7 @@ public class SequenceVariable<T>
 
     private void ensureNotBound() {
         if (isBound())
-            throw new BindingException("Cannot mutate bound sequence");
+            throw new AssignToBoundException("Cannot mutate bound sequence");
     }
 
     public Sequence<T> set(Sequence<T> value) {

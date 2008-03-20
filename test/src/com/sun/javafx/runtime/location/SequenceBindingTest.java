@@ -26,8 +26,8 @@ package com.sun.javafx.runtime.location;
 
 import java.util.Map;
 
+import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.JavaFXTestCase;
-import com.sun.javafx.runtime.BindingException;
 import com.sun.javafx.runtime.sequence.*;
 
 /**
@@ -267,15 +267,15 @@ public class SequenceBindingTest extends JavaFXTestCase {
                                                                         }
                                                                     });
 
-        assertException(BindingException.class, seq, "deleteAll");
-        assertException(BindingException.class, seq, "deleteValue(T)", 1);
-        assertException(BindingException.class, seq, "delete(I)", 0);
-        assertException(BindingException.class, seq, "set(IT)", 0, 0);
-        assertException(BindingException.class, seq, "setAsSequence(Lcom.sun.javafx.runtime.sequence.Sequence;)", Sequences.emptySequence(Integer.class));
-        assertException(BindingException.class, seq, "insert(T)", 0);
-        assertException(BindingException.class, seq, "insert(Lcom.sun.javafx.runtime.sequence.Sequence;)", Sequences.emptySequence(Integer.class));
-        assertException(BindingException.class, seq, "insertFirst(T)", 0);
-        assertException(BindingException.class, seq, "insertFirst(Lcom.sun.javafx.runtime.sequence.Sequence;)", Sequences.emptySequence(Integer.class));
+        assertException(AssignToBoundException.class, seq, "deleteAll");
+        assertException(AssignToBoundException.class, seq, "deleteValue(T)", 1);
+        assertException(AssignToBoundException.class, seq, "delete(I)", 0);
+        assertException(AssignToBoundException.class, seq, "set(IT)", 0, 0);
+        assertException(AssignToBoundException.class, seq, "setAsSequence(Lcom.sun.javafx.runtime.sequence.Sequence;)", Sequences.emptySequence(Integer.class));
+        assertException(AssignToBoundException.class, seq, "insert(T)", 0);
+        assertException(AssignToBoundException.class, seq, "insert(Lcom.sun.javafx.runtime.sequence.Sequence;)", Sequences.emptySequence(Integer.class));
+        assertException(AssignToBoundException.class, seq, "insertFirst(T)", 0);
+        assertException(AssignToBoundException.class, seq, "insertFirst(Lcom.sun.javafx.runtime.sequence.Sequence;)", Sequences.emptySequence(Integer.class));
         // Also insertBefore/After 
     }
 

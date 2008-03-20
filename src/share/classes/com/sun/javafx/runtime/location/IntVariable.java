@@ -3,7 +3,7 @@ package com.sun.javafx.runtime.location;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.javafx.runtime.BindingException;
+import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
 
 /**
@@ -90,7 +90,7 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
 
     public int setAsInt(int value) {
         if (isBound())
-            throw new BindingException("Cannot assign to bound variable");
+            throw new AssignToBoundException("Cannot assign to bound variable");
         return replaceValue(value);
     }
 
@@ -114,7 +114,7 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
         }
         else {
             if (isBound())
-                throw new BindingException("Cannot assign to bound variable");
+                throw new AssignToBoundException("Cannot assign to bound variable");
             replaceValue(value);
         }
         return value;
