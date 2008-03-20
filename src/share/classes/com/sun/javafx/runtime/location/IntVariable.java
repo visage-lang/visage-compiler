@@ -11,7 +11,7 @@ import com.sun.javafx.runtime.ErrorHandler;
  *
  * @author Brian Goetz
  */
-public class IntVariable extends AbstractVariable<Integer, IntBindingExpression> implements IntLocation {
+public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindingExpression> implements IntLocation {
     public static final int DEFAULT = 0;
 
     protected int $value = DEFAULT;
@@ -80,18 +80,10 @@ public class IntVariable extends AbstractVariable<Integer, IntBindingExpression>
         return newValue;
     }
 
-    public void bind(final IntLocation otherLocation) {
-        bind(false, new IntBindingExpression() {
+    protected IntBindingExpression makeBindingExpression(final IntLocation otherLocation) {
+        return new IntBindingExpression() {
             public int computeValue() {
                 return otherLocation.getAsInt();
-            }
-        }, otherLocation);
-    }
-
-    public void bindFromLiteral(final IntLocation otherLocation) {
-        deferredLiteral = new DeferredInitializer() {
-            public void apply() {
-                bind(otherLocation);
             }
         };
     }

@@ -12,7 +12,7 @@ import com.sun.javafx.runtime.ErrorHandler;
  * @author Brian Goetz
  */
 public class BooleanVariable
-        extends AbstractVariable<Boolean, BooleanBindingExpression>
+        extends AbstractVariable<Boolean, BooleanLocation, BooleanBindingExpression>
         implements BooleanLocation {
 
     public static final boolean DEFAULT = false;
@@ -74,18 +74,10 @@ public class BooleanVariable
         return $value;
     }
 
-    public void bind(final BooleanLocation otherLocation) {
-        bind(false, new BooleanBindingExpression() {
+    protected BooleanBindingExpression makeBindingExpression(final BooleanLocation otherLocation) {
+        return new BooleanBindingExpression() {
             public boolean computeValue() {
                 return otherLocation.getAsBoolean();
-            }
-        }, otherLocation);
-    }
-
-    public void bindFromLiteral(final BooleanLocation otherLocation) {
-        deferredLiteral = new DeferredInitializer() {
-            public void apply() {
-                bind(otherLocation);
             }
         };
     }

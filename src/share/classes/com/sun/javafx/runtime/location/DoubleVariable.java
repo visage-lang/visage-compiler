@@ -12,7 +12,7 @@ import com.sun.javafx.runtime.ErrorHandler;
  * @author Brian Goetz
  */
 public class DoubleVariable
-        extends AbstractVariable<Double, DoubleBindingExpression>
+        extends AbstractVariable<Double, DoubleLocation, DoubleBindingExpression>
         implements DoubleLocation {
 
     public static final double DEFAULT = 0.0;
@@ -85,18 +85,10 @@ public class DoubleVariable
         return newValue;
     }
 
-    public void bind(final DoubleLocation otherLocation) {
-        bind(false, new DoubleBindingExpression() {
+    protected DoubleBindingExpression makeBindingExpression(final DoubleLocation otherLocation) {
+        return new DoubleBindingExpression() {
             public double computeValue() {
                 return otherLocation.getAsDouble();
-            }
-        }, otherLocation);
-    }
-
-    public void bindFromLiteral(final DoubleLocation otherLocation) {
-        deferredLiteral = new DeferredInitializer() {
-            public void apply() {
-                bind(otherLocation);
             }
         };
     }

@@ -13,7 +13,7 @@ import com.sun.javafx.runtime.ErrorHandler;
  * @author Brian Goetz
  */
 public class ObjectVariable<T>
-        extends AbstractVariable<T, ObjectBindingExpression<T>>
+        extends AbstractVariable<T, ObjectLocation<T>, ObjectBindingExpression<T>>
         implements ObjectLocation<T> {
 
     protected T $value;
@@ -56,18 +56,10 @@ public class ObjectVariable<T>
         addDependencies(dependencies);
     }
 
-    public void bind(final ObjectLocation<T> otherLocation) {
-        bind(false, new ObjectBindingExpression<T>() {
+    protected ObjectBindingExpression<T> makeBindingExpression(final ObjectLocation<T> otherLocation) {
+        return new ObjectBindingExpression<T>() {
             public T computeValue() {
                 return otherLocation.get();
-            }
-        }, otherLocation);
-    }
-
-    public void bindFromLiteral(final ObjectLocation<T> otherLocation) {
-        deferredLiteral = new DeferredInitializer() {
-            public void apply() {
-                bind(otherLocation);
             }
         };
     }

@@ -12,7 +12,7 @@ import com.sun.javafx.runtime.sequence.*;
  * @author Brian Goetz
  */
 public class SequenceVariable<T>
-        extends AbstractVariable<Sequence<T>, SequenceBindingExpression<T>>
+        extends AbstractVariable<Sequence<T>, SequenceLocation<T>, SequenceBindingExpression<T>>
         implements SequenceLocation<T> {
 
     private final SequenceMutator.Listener<T> mutationListener;
@@ -120,18 +120,10 @@ public class SequenceVariable<T>
         return helper.isNull();
     }
 
-    public void bind(final SequenceLocation<T> otherLocation) {
-        bind(false, new SequenceBindingExpression<T>() {
+    protected SequenceBindingExpression<T> makeBindingExpression(final SequenceLocation<T> otherLocation) {
+        return new SequenceBindingExpression<T>() {
             public Sequence<T> computeValue() {
                 return otherLocation.getAsSequence();
-            }
-        }, otherLocation);
-    }
-
-    public void bindFromLiteral(final SequenceLocation<T> otherLocation) {
-        deferredLiteral = new DeferredInitializer() {
-            public void apply() {
-                bind(otherLocation);
             }
         };
     }

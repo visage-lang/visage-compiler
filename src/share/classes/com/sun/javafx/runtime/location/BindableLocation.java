@@ -27,22 +27,26 @@ package com.sun.javafx.runtime.location;
 
 /**
  * Indicates that a Location can be bound.  Locations can be bound at most once; rebinding is not permitted.
- * The type parameter V is the type of the XxxBindingExpression that computes the new value.
+ *
+ * @param T_BINDING the type of the XxxBindingExpression that computes the new value.
  *
  * @author Brian Goetz
  */
-public interface BindableLocation<T_LOCATION extends Location, T_BINDING extends AbstractBindingExpression>
+public interface BindableLocation<T_VALUE, T_BINDING extends AbstractBindingExpression>
         extends Location {
+
     public void bind(boolean lazy, T_BINDING binding, Location... dependencies);
-    public void bijectiveBind(T_LOCATION other);
+
+    void bindFromLiteral(boolean lazy, T_BINDING binding, Location... dependencies);
+
+    public void bijectiveBind(ObjectLocation<T_VALUE> other);
+
+    void bijectiveBindFromLiteral(ObjectLocation<T_VALUE> other);
+
     public boolean isBound();
+
     boolean isLazy();
 
     /** Has the variable ever been initialized? */
     boolean isInitialized();
-
-    void bijectiveBindFromLiteral(T_LOCATION other);
-
-    void bindFromLiteral(boolean lazy, T_BINDING binding, Location... dependencies);
-
 }

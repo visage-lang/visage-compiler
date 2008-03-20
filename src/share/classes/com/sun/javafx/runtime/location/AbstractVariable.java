@@ -7,9 +7,9 @@ import com.sun.javafx.runtime.BindingException;
  *
  * @author Brian Goetz
  */
-public abstract class AbstractVariable<T_VALUE, T_BINDING extends AbstractBindingExpression>
+public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocation<T_VALUE>, T_BINDING extends AbstractBindingExpression>
         extends AbstractLocation
-        implements ObjectLocation<T_VALUE>, BindableLocation<ObjectLocation<T_VALUE>, T_BINDING> {
+        implements ObjectLocation<T_VALUE>, BindableLocation<T_VALUE, T_BINDING> {
 
     protected T_BINDING binding;
     protected boolean isLazy, everInitialized;
@@ -47,6 +47,20 @@ public abstract class AbstractVariable<T_VALUE, T_BINDING extends AbstractBindin
         deferredLiteral = new DeferredInitializer() {
             public void apply() {
                 bijectiveBind(other);
+            }
+        };
+    }
+
+    protected abstract T_BINDING makeBindingExpression(T_LOCATION location);
+
+    public void bind(T_LOCATION otherLocation) {
+        bind(false, makeBindingExpression(otherLocation), otherLocation);
+    }
+
+    public void bindFromLiteral(final T_LOCATION otherLocation) {
+        deferredLiteral = new DeferredInitializer() {
+            public void apply() {
+                bind(otherLocation);
             }
         };
     }
