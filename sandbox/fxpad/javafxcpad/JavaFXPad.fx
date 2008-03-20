@@ -682,6 +682,8 @@ operation JavaFXPad.evaluate(sourceCode:String, run:Boolean) {
 	    } else {
 	    }
 	} catch (e) {
+            var exc:<<java.lang.Exception>> = e;
+            exc.printStackTrace();
 	    MessageDialog {
                 title: "Error"
                 owner: this

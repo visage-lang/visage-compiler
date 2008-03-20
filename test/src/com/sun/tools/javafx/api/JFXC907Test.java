@@ -26,8 +26,8 @@
 package com.sun.tools.javafx.api;
 
 import com.sun.javafx.api.JavafxcTask;
-import com.sun.javafx.api.JavafxcTrees;
-import com.sun.javafx.api.JavafxcTool;
+import com.sun.tools.javafx.api.JavafxcTrees;
+import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.javafx.api.tree.ClassDeclarationTree;
 import com.sun.source.tree.CompilationUnitTree;

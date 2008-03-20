@@ -25,6 +25,7 @@
 
 package com.sun.tools.javafx.script;
 
+import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.javafx.api.*;
 import java.io.FileReader;
 import java.io.IOException;

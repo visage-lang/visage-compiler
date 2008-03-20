@@ -26,7 +26,7 @@
 package com.sun.tools.javafx.api;
 
 import com.sun.javafx.api.JavafxcTask;
-import com.sun.javafx.api.JavafxcTool;
+import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.tools.javac.util.JavacFileManager;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

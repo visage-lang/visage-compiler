@@ -23,8 +23,9 @@
  * have any questions.
  */
 
-package com.sun.javafx.api;
+package com.sun.tools.javafx.api;
 
+import com.sun.javafx.api.*;
 import com.sun.javafx.api.tree.ClassDeclarationTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.javafx.api.tree.FunctionDefinitionTree;

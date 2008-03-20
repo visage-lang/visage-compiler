@@ -23,44 +23,14 @@
  * have any questions.
  */
 
-package com.sun.javafx.api;
-
-import java.io.IOException;
-import java.lang.ref.SoftReference;
-import java.util.Iterator;
+package com.sun.tools.javafx.api;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.tools.JavaFileObject;
 
-import com.sun.source.tree.Tree;
-import com.sun.source.util.SourcePositions;
-import com.sun.source.util.TreePath;
-import com.sun.source.util.Trees;
-import com.sun.tools.javac.code.Scope;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.comp.Attr;
 import com.sun.tools.javac.comp.AttrContext;
-import com.sun.tools.javac.comp.Enter;
 import com.sun.tools.javac.comp.Env;
-import com.sun.tools.javac.comp.MemberEnter;
-import com.sun.tools.javac.comp.Resolve;
-import com.sun.tools.javac.tree.JCTree.JCClassDecl;
-import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
-import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
-import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeCopier;
-import com.sun.tools.javac.tree.TreeInfo;
-import com.sun.tools.javac.tree.TreeMaker;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Log;
-
-import static com.sun.source.tree.Tree.Kind.*;
-
 
 /**
  * Provides an implementation of Scope.
@@ -87,12 +57,15 @@ public class JavafxcScope implements com.sun.source.tree.Scope {
         else {
             // synthesize an outermost "star-import" scope
             return new JavafxcScope(env) {
+                @Override
                 public boolean isStarImportScope() {
                     return true;
                 }
+                @Override
                 public JavafxcScope getEnclosingScope() {
                     return null;
                 }
+                @Override
                 public Iterable<? extends Element> getLocalElements() {
                     return env.toplevel.starImportScope.getElements();
                 }
@@ -121,6 +94,7 @@ public class JavafxcScope implements com.sun.source.tree.Scope {
         return false;
     }
 
+    @Override
     public boolean equals(Object other) {
         if (other instanceof JavafxcScope) {
             JavafxcScope s = (JavafxcScope) other;
@@ -130,11 +104,13 @@ public class JavafxcScope implements com.sun.source.tree.Scope {
             return false;
     }
 
+    @Override
     public int hashCode() {
         return env.hashCode() + (isStarImportScope() ? 1 : 0);
     }
 
+    @Override
     public String toString() {
-        return "JavacScope[env=" + env + ",starImport=" + isStarImportScope() + "]";
+        return "JavafxcScope[env=" + env + ",starImport=" + isStarImportScope() + "]";
     }
 }

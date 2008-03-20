@@ -23,8 +23,9 @@
  * have any questions.
  */
 
-package com.sun.javafx.api;
+package com.sun.tools.javafx.api;
 
+import com.sun.javafx.api.*;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
