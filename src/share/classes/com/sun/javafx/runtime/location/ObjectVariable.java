@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.sun.javafx.runtime.BindingException;
 import com.sun.javafx.runtime.Util;
+import com.sun.javafx.runtime.ErrorHandler;
 
 /**
  * ObjectVariable
@@ -101,8 +102,15 @@ public class ObjectVariable<T>
 
     @Override
     public void update() {
-        if (isBound() && !isValid())
-            replaceValue(binding.computeValue());
+        try {
+            if (isBound() && !isValid())
+                replaceValue(binding.computeValue());
+        }
+        catch (RuntimeException e) {
+            ErrorHandler.bindException(e);
+            if (isInitialized())
+                replaceValue(null);
+        }
     }
 
     public boolean isNull() {

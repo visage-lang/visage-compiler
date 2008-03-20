@@ -130,8 +130,15 @@ public class IntVariable extends AbstractVariable<Integer, IntBindingExpression>
 
     @Override
     public void update() {
-        if (isBound() && !isValid())
-            replaceValue(binding.computeValue());
+        try {
+            if (isBound() && !isValid())
+                replaceValue(binding.computeValue());
+        }
+        catch (RuntimeException e) {
+            ErrorHandler.bindException(e);
+            if (isInitialized())
+                replaceValue(DEFAULT);
+        }
     }
 
     public void addChangeListener(IntChangeListener listener) {

@@ -44,6 +44,10 @@ public class ErrorHandler {
 
     }
 
+    public static void bindException(RuntimeException e) {
+
+    }
+
     /** Called when attempting to coerce a null numeric or boolean value to a primitive */
     public static void nullToPrimitiveCoercion(String type) {
         if (isStrict())

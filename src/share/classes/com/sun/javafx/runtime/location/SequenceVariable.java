@@ -3,6 +3,7 @@ package com.sun.javafx.runtime.location;
 import java.util.Iterator;
 
 import com.sun.javafx.runtime.BindingException;
+import com.sun.javafx.runtime.ErrorHandler;
 import com.sun.javafx.runtime.sequence.*;
 
 /**
@@ -158,8 +159,15 @@ public class SequenceVariable<T>
 
     @Override
     public void update() {
-        if (isBound() && !isValid())
-            helper.replaceValue(Sequences.upcast(helper.getClazz(), binding.computeValue()));
+        try {
+            if (isBound() && !isValid())
+                helper.replaceValue(Sequences.upcast(helper.getClazz(), binding.computeValue()));
+        }
+        catch (RuntimeException e) {
+            ErrorHandler.bindException(e);
+            if (isInitialized())
+                helper.replaceValue(Sequences.emptySequence(helper.getClazz()));
+        }
     }
 
     private void ensureNotBound() {
