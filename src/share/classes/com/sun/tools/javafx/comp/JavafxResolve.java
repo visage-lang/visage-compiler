@@ -272,16 +272,16 @@ public class JavafxResolve {
      *  additional type variables that get instantiated.
      *
      *  @param env         The current environment
-     *  @param site        The type of which the method is a member.
      *  @param m           The method symbol.
+     *  @param mt          The expected type.
      *  @param argtypes    The invocation's given value arguments.
      *  @param typeargtypes    The invocation's given type arguments.
      *  @param allowBoxing Allow boxing conversions of arguments.
      *  @param useVarargs Box trailing arguments into an array for varargs.
      */
     Type rawInstantiate(JavafxEnv<JavafxAttrContext> env,
-                        Type site,
                         Symbol m,
+                        Type mt,
                         List<Type> argtypes,
                         List<Type> typeargtypes,
                         boolean allowBoxing,
@@ -290,7 +290,6 @@ public class JavafxResolve {
         throws Infer.NoInstanceException {
         if (useVarargs && (m.flags() & VARARGS) == 0) return null;
         m.complete();
-        Type mt = types.memberType(site, m);
 
         // tvars is the list of formal type variables for which type arguments
         // need to inferred.
@@ -357,7 +356,7 @@ public class JavafxResolve {
                      boolean useVarargs,
                      Warner warn) {
         try {
-            return rawInstantiate(env, site, m, argtypes, typeargtypes,
+            return rawInstantiate(env, m, types.memberType(site, m), argtypes, typeargtypes,
                                   allowBoxing, useVarargs, warn);
         } catch (Infer.NoInstanceException ex) {
             return null;
@@ -498,6 +497,10 @@ public class JavafxResolve {
         JavafxEnv<JavafxAttrContext> env1 = env;
         boolean staticOnly = false;
         boolean innerAccess = false;
+        Type mtype = expected;
+        if (mtype instanceof FunctionType)
+            mtype = mtype.asMethodType();
+        boolean checkArgs = mtype instanceof MethodType || mtype instanceof ForAll;
 
         while (env1 != null) {
             if (env1.outer != null && isStatic(env1)) staticOnly = true;
@@ -530,6 +533,17 @@ public class JavafxResolve {
                     if ((e.sym.kind & (MTH|VAR)) != 0) {
                         if (innerAccess)
                             e.sym.flags_field |= JavafxFlags.INNER_ACCESS;
+                        if (checkArgs) {
+                            Type mt = e.sym.type;
+                            if (mt instanceof FunctionType)
+                                mt = mt.asMethodType();
+                            // Better to use selectBest, but that requires some
+                            // changes.  FIXME
+                            if (! (mt instanceof MethodType) ||
+                                    ! argumentsAcceptable(mtype.getParameterTypes(), mt.getParameterTypes(),
+                                    true, false, Warner.noWarnings))
+                                return wrongMethod.setWrongSym(e.sym);
+                        }
                         return e.sym;
                     }
                 }
@@ -601,7 +615,7 @@ public class JavafxResolve {
         List<Type> argtypes = expected.getParameterTypes();
         List<Type> typeargtypes = expected.getTypeArguments();
         try {
-            if (rawInstantiate(env, site, sym, argtypes, typeargtypes,
+            if (rawInstantiate(env, sym, types.memberType(site, sym), argtypes, typeargtypes,
                                allowBoxing, useVarargs, Warner.noWarnings) == null) {
                 // inapplicable
                 switch (bestSoFar.kind) {
@@ -816,6 +830,7 @@ public class JavafxResolve {
                         bestSoFar = new AmbiguityError(bestSoFar, e.sym);
                 }
                 else if (e.sym.kind == MTH) {
+                    e.sym.complete();
                     bestSoFar = selectBest(env, site, mtype,
                                            e.sym, bestSoFar,
                                            allowBoxing,
