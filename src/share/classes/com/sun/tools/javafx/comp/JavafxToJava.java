@@ -1797,7 +1797,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
             return;
         }
-       
+
        // if this is an instance reference to an attribute or function, it needs to go the the "receiver$" arg,
        // and possible outer access methods
         JCExpression convert;
@@ -1837,7 +1837,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb();
         List<JCExpression> typeArgs = List.<JCExpression>of(makeTypeTree(elemType, diagPos));
         // type name .class
-        args.append(make.at(diagPos).Select(makeTypeTree(elemType, diagPos), names._class));
+        args.append(makeElementClassObject(diagPos, elemType));
         args.appendList( translate( tree.getItems() ) );
         result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
         */
@@ -2229,9 +2229,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             sbName = getSyntheticName("sb");
 
             // Build "sb" initializing expression -- new SequenceBuilder<T>(clazz)
-            List<JCExpression> args = List.<JCExpression>of( make.at(diagPos).Select(
-                makeTypeTree(elemType, diagPos), 
-                names._class));               
+            List<JCExpression> args = List.<JCExpression>of(
+                    makeElementClassObject(diagPos, elemType));               
 
             JCExpression newExpr = make.at(diagPos).NewClass(
                 null,                               // enclosing
@@ -2288,11 +2287,17 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 );
         }
     }
+    
+    JCExpression makeElementClassObject(DiagnosticPosition diagPos, Type elemType) {
+        return make.at(diagPos)
+                .Select(makeTypeTree(syms.boxIfNeeded(elemType), diagPos, true),
+                        names._class);
+    }
 
     JCExpression makeEmptySequenceCreator(DiagnosticPosition diagPos, Type elemType) {
         JCExpression meth = makeQualifiedTree(diagPos, sequencesEmptyString);
         ListBuffer<JCExpression> args = ListBuffer.lb();
-        args.append(make.at(diagPos).Select(makeTypeTree(elemType, diagPos, true), names._class));
+        args.append(makeElementClassObject(diagPos, elemType));
         List<JCExpression> typeArgs = List.of(makeTypeTree(elemType, diagPos, true));
         return make.at(diagPos).Apply(typeArgs, meth, args.toList());
     }
@@ -2694,7 +2699,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 JCExpression seq = callExpression(diagPos,
                     makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
                     "forceNonNull",
-                    List.of(make.at(diagPos).Select(makeTypeTree(syms.boxIfNeeded(var.type), diagPos, true), names._class),
+                    List.of(makeElementClassObject(diagPos, var.type),
                         translate(clause.seqExpr)));
                 stmt = make.at(clause).ForeachLoop(
                     // loop variable is synthetic should not be bound
