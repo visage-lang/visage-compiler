@@ -12,7 +12,7 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
         implements ObjectLocation<T_VALUE>, BindableLocation<T_VALUE, T_BINDING> {
 
     protected T_BINDING binding;
-    protected boolean isLazy, everInitialized;
+    protected boolean isLazy, everInitialized, everValid;
     protected DeferredInitializer deferredLiteral;
 
     protected AbstractVariable() { }
@@ -25,8 +25,13 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
         return everInitialized;
     }
 
+    public boolean everValid() {
+        return everValid;
+    }
+
     protected void setValid() {
         super.setValid();
+        everValid = true;
         setInitialized();
     }
 
