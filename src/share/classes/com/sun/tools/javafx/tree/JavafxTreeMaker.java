@@ -29,6 +29,8 @@ import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TimeLiteralTree.Duration;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Scope;
+import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.tree.JCTree;
@@ -36,6 +38,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
+import javax.tools.JavaFileObject;
 
 /* JavaFX version of tree maker
  */
@@ -460,5 +463,30 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     
     Name syntheticClassName(Name superclass) {
         return Name.fromString(names, superclass.toString() + "$anon" + ++syntheticClassNumber);
+    }
+    
+    /**
+     * Clone of javac's TreeMaker.TopLevel, minus the assertion check of defs types.
+     */
+    @Override
+    public JCCompilationUnit TopLevel(List<JCAnnotation> packageAnnotations,
+                                      JCExpression pid,
+                                      List<JCTree> defs) {
+        assert packageAnnotations != null;
+        JCCompilationUnit tree = new JFXCompilationUnit(packageAnnotations, pid, defs,
+                                     null, null, null, null);
+        tree.pos = pos;
+        return tree;
+    }
+    private static class JFXCompilationUnit extends JCCompilationUnit {
+        protected JFXCompilationUnit(List<JCAnnotation> packageAnnotations,
+                        JCExpression pid,
+                        List<JCTree> defs,
+                        JavaFileObject sourcefile,
+                        PackageSymbol packge,
+                        Scope namedImportScope,
+                        Scope starImportScope) {
+            super(packageAnnotations, pid, defs, sourcefile, packge, namedImportScope, starImportScope);
+        }        
     }
 }

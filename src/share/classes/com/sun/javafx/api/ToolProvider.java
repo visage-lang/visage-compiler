@@ -25,123 +25,96 @@
 
 package com.sun.javafx.api;
 
+import java.io.File;
 import java.net.MalformedURLException;
-import java.util.Locale;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.logging.Logger;
-import java.util.logging.Level;
-import static java.util.logging.Level.*;
 
 /**
  * JavaFX version of javac's ToolProvider class.
- * Provides methods for locating tool providers, for example,
- * providers of compilers.  This class complements the
- * functionality of {@link java.util.ServiceLoader}.
- *
- * @author Peter von der Ah&eacute;
- * @since 1.6
+ * 
+ * @author Tom Ball
  */
 public class ToolProvider {
+    private static Logger logger = Logger.getLogger("com.sun.javafx");
 
     private ToolProvider() {}
 
-    private static final String propertyName = "sun.tools.ToolProvider";
-    private static final String loggerName   = "javax.tools";
-
-    /*
-     * Define the system property "sun.tools.ToolProvider" to enable
-     * debugging:
-     *
-     *     java ... -Dsun.tools.ToolProvider ...
-     */
-    static <T> T trace(Level level, Object reason) {
-        // NOTE: do not make this method private as it affects stack traces
-        try {
-            if (System.getProperty(propertyName) != null) {
-                StackTraceElement[] st = Thread.currentThread().getStackTrace();
-                String method = "???";
-                String cls = ToolProvider.class.getName();
-                if (st.length > 2) {
-                    StackTraceElement frame = st[2];
-                    method = String.format((Locale)null, "%s(%s:%s)",
-                                           frame.getMethodName(),
-                                           frame.getFileName(),
-                                           frame.getLineNumber());
-                    cls = frame.getClassName();
-                }
-                Logger logger = Logger.getLogger(loggerName);
-                if (reason instanceof Throwable) {
-                    logger.logp(level, cls, method,
-                                reason.getClass().getName(), (Throwable)reason);
-                } else {
-                    logger.logp(level, cls, method, String.valueOf(reason));
-                }
-            }
-        } catch (SecurityException ex) {
-            System.err.format((Locale)null, "%s: %s; %s%n",
-                              ToolProvider.class.getName(),
-                              reason,
-                              ex.getLocalizedMessage());
-        }
-        return null;
-    }
-
     /**
-     * Gets the Java&trade; programming language compiler provided
-     * with this platform.
-     * @return the compiler provided with this platform or
-     * {@code null} if no compiler is provided
+     * Gets a JavaFX Script compiler instance.
+     * @return the compiler instance or {@code null} if no compiler 
+     *         is included as part of the application classpath
      */
     public static JavafxCompiler getJavafxCompiler() {
-        if (Lazy.compilerClass == null)
-            return trace(WARNING, "Lazy.compilerClass == null");
         try {
-            return Lazy.compilerClass.newInstance();
-        } catch (Throwable e) {
-            return trace(WARNING, e);
+            URL[] urls = new URL[] {
+                getPath("com.sun.tools.javafx.api.JavafxcTool"),
+                getPath("com.sun.tools.javac.util.Context")
+            };
+            ClassLoader parent = JavafxCompiler.class.getClassLoader();
+            ClassLoader cl = new CompilerClassLoader(urls, parent);
+            Class<?> cls = Class.forName("com.sun.tools.javafx.api.JavafxcTool", false, cl);
+            return (JavafxCompiler)cls.newInstance();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
     }
 
     /**
-     * This class will not be initialized until one of the above
-     * methods are called.  This ensures that searching for the
-     * compiler does not affect platform start up.
+     * ClassLoader which loads internal javafxc and javac classes from the
+     * specified path instead of the classpath default.
      */
-    static class Lazy  {
-        private static final String defaultJavafxCompilerName
-            = "com.sun.tools.javafx.api.JavafxcTool";
-        static final Class<? extends JavafxCompiler> compilerClass;
-        static {
-            Class<? extends JavafxCompiler> c = null;
-            try {
-                c = findClass().asSubclass(JavafxCompiler.class);
-            } catch (Throwable t) {
-                trace(WARNING, t);
-            }
-            compilerClass = c;
+    private static class CompilerClassLoader extends URLClassLoader {
+        public CompilerClassLoader(URL[] urls, ClassLoader parent) {
+            super(urls, parent);
         }
 
-        private static Class<?> findClass()
-            throws MalformedURLException, ClassNotFoundException
-        {
-            try {
-                return enableAsserts(Class.forName(defaultJavafxCompilerName, false, null));
-            } catch (ClassNotFoundException e) {
-                trace(FINE, e);
-                throw e;
-            }
+        @Override
+        public URL findResource(String name) {
+            URL url = super.findResource(name);
+            return url;
         }
+        
+        @Override
+        protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+            if (name.indexOf("sun.tools") >= 0) {
+                Class c = findLoadedClass(name);
+                if (c != null) {
+                    logger.info("found loaded class: " + name);
+                    return c;
+                }
+                c = findClass(name);
+                if (c == null) {
+                    logger.info("didn't find class:  " + name);
+                    return super.loadClass(name, resolve);
+                }
+                if (resolve)
+                    resolveClass(c);
+                return c;
+            }
+            return super.loadClass(name, resolve);
+        }
+    }
 
-        private static Class<?> enableAsserts(Class<?> cls) {
-            try {
-                ClassLoader loader = cls.getClassLoader();
-                if (loader != null)
-                    loader.setPackageAssertionStatus("com.sun.tools.javafx", true);
-                else
-                    trace(FINE, "loader == null");
-            } catch (SecurityException ex) {
-                trace(FINE, ex);
-            }
-            return cls;
+    /**
+     * Return the classpath element that contains the specified class.
+     * @return the classpath element, usually the class's jar file
+     * @throws java.net.MalformedURLException
+     */
+    private static URL getPath(String className) throws MalformedURLException {
+        String classFile = className.replace('.', '/') + ".class";
+        URL classURL = ToolProvider.class.getClassLoader().getResource(classFile);
+        String path = classURL.getPath();
+        assert path.endsWith(classFile);
+        path = path.substring(0, path.indexOf(classFile) - 1);
+        if (path.endsWith("!")) {
+            path = path.substring(0, path.length() - 1);
         }
+        File f = new File(path);
+        if (f.exists()) {
+            return f.toURI().toURL();
+        }
+        return new URL(path);
     }
 }
