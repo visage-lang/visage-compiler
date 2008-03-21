@@ -669,6 +669,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         // Determine the symbol represented by the selection.
         env.info.varArgs = false;
+        if (sitesym instanceof ClassSymbol &&
+                env.enclClass.sym.isSubClass(sitesym, types))
+            env.info.selectSuper = true;
         Symbol sym = selectSym(tree, site, env, pt, pkind);
         sym.complete();
         if (sym.exists() && !isType(sym) && (pkind & (PCK | TYP)) != 0) {
