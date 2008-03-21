@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.sun.javafx.api.JavafxCompiler;
-import com.sun.javafx.api.ToolProvider;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.CommandlineJava;
 import org.apache.tools.ant.types.Path;
@@ -18,7 +17,7 @@ import org.apache.tools.ant.types.Path;
  * @author Brian Goetz
  */
 public abstract class TestHelper {
-    private static final JavafxCompiler compiler = ToolProvider.getJavafxCompiler();
+    private static final JavafxCompiler compiler = compilerLocator();
 
     public static final String TEST_ROOT = "test";
     public static final String BUILD_ROOT = "build/test";

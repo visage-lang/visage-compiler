@@ -25,6 +25,7 @@
 
 package com.sun.tools.javafx.script;
 
+import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.javafx.api.*;
 import java.io.FileReader;
 import java.io.IOException;
@@ -34,24 +35,19 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticCollector;
-import javax.tools.DiagnosticListener;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-
+import javax.tools.*;
 /**
  * Simple interface to the JavaFX Script compiler using JSR 199 Compiler API, 
  * based on https://scripting.dev.java.net's JavaCompiler by A. Sundararajan.
  */
 public class JavaFXScriptCompiler {    
-    private JavafxCompiler tool;
+    private JavafxcTool tool;
     private StandardJavaFileManager stdManager;
     private ClassLoader parentClassLoader;
 
     public JavaFXScriptCompiler(ClassLoader parent) {
 	parentClassLoader = parent;
-        tool = ToolProvider.getJavafxCompiler();
+        tool = JavafxcTool.create();
     }
 
     public Map<String, byte[]> compile(String filename, String source) {
