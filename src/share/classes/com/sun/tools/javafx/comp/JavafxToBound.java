@@ -206,7 +206,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 tree = runtime(diagPos, cLocations, "asIntLocation", List.of(tree));
             } else {
                 if (tmiTarget.getTypeKind() == TYPE_KIND_OBJECT) {
-                    tree = runtime(diagPos, cLocations, "upcast", List.of(tree));
+                    List<JCExpression> typeArgs = List.of(makeTypeTree(targetType, diagPos, true), makeTypeTree(inType, diagPos, true));
+                    tree = runtime(diagPos, cLocations, "upcast", typeArgs, List.of(tree));
                 }
             }
         }
@@ -538,19 +539,24 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             return;
         }
         DiagnosticPosition diagPos = tree.pos();
-        JCExpression expr = tree.getExpression();
-        JCExpression translatedExpr = translate(expr);
 
         if (tree.sym.isStatic()) {
-            // if this is a static reference, eg.   MyClass.myAttribute
-            translatedExpr = makeTypeTree(types.erasure(tree.sym.owner.type), diagPos, false);
-            result = convert(tree.type, make.at(diagPos).Select(translatedExpr, tree.getIdentifier()) );
-            return;
+            Symbol owner = tree.sym.owner;
+            if (types.isJFXClass(owner)) {
+                // if this is a static reference, eg.   MyClass.myAttribute
+                JCExpression classRef = makeTypeTree(types.erasure(tree.sym.owner.type), diagPos, false);
+                result = convert(tree.type, make.at(diagPos).Select(classRef, tree.getIdentifier()));
+                return;
+            } else {
+                // if this is a static reference to a Java member e.g. System.out -- do unbound translation, then wrap
+                result = this.makeUnboundLocation(diagPos, targetType(tree.type), toJava.translate(tree, Wrapped.InNothing));
+            }
         } else {
+            JCExpression expr = tree.getExpression();
             result = new SelectClosureTranslator(diagPos,
                     tree.type,
                     typeMorpher.typeMorphInfo(expr.type),
-                    translatedExpr) {
+                    translate(expr)) {
 
                 protected List<JCTree> makeBody() {
                     JCExpression expr = typeMorpher.convertVariableReference(diagPos, //TODO: don't use this
@@ -566,7 +572,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitIdent(JCIdent tree)   {  //TODO: this, super, ...
-        assert (tree.sym.flags() & Flags.PARAMETER) != 0 || tree.name == names._this || tree.sym.isStatic() || toJava.shouldMorph(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
+       // assert (tree.sym.flags() & Flags.PARAMETER) != 0 || tree.name == names._this || tree.sym.isStatic() || toJava.shouldMorph(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
         result = convert(tree.type, toJava.translate(tree, Wrapped.InLocation) );
     }
     
@@ -1183,7 +1189,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         return runtime(diagPos,
                 cString,
                 methString,
-                 List.<JCExpression>nil());
+                null,
+                List.<JCExpression>nil());
     }
 
     JCExpression runtime(DiagnosticPosition diagPos,
@@ -1193,17 +1200,30 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         return runtime(diagPos,
                 cString,
                 methString,
-                 args.toList());
+                null,
+                args.toList());
     }
 
     JCExpression runtime(DiagnosticPosition diagPos,
             String cString,
             String methString,
             List<JCExpression> args) {
+        return runtime(diagPos,
+                cString,
+                methString,
+                null,
+                args);
+    }
+
+    JCExpression runtime(DiagnosticPosition diagPos,
+            String cString,
+            String methString,
+            List<JCExpression> typeArgs,
+            List<JCExpression> args) {
         JCExpression meth = make.at(diagPos).Select(
                 makeQualifiedTree(diagPos, cString),
                 names.fromString(methString));
-        return make.at(diagPos).Apply(null, meth, args);
+        return make.at(diagPos).Apply(typeArgs, meth, args);
     }
 
     public JCExpression makeQualifiedTree(DiagnosticPosition diagPos, String str) {
