@@ -49,6 +49,10 @@ public class Locations {
         return loc;
     }
 
+    public static IntLocation asIntLocation(ObjectLocation<Integer> loc) {
+        return new ObjectIntLocation(loc);
+    }
+
     public static DoubleLocation asDoubleLocation(IntLocation loc) {
         return new IntDoubleLocation(loc);
     }
@@ -213,6 +217,64 @@ public class Locations {
             return location.setAsIntFromLiteral(value);
         }
     }
+
+
+    private static class ObjectIntLocation extends LocationWrapper implements IntLocation, ViewLocation {
+        private final ObjectLocation<Integer> location;
+
+        private ObjectIntLocation(ObjectLocation<Integer> location) {
+            this.location = location;
+        }
+
+        protected Location getLocation() {
+            return location;
+        }
+
+        public int getAsInt() {
+            return location.get();
+        }
+
+        public int setAsInt(int value) {
+            return location.set(value);
+        }
+
+        public int setAsIntFromLiteral(int value) {
+            return location.setFromLiteral(value);
+        }
+
+        public void setDefault() {
+            location.setDefault();
+        }
+
+        public void addChangeListener(final IntChangeListener listener) {
+            location.addChangeListener(new ObjectChangeListener<Integer>() {
+                public void onChange(Integer oldValue, Integer newValue) {
+                    listener.onChange(oldValue, newValue);
+                }
+            });
+        }
+
+        public Integer get() {
+            return location.get();
+        }
+
+        public Integer set(Integer value) {
+            return location.set(value);
+        }
+
+        public Integer setFromLiteral(Integer value) {
+            return location.setFromLiteral(value);
+        }
+
+        public void addChangeListener(ObjectChangeListener<Integer> listener) {
+            location.addChangeListener(listener);
+        }
+
+        public Location getUnderlyingLocation() {
+            return location;
+        }
+    }
+
 
     /**
      * Wrapper class that creates an IntLocation view of a DoubleLocation

@@ -77,6 +77,17 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
         });
     }
 
+    public void testObjectIntWrapper() {
+        ObjectVariable<Integer> o = ObjectVariable.make(2);
+        IntLocation i = Locations.asIntLocation(o);
+
+        assertEquals(2, i);
+        o.set(3);
+        assertEquals(3, i);
+        i.setAsInt(4);
+        assertEquals(4, o);
+    }
+
     public void testDoubleObjectWrapper() {
         final DoubleLocation i = DoubleVariable.make(0);
         final DoubleLocation ie = DoubleVariable.make(new DoubleBindingExpression() {
