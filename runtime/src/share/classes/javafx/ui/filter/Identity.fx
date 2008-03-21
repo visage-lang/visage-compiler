@@ -35,7 +35,7 @@ public class Identity extends Filter {
     };
     
     public attribute source: Image
-        on replace { identity.setSource(source.getImage()); }
+        on replace { identity.setSource(source.getImage() as java.awt.image.BufferedImage); }
 
     private function ul():Void {
         identity.setLocation(new java.awt.geom.Point2D.Double(x, y));

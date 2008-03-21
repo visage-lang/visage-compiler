@@ -78,7 +78,7 @@ public class Text extends Shape {
     };
 
     private function updateText():Void {
-        if (textShape <> null and content <> null) {
+        if (textShape <> null and content <> null and awtFont <> null) {
             var layout = new TextLayout(content, awtFont, FRC);
             var b = layout.getBounds();
             var tx = x - b.getX();

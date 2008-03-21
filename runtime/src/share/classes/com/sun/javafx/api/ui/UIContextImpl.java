@@ -251,9 +251,9 @@ public class UIContextImpl implements UIContext {
                                             if (!srcName.endsWith(".bmp")) {
                                                 if ("http".equals(u.getProtocol()) || "https".equals(u.getProtocol())) {
                                                     result = Toolkit.getDefaultToolkit().createImage(new CachedImage(UIContextImpl.this, u));
-                                                }// else {
-                                                //    result = Toolkit.getDefaultToolkit().createImage(u);
-                                               // }
+                                                } else {
+                                                    result = Toolkit.getDefaultToolkit().createImage(u);
+                                                }
                                             }
                                             if (result == null) {
                                                 result = ImageIO.read(u);
