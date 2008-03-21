@@ -16,7 +16,7 @@ h3 {
      font-size: 100%;
      color:#305070; 
     } 
-    
+
 h4 { 
      padding-top: 8pt;
      font-family: sans-serif;
@@ -32,6 +32,7 @@ pre {padding-top: 6pt;
      padding-bottom: 6pt;
      padding-left: 6pt;
      background-color: #eeeeff;
+     border-color: white;
      margin-left: 24pt;
      margin-right: 44pt;
 }
