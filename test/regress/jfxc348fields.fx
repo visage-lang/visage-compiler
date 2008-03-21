@@ -7,6 +7,7 @@
 
 import java.lang.System;
 
-var x = bind { System.out.println("hi"); 0 }
-
-System.out.println(x);
+var out = bind System.out;
+out.println("hi");
+var zero = bind java.lang.Integer.MAX_VALUE - java.lang.Integer.MAX_VALUE;
+out.println(zero);

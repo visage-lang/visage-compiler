@@ -337,8 +337,11 @@ public class JavafxTypeMorpher {
         Type newType;
         Type elemType = tmi.getElementType();
         if ((tmi.getTypeKind() == TYPE_KIND_OBJECT ||
-                tmi.getTypeKind() == TYPE_KIND_SEQUENCE) && 
-             elemType != null /* handles library which doesn't have element type */) {
+                tmi.getTypeKind() == TYPE_KIND_SEQUENCE) ) {
+            if (elemType == null) {
+                /* handles library which doesn't have element type */
+                elemType = syms.objectType;
+            }
             List<Type> actuals = List.of(elemType);
             Type clazzOuter = variableType(tmi.getTypeKind()).getEnclosingType();
 
@@ -347,7 +350,6 @@ public class JavafxTypeMorpher {
                 if ((t.tsym instanceof ClassSymbol) &&
                         (t.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
                     String str = t.tsym.name.toString().replace("$", ".");
-                    String strLookFor = str + interfaceSuffix;
                     ClassSymbol csym = new ClassSymbol(0, names.fromString(str), t.tsym.owner);
                     csym.flags_field |= JavafxFlags.COMPOUND_CLASS;
                     Type tp = new ClassType(null, null, csym);

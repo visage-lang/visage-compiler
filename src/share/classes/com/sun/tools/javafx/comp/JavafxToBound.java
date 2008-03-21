@@ -167,6 +167,9 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             }
             JCExpression tree = translate(l.head, formal);
             if (tree != null) {
+                if (tree.type == null) { // if not set by convert()
+                    tree.type = formal; // mark the type to declare the holder of this arg
+                }
                 translated.append(tree);
             }
         }
@@ -190,13 +193,17 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         Type targetType = tmiTarget.getRealType();
         if (!types.isSameType(inType, targetType)) {
             if (types.isSequence(targetType) && types.isSequence(inType)) {
-                Type treeElementType = types.elementType(inType);
                 Type targetElementType = tmiTarget.getElementType();
-                if (types.isCastable(treeElementType, targetElementType)) {
-                    tree = runtime(diagPos, cBoundSequences, "upcast", List.of(makeDotClass(diagPos, targetElementType), tree));
+                if (targetElementType == null) {
+                    tree.type = inType;
+                    return tree;
+                    //targetElementType = syms.objectType;  // punt (probably a synthetic library class) 
                 }
+                tree = runtime(diagPos, cBoundSequences, "upcast", List.of(makeDotClass(diagPos, targetElementType), tree));
             } else if (inType == syms.intType && targetType == syms.doubleType) {
                 tree = runtime(diagPos, cLocations, "asDoubleLocation", List.of(tree));
+            } else if (inType == syms.doubleType && targetType == syms.intType) {
+                tree = runtime(diagPos, cLocations, "asIntLocation", List.of(tree));
             } else {
                 if (tmiTarget.getTypeKind() == TYPE_KIND_OBJECT) {
                     tree = runtime(diagPos, cLocations, "upcast", List.of(tree));
@@ -421,7 +428,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     }
 
                     protected JCStatement translateAttributeSet(JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression instance) {
-                        JCExpression initRef = buildArgField(translate(init, vsym.type), init.type, vsym.name.toString() + "$attr", bindStatus.isBound());
+                        JCExpression initRef = buildArgField(translate(init, vsym.type), vsym.type, vsym.name.toString() + "$attr", bindStatus.isBound());
                         return definitionalAssignmentToSet(diagPos, initRef, bindStatus,
                                 vsym, instance, FROM_LITERAL_MILIEU);
                     }
@@ -559,7 +566,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitIdent(JCIdent tree)   {  //TODO: this, super, ...
-        assert (tree.sym.flags() & Flags.PARAMETER) != 0 || tree.name == names._this || toJava.shouldMorph(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
+        assert (tree.sym.flags() & Flags.PARAMETER) != 0 || tree.name == names._this || tree.sym.isStatic() || toJava.shouldMorph(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
         result = convert(tree.type, toJava.translate(tree, Wrapped.InLocation) );
     }
     
@@ -945,13 +952,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                             }
                         }.doit();
                     } else {
-                        JCExpression fresult = m().Apply(typeArgs, transMeth(), targs);
-                        if (useInvoke) {
-                            if (tree.type.tag != TypeTags.VOID) {
-                                fresult = castFromObject(fresult, tree.type);
-                            }
-                        }
-                        return fresult;
+                        return convert(tree.type, m().Apply(typeArgs, transMeth(), targs));
                     }
                 } else {
                     // call to Java method or unbound JavaFX function

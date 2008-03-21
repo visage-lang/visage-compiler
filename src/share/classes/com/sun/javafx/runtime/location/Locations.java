@@ -53,6 +53,10 @@ public class Locations {
         return new IntDoubleLocation(loc);
     }
 
+    public static IntLocation asIntLocation(DoubleLocation loc) {
+        return new DoubleIntLocation(loc);
+    }
+
 
     public static IntLocation unmodifiableLocation(IntLocation loc) {
         return new UnmodifiableIntLocation(loc);
@@ -207,6 +211,85 @@ public class Locations {
 
         public int setAsIntFromDefault(int value) {
             return location.setAsIntFromLiteral(value);
+        }
+    }
+
+    /**
+     * Wrapper class that creates an IntLocation view of a DoubleLocation
+     */
+    private static class DoubleIntLocation extends LocationWrapper implements IntLocation, ViewLocation {
+        private final DoubleLocation location;
+
+        protected DoubleLocation getLocation() {
+            return location;
+        }
+
+        public DoubleIntLocation(DoubleLocation location) {
+            this.location = location;
+        }
+
+        public int getAsInt() {
+            return (int)location.getAsDouble();
+        }
+
+        public void addChangeListener(DoubleChangeListener listener) {
+            location.addChangeListener(listener);
+        }
+
+        public Integer get() {
+            return getAsInt();
+        }
+
+        public int setAsInt(int value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public int setAsIntFromLiteral(int value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setDefault() {
+            throw new UnsupportedOperationException();
+        }
+
+        public Integer set(Integer value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Integer setFromLiteral(Integer value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Location getUnderlyingLocation() {
+            return location;
+        }
+
+        public void addChangeListener(final IntChangeListener listener) {
+            location.addChangeListener(new DoubleChangeListener() {
+                public void onChange(double oldValue, double newValue) {
+                    listener.onChange((int)oldValue, (int)newValue);
+                }
+            });
+        }
+
+        public void addChangeListener(final ObjectChangeListener<Integer> listener) {
+            location.addChangeListener(new DoubleChangeListener() {
+                public void onChange(double oldValue, double newValue) {
+                    listener.onChange((int) oldValue, (int) newValue);
+                }
+            });
+        }
+
+        public double getAsDouble() {
+            return location.getAsDouble();
+        }
+
+        public double setAsDouble(double value) {
+            return location.setAsDouble(value);
+        }
+
+        public double setAsDoubleFromDefault(double value) {
+            return location.setAsDoubleFromLiteral(value);
         }
     }
 

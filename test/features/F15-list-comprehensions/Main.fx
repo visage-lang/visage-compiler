@@ -22,8 +22,9 @@ System.out.println(s);
 System.out.println(db);
 System.out.println(wh);
 
+function print(display:String, result:String) : String { System.out.println(display); result }
 var xs = ["a","b","c"];
-var ys = bind for (x in xs) { System.out.println("body {indexof x}->{x}"); "<{x}>"};
+var ys = bind for (x in xs) { print("body {indexof x}->{x}", "<{x}>") };
 System.out.println("ys:{for (y in ys) " {y}"}");
 xs[1]="w";
 System.out.println("ys:{for (y in ys) " {y}"}");
@@ -33,7 +34,7 @@ System.out.println("ys:{for (y in ys) " {y}"}");
 
 import java.lang.System;
 var xis = [3,4,5,6];
-var yis = bind for (x in xis) { System.out.println("body ->{x}"); "<{x}>"};
+var yis = bind for (x in xis) { print("body ->{x}", "<{x}>") };
 System.out.println("yis:{for (y in yis) " {y}"}");
 xis[2]=9;
 System.out.println("yis:{for (y in yis) " {y}"}");
