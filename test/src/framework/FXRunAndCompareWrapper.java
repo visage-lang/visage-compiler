@@ -169,13 +169,12 @@ public class FXRunAndCompareWrapper extends TestCase {
             exe.execute();
             File errorFileHandle = new File(errorFileName);
             if (errorFileHandle.length() > 0) {
+                if (expectRunFailure)
+                    return;
                 TestHelper.dumpFile(new FileInputStream(outputFileName), "Test Output", testFile.toString());
                 TestHelper.dumpFile(new FileInputStream(errorFileName), "Test Error", testFile.toString());
                 System.out.println("--");
-                if (expectRunFailure)
-                    return;
-                else
-                    fail("Output written to standard error");
+                fail("Output written to standard error");
             }
             compare(outputFileName, expectedFileName, false);
         }
