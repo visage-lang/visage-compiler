@@ -29,7 +29,7 @@ import java.net.URL;
 public class ImageArchive {
     public attribute baseURL: String;
     public attribute url: String;
-    public function getImage(imagePath:String):Image {
+    public bound function getImage(imagePath:String):Image {
         var base = if (baseURL == null)
                    then new URL(this.url) 
                    else new URL(new URL(baseURL), url);

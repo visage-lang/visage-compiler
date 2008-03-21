@@ -51,8 +51,8 @@ public class BookPanel extends Widget {
     public attribute shadowWidth: Number;
     public attribute softClipping: Boolean;
     public attribute borderLinesVisible: Boolean = false;
-    public function nextPage() { bookPanel.nextPage(); }
-    public function previousPage() {bookPanel.previousPage();}
+    public bound function nextPage() { bookPanel.nextPage(); }
+    public bound function previousPage() {bookPanel.previousPage();}
     public function createComponent():javax.swing.JComponent {
         bookPanel = JBookPanel{};
         bookPanel.setOpaque(false);

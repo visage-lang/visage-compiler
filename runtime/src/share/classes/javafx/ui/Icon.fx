@@ -36,11 +36,8 @@ public class Icon {
     public function getImage(): java.awt.Image {
         return null; // Default
     }
-    public function getIcon(): javax.swing.Icon {
-        if (icon == null) then {
-            icon = this.createIcon();
-        };
-        return icon;
+    public bound function getIcon(): javax.swing.Icon {
+        return if (icon == null) then icon = this.createIcon() else icon;
     }
     protected function createIcon(): javax.swing.Icon {
         return null;

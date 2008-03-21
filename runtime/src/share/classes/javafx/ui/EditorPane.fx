@@ -222,7 +222,7 @@ public class EditorPane extends ScrollableWidget {
         UIElement.context.addTransferHandler(jeditorpane,
             null,//value.getClass(),
             com.sun.javafx.api.ui.ValueGetter {
-                public function get():Object {
+                public bound function get():Object {
                     return jeditorpane.getSelectedText();
                 }
             },
@@ -234,7 +234,7 @@ public class EditorPane extends ScrollableWidget {
                 }
             },
             com.sun.javafx.api.ui.ValueAcceptor {
-                public function accept(value:Object):Boolean {
+                public bound function accept(value:Object):Boolean {
                     return if(onDrop <> null and enableDND) {
                         acceptDrop(value);
                     } else {
@@ -247,7 +247,7 @@ public class EditorPane extends ScrollableWidget {
                 }
             },
             com.sun.javafx.api.ui.VisualRepresentation {
-                public function getComponent(value:Object):Component {
+                public bound function getComponent(value:Object):Component {
                     var label = TextField {
                         value: "{jeditorpane.getSelectedText()}"
                         border: border

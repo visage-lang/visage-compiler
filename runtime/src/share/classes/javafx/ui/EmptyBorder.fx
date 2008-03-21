@@ -32,7 +32,7 @@ public class EmptyBorder  extends Border {
     public attribute bottom: Integer;
     public attribute right: Integer;
     
-    public function getBorder():javax.swing.border.Border {
+    public bound function getBorder():javax.swing.border.Border {
         return new javax.swing.border.EmptyBorder(top, left, bottom, right);
     }
 

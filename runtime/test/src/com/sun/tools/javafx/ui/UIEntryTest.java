@@ -6,6 +6,7 @@
 package com.sun.tools.javafx.ui;
 
 import com.sun.javafx.runtime.Entry;
+import com.sun.javafx.runtime.sequence.Sequence;
 import java.awt.EventQueue;
 import org.junit.Test;
 import javafx.ui.Button;
@@ -24,7 +25,7 @@ public class UIEntryTest {
         Button widget = new Button();
         
         // JavaFX Script main method
-        public static Object javafx$run$() {
+        public static Object javafx$run$(Sequence<String> __ARGS__) {
             assertTrue("Test was not started on event dispatch thread", 
                        EventQueue.isDispatchThread());
             return null;
@@ -33,6 +34,6 @@ public class UIEntryTest {
 
     @Test
     public void testEntry() throws Throwable {
-        Entry.start(TestApp.class);
+        Entry.start(TestApp.class, null);
     }
 }

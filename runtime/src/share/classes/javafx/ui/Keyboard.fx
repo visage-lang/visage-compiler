@@ -31,7 +31,7 @@ import java.lang.Object;
 public class Keyboard {
     protected attribute keyMap:Map = new HashMap();
 
-    public function getKeyStroke(id:Integer): KeyStroke {
+    public bound function getKeyStroke(id:Integer): KeyStroke {
 
         return this.keyMap.get(id) as KeyStroke;
     }

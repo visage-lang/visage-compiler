@@ -190,14 +190,14 @@ public class Image extends Icon {
             notifier = new com.sun.javafx.api.ui.ImageLoadingNotifier(image,loadingListener);
         }
     }
-    public function getURL():java.net.URL {
+    public bound function getURL():java.net.URL {
         return UIElement.context.getImageURL(url);
     }
-    public function getIcon(): javax.swing.Icon  {
+    public bound function getIcon(): javax.swing.Icon  {
         var im = this.getImage();
         return if (im == null) then null else  new javax.swing.ImageIcon(im);
     }
-    public function getImage():java.awt.Image {
+    public bound function getImage():java.awt.Image {
         return if (image == null) then getImage0() else image;
     }
     protected function createIcon(): javax.swing.Icon {

@@ -325,7 +325,7 @@ public class Frame extends AbstractFrame {
         showing = false;
         frame = null;
     }
-    public function getFrame(): JFrame {
+    public bound function getFrame(): JFrame {
          return frame;
     }
 

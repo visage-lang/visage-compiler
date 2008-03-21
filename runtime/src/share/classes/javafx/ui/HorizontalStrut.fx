@@ -26,7 +26,7 @@
 package javafx.ui; 
 
 public class HorizontalStrut extends Widget {
-    public function createComponent():javax.swing.JComponent {
+    public bound function createComponent():javax.swing.JComponent {
         return javax.swing.Box.createHorizontalStrut(width.intValue()) as javax.swing.JComponent;
     }
     function setBounds(b:java.awt.Rectangle):Void {

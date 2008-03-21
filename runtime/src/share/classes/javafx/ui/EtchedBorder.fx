@@ -30,7 +30,7 @@ public class EtchedBorder extends Border {
     public attribute highlight: Color;
     public attribute shadow: Color;
     
-    public function getBorder():javax.swing.border.Border {   
+    public bound function getBorder():javax.swing.border.Border {   
         return new javax.swing.border.EtchedBorder(style.id.intValue(),
                                                highlight.getColor(),
                                                shadow.getColor());

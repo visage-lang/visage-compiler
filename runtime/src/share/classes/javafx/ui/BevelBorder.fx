@@ -32,7 +32,7 @@ public class BevelBorder extends Border {
     public attribute innerHighlight: Color;
     public attribute innerShadow: Color;
     
-    public function getBorder():javax.swing.border.Border {
+    public bound function getBorder():javax.swing.border.Border {
         return new javax.swing.border.BevelBorder(style.id.intValue(),
                                                   highlight.getColor(),
                                                   innerHighlight.getColor(),

@@ -30,7 +30,7 @@ public class LineBorder  extends Border {
     public attribute lineColor: Color;
     public attribute roundedCorners: Boolean;
 
-    public function getBorder():javax.swing.border.Border {
+    public bound function getBorder():javax.swing.border.Border {
             return new javax.swing.border.LineBorder(lineColor.getColor(),
                                                  thickness,
                                                  roundedCorners);

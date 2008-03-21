@@ -126,7 +126,7 @@ public class ListBox extends ScrollableWidget {
         
         return result as java.lang.Object;
     };
-    private function getDragText(): String  {
+    private bound function getDragText(): String  {
         return if(cells[selection].dragText <> null) then
             cells[selection].dragText else
             cells[selection].text;
@@ -181,7 +181,7 @@ public class ListBox extends ScrollableWidget {
             },
             com.sun.javafx.api.ui.ValueAcceptor {
                 public
-                function accept(value:Object):Boolean {
+                bound function accept(value:Object):Boolean {
                     return if(onDrop <> null and enableDND) {
                         acceptDrop(value);
                     } else {
@@ -195,7 +195,7 @@ public class ListBox extends ScrollableWidget {
             },
             com.sun.javafx.api.ui.VisualRepresentation {
                 public
-                function getComponent(value:Object):java.awt.Component {
+                bound function getComponent(value:Object):java.awt.Component {
                     var label = Label {
                         opaque: true
                         border: LineBorder {
@@ -569,10 +569,10 @@ public class ListBox extends ScrollableWidget {
     };
 
 
-    public function locationToIndex(x:Number, y:Number):Integer {
+    public bound function locationToIndex(x:Number, y:Number):Integer {
         return list.locationToIndex(new java.awt.Point(x.intValue(), y.intValue()));
     }
-    public function indexToLocation(i:Number):XY{
+    public bound function indexToLocation(i:Number):XY{
         var pt = list.indexToLocation(i.intValue());
         return XY {x: pt.getX(), y: pt.getY()};
     }

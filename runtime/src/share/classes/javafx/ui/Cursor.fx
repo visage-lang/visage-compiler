@@ -28,11 +28,8 @@ package javafx.ui;
 
 public class Cursor {
     protected attribute awtCursor: java.awt.Cursor;
-    public function getCursor(): java.awt.Cursor {
-        if (awtCursor == null) then {
-            awtCursor = createCursor();
-        };
-        return awtCursor;
+    public bound function getCursor(): java.awt.Cursor {
+        return if (awtCursor == null) then awtCursor = createCursor() else awtCursor;
     }
     protected function createCursor(): java.awt.Cursor{
         return java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.DEFAULT_CURSOR);

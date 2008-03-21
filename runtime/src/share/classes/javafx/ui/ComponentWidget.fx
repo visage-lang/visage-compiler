@@ -41,7 +41,7 @@ public class ComponentWidget extends Widget {
     /**
      *  Creates the component
      */
-    public function createComponent():JComponent {
+    public bound function createComponent():JComponent {
         component;
     }
 

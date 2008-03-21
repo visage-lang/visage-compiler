@@ -490,7 +490,7 @@ class InternalWindow extends UIElement {
             frame.validate();
         }
     }
-    public function getWindow():java.awt.Window  {
+    public bound function getWindow():java.awt.Window  {
         return owner.getWindow();
     }
 }

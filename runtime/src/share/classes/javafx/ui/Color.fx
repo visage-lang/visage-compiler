@@ -35,7 +35,7 @@ public class Color extends AbstractColor, UIElement{
     public attribute opacity: Number = 1.0;
 
 
-    public function interpolate(nextValue:Color, interp: Number): Color{
+    public bound function interpolate(nextValue:Color, interp: Number): Color{
         return if (nextValue == null) {
             this;
         } else {
@@ -66,29 +66,29 @@ public class Color extends AbstractColor, UIElement{
 
     public attribute factor: Number = 0.70;
     
-    public function darker():Color{
+    public bound function darker():Color{
         return Color{red:Math.max((red*factor), 0.0), 
             green:Math.max((green*factor), 0.0), 
             blue:Math.max((blue*factor), 0.0), opacity:opacity};
     }
 
-    public function brighter():Color{
+    public bound function brighter():Color{
         return Color{red:Math.min((red/factor), 1.0), 
             green:Math.min((green/factor), 1.0), 
             blue:Math.min((blue/factor), 1.0), opacity:opacity};
     }
 
-    public function moreTransparent():Color {
+    public bound function moreTransparent():Color {
         return Color{red:red, green:green, blue:blue, 
             opacity:Math.max((opacity*factor), 0.0)};
     }
 
-    public function lessTransparent():Color{
+    public bound function lessTransparent():Color{
         return Color{red:red, green:green, blue:blue,
             opacity:Math.min((opacity/factor), 1.0)};
     }
 
-    public function htmlRef(): String{
+    public bound function htmlRef(): String{
         var alphaInt:Integer = (opacity * 255).intValue();
         var alphaStr = "{%02x alphaInt}";
         var redInt:Integer = (red * 255).intValue();
@@ -107,11 +107,11 @@ public class Color extends AbstractColor, UIElement{
     private attribute awtColor: java.awt.Color = 
         bind makeColor(red, green, blue, opacity);
     
-    public function getPaint():java.awt.Paint {
+    public bound function getPaint():java.awt.Paint {
         return awtColor;
     }
 
-    public function getColor():java.awt.Color {
+    public bound function getColor():java.awt.Color {
         return awtColor;
     }
 

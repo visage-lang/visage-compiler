@@ -76,7 +76,7 @@ public class FileChooser extends Widget {
         }
     }
 
-    protected function createFileChooser():javax.swing.JFileChooser{
+    protected bound function createFileChooser():javax.swing.JFileChooser{
         return UIElement.context.createFileChooser();
     }
 

@@ -41,7 +41,7 @@ public class Font {
     public attribute size: Integer;
     public attribute style: FontStyle[];
     private attribute styleStr: String[];
-    public function getFont(): java.awt.Font{
+    public bound function getFont(): java.awt.Font{
        return awtFont;
     }
     
@@ -60,19 +60,19 @@ public class Font {
         };
         Font {faceName:faceName, style:style, size:size};
     }
-    public function bigger(): Font {
+    public bound function bigger(): Font {
         Font{faceName:faceName, style:style, size:size+1};
     }
-    public function smaller(): Font {
+    public bound function smaller(): Font {
         Font{faceName:faceName, style:style, size:size-1};
     }
-    public function plain(): Font {
+    public bound function plain(): Font {
         Font{faceName:faceName, style:[FontStyle.PLAIN], size:size};
     }
-    public function bold(): Font{
+    public bound function bold(): Font{
         Font{faceName:faceName, style:[FontStyle.BOLD], size:size};
     }
-    public function italic(): Font {
+    public bound function italic(): Font {
         Font{faceName:faceName, style:[FontStyle.ITALIC], size:size};
     }
     private attribute awtFont: java.awt.Font

@@ -28,7 +28,7 @@ package javafx.ui;
 
 public class AbstractFrame extends UIElement {
     protected attribute win:java.awt.Window;
-    public function getWindow():java.awt.Window{
+    public bound function getWindow():java.awt.Window{
         return win;
     }
 }
