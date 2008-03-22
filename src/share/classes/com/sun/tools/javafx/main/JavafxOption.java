@@ -182,4 +182,27 @@ public interface JavafxOption {
         public OptionKind getKind() { return OptionKind.HIDDEN; }
     };
 
+    /** A javafxc-specific option
+     */
+    static class FXOption extends Option {
+ 	FXOption(OptionName name, String argsNameKey, String descrKey) {
+            super(name, argsNameKey, descrKey);
+        }
+        
+        @Override
+	void help(PrintWriter out) {
+	    String s = "  " + helpSynopsis();
+	    out.print(s);
+	    for (int j = s.length(); j < 29; j++) out.print(" ");
+	    Log.printLines(out, Main.getJavafxLocalizedString(descrKey));
+	}
+        
+        @Override
+	String helpSynopsis() {
+	    return name +
+		(argsNameKey == null ? "" :
+		 ((hasSuffix ? "" : " ") +
+		  Main.getJavafxLocalizedString(argsNameKey)));
+	}       
+    }
 }

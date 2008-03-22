@@ -141,6 +141,7 @@ public class RecognizedOptions {
         ENCODING,
         SOURCE,
         TARGET,
+        PLATFORM,
         VERSION,
         FULLVERSION,
         HELP,
@@ -395,6 +396,8 @@ public class RecognizedOptions {
 		}
 		return super.process(options, option, operand);
 	    }
+	},
+	new JavafxOption.FXOption(PLATFORM,	"javafx.opt.arg.name",	"javafx.opt.platform") {
 	},
 	new Option(VERSION,					"opt.version") {
 	    public boolean process(Options options, String option) {

@@ -54,6 +54,7 @@ import com.sun.tools.javafx.code.*;
 import static javax.tools.StandardLocation.CLASS_OUTPUT;
 import static com.sun.tools.javac.util.ListBuffer.lb;
 import com.sun.tools.javafx.antlr.JavafxSyntacticAnalysis;
+import com.sun.tools.javafx.util.PlatformPlugin;
 
 /** This class could be the main entry point for GJC when GJC is used as a
  *  component in a larger software system. It provides operations to
@@ -801,8 +802,16 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         ListBuffer<JCCompilationUnit> trees = lb();
         for (JavafxEnv<JavafxAttrContext> env : envs) {
             trees.append(env.toplevel);
-       }
-       javafxJavaCompiler.backEnd(trees.toList(), results);
+        }
+
+        PlatformPlugin plugin = PlatformPlugin.instance(context);
+        if (plugin != null) {
+            plugin.process(trees);
+            if (Log.instance(context).nerrors > 0)
+                return;
+        }
+
+        javafxJavaCompiler.backEnd(trees.toList(), results);
     }
 
     /**

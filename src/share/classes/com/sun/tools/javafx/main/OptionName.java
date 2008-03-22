@@ -66,6 +66,7 @@ public enum OptionName {
     ENCODING("-encoding"),
     SOURCE("-source"),
     TARGET("-target"),
+    PLATFORM("-platform"),
     VERSION("-version"),
     FULLVERSION("-fullversion"),
     HELP("-help"),

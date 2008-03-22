@@ -27,8 +27,15 @@ package com.sun.tools.javafx.main;
 
 import com.sun.tools.javac.util.Options;
 import java.io.File;
+import java.io.FilenameFilter;
+import java.io.Reader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ResourceBundle;
 import java.util.MissingResourceException;
 import com.sun.tools.javac.code.Source;
 import com.sun.tools.javac.jvm.Target;
@@ -37,6 +44,7 @@ import com.sun.tools.javafx.main.JavafxOption.Option;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javafx.main.RecognizedOptions.OptionHelper;
 import com.sun.tools.javafx.util.JavafxFileManager;
+import com.sun.tools.javafx.util.PlatformPlugin;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -357,6 +365,163 @@ public class Main {
         com.sun.tools.javafx.code.JavafxLint.preRegister(context);
     }
 
+    /** Load a plug-in corresponding to platform option. If platform option had 
+     *  not been defined, the method returns immediately. 
+     * @param context The compiler context.
+     * @param options The compiler options.
+     */
+    private void loadPlatformPlugin(Context context, Options options)
+    {
+        String platform = options.get("-platform");
+        if (platform == null)
+            return;
+
+        // collect names of jar files located in the compiler lib directory
+        String path = this.getClass().getCanonicalName();
+        path = path.substring(path.lastIndexOf('.') + 1);
+        path = this.getClass().getResource(path + ".class").toString();
+        path = path.substring(0, path.lastIndexOf(".jar!"));
+        path = path.substring("jar:file:".length(), path.lastIndexOf("/")); 
+        File   dir  = new File(path);
+        File[] jars = dir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".jar");
+            }
+        });
+        // search for platform plugins in jar files collected above
+        PlatformPlugin plugin = null;
+        URL urls[] = new URL[1];
+        for (File jar : jars) {
+            try {
+                plugin  = null;
+                urls[0] = jar.toURL();
+                URLClassLoader loader = new URLClassLoader(urls);
+                InputStream    stream = loader.getResourceAsStream(
+                    "META-INF/services/" + PlatformPlugin.SERVICE);
+                if (stream == null)
+                    continue;  // there is no platform plugin in this jar
+                // read service provider class name
+                Reader reader = new InputStreamReader(stream);
+                String pname  = Main.readServiceProvider(reader);
+                try { 
+                    reader.close(); 
+                } catch (IOException ioe) {
+                }
+                if (pname == null) {
+                    Log.instance(context).warning(
+                        "plugin.cannot.load.plugin", urls[0].getPath());
+                    continue;
+                }
+                // load and instantiate plug-in class
+                Class pclass = loader.loadClass(pname);
+                plugin = (PlatformPlugin)pclass.newInstance();
+                if (!plugin.isSupported(platform))
+                    continue;  // this plugin does not support required platform
+                try {
+                    // attempt to load plug-in's messages
+                    Class mclass = loader.loadClass(PlatformPlugin.MESSAGE);
+                    ResourceBundle msgs = (ResourceBundle)mclass.newInstance();
+                    Messages.instance(context).add(msgs);
+                } catch (java.lang.ClassNotFoundException cnfe) {
+                } catch (java.lang.InstantiationException ie) {
+                }
+                plugin.initialize(options, Log.instance(context));
+
+                context.put(PlatformPlugin.pluginKey, plugin);
+                break;  // the plugin had been loaded; no need to continue
+
+            } catch (java.net.MalformedURLException murle) {
+                // cannot resolve URL: ignore this jar
+            } catch (java.lang.ClassNotFoundException cnfe) {
+                // cannot load service provider
+                Log.instance(context).warning(
+                    "plugin.cannot.load.plugin", urls[0].getPath());
+            } catch (java.lang.InstantiationException ie) {
+                // cannot create an instance of plugin
+                Log.instance(context).warning(
+                    "plugin.cannot.load.plugin", urls[0].getPath());
+            } catch (java.lang.IllegalAccessException iae) {
+                // cannot create an instance of plugin
+                Log.instance(context).warning(
+                    "plugin.cannot.load.plugin", urls[0].getPath());
+            }
+        }
+        // handle no plugin found
+        if (plugin == null) {
+            Log.instance(context).error(
+                "plugin.cannot.find.plugin", platform);
+        }
+    }
+
+    /** Reads the first class name as defined by Jar &quot;Service provider&quot; 
+     *  specification.
+     * @param reader The reader of service provider configuration file.
+     * @return Plugin&apos;s class name on successful read, null otherwise.
+     */
+    private static String readServiceProvider(Reader reader)
+    {
+        StringBuffer name = new StringBuffer(128);
+        int st = 0;
+        try {
+            int ch;
+            while ((ch = reader.read()) >= 0) {
+                switch (st) {
+                case 0:  // skip white spaces before class name
+                    switch (ch) {
+                    case ' ':
+                    case '\t':
+                    case '\r':
+                    case '\n':
+                        break;
+
+                    case '#':
+                        st = 1;  // skip comment before the class name
+                        break;
+
+                    default:
+                        name.append((char)ch);
+                        st = 2;  // accumulate characters of the class name
+                        break;
+                    }
+                    break;
+
+                case 1:  // skip comment before the class name
+                    switch (ch) {
+                    case '\r':
+                    case '\n':
+                        st = 0;  // skip white spaces before class name
+                        break;
+
+                    default:
+                        break;
+                    }
+                    break;
+
+                case 2:  // accumulate characters of the class name
+                    switch (ch) {
+                    case ' ':
+                    case '\t':
+                    case '\r':
+                    case '\n':
+                    case '#':
+                        return name.toString();
+
+                    default:
+                        name.append((char)ch);
+                        break;
+                    }
+                    break;
+
+                default:
+                    return null;
+                }
+            }
+        } catch (IOException ioe) {
+            return null;
+        }
+        return (st == 2)? name.toString(): null;
+    }
+
     /** Programmatic interface for main function.
      * @param args    The command line parameters.
      */
@@ -417,6 +582,8 @@ public class Main {
 
             comp = JavafxCompiler.instance(context);
             if (comp == null) return EXIT_SYSERR;
+
+            loadPlatformPlugin(context, options);
 
             if (!fnames.isEmpty()) {
                 // add filenames to fileObjects
@@ -522,9 +689,8 @@ public class Main {
      */
     public static String getJavafxLocalizedString(String key, Object... args) { // FIXME sb private
         try {
-            if (messages == null)
-                messages = new Messages(javafxBundleName);
-            return messages.getLocalizedString(key, args);
+            Messages fxmessages = new Messages(javafxBundleName);
+            return fxmessages.getLocalizedString(key, args);
         }
         catch (MissingResourceException e) {
             throw new Error("Fatal Error: Resource for javac is missing", e);
