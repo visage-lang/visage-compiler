@@ -706,4 +706,15 @@ public final class Sequences {
         Arrays.sort(array, c);
         return Sequences.make(seq.getElementType(), array);
     }
+
+    /**
+     * Return the single value of a sequence.
+     * Return null if the sequence zero zero or more than 1 elements.
+     * Thid is used to implement 'seq instanceof T'.
+     */
+    public static <T> T getSingleValue (Sequence<T> seq) {
+        if (seq == null || seq.size() != 1)
+            return null;
+        return seq.get(0);
+    }
 }

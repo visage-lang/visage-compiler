@@ -2884,6 +2884,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     public void visitTypeTest(JCInstanceOf tree) {
         JCTree clazz = this.makeTypeTree(tree.clazz.type, tree);
         JCExpression expr = translate(tree.expr);
+        if (types.isSequence(tree.expr.type) && ! types.isSequence(tree.clazz.type))
+            expr = callExpression(tree.expr,
+                    makeQualifiedTree(tree.expr, "com.sun.javafx.runtime.sequence.Sequences"),
+                    "getSingleValue", expr);
         result = make.at(tree.pos).TypeTest(expr, clazz);
     }
 
