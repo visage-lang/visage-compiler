@@ -39,7 +39,7 @@ package com.sun.javafx.runtime.location;
  */
 public abstract class IndirectDoubleExpression extends DoubleVariable implements IndirectLocation<DoubleLocation> {
 
-    private final IndirectLocationHelper<DoubleLocation> helper;
+    protected final IndirectLocationHelper<DoubleLocation> helper;
 
     public IndirectDoubleExpression(boolean lazy, Location... dependencies) {
         super();

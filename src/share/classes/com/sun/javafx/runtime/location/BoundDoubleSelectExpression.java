@@ -51,4 +51,16 @@ public abstract class BoundDoubleSelectExpression<U> extends IndirectDoubleExpre
             return result;
         }
     }
+
+    public double setAsDouble(double value) {
+        return helper.get().setAsDouble(value);
+    }
+
+    public void setDefault() {
+        helper.get().setDefault();
+    }
+
+    public Double set(Double value) {
+        return helper.get().set(value);
+    }
 }

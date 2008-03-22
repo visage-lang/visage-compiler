@@ -39,7 +39,7 @@ package com.sun.javafx.runtime.location;
  */
 public abstract class IndirectObjectExpression<T> extends ObjectVariable<T> implements IndirectLocation<ObjectLocation<T>> {
 
-    private final IndirectLocationHelper<ObjectLocation<T>> helper;
+    protected final IndirectLocationHelper<ObjectLocation<T>> helper;
 
     public IndirectObjectExpression(boolean lazy, Location... dependencies) {
         super();

@@ -26,6 +26,8 @@
 package com.sun.javafx.runtime.location;
 
 import  com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.SequencePredicate;
 
 /**
  * BoundSequenceSelectExpression
@@ -54,5 +56,93 @@ public abstract class BoundSequenceSelectExpression<T, U> extends IndirectSequen
             addDynamicDependency(result);
             return result;
         }
+    }
+
+    public Sequence<T> set(Sequence<T> value) {
+        return helper.get().set(value);
+    }
+
+    public void setDefault() {
+        helper.get().setDefault();
+    }
+
+    public Sequence<T> setAsSequence(Sequence<? extends T> value) {
+        return helper.get().setAsSequence(value);
+    }
+
+    public T set(int position, T newValue) {
+        return helper.get().set(position, newValue);
+    }
+
+    public Sequence<? extends T> replaceSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
+        return helper.get().replaceSlice(startPos, endPos, newValues);
+    }
+
+    public void delete(int position) {
+        helper.get().delete(position);
+    }
+
+    public void deleteSlice(int startPos, int endPos) {
+        helper.get().deleteSlice(startPos, endPos);
+    }
+
+    public void delete(SequencePredicate<T> tSequencePredicate) {
+        helper.get().delete(tSequencePredicate);
+    }
+
+    public void deleteAll() {
+        helper.get().deleteAll();
+    }
+
+    public void deleteValue(T targetValue) {
+        helper.get().deleteValue(targetValue);
+    }
+
+    public void insert(T value) {
+        helper.get().insert(value);
+    }
+
+    public void insert(Sequence<? extends T> values) {
+        helper.get().insert(values);
+    }
+
+    public void insertFirst(T value) {
+        helper.get().insertFirst(value);
+    }
+
+    public void insertFirst(Sequence<? extends T> values) {
+        helper.get().insertFirst(values);
+    }
+
+    public void insertBefore(T value, int position) {
+        helper.get().insertBefore(value, position);
+    }
+
+    public void insertBefore(T value, SequencePredicate<T> tSequencePredicate) {
+        helper.get().insertBefore(value, tSequencePredicate);
+    }
+
+    public void insertBefore(Sequence<? extends T> values, int position) {
+        helper.get().insertBefore(values, position);
+    }
+
+    public void insertBefore(Sequence<? extends T> values, SequencePredicate<T> tSequencePredicate) {
+        helper.get().insertBefore(values, tSequencePredicate);
+    }
+
+    public void insertAfter(T value, int position) {
+        helper.get().insertAfter(value, position);
+    }
+
+    public void insertAfter(T value, SequencePredicate<T> tSequencePredicate) {
+        helper.get().insertAfter(value, tSequencePredicate);
+    }
+
+    public void insertAfter(Sequence<? extends T> values, int position) {
+        helper.get().insertAfter(values, position);
+    }
+
+    public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> tSequencePredicate) {
+        helper.get().insertAfter(values, tSequencePredicate);
     }
 }

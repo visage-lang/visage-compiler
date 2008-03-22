@@ -51,4 +51,16 @@ public abstract class BoundBooleanSelectExpression<U> extends IndirectBooleanExp
             return result;
         }
     }
+
+    public boolean setAsBoolean(boolean value) {
+        return helper.get().setAsBoolean(value);
+    }
+
+    public void setDefault() {
+        helper.get().setDefault();
+    }
+
+    public Boolean set(Boolean value) {
+        return helper.get().set(value);
+    }
 }

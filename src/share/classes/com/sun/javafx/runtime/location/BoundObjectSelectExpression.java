@@ -55,4 +55,12 @@ public abstract class BoundObjectSelectExpression<T, U> extends IndirectObjectEx
             return result;
         }
     }
+
+    public T set(T value) {
+        return helper.get().set(value);
+    }
+
+    public void setDefault() {
+        helper.get().setDefault();
+    }
 }

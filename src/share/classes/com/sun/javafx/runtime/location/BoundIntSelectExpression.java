@@ -51,4 +51,16 @@ public abstract class BoundIntSelectExpression<U> extends IndirectIntExpression 
             return result;
         }
     }
+
+    public int setAsInt(int value) {
+        return helper.get().setAsInt(value);
+    }
+
+    public void setDefault() {
+        helper.get().setDefault();
+    }
+
+    public Integer set(Integer value) {
+        return helper.get().set(value);
+    }
 }

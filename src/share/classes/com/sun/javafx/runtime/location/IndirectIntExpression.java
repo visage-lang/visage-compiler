@@ -39,7 +39,7 @@ package com.sun.javafx.runtime.location;
  */
 public abstract class IndirectIntExpression extends IntVariable implements IndirectLocation<IntLocation> {
 
-    private final IndirectLocationHelper<IntLocation> helper;
+    protected final IndirectLocationHelper<IntLocation> helper;
 
     public IndirectIntExpression(boolean lazy, Location... dependencies) {
         super();
