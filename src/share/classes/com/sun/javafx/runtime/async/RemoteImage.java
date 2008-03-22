@@ -27,6 +27,7 @@ package com.sun.javafx.runtime.async;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.BufferedInputStream;
@@ -50,14 +51,20 @@ public class RemoteImage extends AbstractAsyncOperation<Image> {
 
     public Image call() throws IOException {
         URL u = new URL(url);
-
         HttpURLConnection conn = (HttpURLConnection) u.openConnection();
         fileSize = conn.getContentLength();
         setProgressMax(fileSize);
 
         InputStream stream = new ProgressInputStream(conn.getInputStream());
         try {
-            return ImageIO.read(stream);
+            BufferedImage im = ImageIO.read(stream);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            GraphicsDevice gs = ge.getDefaultScreenDevice();
+            GraphicsConfiguration gc = gs.getDefaultConfiguration();
+            final Image c = gc.createCompatibleImage(im.getWidth(), im.getHeight(), 
+                                                     Transparency.TRANSLUCENT);
+            c.getGraphics().drawImage(im, 0, 0, im.getWidth(), im.getHeight(), null);
+            return c;
         }
         finally {
             stream.close();

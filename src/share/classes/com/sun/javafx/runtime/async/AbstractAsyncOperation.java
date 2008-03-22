@@ -64,8 +64,9 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
 
         final Runnable completionRunnable = new Runnable() {
             public void run() {
-                if (future.isCancelled())
+                if (future.isCancelled()) {
                     listener.onCancel();
+                }
                 else
                     try {
                         listener.onCompletion(future.get());
@@ -130,8 +131,14 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
     }
 
     protected void setProgressMax(int progressMax) {
-        this.progressMax = progressMax;
-        progressIncrement = progressMax / progressGranularity;
+        if (progressMax == 0) {
+            progressIncrement =  progressGranularity;
+        } else if (progressMax == -1) {
+            progressIncrement =  progressGranularity;
+        } else {
+            this.progressMax = progressMax;
+            progressIncrement = progressMax / progressGranularity;
+        }
         nextProgress = ((lastProgress / progressIncrement) + 1) * progressIncrement;
         notifyProgress();
     }
