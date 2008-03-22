@@ -38,31 +38,42 @@ public class IndirectLocationTest extends JavaFXTestCase {
         final IntLocation trueClause = IntVariable.make(1);
         final IntLocation falseClause = IntVariable.make(2);
 
-        IntLocation ifLoc = new IndirectIntExpression(false, bool) {
+        final IntLocation ifLoc = new IndirectIntExpression(false, bool) {
             protected IntLocation computeLocation() {
                 return bool.get() ? trueClause : falseClause;
             }
         };
+        IntVariable dep = IntVariable.make();
+        dep.bind(false, new IntBindingExpression() {
+            public int computeValue() {
+                return ifLoc.get();
+            }
+        }, ifLoc);
 
         CountingListener cl = new CountingListener();
         ifLoc.addChangeListener(cl);
 
+        assertEquals(1, dep.getAsInt());
         assertEquals(1, ifLoc.getAsInt());
         assertEquals(1, cl.count);
 
         trueClause.set(3);
+        assertEquals(3, dep.getAsInt());
         assertEquals(3, ifLoc.getAsInt());
         assertEquals(2, cl.count);
 
         falseClause.set(4);
+        assertEquals(3, dep.getAsInt());
         assertEquals(3, ifLoc.getAsInt());
         assertEquals(2, cl.count);
 
         bool.set(false);
+        assertEquals(4, dep.getAsInt());
         assertEquals(4, ifLoc.getAsInt());
         assertEquals(3, cl.count);
 
         bool.set(false);
+        assertEquals(4, dep.getAsInt());
         assertEquals(4, ifLoc.getAsInt());
         assertEquals(3, cl.count);
     }
