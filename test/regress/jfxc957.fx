@@ -1,5 +1,5 @@
 /*
- * @test/fail
+ * @test
  */
 
 var v : Foo[] = if (true) Foo { a: 1 } else null;

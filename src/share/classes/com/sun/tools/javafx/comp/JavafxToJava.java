@@ -2805,7 +2805,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             } else {
                 translatedFalseSide = translate(falseSide);
             }
-            result = make.at(diagPos).Conditional(cond, translate(trueSide), translatedFalseSide);
+            JCExpression translatedTrueSide = convertTranslated(translate(trueSide), trueSide, trueSide.type, tree.type);
+            translatedFalseSide = convertTranslated(translatedFalseSide, falseSide, falseSide.type, tree.type);
+            result = make.at(diagPos).Conditional(cond, translatedTrueSide, translatedFalseSide);
         } else {
             result = make.at(diagPos).If(cond, 
                     translateExpressionToStatement(trueSide), 

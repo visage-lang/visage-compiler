@@ -1892,8 +1892,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
          *  @param pos      The source position to be used for
          *                  error diagnostics.
          *  @param condtype The type of the expression's condition.
-         *  @param thentype The type of the expression's then-part.
-         *  @param elsetype The type of the expression's else-part.
+         *  @param type1 The type of the expression's then-part.
+         *  @param type2 The type of the expression's else-part.
          */
         private Type condType(DiagnosticPosition pos,
                               Type condtype,
@@ -1917,26 +1917,38 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
          *  @param pos      The source position to be used for error
          *                  diagnostics.
          *  @param condtype The type of the expression's condition.
-         *  @param thentype The type of the expression's then-part.
-         *  @param elsetype The type of the expression's else-part.
+         *  @param type1 The type of the expression's then-part.
+         *  @param type2 The type of the expression's else-part.
          */
         private Type unionType(DiagnosticPosition pos,
-                               Type thentype, Type elsetype) {
-            if (thentype == syms.unreachableType)
-                return elsetype;
-            if (elsetype == syms.unreachableType)
-                return thentype;
-            // If same type, that is the result
-            if (types.isSameType(thentype, elsetype))
-                return thentype.baseType();
-
-            if (thentype.tag == VOID || elsetype.tag == VOID)
+                               Type type1, Type type2) {
+            if (type1 == syms.unreachableType)
+                return type2;
+            if (type2 == syms.unreachableType)
+                return type1;
+            if (type1 == type2)
+                return type1;
+            if (type1.tag == VOID || type2.tag == VOID)
                 return syms.voidType;
-     
-            Type thenUnboxed = (!allowBoxing || thentype.isPrimitive())
-                ? thentype : types.unboxedType(thentype);
-            Type elseUnboxed = (!allowBoxing || elsetype.isPrimitive())
-                ? elsetype : types.unboxedType(elsetype);
+
+            boolean isSequence1 = types.isSequence(type1);
+            boolean isSequence2 = types.isSequence(type2);
+            if (isSequence1 || isSequence2) {
+                if (isSequence1)
+                    type1 = types.elementType(type1);
+                if (isSequence2)
+                    type2 = types.elementType(type2);
+                Type union = unionType(pos, type1, type2);
+                return union.tag == ERROR ? union : types.sequenceType(union);
+            }
+            // If same type, that is the result
+            if (types.isSameType(type1, type2))
+                return type1.baseType();
+
+            Type thenUnboxed = (!allowBoxing || type1.isPrimitive())
+                ? type1 : types.unboxedType(type1);
+            Type elseUnboxed = (!allowBoxing || type2.isPrimitive())
+                ? type2 : types.unboxedType(type2);
 
             // Otherwise, if both arms can be converted to a numeric
             // type, return the least numeric type that fits both arms
@@ -1963,25 +1975,25 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             // Those were all the cases that could result in a primitive
             if (allowBoxing) {
-                thentype = syms.boxIfNeeded(thentype);
-                elsetype = syms.boxIfNeeded(elsetype);
+                type1 = syms.boxIfNeeded(type1);
+                type2 = syms.boxIfNeeded(type2);
             }
 
-            if (types.isSubtype(thentype, elsetype))
-                return elsetype.baseType();
-            if (types.isSubtype(elsetype, thentype))
-                return thentype.baseType();
+            if (types.isSubtype(type1, type2))
+                return type2.baseType();
+            if (types.isSubtype(type2, type1))
+                return type1.baseType();
 
             if (!allowBoxing) {
                 log.error(pos, "neither.conditional.subtype",
-                          thentype, elsetype);
-                return thentype.baseType();
+                          type1, type2);
+                return type1.baseType();
             }
 
             // both are known to be reference types.  The result is
-            // lub(thentype,elsetype). This cannot fail, as it will
+            // lub(type1,type2). This cannot fail, as it will
             // always be possible to infer "Object" if nothing better.
-            return types.lub(thentype.baseType(), elsetype.baseType());
+            return types.lub(type1.baseType(), type2.baseType());
         }
 
     @Override
@@ -2489,7 +2501,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitLiteral(JCLiteral tree) {
         if (tree.typetag == TypeTags.BOT && types.isSequence(pt))
-            tree.type = pt;
+            result = tree.type = pt;
         else
             result = check(
                 tree, litType(tree.typetag, pt), VAL, pkind, pt, pSequenceness);
