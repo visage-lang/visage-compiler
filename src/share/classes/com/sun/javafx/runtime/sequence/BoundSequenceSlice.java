@@ -40,14 +40,16 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
     private final SequenceLocation<T> sequenceLoc;
     private final IntLocation lowerLoc;
     private final IntLocation upperLoc;
+    private final boolean isExclusive;
     private int lower, upper;
     private int size;
 
-    BoundSequenceSlice(Class<T> clazz, SequenceLocation<T> sequenceLoc, IntLocation lowerLoc, IntLocation upperLoc) {
+    BoundSequenceSlice(Class<T> clazz, SequenceLocation<T> sequenceLoc, IntLocation lowerLoc, IntLocation upperLoc, boolean isExclusive) {
         super(clazz);
         this.sequenceLoc = sequenceLoc;
         this.lowerLoc = lowerLoc;
         this.upperLoc = upperLoc;
+        this.isExclusive = isExclusive;
     }
 
     protected Sequence<T> computeValue() {
@@ -56,10 +58,10 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
     }
 
     private void computeBounds(int newLower, int newUpper) {
-        lower = newLower;
-        upper = newUpper;
-        
         int seqSize = sequenceLoc.getAsSequence().size();
+        
+        lower = newLower;
+        upper = (isExclusive? -1 : 0) + (upperLoc==null? seqSize : newUpper);
         
         if (seqSize == 0) {
             size = 0;
@@ -97,7 +99,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
                 if (size == oldSize) return;
                 
                 if (size > oldSize) {
-                        updateSlice(0, -1, sequenceLoc.getSlice(newValue, (oldSize == 0)? upper: (oldValue - 1)));
+                    updateSlice(0, -1, sequenceLoc.getSlice(newValue, (oldSize == 0) ? upper : (oldValue - 1)));
                 } else {
                     updateSlice(0, oldSize-size-1, Sequences.emptySequence(sequenceLoc.getAsSequence().getElementType()));
                 }

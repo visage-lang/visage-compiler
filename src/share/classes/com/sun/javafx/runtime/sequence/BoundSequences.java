@@ -159,6 +159,10 @@ public class BoundSequences {
     }
     
     public static<T> SequenceLocation<T> slice(Class<T> clazz, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {
-        return new BoundSequenceSlice<T>(clazz, sequence, a, b);
+        return new BoundSequenceSlice<T>(clazz, sequence, a, b, false);
+    }
+    
+    public static<T> SequenceLocation<T> sliceExclusive(Class<T> clazz, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {
+        return new BoundSequenceSlice<T>(clazz, sequence, a, b, true);
     }
 }

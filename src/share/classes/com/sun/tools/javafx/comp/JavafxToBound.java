@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.tools.javac.code.*;
 import static com.sun.tools.javac.code.Flags.*;
 import com.sun.tools.javac.code.Symbol;
@@ -200,9 +201,9 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     //targetElementType = syms.objectType;  // punt (probably a synthetic library class) 
                 }
                 tree = runtime(diagPos, cBoundSequences, "upcast", List.of(makeDotClass(diagPos, targetElementType), tree));
-            } else if (inType == syms.intType && targetType == syms.doubleType) {
+            } else if (targetType == syms.doubleType) {
                 tree = runtime(diagPos, cLocations, "asDoubleLocation", List.of(tree));
-            } else if (inType == syms.doubleType && targetType == syms.intType) {
+            } else if (targetType == syms.intType) {
                 tree = runtime(diagPos, cLocations, "asIntLocation", List.of(tree));
             } else {
                 if (tmiTarget.getTypeKind() == TYPE_KIND_OBJECT) {
@@ -610,8 +611,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             Type elemType = types.elementType(targetType(tree.type));
             result = runtime(diagPos, cBoundSequences, "empty", List.of(makeDotClass(diagPos, elemType)));
         } else {
-            JCExpression unbound = make.at(diagPos).Literal(TypeTags.BOT, null); 
-            result = makeConstantLocation(diagPos, targetType(tree.type), unbound);
+            result = makeConstantLocation(diagPos, targetType(tree.type), makeNull(diagPos));
         }
     }
         
@@ -625,14 +625,14 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {    //done
         DiagnosticPosition diagPos = tree.pos();
-        result = runtime(diagPos, cBoundSequences, "slice",
+        result = runtime(diagPos, cBoundSequences, 
+                tree.getEndKind()==SequenceSliceTree.END_EXCLUSIVE? "sliceExclusive" : "slice",
                 List.of(
                     toJava.makeTypeTree(types.elementType(targetType(tree.type)), diagPos, true),
                     translate(tree.getSequence()),
                     translate(tree.getFirstIndex()),
-                    translate(tree.getLastIndex())
+                    tree.getLastIndex()==null? makeNull(diagPos) : translate(tree.getLastIndex())
                     ));
-        //TODO:   SequenceSliceTree.END_EXCLUSIVE
     }
     
     /**
@@ -1273,6 +1273,14 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                         names._class);
     }
     
+    /**
+     * @param diagPos
+     * @return expression representing null
+     */
+    private JCExpression makeNull(DiagnosticPosition diagPos) {
+        return make.at(diagPos).Literal(TypeTags.BOT, null);
+    }
+
     /**
      * Build a Java AST representing the specified type.
      * Convert JavaFX class references to interface references.
