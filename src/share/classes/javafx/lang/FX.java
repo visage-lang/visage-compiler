@@ -25,6 +25,11 @@
 
 package javafx.lang;
 
+import com.sun.javafx.api.JavaFXScriptEngine;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 /**
  * FX, analogous to java.lang.System, is a place to store static utility methods.  
  *
@@ -33,5 +38,33 @@ package javafx.lang;
 public class FX {
     public static boolean isSameObject(Object a, Object b) {
         return a == b;
+    }
+
+    /**
+     * Evaluates a JavaFX Script source string and returns its result, if any.
+     * For example, 
+     * <br/>
+     * This method depends upon the JavaFX Script compiler API being accessible
+     * by the application, such as including the <code>javafxc.jar</code> file
+     * in the application's classpath.
+     * <br/>
+     * Note:  this method provides only the simplest scripting functionality;
+     * the script is evaluated without any specified context state, nor can 
+     * any state it creates during evaluation be reused by other scripts.  For
+     * sophisticated scripting applications, use the Java Scripting API
+     * (<code>javax.scripting</code>).
+     * 
+     * @param script the JavaFX Script source to evaluate
+     * @return the results from evaluating the script, or null if no results
+     *         are returned by the script.
+     * @throws javax.script.ScriptException
+     */
+    public static Object eval(String script) throws ScriptException {
+        ScriptEngineManager manager = new ScriptEngineManager();
+        ScriptEngine scrEng = manager.getEngineByExtension("javafx");
+        JavaFXScriptEngine engine = (JavaFXScriptEngine)scrEng;
+        if (engine == null)
+            throw new ScriptException("no scripting engine available");
+        return engine.eval(script);
     }
 }
