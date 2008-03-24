@@ -52,7 +52,35 @@ public class JavaFXPad extends CompositeWidget {
     attribute url:String;
     attribute sourcePath: URL[];
     attribute classPath: URL[];
+    attribute searchActive: Boolean on replace {
+        if(not searchActive) {
+            searchValue = "";
+            editor.requestFocus();
+        }
+    }
+    attribute searchValue: String on replace {
+        if (searchValue == "") {
+            delete editor.highlight;
+        }else {
+            var dot = 0; //editor.caretDot;
+            var text = editor.text;
+            if (not matchCase) {
+                text = text.toUpperCase();
+                searchValue = searchValue.toUpperCase();
+            }
+            var i = text.indexOf(searchValue, dot);
+            if (i >= 0) {
+                editor.highlight = [i, i + searchValue.length()];
+                editor.setSelection(i, i);
+            } else {
+                delete editor.highlight;
+            }
+        }
+        
+    };
+    attribute matchCase: Boolean;
 
+    
     attribute compileTimeLine:Timeline = Timeline {
         keyFrames: [
             KeyFrame {
@@ -302,7 +330,25 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                                 sizeToFitCanvas: true
                                                 content: BorderPanel {
                                                     bottom: BorderPanel {
-                                                        visible: false
+                                                        visible: bind searchActive
+                                                        border: EmptyBorder {top: 2, left: 4, bottom: 2, right: 4}
+                                                       center: Canvas {
+                                                            border: null
+                                                            focusable: false
+                                                            content: SearchPanel {
+                                                                //
+                                                                closeAction: function() {searchActive = false;}
+                                                                pSearchValue: bind searchValue with inverse
+                                                                matchCase: bind matchCase
+                                                                open: bind searchActive
+                                                                highlightAllAction: function() {
+                                                                    highlightAll();
+                                                                }
+                                                                searchNextAction: function() {searchNext();}
+                                                                searchPrevAction: function() {searchPrev();}
+                                                            }
+                                                        }
+                                                        
                                                     }
                                                     center:  editor = SourceEditor {
                                                         editorKit: new com.sun.javafx.api.ui.fxkit.FXEditorKit()
@@ -411,9 +457,67 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
     }
 
     function doSearch():Void  {
-        //TODO
-        System.out.println("TODO doSearch()");
+        if (searchActive) {
+            searchNext();
+        } else {
+            searchActive = true;
+        }
     } 
+    function highlightAll() {
+        if (searchValue == "") {
+            delete editor.highlight;
+        }else {
+            var value = searchValue;
+            var dot = 0; //editor.caretDot;
+            var text = editor.text;
+            if (not matchCase) {
+                text = text.toUpperCase();
+                value = value.toUpperCase();
+            }
+            var len = value.length();
+            var i = text.indexOf(value, dot);
+            delete editor.highlight;
+            if (i >= 0) {
+                var i0 = i;
+                while (i >= 0) {
+                    insert [i, i+len] into editor.highlight;
+                    i = text.indexOf(value, i + 1);
+                }
+                editor.setSelection(i0, i0);
+            }
+        }
+
+    }
+    function searchNext() {
+        var text = editor.text;
+        var value = searchValue;
+        if (not matchCase) {
+            text = text.toUpperCase();
+            value = value.toUpperCase();
+        }
+        var dot = editor.caretDot + value.length() + 1;
+        var i = text.indexOf(value, dot);
+        if (i >= 0) {
+            editor.highlight = [i, i + value.length()];
+            editor.setSelection(i, i);
+        }        
+    }
+    
+    function searchPrev() {
+        var text = editor.text;
+        var dot = editor.caretDot-1;
+        var value = searchValue;
+        if (not matchCase) {
+            text = text.toUpperCase();
+            value = value.toUpperCase();
+        }
+        var i = text.lastIndexOf(value, dot);
+        if (i >= 0) {
+            editor.highlight = [i, i + value.length()];
+            editor.setSelection(i, i);
+        }
+    }
+    
     
     function runNow():Void {
          this.evaluate(userCode, true);

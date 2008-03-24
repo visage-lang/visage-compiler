@@ -146,6 +146,9 @@ public class SourceEditor extends ScrollableWidget {
 
     }
     
+    public function requestFocus():Void {
+        getComponent().requestFocusInWindow();
+    }
     
     public function createView(): javax.swing.JComponent {
         System.out.println("CreateView: {this}");
