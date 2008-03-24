@@ -198,6 +198,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 tree = runtime(diagPos, cLocations, "asDoubleLocation", List.of(tree));
             } else if (targetType == syms.intType) {
                 tree = runtime(diagPos, cLocations, "asIntLocation", List.of(tree));
+            } else if (targetType == syms.booleanType) {
+                tree = runtime(diagPos, cLocations, "asBooleanLocation", List.of(tree));
             } else {
                 if (tmiTarget.getTypeKind() == TYPE_KIND_OBJECT) {
                     List<JCExpression> typeArgs = List.of(makeTypeTree(targetType, diagPos, true), makeTypeTree(inType, diagPos, true));

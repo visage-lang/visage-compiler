@@ -109,6 +109,18 @@ public class BoundSequences {
         return new BoundSequenceElement<T>(sequence, index);
     }
 
+    public static IntLocation element(SequenceLocation<Integer> sequence, IntLocation index) {
+        return Locations.asIntLocation(new BoundSequenceElement<Integer>(sequence, index));
+    }
+
+    public static DoubleLocation element(SequenceLocation<Double> sequence, IntLocation index) {
+        return Locations.asDoubleLocation(new BoundSequenceElement<Double>(sequence, index));
+    }
+
+    public static BooleanLocation element(SequenceLocation<Boolean> sequence, IntLocation index) {
+        return Locations.asBooleanLocation(new BoundSequenceElement<Boolean>(sequence, index));
+    }
+
     public static<T> IntLocation sizeof(final SequenceLocation<T> sequence) {
         return IntVariable.make(new IntBindingExpression() {
             public int computeValue() {

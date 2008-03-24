@@ -53,6 +53,14 @@ public class Locations {
         return new ObjectIntLocation(loc);
     }
 
+    public static DoubleLocation asDoubleLocation(ObjectLocation<Double> loc) {
+        return new ObjectDoubleLocation(loc);
+    }
+
+    public static BooleanLocation asBooleanLocation(ObjectLocation<Boolean> loc) {
+        return new ObjectBooleanLocation(loc);
+    }
+
     public static DoubleLocation asDoubleLocation(IntLocation loc) {
         return new IntDoubleLocation(loc);
     }
@@ -267,6 +275,118 @@ public class Locations {
         }
 
         public void addChangeListener(ObjectChangeListener<Integer> listener) {
+            location.addChangeListener(listener);
+        }
+
+        public Location getUnderlyingLocation() {
+            return location;
+        }
+    }
+
+    private static class ObjectDoubleLocation extends LocationWrapper implements DoubleLocation, ViewLocation {
+        private final ObjectLocation<Double> location;
+
+        private ObjectDoubleLocation(ObjectLocation<Double> location) {
+            this.location = location;
+        }
+
+        protected Location getLocation() {
+            return location;
+        }
+
+        public double getAsDouble() {
+            return location.get();
+        }
+
+        public double setAsDouble(double value) {
+            return location.set(value);
+        }
+
+        public double setAsDoubleFromLiteral(double value) {
+            return location.setFromLiteral(value);
+        }
+
+        public void setDefault() {
+            location.setDefault();
+        }
+
+        public void addChangeListener(final DoubleChangeListener listener) {
+            location.addChangeListener(new ObjectChangeListener<Double>() {
+                public void onChange(Double oldValue, Double newValue) {
+                    listener.onChange(oldValue, newValue);
+                }
+            });
+        }
+
+        public Double get() {
+            return location.get();
+        }
+
+        public Double set(Double value) {
+            return location.set(value);
+        }
+
+        public Double setFromLiteral(Double value) {
+            return location.setFromLiteral(value);
+        }
+
+        public void addChangeListener(ObjectChangeListener<Double> listener) {
+            location.addChangeListener(listener);
+        }
+
+        public Location getUnderlyingLocation() {
+            return location;
+        }
+    }
+
+    private static class ObjectBooleanLocation extends LocationWrapper implements BooleanLocation, ViewLocation {
+        private final ObjectLocation<Boolean> location;
+
+        private ObjectBooleanLocation(ObjectLocation<Boolean> location) {
+            this.location = location;
+        }
+
+        protected Location getLocation() {
+            return location;
+        }
+
+        public boolean getAsBoolean() {
+            return location.get();
+        }
+
+        public boolean setAsBoolean(boolean value) {
+            return location.set(value);
+        }
+
+        public boolean setAsBooleanFromLiteral(boolean value) {
+            return location.setFromLiteral(value);
+        }
+
+        public void setDefault() {
+            location.setDefault();
+        }
+
+        public void addChangeListener(final BooleanChangeListener listener) {
+            location.addChangeListener(new ObjectChangeListener<Boolean>() {
+                public void onChange(Boolean oldValue, Boolean newValue) {
+                    listener.onChange(oldValue, newValue);
+                }
+            });
+        }
+
+        public Boolean get() {
+            return location.get();
+        }
+
+        public Boolean set(Boolean value) {
+            return location.set(value);
+        }
+
+        public Boolean setFromLiteral(Boolean value) {
+            return location.setFromLiteral(value);
+        }
+
+        public void addChangeListener(ObjectChangeListener<Boolean> listener) {
             location.addChangeListener(listener);
         }
 
