@@ -12,12 +12,12 @@ class Data {
 }
 function equal(x,y) {
 	if(x==y){ Data.pass++;} 
-	else { System.out.print(x); System.out.println(x); Data.fail++;};
+	else { System.out.println("FAIL: found: {x}\n  expected: {y}"); Data.fail++;};
 }
 
 var a = [2..6 step 2];
 var b = [1..6 step 2];
-var c = bind a + " " + b;
+var c = bind "{a.toString()} {b.toString()}";  //TODO: JFXC-966  was -- bind a + " " + b;
 var d = a + " " + b;
 var e = bind [a,b];
 var e1 = bind [b,a];

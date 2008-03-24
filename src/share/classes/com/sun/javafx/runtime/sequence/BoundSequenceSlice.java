@@ -53,15 +53,26 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
     }
 
     protected Sequence<T> computeValue() {
-        computeBounds(lowerLoc.get(), upperLoc.get());
+        computeBounds(true, true);
         return sequenceLoc.get().getSlice(lower, upper);
     }
+    
+    /**
+     * adjust for exclusive upper bound
+     */
+    private int adjusted(int upperValue) {
+        return (isExclusive ? -1 : 0) + upperValue;
+    }
 
-    private void computeBounds(int newLower, int newUpper) {
+    private void computeBounds(boolean updateLower, boolean updateUpper) {
         int seqSize = sequenceLoc.getAsSequence().size();
         
-        lower = newLower;
-        upper = (isExclusive? -1 : 0) + (upperLoc==null? seqSize : newUpper);
+        if (updateLower) {
+            lower = lowerLoc.get();
+        }
+        if (updateUpper) {
+            upper = adjusted(upperLoc == null ? seqSize-1 : upperLoc.get());
+        }
         
         if (seqSize == 0) {
             size = 0;
@@ -77,51 +88,60 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
                     
     protected void initialize() {
         sequenceLoc.addChangeListener(new SequenceChangeListener<T>() {
+
             public void onChange(int startPos, int endPos, Sequence newElements, Sequence oldValue, Sequence newValue) {
-                
-                computeBounds(lower, upper);
-                
+                computeBounds(true, true);
+
                 Sequence<T> newSeq = newValue.getSlice(lower, upper);
-                updateSlice(0, size==0?0:size-1, newSeq, newSeq);
+                updateSlice(0, size == 0 ? 0 : size - 1, newSeq, newSeq);
             }
         });
         lowerLoc.addChangeListener(new IntChangeListener() {
+
             public void onChange(int oldValue, int newValue) {
-                
                 assert oldValue != newValue;
-                
                 int oldSize = size;
-                computeBounds(newValue, upper);
-                
-                if (sequenceLoc.getAsSequence().size() == 0) 
-                    return;
-               
-                if (size == oldSize) return;
-                
-                if (size > oldSize) {
-                    updateSlice(0, -1, sequenceLoc.getSlice(newValue, (oldSize == 0) ? upper : (oldValue - 1)));
-                } else {
-                    updateSlice(0, oldSize-size-1, Sequences.emptySequence(sequenceLoc.getAsSequence().getElementType()));
+                computeBounds(true, false);
+
+                if (sequenceLoc.getAsSequence().size() > 0 && size != oldSize) {
+                    if (size > oldSize) {
+                        updateSlice(
+                                0, 
+                                -1, 
+                                sequenceLoc.getSlice(newValue, (oldSize == 0) ? upper : (oldValue - 1)));
+                    } else {
+                        updateSlice(
+                                0, 
+                                oldSize - size - 1, 
+                                Sequences.emptySequence(sequenceLoc.getAsSequence().getElementType()));
+                    }
                 }
             }
         });
-        upperLoc.addChangeListener(new IntChangeListener() {
-            public void onChange(int oldValue, int newValue) {
-                assert oldValue != newValue;
-                int oldSize = size;
-                computeBounds(lower, newValue);
-                
-                if (sequenceLoc.getAsSequence().size() == 0) 
-                    return;
-                
-                if (size == oldSize) return;
-                
-                if (size > oldSize) {
-                    updateSlice(oldSize, oldSize-1, sequenceLoc.getSlice((oldValue >= lower)?oldValue+1:lower,newValue ));
-                } else {
-                    updateSlice(size, oldSize-1, Sequences.emptySequence(sequenceLoc.getAsSequence().getElementType()));
-                }  
-            }
-        });
+        if (upperLoc != null) {
+            upperLoc.addChangeListener(new IntChangeListener() {
+
+                public void onChange(int oldValue, int newValue) {
+                    assert oldValue != newValue;
+                    int oldSize = size;
+                    computeBounds(false, true);
+
+                    if (sequenceLoc.getAsSequence().size() > 0 && size != oldSize) {
+                        if (size > oldSize) {
+                            int oldUpper = adjusted(oldValue);
+                            updateSlice(
+                                    oldSize, 
+                                    oldSize - 1, 
+                                    sequenceLoc.getSlice((oldUpper >= lower) ? oldUpper + 1 : lower, upper));
+                        } else {
+                            updateSlice(
+                                    size, 
+                                    oldSize - 1, 
+                                    Sequences.emptySequence(sequenceLoc.getAsSequence().getElementType()));
+                        }
+                    }
+                }
+            });
+        }
     }
 }

@@ -2303,6 +2303,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
     }
     
+    /**
+     * Given "Foo" type, return "Foo.class" expression
+     * @param diagPos
+     * @param elemType
+     * @return expression representing the class
+     */
     JCExpression makeElementClassObject(DiagnosticPosition diagPos, Type elemType) {
         return make.at(diagPos)
                 .Select(makeTypeTree(syms.boxIfNeeded(elemType), diagPos, true),
