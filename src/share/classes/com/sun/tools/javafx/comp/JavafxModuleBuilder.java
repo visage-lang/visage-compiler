@@ -63,7 +63,6 @@ public class JavafxModuleBuilder {
     private final JavafxDefs defs;
     private Table names;
     private JavafxTreeMaker make;
-    private final JavafxToJava toJava;
     private Log log;
     private JavafxSymtab syms;
     private Set<Name> topLevelNamesSet;
@@ -84,7 +83,6 @@ public class JavafxModuleBuilder {
         make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         log = Log.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
-        toJava = JavafxToJava.instance(context);
         pseudoFile = names.fromString("__FILE__");
         pseudoDir = names.fromString("__DIR__");
         commandLineArgs = names.fromString("__ARGS__");
@@ -243,7 +241,7 @@ public class JavafxModuleBuilder {
     
     private JFXFunctionDefinition makeMethod(Name name, List<JCStatement> stats, JCExpression value, Type returnType, List<JFXVar> param) {
         JFXBlockExpression body = make.BlockExpression(0, stats, value);
-        JCExpression rettree = toJava.makeTypeTree(returnType, null);
+        JCExpression rettree = make.Type(returnType);
 
         rettree.type = returnType;
         return make.FunctionDefinition(
