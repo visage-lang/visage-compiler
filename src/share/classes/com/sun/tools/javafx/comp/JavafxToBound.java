@@ -450,7 +450,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitFunctionValue(JFXFunctionValue tree) {
         JFXFunctionDefinition def = tree.definition;
-        result = convert(tree.type, toJava.makeFunctionValue(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type) );
+        result = makeConstantLocation(tree.pos(), tree.type, toJava.makeFunctionValue(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type) );
     }
         
     public void visitBlockExpression(JFXBlockExpression tree) {   //done
@@ -722,6 +722,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 Type objLocType = tmiInduction.getLocationType();
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
                 Name ivarName = clause.getVar().name;
+                toJava.setLocallyBound(clause.getVar().sym);
                 stmts.append(m().Return( inner ));
                 List<JCVariableDecl> params = List.of( 
                         makeParam(objLocType, ivarName),

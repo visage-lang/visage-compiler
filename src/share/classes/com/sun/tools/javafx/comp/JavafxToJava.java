@@ -212,7 +212,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     /** Class symbols for classes that need a reference to the outer class. */
     Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
         
-    private Set<VarSymbol> locallyBound = null;
+    private Set<VarSymbol> locallyBound = new HashSet<VarSymbol>();
     
     private boolean inOperationDef = false;
 
@@ -432,6 +432,10 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
 
     public <T extends JCTree> T translate(T tree, Convert convert) {
         return translate(tree, state.wrap, convert);
+    }
+    
+    void setLocallyBound(VarSymbol vsym) {
+        locallyBound.add(vsym);
     }
 
     JCBlock asBlock(JCStatement stmt) {
@@ -1298,7 +1302,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             init = null;
         } else {
             if (isBound && locallyBound != null) {
-                locallyBound.add(vsym);
+                setLocallyBound(vsym);
             }
             init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
                     tree.getBindStatus(), tree.sym);
@@ -1450,7 +1454,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             if (isBound) {
                 locallyBound = new HashSet<VarSymbol>();
                 for (JFXVar fxVar : tree.getParameters()) {
-                    locallyBound.add(fxVar.sym);
+                    setLocallyBound(fxVar.sym);
                 }
             }
 
