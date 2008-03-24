@@ -69,7 +69,6 @@ public class JavafxClassReader extends ClassReader {
          new Context.Key<ClassReader>();
 
     private final JavafxDefs defs;
-    private final JavafxTypeMorpher typeMorpher; // FIXME
 
     /** The raw class-reader, shared by the back-end. */
     public ClassReader jreader;
@@ -99,7 +98,6 @@ public class JavafxClassReader extends ClassReader {
         super(context, definitive);
         defs = JavafxDefs.instance(context);
         jreader = context.get(backendClassReaderKey);
-        typeMorpher = JavafxTypeMorpher.instance(context);
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
     }
 
@@ -300,16 +298,16 @@ public class JavafxClassReader extends ClassReader {
                         break;
                     }
                     Name flatname = ((ClassSymbol) tsym).flatname;
-                    if (flatname == typeMorpher.variableNCT[TYPE_KIND_BOOLEAN].name)
+                    if (flatname == defs.variableClassName[TYPE_KIND_BOOLEAN])
                         return syms.booleanType;
-                    if (flatname == typeMorpher.variableNCT[TYPE_KIND_DOUBLE].name)
+                    if (flatname == defs.variableClassName[TYPE_KIND_DOUBLE])
                         return syms.doubleType;
-                    if (flatname == typeMorpher.variableNCT[TYPE_KIND_INT].name)
+                    if (flatname == defs.variableClassName[TYPE_KIND_INT])
                         return syms.intType;
                     if (ctype.typarams_field != null && ctype.typarams_field.size() == 1) {
-                        if (flatname == typeMorpher.variableNCT[TYPE_KIND_OBJECT].name)
+                        if (flatname == defs.variableClassName[TYPE_KIND_OBJECT])
                             return translateType(ctype.typarams_field.head);
-                        if (flatname == typeMorpher.variableNCT[TYPE_KIND_SEQUENCE].name) {
+                        if (flatname == defs.variableClassName[TYPE_KIND_SEQUENCE]) {
                             Type tparam = translateType(ctype.typarams_field.head);
                             WildcardType tpType = new WildcardType(tparam, BoundKind.EXTENDS, tparam.tsym);
                             t = new ClassType(Type.noType, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);

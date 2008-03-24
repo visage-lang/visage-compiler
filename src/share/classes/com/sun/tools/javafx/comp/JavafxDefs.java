@@ -111,6 +111,7 @@ public class JavafxDefs {
     final Name[][] locationSetMilieuMethodName;
     final Name[] locationBindMilieuMethodName;
     final Name[] locationBijectiveBindMilieuMethodName;
+    final Name[] variableClassName;
 
     /**
      * Context set-up
@@ -157,12 +158,15 @@ public class JavafxDefs {
         locationSetMilieuMethodName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT][MILIEU_COUNT];
         locationBindMilieuMethodName = new Name[MILIEU_COUNT];
         locationBijectiveBindMilieuMethodName = new Name[MILIEU_COUNT];
+        variableClassName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT];
         for (int i = 0; i < JavafxVarSymbol.TYPE_KIND_COUNT; i++) {
             for (int m = 0; m < MILIEU_COUNT; ++m) {
                 locationSetMilieuMethodName[i][m] = names.fromString("set" + JavafxVarSymbol.getAccessorSuffix(i) + milieuNames[m]);
             }
             locationGetMethodName[i] = names.fromString("get" + JavafxVarSymbol.getAccessorSuffix(i));
             locationSetMethodName[i] = locationSetMilieuMethodName[i][VANILLA_MILIEU];
+            variableClassName[i] = names.fromString(locationPackageName +
+                    JavafxVarSymbol.getTypePrefix(i) + "Variable");
         }
         for (int m = 0; m < MILIEU_COUNT; ++m) {
             locationBindMilieuMethodName[m] = names.fromString("bind" + milieuNames[m]);

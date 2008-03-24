@@ -89,13 +89,16 @@ public class JavafxTypeMorpher {
         public final Name name;
         public final ClassSymbol sym;
         public final Type type;
+        LocationNameSymType(Name name) {
+            this.name = name;
+            sym = reader.jreader.enterClass(name);
+            type = sym.type;
+        }
         LocationNameSymType(String which) {
             this(locationPackageName, which);
         }
         LocationNameSymType(String pkg, String which) {
-            name = Name.fromString(names, pkg + which);
-            sym = reader.jreader.enterClass(name);
-            type = sym.type;
+            this(Name.fromString(names, pkg + which));
         }
     }
 
@@ -284,7 +287,7 @@ public class JavafxTypeMorpher {
         constantLocationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
-            variableNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Variable");
+            variableNCT[kind] = new LocationNameSymType(defs.variableClassName[kind]);
             locationNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Location");
             bindingNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "BindingExpression");
             boundIfNCT[kind] = new LocationNameSymType("Bound" + JavafxVarSymbol.getTypePrefix(kind) + "IfExpression");

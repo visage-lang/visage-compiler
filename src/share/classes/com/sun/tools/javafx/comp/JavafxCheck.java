@@ -88,8 +88,6 @@ public class JavafxCheck {
     // visits all the various parts of the trees during attribution.
     private Lint lint;
 
-    JavafxTypeMorpher typeMorpher;
-
     public static JavafxCheck instance(Context context) {
 	JavafxCheck instance = context.get(javafxCheckKey);
 	if (instance == null)
@@ -130,7 +128,6 @@ public class JavafxCheck {
 
 	deprecationHandler = new MandatoryWarningHandler(log,verboseDeprecated, "deprecated");
 	uncheckedHandler = new MandatoryWarningHandler(log, verboseUnchecked, "unchecked");
-        typeMorpher = JavafxTypeMorpher.instance(context);
         rs = JavafxResolve.instance(context);
     }
 
@@ -396,17 +393,17 @@ public class JavafxCheck {
 
     private Type deLocationize(Type external) {
 	if (external.tag == CLASS) {
-            if (types.erasure(external) == typeMorpher.variableNCT[TYPE_KIND_OBJECT].type) {
+            Name tname = ((ClassSymbol) external.tsym).flatname;
+            if (tname == defs.variableClassName[TYPE_KIND_OBJECT])
                 return ((ClassType)external).getTypeArguments().head;
-            } else if (types.erasure(external) == types.erasure(typeMorpher.variableNCT[TYPE_KIND_SEQUENCE].type)) {
+            else if (tname == defs.variableClassName[TYPE_KIND_SEQUENCE])
                 throw new AssertionError("At this point we should not have Location(s). This is most likely JavafxReader problem. It should convert all the Location types to the \"real\" types.");
-            } else if (external == typeMorpher.variableNCT[TYPE_KIND_BOOLEAN].type) {
+            else if (tname == defs.variableClassName[TYPE_KIND_BOOLEAN])
                 return syms.booleanType;
-            } else if (external == typeMorpher.variableNCT[TYPE_KIND_DOUBLE].type) {
+            else if (tname == defs.variableClassName[TYPE_KIND_DOUBLE])
                 return syms.doubleType;
-            } else if (external == typeMorpher.variableNCT[TYPE_KIND_INT].type) {
+            else if (tname == defs.variableClassName[TYPE_KIND_INT])
                 return syms.intType;
-            }
         }
         return external;
     }
