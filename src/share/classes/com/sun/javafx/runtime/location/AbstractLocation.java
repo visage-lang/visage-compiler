@@ -72,9 +72,11 @@ public abstract class AbstractLocation implements Location {
         invalidateDependencies();
     }
 
-    /** Notify change triggers that the value has changed.  This should be done automatically by mutative methods,
+    /**
+     * Notify change triggers that the value has changed.  This should be done automatically by mutative methods,
      * and is also used at object initialization time to defer notification of changes until the values provided
-     * in the object literal are all set.  */
+     * in the object literal are all set.
+     */
     protected void valueChanged() {
         notifyChangeListeners();
         invalidateDependencies();
@@ -97,11 +99,11 @@ public abstract class AbstractLocation implements Location {
             //System.out.println("invalidate: "+ Thread.currentThread() + " " +dependentLocations.size());
             try {
                 ++iterationDepth;
-                List copy = new ArrayList(dependentLocations.size());
-                copy.addAll(dependentLocations);
-                for (Iterator<WeakReference<Location>> iterator = copy.iterator(); iterator.hasNext();) {
+                // @@@ Hack: using temporary copy to work around CME
+                List<WeakReference<Location>> copy = new ArrayList<WeakReference<Location>>(dependentLocations);
+                for (WeakReference<Location> aCopy : copy) {
                     WeakReference<Location> locationRef;
-                    locationRef = iterator.next();
+                    locationRef = aCopy;
                     Location loc = locationRef.get();
                     if (loc == null)
                         mustRemoveDependencies = true;
@@ -118,6 +120,7 @@ public abstract class AbstractLocation implements Location {
                 --iterationDepth;
                 if (iterationDepth == 0) {
                     if (deferredDependencies != null && deferredDependencies.size() > 0) {
+                        // @@@ Hack: overly-aggressive purge
                         purgeDeadDependencies();
                         dependentLocations.addAll(deferredDependencies);
                         deferredDependencies.clear();
@@ -148,9 +151,12 @@ public abstract class AbstractLocation implements Location {
             if (deferredDependencies == null)
                 deferredDependencies = new ArrayList<WeakReference<Location>>();
             deferredDependencies.add(location);
-        } else
+        }
+        else {
+            // @@@ Hack: overly-aggressive purge
             purgeDeadDependencies();
             dependentLocations.add(location);
+        }
     }
 
     public void addChangeListener(ChangeListener listener) {
@@ -187,12 +193,12 @@ public abstract class AbstractLocation implements Location {
         }
     }
 
-    public<T extends Location> T addDynamicDependent(T dep) {
+    public <T extends Location> T addDynamicDependent(T dep) {
         addDynamicDependency(dep);
         return dep;
     }
 
-    public<T extends Location> T addStaticDependent(T dep) {
+    public <T extends Location> T addStaticDependent(T dep) {
         addDependencies(dep);
         return dep;
     }
