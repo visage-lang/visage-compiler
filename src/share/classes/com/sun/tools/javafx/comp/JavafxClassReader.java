@@ -75,11 +75,20 @@ public class JavafxClassReader extends ClassReader {
 
     private final Name functionClassPrefixName;
     
-    public static void preRegister(final Context context, final ClassReader jreader) {
+    public static void registerBackendReader(final Context context, final ClassReader jreader) {
         context.put(backendClassReaderKey, jreader);
+    }
+    
+    public static void preRegister(final Context context, final ClassReader jreader) {
+        registerBackendReader(context, jreader);
+        preRegister(context);
+    }
+    public static void preRegister(final Context context) {
         context.put(classReaderKey, new Context.Factory<ClassReader>() {
 	       public JavafxClassReader make() {
-		   return new JavafxClassReader(context, true);
+		   JavafxClassReader reader = new JavafxClassReader(context, true);
+                   reader.jreader = context.get(backendClassReaderKey);
+                   return reader;
 	       }
         });
     }
@@ -97,7 +106,6 @@ public class JavafxClassReader extends ClassReader {
     protected JavafxClassReader(Context context, boolean definitive) {
         super(context, definitive);
         defs = JavafxDefs.instance(context);
-        jreader = context.get(backendClassReaderKey);
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
     }
 

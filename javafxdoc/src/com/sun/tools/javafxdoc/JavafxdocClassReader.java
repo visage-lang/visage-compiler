@@ -31,31 +31,18 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JavacFileManager;
 import com.sun.tools.javac.util.Old199;
 
-import com.sun.tools.javafx.comp.JavafxClassReader;
 import java.io.File;
 import java.util.EnumSet;
 import javax.tools.JavaFileObject;
 
 /** 
- * Javadoc uses an extended class reader that records package.html entries
+ * Javadoc uses an extended class reader that records package.html entries.
+ * Note this is the "low-level" class reader, that reads JVM-style symbols.
+ * The "jfx-level" class reader is a JavafxClassReader that <i>delegates</i>
+ * to a JavafxdocClassReader.  This may be fragile, given that (unlike javafxc)
+ * we only have set of Symbols and Types, but it seems to work - for now.
  */
-class JavafxdocClassReader extends JavafxClassReader {
-
-    public static JavafxdocClassReader instance0(Context context) {
-        ClassReader instance = context.get(classReaderKey);
-        if (instance == null)
-            instance = new JavafxdocClassReader(context);
-        return (JavafxdocClassReader)instance;
-    }
-
-    public static void preRegister(final Context context) {
-        context.put(classReaderKey, new Context.Factory<ClassReader>() {
-            public ClassReader make() {
-                return new JavafxdocClassReader(context);
-            }
-        });
-    }
-
+class JavafxdocClassReader extends ClassReader {
     private DocEnv docenv;
     private EnumSet<JavaFileObject.Kind> all = EnumSet.of(JavaFileObject.Kind.CLASS,
                                                           JavaFileObject.Kind.SOURCE,
@@ -63,8 +50,8 @@ class JavafxdocClassReader extends JavafxClassReader {
     private EnumSet<JavaFileObject.Kind> noSource = EnumSet.of(JavaFileObject.Kind.CLASS,
                                                                JavaFileObject.Kind.HTML);
 
-    private JavafxdocClassReader(Context context) {
-        super(context, true);
+    public JavafxdocClassReader(Context context) {
+        super(context, false);
         docenv = DocEnv.instance(context);
     }
 

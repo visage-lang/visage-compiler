@@ -37,14 +37,12 @@ import com.sun.tools.javac.util.Paths;
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.*;
-import com.sun.tools.javadoc.JavadocTodo;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
-import com.sun.tools.javafx.comp.JavafxCheck;
 import com.sun.tools.javafx.tree.JavafxTreeInfo;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
 import com.sun.tools.javafx.util.JavafxFileManager;
-
+import com.sun.tools.javafx.comp.JavafxClassReader;
 import static com.sun.javadoc.LanguageVersion.*;
 
 /**
@@ -60,7 +58,7 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
 
     final Context ctx;
     final Messager messager;
-    final JavafxdocClassReader clsreader;
+    final JavafxClassReader clsreader;
     final JavafxdocEnter jdenter;
     private final Paths paths;
 
@@ -72,25 +70,14 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
         super(context);
         this.ctx = context;
         messager = Messager.instance0(context);
-        clsreader = JavafxdocClassReader.instance0(context);
+        clsreader = JavafxClassReader.instance(context);
         jdenter = JavafxdocEnter.instance0(context);
         paths = Paths.instance(context);
     }
 
     @Override
     protected void registerServices(final Context context) {
-        JavafxFileManager.preRegister(context);
-        JavafxTreeMaker.preRegister(context);
-        JavafxCheck.preRegister(context);
-        JavafxdocClassReader.preRegister(context);
-        JavafxdocEnter.preRegister(context);
-        JavafxdocMemberEnter.preRegister(context);
-        JavafxSymtab.preRegister(context);
-        JavadocTodo.preRegister(context);
-        JavafxTreeInfo.preRegister(context);
-        JavafxTypes.preRegister(context);
         Messager.instance0(context);
-        DocCommentScanner.Factory.preRegister(context);
     }
 
     /**
@@ -107,6 +94,25 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
     public static JavafxdocTool make0(Context context) {
         Messager messager = null;
         try {
+            // Because of circularities we need to register these services
+            // before we allocate JavafxClassReader, which needs to be done
+            // before we allocate JavafxdocClassReader, which needs to be
+            // done before we allocate JavafxdocTool.  Hence we do all this
+            // stuff here rather than in registerServices.  Sigh.
+            JavafxFileManager.preRegister(context);
+            JavafxTreeMaker.preRegister(context);
+            JavafxdocEnter.preRegister(context);
+            JavafxdocMemberEnter.preRegister(context);
+            JavafxSymtab.preRegister(context);
+            JavadocTodo.preRegister(context);
+            JavafxTreeInfo.preRegister(context);
+            JavafxTypes.preRegister(context);
+            DocCommentScanner.Factory.preRegister(context);
+
+            JavafxClassReader reader = JavafxClassReader.instance(context);
+            JavafxdocClassReader jclsreader = new JavafxdocClassReader(context);
+            reader.jreader = jclsreader;
+
             return new JavafxdocTool(context);
         } catch (CompletionFailure ex) {
             messager.error(Position.NOPOS, ex.getMessage());

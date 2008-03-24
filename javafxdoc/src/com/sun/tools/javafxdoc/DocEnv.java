@@ -45,6 +45,7 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxAttr;
 import com.sun.tools.javafx.tree.JFXClassDeclaration;
 import com.sun.tools.javafx.tree.JFXFunctionDefinition;
+import com.sun.tools.javafx.comp.JavafxClassReader;
 
 
 /**
@@ -77,7 +78,7 @@ public class DocEnv {
     Symtab syms;
 
     /** Referenced directly in RootDocImpl. */
-    JavafxdocClassReader reader;
+    JavafxClassReader reader;
 
     /** The compiler's attribution phase (needed to evaluate
      *  constant initializers). */
@@ -135,7 +136,7 @@ public class DocEnv {
 
         messager = Messager.instance0(context);
         syms = Symtab.instance(context);
-        reader = JavafxdocClassReader.instance0(context);
+        reader = JavafxClassReader.instance(context);
         enter = JavafxdocEnter.instance0(context);
         attr = JavafxAttr.instance(context);
         names = Name.Table.instance(context);
