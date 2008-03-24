@@ -239,7 +239,8 @@ public class Locations {
         }
 
         public int getAsInt() {
-            return location.get();
+            Integer val = location.get();
+            return val==null? 0 : val;
         }
 
         public int setAsInt(int value) {
@@ -295,7 +296,8 @@ public class Locations {
         }
 
         public double getAsDouble() {
-            return location.get();
+            Double val = location.get();
+            return val==null? 0.0 : val;
         }
 
         public double setAsDouble(double value) {
@@ -351,7 +353,8 @@ public class Locations {
         }
 
         public boolean getAsBoolean() {
-            return location.get();
+            Boolean val = location.get();
+            return val==null? false : val;
         }
 
         public boolean setAsBoolean(boolean value) {
