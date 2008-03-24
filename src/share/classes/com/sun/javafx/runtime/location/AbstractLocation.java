@@ -81,6 +81,7 @@ public abstract class AbstractLocation implements Location {
     }
 
     private void purgeDeadDependencies() {
+        //System.out.println("purge: "+ Thread.currentThread());
         if (dependentLocations != null) {
             for (Iterator<WeakReference<Location>> iterator = dependentLocations.iterator(); iterator.hasNext();) {
                 WeakReference<Location> locationRef = iterator.next();
@@ -93,10 +94,14 @@ public abstract class AbstractLocation implements Location {
 
     private void invalidateDependencies() {
         if (dependentLocations != null) {
+            //System.out.println("invalidate: "+ Thread.currentThread() + " " +dependentLocations.size());
             try {
                 ++iterationDepth;
-                for (Iterator<WeakReference<Location>> iterator = dependentLocations.iterator(); iterator.hasNext();) {
-                    WeakReference<Location> locationRef = iterator.next();
+                List copy = new ArrayList(dependentLocations.size());
+                copy.addAll(dependentLocations);
+                for (Iterator<WeakReference<Location>> iterator = copy.iterator(); iterator.hasNext();) {
+                    WeakReference<Location> locationRef;
+                    locationRef = iterator.next();
                     Location loc = locationRef.get();
                     if (loc == null)
                         mustRemoveDependencies = true;
@@ -113,6 +118,7 @@ public abstract class AbstractLocation implements Location {
                 --iterationDepth;
                 if (iterationDepth == 0) {
                     if (deferredDependencies != null && deferredDependencies.size() > 0) {
+                        purgeDeadDependencies();
                         dependentLocations.addAll(deferredDependencies);
                         deferredDependencies.clear();
                     }
@@ -143,6 +149,7 @@ public abstract class AbstractLocation implements Location {
                 deferredDependencies = new ArrayList<WeakReference<Location>>();
             deferredDependencies.add(location);
         } else
+            purgeDeadDependencies();
             dependentLocations.add(location);
     }
 
