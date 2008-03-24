@@ -44,8 +44,13 @@ public class Main {
 
     static {
 	ClassLoader loader = Main.class.getClassLoader();
-	if (loader != null)
+	if (loader != null) {
 	    loader.setPackageAssertionStatus("com.sun.tools.javafx", true);
+            
+            //workaround for JFXC-964, so compiler works when IDE enables all assertions
+	    loader.setClassAssertionStatus("com.sun.tools.javac.code.Symbol", false);
+            loader.setClassAssertionStatus("com.sun.tools.javac.jvm.Code", false);
+        }
     }
 
     /** Unsupported command line interface.
