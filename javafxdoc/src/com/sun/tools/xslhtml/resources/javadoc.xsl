@@ -125,7 +125,7 @@
                 <div id="content">
                     <a id="overview"><h3>Overview</h3></a>
                     <div class="overview">
-                        <xsl:apply-templates select="docComment/commentText"/>
+                        <xsl:apply-templates select="docComment/inlineTags"/>
                     </div>
                     <xsl:call-template name="toc"/>
                     <xsl:call-template name="inherited"/>
@@ -139,6 +139,22 @@
         <p class="comment">
             <xsl:value-of select="." disable-output-escaping="yes"/>
         </p>
+    </xsl:template>
+    
+    <xsl:template match="docComment/inlineTags">
+        <p class="comment">
+            <xsl:apply-templates/>
+        </p>
+    </xsl:template>
+    
+    <xsl:template match="docComment/firstSentenceTags">
+        <p class="comment">
+            <xsl:apply-templates/>
+        </p>
+    </xsl:template>
+    
+    <xsl:template match="code">
+        <code><xsl:value-of select="." disable-output-escaping="yes"/></code>
     </xsl:template>
     
     
@@ -510,7 +526,7 @@
             <xsl:if test="docComment/tags/advanced">
                 <xsl:attribute name="class">advanced</xsl:attribute>
             </xsl:if>
-            <xsl:value-of select="docComment/firstSentenceTags/Text"
+            <xsl:value-of select="docComment/firstSentenceTags"
                           disable-output-escaping="yes"/>
         </dd>
     </xsl:template>
@@ -554,7 +570,7 @@
                 <dd><xsl:value-of select="type/@dimension"/></dd>
             </dl>
             
-            <xsl:apply-templates select="docComment/commentText"/>
+            <xsl:apply-templates select="docComment/inlineTags"/>
             
         </div>  
     </xsl:template>
