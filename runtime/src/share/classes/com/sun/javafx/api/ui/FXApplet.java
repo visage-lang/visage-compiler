@@ -33,6 +33,8 @@
 package com.sun.javafx.api.ui;
 
 import com.sun.javafx.runtime.FXObject;
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.tools.javafx.comp.JavafxDefs;
 import java.awt.EventQueue;
 import java.lang.reflect.Method;
@@ -74,8 +76,9 @@ public class FXApplet extends JApplet {
             }
             Class<?> appletClass = getAppletClass();
             if (appletClass != null) {
-                Method main = appletClass.getMethod(JavafxDefs.runMethodString);
-                final Object result = main.invoke(null);
+                Method main = appletClass.getMethod(JavafxDefs.runMethodString, Sequence.class);
+                Object args = Sequences.make(String.class);
+                final Object result = main.invoke(null, args);
                 if (result != null) {
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
