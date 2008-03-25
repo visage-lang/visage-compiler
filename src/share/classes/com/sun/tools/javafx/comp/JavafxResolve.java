@@ -503,7 +503,6 @@ public class JavafxResolve {
         boolean checkArgs = mtype instanceof MethodType || mtype instanceof ForAll;
 
         while (env1 != null) {
-            if (env1.outer != null && isStatic(env1)) staticOnly = true;
             Scope sc = env1.info.scope;
             Type envClass;
             if (env1.tree instanceof JFXClassDeclaration) {
@@ -522,8 +521,10 @@ public class JavafxResolve {
                 sym = findMethod(env1, envClass, name,
                         expected,
                         true, false, false);
+
                 if (sym.exists())
-                        return sym;
+                    return staticOnly && ! sym.isStatic() ? new StaticError(sym)
+                            : sym;
             }
             if (sc != null) {
                 
@@ -551,7 +552,7 @@ public class JavafxResolve {
 
             if (env1.tree instanceof JFXFunctionDefinition)
                 innerAccess = true;
-            if ((env1.enclClass.sym.flags() & STATIC) != 0) staticOnly = true;
+            if (env1.outer != null && isStatic(env1)) staticOnly = true;
             env1 = env1.outer;
         }
 

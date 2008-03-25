@@ -932,6 +932,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     env.dup(tree, env.info.dup(initScope));
                 initEnv.outer = env;
                 initEnv.info.lint = lint;
+                if ((tree.getModifiers().flags & STATIC) != 0)
+                    initEnv.info.staticLevel++;
 
                 // In order to catch self-references, we set the variable's
                 // declaration position to maximal possible value, effectively
