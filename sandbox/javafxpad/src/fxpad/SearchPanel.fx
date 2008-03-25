@@ -105,7 +105,7 @@ class SearchField  extends CompositeNode {
                     content: textField = TextField {
                             font: Font.Font("VERDANA", ["PLAIN"], 12)
                             focused: true
-                            columns:/* bind */self.columns,
+                            columns: bind self.columns
                             border: EmptyBorder{}
                             background: Color.color(0, 0, 0, 0)
                             action: bind self.action
@@ -205,16 +205,17 @@ public class SearchPanel extends CompositeNode {
     public attribute searchField:SearchField;
     attribute open: Boolean on replace {
         if(open and searchField<> null) {
-            searchField.textField.getComponent().requestFocusInWindow();
+            searchField.requestFocus();
         }
     }
     public function composeNode(): Node {
+       
         var self = this;
         searchField = SearchField {
             transform: Transform.translate(10, 0)
             fSearchValue: bind self.pSearchValue with inverse
             cancel: bind closeAction
-        };        
+        };   
         HBox {
 
             content:

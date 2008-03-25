@@ -41,10 +41,13 @@ import javax.swing.undo.UndoableEdit;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoManager;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
+import javax.swing.event.ChangeListener;
 
 /**
  * @author jclarke
  */
+
+
 
 public class SourceEditor extends ScrollableWidget {
     private attribute jtextarea: FXTextArea = new FXTextArea() on replace {
@@ -59,9 +62,16 @@ public class SourceEditor extends ScrollableWidget {
     private attribute inUpdate:Boolean;
     private attribute edit:UndoableEdit;
     private attribute undoManager: UndoManager = new UndoManager();
-    //TODO public attribute annotations: LineAnnotation[] on replace oldValues [lo..hi] = newValues {
-
-    //}
+    public attribute annotations: LineAnnotation[] on replace oldValues [lo..hi] = newValues {
+        for( i in [lo..hi] ) {
+            jtextarea.removeAnnotation(i);
+        }
+        var ndx = lo;
+        for(ann in newValues) {
+            jtextarea.addAnnotation(ndx, ann.getAn());
+            ndx++;
+        }
+    }
     public  attribute highlight: Number[] on replace oldValues [lo..hi] = newValues {
         doHighlight();
     };
@@ -115,7 +125,9 @@ public class SourceEditor extends ScrollableWidget {
         jtextarea.setSelectedTextColor(selectedTextColor.getColor());
     };
     public attribute selectionColor: Color =  Color.fromAWTColor(jtextarea.getSelectionColor()) on replace {
-        jtextarea.setSelectionColor(selectionColor.getColor());
+        if(selectionColor <> null) {
+            jtextarea.setSelectionColor(selectionColor.getColor());
+        }
     };
     public attribute caretColor: Color  =  Color.fromAWTColor(jtextarea.getCaretColor()) on replace {
         jtextarea.setCaretColor(caretColor.getColor());
@@ -132,7 +144,6 @@ public class SourceEditor extends ScrollableWidget {
     public attribute text:String on replace old {
         if (not inUpdate) {
             if(text <> jtextarea.getText()) {
-                System.out.println("Changing text {text} <> {jtextarea.getText()}");
                 inUpdate = true;
                 jtextarea.setText(text);
                 lineCount = jtextarea.getLineCount();
@@ -146,12 +157,8 @@ public class SourceEditor extends ScrollableWidget {
 
     }
     
-    public function requestFocus():Void {
-        getComponent().requestFocusInWindow();
-    }
     
     public function createView(): javax.swing.JComponent {
-        System.out.println("CreateView: {this}");
         if(editable) {
             jtextarea.select(0,0);
         }
@@ -204,7 +211,6 @@ public class SourceEditor extends ScrollableWidget {
                 function caretUpdate(e:CaretEvent):Void {
                     caretDot = e.getDot();
                     caretMark = e.getMark();
-                    System.out.println("caret position is {jtextarea.getCaretPosition()} Dot = {caretDot}, Mark = {caretMark}");
                 }
         });            
         jtextarea.getDocument().addDocumentListener(documentListener);

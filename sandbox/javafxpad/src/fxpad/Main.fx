@@ -85,7 +85,6 @@ frame = Frame {
                         mnemonic: KeyStroke.O
                         action: function() {
                             // do open
-                            System.out.println("Open()");
                             fileChooser.action = function(f:File):Void {
                                  javafxPad.url = f.toURL().toString();
                                  javafxPad.go();
@@ -101,7 +100,6 @@ frame = Frame {
                         enabled: bind fileExists(javafxPad.url)
                         action: function() {
                             // do save
-                            System.out.println("Save()");
                              var url = javafxPad.url;
                              var fname = url.substring("file:".length());
                              var fw = new FileWriter(fname);
@@ -114,7 +112,6 @@ frame = Frame {
                         mnemonic: KeyStroke.A
                         action: function() {
                             // do save as
-                            System.out.println("SaveAs()");
                             fileChooser.action = function(f:File):Void {
                                 /*** TODO this causes an NPE in compiler
                                 function writeFile():Void {
@@ -169,7 +166,6 @@ frame = Frame {
                         mnemonic: KeyStroke.F
                         accelerator: Accelerator{modifier: KeyModifier.COMMAND, keyStroke: KeyStroke.F}
                         action: function() {
-                            System.out.println("doSearch()");
                             javafxPad.doSearch();
                         }
                     }
@@ -190,7 +186,6 @@ frame = Frame {
                         text: "Run"
                         enabled: bind not javafxPad.runAutomatically and javafxPad.isValid()
                         action: function() {
-                            System.out.println("runNow()");
                             javafxPad.runNow();
                         }
                     },
@@ -198,7 +193,6 @@ frame = Frame {
                         mnemonic: KeyStroke.S
                         text: "Source Path..."
                         action: function() {
-                            System.out.println("sourcePath()");
                             var d = SourcePathDialog {
                                 sourcePath: for (u in javafxPad.sourcePath) new File(u.getPath())
                                 action: function(path:File[]):Void {
@@ -213,7 +207,6 @@ frame = Frame {
                         mnemonic: KeyStroke.C
                         text: "Class Path..."
                         action: function() {
-                            System.out.println("classPath()");
                             var d = ClassPathDialog {
                                 classPath: for (u in javafxPad.classPath) new File(u.getPath())
                                 action: function(path:File[]):Void {
@@ -248,9 +241,9 @@ frame = Frame {
                         row: row
                         column: fieldCol
                         columns: 60
+                        background: Color.WHITE
                         value: bind javafxPad.url with inverse
                         action: function() {
-                            System.out.println("Location: go()");
                             javafxPad.go();
                         }
                     } as GroupElement, 

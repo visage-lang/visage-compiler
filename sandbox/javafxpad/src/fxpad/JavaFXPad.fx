@@ -58,19 +58,21 @@ public class JavaFXPad extends CompositeWidget {
             editor.requestFocus();
         }
     }
-    attribute searchValue: String on replace {
+    attribute searchValue: String on replace oldValue {
+      
         if (searchValue == "") {
             delete editor.highlight;
         }else {
             var dot = 0; //editor.caretDot;
             var text = editor.text;
+            var svalue = searchValue;
             if (not matchCase) {
                 text = text.toUpperCase();
-                searchValue = searchValue.toUpperCase();
+                svalue = svalue.toUpperCase();
             }
-            var i = text.indexOf(searchValue, dot);
+            var i = text.indexOf(svalue, dot);
             if (i >= 0) {
-                editor.highlight = [i, i + searchValue.length()];
+                editor.highlight = [i, i + svalue.length()];
                 editor.setSelection(i, i);
             } else {
                 delete editor.highlight;
@@ -93,15 +95,18 @@ public class JavaFXPad extends CompositeWidget {
     };
     
     attribute editor: SourceEditor;
-    attribute validateAutomatically: Boolean = true;
-    attribute runAutomatically: Boolean = true;    
+    attribute validateAutomatically: Boolean = true on replace {
+        System.out.println("validateAutomatically = {validateAutomatically}");
+    };   
+    attribute runAutomatically: Boolean = true on replace {
+        System.out.println("runAutomatically = {runAutomatically}");
+    };   
     attribute userCode: String = "import javafx.ui.*;
 import javafx.ui.canvas.*;
 Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD'], 36) }"
 
     on replace {
         if(validateAutomatically) {
-            System.out.println("Compile");
             compile();
         }
     };
@@ -116,20 +121,25 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                 function(e:MouseEvent):Void {
                     mouseX = 1/(zoomValue/100)*e.x;
                     mouseY = 1/(zoomValue/100)*e.y;
-                    //System.out.println("{System.currentTimeMillis()}, x= {mouseX} y = {mouseY}");
                 };    
     attribute compiledContent: Node[];  
     attribute errMessages: Diagnostic[];
     attribute canvas:Canvas = Canvas {
-                    background: Color.WHITE
                     onMouseMoved: moveMouse
                     onMouseDragged: moveMouse
-                    content: Group {
-                        transform: bind Transform.scale(zoomValue/100, zoomValue/100)
-                        content: Group {
-                            content: bind compiledContent
+                    content: [
+                       // TODO bind - Rect { width: bind canvas.width 
+                       //        height: bind canvas.height
+                      //         fill: Color.WHITE }, 
+                        Group {
+                            transform: bind Transform.scale(zoomValue/100, zoomValue/100)
+                            content: [
+                                Group {
+                                    content: bind compiledContent
+                                }
+                            ]
                         }
-                    }
+                    ]
                 };
 
     function isValid():Boolean {
@@ -137,8 +147,8 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
     }
     
     function go() {
-        System.out.println("go...");
         userCode = getResourceAsString(url);
+        compile();
     }
     
     private function getResourceAsString(urlStr:String):String {
@@ -160,6 +170,7 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
             return buf.toString();
         } catch (e) {
         // ignore
+            e.printStackTrace();
         }
         return "";
     }
@@ -176,40 +187,39 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
     
     private function doRealCompile():Void {
         var program = userCode;
-        System.out.println("compile propgram = {program}");
         evaluate(program, runAutomatically);
     }
     
     private function evaluate(sourceCode:String, run:Boolean) {
-        System.out.println("evaluate run = {run}, sourceCode = '{sourceCode}'");
         var diags = new DiagnosticCollector();
         try {
             delete errMessages;
             if(not run) {
-                System.out.println("compile = '{sourceCode}'");
                 var script = engine.compile(sourceCode, diags);
-                System.out.println("Return from compile = {script}");
             } else{
-                System.out.println("eval = '{sourceCode}'");
                 var ret = engine.eval(sourceCode, diags);
                 compiledContent = [ret as Node];
-                System.out.println("Return from eval = {ret}");
             }
         }catch(e:ScriptException) {
             var errorList = diags.getDiagnostics();
             var iter = errorList.iterator();
             while(iter.hasNext()) {
                 var d:Diagnostic = iter.next() as Diagnostic;
-                System.out.println("Diag: {d}");
                 insert d into errMessages;
             }
         } 
-        System.out.println ("Done compile");
     }
     
 
     
     public function composeWidget(): Widget {
+        if(url <> null) {
+                javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                          public function run():Void {
+                               go();
+                          }
+                });
+        }
         return Canvas {
              cursor: Cursor.DEFAULT
              border: LineBorder {lineColor: Color.BLACK }
@@ -221,8 +231,8 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                     content: SplitPane {
                         border: LineBorder {lineColor: Color.BLACK }
                         orientation: Orientation.VERTICAL
-                        content: /*bind*/ [
-                            SplitView {
+                        content: /*TODO bind*/ [
+                            SplitView { // display area
                                 weight: 0.45
                                 content: BorderPanel {
                                     border: LineBorder {lineColor: Color.BLACK }
@@ -253,7 +263,6 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                                         },
                                                         Polygon {
                                                             transform: bind if(mouseX >= 0) {
-                                                                    //System.out.println("BX: {System.currentTimeMillis()}: x = {mouseX}");
                                                                     Transform.translate(mouseX-3.5,5);
                                                                 } else {
                                                                     Transform.translate(-3.5, 5);
@@ -294,7 +303,6 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                                     },
                                                     Polygon {
                                                         transform: bind if(mouseY >= 0) {
-                                                                //System.out.println("BY: {System.currentTimeMillis()}: y = {mouseY}");    
                                                                 Transform.translate(5, mouseY-3.5);
                                                             } else {
                                                                 Transform.translate( 5, 3.5);
@@ -315,7 +323,7 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                     }
                                 }
                             },
-                            SplitView {
+                            SplitView { // Editor
                                 weight: 0.45
                                 content: BorderPanel {
                                     border: LineBorder {lineColor: Color.BLACK }
@@ -332,7 +340,7 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                                     bottom: BorderPanel {
                                                         visible: bind searchActive
                                                         border: EmptyBorder {top: 2, left: 4, bottom: 2, right: 4}
-                                                       center: Canvas {
+                                                        center: Canvas {
                                                             border: null
                                                             focusable: false
                                                             content: SearchPanel {
@@ -355,13 +363,42 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                                         opaque: true
                                                         selectedTextColor: Color.WHITE
                                                         foreground: Color.BLACK
-                                                        selectionColor: Color.MEDIUMAQUAMARINE
+                                                        selectionColor: Color.rgb(184, 207, 229);
                                                         tabSize: 4
                                                         lineWrap: false
                                                         border: EmptyBorder {left: 4, right: 4}
                                                         font: bind Font.Font("Monospaced", ["PLAIN"], fontSize)
                                                         text: bind userCode with inverse
-                                                        //annotation: bind for (err in errMessages)
+                                                        annotations: bind for (err in errMessages) {
+                                                        var lineNumber = err.getLineNumber();
+                                                        var columnNumber = err.getColumnNumber();
+                                                        var startPosition = err.getStartPosition();
+                                                        var endPosition = err.getEndPosition();
+                                                        var length = 1;
+                                                        if(endPosition.intValue() > startPosition.intValue()) {
+                                                            length = endPosition.intValue() - startPosition.intValue();
+                                                        }                                                            
+                                                            var la:LineAnnotation;
+                                                            la = LineAnnotation {
+                                                                line: lineNumber.intValue()
+                                                                column: columnNumber.intValue();
+                                                                length: length.intValue();
+                                                                toolTipText: "<html><div 'width=300'>{err.getMessage(null)}</div></html>"
+                                                                content: Canvas {
+                                                                    content: Polyline {
+                                                                        stroke: Color.RED
+                                                                        strokeLineJoin: StrokeLineJoin.BEVEL
+                                                                        strokeWidth: 0.5
+                                                                        transform: bind Transform.translate(0, la.currentHeight-1)
+                                                                        points: /* TODO bind */for (i in [0..la.currentWidth.intValue() step 2]) {
+                                                                            var x = i + la.currentWidth % 2;
+                                                                            [x, if(indexof i %2 ==0) then 1.5 else -1.5]
+                                                                        }
+                                                                    }
+                                                                }
+
+                                                            }
+                                                        }
                                                         rowHeader : Canvas {
                                                             cursor: Cursor.DEFAULT
                                                             background: Color.rgba(220, 220, 220, 255)
@@ -397,7 +434,7 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                     }
                                 }                                
                             },    
-                            SplitView {
+                            SplitView { //Error messages
                                 weight: 0.10
                                 content: BorderPanel {
                                     var listBox:ListBox;
@@ -414,8 +451,6 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
                                                 if(endPosition.intValue() > startPosition.intValue()) {
                                                     length = endPosition.intValue() - startPosition.intValue();
                                                 }
-                                                System.out.println("source = '{err.getSource()}'");
-                                                System.out.println("select {err.getClass()} ({lineNumber}, {columnNumber}, {startPosition}, {endPosition})");
                                                 editor.selectLocation(lineNumber.intValue(), columnNumber.intValue(), lineNumber.intValue(), 
                                                     columnNumber.intValue() + length);
                                             }
@@ -524,12 +559,10 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
     }
     
     function setSourcePath(urls: URL[]) {
-        System.out.println("setting source path to : {urls}");
         sourcePath = urls;
         //TODO compilation.setSourcePath(urls);
     }
     function setClassPath(urls: URL[]) {
-        System.out.println("setting class path to : {urls}");
         classPath = urls;
         //TODO compilation.setSourcePath(urls);
     }    
