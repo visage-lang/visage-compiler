@@ -3666,14 +3666,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 }
             }
             
-            @Override
-            public void visitSelect(JCFieldAccess tree) {
-                super.visitSelect(tree);
-                if (currentClass != null && tree.sym.kind != Kinds.TYP) {
-                    addOutersForOuterAccess(tree.sym, currentClass.sym);
-                }
-            }
-
             @Override // Need this because JavafxTreeScanner is not visiting the args of the JFXInstanciate tree. Starting to visit them generate tons of errors.
             public void visitInstanciate(JFXInstanciate tree) {
                 super.visitInstanciate(tree);
