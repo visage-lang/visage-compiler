@@ -36,6 +36,7 @@ tokens {
    SEMI_INSERT_START;
    ABSTRACT='abstract';
    ASSERT='assert';
+   AT='at';
    ATTRIBUTE='attribute';
    BIND='bind';
    BOUND='bound';
@@ -105,6 +106,7 @@ tokens {
    REVERSE='reverse';
    STEP='step';
    THEN='then';
+   TRIGGER='trigger';
    TYPEOF='typeof';
    WITH='with';
    WHERE='where';
@@ -730,6 +732,10 @@ namedTweenValue
         ;
 tweenValue
         : expr=primaryExpression TWEEN interpolate=name         -> ^(TWEEN $expr $interpolate)
+        ;
+keyFrameLiteral
+        : AT LPAREN time=TIME_LITERAL RPAREN LBRACE interpolateExpression? (SEMI interpolateExpression?)* (SEMI TRIGGER trigger=block)? RBRACE
+                                                -> ^(AT $time interpolateExpression* $trigger?)
         ;
 boundExpression 
 	: BIND expression (WITH INVERSE)?
