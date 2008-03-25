@@ -214,12 +214,12 @@ public class BoundRangeTest extends JavaFXTestCase {
         ns.set(3);
         assertEquals(exclusiveRange);
         assertEquals(0, exclusiveRange.get().getDepth());
-        assertEqualsAndClear(hle, "[0, 0] => [ ]");
+        assertEqualsAndClear(hle, "[0, 6] => [ ]");
         
         ns.set(-4);
         assertEquals(exclusiveRange, 10, 6, 2, -2, -6);
         assertEquals(0, exclusiveRange.get().getDepth());
-        assertEqualsAndClear(hle, "[0, 4] => [ 10, 6, 2, -2, -6 ]");
+        assertEqualsAndClear(hle, "[0, -1] => [ 10, 6, 2, -2, -6 ]");
     }
     
     public void testBoundNumberRange() {

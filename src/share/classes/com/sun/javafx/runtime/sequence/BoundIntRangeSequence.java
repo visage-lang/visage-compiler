@@ -154,10 +154,11 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
                 
                 assert oldValue != newValue;
                 
+                int oldSize = size;
                 computeBounds(lower, upper, newValue);
 
                 Sequence<Integer> newSeq = computeFull(lower, upper, step);
-                updateSlice(0, newSeq.isEmpty() ? 0 : (size - 1), newSeq, newSeq);
+                updateSlice(0, oldSize - 1, newSeq, newSeq);
             }
         });
     }

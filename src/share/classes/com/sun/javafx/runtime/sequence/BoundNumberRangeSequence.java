@@ -161,7 +161,7 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> impl
                 computeBounds(lower, upper, newValue);
 
                 Sequence<Double> newSeq = computeFull(lower, upper, step);
-                updateSlice(0, newSeq.isEmpty() ? 0 : (size - 1), newSeq, newSeq);
+                updateSlice(0, oldSize - 1, newSeq, newSeq);
             }
         });
     }
