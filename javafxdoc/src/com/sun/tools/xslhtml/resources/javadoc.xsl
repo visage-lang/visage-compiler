@@ -467,8 +467,7 @@
                 <i class="type"><xsl:value-of select="type/@simpleTypeName"/></i>
             </td>
             <td>
-                <xsl:value-of select="docComment/firstSentenceTags/Text"
-                              disable-output-escaping="yes"/>
+                <xsl:apply-templates select="docComment/firstSentenceTags"/>
             </td>
         </tr>
     </xsl:template>
