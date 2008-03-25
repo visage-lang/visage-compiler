@@ -135,6 +135,11 @@
         </html>
     </xsl:template>
     
+    
+    
+    
+    
+    <!-- =========== comments =========== -->
     <xsl:template match="docComment/commentText">
         <p class="comment">
             <xsl:value-of select="." disable-output-escaping="yes"/>
@@ -142,20 +147,16 @@
     </xsl:template>
     
     <xsl:template match="docComment/inlineTags">
-        <p class="comment">
-            <xsl:apply-templates/>
-        </p>
+        <p class="comment"><xsl:apply-templates/></p>
     </xsl:template>
     
     <xsl:template match="docComment/firstSentenceTags">
-        <p class="comment">
-            <xsl:apply-templates/>
-        </p>
+        <p class="comment"><xsl:apply-templates/></p>
     </xsl:template>
     
-    <xsl:template match="code">
-        <code><xsl:value-of select="." disable-output-escaping="yes"/></code>
-    </xsl:template>
+    <xsl:template match="Text"><xsl:value-of select="."/></xsl:template>
+    
+    <xsl:template match="code"><code><xsl:value-of select="." disable-output-escaping="yes"/></code></xsl:template>
     
     
     
@@ -526,8 +527,7 @@
             <xsl:if test="docComment/tags/advanced">
                 <xsl:attribute name="class">advanced</xsl:attribute>
             </xsl:if>
-            <xsl:value-of select="docComment/firstSentenceTags"
-                          disable-output-escaping="yes"/>
+            <xsl:apply-templates select="docComment/firstSentenceTags"/>
         </dd>
     </xsl:template>
     
