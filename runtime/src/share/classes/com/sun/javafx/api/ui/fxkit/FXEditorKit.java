@@ -61,6 +61,7 @@ public class FXEditorKit extends DefaultEditorKit {
             "and",
             "as",
             "assert",
+            "at",
             "attribute",
             "before",
             "bind",
@@ -115,6 +116,7 @@ public class FXEditorKit extends DefaultEditorKit {
             "throw",
             "true",
             "try",
+            "tween",
             "typeof",
             "var",
             "where",
@@ -249,7 +251,7 @@ public class FXEditorKit extends DefaultEditorKit {
             if(t.getType() != v3Lexer.EOF)
                 return new TokenImpl(t);
             }catch(Throwable th) {
-                int i = 0;
+                
             }
             return null;
         }
