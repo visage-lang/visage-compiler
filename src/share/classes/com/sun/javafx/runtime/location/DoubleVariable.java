@@ -75,7 +75,7 @@ public class DoubleVariable
 
     protected double replaceValue(double newValue) {
         double oldValue = $value;
-        if (oldValue != newValue || !isInitialized() || !everValid()) {
+        if (oldValue != newValue || !isInitialized()) {
             $value = newValue;
             setValid();
             notifyListeners(oldValue, newValue);

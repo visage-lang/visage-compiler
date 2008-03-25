@@ -3,9 +3,10 @@ package com.sun.javafx.runtime.location;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.javafx.runtime.AssignToBoundException;
-import com.sun.javafx.runtime.ErrorHandler;
+import com.sun.javafx.runtime.BindingException;
 import com.sun.javafx.runtime.Util;
+import com.sun.javafx.runtime.ErrorHandler;
+import com.sun.javafx.runtime.AssignToBoundException;
 
 /**
  * ObjectVariable
@@ -72,7 +73,7 @@ public class ObjectVariable<T>
 
     protected T replaceValue(T newValue) {
         T oldValue = $value;
-        if (!Util.isEqual(oldValue, newValue) || !isInitialized() || !everValid()) {
+        if (!Util.isEqual(oldValue, newValue) || !isInitialized()) {
             $value = newValue;
             setValid();
             notifyListeners(oldValue, newValue);

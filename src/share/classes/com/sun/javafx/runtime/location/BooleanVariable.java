@@ -58,7 +58,7 @@ public class BooleanVariable
 
     protected boolean replaceValue(boolean newValue) {
         boolean oldValue = $value;
-        if (oldValue != newValue || !isInitialized() || !everValid()) {
+        if (oldValue != newValue || !isInitialized()) {
             $value = newValue;
             setValid();
             notifyListeners(oldValue, newValue);
