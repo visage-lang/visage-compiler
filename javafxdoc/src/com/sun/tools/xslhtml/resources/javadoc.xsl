@@ -566,7 +566,7 @@
             <dl class="returns">
                 Returns
                 <dt><xsl:value-of select="returns/@simpleTypeName"/></dt>
-                <dd><xsl:value-of select="type/@dimension"/></dd>
+                <dd><xsl:apply-templates select="docComment/tags/return/inlineTags"/></dd>
             </dl>
             
             <xsl:apply-templates select="docComment/inlineTags"/>
