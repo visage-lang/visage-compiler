@@ -487,7 +487,7 @@
                 </h4>
             </a>
             
-            <xsl:apply-templates select="docComment/commentText"/>
+            <xsl:apply-templates select="docComment/inlineTags"/>
         </div>
     </xsl:template>
     
