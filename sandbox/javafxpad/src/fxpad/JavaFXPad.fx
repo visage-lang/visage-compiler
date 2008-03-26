@@ -39,6 +39,7 @@ import javafx.ui.animation.*;
 import java.lang.StringBuffer;
 import java.io.*;
 import java.net.URL;
+import java.net.MalformedURLException;
 
 /**
  * @author jclarke
@@ -49,6 +50,11 @@ public class JavaFXPad extends CompositeWidget {
     attribute scrEng:ScriptEngine = manager.getEngineByExtension("javafx");
     attribute engine:JavaFXScriptEngine = scrEng as JavaFXScriptEngine;
     
+    private function loadBootScript():String {
+        return getResourceAsString("{__DIR__}BootScript.script");
+    }
+    attribute bootLoad:Boolean = true;
+     
     attribute url:String;
     attribute sourcePath: URL[];
     attribute classPath: URL[];
@@ -95,17 +101,10 @@ public class JavaFXPad extends CompositeWidget {
     };
     
     attribute editor: SourceEditor;
-    attribute validateAutomatically: Boolean = true on replace {
-        System.out.println("validateAutomatically = {validateAutomatically}");
-    };   
-    attribute runAutomatically: Boolean = true on replace {
-        System.out.println("runAutomatically = {runAutomatically}");
-    };   
-    attribute userCode: String = "import javafx.ui.*;
-import javafx.ui.canvas.*;
-Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD'], 36) }"
-
-    on replace {
+    attribute validateAutomatically: Boolean = true;
+    attribute runAutomatically: Boolean = true;
+    
+    attribute userCode: String = loadBootScript()  on replace {
         if(validateAutomatically) {
             compile();
         }
@@ -168,9 +167,11 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
             }
             reader.close();
             return buf.toString();
-        } catch (e) {
+        }catch (e:MalformedURLException) {
+            System.out.println(e.getMessage());
+        } catch (ignore:java.lang.Exception) {
         // ignore
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return "";
     }
@@ -187,7 +188,8 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
     
     private function doRealCompile():Void {
         var program = userCode;
-        evaluate(program, runAutomatically);
+        //TODO evaluate(program, runAutomatically );
+        evaluate(program, runAutomatically );
     }
     
     private function evaluate(sourceCode:String, run:Boolean) {
@@ -566,6 +568,6 @@ Text \{ content: 'foobar jim', fill:Color.RED, font:Font.Font('Tahoma', ['BOLD']
         classPath = urls;
         //TODO compilation.setSourcePath(urls);
     }    
-    
+   
 
 }
