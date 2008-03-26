@@ -37,7 +37,7 @@ public class Panel extends Widget {
     override attribute focusable = false;
 
     // TODO MARK AS FINAL
-    private attribute jpanel:javax.swing.JPanel;
+    private attribute jpanel:javax.swing.JPanel = new javax.swing.JPanel();
 
     /** A list of the components contained in this panel */
     public attribute content: Widget[] on replace oldValue[lo..hi]=newVals {
@@ -54,12 +54,8 @@ public class Panel extends Widget {
     };
 
     public function createComponent():javax.swing.JComponent{
-        jpanel = new javax.swing.JPanel();
         jpanel.setOpaque(false);
         jpanel.setLayout(null);
-        for (i in [0..<sizeof content]) {
-            jpanel.add(content[i].getComponent(), i);
-        }
         return jpanel;
     }
 }
