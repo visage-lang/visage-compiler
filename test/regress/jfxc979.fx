@@ -8,11 +8,11 @@
 import java.lang.System;
 
 class Foo {
-    public attribute a on replace {
+    attribute a : Integer on replace {
         b = a;
     }
      
-    public attribute b;
+    attribute b : Integer;
 }
 
 var x = 10;
