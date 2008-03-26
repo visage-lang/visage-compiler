@@ -558,7 +558,7 @@
                     Parameters
                     <xsl:for-each select="parameters/parameter">
                         <dt><xsl:value-of select="@name"/></dt>
-                        <dd><xsl:value-of select="type/@toString"/></dd>
+                        <dd><xsl:apply-templates select="../../docComment/tags/param/inlineTags"/></dd>
                     </xsl:for-each>
                 </dl>
             </xsl:if>
