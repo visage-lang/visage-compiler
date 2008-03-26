@@ -452,7 +452,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitFunctionValue(JFXFunctionValue tree) {
         JFXFunctionDefinition def = tree.definition;
-        result = makeConstantLocation(tree.pos(), tree.type, toJava.makeFunctionValue(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type) );
+        result = makeConstantLocation(tree.pos(), targetType(tree.type), toJava.makeFunctionValue(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type) );
     }
         
     public void visitBlockExpression(JFXBlockExpression tree) {   //done
@@ -827,10 +827,11 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitConditional(final JCConditional tree) {
+        Type targetType = targetType(tree.type);
         result = makeBoundConditional(tree.pos(), 
-                tree.type,
-                translate(tree.getTrueExpression()),
-                translate(tree.getFalseExpression()),
+                targetType,
+                translate(tree.getTrueExpression(), targetType),
+                translate(tree.getFalseExpression(), targetType),
                 translate(tree.getCondition()) );
     }
 
