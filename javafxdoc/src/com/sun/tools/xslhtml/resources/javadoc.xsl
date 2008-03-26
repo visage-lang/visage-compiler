@@ -563,11 +563,13 @@
                 </dl>
             </xsl:if>
             
-            <dl class="returns">
-                Returns
-                <dt><xsl:value-of select="returns/@simpleTypeName"/></dt>
-                <dd><xsl:apply-templates select="docComment/tags/return/inlineTags"/></dd>
-            </dl>
+            <xsl:if test="not(returns/@simpleTypeName='void')">
+                <dl class="returns">
+                    Returns
+                    <dt><xsl:value-of select="returns/@simpleTypeName"/></dt>
+                    <dd><xsl:apply-templates select="docComment/tags/return/inlineTags"/></dd>
+                </dl>
+            </xsl:if>
             
             <xsl:apply-templates select="docComment/inlineTags"/>
             
