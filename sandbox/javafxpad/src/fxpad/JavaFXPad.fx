@@ -371,15 +371,13 @@ public class JavaFXPad extends CompositeWidget {
                                                         border: EmptyBorder {left: 4, right: 4}
                                                         font: bind Font.Font("Monospaced", ["PLAIN"], fontSize)
                                                         text: bind userCode with inverse
-                                                        annotations: bind for (err in errMessages) {
-                                                        var lineNumber = err.getLineNumber();
-                                                        var columnNumber = err.getColumnNumber();
-                                                        var startPosition = err.getStartPosition();
-                                                        var endPosition = err.getEndPosition();
-                                                        var length = 1;
-                                                        if(endPosition.intValue() > startPosition.intValue()) {
-                                                            length = endPosition.intValue() - startPosition.intValue();
-                                                        }                                                            
+							//TODO: assign not allowed in bind, but needed for attribute reference, so bind commented out
+                                                        annotations: /* TODO bind*/ for (err in errMessages) {
+                                                            var lineNumber = err.getLineNumber();
+                                                            var columnNumber = err.getColumnNumber();
+                                                            var startPosition = err.getStartPosition();
+                                                            var endPosition = err.getEndPosition();
+                                                            var length = if (endPosition.intValue() > startPosition.intValue()) endPosition.intValue() - startPosition.intValue() else 1;
                                                             var la:LineAnnotation;
                                                             la = LineAnnotation {
                                                                 line: lineNumber.intValue()
