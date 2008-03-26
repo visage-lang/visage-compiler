@@ -52,13 +52,26 @@ public class PointerTest extends JavaFXTestCase {
         Pointer[] pointers = new Pointer[] { pseqvar, pseqexp, pintvar1, pintvar2 };
         for (int i=0; i<pointers.length; i++)
             for (int j=0; j<pointers.length; j++)
-                if (i == j)
+                if (i == j) {
                     assertEquals(pointers[i], pointers[j]);
+                    assertEquals(pointers[i].hashCode(), pointers[j].hashCode());
+                }
                 else
                     assertFalse(pointers[i].equals(pointers[j]));
 
         Pointer anotherPintvar2 = Pointer.make(intvar2);
         assertEquals(pintvar2,  anotherPintvar2);
+        assertEquals(pintvar2.hashCode(),  anotherPintvar2.hashCode());
+
+        final DoubleLocation asDouble = Locations.asDoubleLocation(intvar1);
+        Pointer pdwrapper = Pointer.make(asDouble);
+        assertEquals(pintvar1, pdwrapper);
+        assertEquals(pintvar1.hashCode(), pdwrapper.hashCode());
+
+        final ObjectLocation<Integer> asObject = Locations.asObjectLocation(intvar1);
+        Pointer powrapper = Pointer.make(asObject);
+        assertEquals(pintvar1, powrapper);
+        assertEquals(pintvar1.hashCode(), powrapper.hashCode());
 
         assertEquals((Integer) 3, pintvar2.get());
         assertEquals((Integer) 3, anotherPintvar2.get());

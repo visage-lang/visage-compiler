@@ -56,4 +56,8 @@ public abstract class IndirectDoubleExpression extends DoubleVariable implements
     }
 
     protected abstract DoubleLocation computeLocation();
+
+    public DoubleLocation getUnderlyingLocation() {
+        return computeLocation();
+    }
 }

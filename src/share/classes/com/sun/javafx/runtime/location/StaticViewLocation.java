@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,10 +26,14 @@
 package com.sun.javafx.runtime.location;
 
 /**
- * IndirectLocation
+ * When computing dependency graphs of locations, some locations are really just views on another.  A ViewLocation
+ * provides a means of finding out the underlying location.
  *
  * @author Brian Goetz
  */
-public interface IndirectLocation<T extends Location> extends Location, DynamicViewLocation {
-    public abstract T computeLocationInternal();
+public interface StaticViewLocation extends DynamicViewLocation {
+
+    /** Get the Location that this location "really" represents */
+    @Override
+    public Location getUnderlyingLocation();
 }

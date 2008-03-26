@@ -85,8 +85,8 @@ public class Bindings {
         LinkedList<Location> toExplore = new LinkedList<Location>(newLocs);
         while (toExplore.size() > 0) {
             Location loc = toExplore.removeFirst();
-            while (loc instanceof ViewLocation)
-                loc = ((ViewLocation) loc).getUnderlyingLocation();
+            while (loc instanceof StaticViewLocation)
+                loc = ((StaticViewLocation) loc).getUnderlyingLocation();
             if (!knownLocs.contains(loc) && loc != location) {
                 knownLocs.add(loc);
                 toExplore.addAll(BijectiveBinding.getDirectPeers(loc));
@@ -97,8 +97,8 @@ public class Bindings {
 
     static boolean isPeerLocation(Location a, Location b) {
         Collection<Location> aPeers = getPeerLocations(a);
-        while (b instanceof ViewLocation)
-            b = ((ViewLocation) b).getUnderlyingLocation();
+        while (b instanceof StaticViewLocation)
+            b = ((StaticViewLocation) b).getUnderlyingLocation();
         return (aPeers != null && aPeers.contains(b));
     }
 

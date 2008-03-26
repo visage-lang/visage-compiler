@@ -26,7 +26,6 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.SequencePredicate;
 
 /**
  * Indirect locations are used to express bindings that respond nonuniformly with respect to dependencies. For example,
@@ -59,4 +58,8 @@ public abstract class IndirectSequenceExpression<T> extends SequenceVariable<T> 
     }
 
     protected abstract SequenceLocation<T> computeLocation();
+
+    public SequenceLocation<T> getUnderlyingLocation() {
+        return computeLocation();
+    }
 }

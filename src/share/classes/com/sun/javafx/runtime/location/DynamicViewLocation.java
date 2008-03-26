@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,17 +22,16 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-
 package com.sun.javafx.runtime.location;
 
 /**
- * When computing dependency graphs of locations, some locations are really just views on another.  A ViewLocation
- * provides a means of finding out the underlying location.
+ * DynamicViewLocation represents a location that is a view of another location, but which view might change over time.
+ * This is used by IndirectXxxLocation to represent things like "bind x.y"; it is a view onto (valueof x).y, where x
+ * can change.
  *
  * @author Brian Goetz
  */
-public interface ViewLocation extends Location {
-
-    /** Get the Location that this location "really" represents */
-    public Location getUnderlyingLocation();
+public interface DynamicViewLocation<T extends Location> {
+    /** Get the Location that this location represents right now */
+    public T getUnderlyingLocation();
 }

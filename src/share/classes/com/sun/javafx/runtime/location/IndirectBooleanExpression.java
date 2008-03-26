@@ -56,4 +56,8 @@ public abstract class IndirectBooleanExpression extends BooleanVariable implemen
     }
 
     protected abstract BooleanLocation computeLocation();
+
+    public BooleanLocation getUnderlyingLocation() {
+        return computeLocation();
+    }
 }

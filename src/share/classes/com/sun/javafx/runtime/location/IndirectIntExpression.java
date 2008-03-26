@@ -56,4 +56,8 @@ public abstract class IndirectIntExpression extends IntVariable implements Indir
     }
 
     protected abstract IntLocation computeLocation();
+
+    public IntLocation getUnderlyingLocation() {
+        return computeLocation();
+    }
 }

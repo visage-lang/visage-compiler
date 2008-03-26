@@ -99,21 +99,16 @@ public class Pointer {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Pointer pointer = (Pointer) o;
-
-        if (location != null ? !location.equals(pointer.location) : pointer.location != null) return false;
-
-        return true;
+        if (this == o)
+            return true;
+        else
+            return (o instanceof Pointer)
+                    && Locations.getUnderlyingLocation(location) == Locations.getUnderlyingLocation(((Pointer) o).location);
     }
 
     @Override
     public int hashCode() {
-        int result;
-        result = (location != null ? location.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        return result;
+        Location loc = Locations.getUnderlyingLocation(location);
+        return loc != null ? loc.hashCode() : 0;
     }
 }

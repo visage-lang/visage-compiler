@@ -56,4 +56,8 @@ public abstract class IndirectObjectExpression<T> extends ObjectVariable<T> impl
     }
 
     protected abstract ObjectLocation<T> computeLocation();
+
+    public ObjectLocation<T>getUnderlyingLocation() {
+        return computeLocation();
+    }
 }

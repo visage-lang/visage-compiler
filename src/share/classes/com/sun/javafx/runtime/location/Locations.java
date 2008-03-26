@@ -17,6 +17,12 @@ public class Locations {
     private Locations() {
     }
 
+    public static Location getUnderlyingLocation(Location loc) {
+        while (loc instanceof DynamicViewLocation)
+            loc = ((DynamicViewLocation) loc).getUnderlyingLocation();
+        return loc;
+    }
+
     public static IntLocation constant(int value) {
         return IntConstant.make(value);
     }
@@ -150,7 +156,7 @@ public class Locations {
     /**
      * Wrapper class that creates a DoubleLocation view of an IntLocation
      */
-    private static class IntDoubleLocation extends LocationWrapper implements DoubleLocation, ViewLocation {
+    private static class IntDoubleLocation extends LocationWrapper implements DoubleLocation, StaticViewLocation {
         private final IntLocation location;
 
         protected IntLocation getLocation() {
@@ -227,7 +233,7 @@ public class Locations {
     }
 
 
-    private static class ObjectIntLocation extends LocationWrapper implements IntLocation, ViewLocation {
+    private static class ObjectIntLocation extends LocationWrapper implements IntLocation, StaticViewLocation {
         private final ObjectLocation<Integer> location;
 
         private ObjectIntLocation(ObjectLocation<Integer> location) {
@@ -284,7 +290,7 @@ public class Locations {
         }
     }
 
-    private static class ObjectDoubleLocation extends LocationWrapper implements DoubleLocation, ViewLocation {
+    private static class ObjectDoubleLocation extends LocationWrapper implements DoubleLocation, StaticViewLocation {
         private final ObjectLocation<Double> location;
 
         private ObjectDoubleLocation(ObjectLocation<Double> location) {
@@ -341,7 +347,7 @@ public class Locations {
         }
     }
 
-    private static class ObjectBooleanLocation extends LocationWrapper implements BooleanLocation, ViewLocation {
+    private static class ObjectBooleanLocation extends LocationWrapper implements BooleanLocation, StaticViewLocation {
         private final ObjectLocation<Boolean> location;
 
         private ObjectBooleanLocation(ObjectLocation<Boolean> location) {
@@ -402,7 +408,7 @@ public class Locations {
     /**
      * Wrapper class that creates an IntLocation view of a DoubleLocation
      */
-    private static class DoubleIntLocation extends LocationWrapper implements IntLocation, ViewLocation {
+    private static class DoubleIntLocation extends LocationWrapper implements IntLocation, StaticViewLocation {
         private final DoubleLocation location;
 
         protected DoubleLocation getLocation() {
