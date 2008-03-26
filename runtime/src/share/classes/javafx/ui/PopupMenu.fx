@@ -32,6 +32,7 @@ import javax.swing.event.PopupMenuEvent;
 
 
 public class PopupMenu {
+    // TODO MARK AS FINAL
     private attribute jpopupMenu: JPopupMenu;
     public attribute owner: Widget;
     public attribute items: MenuItem[] on replace oldValue[lo..hi]=newVals {

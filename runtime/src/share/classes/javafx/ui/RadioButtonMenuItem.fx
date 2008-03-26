@@ -29,6 +29,7 @@ import javafx.ui.MenuItem;
 import javafx.ui.SelectableButton;
 
 public class RadioButtonMenuItem extends MenuItem, SelectableButton {
+    // TODO MARK AS FINAL
     private attribute jradiobuttonmenuitem:javax.swing.JRadioButtonMenuItem = new javax.swing.JRadioButtonMenuItem();
     
     public function createMenuItem():javax.swing.JMenuItem  {

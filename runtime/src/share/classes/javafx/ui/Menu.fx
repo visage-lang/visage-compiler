@@ -35,6 +35,7 @@ public class Menu extends AbstractMenuItem {
 
     private attribute origrollover: Boolean;
     private attribute origbackground: java.awt.Color;
+    // TODO MARK AS FINAL
     private attribute jmenu:javax.swing.JMenu;
     public attribute text:String on replace {
         if (jmenu <> null) {

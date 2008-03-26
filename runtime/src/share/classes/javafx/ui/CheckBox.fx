@@ -145,7 +145,7 @@ public class CheckBox extends Widget {
             jcheckbox.revalidate(); 
         };            
     public attribute onChange: function(newValue:Boolean):Void;
-    public bound function createComponent():javax.swing.JComponent{
+    public function createComponent():javax.swing.JComponent{
         return jcheckbox;
     }
 

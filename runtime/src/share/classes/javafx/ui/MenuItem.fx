@@ -33,6 +33,7 @@ import java.awt.event.ActionEvent;
 import javafx.ui.AbstractMenuItem;
 
 public class MenuItem extends AbstractMenuItem {
+    // TODO MARK AS FINAL
     protected attribute jmenuitem:javax.swing.JMenuItem;
     public attribute actionCommand:javax.swing.Action on replace {
         if(jmenuitem <> null) {

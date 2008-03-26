@@ -39,7 +39,10 @@ import java.awt.Cursor;
  */
 
 public abstract class ScrollableWidget extends Widget {
+    // TODO MARK AS FINAL
     private attribute viewChangeListener: ChangeListener;
+
+    // TODO MARK AS FINAL
     protected attribute scrollpane: javax.swing.JScrollPane;
 
     /**
@@ -187,15 +190,12 @@ public abstract class ScrollableWidget extends Widget {
         }
     }
     
-    public function getViewRect(): java.awt.Rectangle  {
-        //TODO if() return else return
-        var r:java.awt.Rectangle;
+    public bound function getViewRect(): java.awt.Rectangle  {
         if (scrollpane <> null) {
-           r =  new java.awt.Rectangle(scrollpane.getViewport().getViewRect());
+            return new java.awt.Rectangle(scrollpane.getViewport().getViewRect());
         } else {
-            r =  new java.awt.Rectangle();
+            return new java.awt.Rectangle();
         }
-        return r;
     }
     // hide it for now - buggy <http://bugs.sun.com/bugdatabase/view_bug.dobug_id=6333318>
     private function scrollRectToVisible(rect:java.awt.Rectangle):Void {
@@ -205,15 +205,12 @@ public abstract class ScrollableWidget extends Widget {
             }
         }
     }
-    public function getViewPosition(): java.awt.Point  {
-        //TODO if() return else return
-        var pt:java.awt.Point;
+    public bound function getViewPosition(): java.awt.Point  {
         if (scrollpane <> null) {
-            pt =  new java.awt.Point(scrollpane.getViewport().getViewPosition());
+            return new java.awt.Point(scrollpane.getViewport().getViewPosition());
         } else {
-            pt =  new java.awt.Point();
+            return new java.awt.Point();
         }
-        return pt;
     }
     public function setViewPosition(point:java.awt.Point):Void {
         if (scrollpane <> null) {

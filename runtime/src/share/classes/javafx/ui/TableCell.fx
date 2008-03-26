@@ -96,7 +96,7 @@ public class TableCell {
         } 
     };
     
-    public function toString():String {
+    public bound function toString():String {
         return text;
     }
 }

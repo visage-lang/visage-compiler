@@ -32,6 +32,8 @@ import java.lang.Object;
 public class TextPane extends ScrollableWidget {
     private attribute inUpdate:Boolean;
     private attribute documentListener:javax.swing.event.DocumentListener;
+    
+    // TODO MARK AS FINAL
     private attribute jtextpane: javax.swing.JTextPane = javax.swing.JTextPane{} on replace {
         jtextpane.getDocument().putProperty("imageCache",
                                             UIElement.context.getImageCache());

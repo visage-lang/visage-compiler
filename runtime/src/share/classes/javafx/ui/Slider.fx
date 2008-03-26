@@ -30,6 +30,7 @@ public class Slider extends Widget {
 
     override attribute focusable = false;
 
+    // TODO MARK AS FINAL
     private attribute jslider:JSlider;
 
     public attribute min: Number = 0 on replace {

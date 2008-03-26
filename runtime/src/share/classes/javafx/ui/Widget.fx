@@ -62,7 +62,7 @@ public abstract class Widget extends GroupElement, UIElement {
 
     private attribute inBoundsListener: Boolean;
 
-    function makeKeyEvent(e:java.awt.event.KeyEvent):KeyEvent {
+    static function makeKeyEvent(e:java.awt.event.KeyEvent):KeyEvent {
         var modifiers:KeyModifier[] = [
             if (e.isControlDown() ) KeyModifier.CTRL else null, 
             if (e.isShiftDown()) KeyModifier.SHIFT else null,
@@ -138,7 +138,7 @@ public abstract class Widget extends GroupElement, UIElement {
             }
         }
     }
-    private function makeMouseEvent(e:java.awt.event.MouseEvent):MouseEvent {
+    private static function makeMouseEvent(e:java.awt.event.MouseEvent):MouseEvent {
         return MouseEvent {
             modifiers: [if (e.isAltDown() ) KeyModifier.ALT else null,
                         if (e.isControlDown() ) KeyModifier.CTRL else null, 
@@ -152,7 +152,7 @@ public abstract class Widget extends GroupElement, UIElement {
             source: e
         };
     }
-    private function makeMouseWheelEvent(e:java.awt.event.MouseWheelEvent):MouseWheelEvent {
+    private static function makeMouseWheelEvent(e:java.awt.event.MouseWheelEvent):MouseWheelEvent {
         MouseWheelEvent {
             modifiers: [if (e.isAltDown() ) KeyModifier.ALT else null,
                         if (e.isControlDown() ) KeyModifier.CTRL else null, 
@@ -302,6 +302,7 @@ public abstract class Widget extends GroupElement, UIElement {
     
 
     /** read-only attribute providing access to the underlying Swing component */
+    // TODO MARK AS FINAL
     public attribute component: javax.swing.JComponent;
 
     /** Hint to GroupLayout to make this component's height equal to others in the same row */

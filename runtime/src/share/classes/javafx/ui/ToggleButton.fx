@@ -30,7 +30,9 @@ import javafx.ui.Icon;
 import javafx.ui.KeyStroke;
 
 public class ToggleButton extends SelectableButton {
+    // TODO MARK AS FINAL
     protected attribute button: com.sun.javafx.api.ui.XToggleButton;
+    
     public attribute defaultButton: Boolean;
     public attribute text: String on replace {
         button.setText(text);

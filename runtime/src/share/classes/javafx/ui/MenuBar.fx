@@ -33,6 +33,7 @@ public class MenuBar extends Widget {
     override attribute opaque = true;
     override attribute focusable = false;
 
+    // TODO MARK AS FINAL
     attribute jmenubar:javax.swing.JMenuBar= javax.swing.JMenuBar{};
     public attribute menus: Menu[] on replace oldValue[lo..hi]=newVals {
         for(k in [lo..hi]) { 

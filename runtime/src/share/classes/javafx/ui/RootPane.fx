@@ -32,6 +32,7 @@ public class RootPane extends Widget {
 
     override attribute focusable = false;
 
+    // TODO MARK AS FINAL
     private attribute jrootpane:javax.swing.JRootPane;
     public attribute menubar: MenuBar on replace {
         jrootpane.setJMenuBar(menubar.getComponent() as javax.swing.JMenuBar);

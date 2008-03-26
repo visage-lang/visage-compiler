@@ -84,7 +84,7 @@ public class TreeCell {
         }        
     };
     
-    public function toString():String {
+    public bound function toString():String {
         return text;
     }
 

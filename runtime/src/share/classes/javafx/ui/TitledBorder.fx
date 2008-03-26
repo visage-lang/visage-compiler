@@ -34,7 +34,7 @@ public class TitledBorder extends Border {
     public attribute titleColor: Color;
 
     
-    public function getBorder():javax.swing.border.Border {
+    public bound function getBorder():javax.swing.border.Border {
         return new javax.swing.border.TitledBorder(border.getBorder(),
                                                        title,
                                                        titleJustification.id.intValue(),

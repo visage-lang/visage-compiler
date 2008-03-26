@@ -32,6 +32,7 @@ public class ProgressBar extends Widget {
 
     override attribute focusable = false;
 
+    // TODO MARK AS FINAL
     private attribute jprogressbar: javax.swing.JProgressBar;
     public attribute min: Number = 0 on replace {
         if(jprogressbar <> null) {

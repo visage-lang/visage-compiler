@@ -43,10 +43,18 @@ import java.awt.Point;
 public class Table extends ScrollableWidget {
     private attribute UNSET: Integer = java.lang.Integer.MIN_VALUE;
     private attribute inSetSelection:Boolean;
+    
+    // TODO MARK AS FINAL
     private attribute selectionListener:javax.swing.event.ListSelectionListener;
+    
     private attribute selectionGeneration: Number;
+    
+    // TODO MARK AS FINAL
     attribute tableModel: com.sun.javafx.api.ui.UIContextImpl.XTableCellModel;
-    private attribute table:javax.swing.JTable = createTable();;
+    
+    // TODO MARK AS FINAL
+    private attribute table:javax.swing.JTable = createTable();
+    
     private attribute rowcount: Number;
     private attribute dirty: Boolean;
 
@@ -319,25 +327,23 @@ public class Table extends ScrollableWidget {
         return enableDND;
     };     
     
-    private function acceptDrop(value:Object):Boolean{
+    private bound function acceptDrop(value:Object):Boolean{
         if (this.canAcceptDrop <> null) {
             var info = MouseInfo.getPointerInfo();
             var location = table.getLocationOnScreen();
             var p = info.getLocation();
-            var x = p.getX() - location.getX();
-            var y = p.getY() - location.getY();
-            p.setLocation(x, y);
             var e = DropEvent {
-                x: p.getX()
-                y: p.getY()
+                x: p.getX() - location.getX()
+                y: p.getY() - location.getY()
                 transferData: value
                 dropMode: dropMode
             };
             return (this.canAcceptDrop)(e);
+        } else {
+            return onDrop <> null;
         }
-        return onDrop <> null;
     }
-    private function getDragValue(): java.lang.Object  {
+    private bound function getDragValue(): java.lang.Object  {
         var c1 = selection * sizeof columns;
         var c2 = c1 + sizeof columns;
         var result = for (i in [c1..c2-1]) {
@@ -428,7 +434,7 @@ public class Table extends ScrollableWidget {
             },
             com.sun.javafx.api.ui.ValueAcceptor {
                 public
-                function accept(value:Object):Boolean {
+                bound function accept(value:Object):Boolean {
                     return if(onDrop <> null and enableDND) {
                         acceptDrop(value);
                     } else {
@@ -442,7 +448,7 @@ public class Table extends ScrollableWidget {
             },
             com.sun.javafx.api.ui.VisualRepresentation {
                 public
-                function getComponent(value:Object):java.awt.Component {
+                bound function getComponent(value:Object):java.awt.Component {
                     var label = Label {
                         opaque: true
                         border: LineBorder {

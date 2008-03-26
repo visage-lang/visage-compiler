@@ -34,7 +34,7 @@ public class MatteBorder extends Border{
     public attribute tileIcon: Icon;
 
 
-    public function getBorder():javax.swing.border.Border {
+    public bound function getBorder():javax.swing.border.Border {
         return if (matteColor == null) then {
             new javax.swing.border.MatteBorder(top.intValue(),
                                                           left.intValue(),

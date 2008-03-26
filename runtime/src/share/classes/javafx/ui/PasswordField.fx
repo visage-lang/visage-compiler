@@ -38,6 +38,7 @@ import java.awt.Point;
 
 public class PasswordField extends Widget {
     protected attribute inListener: Boolean;
+    // TODO MARK AS FINAL
     private attribute textField: javax.swing.JPasswordField;
 
     public attribute value: String on replace {
@@ -155,23 +156,23 @@ public class PasswordField extends Widget {
     };  
     
     
-    private function acceptDrop(value:Object):Boolean{
+    private bound function acceptDrop(value:Object):Boolean{
         if (this.canAcceptDrop <> null) {
             var info = MouseInfo.getPointerInfo();
             var location = textField.getLocationOnScreen();
             var p = info.getLocation();
             var x = p.getX() - location.getX();
             var y = p.getY() - location.getY();
-            p.setLocation(x, y);
             var e = DropEvent {
-                x: p.getX()
-                y: p.getY()
+                x: x
+                y: y
                 transferData: value
                 dropMode: dropMode
             };
             return (this.canAcceptDrop)(e);
+        } else {
+            return onDrop <> null;
         }
-        return onDrop <> null;
     }
     
     private function setDropValue(value:Object):Void {
@@ -307,7 +308,7 @@ public class PasswordField extends Widget {
                 }
             },
             com.sun.javafx.api.ui.ValueAcceptor {
-                public function accept(value:Object):Boolean {
+                public bound function accept(value:Object):Boolean {
                     return if(onDrop <> null and enableDND) {
                         acceptDrop(value);
                     } else {
@@ -320,7 +321,7 @@ public class PasswordField extends Widget {
                 }
             },
             com.sun.javafx.api.ui.VisualRepresentation {
-                public function getComponent(value:Object):Component {
+                public bound function getComponent(value:Object):Component {
                     var label = TextField {
                         value: "****"
                         border: border

@@ -27,6 +27,7 @@ package javafx.ui;
 
 
 public class MenuSeparator extends AbstractMenuItem {
+    // TODO MARK AS FINAL
     private attribute jsep:javax.swing.JSeparator = javax.swing.JPopupMenu.Separator{} 
     on replace {
         jsep.setOpaque(false);

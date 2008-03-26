@@ -36,8 +36,11 @@ public class SplitPane extends Widget {
 
     override attribute focusable = false;
 
+    // TODO MARK AS FINAL
     protected attribute split:com.sun.javafx.api.ui.MultiSplitPane
                                = new com.sun.javafx.api.ui.MultiSplitPane();
+    
+    // TODO MARK AS FINAL
     protected attribute root: com.sun.javafx.api.ui.MultiSplitLayout.Split
                                = com.sun.javafx.api.ui.MultiSplitLayout.Split{};
 

@@ -36,7 +36,9 @@ public class Panel extends Widget {
 
     override attribute focusable = false;
 
+    // TODO MARK AS FINAL
     private attribute jpanel:javax.swing.JPanel;
+
     /** A list of the components contained in this panel */
     public attribute content: Widget[] on replace oldValue[lo..hi]=newVals {
         if (jpanel <> null) {

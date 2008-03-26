@@ -29,7 +29,9 @@ import javafx.ui.Widget;
 import javafx.ui.Orientation;
 
 public class Separator extends Widget {
+    // TODO MARK AS FINAL
     private attribute jsep:javax.swing.JSeparator;
+    
     public attribute orientation: Orientation = Orientation.HORIZONTAL on replace {
         jsep.setOrientation(if (orientation == Orientation.VERTICAL) 
             then javax.swing.JSeparator.VERTICAL 

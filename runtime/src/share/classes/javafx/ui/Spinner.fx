@@ -30,6 +30,7 @@ public class Spinner extends Widget {
 
     override attribute focusable = false;
 
+    // TODO MARK AS FINAL
     protected attribute spinner:javax.swing.JSpinner = UIElement.context.createSpinner() on replace {
         spinner.addChangeListener(javax.swing.event.ChangeListener {
             public function stateChanged(e:javax.swing.event.ChangeEvent):Void {

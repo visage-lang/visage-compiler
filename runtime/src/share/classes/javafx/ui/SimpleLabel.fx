@@ -33,7 +33,9 @@ public class SimpleLabel extends Widget {
 
     override attribute focusable = false;
 
+    // TODO MARK AS FINAL
     private attribute jlabel:javax.swing.JLabel;
+    
     public attribute text:String on replace {
         if(jlabel <> null) {
             jlabel.setText(text);

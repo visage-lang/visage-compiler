@@ -31,10 +31,16 @@ import java.lang.System;
 import java.awt.Dimension;
 
 public class SplitView {
-    protected  attribute id: String = "{System.identityHashCode(this)}";
+    // TODO MARK AS FINAL
+    protected attribute id: String = "{System.identityHashCode(this)}";
+
+    // TODO MARK AS FINAL
     protected attribute splitpane: SplitPane;
-    protected  attribute splitnode: com.sun.javafx.api.ui.MultiSplitLayout.Leaf
+
+    // TODO MARK AS FINAL
+    protected attribute splitnode: com.sun.javafx.api.ui.MultiSplitLayout.Leaf
         = new com.sun.javafx.api.ui.MultiSplitLayout.Leaf(id);
+
     public attribute weight: Number on replace {
         if (splitnode <> null) {
             splitnode.setWeight(weight);

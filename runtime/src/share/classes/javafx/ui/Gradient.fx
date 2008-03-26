@@ -28,7 +28,9 @@ package javafx.ui;
 import javafx.ui.canvas.Transformable;
 
 public abstract class Gradient extends Transformable, Paint  {
+    // TODO MARK AS FINAL
     protected attribute gradient: java.awt.Paint;
+
     /** The ramp of colors to use on this gradient */
     public attribute stops: Stop[] on replace oldv[i..j]= foo{
             createGradient();

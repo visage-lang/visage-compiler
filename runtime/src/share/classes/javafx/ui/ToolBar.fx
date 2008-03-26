@@ -34,6 +34,7 @@ public class ToolBar extends Widget {
     override attribute opaque = true;
     override attribute focusable = false;
 
+    // TODO MARK AS FINAL
     private attribute panel: javax.swing.JPanel = new javax.swing.JPanel() on replace {
         panel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 0, 0));
         panel.setBorder(null);

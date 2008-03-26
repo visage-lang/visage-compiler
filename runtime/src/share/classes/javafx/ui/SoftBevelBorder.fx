@@ -27,7 +27,7 @@ package javafx.ui;
 
 public class SoftBevelBorder extends BevelBorder {
 
-    public function getBorder():javax.swing.border.Border {
+    public bound function getBorder():javax.swing.border.Border {
         return new javax.swing.border.SoftBevelBorder(style.id.intValue(),
                                                       highlight.getColor(),
                                                       innerHighlight.getColor(),

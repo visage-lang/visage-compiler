@@ -36,8 +36,12 @@ import java.lang.System;
 import javax.swing.TransferHandler;
 
 public class Tree extends ScrollableWidget {
+    // TODO MARK AS FINAL
     attribute tree: javax.swing.JTree = UIElement.context.createTree();
+    
+    // TODO MARK AS FINAL
     private attribute cellRenderer: FXTreeCellRenderer;
+    
     attribute inSelectionChange: Boolean on replace {
          if (not inSelectionChange) {
             tree.repaint();
@@ -430,17 +434,14 @@ public class Tree extends ScrollableWidget {
     };  
     
     
-    private function acceptDrop(value:Object):Boolean{
+    private bound function acceptDrop(value:Object):Boolean{
         if (this.canAcceptDrop <> null) {
             var info = MouseInfo.getPointerInfo();
             var location = tree.getLocationOnScreen();
             var p = tree.getLocation();
-            var x = p.getX() - location.getX();
-            var y = p.getY() - location.getY();
-            p.setLocation(x, y);
             var e = TreeDropEvent {
-                x: p.getX()
-                y: p.getY()
+                x: p.getX() - location.getX();
+                y: p.getY() - location.getY();
                 transferData: value
                 selection: tree.getSelectionPath()
             };
@@ -495,7 +496,7 @@ public class Tree extends ScrollableWidget {
             },
             com.sun.javafx.api.ui.ValueAcceptor {
                 public
-                function accept(value:Object):Boolean {
+                bound function accept(value:Object):Boolean {
                     return if(onDrop <> null and enableDND) {
                         acceptDrop(value);
                     } else {
@@ -509,7 +510,7 @@ public class Tree extends ScrollableWidget {
             },
             com.sun.javafx.api.ui.VisualRepresentation {
                 public
-                function getComponent(value:Object):java.awt.Component {
+                bound function getComponent(value:Object):java.awt.Component {
                     var label = Label {
                         opaque: true
                         border: LineBorder {

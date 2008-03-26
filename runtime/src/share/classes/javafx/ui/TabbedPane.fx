@@ -32,8 +32,12 @@ public class TabbedPane extends Widget {
     override attribute opaque = true;
     override attribute focusable = false;
 
+    // TODO MARK AS FINAL
     protected attribute tabbedpane: javax.swing.JTabbedPane = UIElement.context.createTabbedPane();
+
+    // TODO MARK AS FINAL
     private attribute changeListener: javax.swing.event.ChangeListener;
+
     public attribute selectedIndex: Number = -1 on replace {
         if (component <> null and selectedIndex <> -1) {
             var model = tabbedpane.getModel();
