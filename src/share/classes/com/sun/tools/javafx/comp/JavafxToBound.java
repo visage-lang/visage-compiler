@@ -220,14 +220,14 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
         JCModifiers mods = tree.getModifiers();
         long modFlags = mods == null ? 0L : mods.flags;
-        modFlags |= Flags.FINAL;  // Locations are never overwritte
+        modFlags |= Flags.FINAL;  // Locations are never overwritten
         mods = make.at(diagPos).Modifiers(modFlags);
         
         VarMorphInfo vmi = typeMorpher.varMorphInfo(tree.sym);
         JCExpression typeExpression = toJava.makeTypeTree(vmi.getLocationType(), diagPos, true);
 
         //TODO: handle array initializers (but, really, shouldn't that be somewhere else?)
-        JCExpression init = translate(tree.init);
+        JCExpression init = translate(tree.init, vmi.getRealFXType());
 
         return make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
     }
@@ -483,9 +483,27 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
  
     @Override
     public void visitAssign(JCAssign tree) {
-        log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "=");
+        //TODO: this should probably not be allowed
+        // log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "=");
+        DiagnosticPosition diagPos = tree.pos();
+        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(tree.type);
+        int typeKind = tmi.getTypeKind();
+        // create a temp var to hold the RHS
+        JCVariableDecl varDecl = toJava.makeTmpVar(diagPos, tmi.getLocationType(), translate(tree.rhs));
+        // call the set method
+        JCStatement setStmt = toJava.callStatement(diagPos,
+                translate(tree.lhs),
+                defs.locationSetMethodName[typeKind],
+                toJava.callExpression(diagPos,
+                    make.at(diagPos).Ident(varDecl.name),
+                    defs.locationGetMethodName[typeKind]));
+        // bundle it all into a block-expression that looks like --
+        // { ObjectLocation tmp = rhs; lhs.set(tmp.get()); tmp }
+        result = ((JavafxTreeMaker) make).at(diagPos).BlockExpression(0L,
+                List.of(varDecl, setStmt),
+                make.at(diagPos).Ident(varDecl.name));
     }
-
+    
     @Override
     public void visitAssignop(JCAssignOp tree) {
         log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "=");
@@ -506,7 +524,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         }
         
         protected JCTree makeComputeSelectMethod(JCExpression expr) {
-            List<JCVariableDecl> params = List.of(makeParam(tmiSelector.getRealType(), selectorParamName));
+            List<JCVariableDecl> params = List.of(makeParam(tmiSelector.getRealFXType(), selectorParamName));
             return makeClosureMethod("computeSelect", expr, params);
         }
 
@@ -514,7 +532,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
         protected JCExpression makeBaseClass() {
             Type clazzType = tmiResult.getBoundSelectLocationType();
-            return makeBaseClass(clazzType, tmiSelector.getRealType());
+            return makeBaseClass(clazzType, tmiSelector.getRealFXType());
         }
 
         protected List<JCExpression> makeConstructorArgs() {
@@ -905,7 +923,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             Type depsReturnType = new Type.ArrayType(locationType, syms.arrayClass);
             members.append(makeClosureMethod("getStaticDependents", depsArray, null, depsReturnType, Flags.PROTECTED));
 
-            members.append(makeClosureMethod("computeValue", resultVal, null, tmiResult.getRealType(), Flags.PUBLIC));
+            members.append(makeClosureMethod("computeValue", resultVal, null, tmiResult.getRealFXType(), Flags.PUBLIC));
             return members.toList();
         }
 
