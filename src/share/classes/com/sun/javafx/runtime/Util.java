@@ -36,8 +36,13 @@ public class Util {
         return capacity;
     }
 
+    /**
+     * Return the default value for a type.
+     * @param clazz the class to use to determine default value Class<T>
+     * @return the default value
+     */
     @SuppressWarnings("unchecked")
-    public static<T> T defaultValue(Class<T> clazz) {
+    public static<T> T defaultValue(Class clazz) {
         if (clazz == Integer.class)
             return (T) Integer.valueOf(0);
         else if (clazz == Double.class)
