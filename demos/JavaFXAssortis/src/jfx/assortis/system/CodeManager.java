@@ -27,7 +27,7 @@
 package jfx.assortis.system;
 
 import com.sun.javafx.api.JavafxcTask;
-import com.sun.javafx.api.JavafxcTool;
+import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.tools.javafx.script.MemoryFileManager;
 import java.io.IOException;
 import java.io.PrintWriter;
