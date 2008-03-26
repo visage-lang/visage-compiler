@@ -33,12 +33,14 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
     protected void ensureBindable() {
         if (isBound())
             throw new BindingException("Cannot rebind variable");
-        else if (isInitialized())
-            throw new BindingException("Cannot bind variable that already has a value");
+        //TODO: commented-out as a temporary work-around to JFXC-979
+        //else if (isInitialized())
+        //    throw new BindingException("Cannot bind variable that already has a value");
     }
 
     public void bijectiveBind(ObjectLocation<T_VALUE> other) {
         ensureBindable();
+        super.invalidate(); //TODO: this is a work-around for JFXC-979
         setInitialized();
         Bindings.bijectiveBind(this, other);
     }
@@ -67,6 +69,7 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
 
     public void bind(boolean lazy, T_BINDING binding, Location... dependencies) {
         ensureBindable();
+        super.invalidate(); //TODO: this is a work-around for JFXC-979
         setInitialized();
         this.binding = binding;
         binding.setLocation(this);
