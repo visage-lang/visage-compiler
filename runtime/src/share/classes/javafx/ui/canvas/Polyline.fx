@@ -33,6 +33,8 @@ import com.sun.scenario.scenegraph.SGShape;
   * sequence of points (points) <br></br>[x1, y1, x2, y2, ..., xN, yN].
   */
 public class Polyline extends Shape {
+    
+    // TODO MARK AS FINAL
     private attribute awtPath: java.awt.geom.GeneralPath;
 
     /**

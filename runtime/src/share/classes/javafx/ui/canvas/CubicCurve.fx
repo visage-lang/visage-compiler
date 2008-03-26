@@ -34,6 +34,7 @@ import com.sun.scenario.scenegraph.SGShape;
  * (ctrlx1, ctrly1), (ctrlx2, ctrly2), and an end point (x2, y2).
  */
 public class CubicCurve extends Shape {
+    // TODO MARK AS FINAL
     private attribute awtCubicCurve: java.awt.geom.CubicCurve2D.Double;
 
     /** The  x coordinate of the start point of this cubic curve. */

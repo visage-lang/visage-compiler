@@ -49,7 +49,9 @@ import com.sun.javafx.api.ui.path.ext.awt.geom.PathLength.PathSegment;
 public abstract class Shape extends VisualNode, AbstractPathElement {
     override attribute selectable = false;
 
+    // TODO MARK AS FINAL
     protected attribute sgshape: SGShape;
+    
     protected abstract function createShape(): SGShape; // TODO: could return Shape here instead?
     public function getShape(): SGShape {
         if (sgshape == null) {
@@ -80,27 +82,30 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
         return awtTransformedShape;
     }
     public attribute outline: Boolean = false;
-    public function length(): Number {
+    public bound function length(): Number {
         var shape = this.getTransformedShape();
         if (shape <> null) {
             return pathLength.lengthOfPath();
+        } else {
+            return java.lang.Double.NaN;
         }
-        return java.lang.Double.NaN;
     }
-    public function pointAt(length: Number): java.awt.geom.Point2D {
+    public bound function pointAt(length: Number): java.awt.geom.Point2D {
         var shape = this.getTransformedShape();
         if (shape <> null) {
             return pathLength.pointAtLength(length.floatValue());
+        } else {
+            return null;
         }
-        return null;
     }
-    public function angleAt(length: Number): Number {
+    public bound function angleAt(length: Number): Number {
         var shape = this.getTransformedShape();
         if (shape <> null) {
             var angle = pathLength.angleAtLength(length.floatValue());
             return Math.toDegrees(angle);
+        } else {
+            return java.lang.Double.NaN;
         }
-        return java.lang.Double.NaN;
     }
     public function transformAt(length: Number): Transform[] {
         var pt = pointAt(length);

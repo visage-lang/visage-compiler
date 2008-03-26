@@ -33,6 +33,7 @@ import javafx.ui.Canvas;
 import javafx.ui.Cursor;
 
 public class CanvasCursor extends Cursor {
+    // TODO MARK AS FINAL
     private attribute canvas: Canvas;
 
     public attribute content: Node;

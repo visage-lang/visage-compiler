@@ -33,6 +33,7 @@ import com.sun.scenario.scenegraph.SGShape;
  * by a center point (cx, cy), and a radius (radius).
  */
 public class Circle extends Shape {
+    // TODO MARK AS FINAL
     private attribute awtEllipse: java.awt.geom.Ellipse2D.Double;
 
     /** The x coordinate of the center point of this circle. */

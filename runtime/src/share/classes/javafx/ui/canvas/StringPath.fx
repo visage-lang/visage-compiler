@@ -12,6 +12,8 @@ import java.io.StringReader;
 public class StringPath extends Shape {
 
     private attribute path2d: GeneralPath;
+    
+    // TODO MARK AS FINAL
     private attribute pathShape: SGShape;
 
     public attribute content: String on replace {

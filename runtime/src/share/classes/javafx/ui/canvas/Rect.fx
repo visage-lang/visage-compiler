@@ -37,6 +37,8 @@ import java.lang.System;
  * (arcWidth, arcHeight) with which to round the corners.
  */
 public class Rect extends Shape, SizeableCanvasElement {
+    
+    // TODO MARK AS FINAL
     private attribute awtrect: java.awt.geom.RoundRectangle2D.Double = 
         new java.awt.geom.RoundRectangle2D.Double();
 

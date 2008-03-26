@@ -33,7 +33,7 @@ public abstract class CanvasElement {
     /** The containing element of this element. */
     public attribute parentCanvasElement: CanvasElement;
     /** Convenience method to obtain the containing canvas. */
-    public function getCanvas(): Canvas {
+    public bound function getCanvas(): Canvas {
         var n = this.parentCanvasElement;
         if (n == null) {
             return null;
@@ -42,7 +42,7 @@ public abstract class CanvasElement {
     }
     
     /** Returns the canvas element that contains this element */
-    public function getContainer(): Container{
+    public bound function getContainer(): Container{
         var p = parentCanvasElement;
         while (p <> null) {
             if (p instanceof Container) {
@@ -77,7 +77,7 @@ public abstract class CanvasElement {
            getContainer().moveNodeToBack(this as Node);
         }
     }
-    public function hasParent(): Boolean {
+    public bound function hasParent(): Boolean {
         parentCanvasElement <> null;
     }
 }

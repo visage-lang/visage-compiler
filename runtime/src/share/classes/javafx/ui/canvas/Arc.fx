@@ -29,6 +29,7 @@ package javafx.ui.canvas;
 import com.sun.scenario.scenegraph.SGShape;
 
 public class Arc extends Shape {
+    // TODO MARK AS FINAL
     private attribute awtArc: java.awt.geom.Arc2D.Double;
 
     public attribute x: Number on replace {

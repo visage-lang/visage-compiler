@@ -30,7 +30,9 @@ import javafx.ui.Icon;
 import javafx.ui.Canvas;
 
 public class CanvasIcon extends Icon {
+    // TODO MARK AS FINAL
     private attribute canvas: Canvas = Canvas {content: bind content};
+    
     public attribute content: Node[];
     public function getIcon(): javax.swing.Icon {
         canvas.getComponent();

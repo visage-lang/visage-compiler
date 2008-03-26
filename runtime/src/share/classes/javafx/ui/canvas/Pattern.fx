@@ -48,8 +48,13 @@ import javafx.ui.Paint;
  */
 public class Pattern extends Paint {
     private attribute UNSET: Integer = java.lang.Integer.MIN_VALUE;
+    
+    // TODO MARK AS FINAL
     private attribute canvas: Canvas;
+    
+    // TODO MARK AS FINAL
     private attribute texturePaint: TexturePaint;
+    
     /** The x coordinate of the start point of the tile. Defaults to zero. */
     public attribute x: Number;
     /** The y coordinate of the start point of the tile. Defaults to zero */

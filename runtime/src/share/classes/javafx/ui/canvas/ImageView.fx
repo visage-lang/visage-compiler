@@ -39,7 +39,9 @@ import com.sun.scenario.scenegraph.SGNode;
  * A node that contains an Image. 
  */
 public class ImageView extends Node {
+    // TODO MARK AS FINAL
     private attribute sgimage: SGImage = new SGImage();
+    
     // Seems to be something wrong with this bind as
     // when image changes, awtImage does not get updated
     // after the original creation.
@@ -69,7 +71,7 @@ public class ImageView extends Node {
     };
     public attribute stretch: Stretch;
     public attribute stretchDirection: StretchDirection;
-    public function downloadPercentage(): Number{
+    public bound function downloadPercentage(): Number{
         var result = if (image.totalDownloadSize == 0) then 0 else image.totalDownloaded/image.totalDownloadSize;
         return result*100;
     }

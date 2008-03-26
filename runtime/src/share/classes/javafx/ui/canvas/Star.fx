@@ -36,7 +36,9 @@ import com.sun.scenario.scenegraph.SGShape;
  */
 public class Star extends Shape {
 
+    // TODO MARK AS FINAL
     private attribute awtPath: java.awt.geom.GeneralPath;
+    
     private function updatePolygon() {
         if (awtPath <> null) {
             awtPath.reset();

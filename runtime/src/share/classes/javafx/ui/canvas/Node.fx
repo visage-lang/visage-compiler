@@ -64,11 +64,12 @@ public abstract class Node extends CanvasElement, Transformable {
     public static attribute MOUSE_DRAG:MouseEvent = null;
     public static attribute MOUSE_DRAG_SCREEN:Point = null;
 
-    private function clamp(n:Number, min:Number, max:Number):Number{
+    private static function clamp(n:Number, min:Number, max:Number):Number{
        return Math.max(Math.min(n, max), min);
     }
     // private:
 
+    // TODO MARK AS FINAL
     protected attribute mouseListener: SGMouseListener;
 
     protected function installMouseListener() {

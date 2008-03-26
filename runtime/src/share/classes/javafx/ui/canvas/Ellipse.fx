@@ -34,6 +34,7 @@ import com.sun.scenario.scenegraph.SGShape;
  * radius (radiusY).
  */
 public class Ellipse extends Shape {
+    // TODO MARK AS FINAL
     private attribute awtEllipse: java.awt.geom.Ellipse2D.Double;
 
     /** the x coordinate of the center point of this ellipse.*/

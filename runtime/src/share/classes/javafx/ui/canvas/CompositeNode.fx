@@ -37,6 +37,7 @@ import javafx.ui.canvas.CanvasElement;
  */
 public abstract class CompositeNode extends Node {
 
+    // TODO MARK AS FINAL
     private attribute __composite__: Node;
 
     /** Abstract method which returns the content of this user-defined node */

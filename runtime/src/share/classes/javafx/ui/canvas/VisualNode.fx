@@ -38,7 +38,10 @@ import com.sun.scenario.scenegraph.SGNode;
 
  */
 public abstract class VisualNode extends Node {
+    
+    // TODO MARK AS FINAL
     private attribute sgvisualnode: SGAbstractShape;
+    
     public attribute stroke: Paint on replace {
         if(stroke <> null) {
             awtStroke = stroke.getPaint();
@@ -78,7 +81,7 @@ public abstract class VisualNode extends Node {
         return sgvisualnode;
     }
 
-   private  function updateMode() {
+   private function updateMode() {
         if (sgvisualnode <> null) {
             if (awtFill <> null and awtStroke <> null) {
                 sgvisualnode.setMode(SGAbstractShape.Mode.STROKE_FILL);

@@ -34,6 +34,8 @@ import com.sun.scenario.scenegraph.SGShape;
  * and an end point (x2, y2).
  */
 public class QuadCurve extends Shape {
+    
+    // TODO MARK AS FINAL
     private attribute awtQuadCurve: java.awt.geom.QuadCurve2D.Double;
 
     /** The x coordinate of the start point of this quad curve. */

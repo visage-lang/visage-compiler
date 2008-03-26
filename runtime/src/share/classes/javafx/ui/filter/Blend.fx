@@ -32,7 +32,7 @@ public class Blend extends Filter {
         update();
     }
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    public bound function getImpl():com.sun.scenario.effect.Effect {
         blend
     };
 

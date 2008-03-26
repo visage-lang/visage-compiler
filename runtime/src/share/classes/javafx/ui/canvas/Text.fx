@@ -48,6 +48,7 @@ import java.lang.System;
 public class Text extends Shape {
     override attribute fill = Color.BLACK;
 
+    // TODO MARK AS FINAL
     private attribute textShape:SGShape;
 
     private attribute awtFont: java.awt.Font = bind font.getFont() on replace {

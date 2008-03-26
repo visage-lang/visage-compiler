@@ -34,6 +34,8 @@ import com.sun.scenario.scenegraph.SGShape;
  * the final point to the first point, if those points are different.
  */
 public class Polygon extends Shape {
+    
+    // TODO MARK AS FINAL
     private attribute awtPath: java.awt.geom.GeneralPath;
 
     /** The list of points that define this polygon */

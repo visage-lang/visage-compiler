@@ -35,6 +35,7 @@ import java.lang.Object;
  */
 public class Group extends Node, Container {
    /** The child members of this group */
+    // TODO MARK AS FINAL
     protected attribute sggroup: SGGroup;
 
     public attribute content: Node[]  on replace oldValue[lo..hi]=newVals {

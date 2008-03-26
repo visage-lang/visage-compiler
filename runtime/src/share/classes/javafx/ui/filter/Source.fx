@@ -32,7 +32,7 @@ public class Source extends Filter {
         update();
     }
     
-    public function getImpl():com.sun.scenario.effect.Effect {
+    public bound function getImpl():com.sun.scenario.effect.Effect {
         source
     };
     

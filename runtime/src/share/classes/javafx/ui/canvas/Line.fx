@@ -34,6 +34,7 @@ import com.sun.scenario.scenegraph.SGShape;
  */
 public class Line extends Shape {
 
+    // TODO MARK AS FINAL
     private attribute awtLine: java.awt.geom.Line2D;
 
     private function updateLine():Void {

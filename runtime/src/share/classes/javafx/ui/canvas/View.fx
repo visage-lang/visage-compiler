@@ -42,6 +42,7 @@ import java.awt.geom.Rectangle2D;
  * will be sized to its preferred size.
  */
 public class View extends Node, SizeableCanvasElement {
+    // TODO MARK AS FINAL
     private attribute sgcomponent: SGComponent;
 
     /** If true, the graphics context used to paint the widget will be anti-aliased. Defaults to false */
