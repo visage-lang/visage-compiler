@@ -141,6 +141,11 @@ public interface Sequence<T> extends Iterable<T> {
     public Sequence<T> flatten();
 
     /**
+     * Should this Sequence be flattened?
+     */
+    public boolean shouldFlatten();
+    
+    /**
      * Returns the number of levels of sequence objects between this Sequence object and the deepest data.
      * Leaf classes (e.g., ArraySequence, IntRangeSequence) have a depth of zero; composite classes have a depth
      * one greater than their deepest leaf.

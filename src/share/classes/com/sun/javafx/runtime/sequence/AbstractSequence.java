@@ -73,6 +73,17 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
     public int getDepth() {
         return 0;
     }
+    
+    public boolean shouldFlatten() {
+        boolean result = false;
+        // If the sequence is short or if the sequence is is too thin, 
+        // then copy it.
+        if (((0 < size()) && (size() <= 16)) ||
+            (getDepth() > Math.log((double) size()))) {
+            result = true;
+        }
+        return result;
+    }
 
     public <V> Sequence<V> map(Class<V> clazz, SequenceMapper<T, V> sequenceMapper) {
         return Sequences.map(clazz, this, sequenceMapper);
@@ -157,9 +168,8 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         if (getDepth() == 0)
             return this;
         else {
-            SequenceBuilder<T> sb = new SequenceBuilder<T>(getElementType());
-            for (T t : this)
-                sb.add(t);
+            SequenceBuilder<T> sb = new SequenceBuilder<T>(getElementType(), size());
+            sb.add(this);
             return sb.toSequence();
         }
     }

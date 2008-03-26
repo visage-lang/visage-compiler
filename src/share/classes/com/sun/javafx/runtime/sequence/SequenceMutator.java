@@ -137,12 +137,16 @@ public class SequenceMutator {
         // @@@ OPT: Consider a single-element insert sequence type
         if (startPos == endPos) {
             result = new ReplacementSequence<T>(target, startPos, newValue);
-            if (listener != null)
+            if (result.shouldFlatten()) {
+                result = result.flatten();
+            }
+            if (listener != null) {
                 listener.onReplaceSlice(startPos, endPos, singleton, target, result);
-            return result;
+            }
+        } else {
+            result = replaceSlice(target, listener, startPos, endPos, singleton);
         }
-        else
-            return replaceSlice(target, listener, startPos, endPos, singleton);
+        return result;
     }
 
     /**
