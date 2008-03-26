@@ -1176,20 +1176,33 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             init, bindStatus, vsym,
              instance, milieu) );
     }
-
+   
     private JCExpression translateDefinitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
             JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
             JCExpression instance, int milieu) {
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         List<JCExpression> args = translateDefinitionalAssignmentToArgs(diagPos, init, bindStatus, vmi);
         JCExpression localAttr;
-        if ((vsym.flags() & STATIC) != 0) {
-            // statics are accessed directly
-            localAttr = make.Ident(vsym);
+        
+        // if it is an attribute
+        if (vsym.owner.kind == Kinds.TYP) {
+            if ((vsym.flags() & STATIC) != 0) {
+                // statics are accessed directly
+                localAttr = make.Ident(vsym);
+            } else {
+                String attrAccess = attributeGetMethodNamePrefix + vsym;
+                localAttr = callExpression(diagPos, instance, attrAccess);
+            }
         } else {
-            String attrAccess = attributeGetMethodNamePrefix + vsym;
-            localAttr = callExpression(diagPos, instance, attrAccess);
+            // if it is a local variable
+            assert( (vsym.flags() & Flags.PARAMETER) == 0): "Parameters are not initialized";
+            localAttr = make.at(diagPos).Ident(vsym);   
+            
+            if (!shouldMorph(vmi)) {
+                return make.at(diagPos).Assign(localAttr, args.head);
+            }
         }
+        
         Name methName;
         if (bindStatus.isUnidiBind()) {
             methName = defs.locationBindMilieuMethodName[milieu];
@@ -1197,7 +1210,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             methName = defs.locationBijectiveBindMilieuMethodName[milieu];
         } else {
             methName = defs.locationSetMilieuMethodName[vmi.getTypeKind()][milieu];
-        }
+        }   
         return callExpression(diagPos, localAttr, methName, args);
     }
 
@@ -1265,28 +1278,35 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         boolean isClassVar = vsym.owner.kind == Kinds.TYP;
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         boolean isBound = state.isBound();
-        boolean forceTypeMorph = isBound;
         
         //TODO: remove this temporary transitional hack
         if (tree.name.toString().equals("enableBindingOverhaul")) {
             useBindingOverhaul = true;
         }
-
-        if (!isClassVar && (vsym.flags_field & JavafxFlags.INNER_ACCESS) != 0) {
-            if ((vsym.flags_field & JavafxFlags.ASSIGNED_TO) == 0) {
-                modFlags |= Flags.FINAL;
-            } else {
-                vmi.markBoundTo();
-                forceTypeMorph = true;
-            }
-        }
-        if (shouldMorph(vmi) || forceTypeMorph) {
-            // convert the type to the Location type
-            type = isClassVar? vmi.getVariableType() : vmi.getLocationType();
-
-            // Locations are never overwritten
+        
+        // Variables accessed from an inner class must be FINAL
+        if (!isClassVar && (vsym.flags_field & JavafxFlags.INNER_ACCESS) != 0) {   
             modFlags |= Flags.FINAL;
         }
+   
+        if (shouldMorph(vmi)) {
+            // convert the type to the Location type
+           // type = isClassVar? vmi.getVariableType() : vmi.getLocationType();
+          
+            if (isClassVar) {
+                type = vmi.getVariableType();
+            } else {
+                 if ((vsym.flags() & Flags.PARAMETER) != 0) {
+                     type = vmi.getLocationType();
+                 } else {
+                     type = vmi.getVariableType();
+                 }
+            }
+             
+            
+            // Locations are never overwritten
+            modFlags |= Flags.FINAL;
+        } 
 
         mods = make.at(diagPos).Modifiers(modFlags);
         JCExpression typeExpression = makeTypeTree(type, diagPos, true);
@@ -1297,18 +1317,35 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (isClassVar) {
             // use default constructor to init attributes
             init = typeMorpher.makeLocationAttributeVariable(vmi, diagPos);
+            result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
         } else if ((vsym.flags() & Flags.PARAMETER) != 0) {
             // parameters aren't initialized
-            init = null;
+            init = null; 
+            result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);           
         } else {
             if (isBound && locallyBound != null) {
                 setLocallyBound(vsym);
-            }
-            init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
+           }
+                      
+           if ( !shouldMorph(vmi)) {
+                if ( (modFlags & Flags.FINAL) != 0 ) {
+                    init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
                     tree.getBindStatus(), tree.sym);
-        }
-        
-        result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
+                    result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
+                    return;
+                }
+                // create a blank variable and move the declaration of the variable to the beginning of the block
+                TypeMorphInfo tmi = typeMorpher.typeMorphInfo(tree.type);
+                init = makeDefaultValue(diagPos, tmi);
+                prependToStatements.append(make.at(diagPos).VarDef(mods, tree.name, typeExpression,init));
+            } else { 
+                // first create a blank variable XXXVariable.make() and append it to the prependToStatements list
+                prependToStatements.append(make.at(diagPos).VarDef(mods,tree.name, typeExpression, 
+                        typeMorpher.makeLocationAttributeVariable(vmi, diagPos)));
+            }
+            
+            result = translateDefinitionalAssignmentToSet(diagPos, tree.init, tree.getBindStatus(), tree.sym, null, 0);
+        }   
     }
 
     @Override
@@ -2069,7 +2106,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             expr = make.at(diagPos).Ident(methodName);
         } else {
             expr = make.at(diagPos).Select(receiver, methodName);
-        }
+        }   
         return make.at(diagPos).Apply(List.<JCExpression>nil(), expr, 
                 (args == null)? List.<JCExpression>nil() :
                 (args instanceof List)? (List<JCExpression>)args :

@@ -121,10 +121,18 @@ public class JavafxTypeMorpher {
             if (!isMethod) {
                 Symbol owner = getSymbol().owner;
                 if (owner.kind == Kinds.MTH) {
+                    
+                   long flag_fields = getSymbol().flags();
+                   
+                   // Variables are morphed if they are accessed within an inner class and have been assigned to
+                   if ( (flag_fields & JavafxFlags.INNER_ACCESS) != 0) {
+                     if ( (flag_fields & JavafxFlags.ASSIGNED_TO) != 0) 
+                        markMustMorph();
+                   } 
                    // non-parameter local vars are morphed if they are bound to or sequencea
-                   // (bound functions and their parameters are handled elsewhere)
+                    // (bound functions and their parameters are handled elsewhere)
                    if ((isBoundTo() || isSequence()) && (getSymbol().flags() & Flags.PARAMETER) == 0) {
-                       markMustMorph();
+                            markMustMorph();
                    }
                } else if (owner.kind == Kinds.TYP) {
                    if (getSymbol() instanceof JavafxVarSymbol) {
