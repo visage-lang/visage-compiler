@@ -169,7 +169,7 @@ public class JavafxTypeMorpher {
     }
 
     class TypeMorphInfo {
-        private final Type realType;
+        private Type realType;
         private final Type morphedVariableType;
         private final Type morphedLocationType;
         private int typeKind;
@@ -211,13 +211,14 @@ public class JavafxTypeMorpher {
                     } else if (realTsym == syms.intType.tsym
                             || realTsym == syms.byteType.tsym
                             || realTsym == syms.charType.tsym
-                            || realTsym == syms.longType.tsym
+                           // || realTsym == syms.longType.tsym //TODO: should this be converted
                             || realTsym == syms.shortType.tsym) {
                         typeKind = TYPE_KIND_INT;
                     } else if (realTsym == syms.booleanType.tsym) {
                         typeKind = TYPE_KIND_BOOLEAN;
                     } else {
-                        assert false : "should not reach here";
+                        //assert false : "should not reach here";
+                        this.realType = types.boxedClass(realType).type; //TODO: maybe the real type should be kept separate?
                         typeKind = TYPE_KIND_OBJECT;
                     }
                 } else {

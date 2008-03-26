@@ -371,8 +371,7 @@ public class JavaFXPad extends CompositeWidget {
                                                         border: EmptyBorder {left: 4, right: 4}
                                                         font: bind Font.Font("Monospaced", ["PLAIN"], fontSize)
                                                         text: bind userCode with inverse
-							//TODO: assign not allowed in bind, but needed for attribute reference, so bind commented out
-                                                        annotations: /* TODO bind*/ for (err in errMessages) {
+                                                        annotations: bind for (err in errMessages) {
                                                             var lineNumber = err.getLineNumber();
                                                             var columnNumber = err.getColumnNumber();
                                                             var startPosition = err.getStartPosition();
