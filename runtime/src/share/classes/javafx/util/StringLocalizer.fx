@@ -76,25 +76,67 @@ public class StringLocalizer {
     }
 
     /**
-     * A static function to associate a JavaFX Script source file, or a JavaFX
-     * package to a JavaFX properties file.  If an association is made, further
-     * localizations in the specified source file, or source files in the 
+     * A static function to associate a JavaFX
+     * package with a JavaFX properties file.  If an association is made, further
+     * localizations in the source files in the 
      * specified package will be searched within the specified JavaFX properties
      * file.
      *
-     * 'packageName' denotes the JavaFX package, e.g., 'foo.bar', and 'scriptFileName
-     * is the file name source script file, e.g., 'Example.fx'.  If the 
-     * 'scriptFileName' is null, all the JavaFX scripts in the package designated by 
-     * 'packageName' are associated with the specified JavaFX properties file.
      * 'properties' denotes the canonical base name of the JavaFX properties file, e.g.,
+     * 'packageName' denotes the JavaFX package, e.g., 'foo.bar',
      * 'foo.bar.MyResources'.
      */
-    public static function associate(packageName: String,
-                                scriptFileName: String, properties: String) : Void {
-        var source: String = 
-            if (scriptFileName == null) packageName 
-            else packageName + "." + scriptFileName.replaceAll("\\.[fF][xX]$", "");
+    public static function associate(properties: String, packageName: String) : Void {
+        associate(properties, packageName, "");
+    }
+
+    /**
+     * A static function to associate a JavaFX Script source file
+     * with a JavaFX properties file.  If an association is made, further
+     * localizations in the specified source file
+     * will be searched within the specified JavaFX properties
+     * file.
+     *
+     * 'properties' denotes the canonical base name of the JavaFX properties file, e.g.,
+     * 'foo.bar.MyResources'.
+     * 'packageName' denotes the JavaFX package, e.g., 'foo.bar'.
+     * 'scriptFileName' is the file name source script file, e.g., 'Example.fx'.
+     */
+    public static function associate(properties: String, packageName: String,
+                                scriptFileName: String) : Void {
+        var source: String = if (scriptFileName == "") {
+                packageName;
+            } else {
+                packageName + "/" + scriptFileName.replaceAll("\\.[fF][xX]$", "");
+            };
         StringLocalization.associate(source, properties);
+    }
+
+    /**
+     * A static function to dissociate a JavaFX
+     * package from any JavaFX properties file.
+     *
+     * 'packageName' denotes the JavaFX package, e.g., 'foo.bar',
+     */
+    public static function dissociate(packageName: String) : Void {
+        dissociate(packageName, "");
+    }
+
+    /**
+     * A static function to dissociate a JavaFX Script source file
+     * from any JavaFX properties file.
+     *
+     * 'packageName' denotes the JavaFX package, e.g., 'foo.bar'.
+     * 'scriptFileName' is the file name source script file, e.g., 'Example.fx'.
+     */
+    public static function dissociate(packageName: String,
+                                scriptFileName: String) : Void {
+        var source: String = if (scriptFileName == "") {
+                packageName;
+            } else {
+                packageName + "/" + scriptFileName.replaceAll("\\.[fF][xX]$", "");
+            };
+        StringLocalization.dissociate(source);
     }
 
     private attribute localizedStr : String = bind {
@@ -111,8 +153,6 @@ public class StringLocalizer {
         var className: String;
         var foundMe: Boolean = false;
 
-//      JFXC-555
-//      for (elem in elements) {
         for (i in [0..<sizeof elements]) {
             elem = elements[i];
             className = elem.getClassName();
@@ -126,8 +166,8 @@ public class StringLocalizer {
         }
 
         var pkgName = className.replaceAll("\\.?[^\\.]+$", "");
-        StringLocalization.getPropertiesName(
-            (if (pkgName <> "") pkgName + "." else "") +
+        StringLocalization.getPropertiesName(pkgName + 
+            "/" + 
             elem.getFileName().replaceAll("\\.[fF][xX]$", ""));
     }
 }

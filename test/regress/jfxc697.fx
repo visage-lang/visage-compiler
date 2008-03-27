@@ -19,20 +19,23 @@ Locale.setDefault(Locale.JAPAN);
 
 var aTest = FXPropTest{};
 
-// These should print the originals
+// This should print the originals
 aTest.print();
 
-StringLocalizer.associate("foo.bar", "FXPropTest.fx", "foo.bar.FXPropTestResources");
-StringLocalizer.associate("foo.bar", null, "foo.FooResources");
-
-// These should print the translated strings in 
+// This should print the translated strings in 
 // foo/bar/FXPropTestResources_ja.fxproperties
+StringLocalizer.associate("foo.bar.FXPropTestResources", "foo.bar", "FXPropTest.fx");
+StringLocalizer.associate("foo.FooResources", "foo.bar");
 aTest.print();
 
-StringLocalizer.associate("foo.bar", "FXPropTest.fx", null);
-
-// These should print the translated strings in 
+// This should print the translated strings in 
 // foo/FooResources_ja.fxproperties
+StringLocalizer.dissociate("foo.bar", "FXPropTest.fx");
+aTest.print();
+
+// This should print the originals
+StringLocalizer.associate("foo.bar.FXPropTestResources", "foo.bar", "FXPropTest.fx");
+StringLocalizer.dissociate("foo.bar");
 aTest.print();
 
 // restore the default locale

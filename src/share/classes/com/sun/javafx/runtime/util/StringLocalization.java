@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Locale;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import com.sun.javafx.runtime.util.backport.ResourceBundle;
 
 public class StringLocalization {
@@ -40,9 +41,15 @@ public class StringLocalization {
 
     public static String getLocalizedString(String scriptName, String explicitKey,
                                             String literal, Object... embeddedExpr) {
+        String key = scriptName.replaceAll("/", "\\.");
+        int lastDot = key.lastIndexOf('.');
+        if (lastDot != -1) {
+            key = key.substring(0, lastDot) + "/" + key.substring(lastDot + 1);
+        } else {
+            key = "/" + key;
+        }
         return getLocalizedString(
-            getPropertiesName(scriptName.replaceAll("/", "\\.")), 
-            explicitKey, literal, Locale.getDefault(), embeddedExpr);
+            getPropertiesName(key), explicitKey, literal, Locale.getDefault(), embeddedExpr);
     }
 
     public static String getLocalizedString(String propertiesName, String explicitKey, 
@@ -52,7 +59,6 @@ public class StringLocalization {
         try {
             ResourceBundle rb = ResourceBundle.getBundle(propertiesName,
                     locale, FXPropertyResourceBundle.FXPropertiesControl.INSTANCE);
-
             if (explicitKey != null) {
                 localization = rb.getString(explicitKey);
                 if (explicitKey.equals(localization) && 
@@ -74,29 +80,48 @@ public class StringLocalization {
     }
 
     public static void associate(String source, String properties) {
+        getAssociation().put(source, properties);
+    }
+
+    public static void dissociate(String source) {
         Map<String, String> assoc = getAssociation();
-        
-        if (properties != null) {
-            assoc.put(source, properties);
-        } else {
-            assoc.remove(source);
+
+        // remove itself first
+        assoc.remove(source);
+
+        // remove all associationis for source files in that package
+        if (source.indexOf('/') == -1) {
+            String toRemove = source + "/";
+            for (String key : assoc.keySet()) {
+                if (key.startsWith(toRemove)) {
+                    assoc.remove(key);
+                }
+            }
         }
     }
 
-    public static String getPropertiesName(String scriptName) {
-        String propertiesName = scriptName;
+    /**
+     * Get the properties file name for the given key, which consists of
+     * 'packageName(+scriptFileName)'. E.g., 'Example.fx' in 'foo.bar' package would have
+     * a key as 'foo.bar+Example', while 'foo.bar' can represent the package itself.
+     * A script file in the unnamed package can be denoted as '+Example'.
+     */
+    public static String getPropertiesName(String key) {
+        String propertiesName = key.replaceAll("^/", "").replaceAll("/", ".");
         Map<String, String> assoc = getAssociation();
+        Pattern chopoff = Pattern.compile("[\\./][^\\./]*\\z");
         
         while (true) {
-            if (assoc.containsKey(scriptName)) {
-                propertiesName = assoc.get(scriptName);
+            if (assoc.containsKey(key)) {
+                propertiesName = assoc.get(key);
                 break;
             } else {
-                int lastDot = scriptName.lastIndexOf('.');
-                if (lastDot != -1) {
-                    scriptName = scriptName.substring(0, lastDot);
-                } else {
+                if ("".equals(key)) {
                     break;
+                } else if (chopoff.matcher(key).find()) {
+                    key = chopoff.matcher(key).replaceAll("");
+                } else {
+                    key = "";
                 }
             }
         }
