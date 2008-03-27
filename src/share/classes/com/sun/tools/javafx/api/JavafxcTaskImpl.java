@@ -57,7 +57,7 @@ import javax.tools.JavaFileObject;
  * @see com.sun.tools.javac.api.JavacTaskImpl
  * @author tball
  */
-class JavafxcTaskImpl extends JavafxcTask {
+public class JavafxcTaskImpl extends JavafxcTask {
 
     private Main compilerMain;
     private com.sun.tools.javafx.main.JavafxCompiler compiler;
