@@ -272,4 +272,10 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
         scan(that.attribute);
         scan(that.value);
     }
+    
+    public void visitKeyFrameLiteral(JFXKeyFrameLiteral that) {
+        scan(that.start);
+        scan(that.exprs);
+        scan(that.trigger);
+    }
 }

@@ -59,4 +59,5 @@ public interface JavafxVisitor extends JCVisitor {
     public void visitOverrideAttribute(JFXOverrideAttribute tree);
     public void visitInterpolate(JFXInterpolate tree);
     public void visitInterpolateValue(JFXInterpolateValue tree);
+    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree);
 }

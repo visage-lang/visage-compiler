@@ -75,6 +75,21 @@ public interface JavaFXTree extends Tree {
          * Used for instances of {@link InitDefinitionTree}.
          */
         INIT_DEFINITION(InitDefinitionTree.class),
+        
+        /**
+         * Used for instances of {@link InterpolateTree}.
+         */
+        INTERPOLATE(InterpolateTree.class),
+        
+        /**
+         * Used for instances of {@link InterpolateValueTree}.
+         */
+        INTERPOLATE_VALUE(InterpolateValueTree.class), 
+        
+        /**
+         * Used for instances of {@link KeyFrameLiteralTree}.
+         */
+        KEYFRAME_LITERAL(KeyFrameLiteralTree.class),
 
         /**
          * Used for instances of {@link PostInitDefinitionTree}.

@@ -768,4 +768,26 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             print(tween);
         }
     }
+
+    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
+        try {
+            print("at (");
+            print(tree.getStartDuration());
+            print(") {");
+            println();
+            super.indent();
+            printStats(List.convert(JCTree.class, tree.getInterpolationExpression()));
+            if (tree.getTriggerExpression() != null) {
+                super.align();
+                print("trigger ");
+                visitBlockExpression(this, (JFXBlockExpression)tree.getTriggerExpression());
+            }
+            super.undent();
+            println();
+            super.align();
+            print("}");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 }

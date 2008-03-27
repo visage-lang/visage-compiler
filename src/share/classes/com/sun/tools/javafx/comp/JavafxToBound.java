@@ -1692,8 +1692,12 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
+    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
+        assert false : "should not be processed as part of a binding";
+    }   
+
+    @Override
     public void visitErroneous(JCErroneous tree) {
         assert false : "erroneous nodes shouldn't have gotten this far";
     }
-   
 }

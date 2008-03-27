@@ -153,4 +153,8 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
     public R visitInterpolateValue(InterpolateValueTree node, P p) {
         return defaultAction(node, p);
     }
+    
+    public R visitKeyFrameLiteral(KeyFrameLiteralTree node, P p) {
+        return defaultAction(node, p);
+    }
 }

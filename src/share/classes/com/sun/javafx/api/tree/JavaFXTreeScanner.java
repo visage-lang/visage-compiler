@@ -100,6 +100,21 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
         return scanAndReduce(node.getLiteralParts(), p, r);
     }
 
+    public R visitInterpolate(InterpolateTree node, P p) {
+        R r = scan(node.getVariable(), p);
+        return scanAndReduce(node.getInterpolateValues(), p, r);
+    }
+
+    public R visitInterpolateValue(InterpolateValueTree node, P p) {
+        R r = scan(node.getAttribute(), p);
+        return scanAndReduce(node.getValue(), p, r);
+    }
+
+    public R visitKeyFrameLiteral(KeyFrameLiteralTree node, P p) {
+        R r = scan(node.getStartDuration(), p);
+        r = scanAndReduce(node.getInterpolationExpression(), p, r);
+        return scanAndReduce(node.getTriggerExpression(), p, r);
+    }
     public R visitObjectLiteralPart(ObjectLiteralPartTree node, P p) {
         return scan(node.getExpression(), p);
     }
@@ -169,6 +184,10 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
         return scan(node.getPartList(), p);
     }
 
+    public R visitTimeLiteral(TimeLiteralTree node, P p) {
+        return null;
+    }
+
     public R visitTypeAny(TypeAnyTree node, P p) {
         return null;
     }
@@ -184,19 +203,5 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
 
     public R visitTypeUnknown(TypeUnknownTree node, P p) {
         return null;
-    }
-
-    public R visitTimeLiteral(TimeLiteralTree node, P p) {
-        return null;
-    }
-
-    public R visitInterpolate(InterpolateTree node, P p) {
-        R r = scan(node.getVariable(), p);
-        return scanAndReduce(node.getInterpolateValues(), p, r);
-    }
-
-    public R visitInterpolateValue(InterpolateValueTree node, P p) {
-        R r = scan(node.getAttribute(), p);
-        return scanAndReduce(node.getValue(), p, r);
     }
 }

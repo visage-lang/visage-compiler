@@ -59,11 +59,11 @@ public class JFXInterpolateValue extends JFXTree implements InterpolateValueTree
     }
 
     public JavaFXKind getJavaFXKind() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return JavaFXKind.INTERPOLATE_VALUE;
     }
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return visitor.visitInterpolateValue(this, data);
     }
 
     @Override

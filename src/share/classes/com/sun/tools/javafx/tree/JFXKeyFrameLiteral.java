@@ -25,45 +25,52 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.BlockExpressionTree;
 import com.sun.javafx.api.tree.InterpolateTree;
-import com.sun.javafx.api.tree.InterpolateValueTree;
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.javafx.api.tree.KeyFrameLiteralTree;
+import com.sun.javafx.api.tree.TimeLiteralTree;
 import com.sun.tools.javac.util.List;
 
-public class JFXInterpolate extends JFXExpression implements InterpolateTree {
-    public JCExpression var;
-    public List<JFXInterpolateValue> values;
+public class JFXKeyFrameLiteral extends JFXExpression implements KeyFrameLiteralTree {
+    public JFXTimeLiteral start;
+    public List<JFXInterpolate> exprs;
+    public JFXBlockExpression trigger;
     
-    public JFXInterpolate(JCExpression var, List<JFXInterpolateValue> values) {
-        this.var = var;
-        this.values = values;
+    public JFXKeyFrameLiteral(JFXTimeLiteral start, List<JFXInterpolate> exprs, JFXBlockExpression trigger) {
+        this.start = start;
+        this.exprs = exprs;
+        this.trigger = trigger;
     }
 
-    public JCExpression getVariable() {
-        return var;
+    public TimeLiteralTree getStartDuration() {
+        return start;
     }
 
-    public java.util.List<InterpolateValueTree> getInterpolateValues() {
-        return JFXTree.convertList(InterpolateValueTree.class, values);
+    public List<InterpolateTree> getInterpolationExpression() {
+        return List.convert(InterpolateTree.class, exprs);
+    }
+
+    public BlockExpressionTree getTriggerExpression() {
+        return trigger;
     }
 
     public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.INTERPOLATE;
+        return JavaFXKind.KEYFRAME_LITERAL;
     }
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        return visitor.visitInterpolate(this, data);
+        return visitor.visitKeyFrameLiteral(this, data);
     }
 
     @Override
     public void accept(JavafxVisitor v) {
-        v.visitInterpolate(this);
+        v.visitKeyFrameLiteral(this);
     }
 
     @Override
     public int getTag() {
-        return JavafxTag.INTERPOLATION_EXPR;
+        return JavafxTag.KEYFRAME_LITERAL;
     }
 }

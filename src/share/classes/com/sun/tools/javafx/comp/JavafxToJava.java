@@ -3789,10 +3789,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitInterpolate(JFXInterpolate tree) {
-        
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void visitInterpolateValue(JFXInterpolateValue tree) {
         // translation done in visitInterpolate()
+    }
+
+    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

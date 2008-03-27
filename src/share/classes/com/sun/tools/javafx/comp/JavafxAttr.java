@@ -3865,4 +3865,8 @@ public
         tree.type = interpolateType;
         result = tree.type;
     }
+    
+    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
