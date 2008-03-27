@@ -273,6 +273,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
         // these only used when fields are built
         ListBuffer<JCTree> members = ListBuffer.lb();
+        ListBuffer<JCStatement> fieldInits = ListBuffer.lb();
         ListBuffer<JCExpression> dependents = ListBuffer.lb();
         ListBuffer<JCExpression> callArgs = ListBuffer.lb();
         int argNum = 0;
@@ -347,6 +348,11 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         
         // field building support
         
+        protected List<JCTree> completeMembers() {
+            members.append(m().Block(0L, fieldInits.toList()));
+            return members.toList();
+        }
+        
         protected JCExpression makeGet(JCExpression locExpr, TypeMorphInfo tmi) {
             Name getMethodName = defs.locationGetMethodName[tmi.getTypeKind()];
             JCFieldAccess select = m().Select(locExpr, getMethodName);
@@ -358,11 +364,12 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         }
         
         protected JCTree makeLocationField(JCExpression targ, Name argName, TypeMorphInfo tmiArg) {
+            fieldInits.append( m().Exec( m().Assign(m().Ident(argName), targ)) );
             return m().VarDef(
-                    m().Modifiers(Flags.FINAL | Flags.PRIVATE),
+                    m().Modifiers(Flags.PRIVATE),
                     argName,
                     makeExpression(tmiArg.getLocationType()),
-                    targ);
+                    null);
         }
 
         protected JCExpression buildArgField(JCExpression arg, Type type) {
@@ -411,8 +418,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             protected JCExpression resultValue() {
                 return new InstanciateTranslator(tree, toJava) {
 
-                    protected JCStatement translateLocalVar(JFXVar var) {
-                        return translateVar(var);
+                    protected void processLocalVar(JFXVar var) {
+                        buildArgField(translate(var.getInitializer()), var.type, var.getName().toString(), var.isBound()); 
                     }
 
                     protected List<JCExpression> translatedConstructorArgs() {
@@ -943,7 +950,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             members.append(makeClosureMethod("getStaticDependents", depsArray, null, depsReturnType, Flags.PROTECTED));
 
             members.append(makeClosureMethod("computeValue", resultVal, null, tmiResult.getRealFXType(), Flags.PUBLIC));
-            return members.toList();
+            return completeMembers();
         }
 
         protected JCExpression makeBaseClass() {
@@ -988,7 +995,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                                         m().Select(transSelect, name),
                                         callArgs.toList());
                                 members.append(makeComputeSelectMethod(expr));
-                                return members.toList();
+                                return completeMembers();
                             }
                         }.doit();
                     } else {

@@ -856,13 +856,14 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     abstract static class InstanciateTranslator extends Translator {
 
         protected final JFXInstanciate tree;
+        protected ListBuffer<JCStatement> stats = ListBuffer.lb();
 
         InstanciateTranslator(final JFXInstanciate tree, JavafxToJava toJava) {
             super(tree.pos(), toJava);
             this.tree = tree;
         }
         
-        abstract protected JCStatement translateLocalVar(JFXVar var);
+        abstract protected void processLocalVar(JFXVar var);
         
         abstract protected List<JCExpression> translatedConstructorArgs();
         
@@ -872,12 +873,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         protected JCExpression doit() {
             Type type;
             
-            ListBuffer<JCStatement> stats = ListBuffer.lb();
             for (JFXVar var : tree.getLocalvars()) {
                 // force var to be a Location (so class members can see it)
                 toJava.typeMorpher.varMorphInfo(var.sym).markBoundTo();
                 // add the variable before the class definition or object litersl assignment
-                stats.append(translateLocalVar(var));
+                processLocalVar(var);
             }
             if (tree.getClassBody() == null) {
                 type = tree.type;
@@ -956,8 +956,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         result = new InstanciateTranslator(tree, this) {
 
-            protected JCStatement translateLocalVar(JFXVar var) {
-                return translate(var);
+            protected void processLocalVar(JFXVar var) {
+                stats.append(translate(var));
             }
 
             protected List<JCExpression> translatedConstructorArgs() {
@@ -1283,7 +1283,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         DiagnosticPosition diagPos = tree.pos();
         Type type = tree.type;
         JCModifiers mods = tree.getModifiers();
-        long modFlags = mods == null ? 0L : mods.flags;
+        long modFlags = mods == null ? 0L : mods.flags & ~Flags.FINAL;
         VarSymbol vsym = tree.sym;
         boolean isClassVar = vsym.owner.kind == Kinds.TYP;
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
@@ -1301,19 +1301,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
    
         if (shouldMorph(vmi)) {
             // convert the type to the Location type
-           // type = isClassVar? vmi.getVariableType() : vmi.getLocationType();
-          
-            if (isClassVar) {
-                type = vmi.getVariableType();
+            if ((vsym.flags() & Flags.PARAMETER) != 0) {
+                type = vmi.getLocationType();
             } else {
-                 if ((vsym.flags() & Flags.PARAMETER) != 0) {
-                     type = vmi.getLocationType();
-                 } else {
-                     type = vmi.getVariableType();
-                 }
+                type = vmi.getVariableType();
             }
-             
-            
+
             // Locations are never overwritten
             modFlags |= Flags.FINAL;
         } 
@@ -1345,15 +1338,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     return;
                 }
                 // create a blank variable and move the declaration of the variable to the beginning of the block
-                TypeMorphInfo tmi = typeMorpher.typeMorphInfo(tree.type);
-                init = makeDefaultValue(diagPos, tmi);
-                prependToStatements.append(make.at(diagPos).VarDef(mods, tree.name, typeExpression,init));
+                init = makeDefaultValue(diagPos, vmi);
             } else { 
                 // first create a blank variable XXXVariable.make() and append it to the prependToStatements list
-                prependToStatements.append(make.at(diagPos).VarDef(mods,tree.name, typeExpression, 
-                        typeMorpher.makeLocationAttributeVariable(vmi, diagPos)));
+                init = typeMorpher.makeLocationAttributeVariable(vmi, diagPos);
             }
-            
+            prependToStatements.append(make.at(diagPos).VarDef(mods, tree.name, typeExpression, init));
             result = translateDefinitionalAssignmentToSet(diagPos, tree.init, tree.getBindStatus(), tree.sym, null, 0);
         }   
     }
