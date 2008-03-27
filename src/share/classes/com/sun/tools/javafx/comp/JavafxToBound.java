@@ -587,7 +587,12 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitIdent(JCIdent tree)   {  //TODO: this, super, ...
        // assert (tree.sym.flags() & Flags.PARAMETER) != 0 || tree.name == names._this || tree.sym.isStatic() || toJava.shouldMorph(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
-        result = convert(tree.type, toJava.translate(tree, Wrapped.InLocation) );
+        JCExpression transId = toJava.translate(tree, Wrapped.InLocation);
+        if (tree.sym instanceof VarSymbol && !toJava.shouldMorph((VarSymbol)tree.sym)) {
+            result = makeConstantLocation(tree.pos(), targetType(tree.type), transId);
+        } else {
+            result = convert(tree.type, transId );
+        }    
     }
     
     @Override
@@ -690,7 +695,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             }
             
             /**
-             * Make a method paramter
+             * Make a method parameter
              */
             private JCVariableDecl makeParam(Type type, Name name) {
                 return make.at(diagPos).VarDef(
@@ -742,11 +747,10 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 Type objLocType = tmiInduction.getLocationType();
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
                 Name ivarName = clause.getVar().name;
-                toJava.setLocallyBound(clause.getVar().sym);
                 stmts.append(m().Return( inner ));
                 List<JCVariableDecl> params = List.of( 
                         makeParam(objLocType, ivarName),
-                        makeParam(typeMorpher.locationType(TYPE_KIND_INT), indexofMangledName( clause.getVar().sym) )
+                        makeParam(typeMorpher.locationType(TYPE_KIND_INT), toJava.indexVarName(clause) )
                         );
                 return m().MethodDef(
                         m().Modifiers(Flags.PROTECTED),
@@ -797,9 +801,16 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
              * Put everything together, handle multiple in clauses -- wrap from the inner-most first
              */
             public JCExpression doit() {
+                List<JFXForExpressionInClause> clauses = tree.getForExpressionInClauses();
+                // mark the params as morphed before any ranslation occurs
+                for (JFXForExpressionInClause clause : clauses) {
+                    toJava.setLocallyBound(clause.getVar().sym);
+                }
+                // make the body of loop
                 JCExpression expr = makeCore();
-                for (int inx = tree.getForExpressionInClauses().size() - 1; inx >= 0; --inx) {
-                    JFXForExpressionInClause clause = tree.getForExpressionInClauses().get(inx);
+                // then wrap it in the looping constructs
+                for (int inx = clauses.size() - 1; inx >= 0; --inx) {
+                    JFXForExpressionInClause clause = clauses.get(inx);
                     expr = makeBoundComprehension(clause, expr);
                 }
                 return expr;
@@ -809,7 +820,15 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     
     public void visitIndexof(JFXIndexof tree) {
         assert tree.clause.getIndexUsed() : "assert that index used is set correctly";
-        result = convert(tree.type, make.at(tree.pos()).Ident(indexofMangledName(tree.clause.getVar().sym)));
+        JCExpression transIndex = make.at(tree.pos()).Ident(toJava.indexVarName(tree.clause));
+        VarSymbol vsym = (VarSymbol)tree.clause.getVar().sym;
+        if (!toJava.shouldMorph(vsym)) {
+            // it came from outside of the bind, make it into a Location
+            result = makeConstantLocation(tree.pos(), targetType(tree.type), transIndex);
+        } else {
+            // from inside the bind, already a Location
+            result = convert(tree.type, transIndex);
+        }
     }
 
     private JCExpression makeBoundConditional(final DiagnosticPosition diagPos,
@@ -1261,10 +1280,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             lastInx = endInx + 1;
         } while (inx >= 0);
         return tree;
-    }
-    
-    private Name indexofMangledName(VarSymbol vsym) {
-        return names.fromString(vsym.getSimpleName().toString() + "$indexof");
     }
     
     /**
