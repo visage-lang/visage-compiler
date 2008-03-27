@@ -191,6 +191,10 @@ public abstract class JavafxTag extends JCTree {
     /** value clause in an interpolation
      */
     public static final int INTERPOLATION_VALUE = INTERPOLATION_EXPR + 1;
+    
+    /** keyframe literal
+     */
+    public static final int KEYFRAME_LITERAL = INTERPOLATION_VALUE + 1;
 
-    public static final int JFX_OP_LAST = INTERPOLATION_VALUE;        
+    public static final int JFX_OP_LAST = KEYFRAME_LITERAL;        
 }

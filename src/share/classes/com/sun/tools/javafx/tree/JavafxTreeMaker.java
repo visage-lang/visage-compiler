@@ -415,11 +415,15 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     }
     
     public JFXInterpolate Interpolate(JCExpression var, List<JFXInterpolateValue> values) {
-        return new JFXInterpolate(var, values);
+        JFXInterpolate tree = new JFXInterpolate(var, values);
+        tree.pos = pos;
+        return tree;
     }
     
     public JFXInterpolateValue InterpolateValue(JCIdent attr, JCExpression v, Name interp) {
-        return new JFXInterpolateValue(attr, v, interp);
+        JFXInterpolateValue tree = new JFXInterpolateValue(attr, v, interp);
+        tree.pos = pos;
+        return tree;
     }
     
     public JFXIndexof Indexof (Name name) {
@@ -454,6 +458,12 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         }
         JCLiteral literal = Literal(value);
         JFXTimeLiteral tree = new JFXTimeLiteral(literal, duration);
+        tree.pos = pos;
+        return tree;
+    }
+    
+    public JFXKeyFrameLiteral KeyFrameLiteral(JFXTimeLiteral start, List<JFXInterpolate> exprs, JFXBlockExpression trigger) {
+        JFXKeyFrameLiteral tree = new JFXKeyFrameLiteral(start, exprs, trigger);
         tree.pos = pos;
         return tree;
     }
