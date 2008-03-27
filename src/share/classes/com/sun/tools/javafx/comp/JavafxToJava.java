@@ -1847,9 +1847,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (tree.name == names._this) {
             // in the static implementation method, "this" becomes "receiver$"
             result = make.at(diagPos).Ident(defs.receiverName);
-            if (state.wantLocation()) {
-                result = toBound.makeConstantLocation(diagPos, tree.type, (JCExpression)result);
-            }
             return;
         } else if (tree.name == names._super) {
             if (types.isCompoundClass(tree.type.tsym)) {

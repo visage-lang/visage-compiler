@@ -131,7 +131,7 @@ public class JavafxTypeMorpher {
                    } 
                    // non-parameter local vars are morphed if they are bound to or sequencea
                     // (bound functions and their parameters are handled elsewhere)
-                   if ((isBoundTo() || isSequence()) && (getSymbol().flags() & Flags.PARAMETER) == 0) {
+                   if ((isBoundTo() || isSequence()) && (flag_fields & Flags.PARAMETER) == 0) {
                             markMustMorph();
                    }
                } else if (owner.kind == Kinds.TYP) {
