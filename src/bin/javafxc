@@ -45,7 +45,7 @@ if [ ! -x "$JAVA_CMD" ] ; then
   exit 1
 fi
 
-bootclasspath=$HOME/javafxc.jar:$HOME/javafxrt.jar 
+bootclasspath=$HOME/javafxc.jar:Reprise.jar:$HOME/javafxrt.jar 
 
 noopts=false;
 if [ $# -eq 0 ] ; then
@@ -57,7 +57,7 @@ if [ -z "$CLASSPATH" ] ; then
 else
   USER_CP="$CLASSPATH"
 fi 
-classpath="$HOME/javafxrt.jar:$HOME/@SCENEGRAPH_JAR@:$USER_CP"
+classpath="Reprise.jar:$HOME/javafxrt.jar:$HOME/@SCENEGRAPH_JAR@:$USER_CP"
 
 args=""
 jargs=""

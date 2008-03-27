@@ -51,7 +51,7 @@ else
   USER_CP="$CLASSPATH"
 fi 
 classpath="$USER_CP"
-bootclasspath="$JFX_HOME/javafxrt.jar:$JFX_HOME/@SCENEGRAPH_JAR@"
+bootclasspath="Reprise.jar:$JFX_HOME/javafxrt.jar:$JFX_HOME/@SCENEGRAPH_JAR@"
 
 args=""
 jargs=""
