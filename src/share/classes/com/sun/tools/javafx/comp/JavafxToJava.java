@@ -3045,6 +3045,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
     }
 
+    // fix me: there must be a better way...
+    private boolean isJavaLangObjectType(Type type) {
+        return type.toString().equals("java.lang.Object");
+    }
+
+
     @Override
     public void visitApply(final JCMethodInvocation tree) {
         result = (new FunctionCallTranslator( tree, this ) {
@@ -3156,7 +3162,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                                 // Also, if this is a mismatched sequence type, we will need
                                 // to do some different
                                 if (arg.type.equals(formal.head) || 
-                                        types.isSequence(formal.head)) {
+                                    types.isSequence(formal.head) ||
+                                    isJavaLangObjectType(formal.head) // don't add conversion for parameter type of java.lang.Object: doing so breaks the Pointer trick to obtain the original location (JFC-826)
+                                    ) {
                                     targs.append(translate(arg, Wrapped.InLocation));
                                     break;
                                 }
