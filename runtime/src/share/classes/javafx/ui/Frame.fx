@@ -48,8 +48,10 @@ public class Frame extends AbstractFrame {
 
     private attribute winListener: java.awt.event.WindowListener;
     private attribute compListener: java.awt.event.ComponentListener;
+    
+    // TODO MARK AS FINAL
     private attribute frame: javax.swing.JFrame = new javax.swing.JFrame;
-; 
+
     private attribute inListener: Boolean;
 //TODO SHAPE
 //    public attribute shape: Shape;
@@ -325,7 +327,7 @@ public class Frame extends AbstractFrame {
         showing = false;
         frame = null;
     }
-    public bound function getFrame(): JFrame {
+    public function getFrame(): JFrame {
          return frame;
     }
 

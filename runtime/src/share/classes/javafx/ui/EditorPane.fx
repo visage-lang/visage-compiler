@@ -38,7 +38,10 @@ import java.awt.Point;
 public class EditorPane extends ScrollableWidget {
     private attribute inUpdate:Boolean;
     private attribute documentListener:javax.swing.event.DocumentListener;
+    
+    // TODO MARK AS FINAL
     private attribute jeditorpane: javax.swing.JEditorPane;
+    
     public attribute editable: Boolean = true on replace {
         jeditorpane.setEditable(editable);
     };
@@ -222,7 +225,7 @@ public class EditorPane extends ScrollableWidget {
         UIElement.context.addTransferHandler(jeditorpane,
             null,//value.getClass(),
             com.sun.javafx.api.ui.ValueGetter {
-                public bound function get():Object {
+                public function get():Object {
                     return jeditorpane.getSelectedText();
                 }
             },

@@ -37,7 +37,9 @@ public class BookPanel extends Widget {
     override attribute background = Color.WHITE; 
     override attribute focusable = false;
 
+    // TODO MARK AS FINAL
     private attribute bookPanel: JBookPanel;
+    
     public attribute pages: Widget[];
     public attribute leftPageIndex: Integer on replace {
         if(bookPanel <> null) {
@@ -51,8 +53,8 @@ public class BookPanel extends Widget {
     public attribute shadowWidth: Number;
     public attribute softClipping: Boolean;
     public attribute borderLinesVisible: Boolean = false;
-    public bound function nextPage() { bookPanel.nextPage(); }
-    public bound function previousPage() {bookPanel.previousPage();}
+    public function nextPage() { bookPanel.nextPage(); }
+    public function previousPage() {bookPanel.previousPage();}
     public function createComponent():javax.swing.JComponent {
         bookPanel = JBookPanel{};
         bookPanel.setOpaque(false);

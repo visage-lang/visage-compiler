@@ -44,49 +44,27 @@ public class CanvasMouseEvent {
     public attribute percolate: Boolean on replace {
         //source.percolate = value; // TODO: hmm
     };
-    public function isControlDown():Boolean{
-        var result:Boolean;
-        for(m in modifiers) {
-            if(m == KeyModifier.CTRL) {
-                result = true;
-                break;
-            }
-        }
-        return result;
+    
+    public bound function isControlDown():Boolean{
+        return KeyModifier.isCTRL(modifiers);
     }
-    public function isAltDown():Boolean{
-        var result:Boolean;
-        for(m in modifiers) {
-            if(m == KeyModifier.ALT) {
-                result = true;
-                break;
-            }
-        }
-        return result;        
+    
+    public bound function isAltDown():Boolean{
+        return KeyModifier.isALT(modifiers);
     }
-    public function isShiftDown():Boolean{
-        var result:Boolean;
-        for(m in modifiers) {
-            if(m == KeyModifier.SHIFT) {
-                result = true;
-                break;
-            }
-        }
-        return result;        
+    
+    public bound function isShiftDown():Boolean{
+        return KeyModifier.isSHIFT(modifiers);
     }
-    public function isMetaDown():Boolean{
-        var result:Boolean;
-        for(m in modifiers) {
-            if(m == KeyModifier.META) {
-                result = true;
-                break;
-            }
-        }
-        return result;        
+    
+    public bound function isMetaDown():Boolean{
+        return KeyModifier.isMETA(modifiers);
     }
+    
     public function isPopupTrigger():Boolean{
         return false; //source.isPopupTrigger(); // TODO: hmm
     }
+    
     protected attribute source: MouseEvent;
     
 }

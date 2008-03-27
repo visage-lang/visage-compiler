@@ -32,30 +32,17 @@ public class MouseEvent {
     public attribute x: Number;
     public attribute y: Number;
     
-    private function containsModifier(mod:KeyModifier):Boolean {
-        //TODO this used to be mod in Modifiers, do this until and if
-        // an alternative is implemented
-        var rc = false;
-        for ( m in modifiers) {
-            if(m == mod) {
-                rc = true;
-                break;
-            }
-        };
-        return rc;
+    public bound function isControlDown():Boolean {
+        return KeyModifier.isCTRL(modifiers);
     }
-    
-    public function isControlDown():Boolean {
-        return this.containsModifier(KeyModifier.CTRL);
+    public bound function isAltDown():Boolean {
+        return KeyModifier.isALT(modifiers);
     }
-    public function isAltDown():Boolean {
-        return this.containsModifier(KeyModifier.ALT);
+    public bound function isShiftDown():Boolean {
+        return KeyModifier.isSHIFT(modifiers);
     }
-    public function isShiftDown():Boolean {
-        return this.containsModifier(KeyModifier.SHIFT);
-    }
-    public function isMetaDown():Boolean {
-        return this.containsModifier(KeyModifier.META);
+    public bound function isMetaDown():Boolean {
+        return KeyModifier.isMETA(modifiers);
     }
     public function isPopupTrigger():Boolean{
         this.source.isPopupTrigger();

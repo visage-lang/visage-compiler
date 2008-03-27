@@ -340,7 +340,10 @@ public class ListBox extends ScrollableWidget {
     private attribute dirty: Boolean;
     // in Widget: private attribute keyListener: java.awt.event.KeyListener;
     private attribute listMouseListener: java.awt.event.MouseListener;
+    
+    // TODO MARK AS FINAL
     attribute list: javax.swing.JList = javax.swing.JList{};
+    
     private attribute selectionListener:javax.swing.event.ListSelectionListener;
     attribute listeners:javax.swing.event.ListDataListener[];
     private attribute listmodel:javax.swing.ListModel;
@@ -569,10 +572,10 @@ public class ListBox extends ScrollableWidget {
     };
 
 
-    public bound function locationToIndex(x:Number, y:Number):Integer {
+    public function locationToIndex(x:Number, y:Number):Integer {
         return list.locationToIndex(new java.awt.Point(x.intValue(), y.intValue()));
     }
-    public bound function indexToLocation(i:Number):XY{
+    public function indexToLocation(i:Number):XY{
         var pt = list.indexToLocation(i.intValue());
         return XY {x: pt.getX(), y: pt.getY()};
     }

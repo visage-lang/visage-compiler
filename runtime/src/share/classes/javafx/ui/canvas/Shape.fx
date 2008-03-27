@@ -68,6 +68,8 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
            awtTransformedShape = 
                affineTransformHACK.createTransformedShape(getShape().getShape());
     }
+    
+    // TODO BOUND FUNCTION? (Was a bound function in F3)
     public function getTransformedShape(): java.awt.Shape {
         getNode(); // hack
         if (awtTransformedShape == null) {

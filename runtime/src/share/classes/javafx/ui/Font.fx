@@ -41,7 +41,7 @@ public class Font {
     public attribute size: Integer;
     public attribute style: FontStyle[];
     private attribute styleStr: String[];
-    public bound function getFont(): java.awt.Font{
+    public function getFont(): java.awt.Font{
        return awtFont;
     }
     
@@ -75,6 +75,8 @@ public class Font {
     public bound function italic(): Font {
         Font{faceName:faceName, style:[FontStyle.ITALIC], size:size};
     }
+    
+    // TODO MARK AS FINAL
     private attribute awtFont: java.awt.Font
     /*TODO: NPE in initialization 
      =  bind
