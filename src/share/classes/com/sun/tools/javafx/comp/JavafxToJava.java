@@ -871,7 +871,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         
         protected JCExpression doit() {
             Type type;
-
+            
             ListBuffer<JCStatement> stats = ListBuffer.lb();
             for (JFXVar var : tree.getLocalvars()) {
                 // force var to be a Location (so class members can see it)
@@ -949,7 +949,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     }
 
     @Override
-    public void visitInstanciate(JFXInstanciate tree) {
+    public void visitInstanciate(JFXInstanciate tree) {   
+        
+        ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
+        prependToStatements = ListBuffer.lb();
+        
         result = new InstanciateTranslator(tree, this) {
 
             protected JCStatement translateLocalVar(JFXVar var) {
@@ -970,6 +974,12 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         vsym, instance, FROM_LITERAL_MILIEU);
             }
             }.doit();
+                  
+            if (result instanceof JFXBlockExpression) {
+                JFXBlockExpression blockExpr = (JFXBlockExpression)result;               
+                blockExpr.stats = blockExpr.getStatements().prependList(prependToStatements.toList());   
+            }
+            prependToStatements = prevPrependToStatements;
     }
 
     abstract static class StringExpressionTranslator extends Translator {
