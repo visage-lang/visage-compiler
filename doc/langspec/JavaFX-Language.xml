@@ -6,7 +6,10 @@
 
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"> 
 
-<title>The JavaFX Script Language Reference <emphasis>(preliminary draft)</emphasis></title>
+<title>The JavaFX Script Language Reference <emphasis>( Draft)</emphasis></title>
+
+<legalnotice>
+<para style="display: none;">License test</para></legalnotice>
 
 <!--  **** default namespace declaration ********
 <book xmlns:xi="http://www.w3.org/2001/XInclude">
