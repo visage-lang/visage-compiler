@@ -25,7 +25,7 @@
  
 package javafx.ui; 
 
-class HorizontalGlue extends Widget {
+public class HorizontalGlue extends Widget {
     public function createComponent():javax.swing.JComponent {
         return javax.swing.Box.createHorizontalGlue() as javax.swing.JComponent;
     }
