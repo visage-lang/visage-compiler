@@ -8,8 +8,9 @@
 
 <title>The JavaFX Script Language Reference <emphasis> (Draft)</emphasis></title>
 
+<info>
 <legalnotice>
-<para role="hide" >License test</para></legalnotice>
+<para role="hide" >License test</para></legalnotice></info>
 
 <!--  **** default namespace declaration ********
 <book xmlns:xi="http://www.w3.org/2001/XInclude">
