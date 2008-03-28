@@ -10,7 +10,7 @@
 
 <info>
   <legalnotice>
-   <pre role="hide" >
+   <para role="hide" >
 
 /* 
  * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved. 
@@ -37,7 +37,7 @@
  * have any questions. 
  */  
 
-   </pre>
+   </para>
   </legalnotice>
 </info>
 
