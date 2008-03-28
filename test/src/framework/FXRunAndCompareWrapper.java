@@ -38,6 +38,7 @@ import org.apache.tools.ant.taskdefs.Execute;
 import org.apache.tools.ant.taskdefs.PumpStreamHandler;
 import org.apache.tools.ant.types.CommandlineJava;
 import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.util.FileUtils;
 
 /**
  * Compiles a single JavaFX script source file and executes the resulting class.
@@ -56,6 +57,7 @@ public class FXRunAndCompareWrapper extends TestCase {
     private final String classpath;
     private final String outputFileName;
     private final String errorFileName;
+	private final String copyExpectedFileName;
     private final String expectedFileName;
     private final List<String> auxFiles;
     private final List<String> separateFiles;
@@ -84,6 +86,7 @@ public class FXRunAndCompareWrapper extends TestCase {
         this.param = param;
         outputFileName = buildDir + File.separator + className + ".OUTPUT";
         errorFileName = buildDir + File.separator + className + ".ERROR";
+		copyExpectedFileName = buildDir + File.separator + className + ".EXPECTED";
         expectedFileName = testFile.getPath() + ".EXPECTED";
         assertTrue(className.endsWith(".fx"));
         classpath = TestHelper.getClassPath(buildDir);
@@ -187,9 +190,18 @@ public class FXRunAndCompareWrapper extends TestCase {
 
     private void compare(String outputFileName, String expectedFileName, boolean compareCompilerError) throws IOException {
         File expectedFile = new File(expectedFileName);
-        BufferedReader expected = expectedFile.exists()
-                ? new BufferedReader(new InputStreamReader(new FileInputStream(expectedFileName)))
-                : new BufferedReader(new StringReader(""));
+		
+		BufferedReader expected;
+		if (expectedFile.exists()) {
+			expected = new BufferedReader(new InputStreamReader(new FileInputStream(expectedFileName)));
+			// copy expected file overwriting existing file and preserving last modified time of source
+			try {
+				FileUtils.getFileUtils().copyFile(expectedFileName, copyExpectedFileName, null, true, true);
+			} catch (IOException ex)
+			{}
+		} else
+			expected = new BufferedReader(new StringReader(""));
+		
         BufferedReader actual = new BufferedReader(new InputStreamReader(new FileInputStream(outputFileName)));
 
         int lineCount = 0;
