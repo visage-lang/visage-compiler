@@ -33,7 +33,10 @@ import com.sun.tools.xslhtml.XHTMLProcessingUtils;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -267,6 +270,10 @@ public class XMLDoclet {
             attrs.addAttribute("", "", "qualifiedName", "CDATA", field.qualifiedName());
             attrs.addAttribute("", "", "enumConstant", "CDATA", Boolean.toString(field.isEnumConstant()));
             hd.startElement("", "", kind, attrs);
+            if("name".equals(field.name())) {
+                System.out.println("generating docs for field: " + field.name());
+                System.out.println("raw comments = " + field.getRawCommentText());
+            }
             generateComment(field);
             generateAnnotations(field.annotations());
             generateModifiers(field);
@@ -447,7 +454,7 @@ public class XMLDoclet {
         String rawCommentText = doc.getRawCommentText();
         if (rawCommentText.length() > 0) {
             attrs.clear();
-            hd.startElement("", "", "docComment", attrs);
+            hd.startElement("", "", "docComment", attrs);            
             hd.startElement("", "", "rawCommentText", attrs);
             hd.characters(rawCommentText.toCharArray(), 0, rawCommentText.length());
             hd.endElement("", "", "rawCommentText");
@@ -460,7 +467,21 @@ public class XMLDoclet {
             generateTags(doc.tags(), "tags");
             generateTags(doc.firstSentenceTags(), "firstSentenceTags");
             generateTags(doc.seeTags(), "seeTags");
-            generateTags(doc.inlineTags(), "inlineTags");
+            
+            List<Tag> list = new ArrayList<Tag>();
+            Tag[] inlineTags = doc.inlineTags();
+            list.addAll(Arrays.asList(inlineTags));
+            for(int i=0; i<list.size(); i++) {
+                Tag t = list.get(i);
+                if(isInheritDoc(t)) {
+                    Doc inherited = getInheritedDoc(doc);
+                    list.remove(i);
+                    list.addAll(i,Arrays.asList(inherited.inlineTags()));
+                    break;
+                }
+            }
+            inlineTags = (Tag[]) list.toArray(new Tag[0]);
+            generateTags(inlineTags, "inlineTags");
             
             hd.endElement("", "", "docComment");
         }
@@ -535,6 +556,32 @@ public class XMLDoclet {
             }
             hd.endElement("", "", "annotations");
         }
+    }
+
+    private Doc getInheritedDoc(Doc doc) {
+        if(doc instanceof MethodDoc) {
+            return getOverriddenMethod((MethodDoc)doc);
+        }
+        return null;
+    }
+
+
+    private MethodDoc getOverriddenMethod(MethodDoc doc) {
+        //System.out.println("method = " + doc);
+        //System.out.println("overridden method = " + doc.overriddenMethod());
+        ClassDoc cls = doc.containingClass();
+        ClassDoc scls = cls.superclass();
+        MethodDoc[] meths = scls.methods();
+        for(MethodDoc md : meths) {
+            //System.out.println("flat = " + md.qualifiedName() + " " + md.name() + " " + md.flatSignature());
+            //System.out.println("my name = " + doc.name());
+            if(md.name().equals(doc.name())) {
+                //System.out.println("matched");
+                return md;
+            }
+        }
+        
+        return null;
     }
 
     private void initTransformer() throws IOException, SAXException, TransformerException {
@@ -664,5 +711,25 @@ public class XMLDoclet {
             sb.append(help);
             return sb.toString();
         }
+    }
+
+    private boolean isInheritDoc(Doc doc) {
+        for(Tag t : doc.inlineTags()) {
+            if(t.kind().matches("@inheritDoc")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void p(String string) {
+        System.out.println(string);
+    }
+
+    private boolean isInheritDoc(Tag t) {
+        if(t.kind().matches("@inheritDoc")) {
+            return true;
+        }
+        return false;
     }
 }

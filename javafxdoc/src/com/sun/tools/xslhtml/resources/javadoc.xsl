@@ -169,12 +169,12 @@
     <xsl:template match="class" mode="interface">
         <xsl:if test="interfaces/interface">implements</xsl:if>
         <xsl:for-each select="interfaces/interface">
-            ,<a>
+            <a>
                 <xsl:attribute name="title"><xsl:value-of select="@packageName"/>.<xsl:value-of select="@typeName"/></xsl:attribute>
                 <xsl:attribute name="href">../<xsl:value-of select="@packageName"/>/<xsl:value-of select="@packageName"/>.<xsl:value-of select="@typeName"/>.html</xsl:attribute>
                 <strong><xsl:value-of select="@packageName"/></strong>
                 <b><xsl:value-of select="@typeName"/></b>
-            </a>
+            </a>,
         </xsl:for-each>
     </xsl:template>
     
@@ -497,6 +497,46 @@
     
     
     <!--  Functions -->
+    <xsl:template match="function | method | constructor" mode="signature">
+        <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
+        <xsl:text> </xsl:text>
+        
+        <!-- fx -->
+        <xsl:if test="not(../@language='java')">
+            <b><xsl:value-of select="@name"/></b>
+            (
+            <i class="parameters">
+                <xsl:for-each select="parameters/parameter">
+                    <b><xsl:value-of select="@name"/></b>:
+                    <i><xsl:value-of select="type/@toString"/></i>,
+                </xsl:for-each>
+            </i>
+            )
+            :
+            <i><xsl:value-of select="returns/@simpleTypeName"/>
+            <xsl:value-of select="type/@dimension"/></i>
+        </xsl:if>
+        
+        <!-- java -->
+        <xsl:if test="../@language='java'">
+            <i><xsl:value-of select="returns/@simpleTypeName"/>
+            <xsl:value-of select="type/@dimension"/></i>
+            <xsl:text> </xsl:text>
+            <b><xsl:value-of select="@name"/></b>
+            (
+            <i class="parameters">
+                <xsl:for-each select="parameters/parameter">
+                    <i><xsl:value-of select="type/@toString"/></i>
+                    <xsl:text> </xsl:text>
+                    <b><xsl:value-of select="@name"/></b>,
+                </xsl:for-each>
+            </i>
+            )
+        </xsl:if>
+            
+    </xsl:template>
+    
+
     
     <xsl:template name="method-like-toc">
         <dt>
@@ -505,21 +545,7 @@
             </xsl:if>
             <a>
                 <xsl:attribute name="href">#method_<xsl:value-of select="@name"/></xsl:attribute>
-                
-                <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
-                <xsl:text> </xsl:text>
-                <b><xsl:value-of select="@name"/></b>
-                (
-                <i class="parameters">
-                    <xsl:for-each select="parameters/parameter">
-                        <b><xsl:value-of select="@name"/></b>:
-                        <i><xsl:value-of select="type/@toString"/></i>,
-                    </xsl:for-each>
-                </i>
-                )
-                :
-                <i><xsl:value-of select="returns/@simpleTypeName"/>
-                <xsl:value-of select="type/@dimension"/></i>
+                <xsl:apply-templates select="." mode="signature"/>
             </a>
         </dt>
         <dd>
@@ -534,22 +560,7 @@
         <div class="method member">
             <a>
                 <xsl:attribute name="id">method_<xsl:value-of select="@name"/></xsl:attribute>
-                <h4>
-                    <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
-                    <xsl:text> </xsl:text>
-                    <b><xsl:value-of select="@name"/></b>
-                    (
-                    <i class="parameters">
-                        <xsl:for-each select="parameters/parameter">
-                            <b><xsl:value-of select="@name"/></b>:
-                            <i><xsl:value-of select="type/@toString"/></i>,
-                        </xsl:for-each>
-                    </i>
-                    )
-                    :
-                    <i><xsl:value-of select="returns/@simpleTypeName"/>
-                    <xsl:value-of select="type/@dimension"/></i>
-                </h4>
+                <h4><xsl:apply-templates select="." mode="signature"/></h4>
             </a>
             
             
