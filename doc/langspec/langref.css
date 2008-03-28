@@ -28,7 +28,7 @@ h4 {
     
 p   { padding-top: 8pt;}
 
-p.hide {visibility: hidden;}
+pre.hide {visibility: hidden;}
 
 pre {padding-top: 6pt;
      padding-bottom: 6pt;
