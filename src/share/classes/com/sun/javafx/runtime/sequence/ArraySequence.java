@@ -28,6 +28,7 @@ package com.sun.javafx.runtime.sequence;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.sun.javafx.runtime.Util;
 
@@ -123,7 +124,10 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
             }
 
             public T next() {
-                return array[index++];
+                if (hasNext())
+                    return array[index++];
+                else
+                    throw new NoSuchElementException();
             }
 
             public void remove() {

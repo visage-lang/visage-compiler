@@ -36,6 +36,10 @@
         <Class name="javafx.lang.Duration"/>
     </Match>
     <Match>
+        <!-- Exclude package javafx.animation -->
+        <Package name="javafx.animation"/>
+    </Match>
+    <Match>
         <!-- Exclude package com.sun.javafx.runtime.util.backport -->
         <Package name="com.sun.javafx.runtime.util.backport"/>
     </Match>

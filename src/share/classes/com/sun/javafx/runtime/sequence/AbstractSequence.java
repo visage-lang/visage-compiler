@@ -29,6 +29,7 @@ import java.util.BitSet;
 import java.util.Iterator;
 import java.util.Formattable;
 import java.util.Formatter;
+import java.util.NoSuchElementException;
 import com.sun.javafx.runtime.sequence.SequenceMutator.Listener;
 
 /**
@@ -109,7 +110,7 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
 
             public T next() {
                 if (next >= size())
-                    throw new IndexOutOfBoundsException();
+                    throw new NoSuchElementException();
                 else
                     return get(next++);
             }
