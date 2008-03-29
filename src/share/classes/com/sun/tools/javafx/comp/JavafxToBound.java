@@ -556,41 +556,74 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitSelect(final JCFieldAccess tree) {
         if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
-            result = convert(tree.type, toJava.translate(tree, Wrapped.InLocation) ); //TODO -- for now punt, translate like normal case
+            result = convert(tree.type, toJava.translate(tree, Wrapped.InLocation)); //TODO -- for now punt, translate like normal case
             return;
         }
         DiagnosticPosition diagPos = tree.pos();
 
-        if (tree.sym.isStatic()) {
-            Symbol owner = tree.sym.owner;
-            if (types.isJFXClass(owner)) {
-                // if this is a static reference, eg.   MyClass.myAttribute
+        Symbol owner = tree.sym.owner;
+        if (types.isJFXClass(owner)) {
+            if (tree.sym.isStatic()) {
+                // if this is a static reference to an attribute, eg.   MyClass.myAttribute
                 JCExpression classRef = makeTypeTree(types.erasure(tree.sym.owner.type), diagPos, false);
                 result = convert(tree.type, make.at(diagPos).Select(classRef, tree.getIdentifier()));
-                return;
             } else {
-                // if this is a static reference to a Java member e.g. System.out -- do unbound translation, then wrap
-                result = this.makeUnboundLocation(diagPos, targetType(tree.type), toJava.translate(tree, Wrapped.InNothing));
+                // this is a dynamic reference to an attribute
+                JCExpression expr = tree.getExpression();
+                result = new SelectClosureTranslator(diagPos,
+                        tree.type,
+                        typeMorpher.typeMorphInfo(expr.type),
+                        translate(expr)) {
+
+                    protected List<JCTree> makeBody() {
+                        JCExpression expr = convert( tree.type, typeMorpher.convertVariableReference(diagPos, //TODO: don't use this
+                                m().Select(m().Ident(selectorParamName), tree.getIdentifier()),
+                                tree.sym,
+                                true,
+                                false) );
+                        return List.<JCTree>of(makeComputeSelectMethod(expr));
+                    }
+                }.doit();
             }
         } else {
-            JCExpression expr = tree.getExpression();
-            result = new SelectClosureTranslator(diagPos,
-                    tree.type,
-                    typeMorpher.typeMorphInfo(expr.type),
-                    translate(expr)) {
+            if (tree.sym.isStatic()) {
+                // if this is a static reference to a Java member e.g. System.out -- do unbound translation, then wrap
+                result = this.makeUnboundLocation(diagPos, targetType(tree.type), toJava.translate(tree, Wrapped.InNothing));
+            } else {
+                // dynamic reference to a Java member
+                result = (new BindingExpressionClosureTranslator(diagPos, tree.type) {
 
-                protected List<JCTree> makeBody() {
-                    JCExpression expr = typeMorpher.convertVariableReference(diagPos, //TODO: don't use this
-                            m().Select(m().Ident(selectorParamName), tree.getIdentifier()),
-                            tree.sym,
-                            true,
-                            false);
-                    return List.<JCTree>of(makeComputeSelectMethod(expr));
-                }
-            }.doit();
+                    private JCExpression selector = tree.getExpression();
+                    private TypeMorphInfo tmiSelector = typeMorpher.typeMorphInfo(selector.type);
+                    private Name selectorName = toJava.getSyntheticName("selector");
+
+                    protected JCExpression resultValue() {
+                        // create two accesses to the value of to selector field -- selector$.blip
+                        // one for the method call and one for the nul test
+                        JCExpression transSelector = makeGetField(selectorName, tmiSelector);
+                        JCExpression toTest = makeGetField(selectorName, tmiSelector);
+
+                        // construct the actual select
+                        JCExpression selectExpr = m().Select(transSelector, tree.getIdentifier());
+
+                        // test the selector for null before attempting to select the field
+                        // if it would dereference null, then instead give the default value
+                        JCExpression cond = m().Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
+                        JCExpression defaultExpr = toJava.makeDefaultValue(diagPos, tmiResult);
+                        return m().Conditional(cond, selectExpr, defaultExpr);
+                    }
+
+                    @Override
+                    protected void buildFields() {
+                        // translate the selector into a Location field of the BindingExpression
+                        // XxxLocation selector$ = ...;
+                        buildArgField(translate(selector), selector.type, selectorName.toString());
+                    }
+                }).doit();
+            }
         }
     }
-    
+
     @Override
     public void visitIdent(JCIdent tree)   {  //TODO: this, super, ...
        // assert (tree.sym.flags() & Flags.PARAMETER) != 0 || tree.name == names._this || tree.sym.isStatic() || toJava.shouldMorph(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
@@ -1008,7 +1041,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                         return (new BindingExpressionClosureTranslator(diagPos, tree.type) {
 
                             private TypeMorphInfo tmiSelector = typeMorpher.typeMorphInfo(selector.type);
-                            private Name selectorName = names.fromString("selector$");
+                            private Name selectorName = toJava.getSyntheticName("selector");
 
                             protected JCExpression resultValue() {
                                 // create two accesses to the value of to selector field -- selector$.getXxx()

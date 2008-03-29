@@ -219,6 +219,7 @@ public class JavafxTypeMorpher {
                     } else {
                         //assert false : "should not reach here";
                         this.realType = types.boxedClass(realType).type; //TODO: maybe the real type should be kept separate?
+                        elementType = realType;
                         typeKind = TYPE_KIND_OBJECT;
                     }
                 } else {

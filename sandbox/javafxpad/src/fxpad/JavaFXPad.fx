@@ -413,9 +413,10 @@ public class JavaFXPad extends CompositeWidget {
                                                                     var r = bind lineNumbers.getCellBounds(0);
                                                                     var errImage = Image {url: "{__DIR__}images/error_obj.gif" };
                                                                     content: bind for (err in errMessages) {
+									var lineNumber = err.getLineNumber();
                                                                         View {
                                                                             toolTipText: "<html><div 'width=300'>{err.getMessage(null)}</div></html>"
-                                                                            transform: bind Transform.translate(2, (err.getLineNumber() -1)*r.height)
+                                                                            transform: bind Transform.translate(2, (lineNumber.intValue() -1)*r.height)
                                                                             content: SimpleLabel {icon: errImage}
                                                                             
                                                                         }
