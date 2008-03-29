@@ -19,3 +19,11 @@ rect => {
     width: 500,
     fill: Color.BLUE tween LINEAR
 };
+
+at (1s) { 
+    x => 2 tween LINEAR;
+    rect => {width: 400 tween EASEBOTH, fill: Color.RED tween EASEBOTH};
+    trigger {
+       System.out.println("at 1 second...");
+    }
+}
