@@ -387,6 +387,7 @@ expression  returns [JCExpression expr]
 	| blockExpression				{ $expr = $blockExpression.expr; }
        	| stringExpression				{ $expr = $stringExpression.expr; }
         | interpolateExpression                         { $expr = $interpolateExpression.expr; }
+        | frame=keyFrameLiteral                         { $expr = $frame.expr; }
 	| explicitSequenceExpression			{ $expr = $explicitSequenceExpression.expr; }
 	| ^(DOTDOT from=expression to=expression step=expression? LT?)
 							{ $expr = F.at(pos($DOTDOT)).RangeSequence($from.expr, $to.expr, $step.expr, $LT!=null); 
@@ -494,6 +495,18 @@ namedTweenValue returns [JFXInterpolateValue prop]
                                                         { $prop = F.at($identifier.expr.pos).InterpolateValue($identifier.expr, $expression.expr, $name.value); 
                                                           endPos($prop, $name.value != null ? $name.pos + $name.value.length() : $expression.expr.pos); }
         ;
+keyFrameLiteral returns [JFXKeyFrameLiteral expr]
+@init { ListBuffer<JFXInterpolate> exprs = new ListBuffer<JFXInterpolate>(); }
+        : ^(AT time=expression 
+             ( interpolateExpression                    { exprs.append((JFXInterpolate)$interpolateExpression.expr); } )* 
+             keyFrameTriggerClause? 
+           )                                            { $expr = F.at(pos($AT)).KeyFrameLiteral((JFXTimeLiteral)$time.expr, exprs.toList(), $keyFrameTriggerClause.expr);
+                                                          endPos($expr, $AT); }
+        ;
+keyFrameTriggerClause  returns [JFXBlockExpression expr]
+	: ^(TRIGGER blockExpression)			{ $expr = $blockExpression.expr; 
+                                                          endPos($expr, $TRIGGER); }
+	;
 explicitSequenceExpression   returns [JFXSequenceExplicit expr]
 @init { ListBuffer<JCExpression> exps = new ListBuffer<JCExpression>(); }
 	: ^(SEQ_EXPLICIT   

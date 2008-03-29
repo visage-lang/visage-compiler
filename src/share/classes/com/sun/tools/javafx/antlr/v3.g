@@ -734,8 +734,13 @@ tweenValue
         : expr=primaryExpression TWEEN interpolate=name         -> ^(TWEEN $expr $interpolate)
         ;
 keyFrameLiteral
-        : AT LPAREN time=TIME_LITERAL RPAREN LBRACE interpolateExpression? (SEMI interpolateExpression?)* (SEMI TRIGGER trigger=block)? RBRACE
-                                                -> ^(AT $time interpolateExpression* $trigger?)
+        : AT LPAREN time=TIME_LITERAL RPAREN 
+            LBRACE (interpolateExpression? (SEMI))* 
+              (keyFrameTriggerClause?)
+            RBRACE                              -> ^(AT $time interpolateExpression* keyFrameTriggerClause?)
+        ;
+keyFrameTriggerClause
+        : TRIGGER blockExpression (SEMI)        -> ^(TRIGGER blockExpression)
         ;
 boundExpression 
 	: BIND expression (WITH INVERSE)?
@@ -749,6 +754,7 @@ expression
        	| newExpression 	
 	| assignmentExpression	 
         | interpolateExpression
+        | keyFrameLiteral
       	;
 forExpression
 	: FOR LPAREN inClause (COMMA inClause)* RPAREN expression
