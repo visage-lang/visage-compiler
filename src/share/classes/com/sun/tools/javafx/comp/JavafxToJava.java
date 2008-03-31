@@ -198,7 +198,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     static final boolean generateBoundFunctions = true;
     static final boolean permeateBind = false;
     static final boolean generateNullChecks = true;
-    boolean useBindingOverhaul = false;
+    boolean useBindingOverhaul = true;
     
     private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
     private static final String sequencesRangeExclusiveString = "com.sun.javafx.runtime.sequence.Sequences.rangeExclusive";

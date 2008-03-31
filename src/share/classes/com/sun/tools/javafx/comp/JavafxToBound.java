@@ -227,8 +227,12 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         JCExpression typeExpression = toJava.makeTypeTree(vmi.getLocationType(), diagPos, true);
 
         //TODO: handle array initializers (but, really, shouldn't that be somewhere else?)
-        JCExpression init = translate(tree.init, vmi.getRealFXType());
-
+        JCExpression init;
+        if (tree.init == null) {
+            init = typeMorpher.makeLocationAttributeVariable(vmi, diagPos);
+        } else {
+            init = translate(tree.init, vmi.getRealFXType());
+        }
         return make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
     }
 
@@ -330,7 +334,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             if (additionTypeParamOrNull != null) {
                 typeParams.append(makeExpression(additionTypeParamOrNull));
             }
-            return m().TypeApply(clazz, typeParams.toList());
+            return typeParams.isEmpty()? clazz : m().TypeApply(clazz, typeParams.toList());
         }
 
         protected abstract List<JCExpression> makeConstructorArgs();
