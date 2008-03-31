@@ -366,7 +366,7 @@ seq[a..&lt;] // for consistancy.  This is the same as seq[a..&lt;sizeof seq-1]
 </programlisting>
 
 
-    <para>The <code>insert</code> operator inserts a new element into a
+    <para><code>insert</code> inserts a new element into a
     sequence:</para>
 
     <programlisting>insert x into seq

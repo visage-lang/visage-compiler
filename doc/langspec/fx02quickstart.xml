@@ -404,7 +404,7 @@ function main():Number {
 
     <programlisting>var add = function(a:Number, b:Number):Number { a + b; }
 var result = add(1, 2);    
-</programlisting>
+</programlisting></para>
 
     </sect2>
     
