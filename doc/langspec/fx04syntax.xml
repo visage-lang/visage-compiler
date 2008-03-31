@@ -7,14 +7,9 @@
   <sect1 id="keywords">
     <title>Key Words</title>
 
-    <para>This placeholder section holds a temporary key words table. This
-    list will change as JavaFX™ Script continues to develop.</para>
+    <para>This placeholder section holds a temporary key words table. This list will change as the JavaFX™ Script programming language continues to develop.</para> 
 
         <table cellpadding="3" cellspacing="3" >
-	
-	<!--style="border-top: 1px solid black; border-bottom: 1px solid black;  margin-left:24pt; margin-right:48pt"
-	
-	-->
 	
 	<caption>Keywords Table </caption>
           <tbody>
@@ -189,9 +184,9 @@
 
     <para>Operators are usually associated with the data type of the operands being evaluated (see <emphasis>Types</emphasis>) but some operators can be overloaded to handle closely related types. For example; addition and multiplication operate only on data of type <code>integer</code> or <code>number</code>, but not <code>boolean</code> or <code>string</code>.</para>
 
-    <para>In JavaFX™ Script, an operator can also be a keyword that defines a computation, a relationship between two data elements, or a reference to an object.</para>
+    <para>In the JavaFX™ Script programming language, an operator can also be a keyword that defines a computation, a relationship between two data elements, or a reference to an object.</para>
 
-    <para>JavaFX Script supports the following operators, grouped according to function and data type:</para>
+    <para>The JavaFX Script programming language supports the following operators, grouped according to function and data type:</para>
 
     <table cellpadding="5" cellspacing="5" style="border-top: 1px solid black; border-bottom: 1px solid black; margin-left: 24pt ">
     
@@ -808,7 +803,7 @@ System.out.println(x); // prints 10
 
     
 
-    <para>JavaFX script supports dependency-based evaluation of expressions
+    <para>JavaFX Script programming language supports dependency-based evaluation of expressions
     with the bind keyword.</para>
 
     
@@ -857,7 +852,7 @@ println(x); // prints -1.0;
     <sect2 id="for"><title>Querying Sequences with the<code> for</code> Operator</title>
 
 
-    <para>JavaFX script supports sequence comprehensions with a familiar
+    <para>JavaFX Script programming language supports sequence comprehensions with a familiar
     syntax that should be easily understood by those familiar with the Java
     programming language, namely the <code>for</code> operator.</para>
 
@@ -938,7 +933,7 @@ Track = Macho City
     cartesian product of the source sequences' elements that satisfy the
     filter.</para>
 
-    <para>Sequence comprehensions give a concise syntax for a rather general
+    <para>Sequence comprehensions provide a concise syntax for a rather general
     class of iterations over sequences.</para>
 
     <para><emphasis role="bold">Example:</emphasis></para>
@@ -963,7 +958,7 @@ Track = Macho City
     <sect2 id="insert"><title>Modifying Sequences with the <code>insert</code> and
     <code>delete</code> Operators</title>
 
-    <para>In addition to the assignment operator <code>=</code>, JavaFX script
+    <para>In addition to the assignment operator <code>=</code>, the  JavaFX script programming language 
     provides data modification operators, <code>insert</code> and
     <code>delete</code>.</para>
 
@@ -1068,7 +1063,7 @@ delete xs; // yields []
   <sect1 id="expressions">
     <title>Expressions</title>
 
-    <para>Unlike the Java programming language, JavaFX script is an expression
+    <para>Unlike the Java programming language, the JavaFX Script programming language is an expression
     language. All executable statements are expressions which consist of zero
     or more inputs and a single output. This includes conditionals, loops, and
     even blocks.</para>
@@ -1128,7 +1123,7 @@ System.out.println(s);
       <sect3 id="while">
         <title><code>While</code> Statement</title>
 
-        <para>The JavaFX Script <code>while</code> statement is like the
+        <para>The JavaFX Script programming language<code>while</code> statement is like the
         statement in the Java Programming language, except that curly braces
         are always required around the body.</para>
 
@@ -1150,11 +1145,11 @@ System.out.println(s);
 <sect3 id="try">
    <title><code>try</code> Statement</title>
 
-        <para>The JavaFX Script <code>try</code> statement is like the
+        <para>The JavaFX Script programming language <code>try</code> statement is like the
         statement in the Java Programming language, but with JavaFX Script
         variable declaration syntax.</para>
 
-        <note>In JavaFX Script any object can be thrown and caught, not just
+        <note>In the JavaFX Script programming language, any object can be thrown and caught, not just
         those that extend <code>java.lang.Throwable</code>.</note>
 
         <para>
@@ -1181,7 +1176,7 @@ System.out.println(s);
           'for' statement.</emphasis>
         </para>
 
-        <para>The header of the JavaFX Script <code>for</code> statement uses
+        <para>The header of the JavaFX Script programming language<code>for</code> statement uses
         the same syntax as the <code>for</code> list comprehension
         operator.<!-- This needs to be linked to the list comprehension discussion in the Arrays chapter -->
         However; in this case the body of the statement is executed for each
@@ -1217,7 +1212,7 @@ System.out.println(s);
 <sect3 id="return">
    <title><code>return</code> Statement</title>
 
-        <para>The JavaFX Script <code>return</code> statement is like the
+        <para>The JavaFX Script programming language<code>return</code> statement is like the
         statement in the Java Programming language:</para>
 
         <para>
@@ -1233,7 +1228,7 @@ System.out.println(s);
 <sect3 id="throw">
     <title><code>throw</code> Statement</title>
 
-        <para>The JavaFX Script <code>throw</code> statement is like the
+        <para>The JavaFX Script programming language<code>throw</code> statement is like the
         statement in the Java Programming language. However; any object can be
         thrown, not just those that extend
         <code>java.lang.Throwable</code>.</para>
@@ -1257,7 +1252,7 @@ System.out.println(s);
       <sect3 id="break">
         <title><code>break</code> and <code>continue</code> Statements</title>
 
-        <para>The JavaFX Script <code>break</code> and <code>continue</code>
+        <para>The JavaFX Script programming language<code>break</code> and <code>continue</code>
         statements are like the statement in the Java Programming language;
         however labels are not supported. As in Java, <code>break</code> and
         <code>continue</code> must appear inside the body of a
@@ -1424,7 +1419,7 @@ System.out.println(s);
         and a conditional expression: <code>a &lt; b ? a :
         b</code>.</para>
 
-        <para>Thanks to block expressions, the JavaFX <code><emphasis>if</emphasis></code> expression takes
+        <para>Thanks to block expressions, the JavaFX Script programming language <code><emphasis>if</emphasis></code>  expression takes
         the place of both.</para>
 	
 	
@@ -1470,7 +1465,11 @@ var nums2 = [3..0 step 1]; </programlisting>
 
 <para>actually declare empty sequences.</para>
 
-</sect3></sect2></sect1></chapter>
+</sect3>
+</sect2>
+</sect1>
+
+</chapter>
 
 
 

@@ -65,7 +65,7 @@
 
     <para>Any sequence of characters (including whitespace) contained in
     french quotes &lt;&lt;&gt;&gt; is treated as an identifier. This makes it
-    possible to use JavaFX script keywords (or other normally illegal
+    possible to use JavaFX&trade; Script language keywords (or other normally illegal
     identifiers) as class, variable, function, or attribute names. </para>
     
     
@@ -78,8 +78,9 @@
 
 
     <para>This also makes it possible to invoke methods (written in the Java
-    programming language) whose names are the same as JavaFX Script keywords.
-    For example:</para>
+    programming language) whose names are the same as JavaFX Script language keywords.</para>
+    
+    <para><emphasis role="bold">Example:</emphasis></para>
 
     <programlisting>import javax.swing.JTextArea;
 
@@ -101,13 +102,13 @@ textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);</programlisting>
   <sect1 id="datatypes">
     <title>Data Types</title>
 
-    <para>JavaFX script provides four built-in data types:
+    <para>The JavaFX Script programming language provides four built-in data types:
     <code>String</code>, <code>Boolean</code>, <code>Number</code>, and
-    <code>Integer</code>. These types correspond to the Java programming
+    <code>Integer</code>. These types correspond to the Java&trade; programming
     language as follows:</para>
 
    
-     <para>JavaFX Script types to correspond to the Java™ programming
+     <para>JavaFX Script programming language types to correspond to the Java™ programming
           language types listed on the table below:</para>
 
           <table cellpadding="5" cellspacing="5" width="67%" style=" border-top: 1px solid black; border-bottom: 1px solid black;">
@@ -209,7 +210,7 @@ arguments or return values to/from methods written in the Java programming langu
     Expressions</title>
 
 
-    <para>In JavaFX script, a literal character string is specified with
+    <para>Specify a literal character string is specified with
     single quotes:</para>
 
 
@@ -220,7 +221,7 @@ arguments or return values to/from methods written in the Java programming langu
 
    <programlisting>var s = "Hello";</programlisting>
 
-    <para>In the latter case, JavaFX script expressions may be embedded using
+    <para>In the latter case, you can embed a JavaFX Script expression using
     curly brackets ( {} ):</para>
 
 
@@ -230,19 +231,19 @@ var s = "Hello {name}"; // s = 'Hello Joe'
 
     <para></para>
 
-    <para>For this to work, the compiler infers a type for the embedded
+    <para>When using curly brackets, the compiler infers a type for the embedded
     expression that it can coerce to a String.</para>
 
 
-    <para>The embedded expression may itself contain quoted strings (which, in
-    turn, may contain further embedded expressions):</para>
+    <para>The embedded expression can itself contain quoted strings, which, in
+    turn, may contain further embedded expressions:</para>
 
     <programlisting>var answer = true;
 var s = "The answer is {if (answer) "Yes" else "No"}"; // s = 'The answer is Yes'
 </programlisting>
 
-    <para>Unlike the Java programming language, JavaFX script double-quoted
-    String literals can contain newlines:</para>
+    <para>Unlike the Java programming language, a JavaFX Script programming language double-quoted
+    String literal can contain newlines:</para>
 
     <programlisting> var s = "This
           contains
@@ -276,7 +277,7 @@ var dateStr = "{%tc date}" // dateStr = "Sun Nov 11 00:00:00 PST 2007"
 
 
 
-    <para>In addition to the basic types described above, JavaFX script also
+    <para>In addition to the basic types described above, the JavaFX Script programming language also
     supports data structures known as <emphasis>sequences</emphasis>.
     Sequences are similar to Java programming language arrays, but there are
     differences as well. The following code presents some examples:</para>

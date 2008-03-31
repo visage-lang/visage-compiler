@@ -47,8 +47,8 @@
     the name of the class followed by a curly brace delimited list of
     attribute initializers. Each initializer consists of the attribute name
     followed by a colon, followed by an expression which defines its value
-    (see <link linkend="???">Incremental and Lazy Evaluation</link> for JavaFX
-    Script's support for incremental evaluation in this context). 
+    (see <link linkend="???">Incremental and Lazy Evaluation</link> for JavaFX&trade;
+    Script support of incremental evaluation in this context). 
     
     <!-- <emphasis
     role="bold">[NOTE: Original engineering text had a note/link here about
@@ -108,8 +108,7 @@
 </programlisting>
 
 
-    <para>Java programming language object allocation syntax is also
-    supported. In such cases, it is possible to pass arguments to the
+    <para>JavaFX&trade; Script also supports Java&trade; programming language object allocation syntax. In such cases, it is possible to pass arguments to the
     constructor of a class:</para>
 
     
@@ -128,7 +127,7 @@ System.out.println(date1 == date2);  // prints true
 
    
 
-    <para>In fact, code written in JavaFX Script can interact with the Java
+    <para>In fact, code written in the JavaFX Script programming language can interact with the Java
     programming language in a number of ways: it can import classes, create
     new objects, invoke methods, and implement interfaces. The following code
     snippet provides an example:</para>
@@ -167,8 +166,8 @@ frame.setVisible(true);
 
     
 
-    <para>This, however, is not the preferred way to create GUIs in JavaFX
-    Script. The following code uses object literals to produce the same
+    <para>This, however, is not the preferred way to create GUIs in the JavaFX 
+    Script programming language. The following code uses object literals to produce the same
     result:</para>
 
   
