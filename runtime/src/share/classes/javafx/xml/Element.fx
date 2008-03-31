@@ -33,7 +33,7 @@ import java.lang.System;
  * @see  org.w3c.dom.Element
  * @author jclarke
  */
-class Element extends Node {
+public class Element extends Node {
 
     /**
      * sets the node type to ELEMENT
