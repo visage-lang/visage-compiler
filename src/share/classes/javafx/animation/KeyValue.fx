@@ -26,11 +26,11 @@
 package javafx.animation;
 
 import com.sun.javafx.runtime.Pointer;
+import com.sun.javafx.runtime.location.*;
 import java.lang.Object;
 
 public class KeyValue {
     public attribute target: Pointer;
     public attribute value: Object;
     public attribute interpolate: Interpolator = Interpolator.DISCRETE;
-    public attribute interpfunc: function(startVal:Object, endVal:Object, t:Number):Object;
 }

@@ -247,19 +247,7 @@ public class Timeline {
             }
 
             if (v1 <> null and v2 <> null) {
-                if (v2.interpfunc <> null) {
-                    pairlist.target.set(v2.interpfunc(v1.value, v2.value, segT));
-                } else {
-                    // TODO: this codepath will be removed once we
-                    // fully migrate to the new Interpolatable mechanism
-
-                    // filter the segT value through the interpolator
-                    // for this interval
-                    segT = v2.interpolate.interpolate(segT);
-
-                    // update the target with the interpolated value
-                    pairlist.setValue(v1.value, v2.value, segT);
-                }
+                pairlist.target.set(v2.interpolate.interpolate(v1.value, v2.value, segT));
             }
         }
 
@@ -314,10 +302,7 @@ class KFPair {
 }
 
 class KFPairList {
-    attribute target:Pointer on replace {
-        evaluator = Evaluator.forPointer(target);
-    };
-    private attribute evaluator:Evaluator;
+    attribute target:Pointer;
     private attribute pairs:ArrayList = new ArrayList();
 
     attribute visitedCycle:Integer = 0;
@@ -343,10 +328,6 @@ class KFPairList {
 
     function get(i:Integer): KFPair {
         return pairs.get(i) as KFPair;
-    }
-
-    function setValue(pole1:Object, pole2:Object, t:Number) {
-        target.set(evaluator.evaluate(pole1, pole2, t));
     }
 }
 

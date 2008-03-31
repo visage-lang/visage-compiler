@@ -30,7 +30,7 @@ import java.lang.Object;
 import com.sun.scenario.animation.Interpolators;
 
 public abstract class Interpolator {
-    public abstract function interpolate(t: Number) : Number;
+    public abstract function interpolate(startValue:Object, endValue:Object, fraction:Number):Object;
 
     public static /* readonly */ attribute DISCRETE:Interpolator =
         CoreInterpolator { i: Interpolators.getDiscreteInstance(); };
@@ -48,10 +48,10 @@ public abstract class Interpolator {
     }
 }
 
-class CoreInterpolator extends Interpolator {
+class CoreInterpolator extends SimpleInterpolator {
     attribute i:com.sun.scenario.animation.Interpolator;
 
-    public function interpolate(t: Number) : Number {
+    public function curve(t: Number) : Number {
         i.interpolate(t.floatValue())
     }
 }
