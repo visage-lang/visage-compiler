@@ -507,7 +507,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
             Class param = parameterTypes[i];
             if (param.isPrimitive())
                 param = wrappers.get(param);
-            if (param == null || !(arg.isAssignableFrom(param)))
+            if (param == null || !(param.isAssignableFrom(arg)))
                 return false;
             }
         return true;

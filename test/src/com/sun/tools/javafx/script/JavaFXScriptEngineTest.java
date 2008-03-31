@@ -189,6 +189,20 @@ public class JavaFXScriptEngineTest {
         assertNotNull(ret);
         assertEquals("Hello, world", ret.toString());
     }
+	
+	@Test
+	public void invokeMethodParam() throws Exception {
+        String script =
+            "class Test{ function getClass(o: Test): java.lang.Class {return o.getClass();}}" +
+            "function create():Test { return new Test(); }";
+
+        engine.compile(script);
+        Object test = engine.invokeFunction("create");
+        assertNotNull(test);
+        Object ret = engine.invokeMethod(test, "getClass", test);
+        assertNotNull(ret);
+        assertEquals( test.getClass(), ret );
+	}
     
     @Test
     public void verifyErrorLineNumber() throws Exception {
