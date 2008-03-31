@@ -725,7 +725,7 @@ public class JavafxInitializationBuilder {
     /**
      * Non-destructive creation of "on change" change listener set-up call.
      */
-    JCStatement makeChangeListenerCall(AttributeInfo info) {
+    public JCStatement makeChangeListenerCall(AttributeInfo info) {
         
         //TODO: TranslatedAttributeInfo should be simplified to hold onReplace attribute only
         //
@@ -782,7 +782,13 @@ public class JavafxInitializationBuilder {
                 List.<JCExpression>nil(), 
                 make.at(diagPos).AnonymousClassDef(make.Modifiers(0L), members.toList()));
 
-        JCExpression attrRef = toJava.makeAttributeAccess(diagPos, info.getNameString());
+        JCExpression attrRef;
+        // if it is an attribute
+        if (info.getSymbol().owner.kind == Kinds.TYP) {
+             attrRef = toJava.makeAttributeAccess(diagPos, info.getNameString());
+        } else {
+             attrRef = make.at(diagPos).Identifier(info.getNameString());
+        }
         JCFieldAccess tmpSelect = make.at(diagPos).Select(attrRef, addChangeListenerName);
 
         List<JCExpression> args = List.<JCExpression>of(anonymousChangeListener);

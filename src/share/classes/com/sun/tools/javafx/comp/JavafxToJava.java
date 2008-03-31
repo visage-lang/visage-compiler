@@ -1298,7 +1298,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         if (!isClassVar && (vsym.flags_field & JavafxFlags.INNER_ACCESS) != 0) {   
             modFlags |= Flags.FINAL;
         }
-   
+        
+        // force morphing on variables with triggers
+        if (!isClassVar && (tree.getOnReplace() != null) )
+            vmi.markBoundTo();
+        
         if (shouldMorph(vmi)) {
             // convert the type to the Location type
             if ((vsym.flags() & Flags.PARAMETER) != 0) {
@@ -1329,7 +1333,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             if (isBound && locallyBound != null) {
                 setLocallyBound(vsym);
            }
-                      
+           
+           // create a blank variable declaration and move the declaration to the beginning of the block
            if ( !shouldMorph(vmi)) {
                 if ( (modFlags & Flags.FINAL) != 0 ) {
                     init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
@@ -1337,13 +1342,27 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
                     return;
                 }
-                // create a blank variable and move the declaration of the variable to the beginning of the block
+                // non location types:
                 init = makeDefaultValue(diagPos, vmi);
             } else { 
-                // first create a blank variable XXXVariable.make() and append it to the prependToStatements list
+                // location types: XXXVariable.make() 
                 init = typeMorpher.makeLocationAttributeVariable(vmi, diagPos);
             }
             prependToStatements.append(make.at(diagPos).VarDef(mods, tree.name, typeExpression, init));
+            
+            // create change Listener and append it to the beginning of the block after the blank variable declaration
+            JFXOnReplace onReplace = tree.getOnReplace();
+            if ( onReplace != null ) {
+                   
+                TranslatedAttributeInfo attrInfo = new TranslatedAttributeInfo(
+                                                            tree,
+                                                            typeMorpher.varMorphInfo(vsym),
+                                                            null,
+                                                            translate(tree.getOnReplace()));
+                JCStatement changeListener = initBuilder.makeChangeListenerCall(attrInfo); 
+                prependToStatements.append(changeListener);
+            }
+            
             result = translateDefinitionalAssignmentToSet(diagPos, tree.init, tree.getBindStatus(), tree.sym, null, 0);
         }   
     }
