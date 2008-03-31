@@ -87,7 +87,7 @@ public class JFXFunctionValue extends JFXExpression implements FunctionValueTree
     }
 
     public JavaFXKind getJavaFXKind() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return JavaFXKind.FUNCTION_VALUE;
     }
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
