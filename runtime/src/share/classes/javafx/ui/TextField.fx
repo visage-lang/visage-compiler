@@ -184,9 +184,10 @@ public class TextField extends Widget {
                 y: p.getY() - location.getX()
                 transferData: value
             };
-            return (this.canAcceptDrop)(e);
+            (this.canAcceptDrop)(e)
+        } else {
+             onDrop <> null
         }
-        return onDrop <> null;
     }
     
     private function setDropValue(value:Object):Void {

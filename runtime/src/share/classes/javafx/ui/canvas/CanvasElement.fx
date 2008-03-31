@@ -36,13 +36,15 @@ public abstract class CanvasElement {
     public bound function getCanvas(): Canvas {
         var n = this.parentCanvasElement;
         if (n == null) {
-            return null;
+            null
+        } else {
+            n.getCanvas()
         }
-        return n.getCanvas();
     }
     
+    //TODO: MH marked as bound
     /** Returns the canvas element that contains this element */
-    public bound function getContainer(): Container{
+    public function getContainer(): Container{
         var p = parentCanvasElement;
         while (p <> null) {
             if (p instanceof Container) {

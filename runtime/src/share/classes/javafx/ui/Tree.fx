@@ -445,9 +445,10 @@ public class Tree extends ScrollableWidget {
                 transferData: value
                 selection: tree.getSelectionPath()
             };
-            return (this.canAcceptDrop)(e);
+           (this.canAcceptDrop)(e)
+        } else {
+           onDrop <> null
         }
-        return onDrop <> null;
     }
     private function getDragValue(): java.lang.Object  {
         //TODO MULTIPLE SELECTION

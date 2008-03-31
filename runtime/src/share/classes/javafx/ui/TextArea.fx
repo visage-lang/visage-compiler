@@ -206,9 +206,10 @@ public class TextArea extends ScrollableWidget {
                 y: p.getY() - location.getY();
                 transferData: value
             };
-            return (this.canAcceptDrop)(e);
+            (this.canAcceptDrop)(e);
+        } else {
+            onDrop <> null
         }
-        return onDrop <> null;
     }
     
     private function setDropValue(value:Object):Void {
