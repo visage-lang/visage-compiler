@@ -44,7 +44,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
-import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.stream.*;
 import javax.xml.transform.sax.*;
@@ -321,17 +320,18 @@ public class XMLDoclet {
             generateAnnotations(cls.annotations());
             generateTypeParameters(cls.typeParameters());
         }
-        generateTypeRef(cls.superclass(), "superclass", null);
+        if (!cls.superclass().qualifiedName().equals("java.lang.Object"))
+            generateTypeRef(cls.superclass(), "superclass", null);
         attrs.clear();
         hd.startElement("", "", "interfaces", attrs);
         for (Type intf : cls.interfaces())
             generateTypeRef(intf, "interface", null);
         hd.endElement("", "", "interfaces");
         if (!fxClass) {
-            for (ClassDoc inner : cls.innerClasses())
-                generateClass(inner);
-            for (ConstructorDoc cons : cls.constructors())
-                generateExecutableMember(cons, "constructor");
+        for (ClassDoc inner : cls.innerClasses())
+            generateClass(inner);
+        for (ConstructorDoc cons : cls.constructors())
+            generateExecutableMember(cons, "constructor");
         }
         
         for (MethodDoc meth : cls.methods())
@@ -467,21 +467,7 @@ public class XMLDoclet {
             generateTags(doc.tags(), "tags");
             generateTags(doc.firstSentenceTags(), "firstSentenceTags");
             generateTags(doc.seeTags(), "seeTags");
-            
-            List<Tag> list = new ArrayList<Tag>();
-            Tag[] inlineTags = doc.inlineTags();
-            list.addAll(Arrays.asList(inlineTags));
-            for(int i=0; i<list.size(); i++) {
-                Tag t = list.get(i);
-                if(isInheritDoc(t)) {
-                    Doc inherited = getInheritedDoc(doc);
-                    list.remove(i);
-                    list.addAll(i,Arrays.asList(inherited.inlineTags()));
-                    break;
-                }
-            }
-            inlineTags = (Tag[]) list.toArray(new Tag[0]);
-            generateTags(inlineTags, "inlineTags");
+            generateTags(getInlineTags(doc), "inlineTags");
             
             hd.endElement("", "", "docComment");
         }
@@ -522,6 +508,31 @@ public class XMLDoclet {
         }
         hd.endElement("", "", tagKind);
     }
+    
+    private Tag[] getInlineTags(Doc doc) throws SAXException, SAXException {
+        List<Tag> list = new ArrayList<Tag>();
+        Tag[] inlineTags = doc.inlineTags();
+        if (inlineTags.length > 0 && doc.isMethod()) { // inheritDoc tag only valid for methods
+            list.addAll(Arrays.asList(inlineTags));
+            boolean changed = false;
+            for(int i=0; i<list.size(); i++) {
+                Tag t = list.get(i);
+                if(t.kind().matches("@inheritDoc")) {
+                    Doc inherited = getInheritedDoc(doc);
+                    if (inherited != null) {
+                        list.remove(i);
+                        list.addAll(i,Arrays.asList(getInlineTags(inherited)));
+                        changed = true;
+                    }
+                    break;
+                }
+            }
+            if (changed)
+                inlineTags = (Tag[]) list.toArray(new Tag[0]);
+        }
+        return inlineTags;
+    }
+
     
     private void generateAnnotations(AnnotationDesc[] annotations) throws SAXException {
         if (annotations.length > 0) {
@@ -567,20 +578,26 @@ public class XMLDoclet {
 
 
     private MethodDoc getOverriddenMethod(MethodDoc doc) {
-        //System.out.println("method = " + doc);
-        //System.out.println("overridden method = " + doc.overriddenMethod());
         ClassDoc cls = doc.containingClass();
         ClassDoc scls = cls.superclass();
+        MethodDoc meth = findDeclaredMethod(scls, doc);
+        if (meth == null && isJFXClass(cls)) {
+            for (ClassDoc intf : cls.interfaces()) {
+                meth = findDeclaredMethod(intf, doc);
+                if (meth != null)
+                    break;
+            }
+        }
+        return meth;
+    }
+
+    private MethodDoc findDeclaredMethod(ClassDoc scls, MethodDoc doc) {
         MethodDoc[] meths = scls.methods();
-        for(MethodDoc md : meths) {
-            //System.out.println("flat = " + md.qualifiedName() + " " + md.name() + " " + md.flatSignature());
-            //System.out.println("my name = " + doc.name());
-            if(md.name().equals(doc.name())) {
-                //System.out.println("matched");
+        for (MethodDoc md : meths) {
+            if (md.name().equals(doc.name()) && md.signature().equals(doc.signature())) {
                 return md;
             }
         }
-        
         return null;
     }
 
@@ -713,23 +730,7 @@ public class XMLDoclet {
         }
     }
 
-    private boolean isInheritDoc(Doc doc) {
-        for(Tag t : doc.inlineTags()) {
-            if(t.kind().matches("@inheritDoc")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private static void p(String string) {
         System.out.println(string);
-    }
-
-    private boolean isInheritDoc(Tag t) {
-        if(t.kind().matches("@inheritDoc")) {
-            return true;
-        }
-        return false;
     }
 }

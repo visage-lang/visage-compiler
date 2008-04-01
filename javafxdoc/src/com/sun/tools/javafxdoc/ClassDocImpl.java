@@ -767,7 +767,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
 
     private boolean hasParameterTypes(MethodSymbol method, String[] argTypes) {
 
-        if (argTypes == null) {
+        if (argTypes == null || method.type == null) {
             // wildcard
             return true;
         }
