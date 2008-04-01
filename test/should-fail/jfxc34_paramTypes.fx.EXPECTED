@@ -1,0 +1,7 @@
+jfxc34_paramTypes.fx:12: Java generic type declarations are not currently supported.
+var keyMap : java.util.Map<java.lang.Integer, java.lang.String> = new  java.util.HashMap<java.lang.Integer, java.lang.String>;
+                          ^
+jfxc34_paramTypes.fx:12: Java generic type declarations are not currently supported.
+var keyMap : java.util.Map<java.lang.Integer, java.lang.String> = new  java.util.HashMap<java.lang.Integer, java.lang.String>;
+                                                                                        ^
+2 errors
