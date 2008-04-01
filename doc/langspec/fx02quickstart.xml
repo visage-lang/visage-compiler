@@ -233,47 +233,10 @@ frame.setVisible(true);
 }
 </programlisting>
 
-
-  <!--  <para><emphasis role="bold">[QUESTION: Readers might expect to see the
-    usual convention of private variables with public accessors; Should we
-    describe here why the attributes and functions are all public? Will the
-    reader need to learn a new coding convention?]</emphasis></para> 
-    -->
-
- 
- <!--    <para><emphasis role="bold">[TO-DO: Engineering to provide more details
-    about defining and extending classes, in particular multiple
-    inheritance.]</emphasis></para>
-
-    -->
-
-<!--    <para><emphasis role="bold">[QUESTION: <code></code><code></code>The
-    original engineering text had a couple of sentences saying that "this"
-    accesses the current object (for non-static members), and that "static"
-    associates a member with the class itself. Is that enough informatio, or
-    do we want a section here dedicated to "this" and "static"?]
-    </emphasis></para> 
-    -->
-
    </sect1>
 
   <sect1 id="attrfuntrig">
     <title>Attributes, Functions, and Triggers</title>
-
-    
-
-    <para><emphasis role="bold">[TO-DO: Add Narrative to describe that
-    attributes define the state of an object, again following the tone that's
-    been established (we have plenty of demo code so far that has used
-    attributes; tie into that as needed.]</emphasis></para>
-
-    <!--
-    <para><emphasis role="bold">(NOTE: The sections "Attributes", "Functions",
-    and "Triggers" below will have larger headings 3.1, 3.2, 3.3 in the next
-    draft. The XML editor is having a problem with this at the moment so for
-    now I'm writing it in bold text only.)</emphasis></para> 
-    -->
-
 
     <sect2 id="attributes"><title>Attributes</title>
     
@@ -284,7 +247,6 @@ frame.setVisible(true);
     (<code>?</code> meaning optional, <code>*</code> meaning zero or more, or
     <code>+</code> meaning one or more), <code></code>terminated with a
     semicolon.</para>
-
 
 
     <para><programlisting>attribute <emphasis>AttributeName</emphasis> : <emphasis>AttributeType</emphasis> <emphasis>Cardinality</emphasis> ;</programlisting></para>
@@ -350,18 +312,12 @@ System.out.println(x.c); // prints 25
 </sect2>
 
 <sect2 id="functions"><title>Functions</title>
-
-
-    <para><emphasis role="bold">[TO-DO: Add narrative explaining how
-    functions define the behavior of an object, keeping the tone that's been
-    established]</emphasis></para>
-
  
 
     <para>Expressions may be <emphasis>factored</emphasis> into subroutines
     called <emphasis>functions</emphasis>:
     
-    <para><empahasis role="bold">Example:</empahasis></para>
+    <para><emphasis role="bold">Example:</emphasis></para>
 
  
 

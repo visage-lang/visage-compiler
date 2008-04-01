@@ -5,9 +5,9 @@
   <title>Operators and Expressions</title>
 
   <sect1 id="keywords">
-    <title>Key Words</title>
+    <title>Keywords</title>
 
-    <para>This placeholder section holds a temporary key words table. This list will change as the JavaFX™ Script programming language continues to develop.</para> 
+    <para>This placeholder section holds a temporary keywords table. This list will change as the JavaFX™ Script programming language continues to develop.</para> 
 
         <table cellpadding="3" cellspacing="3" >
 	
@@ -851,7 +851,7 @@ println(x); // prints -1.0;
     
     </sect2>
 
-    <sect2 id="for"><title>Querying Sequences with the<code> for</code> Operator</title>
+    <sect2 id="for"><title>Querying Sequences with<code> for</code> </title>
 
 
     <para>JavaFX Script programming language supports sequence comprehensions with a familiar
@@ -1151,8 +1151,7 @@ System.out.println(s);
         statement in the Java Programming language, but with JavaFX Script
         variable declaration syntax.</para>
 
-        <note>In the JavaFX Script programming language, any object can be thrown and caught, not just
-        those that extend <code>java.lang.Throwable</code>.</note>
+        <note>In the JavaFX Script programming language, objects extending <code>java.lang.Throwable</code> can be thrown and caught.</note>
 
         <para>
           <emphasis role="bold">Example:</emphasis>
@@ -1231,9 +1230,7 @@ System.out.println(s);
     <title><code>throw</code> Statement</title>
 
         <para>The JavaFX Script programming language<code>throw</code> statement is like the
-        statement in the Java Programming language. However; any object can be
-        thrown, not just those that extend
-        <code>java.lang.Throwable</code>.</para>
+        statement in the Java Programming language.</para>
 
         <para>
           <emphasis role="bold">Examples:</emphasis>
