@@ -52,6 +52,7 @@ else
 fi 
 classpath="$USER_CP"
 bootclasspath="$JFX_HOME/Reprise.jar:$JFX_HOME/javafxrt.jar:$JFX_HOME/@SCENEGRAPH_JAR@:$JFX_HOME\Decora-HW.jar:$JFX_HOME\Decora-D3D.jar"
+nativelibpath="$JFX_HOME"
 
 args=""
 jargs=""
@@ -72,8 +73,8 @@ parse_args "$@" # process arguments on the command line
 if $cygwin ; then
   classpath=`cygpath --path --windows "$classpath"`
   bootclasspath=`cygpath --path --windows "$bootclasspath"`
+  nativelibpath=`cygpath --path --windows "$nativelibpath"`
   JAVA_CMD=`cygpath --unix "$JAVA_CMD"`
 fi
 
-"$JAVA_CMD" $jargs -Xbootclasspath/p:"$bootclasspath" -classpath "$classpath" $args
-
+"$JAVA_CMD" -Djava.library.path="$nativelibpath" $jargs -Xbootclasspath/p:"$bootclasspath" -classpath "$classpath" $args

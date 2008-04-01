@@ -46,7 +46,7 @@ set _CP_=
 set _VAL=
 set _CMP=
 
-"%_JAVACMD%" -classpath "%_CLASSPATH%" %_FX_ARGS%
+"%_JAVACMD%" -Djava.library.path="%_JAVAFX_LIBS%" -classpath "%_CLASSPATH%" %_FX_ARGS%
 
 REM cleanup
 set _CLASSPATH=
