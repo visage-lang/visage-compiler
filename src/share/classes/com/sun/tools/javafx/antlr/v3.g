@@ -230,7 +230,7 @@ import org.antlr.runtime.*;
     	this(input);
         this.log = Log.instance(context);
     }
-    
+
     /** Allow emitting more than one token from a lexer rule
      */
     public void emit(Token token) {
@@ -335,8 +335,14 @@ import org.antlr.runtime.*;
 @members {
     Tree getDocComment(Token start) {
        int index = start.getTokenIndex() - 1;
-       while (index >= 0 && input.get(index).getType() == WS)
-           --index;
+       while (index >= 0) { 
+           Token tok = input.get(index);
+           if (tok.getType() == WS || 
+               tok.getType() == SEMI && tok.getText().equals("beginning of new statement"))
+              --index;
+           else
+              break;
+       }
        if (index < 0 || input.get(index).getType() != COMMENT)
            return null;
        Token token = input.get(index);
