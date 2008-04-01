@@ -224,6 +224,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         mods = make.at(diagPos).Modifiers(modFlags);
         
         VarMorphInfo vmi = typeMorpher.varMorphInfo(tree.sym);
+        toJava.setLocallyBound(tree.sym); //TODO temporary until only one function is generated, and bound functions can be handled in var usage analysis (note: fragile, requires unbound version to be processed first).
         JCExpression typeExpression = toJava.makeTypeTree(vmi.getLocationType(), diagPos, true);
 
         //TODO: handle array initializers (but, really, shouldn't that be somewhere else?)
@@ -1031,7 +1032,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                                 JCExpression expr = m().Apply(typeArgs,
                                         m().Select(transSelect, name),
                                         callArgs.toList());
-                                members.append(makeComputeSelectMethod(expr));
+                                expr = convert( tree.type, expr ); // convert type, if needed
+                                members.append( makeComputeSelectMethod(expr) );
                                 return completeMembers();
                             }
                         }.doit();

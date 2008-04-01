@@ -206,7 +206,8 @@ public class JavafxTypeMorpher {
 
                 if (symType.isPrimitive()) {
                     if (realTsym == syms.doubleType.tsym
-                            || realTsym == syms.floatType.tsym) {
+                          //  || realTsym == syms.floatType.tsym
+                            ) {
                         typeKind = TYPE_KIND_DOUBLE;
                     } else if (realTsym == syms.intType.tsym
                             || realTsym == syms.byteType.tsym

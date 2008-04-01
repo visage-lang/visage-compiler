@@ -196,7 +196,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      * static information
      */
     static final boolean generateBoundFunctions = true;
-    static final boolean permeateBind = false;
+    static final boolean permeateBind = true;
     static final boolean generateNullChecks = true;
     boolean useBindingOverhaul = true;
     
@@ -3496,26 +3496,24 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      * The latter will be attempted when it is straight-line code with no assignments
      */
     private JCBlock boundMethodBody(DiagnosticPosition diagPos, JFXBlockExpression bexpr, JFXFunctionDefinition func) {
-        JCStatement ret;
-        
         ListBuffer<JCTree> prevBindingExpressionDefs = bindingExpressionDefs;
         bindingExpressionDefs = ListBuffer.lb();
-        BindAnalysis analysis = typeMorpher.bindAnalysis(bexpr);
+        //BindAnalysis analysis = typeMorpher.bindAnalysis(bexpr);
         // TODO: Remove entry in findbugs-exclude.xml if permeateBind is implemented
-        if (permeateBind && analysis.isBindPermeable()) { //TODO: permeate bind
-            State prevState = state;
-            state = new State(state.wrap, Convert.Normal);
-            ret = make.at(diagPos).Return( makeBoundExpression(bexpr, typeMorpher.varMorphInfo( func.sym ), false) );
-            state = prevState;
+        JCExpression expr;
+        if ((func.sym.flags() & JavafxFlags.BOUND) != 0 && permeateBind) { //TODO: permeate bind
+            expr = toBound.translate(bexpr, typeMorpher.varMorphInfo(func.sym));
         } else {
-            ret =  make.at(diagPos).Return( makeBoundExpression(bexpr, typeMorpher.varMorphInfo( func.sym ), false) );
+            expr = makeBrutForceBoundExpression(bexpr, typeMorpher.varMorphInfo(func.sym), false);
         }
         assert bindingExpressionDefs == null || bindingExpressionDefs.size() == 0 : "non-empty defs lost";
         bindingExpressionDefs = prevBindingExpressionDefs;
+        
+        JCStatement ret = make.at(diagPos).Return(expr);
         return asBlock( ret );
     }
     
-    JCExpression makeBoundExpression(JCExpression expr, TypeMorphInfo tmi, boolean isLazy) {
+    JCExpression makeBrutForceBoundExpression(JCExpression expr, TypeMorphInfo tmi, boolean isLazy) {
         return makeBoundLocation(
                     expr.pos(), tmi, 
                     translateExpressionToStatement(expr, expr.type), 

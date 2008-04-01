@@ -55,16 +55,12 @@ public class Locations {
         return loc;
     }
 
-    public static IntLocation asIntLocation(ObjectLocation<Integer> loc) {
-        return new ObjectIntLocation(loc);
-    }
-
-    public static DoubleLocation asDoubleLocation(ObjectLocation<Double> loc) {
-        return new ObjectDoubleLocation(loc);
-    }
-
     public static BooleanLocation asBooleanLocation(ObjectLocation<Boolean> loc) {
         return new ObjectBooleanLocation(loc);
+    }
+
+    public static <T extends Number> DoubleLocation asDoubleLocation(ObjectLocation<T> loc) {
+        return new ObjectDoubleLocation<T>(loc);
     }
 
     public static DoubleLocation asDoubleLocation(IntLocation loc) {
@@ -75,6 +71,9 @@ public class Locations {
         return new DoubleIntLocation(loc);
     }
 
+    public static IntLocation asIntLocation(ObjectLocation<Integer> loc) {
+        return new ObjectIntLocation(loc);
+    }
 
     public static IntLocation unmodifiableLocation(IntLocation loc) {
         return new UnmodifiableIntLocation(loc);
@@ -290,10 +289,10 @@ public class Locations {
         }
     }
 
-    private static class ObjectDoubleLocation extends LocationWrapper implements DoubleLocation, StaticViewLocation {
-        private final ObjectLocation<Double> location;
+    private static class ObjectDoubleLocation<T extends Number> extends LocationWrapper implements DoubleLocation, StaticViewLocation {
+        private final ObjectLocation<T> location;
 
-        private ObjectDoubleLocation(ObjectLocation<Double> location) {
+        private ObjectDoubleLocation(ObjectLocation<T> location) {
             this.location = location;
         }
 
@@ -302,16 +301,18 @@ public class Locations {
         }
 
         public double getAsDouble() {
-            Double val = location.get();
-            return val==null? 0.0 : val;
+            T val = location.get();
+            return val==null? 0.0 : val.doubleValue();
         }
 
         public double setAsDouble(double value) {
-            return location.set(value);
+            // return location.set(value);
+            throw new UnsupportedOperationException();
         }
 
         public double setAsDoubleFromLiteral(double value) {
-            return location.setFromLiteral(value);
+            // return location.setFromLiteral(value);
+            throw new UnsupportedOperationException();
         }
 
         public void setDefault() {
@@ -319,27 +320,41 @@ public class Locations {
         }
 
         public void addChangeListener(final DoubleChangeListener listener) {
-            location.addChangeListener(new ObjectChangeListener<Double>() {
-                public void onChange(Double oldValue, Double newValue) {
-                    listener.onChange(oldValue, newValue);
+            location.addChangeListener(new ObjectChangeListener<T>() {
+                public void onChange(T oldValue, T newValue) {
+                    listener.onChange(oldValue.doubleValue(), newValue.doubleValue());
                 }
             });
         }
 
         public Double get() {
-            return location.get();
+            return getAsDouble();
         }
 
-        public Double set(Double value) {
+        public T set(T value) {
             return location.set(value);
         }
 
-        public Double setFromLiteral(Double value) {
+        public T setFromLiteral(T value) {
             return location.setFromLiteral(value);
         }
 
-        public void addChangeListener(ObjectChangeListener<Double> listener) {
-            location.addChangeListener(listener);
+        public Double set(Double value) {
+            // return location.set(value);
+            throw new UnsupportedOperationException();
+        }
+
+        public Double setFromLiteral(Double value) {
+            // return location.setFromLiteral(value);
+            throw new UnsupportedOperationException();
+        }
+
+        public void addChangeListener(final ObjectChangeListener<Double> listener) {
+            location.addChangeListener(new ObjectChangeListener<T>() {
+                public void onChange(T oldValue, T newValue) {
+                    listener.onChange(oldValue.doubleValue(), newValue.doubleValue());
+                }
+            });
         }
 
         public Location getUnderlyingLocation() {

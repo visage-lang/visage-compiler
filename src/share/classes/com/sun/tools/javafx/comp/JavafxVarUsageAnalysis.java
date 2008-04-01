@@ -94,10 +94,18 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         inBindContext = wasInBindContext;
     }
     
+   @Override
+    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+        boolean wasInBindContext = inBindContext;
+        inBindContext = false; //TODO should reset, but if bound, should mark as such (once there is only one)
+        scan(tree.getFunctionValue());
+        inBindContext = wasInBindContext;
+    }
+   
     @Override
     public void visitBindExpression(JFXBindExpression tree) {
         boolean wasInBindContext = inBindContext;
-        inBindContext |= true;
+        inBindContext |= tree.getBindStatus().isBound();
         tree.getExpression().accept(this);
         inBindContext = wasInBindContext;
     }
