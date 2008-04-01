@@ -978,7 +978,7 @@ cardinality
 	;
 typeName  
 	: qualname 		
-		(LT genericArgument (COMMA genericArgument)* GT
+		(LT genericArgument (COMMA genericArgument)* GT { log.error(pos($LT), "javafx.generalerror", "Java generic type declarations are not currently supported"); }
 						-> ^(TYPE_ARG[$LT] qualname genericArgument+)
 		|				-> qualname
 		)

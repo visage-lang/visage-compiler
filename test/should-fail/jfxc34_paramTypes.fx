@@ -1,7 +1,10 @@
 /*
  * Regression test: parameterized types
- * @test
- * @run
+ * @test/compile-error
+ *
+ * temporarily moved to here from the regress directory.
+ * The test is expected to fail because generics declaration is currently disabled
+ *
  */
 
 import java.lang.System;

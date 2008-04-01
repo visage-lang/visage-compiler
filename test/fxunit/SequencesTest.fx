@@ -33,7 +33,14 @@ public class DummyElement {
         return id;
     }
 }
-public class DummyComparator extends Comparator<DummyElement> {
+//public class DummyComparator extends Comparator<DummyElement> {
+public class DummyComparator extends Comparator {
+
+    
+    public function compare(o1:java.lang.Object, o2: java.lang.Object) :Integer {
+   	return compare(o1 as DummyElement, o2 as DummyElement); 
+    }
+
     public function compare(o1: DummyElement, o2: DummyElement): Integer {
         return o1.id - o2.id;
     };
